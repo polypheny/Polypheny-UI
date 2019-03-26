@@ -1,0 +1,27 @@
+<div class="row no-gutters" *ngIf="!hidden">
+  <div class="col-md-8">
+    <ol class="breadcrumb">
+      <li *ngFor="let b of breadcrumbs" class="breadcrumb-item">
+        <ng-container *ngIf="b.routerLink">
+          <a [routerLink]="b.routerLink">{{b.name}}</a>
+        </ng-container>
+        <ng-container *ngIf="!b.routerLink">{{b.name}}</ng-container>
+      </li>
+    </ol>
+  </div>
+  <div class="col-md-4">
+    <div class="custom-control-inline breadcrumb" id="zoom-wrapper">
+      <!-- todo ngIf masonry -->
+      <div class="custom-control">
+        zoom: {{size[zoom]}} <button class="btn btn-light" (click)="zoomOut()">-</button> <button class="btn btn-light" (click)="zoomIn()">+</button>
+        <span>  </span>
+      </div>
+      <div style="padding: 0 0.2em;"></div>
+      <div class="custom-control custom-switch">
+        <input class="custom-control-input" id="switchMansonry" type="checkbox" [(ngModel)]="masonry" (change)="toggleMasonry()">
+        <label class="custom-control-label" for="switchMansonry">masonry</label>
+      </div>
+    </div>
+  </div>
+</div>
+<div style="width:100%;height: 1.5rem;background: transparent;" *ngIf="hidden"></div>

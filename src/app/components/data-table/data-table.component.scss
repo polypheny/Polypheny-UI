@@ -1,0 +1,44 @@
+#data-table{
+  tr th{
+    vertical-align: middle;
+    .btn{
+      padding: 2px;
+    }
+  }
+}
+
+th.delete, td.delete{
+  width: 1em;
+  background: transparent;
+  i{
+    visibility: hidden;
+  }
+}
+tr:hover i{
+  visibility: visible;
+  cursor: pointer;
+}
+tr:hover .delete i:hover{
+  color: #dc3545;
+}
+.selector{
+  width: 1em;
+}
+.selector input{
+  visibility: hidden;
+}
+tr:hover .selector input{
+  visibility: visible;
+}
+.selector input:checked{
+  visibility: visible;
+}
+
+#addColumnBtn{
+  border-radius: 100%;
+  line-height: 1.25rem;
+}
+#editColSave{
+  border-radius: 100%;
+  line-height: 1.5rem;
+}

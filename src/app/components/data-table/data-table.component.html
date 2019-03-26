@@ -1,0 +1,65 @@
+<div class="row" *ngIf="data">
+  <div class="col-lg-12">
+
+    <table class="table table-hover table-sm table-bordered table-striped" id="data-table">
+      <thead>
+      <tr>
+        <th class="selector">
+          <input type="checkbox">
+        </th>
+        <ng-container *ngFor="let d of data[0] | keyvalue">
+          <th *ngIf="d.key != 'editing'">{{d.key}}
+            <a *ngIf="defaultConfig.sort" [routerLink]="" class="btn btn-light btn-sm float-right"><i class="icon-arrow-up"></i></a>
+          </th>
+        </ng-container>
+        <th class="delete">
+        <i class="cui-trash"></i>
+      </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngIf="defaultConfig.sort">
+        <td></td>
+        <td *ngFor="let d of data[0]"><input type="text" class="form-control form-control-sm" placeholder="search"></td>
+        <td></td>
+      </tr>
+      <tr *ngFor="let d1 of data">
+        <ng-container *ngIf="d1.editing">
+          <td></td>
+          <td *ngFor="let d2 of d1"><input type="text" class="form-control form-control-sm editing" [value]="d2"></td>
+          <td>
+            <button class="btn btn-primary editing" id="editColSave"><i class="fa fa-save editing"></i></button>
+          </td>
+        </ng-container>
+        <ng-container *ngIf="!d1.editing">
+          <td class="selector"><input type="checkbox"></td>
+          <td *ngFor="let d2 of d1" (dblclick)="triggerEditing(d1)">{{d2}}</td>
+          <td class="delete">
+            <i class="cui-trash"></i>
+          </td>
+        </ng-container>
+      </tr>
+      <tr *ngIf="defaultConfig.create">
+        <td></td>
+        <td *ngFor="let d of data[0]">
+          <input type="text" class="form-control form-control-sm" placeholder="insert (todo:type)">
+        </td>
+        <td><button id="addColumnBtn" class="btn btn-primary">+</button></td>
+      </tr>
+      </tbody>
+    </table>
+
+    <nav aria-label="Page navigation example" class="float-right">
+      <ul class="pagination">
+        <li class="page-item disabled"><a class="page-link" href="#">previous</a></li>
+        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item disabled"><a class="page-link" href="#">..</a></li>
+        <li class="page-item"><a class="page-link" href="#">10</a></li>
+        <li class="page-item"><a class="page-link" href="#">next</a></li>
+      </ul>
+    </nav>
+
+  </div>
+</div>
+<div *ngIf="!data">data-table: nothing to show.</div>

@@ -1,0 +1,89 @@
+{
+  "name": "@coreui/coreui-free-angular-admin-template",
+  "version": "2.4.3",
+  "description": "CoreUI Free Angular 2+ Admin Template",
+  "author": {
+    "name": "Łukasz Holeczek",
+    "url": "http://holeczek.pl",
+    "github": "https://github.com/mrholek",
+    "twitter": "https://twitter.com/lukaszholeczek"
+  },
+  "contributors": [
+    {
+      "name": "Andrzej Kopański",
+      "url": "https://github.com/xidedix"
+    }
+  ],
+  "homepage": "https://coreui.io/angular",
+  "copyright": "Copyright 2018 creativeLabs Łukasz Holeczek",
+  "license": "MIT",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build --prod --aot --buildOptimizer --commonChunk --vendorChunk --optimization --progress",
+    "test": "ng test",
+    "lint": "ng lint",
+    "e2e": "ng e2e"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^7.2.6",
+    "@angular/common": "^7.2.6",
+    "@angular/compiler": "^7.2.6",
+    "@angular/core": "^7.2.6",
+    "@angular/forms": "^7.2.6",
+    "@angular/http": "^7.2.6",
+    "@angular/platform-browser": "^7.2.6",
+    "@angular/platform-browser-dynamic": "^7.2.6",
+    "@angular/router": "^7.2.6",
+    "@coreui/angular": "^2.4.3",
+    "@coreui/coreui": "^2.1.7",
+    "@coreui/coreui-plugin-chartjs-custom-tooltips": "^1.2.0",
+    "@coreui/icons": "0.3.0",
+    "angular-tree-component": "^8.3.0",
+    "bootstrap": "^4.3.1",
+    "chart.js": "^2.7.3",
+    "core-js": "^2.6.5",
+    "flag-icon-css": "^3.2.1",
+    "font-awesome": "^4.7.0",
+    "jquery": "^3.3.1",
+    "jquery-ui": "^1.12.1",
+    "moment": "^2.24.0",
+    "mutationobserver-shim": "^0.3.3",
+    "ng2-charts": "^1.6.0",
+    "ngx-bootstrap": "^3.2.0",
+    "ngx-perfect-scrollbar": "^7.2.1",
+    "rxjs": "^6.4.0",
+    "simple-line-icons": "^2.4.1",
+    "ts-helpers": "^1.1.2",
+    "ts-md5": "^1.2.4",
+    "tsickle": "^0.34.3",
+    "tslib": "^1.9.0",
+    "zone.js": "^0.8.29"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^0.13.3",
+    "@angular/cli": "^7.3.3",
+    "@angular/compiler-cli": "^7.2.6",
+    "@angular/language-service": "^7.2.6",
+    "@types/jasmine": "^3.3.9",
+    "@types/jasminewd2": "^2.0.6",
+    "@types/node": "^11.9.4",
+    "codelyzer": "^4.5.0",
+    "jasmine-core": "^3.3.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "karma": "^4.0.1",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage-istanbul-reporter": "^2.0.5",
+    "karma-jasmine": "^2.0.1",
+    "karma-jasmine-html-reporter": "^1.4.0",
+    "protractor": "^5.4.2",
+    "ts-node": "^8.0.2",
+    "tslint": "^5.12.1",
+    "typescript": "~3.2.4"
+  },
+  "engines": {
+    "node": ">= 8.9.4",
+    "npm": ">= 5.6.0"
+  }
+}

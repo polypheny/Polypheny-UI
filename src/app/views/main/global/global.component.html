@@ -1,0 +1,11 @@
+<div [className]="_breadcrumb.getWrapperClass()">
+  <div  *ngFor="let item of data.items | keyvalue" [className]="_breadcrumb.getCardClass()">
+    <div [className]="getCardClass(item.value.color)">
+      <ng-container *ngFor="let li of item.value.list">
+
+        <app-render-item [li]="li"></app-render-item>
+
+      </ng-container>
+    </div>
+  </div>
+</div>

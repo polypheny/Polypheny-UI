@@ -1,0 +1,110 @@
+<app-header
+  [navbarBrandRouterLink]="['/dashboard']"
+  [fixed]="true"
+  [navbarBrandFull]="{src: 'assets/img/brand/logo.svg', width: 89, height: 25, alt: 'CoreUI Logo', class: 'd-md-down-none'}"
+  [navbarBrandMinimized]="{src: 'assets/img/brand/sygnet.svg', width: 30, height: 30, alt: 'CoreUI Logo', class: 'd-md-down-none'}"
+  [sidebarToggler]="'lg'"
+  [asideMenuToggler]="'lg'">
+  <!-- bootstrap: -->
+  <!-- navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar -->
+  <!-- original: -->
+  <!-- app-header navbar -->
+
+  <ul class="nav navbar-nav flex-row" id="top-nav">
+    <li class="nav-item px-3">
+      <a class="nav-link" href="https://coreui.io/angular/demo/#/dashboard">CoreUI</a>
+    </li>
+    <li class="nav-item px-3">
+      <a class="nav-link" href="https://getbootstrap.com/docs/4.3/components/forms/">Bootstrap</a>
+    </li>
+    <li class="nav-item px-3">
+      <a class="nav-link" href="https://valor-software.com/ngx-bootstrap/#/documentation">Ang Btrap</a>
+    </li>
+    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/home/logic']" routerLinkActive="active">
+      <i class="fa fa-database"></i><span class="d-md-down-none"> logic</span>
+    </a></li>
+    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/home/global']" routerLinkActive="active">
+      <i class="fa fa-cloud"></i><span class="d-md-down-none"> global</span>
+    </a></li>
+    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/dashboard']" routerLinkActive="active">
+      <i class="icon-speedometer"></i><span class="d-md-down-none"> dashboard</span>
+    </a></li>-->
+    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/sql-console']" routerLinkActive="active">
+      <i class="icon-note"></i><span class="d-md-down-none"> SQL</span>
+    </a></li>
+
+    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/data-table']">
+      <i class="fa fa-table"></i><
+    </a></li>-->
+    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/edit-columns']">
+      <i class="icon-list"></i>
+    </a></li>-->
+    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/graphical-querying']" tooltip="Graphical Querying" placement="bottom" [delay]="1000">
+      <i class="icon-layers"></i>
+    </a></li>-->
+    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/uml']">
+      <i class="icon-vector"></i>
+    </a></li>-->
+    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/form-generator']" routerLinkActive="active"><!--tooltip="Dynamic Form" placement="bottom"-->
+      <i class="icon-drawer"></i><span class="d-md-down-none"> anyForm</span>
+    </a></li>
+
+  </ul>
+  <ul class="nav navbar-nav ml-auto">
+    <li class="nav-item d-md-down-none">
+      <a class="nav-link" href="#">Settings <i class="icon-settings"></i></a>
+    </li>
+    <li class="nav-item dropdown" dropdown placement="bottom right">
+      <a class="nav-link" data-toggle="dropdown" [routerLink]="['/login']" role="button" aria-haspopup="true" aria-expanded="false" tooltip="logout" placement="bottom">
+        <img src="assets/img/avatars/6.jpg" class="img-avatar" alt="admin@bootstrapmaster.com" />
+      </a>
+    </li>
+  </ul>
+</app-header>
+<div class="app-body">
+
+  <!--<app-sidebar [fixed]="true" [display]="'lg'">
+    <app-sidebar-nav [navItems]="navItems" [perfectScrollbar] [disabled]="sidebarMinimized"></app-sidebar-nav>
+    <app-sidebar-minimizer></app-sidebar-minimizer>
+  </app-sidebar>-->
+  <app-left-sidebar class="sidebar"></app-left-sidebar>
+
+  <!-- Main content -->
+  <main class="main">
+    <!-- Breadcrumb -->
+    <!-- breaking change 'cui-breadcrumb' -->
+    <!--<cui-breadcrumb>-->
+      <!-- Breadcrumb Menu-->
+      <!--<li class="breadcrumb-menu d-md-down-none">
+        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+          <a class="btn" href="#"><i class="icon-speech"></i></a>
+          <a class="btn" [routerLink]="['/dashboard']"><i class="icon-graph"></i> &nbsp;Dashboard</a>
+          <a class="btn" href="#"><i class="icon-settings"></i> &nbsp;Settings</a>
+        </div>
+      </li>-->
+    <!--</cui-breadcrumb>-->
+    <app-breadcrumb-main></app-breadcrumb-main>
+    <!-- deprecation warning for 'app-breadcrumb' -->
+    <!--<ol class="breadcrumb">-->
+      <!--<app-breadcrumb></app-breadcrumb>-->
+      <!--&lt;!&ndash; Breadcrumb Menu&ndash;&gt;-->
+      <!--<li class="breadcrumb-menu d-md-down-none">-->
+        <!--<div class="btn-group" role="group" aria-label="Button group with nested dropdown">-->
+          <!--<a class="btn" href="#"><i class="icon-speech"></i></a>-->
+          <!--<a class="btn" [routerLink]="['/dashboard']"><i class="icon-graph"></i> &nbsp;Dashboard</a>-->
+          <!--<a class="btn" href="#"><i class="icon-settings"></i> &nbsp;Settings</a>-->
+        <!--</div>-->
+      <!--</li>-->
+    <!--</ol>-->
+    <div class="container-fluid">
+      <router-outlet></router-outlet>
+    </div><!-- /.container-fluid -->
+  </main>
+  <app-aside [fixed]="true" [display]="false">
+    <app-right-sidebar></app-right-sidebar>
+  </app-aside>
+</div>
+<app-footer>
+  <span><a href="https://coreui.io">CoreUI</a> &copy; 2018 creativeLabs.</span>
+  <span class="ml-auto">Powered by <a href="https://coreui.io/angular">CoreUI for Angular</a></span>
+</app-footer>

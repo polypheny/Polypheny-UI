@@ -1,0 +1,36 @@
+.uml{
+  border: 1px grey solid;
+  margin: 20px;
+  width: fit-content;
+  position: relative;
+  float: left;
+  *{
+    padding: 0.2em;
+  }
+  .tableName{
+    font-weight: bold;
+    background: #494949;
+    color: white;
+    cursor: move;
+  }
+  .cols{
+    border-bottom: 1px grey solid;
+  }
+  .methods{
+    border-bottom: 1px grey solid;
+  }
+}
+
+.uml.ui-draggable-dragging{
+  z-index: 10;
+}
+
+svg{
+  position: absolute;
+  top:0;
+  left:0;
+  z-index: -1;
+
+  stroke: black;
+  stroke-width:1;
+}

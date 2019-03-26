@@ -1,0 +1,56 @@
+<ng-container *ngIf="li.type == 'header'">
+  <div class="card-header">
+    <ng-container *ngIf="li.routerLink"><a [routerLink]="li.routerLink">{{li.label}}</a></ng-container>
+    <ng-container *ngIf="!li.routerLink">{{li.label}}</ng-container>
+    <div class="btnWrapper">
+      <button *ngFor="let btn of li.button" [className]="btn.icon" [routerLink]="btn.routerLink"></button>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="li.type == 'link'">
+  <div class="card-body">
+    <a [routerLink]="li.routerLink">{{li.label}}</a>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="li.type == 'html'">
+  <div class="card-body" [innerHTML]="li.html"></div>
+</ng-container>
+
+<ng-container *ngIf="li.type == 'progress'">
+  <div class="card-body">
+    <div class="clearfix">
+      <div class="float-left">
+        <strong>{{li.label}}</strong>
+      </div>
+      <div class="float-right">
+        <small class="text-muted">{{displayProgressValue(li)}}</small>
+      </div>
+    </div>
+    <div class="progress progress-xs">
+      <progressbar [type]="getProgressColor(li)" [value]="li.value" [max]="li.max || 100">{{li.value}}%</progressbar>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="li.type == 'collapsible'">
+  <!-- todo collapse anything -->
+  <div class="card-body collapse-trigger" (click)="collapseTrigger()" [ngClass]="{ 'is-collapsed': li.isCollapsed}">
+    <a>{{li.label}}</a>
+    <span *ngIf="li.badge" class="badge badge-primary badge-pill float-right">{{li.badge}}</span>
+  </div>
+  <ng-container *ngIf="!li.isCollapsed">
+    <div class="collapse-wrapper">
+      <app-render-item *ngFor="let c of li.items" [li]="c" class="collapse-body"></app-render-item>
+    </div>
+    <!--<div class="card-body" *ngFor="let c of li.items">{{c.label}}</div>-->
+  </ng-container>
+</ng-container>
+
+<ng-container *ngIf="!li.type">
+  <div class="card-body">
+    {{li.label}}
+  </div>
+</ng-container>
+
