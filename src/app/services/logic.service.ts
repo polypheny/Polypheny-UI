@@ -13,11 +13,6 @@ export class LogicService {
   httpUrl = 'http://localhost:8081';
   httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
-  register(key, description){
-    const param = {key: key, description: description};
-    return this._http.post(`${this.httpUrl}/register`, param, this.httpOptions);
-  }
-
   // rendering routerLinks from string might not be possible:7
   // https://www.intertech.com/Blog/angular-4-case-study-caution-about-binding-html-content-using-innerhtml/
   // workarounds:

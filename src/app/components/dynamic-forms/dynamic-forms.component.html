@@ -1,3 +1,5 @@
+<!--<input type="text" [formControlName]="formObj.groups[0].items[0].key" >-->
+
 <form novalidate (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form">
   <div class="form-row align-items-center row">
       <div class="col-lg-6" *ngFor="let group of formObj.groups">
@@ -82,8 +84,6 @@
   </div>
   <div class="col-lg-6">
     <strong>input:</strong>
-    <pre>
-      {{formObjAsString}}
-    </pre>
+
   </div>
 </div>

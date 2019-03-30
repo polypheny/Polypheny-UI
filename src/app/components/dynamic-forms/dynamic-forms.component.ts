@@ -1,6 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {formObj} from '../../views/forms/form-generator/form-generator.component';
 
 @Component({
   selector: 'app-dynamic-forms',
