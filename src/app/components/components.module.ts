@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import {GraphComponent} from './graph/graph.component';
 import {ChartsModule} from 'ng2-charts';
 import {TypeaheadModule} from 'ngx-bootstrap';
+import { ToastComponent } from './toast/toast.component';
 
 @NgModule({
   imports: [
@@ -11,10 +12,12 @@ import {TypeaheadModule} from 'ngx-bootstrap';
     TypeaheadModule.forRoot()
   ],
   declarations: [
-    GraphComponent
+    GraphComponent,
+    ToastComponent
   ],
   exports: [
-    GraphComponent
+    GraphComponent,
+    ToastComponent
   ]
 })
 export class ComponentsModule { }

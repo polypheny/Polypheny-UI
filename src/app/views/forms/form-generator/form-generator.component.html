@@ -1,9 +1,7 @@
 <a href="https://juristr.com/blog/2017/10/demystify-dynamic-angular-forms/">tutorial1</a>,
 <a href="http://jasonwatmore.com/post/2018/05/10/angular-6-reactive-forms-validation-example">tutorial2</a>
 <br>
-Todo: take validation from server when building from-group!
-<br>
-<!-- <app-dynamic-forms [formObj]="formObj"></app-dynamic-forms> -->
+<app-toast [toasts]="toasts"></app-toast>
 <ng-container *ngIf="formObj && form">
 	<form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form">
 		<div class="row" id="form-generator-main">
@@ -37,14 +35,14 @@ Todo: take validation from server when building from-group!
 										invalid email
 									</div>
 								</div>
-								<div class="valid-feedback" *ngIf="submitted && form.controls[config.key].valid">
+								<div class="valid-feedback" *ngIf="submitted && form.controls[config.key].valid && form.controls[config.key].dirty">
 									valid
 								</div>
 							</div>
 						</ng-container>
 
 					</ng-container>
-					<button type="submit" class="btn btn-primary btn-sm float-right">save</button>
+					<button *ngIf="form.dirty" type="submit" class="btn btn-light btn-sm float-right save-configs"><i class="fa fa-save"></i></button>
 
 				</div>
 
@@ -54,7 +52,7 @@ Todo: take validation from server when building from-group!
 	</form>
 </ng-container>
 
-<div class="row" *ngIf="formObj && form">
+<!--<div class="row" *ngIf="formObj && form">
 	<div class="col-lg-6">
 		<strong>Form Value</strong>
 		<pre>{{ form.value | json }}</pre>
@@ -65,3 +63,4 @@ Todo: take validation from server when building from-group!
 <div class="row" *ngIf="!formObj">
 	<p class="text-danger">No form was loaded.</p>
 </div>
+-->

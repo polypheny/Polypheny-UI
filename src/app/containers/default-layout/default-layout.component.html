@@ -46,14 +46,14 @@
       <i class="icon-vector"></i>
     </a></li>-->
     <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/form-generator']" routerLinkActive="active"><!--tooltip="Dynamic Form" placement="bottom"-->
-      <i class="icon-drawer"></i><span class="d-md-down-none"> anyForm</span>
+      <i class="icon-settings"></i><span class="d-md-down-none"> config</span>
     </a></li>
 
   </ul>
   <ul class="nav navbar-nav ml-auto">
-    <li class="nav-item d-md-down-none">
+    <!--<li class="nav-item d-md-down-none">
       <a class="nav-link" href="#">Settings <i class="icon-settings"></i></a>
-    </li>
+    </li>-->
     <li class="nav-item dropdown" dropdown placement="bottom right">
       <a class="nav-link" data-toggle="dropdown" [routerLink]="['/login']" role="button" aria-haspopup="true" aria-expanded="false" tooltip="logout" placement="bottom">
         <img src="assets/img/avatars/6.jpg" class="img-avatar" alt="admin@bootstrapmaster.com" />
@@ -96,7 +96,7 @@
         <!--</div>-->
       <!--</li>-->
     <!--</ol>-->
-    <div class="container-fluid">
+    <div class="container-fluid" style="position: relative;">
       <router-outlet></router-outlet>
     </div><!-- /.container-fluid -->
   </main>

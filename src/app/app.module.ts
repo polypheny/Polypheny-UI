@@ -59,9 +59,10 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
 import {ViewsModule} from './views/views.module';
 import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
 import {HttpClientModule, HttpHeaders} from '@angular/common/http';
+import {ComponentsModule} from './components/components.module';
 
 @NgModule({
-  imports: [
+  imports:[
     BrowserModule,
     AppRoutingModule,
     ViewsModule,
@@ -83,7 +84,7 @@ import {HttpClientModule, HttpHeaders} from '@angular/common/http';
     //CollapseModule,
     BsDropdownModule,
     TypeaheadModule.forRoot(),
-    HttpClientModule
+    HttpClientModule, ComponentsModule
   ],
   declarations: [
     AppComponent,

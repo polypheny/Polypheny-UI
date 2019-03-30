@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {ConfigService} from '../../../services/config.service';
-import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms';
+import { ConfigService } from '../../../services/config.service';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import * as $ from 'jquery';
+import {Toast, ToastComponent} from '../../../components/toast/toast.component';
 
 @Component({
   selector: 'app-form-generator',
@@ -12,10 +14,9 @@ export class FormGeneratorComponent implements OnInit {
   formObj: UiPage;
   submitted = false;
   form: FormGroup;
+  toasts:Toast[] = [];
 
   constructor( private _config:ConfigService) {
-
-    //this.formObj = new UiPage(formObjTest);
 
     this._config.getPage(1).subscribe(
       res => {
@@ -64,18 +65,29 @@ export class FormGeneratorComponent implements OnInit {
 
 
   inputValidation(key){
-    if(this.submitted && this.form.controls[key].valid){
+    if(this.submitted && this.form.controls[key].valid && this.form.controls[key].dirty ){
       return {'is-valid':true};
-    }else if(this.submitted) {
+    }else if(this.submitted && !this.form.controls[key].valid) {
       return {'is-invalid': true };
     }
   }
 
   onSubmit(form, e) {
-    // e.target.classList.add('was-validated');
     this.submitted = true;
-    console.log(form);
-    console.log(this.form);
+    if(this.form.valid){
+      this._config.saveChanges(this.form.value).subscribe(res => {
+        console.log(res);
+        this.toast('success', 'Saved changes.');
+      }, err=>{
+        console.log(err);
+      });
+    } else {
+      this.toast('no success', 'Changes could not be saved. Please check invalid inputs.');
+    }
+  }
+
+  toast(title:string, message:string){
+    this.toasts.push(new Toast( title, message ));
   }
 
 }
