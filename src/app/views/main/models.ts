@@ -1,6 +1,7 @@
 export interface RenderObj {
   mansonry?: boolean;
-  items: RenderGroup[];
+  //groups: RenderGroup[];
+  groups: Map<string, RenderGroup>;
 }
 export interface RenderItem {
   type?: string;
@@ -16,6 +17,16 @@ export interface RenderItem {
   max?: number;
   step?: number;
   html?: string;
+  //config
+  webUiGroup?:string;
+  key?:string;
+  //information
+  id?:string;
+  informationGroup?:string;
+  //graph:
+  data?: number[];
+  labels?: string[];
+  graphType?:string;
 }
 export interface RenderGroup {
   color?: string;

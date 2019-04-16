@@ -1,8 +1,10 @@
 import {Component, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
 import { LogicService } from '../../../services/logic.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import { RenderObj } from '../models';
+import {RenderGroup, RenderItem, RenderObj} from '../models';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
+import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
+import {InformationService} from '../../../services/information.service';
 
 @Component({
   selector: 'app-global',
@@ -15,82 +17,19 @@ export class GlobalComponent implements OnInit, OnDestroy {
   mode;
   routerId;
 
-  data: RenderObj = {
-    mansonry: false,
-    items: [
-      {
-        // color: 'blue',
-        list: [
-          {type: 'header', label: 'DB1', button: [
-              {icon: 'icon-layers btn btn-light btn-sm', routerLink: ['/graphical-querying/1']},
-              {icon: 'icon-vector btn btn-light btn-sm', routerLink: ['/uml/1']}
-              ]},
-          {type: 'collapsible', label: 'tables:', badge: '2', isCollapsed: false, items: [
-              {label: 'table1'}, {label: 'table2'}
-              ]
-          },
-          {type: 'progress', color: 'danger', label: 'cpu', value: 50},
-          {type: 'progress', color: 'danger', label: 'todo minmax', value: 30, min: 10, max: 200},
-        ]
-      },
-      {
-        // color: 'yellow',
-        list: [
-          {type: 'header', label: 'table 2', button: [
-              {icon: 'fa fa-table btn btn-light btn-sm', routerLink: ['/data-table/2']},
-              {icon: 'icon-list btn btn-light btn-sm', routerLink: ['/edit-columns/2']}
-              ]
-                },
-          {type: 'collapsible', label: 'cols:', badge: '1', isCollapsed: true, items: [
-              {label: 'column 1'}
-            ]
-          },
-          {type: 'progress', color: 'danger', label: 'cpu', value: 20},
-          {type: 'progress', color: 'danger', label: 'todo minmax', value: 180, min: 10, max: 200},
-        ]
-      },
-      {
-        // color: 'default',
-        list: [
-          {type: 'header', label: 'progress bars'},
-          {type: 'progress', color: 'success', label: 'success', value: 20},
-          {type: 'progress', color: 'info', label: 'info', value: 30},
-          {type: 'progress', color: 'warning', label: 'warning', value: 40},
-          {type: 'progress', color: 'danger', label: 'danger', value: 50}
-        ]
-      },
-      {
-        // color: 'default',
-        list: [
-          {type: 'header', label: 'dynamic color'},
-          {type: 'progress', color: 'dynamic', label: 'dynamic', value: 20},
-          {type: 'progress', color: 'dynamic', label: 'dynamic', value: 40},
-          {type: 'progress', color: 'dynamic', label: 'dynamic', value: 55},
-          {type: 'progress', color: 'dynamic', label: 'dynamic', value: 80},
-          {type: 'progress', color: 'dynamic', label: 'dynamic', value: 749, min:0, max:1000},
-          {type: 'progress', label: 'no-color', value: 49},
-          {type: 'progress', color: 'black', label: 'black', value: 49},
-        ]
-      },
-      {
-        color: 'yellow',
-        list: [
-          {type: 'header', label: 'test yelllow'},
-          {label: 'test yelllow'},
-          {label: 'some information'},
-          {label: 'more information'}
-        ]
-      }
-    ]
-  };
-  dataAsString = JSON.stringify(this.data, null, 2);
+  data: RenderObj;
+  //dataAsString = JSON.stringify(this.data, null, 2);
 
   constructor(
     private _logic:LogicService,
+    private _information:InformationService,
     private _route: ActivatedRoute,
     private _router: Router,
-    public _breadcrumb: BreadcrumbService
-  ) { }
+    public _breadcrumb: BreadcrumbService,
+    private _sidebar: LeftSidebarService
+  ) {
+    _sidebar.listInformationManagerPages();
+  }
 
   ngOnInit() {
     // $('.collapse').collapse();
@@ -104,6 +43,15 @@ export class GlobalComponent implements OnInit, OnDestroy {
       this.getServiceData();
       this._breadcrumb.setActivatedRoute(this._route);
     });
+    
+    this._information.onSocketEvent().subscribe(
+      update => {
+        const info:RenderItem = <RenderItem> update;
+        if(this.data && this.data.groups[update.informationGroup]){
+          this.data.groups[update.informationGroup].list[update.id] = info;
+        }
+      }
+    );
 
   }
 
@@ -113,15 +61,24 @@ export class GlobalComponent implements OnInit, OnDestroy {
 
   getServiceData() {
     if(this.mode === 'global'){
-      this.data.items = this._logic.getGlobalData();
+      //this.data.groups = this._logic.getGlobalData();
+      this._information.getPage(this.routerId).subscribe(
+        res => {
+          this.data = <RenderObj>res;
+        }
+      );
     } else if(this.mode === 'logic'){
-      this.data.items = this._logic.getDatabases();
+      //this.data.groups = this._logic.getDatabases();
+      this.data.groups = new Map<string, RenderGroup>();
     } else if(this.mode === 'db'){
-      this.data.items = this._logic.getSchemas(this.routerId);
+      //this.data.groups = this._logic.getSchemas(this.routerId);
+      this.data.groups = new Map<string, RenderGroup>();
     } else if(this.mode === 'schema'){
-      this.data.items = this._logic.getTables(this.routerId);
+      //this.data.groups = this._logic.getTables(this.routerId);
+      this.data.groups = new Map<string, RenderGroup>();
     } else if(this.mode === 'table'){
-      this.data.items = this._logic.getColumns(this.routerId);
+      //this.data.groups = this._logic.getColumns(this.routerId);
+      this.data.groups = new Map<string, RenderGroup>();
     }
   }
 
@@ -145,4 +102,9 @@ export class GlobalComponent implements OnInit, OnDestroy {
   }
 
 }
-
+interface InformationPage{
+  id: string;
+  mansonry: boolean;
+  name: string;
+  groups: Map<String, RenderGroup>;
+}

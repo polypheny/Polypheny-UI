@@ -22,7 +22,7 @@ export class DynamicFormsComponent implements OnInit {
     // setup the form
     const formGroup = {};
     for(const group of this.formObj.groups) {
-      for(const i of group.items){
+      for(const i of group.groups){
         formGroup[i.key] = new FormControl(i.value || '', this.mapValidators(i.validation));
       }
     }

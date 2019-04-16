@@ -3,6 +3,9 @@ import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/draggable';
 import {KEYS, TREE_ACTIONS, TreeComponent, TreeModel, TreeNode } from 'angular-tree-component';
+import {ConfigService} from '../../services/config.service';
+import {Router} from '@angular/router';
+import {LeftSidebarService} from './left-sidebar.service';
 
 @Component({
   selector: 'app-left-sidebar',
@@ -15,9 +18,37 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
   nodes;
   options;
 
-  constructor() {
-    this.nodes = nodes;
-    this.options = options;
+  constructor( _config:ConfigService, _router:Router, _sidebar: LeftSidebarService ) {
+    //this.nodes = nodes;
+    this.options = {
+      actionMapping: {
+        mouse: {
+          dblClick: (tree, node, $event) => {
+            if (node.hasChildren) TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+          },
+          click: (tree, node, $event) => {
+            if ( ! node.hasChildren){
+              _router.navigate([node.data.routerLink]);
+            }
+          }
+        },
+      },
+      allowDrag: true,
+      allowDrop: false
+    };
+
+    _sidebar.getNodes().subscribe(
+      nodes => {
+        this.nodes = nodes;
+      }
+    );
+    /*_config.getPageList().subscribe(
+      res => {
+        this.nodes = res;
+      }, err => {
+        console.log(err);
+      }
+    );*/
   }
 
   ngOnInit() {
@@ -42,54 +73,3 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
   }
 
 }
-
-export const nodes = [
-  {
-    id: 1,
-    name: 'root1',
-    icon: 'fa fa-table',
-    children: [
-      { id: 2, name: 'child1.1' },
-      {
-        id: 3, name: 'child1.2', children: [
-          { id: 8, name: 'child1.2.1', children: [
-              { id: 9, name: 'child1.2.1.1', children: [
-                  { id: 10, name: 'child1.2.1.1.1', children: [
-                      { id: 11, name: 'child1.2.1.1.1.1', children: [
-                          { id: 12, name: 'child1.2.1.1.1.1.1' }
-                        ]}
-                    ] }
-                ]}
-            ]}
-        ]
-      }
-    ]
-  },
-  {
-    id: 4,
-    name: 'root2',
-    icon: 'fa fa-table',
-    children: [
-      { id: 5, name: 'child2.1' },
-      {
-        id: 6,
-        name: 'child2.2',
-        children: [
-          { id: 7, name: 'subsub', icon: 'icon-list' }
-        ]
-      }
-    ]
-  }
-  // { id: 13, name: 'long'}, { id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'}, { id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'long'},{ id: 13, name: 'LAST'}
-];
-export const options = {
-  actionMapping: {
-    mouse: {
-      dblClick: (tree, node, $event) => {
-        if (node.hasChildren) TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-      }
-    },
-  },
-  allowDrag: true,
-  allowDrop: false
-};

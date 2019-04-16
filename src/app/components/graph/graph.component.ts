@@ -15,6 +15,7 @@ export class GraphComponent implements OnInit {
   @Input() chartType:string;
 
   options: any = {
+    animation: false,
     responsive: true,
     tooltips: {
       enabled: false,
@@ -62,24 +63,7 @@ export class GraphComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {
-    this.data = [
-      {
-        data: [1, 18, 9, 17, 34, 22],
-        label: 'row 1'
-      },
-      {
-        data: [5, 10, 3, 2, 18, 4],
-        label: 'row 2'
-      },
-      {
-        data: [6,3,2,8,4,6],
-        label: 'row 3'
-      }
-    ];
-
-    this.labels = ['January', 'February', 'March', 'April', 'May', 'June'];
-
-    this.chartType = this.chartType || 'line';
+    this.chartType = this.chartType.toLowerCase() || 'line';
   }
 
 }

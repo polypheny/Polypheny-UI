@@ -1,15 +1,17 @@
 <div id="toast-wrapper">
   <!--<div aria-atomic="true" aria-live="assertive" class="toast" role="alert" *ngFor="let toast of toasts |keyvalue">-->
-  <div class="toast fade show" *ngFor="let toast of toasts |keyvalue">
-    <div class="toast-header">
-      <strong class="mr-auto">{{toast.value.title}}</strong>
-      <small class="text-muted">{{toast.value.time}}</small>
-      <button aria-label="Close" class="ml-2 mb-1 close" data-dismiss="toast" type="button" (click)="closeToast(toast.key)">
-        <span aria-hidden="true">×</span>
-      </button>
+  <ng-container *ngFor="let toast of toasts |keyvalue">
+    <div class="toast fade show" [ngClass]="toast.value.type">
+      <div class="toast-header">
+        <strong class="mr-auto">{{toast.value.title}}</strong>
+        <small class="text-muted">{{toast.value.time}}</small>
+        <button aria-label="Close" class="ml-2 mb-1 close" data-dismiss="toast" type="button" (click)="closeToast(toast.key)">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="toast-body">
+        {{toast.value.message}}
+      </div>
     </div>
-    <div class="toast-body">
-      {{toast.value.message}}
-    </div>
-  </div>
+  </ng-container>
 </div>

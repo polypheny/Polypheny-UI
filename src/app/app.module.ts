@@ -60,6 +60,9 @@ import {ViewsModule} from './views/views.module';
 import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
 import {HttpClientModule, HttpHeaders} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
+//import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+
+//const config: SocketIoConfig = { url: 'ws://localhost:8081/echo', options: {} };
 
 @NgModule({
   imports:[
@@ -85,6 +88,7 @@ import {ComponentsModule} from './components/components.module';
     BsDropdownModule,
     TypeaheadModule.forRoot(),
     HttpClientModule, ComponentsModule
+    //SocketIoModule.forRoot(config)
   ],
   declarations: [
     AppComponent,

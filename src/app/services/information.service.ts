@@ -5,17 +5,17 @@ import {webSocket} from 'rxjs/webSocket';
 @Injectable({
   providedIn: 'root'
 })
-export class ConfigService {
+export class InformationService {
 
   constructor( private _http:HttpClient ) {
     this.initWebSocket();
   }
 
   private socket;
-  httpUrl = 'http://localhost:8081';
+  httpUrl = 'http://localhost:8082';
   httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
-  getPage(pageId:string) {
+  getPage(pageId:number) {
     return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
   }
 
@@ -23,14 +23,10 @@ export class ConfigService {
     return this._http.get(`${this.httpUrl}/getPageList`, this.httpOptions);
   }
 
-  saveChanges(data) {
-    return this._http.post(`${this.httpUrl}/updateConfigs`, data, this.httpOptions);
-  }
-
 
   //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
   private initWebSocket() {
-    this.socket = webSocket('ws://localhost:8081/configWebSocket');
+    this.socket = webSocket('ws://localhost:8082/informationWebSocket');
   }
 
   socketSend( msg: string ) {

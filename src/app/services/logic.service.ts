@@ -18,44 +18,6 @@ export class LogicService {
   // workarounds:
   // https://stackoverflow.com/questions/44613069/angular4-routerlink-inside-innerhtml-turned-to-lowercase
 
-  getGlobalData(){
-    return [
-      {
-        list: [
-          {type: 'header', label: 'instanz1', routerLink: '/form-generator' /*button: [
-              {icon: 'icon-layers btn btn-light btn-sm', routerLink: ['/graphical-querying/1']},
-              {icon: 'icon-vector btn btn-light btn-sm', routerLink: ['/uml/1']}
-            ]*/},
-          {type: 'collapsible', label: 'tables:', badge: '2', isCollapsed: false, items: [
-              {type: 'link', label: 'table1', routerLink: this.path+'/schema/1'},
-              {type: 'link', label: 'table2', routerLink: this.path+'/schema/2'}
-            ]
-          },
-          {type: 'progress', label: 'cpu', value: 30},
-          {type: 'progress', label: 'memory', value: 70},
-          {type: 'html', html: '<p><u>any</u> <strong>html</strong></p>except<br><ul>' +
-              '<li><a href="https://www.intertech.com/Blog/angular-4-case-study-caution-about-binding-html-content-using-innerhtml/">routerLinks</a></li>' +
-              '<li>but there is a <a href="https://stackoverflow.com/questions/44613069/angular4-routerlink-inside-innerhtml-turned-to-lowercase">workaround</a></li></ul>'}
-        ]
-      },
-      {
-        list: [
-          {type: 'header', label: 'instanz2', routerLink: '/form-generator' /*button: [
-              {icon: 'icon-layers btn btn-light btn-sm', routerLink: ['/graphical-querying/1']},
-              {icon: 'icon-vector btn btn-light btn-sm', routerLink: ['/uml/1']}
-            ]*/},
-          {type: 'collapsible', label: 'tables:', badge: '2', isCollapsed: false, items: [
-              {type: 'link', label: 'table1', routerLink: this.path+'/schema/1'},
-              {type: 'link', label: 'table2', routerLink: this.path+'/schema/2'}
-            ]
-          },
-          {type: 'progress', label: 'cpu', value: 30},
-          {type: 'progress', label: 'memory', value: 70}
-        ]
-      }
-    ];
-  }
-
   getDatabases() {
     return [
       {

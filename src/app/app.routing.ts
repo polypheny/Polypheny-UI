@@ -132,6 +132,13 @@ export const routes: Routes = [
         data: {
           title: 'Form Generator'
         }
+      },
+      {
+        path: 'form-generator/:page',
+        component: FormGeneratorComponent,
+        data: {
+          title: 'Form Generator'
+        }
       }
     ]
   },

@@ -9,19 +9,21 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import {ProgressbarModule} from 'ngx-bootstrap';
 import {RenderItemComponent} from '../render-item/render-item.component';
+import {ComponentsModule} from '../../../components/components.module';
 
 @NgModule({
   declarations: [
     GlobalComponent,
     RenderItemComponent
   ],
-  imports: [
+  imports:[
     CommonModule,
     GlobalRoutingModule,
     CollapseModule,
     TooltipModule,
     ProgressbarModule.forRoot(),
-    FormsModule
+    FormsModule,
+    ComponentsModule
   ]
 })
 export class GlobalModule { }
