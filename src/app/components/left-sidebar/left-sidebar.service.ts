@@ -1,21 +1,20 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {BehaviorSubject} from 'rxjs';
+import {InformationService} from '../../services/information.service';
+import {ConfigService} from '../../services/config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LeftSidebarService {
 
-  constructor( private _http:HttpClient ) {}
+  constructor( private _http:HttpClient, private _informationService:InformationService, private _configService:ConfigService ) {}
 
   nodes: BehaviorSubject<Object> = new BehaviorSubject<Object>([]);
-  informationManagerUrl = 'http://localhost:8082';
-  configManagerUrl = 'http://localhost:8081';
-  httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
   listConfigManagerPages () {
-    return this._http.get(`${this.configManagerUrl}/getPageList`, this.httpOptions).subscribe(
+    return this._configService.getPageList().subscribe(
       res => {
         this.nodes.next(this.mapPages(res, 'config'));
       }, err => {
@@ -34,7 +33,7 @@ export class LeftSidebarService {
   }
 
   listInformationManagerPages () {
-    return this._http.get(`${this.informationManagerUrl}/getPageList`, this.httpOptions).subscribe(
+    return this._informationService.getPageList().subscribe(
       res => {
         this.nodes.next(this.mapPages(res, 'information'));
       }, err => {

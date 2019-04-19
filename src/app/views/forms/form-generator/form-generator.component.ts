@@ -20,6 +20,8 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   toasts: Map<Date, Toast> = new Map<Date, Toast>();
   pageId = '';
   pageNotFound = false;
+  pageList;//wenn man nicht auf einer gewissen Seite ist und alle Pages als links aufgelisted werden sollen.
+  serverError;//wenn der Server nicht antwortet
 
   constructor(
     private _config:ConfigService,
@@ -27,7 +29,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     private _sidebar:LeftSidebarService
   ) {
 
-    this.pageId = this._route.snapshot.paramMap.get('page') || '';//0 as default..
+    this.pageId = this._route.snapshot.paramMap.get('page') || '';
 
     //this.loadPage();//is already called by ngOnInit() -> onHashChange()
     _sidebar.listConfigManagerPages();
@@ -44,7 +46,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
 
   private onHashChange() {
     this._route.params.subscribe(params => {
-      this.pageId = params['page']; // (+) converts string 'id' to a number
+      this.pageId = params['page'];
       this.loadPage();
       this.submitted = false;
     });
@@ -76,37 +78,48 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   }
 
   private loadPage () {
-    this._config.getPage(this.pageId).subscribe(
-      res => {
-        console.log(res);
-        if(res == null){
-          this.onPageNotFound();
-          return;
-        }
-        this.formObj = <JavaUiPage> res;
-        console.log(this.formObj);
-
-        const formGroup = {};
-
-        // https://juristr.com/blog/2017/10/demystify-dynamic-angular-forms/
-        for(const gKey of Object.keys(this.formObj.groups)){
-          for ( const cKey of Object.keys(this.formObj.groups[gKey].configs)) {
-            formGroup[cKey] = new FormControl(
-              this.formObj.groups[gKey].configs[cKey].value || '',
-              //this.mapValidators(this.formObj.groups[gKey].configs[cKey].webUiValidators));
-              this.mapValidators(this.formObj.groups[gKey].configs[cKey]));
-          }
-        }
-
-        this.form = new FormGroup(formGroup);
-        this.pageNotFound = false;
-      },
-      err => {
-        this.onPageNotFound();
-        console.log(err);
-        this.toast( 'server error', 'could not load page', 0, 'bg-danger');
+    if(!this.pageId){
+      this._config.getPageList().subscribe(
+        res => {
+          this.pageList = res;
+          this.serverError = null;
+          this.pageNotFound = false;
+        }, err => {
+          this.serverError = err;
       }
-    );
+      );
+    }else {
+      this._config.getPage(this.pageId).subscribe(
+        res => {
+          console.log(res);
+          if(res == null){
+            this.onPageNotFound();
+            return;
+          }
+          this.formObj = <JavaUiPage> res;
+          console.log(this.formObj);
+
+          const formGroup = {};
+
+          // https://juristr.com/blog/2017/10/demystify-dynamic-angular-forms/
+          for(const gKey of Object.keys(this.formObj.groups)){
+            for ( const cKey of Object.keys(this.formObj.groups[gKey].configs)) {
+              formGroup[cKey] = new FormControl(
+                this.formObj.groups[gKey].configs[cKey].value || '',
+                //this.mapValidators(this.formObj.groups[gKey].configs[cKey].webUiValidators));
+                this.mapValidators(this.formObj.groups[gKey].configs[cKey]));
+            }
+          }
+
+          this.form = new FormGroup(formGroup);
+          this.pageNotFound = false;
+          this.serverError = null;
+        },
+        err => {
+          this.serverError = err;
+        }
+      );
+    }
   }
 
   /** order groups within a page.
@@ -135,6 +148,11 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
 
   private onPageNotFound(){
     this.pageNotFound = true;
+    this.serverError = null;
+    this._config.getPageList().subscribe(
+      res => {this.pageList = res;},
+      err => {this.serverError = err;}
+    );
   }
 
   private mapValidators(config) {
@@ -172,10 +190,17 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
       //todo only send ng-dirty..
       this._config.saveChanges(this.form.value).subscribe(res => {
         //console.log(res);
-        this.toast('success', 'Saved changes.', 2000, 'bg-success');
+        interface Feedback { success?:number; warning?:string; }
+        const f: Feedback = <Feedback> res;
+        console.log(f);
+        if( f.success ){
+          this.toast('success', 'Saved changes.', 2000, 'bg-success');
+        } else {
+          this.toast('warning', f.warning, 0, 'bg-warning');
+        }
       }, err=>{
         console.log(err);
-        this.toast('server error', 'an error occured on the server', 3000,  'bg-danger');
+        this.toast('server error', 'an error occurred on the server', 3000,  'bg-danger');
       });
     } else {
       this.toast('no success', 'Changes could not be saved. Please check invalid inputs.', 0, 'bg-warning');

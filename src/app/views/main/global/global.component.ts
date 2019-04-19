@@ -5,6 +5,7 @@ import {RenderGroup, RenderItem, RenderObj} from '../models';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {InformationService} from '../../../services/information.service';
+import {KeyValue} from '@angular/common';
 
 @Component({
   selector: 'app-global',
@@ -16,9 +17,11 @@ export class GlobalComponent implements OnInit, OnDestroy {
 
   mode;
   routerId;
+  pageList;
+  serverError;
+  pageNotFound = false;
 
   data: RenderObj;
-  //dataAsString = JSON.stringify(this.data, null, 2);
 
   constructor(
     private _logic:LogicService,
@@ -62,11 +65,29 @@ export class GlobalComponent implements OnInit, OnDestroy {
   getServiceData() {
     if(this.mode === 'global'){
       //this.data.groups = this._logic.getGlobalData();
-      this._information.getPage(this.routerId).subscribe(
-        res => {
-          this.data = <RenderObj>res;
+      if(!this.routerId){
+        this._information.getPageList().subscribe(
+          res => {
+            this.pageList = res;
+            this.serverError = null;
+          }, err => {
+            this.serverError = err;
+          }
+        );
+      }else {
+        this._information.getPage(this.routerId).subscribe(
+          res => {
+            if(res == null){
+              this.onPageNotFound();
+            }else{
+              this.data = <RenderObj>res;
+              this.serverError = null;
+            }
+          }, err => {
+          this.serverError = err;
         }
-      );
+        );
+      }
     } else if(this.mode === 'logic'){
       //this.data.groups = this._logic.getDatabases();
       this.data.groups = new Map<string, RenderGroup>();
@@ -99,6 +120,28 @@ export class GlobalComponent implements OnInit, OnDestroy {
     }
     card = card + ' card';
     return card;
+  }
+
+  /** order groups within a page, respectively information-elements within a group
+   * items with lower order value are rendered first, then this with higher values, then thows where uiOrder is null ( -> 0)
+   */
+  private order ( a: KeyValue<string, any>, b: KeyValue<string, any>) {
+    let out = 0;
+    if ( a.value.uiOrder !== 0 && b.value.uiOrder === 0 ) out = -1;
+    else if ( a.value.uiOrder === 0 && b.value.uiOrder !== 0 ) out = 1;
+    else if ( a.value.uiOrder > b.value.uiOrder ) out = 1;
+    else if ( a.value.uiOrder < b.value.uiOrder ) out = -1;
+    return out;
+  }
+
+
+  private onPageNotFound(){
+    this.pageNotFound = true;
+    this.serverError = null;
+    this._information.getPageList().subscribe(
+      res => {this.pageList = res;},
+      err => {this.serverError = err;}
+    );
   }
 
 }

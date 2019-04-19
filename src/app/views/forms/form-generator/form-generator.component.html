@@ -59,7 +59,17 @@
 </ng-container>
 
 <ng-container *ngIf="pageNotFound">
-	<p class="text-danger">Page with id {{pageId}} does not exist or could not be loaded.</p>
+	<p class="text-danger">Page with id "{{pageId}}" does not exist or could not be loaded.</p>
+</ng-container>
+<ng-container *ngIf="!formObj && !form && pageList">
+	Choose a page to display configs:<br><br>
+	<button *ngFor="let page of pageList | keyvalue" class="btn btn-light pageLink" [routerLink]="'/form-generator/'+page.value.id">{{page.value.name}}</button>
+</ng-container>
+<ng-container *ngIf="serverError">
+	<p class="text-danger">
+		Server not responding:<br>
+		{{serverError.name}}: {{serverError.message}}
+	</p>
 </ng-container>
 
 <!--<div class="row" *ngIf="formObj && form">
