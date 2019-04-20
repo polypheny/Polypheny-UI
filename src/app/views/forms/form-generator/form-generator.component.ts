@@ -57,7 +57,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     //todo only update config if not ng-dirty. Test with string
     this._config.onSocketEvent().subscribe(msg => {
       const update = <JavaUiConfig>msg;
-      if(this.formObj && this.formObj.groups[update.webUiGroup] && this.formObj.groups[update.webUiGroup].configs[update.key].value) {
+      if(this.formObj && this.formObj.groups[update.webUiGroup] && this.formObj.groups[update.webUiGroup].configs[update.key]) {
         const c = this.formObj.groups[update.webUiGroup].configs[update.key];
         if(this.form.controls[c.key].dirty === false){
           c.value = update.value;
@@ -66,6 +66,8 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
             this.toast( 'incoming change',
               'The setting with id ' + c.key + ' has been changed to the new value "'+ update.value +'" by the server. If you save, these changes will be overwritten.',
               0, 'bg-warning');
+          }else{
+            c.value = update.value;
           }
         }
         //console.log('updating from Websocket:'+JSON.stringify(update));
@@ -91,27 +93,14 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     }else {
       this._config.getPage(this.pageId).subscribe(
         res => {
-          console.log(res);
           if(res == null){
             this.onPageNotFound();
             return;
           }
           this.formObj = <JavaUiPage> res;
-          console.log(this.formObj);
 
-          const formGroup = {};
+          this.buildFormGroup();
 
-          // https://juristr.com/blog/2017/10/demystify-dynamic-angular-forms/
-          for(const gKey of Object.keys(this.formObj.groups)){
-            for ( const cKey of Object.keys(this.formObj.groups[gKey].configs)) {
-              formGroup[cKey] = new FormControl(
-                this.formObj.groups[gKey].configs[cKey].value || '',
-                //this.mapValidators(this.formObj.groups[gKey].configs[cKey].webUiValidators));
-                this.mapValidators(this.formObj.groups[gKey].configs[cKey]));
-            }
-          }
-
-          this.form = new FormGroup(formGroup);
           this.pageNotFound = false;
           this.serverError = null;
         },
@@ -122,15 +111,37 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     }
   }
 
+  private buildFormGroup () {
+    const formGroup = {};
+
+    // https://juristr.com/blog/2017/10/demystify-dynamic-angular-forms/
+    for(const gKey of Object.keys(this.formObj.groups)){
+      for ( const cKey of Object.keys(this.formObj.groups[gKey].configs)) {
+        if(this.formObj.groups[gKey].configs[cKey].webUiFormType === 'BOOLEAN' ){
+          formGroup[cKey] = new FormControl(
+            //this.parseBoolean(this.formObj.groups[gKey].configs[cKey].value) || false,
+            this.formObj.groups[gKey].configs[cKey].value || false,
+            this.mapValidators(this.formObj.groups[gKey].configs[cKey]));//JSON.parse to convert "true" to true and "false" to false
+        }
+        else {
+          formGroup[cKey] = new FormControl(
+            this.formObj.groups[gKey].configs[cKey].value || '',
+            this.mapValidators(this.formObj.groups[gKey].configs[cKey]));
+        }
+      }
+    }
+    this.form = new FormGroup(formGroup);
+  }
+
   /** order groups within a page.
    * groups with lower order value are rendered first
    */
   private orderGroups ( a: KeyValue<string, any>, b: KeyValue<string, any>) {
     let out = 0;
-    if ( a.value.order > b.value.order ) out = 1;
-    else if ( a.value.order < b.value.order ) out = -1;
-    else if ( a.value.order != null && b.value.order == null ) out = -1;
-    else if ( a.value.order == null && b.value.order != null ) out = 1;
+    if ( a.value.order > b.value.order ) { out = 1; }
+    else if ( a.value.order < b.value.order ) { out = -1; }
+    else if ( a.value.order != null && b.value.order == null ) { out = -1; }
+    else if ( a.value.order == null && b.value.order != null ) { out = 1; }
     return out;
   }
 
@@ -139,10 +150,10 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
    */
   private orderConfigs ( a: KeyValue<string, any>, b: KeyValue<string, any>) {
     let out = 0;
-    if ( a.value.webUiOrder > b.value.webUiOrder ) out = 1;
-    else if ( a.value.webUiOrder < b.value.webUiOrder ) out = -1;
-    else if ( a.value.webUiOrder != null && b.value.webUiOrder == null ) out = -1;
-    else if ( a.value.webUiOrder == null && b.value.webUiOrder != null ) out = 1;
+    if ( a.value.webUiOrder > b.value.webUiOrder ) { out = 1; }
+    else if ( a.value.webUiOrder < b.value.webUiOrder ) { out = -1; }
+    else if ( a.value.webUiOrder != null && b.value.webUiOrder == null ) { out = -1; }
+    else if ( a.value.webUiOrder == null && b.value.webUiOrder != null ) { out = 1; }
     return out;
   }
 
@@ -168,7 +179,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         }
       }
     }
-    if(config.configType !== 'BOOLEAN'){
+    if(config.configType !== 'ConfigBoolean'){
       formValidators.push( Validators.required );//by default, but not for checkboxes
     }
     return formValidators;
@@ -192,12 +203,13 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         //console.log(res);
         interface Feedback { success?:number; warning?:string; }
         const f: Feedback = <Feedback> res;
-        console.log(f);
+        //console.log(f);
         if( f.success ){
           this.toast('success', 'Saved changes.', 2000, 'bg-success');
         } else {
           this.toast('warning', f.warning, 0, 'bg-warning');
         }
+        this.form.markAsPristine();
       }, err=>{
         console.log(err);
         this.toast('server error', 'an error occurred on the server', 3000,  'bg-danger');
