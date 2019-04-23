@@ -1,5 +1,5 @@
 <div class="row no-gutters" *ngIf="!hidden">
-  <div class="col-md-8">
+  <div class="col-md-6">
     <ol class="breadcrumb">
       <li *ngFor="let b of breadcrumbs" class="breadcrumb-item">
         <ng-container *ngIf="b.routerLink">
@@ -9,7 +9,7 @@
       </li>
     </ol>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-6">
     <div class="custom-control-inline breadcrumb" id="zoom-wrapper">
       <!-- todo ngIf masonry -->
       <div class="custom-control">

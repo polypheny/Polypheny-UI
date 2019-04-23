@@ -3,3 +3,16 @@ tabset tab{
     padding-left: 3em;
   }
 }
+
+.aside-options{
+  .input-group{
+    margin-bottom: 0.5em;
+  }
+  small{
+    display: inline-block;
+    margin-bottom: 0.5em;
+  }
+}
+.input-group-prepend{
+  height: 2em;
+}

@@ -62,8 +62,6 @@ import {HttpClientModule, HttpHeaders} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
 //import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
-//const config: SocketIoConfig = { url: 'ws://localhost:8081/echo', options: {} };
-
 @NgModule({
   imports:[
     BrowserModule,

@@ -12,6 +12,8 @@ import {LeftSidebarService} from './left-sidebar.service';
   templateUrl: './left-sidebar.component.html',
   styleUrls: ['./left-sidebar.component.scss']
 })
+
+//https://angular2-tree.readme.io/docs/
 export class LeftSidebarComponent implements OnInit , AfterViewInit {
 
   @ViewChild('tree') treeComponent: TreeComponent;

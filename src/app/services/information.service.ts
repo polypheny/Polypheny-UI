@@ -1,18 +1,19 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {webSocket} from 'rxjs/webSocket';
+import {WebuiSettingsService} from './webui-settings.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InformationService {
 
-  constructor( private _http:HttpClient ) {
+  constructor( private _http:HttpClient, private _settings:WebuiSettingsService ) {
     this.initWebSocket();
   }
 
   private socket;
-  httpUrl = 'http://localhost:8082';
+  httpUrl = this._settings.get('settings.information.rest');
   httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
   getPage(pageId:number) {
@@ -26,7 +27,7 @@ export class InformationService {
 
   //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
   private initWebSocket() {
-    this.socket = webSocket('ws://localhost:8082/informationWebSocket');
+    this.socket = webSocket(this._settings.get('settings.information.socket'));
   }
 
   socketSend( msg: string ) {

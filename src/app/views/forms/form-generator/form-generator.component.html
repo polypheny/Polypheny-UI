@@ -5,8 +5,8 @@
 	<form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form">
 		<div id="form-generator-main" class="row">
 			<div class="col-md-12">
-				<h1 *ngIf="formObj.title">{{formObj.title}}</h1><br>
-				<p *ngIf="formObj.description">{{formObj.description}}</p><br>
+				<h1 *ngIf="formObj.title">{{formObj.title}}</h1>
+				<p *ngIf="formObj.description">{{formObj.description}}</p>
 			</div>
 		</div>
 		<div [className]="_breadcrumb.getWrapperClass()">

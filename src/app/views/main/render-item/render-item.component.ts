@@ -41,7 +41,7 @@ export class RenderItemComponent implements OnInit {
       case 'green':
       case 'success':
         return 'success';
-      case 'yelllow':
+      case 'yellow':
       case 'warning':
         return 'warning';
       case 'red':
