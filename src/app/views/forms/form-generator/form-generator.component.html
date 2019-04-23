@@ -3,53 +3,56 @@
 <app-toast [toasts]="toasts"></app-toast>
 <ng-container *ngIf="formObj && form && !pageNotFound">
 	<form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form">
-		<div class="row" id="form-generator-main">
+		<div id="form-generator-main" class="row">
 			<div class="col-md-12">
 				<h1 *ngIf="formObj.title">{{formObj.title}}</h1><br>
 				<p *ngIf="formObj.description">{{formObj.description}}</p><br>
 			</div>
+		</div>
+		<div [className]="_breadcrumb.getWrapperClass()">
 			<ng-container *ngFor="let group of formObj.groups | keyvalue: orderGroups">
-				<div class="col-lg-4 col-md-4 col-sm-12 form-group card"><!-- *ngIf="group.value.configs.size> 0" -->
-					<h5>{{group.value.title}}</h5>
-					<p>{{group.value.description}}</p>
+				<div [className]="_breadcrumb.getCardClass()"><!-- *ngIf="group.value.configs.size > 0" -->
+					<div class="form-group card">
+						<h5>{{group.value.title}}</h5>
+						<p>{{group.value.description}}</p>
 
-					<ng-container *ngFor="let config of group.value.configs | keyvalue: orderConfigs">
-						<ng-container [ngSwitch]="config.value.webUiFormType">
-							<div class="input-group">
-								<div class="input-group-prepend">
-									<label [for]="config.value.key" class="input-group-text" id="basic-addon1">{{ config.value.key }}</label>
-								</div>
-								<ng-container *ngSwitchCase="'TEXT'">
-									<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="text" class="form-control" [ngClass]="inputValidation(config.value.key)">
-								</ng-container>
-								<ng-container *ngSwitchCase="'NUMBER'">
-									<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="number" class="form-control" [ngClass]="inputValidation(config.value.key)">
-								</ng-container>
-								<ng-container *ngSwitchCase="'BOOLEAN'">
-									<div class="checkbox-wrapper">
-										<!--<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
-										<!-- throws warning, but solves problem of assigning value "false" (as string) -->
-										<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">
+						<ng-container *ngFor="let config of group.value.configs | keyvalue: orderConfigs">
+							<ng-container [ngSwitch]="config.value.webUiFormType">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<label [for]="config.value.key" class="input-group-text" id="basic-addon1">{{ config.value.key }}</label>
 									</div>
-								</ng-container>
+									<ng-container *ngSwitchCase="'TEXT'">
+										<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="text" class="form-control" [ngClass]="inputValidation(config.value.key)">
+									</ng-container>
+									<ng-container *ngSwitchCase="'NUMBER'">
+										<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="number" class="form-control" [ngClass]="inputValidation(config.value.key)">
+									</ng-container>
+									<ng-container *ngSwitchCase="'BOOLEAN'">
+										<div class="checkbox-wrapper">
+											<!--<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
+											<!-- throws warning, but solves problem of assigning value "false" (as string) -->
+											<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">
+										</div>
+									</ng-container>
 
-								<div class="invalid-feedback" *ngIf="submitted && !form.controls[config.value.key].valid">
-									<div *ngIf="form.controls[config.value.key].errors.required">
-										{{ config.value.key }} is required.
+									<div class="invalid-feedback" *ngIf="submitted && !form.controls[config.value.key].valid">
+										<div *ngIf="form.controls[config.value.key].errors.required">
+											{{ config.value.key }} is required.
+										</div>
+										<div *ngIf="form.controls[config.value.key].errors.email">
+											invalid email
+										</div>
 									</div>
-									<div *ngIf="form.controls[config.value.key].errors.email">
-										invalid email
+									<div class="valid-feedback" *ngIf="submitted && form.controls[config.value.key].valid && form.controls[config.value.key].dirty">
+										valid
 									</div>
 								</div>
-								<div class="valid-feedback" *ngIf="submitted && form.controls[config.value.key].valid && form.controls[config.value.key].dirty">
-									valid
-								</div>
-							</div>
+							</ng-container>
+
 						</ng-container>
-
-					</ng-container>
-					<button *ngIf="form.dirty" type="submit" class="btn btn-light btn-sm float-right save-configs"><i class="fa fa-save"></i></button>
-
+						<button *ngIf="form.dirty" type="submit" class="btn btn-light btn-sm float-right save-configs"><i class="fa fa-save"></i></button>
+					</div>
 				</div>
 
 			</ng-container>
@@ -63,7 +66,7 @@
 </ng-container>
 <ng-container *ngIf="!formObj && !form && pageList">
 	Choose a page to display configs:<br><br>
-	<button *ngFor="let page of pageList | keyvalue" class="btn btn-light pageLink" [routerLink]="'/form-generator/'+page.value.id">{{page.value.name}}</button>
+	<button *ngFor="let page of pageList | keyvalue" class="btn btn-light pageLink" [routerLink]="'/config/'+page.value.id">{{page.value.name}}</button>
 </ng-container>
 <ng-container *ngIf="serverError">
 	<p class="text-danger">

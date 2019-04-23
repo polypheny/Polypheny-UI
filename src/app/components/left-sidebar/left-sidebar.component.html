@@ -9,8 +9,8 @@
 				<div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
 					<tree-node-expander [node]="node"></tree-node-expander>
 					<div class="node-content-wrapper"
-						 [class.node-content-wrapper-active]="node.isActive"
-						 [class.node-content-wrapper-focused]="node.isFocused"
+						 [class.node-content-wrapper-active]="nodeIsActive(node)"
+						 [class.node-content-wrapper-focused]="false"
 						 (click)="node.mouseAction('click', $event)"
 						 (dblclick)="node.mouseAction('dblClick', $event)"
 						 (contextmenu)="node.mouseAction('contextMenu', $event)"

@@ -127,14 +127,14 @@ export const routes: Routes = [
         }
       },
       {
-        path: 'form-generator',
+        path: 'config',
         component: FormGeneratorComponent,
         data: {
           title: 'Form Generator'
         }
       },
       {
-        path: 'form-generator/:page',
+        path: 'config/:page',
         component: FormGeneratorComponent,
         data: {
           title: 'Form Generator'

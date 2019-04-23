@@ -1,4 +1,10 @@
 <ng-container *ngIf="data">
+  <div class="row" *ngIf="data.name || data.description">
+    <div class="col-md-12">
+      <h1 *ngIf="data.name">{{data.name}}</h1>
+      <p *ngIf="data.description">{{data.description}}</p>
+    </div>
+  </div>
   <div [className]="_breadcrumb.getWrapperClass()">
     <div *ngFor="let item of data.groups | keyvalue : order" [className]="_breadcrumb.getCardClass()">
       <div [className]="getCardClass(item.value.color)">

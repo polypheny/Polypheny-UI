@@ -59,7 +59,7 @@ class SidebarNode{
     this.icon = icon;
     switch (group) {
       case 'config':
-        this.routerLink = '/form-generator/'+id;
+        this.routerLink = '/config/'+id;
         break;
       case 'information':
         this.routerLink = '/home/global/'+id;

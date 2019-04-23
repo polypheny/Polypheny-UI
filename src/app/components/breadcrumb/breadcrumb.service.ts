@@ -1,6 +1,6 @@
 import {Injectable, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
+import {BreadcrumbItem} from './breadcrumb-item';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,6 @@ export class BreadcrumbService implements OnInit, OnDestroy {
 
   mode;
   routerId;
-  _activatedRoute:ActivatedRoute;
 
   constructor() { }
 
@@ -67,65 +66,16 @@ export class BreadcrumbService implements OnInit, OnDestroy {
     return this.masonry;
   }
 
-  /** must be called when you use the breadcrumb-service somewhere */
-  setActivatedRoute(activatedRoute: ActivatedRoute){
-    this._activatedRoute = activatedRoute;
-    this._activatedRoute.params.subscribe(params => {
-      if(params['id']) {
-        this.routerId = params['id'];
-      }
-      if(params['mode']){
-        this.mode = params['mode'];
-      }
-      this.updateBreadcrumbs();
-    });
-  }
-
-  updateBreadcrumbs() {
-    //todo get parent ids
-    //todo hide if no breadcrumbs
-    const path = '/home/';
-    const home = new BreadcrumbItem('Home', '/home');
-    switch (this.mode) {
-      case 'global':
-        this.breadcrumbs.next([home, new BreadcrumbItem('Global')]);
-        break;
-      case 'logic':
-        this.breadcrumbs.next([home, new BreadcrumbItem('Logic')]);
-        break;
-      case 'db':
-        this.breadcrumbs.next([home, new BreadcrumbItem('Logic', path+'logic'), new BreadcrumbItem('Databases')]);
-          break;
-      case 'schema':
-        this.breadcrumbs.next([home, new BreadcrumbItem('Logic', path+'logic'), new BreadcrumbItem('Databases', path+'db/1'), new BreadcrumbItem('Schema')]);
-        break;
-      case 'table':
-        this.breadcrumbs.next([home, new BreadcrumbItem('Logic', path+'logic'), new BreadcrumbItem('Databases', path+'db/1'), new BreadcrumbItem('Schema', path+'schema/1'), new BreadcrumbItem('Table')]);
-        break;
-      default:
-        this.breadcrumbs.next([home]);
-    }
-    // this.breadcrumbs.complete();
-  }
-  
   getBreadcrumbs(){
     return this.breadcrumbs.asObservable();
+  }
+
+  public setBreadcrumbs( breadcrumbs: BreadcrumbItem[] ) {
+    this.breadcrumbs.next( breadcrumbs );
   }
 
   hide() {
     this.breadcrumbs.next([]);
   }
 
-}
-
-class BreadcrumbItem {
-  name: string;
-  routerLink?: any;
-
-  constructor( name:string, routerLink?: any ){
-    this.name = name;
-    if(routerLink){
-      this.routerLink = routerLink;
-    }
-  }
 }

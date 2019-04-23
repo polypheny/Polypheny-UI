@@ -2,6 +2,9 @@ export interface RenderObj {
   mansonry?: boolean;
   //groups: RenderGroup[];
   groups: Map<string, RenderGroup>;
+  name?: string;
+  id?: string;
+  description?: string;
 }
 export interface RenderItem {
   type?: string;

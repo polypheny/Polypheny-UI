@@ -5,6 +5,8 @@ import { Toast } from '../../../components/toast/toast.component';
 import { ActivatedRoute } from '@angular/router';
 import { LeftSidebarService } from '../../../components/left-sidebar/left-sidebar.service';
 import {KeyValue} from '@angular/common';
+import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
+import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 
 @Component({
   selector: 'app-form-generator',
@@ -26,7 +28,8 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   constructor(
     private _config:ConfigService,
     private _route:ActivatedRoute,
-    private _sidebar:LeftSidebarService
+    private _sidebar:LeftSidebarService,
+    private _breadcrumb:BreadcrumbService
   ) {
 
     this.pageId = this._route.snapshot.paramMap.get('page') || '';
@@ -38,10 +41,12 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.onHashChange();
     this.initWebSocket();
+    this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem('ConfigManager')] );
   }
 
   ngOnDestroy() {
     //this._config.closeSocket();
+    this._breadcrumb.hide();
   }
 
   private onHashChange() {
@@ -97,7 +102,9 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
             this.onPageNotFound();
             return;
           }
+
           this.formObj = <JavaUiPage> res;
+          this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem( 'ConfigManager', '/config/' ), new BreadcrumbItem( this.formObj.title.toString())] );
 
           this.buildFormGroup();
 
@@ -138,10 +145,10 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
    */
   private orderGroups ( a: KeyValue<string, any>, b: KeyValue<string, any>) {
     let out = 0;
-    if ( a.value.order > b.value.order ) { out = 1; }
+    if ( a.value.order !== 0 && b.value.order === 0 ) { out = -1; }
+    else if ( a.value.order === 0 && b.value.order !== 0 ) { out = 1; }
+    else if ( a.value.order > b.value.order ) { out = 1; }
     else if ( a.value.order < b.value.order ) { out = -1; }
-    else if ( a.value.order != null && b.value.order == null ) { out = -1; }
-    else if ( a.value.order == null && b.value.order != null ) { out = 1; }
     return out;
   }
 

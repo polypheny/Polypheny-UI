@@ -4,7 +4,7 @@ import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/draggable';
 import {KEYS, TREE_ACTIONS, TreeComponent, TreeModel, TreeNode } from 'angular-tree-component';
 import {ConfigService} from '../../services/config.service';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
 
 @Component({
@@ -18,7 +18,10 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
   nodes;
   options;
 
-  constructor( _config:ConfigService, _router:Router, _sidebar: LeftSidebarService ) {
+  constructor( _config:ConfigService,
+               _router:Router,
+               _sidebar: LeftSidebarService,
+  ) {
     //this.nodes = nodes;
     this.options = {
       actionMapping: {
@@ -29,6 +32,7 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
           click: (tree, node, $event) => {
             if ( ! node.hasChildren){
               _router.navigate([node.data.routerLink]);
+              node.setIsActive(true);
             }
           }
         },
@@ -69,6 +73,13 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
         return node.data.name.startsWith($(this).val());
       });
     });
+
+  }
+
+  nodeIsActive ( node:any ): boolean {
+    const regex = new RegExp('\\/('+ node.id +')$');
+    return location.hash.match(regex) !== null;
+    //  location.hash.match(/\/(\w+)$/)
 
   }
 

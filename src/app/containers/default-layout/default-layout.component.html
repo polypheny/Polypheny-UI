@@ -11,7 +11,7 @@
   <!-- app-header navbar -->
 
   <ul class="nav navbar-nav flex-row" id="top-nav">
-    <li class="nav-item px-3">
+    <!--<li class="nav-item px-3">
       <a class="nav-link" href="https://coreui.io/angular/demo/#/dashboard" target="_blank">CoreUI</a>
     </li>
     <li class="nav-item px-3">
@@ -19,19 +19,19 @@
     </li>
     <li class="nav-item px-3">
       <a class="nav-link" href="https://valor-software.com/ngx-bootstrap/#/documentation" target="_blank">Ang Btrap</a>
-    </li>
-    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/home/logic']" routerLinkActive="active">
+    </li>-->
+    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/home/logic']" routerLinkActive="active">
       <i class="fa fa-database"></i><span class="d-md-down-none"> logic</span>
-    </a></li>
+    </a></li>-->
     <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/home/global']" routerLinkActive="active">
-      <i class="fa fa-cloud"></i><span class="d-md-down-none"> global</span>
+      <i class="fa fa-cloud"></i><span class="d-md-down-none"> informationManager</span>
     </a></li>
     <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/dashboard']" routerLinkActive="active">
       <i class="icon-speedometer"></i><span class="d-md-down-none"> dashboard</span>
     </a></li>-->
-    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/sql-console']" routerLinkActive="active">
+    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/sql-console']" routerLinkActive="active">
       <i class="icon-note"></i><span class="d-md-down-none"> SQL</span>
-    </a></li>
+    </a></li>-->
 
     <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/data-table']">
       <i class="fa fa-table"></i><
@@ -45,8 +45,8 @@
     <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/uml']">
       <i class="icon-vector"></i>
     </a></li>-->
-    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/form-generator']" routerLinkActive="active"><!--tooltip="Dynamic Form" placement="bottom"-->
-      <i class="icon-settings"></i><span class="d-md-down-none"> config</span>
+    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/config']" routerLinkActive="active"><!--tooltip="Dynamic Form" placement="bottom"-->
+      <i class="icon-settings"></i><span class="d-md-down-none"> configManager</span>
     </a></li>
 
   </ul>
@@ -54,11 +54,11 @@
     <!--<li class="nav-item d-md-down-none">
       <a class="nav-link" href="#">Settings <i class="icon-settings"></i></a>
     </li>-->
-    <li class="nav-item dropdown" dropdown placement="bottom right">
+    <!--<li class="nav-item dropdown" dropdown placement="bottom right">
       <a class="nav-link" data-toggle="dropdown" [routerLink]="['/login']" role="button" aria-haspopup="true" aria-expanded="false" tooltip="logout" placement="bottom">
         <img src="assets/img/avatars/6.jpg" class="img-avatar" alt="admin@bootstrapmaster.com" />
       </a>
-    </li>
+    </li>-->
   </ul>
 </app-header>
 <div class="app-body">
@@ -105,6 +105,6 @@
   </app-aside>
 </div>
 <app-footer>
-  <span><a href="https://coreui.io">CoreUI</a> &copy; 2018 creativeLabs.</span>
+  <span><a href="https://dbis.dmi.unibas.ch/publications/2018/scdm18/">Polypheny-DB</a></span>
   <span class="ml-auto">Powered by <a href="https://coreui.io/angular">CoreUI for Angular</a></span>
 </app-footer>

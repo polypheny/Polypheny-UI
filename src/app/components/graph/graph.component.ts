@@ -21,7 +21,7 @@ export class GraphComponent implements OnInit {
       enabled: false,
       custom: CustomTooltips
     },
-    maintainAspectRatio: false,
+    maintainAspectRatio: true,
     scales: {
       xAxes: [{
         display: true

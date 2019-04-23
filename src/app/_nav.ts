@@ -66,7 +66,7 @@ export const navItems: NavData[] = [
   },
   {
     name: 'dynamic forms',
-    url: '/form-generator',
+    url: '/config',
     icon: 'icon-drawer'
   },
   {

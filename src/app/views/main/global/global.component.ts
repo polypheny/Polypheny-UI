@@ -6,6 +6,7 @@ import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.servi
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {InformationService} from '../../../services/information.service';
 import {KeyValue} from '@angular/common';
+import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 
 @Component({
   selector: 'app-global',
@@ -44,7 +45,6 @@ export class GlobalComponent implements OnInit, OnDestroy {
       this.mode = params['mode'];
       this.routerId = params['id'];
       this.getServiceData();
-      this._breadcrumb.setActivatedRoute(this._route);
     });
     
     this._information.onSocketEvent().subscribe(
@@ -69,6 +69,7 @@ export class GlobalComponent implements OnInit, OnDestroy {
         this._information.getPageList().subscribe(
           res => {
             this.pageList = res;
+            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('informationManager')]);
             this.serverError = null;
           }, err => {
             this.serverError = err;
@@ -79,8 +80,10 @@ export class GlobalComponent implements OnInit, OnDestroy {
           res => {
             if(res == null){
               this.onPageNotFound();
+              this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('informationManager')]);
             }else{
               this.data = <RenderObj>res;
+              this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('informationManager', '/home/global/'), new BreadcrumbItem(this.data.name.toString())]);
               this.serverError = null;
             }
           }, err => {
@@ -144,10 +147,4 @@ export class GlobalComponent implements OnInit, OnDestroy {
     );
   }
 
-}
-interface InformationPage{
-  id: string;
-  mansonry: boolean;
-  name: string;
-  groups: Map<String, RenderGroup>;
 }
