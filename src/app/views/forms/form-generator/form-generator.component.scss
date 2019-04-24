@@ -27,6 +27,7 @@
 .checkbox-wrapper input{
   border: none !important;
   box-shadow: none !important;
+  height: calc(1.5em + 0.75rem) !important;
 }
 
 .pageLink {
@@ -37,4 +38,38 @@
 }
 .card-columns .card {
   margin-bottom: 1rem;
+}
+.input-group-prepend{
+  max-width: 50%;
+  overflow: hidden;
+
+  //todo there is a delay when the mouse leaves the element
+  -webkit-transition: max-width 1s linear 0s;
+  -moz-transition: max-width 1s linear 0s;
+  -o-transition: max-width 1s linear 0s;
+  transition: max-width 1s linear 0s;
+}
+.input-group-prepend:hover{
+  max-width: 100%;
+}
+
+//gradient for labels that are too long
+.input-group-prepend{
+  position: relative;
+}
+.gradient{
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1em;
+  z-index: 2;
+  height: 90%;
+
+  //gradient
+  // http://colorzilla.com/gradient-editor/#7db9e8+0,f0f3f5+100&0+0,1+100
+  background: -moz-linear-gradient(left, rgba(125,185,232,0) 0%, rgba(240,243,245,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(left, rgba(125,185,232,0) 0%,rgba(240,243,245,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to right, rgba(125,185,232,0) 0%,rgba(240,243,245,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#007db9e8', endColorstr='#f0f3f5',GradientType=1 ); /* IE6-9 */
 }

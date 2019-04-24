@@ -20,6 +20,7 @@
 							<ng-container [ngSwitch]="config.value.webUiFormType">
 								<div class="input-group">
 									<div class="input-group-prepend">
+										<div class="gradient"></div>
 										<label [for]="config.value.key" class="input-group-text" id="basic-addon1">{{ config.value.key }}</label>
 									</div>
 									<ng-container *ngSwitchCase="'TEXT'">
