@@ -7,7 +7,6 @@ import { DefaultLayoutComponent } from './containers';
 import { P404Component } from './views/error/404.component';
 import { P500Component } from './views/error/500.component';
 import { LoginComponent } from './views/login/login.component';
-import { RegisterComponent } from './coreui/register/register.component';
 import {SqlConsoleComponent} from './views/sql-console/sql-console.component';
 import {EditColumnsComponent} from './views/edit-columns/edit-columns.component';
 import {UmlComponent} from './views/uml/uml.component';
@@ -17,7 +16,7 @@ import {FormGeneratorComponent} from './views/forms/form-generator/form-generato
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'home/global',
     pathMatch: 'full',
   },
   {
