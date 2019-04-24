@@ -1,12 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConfigService } from '../../../services/config.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Toast } from '../../../components/toast/toast.component';
 import { ActivatedRoute } from '@angular/router';
 import { LeftSidebarService } from '../../../components/left-sidebar/left-sidebar.service';
 import {KeyValue} from '@angular/common';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
+import {BehaviorSubject} from 'rxjs';
+import {Toast} from '../../../components/toast/toast.component';
 
 @Component({
   selector: 'app-form-generator',
@@ -20,6 +21,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   form: FormGroup;
   //toasts:Toast[] = [];
   toasts: Map<Date, Toast> = new Map<Date, Toast>();
+  toastEvent: BehaviorSubject<Map<Date, Toast>> = new BehaviorSubject<Map<Date, Toast>>( new Map<Date, Toast>() );
   pageId = '';
   pageNotFound = false;
   pageList;//wenn man nicht auf einer gewissen Seite ist und alle Pages als links aufgelisted werden sollen.
@@ -230,11 +232,17 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     const t:Toast = new Toast( title, message, delay, type );
     const d:Date = new Date();
     this.toasts.set(d, t);
+    this.toastEvent.next(this.toasts);
     if(t.delay > 0){
       setTimeout( () => {
         this.toasts.delete(d);
+        this.toastEvent.next(this.toasts);
       }, t.delay);
     }
+  }
+
+  onToastDeleted( e ) {
+    this.toasts = e;
   }
 
 }

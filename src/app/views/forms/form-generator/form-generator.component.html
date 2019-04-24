@@ -1,6 +1,6 @@
 <!--<a href="https://juristr.com/blog/2017/10/demystify-dynamic-angular-forms/">tutorial1</a>,
 <a href="http://jasonwatmore.com/post/2018/05/10/angular-6-reactive-forms-validation-example">tutorial2</a>-->
-<app-toast [toasts]="toasts"></app-toast>
+<app-toast [toastEvent]="toastEvent" (toastDeleted)="this.onToastDeleted($event)"></app-toast>
 <ng-container *ngIf="formObj && form && !pageNotFound">
 	<form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form">
 		<div id="form-generator-main" class="row">
