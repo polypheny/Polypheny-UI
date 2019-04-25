@@ -55,38 +55,6 @@ export const routes: Routes = [
     },
     children: [
       {
-        path: 'base',
-        loadChildren: './coreui/base/base.module#BaseModule'
-      },
-      {
-        path: 'buttons',
-        loadChildren: './coreui/buttons/buttons.module#ButtonsModule'
-      },
-      {
-        path: 'charts',
-        loadChildren: './coreui/chartjs/chartjs.module#ChartJSModule'
-      },
-      {
-        path: 'dashboard',
-        loadChildren: './coreui/dashboard/dashboard.module#DashboardModule'
-      },
-      {
-        path: 'icons',
-        loadChildren: './coreui/icons/icons.module#IconsModule'
-      },
-      {
-        path: 'notifications',
-        loadChildren: './coreui/notifications/notifications.module#NotificationsModule'
-      },
-      {
-        path: 'theme',
-        loadChildren: './coreui/theme/theme.module#ThemeModule'
-      },
-      {
-        path: 'widgets',
-        loadChildren: './coreui/widgets/widgets.module#WidgetsModule'
-      },
-      {
         path: 'home',
         loadChildren: './views/main/global/global.module#GlobalModule'
       },
