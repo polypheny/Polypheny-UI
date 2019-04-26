@@ -14,14 +14,6 @@ export class RenderItemComponent implements OnInit {
 
   ngOnInit() { }
 
-  collapseTrigger() {
-    if (this.li.isCollapsed !== undefined &&
-      this.li.type === 'collapsible') {
-
-      this.li.isCollapsed = !this.li.isCollapsed;
-    }
-  }
-
   displayProgressValue(li) {
     if((li.min===undefined || li.min===0) && (li.max===undefined || li.max===100)){
       return li.value+'%';
@@ -35,22 +27,17 @@ export class RenderItemComponent implements OnInit {
   getProgressColor(li) {
     const col = li.color || 'dynamic';
     switch(col){
-      case 'info':
-      case 'blue':
+      case 'BLUE':
         return 'info';
-      case 'green':
-      case 'success':
+      case 'GREEN':
         return 'success';
-      case 'yellow':
-      case 'warning':
+      case 'YELLOW':
         return 'warning';
-      case 'red':
-      case 'danger':
+      case 'RED':
         return 'danger';
-      case 'dark':
-      case 'black':
+      case 'BLACK':
         return 'dark';
-      case 'dynamic':
+      case 'DYNAMIC':
         if(li.value === undefined) return 'info';
         else{
           li.min = li.min || 0;

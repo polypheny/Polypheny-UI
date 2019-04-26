@@ -6,28 +6,17 @@
 
 <ng-container *ngIf="li.type">
 
-  <ng-container *ngIf="li.type.toLowerCase() == 'header'">
-    <div class="card-header">
-      {{li.text}}
-      <ng-container *ngIf="li.routerLink"><a [routerLink]="li.routerLink">{{li.label}}</a></ng-container>
-      <ng-container *ngIf="!li.routerLink">{{li.label}}</ng-container>
-      <div class="btnWrapper">
-        <button *ngFor="let btn of li.button" [className]="btn.icon" [routerLink]="btn.routerLink"></button>
-      </div>
-    </div>
-  </ng-container>
-
-  <ng-container *ngIf="li.type.toLowerCase() == 'link'">
+  <ng-container *ngIf="li.type == 'InformationLink'">
     <div class="card-body">
       <a [routerLink]="li.routerLink">{{li.label}}</a>
     </div>
   </ng-container>
 
-  <ng-container *ngIf="li.type.toLowerCase() == 'html'">
+  <ng-container *ngIf="li.type == 'InformationHtml'">
     <div class="card-body" [innerHTML]="li.html"></div>
   </ng-container>
 
-  <ng-container *ngIf="li.type.toLowerCase() == 'progress'">
+  <ng-container *ngIf="li.type == 'InformationProgress'">
     <div class="card-body">
       <div class="clearfix">
         <div class="float-left">
@@ -43,19 +32,7 @@
     </div>
   </ng-container>
 
-  <ng-container *ngIf="li.type.toLowerCase() == 'collapsible'">
-    <div class="card-body collapse-trigger" (click)="collapseTrigger()" [ngClass]="{ 'is-collapsed': li.isCollapsed}">
-      <a>{{li.label}}</a>
-      <span *ngIf="li.badge" class="badge badge-primary badge-pill float-right">{{li.badge}}</span>
-    </div>
-    <!--<ng-container *ngIf="!li.isCollapsed">
-			<div class="collapse-wrapper">
-				<app-render-item *ngFor="let c of li.items | keyvalue" [li]="c.value" class="collapse-body"></app-render-item>
-			</div>
-		</ng-container>-->
-  </ng-container>
-
-  <ng-container *ngIf="li.type.toLowerCase() == 'graph'">
+  <ng-container *ngIf="li.type == 'InformationGraph'">
     <app-graph [data]="li.data" [labels]="li.labels" [chartType]="li.graphType"></app-graph>
   </ng-container>
 

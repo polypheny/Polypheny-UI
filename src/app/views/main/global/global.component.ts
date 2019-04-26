@@ -109,17 +109,21 @@ export class GlobalComponent implements OnInit, OnDestroy {
   getCardClass(color) {
     let card = '';
     switch (color) {
-      case 'blue':
+      case 'BLUE':
           card = 'bg-primary';
           break;
-      case 'light-blue':
+      case 'LIGHTBLUE':
         card = 'bg-info';
         break;
-      case 'yellow':
+      case 'YELLOW':
         card = 'bg-warning';
         break;
-      case 'red':
+      case 'RED':
         card = 'bg-danger';
+        break;
+      case 'GREEN':
+        card = 'bg-success';
+        break;
     }
     card = card + ' card';
     return card;
