@@ -30,6 +30,8 @@ export interface RenderItem {
   data?: number[];
   labels?: string[];
   graphType?:string;
+  //informationHeader
+  text?:string;
 }
 export interface RenderGroup {
   color?: string;

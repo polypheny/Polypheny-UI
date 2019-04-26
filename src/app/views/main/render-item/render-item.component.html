@@ -8,6 +8,7 @@
 
   <ng-container *ngIf="li.type.toLowerCase() == 'header'">
     <div class="card-header">
+      {{li.text}}
       <ng-container *ngIf="li.routerLink"><a [routerLink]="li.routerLink">{{li.label}}</a></ng-container>
       <ng-container *ngIf="!li.routerLink">{{li.label}}</ng-container>
       <div class="btnWrapper">

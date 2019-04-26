@@ -30,7 +30,7 @@ export class ToastComponent implements OnInit {
   /**
    * show newest toasts before the older ones
    */
-  private orderToasts( a: KeyValue<string, any>, b: KeyValue<string, any>) {
+  orderToasts( a: KeyValue<string, any>, b: KeyValue<string, any>) {
     return b.value.time - a.value.time;
   }
 

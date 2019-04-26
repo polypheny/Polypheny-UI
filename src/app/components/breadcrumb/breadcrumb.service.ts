@@ -53,7 +53,7 @@ export class BreadcrumbService implements OnInit, OnDestroy {
   getCardClass() {
     //todo color
     if(this.masonry) return '';
-    else return 'col-lg-'+this.size[this.zoom];
+    else return 'col-sm-'+this.size[this.zoom];
   }
 
   getWrapperClass() {

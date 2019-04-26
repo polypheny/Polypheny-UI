@@ -18,6 +18,7 @@ export class LeftSidebarService {
       res => {
         this.nodes.next(this.mapPages(res, 'config'));
       }, err => {
+        this.nodes.next([]);
         console.log(err);
       }
     );
@@ -37,6 +38,7 @@ export class LeftSidebarService {
       res => {
         this.nodes.next(this.mapPages(res, 'information'));
       }, err => {
+        this.nodes.next([]);
         console.log(err);
       }
     );

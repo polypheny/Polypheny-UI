@@ -1,6 +1,6 @@
 <div id="toast-wrapper">
   <!--<div aria-atomic="true" aria-live="assertive" class="toast" role="alert" *ngFor="let toast of toasts |keyvalue">-->
-  <ng-container *ngFor="let toast of toasts |keyvalue :orderToasts">
+  <ng-container *ngFor="let toast of toasts | keyvalue :orderToasts">
     <div class="toast fade show" [ngClass]="toast.value.type">
       <div class="toast-header">
         <strong class="mr-auto">{{toast.value.title}}</strong>
