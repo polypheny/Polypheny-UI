@@ -1,0 +1,21 @@
+#tree-outer-wrapper{
+  padding: 1em;
+}
+#tree-inner-wrapper{
+  display: flex;
+  max-width: 160px;
+  overflow: auto;
+
+  .node-content-wrapper-focused, .node-content-wrapper:hover{
+    // color: black;
+    background: lighten(#20a8d8, 30%);
+  }
+  .node-content-wrapper-active{
+    // color: black;
+    background: #20a8d8;
+  }
+}
+.sidebarIcon{
+  //redundant at the moment
+  color: white;
+}

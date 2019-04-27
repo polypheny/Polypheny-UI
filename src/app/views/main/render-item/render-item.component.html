@@ -1,0 +1,39 @@
+<ng-container *ngIf="!li.type">
+  <div class="card-body">
+    {{li.label}}
+  </div>
+</ng-container>
+
+<ng-container *ngIf="li.type">
+
+  <ng-container *ngIf="li.type == 'InformationLink'">
+    <div class="card-body">
+      <a [routerLink]="li.routerLink">{{li.label}}</a>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="li.type == 'InformationHtml'">
+    <div class="card-body" [innerHTML]="li.html"></div>
+  </ng-container>
+
+  <ng-container *ngIf="li.type == 'InformationProgress'">
+    <div class="card-body">
+      <div class="clearfix">
+        <div class="float-left">
+          <strong>{{li.label}}</strong>
+        </div>
+        <div class="float-right">
+          <small class="text-muted">{{displayProgressValue(li)}}</small>
+        </div>
+      </div>
+      <div class="progress progress-xs">
+        <progressbar [type]="getProgressColor(li)" [value]="li.value" [max]="li.max || 100">{{li.value}}%</progressbar>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="li.type == 'InformationGraph'">
+    <app-graph [data]="li.data" [labels]="li.labels" [chartType]="li.graphType"></app-graph>
+  </ng-container>
+
+</ng-container>

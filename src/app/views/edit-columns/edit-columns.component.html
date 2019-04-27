@@ -1,0 +1,80 @@
+<div class="row">
+
+  <div class="col-lg-12">
+
+    <h5>table: {{tableId}}</h5>
+
+    <table class="table table-hover table-striped">
+      <thead>
+        <tr>
+          <th>column</th>
+          <th>type</th>
+          <th>length</th>
+          <th>signed</th>
+          <th>nullable</th>
+          <th>key</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let col of columns">
+          <td (dblclick)="col.editing = true;">
+            <ng-container *ngIf="!col.editing">{{col.name}}</ng-container>
+            <ng-container *ngIf="col.editing">
+              <input type="text" [value]="col.name" class="form-control form-control-sm editing">
+            </ng-container>
+          </td>
+          <td (dblclick)="col.editing = true">
+            <ng-container *ngIf="!col.editing">{{col.type}}</ng-container>
+            <ng-container *ngIf="col.editing">
+              <input class="form-control form-control-sm editing"
+                     [typeahead]="types"
+                     [typeaheadScrollable]="true"
+                     [typeaheadOptionsInScrollableView]="5"
+                     [(ngModel)]="col.type"
+                     [ngModelOptions]="{standalone: true}">
+            </ng-container>
+          </td>
+          <td (dblclick)="col.editing = true">
+            <ng-container *ngIf="!col.editing">{{col.length}}</ng-container>
+            <ng-container *ngIf="col.editing">
+              <input type="number" [value]="col.length" class="form-control form-control-sm editing">
+            </ng-container>
+          </td>
+          <td>
+            <input type="checkbox" [checked]="col.signed">
+          </td>
+          <td>
+            <input type="checkbox" [checked]="col.nullable">
+          </td>
+          <td>{{col.key}}</td>
+        </tr>
+        <!--<form #newColumn>-->
+          <tr>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name">
+            </td>
+            <td>
+              <input class="form-control form-control-sm" placeholder="type"
+                     [typeahead]="types"
+                     [dropup]="true"
+                     [typeaheadScrollable]="true"
+                     [typeaheadOptionsInScrollableView]="5"
+                     [(ngModel)]="test"
+                     [ngModelOptions]="{standalone: true}">
+            </td>
+            <td>
+              <input type="number" placeholder="lenght" class="form-control form-control-sm editing">
+            </td>
+            <td><input type="checkbox"></td>
+            <td><input type="checkbox"></td>
+            <td>
+              <a [routerLink]="" class="btn btn-primary" id="addColumnBtn">+</a>
+            </td>
+          </tr>
+        <!--</form>-->
+      </tbody>
+    </table>
+
+  </div>
+
+</div>

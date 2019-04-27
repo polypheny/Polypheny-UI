@@ -1,0 +1,27 @@
+<div id="tree-outer-wrapper">
+	<input type="text" class="form-control form-control-sm" placeholder="search" id="search-tree">
+	<div id="tree-inner-wrapper">
+
+		<tree-root [nodes]="nodes" [options]="options" #tree>
+			<ng-template #treeNodeWrapperTemplate let-node let-index="index">
+				<div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
+					<tree-node-expander [node]="node"></tree-node-expander>
+					<div class="node-content-wrapper"
+						 [class.node-content-wrapper-active]="nodeIsActive(node)"
+						 [class.node-content-wrapper-focused]="false"
+						 (click)="node.mouseAction('click', $event)"
+						 (dblclick)="node.mouseAction('dblClick', $event)"
+						 (contextmenu)="node.mouseAction('contextMenu', $event)"
+						 (treeDrop)="node.onDrop($event)"
+						 [treeAllowDrop]="node.allowDrop"
+						 [treeDrag]="node"
+						 [treeDragEnabled]="node.allowDrag()">
+							<span *ngIf="node.data.icon" [ngClass]="[node.data.icon, 'sidebarIcon']"></span>
+						<tree-node-content [node]="node" [index]="index"></tree-node-content>
+					</div>
+				</div>
+			</ng-template>
+		</tree-root>
+
+	</div>
+</div>
