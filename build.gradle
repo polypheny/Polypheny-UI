@@ -62,5 +62,3 @@ jar {
 
 npm_install.dependsOn(npm_cache_clean)
 
-npmSetup.args = ['--unsafe-perm=true', '--allow-root']
-
