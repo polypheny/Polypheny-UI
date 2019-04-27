@@ -62,6 +62,10 @@ jar {
 }
 
 
+npm_setup {
+  args = ['--unsafe-perm=true', '--allow-root']
+}
+
 
 /**
  * IntelliJ
