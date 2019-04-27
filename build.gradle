@@ -37,7 +37,6 @@ repositories {
 
 apply plugin: 'java'
 apply plugin: 'maven'
-apply plugin: 'idea'
 apply plugin: 'com.moowork.node'
 
 
@@ -56,27 +55,12 @@ node {
 
 jar.dependsOn 'npm_run_build'
 
-
 jar {
   from 'dist/src' into 'static'
 }
 
 
-npm_setup {
-  args = ['--unsafe-perm=true', '--allow-root']
-}
+npm_install.dependsOn(npm_cache_clean)
 
+npmSetup.args = ['--unsafe-perm=true', '--allow-root']
 
-/**
- * IntelliJ
- */
-idea {
-    module {
-        downloadJavadoc = true
-        downloadSources = true
-
-        inheritOutputDirs = false
-        outputDir = file("${project.buildDir}/classes")
-        testOutputDir = file("${project.buildDir}/test-classes")
-    }
-}
