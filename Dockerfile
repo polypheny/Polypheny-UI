@@ -7,6 +7,6 @@ WORKDIR /home/node/app
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 ENV PATH=$PATH:/home/node/.npm-global/bin
 
-RUN mkdir -p /root/.npm/
-RUN ["chmod", "777", "/root/.npm/"]
+RUN mkdir -p /root/.npm/_logs
+RUN ["chmod", "-R", "777", "/root/.npm/"]
 
