@@ -10,8 +10,8 @@ export class BreadcrumbService implements OnInit, OnDestroy {
   //BehaviorSubjects: https://pillar-soft.com/2018/07/02/behavior-subjects-in-angular-6/
   breadcrumbs: BehaviorSubject<BreadcrumbItem[]> = new BehaviorSubject<BreadcrumbItem[]>([]);
   size = [3, 4, 6, 12];
-  zoom = 1;
-  masonry = false;
+  zoom = 2;
+  masonry = true;
 
   mode;
   routerId;
@@ -38,8 +38,12 @@ export class BreadcrumbService implements OnInit, OnDestroy {
     return this.zoom;
   }
 
-  getZoom(){
+  getZoom() {
     return this.zoom;
+  }
+
+  getMasonryZoom() {
+    return 4-this.zoom;
   }
 
   getMasonry() {

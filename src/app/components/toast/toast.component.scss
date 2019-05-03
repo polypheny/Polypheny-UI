@@ -1,11 +1,11 @@
 #toast-wrapper{
-  position: absolute;
-  top: 1em;
+  position: fixed;
+  top: 8em;
   right: 1em;
   min-width: 300px;
-  max-height: 65vh;
+  max-height: 80%;
   overflow: scroll;
-  z-index: 2;
+  z-index: 10;
 }
 .close{
   outline: none;

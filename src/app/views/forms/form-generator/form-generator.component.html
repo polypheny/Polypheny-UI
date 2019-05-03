@@ -9,7 +9,7 @@
 				<p *ngIf="formObj.description">{{formObj.description}}</p>
 			</div>
 		</div>
-		<div [className]="_breadcrumb.getWrapperClass()">
+		<div [className]="_breadcrumb.getWrapperClass()" [ngStyle]="{'column-count': _breadcrumb.getMasonryZoom()}">
 			<ng-container *ngFor="let group of formObj.groups | keyvalue: orderGroups">
 				<div [className]="_breadcrumb.getCardClass()"><!-- *ngIf="group.value.configs.size > 0" -->
 					<div class="form-group card">

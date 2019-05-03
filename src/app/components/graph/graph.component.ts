@@ -17,31 +17,18 @@ export class GraphComponent implements OnInit {
   options: any = {
     animation: false,
     responsive: true,
+    maintainAspectRatio: true,
     tooltips: {
       enabled: false,
       custom: CustomTooltips
     },
-    maintainAspectRatio: true,
-    scales: {
-      xAxes: [{
-        display: true
-      }],
-      yAxes: [{
-        display: true
-      }]
-    },
-    elements: {
-      line: {
-        borderWidth: 2
-      },
-      point: {
-        radius: 0,
-        hitRadius: 10,
-        hoverRadius: 4,
-      },
-    },
-    legend: {
-      display: true
+    layout: {
+      padding: {
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: 16
+      }
     }
   };
 
@@ -58,12 +45,13 @@ export class GraphComponent implements OnInit {
     }
   ];
 
-  legend = false;
+  legend = true;
 
   constructor() {}
 
   ngOnInit() {
     this.chartType = this.chartType.toLowerCase() || 'line';
+    if( this.chartType === 'polararea' ) this.chartType = 'polarArea';
   }
 
 }

@@ -224,7 +224,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         this.toast('server error', 'an error occurred on the server', 3000,  'bg-danger');
       });
     } else {
-      this.toast('no success', 'Changes could not be saved. Please check invalid inputs.', 0, 'bg-warning');
+      this.toast('invalid input', 'Changes could not be saved. Please check invalid input.', 0, 'bg-warning');
     }
   }
 
