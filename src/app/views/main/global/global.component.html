@@ -23,7 +23,7 @@
 </ng-container>
 <ng-container *ngIf="!data && pageList">
   Choose a page to display information:<br><br>
-  <button *ngFor="let page of pageList | keyvalue" class="btn btn-light pageLink" [routerLink]="'/home/global/'+page.value.id">{{page.value.name}}</button>
+  <button *ngFor="let page of pageList | keyvalue" class="btn btn-light pageLink" [routerLink]="'/home/monitoring/'+page.value.id">{{page.value.name}}</button>
 </ng-container>
 <ng-container *ngIf="serverError">
   <p class="text-danger">

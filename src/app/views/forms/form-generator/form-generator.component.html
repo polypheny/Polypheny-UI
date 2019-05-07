@@ -67,7 +67,7 @@
 </ng-container>
 <ng-container *ngIf="!formObj && !form && pageList">
 	Choose a page to display configs:<br><br>
-	<button *ngFor="let page of pageList | keyvalue" class="btn btn-light pageLink" [routerLink]="'/config/'+page.value.id">{{page.value.name}}</button>
+	<button *ngFor="let page of pageList | keyvalue" class="btn btn-light pageLink" [routerLink]="''+page.value.id">{{page.value.name}}</button>
 </ng-container>
 <ng-container *ngIf="serverError">
 	<p class="text-danger">

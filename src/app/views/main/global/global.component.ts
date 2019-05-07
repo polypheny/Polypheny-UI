@@ -63,7 +63,7 @@ export class GlobalComponent implements OnInit, OnDestroy {
   }
 
   getServiceData() {
-    if(this.mode === 'global'){
+    if(this.mode === 'monitoring'){
       //this.data.groups = this._logic.getGlobalData();
       if(!this.routerId){
         this._information.getPageList().subscribe(
@@ -83,7 +83,7 @@ export class GlobalComponent implements OnInit, OnDestroy {
               this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('informationManager')]);
             }else{
               this.data = <RenderObj>res;
-              this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('informationManager', '/home/global/'), new BreadcrumbItem(this.data.name.toString())]);
+              this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('informationManager', '/home/monitoring/'), new BreadcrumbItem(this.data.name.toString())]);
               this.serverError = null;
             }
           }, err => {

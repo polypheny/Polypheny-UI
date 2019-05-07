@@ -61,10 +61,10 @@ class SidebarNode{
     this.icon = icon;
     switch (group) {
       case 'config':
-        this.routerLink = '/config/'+id;
+        this.routerLink = '/views/config/'+id;
         break;
       case 'information':
-        this.routerLink = '/home/global/'+id;
+        this.routerLink = '/home/monitoring/'+id;
         break;
       default:
         console.error('sidebarNode with unknown group');

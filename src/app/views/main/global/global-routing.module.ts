@@ -1,19 +1,15 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import {GlobalComponent} from './global.component';
+import { GlobalComponent } from './global.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: GlobalComponent,
-    data: { title: 'Global view' }
+    component: GlobalComponent
   },
   {
     path: ':mode',
     component: GlobalComponent
-    /*data: {
-      title: 'Global view'
-    }*/
   },
   {
     path: ':mode/:id',

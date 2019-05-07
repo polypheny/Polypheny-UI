@@ -106,7 +106,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
           }
 
           this.formObj = <JavaUiPage> res;
-          this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem( 'ConfigManager', '/config/' ), new BreadcrumbItem( this.formObj.title.toString())] );
+          this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem( 'ConfigManager', '/views/config/' ), new BreadcrumbItem( this.formObj.title.toString())] );
 
           this.buildFormGroup();
 
