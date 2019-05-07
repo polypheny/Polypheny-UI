@@ -53,21 +53,13 @@ node {
 }
 
 
-task npmCi(type: NpmTask) {
-    dependsOn npmSetup
-    npmCommand = ["ci"]
-    inputs.file("package.json")
-    inputs.file("package-lock.json")
-    outputs.dir("node_modules")
-}
 
-
-jar.dependsOn 'npmCi'
+jar.dependsOn 'npm_install'
 
 jar {
   from 'dist/src' into 'static'
 }
 
 
-npm_install.dependsOn(npm_cache_clean)
-
+//npm_install.dependsOn(npm_cache_clean)
+npmInstall.args = ['--package-lock']
