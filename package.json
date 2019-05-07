@@ -1,21 +1,6 @@
 {
-  "name": "@coreui/coreui-free-angular-admin-template",
-  "version": "2.4.3",
-  "description": "CoreUI Free Angular 2+ Admin Template",
-  "author": {
-    "name": "Łukasz Holeczek",
-    "url": "http://holeczek.pl",
-    "github": "https://github.com/mrholek",
-    "twitter": "https://twitter.com/lukaszholeczek"
-  },
-  "contributors": [
-    {
-      "name": "Andrzej Kopański",
-      "url": "https://github.com/xidedix"
-    }
-  ],
-  "homepage": "https://coreui.io/angular",
-  "copyright": "Copyright 2018 creativeLabs Łukasz Holeczek",
+  "name": "Polypheny-DB UI",
+  "version": "1.0",
   "license": "MIT",
   "scripts": {
     "ng": "ng",

@@ -53,6 +53,11 @@ node {
 }
 
 
+project.afterEvaluate {
+    tasks.npm_install.outputs.dir(file('node_modules'))
+}
+
+
 jar.dependsOn 'npm_run_build'
 
 jar {
