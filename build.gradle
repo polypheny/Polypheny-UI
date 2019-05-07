@@ -62,7 +62,7 @@ task npmCi(type: NpmTask) {
 }
 
 
-jar.dependsOn 'npm_run_build'
+jar.dependsOn 'npmCi'
 
 jar {
   from 'dist/src' into 'static'
