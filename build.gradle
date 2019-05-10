@@ -54,7 +54,7 @@ node {
 
 
 
-jar.dependsOn 'npm_install'
+jar.dependsOn 'npm_run-script_build'
 
 jar {
   from 'dist/src' into 'static'
