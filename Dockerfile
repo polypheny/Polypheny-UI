@@ -1,6 +1,8 @@
 FROM openjdk:8-jdk-slim
 
-RUN whoami 
-RUN mkdir -p /root/.npm/_logs/
-RUN chmod -R 777 /root/.npm/
+RUN useradd --create-home --shell /bin/bash builduser
 
+USER builduser
+WORKDIR /home/builduser
+
+RUN whoami 
