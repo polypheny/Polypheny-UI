@@ -6,3 +6,4 @@ USER builduser
 WORKDIR /home/builduser
 
 RUN whoami 
+RUN ls -al /home/builduser
