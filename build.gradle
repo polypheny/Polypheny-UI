@@ -60,7 +60,7 @@ npm_run_build.dependsOn(npmInstall)
 jar.dependsOn(npm_run_build)
 
 jar {
-  from 'dist' into 'ch/unibas/dmi/dbis/polyphenydb/polyphenydb-ui/webapp'
+  from 'dist' into 'webapp'
   
   manifest {
         attributes "Manifest-Version": "1.0"
