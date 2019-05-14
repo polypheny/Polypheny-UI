@@ -9,7 +9,7 @@ import * as $ from 'jquery';
   styleUrls: ['./data-table.component.scss']
 })
 export class DataTableComponent implements OnInit {
-  @Input() data: [];
+  @Input() data: any[];
   @Input() config?: TableConfig;
 
   defaultConfig: TableConfig = {
@@ -20,7 +20,16 @@ export class DataTableComponent implements OnInit {
     search: true
   };
 
-  constructor() { }
+  constructor() {
+    //for testing
+    const a = [
+      [1,2,3],
+      [4,5,6],
+      [7,8,9]
+    ];
+    this.data = a;
+  }
+
 
   ngOnInit() {
     this.setConfig();

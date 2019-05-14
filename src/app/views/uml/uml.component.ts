@@ -5,7 +5,6 @@ import 'jquery-ui/ui/widgets/draggable';
 import {ActivatedRoute} from '@angular/router';
 import {Md5} from 'ts-md5/dist/md5';
 
-// warning (linter) here because total file overwritten by copy paste?
 @Component({
   selector: 'app-uml',
   templateUrl: './uml.component.html',
@@ -15,13 +14,17 @@ import {Md5} from 'ts-md5/dist/md5';
 export class UmlComponent implements OnInit, AfterViewInit {
 
   uml: UML[];
-  lines: svgLine[];
+  lines: SvgLine[] = [];
   connections: Map<string, Connection> = new Map();
   dbId: number;
 
-  existingConnections;
+  existingConnections = [];
 
-  constructor(private _route: ActivatedRoute) { }
+  constructor(private _route: ActivatedRoute) {
+    this.existingConnections = [
+      {source: '19f35b03310d187d2717fbeca10fa9bd', target: 'a5afb3700a1229679dff8b0238a6aa9a'}
+    ];
+  }
 
   ngOnInit() {
 
@@ -35,21 +38,18 @@ export class UmlComponent implements OnInit, AfterViewInit {
       {tableName: 'table5', cols: ['so wide so wide so wide so wide so wide', 'h', 'i', 'j'], methods: ['method1', 'method2']}
     ];
 
-    // todo error if it has values from the beginning
-    this.existingConnections = [
-      {source: 'col-table1-b', target: 'col-table2-f'},
-      {source: 'col-table2-f', target: 'col-table3-h'},
-      {source: 'col-table3-i', target: 'col-table4-j'}
-    ];
 
-    this.lines = [];
 
   }
 
   ngAfterViewInit() {
-    // this.loadExistingConnections(); // todo throws error: ExpressionChangedAfterItHasBeenCheckedError
+
     this.connectTables();
     this.dragTables();
+
+    // todo throws error: ExpressionChangedAfterItHasBeenCheckedError (but not in production mode)
+    this.loadExistingConnections();
+
   }
 
   dragTables() {
@@ -68,19 +68,21 @@ export class UmlComponent implements OnInit, AfterViewInit {
     let isDragging = false;
     let fromTable;
     let source;
+    const offsetX = 200;
+    const offsetY = 80;
     $(document).on('mousedown', '.uml .cols', function(e) {
       isDragging = true;
       fromTable = $(e.target).parent().attr('id');
       source = $(e.target).attr('id');
-      line = {x1: e.pageX, y1: e.pageY, x2: e.pageX, y2: e.pageY};
+      line = {x1: e.pageX - offsetX, y1: e.pageY - offsetY, x2: e.pageX - offsetX, y2: e.pageY - offsetY};
       self.lines.push(line);
 
       // todo control z-index when released
 
     }).on('mousemove', function (e) {
       if (isDragging) {
-        line.x2 = e.pageX;
-        line.y2 = e.pageY;
+        line.x2 = e.pageX - offsetX;
+        line.y2 = e.pageY - offsetY;
       }
     }).on('mouseup', function (e) {
       if ($(e.target).hasClass('cols') && $(e.target).parent().attr('id') !== fromTable) {
@@ -98,6 +100,13 @@ export class UmlComponent implements OnInit, AfterViewInit {
     for(const conn of this.existingConnections){
       const connObj = new Connection(conn.source, conn.target);
       this.connections.set(connObj.toString(), connObj);
+
+      const src = $(conn.source).offset();
+      const tgt = $(conn.target).offset();
+      if(src !== undefined && tgt !== undefined){
+        const line = {x1: src.top + 5, x2: tgt.top + 5, y1: src.left, y2: tgt.left};
+        this.lines.push(line);
+      }
     }
   }
 
@@ -109,9 +118,9 @@ export class UmlComponent implements OnInit, AfterViewInit {
     const targetEle = $('#'+target);
     if(sourceEle === undefined || targetEle === undefined) return;
     if($(sourceEle).offset().left < $(targetEle).offset().left){
-      return $(sourceEle).offset().left + $(sourceEle).width() + 6;
+      return $(sourceEle).offset().left + $(sourceEle).width() - 195;
     }else{
-      return $(sourceEle).offset().left;
+      return $(sourceEle).offset().left - 200;
     }
   }
   /** get x position of div of target column
@@ -121,9 +130,9 @@ export class UmlComponent implements OnInit, AfterViewInit {
     const sourceEle = $('#'+source);
     const targetEle = $('#'+target);
     if($(sourceEle).offset().left < $(targetEle).offset().left){
-      return $(targetEle).offset().left;
+      return $(targetEle).offset().left - 200;
     }else{
-      return $(targetEle).offset().left + $(targetEle).width() + 6;
+      return $(targetEle).offset().left + $(targetEle).width() - 195;
     }
   }
   /** get y position of div of source/target column
@@ -131,7 +140,7 @@ export class UmlComponent implements OnInit, AfterViewInit {
   getY(ele:string){
     if(ele === undefined) return;
     const element= $('#'+ele);
-    return $(element).offset().top + 10;
+    return $(element).offset().top - 65;
   }
 
   hash(s:string[]){
@@ -149,7 +158,7 @@ export interface UML {
   cols: string[];
   methods?: string[];
 }
-export interface svgLine {
+export interface SvgLine {
   x1: number;
   y1: number;
   x2: number;

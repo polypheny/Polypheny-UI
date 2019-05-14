@@ -56,7 +56,7 @@ node {
 jar.dependsOn 'npm_run_build'
 
 jar {
-  from 'dist/src' into 'static'
+  from 'dist' into 'static'
 }
 
 

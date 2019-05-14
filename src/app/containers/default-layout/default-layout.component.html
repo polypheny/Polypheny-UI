@@ -57,6 +57,36 @@
       <i class="icon-note"></i><span class="d-md-down-none"> query</span>
     </li>
 
+    <li style="margin-left: 2rem;">
+      <div class="btn-group" dropdown>
+        <button id="button-basic" dropdownToggle type="button" class="btn dropdown-toggle"
+                aria-controls="dropdown-basic">
+          Test <span class="caret"></span>
+        </button>
+        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
+            role="menu" aria-labelledby="button-basic">
+          <li role="menuitem">
+            <a class="dropdown-item" [routerLink]="['/views/uml/1']">UML</a>
+          </li>
+          <li role="menuitem">
+            <a class="dropdown-item" [routerLink]="['/views/sql-console']">sql console</a>
+          </li>
+          <li role="menuitem">
+            <a class="dropdown-item" [routerLink]="['/views/data-table']">data table</a>
+          </li>
+          <li role="menuitem">
+            <a class="dropdown-item" [routerLink]="['/views/edit-columns/1']">edit columns</a>
+          </li>
+          <li role="menuitem">
+            <a class="dropdown-item" [routerLink]="['/views/graphical-querying/1']">graphical querying</a>
+          </li>
+          <!--<li class="divider dropdown-divider"></li>
+          <li role="menuitem"><a class="dropdown-item" href="#">Separated link</a>
+          </li>-->
+        </ul>
+      </div>
+    </li>
+
   </ul>
   <ul class="nav navbar-nav ml-auto">
     <!--<li class="nav-item d-md-down-none">
