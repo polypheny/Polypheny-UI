@@ -1,11 +1,10 @@
 
-group 'ch.unibas.dmi.dbis.polyphenydb-ui'
+group 'ch.unibas.dmi.dbis.polyphenydb'
 
+version '1.0'
 
-def versionMajor = 1
-def versionMinor = 0
-def versionQualifier = 'SNAPSHOT'
-version = versionMajor + '.' + versionMinor + '-' + versionQualifier
+description = "Polypheny-DB UI App"
+
 
 
 buildscript {
@@ -53,12 +52,25 @@ node {
 }
 
 
-jar.dependsOn 'npm_run_build'
+//npm_install.dependsOn(npm_cache_clean)
+npmInstall.args = ['--package-lock']
+
+npm_run_build.dependsOn(npmInstall)
+
+jar.dependsOn(npm_run_build)
 
 jar {
-  from 'dist' into 'static'
+  from 'dist' into 'webapp'
+  
+  manifest {
+        attributes "Manifest-Version": "1.0"
+        attributes "Copyright": "Databases and Information Systems Group, Department Mathematics and Computer Science, University of Basel, Switzerland"
+        attributes "Version": "$version"
+    }
 }
 
+artifacts {
+    archives jar
+}
 
-npm_install.dependsOn(npm_cache_clean)
 
