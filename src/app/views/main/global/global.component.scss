@@ -3,9 +3,6 @@
   color: #20a8d8 !important;
 }
 
-.card .card-body, .card .card-header, .card .card-footer{
-  padding: .75rem 1.25rem;
-}
 //.card .card-body:not(:last-child), .card app-render-item:not(:last-child), app-render-item{
 .card app-render-item:not(:last-child), .collapse-trigger:not(.is-collapsed){
   border-bottom: 1px solid;

@@ -9,11 +9,9 @@ export class BreadcrumbService implements OnInit, OnDestroy {
 
   //BehaviorSubjects: https://pillar-soft.com/2018/07/02/behavior-subjects-in-angular-6/
   breadcrumbs: BehaviorSubject<BreadcrumbItem[]> = new BehaviorSubject<BreadcrumbItem[]>([]);
-  size = [3, 4, 6, 12];
-  zoom = 2;
-  masonry = true;
+  MAXCOLS = 10;
+  zoom = this.MAXCOLS - 2;
 
-  mode;
   routerId;
 
   constructor() { }
@@ -25,14 +23,14 @@ export class BreadcrumbService implements OnInit, OnDestroy {
   }
 
   zoomIn() {
-    if (this.zoom < this.size.length - 1) {
+    if (this.zoom < this.MAXCOLS) {
       this.zoom++;
     }
     return this.zoom;
   }
 
   zoomOut() {
-    if (this.zoom > 0) {
+    if (this.zoom > 1) {
       this.zoom--;
     }
     return this.zoom;
@@ -43,31 +41,12 @@ export class BreadcrumbService implements OnInit, OnDestroy {
   }
 
   getMasonryZoom() {
-    return 4-this.zoom;
-  }
-
-  getMasonry() {
-    return this.masonry;
-  }
-
-  getSize() {
-    return this.size;
+    return this.MAXCOLS - ( this.zoom-1 );
   }
 
   getCardClass() {
-    //todo color
-    if(this.masonry) return '';
-    else return 'col-sm-'+this.size[this.zoom];
-  }
-
-  getWrapperClass() {
-    if (this.masonry) return 'card-columns';
-    else return 'row';
-  }
-
-  toggleMasonry() {
-    this.masonry = !this.masonry;
-    return this.masonry;
+    //todo color..
+    return '';
   }
 
   getBreadcrumbs(){

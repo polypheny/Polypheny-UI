@@ -1,12 +1,14 @@
 .form-group{
   //border: 1px #dadada solid;
   //border-radius: 3px;
-  padding: 0.5rem;
   margin: 0.1rem;
 }
 
-.form-group div {
-  padding-bottom: 0.2rem;
+.input-group {
+  margin-bottom: 1rem;
+}
+.card-body .input-group:last-child {
+  margin-bottom: 0;
 }
 
 .save-configs{
@@ -39,9 +41,20 @@
 .card-columns .card {
   margin-bottom: 1rem;
 }
+
+.card-body{
+  padding: 1rem;
+}
+.card-header{
+  padding: 1rem;
+  line-height: 1.25em;
+}
+
 .input-group-prepend{
   max-width: 50%;
+  min-width: 50%;
   overflow: hidden;
+  position: relative;
 
   //todo there is a delay when the mouse leaves the element
   -webkit-transition: max-width 1s linear 0s;
@@ -53,10 +66,10 @@
   max-width: 100%;
 }
 
-//gradient for labels that are too long
-.input-group-prepend{
-  position: relative;
+.input-group-prepend .input-group-text{
+  width: 100%;
 }
+
 .gradient{
   position: absolute;
   right: 0;
