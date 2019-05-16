@@ -26,6 +26,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   pageNotFound = false;
   pageList;//wenn man nicht auf einer gewissen Seite ist und alle Pages als links aufgelisted werden sollen.
   serverError;//wenn der Server nicht antwortet
+  switchColors = ['switch-primary', 'switch-success', 'switch-warning', 'switch-danger'];
 
   constructor(
     private _config:ConfigService,
@@ -243,6 +244,11 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
 
   onToastDeleted( e ) {
     this.toasts = e;
+  }
+
+  getSwitchColor (key: number) {
+    console.log(key);
+    return this.switchColors[key%4];
   }
 
 }

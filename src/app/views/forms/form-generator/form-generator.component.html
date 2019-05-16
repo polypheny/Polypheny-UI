@@ -14,14 +14,16 @@
 				<div>
 					<div class="form-group card">
 						<div class="card-header">
-							<strong>{{group.value.title}}</strong>
-							<ng-container *ngIf="group.value.description">
-								<small style="color: #5c6873;">{{group.value.description}}</small>
-							</ng-container>
+							<div style="width: 95%;">
+								<strong>{{group.value.title}}</strong>
+								<ng-container *ngIf="group.value.description">
+									<small style="color: #5c6873;">{{group.value.description}}</small>
+								</ng-container>
+							</div>
 						</div>
 						<!--<p>{{group.value.description}}</p>-->
 						<div class="card-body">
-							<ng-container *ngFor="let config of group.value.configs | keyvalue: orderConfigs">
+							<ng-container *ngFor="let config of group.value.configs | keyvalue: orderConfigs; let nth = index">
 								<ng-container [ngSwitch]="config.value.webUiFormType">
 									<div class="input-group">
 										<div class="input-group-prepend">
@@ -35,11 +37,20 @@
 											<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="number" class="form-control" [ngClass]="inputValidation(config.value.key)">
 										</ng-container>
 										<ng-container *ngSwitchCase="'BOOLEAN'">
+											<!--<div class="checkbox-wrapper">-->
+														<!--<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
+														<!-- throws warning, but solves problem of assigning value "false" (as string) -->
+												<!--<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
+											<!--</div>-->
+
 											<div class="checkbox-wrapper">
-												<!--<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
-												<!-- throws warning, but solves problem of assigning value "false" (as string) -->
-												<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">
+												&nbsp;
+												<label [class]="'switch switch-label switch-pill switch-sm ' + getSwitchColor(nth)">
+													<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control switch-input" [ngClass]="inputValidation(config.value.key)">
+													<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+												</label>
 											</div>
+
 										</ng-container>
 
 										<div class="invalid-feedback" *ngIf="submitted && !form.controls[config.value.key].valid">
