@@ -13,7 +13,7 @@ import {LeftSidebarService} from './left-sidebar.service';
   styleUrls: ['./left-sidebar.component.scss']
 })
 
-//https://angular2-tree.readme.io/docs/
+//docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarComponent implements OnInit , AfterViewInit {
 
   @ViewChild('tree') treeComponent: TreeComponent;

@@ -1,3 +1,6 @@
-<h5>table {{tableId}}</h5>
-<br>
-<app-data-table [data]="data" [config]="tableConfig"></app-data-table>
+<ng-container *ngIf="tableId">
+	<h5>table {{tableId}}</h5>
+	<br>
+</ng-container>
+<app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="tableConfig" [tableId]="tableId"></app-data-table>
+<p *ngIf="!tableId">Please select a table in the left sidebar to view its data.</p>

@@ -1,5 +1,4 @@
 import {Component, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
-import { LogicService } from '../../../services/logic.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {RenderGroup, RenderItem, RenderObj} from '../models';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
@@ -25,7 +24,6 @@ export class GlobalComponent implements OnInit, OnDestroy {
   data: RenderObj;
 
   constructor(
-    private _logic:LogicService,
     private _information:InformationService,
     private _route: ActivatedRoute,
     private _router: Router,
@@ -64,7 +62,6 @@ export class GlobalComponent implements OnInit, OnDestroy {
 
   getServiceData() {
     if(this.mode === 'monitoring'){
-      //this.data.groups = this._logic.getGlobalData();
       if(!this.routerId){
         this._information.getPageList().subscribe(
           res => {

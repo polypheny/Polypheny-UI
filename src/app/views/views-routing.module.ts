@@ -2,10 +2,10 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import {UmlComponent} from './uml/uml.component';
 import {SqlConsoleComponent} from './sql-console/sql-console.component';
-import {DataTableComponent} from '../components/data-table/data-table.component';
 import {EditColumnsComponent} from './edit-columns/edit-columns.component';
 import {GraphicalQueryingComponent} from './graphical-querying/graphical-querying.component';
 import {FormGeneratorComponent} from './forms/form-generator/form-generator.component';
+import {TableViewComponent} from './table-view/table-view.component';
 
 const routes: Routes = [
   {
@@ -24,7 +24,21 @@ const routes: Routes = [
   },
   {
     path: 'data-table',
-    component: DataTableComponent,
+    component: TableViewComponent,
+    data: {
+      title: 'Data Table'
+    }
+  },
+  {
+    path: 'data-table/:id',
+    component: TableViewComponent,
+    data: {
+      title: 'Data Table'
+    }
+  },
+  {
+    path: 'data-table/:id/:page',
+    component: TableViewComponent,
     data: {
       title: 'Data Table'
     }

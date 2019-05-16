@@ -27,8 +27,19 @@ export class LeftSidebarService {
   private mapPages ( res:Object, mode:string ) {
     const pages = <JavaPage[]> res;
     const nodes:SidebarNode[] = [];
+    let routerLink = '';
     for( const p of pages ) {
-      nodes.push(new SidebarNode(p.id, p.name, p.icon, mode));
+      switch (mode) {
+        case 'config':
+          routerLink = '/views/config/'+p.id;
+          break;
+        case 'information':
+          routerLink = '/home/monitoring/'+p.id;
+          break;
+        default:
+          console.error('sidebarNode with unknown group');
+      }
+      nodes.push(new SidebarNode(p.id, p.name, p.icon, routerLink));
     }
     return nodes;
   }
@@ -48,29 +59,29 @@ export class LeftSidebarService {
     return this.nodes;
   }
 
+  setNodes ( n: SidebarNode[] ) {
+    this.nodes.next( n );
+  }
+
 }
 
-class SidebarNode{
+export class SidebarNode{
   id:any;
   name:string;
   icon:string;
   routerLink:string;
-  constructor ( id, name, icon, group ){
+  children: SidebarNode[];
+  constructor ( id, name, icon, routerLink ){
     this.id = id;
     this.name = name;
     this.icon = icon;
-    switch (group) {
-      case 'config':
-        this.routerLink = '/views/config/'+id;
-        break;
-      case 'information':
-        this.routerLink = '/home/monitoring/'+id;
-        break;
-      default:
-        console.error('sidebarNode with unknown group');
-    }
+    this.routerLink = routerLink;
+  }
+  setChildren ( children: SidebarNode[] ) {
+    this.children = children;
   }
 }
+
 interface JavaPage {
   id:any;
   name:string;
