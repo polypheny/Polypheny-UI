@@ -9,28 +9,26 @@ import {FormControl, FormGroup} from '@angular/forms';
 })
 export class RightSidebarComponent implements OnInit {
 
-  constructor( private _settings: WebuiSettingsService ) { }
+  settings = this._settings.getSettings();
+  form: FormGroup;
 
-  config_rest = this._settings.get('settings.config.rest');
-  config_socket = this._settings.get('settings.config.socket');
-  info_rest = this._settings.get('settings.information.rest');
-  info_socket = this._settings.get('settings.information.socket');
-
-  form = new FormGroup({
-    configRest: new FormControl(this._settings.get('settings.config.rest')),
-    configSocket: new FormControl(this._settings.get('settings.config.socket')),
-    infoRest: new FormControl(this._settings.get('settings.information.rest')),
-    infoSocket: new FormControl(this._settings.get('settings.information.socket'))
-  });
+  constructor( private _settings: WebuiSettingsService ) {
+    const controls = {};
+    this.settings.forEach( (val, key) => {
+      controls[key] = new FormControl( val );
+    });
+    this.form = new FormGroup( controls );
+  }
 
   ngOnInit() {
   }
 
   saveSettings () {
-    this._settings.set('settings.config.rest', this.form.value.configRest);
-    this._settings.set('settings.config.socket', this.form.value.configSocket);
-    this._settings.set('settings.information.rest', this.form.value.infoRest);
-    this._settings.set('settings.information.socket', this.form.value.infoSocket);
+    console.log(this.form.value);
+    this.settings.forEach( (val, key) => {
+      this._settings.setSetting( key, this.form.value[key] );
+    });
+
     location.reload();
   }
 
