@@ -31,6 +31,7 @@ export class GlobalComponent implements OnInit, OnDestroy {
     private _sidebar: LeftSidebarService
   ) {
     _sidebar.listInformationManagerPages();
+    _sidebar.open();
   }
 
   ngOnInit() {
@@ -58,6 +59,7 @@ export class GlobalComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._breadcrumb.hide();
+    this._sidebar.close();
   }
 
   getServiceData() {

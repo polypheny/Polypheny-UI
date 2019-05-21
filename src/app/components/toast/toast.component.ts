@@ -25,6 +25,9 @@ export class ToastComponent implements OnInit {
     //todo https://www.pluralsight.com/guides/angular-communication-between-components-input-output-properties
     this.toasts.delete(key);
     this.toastDeleted.emit(this.toasts);
+    //todo close by swiping:
+      //https://stackoverflow.com/questions/22078941/minimum-drag-swipe-distance-with-hammer-js
+      //(swipeleft)="closeToast(toast.key)"
   }
 
   /**

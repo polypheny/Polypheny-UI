@@ -29,9 +29,10 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
       actionMapping: {
         mouse: {
           dblClick: (tree, node, $event) => {
-            if (node.hasChildren) TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+
           },
           click: (tree, node, $event) => {
+            if (node.hasChildren) TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
             if ( ! node.hasChildren){
               _router.navigate([node.data.routerLink]);
               node.setIsActive(true);
@@ -58,12 +59,13 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
   }
 
   ngOnInit() {
-    $('body').addClass('sidebar-lg-show');
   }
 
   ngAfterViewInit(): void {
     const treeModel: TreeModel = this.treeComponent.treeModel;
     // treeModel.setState({id: 1, name: 'test'});// not working yet
+    //todo is not working:
+    this.treeComponent.treeModel.expandAll();//expand by default
 
     // todo 2-way-binding https://angular2-tree.readme.io/docs/save-restore
 

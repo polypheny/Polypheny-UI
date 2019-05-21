@@ -1,15 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {TableConfig} from '../../components/data-table/table-config';
-import {CrudService, ResultSet} from '../../services/crud.service';
+import {CrudService} from '../../services/crud.service';
 import {LeftSidebarService, SidebarNode} from '../../components/left-sidebar/left-sidebar.service';
+import {ResultSet} from '../../components/data-table/models/result-set.model';
 
 @Component({
   selector: 'app-table-view',
   templateUrl: './table-view.component.html',
   styleUrls: ['./table-view.component.scss']
 })
-export class TableViewComponent implements OnInit {
+export class TableViewComponent implements OnInit, OnDestroy {
 
   tableId = '';
   currentPage = 1;
@@ -27,6 +28,9 @@ export class TableViewComponent implements OnInit {
       private _sidebar: LeftSidebarService) { }
 
   ngOnInit() {
+
+    this._sidebar.open();
+
     this.tableId = this._route.snapshot.paramMap.get('id');
     if( this._route.snapshot.paramMap.get('page') ){
       this.currentPage = +this._route.snapshot.paramMap.get('page');
@@ -37,6 +41,7 @@ export class TableViewComponent implements OnInit {
 
     this._crud.getSchema().subscribe(
         res => {
+          console.log(res);
           const schema = <SidebarNode[]> res;
           this._sidebar.setNodes( schema );
         }, err => {
@@ -66,6 +71,10 @@ export class TableViewComponent implements OnInit {
 
     });
 
+  }
+
+  ngOnDestroy() {
+    this._sidebar.close();
   }
 
 }

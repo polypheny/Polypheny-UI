@@ -31,6 +31,8 @@
     "core-js": "^2.6.5",
     "flag-icon-css": "^3.2.1",
     "font-awesome": "^4.7.0",
+    "hammer": "0.0.5",
+    "hammerjs": "^2.0.8",
     "jquery": "^3.4.0",
     "jquery-ui": "^1.12.1",
     "moment": "^2.24.0",
@@ -44,14 +46,15 @@
     "ts-md5": "^1.2.4",
     "tsickle": "^0.34.3",
     "tslib": "^1.9.0",
-    "zone.js": "^0.8.29",
-    "typescript": "~3.2.4"
+    "typescript": "~3.2.4",
+    "zone.js": "^0.8.29"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.13.9",
     "@angular/cli": "^7.3.3",
     "@angular/compiler-cli": "^7.2.6",
     "@angular/language-service": "^7.2.6",
+    "@types/hammerjs": "^2.0.36",
     "@types/jasmine": "^3.3.9",
     "@types/jasminewd2": "^2.0.6",
     "@types/node": "^11.9.4",

@@ -1,15 +1,17 @@
 <div class="row" *ngIf="resultSet.data">
   <div class="col-lg-12">
 
-    <table class="table table-hover table-sm table-bordered table-striped" id="data-table">
+    <table class="table table-hover table-sm table-bordered table-striped" id="data-table" [attr.data-table]="resultSet.table">
       <thead>
       <tr>
         <th class="selector">
           <input type="checkbox">
         </th>
         <ng-container *ngFor="let h of resultSet.header">
-          <th >{{h}}
-            <a *ngIf="defaultConfig.sort" [routerLink]="" class="btn btn-light btn-sm float-right"><i class="icon-arrow-up"></i></a>
+          <th >{{h.name}}
+            <a *ngIf="defaultConfig.sort" [routerLink]="" [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}" (click)="sortTable(h.sort)">
+              <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
+            </a>
           </th>
         </ng-container>
         <th class="delete">
@@ -18,14 +20,14 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngIf="defaultConfig.sort">
+      <tr *ngIf="defaultConfig.search">
         <td></td>
-        <td *ngFor="let d of resultSet.data[0]"><input type="text" class="form-control form-control-sm" placeholder="search"></td>
+        <td *ngFor="let h of resultSet.header"><input type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event)"></td>
         <td></td>
       </tr>
       <tr *ngFor="let d1 of resultSet.data">
         <ng-container *ngIf="d1.editing">
-          <td></td>
+          <td class="selector"><input type="checkbox" checked="true"></td>
           <td *ngFor="let d2 of d1"><input type="text" class="form-control form-control-sm editing" [value]="d2"></td>
           <td>
             <button class="btn btn-primary editing" id="editColSave"><i class="fa fa-save editing"></i></button>
@@ -39,12 +41,15 @@
           </td>
         </ng-container>
       </tr>
+      <tr *ngIf="resultSet.data.length === 0">
+        <td [attr.colspan]="resultSet.header.length+2" style="text-align: center" class="text-danger">(no data to show)</td>
+      </tr>
       <tr *ngIf="defaultConfig.create">
         <td></td>
-        <td *ngFor="let d of resultSet.data[0]">
-          <input type="text" class="form-control form-control-sm" placeholder="insert (todo:type)">
+        <td *ngFor="let h of resultSet.header">
+          <input type="text" class="form-control form-control-sm insert-input" placeholder="insert (todo:type)" [name]="h.name" [ngModel]="insertValues.get(h.name)" (ngModelChange)="insertValues.set(h.name, $event)">
         </td>
-        <td><button id="addColumnBtn" class="btn btn-primary">+</button></td>
+        <td><button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()">+</button></td>
       </tr>
       </tbody>
     </table>

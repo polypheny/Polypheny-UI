@@ -1,7 +1,10 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {TableConfig} from './table-config';
 import * as $ from 'jquery';
-import {ResultSet} from '../../services/crud.service';
+import {CrudService} from '../../services/crud.service';
+import {PaginationElement} from './models/pagination-element.model';
+import {ResultSet} from './models/result-set.model';
+import {SortDirection, SortState} from './models/sort-state.model';
 
 @Component({
   selector: 'app-data-table',
@@ -14,6 +17,9 @@ export class DataTableComponent implements OnInit, OnChanges {
   @Input() tableId: string;
 
   pagination: PaginationElement[] = [];
+  insertValues = new Map<string, any>();
+  sortStates = new Map<string, SortState>();
+  filter = new Map<string, string>();
 
   defaultConfig: TableConfig = {
     create: true,
@@ -23,7 +29,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     search: true
   };
 
-  constructor() {}
+  constructor( private _crud: CrudService ) {}
 
 
   ngOnInit() {
@@ -33,12 +39,16 @@ export class DataTableComponent implements OnInit, OnChanges {
       this.documentListener();
     }
 
-    this.setPagination(this.resultSet.currentPage, this.resultSet.highestPage);
+    this.setPagination();
+
+    if( this.defaultConfig.create ) {
+      this.buildInsertObject();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if( changes['resultSet'] ){
-      this.setPagination(this.resultSet.currentPage, this.resultSet.highestPage);
+      this.setPagination();
     }
   }
 
@@ -64,7 +74,7 @@ export class DataTableComponent implements OnInit, OnChanges {
       if(!$(e.target).hasClass('editing')){
         if(self.resultSet.data){
           for(const d of self.resultSet.data){
-            //d.editing = false;//todo
+            //if ( d.editing ) d.editing = false;
           }
           // todo save changes
         }
@@ -72,7 +82,9 @@ export class DataTableComponent implements OnInit, OnChanges {
     });
   }
 
-  setPagination (activePage: number, highestPage: number) {
+  setPagination () {
+    const activePage = this.resultSet.currentPage;
+    const highestPage = this.resultSet.highestPage;
     this.pagination = [];
     if( highestPage < 2){
       return;
@@ -109,34 +121,98 @@ export class DataTableComponent implements OnInit, OnChanges {
     return this.pagination;
   }
 
-}
-
-class PaginationElement {
-  page: number;
-  label: string;
-  active = false;
-  disabled = false;
-  routerLink: string;
-
-  withPage ( tableId:string, page:number ) {
-    this.page = page;
-    this.label = page.toString();
-    this.routerLink = '/views/data-table/'+ tableId +'/'+page;//todo table id
-    return this;
+  buildInsertObject () {
+    this.resultSet.header.forEach( (g, idx) => {
+      this.insertValues.set(g.name, '');
+    });
   }
 
-  withLabel ( label:string ) {
-    this.label = label;
-    return this;
+  insertRow () {
+    const data = {};
+    this.insertValues.forEach(( v,k ) => {
+      data[k.toString()] = v;
+    });
+    const out = { tableId: this.resultSet.table, data: data};
+    this._crud.insertRow( JSON.stringify(out) ).subscribe(
+        res => {
+          if ( res === 1) {
+            $('.insert-input').val('');
+            this.insertValues.clear();
+            this.buildInsertObject();
+            this.getTable();
+            //todo toast
+          } else if ( res === 0) {
+            //todo toast
+          }
+        }, err => {
+          console.log(err);
+        }
+    );
   }
 
-  setActive() {
-    this.active = true;
-    return this;
+  getTable () {
+    const filterObj = {};
+    this.filter.forEach(( v,k ) => {
+      filterObj[k.toString()] = v;
+    });
+    const sortState = {};
+    this.resultSet.header.forEach( (h) => {
+      this.sortStates.set(h.name, h.sort);
+      sortState[h.name] = h.sort;
+    });
+    this._crud.getTable( this.tableId, this.resultSet.currentPage, filterObj, sortState ).subscribe(
+        res => {
+          this.resultSet = <ResultSet> res;
+          this.setFilter( this.resultSet );
+          this.setPagination();
+        }, err => {
+          console.log(err);
+        }
+    );
   }
 
-  setDisabled() {
-    this.disabled = true;
-    return this;
+  filterTable (e) {
+    //todo use websocket
+    if( e.keyCode === 27){ //esc
+      $('.table-filter').val('');
+      this.filter.clear();
+      this.getTable();
+      return;
+    }
+    this.filter.clear();
+    const self = this;
+    $('.table-filter').each(function() {
+      const col = $(this).attr('data-col');
+      const val = $(this).val();
+      self.filter.set(col, val);
+    });
+   this.getTable();
   }
+
+  /**
+   * put filter values from result in filter map
+   */
+  setFilter ( r: ResultSet ) {
+    this.filter.clear();
+    r.header.forEach( (val) => {
+      this.filter.set( val.name, val.filter );
+    });
+  }
+
+  sortTable ( s: SortState ) {
+    //todo primary ordering, secondary ordering
+    if ( s.sorting === false ){
+      s.sorting = true;
+      s.direction = SortDirection.ASC;
+    } else {
+      if ( s.direction === SortDirection.ASC ) {
+        s.direction = SortDirection.DESC;
+      } else {
+        s.direction = SortDirection.ASC;
+        s.sorting = false;
+      }
+    }
+    this.getTable();
+  }
+
 }

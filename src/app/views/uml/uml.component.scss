@@ -4,6 +4,7 @@
   width: fit-content;
   position: relative;
   float: left;
+  background: #e4e5e6;
   *{
     padding: 0.2em;
   }
@@ -16,6 +17,11 @@
   .cols{
     border-bottom: 1px grey solid;
   }
+  .cols:hover{
+    background: darken(#e4e5e6, 10%);
+    cursor: pointer;
+  }
+
   .methods{
     border-bottom: 1px grey solid;
   }
@@ -33,4 +39,11 @@ svg{
 
   stroke: black;
   stroke-width:1;
+
+  line{
+    z-index: 2;
+  }
+  line:hover{
+    cursor: pointer;
+  }
 }

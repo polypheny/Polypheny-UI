@@ -45,11 +45,13 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     this.onHashChange();
     this.initWebSocket();
     this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem('ConfigManager')] );
+    this._sidebar.open();
   }
 
   ngOnDestroy() {
     //this._config.closeSocket();
     this._breadcrumb.hide();
+    this._sidebar.close();
   }
 
   private onHashChange() {
@@ -247,7 +249,6 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   }
 
   getSwitchColor (key: number) {
-    console.log(key);
     return this.switchColors[key%4];
   }
 

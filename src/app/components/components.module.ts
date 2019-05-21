@@ -15,6 +15,7 @@ import {RightSidebarComponent} from './right-sidebar/right-sidebar.component';
 import {RouterModule} from '@angular/router';
 import {DataTableComponent} from './data-table/data-table.component';
 import {DynamicFormsComponent} from './dynamic-forms/dynamic-forms.component';
+//import 'hammerjs';
 
 @NgModule({
   imports: [

@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {BehaviorSubject} from 'rxjs';
 import {InformationService} from '../../services/information.service';
 import {ConfigService} from '../../services/config.service';
+import * as $ from 'jquery';
 
 @Injectable({
   providedIn: 'root'
@@ -60,7 +61,17 @@ export class LeftSidebarService {
   }
 
   setNodes ( n: SidebarNode[] ) {
+    n = [].concat(n); // convert to array if it is not an array
     this.nodes.next( n );
+  }
+
+  open () {
+    $('body').addClass('sidebar-lg-show');
+  }
+
+  close() {
+    this.nodes.next( [] );
+    $('body').removeClass('sidebar-lg-show');
   }
 
 }

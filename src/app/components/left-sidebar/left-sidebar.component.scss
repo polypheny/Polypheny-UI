@@ -6,6 +6,10 @@
   max-width: 160px;
   overflow: auto;
 
+  .node-content-wrapper{
+    width: 100%;
+  }
+
   .node-content-wrapper-focused, .node-content-wrapper:hover{
     // color: black;
     background: lighten(#20a8d8, 30%);
