@@ -13,7 +13,7 @@ export class InformationService {
   }
 
   private socket;
-  httpUrl = this._settings.get('settings.information.rest');
+  httpUrl = this._settings.getConnection('information.rest');
   httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
   getPage(pageId:number) {
@@ -27,7 +27,7 @@ export class InformationService {
 
   //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
   private initWebSocket() {
-    this.socket = webSocket(this._settings.get('settings.information.socket'));
+    this.socket = webSocket(this._settings.getConnection('information.socket'));
   }
 
   socketSend( msg: string ) {

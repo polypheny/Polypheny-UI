@@ -64,6 +64,7 @@ export class GraphComponent implements OnInit {
 
   ngOnInit() {
     this.chartType = this.chartType.toLowerCase() || 'line';
+    if( this.chartType === 'polararea' ) this.chartType = 'polarArea';
   }
 
 }

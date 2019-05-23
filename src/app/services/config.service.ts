@@ -8,13 +8,16 @@ import {WebuiSettingsService} from './webui-settings.service';
 })
 export class ConfigService {
 
+  private socket;
+  httpUrl;
+  httpOptions;
+
   constructor( private _http:HttpClient, private _settings:WebuiSettingsService) {
     this.initWebSocket();
+    this.httpUrl = this._settings.getConnection('config.rest');
+    this.httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
   }
 
-  private socket;
-  httpUrl = this._settings.get('settings.config.rest');
-  httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
   getPage(pageId:string) {
     return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
@@ -31,7 +34,7 @@ export class ConfigService {
 
   //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
   private initWebSocket() {
-    this.socket = webSocket(this._settings.get('settings.config.socket'));
+    this.socket = webSocket(this._settings.getConnection('config.socket'));
   }
 
   socketSend( msg: string ) {
