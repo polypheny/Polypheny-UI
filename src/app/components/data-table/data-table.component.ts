@@ -1,7 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {TableConfig} from './table-config';
 import * as $ from 'jquery';
-import {CrudService} from '../../services/crud.service';
+import {CrudService, TableRequest} from '../../services/crud.service';
 import {PaginationElement} from './models/pagination-element.model';
 import {ResultSet} from './models/result-set.model';
 import {SortDirection, SortState} from './models/sort-state.model';
@@ -160,7 +160,7 @@ export class DataTableComponent implements OnInit, OnChanges {
       this.sortStates.set(h.name, h.sort);
       sortState[h.name] = h.sort;
     });
-    this._crud.getTable( this.tableId, this.resultSet.currentPage, filterObj, sortState ).subscribe(
+    this._crud.getTable( new TableRequest( this.tableId, this.resultSet.currentPage, filterObj, sortState ) ).subscribe(
         res => {
           this.resultSet = <ResultSet> res;
           this.setFilter( this.resultSet );

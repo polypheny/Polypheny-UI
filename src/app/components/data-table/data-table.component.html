@@ -4,7 +4,7 @@
     <table class="table table-hover table-sm table-bordered table-striped" id="data-table" [attr.data-table]="resultSet.table">
       <thead>
       <tr>
-        <th class="selector">
+        <th class="selector" *ngIf="defaultConfig.update || defaultConfig.delete">
           <input type="checkbox">
         </th>
         <ng-container *ngFor="let h of resultSet.header">
@@ -14,7 +14,7 @@
             </a>
           </th>
         </ng-container>
-        <th class="delete">
+        <th class="delete" *ngIf="defaultConfig.delete">
         <i class="cui-trash"></i>
       </th>
       </tr>
@@ -23,21 +23,21 @@
       <tr *ngIf="defaultConfig.search">
         <td></td>
         <td *ngFor="let h of resultSet.header"><input type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event)"></td>
-        <td></td>
+        <td *ngIf="defaultConfig.update || defaultConfig.delete"></td>
       </tr>
       <tr *ngFor="let d1 of resultSet.data">
         <ng-container *ngIf="d1.editing">
-          <td class="selector"><input type="checkbox" checked="true"></td>
+          <td class="selector" *ngIf="defaultConfig.update || defaultConfig.delete"><input type="checkbox" checked="true"></td>
           <td *ngFor="let d2 of d1"><input type="text" class="form-control form-control-sm editing" [value]="d2"></td>
-          <td>
+          <td *ngIf="defaultConfig.update || defaultConfig.delete">
             <button class="btn btn-primary editing" id="editColSave"><i class="fa fa-save editing"></i></button>
           </td>
         </ng-container>
         <ng-container *ngIf="!d1.editing">
-          <td class="selector"><input type="checkbox"></td>
+          <td class="selector" *ngIf="defaultConfig.update || defaultConfig.delete"><input type="checkbox"></td>
           <td *ngFor="let d2 of d1" (dblclick)="triggerEditing(d1)">{{d2}}</td>
-          <td class="delete">
-            <i class="cui-trash"></i>
+          <td class="delete" *ngIf="defaultConfig.update || defaultConfig.delete">
+            <i class="cui-trash" *ngIf="defaultConfig.delete"></i>
           </td>
         </ng-container>
       </tr>
@@ -49,7 +49,7 @@
         <td *ngFor="let h of resultSet.header">
           <input type="text" class="form-control form-control-sm insert-input" placeholder="insert (todo:type)" [name]="h.name" [ngModel]="insertValues.get(h.name)" (ngModelChange)="insertValues.set(h.name, $event)">
         </td>
-        <td><button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()">+</button></td>
+        <td *ngIf="defaultConfig.update || defaultConfig.delete"><button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()">+</button></td>
       </tr>
       </tbody>
     </table>

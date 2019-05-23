@@ -4,3 +4,44 @@
 select{
   width: auto;
 }
+
+#sql-editor {
+  -webkit-border-radius: 0.25rem;
+  -moz-border-radius: 0.25rem;
+  border-radius: 0.25rem;
+}
+
+#history {
+  max-height: 240px;
+  overflow: auto;
+  .header{
+    background: #f0f3f5;
+  }
+  .empty {
+    color: lighten(#000, 66%);
+  }
+  .time{
+    //font-size: 0.5em;
+    color: lighten(#000, 66%);
+  }
+  .history-item {
+    cursor: pointer;
+  }
+  .history-item:hover {
+    background: #f7fafc;
+  }
+  small {
+    padding-right: 1em;
+  }
+  /*small {
+    display: block;
+    line-height: 1.2em;
+  }
+  p {
+    margin-left: 1em;
+  }*/
+}
+
+#result-wrapper {
+  padding-bottom: 1rem;
+}

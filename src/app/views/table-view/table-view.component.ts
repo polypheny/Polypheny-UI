@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {TableConfig} from '../../components/data-table/table-config';
-import {CrudService} from '../../services/crud.service';
+import {CrudService, TableRequest, UIRequest} from '../../services/crud.service';
 import {LeftSidebarService, SidebarNode} from '../../components/left-sidebar/left-sidebar.service';
 import {ResultSet} from '../../components/data-table/models/result-set.model';
 
@@ -60,7 +60,8 @@ export class TableViewComponent implements OnInit, OnDestroy {
       if( this.resultSet ) this.resultSet.currentPage = this.currentPage;
 
       if( this.tableId ) {
-        this._crud.getTable( this.tableId, this.currentPage ).subscribe(
+        const req: UIRequest  = new TableRequest( this.tableId, this.currentPage );
+        this._crud.getTable( req ).subscribe(
             res => {
               this.resultSet = <ResultSet> res;
             }, err => {
