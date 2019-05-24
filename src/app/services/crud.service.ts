@@ -42,6 +42,14 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/anyQuery`, query, this.httpOptions);
   }
 
+  /**
+   * delete a row from a table
+   * @param request UIRequest
+   */
+  deleteRow ( request: UIRequest) {
+    return this._http.post(`${this.httpUrl}/deleteRow`, request, this.httpOptions);
+  }
+
 }
 
 export class UIRequest {
@@ -69,5 +77,13 @@ export class QueryRequest extends UIRequest {
     super();
     this.query = query;
     return this;
+  }
+}
+
+export class DeleteRequest extends UIRequest {
+  constructor ( tableId: string, data: any) {
+    super();
+    this.tableId = tableId;
+    this.data = data;
   }
 }

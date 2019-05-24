@@ -92,8 +92,7 @@ export class SqlConsoleComponent implements OnInit {
             const result: ResultSet = <ResultSet> res;
             this.resultSet = result;
         }, err => {
-            this.resultSet = new ResultSet( err.toString() );
-            console.log( err );
+          this.resultSet = new ResultSet( err.message );
     });
   }
 
@@ -111,8 +110,11 @@ export class SqlConsoleComponent implements OnInit {
     localStorage.setItem( 'sql-history', JSON.stringify( Array.from( this.history.values() )));
   }
 
-  applyHistory ( query: string ) {
+  applyHistory ( query: string, run:boolean ) {
     this.codeEditor.setValue( query );
+    if ( run ) {
+      this.submitQuery();
+    }
   }
 
   //from: https://stackoverflow.com/questions/52793944/angular-keyvalue-pipe-sort-properties-iterate-in-order

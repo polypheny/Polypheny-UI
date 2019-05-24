@@ -11,7 +11,7 @@
 
         <div class="col-lg-8 col-md-8 col-sm-12">
             <div class="form-group">
-                <div id="sql-editor" #editor style="height: 200px">SHOW TABLES</div>
+                <div id="sql-editor" #editor style="height: 200px"></div>
             </div>
         </div>
         <div class="col-lg-4 col-md-4 col-sm-12">
@@ -20,7 +20,7 @@
                     History
                 </li>
                 <li class="list-group-item empty" *ngIf="history.size == 0">(empty)</li>
-                <li class="list-group-item history-item" *ngFor="let h of history | keyvalue:orderHistory" (click)="applyHistory( h.value.query )">
+                <li class="list-group-item history-item" *ngFor="let h of history | keyvalue:orderHistory" (click)="applyHistory( h.value.query, false )" (dblclick)="applyHistory( h.value.query, true)">
                     <small class="time">{{h.value.displayTime()}}</small>
                     {{h.value.query}}
                 </li>
@@ -57,10 +57,14 @@
     </div>
 </form>
 
-<div class="row">
-    <div id="debug-info col-lg-12">
+<div class="row" style="padding-bottom: 2em;">
+    <div id="debug-info col-lg-12" *ngIf="resultSet && resultSet.info">
         <hr>
-        debug-info
+        <span class="font-weight-bold">info</span>
+        <br>
+        <ng-container *ngFor="let i of resultSet.info | keyvalue">
+            {{i.key}}: {{i.value}}<br>
+        </ng-container>
     </div>
 
     <div id="error" class="text-danger col-lg-12" *ngIf="resultSet && resultSet.error">

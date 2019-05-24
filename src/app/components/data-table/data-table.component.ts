@@ -1,7 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {TableConfig} from './table-config';
 import * as $ from 'jquery';
-import {CrudService, TableRequest} from '../../services/crud.service';
+import {CrudService, DeleteRequest, TableRequest} from '../../services/crud.service';
 import {PaginationElement} from './models/pagination-element.model';
 import {ResultSet} from './models/result-set.model';
 import {SortDirection, SortState} from './models/sort-state.model';
@@ -135,13 +135,14 @@ export class DataTableComponent implements OnInit, OnChanges {
     const out = { tableId: this.resultSet.table, data: data};
     this._crud.insertRow( JSON.stringify(out) ).subscribe(
         res => {
-          if ( res === 1) {
+          const result = <ResultSet> res;
+          if ( result.info.affectedRows === 1) {
             $('.insert-input').val('');
             this.insertValues.clear();
             this.buildInsertObject();
             this.getTable();
             //todo toast
-          } else if ( res === 0) {
+          } else if ( result.error ) {
             //todo toast
           }
         }, err => {
@@ -162,8 +163,10 @@ export class DataTableComponent implements OnInit, OnChanges {
     });
     this._crud.getTable( new TableRequest( this.tableId, this.resultSet.currentPage, filterObj, sortState ) ).subscribe(
         res => {
-          this.resultSet = <ResultSet> res;
-          this.setFilter( this.resultSet );
+          //this.resultSet = <ResultSet> res;
+          const result = <ResultSet> res;
+          this.resultSet.data = result.data;
+          this.resultSet.highestPage = result.highestPage;
           this.setPagination();
         }, err => {
           console.log(err);
@@ -213,6 +216,30 @@ export class DataTableComponent implements OnInit, OnChanges {
       }
     }
     this.getTable();
+  }
+
+  deleteRow ( values: string[] ) {
+    const rowMap = new Map<string, string>();
+    values.forEach( ( val, key ) => {
+      rowMap.set( this.resultSet.header[key].name, val);
+    });
+    const row = {};
+    rowMap.forEach( (v, k) => {
+      row[k] = v;
+    });
+    const request = new DeleteRequest( this.resultSet.table, row );
+    this._crud.deleteRow( request ).subscribe(
+        res => {
+          const result = <ResultSet> res;
+          if( result.info.affectedRows === 1) {
+            this.getTable();
+          }else {
+            //todo toast
+          }
+        }, err => {
+          console.log(err);
+        }
+    );
   }
 
 }

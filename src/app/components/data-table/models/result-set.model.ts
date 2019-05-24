@@ -10,6 +10,7 @@ export class ResultSet{
     highestPage: number;
     table: string;
     error: String;
+    info: Debug;
 
     constructor ( error: string ){
         this.error = error;
@@ -24,4 +25,11 @@ export interface DbColumn {
     sort: SortState;
     dataType: number;
     filter: string;
+}
+
+/**
+ * model for infos about the query, e.g. number of affected rows
+ */
+export interface Debug {
+    affectedRows: number;
 }

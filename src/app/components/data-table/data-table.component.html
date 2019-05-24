@@ -15,7 +15,7 @@
           </th>
         </ng-container>
         <th class="delete" *ngIf="defaultConfig.delete">
-        <i class="cui-trash"></i>
+          <!--<i class="cui-trash"></i>-->
       </th>
       </tr>
       </thead>
@@ -37,7 +37,7 @@
           <td class="selector" *ngIf="defaultConfig.update || defaultConfig.delete"><input type="checkbox"></td>
           <td *ngFor="let d2 of d1" (dblclick)="triggerEditing(d1)">{{d2}}</td>
           <td class="delete" *ngIf="defaultConfig.update || defaultConfig.delete">
-            <i class="cui-trash" *ngIf="defaultConfig.delete"></i>
+            <i class="cui-trash" *ngIf="defaultConfig.delete" (click)="deleteRow(d1)"></i>
           </td>
         </ng-container>
       </tr>
