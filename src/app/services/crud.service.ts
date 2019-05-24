@@ -11,7 +11,7 @@ export class CrudService {
   constructor( private _http:HttpClient, private _settings:WebuiSettingsService ) { }
 
   path = '/home';
-  httpUrl = this._settings.get('settings.crud.rest');
+  httpUrl = this._settings.getConnection('crud.rest');
   httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
   // rendering routerLinks from string might not be possible:7

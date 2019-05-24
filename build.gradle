@@ -52,7 +52,7 @@ node {
 }
 
 
-//npm_install.dependsOn(npm_cache_clean)
+
 npmInstall.args = ['--package-lock']
 
 npm_run_build.dependsOn(npmInstall)
@@ -69,8 +69,16 @@ jar {
     }
 }
 
+
 artifacts {
     archives jar
 }
 
 
+//clean.dependsOn(npm_cache_clean)
+
+clean {
+    delete "/dist"
+	delete "/build"
+	delete "/node_modules"
+}

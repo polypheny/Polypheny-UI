@@ -203,42 +203,10 @@
       <h6>Settings</h6>
       <form [formGroup]="form" (ngSubmit)="saveSettings()">
 
-
         <div class="aside-options">
-          <small><b>ConfigManager</b></small>
-          <br>
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text">rest</span>
-              </div>
-              <input type="text" class="form-control form-control-sm" [value]="config_rest" formControlName="configRest">
-            </div>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text">socket</span>
-              </div>
-              <input type="text" class="form-control form-control-sm" [value]="config_socket" formControlName="configSocket">
-            </div>
-          </div>
-        </div>
-
-        <div class="aside-options">
-          <small><b>InformationManager</b></small>
-          <br>
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text">rest</span>
-              </div>
-              <input type="text" class="form-control form-control-sm" [value]="info_rest" formControlName="infoRest">
-            </div>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text">socket</span>
-              </div>
-              <input type="text" class="form-control form-control-sm" [value]="info_socket" formControlName="infoSocket">
-            </div>
+          <div class="form-group" *ngFor="let s of settings | keyvalue">
+            <label [for]="s.key">{{s.key}}</label>
+            <input type="text" class="form-control form-control-sm" [id]="s.key" [value]="s.value" [formControlName]="s.key">
           </div>
         </div>
 

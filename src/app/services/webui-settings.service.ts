@@ -5,28 +5,60 @@ import { Injectable } from '@angular/core';
 })
 export class WebuiSettingsService {
 
+  connections = new Map<string, string>();
+  settings = new Map<string, string>();
+  host: string;
+
   constructor() {
-    if( localStorage.getItem('settings.config.rest') === null ) localStorage.setItem('settings.config.rest', 'http://localhost:8081');
-    if( localStorage.getItem('settings.config.socket') === null ) localStorage.setItem('settings.config.socket', 'ws://localhost:8081/configWebSocket');
-    if( localStorage.getItem('settings.information.rest') === null ) localStorage.setItem('settings.information.rest', 'http://localhost:8082');
-    if( localStorage.getItem('settings.information.socket') === null ) localStorage.setItem('settings.information.socket', 'ws://localhost:8082/informationWebSocket');
-    if( localStorage.getItem('settings.crud.rest') === null ) localStorage.setItem('settings.crud.rest', 'http://localhost:8083');
+
+    this.host = location.hostname;
+
+    if( localStorage.getItem('configServer.port') === null ) {
+      localStorage.setItem('configServer.port', '8081');
+    }
+    if( localStorage.getItem('informationServer.port') === null ) {
+      localStorage.setItem('informationServer.port', '8082');
+    }
+    if( localStorage.getItem('webUI.port') === null ) {
+      localStorage.setItem('webUI.port', '8083');
+    }
+
+    this.settings.set( 'configServer.port', localStorage.getItem('configServer.port'));
+    this.settings.set( 'informationServer.port', localStorage.getItem('informationServer.port'));
+    this.settings.set( 'webUI.port', localStorage.getItem('webUI.port'));
+
+    this.connections.set( 'config.rest',
+        'http://' + this.host + ':' + localStorage.getItem( 'configServer.port' ) );
+    this.connections.set( 'config.socket',
+        'ws://' + this.host + ':' + localStorage.getItem( 'configServer.port' ) + '/configWebSocket' );
+    this.connections.set( 'information.rest',
+        'http://' + this.host + ':' + localStorage.getItem( 'informationServer.port' ) );
+    this.connections.set( 'information.socket',
+        'ws://' + this.host + ':' + localStorage.getItem( 'informationServer.port' ) + '/informationWebSocket' );
+    this.connections.set( 'crud.rest',
+        'http://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) );
+
   }
 
-  public get( key:string ){
-    return localStorage.getItem( key );
+  public getConnection(key:string ){
+    return this.connections.get( key );
   }
 
-  public set( key:string, value:string ) {
-    localStorage.setItem( key, value );
+  public getSettings () {
+    return this.settings;
+  }
+
+  public setSetting ( key:string, val:string ) {
+    this.settings.set( key, val );
+    localStorage.setItem( key, val );
+    console.log(key);
+    console.log(val);
   }
 
   public reset(){
-    localStorage.setItem('settings.config.rest', 'http://localhost:8081');
-    localStorage.setItem('settings.config.socket', 'ws://localhost:8081/configWebSocket');
-    localStorage.setItem('settings.information.rest', 'http://localhost:8082');
-    localStorage.setItem('settings.information.socket', 'ws://localhost:8082/informationWebSocket');
-    localStorage.setItem('settings.crud.rest', 'http://localhost:8083');
+    localStorage.setItem('configServer.port', '8081');
+    localStorage.setItem('informationServer.port', '8082');
+    localStorage.setItem('webUI.port', '8083');
     location.reload();
   }
 
