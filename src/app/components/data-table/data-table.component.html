@@ -1,5 +1,5 @@
 <div class="row" *ngIf="resultSet.data">
-  <div class="col-lg-12">
+  <div class="col-lg-12" id="data-table-wrapper">
 
     <table class="table table-hover table-sm table-bordered table-striped" id="data-table" [attr.data-table]="resultSet.table">
       <thead>
@@ -28,9 +28,9 @@
       <tr *ngFor="let d1 of resultSet.data">
         <ng-container *ngIf="d1.editing">
           <td class="selector" *ngIf="defaultConfig.update || defaultConfig.delete"><input type="checkbox" checked="true"></td>
-          <td *ngFor="let d2 of d1"><input type="text" class="form-control form-control-sm editing" [value]="d2"></td>
+          <td *ngFor="let d2 of d1; let i = index"><input type="text" class="form-control form-control-sm editing" [value]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name"></td>
           <td *ngIf="defaultConfig.update || defaultConfig.delete">
-            <button class="btn btn-primary editing" id="editColSave"><i class="fa fa-save editing"></i></button>
+            <button class="btn btn-primary editing" id="editColSave" (click)="updateRow()"><i class="fa fa-save editing"></i></button>
           </td>
         </ng-container>
         <ng-container *ngIf="!d1.editing">
@@ -53,7 +53,10 @@
       </tr>
       </tbody>
     </table>
-
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-12">
     <nav aria-label="Page navigation example" class="float-right" *ngIf="resultSet.highestPage > 1">
       <ul class="pagination">
         <li *ngFor="let p of pagination" class="page-item" [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">
@@ -61,7 +64,7 @@
         </li>
       </ul>
     </nav>
-
   </div>
 </div>
 <div *ngIf="!resultSet.data">data-table: nothing to show.</div>
+<div class="text-danger" *ngIf="resultSet.error">{{resultSet.error}}</div>

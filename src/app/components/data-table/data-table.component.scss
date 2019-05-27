@@ -1,13 +1,18 @@
 #data-table{
   width: auto;
-  min-width: 25%;
+  max-width: 100%;
   margin: 0 auto;
+  overflow-x: scroll;
+  display: inline-block;
   tr th{
     vertical-align: middle;
     .btn{
       padding: 2px;
     }
   }
+}
+#data-table-wrapper {
+  text-align: center;
 }
 
 th.delete, td.delete{

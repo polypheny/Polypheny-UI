@@ -41,7 +41,6 @@ export class TableViewComponent implements OnInit, OnDestroy {
 
     this._crud.getSchema().subscribe(
         res => {
-          console.log(res);
           const schema = <SidebarNode[]> res;
           this._sidebar.setNodes( schema );
         }, err => {

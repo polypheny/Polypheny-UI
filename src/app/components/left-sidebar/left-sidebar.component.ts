@@ -34,7 +34,9 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
           click: (tree, node, $event) => {
             if (node.hasChildren) TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
             if ( ! node.hasChildren){
-              _router.navigate([node.data.routerLink]);
+              if( node.data.routerLink !== '' ){
+                _router.navigate([node.data.routerLink]);
+              }
               node.setIsActive(true);
             }
           }

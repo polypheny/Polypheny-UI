@@ -1,7 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {TableConfig} from './table-config';
 import * as $ from 'jquery';
-import {CrudService, DeleteRequest, TableRequest} from '../../services/crud.service';
+import {CrudService, DeleteRequest, TableRequest, UIRequest, UpdateRequest} from '../../services/crud.service';
 import {PaginationElement} from './models/pagination-element.model';
 import {ResultSet} from './models/result-set.model';
 import {SortDirection, SortState} from './models/sort-state.model';
@@ -122,16 +122,15 @@ export class DataTableComponent implements OnInit, OnChanges {
   }
 
   buildInsertObject () {
-    this.resultSet.header.forEach( (g, idx) => {
-      this.insertValues.set(g.name, '');
-    });
+    if(this.resultSet.header){
+      this.resultSet.header.forEach( (g, idx) => {
+        this.insertValues.set(g.name, '');
+      });
+    }
   }
 
   insertRow () {
-    const data = {};
-    this.insertValues.forEach(( v,k ) => {
-      data[k.toString()] = v;
-    });
+    const data = this.mapToObject( this.insertValues );
     const out = { tableId: this.resultSet.table, data: data};
     this._crud.insertRow( JSON.stringify(out) ).subscribe(
         res => {
@@ -151,11 +150,32 @@ export class DataTableComponent implements OnInit, OnChanges {
     );
   }
 
-  getTable () {
-    const filterObj = {};
-    this.filter.forEach(( v,k ) => {
-      filterObj[k.toString()] = v;
+  updateRow () {
+    const filter = new Map<string, string>();//previous values
+    const data = new Map<string, string>();
+    $('.editing').each(function(e){
+      const oldValue = $(this).attr('data-before');
+      const newValue = $(this).val();
+      const col = $(this).attr('data-col');
+      if ( col !== undefined ) {
+        filter.set( col, oldValue );
+        data.set( col, newValue );
+      }
     });
+    this._crud.updateRow( new UpdateRequest( this.resultSet.table, this.mapToObject(data), this.mapToObject(filter) ) ).subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if( result.info.affectedRows === 1 ) {
+          this.getTable();
+        }
+      }, err => {
+        console.log(err);
+      }
+    );
+  }
+
+  getTable () {
+    const filterObj = this.mapToObject( this.filter );
     const sortState = {};
     this.resultSet.header.forEach( (h) => {
       this.sortStates.set(h.name, h.sort);
@@ -223,10 +243,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     values.forEach( ( val, key ) => {
       rowMap.set( this.resultSet.header[key].name, val);
     });
-    const row = {};
-    rowMap.forEach( (v, k) => {
-      row[k] = v;
-    });
+    const row = this.mapToObject( rowMap );
     const request = new DeleteRequest( this.resultSet.table, row );
     this._crud.deleteRow( request ).subscribe(
         res => {
@@ -234,12 +251,21 @@ export class DataTableComponent implements OnInit, OnChanges {
           if( result.info.affectedRows === 1) {
             this.getTable();
           }else {
+            console.log(res);
             //todo toast
           }
         }, err => {
           console.log(err);
         }
     );
+  }
+
+  mapToObject ( map:Map<any, any> ) {
+    const obj = {};
+    map.forEach( (v, k) => {
+      obj[k] = v;
+    });
+    return obj;
   }
 
 }

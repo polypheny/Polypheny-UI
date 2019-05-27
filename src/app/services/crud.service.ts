@@ -38,7 +38,7 @@ export class CrudService {
   /**
    * @param query any query that should be executed on the server
    */
-  anyQuery ( query: UIRequest ) {
+  anyQuery ( query: QueryRequest ) {
     return this._http.post(`${this.httpUrl}/anyQuery`, query, this.httpOptions);
   }
 
@@ -46,8 +46,16 @@ export class CrudService {
    * delete a row from a table
    * @param request UIRequest
    */
-  deleteRow ( request: UIRequest) {
+  deleteRow ( request: DeleteRequest) {
     return this._http.post(`${this.httpUrl}/deleteRow`, request, this.httpOptions);
+  }
+
+  /**
+   * update a row from a table
+   * @param request UpdateRequest
+   */
+  updateRow ( request: UpdateRequest ) {
+    return this._http.post(`${this.httpUrl}/updateRow`, request, this.httpOptions);
   }
 
 }
@@ -85,5 +93,19 @@ export class DeleteRequest extends UIRequest {
     super();
     this.tableId = tableId;
     this.data = data;
+  }
+}
+
+/**
+ * @param tableId name of the table
+ * @param data the new values for the row that should be updated
+ * @param filter the previous values of the row, to find the row that should be updated
+ */
+export class UpdateRequest extends UIRequest {
+  constructor ( tableId: string, data: any, filter: any ){
+    super();
+    this.tableId = tableId;
+    this.data = data;
+    this.filter = filter;
   }
 }
