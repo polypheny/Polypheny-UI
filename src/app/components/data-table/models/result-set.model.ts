@@ -11,6 +11,7 @@ export class ResultSet{
     table: string;
     error: String;
     info: Debug;
+    type: string;//"table" or "view"
 
     constructor ( error: string ){
         this.error = error;
@@ -32,4 +33,5 @@ export interface DbColumn {
  */
 export interface Debug {
     affectedRows: number;
+    generatedQuery: string;
 }

@@ -19,7 +19,8 @@ export class TableViewComponent implements OnInit, OnDestroy {
     create: true,
     search: true,
     sort: true,
-    update: true
+    update: true,
+    delete: true
   };
 
   constructor(
@@ -63,6 +64,15 @@ export class TableViewComponent implements OnInit, OnDestroy {
         this._crud.getTable( req ).subscribe(
             res => {
               this.resultSet = <ResultSet> res;
+              if( this.resultSet.type === 'TABLE') {
+                this.tableConfig.create = true;
+                this.tableConfig.update = true;
+                this.tableConfig.delete = true;
+              } else {
+                this.tableConfig.create = false;
+                this.tableConfig.update = false;
+                this.tableConfig.delete = false;
+              }
             }, err => {
               console.log(err);
             }

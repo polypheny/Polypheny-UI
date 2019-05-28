@@ -13,35 +13,27 @@ import {SortDirection, SortState} from './models/sort-state.model';
 })
 export class DataTableComponent implements OnInit, OnChanges {
   @Input() resultSet: ResultSet;
-  @Input() config?: TableConfig;
+  @Input() config: TableConfig;
   @Input() tableId: string;
 
   pagination: PaginationElement[] = [];
   insertValues = new Map<string, any>();
   sortStates = new Map<string, SortState>();
   filter = new Map<string, string>();
-
-  defaultConfig: TableConfig = {
-    create: true,
-    update: true,
-    delete: true,
-    sort: true,
-    search: true
-  };
-
+  editing = -1;//-1 if not editing any row, else the index of that row
+  
   constructor( private _crud: CrudService ) {}
 
 
   ngOnInit() {
-    this.setConfig();
 
-    if(this.defaultConfig.update){
+    if(this.config.update){
       this.documentListener();
     }
 
     this.setPagination();
 
-    if( this.defaultConfig.create ) {
+    if( this.config.create ) {
       this.buildInsertObject();
     }
   }
@@ -52,19 +44,10 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
   }
 
-  setConfig(){
-    if(this.config){
-      for (const prop in this.config) {
-        if (this.defaultConfig.hasOwnProperty(prop)) {
-          this.defaultConfig[prop] = this.config[prop];
-        }
-      }
-    }
-  }
-
-  triggerEditing(d){
-    if(this.defaultConfig.update){
-      d.editing = true;
+  triggerEditing(i){
+    if(this.config.update){
+      //d.editing = true;
+      this.editing = i;
     }
   }
 
@@ -72,12 +55,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     const self = this;
     $(document).on('click', function(e){
       if(!$(e.target).hasClass('editing')){
-        if(self.resultSet.data){
-          for(const d of self.resultSet.data){
-            //if ( d.editing ) d.editing = false;
-          }
-          // todo save changes
-        }
+        self.editing = -1;
       }
     });
   }
@@ -188,6 +166,16 @@ export class DataTableComponent implements OnInit, OnChanges {
           this.resultSet.data = result.data;
           this.resultSet.highestPage = result.highestPage;
           this.setPagination();
+          this.editing = -1;
+          if( result.type === 'TABLE') {
+            this.config.create = true;
+            this.config.update = true;
+            this.config.delete = true;
+          } else {
+            this.config.create = false;
+            this.config.update = false;
+            this.config.delete = false;
+          }
         }, err => {
           console.log(err);
         }

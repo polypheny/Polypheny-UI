@@ -31,7 +31,7 @@ export class SqlConsoleComponent implements OnInit {
   history: Map<string, SqlHistory> = new Map<string, SqlHistory>();
   readonly MAXHISTORY = 10;//maximum items in history
 
-  resultSet: ResultSet;
+  resultSets: ResultSet[];
   tableConfig: TableConfig = {
     create: false,
     update: false,
@@ -44,9 +44,6 @@ export class SqlConsoleComponent implements OnInit {
     ['a', 'b', 'c', 'd', 'e', 'f'],
     ['a', 'b', 'c', 'd', 'e', 'f']
   ];
-  config:TableConfig = {
-    create:false
-  };
 
   constructor( private formBuilder: FormBuilder, private _crud: CrudService ) {}
 
@@ -89,10 +86,10 @@ export class SqlConsoleComponent implements OnInit {
 
     this._crud.anyQuery( new QueryRequest( query ) ).subscribe(
         res => {
-            const result: ResultSet = <ResultSet> res;
-            this.resultSet = result;
+            const results: ResultSet[] = <ResultSet[]> res;
+            this.resultSets = results;
         }, err => {
-          this.resultSet = new ResultSet( err.message );
+          this.resultSets = [new ResultSet( err.message )];
     });
   }
 

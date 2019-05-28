@@ -42,6 +42,13 @@ select{
   }*/
 }
 
-#result-wrapper {
+.result-wrapper {
   padding-bottom: 1rem;
+}
+
+.accordion .card{
+  margin-bottom: 0;
+}
+.card-header.pointer{
+  cursor: pointer;
 }
