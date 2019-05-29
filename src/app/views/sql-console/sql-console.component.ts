@@ -8,6 +8,7 @@ import {CrudService, QueryRequest, UIRequest} from '../../services/crud.service'
 import {ResultSet} from '../../components/data-table/models/result-set.model';
 import {SqlHistory} from './sql-history.model';
 import {KeyValue} from '@angular/common';
+import * as $ from 'jquery';
 
 const THEME = 'ace/theme/tomorrow';
 const LANG = 'ace/mode/sql';
@@ -81,7 +82,12 @@ export class SqlConsoleComponent implements OnInit {
   }
 
   submitQuery () {
-    const query = this.codeEditor.getValue();
+    //remove comments from query before sending it to the server
+    let query = '';
+    $('#sql-editor .ace_content').clone().find('.ace_comment').remove().end().find('.ace_line').each(function(){
+      query = query + $(this).text()+'\n';
+    });
+
     this.addToHistory( query );
 
     this._crud.anyQuery( new QueryRequest( query ) ).subscribe(
