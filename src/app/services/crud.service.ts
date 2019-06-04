@@ -76,6 +76,10 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/addColumn`, columnRequest, this.httpOptions);
   }
 
+  dropColumn ( columnRequest: ColumnRequest ) {
+    return this._http.post(`${this.httpUrl}/dropColumn`, columnRequest, this.httpOptions);
+  }
+
 }
 
 export class UIRequest {

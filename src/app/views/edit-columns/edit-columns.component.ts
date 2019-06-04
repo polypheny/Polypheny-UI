@@ -18,6 +18,7 @@ export class EditColumnsComponent implements OnInit {
   types: string[] = ['int8', 'int4', 'varchar', 'timestamptz', 'bool', 'text'];
   editColumn = -1;
   createColumn = { name: '', nullable: false, type:'text', maxLength: null};
+  confirm = -1;
 
 
   constructor(
@@ -104,13 +105,37 @@ export class EditColumnsComponent implements OnInit {
     console.log(req);
     this._crud.addColumn( req ).subscribe(
       res => {
-        //const result = <ResultSet> res;
-        console.log(res);
-        this.getColumns();
+        const result = <ResultSet> res;
+        if( result.error === undefined ){
+          this.getColumns();
+          this.createColumn.name = '';
+          this.createColumn.nullable = false;
+          this.createColumn.type = this.types[0];
+          this.createColumn.maxLength = null;
+        } else {
+          //todo toast
+          console.log( result.error );
+        }
       }, err => {
         console.log(err);
     }
     );
+  }
+  
+  dropColumn ( col, i ) {
+    if ( this.confirm !== i ){
+      this.confirm = i;
+    } else {
+      this._crud.dropColumn( new ColumnRequest( this.tableId, new DbColumn( col[0], col[1], col[2], col[3] ) ) ).subscribe(
+        res => {
+          console.log(res);
+          this.getColumns();
+          this.confirm = -1;
+        }, err => {
+          console.log(err);
+        }
+      );
+    }
   }
 
   documentListener() {

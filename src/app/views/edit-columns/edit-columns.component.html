@@ -45,7 +45,7 @@
             <td *ngFor="let d2 of d1" (dblclick)="editCol(i)">
               {{d2}}
             </td>
-            <td></td>
+            <td class="delete"><i (click)="dropColumn(d1, i)" (mouseleave)="confirm = -1" [ngClass]="{ 'cui-trash': i!==confirm, 'fa fa-warning': i===confirm }"></i></td>
           </ng-container>
         </tr>
 

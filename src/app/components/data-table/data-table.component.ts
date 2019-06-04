@@ -21,6 +21,7 @@ export class DataTableComponent implements OnInit, OnChanges {
   sortStates = new Map<string, SortState>();
   filter = new Map<string, string>();
   editing = -1;//-1 if not editing any row, else the index of that row
+  confirm = -1;
   
   constructor( private _crud: CrudService ) {}
 
@@ -226,7 +227,11 @@ export class DataTableComponent implements OnInit, OnChanges {
     this.getTable();
   }
 
-  deleteRow ( values: string[] ) {
+  deleteRow ( values: string[], i ) {
+    if ( this.confirm !== i ){
+      this.confirm = i;
+      return;
+    }
     const rowMap = new Map<string, string>();
     values.forEach( ( val, key ) => {
       rowMap.set( this.resultSet.header[key].name, val);

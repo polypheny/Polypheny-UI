@@ -5,3 +5,13 @@
 h5{
   margin-bottom: 1em;
 }
+.delete i {
+  visibility: hidden;
+  color: #dc3545;
+  float: right;
+  margin-right: 1em;
+  cursor: pointer;
+}
+tr:hover .delete i{
+  visibility: visible;
+}

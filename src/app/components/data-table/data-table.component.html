@@ -37,7 +37,7 @@
           <td class="selector" *ngIf="config.update || config.delete"><input type="checkbox"></td>
           <td *ngFor="let d2 of d1" (dblclick)="triggerEditing(i)">{{d2}}</td>
           <td class="delete" *ngIf="config.update || config.delete">
-            <i class="cui-trash" *ngIf="config.delete" (click)="deleteRow(d1)"></i>
+            <i *ngIf="config.delete" [ngClass]="{ 'cui-trash': i!==confirm, 'fa fa-warning': i===confirm }" (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"></i>
           </td>
         </ng-container>
       </tr>
