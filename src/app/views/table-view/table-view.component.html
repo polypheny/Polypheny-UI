@@ -1,5 +1,5 @@
 <ng-container *ngIf="tableId">
-	<h5>table {{tableId}}</h5>
+	<h5>{{tableId}}</h5>
 	<br>
 </ng-container>
 <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="tableConfig" [tableId]="tableId"></app-data-table>

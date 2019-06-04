@@ -23,8 +23,8 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/getTable`, JSON.stringify(data), this.httpOptions);
   }
 
-  getSchema () {
-    return this._http.get(`${this.httpUrl}/getSchemaTree`, this.httpOptions);
+  getSchema ( request: SchemaRequest ) {
+    return this._http.post(`${this.httpUrl}/getSchemaTree`, request, this.httpOptions);
   }
 
   /**
@@ -58,6 +58,24 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/updateRow`, request, this.httpOptions);
   }
 
+  /**
+   * get the columns of a table
+   */
+  getColumns ( columnRequest: ColumnRequest ) {
+    return this._http.post(`${this.httpUrl}/getColumns`, columnRequest, this.httpOptions);
+  }
+
+  /**
+   * Update a column of a Table
+   */
+  updateColumn ( columnRequest: ColumnRequest ) {
+    return this._http.post(`${this.httpUrl}/updateColumn`, columnRequest, this.httpOptions);
+  }
+
+  addColumn ( columnRequest: ColumnRequest ) {
+    return this._http.post(`${this.httpUrl}/addColumn`, columnRequest, this.httpOptions);
+  }
+
 }
 
 export class UIRequest {
@@ -67,6 +85,7 @@ export class UIRequest {
   filter: Map<string, string>;
   sortState: Map<string, SortState>;
   query: string;
+  views: boolean;
 }
 
 export class TableRequest extends UIRequest {
@@ -107,5 +126,43 @@ export class UpdateRequest extends UIRequest {
     this.tableId = tableId;
     this.data = data;
     this.filter = filter;
+  }
+}
+
+export class SchemaRequest extends UIRequest {
+  routerLinkRoot: string;
+  views: boolean;
+
+  constructor( routerLinkRoot: string, views: boolean ) {
+    super();
+    this.routerLinkRoot = routerLinkRoot;
+    this.views = views;
+  }
+}
+
+export class ColumnRequest extends UIRequest {
+  oldColumn: DbColumn;
+  newColumn: DbColumn;
+  constructor( tableId: string, oldColumn: DbColumn = null, newColumn: DbColumn = null ) {
+    super();
+    this.tableId = tableId;
+    this.oldColumn = oldColumn;
+    this.newColumn = newColumn;
+  }
+}
+
+/**
+ * Model for a column of a table
+ */
+export class DbColumn {
+  name: string;
+  nullable: boolean;
+  type: string;//varchar/int/etc
+  maxLength: string;
+  constructor( name:string, nullable:boolean, type:string, maxLength:string ) {
+    this.name = name;
+    this.nullable = nullable;
+    this.type = type;
+    this.maxLength = maxLength;
   }
 }

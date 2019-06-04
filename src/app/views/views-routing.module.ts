@@ -44,6 +44,13 @@ const routes: Routes = [
     }
   },
   {
+    path: 'edit-columns',
+    component: EditColumnsComponent,
+    data: {
+      title: 'Edit Columns'
+    }
+  },
+  {
     path: 'edit-columns/:id',
     component: EditColumnsComponent,
     data: {

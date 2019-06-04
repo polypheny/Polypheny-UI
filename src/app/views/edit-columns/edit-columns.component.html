@@ -2,76 +2,79 @@
 
   <div class="col-lg-12">
 
-    <h5>table: {{tableId}}</h5>
+    <h5 *ngIf="tableId">{{tableId}}</h5>
+    <span *ngIf="!tableId">Please select a table in the left sidebar to edit its columns.</span>
 
-    <table class="table table-hover table-striped">
+    <table class="table table-hover table-striped" *ngIf="resultSet">
       <thead>
         <tr>
-          <th>column</th>
-          <th>type</th>
-          <th>length</th>
-          <th>signed</th>
-          <th>nullable</th>
-          <th>key</th>
+          <ng-container *ngFor="let header of resultSet.header">
+            <th>{{header.name}}</th>
+          </ng-container>
+          <th></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let col of columns">
-          <td (dblclick)="col.editing = true;">
-            <ng-container *ngIf="!col.editing">{{col.name}}</ng-container>
-            <ng-container *ngIf="col.editing">
-              <input type="text" [value]="col.name" class="form-control form-control-sm editing">
-            </ng-container>
-          </td>
-          <td (dblclick)="col.editing = true">
-            <ng-container *ngIf="!col.editing">{{col.type}}</ng-container>
-            <ng-container *ngIf="col.editing">
-              <input class="form-control form-control-sm editing"
+        <tr *ngFor="let d1 of resultSet.data; let i = index">
+          <ng-container *ngIf="i === editColumn">
+            <td class="editing">
+              <input type="text" class="form-control form-control-sm editing" [value]="d1[0]" [attr.data-before]="d1[0]" id="colName">
+            </td>
+            <td class="editing">
+              <input type="checkbox" class="form-control form-control-sm editing" [checked]="d1[1]==='YES'" id="nullable" [attr.data-before]="d1[1]">
+            </td>
+            <td class="editing">
+              <select class="form-control form-control-sm editing" id="udt_name" [attr.data-before]="d1[2]">
+                <option *ngFor="let t of types" [value]="t" [selected]="t === d1[2]">{{t}}</option>
+              </select>
+              <!--<input class="form-control form-control-sm editing"
                      [typeahead]="types"
                      [typeaheadScrollable]="true"
                      [typeaheadOptionsInScrollableView]="5"
-                     [(ngModel)]="col.type"
-                     [ngModelOptions]="{standalone: true}">
-            </ng-container>
-          </td>
-          <td (dblclick)="col.editing = true">
-            <ng-container *ngIf="!col.editing">{{col.length}}</ng-container>
-            <ng-container *ngIf="col.editing">
-              <input type="number" [value]="col.length" class="form-control form-control-sm editing">
-            </ng-container>
-          </td>
-          <td>
-            <input type="checkbox" [checked]="col.signed">
-          </td>
-          <td>
-            <input type="checkbox" [checked]="col.nullable">
-          </td>
-          <td>{{col.key}}</td>
+                     [(ngModel)]="d1[2]"
+                     [ngModelOptions]="{standalone: true}"
+                     id="udt_name"
+                     [attr.data-before]="d1[2]">-->
+            </td>
+            <td class="editing">
+              <input type="number" [value]="d1[3]" class="form-control form-control-sm editing" id="max-length" [attr.data-before]="d1[3]">
+            </td>
+            <td class="editing"><button class="btn btn-primary editing" (click)="saveCol()"><i class="fa fa-save editing editColSave"></i></button></td>
+          </ng-container>
+          <ng-container *ngIf="i !== editColumn">
+            <td *ngFor="let d2 of d1" (dblclick)="editCol(i)">
+              {{d2}}
+            </td>
+            <td></td>
+          </ng-container>
         </tr>
-        <!--<form #newColumn>-->
-          <tr>
-            <td>
-              <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name">
-            </td>
-            <td>
-              <input class="form-control form-control-sm" placeholder="type"
-                     [typeahead]="types"
-                     [dropup]="true"
-                     [typeaheadScrollable]="true"
-                     [typeaheadOptionsInScrollableView]="5"
-                     [(ngModel)]="test"
-                     [ngModelOptions]="{standalone: true}">
-            </td>
-            <td>
-              <input type="number" placeholder="lenght" class="form-control form-control-sm editing">
-            </td>
-            <td><input type="checkbox"></td>
-            <td><input type="checkbox"></td>
-            <td>
-              <a [routerLink]="" class="btn btn-primary" id="addColumnBtn">+</a>
-            </td>
-          </tr>
-        <!--</form>-->
+
+        <tr>
+          <td>
+            <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name" [(ngModel)]="createColumn.name">
+          </td>
+          <td>
+            <input type="checkbox" class="form-control form-control-sm" [(ngModel)]="createColumn.nullable">
+          </td>
+          <td>
+            <select class="form-control form-control-sm" [(ngModel)]="createColumn.type">
+              <option *ngFor="let t of types" [value]="t">{{t}}</option>
+            </select>
+            <!--<input class="form-control form-control-sm" placeholder="type"
+                   [typeahead]="types"
+                   [dropup]="true"
+                   [typeaheadScrollable]="true"
+                   [typeaheadOptionsInScrollableView]="5"
+                   [(ngModel)]="test"
+                   [ngModelOptions]="{standalone: true}">-->
+          </td>
+          <td>
+            <input type="number" placeholder="length" class="form-control form-control-sm" [(ngModel)]="createColumn.maxLength">
+          </td>
+          <td>
+            <a [routerLink]="" class="btn btn-primary" id="addColumnBtn" (click)="addColumn()">+</a>
+          </td>
+        </tr>
       </tbody>
     </table>
 

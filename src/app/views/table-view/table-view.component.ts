@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {TableConfig} from '../../components/data-table/table-config';
-import {CrudService, TableRequest, UIRequest} from '../../services/crud.service';
+import {CrudService, SchemaRequest, TableRequest, UIRequest} from '../../services/crud.service';
 import {LeftSidebarService, SidebarNode} from '../../components/left-sidebar/left-sidebar.service';
 import {ResultSet} from '../../components/data-table/models/result-set.model';
 
@@ -40,7 +40,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
     }
     if( this.resultSet ) this.resultSet.currentPage = this.currentPage;
 
-    this._crud.getSchema().subscribe(
+    this._crud.getSchema( new SchemaRequest('/views/data-table/', true) ).subscribe(
         res => {
           const schema = <SidebarNode[]> res;
           this._sidebar.setNodes( schema );
