@@ -4,6 +4,7 @@ import * as $ from 'jquery';
 import {LeftSidebarService, SidebarNode} from '../../components/left-sidebar/left-sidebar.service';
 import {ColumnRequest, CrudService, SchemaRequest, DbColumn} from '../../services/crud.service';
 import {ResultSet} from '../../components/data-table/models/result-set.model';
+import {ToastService} from '../../components/toast/toast.service';
 
 @Component({
   selector: 'app-edit-columns',
@@ -24,7 +25,8 @@ export class EditColumnsComponent implements OnInit {
   constructor(
     private _route: ActivatedRoute,
     private _leftSidebar: LeftSidebarService,
-    private _crud: CrudService
+    private _crud: CrudService,
+    private _toast: ToastService
   ) { }
 
   ngOnInit() {
@@ -52,6 +54,7 @@ export class EditColumnsComponent implements OnInit {
         const schema = <SidebarNode[]> res;
         this._leftSidebar.setNodes( schema );
       }, err => {
+        this._toast.toast( 'server error', 'Could not load database schema.', 0, 'bg-danger' );
         console.log(err);
       }
     );
@@ -64,6 +67,7 @@ export class EditColumnsComponent implements OnInit {
       res => {
         this.resultSet = <ResultSet> res;
       }, err => {
+        this._toast.toast( 'server error', 'Could not load columns of the table.', 0, 'bg-danger' );
         console.log(err);
       }
     );
@@ -91,15 +95,26 @@ export class EditColumnsComponent implements OnInit {
     this._crud.updateColumn( req ).subscribe(
       res => {
         console.log(res);
+        const result = <ResultSet> res;
         this.editColumn = -1;
         this.getColumns();
+        if( result.error ){
+          this._toast.toast( 'error', 'Could not update column: '+result.error, 0, 'bg-warning' );
+        }else{
+          this._toast.toast( 'column saved', 'The new column was saved.', 10, 'bg-success' );
+        }
       }, err => {
+        this._toast.toast( 'server error', 'Could not save column due to an error on the server.', 0, 'bg-danger' );
         console.log(err);
       }
     );
   }
 
   addColumn() {
+    if( this.createColumn.name === ''){
+      this._toast.toast( 'missing column name', 'Please provide a name for the new column.', 0, 'bg-warning');
+      return;
+    }
     const newColumn = new DbColumn( this.createColumn.name, this.createColumn.nullable, this.createColumn.type, this.createColumn.maxLength );
     const req = new ColumnRequest( this.tableId, null, newColumn );
     console.log(req);
@@ -113,10 +128,10 @@ export class EditColumnsComponent implements OnInit {
           this.createColumn.type = this.types[0];
           this.createColumn.maxLength = null;
         } else {
-          //todo toast
-          console.log( result.error );
+          this._toast.toast( 'server error', result.error, 0, 'bg-warning' );
         }
       }, err => {
+        this._toast.toast( 'server error', 'An error occured on the server.', 0, 'bg-danger' );
         console.log(err);
     }
     );
@@ -132,6 +147,7 @@ export class EditColumnsComponent implements OnInit {
           this.getColumns();
           this.confirm = -1;
         }, err => {
+          this._toast.toast( 'server error', 'Could not delete column.', 0, 'bg-danger' );
           console.log(err);
         }
       );

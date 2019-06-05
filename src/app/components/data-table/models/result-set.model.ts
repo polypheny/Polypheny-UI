@@ -9,7 +9,7 @@ export class ResultSet{
     currentPage: number;
     highestPage: number;
     table: string;
-    error: String;
+    error: string;
     info: Debug;
     type: string;//"table" or "view"
 

@@ -5,6 +5,7 @@ import {CrudService, DeleteRequest, TableRequest, UIRequest, UpdateRequest} from
 import {PaginationElement} from './models/pagination-element.model';
 import {ResultSet} from './models/result-set.model';
 import {SortDirection, SortState} from './models/sort-state.model';
+import {ToastService} from '../toast/toast.service';
 
 @Component({
   selector: 'app-data-table',
@@ -23,7 +24,10 @@ export class DataTableComponent implements OnInit, OnChanges {
   editing = -1;//-1 if not editing any row, else the index of that row
   confirm = -1;
   
-  constructor( private _crud: CrudService ) {}
+  constructor(
+    private _crud: CrudService,
+    private _toast: ToastService
+  ) {}
 
 
   ngOnInit() {
@@ -119,11 +123,12 @@ export class DataTableComponent implements OnInit, OnChanges {
             this.insertValues.clear();
             this.buildInsertObject();
             this.getTable();
-            //todo toast
+            this._toast.toast( 'success', 'Saved data', 5, 'bg-success' );
           } else if ( result.error ) {
-            //todo toast
+            this._toast.toast( 'insert error', 'Could not insert the data: ' + result.error, 10, 'bg-warning' );
           }
         }, err => {
+          this._toast.toast( 'server error', 'Could not insert the data.', 10, 'bg-danger' );
           console.log(err);
         }
     );
@@ -141,13 +146,17 @@ export class DataTableComponent implements OnInit, OnChanges {
         data.set( col, newValue );
       }
     });
-    this._crud.updateRow( new UpdateRequest( this.resultSet.table, this.mapToObject(data), this.mapToObject(filter) ) ).subscribe(
+    const req = new UpdateRequest( this.resultSet.table, this.mapToObject(data), this.mapToObject(filter) );
+    this._crud.updateRow( req ).subscribe(
       res => {
         const result = <ResultSet> res;
         if( result.info.affectedRows === 1 ) {
           this.getTable();
+        } else if ( result.error ){
+          this._toast.toast( 'error', 'Could not update this row: '+result.error, 10, 'bg-warning' );
         }
       }, err => {
+        this._toast.toast( 'server error', 'Could not update the data.', 10, 'bg-danger' );
         console.log(err);
       }
     );
@@ -178,6 +187,7 @@ export class DataTableComponent implements OnInit, OnChanges {
             this.config.delete = false;
           }
         }, err => {
+        this._toast.toast( 'server error', 'Could not load the data.', 10, 'bg-danger' );
           console.log(err);
         }
     );
@@ -245,9 +255,11 @@ export class DataTableComponent implements OnInit, OnChanges {
             this.getTable();
           }else {
             console.log(res);
-            //todo toast
+            const result2 = <ResultSet> res;
+            this._toast.toast( 'error', 'Could not delete this row: ' + result2.error, 10, 'bg-warning' );
           }
         }, err => {
+        this._toast.toast( 'server error', 'Could not delete this row.', 10, 'bg-danger' );
           console.log(err);
         }
     );
