@@ -80,6 +80,27 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/dropColumn`, columnRequest, this.httpOptions);
   }
 
+  /**
+   * Get list of tables of a schema to truncate/drop them
+   */
+  getTables ( tableRequest: EditTableRequest ) {
+    return this._http.post(`${this.httpUrl}/getTables`, tableRequest, this.httpOptions);
+  }
+
+  /**
+   * Drop or truncate a table
+   */
+  dropTruncateTable ( tableRequest: EditTableRequest ) {
+    return this._http.post(`${this.httpUrl}/dropTruncateTable`, tableRequest, this.httpOptions);
+  }
+
+  /**
+   * Create a new table
+   */
+  createTable ( tableRequest: EditTableRequest ) {
+    return this._http.post(`${this.httpUrl}/createTable`, tableRequest, this.httpOptions);
+  }
+
 }
 
 export class UIRequest {
@@ -160,13 +181,36 @@ export class ColumnRequest extends UIRequest {
  */
 export class DbColumn {
   name: string;
+  primary: boolean;
   nullable: boolean;
   type: string;//varchar/int/etc
   maxLength: string;
-  constructor( name:string, nullable:boolean, type:string, maxLength:string ) {
+  constructor( name:string, primary: boolean, nullable:boolean, type:string, maxLength:string ) {
     this.name = name;
+    this.primary = primary;
     this.nullable = nullable;
     this.type = type;
     this.maxLength = maxLength;
+  }
+}
+
+/**
+ * Edit or create a Table
+ * used for request where you want to truncate/drop a table
+ * and when you want to create a new table
+ */
+export class EditTableRequest {
+  schema: string;
+  table: string;
+  action: string;//truncate / drop
+  columns: DbColumn[];
+  constructor ( schema:string, table:string = null, action:string = null, columns:DbColumn[] = null) {
+    this.schema = schema;
+    this.table = table;
+    this.action = action;
+    this.columns = columns;
+  }
+  getAction () {
+    return this.action;
   }
 }

@@ -4,13 +4,21 @@ import {BehaviorSubject} from 'rxjs';
 import {InformationService} from '../../services/information.service';
 import {ConfigService} from '../../services/config.service';
 import * as $ from 'jquery';
+import {CrudService, SchemaRequest} from '../../services/crud.service';
+import {ToastService} from '../toast/toast.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LeftSidebarService {
 
-  constructor( private _http:HttpClient, private _informationService:InformationService, private _configService:ConfigService ) {}
+  constructor(
+    private _http:HttpClient,
+    private _informationService:InformationService,
+    private _configService:ConfigService,
+    private _crud: CrudService,
+    private _toast: ToastService
+  ) {}
 
   nodes: BehaviorSubject<Object> = new BehaviorSubject<Object>([]);
 
@@ -72,6 +80,27 @@ export class LeftSidebarService {
   close() {
     this.nodes.next( [] );
     $('body').removeClass('sidebar-lg-show');
+  }
+
+  /**
+   * Retrieve a schemaTree using the _crud service and apply it to the left sidebar
+   */
+  setSchema ( schemaRequest: SchemaRequest ){
+    this._crud.getSchema( schemaRequest ).subscribe(
+      res => {
+        const schema = <SidebarNode[]> res;
+        this.setNodes( schema );
+        if( !schemaRequest.views ){
+          schema.forEach( (val, key) => {
+            val.children[0].routerLink = schemaRequest.routerLinkRoot + val.id;
+          });
+        }
+      }, err => {
+        this._toast.toast( 'server error', 'Could not load database schema.', 0, 'bg-danger' );
+        console.log(err);
+      }
+    );
+    this.open();
   }
 
 }

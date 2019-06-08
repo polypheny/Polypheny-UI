@@ -2,10 +2,10 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import {UmlComponent} from './uml/uml.component';
 import {SqlConsoleComponent} from './sql-console/sql-console.component';
-import {EditColumnsComponent} from './edit-columns/edit-columns.component';
 import {GraphicalQueryingComponent} from './graphical-querying/graphical-querying.component';
 import {FormGeneratorComponent} from './forms/form-generator/form-generator.component';
 import {TableViewComponent} from './table-view/table-view.component';
+import {SchemaEditingComponent} from './schema-editing/schema-editing.component';
 
 const routes: Routes = [
   {
@@ -44,17 +44,17 @@ const routes: Routes = [
     }
   },
   {
-    path: 'edit-columns',
-    component: EditColumnsComponent,
+    path: 'schema-editing',
+    component: SchemaEditingComponent,
     data: {
-      title: 'Edit Columns'
+      title: 'Schema Editing'
     }
   },
   {
-    path: 'edit-columns/:id',
-    component: EditColumnsComponent,
+    path: 'schema-editing/:id',
+    component: SchemaEditingComponent,
     data: {
-      title: 'Edit Columns'
+      title: 'Schema Editing'
     }
   },
   {

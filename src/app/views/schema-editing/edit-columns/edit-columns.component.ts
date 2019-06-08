@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
-import {LeftSidebarService, SidebarNode} from '../../components/left-sidebar/left-sidebar.service';
-import {ColumnRequest, CrudService, SchemaRequest, DbColumn} from '../../services/crud.service';
-import {ResultSet} from '../../components/data-table/models/result-set.model';
-import {ToastService} from '../../components/toast/toast.service';
+import {LeftSidebarService, SidebarNode} from '../../../components/left-sidebar/left-sidebar.service';
+import {ColumnRequest, CrudService, SchemaRequest, DbColumn} from '../../../services/crud.service';
+import {ResultSet} from '../../../components/data-table/models/result-set.model';
+import {ToastService} from '../../../components/toast/toast.service';
+import {Input} from '@angular/core';
 
 @Component({
   selector: 'app-edit-columns',
@@ -14,7 +15,7 @@ import {ToastService} from '../../components/toast/toast.service';
 
 export class EditColumnsComponent implements OnInit {
 
-  tableId: string;
+  @Input() tableId: string;
   resultSet: ResultSet;
   types: string[] = ['int8', 'int4', 'varchar', 'timestamptz', 'bool', 'text'];
   editColumn = -1;
@@ -33,8 +34,6 @@ export class EditColumnsComponent implements OnInit {
 
     this.getTableId();
 
-    this.getSchema();
-
     this.getColumns();
 
     this.documentListener();
@@ -48,21 +47,10 @@ export class EditColumnsComponent implements OnInit {
     });
   }
 
-  getSchema () {
-    this._crud.getSchema(  new SchemaRequest('/views/edit-columns/', false) ).subscribe(
-      res => {
-        const schema = <SidebarNode[]> res;
-        this._leftSidebar.setNodes( schema );
-      }, err => {
-        this._toast.toast( 'server error', 'Could not load database schema.', 0, 'bg-danger' );
-        console.log(err);
-      }
-    );
-    this._leftSidebar.open();
-  }
-
   getColumns () {
-    if( this.tableId === undefined ) return;
+    if( !this.tableId.includes('.') ){
+      return;
+    }
     this._crud.getColumns( new ColumnRequest( this.tableId )).subscribe(
       res => {
         this.resultSet = <ResultSet> res;
@@ -88,8 +76,8 @@ export class EditColumnsComponent implements OnInit {
     if( oldMaxLength === undefined ) oldMaxLength = '';
     const newMaxLength = $('#max-length').val();
 
-    const oldColumn = new DbColumn( oldColName, oldNullable, oldType, oldMaxLength );
-    const newColumn = new DbColumn( newColName, newNullable, newType, newMaxLength );
+    const oldColumn = new DbColumn( oldColName, false, oldNullable, oldType, oldMaxLength );
+    const newColumn = new DbColumn( newColName, false, newNullable, newType, newMaxLength );
     const req = new ColumnRequest( this.tableId, oldColumn, newColumn );
     console.log(req);
     this._crud.updateColumn( req ).subscribe(
@@ -115,7 +103,7 @@ export class EditColumnsComponent implements OnInit {
       this._toast.toast( 'missing column name', 'Please provide a name for the new column.', 0, 'bg-warning');
       return;
     }
-    const newColumn = new DbColumn( this.createColumn.name, this.createColumn.nullable, this.createColumn.type, this.createColumn.maxLength );
+    const newColumn = new DbColumn( this.createColumn.name, false, this.createColumn.nullable, this.createColumn.type, this.createColumn.maxLength );
     const req = new ColumnRequest( this.tableId, null, newColumn );
     console.log(req);
     this._crud.addColumn( req ).subscribe(
@@ -141,7 +129,7 @@ export class EditColumnsComponent implements OnInit {
     if ( this.confirm !== i ){
       this.confirm = i;
     } else {
-      this._crud.dropColumn( new ColumnRequest( this.tableId, new DbColumn( col[0], col[1], col[2], col[3] ) ) ).subscribe(
+      this._crud.dropColumn( new ColumnRequest( this.tableId, new DbColumn( col[0], false, col[1], col[2], col[3] ) ) ).subscribe(
         res => {
           console.log(res);
           this.getColumns();

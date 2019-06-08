@@ -1,0 +1,89 @@
+<app-toast></app-toast>
+<ng-container *ngIf="schema && tables">
+    <h5>Tables in <i>{{schema}}</i></h5>
+    <p>Type 'truncate' respectively 'drop' into the text-fields to perform these actions.</p>
+</ng-container>
+<div class="card-columns" [ngStyle]="{'column-count': _breadcrumb.getMasonryZoom()}" *ngIf="tables">
+<!--<div class="col-lg-4">-->
+    <div class="card" *ngFor="let table of tables let i = index">
+        <div class="card-header">
+            {{schema}}.{{table}}
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm" placeholder="type 'truncate'" [(ngModel)]="truncate[i]">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm" [ngClass]="{'btn-danger': truncate[i].toLowerCase()==='truncate', 'btn-light disabled': truncate[i].toLowerCase()!=='truncate'}" type="button" (click)="sendRequest(table, 'truncate', truncate[i])">truncate</button>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm" placeholder="type 'drop'" [(ngModel)]="drop[i]">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm" [ngClass]="{'btn-danger': drop[i].toLowerCase()==='drop', 'btn-light disabled': drop[i].toLowerCase()!=='drop'}" type="button" (click)="sendRequest(table, 'drop', drop[i])">drop</button>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+<hr>
+<div class="row">
+    <br><br>
+    <div class="col-lg-12">
+        <h5>Create new table</h5>
+        <p>Columns without column_name will be ignored.</p>
+        <table class="table table-hover table-striped">
+            <thead>
+                <tr>
+                   <th>column_name</th>
+                    <th>primary</th>
+                    <th>is_nullable</th>
+                    <th>udt_name</th>
+                    <th>character_maximum_length</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let col of newColumns | keyvalue">
+                    <td>
+                        <input type="text" class="form-control form-control-sm" placeholder="column name" [(ngModel)]="col.value.name">
+                    </td>
+                    <td>
+                        <input type="checkbox" [(ngModel)]="col.value.primary">
+                    </td>
+                    <td>
+                        <input type="checkbox" [(ngModel)]="col.value.nullable">
+                    </td>
+                    <td>
+                        <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.type">
+                            <option *ngFor="let t of types" [ngValue]="t">{{t}}</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input *ngIf="col.value.type !== 'varchar'" type="number" class="form-control form-control-sm" disabled placeholder="length">
+                        <input *ngIf="col.value.type === 'varchar'" type="number" class="form-control form-control-sm" placeholder="length" [(ngModel)]="col.value.maxLength">
+                    </td>
+                    <td>
+                        <i class="cui-trash del" (click)="removeNewColumn(col.key)"></i>
+                    </td>
+                </tr>
+            <tr>
+                <td>
+                    <button class="btn btn-light" (click)="addNewColumn()">add column</button>
+                </td>
+                <td colspan="5">
+                    <div class="input-group" style="justify-content: flex-end">
+                        <input type="text" placeholder="table name" class="form-control" style="max-width: 200px;" [(ngModel)]="newTableName">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" (click)="createTable()">create table</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

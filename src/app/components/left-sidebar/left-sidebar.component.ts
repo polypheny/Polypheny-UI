@@ -29,11 +29,18 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
       actionMapping: {
         mouse: {
           dblClick: (tree, node, $event) => {
-
+            /*if (node.hasChildren) {
+              TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+            }*/
           },
           click: (tree, node, $event) => {
-            if (node.hasChildren) TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-            if ( ! node.hasChildren){
+            if (node.hasChildren){
+              TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+              if( node.data.routerLink !== '' ){
+                _router.navigate([node.data.routerLink]);
+              }
+            }
+            else if ( ! node.hasChildren){
               if( node.data.routerLink !== '' ){
                 _router.navigate([node.data.routerLink]);
               }

@@ -88,7 +88,7 @@ export class SqlConsoleComponent implements OnInit {
       query = query + $(this).text()+'\n';
     });
 
-    this.addToHistory( query );
+    this.addToHistory( this.codeEditor.getValue() );
 
     this._crud.anyQuery( new QueryRequest( query ) ).subscribe(
         res => {

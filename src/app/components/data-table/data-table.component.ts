@@ -46,6 +46,7 @@ export class DataTableComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if( changes['resultSet'] ){
       this.setPagination();
+      this.buildInsertObject();
     }
   }
 
@@ -105,6 +106,7 @@ export class DataTableComponent implements OnInit, OnChanges {
   }
 
   buildInsertObject () {
+    this.insertValues.clear();
     if(this.resultSet.header){
       this.resultSet.header.forEach( (g, idx) => {
         this.insertValues.set(g.name, '');
@@ -253,6 +255,7 @@ export class DataTableComponent implements OnInit, OnChanges {
           const result = <ResultSet> res;
           if( result.info.affectedRows === 1) {
             this.getTable();
+            //todo if page is empty, go to highestPage
           }else {
             console.log(res);
             const result2 = <ResultSet> res;

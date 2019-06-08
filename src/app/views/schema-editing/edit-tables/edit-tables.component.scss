@@ -1,0 +1,16 @@
+h5 {
+  margin-bottom: 1em;
+}
+.btn.disabled {
+  cursor: not-allowed;
+}
+.del{
+  visibility: hidden;
+  cursor: pointer;
+}
+tr:hover .del{
+  visibility: visible;
+}
+.del:hover{
+  color: #dc3545;
+}

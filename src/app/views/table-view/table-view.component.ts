@@ -40,14 +40,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
     }
     if( this.resultSet ) this.resultSet.currentPage = this.currentPage;
 
-    this._crud.getSchema( new SchemaRequest('/views/data-table/', true) ).subscribe(
-        res => {
-          const schema = <SidebarNode[]> res;
-          this._sidebar.setNodes( schema );
-        }, err => {
-          console.log(err);
-        }
-    );
+    this._sidebar.setSchema( new SchemaRequest('/views/data-table/', true) );
 
     //listen to parameter changes
     this._route.params.subscribe((params) => {
