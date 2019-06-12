@@ -5,6 +5,7 @@ export class Toast{
   timeAsString: String;//timeAsString when toast is shown, for the gui
   time: Date;
   type: String;
+  hash: string;
 
   /**
    * A toast message
@@ -21,5 +22,6 @@ export class Toast{
     this.timeAsString = d.getHours()+':'+d.getMinutes()+':'+d.getSeconds();
     this.type = type;
     this.delay = delay;//default 0 -> not removed automatically. if > 0: removed after n miliseconds
+    this.hash = this.timeAsString + this.message;
   }
 }

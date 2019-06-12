@@ -5,7 +5,6 @@ import {InformationService} from '../../services/information.service';
 import {ConfigService} from '../../services/config.service';
 import * as $ from 'jquery';
 import {CrudService, SchemaRequest} from '../../services/crud.service';
-import {ToastService} from '../toast/toast.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,18 +15,20 @@ export class LeftSidebarService {
     private _http:HttpClient,
     private _informationService:InformationService,
     private _configService:ConfigService,
-    private _crud: CrudService,
-    private _toast: ToastService
+    private _crud: CrudService
   ) {}
 
   nodes: BehaviorSubject<Object> = new BehaviorSubject<Object>([]);
+  error: BehaviorSubject<string> = new BehaviorSubject<string>(null);
 
   listConfigManagerPages () {
     return this._configService.getPageList().subscribe(
       res => {
         this.nodes.next(this.mapPages(res, 'config'));
+        this.error.next(null);
       }, err => {
         this.nodes.next([]);
+        this.error.next('Could not get page list.');
         console.log(err);
       }
     );
@@ -57,8 +58,10 @@ export class LeftSidebarService {
     return this._informationService.getPageList().subscribe(
       res => {
         this.nodes.next(this.mapPages(res, 'information'));
+        this.error.next(null);
       }, err => {
         this.nodes.next([]);
+        this.error.next('Could not get page list.');
         console.log(err);
       }
     );
@@ -71,6 +74,10 @@ export class LeftSidebarService {
   setNodes ( n: SidebarNode[] ) {
     n = [].concat(n); // convert to array if it is not an array
     this.nodes.next( n );
+  }
+
+  getError () {
+    return this.error;
   }
 
   open () {
@@ -88,6 +95,7 @@ export class LeftSidebarService {
   setSchema ( schemaRequest: SchemaRequest ){
     this._crud.getSchema( schemaRequest ).subscribe(
       res => {
+        this.error.next(null);
         const schema = <SidebarNode[]> res;
         this.setNodes( schema );
         if( !schemaRequest.views ){
@@ -96,7 +104,8 @@ export class LeftSidebarService {
           });
         }
       }, err => {
-        this._toast.toast( 'server error', 'Could not load database schema.', 0, 'bg-danger' );
+        this.error.next('Could not load database schema.');
+        //this._toast.toast( 'server error', 'Could not load database schema.', 0, 'bg-danger' );
         console.log(err);
       }
     );

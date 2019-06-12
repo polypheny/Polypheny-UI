@@ -14,3 +14,9 @@ tr:hover .del{
 .del:hover{
   color: #dc3545;
 }
+label:not(.disabled){
+  cursor: pointer;
+}
+label.disabled{
+  color: grey;
+}

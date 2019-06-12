@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {SortState} from '../components/data-table/models/sort-state.model';
+import {DbColumn} from '../components/data-table/models/result-set.model';
 
 @Injectable({
   providedIn: 'root'
@@ -173,24 +174,6 @@ export class ColumnRequest extends UIRequest {
     this.tableId = tableId;
     this.oldColumn = oldColumn;
     this.newColumn = newColumn;
-  }
-}
-
-/**
- * Model for a column of a table
- */
-export class DbColumn {
-  name: string;
-  primary: boolean;
-  nullable: boolean;
-  type: string;//varchar/int/etc
-  maxLength: string;
-  constructor( name:string, primary: boolean, nullable:boolean, type:string, maxLength:string ) {
-    this.name = name;
-    this.primary = primary;
-    this.nullable = nullable;
-    this.type = type;
-    this.maxLength = maxLength;
   }
 }
 

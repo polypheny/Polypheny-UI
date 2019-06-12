@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {CrudService, DbColumn, EditTableRequest, SchemaRequest} from '../../../services/crud.service';
+import {CrudService, EditTableRequest, SchemaRequest} from '../../../services/crud.service';
 import {ActivatedRoute} from '@angular/router';
-import {ResultSet} from '../../../components/data-table/models/result-set.model';
+import {DbColumn, ResultSet} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
@@ -140,6 +140,24 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
   removeNewColumn( i:number ){
     this.newColumns.delete(i);
+  }
+
+  triggerDefaultNull ( col: DbColumn ) {
+    if( col.defaultValue === null ){
+      switch( col.type ){
+        case 'int4':
+        case 'int8':
+          col.defaultValue = 0;
+          break;
+        case 'bool':
+          col.defaultValue = false;
+          break;
+        default:
+          col.defaultValue = '';
+      }
+    }else {
+      col.defaultValue = null;
+    }
   }
 
 }

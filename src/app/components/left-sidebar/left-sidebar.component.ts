@@ -19,6 +19,7 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
   @ViewChild('tree') treeComponent: TreeComponent;
   nodes;
   options;
+  error;
 
   constructor( _config:ConfigService,
                _router:Router,
@@ -38,13 +39,14 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
               TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
               if( node.data.routerLink !== '' ){
                 _router.navigate([node.data.routerLink]);
+                node.setIsActive(true);
               }
             }
             else if ( ! node.hasChildren){
               if( node.data.routerLink !== '' ){
                 _router.navigate([node.data.routerLink]);
+                node.setIsActive(true);
               }
-              node.setIsActive(true);
             }
           }
         },
@@ -58,13 +60,12 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
         this.nodes = nodes;
       }
     );
-    /*_config.getPageList().subscribe(
-      res => {
-        this.nodes = res;
-      }, err => {
-        console.log(err);
+
+    _sidebar.getError().subscribe(
+      error => {
+        this.error = error;
       }
-    );*/
+    );
   }
 
   ngOnInit() {
@@ -86,13 +87,6 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
         return node.data.name.startsWith($(this).val());
       });
     });
-
-  }
-
-  nodeIsActive ( node:any ): boolean {
-    const regex = new RegExp('\\/('+ node.id +')$');
-    return location.hash.match(regex) !== null;
-    //  location.hash.match(/\/(\w+)$/)
 
   }
 

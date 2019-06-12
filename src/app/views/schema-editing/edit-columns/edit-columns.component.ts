@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService, SidebarNode} from '../../../components/left-sidebar/left-sidebar.service';
-import {ColumnRequest, CrudService, SchemaRequest, DbColumn} from '../../../services/crud.service';
-import {ResultSet} from '../../../components/data-table/models/result-set.model';
+import {ColumnRequest, CrudService, SchemaRequest} from '../../../services/crud.service';
+import {DbColumn, ResultSet} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {Input} from '@angular/core';
 
@@ -19,9 +19,9 @@ export class EditColumnsComponent implements OnInit {
   resultSet: ResultSet;
   types: string[] = ['int8', 'int4', 'varchar', 'timestamptz', 'bool', 'text'];
   editColumn = -1;
-  createColumn = { name: '', nullable: false, type:'text', maxLength: null};
+  createColumn = new DbColumn( '', false, false, 'text', null, null);
   confirm = -1;
-
+  oldColumns = new Map<string, DbColumn>();
 
   constructor(
     private _route: ActivatedRoute,
@@ -54,6 +54,10 @@ export class EditColumnsComponent implements OnInit {
     this._crud.getColumns( new ColumnRequest( this.tableId )).subscribe(
       res => {
         this.resultSet = <ResultSet> res;
+        this.oldColumns.clear();
+        this.resultSet.header.forEach(( v ,k )=>{
+          this.oldColumns.set( v.name, DbColumn.fromJson( v ));
+        });
       }, err => {
         this._toast.toast( 'server error', 'Could not load columns of the table.', 0, 'bg-danger' );
         console.log(err);
@@ -65,24 +69,11 @@ export class EditColumnsComponent implements OnInit {
     this.editColumn = i;
   }
   
-  saveCol() {
-    const oldColName = $('#colName').attr('data-before');
-    const newColName = $('#colName').val();
-    const oldNullable = $('#nullable').attr('data-before') === 'YES';
-    const newNullable = $('#nullable').is(':checked');
-    const oldType = $('#udt_name').attr('data-before');
-    const newType = $('#udt_name').val();
-    let oldMaxLength = $('#max-length').attr('data-before');
-    if( oldMaxLength === undefined ) oldMaxLength = '';
-    const newMaxLength = $('#max-length').val();
-
-    const oldColumn = new DbColumn( oldColName, false, oldNullable, oldType, oldMaxLength );
-    const newColumn = new DbColumn( newColName, false, newNullable, newType, newMaxLength );
-    const req = new ColumnRequest( this.tableId, oldColumn, newColumn );
+  saveCol( newCol:DbColumn ) {
+    const req = new ColumnRequest( this.tableId, this.oldColumns.get( newCol.name ), newCol );
     console.log(req);
     this._crud.updateColumn( req ).subscribe(
       res => {
-        console.log(res);
         const result = <ResultSet> res;
         this.editColumn = -1;
         this.getColumns();
@@ -103,9 +94,8 @@ export class EditColumnsComponent implements OnInit {
       this._toast.toast( 'missing column name', 'Please provide a name for the new column.', 0, 'bg-warning');
       return;
     }
-    const newColumn = new DbColumn( this.createColumn.name, false, this.createColumn.nullable, this.createColumn.type, this.createColumn.maxLength );
-    const req = new ColumnRequest( this.tableId, null, newColumn );
-    console.log(req);
+    //const newColumn = new DbColumn( this.createColumn.name, false, this.createColumn.nullable, this.createColumn.type, this.createColumn.maxLength );
+    const req = new ColumnRequest( this.tableId, null, this.createColumn );
     this._crud.addColumn( req ).subscribe(
       res => {
         const result = <ResultSet> res;
@@ -115,6 +105,7 @@ export class EditColumnsComponent implements OnInit {
           this.createColumn.nullable = false;
           this.createColumn.type = this.types[0];
           this.createColumn.maxLength = null;
+          this.createColumn.defaultValue = null;
         } else {
           this._toast.toast( 'server error', result.error, 0, 'bg-warning' );
         }
@@ -125,13 +116,12 @@ export class EditColumnsComponent implements OnInit {
     );
   }
   
-  dropColumn ( col, i ) {
+  dropColumn ( col: DbColumn , i ) {
     if ( this.confirm !== i ){
       this.confirm = i;
     } else {
-      this._crud.dropColumn( new ColumnRequest( this.tableId, new DbColumn( col[0], false, col[1], col[2], col[3] ) ) ).subscribe(
+      this._crud.dropColumn( new ColumnRequest( this.tableId, col ) ).subscribe(
         res => {
-          console.log(res);
           this.getColumns();
           this.confirm = -1;
         }, err => {
@@ -149,6 +139,24 @@ export class EditColumnsComponent implements OnInit {
         self.editColumn = -1;
       }
     });
+  }
+
+  triggerDefaultNull ( col: DbColumn ) {
+    if( col.defaultValue === null ){
+      switch( col.type ){
+        case 'int4':
+        case 'int8':
+          col.defaultValue = 0;
+          break;
+        case 'bool':
+          col.defaultValue = false;
+          break;
+        default:
+          col.defaultValue = '';
+      }
+    }else {
+      col.defaultValue = null;
+    }
   }
 
 }
