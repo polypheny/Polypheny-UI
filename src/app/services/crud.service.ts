@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {SortState} from '../components/data-table/models/sort-state.model';
-import {DbColumn} from '../components/data-table/models/result-set.model';
+import {DbColumn, TableConstraint} from '../components/data-table/models/result-set.model';
 
 @Injectable({
   providedIn: 'root'
@@ -102,6 +102,27 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/createTable`, tableRequest, this.httpOptions);
   }
 
+  /**
+   * Get constraints of a table
+   */
+  getConstraints ( tableRequest: ColumnRequest ) {
+    return this._http.post(`${this.httpUrl}/getConstraints`, tableRequest, this.httpOptions);
+  }
+
+  /**
+   * Drop a onstraint of a table
+   */
+  dropConstraint ( request: ConstraintRequest ) {
+    return this._http.post(`${this.httpUrl}/dropConstraint`, request, this.httpOptions);
+  }
+
+  /**
+   * add a primary key to a table
+   */
+  addPrimaryKey ( request: ConstraintRequest ) {
+    return this._http.post(`${this.httpUrl}/addPrimaryKey`, request, this.httpOptions);
+  }
+
 }
 
 export class UIRequest {
@@ -196,4 +217,11 @@ export class EditTableRequest {
   getAction () {
     return this.action;
   }
+}
+
+/**
+ * Request to drop or create a constraint of a table
+ */
+export class ConstraintRequest {
+  constructor ( private table: string, private constraint: TableConstraint ) {}
 }

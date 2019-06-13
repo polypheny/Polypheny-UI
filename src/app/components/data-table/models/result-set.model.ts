@@ -1,4 +1,5 @@
 import {SortState} from './sort-state.model';
+import {CrudService} from '../../../services/crud.service';
 
 /**
  * model for the result of a query coming from the server
@@ -58,4 +59,28 @@ export class DbColumn {
 export interface Debug {
     affectedRows: number;
     generatedQuery: string;
+}
+
+/**
+ * model for constraints of a table
+ */
+export class TableConstraint {
+    name: string;
+    type: string;
+    deferrable: boolean;
+    initially_deferred: boolean;
+    columns: string[] = [];
+    constructor ( name:string, type:string = null, deferrable: boolean = null, initially_deferred:boolean = null ) {
+        this.name = name;
+        this.type = type;
+        this.deferrable = deferrable;
+        this.initially_deferred = initially_deferred;
+    }
+
+    /**
+     * add a column to a constraint (that possibly consists of multiple columns)
+     */
+    addColumn( col: string ) {
+        this.columns.push( col );
+    }
 }

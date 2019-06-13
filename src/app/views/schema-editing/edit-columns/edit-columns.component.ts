@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService, SidebarNode} from '../../../components/left-sidebar/left-sidebar.service';
-import {ColumnRequest, CrudService, SchemaRequest} from '../../../services/crud.service';
-import {DbColumn, ResultSet} from '../../../components/data-table/models/result-set.model';
+import {ColumnRequest, ConstraintRequest, CrudService, SchemaRequest, UIRequest} from '../../../services/crud.service';
+import {DbColumn, ResultSet, TableConstraint} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {Input} from '@angular/core';
 
@@ -23,6 +23,9 @@ export class EditColumnsComponent implements OnInit {
   confirm = -1;
   oldColumns = new Map<string, DbColumn>();
 
+  constraints: ResultSet;
+  confirmConstraint = -1;
+
   constructor(
     private _route: ActivatedRoute,
     private _leftSidebar: LeftSidebarService,
@@ -33,8 +36,8 @@ export class EditColumnsComponent implements OnInit {
   ngOnInit() {
 
     this.getTableId();
-
     this.getColumns();
+    this.getConstraints();
 
     this.documentListener();
   }
@@ -130,6 +133,59 @@ export class EditColumnsComponent implements OnInit {
         }
       );
     }
+  }
+  
+  getConstraints () {
+    this._crud.getConstraints( new ColumnRequest(this.tableId) ).subscribe(
+      res => {
+        this.constraints = <ResultSet> res;
+      }, err => {
+        console.log(err);
+    }
+    );
+  }
+
+  dropConstraint ( constraintName:string, i:number) {
+    if( this.confirmConstraint !== i ){
+      this.confirmConstraint = i;
+    } else {
+      this._crud.dropConstraint( new ConstraintRequest( this.tableId, new TableConstraint( constraintName ) )).subscribe(
+        res => {
+          const result = <ResultSet> res;
+          console.log(result);
+          if( result.error){
+            this._toast.toast( 'constraint error', result.error, 10, 'bg-warning');
+          }else{
+            this.getConstraints();
+          }
+        }, err => {
+          console.log(err);
+        }
+      );
+    }
+  }
+
+  addPrimaryKey () {
+    const pk = new TableConstraint( 'pk', 'PRIMARY KEY' );
+    this.resultSet.header.forEach((v, k) => {
+      if( v.primary ){
+        pk.addColumn( v.name );
+      }
+    });
+    const constraintRequest = new ConstraintRequest( this.tableId, pk );
+    this._crud.addPrimaryKey( constraintRequest ).subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if( !result.error ){
+          this.getConstraints();
+        }else {
+          this._toast.toast( 'primary key error', result.error, 0, 'bg-warning');
+        }
+      }, err => {
+        this._toast.toast( 'Server error', 'Could not add primary key.', 0, 'bg-danger');
+        console.log(err);
+      }
+    );
   }
 
   documentListener() {
