@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
-import {LeftSidebarService, SidebarNode} from '../../../components/left-sidebar/left-sidebar.service';
-import {ColumnRequest, ConstraintRequest, CrudService, SchemaRequest, UIRequest} from '../../../services/crud.service';
-import {DbColumn, ResultSet, TableConstraint} from '../../../components/data-table/models/result-set.model';
+import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
+import {ColumnRequest, ConstraintRequest, CrudService, EditTableRequest} from '../../../services/crud.service';
+import {DbColumn, Index, ResultSet, TableConstraint} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {Input} from '@angular/core';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-edit-columns',
@@ -16,6 +17,9 @@ import {Input} from '@angular/core';
 export class EditColumnsComponent implements OnInit {
 
   @Input() tableId: string;
+  table: string;
+  schema: string;
+
   resultSet: ResultSet;
   types: string[] = ['int8', 'int4', 'varchar', 'timestamptz', 'bool', 'text'];
   editColumn = -1;
@@ -26,18 +30,31 @@ export class EditColumnsComponent implements OnInit {
   constraints: ResultSet;
   confirmConstraint = -1;
 
+  indexes: ResultSet;
+  confirmIndex = -1;
+  indexMethods = ['btree', 'hash', 'gist', 'gin'];
+  newIndexForm: FormGroup;
+  indexSubmitted = false;
+
   constructor(
     private _route: ActivatedRoute,
     private _leftSidebar: LeftSidebarService,
     private _crud: CrudService,
     private _toast: ToastService
-  ) { }
+  ) {
+    this.newIndexForm = new FormGroup( {
+      name: new FormControl('', Validators.required),
+      method: new FormControl('btree'),
+      columns: new FormControl(null, Validators.required)
+    });
+  }
 
   ngOnInit() {
 
     this.getTableId();
     this.getColumns();
     this.getConstraints();
+    this.getIndexes();
 
     this.documentListener();
   }
@@ -46,14 +63,18 @@ export class EditColumnsComponent implements OnInit {
     this.tableId = this._route.snapshot.paramMap.get('id');
     this._route.params.subscribe((params) => {
       this.tableId = params['id'];
-      this.getColumns();
+      if( this.tableId.includes('.') ){
+        const t = this.tableId.split('\.');
+        this.schema = t[0];
+        this.table = t[1];
+        this.getColumns();
+        this.getConstraints();
+        this.getIndexes();
+      }
     });
   }
 
   getColumns () {
-    if( !this.tableId.includes('.') ){
-      return;
-    }
     this._crud.getColumns( new ColumnRequest( this.tableId )).subscribe(
       res => {
         this.resultSet = <ResultSet> res;
@@ -74,7 +95,6 @@ export class EditColumnsComponent implements OnInit {
   
   saveCol( newCol:DbColumn ) {
     const req = new ColumnRequest( this.tableId, this.oldColumns.get( newCol.name ), newCol );
-    console.log(req);
     this._crud.updateColumn( req ).subscribe(
       res => {
         const result = <ResultSet> res;
@@ -152,7 +172,6 @@ export class EditColumnsComponent implements OnInit {
       this._crud.dropConstraint( new ConstraintRequest( this.tableId, new TableConstraint( constraintName ) )).subscribe(
         res => {
           const result = <ResultSet> res;
-          console.log(result);
           if( result.error){
             this._toast.toast( 'constraint error', result.error, 10, 'bg-warning');
           }else{
@@ -212,6 +231,64 @@ export class EditColumnsComponent implements OnInit {
       }
     }else {
       col.defaultValue = null;
+    }
+  }
+  
+  getIndexes () {
+    this._crud.getIndexes( new EditTableRequest( this.schema, this.table ) ).subscribe(
+      res => {
+        this.indexes = <ResultSet> res;
+      }, err => {
+        console.log(err);
+      }
+    );
+  }
+
+  dropIndex ( index: string, i ) {
+    if (this.confirmIndex !== i) {
+      this.confirmIndex = i;
+    } else {
+      this._crud.dropIndex( new EditTableRequest(this.schema, this.table, index) ).subscribe(
+        res => {
+          const result = <ResultSet> res;
+          if( !result.error ){
+            this.getIndexes();
+          }else{
+            this._toast.toast( 'error', 'Could not drop index: ' + result.error, 10, 'bg-warning');
+          }
+        }, err => {
+          console.log(err);
+        }
+      );
+    }
+  }
+
+  addIndex(){
+    this.indexSubmitted = true;
+    if(this.newIndexForm.valid){
+      const i = this.newIndexForm.value;
+      const index = new Index( this.schema, this.table, i.name, i.method, i.columns);
+      console.log(index);
+      this._crud.createIndex( index ).subscribe(
+        res => {
+          const result = <ResultSet> res;
+          if( !result.error ){
+            this.getIndexes();
+          }else{
+            this._toast.toast( 'error', 'Could not create index: ' + result.error, 10, 'bg-warning');
+          }
+        }, err => {
+          console.log(err);
+        }
+      );
+    }
+  }
+
+  inputValidation(key){
+    if(this.indexSubmitted  && this.newIndexForm.controls[key].valid && this.newIndexForm.controls[key].dirty ){
+      return {'is-valid':true};
+    }else if(this.indexSubmitted  && !this.newIndexForm.controls[key].valid) {
+      return {'is-invalid': true };
     }
   }
 

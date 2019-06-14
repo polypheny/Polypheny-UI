@@ -84,3 +84,16 @@ export class TableConstraint {
         this.columns.push( col );
     }
 }
+
+/**
+ * SQL Index of a table
+ */
+export class Index {
+    constructor (
+      private schema: string,
+      private table: string,
+      private name: string,
+      private method: string,
+      private columns: string[]
+    ){}
+}

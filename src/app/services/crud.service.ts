@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {SortState} from '../components/data-table/models/sort-state.model';
-import {DbColumn, TableConstraint} from '../components/data-table/models/result-set.model';
+import {DbColumn, Index, TableConstraint} from '../components/data-table/models/result-set.model';
 
 @Injectable({
   providedIn: 'root'
@@ -117,10 +117,31 @@ export class CrudService {
   }
 
   /**
-   * add a primary key to a table
+   * Add a primary key to a table
    */
   addPrimaryKey ( request: ConstraintRequest ) {
     return this._http.post(`${this.httpUrl}/addPrimaryKey`, request, this.httpOptions);
+  }
+
+  /**
+   * Get indexes of a table
+   */
+  getIndexes ( request: EditTableRequest ) {
+    return this._http.post(`${this.httpUrl}/getIndexes`, request, this.httpOptions);
+  }
+
+  /**
+   * Drop an index of a table
+   */
+  dropIndex( request: EditTableRequest ){
+    return this._http.post(`${this.httpUrl}/dropIndex`, request, this.httpOptions);
+  }
+
+  /**
+   * Create an index
+   */
+  createIndex ( index: Index ) {
+    return this._http.post(`${this.httpUrl}/createIndex`, index, this.httpOptions);
   }
 
 }

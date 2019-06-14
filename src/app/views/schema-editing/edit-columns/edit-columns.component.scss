@@ -19,3 +19,16 @@ tr:hover .delete i{
   display: inline-flex;
   margin-top: -0.4em;
 }
+#primaryKeys{
+  line-height: 2em;
+}
+.form-inline .form-control, .form-inline label{
+  margin-right: 1em;
+}
+.form-group{
+  position: relative;
+}
+.invalid-feedback{
+  position: absolute;
+  bottom: -1.5em;
+}
