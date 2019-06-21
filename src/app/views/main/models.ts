@@ -33,5 +33,5 @@ export interface RenderItem {
 }
 export interface RenderGroup {
   color?: string;
-  list: RenderItem[];
+  informationObjects: RenderItem[];
 }

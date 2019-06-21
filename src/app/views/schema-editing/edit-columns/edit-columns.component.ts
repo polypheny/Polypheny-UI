@@ -26,6 +26,7 @@ export class EditColumnsComponent implements OnInit {
   createColumn = new DbColumn( '', false, false, 'text', null, null);
   confirm = -1;
   oldColumns = new Map<string, DbColumn>();
+  updateColumn = new FormGroup({name: new FormControl('')});
 
   constraints: ResultSet;
   confirmConstraint = -1;
@@ -89,12 +90,33 @@ export class EditColumnsComponent implements OnInit {
     );
   }
 
-  editCol( i:number ) {
-    this.editColumn = i;
+  editCol( i:number, col: DbColumn ) {
+    if(this.editColumn !== i) {
+      this.updateColumn = new FormGroup({
+        name: new FormControl( col.name, Validators.required ),
+        oldName: new FormControl( col.name ),
+        nullable: new FormControl( col.nullable ),
+        type: new FormControl( col.type ),
+        maxLength: new FormControl( {value: col.maxLength, disabled: col.type !== 'varchar'} ),
+        defaultValue: new FormControl( {value: col.defaultValue, disabled: col.defaultValue === null} )
+      });
+      this.editColumn = i;
+    }
   }
   
-  saveCol( newCol:DbColumn ) {
-    const req = new ColumnRequest( this.tableId, this.oldColumns.get( newCol.name ), newCol );
+  saveCol() {
+    const oldColumn = this.oldColumns.get( this.updateColumn.controls['oldName'].value );
+    const newColumn = new DbColumn(
+      this.updateColumn.controls['name'].value, null,
+      this.updateColumn.controls['nullable'].value,
+      this.updateColumn.controls['type'].value,
+      this.updateColumn.controls['maxLength'].value,
+      this.updateColumn.controls['defaultValue'].value
+    );
+    if( newColumn.type !== 'varchar' && newColumn.maxLength !== null ){
+      newColumn.maxLength = null;
+    }
+    const req = new ColumnRequest( this.tableId, oldColumn, newColumn );
     this._crud.updateColumn( req ).subscribe(
       res => {
         const result = <ResultSet> res;
@@ -116,6 +138,9 @@ export class EditColumnsComponent implements OnInit {
     if( this.createColumn.name === ''){
       this._toast.toast( 'missing column name', 'Please provide a name for the new column.', 0, 'bg-warning');
       return;
+    }
+    if( this.createColumn.type !== 'varchar' && this.createColumn.maxLength !== null ){
+      this.createColumn.maxLength = null;
     }
     //const newColumn = new DbColumn( this.createColumn.name, false, this.createColumn.nullable, this.createColumn.type, this.createColumn.maxLength );
     const req = new ColumnRequest( this.tableId, null, this.createColumn );
@@ -216,21 +241,42 @@ export class EditColumnsComponent implements OnInit {
     });
   }
 
-  triggerDefaultNull ( col: DbColumn ) {
-    if( col.defaultValue === null ){
-      switch( col.type ){
-        case 'int4':
-        case 'int8':
-          col.defaultValue = 0;
-          break;
-        case 'bool':
-          col.defaultValue = false;
-          break;
-        default:
-          col.defaultValue = '';
+  triggerDefaultNull ( col: DbColumn = null ) {
+    if(col == null){//when updating a column
+      if( this.updateColumn.controls['defaultValue'].value === null ){
+        this.updateColumn.controls['defaultValue'].enable();
+        switch( this.updateColumn.controls['type'].value ){
+          case 'int4':
+          case 'int8':
+            this.updateColumn.controls['defaultValue'].setValue(0);
+            break;
+          case 'bool':
+            this.updateColumn.controls['defaultValue'].setValue(false);
+            break;
+          default:
+            this.updateColumn.controls['defaultValue'].setValue('');
+        }
+      }else {
+        this.updateColumn.controls['defaultValue'].setValue(null);
+        this.updateColumn.controls['defaultValue'].disable();
       }
-    }else {
-      col.defaultValue = null;
+    }
+    else{//if col !== null: when inserting a new column
+      if( col.defaultValue === null ){
+        switch( col.type ){
+          case 'int4':
+          case 'int8':
+            col.defaultValue = 0;
+            break;
+          case 'bool':
+            col.defaultValue = false;
+            break;
+          default:
+            col.defaultValue = '';
+        }
+      }else {
+        col.defaultValue = null;
+      }
     }
   }
   
@@ -268,7 +314,6 @@ export class EditColumnsComponent implements OnInit {
     if(this.newIndexForm.valid){
       const i = this.newIndexForm.value;
       const index = new Index( this.schema, this.table, i.name, i.method, i.columns);
-      console.log(index);
       this._crud.createIndex( index ).subscribe(
         res => {
           const result = <ResultSet> res;
@@ -289,6 +334,15 @@ export class EditColumnsComponent implements OnInit {
       return {'is-valid':true};
     }else if(this.indexSubmitted  && !this.newIndexForm.controls[key].valid) {
       return {'is-invalid': true };
+    }
+  }
+
+  onTypeChange( event ){
+    if( event.target.value === 'varchar'){
+      this.updateColumn.controls['maxLength'].enable();
+    }else{
+      this.updateColumn.controls['maxLength'].setValue( null );
+      this.updateColumn.controls['maxLength'].disable();
     }
   }
 

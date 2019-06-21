@@ -9,7 +9,7 @@
     <div *ngFor="let item of data.groups | keyvalue : order" [className]="_breadcrumb.getCardClass()">
       <div [className]="getCardClass(item.value.color)">
         <div class="card-header">{{item.value.id}}</div>
-        <ng-container *ngFor="let li of item.value.list | keyvalue : order">
+        <ng-container *ngFor="let li of item.value.informationObjects | keyvalue : order">
           <app-render-item [li]="li.value"></app-render-item>
 
         </ng-container>

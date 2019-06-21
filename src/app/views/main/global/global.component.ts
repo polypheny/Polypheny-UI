@@ -49,8 +49,8 @@ export class GlobalComponent implements OnInit, OnDestroy {
     this._information.onSocketEvent().subscribe(
       update => {
         const info:RenderItem = <RenderItem> update;
-        if(this.data && this.data.groups[update.informationGroup]){
-          this.data.groups[update.informationGroup].list[update.id] = info;
+        if(this.data && this.data.groups[info.informationGroup] && this.data.groups[info.informationGroup].informationObjects[info.id]){
+          this.data.groups[info.informationGroup].informationObjects[info.id] = info;
         }
       }
     );

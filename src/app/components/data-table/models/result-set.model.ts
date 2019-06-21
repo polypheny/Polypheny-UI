@@ -39,7 +39,7 @@ export class DbColumn {
     maxLength: string;
     defaultValue: any;
 
-    constructor( name:string, primary: boolean, nullable:boolean, type:string, maxLength:string, defaultValue:string = null ) {
+    constructor( name:string, primary: boolean = null, nullable:boolean = null, type:string = null, maxLength:string = null, defaultValue:string = null ) {
         this.name = name;
         this.primary = primary;
         this.nullable = nullable;
