@@ -1,8 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {LeftSidebarService, SidebarNode} from '../../components/left-sidebar/left-sidebar.service';
-import {CrudService, SchemaRequest} from '../../services/crud.service';
+import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
+import {CrudService} from '../../services/crud.service';
 import {ToastService} from '../../components/toast/toast.service';
+import {SchemaRequest} from '../../models/ui-request.model';
 
 @Component({
   selector: 'app-schema-editing',

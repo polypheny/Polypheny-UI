@@ -1,12 +1,17 @@
-export interface RenderObj {
+export interface InformationPage {
   mansonry?: boolean;
-  //groups: RenderGroup[];
-  groups: Map<string, RenderGroup>;
+  groups: Map<string, InformationGroup>;
   name?: string;
   id?: string;
   description?: string;
 }
-export interface RenderItem {
+
+export interface InformationGroup {
+  color?: string;
+  informationObjects: InformationObject[];
+}
+
+export interface InformationObject {
   type?: string;
   label?: string;
   routerLink?: any;
@@ -30,8 +35,6 @@ export interface RenderItem {
   data?: number[];
   labels?: string[];
   graphType?:string;
-}
-export interface RenderGroup {
-  color?: string;
-  informationObjects: RenderItem[];
+  //debugger
+  queryPlan: string;
 }

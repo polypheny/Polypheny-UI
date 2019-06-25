@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import { RenderItem } from '../models';
+import { InformationObject } from '../../../models/information-page.model';
 
 @Component({
   selector: 'app-render-item',
@@ -8,7 +8,7 @@ import { RenderItem } from '../models';
 })
 export class RenderItemComponent implements OnInit {
 
-  @Input() li:RenderItem;
+  @Input() li:InformationObject;
 
   constructor() { }
 

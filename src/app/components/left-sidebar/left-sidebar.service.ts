@@ -4,7 +4,10 @@ import {BehaviorSubject} from 'rxjs';
 import {InformationService} from '../../services/information.service';
 import {ConfigService} from '../../services/config.service';
 import * as $ from 'jquery';
-import {CrudService, SchemaRequest} from '../../services/crud.service';
+import {CrudService} from '../../services/crud.service';
+import {SchemaRequest} from '../../models/ui-request.model';
+import {SidebarNode, JavaPage} from '../../models/sidebar-node.model';
+import {TreeNode} from 'angular-tree-component';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +23,7 @@ export class LeftSidebarService {
 
   nodes: BehaviorSubject<Object> = new BehaviorSubject<Object>([]);
   error: BehaviorSubject<string> = new BehaviorSubject<string>(null);
+  action: (node: TreeNode) => void = null;
 
   listConfigManagerPages () {
     return this._configService.getPageList().subscribe(
@@ -74,10 +78,16 @@ export class LeftSidebarService {
   setNodes ( n: SidebarNode[] ) {
     n = [].concat(n); // convert to array if it is not an array
     this.nodes.next( n );
+    this.error.next(null);
   }
 
   getError () {
     return this.error;
+  }
+
+  setError ( msg: string ) {
+    this.error.next(msg);
+    this.nodes.next([]);
   }
 
   open () {
@@ -112,27 +122,23 @@ export class LeftSidebarService {
     this.open();
   }
 
-}
-
-export class SidebarNode{
-  id:any;
-  name:string;
-  icon:string;
-  routerLink:string;
-  children: SidebarNode[];
-  constructor ( id, name, icon, routerLink ){
-    this.id = id;
-    this.name = name;
-    this.icon = icon;
-    this.routerLink = routerLink;
+  /**
+   * return the action to check if it is null
+   */
+  getAction(){
+    return this.action;
   }
-  setChildren ( children: SidebarNode[] ) {
-    this.children = children;
-  }
-}
 
-interface JavaPage {
-  id:any;
-  name:string;
-  icon:string;
+  /**
+   * Define what should happen if you click on a node in the sidebar
+   * @param action method to define what should happen if you click on a node in the sidebar
+   */
+  setAction ( action: ( node: TreeNode) => void ) {
+    this.action = action;
+  }
+
+  clearAction(){
+    this.action = null;
+  }
+
 }

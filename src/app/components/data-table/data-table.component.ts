@@ -1,11 +1,12 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {TableConfig} from './table-config';
 import * as $ from 'jquery';
-import {CrudService, DeleteRequest, TableRequest, UIRequest, UpdateRequest} from '../../services/crud.service';
+import {DeleteRequest, TableRequest, UpdateRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
 import {ResultSet} from './models/result-set.model';
 import {SortDirection, SortState} from './models/sort-state.model';
 import {ToastService} from '../toast/toast.service';
+import {CrudService} from '../../services/crud.service';
 
 @Component({
   selector: 'app-data-table',

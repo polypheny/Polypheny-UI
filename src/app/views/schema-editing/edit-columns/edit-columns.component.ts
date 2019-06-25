@@ -2,11 +2,12 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
-import {ColumnRequest, ConstraintRequest, CrudService, EditTableRequest} from '../../../services/crud.service';
+import {CrudService} from '../../../services/crud.service';
 import {DbColumn, Index, ResultSet, TableConstraint} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {Input} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
 
 @Component({
   selector: 'app-edit-columns',

@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {RenderGroup, RenderItem, RenderObj} from '../models';
+import {InformationGroup, InformationObject, InformationPage} from '../../../models/information-page.model';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {InformationService} from '../../../services/information.service';
@@ -21,7 +21,7 @@ export class GlobalComponent implements OnInit, OnDestroy {
   serverError;
   pageNotFound = false;
 
-  data: RenderObj;
+  data: InformationPage;
 
   constructor(
     private _information:InformationService,
@@ -48,7 +48,7 @@ export class GlobalComponent implements OnInit, OnDestroy {
     
     this._information.onSocketEvent().subscribe(
       update => {
-        const info:RenderItem = <RenderItem> update;
+        const info:InformationObject = <InformationObject> update;
         if(this.data && this.data.groups[info.informationGroup] && this.data.groups[info.informationGroup].informationObjects[info.id]){
           this.data.groups[info.informationGroup].informationObjects[info.id] = info;
         }
@@ -81,7 +81,7 @@ export class GlobalComponent implements OnInit, OnDestroy {
               this.onPageNotFound();
               this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('informationManager')]);
             }else{
-              this.data = <RenderObj>res;
+              this.data = <InformationPage>res;
               this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('informationManager', '/home/monitoring/'), new BreadcrumbItem(this.data.name.toString())]);
               this.serverError = null;
             }
@@ -92,16 +92,16 @@ export class GlobalComponent implements OnInit, OnDestroy {
       }
     } else if(this.mode === 'logic'){
       //this.data.groups = this._logic.getDatabases();
-      this.data.groups = new Map<string, RenderGroup>();
+      this.data.groups = new Map<string, InformationGroup>();
     } else if(this.mode === 'db'){
       //this.data.groups = this._logic.getSchemas(this.routerId);
-      this.data.groups = new Map<string, RenderGroup>();
+      this.data.groups = new Map<string, InformationGroup>();
     } else if(this.mode === 'schema'){
       //this.data.groups = this._logic.getTables(this.routerId);
-      this.data.groups = new Map<string, RenderGroup>();
+      this.data.groups = new Map<string, InformationGroup>();
     } else if(this.mode === 'table'){
       //this.data.groups = this._logic.getColumns(this.routerId);
-      this.data.groups = new Map<string, RenderGroup>();
+      this.data.groups = new Map<string, InformationGroup>();
     }
   }
 

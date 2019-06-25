@@ -1,9 +1,10 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {TableConfig} from '../../components/data-table/table-config';
-import {CrudService, SchemaRequest, TableRequest, UIRequest} from '../../services/crud.service';
-import {LeftSidebarService, SidebarNode} from '../../components/left-sidebar/left-sidebar.service';
+import {CrudService} from '../../services/crud.service';
+import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {ResultSet} from '../../components/data-table/models/result-set.model';
+import {SchemaRequest, TableRequest, UIRequest} from '../../models/ui-request.model';
 
 @Component({
   selector: 'app-table-view',

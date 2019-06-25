@@ -1,5 +1,4 @@
 import {SortState} from './sort-state.model';
-import {CrudService} from '../../../services/crud.service';
 
 /**
  * model for the result of a query coming from the server

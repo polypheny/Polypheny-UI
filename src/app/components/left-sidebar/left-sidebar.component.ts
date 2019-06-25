@@ -3,8 +3,7 @@ import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/draggable';
 import {KEYS, TREE_ACTIONS, TreeComponent, TreeModel, TreeNode } from 'angular-tree-component';
-import {ConfigService} from '../../services/config.service';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
 
 @Component({
@@ -21,9 +20,9 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
   options;
   error;
 
-  constructor( _config:ConfigService,
-               _router:Router,
-               _sidebar: LeftSidebarService,
+  constructor(
+    _router:Router,
+    _sidebar: LeftSidebarService,
   ) {
     //this.nodes = nodes;
     this.options = {
@@ -37,15 +36,23 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
           click: (tree, node, $event) => {
             if (node.hasChildren){
               TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-              if( node.data.routerLink !== '' ){
-                _router.navigate([node.data.routerLink]);
-                node.setIsActive(true);
+              if( _sidebar.action !== null ){
+                _sidebar.action( node );
+              }else{
+                if( node.data.routerLink !== '' ){
+                  _router.navigate([node.data.routerLink]);
+                  node.setIsActive(true);
+                }
               }
             }
             else if ( ! node.hasChildren){
-              if( node.data.routerLink !== '' ){
-                _router.navigate([node.data.routerLink]);
-                node.setIsActive(true);
+              if( _sidebar.action !== null ){
+                _sidebar.action( node );
+              }else {
+                if (node.data.routerLink !== '') {
+                  _router.navigate([node.data.routerLink]);
+                  node.setIsActive(true);
+                }
               }
             }
           }

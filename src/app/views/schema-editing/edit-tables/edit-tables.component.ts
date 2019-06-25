@@ -1,5 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {CrudService, EditTableRequest, SchemaRequest} from '../../../services/crud.service';
+import {CrudService} from '../../../services/crud.service';
+import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
 import {DbColumn, ResultSet} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';

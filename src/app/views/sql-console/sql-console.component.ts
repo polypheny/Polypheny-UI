@@ -1,14 +1,19 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import {TableConfig} from '../../components/data-table/table-config';
 import * as ace from 'ace-builds'; // ace module ..
 import 'ace-builds/src-noconflict/mode-sql';
 import 'ace-builds/src-noconflict/theme-tomorrow';
-import {CrudService, QueryRequest, UIRequest} from '../../services/crud.service';
+import {CrudService} from '../../services/crud.service';
 import {ResultSet} from '../../components/data-table/models/result-set.model';
 import {SqlHistory} from './sql-history.model';
 import {KeyValue} from '@angular/common';
 import * as $ from 'jquery';
+import {QueryRequest} from '../../models/ui-request.model';
+import {SidebarNode} from '../../models/sidebar-node.model';
+import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
+import {InformationPage} from '../../models/information-page.model';
+import {TreeNode } from 'angular-tree-component';
 
 const THEME = 'ace/theme/tomorrow';
 const LANG = 'ace/mode/sql';
@@ -20,7 +25,7 @@ const LANG = 'ace/mode/sql';
   templateUrl: './sql-console.component.html',
   styleUrls: ['./sql-console.component.scss']
 })
-export class SqlConsoleComponent implements OnInit {
+export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   @ViewChild( 'editor' ) codeEditorElmRef: ElementRef;
   private codeEditor: ace.Ace.Editor;
@@ -28,11 +33,12 @@ export class SqlConsoleComponent implements OnInit {
   myForm: FormGroup;
   languages = ['SQL', 'PgSql', 'MS-SQL'];
   debugOptionsCollapsed = true;
-  //history: SqlHistory[] = [];
   history: Map<string, SqlHistory> = new Map<string, SqlHistory>();
-  readonly MAXHISTORY = 10;//maximum items in history
+  readonly MAXHISTORY = 20;//maximum items in history
 
   resultSets: ResultSet[];
+  debug: InformationPage;
+
   tableConfig: TableConfig = {
     create: false,
     update: false,
@@ -41,20 +47,25 @@ export class SqlConsoleComponent implements OnInit {
     search: false
   };
 
-  data = [
-    ['a', 'b', 'c', 'd', 'e', 'f'],
-    ['a', 'b', 'c', 'd', 'e', 'f']
-  ];
-
-  constructor( private formBuilder: FormBuilder, private _crud: CrudService ) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private _crud: CrudService,
+    private _leftSidebar: LeftSidebarService
+  ) {}
 
   ngOnInit() {
     this.initEditor();
+    this.initWebsocket();
+    this.loadDebugPages();
     this.myForm = this.formBuilder.group({
       lang: 'SQL'
     });
 
     SqlHistory.fromJson( localStorage.getItem( 'sql-history' ), this.history );
+  }
+
+  ngOnDestroy(){
+    this._leftSidebar.clearAction();
   }
 
   initEditor () {
@@ -89,11 +100,11 @@ export class SqlConsoleComponent implements OnInit {
     });
 
     this.addToHistory( this.codeEditor.getValue() );
+    this._leftSidebar.setNodes([]);
 
     this._crud.anyQuery( new QueryRequest( query ) ).subscribe(
         res => {
-            const results: ResultSet[] = <ResultSet[]> res;
-            this.resultSets = results;
+          this.resultSets = <ResultSet[]> res;
         }, err => {
           this.resultSets = [new ResultSet( err.message )];
     });
@@ -123,6 +134,37 @@ export class SqlConsoleComponent implements OnInit {
   //from: https://stackoverflow.com/questions/52793944/angular-keyvalue-pipe-sort-properties-iterate-in-order
   orderHistory ( a: KeyValue<string, SqlHistory>, b: KeyValue<string, SqlHistory> ) {
     return a.value.time > b.value.time ? -1 : ( b.value.time > a.value.time ? 1 : 0 );
+  }
+
+  initWebsocket() {
+    this._crud.onSocketEvent().subscribe(
+      msg => {
+        const sidebarNodes = <SidebarNode[]> msg;
+        this._leftSidebar.setNodes(sidebarNodes);
+        if(sidebarNodes.length > 0) this._leftSidebar.open();
+        else this._leftSidebar.close();
+      },
+      err => {
+        this._leftSidebar.setError('Lost connection with the server.');
+      });
+  }
+
+  loadDebugPages() {
+    this._leftSidebar.setAction( ( node: TreeNode ) => {
+      const split = node.data.routerLink.split('/');
+      const debugId = split[0];
+      const debugPage = split[1];
+      if( debugId !== undefined && debugPage !== undefined ){
+        this._crud.getDebugPage( debugId, debugPage ).subscribe(
+          res => {
+            this.debug = <InformationPage> res;
+            node.setIsActive(true);
+          }, err => {
+            console.log(err);
+          }
+        );
+      }
+    });
   }
 
 }
