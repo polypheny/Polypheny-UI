@@ -36,4 +36,10 @@
     <app-graph [data]="li.data" [labels]="li.labels" [chartType]="li.graphType"></app-graph>
   </ng-container>
 
+  <ng-container *ngIf="li.type == 'InformationQueryPlan'">
+    <div class="card-body">
+      {{li.queryPlan}}
+    </div>
+  </ng-container>
+
 </ng-container>

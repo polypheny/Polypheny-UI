@@ -8,9 +8,6 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BsDropdownModule, ButtonsModule, CollapseModule, TooltipModule, TypeaheadModule} from 'ngx-bootstrap';
 import {ComponentsModule} from '../components/components.module';
 import {EditColumnsComponent} from './schema-editing/edit-columns/edit-columns.component';
-import {P404Component} from './error/404.component';
-import {P500Component} from './error/500.component';
-import {LoginComponent} from './login/login.component';
 import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
 import {UmlComponent} from './uml/uml.component';
 import {GraphicalQueryingComponent} from './graphical-querying/graphical-querying.component';
@@ -18,6 +15,7 @@ import {TreeModule} from 'angular-tree-component';
 import {FormGeneratorComponent} from './forms/form-generator/form-generator.component';
 import { SchemaEditingComponent } from './schema-editing/schema-editing.component';
 import { EditTablesComponent } from './schema-editing/edit-tables/edit-tables.component';
+import { MonitoringComponent } from './monitoring/monitoring.component';
 
 @NgModule({
   imports: [
@@ -40,16 +38,14 @@ import { EditTablesComponent } from './schema-editing/edit-tables/edit-tables.co
   ],
   declarations: [
     EditColumnsComponent,
-    P404Component,
-    P500Component,
     FormGeneratorComponent,
     GraphicalQueryingComponent,
-    LoginComponent,
     SqlConsoleComponent,
     TableViewComponent,
     UmlComponent,
     SchemaEditingComponent,
-    EditTablesComponent
+    EditTablesComponent,
+    MonitoringComponent
   ],
   exports: []
 })

@@ -1,0 +1,20 @@
+<ng-container *ngIf="data">
+  <div class="row" *ngIf="data.name || data.description">
+    <div class="col-md-12">
+      <h1 *ngIf="data.name">{{data.name}}</h1>
+      <p *ngIf="data.description">{{data.description}}</p>
+    </div>
+  </div>
+  <div class="card-columns" [ngStyle]="{'column-count': zoom}">
+    <div *ngFor="let item of data.groups | keyvalue : order">
+      <div [className]="getCardClass(item.value.color)">
+        <div class="card-header">{{item.value.id}}</div>
+        <ng-container *ngFor="let li of item.value.informationObjects | keyvalue : order">
+          <app-render-item [li]="li.value"></app-render-item>
+
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</ng-container>
+

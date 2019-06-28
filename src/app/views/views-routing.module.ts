@@ -6,8 +6,23 @@ import {GraphicalQueryingComponent} from './graphical-querying/graphical-queryin
 import {FormGeneratorComponent} from './forms/form-generator/form-generator.component';
 import {TableViewComponent} from './table-view/table-view.component';
 import {SchemaEditingComponent} from './schema-editing/schema-editing.component';
+import {MonitoringComponent} from './monitoring/monitoring.component';
 
 const routes: Routes = [
+  {
+    path: 'monitoring',
+    component: MonitoringComponent,
+    data: {
+      title: 'Monitoring'
+    }
+  },
+  {
+    path: 'monitoring/:id',
+    component: MonitoringComponent,
+    data: {
+      title: 'Monitoring'
+    }
+  },
   {
     path: 'uml/:id',
     component: UmlComponent,

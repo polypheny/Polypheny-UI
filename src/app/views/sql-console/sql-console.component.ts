@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import {TableConfig} from '../../components/data-table/table-config';
 import * as ace from 'ace-builds'; // ace module ..
@@ -12,8 +12,9 @@ import * as $ from 'jquery';
 import {QueryRequest} from '../../models/ui-request.model';
 import {SidebarNode} from '../../models/sidebar-node.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
-import {InformationPage} from '../../models/information-page.model';
+import {InformationObject, InformationPage} from '../../models/information-page.model';
 import {TreeNode } from 'angular-tree-component';
+import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 
 const THEME = 'ace/theme/tomorrow';
 const LANG = 'ace/mode/sql';
@@ -38,6 +39,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   resultSets: ResultSet[];
   debug: InformationPage;
+  debugId: string;//current debug id
 
   tableConfig: TableConfig = {
     create: false,
@@ -50,8 +52,17 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   constructor(
     private formBuilder: FormBuilder,
     private _crud: CrudService,
-    private _leftSidebar: LeftSidebarService
-  ) {}
+    private _leftSidebar: LeftSidebarService,
+    private _breadcrumb: BreadcrumbService
+  ) {
+    //when leaving the page, close a debugger
+    const self = this;
+    window.onbeforeunload = function(e) {
+      if( self.debugId ){
+        self._crud.closeDebugger( self.debugId ).subscribe();
+      }
+    };
+  }
 
   ngOnInit() {
     this.initEditor();
@@ -66,7 +77,11 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(){
     this._leftSidebar.clearAction();
+    this._crud.closeDebugger( this.debugId ).subscribe();
   }
+
+  //when leaving the page
+
 
   initEditor () {
     const element = this.codeEditorElmRef.nativeElement;
@@ -101,6 +116,14 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
     this.addToHistory( this.codeEditor.getValue() );
     this._leftSidebar.setNodes([]);
+    //close the previous debugger
+    if( this.debugId ){
+      this._crud.closeDebugger( this.debugId ).subscribe(
+        res => {},
+        err => {}
+      );
+    }
+    this.debug = null;
 
     this._crud.anyQuery( new QueryRequest( query ) ).subscribe(
         res => {
@@ -139,10 +162,29 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   initWebsocket() {
     this._crud.onSocketEvent().subscribe(
       msg => {
-        const sidebarNodes = <SidebarNode[]> msg;
-        this._leftSidebar.setNodes(sidebarNodes);
-        if(sidebarNodes.length > 0) this._leftSidebar.open();
-        else this._leftSidebar.close();
+
+        //if msg contains nodes of the sidebar
+        if(Array.isArray( msg )){
+          const sidebarNodes: SidebarNode[] = <SidebarNode[]> msg;
+          //set debugId to close it when leaving the page.
+          if(sidebarNodes.length > 0 ){
+            const split = sidebarNodes[0].routerLink.split('/');
+            this.debugId = split[0];
+          }
+          this._leftSidebar.setNodes(sidebarNodes);
+          if(sidebarNodes.length > 0) this._leftSidebar.open();
+          else this._leftSidebar.close();
+        }
+
+        //if msg contains a notification of a changed information object
+        else if( msg.type ){
+          if(this.debug){
+            const group = this.debug.groups[msg.informationGroup];
+            if( group != null ){
+              group.informationObjects[msg.id] = <InformationObject> msg;
+            }
+          }
+        }
       },
       err => {
         this._leftSidebar.setError('Lost connection with the server.');

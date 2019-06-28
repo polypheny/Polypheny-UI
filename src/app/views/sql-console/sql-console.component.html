@@ -92,8 +92,4 @@
     </div>
 </div>
 
-<div class="row" *ngIf="debug" style="padding-bottom: 1rem;">
-    <div class="col-lg-12">
-        {{debug.name}}
-    </div>
-</div>
+<app-information-manager *ngIf="debug" [data]="debug" [zoom]="_breadcrumb.getMasonryZoom()"></app-information-manager>

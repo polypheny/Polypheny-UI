@@ -5,7 +5,6 @@ import { P404Component } from './views/error/404.component';
 import { P500Component } from './views/error/500.component';
 import { LoginComponent } from './views/login/login.component';
 
-// Import Containers
 
 export const routes: Routes = [
   {
@@ -32,7 +31,7 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'home/monitoring'
+    redirectTo: 'views/sql-console'
   },
   {
     path: '',
@@ -41,10 +40,6 @@ export const routes: Routes = [
       title: 'Home'
     },
     children: [
-      {
-        path: 'home',
-        loadChildren: './views/main/global/global.module#GlobalModule'
-      },
       {
         path: 'views',
         loadChildren: './views/views.module#ViewsModule',

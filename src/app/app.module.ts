@@ -32,13 +32,15 @@ import {HttpClientModule} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
 import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
 import {DefaultLayoutComponent} from './containers/default-layout';
+import {P404Component} from './views/error/404.component';
+import {P500Component} from './views/error/500.component';
+import {LoginComponent} from './views/login/login.component';
 
 @NgModule({
   imports:[
     ComponentsModule,
-    ViewsModule,
-    BrowserModule,
     AppRoutingModule,
+    BrowserModule,
     PerfectScrollbarModule,
     BsDropdownModule.forRoot(),
     TabsModule.forRoot(),
@@ -58,7 +60,10 @@ import {DefaultLayoutComponent} from './containers/default-layout';
   ],
   declarations: [
     AppComponent,
-    DefaultLayoutComponent
+    DefaultLayoutComponent,
+    P404Component,
+    P500Component,
+    LoginComponent
   ],
   providers: [{
     provide: LocationStrategy,

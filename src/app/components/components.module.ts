@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GraphComponent } from './graph/graph.component';
 import { ChartsModule } from 'ng2-charts';
-import { TabsModule, TypeaheadModule } from 'ngx-bootstrap';
+import {CollapseModule, ProgressbarModule, TabsModule, TooltipModule, TypeaheadModule} from 'ngx-bootstrap';
 import { ToastComponent } from './toast/toast.component';
 
 import { AppBreadcrumbModule } from '@coreui/angular';
@@ -15,6 +15,8 @@ import {RightSidebarComponent} from './right-sidebar/right-sidebar.component';
 import {RouterModule} from '@angular/router';
 import {DataTableComponent} from './data-table/data-table.component';
 import {DynamicFormsComponent} from './dynamic-forms/dynamic-forms.component';
+import {RenderItemComponent} from './information-manager/render-item/render-item.component';
+import {InformationManagerComponent} from './information-manager/information-manager.component';
 //import 'hammerjs';
 
 @NgModule({
@@ -28,7 +30,10 @@ import {DynamicFormsComponent} from './dynamic-forms/dynamic-forms.component';
     TreeModule.forRoot(),
     TabsModule.forRoot(),
     // forms
-    FormsModule, ReactiveFormsModule
+    FormsModule, ReactiveFormsModule,
+    CollapseModule,
+    TooltipModule,
+    ProgressbarModule.forRoot()
   ],
   declarations: [
     BreadcrumbComponent,
@@ -37,7 +42,9 @@ import {DynamicFormsComponent} from './dynamic-forms/dynamic-forms.component';
     GraphComponent,
     LeftSidebarComponent,
     RightSidebarComponent,
-    ToastComponent
+    ToastComponent,
+    InformationManagerComponent,
+    RenderItemComponent
   ],
   exports: [
     BreadcrumbComponent,
@@ -46,7 +53,8 @@ import {DynamicFormsComponent} from './dynamic-forms/dynamic-forms.component';
     GraphComponent,
     LeftSidebarComponent,
     RightSidebarComponent,
-    ToastComponent
+    ToastComponent,
+    InformationManagerComponent
   ]
 })
 export class ComponentsModule { }

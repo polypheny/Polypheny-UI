@@ -14,7 +14,6 @@ export class CrudService {
     this.initWebSocket();
   }
 
-  path = '/home';
   httpUrl = this._settings.getConnection('crud.rest');
   httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
   private socket;
@@ -169,6 +168,13 @@ export class CrudService {
 
   getDebugPage ( debuggerId: string, debuggerPage: string ) {
     return this._http.post(`${this.httpUrl}/getDebugPage`, [debuggerId, debuggerPage], this.httpOptions);
+  }
+
+  /**
+   * Close a debugger when not needed anymore
+   */
+  closeDebugger ( id: string ) {
+    return this._http.post(`${this.httpUrl}/closeDebugger`, id, this.httpOptions);
   }
 
 }

@@ -1,5 +1,5 @@
-import {Injectable, OnDestroy} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject} from 'rxjs';
 import {InformationService} from '../../services/information.service';
 import {ConfigService} from '../../services/config.service';
@@ -25,19 +25,6 @@ export class LeftSidebarService {
   error: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   action: (node: TreeNode) => void = null;
 
-  listConfigManagerPages () {
-    return this._configService.getPageList().subscribe(
-      res => {
-        this.nodes.next(this.mapPages(res, 'config'));
-        this.error.next(null);
-      }, err => {
-        this.nodes.next([]);
-        this.error.next('Could not get page list.');
-        console.log(err);
-      }
-    );
-  }
-
   private mapPages ( res:Object, mode:string ) {
     const pages = <JavaPage[]> res;
     const nodes:SidebarNode[] = [];
@@ -48,7 +35,7 @@ export class LeftSidebarService {
           routerLink = '/views/config/'+p.id;
           break;
         case 'information':
-          routerLink = '/home/monitoring/'+p.id;
+          routerLink = '/views/monitoring/'+p.id;
           break;
         default:
           console.error('sidebarNode with unknown group');
@@ -62,6 +49,19 @@ export class LeftSidebarService {
     return this._informationService.getPageList().subscribe(
       res => {
         this.nodes.next(this.mapPages(res, 'information'));
+        this.error.next(null);
+      }, err => {
+        this.nodes.next([]);
+        this.error.next('Could not get page list.');
+        console.log(err);
+      }
+    );
+  }
+
+  listConfigManagerPages () {
+    return this._configService.getPageList().subscribe(
+      res => {
+        this.nodes.next(this.mapPages(res, 'config'));
         this.error.next(null);
       }, err => {
         this.nodes.next([]);
