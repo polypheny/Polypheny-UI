@@ -1,4 +1,4 @@
-import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import {TableConfig} from '../../components/data-table/table-config';
 import * as ace from 'ace-builds'; // ace module ..
@@ -33,13 +33,14 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   myForm: FormGroup;
   languages = ['SQL', 'PgSql', 'MS-SQL'];
-  debugOptionsCollapsed = true;
+  analyzerOptionsCollapsed = true;
   history: Map<string, SqlHistory> = new Map<string, SqlHistory>();
   readonly MAXHISTORY = 20;//maximum items in history
 
   resultSets: ResultSet[];
-  debug: InformationPage;
-  debugId: string;//current debug id
+  queryAnalysis: InformationPage;
+  analyzerId: string;//current analyzer id
+  analyzeQuery = true;
 
   tableConfig: TableConfig = {
     create: false,
@@ -55,11 +56,11 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     private _leftSidebar: LeftSidebarService,
     private _breadcrumb: BreadcrumbService
   ) {
-    //when leaving the page, close a debugger
+    //when leaving the page, close the queryAnalyzer
     const self = this;
     window.onbeforeunload = function(e) {
-      if( self.debugId ){
-        self._crud.closeDebugger( self.debugId ).subscribe();
+      if( self.analyzerId ){
+        self._crud.closeAnalyzer( self.analyzerId ).subscribe();
       }
     };
   }
@@ -67,7 +68,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.initEditor();
     this.initWebsocket();
-    this.loadDebugPages();
+    this.loadAnalyzerPages();
     this.myForm = this.formBuilder.group({
       lang: 'SQL'
     });
@@ -77,7 +78,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(){
     this._leftSidebar.clearAction();
-    this._crud.closeDebugger( this.debugId ).subscribe();
+    this._crud.closeAnalyzer( this.analyzerId ).subscribe();
   }
 
   //when leaving the page
@@ -116,16 +117,18 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
     this.addToHistory( this.codeEditor.getValue() );
     this._leftSidebar.setNodes([]);
-    //close the previous debugger
-    if( this.debugId ){
-      this._crud.closeDebugger( this.debugId ).subscribe(
+    if( this.analyzeQuery ) this._leftSidebar.open();
+    else this._leftSidebar.close();
+    //close the previous analyzer
+    if( this.analyzerId ){
+      this._crud.closeAnalyzer( this.analyzerId ).subscribe(
         res => {},
         err => {}
       );
     }
-    this.debug = null;
+    this.queryAnalysis = null;
 
-    this._crud.anyQuery( new QueryRequest( query ) ).subscribe(
+    this._crud.anyQuery( new QueryRequest( query, this.analyzeQuery ) ).subscribe(
         res => {
           this.resultSets = <ResultSet[]> res;
         }, err => {
@@ -166,20 +169,36 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
         //if msg contains nodes of the sidebar
         if(Array.isArray( msg )){
           const sidebarNodes: SidebarNode[] = <SidebarNode[]> msg;
-          //set debugId to close it when leaving the page.
+          //set analyzerId to close it when leaving the page.
           if(sidebarNodes.length > 0 ){
             const split = sidebarNodes[0].routerLink.split('/');
-            this.debugId = split[0];
+            this.analyzerId = split[0];
           }
           this._leftSidebar.setNodes(sidebarNodes);
-          if(sidebarNodes.length > 0) this._leftSidebar.open();
-          else this._leftSidebar.close();
+          if(sidebarNodes.length > 0) {
+            this._leftSidebar.open();
+            const split = sidebarNodes[0].routerLink.split('/');
+            const analyzerId = split[0];
+            const analyzerPage = split[1];
+            if( analyzerId !== undefined && analyzerPage !== undefined ){
+              this._crud.getAnalyzerPage( analyzerId, analyzerPage ).subscribe(
+                res => {
+                  this.queryAnalysis = <InformationPage> res;
+                }, err => {
+                  console.log(err);
+                }
+              );
+            }
+          }
+          else {
+            this._leftSidebar.close();
+          }
         }
 
         //if msg contains a notification of a changed information object
         else if( msg.type ){
-          if(this.debug){
-            const group = this.debug.groups[msg.informationGroup];
+          if(this.queryAnalysis){
+            const group = this.queryAnalysis.groups[msg.informationGroup];
             if( group != null ){
               group.informationObjects[msg.id] = <InformationObject> msg;
             }
@@ -191,15 +210,15 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
       });
   }
 
-  loadDebugPages() {
+  loadAnalyzerPages() {
     this._leftSidebar.setAction( ( node: TreeNode ) => {
       const split = node.data.routerLink.split('/');
-      const debugId = split[0];
-      const debugPage = split[1];
-      if( debugId !== undefined && debugPage !== undefined ){
-        this._crud.getDebugPage( debugId, debugPage ).subscribe(
+      const analyzerId = split[0];
+      const analyzerPage = split[1];
+      if( analyzerId !== undefined && analyzerPage !== undefined ){
+        this._crud.getAnalyzerPage( analyzerId, analyzerPage ).subscribe(
           res => {
-            this.debug = <InformationPage> res;
+            this.queryAnalysis = <InformationPage> res;
             node.setIsActive(true);
           }, err => {
             console.log(err);

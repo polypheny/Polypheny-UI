@@ -148,7 +148,7 @@ export class CrudService {
   }
 
   /**
-   * Initialize the websocket for the debugger
+   * Initialize the websocket for the queryAnalyzer
    */
   private initWebSocket() {
     this.socket = webSocket(this._settings.getConnection('crud.socket'));
@@ -166,15 +166,15 @@ export class CrudService {
     this.socket.complete();
   }*/
 
-  getDebugPage ( debuggerId: string, debuggerPage: string ) {
-    return this._http.post(`${this.httpUrl}/getDebugPage`, [debuggerId, debuggerPage], this.httpOptions);
+  getAnalyzerPage (analyzerId: string, analyzerPage: string ) {
+    return this._http.post(`${this.httpUrl}/getAnalyzerPage`, [analyzerId, analyzerPage], this.httpOptions);
   }
 
   /**
-   * Close a debugger when not needed anymore
+   * Close a query analyzer when not needed anymore
    */
-  closeDebugger ( id: string ) {
-    return this._http.post(`${this.httpUrl}/closeDebugger`, id, this.httpOptions);
+  closeAnalyzer (id: string ) {
+    return this._http.post(`${this.httpUrl}/closeAnalyzer`, id, this.httpOptions);
   }
 
 }

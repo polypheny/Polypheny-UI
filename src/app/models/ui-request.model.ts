@@ -7,7 +7,6 @@ export class UIRequest {
   data: Map<string, string>;
   filter: Map<string, string>;
   sortState: Map<string, SortState>;
-  query: string;
   views: boolean;
 }
 
@@ -23,9 +22,12 @@ export class TableRequest extends UIRequest {
 }
 
 export class QueryRequest extends UIRequest {
-  constructor ( query: string ) {
+  query: string;
+  analyze: boolean;
+  constructor ( query: string, analyze: boolean ) {
     super();
     this.query = query;
+    this.analyze = analyze;
     return this;
   }
 }

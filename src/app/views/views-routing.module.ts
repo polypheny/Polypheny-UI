@@ -38,22 +38,6 @@ const routes: Routes = [
     }
   },
   {
-    //debugId: id of the debugger (InformationManager)
-    path: 'sql-console/:debugId',
-    component: SqlConsoleComponent,
-    data: {
-      title: 'SQL Console'
-    }
-  },
-  {
-    //debugId: id of the debugger (InformationManager), debugPage: id of the page to be displayed
-    path: 'sql-console/:debugId/:debugPage',
-    component: SqlConsoleComponent,
-    data: {
-      title: 'SQL Console'
-    }
-  },
-  {
     path: 'data-table',
     component: TableViewComponent,
     data: {

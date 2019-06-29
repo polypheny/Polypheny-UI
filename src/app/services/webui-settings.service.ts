@@ -38,7 +38,7 @@ export class WebuiSettingsService {
     this.connections.set( 'crud.rest',
         'http://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) );
     this.connections.set( 'crud.socket',
-        'ws://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) + '/debugger' );
+        'ws://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) + '/queryAnalyzer' );
 
   }
 
