@@ -22,7 +22,7 @@ export class UmlComponent implements OnInit, AfterViewInit {
 
   constructor(private _route: ActivatedRoute) {
     this.existingConnections = [
-      {source: '19f35b03310d187d2717fbeca10fa9bd', target: 'a5afb3700a1229679dff8b0238a6aa9a'}
+      {source: '19f35b03310d187d2717fbeca10fa9bd', target: 'a5afb3700a1229679dff8b0238a6aa9a'} // demo: table2.e, table4.j
     ];
   }
 
@@ -37,8 +37,6 @@ export class UmlComponent implements OnInit, AfterViewInit {
       {tableName: 'table4', cols: ['so wide so wide so wide so wide so wide', 'h', 'i', 'j'], methods: ['method1', 'method2']},
       {tableName: 'table5', cols: ['so wide so wide so wide so wide so wide', 'h', 'i', 'j'], methods: ['method1', 'method2']}
     ];
-
-
 
   }
 
@@ -68,9 +66,15 @@ export class UmlComponent implements OnInit, AfterViewInit {
     let isDragging = false;
     let fromTable;
     let source;
-    const offsetX = 200;
+    let offsetX = 215;
+    //todo offsetX if sidebar
     const offsetY = 80;
     $(document).on('mousedown', '.uml .cols', function(e) {
+      if($('body').hasClass('sidebar-lg-show')){
+        offsetX = 380;
+      } else {
+        offsetX = 215;
+      }
       isDragging = true;
       fromTable = $(e.target).parent().attr('id');
       source = $(e.target).attr('id');
@@ -118,9 +122,9 @@ export class UmlComponent implements OnInit, AfterViewInit {
     const targetEle = $('#'+target);
     if(sourceEle === undefined || targetEle === undefined) return;
     if($(sourceEle).offset().left < $(targetEle).offset().left){
-      return $(sourceEle).offset().left + $(sourceEle).width() - 195;
+      return $(sourceEle).position().left + $(sourceEle).parent().position().left + $(sourceEle).width() + 26;
     }else{
-      return $(sourceEle).offset().left - 200;
+      return $(sourceEle).position().left + $(sourceEle).parent().position().left + 20;
     }
   }
   /** get x position of div of target column
@@ -129,10 +133,10 @@ export class UmlComponent implements OnInit, AfterViewInit {
     if(source === undefined || target === undefined) return;
     const sourceEle = $('#'+source);
     const targetEle = $('#'+target);
-    if($(sourceEle).offset().left < $(targetEle).offset().left){
-      return $(targetEle).offset().left - 200;
+    if( $(sourceEle).offset().left < $(targetEle).offset().left + $(targetEle).width()/2 ){
+      return $(targetEle).position().left + $(targetEle).parent().position().left + 20;
     }else{
-      return $(targetEle).offset().left + $(targetEle).width() - 195;
+      return $(targetEle).position().left + $(targetEle).parent().position().left + $(targetEle).width() + 26;
     }
   }
   /** get y position of div of source/target column
@@ -140,7 +144,7 @@ export class UmlComponent implements OnInit, AfterViewInit {
   getY(ele:string){
     if(ele === undefined) return;
     const element= $('#'+ele);
-    return $(element).offset().top - 65;
+    return $(element).position().top + $(element).parent().position().top + 34;
   }
 
   hash(s:string[]){

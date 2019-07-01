@@ -9,15 +9,14 @@
       <div class="cols" *ngFor="let c of u.cols" id="{{hash([u.tableName,c])}}">{{c}}</div>
       <div class="methods" *ngFor="let m of u.methods">{{m}}</div>
     </div>
+    <svg width="100%" height="100%">
+      <line *ngFor="let line of lines" [attr.x1]="line.x1" [attr.y1]="line.y1" [attr.x2]="line.x2" [attr.y2]="line.y2"></line>
+      <line *ngFor="let conn of connections | keyvalue" [attr.x1]="getX1(conn.value.source,conn.value.target)" [attr.y1]="getY(conn.value.source)" [attr.x2]="getX2(conn.value.source, conn.value.target)" [attr.y2]="getY(conn.value.target)"></line>
+    </svg>
   </div>
 
   <!-- SVGS:
   https://stackoverflow.com/questions/19382872/how-to-connect-html-divs-with-lines
   -->
-
-  <svg width="100%" height="100%">
-    <line *ngFor="let line of lines" [attr.x1]="line.x1" [attr.y1]="line.y1" [attr.x2]="line.x2" [attr.y2]="line.y2"></line>
-    <line *ngFor="let conn of connections | keyvalue" [attr.x1]="getX1(conn.value.source,conn.value.target)" [attr.y1]="getY(conn.value.source)" [attr.x2]="getX2(conn.value.source, conn.value.target)" [attr.y2]="getY(conn.value.target)"></line>
-  </svg>
 
 </div>
