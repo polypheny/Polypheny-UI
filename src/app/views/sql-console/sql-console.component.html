@@ -22,7 +22,9 @@
                 <li class="list-group-item empty" *ngIf="history.size == 0">(empty)</li>
                 <li class="list-group-item history-item" *ngFor="let h of history | keyvalue:orderHistory" (click)="applyHistory( h.value.query, false )" (dblclick)="applyHistory( h.value.query, true)">
                     <small class="time">{{h.value.displayTime()}}</small>
-                    {{h.value.query}}
+                    {{ (h.value.query.length>120) ? (h.value.query | slice:0:120)+'...':(h.value.query) }}
+                    <!-- see https://stackoverflow.com/questions/44669340/how-to-truncate-text-in-angular2 -->
+                    <!--{{h.value.query}}-->
                 </li>
             </ul>
         </div>

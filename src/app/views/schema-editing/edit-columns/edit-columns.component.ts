@@ -24,7 +24,7 @@ export class EditColumnsComponent implements OnInit {
   resultSet: ResultSet;
   types: string[] = ['int8', 'int4', 'varchar', 'timestamptz', 'bool', 'text'];
   editColumn = -1;
-  createColumn = new DbColumn( '', false, false, 'text', null, null);
+  createColumn = new DbColumn( '', false, true, 'text', null, null);
   confirm = -1;
   oldColumns = new Map<string, DbColumn>();
   updateColumn = new FormGroup({name: new FormControl('')});
@@ -151,7 +151,7 @@ export class EditColumnsComponent implements OnInit {
         if( result.error === undefined ){
           this.getColumns();
           this.createColumn.name = '';
-          this.createColumn.nullable = false;
+          this.createColumn.nullable = true;
           this.createColumn.type = this.types[0];
           this.createColumn.maxLength = null;
           this.createColumn.defaultValue = null;
@@ -242,21 +242,39 @@ export class EditColumnsComponent implements OnInit {
     });
   }
 
+  assignDefault ( col: any, isFormGroup: boolean ) {
+    if( isFormGroup ){
+      switch( col.controls['type'].value ){
+        case 'int4':
+        case 'int8':
+          col.controls['defaultValue'].setValue(0);
+          break;
+        case 'bool':
+          col.controls['defaultValue'].setValue(false);
+          break;
+        default:
+          col.controls['defaultValue'].setValue('');
+      }
+    } else {
+      switch( col.type ){
+        case 'int4':
+        case 'int8':
+          col.defaultValue = 0;
+          break;
+        case 'bool':
+          col.defaultValue = false;
+          break;
+        default:
+          col.defaultValue = '';
+      }
+    }
+  }
+
   triggerDefaultNull ( col: DbColumn = null ) {
-    if(col == null){//when updating a column
+    if(col === null){//when updating a column
       if( this.updateColumn.controls['defaultValue'].value === null ){
         this.updateColumn.controls['defaultValue'].enable();
-        switch( this.updateColumn.controls['type'].value ){
-          case 'int4':
-          case 'int8':
-            this.updateColumn.controls['defaultValue'].setValue(0);
-            break;
-          case 'bool':
-            this.updateColumn.controls['defaultValue'].setValue(false);
-            break;
-          default:
-            this.updateColumn.controls['defaultValue'].setValue('');
-        }
+        this.assignDefault( this.updateColumn, true);
       }else {
         this.updateColumn.controls['defaultValue'].setValue(null);
         this.updateColumn.controls['defaultValue'].disable();
@@ -264,19 +282,23 @@ export class EditColumnsComponent implements OnInit {
     }
     else{//if col !== null: when inserting a new column
       if( col.defaultValue === null ){
-        switch( col.type ){
-          case 'int4':
-          case 'int8':
-            col.defaultValue = 0;
-            break;
-          case 'bool':
-            col.defaultValue = false;
-            break;
-          default:
-            col.defaultValue = '';
-        }
+        this.assignDefault( col, false );
       }else {
         col.defaultValue = null;
+      }
+    }
+  }
+
+  changeNullable ( col: DbColumn = null ) {
+    if(col === null) {//when updating a column
+      if (this.updateColumn.controls['defaultValue'].value === null && this.updateColumn.controls['nullable'].value === false) {
+        this.updateColumn.controls['defaultValue'].enable();
+        this.assignDefault( this.updateColumn, true );
+      }
+    }
+    else {//if col !== null: when inserting a new column
+      if( col.defaultValue === null && col.nullable === false ) {
+        this.assignDefault( col, false );
       }
     }
   }
@@ -345,6 +367,11 @@ export class EditColumnsComponent implements OnInit {
       this.updateColumn.controls['maxLength'].setValue( null );
       this.updateColumn.controls['maxLength'].disable();
     }
+    this.assignDefault( this.updateColumn, true);
+  }
+
+  onTypeChange2( col ){
+    if( col.defaultValue !== null ) this.assignDefault( col, false );
   }
 
 }

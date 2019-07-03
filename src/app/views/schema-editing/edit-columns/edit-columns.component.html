@@ -24,7 +24,7 @@
                   <input type="text" class="form-control form-control-sm editing" formControlName="name" [attr.data-before]="col.name" id="colName">
                 </td>
                 <td class="editing">
-                  <input type="checkbox" class="form-control form-control-sm editing" formControlName="nullable" id="nullable" [attr.data-before]="col.nullable">
+                  <input type="checkbox" class="form-control form-control-sm editing" formControlName="nullable" id="nullable" [attr.data-before]="col.nullable" (change)="changeNullable()">
                 </td>
                 <td class="editing">
                   <select class="form-control form-control-sm editing" id="udt_name" [attr.data-before]="col.type" formControlName="type" (change)="onTypeChange($event)">
@@ -60,7 +60,7 @@
                       <input *ngSwitchDefault type="text" placeholder="default value" class="form-control form-control-sm editing" formControlName="defaultValue">
                     </ng-container>
                     <div class="input-group-append editing">
-                      <button class="btn btn-sm editing" [ngClass]="{'btn-primary': updateColumn.controls['defaultValue'].value === null, 'btn-light': updateColumn.controls['defaultValue'].value !== null}" (click)="triggerDefaultNull()">null</button>
+                      <button class="btn btn-sm editing" [disabled]="updateColumn.controls['nullable'].value === false" [ngClass]="{'btn-primary': updateColumn.controls['defaultValue'].value === null, 'btn-light': updateColumn.controls['defaultValue'].value !== null}" (click)="triggerDefaultNull()">null</button>
                     </div>
                   </div>
                 </td>
@@ -81,10 +81,10 @@
             <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name" [(ngModel)]="createColumn.name">
           </td>
           <td>
-            <input type="checkbox" class="form-control form-control-sm" [(ngModel)]="createColumn.nullable">
+            <input type="checkbox" class="form-control form-control-sm" [(ngModel)]="createColumn.nullable" [checked]="createColumn.nullable" (change)="changeNullable(createColumn)">
           </td>
           <td>
-            <select class="form-control form-control-sm" [(ngModel)]="createColumn.type">
+            <select class="form-control form-control-sm" [(ngModel)]="createColumn.type" (change)="onTypeChange2( createColumn )">
               <option *ngFor="let t of types" [value]="t">{{t}}</option>
             </select>
             <!--<input class="form-control form-control-sm" placeholder="type"
@@ -115,7 +115,7 @@
                 <input *ngSwitchDefault type="text" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="createColumn.defaultValue" [disabled]="createColumn.defaultValue === null">
               </ng-container>
               <div class="input-group-append">
-                <button class="btn btn-sm" [ngClass]="{'btn-primary': createColumn.defaultValue ===null, 'btn-light': createColumn.defaultValue !== null}" (click)="triggerDefaultNull( createColumn )">null</button>
+                <button class="btn btn-sm" [disabled]="createColumn.nullable === false" [ngClass]="{'btn-primary': createColumn.defaultValue ===null, 'btn-light': createColumn.defaultValue !== null}" (click)="triggerDefaultNull( createColumn )">null</button>
               </div>
             </div>
           </td>
