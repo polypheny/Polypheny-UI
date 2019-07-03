@@ -23,6 +23,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
     update: true,
     delete: true
   };
+  loading: boolean;
 
   constructor(
       private _route: ActivatedRoute,
@@ -51,29 +52,37 @@ export class TableViewComponent implements OnInit, OnDestroy {
       }else {
         this.currentPage = 1;
       }
-      if( this.resultSet ) this.resultSet.currentPage = this.currentPage;
-
-      if( this.tableId ) {
-        const req: UIRequest  = new TableRequest( this.tableId, this.currentPage );
-        this._crud.getTable( req ).subscribe(
-            res => {
-              this.resultSet = <ResultSet> res;
-              if( this.resultSet.type === 'TABLE') {
-                this.tableConfig.create = true;
-                this.tableConfig.update = true;
-                this.tableConfig.delete = true;
-              } else {
-                this.tableConfig.create = false;
-                this.tableConfig.update = false;
-                this.tableConfig.delete = false;
-              }
-            }, err => {
-              console.log(err);
-            }
-        );
+      if( this.resultSet ){
+        this.resultSet.currentPage = this.currentPage;
       }
-
+      this.getTable();
     });
+
+  }
+
+  getTable() {
+    if( this.tableId ) {
+      this.loading = true;
+      const req: UIRequest  = new TableRequest( this.tableId, this.currentPage );
+      this._crud.getTable( req ).subscribe(
+        res => {
+          this.resultSet = <ResultSet> res;
+          if( this.resultSet.type === 'TABLE') {
+            this.tableConfig.create = true;
+            this.tableConfig.update = true;
+            this.tableConfig.delete = true;
+          } else {
+            this.tableConfig.create = false;
+            this.tableConfig.update = false;
+            this.tableConfig.delete = false;
+          }
+          this.loading = false;
+        }, err => {
+          console.log(err);
+          this.loading = false;
+        }
+      );
+    }
 
   }
 
