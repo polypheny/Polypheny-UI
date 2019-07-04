@@ -28,13 +28,12 @@ export class DbColumn {
 
     //for the data-table
     sort: SortState;
-    dataType: number;
+    dataType: string;
     filter: string;
 
     //for editing columns
     primary: boolean;
     nullable: boolean;
-    type: string;//varchar/int/etc
     maxLength: string;
     defaultValue: any;
 
@@ -42,13 +41,13 @@ export class DbColumn {
         this.name = name;
         this.primary = primary;
         this.nullable = nullable;
-        this.type = type;
+        this.dataType = type;
         this.maxLength = maxLength;
         this.defaultValue = defaultValue;
     }
 
     static fromJson( obj ){
-        return new DbColumn( obj.name, obj.primary, obj.nullable, obj.type, obj.maxLength, obj.defaultValue);
+        return new DbColumn( obj.name, obj.primary, obj.nullable, obj.dataType, obj.maxLength, obj.defaultValue);
     }
 }
 

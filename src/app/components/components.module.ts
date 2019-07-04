@@ -17,6 +17,7 @@ import {DataTableComponent} from './data-table/data-table.component';
 import {DynamicFormsComponent} from './dynamic-forms/dynamic-forms.component';
 import {RenderItemComponent} from './information-manager/render-item/render-item.component';
 import {InformationManagerComponent} from './information-manager/information-manager.component';
+import { InputComponent } from './data-table/input/input.component';
 //import 'hammerjs';
 
 @NgModule({
@@ -44,7 +45,8 @@ import {InformationManagerComponent} from './information-manager/information-man
     RightSidebarComponent,
     ToastComponent,
     InformationManagerComponent,
-    RenderItemComponent
+    RenderItemComponent,
+    InputComponent
   ],
   exports: [
     BreadcrumbComponent,
@@ -54,7 +56,8 @@ import {InformationManagerComponent} from './information-manager/information-man
     LeftSidebarComponent,
     RightSidebarComponent,
     ToastComponent,
-    InformationManagerComponent
+    InformationManagerComponent,
+    InputComponent
   ]
 })
 export class ComponentsModule { }

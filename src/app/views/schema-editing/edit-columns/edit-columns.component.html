@@ -18,19 +18,19 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let col of resultSet.header; let i = index" (dblclick)="editCol(i, col)">
+        <tr *ngFor="let col of resultSet.header; let i = index" (dblclick)="editCol(i, col)" [ngClass]="{'editing': i === editColumn}">
           <ng-container *ngIf="i === editColumn" [formGroup]="updateColumn">
-                <td class="editing">
-                  <input type="text" class="form-control form-control-sm editing" formControlName="name" [attr.data-before]="col.name" id="colName">
+                <td>
+                  <input type="text" class="form-control form-control-sm" formControlName="name" [attr.data-before]="col.name" id="colName">
                 </td>
-                <td class="editing">
-                  <input type="checkbox" class="form-control form-control-sm editing" formControlName="nullable" id="nullable" [attr.data-before]="col.nullable" (change)="changeNullable()">
+                <td>
+                  <input type="checkbox" class="form-control form-control-sm" formControlName="nullable" id="nullable" [attr.data-before]="col.nullable" (change)="changeNullable()">
                 </td>
-                <td class="editing">
-                  <select class="form-control form-control-sm editing" id="udt_name" [attr.data-before]="col.type" formControlName="type" (change)="onTypeChange($event)">
+                <td>
+                  <select class="form-control form-control-sm" id="udt_name" [attr.data-before]="col.dataType" formControlName="dataType" (change)="onTypeChange($event)">
                     <option *ngFor="let t of types" [value]="t" >{{t}}</option>
                   </select>
-                  <!--<input class="form-control form-control-sm editing"
+                  <!--<input class="form-control form-control-sm"
                          [typeahead]="types"
                          [typeaheadScrollable]="true"
                          [typeaheadOptionsInScrollableView]="5"
@@ -39,37 +39,37 @@
                          id="udt_name"
                          [attr.data-before]="d1[2]">-->
                 </td>
-                <td class="editing">
-                  <input type="number" placeholder="max-length" formControlName="maxLength" class="form-control form-control-sm editing" id="max-length" [attr.data-before]="col.maxLength">
+                <td>
+                  <input type="number" placeholder="max-length" formControlName="maxLength" class="form-control form-control-sm" id="max-length" [attr.data-before]="col.maxLength">
                 </td>
-                <td class="editing">
-                  <!--<input type="text" [(ngModel)]="col.defaultValue" class="form-control form-control-sm editing" id="defaultValue" [attr.data-before]="col.defaultValue">-->
-                  <div class="input-group editing">
+                <td>
+                  <!--<input type="text" [(ngModel)]="col.defaultValue" class="form-control form-control-sm" id="defaultValue" [attr.data-before]="col.defaultValue">-->
+                  <div class="input-group">
                       <input type="hidden" formControlName="oldName">
-                    <ng-container [ngSwitch]="updateColumn.controls['type'].value">
-                      <input *ngSwitchCase="'int8'" type="number" placeholder="default value" class="form-control form-control-sm editing" formControlName="defaultValue">
-                      <input *ngSwitchCase="'int4'" type="number" placeholder="default value" class="form-control form-control-sm editing" formControlName="defaultValue">
+                    <ng-container [ngSwitch]="updateColumn.controls['dataType'].value">
+                      <input *ngSwitchCase="'int8'" type="number" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue">
+                      <input *ngSwitchCase="'int4'" type="number" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue">
                       <ng-container *ngSwitchCase="'bool'">
                         <div class="form-check form-check-inline">
-                          <label *ngIf="col.defaultValue === null" class="form-check-label disabled editing" [for]="'default'+col.name">null&nbsp;</label>
-                          <label *ngIf="col.defaultValue === true" class="form-check-label editing" [for]="'default'+col.name">true&nbsp;</label>
-                          <label *ngIf="col.defaultValue === false" class="form-check-label editing" [for]="'default'+col.name">false&nbsp;</label>
-                          <input type="checkbox" class="form-check-input editing" formControlName="defaultValue">
+                          <label *ngIf="col.defaultValue === null" class="form-check-label disabled" [for]="'default'+col.name">null&nbsp;</label>
+                          <label *ngIf="col.defaultValue === true" class="form-check-label" [for]="'default'+col.name">true&nbsp;</label>
+                          <label *ngIf="col.defaultValue === false" class="form-check-label" [for]="'default'+col.name">false&nbsp;</label>
+                          <input type="checkbox" class="form-check-input" formControlName="defaultValue">
                         </div>
                       </ng-container>
-                      <input *ngSwitchDefault type="text" placeholder="default value" class="form-control form-control-sm editing" formControlName="defaultValue">
+                      <input *ngSwitchDefault type="text" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue">
                     </ng-container>
-                    <div class="input-group-append editing">
-                      <button class="btn btn-sm editing" [disabled]="updateColumn.controls['nullable'].value === false" [ngClass]="{'btn-primary': updateColumn.controls['defaultValue'].value === null, 'btn-light': updateColumn.controls['defaultValue'].value !== null}" (click)="triggerDefaultNull()">null</button>
+                    <div class="input-group-append">
+                      <button class="btn btn-sm" [disabled]="updateColumn.controls['nullable'].value === false" [ngClass]="{'btn-primary': updateColumn.controls['defaultValue'].value === null, 'btn-light': updateColumn.controls['defaultValue'].value !== null}" (click)="triggerDefaultNull()">null</button>
                     </div>
                   </div>
                 </td>
-                <td class="editing"><button class="btn btn-primary editing" (click)="saveCol()"><i class="fa fa-save editing editColSave"></i></button></td>
+                <td><button class="btn btn-primary" (click)="saveCol()"><i class="fa fa-save editColSave"></i></button></td>
           </ng-container>
           <ng-container *ngIf="i !== editColumn">
             <td>{{col.name}}</td>
             <td>{{col.nullable}}</td>
-            <td>{{col.type}}</td>
+            <td>{{col.dataType}}</td>
             <td>{{col.maxLength}}</td>
             <td>{{col.defaultValue}}</td>
             <td class="delete"><i (click)="dropColumn(col, i)" (mouseleave)="confirm = -1" [ngClass]="{ 'cui-trash': i!==confirm, 'fa fa-warning': i===confirm }"></i></td>
@@ -84,7 +84,7 @@
             <input type="checkbox" class="form-control form-control-sm" [(ngModel)]="createColumn.nullable" [checked]="createColumn.nullable" (change)="changeNullable(createColumn)">
           </td>
           <td>
-            <select class="form-control form-control-sm" [(ngModel)]="createColumn.type" (change)="onTypeChange2( createColumn )">
+            <select class="form-control form-control-sm" [(ngModel)]="createColumn.dataType" (change)="onTypeChange2( createColumn )">
               <option *ngFor="let t of types" [value]="t">{{t}}</option>
             </select>
             <!--<input class="form-control form-control-sm" placeholder="type"
@@ -96,12 +96,12 @@
                    [ngModelOptions]="{standalone: true}">-->
           </td>
           <td>
-            <input *ngIf="createColumn.type === 'varchar'" type="number" placeholder="max-length" class="form-control form-control-sm" [(ngModel)]="createColumn.maxLength">
-            <input *ngIf="createColumn.type !== 'varchar'" type="number" placeholder="max-length" class="form-control form-control-sm" disabled>
+            <input *ngIf="createColumn.dataType === 'varchar'" type="number" placeholder="max-length" class="form-control form-control-sm" [(ngModel)]="createColumn.maxLength">
+            <input *ngIf="createColumn.dataType !== 'varchar'" type="number" placeholder="max-length" class="form-control form-control-sm" disabled>
           </td>
           <td>
             <div class="input-group">
-              <ng-container [ngSwitch]="createColumn.type">
+              <ng-container [ngSwitch]="createColumn.dataType">
                 <input *ngSwitchCase="'int8'" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="createColumn.defaultValue" [disabled]="createColumn.defaultValue === null">
                 <input *ngSwitchCase="'int4'" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="createColumn.defaultValue" [disabled]="createColumn.defaultValue === null">
                 <ng-container *ngSwitchCase="'bool'">

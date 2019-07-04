@@ -20,11 +20,12 @@ export class DataTableComponent implements OnInit, OnChanges {
 
   pagination: PaginationElement[] = [];
   insertValues = new Map<string, any>();
+  updateValues = new Map<string, any>();
   sortStates = new Map<string, SortState>();
   filter = new Map<string, string>();
   editing = -1;//-1 if not editing any row, else the index of that row
   confirm = -1;
-  
+
   constructor(
     private _crud: CrudService,
     private _toast: ToastService
@@ -53,15 +54,42 @@ export class DataTableComponent implements OnInit, OnChanges {
 
   triggerEditing(i){
     if(this.config.update){
-      //d.editing = true;
+      this.updateValues.clear();
+      this.resultSet.data[i].forEach((v, k) => {
+        if( this.resultSet.header[k].dataType === 'bool' ){
+          this.updateValues.set( this.resultSet.header[k].name, this.getBoolean(v) );
+        }else{
+          this.updateValues.set( this.resultSet.header[k].name, v);
+        }
+      });
       this.editing = i;
+    }
+  }
+
+  // see https://stackoverflow.com/questions/52017809/how-to-convert-string-to-boolean-in-typescript-angular-4
+  getBoolean ( value:any ):Boolean {
+    switch(value){
+      case true:
+      case 'true':
+      case 't':
+      case 1:
+      case '1':
+      case 'on':
+      case 'yes':
+        return true;
+      case 'null':
+      case 'NULL':
+      case null:
+        return null;
+      default:
+        return false;
     }
   }
 
   documentListener(){
     const self = this;
     $(document).on('click', function(e){
-      if(!$(e.target).hasClass('editing')){
+      if( $(e.target).parents('.editing').length === 0 ){
         self.editing = -1;
       }
     });
@@ -110,9 +138,26 @@ export class DataTableComponent implements OnInit, OnChanges {
     this.insertValues.clear();
     if(this.resultSet.header){
       this.resultSet.header.forEach( (g, idx) => {
-        this.insertValues.set(g.name, '');
+        if( g.nullable ) { this.insertValues.set(g.name, null); }
+        else{
+          switch (g.dataType) {
+            case 'int4':
+            case 'int8':
+              this.insertValues.set(g.name, 0);
+              break;
+            case 'bool':
+              this.insertValues.set(g.name, false);
+            break;
+            default:
+              this.insertValues.set(g.name, '');
+          }
+        }
       });
     }
+  }
+
+  inputChange( name:string, e ){
+    this.insertValues.set(name, e);
   }
 
   insertRow () {
@@ -137,19 +182,20 @@ export class DataTableComponent implements OnInit, OnChanges {
     );
   }
 
+  newUpdateValue( key, val ){
+    this.updateValues.set( key, val );
+  }
+
   updateRow () {
-    const filter = new Map<string, string>();//previous values
-    const data = new Map<string, string>();
+    const oldValues = new Map<string, string>();//previous values
     $('.editing').each(function(e){
-      const oldValue = $(this).attr('data-before');
-      const newValue = $(this).val();
+      const oldVal = $(this).attr('data-before');
       const col = $(this).attr('data-col');
       if ( col !== undefined ) {
-        filter.set( col, oldValue );
-        data.set( col, newValue );
+        oldValues.set( col, oldVal );
       }
     });
-    const req = new UpdateRequest( this.resultSet.table, this.mapToObject(data), this.mapToObject(filter) );
+    const req = new UpdateRequest( this.resultSet.table, this.mapToObject(this.updateValues), this.mapToObject(oldValues) );
     this._crud.updateRow( req ).subscribe(
       res => {
         const result = <ResultSet> res;

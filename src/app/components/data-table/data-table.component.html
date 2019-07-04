@@ -26,12 +26,15 @@
         <td *ngFor="let h of resultSet.header"><input type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event)"></td>
         <td *ngIf="config.update || config.delete"></td>
       </tr>
-      <tr *ngFor="let d1 of resultSet.data; let i = index">
+      <tr *ngFor="let d1 of resultSet.data; let i = index" [ngClass]="{'editing': editing === i}">
         <ng-container *ngIf="editing === i">
           <td class="selector" *ngIf="config.update || config.delete"><input type="checkbox" checked="true"></td>
-          <td *ngFor="let d2 of d1; let i = index"><input type="text" class="form-control form-control-sm editing" [value]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name"></td>
+          <td *ngFor="let d2 of d1; let i = index">
+            <!--<input type="text" class="form-control form-control-sm editing" [value]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name">-->
+            <app-input class="editing" [header]="resultSet.header[i]" [value]="updateValues.get(resultSet.header[i].name)" (valueChange)="newUpdateValue(resultSet.header[i].name, $event)" [attr.data-new]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name"></app-input>
+          </td>
           <td *ngIf="config.update || config.delete">
-            <button class="btn btn-primary editing" id="editColSave" (click)="updateRow()"><i class="fa fa-save editing"></i></button>
+            <button class="btn btn-primary" id="editColSave" (click)="updateRow()"><i class="fa fa-save"></i></button>
           </td>
         </ng-container>
         <ng-container *ngIf="editing !== i">
@@ -45,10 +48,11 @@
       <tr *ngIf="resultSet.data.length === 0">
         <td [attr.colspan]="resultSet.header.length+2" style="text-align: center" class="text-danger">(no data to show)</td>
       </tr>
-      <tr *ngIf="config.create">
+      <tr *ngIf="config.create" id="insertRow">
         <td></td>
         <td *ngFor="let h of resultSet.header">
-          <input type="text" class="form-control form-control-sm insert-input" placeholder="insert (todo:type)" [name]="h.name" [ngModel]="insertValues.get(h.name)" (ngModelChange)="insertValues.set(h.name, $event)">
+          <!--<input type="text" class="form-control form-control-sm insert-input" placeholder="insert (todo:type)" [name]="h.name" [ngModel]="insertValues.get(h.name)" (ngModelChange)="insertValues.set(h.name, $event)">-->
+          <app-input [header]="h" [value]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"></app-input>
         </td>
         <td *ngIf="config.update || config.delete"><button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()">+</button></td>
       </tr>
@@ -67,5 +71,5 @@
     </nav>
   </div>
 </div>
-<div *ngIf="!resultSet.data">data-table: nothing to show.</div>
+<div *ngIf="!resultSet.data && !resultSet.error">data-table: nothing to show.</div>
 <div class="text-danger" *ngIf="resultSet.error">{{resultSet.error}}</div>
