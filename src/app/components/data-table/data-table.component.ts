@@ -199,8 +199,11 @@ export class DataTableComponent implements OnInit, OnChanges {
     this._crud.updateRow( req ).subscribe(
       res => {
         const result = <ResultSet> res;
-        if( result.info.affectedRows === 1 ) {
+        if( result.info.affectedRows ) {
           this.getTable();
+          let rows = ' rows';
+          if(result.info.affectedRows === 1) rows = ' row';
+          this._toast.toast( 'update', 'Updated ' + result.info.affectedRows + rows, 10, 'bg-success' );
         } else if ( result.error ){
           this._toast.toast( 'error', 'Could not update this row: '+result.error, 10, 'bg-warning' );
         }
@@ -300,11 +303,10 @@ export class DataTableComponent implements OnInit, OnChanges {
     this._crud.deleteRow( request ).subscribe(
         res => {
           const result = <ResultSet> res;
-          if( result.info.affectedRows === 1) {
+          if( result.info.affectedRows ) {
             this.getTable();
             //todo if page is empty, go to highestPage
           }else {
-            console.log(res);
             const result2 = <ResultSet> res;
             this._toast.toast( 'error', 'Could not delete this row: ' + result2.error, 10, 'bg-warning' );
           }
