@@ -1,9 +1,16 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/draggable';
 import {ActivatedRoute} from '@angular/router';
-import {Md5} from 'ts-md5/dist/md5';
+import {CrudService} from '../../services/crud.service';
+import {EditTableRequest, SchemaRequest} from '../../models/ui-request.model';
+import {ForeignKey, SvgLine, Uml} from './uml.model';
+import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
+import {ModalDirective} from 'ngx-bootstrap';
+import {FormBuilder} from '@angular/forms';
+import {ToastService} from '../../components/toast/toast.service';
+import {ResultSet} from '../../components/data-table/models/result-set.model';
 
 @Component({
   selector: 'app-uml',
@@ -11,107 +18,127 @@ import {Md5} from 'ts-md5/dist/md5';
   styleUrls: ['./uml.component.scss']
 })
 
-export class UmlComponent implements OnInit, AfterViewInit {
+export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  uml: UML[];
-  lines: SvgLine[] = [];
-  connections: Map<string, Connection> = new Map();
-  dbId: number;
+  uml: Uml;
+  temporalLine: SvgLine;
+  schema;
+  connections = [];
+  zIndex = 2;
+  errorMsg:string;
 
-  existingConnections = [];
+  @ViewChild('myModal') myModal: ModalDirective;
+  sourceTable;
+  sourceCol;
+  targetTable;
+  targetCol;
+  onUpdate = ['NO ACTION', 'RESTRICT', 'CASCADE'];
+  onDelete = ['NO ACTION', 'RESTRICT', 'CASCADE'];
+  fkForm = this._formBuilder.group({update: 'NO ACTION', delete: 'NO ACTION'});
+  constraintName = 'fk1';
 
-  constructor(private _route: ActivatedRoute) {
-    this.existingConnections = [
-      {source: '19f35b03310d187d2717fbeca10fa9bd', target: 'a5afb3700a1229679dff8b0238a6aa9a'} // demo: table2.e, table4.j
-    ];
-  }
+
+  //offsets
+  offsetLineX1 = 15;
+  offsetLineX2 = 215;
+  offsetLineY = 145;
+  offsetConnLeft1 = 16;
+  offsetConnLeft2 = 2;
+  offsetConnTop = 20;
+
+
+  constructor(
+    private _route: ActivatedRoute,
+    private _crud: CrudService,
+    private _leftSidebar: LeftSidebarService,
+    private _formBuilder: FormBuilder,
+    private _toast: ToastService
+  ) {}
 
   ngOnInit() {
-
-    this.dbId = +this._route.snapshot.paramMap.get('id');
-
-    this.uml = [
-      {tableName: 'table1', cols: ['a', 'b', 'c'], methods: ['method1', 'method2']},
-      {tableName: 'table2', cols: ['d', 'e', 'f'], methods: ['method1', 'method2']},
-      {tableName: 'table3', cols: ['g', 'h', 'i', 'j'], methods: []},
-      {tableName: 'table4', cols: ['so wide so wide so wide so wide so wide', 'h', 'i', 'j'], methods: ['method1', 'method2']},
-      {tableName: 'table5', cols: ['so wide so wide so wide so wide so wide', 'h', 'i', 'j'], methods: ['method1', 'method2']}
-    ];
-
+    this.schema = this._route.snapshot.paramMap.get('id');
+    this._route.params.subscribe( params => {
+      this.schema = params['id'];
+      this.getUml();
+    });
+    this._leftSidebar.setSchema( new SchemaRequest( '/views/uml/', false, 1) );
   }
 
   ngAfterViewInit() {
-
+    this.getUml();
     this.connectTables();
-    this.dragTables();
-
-    // todo throws error: ExpressionChangedAfterItHasBeenCheckedError (but not in production mode)
-    this.loadExistingConnections();
-
   }
 
-  dragTables() {
-    // const self = this;
+  ngOnDestroy() {
+    $(document).off();//remove event listener from connectTables() when leaving this view
+  }
 
-    //todo expandable parent div: http://jsfiddle.net/74Sxn/
-    $('.uml').draggable({
-      handle: '.tableName',
-      containment: 'parent'
+  getUml () {
+    //todo get schema-name from router
+    if(!this.schema) return;
+    this._crud.getUml( new EditTableRequest( this.schema ) ).subscribe(
+      res => {
+        this.errorMsg = null;
+        const uml:Uml = <Uml> res;
+        this.uml = new Uml(uml.tables, uml.foreignKeys);
+        this.mapConnections();
+      }, err => {
+        this.errorMsg = 'Could not connect with the server.';
+      }
+    );
+  }
+
+  mapConnections() {
+    this.connections = [];
+    this.uml.foreignKeys.forEach((v, k) => {
+      this.connections.push( { source: v.fkTableSchema+'_'+v.fkTableName+'_'+v.fkColumnName, target: v.pkTableSchema+'_'+v.pkTableName+'_'+v.pkColumnName, } );
     });
   }
 
+  updateZIndex( e ){
+    this.zIndex++;
+    const z = this.zIndex;
+    $(e.source.element.nativeElement).css('z-index', z);
+  }
+
+  onDragging( e ){
+    $(e.source.element.nativeElement).css('z-index', 9000);
+  }
+
   connectTables () {
-    let line;
     const self = this;
     let isDragging = false;
-    let fromTable;
-    let source;
-    let offsetX = 215;
-    //todo offsetX if sidebar
-    const offsetY = 80;
+    let offsetX = this.offsetLineX1;
     $(document).on('mousedown', '.uml .cols', function(e) {
       if($('body').hasClass('sidebar-lg-show')){
-        offsetX = 380;
+        offsetX = self.offsetLineX2;
       } else {
-        offsetX = 215;
+        offsetX = self.offsetLineX1;
       }
       isDragging = true;
-      fromTable = $(e.target).parent().attr('id');
-      source = $(e.target).attr('id');
-      line = {x1: e.pageX - offsetX, y1: e.pageY - offsetY, x2: e.pageX - offsetX, y2: e.pageY - offsetY};
-      self.lines.push(line);
+      self.sourceTable = $(e.target).parents('.uml').attr('tableName');
+      self.sourceCol = $(e.target).attr('colName');
+      self.temporalLine = {x1: e.pageX - offsetX, y1: e.pageY - self.offsetLineY, x2: e.pageX - offsetX, y2: e.pageY - self.offsetLineY};
 
+      e.preventDefault();
       // todo control z-index when released
 
     }).on('mousemove', function (e) {
       if (isDragging) {
-        line.x2 = e.pageX - offsetX;
-        line.y2 = e.pageY - offsetY;
+        self.temporalLine.x2 = e.pageX - offsetX;
+        self.temporalLine.y2 = e.pageY - self.offsetLineY;
+        e.preventDefault();
       }
     }).on('mouseup', function (e) {
-      if ($(e.target).hasClass('cols') && $(e.target).parent().attr('id') !== fromTable) {
-        const target = $(e.target).attr('id');
-        const c:Connection = new Connection(source, target);
-        self.connections.set(c.toString(),c);
+      if(!isDragging) return;
+      if ($(e.target).hasClass('pk') && $(e.target).parents('.uml').attr('tableName') !== self.sourceTable) {
+        self.myModal.show();
+        self.targetTable = $(e.target).parents('.uml').attr('tableName');
+        self.targetCol = $(e.target).attr('colName');
       }
-      self.lines.pop();
+      self.temporalLine = null;
       isDragging = false;
     });
-  }
-
-  loadExistingConnections(){
-    if(this.existingConnections === undefined || this.existingConnections.length === 0) return;
-    for(const conn of this.existingConnections){
-      const connObj = new Connection(conn.source, conn.target);
-      this.connections.set(connObj.toString(), connObj);
-
-      const src = $(conn.source).offset();
-      const tgt = $(conn.target).offset();
-      if(src !== undefined && tgt !== undefined){
-        const line = {x1: src.top + 5, x2: tgt.top + 5, y1: src.left, y2: tgt.left};
-        this.lines.push(line);
-      }
-    }
   }
 
   /** get x position of div of source column
@@ -121,10 +148,11 @@ export class UmlComponent implements OnInit, AfterViewInit {
     const sourceEle = $('#'+source);
     const targetEle = $('#'+target);
     if(sourceEle === undefined || targetEle === undefined) return;
+    // if($(sourceEle).offset() === undefined || $(targetEle).offset() === undefined ) return;
     if($(sourceEle).offset().left < $(targetEle).offset().left){
-      return $(sourceEle).position().left + $(sourceEle).parent().position().left + $(sourceEle).width() + 26;
+      return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + $(sourceEle).width() + this.offsetConnLeft1;
     }else{
-      return $(sourceEle).position().left + $(sourceEle).parent().position().left + 20;
+      return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + this.offsetConnLeft2;
     }
   }
   /** get x position of div of target column
@@ -133,57 +161,49 @@ export class UmlComponent implements OnInit, AfterViewInit {
     if(source === undefined || target === undefined) return;
     const sourceEle = $('#'+source);
     const targetEle = $('#'+target);
+    // if($(sourceEle).offset() === undefined || $(targetEle).offset() === undefined ) return;
     if( $(sourceEle).offset().left < $(targetEle).offset().left + $(targetEle).width()/2 ){
-      return $(targetEle).position().left + $(targetEle).parent().position().left + 20;
+      return $(targetEle).position().left + $(targetEle).parents('.uml').position().left + this.offsetConnLeft2;
     }else{
-      return $(targetEle).position().left + $(targetEle).parent().position().left + $(targetEle).width() + 26;
+      return $(targetEle).position().left + $(targetEle).parents('.uml').position().left + $(targetEle).width() + this.offsetConnLeft1;
     }
   }
   /** get y position of div of source/target column
    * param: source:string, target:string -> ids of the column divs */
-  getY(ele:string){
-    if(ele === undefined) return;
-    const element= $('#'+ele);
-    return $(element).position().top + $(element).parent().position().top + 34;
+  getY(ele:string) {
+    if (ele === undefined) return;
+    const element = $('#' + ele);
+    // if( $(element).position() === undefined ) return;
+    return $(element).position().top + $(element).parents('.uml').position().top + this.offsetConnTop;
   }
 
-  hash(s:string[]){
-    const md5 = new Md5();
-    for(const b of s){
-      md5.appendStr(b);
-    }
-    return md5.end();
+  closeModal(){
+    this.myModal.hide();
+    this.sourceTable = null;
+    this.sourceCol = null;
+    this.targetTable = null;
+    this.targetCol = null;
   }
 
-}
+  createForeignKey(){
+    const fk: ForeignKey = new ForeignKey( this.constraintName, this.schema, this.sourceTable, this.sourceCol, this.targetTable, this.targetCol )
+      .onUpdate( this.fkForm.value.update ).onDelete( this.fkForm.value.delete );
 
-export interface UML {
-  tableName: string;
-  cols: string[];
-  methods?: string[];
-}
-export interface SvgLine {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-}
-
-export class Connection {
-  source: string;
-  target: string;
-  constructor(s:string, t:string) {
-    this.source = s;
-    this.target = t;
+    this._crud.addForeignKey( fk ).subscribe(
+      res => {
+        this.closeModal();
+        const result = <ResultSet> res;
+        if( result.error ){
+          this._toast.toast( 'failed', result.error, 0, 'bg-warning');
+        }
+        else if( result.info.affectedRows === 1) {
+          this._toast.toast( 'success', 'new foreign key was created', 10, 'bg-success');
+        }
+      }, err => {
+        this.closeModal();
+        this._toast.toast( 'error', 'An unknown error occurred on the server', 10, 'bg-danger');
+      }
+    );
   }
 
-  equals(s:Connection){
-    return this.source===s.source && this.target===s.target;
-  }
-
-  //must be unique for unique elements (key of the map)
-  toString() {
-    const md5 = new Md5();
-    return md5.appendStr(this.source).appendStr(this.target).end() as string;
-  }
 }

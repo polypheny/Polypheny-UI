@@ -42,7 +42,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
     }
     if( this.resultSet ) this.resultSet.currentPage = this.currentPage;
 
-    this._sidebar.setSchema( new SchemaRequest('/views/data-table/', true) );
+    this._sidebar.setSchema( new SchemaRequest('/views/data-table/', true, 2) );
 
     //listen to parameter changes
     this._route.params.subscribe((params) => {

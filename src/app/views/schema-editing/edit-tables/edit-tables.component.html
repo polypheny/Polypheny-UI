@@ -59,13 +59,13 @@
                         <input type="checkbox" [(ngModel)]="col.value.nullable">
                     </td>
                     <td>
-                        <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.type">
+                        <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.dataType">
                             <option *ngFor="let t of types" [ngValue]="t">{{t}}</option>
                         </select>
                     </td>
                     <td>
                         <div class="input-group">
-                            <ng-container [ngSwitch]="col.value.type">
+                            <ng-container [ngSwitch]="col.value.dataType">
                                 <input *ngSwitchCase="'int8'" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
                                 <input *ngSwitchCase="'int4'" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
                                 <ng-container *ngSwitchCase="'bool'">
@@ -84,8 +84,8 @@
                         </div>
                     </td>
                     <td>
-                        <input *ngIf="col.value.type !== 'varchar'" type="number" class="form-control form-control-sm" disabled placeholder="length">
-                        <input *ngIf="col.value.type === 'varchar'" type="number" class="form-control form-control-sm" placeholder="length" [(ngModel)]="col.value.maxLength">
+                        <input *ngIf="col.value.dataType !== 'varchar'" type="number" class="form-control form-control-sm" disabled placeholder="length">
+                        <input *ngIf="col.value.dataType === 'varchar'" type="number" class="form-control form-control-sm" placeholder="length" [(ngModel)]="col.value.maxLength">
                     </td>
                     <td>
                         <i class="cui-trash del" (click)="removeNewColumn(col.key)"></i>

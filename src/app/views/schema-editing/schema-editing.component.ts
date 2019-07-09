@@ -40,7 +40,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   }
 
   public getSchema () {
-    this._leftSidebar.setSchema( new SchemaRequest('/views/schema-editing/', false) );
+    this._leftSidebar.setSchema( new SchemaRequest('/views/schema-editing/', false, 2) );
   }
 
   /**

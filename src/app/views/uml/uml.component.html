@@ -1,22 +1,98 @@
+<app-toast></app-toast>
 <div class="row">
-  <div class="col-lg-2">
-    Database: {{dbId}}
-    <br><span *ngIf="connections">{{connections.size}} connections</span>
+  <div class="col-lg-12">
+    <h5 *ngIf="schema">{{schema}}</h5>
+    <p *ngIf="uml">Drag a connection from a column to a primary key to create a new foreign key.</p>
+    <span *ngIf="!schema">Please select a schema in the left sidebar.</span>
   </div>
-  <div class="col-lg-10" id="drag-container">
-    <div class="uml" *ngFor="let u of uml" id="{{hash([u.tableName])}}">
-      <div class="tableName">{{u.tableName}}</div>
-      <div class="cols" *ngFor="let c of u.cols" id="{{hash([u.tableName,c])}}">{{c}}</div>
-      <div class="methods" *ngFor="let m of u.methods">{{m}}</div>
+  <div id="drag-container" class="col-lg-12" *ngIf="uml">
+    <div class="card uml" *ngFor="let table of uml.tables" [id]="table.schema+'_'+table.tableName" [attr.tableName]="table.schema+'.'+table.tableName" cdkDragBoundary="#drag-container" cdkDrag (cdkDragEnded)="updateZIndex($event)" (cdkDragStarted)="onDragging($event)">
+      <div class="card-header tableName" cdkDragHandle>{{table.tableName}}</div>
+      <div class="list-group list-group-flush">
+        <div class="list-group-item cols" *ngFor="let col of table.columns" [id]="table.schema+'_'+table.tableName+'_'+col.name" [attr.colName]="col.name">{{col.name}}</div>
+        <div class="list-group-item pk bg-info" *ngIf="table.primaryKeyFields.length > 0" [attr.colName]="table.primaryKeyFields"><i class="icon-key font-weight-bold"></i> {{table.primaryKeyFields}}</div>
+      </div>
     </div>
     <svg width="100%" height="100%">
-      <line *ngFor="let line of lines" [attr.x1]="line.x1" [attr.y1]="line.y1" [attr.x2]="line.x2" [attr.y2]="line.y2"></line>
-      <line *ngFor="let conn of connections | keyvalue" [attr.x1]="getX1(conn.value.source,conn.value.target)" [attr.y1]="getY(conn.value.source)" [attr.x2]="getX2(conn.value.source, conn.value.target)" [attr.y2]="getY(conn.value.target)"></line>
+      <line *ngIf="temporalLine" [attr.x1]="temporalLine.x1" [attr.y1]="temporalLine.y1" [attr.x2]="temporalLine.x2" [attr.y2]="temporalLine.y2"></line>
+      <!--<line *ngFor="let conn of connections | keyvalue" [attr.x1]="getX1(conn.value.source,conn.value.target)" [attr.y1]="getY(conn.value.source)" [attr.x2]="getX2(conn.value.source, conn.value.target)" [attr.y2]="getY(conn.value.target)"></line>-->
+      <line *ngFor="let conn of connections" [attr.x1]="getX1(conn.source,conn.target)" [attr.y1]="getY(conn.source)" [attr.x2]="getX2(conn.source, conn.target)" [attr.y2]="getY(conn.target)"></line>
     </svg>
   </div>
+
+  <!--
+  <div class="col-lg-12">
+    <br>
+    offsetLineX1 <input type="number" [(ngModel)]="offsetLineX1">
+    <br>
+    offsetLineX2 <input type="number" [(ngModel)]="offsetLineX2">
+    <br>
+    offsetLineY <input type="number" [(ngModel)]="offsetLineY">
+    <br>
+    offsetConnLeft1 <input type="number" [(ngModel)]="offsetConnLeft1">
+    <br>
+    offsetConnLeft2 <input type="number" [(ngModel)]="offsetConnLeft2">
+    <br>
+    offsetConnTop <input type="number" [(ngModel)]="offsetConnTop">
+    <br><br><br>
+  </div>
+  -->
 
   <!-- SVGS:
   https://stackoverflow.com/questions/19382872/how-to-connect-html-divs-with-lines
   -->
 
+</div>
+<span *ngIf="errorMsg" class="text-danger">{{errorMsg}}</span>
+
+
+<!--
+  MODAL
+-->
+<div bsModal #myModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Create foreign key</h4>
+        <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12">
+            {{sourceTable}}.{{sourceCol}}<br>
+            REFERENCES<br>
+            {{targetTable}}.{{targetCol}}<br>
+          </div>
+          <div class="col-lg-12 form-inline">
+            <div class="form-group">
+              constraint name:&nbsp;<input type="text" [(ngModel)]="constraintName" class="form-control form-control-sm">
+            </div>
+          </div>
+          <form [formGroup]="fkForm">
+            <div class="col-lg-12">
+              <span>on update</span>
+              <div class="btn-group" btnRadioGroup formControlName="update">
+                <label *ngFor="let action of onUpdate" [btnRadio]="action" class="btn btn-light"
+                       role="btn">{{action}}</label>
+              </div>
+            </div>
+            <div class="col-lg-12">
+              <span>on update&nbsp;</span>
+              <div class="btn-group" btnRadioGroup formControlName="delete">
+                <label *ngFor="let action of onDelete" [btnRadio]="action" class="btn btn-light"
+                       role="btn">{{action}}</label>
+              </div>
+            </div>
+          </form>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary float-left" (click)="closeModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="createForeignKey()">Create foreign key</button>
+      </div>
+    </div>
+  </div>
 </div>

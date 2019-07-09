@@ -3,7 +3,17 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {Index} from '../components/data-table/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {UIRequest, SchemaRequest, EditTableRequest, ConstraintRequest, ColumnRequest, QueryRequest, DeleteRequest, UpdateRequest} from '../models/ui-request.model';
+import {
+  UIRequest,
+  SchemaRequest,
+  EditTableRequest,
+  ConstraintRequest,
+  ColumnRequest,
+  QueryRequest,
+  DeleteRequest,
+  UpdateRequest
+} from '../models/ui-request.model';
+import {ForeignKey} from '../views/uml/uml.model';
 
 @Injectable({
   providedIn: 'root'
@@ -148,6 +158,15 @@ export class CrudService {
   }
 
   /**
+   * Get information for the Uml view, such as
+   * the list of all tables of a schema with their columns
+   * and a list of all the foreign keys of a schema
+   */
+  getUml ( request: EditTableRequest ) {
+    return this._http.post(`${this.httpUrl}/getUml`, request, this.httpOptions);
+  }
+
+  /**
    * Initialize the websocket for the queryAnalyzer
    */
   private initWebSocket() {
@@ -175,6 +194,13 @@ export class CrudService {
    */
   closeAnalyzer (id: string ) {
     return this._http.post(`${this.httpUrl}/closeAnalyzer`, id, this.httpOptions);
+  }
+
+  /**
+   * Add a foreign key (in the Uml view)
+   */
+  addForeignKey ( fk: ForeignKey ) {
+    return this._http.post(`${this.httpUrl}/addForeignKey`, fk, this.httpOptions);
   }
 
 }

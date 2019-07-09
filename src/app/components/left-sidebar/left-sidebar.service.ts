@@ -108,9 +108,16 @@ export class LeftSidebarService {
         this.error.next(null);
         const schema = <SidebarNode[]> res;
         this.setNodes( schema );
-        if( !schemaRequest.views ){
+        //Schema editing view
+        if( !schemaRequest.views && schemaRequest.depth === 2 ){
           schema.forEach( (val, key) => {
             val.children[0].routerLink = schemaRequest.routerLinkRoot + val.id;
+          });
+        }
+        //Uml view
+        else if( schemaRequest.depth === 1 ){
+          schema.forEach( (val, key) => {
+            val.routerLink = schemaRequest.routerLinkRoot + val.id;
           });
         }
       }, err => {

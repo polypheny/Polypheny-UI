@@ -24,6 +24,13 @@ const routes: Routes = [
     }
   },
   {
+    path: 'uml',
+    component: UmlComponent,
+    data: {
+      title: 'UML'
+    }
+  },
+  {
     path: 'uml/:id',
     component: UmlComponent,
     data: {

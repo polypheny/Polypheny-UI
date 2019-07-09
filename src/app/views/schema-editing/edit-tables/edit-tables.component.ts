@@ -92,7 +92,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           let toastAction = 'Truncated';
           if( request.getAction() === 'drop'){
             toastAction = 'Dropped';
-            this._leftSidebar.setSchema( new SchemaRequest('/views/schema-editing/', false) );
+            this._leftSidebar.setSchema( new SchemaRequest('/views/schema-editing/', false, 2) );
           }
           this._toast.toast('success', toastAction + ' table '+request.table, 10, 'bg-success');
           this.getTables();
@@ -111,7 +111,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }
     //clear maxlength for types where it is not applicable
     this.newColumns.forEach((v, k) => {
-      if( v.type !== 'varchar' && v.maxLength !== null ) v.maxLength = null;
+      if( v.dataType !== 'varchar' && v.maxLength !== null ) v.maxLength = null;
     });
     const request = new EditTableRequest( this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()) );
     this._crud.createTable( request ).subscribe(
@@ -125,7 +125,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this.counter = 0;
           this.newColumns.set( ++this.counter, new DbColumn('', false, false, this.types[0], null));
           this.newTableName = '';
-          this._leftSidebar.setSchema( new SchemaRequest('/views/schema-editing/', false) );
+          this._leftSidebar.setSchema( new SchemaRequest('/views/schema-editing/', false, 2) );
         }
         this.getTables();
       }, err => {
@@ -145,7 +145,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
   triggerDefaultNull ( col: DbColumn ) {
     if( col.defaultValue === null ){
-      switch( col.type ){
+      switch( col.dataType ){
         case 'int4':
         case 'int8':
           col.defaultValue = 0;

@@ -5,7 +5,7 @@ import { ViewsRoutingModule } from './views-routing.module';
 import {TableViewComponent} from './table-view/table-view.component';
 import {SqlConsoleComponent} from './sql-console/sql-console.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {BsDropdownModule, ButtonsModule, CollapseModule, TooltipModule, TypeaheadModule} from 'ngx-bootstrap';
+import {BsDropdownModule, ButtonsModule, CollapseModule, ModalModule, TooltipModule, TypeaheadModule} from 'ngx-bootstrap';
 import {ComponentsModule} from '../components/components.module';
 import {EditColumnsComponent} from './schema-editing/edit-columns/edit-columns.component';
 import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
@@ -16,6 +16,7 @@ import {FormGeneratorComponent} from './forms/form-generator/form-generator.comp
 import { SchemaEditingComponent } from './schema-editing/schema-editing.component';
 import { EditTablesComponent } from './schema-editing/edit-tables/edit-tables.component';
 import { MonitoringComponent } from './monitoring/monitoring.component';
+import {DragDropModule} from '@angular/cdk/drag-drop';
 
 @NgModule({
   imports: [
@@ -34,7 +35,9 @@ import { MonitoringComponent } from './monitoring/monitoring.component';
     AppSidebarModule,
     AppFooterModule,
     TreeModule.forRoot(),
-    BsDropdownModule
+    BsDropdownModule,
+    DragDropModule,
+    ModalModule.forRoot()
   ],
   declarations: [
     EditColumnsComponent,

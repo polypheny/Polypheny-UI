@@ -7,7 +7,6 @@ export class UIRequest {
   data: Map<string, string>;
   filter: Map<string, string>;
   sortState: Map<string, SortState>;
-  views: boolean;
 }
 
 export class TableRequest extends UIRequest {
@@ -57,11 +56,18 @@ export class UpdateRequest extends UIRequest {
 export class SchemaRequest extends UIRequest {
   routerLinkRoot: string;
   views: boolean;
+  /**
+   * depth 1: schemas
+   * depth 2: schemas + tables
+   * depth 3: schemas + tables + columns
+   */
+  depth: number;
 
-  constructor( routerLinkRoot: string, views: boolean ) {
+  constructor( routerLinkRoot: string, views: boolean, depth: number ) {
     super();
     this.routerLinkRoot = routerLinkRoot;
     this.views = views;
+    this.depth = depth;
   }
 }
 

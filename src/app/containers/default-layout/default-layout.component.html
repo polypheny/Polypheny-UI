@@ -21,7 +21,7 @@
       <a class="nav-link" href="https://valor-software.com/ngx-bootstrap/#/documentation" target="_blank">Ang Btrap</a>
     </li>-->
     <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/views/monitoring']" routerLinkActive="active">
-      <i class="cui-graph"></i><span class="d-md-down-none"> Monitoring</span>
+      <i class="fa fa-area-chart"></i><span class="d-md-down-none"> Monitoring</span>
     </a></li>
     <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/views/config']" routerLinkActive="active"><!--tooltip="Dynamic Form" placement="bottom"-->
       <i class="icon-settings"></i><span class="d-md-down-none"> Config</span>
@@ -34,6 +34,12 @@
     </li>
 
     <li class="nav-item px-3">
+      <a [routerLink]="['/views/uml']" class="nav-link" routerLinkActive="active">
+        <i class="cui-graph"></i><span class="d-md-down-none"> Uml</span>
+      </a>
+    </li>
+
+    <li class="nav-item px-3">
       <a [routerLink]="['/views/data-table']" class="nav-link" routerLinkActive="active">
         <i class="fa fa-table"></i><span class="d-md-down-none"> Data</span>
       </a>
@@ -41,29 +47,14 @@
 
     <li class="nav-item px-3">
       <a [routerLink]="['/views/sql-console']" class="nav-link" routerLinkActive="active">
-        <i class="icon-note"></i><span class="d-md-down-none"> Query</span>
+        <i class="fa fa-keyboard-o"></i><span class="d-md-down-none"> Query</span>
       </a>
     </li>
 
-    <li style="margin-left: 2rem;">
-      <div class="btn-group" dropdown>
-        <button id="button-basic" dropdownToggle type="button" class="btn dropdown-toggle"
-                aria-controls="dropdown-basic">
-          Test <span class="caret"></span>
-        </button>
-        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
-            role="menu" aria-labelledby="button-basic">
-          <li role="menuitem">
-            <a class="dropdown-item" [routerLink]="['/views/uml/1']">UML</a>
-          </li>
-          <li role="menuitem">
-            <a class="dropdown-item" [routerLink]="['/views/graphical-querying/1']">graphical querying</a>
-          </li>
-          <!--<li class="divider dropdown-divider"></li>
-          <li role="menuitem"><a class="dropdown-item" href="#">Separated link</a>
-          </li>-->
-        </ul>
-      </div>
+    <li class="nav-item px-3">
+      <a [routerLink]="['/views/graphical-querying/1']" class="nav-link" routerLinkActive="active">
+        <i class="icon-pencil"></i><span class="d-md-down-none"> Graphical Querying</span>
+      </a>
     </li>
 
   </ul>
