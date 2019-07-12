@@ -2,24 +2,36 @@
 <div class="row">
   <div class="col-lg-12">
     <h5 *ngIf="schema">{{schema}}</h5>
-    <p *ngIf="uml">Drag a connection from a column to a primary key to create a new foreign key.</p>
+    <p *ngIf="uml">Drag a connection from a column to a <span class="text-primary" style="text-decoration: underline">primary key</span> or <span class="text-warning" style="font-style: italic">unique column</span> to create a new foreign key.</p>
     <span *ngIf="!schema">Please select a schema in the left sidebar.</span>
   </div>
   <div id="drag-container" class="col-lg-12" *ngIf="uml">
     <div class="card uml" *ngFor="let table of uml.tables" [id]="table.schema+'_'+table.tableName" [attr.tableName]="table.schema+'.'+table.tableName" cdkDragBoundary="#drag-container" cdkDrag (cdkDragEnded)="updateZIndex($event)" (cdkDragStarted)="onDragging($event)">
       <div class="card-header tableName" cdkDragHandle>{{table.tableName}}</div>
       <div class="list-group list-group-flush">
-        <div class="list-group-item cols" *ngFor="let col of table.columns" [id]="table.schema+'_'+table.tableName+'_'+col.name" [attr.colName]="col.name">{{col.name}}</div>
-        <div class="list-group-item pk bg-info" *ngIf="table.primaryKeyFields.length > 0" [attr.colName]="table.primaryKeyFields"><i class="icon-key font-weight-bold"></i> {{table.primaryKeyFields}}</div>
+        <div class="list-group-item cols"
+             *ngFor="let col of table.columns" [id]="table.schema+'_'+table.tableName+'_'+col.name" [attr.colName]="col.name"
+             [ngClass]="getColumnClass( table, col )"
+        >{{col.name}}</div>
       </div>
     </div>
+
+    <!-- SVGS: see https://stackoverflow.com/questions/19382872/how-to-connect-html-divs-with-lines -->
+    <!-- arrowhead: see http://svg.tutorial.aptico.de/start3.php?knr=10&kname=Pfade&uknr=10.9&ukname=Pfeilspitzen%20-%20das%20marker-Element -->
     <svg width="100%" height="100%">
-      <line *ngIf="temporalLine" [attr.x1]="temporalLine.x1" [attr.y1]="temporalLine.y1" [attr.x2]="temporalLine.x2" [attr.y2]="temporalLine.y2"></line>
-      <!--<line *ngFor="let conn of connections | keyvalue" [attr.x1]="getX1(conn.value.source,conn.value.target)" [attr.y1]="getY(conn.value.source)" [attr.x2]="getX2(conn.value.source, conn.value.target)" [attr.y2]="getY(conn.value.target)"></line>-->
-      <line *ngFor="let conn of connections" [attr.x1]="getX1(conn.source,conn.target)" [attr.y1]="getY(conn.source)" [attr.x2]="getX2(conn.source, conn.target)" [attr.y2]="getY(conn.target)"></line>
+      <marker id="arrowhead"
+              viewBox="0 0 10 10" refX="0" refY="5"
+              markerUnits="strokeWidth"
+              markerWidth="5" markerHeight="5"
+              orient="auto">
+        <path d="M 0,0 l 10,5 l -10,5 z" />
+      </marker>
+      <line *ngIf="temporalLine" [attr.x1]="temporalLine.x1" [attr.y1]="temporalLine.y1" [attr.x2]="temporalLine.x2" [attr.y2]="temporalLine.y2" marker-end="url(#arrowhead)"></line>
+      <line *ngFor="let conn of connections" [attr.x1]="getX1(conn.source,conn.target)" [attr.y1]="getY(conn.source)" [attr.x2]="getX2(conn.source, conn.target)" [attr.y2]="getY(conn.target)" marker-end="url(#arrowhead)"></line>
     </svg>
   </div>
 
+  <!-- uncomment if you need to adjust offsets, to see immediate results in the ui -->
   <!--
   <div class="col-lg-12">
     <br>
@@ -36,10 +48,6 @@
     offsetConnTop <input type="number" [(ngModel)]="offsetConnTop">
     <br><br><br>
   </div>
-  -->
-
-  <!-- SVGS:
-  https://stackoverflow.com/questions/19382872/how-to-connect-html-divs-with-lines
   -->
 
 </div>

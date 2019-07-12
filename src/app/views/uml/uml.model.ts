@@ -12,6 +12,7 @@ export class DbTable {
   schema: string;
   columns: DbColumn[];
   primaryKeyFields: string[];
+  uniqueColumns: string[];
 }
 
 export class ForeignKey{

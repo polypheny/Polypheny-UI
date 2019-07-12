@@ -21,6 +21,12 @@
 .cols{
   cursor: pointer;
 }
+.cols.pk{
+  text-decoration: underline;
+}
+.cols.unique{
+  font-style: italic;
+}
 
 #drag-container{
   margin-bottom: 1em;

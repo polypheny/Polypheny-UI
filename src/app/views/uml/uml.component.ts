@@ -5,12 +5,12 @@ import 'jquery-ui/ui/widgets/draggable';
 import {ActivatedRoute} from '@angular/router';
 import {CrudService} from '../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../models/ui-request.model';
-import {ForeignKey, SvgLine, Uml} from './uml.model';
+import {DbTable, ForeignKey, SvgLine, Uml} from './uml.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {ModalDirective} from 'ngx-bootstrap';
 import {FormBuilder} from '@angular/forms';
 import {ToastService} from '../../components/toast/toast.service';
-import {ResultSet} from '../../components/data-table/models/result-set.model';
+import {DbColumn, ResultSet} from '../../components/data-table/models/result-set.model';
 
 @Component({
   selector: 'app-uml',
@@ -40,10 +40,10 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   //offsets
   offsetLineX1 = 15;
-  offsetLineX2 = 215;
-  offsetLineY = 145;
-  offsetConnLeft1 = 16;
-  offsetConnLeft2 = 2;
+  offsetLineX2 = 220;
+  offsetLineY = 150;
+  offsetConnLeft1 = 21;
+  offsetConnLeft2 = -5;
   offsetConnTop = 20;
 
 
@@ -71,10 +71,10 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     $(document).off();//remove event listener from connectTables() when leaving this view
+    this._leftSidebar.close();
   }
 
   getUml () {
-    //todo get schema-name from router
     if(!this.schema) return;
     this._crud.getUml( new EditTableRequest( this.schema ) ).subscribe(
       res => {
@@ -86,6 +86,16 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         this.errorMsg = 'Could not connect with the server.';
       }
     );
+  }
+
+  getColumnClass( table: DbTable, col: DbColumn ){
+    if( table.primaryKeyFields.indexOf(col.name) > -1 ){
+      return 'bg-primary pk';
+    } else if ( table.uniqueColumns.indexOf(col.name) > -1 ){
+      return 'bg-warning unique';
+    } else {
+      return '';
+    }
   }
 
   mapConnections() {
@@ -131,7 +141,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }).on('mouseup', function (e) {
       if(!isDragging) return;
-      if ($(e.target).hasClass('pk') && $(e.target).parents('.uml').attr('tableName') !== self.sourceTable) {
+      if ( ( $(e.target).hasClass('pk') || $(e.target).hasClass('unique') ) && $(e.target).parents('.uml').attr('tableName') !== self.sourceTable) {
         self.myModal.show();
         self.targetTable = $(e.target).parents('.uml').attr('tableName');
         self.targetCol = $(e.target).attr('colName');
@@ -150,9 +160,9 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     if(sourceEle === undefined || targetEle === undefined) return;
     // if($(sourceEle).offset() === undefined || $(targetEle).offset() === undefined ) return;
     if($(sourceEle).offset().left < $(targetEle).offset().left){
-      return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + $(sourceEle).width() + this.offsetConnLeft1;
+      return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + $(sourceEle).width() + this.offsetConnLeft1 -5;//-5 because no arrowhead
     }else{
-      return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + this.offsetConnLeft2;
+      return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + this.offsetConnLeft2 +5;//+5 because no arrowhead
     }
   }
   /** get x position of div of target column
