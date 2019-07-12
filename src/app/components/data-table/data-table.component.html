@@ -31,7 +31,7 @@
           <td class="selector" *ngIf="config.update || config.delete"><input type="checkbox" checked="true"></td>
           <td *ngFor="let d2 of d1; let i = index">
             <!--<input type="text" class="form-control form-control-sm editing" [value]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name">-->
-            <app-input class="editing" [header]="resultSet.header[i]" [value]="updateValues.get(resultSet.header[i].name)" (valueChange)="newUpdateValue(resultSet.header[i].name, $event)" [attr.data-new]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name"></app-input>
+            <app-input class="editing" [header]="resultSet.header[i]" [value]="updateValues.get(resultSet.header[i].name)" (valueChange)="newUpdateValue(resultSet.header[i].name, $event)" (enter)="updateRow()" [attr.data-new]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name"></app-input>
           </td>
           <td *ngIf="config.update || config.delete">
             <button class="btn btn-primary" id="editColSave" (click)="updateRow()"><i class="fa fa-save"></i></button>
@@ -52,7 +52,7 @@
         <td></td>
         <td *ngFor="let h of resultSet.header">
           <!--<input type="text" class="form-control form-control-sm insert-input" placeholder="insert (todo:type)" [name]="h.name" [ngModel]="insertValues.get(h.name)" (ngModelChange)="insertValues.set(h.name, $event)">-->
-          <app-input [header]="h" [value]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"></app-input>
+          <app-input [header]="h" [value]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)" (enter)="insertRow()"></app-input>
         </td>
         <td *ngIf="config.update || config.delete"><button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()">+</button></td>
       </tr>

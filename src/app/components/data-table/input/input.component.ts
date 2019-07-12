@@ -11,6 +11,7 @@ export class InputComponent implements OnInit {
   @Input() header: DbColumn;
   @Input() value;
   @Output() valueChange = new EventEmitter();
+  @Output() enter = new EventEmitter();
 
   constructor() { }
 
@@ -31,8 +32,11 @@ export class InputComponent implements OnInit {
     }
   }
 
-  onValueChange(newVal ){
+  onValueChange( newVal, event = null ){
     this.valueChange.emit( newVal );
+    if ( event !== null && event.keyCode === 13 ){
+      this.enter.emit( true );
+    }
   }
 
 }

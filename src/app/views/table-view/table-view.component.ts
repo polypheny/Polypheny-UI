@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {TableConfig} from '../../components/data-table/table-config';
 import {CrudService} from '../../services/crud.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
@@ -27,8 +27,10 @@ export class TableViewComponent implements OnInit, OnDestroy {
 
   constructor(
       private _route: ActivatedRoute,
+      private _router: Router,
       private _crud:CrudService,
-      private _sidebar: LeftSidebarService) { }
+      private _sidebar: LeftSidebarService,
+  ) { }
 
   ngOnInit() {
 
@@ -67,6 +69,10 @@ export class TableViewComponent implements OnInit, OnDestroy {
       this._crud.getTable( req ).subscribe(
         res => {
           this.resultSet = <ResultSet> res;
+          //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
+          if( + this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage ){
+            this._router.navigate([ '/views/data-table/'+ this.tableId +'/'+this.resultSet.highestPage ]);
+          }
           if( this.resultSet.type === 'TABLE') {
             this.tableConfig.create = true;
             this.tableConfig.update = true;

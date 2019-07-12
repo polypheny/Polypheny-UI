@@ -7,6 +7,7 @@ import {ResultSet} from './models/result-set.model';
 import {SortDirection, SortState} from './models/sort-state.model';
 import {ToastService} from '../toast/toast.service';
 import {CrudService} from '../../services/crud.service';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-data-table',
@@ -20,6 +21,7 @@ export class DataTableComponent implements OnInit, OnChanges {
 
   pagination: PaginationElement[] = [];
   insertValues = new Map<string, any>();
+  insertDirty = new Map<string, boolean>();//check if field has been edited (if yes, it is "dirty")
   updateValues = new Map<string, any>();
   sortStates = new Map<string, SortState>();
   filter = new Map<string, string>();
@@ -28,7 +30,9 @@ export class DataTableComponent implements OnInit, OnChanges {
 
   constructor(
     private _crud: CrudService,
-    private _toast: ToastService
+    private _toast: ToastService,
+    private _route: ActivatedRoute,
+    private _router: Router
   ) {}
 
 
@@ -136,8 +140,18 @@ export class DataTableComponent implements OnInit, OnChanges {
 
   buildInsertObject () {
     this.insertValues.clear();
+    this.insertDirty.clear();
     if(this.resultSet.header){
       this.resultSet.header.forEach( (g, idx) => {
+        //set insertDirty
+        if( ! g.nullable && g.dataType !== 'serial' ){
+          //set dirty if not nullable, so it will be submitted, except if it has autoincrement (dataType 'serial')
+          this.insertDirty.set( g.name, true );
+        }
+        else{
+          this.insertDirty.set( g.name, false );
+        }
+        //set insertValues
         if( g.nullable ) { this.insertValues.set(g.name, null); }
         else{
           switch (g.dataType) {
@@ -158,10 +172,17 @@ export class DataTableComponent implements OnInit, OnChanges {
 
   inputChange( name:string, e ){
     this.insertValues.set(name, e);
+    this.insertDirty.set(name, true);
   }
 
   insertRow () {
-    const data = this.mapToObject( this.insertValues );
+    const data = {};
+    this.insertValues.forEach( (v, k) => {
+      //only values with dirty state will be submitted. Columns that are not nullable are already set dirty
+      if ( this.insertDirty.get(k) === true ) {
+        data[k] = v;
+      }
+    });
     const out = { tableId: this.resultSet.table, data: data};
     this._crud.insertRow( JSON.stringify(out) ).subscribe(
         res => {
@@ -171,7 +192,7 @@ export class DataTableComponent implements OnInit, OnChanges {
             this.insertValues.clear();
             this.buildInsertObject();
             this.getTable();
-            this._toast.toast( 'success', 'Saved data', 5, 'bg-success' );
+            this._toast.toast( 'success', 'Saved data', 1, 'bg-success' );
           } else if ( result.error ) {
             this._toast.toast( 'insert error', 'Could not insert the data: ' + result.error, 10, 'bg-warning' );
           }
@@ -203,7 +224,7 @@ export class DataTableComponent implements OnInit, OnChanges {
           this.getTable();
           let rows = ' rows';
           if(result.info.affectedRows === 1) rows = ' row';
-          this._toast.toast( 'update', 'Updated ' + result.info.affectedRows + rows, 10, 'bg-success' );
+          this._toast.toast( 'update', 'Updated ' + result.info.affectedRows + rows, 1, 'bg-success' );
         } else if ( result.error ){
           this._toast.toast( 'error', 'Could not update this row: '+result.error, 10, 'bg-warning' );
         }
@@ -227,6 +248,10 @@ export class DataTableComponent implements OnInit, OnChanges {
           const result = <ResultSet> res;
           this.resultSet.data = result.data;
           this.resultSet.highestPage = result.highestPage;
+          //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
+          if( + this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage ){
+            this._router.navigate([ '/views/data-table/'+ this.tableId +'/'+this.resultSet.highestPage ]);
+          }
           this.setPagination();
           this.editing = -1;
           if( result.type === 'TABLE') {
