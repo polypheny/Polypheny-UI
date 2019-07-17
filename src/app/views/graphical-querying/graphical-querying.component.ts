@@ -62,7 +62,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     const self = this;
 
     $('#selectBox').sortable({
-      // todo triggers only after clicking out of the div
       stop: function (e, ui) {
         self.generateSQL();
       }
@@ -90,10 +89,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   generateSQL() {
+    if( this.columns.size === 0 ) return;
+
     let sql = 'SELECT ';
     const cols = [];
-    this.columns.forEach((v, k) => {
-      cols.push( v.id );
+    $('#selectBox').find('.dbCol').each( (i, el) => {
+      cols.push( $(el).attr('data-id') );
     });
     sql += cols.join(', ');
     sql += '\nFROM ';

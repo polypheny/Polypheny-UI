@@ -129,10 +129,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
       self.sourceTable = $(e.target).parents('.uml').attr('tableName');
       self.sourceCol = $(e.target).attr('colName');
       self.temporalLine = {x1: e.pageX - offsetX, y1: e.pageY - self.offsetLineY, x2: e.pageX - offsetX, y2: e.pageY - self.offsetLineY};
-
       e.preventDefault();
-      // todo control z-index when released
-
     }).on('mousemove', function (e) {
       if (isDragging) {
         self.temporalLine.x2 = e.pageX - offsetX;

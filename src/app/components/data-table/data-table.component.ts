@@ -271,7 +271,6 @@ export class DataTableComponent implements OnInit, OnChanges {
   }
 
   filterTable (e) {
-    //todo use websocket
     this.resultSet.currentPage = 1;
     if( e.keyCode === 27){ //esc
       $('.table-filter').val('');
@@ -331,7 +330,6 @@ export class DataTableComponent implements OnInit, OnChanges {
           const result = <ResultSet> res;
           if( result.info.affectedRows ) {
             this.getTable();
-            //todo if page is empty, go to highestPage
           }else {
             const result2 = <ResultSet> res;
             this._toast.toast( 'error', 'Could not delete this row: ' + result2.error, 10, 'bg-warning' );

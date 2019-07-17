@@ -51,7 +51,6 @@
       <tr *ngIf="config.create" id="insertRow">
         <td></td>
         <td *ngFor="let h of resultSet.header">
-          <!--<input type="text" class="form-control form-control-sm insert-input" placeholder="insert (todo:type)" [name]="h.name" [ngModel]="insertValues.get(h.name)" (ngModelChange)="insertValues.set(h.name, $event)">-->
           <app-input [header]="h" [value]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)" (enter)="insertRow()"></app-input>
         </td>
         <td *ngIf="config.update || config.delete"><button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()">+</button></td>
