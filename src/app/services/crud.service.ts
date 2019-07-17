@@ -203,4 +203,11 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/addForeignKey`, fk, this.httpOptions);
   }
 
+  /**
+   * Execute a relational algebra
+   */
+  executeRelAlg ( relAlg: any ) {
+    return this._http.post(`${this.httpUrl}/executeRelAlg`, relAlg, this.httpOptions);
+  }
+
 }

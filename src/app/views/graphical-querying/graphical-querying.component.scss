@@ -3,21 +3,24 @@
 }
 .dbCol, .dbTable{
   margin-right: 10px;
+  margin-bottom: 10px;
+}
+.dbTable{
+  font-size: 1em;font-weight:normal;
 }
 #tablesList li{
   cursor: grab;
 }
-
-/*.sortablePlaceholder{
-  background: black;
-  width: 50px;
-  height: 20px;
-  padding: 1em;
-}*/
-
-/*.helper{
-  background-color: black;
-  padding: 0.2em;
-  max-width: 10px;
-  overflow: hidden;
-}*/
+.del{
+  cursor: pointer;
+}
+#joinConditionBox {
+  min-height: 4em;
+}
+#sqlInput {
+  min-height: 2.5em;
+}
+#selectBox {
+  padding: 10px;
+  padding-bottom: 0;
+}

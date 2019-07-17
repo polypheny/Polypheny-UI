@@ -1,7 +1,5 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
-import 'jquery-ui/ui/widget';
-import 'jquery-ui/ui/widgets/draggable';
 import {KEYS, TREE_ACTIONS, TreeComponent, TreeModel, TreeNode } from 'angular-tree-component';
 import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
@@ -58,7 +56,7 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
           }
         },
       },
-      allowDrag: true,
+      allowDrag: (node) => node.data.cssClass === 'sidebarColumn',
       allowDrop: false
     };
 
@@ -95,6 +93,14 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
       });
     });
 
+  }
+
+  expandAll(){
+    this.treeComponent.treeModel.expandAll();
+  }
+
+  collapseAll(){
+    this.treeComponent.treeModel.collapseAll();
   }
 
 }

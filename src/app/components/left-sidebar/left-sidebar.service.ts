@@ -96,6 +96,7 @@ export class LeftSidebarService {
 
   close() {
     this.nodes.next( [] );
+    this.clearAction();
     $('body').removeClass('sidebar-lg-show');
   }
 

@@ -1,8 +1,9 @@
 export class SidebarNode{
-  id:any;
+  id:any;// of the form "schema.table.column"
   name:string;
   icon:string;
   routerLink:string;
+  cssClass: string;
   children: SidebarNode[];
   constructor ( id, name, icon, routerLink ){
     this.id = id;
@@ -13,6 +14,18 @@ export class SidebarNode{
   setChildren ( children: SidebarNode[] ) {
     this.children = children;
   }
+
+  getSchema(){
+    return this.id.split('.')[0];
+  }
+  getTable(){
+    return this.id.split('.')[0] + '.' + this.id.split('.')[1];
+  }
+  getColumn(){
+    return this.id.split('.')[2];
+  }
+
+
 }
 
 export interface JavaPage {

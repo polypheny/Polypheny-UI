@@ -1,0 +1,20 @@
+<ul>
+  <li>
+    <div class="card plan-node">
+      <div class="card-body">
+        <button class="btn btn-light btn-circle close-rel-alg" (click)="close()" *ngIf="relationalAlgebra.parent"><i class="fa fa-close"></i></button>
+        <select [(ngModel)]="relationalAlgebra.relOp" class="form-control form-control-sm">
+          <option *ngFor="let op of getOperators() | keyvalue" [value]="op.key" [selected]="relationalAlgebra.relOp == op.key">{{op.value}}</option>
+        </select>
+        <button class="btn btn-light add-child" (click)="addChild()"><i class="fa fa-plus"></i></button>
+      </div>
+    </div>
+    <ng-container *ngIf=" relationalAlgebra.children && relationalAlgebra.children.size > 0">
+      <ul>
+        <li *ngFor="let relAlg of relationalAlgebra.children | keyvalue">
+          <app-relational-algebra [relationalAlgebra]="relAlg.value"></app-relational-algebra>
+        </li>
+      </ul>
+    </ng-container>
+  </li>
+</ul>

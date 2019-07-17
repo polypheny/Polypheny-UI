@@ -80,7 +80,7 @@ const routes: Routes = [
     }
   },
   {
-    path: 'graphical-querying/:id',
+    path: 'graphical-querying',
     component: GraphicalQueryingComponent,
     data: {
       title: 'Graphical Querying'

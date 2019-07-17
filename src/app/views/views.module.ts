@@ -17,6 +17,7 @@ import { SchemaEditingComponent } from './schema-editing/schema-editing.componen
 import { EditTablesComponent } from './schema-editing/edit-tables/edit-tables.component';
 import { MonitoringComponent } from './monitoring/monitoring.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
+import { RelationalAlgebraComponent } from './graphical-querying/relational-algebra/relational-algebra.component';
 
 @NgModule({
   imports: [
@@ -34,7 +35,7 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
     AppAsideModule,
     AppSidebarModule,
     AppFooterModule,
-    TreeModule.forRoot(),
+    TreeModule,
     BsDropdownModule,
     DragDropModule,
     ModalModule.forRoot()
@@ -48,7 +49,8 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
     UmlComponent,
     SchemaEditingComponent,
     EditTablesComponent,
-    MonitoringComponent
+    MonitoringComponent,
+    RelationalAlgebraComponent
   ],
   exports: []
 })

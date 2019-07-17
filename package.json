@@ -27,7 +27,7 @@
     "@coreui/coreui-plugin-chartjs-custom-tooltips": "^1.2.0",
     "@coreui/icons": "0.3.0",
     "ace-builds": "^1.4.4",
-    "angular-tree-component": "^8.3.0",
+    "angular-tree-component": "^8.4.0",
     "bootstrap": "^4.3.1",
     "chart.js": "^2.7.3",
     "core-js": "^2.6.5",

@@ -77,7 +77,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(){
-    this._leftSidebar.clearAction();
+    this._leftSidebar.close();
     this._crud.closeAnalyzer( this.analyzerId ).subscribe();
   }
 

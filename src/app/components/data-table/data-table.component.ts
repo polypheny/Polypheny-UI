@@ -272,6 +272,7 @@ export class DataTableComponent implements OnInit, OnChanges {
 
   filterTable (e) {
     //todo use websocket
+    this.resultSet.currentPage = 1;
     if( e.keyCode === 27){ //esc
       $('.table-filter').val('');
       this.filter.clear();

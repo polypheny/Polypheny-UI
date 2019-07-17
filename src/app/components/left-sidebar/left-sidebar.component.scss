@@ -2,6 +2,9 @@
   padding: 1em;
   position: fixed;
   width: 200px;
+  overflow: scroll;
+  height: 100%;
+  padding-bottom: 120px;
 }
 #tree-inner-wrapper{
   display: flex;
@@ -24,4 +27,21 @@
 .sidebarIcon{
   //redundant at the moment
   color: white;
+}
+.sidebarColumn {
+  cursor: move;
+}
+#search-tree {
+  margin-top: 1.5em;
+}
+#collapse, #expand {
+  position: absolute;
+  top: 0.5em;
+  text-decoration: none;
+}
+#collapse {
+  left: 1em;
+}
+#expand {
+  right: 1em;
 }

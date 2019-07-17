@@ -28,7 +28,7 @@ import { InputComponent } from './data-table/input/input.component';
     ChartsModule,
     TypeaheadModule.forRoot(),
     AppBreadcrumbModule.forRoot(),
-    TreeModule.forRoot(),
+    TreeModule,
     TabsModule.forRoot(),
     // forms
     FormsModule, ReactiveFormsModule,
