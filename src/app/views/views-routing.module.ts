@@ -25,10 +25,8 @@ const routes: Routes = [
   },
   {
     path: 'uml',
-    component: UmlComponent,
-    data: {
-      title: 'UML'
-    }
+    redirectTo: 'uml/',
+    pathMatch: 'full'
   },
   {
     path: 'uml/:id',
@@ -46,10 +44,8 @@ const routes: Routes = [
   },
   {
     path: 'data-table',
-    component: TableViewComponent,
-    data: {
-      title: 'Data Table'
-    }
+    redirectTo: 'data-table/',
+    pathMatch: 'full'
   },
   {
     path: 'data-table/:id',
@@ -67,10 +63,8 @@ const routes: Routes = [
   },
   {
     path: 'schema-editing',
-    component: SchemaEditingComponent,
-    data: {
-      title: 'Schema Editing'
-    }
+    redirectTo: 'schema-editing/',
+    pathMatch: 'full'
   },
   {
     path: 'schema-editing/:id',

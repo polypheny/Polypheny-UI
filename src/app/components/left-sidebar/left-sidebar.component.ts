@@ -14,13 +14,13 @@ import {LeftSidebarService} from './left-sidebar.service';
 export class LeftSidebarComponent implements OnInit , AfterViewInit {
 
   @ViewChild('tree') treeComponent: TreeComponent;
-  nodes;
+  nodes = [];
   options;
   error;
 
   constructor(
     _router:Router,
-    _sidebar: LeftSidebarService,
+    private _sidebar: LeftSidebarService,
   ) {
     //this.nodes = nodes;
     this.options = {
@@ -56,15 +56,9 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
           }
         },
       },
-      allowDrag: (node) => node.data.cssClass === 'sidebarColumn',
+      allowDrag: false,
       allowDrop: false
     };
-
-    _sidebar.getNodes().subscribe(
-      nodes => {
-        this.nodes = nodes;
-      }
-    );
 
     _sidebar.getError().subscribe(
       error => {
@@ -78,9 +72,6 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
 
   ngAfterViewInit(): void {
     const treeModel: TreeModel = this.treeComponent.treeModel;
-    // treeModel.setState({id: 1, name: 'test'});// not working yet
-    //todo is not working:
-    this.treeComponent.treeModel.expandAll();//expand by default
 
     // todo 2-way-binding https://angular2-tree.readme.io/docs/save-restore
 
@@ -93,7 +84,33 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
       });
     });
 
+    this._sidebar.getNodes().subscribe(
+      nodes => {
+        this.nodes = nodes;
+        if(nodes.length === 0){
+          this.treeComponent.treeModel.activeNodeIds = {};
+          // this.treeComponent.treeModel.setFocusedNode(null);
+          // this.treeComponent.treeModel.expandedNodeIds = {};
+        }
+      }
+    );
+
+    this._sidebar.getInactiveNode().subscribe(
+      inactiveNode => {
+        if (inactiveNode !== null) {
+          this.treeComponent.treeModel.getNodeById(inactiveNode).setIsActive(false, true);
+        }
+      }
+    );
+
+    this._sidebar.getResetSubject().subscribe(
+      sub => {
+        if ( sub === true ) this.reset();
+      }
+    );
+
   }
+
 
   expandAll(){
     this.treeComponent.treeModel.expandAll();
@@ -101,6 +118,16 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
 
   collapseAll(){
     this.treeComponent.treeModel.collapseAll();
+  }
+
+  /**
+   * Reset tree completely, set all active nodes to inactive, collapse all
+   */
+  reset(){
+    // from: https://angular2-tree.readme.io/discuss/583cc18bf0f9af0f007218ff
+    this.treeComponent.treeModel.setFocusedNode(null);
+    this.treeComponent.treeModel.expandedNodeIds = {};
+    this.treeComponent.treeModel.activeNodeIds = {};
   }
 
 }

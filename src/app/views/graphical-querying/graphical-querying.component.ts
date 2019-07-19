@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
@@ -21,6 +21,7 @@ import {ForeignKey, Uml} from '../uml/uml.model';
 })
 export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDestroy {
 
+  @ViewChild('editorGenerated') editorGenerated;
   generatedSQL;
   relAlg: RelationalAlgebra;
   resultSet: ResultSet;
@@ -43,7 +44,16 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.initRelAlg();
 
     this._leftSidebar.setSchema( new SchemaRequest( 'views/graphical-querying/', false, 3 ));
-    this._leftSidebar.setAction( (node) => false );
+    this._leftSidebar.setAction( (node) => {
+      if( ! node.isActive && node.isLeaf ){
+        this.addCol(node.data);
+        node.setIsActive(true, true);
+      }
+      else if (node.isActive && node.isLeaf ){
+        node.setIsActive( false, true );
+        this.removeCol( node.data.id );
+      }
+    });
 
     this.generateSQL();
 
@@ -56,6 +66,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   ngOnDestroy() {
     RelationalAlgebra.resetId();
     this._leftSidebar.close();
+    // this._leftSidebar.reset();
   }
 
   initGraphicalQuerying() {
@@ -64,32 +75,40 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     $('#selectBox').sortable({
       stop: function (e, ui) {
         self.generateSQL();
-      }
+      },
+      cursor: 'grabbing',
+      containment: 'parent',
+      tolerance: 'pointer'
     });
 
     $('#selectBox').on('click', 'div span.del', function() {
       const id = $(this).parent().attr('data-id');
-      const data = id.split('.');
-      const tableId = data[0] + '.' + data[1];
-      const tableCounter = self.tables.get( tableId );
-      if( tableCounter === 1 ){
-        self.tables.delete( tableId );
-      } else {
-        self.tables.set( tableId, tableCounter - 1 );
-      }
-      self.columns.delete( id );
-
-      self.generateJoinConditions(); // re-generate join conditions
-      $(this).parent().remove();
-    });
-
-    $('#sqlInput').keyup(function () {
-      self.generateSQL();
+      self.removeCol( id );
     });
   }
 
+  removeCol ( colId: string ) {
+    const data = colId.split('.');
+    const tableId = data[0] + '.' + data[1];
+    const tableCounter = this.tables.get( tableId );
+    if( tableCounter === 1 ){
+      this.tables.delete( tableId );
+    } else {
+      this.tables.set( tableId, tableCounter - 1 );
+    }
+    this.columns.delete( colId );
+
+    $(`#selectBox [data-id="${colId}"]`).remove();
+    this._leftSidebar.setInactive( colId );
+    this.generateJoinConditions(); // re-generate join conditions
+    this.generateSQL();
+  }
+
   generateSQL() {
-    if( this.columns.size === 0 ) return;
+    if( this.columns.size === 0 ){
+      this.editorGenerated.setCode( '' );
+      return;
+    }
 
     let sql = 'SELECT ';
     const cols = [];
@@ -117,12 +136,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       sql += '\nWHERE ' + joinConditions.join(' AND ');
     }
 
-    sql = sql + '\n' + $('#sqlInput').val();
     this.generatedSQL = sql;
+    this.editorGenerated.setCode( sql );
   }
 
   executeQuery () {
-    this._crud.anyQuery( new QueryRequest( this.generatedSQL, false ) ).subscribe(
+    this._crud.anyQuery( new QueryRequest( this.editorGenerated.getCode(), false ) ).subscribe(
       res => {
         const result = <ResultSet>res;
         this.resultSet = result[0];
@@ -132,9 +151,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     );
   }
 
-  onTreeDrop(event){
-    //const treeElement: SidebarNode = event.element.data;
-    const data = event.element.data;
+  addCol(data){
     const treeElement = new SidebarNode( data.id, data.name, null, null );
 
     if( this.columns.get( treeElement.id ) !== undefined ){
@@ -165,7 +182,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       this.generateJoinConditions();
     }
     $('#selectBox').append(`<div class="btn btn-secondary btn-sm dbCol" data-id="${treeElement.id}">${treeElement.getColumn()} <span class="del">&times;</span></div>`).sortable('refresh');
-    //$('#selectBox').append(`<div class="btn-group btn-group-sm dbCol"><button class="btn btn-primary" data-id="${treeElement.id}">${treeElement.name}</button><button class="btn btn-primary del">&times;</button></div>`).sortable('refresh');
     this.generateSQL();
   }
 

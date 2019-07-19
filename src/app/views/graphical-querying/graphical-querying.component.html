@@ -2,21 +2,19 @@
   <div class="col-lg-12 col-sm-12">
 
     <h5>Graphical Querying</h5>
-    <p>Drop columns from the left sidebar into the "select" box to get started. If needed, add additional code in the "SQL" box.</p>
+    <p>Select columns from the left sidebar to get started. If needed, you can edit the generated SQL code.</p>
 
     <div class="input-group mb-3">
       <div class="input-group-prepend">
         <span class="input-group-text">select</span>
       </div>
-      <!-- <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1"> -->
-      <div class="form-control fit" id="selectBox" (treeDrop)="onTreeDrop($event)" [treeAllowDrop]="true"></div>
+      <div class="form-control fit" id="selectBox"></div>
     </div>
 
     <div class="input-group mb-3">
       <div class="input-group-prepend">
         <span class="input-group-text">from</span>
       </div>
-      <!-- <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1"> -->
       <div class="form-control fit" id="fromBox">
         <span *ngFor="let t of tables | keyvalue" class="badge badge-secondary dbTable">{{t.key}}</span>
       </div>
@@ -33,15 +31,11 @@
       </div>
     </div>
 
-    <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text" id="basic-addon1">SQL</span>
-      </div>
-      <textarea class="form-control" rows="4" id="sqlInput"></textarea>
-      <!--<input type="text" id="additionalSQL" class="form-control" placeholder="additional SQL" aria-label="SQL" aria-describedby="basic-addon1">-->
+    <h5>Generated query</h5>
+    <p>Edit your code if needed. Your changes will be overwritten, as soon as you add or remove a column in the select box or change any join condition.</p>
+    <div id="aceWrapper">
+      <app-editor #editorGenerated [height]="'150px'"></app-editor>
     </div>
-
-    <pre id="generatedSQL" class="mb-3">{{generatedSQL}}</pre>
 
     <button class="btn btn-primary" (click)="executeQuery()">execute query</button>
   </div>

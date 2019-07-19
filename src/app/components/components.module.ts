@@ -18,6 +18,7 @@ import {DynamicFormsComponent} from './dynamic-forms/dynamic-forms.component';
 import {RenderItemComponent} from './information-manager/render-item/render-item.component';
 import {InformationManagerComponent} from './information-manager/information-manager.component';
 import { InputComponent } from './data-table/input/input.component';
+import { EditorComponent } from './editor/editor.component';
 //import 'hammerjs';
 
 @NgModule({
@@ -46,7 +47,8 @@ import { InputComponent } from './data-table/input/input.component';
     ToastComponent,
     InformationManagerComponent,
     RenderItemComponent,
-    InputComponent
+    InputComponent,
+    EditorComponent
   ],
   exports: [
     BreadcrumbComponent,
@@ -57,7 +59,8 @@ import { InputComponent } from './data-table/input/input.component';
     RightSidebarComponent,
     ToastComponent,
     InformationManagerComponent,
-    InputComponent
+    InputComponent,
+    EditorComponent
   ]
 })
 export class ComponentsModule { }

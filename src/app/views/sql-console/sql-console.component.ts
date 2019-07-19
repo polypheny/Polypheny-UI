@@ -1,25 +1,16 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import {TableConfig} from '../../components/data-table/table-config';
-import * as ace from 'ace-builds'; // ace module ..
-import 'ace-builds/src-noconflict/mode-sql';
-import 'ace-builds/src-noconflict/theme-tomorrow';
 import {CrudService} from '../../services/crud.service';
 import {ResultSet} from '../../components/data-table/models/result-set.model';
 import {SqlHistory} from './sql-history.model';
 import {KeyValue} from '@angular/common';
-import * as $ from 'jquery';
 import {QueryRequest} from '../../models/ui-request.model';
 import {SidebarNode} from '../../models/sidebar-node.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {InformationObject, InformationPage} from '../../models/information-page.model';
 import {TreeNode } from 'angular-tree-component';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
-
-const THEME = 'ace/theme/tomorrow';
-const LANG = 'ace/mode/sql';
-
-//ace editor: see: https://medium.com/@ofir3322/create-an-online-ide-with-angular-6-nodejs-part-1-163a939a7929
 
 @Component({
   selector: 'app-sql-console',
@@ -28,8 +19,7 @@ const LANG = 'ace/mode/sql';
 })
 export class SqlConsoleComponent implements OnInit, OnDestroy {
 
-  @ViewChild( 'editor' ) codeEditorElmRef: ElementRef;
-  private codeEditor: ace.Ace.Editor;
+  @ViewChild( 'editor' ) codeEditor;
 
   myForm: FormGroup;
   languages = ['SQL', 'PgSql', 'MS-SQL'];
@@ -66,7 +56,6 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.initEditor();
     this.initWebsocket();
     this.loadAnalyzerPages();
     this.myForm = this.formBuilder.group({
@@ -81,41 +70,9 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     this._crud.closeAnalyzer( this.analyzerId ).subscribe();
   }
 
-  //when leaving the page
-
-
-  initEditor () {
-    const element = this.codeEditorElmRef.nativeElement;
-    const editorOptions: Partial<ace.Ace.EditorOptions> = {
-      highlightActiveLine: true,
-      minLines: 15,
-      maxLines: Infinity
-    };
-
-    //from: https://github.com/angular-ui/ui-ace/issues/44
-    //setting paths for ace editor dependencies
-    const defaultPath = ace.config.get( 'basePath' );
-    // set your path here
-    const path = defaultPath.indexOf( '../node_modules/ace-builds/src-min-noconflict' ) === -1 ? './js/ace' : defaultPath;
-    ace.config.set( 'basePath', path );
-    ace.config.set( 'modePath', path );
-    ace.config.set( 'themePath', path );
-    ace.config.set( 'workerPath', path );
-
-    this.codeEditor = ace.edit( element, editorOptions );
-    this.codeEditor.setTheme( THEME );
-    this.codeEditor.getSession().setMode( LANG );
-    this.codeEditor.setShowFoldWidgets( true ); // for the scope fold feature
-  }
-
   submitQuery () {
-    //remove comments from query before sending it to the server
-    let query = '';
-    $('#sql-editor .ace_content').clone().find('.ace_comment').remove().end().find('.ace_line').each(function(){
-      query = query + $(this).text()+'\n';
-    });
 
-    this.addToHistory( this.codeEditor.getValue() );
+    this.addToHistory( this.codeEditor.getCode() );
     this._leftSidebar.setNodes([]);
     if( this.analyzeQuery ) this._leftSidebar.open();
     else this._leftSidebar.close();
@@ -128,7 +85,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     }
     this.queryAnalysis = null;
 
-    this._crud.anyQuery( new QueryRequest( query, this.analyzeQuery ) ).subscribe(
+    this._crud.anyQuery( new QueryRequest( this.codeEditor.getCodeWithoutComments(), this.analyzeQuery ) ).subscribe(
         res => {
           this.resultSets = <ResultSet[]> res;
         }, err => {
@@ -151,7 +108,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   }
 
   applyHistory ( query: string, run:boolean ) {
-    this.codeEditor.setValue( query );
+    this.codeEditor.setCode( query );
     if ( run ) {
       this.submitQuery();
     }

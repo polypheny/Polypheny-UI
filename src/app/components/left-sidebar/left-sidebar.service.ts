@@ -21,9 +21,12 @@ export class LeftSidebarService {
     private _crud: CrudService
   ) {}
 
-  nodes: BehaviorSubject<Object> = new BehaviorSubject<Object>([]);
+  nodes: BehaviorSubject<Object[]> = new BehaviorSubject<Object[]>([]);
   error: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   action: (node: TreeNode) => void = null;
+  //node that should be set inactive:
+  private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
+  private resetSubject = new BehaviorSubject<boolean>( false );
 
   private mapPages ( res:Object, mode:string ) {
     const pages = <JavaPage[]> res;
@@ -101,6 +104,17 @@ export class LeftSidebarService {
   }
 
   /**
+   * Reset tree completely, set all active nodes to inactive, collapse all
+   */
+  reset(){
+    this.resetSubject.next(true);
+  }
+
+  getResetSubject(){
+    return this.resetSubject;
+  }
+
+  /**
    * Retrieve a schemaTree using the _crud service and apply it to the left sidebar
    */
   setSchema ( schemaRequest: SchemaRequest ){
@@ -108,7 +122,6 @@ export class LeftSidebarService {
       res => {
         this.error.next(null);
         const schema = <SidebarNode[]> res;
-        this.setNodes( schema );
         //Schema editing view
         if( !schemaRequest.views && schemaRequest.depth === 2 ){
           schema.forEach( (val, key) => {
@@ -121,6 +134,7 @@ export class LeftSidebarService {
             val.routerLink = schemaRequest.routerLinkRoot + val.id;
           });
         }
+        this.setNodes( schema );
       }, err => {
         this.error.next('Could not load database schema.');
         //this._toast.toast( 'server error', 'Could not load database schema.', 0, 'bg-danger' );
@@ -147,6 +161,20 @@ export class LeftSidebarService {
 
   clearAction(){
     this.action = null;
+  }
+
+  /**
+   * sets a SidebarNode with id nodeId to inactive
+   */
+  setInactive( nodeId: string ) {
+    this.inactiveNode.next( nodeId );
+  }
+
+  /**
+   * Call this function to subscribe to the BehaviorSubject inactiveNode
+   */
+  getInactiveNode(){
+    return this.inactiveNode;
   }
 
 }
