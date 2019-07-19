@@ -11,7 +11,8 @@ import {
   ColumnRequest,
   QueryRequest,
   DeleteRequest,
-  UpdateRequest
+  UpdateRequest,
+  Schema
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 
@@ -208,6 +209,13 @@ export class CrudService {
    */
   executeRelAlg ( relAlg: any ) {
     return this._http.post(`${this.httpUrl}/executeRelAlg`, relAlg, this.httpOptions);
+  }
+
+  /**
+   * Send a request to either create or drop a schema
+   */
+  createOrDropSchema ( schema: Schema ) {
+    return this._http.post(`${this.httpUrl}/schemaRequest`, schema, this.httpOptions);
   }
 
 }

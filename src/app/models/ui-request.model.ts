@@ -109,3 +109,51 @@ export class EditTableRequest {
 export class ConstraintRequest {
   constructor ( private table: string, private constraint: TableConstraint ) {}
 }
+
+/**
+ * Send request to either create or drop a schema
+ */
+export class Schema {
+  private name: string;
+  private type: string;//todo enum
+
+  // fields for creation
+  create = false;
+  ifNotExists = true;
+  authorization: string = null;
+
+  //fields for deletion
+  drop = false;
+  ifExists = true;
+  cascade = false;
+
+  constructor( name: string, type: string ) {
+    this.name = name;
+    this.type = type;
+  }
+  setCreate( create: boolean ){
+    this.create = create;
+    return this;
+  }
+  setIfNotExists( ifNotExists: boolean ){
+    this.ifExists = ifNotExists;
+    return this;
+  }
+  setAuthorization( auth: string ){
+    this.authorization = auth;
+    return this;
+  }
+  setDrop( drop: boolean ){
+    this.drop = drop;
+    return this;
+  }
+  setIfExists( ifExists: boolean ){
+    this.ifExists = ifExists;
+    return this;
+  }
+  setCascade( cascade: boolean ){
+    this.cascade = cascade;
+    return this;
+  }
+
+}

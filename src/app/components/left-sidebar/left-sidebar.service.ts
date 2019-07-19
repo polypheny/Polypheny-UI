@@ -125,6 +125,7 @@ export class LeftSidebarService {
         //Schema editing view
         if( !schemaRequest.views && schemaRequest.depth === 2 ){
           schema.forEach( (val, key) => {
+            val.routerLink = schemaRequest.routerLinkRoot + '/';
             val.children[0].routerLink = schemaRequest.routerLinkRoot + val.id;
           });
         }
