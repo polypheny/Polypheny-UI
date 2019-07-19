@@ -4,8 +4,6 @@ import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model'
 import {ActivatedRoute} from '@angular/router';
 import {DbColumn, ResultSet} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
-import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
-import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 
 @Component({
@@ -29,7 +27,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     private _crud: CrudService,
     private _route: ActivatedRoute,
     private _toast: ToastService,
-    private _breadcrumb: BreadcrumbService,
     private _leftSidebar: LeftSidebarService
   ) { }
 
@@ -38,18 +35,12 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this.schema = this._route.snapshot.paramMap.get('id');
     this._route.params.subscribe((params) => {
       this.schema = params['id'];
-      this._breadcrumb.setBreadcrumbs( [ new BreadcrumbItem( this.schema ) ] );
       this.getTables();
     });
-    if( this.schema ){
-      this._breadcrumb.setBreadcrumbs( [ new BreadcrumbItem( this.schema ) ] );
-    }
     this.getTables();
   }
 
-  ngOnDestroy() {
-    this._breadcrumb.setBreadcrumbs( [] );
-  }
+  ngOnDestroy() {}
 
   getTables () {
     this._crud.getTables( new EditTableRequest( this.schema ) ).subscribe(

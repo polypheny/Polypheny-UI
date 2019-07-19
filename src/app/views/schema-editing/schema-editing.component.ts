@@ -17,8 +17,6 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   constructor(
     private _route: ActivatedRoute,
     private _leftSidebar: LeftSidebarService,
-    private _crud: CrudService,
-    private _toast: ToastService
   ) { }
 
   ngOnInit() {
@@ -42,17 +40,5 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   public getSchema () {
     this._leftSidebar.setSchema( new SchemaRequest('/views/schema-editing/', false, 2) );
   }
-
-  /**
-   * checks whether the routeParam is a table (schemaName.tableName) or not (else it is a schemaName)
-   */
-  paramIsTable () {
-    if( this.routeParam === undefined ){
-      return false;
-    }else{
-      return this.routeParam.includes('.');
-    }
-  }
-
 
 }
