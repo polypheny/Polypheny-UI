@@ -1,9 +1,15 @@
+<!-- uncomment to adjust offsets
+<div class="row">
+  offsetX1: <input type="number" [(ngModel)]="offsetX1"><br>
+  offsetY1: <input type="number" [(ngModel)]="offsetY1"><br>
+  offsetX2: <input type="number" [(ngModel)]="offsetX2"><br>
+  offsetY2: <input type="number" [(ngModel)]="offsetY2"><br>
+</div>
+!-->
+
 <div class="row" style="padding-bottom: 1em;">
   <div class="col-sm-3">
     <ul class="list-group">
-      <!--<li class="list-group-item">
-        <input type="text" class="form-control form-control-sm" placeholder="search">
-      </li>-->
       <li *ngFor="let op of getOperators()" class="list-group-item rel-op">{{op}}</li>
     </ul>
   </div>

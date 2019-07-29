@@ -7,9 +7,7 @@
   border-radius: 0.25rem;
 }
 #drop .node {
-  padding: 1em;
   position: absolute;
-  flex-direction: inherit;
 
   .in, .out{
     position: absolute;
@@ -18,7 +16,7 @@
     width: 20px;
     height: 20px;
     border-radius: 100%;
-    // z-index: -1;
+    z-index: 1;
   }
   .in{
     bottom: -10px;
@@ -38,6 +36,14 @@
   .del:hover{
     color: #dc3545;
     cursor: pointer;
+  }
+  .form-group{
+    input{
+      margin-left: 1em;
+    }
+  }
+  .list-group-item{
+    padding: 0.5rem 1.25rem;
   }
 }
 #drop:not(.connecting) .out:hover{

@@ -23,6 +23,12 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   private temporalLine: SvgLine;
   private nodes = new Map<string, Node>();
 
+  //offsets
+  private offsetX1 = 1;
+  private offsetX2 = 3;
+  private offsetY1 = 0;
+  private offsetY2 = 6;
+
   constructor(
     private _crud: CrudService,
     private _toast: ToastService
@@ -55,8 +61,10 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
           const leftPosition = ui.position.left - 220;
           const topPosition = ui.position.top - 100;
           const label = $(ui.draggable).text();
-          $('#drop').append('<div class="card node" style="left: ' + leftPosition + 'px; top: ' + topPosition + 'px;" id="node' + self.counter++ + '"><div class="in"></div><div class="out"></div><span class="drag-handle">' + label + '</span><span class="del"><i class="cui-trash"></i></span></div>');
-          self.nodes.set('node' + self.counter, new Node( 'node' + self.counter, label ) );
+          //$('#drop').append('<div class="card node" style="left: ' + leftPosition + 'px; top: ' + topPosition + 'px;" id="node' + self.counter++ + '"><div class="in"></div><div class="out"></div><span class="drag-handle">' + label + '</span><span class="del"><i class="cui-trash"></i></span></div>');
+          const node = new Node( 'node'+ self.counter++, label, leftPosition, topPosition );
+          $('#drop').append( self.createNode( node ));
+          self.nodes.set( node.getId(), node );
           $('#drop .card').draggable({containment: '#drop', handle: '.drag-handle'});
         }
       }
@@ -103,6 +111,37 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     });
   }
 
+  createNode( node: Node ) {
+    let parameters: string[];
+    switch ( node.label ) {
+      case 'TableScan':
+        parameters = ['table'];
+        break;
+      case 'Join':
+        parameters = ['join', 'condition'];
+        break;
+      case 'Filter':
+        parameters = ['condition'];
+        break;
+      case 'Project':
+        parameters = ['fields', 'expressions'];
+        break;
+      case 'Aggregate':
+        parameters = ['group', 'aggs'];
+        break;
+      default:
+        parameters = [];
+    }
+    let params = '';
+    parameters.forEach( (v, i) => {
+      params += `<li class="param list-group-item"><div class="form-group"><label for="${node.getId()}param${i}">${v}</label><input type="text" placeholder="${v}" id="${node.getId()}param${i}" class="form-control form-control-sm"></div></li>`;
+    });
+    if(parameters.length > 0){
+      params = '<ul class="list-group list-group-flush form-inline">' + params + '</ul>';
+    }
+    return '<div class="card node" style="left: ' + node.left + 'px; top: ' + node.top + 'px;" id="' + node.id + '"><div class="in"></div><div class="out"></div><div class="drag-handle card-header">' + node.label + '<span class="del float-right"><i class="cui-trash"></i></span></div>' + params + '</div>';
+  }
+
   addConnection( source, target ) {
     if( this.connections.has( source + target )){
       this.connections.delete( source + target );
@@ -124,22 +163,22 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   getX1( s ){
     if( s === undefined ) return;
     const ele = $('#'+s);
-    return $(ele).position().left + $(ele).width()/2 + 15;
+    return $(ele).position().left + $(ele).width()/2 + this.offsetX1;
   }
   getX2( t ){
     if( t === undefined ) return;
     const ele = $('#'+t);
-    return $(ele).position().left + $(ele).width()/2 + 15;
+    return $(ele).position().left + $(ele).width()/2 + this.offsetX2;
   }
   getY1( s ){
     if( s === undefined ) return;
     const ele = $('#'+s);
-    return $(ele).position().top;
+    return $(ele).position().top + this.offsetY1;
   }
   getY2( t ){
     if( t === undefined ) return;
     const ele = $('#'+t);
-    return $(ele).position().top + $(ele).height() + 40;
+    return $(ele).position().top + $(ele).height() + this.offsetY2;
   }
 
   runPlan(){
@@ -157,6 +196,11 @@ interface Connection{
 class Node{
   constructor(
     public id: string,
-    public label: string
+    public label: string,
+    public left: number,
+    public top: number
   ){}
+  getId(){
+    return this.id;
+  }
 }
