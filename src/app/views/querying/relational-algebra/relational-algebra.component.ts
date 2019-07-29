@@ -45,7 +45,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
     $('.rel-op').draggable({
       helper: 'clone',
-      appendTo: 'body'
+      appendTo: 'body',
+      cursor: 'grabbing'
     });
 
     $('#drop').droppable({

@@ -288,14 +288,9 @@ export class DataTableComponent implements OnInit, OnChanges {
    this.getTable();
   }
 
-  /**
-   * put filter values from result in filter map
-   */
-  setFilter ( r: ResultSet ) {
-    this.filter.clear();
-    r.header.forEach( (val) => {
-      this.filter.set( val.name, val.filter );
-    });
+  paginate ( p: PaginationElement ) {
+    this.resultSet.currentPage = p.page;
+    this.getTable();
   }
 
   sortTable ( s: SortState ) {

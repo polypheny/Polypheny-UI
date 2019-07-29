@@ -1,5 +1,10 @@
+.rel-op{
+  cursor: grab;
+}
+
 #drop{
-  border: 1px grey solid;
+  border: 1px solid #c8ced3;
+  border-radius: 0.25rem;
 }
 #drop .node {
   padding: 1em;
