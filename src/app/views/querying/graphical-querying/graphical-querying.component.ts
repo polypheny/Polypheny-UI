@@ -3,15 +3,13 @@ import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
 import 'jquery-ui/ui/widgets/draggable';
-import {LogicalOperators, RelationalAlgebra} from './relational-algebra/relational-algebra.model';
-import {CrudService} from '../../services/crud.service';
-import {ResultSet} from '../../components/data-table/models/result-set.model';
-import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
-import {ToastService} from '../../components/toast/toast.service';
-import {EditTableRequest, QueryRequest, SchemaRequest} from '../../models/ui-request.model';
-import {SidebarNode} from '../../models/sidebar-node.model';
-import {ForeignKey, Uml} from '../uml/uml.model';
-
+import {CrudService} from '../../../services/crud.service';
+import {ResultSet} from '../../../components/data-table/models/result-set.model';
+import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
+import {ToastService} from '../../../components/toast/toast.service';
+import {EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {SidebarNode} from '../../../models/sidebar-node.model';
+import {ForeignKey, Uml} from '../../uml/uml.model';
 
 @Component({
   selector: 'app-graphical-querying',
@@ -23,7 +21,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
   @ViewChild('editorGenerated') editorGenerated;
   generatedSQL;
-  relAlg: RelationalAlgebra;
   resultSet: ResultSet;
 
   //fields for the graphical query generation
@@ -40,9 +37,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   ) {}
 
   ngOnInit() {
-
-    this.initRelAlg();
-
     this._leftSidebar.setSchema( new SchemaRequest( 'views/graphical-querying/', false, 3 ));
     this._leftSidebar.setAction( (node) => {
       if( ! node.isActive && node.isLeaf ){
@@ -58,13 +52,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.generateSQL();
 
     this.initGraphicalQuerying();
-
   }
 
   ngAfterViewInit() { }
 
   ngOnDestroy() {
-    RelationalAlgebra.resetId();
     this._leftSidebar.close();
     // this._leftSidebar.reset();
   }
@@ -166,7 +158,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }else{
       this.tables.set( treeElement.getTable(), 1 );
     }
-    
+
     if( this.schemas.get( treeElement.getSchema() ) === undefined ){
       this.schemas.set( treeElement.getSchema(), treeElement.getSchema() );
       this._crud.getUml( new EditTableRequest( treeElement.getSchema())).subscribe(
@@ -183,13 +175,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
     $('#selectBox').append(`<div class="btn btn-secondary btn-sm dbCol" data-id="${treeElement.id}">${treeElement.getColumn()} <span class="del">&times;</span></div>`).sortable('refresh');
     this.generateSQL();
-  }
-
-  /**
-   * Create a RelAlg node to start with
-   */
-  initRelAlg(){
-    this.relAlg = new RelationalAlgebra( LogicalOperators.LogicalAggregate, null );
   }
 
   toggleCondition( con: JoinCondition ){
@@ -212,20 +197,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
       });
     });
-  }
-
-  /**
-   * Parse the RelAlg tree and send it to the backend.
-   */
-  executeRelAlg () {
-    this._crud.executeRelAlg( this.relAlg.forCrud() ).subscribe(
-      res => {
-        this.resultSet = <ResultSet> res;
-      }, err => {
-        this._toast.toast('server error', 'Could not execute relational algebra', 10, 'bg-danger');
-        console.log(err);
-      }
-    );
   }
 
 }

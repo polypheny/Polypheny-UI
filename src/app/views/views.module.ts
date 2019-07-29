@@ -3,21 +3,22 @@ import { CommonModule } from '@angular/common';
 
 import { ViewsRoutingModule } from './views-routing.module';
 import {TableViewComponent} from './table-view/table-view.component';
-import {SqlConsoleComponent} from './sql-console/sql-console.component';
+import {SqlConsoleComponent} from './querying/sql-console/sql-console.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BsDropdownModule, ButtonsModule, CollapseModule, ModalModule, TooltipModule, TypeaheadModule} from 'ngx-bootstrap';
 import {ComponentsModule} from '../components/components.module';
 import {EditColumnsComponent} from './schema-editing/edit-columns/edit-columns.component';
 import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
 import {UmlComponent} from './uml/uml.component';
-import {GraphicalQueryingComponent} from './graphical-querying/graphical-querying.component';
+import {GraphicalQueryingComponent} from './querying/graphical-querying/graphical-querying.component';
 import {TreeModule} from 'angular-tree-component';
 import {FormGeneratorComponent} from './forms/form-generator/form-generator.component';
 import { SchemaEditingComponent } from './schema-editing/schema-editing.component';
 import { EditTablesComponent } from './schema-editing/edit-tables/edit-tables.component';
 import { MonitoringComponent } from './monitoring/monitoring.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
-import { RelationalAlgebraComponent } from './graphical-querying/relational-algebra/relational-algebra.component';
+import { RelationalAlgebraComponent } from './querying/relational-algebra/relational-algebra.component';
+import { QueryingComponent } from './querying/querying.component';
 
 @NgModule({
   imports: [
@@ -50,7 +51,8 @@ import { RelationalAlgebraComponent } from './graphical-querying/relational-alge
     SchemaEditingComponent,
     EditTablesComponent,
     MonitoringComponent,
-    RelationalAlgebraComponent
+    RelationalAlgebraComponent,
+    QueryingComponent
   ],
   exports: []
 })

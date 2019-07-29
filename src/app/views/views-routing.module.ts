@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import {UmlComponent} from './uml/uml.component';
-import {SqlConsoleComponent} from './sql-console/sql-console.component';
-import {GraphicalQueryingComponent} from './graphical-querying/graphical-querying.component';
+import {SqlConsoleComponent} from './querying/sql-console/sql-console.component';
 import {FormGeneratorComponent} from './forms/form-generator/form-generator.component';
 import {TableViewComponent} from './table-view/table-view.component';
 import {SchemaEditingComponent} from './schema-editing/schema-editing.component';
 import {MonitoringComponent} from './monitoring/monitoring.component';
+import {QueryingComponent} from './querying/querying.component';
 
 const routes: Routes = [
   {
@@ -36,10 +36,15 @@ const routes: Routes = [
     }
   },
   {
-    path: 'sql-console',
-    component: SqlConsoleComponent,
+    path: 'querying',
+    redirectTo: 'querying/sql-console',
+    pathMatch: 'full'
+  },
+  {
+    path: 'querying/:route',
+    component: QueryingComponent,
     data: {
-      title: 'SQL Console'
+      title: 'Querying'
     }
   },
   {
@@ -71,13 +76,6 @@ const routes: Routes = [
     component: SchemaEditingComponent,
     data: {
       title: 'Schema Editing'
-    }
-  },
-  {
-    path: 'graphical-querying',
-    component: GraphicalQueryingComponent,
-    data: {
-      title: 'Graphical Querying'
     }
   },
   {

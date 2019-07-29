@@ -1,0 +1,60 @@
+#drop{
+  border: 1px grey solid;
+}
+#drop .node {
+  padding: 1em;
+  position: absolute;
+  flex-direction: inherit;
+
+  .in, .out{
+    position: absolute;
+    left: 50%;
+    margin-left: -10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    // z-index: -1;
+  }
+  .in{
+    bottom: -10px;
+    background: rgba(181, 229, 160, 0.3);
+  }
+  .out{
+    top: -10px;
+    background: rgba(150, 216, 228, 0.3);
+  }
+  .drag-handle{
+    cursor: move;
+  }
+  .del{
+    margin-left: 1em;
+    color: #c8ced3;
+  }
+  .del:hover{
+    color: #dc3545;
+    cursor: pointer;
+  }
+}
+#drop:not(.connecting) .out:hover{
+  background: rgba(150, 216, 228, 0.7);
+  cursor: pointer;
+}
+#drop.connecting .in:hover{
+  background: rgba(181, 229, 160, 0.7);
+}
+
+svg{
+  position: absolute;
+  top:0;
+  left:0;
+  stroke: black;
+  stroke-width:1;
+}
+
+#run{
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  cursor: pointer;
+  z-index: 2;
+}

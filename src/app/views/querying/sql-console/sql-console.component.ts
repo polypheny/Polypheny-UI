@@ -1,16 +1,16 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import {TableConfig} from '../../components/data-table/table-config';
-import {CrudService} from '../../services/crud.service';
-import {ResultSet} from '../../components/data-table/models/result-set.model';
+import {TableConfig} from '../../../components/data-table/table-config';
+import {CrudService} from '../../../services/crud.service';
+import {ResultSet} from '../../../components/data-table/models/result-set.model';
 import {SqlHistory} from './sql-history.model';
 import {KeyValue} from '@angular/common';
-import {QueryRequest} from '../../models/ui-request.model';
-import {SidebarNode} from '../../models/sidebar-node.model';
-import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
-import {InformationObject, InformationPage} from '../../models/information-page.model';
+import {QueryRequest} from '../../../models/ui-request.model';
+import {SidebarNode} from '../../../models/sidebar-node.model';
+import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
+import {InformationObject, InformationPage} from '../../../models/information-page.model';
 import {TreeNode } from 'angular-tree-component';
-import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
+import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 
 @Component({
   selector: 'app-sql-console',

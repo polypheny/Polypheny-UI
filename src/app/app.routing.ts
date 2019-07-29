@@ -31,7 +31,7 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'views/sql-console'
+    redirectTo: 'views/querying'
   },
   {
     path: '',
