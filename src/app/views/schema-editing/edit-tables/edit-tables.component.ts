@@ -101,8 +101,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       return;
     }
     //clear maxlength for types where it is not applicable
+    //delete columns with no column name
     this.newColumns.forEach((v, k) => {
       if( v.dataType !== 'varchar' && v.maxLength !== null ) v.maxLength = null;
+      if( v.name === '' ) this.newColumns.delete( k );
     });
     const request = new EditTableRequest( this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()) );
     this._crud.createTable( request ).subscribe(
@@ -110,6 +112,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         const result = <ResultSet> res;
         if( result.error ) {
           this._toast.toast( 'error', 'Could not generate table: '+result.error, 10, 'bg-warning' );
+          console.log( result.info.generatedQuery );
         } else {
           this._toast.toast('success', 'Generated table ' + request.table, 1, 'bg-success' );
           this.newColumns.clear();

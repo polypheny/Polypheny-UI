@@ -2,7 +2,7 @@
 <div class="row">
   <div class="col-lg-12">
     <h5 *ngIf="schema">{{schema}}</h5>
-    <p *ngIf="uml">Drag a connection from a column to a <span class="text-primary" style="text-decoration: underline">primary key</span> or <span class="text-warning" style="font-style: italic">unique column</span> to create a new foreign key.</p>
+    <p *ngIf="uml">Drag a connection from a column to a <span class="badge" id="badge-pk">primary key</span> or <span class="badge" id="badge-unique">unique column</span> to create a new foreign key.</p>
     <span *ngIf="!schema">Please select a schema in the left sidebar.</span>
   </div>
   <div id="drag-container" class="col-lg-12" *ngIf="uml">

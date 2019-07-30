@@ -92,7 +92,9 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         if(!isDragging) return;
         if( $(e.target).hasClass( 'in' ) ){
           const target = $(e.target).parents('.node').attr('id');
-          self.addConnection( source, target );
+          if( source !== target ){//don't allow to connect with own node
+            self.addConnection( source, target );
+          }
         }
         isDragging = false;
         $('#drop').removeClass('connecting');
@@ -102,7 +104,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     $('#drop').on('click', '.del', function(){
         const id = $(this).parents('.node').attr('id');
         self.connections.forEach( (v, k) => {
-          if( v.target === id || v.source === id) {
+          if( v.target.getId() === id || v.source.getId() === id) {
             self.connections.delete( k );
           }
         });
@@ -146,7 +148,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     if( this.connections.has( source + target )){
       this.connections.delete( source + target );
     }else {
-      this.connections.set( source + target, {source: source, target: target });
+      this.connections.set( source + target, {source: this.nodes.get(source), target: this.nodes.get(target) });
     }
   }
 
@@ -182,18 +184,58 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   }
 
   runPlan(){
-    //todo
-    console.log( this.connections );
+    let result;
+    if( this.connections.size === 0 ){
+      if( this.nodes.size === 1 ){
+        //get only node in Map
+        result = this.walkTree( this.nodes.values().next().value );
+      }else {
+        return;
+      }
+    }else{
+      result = this.walkTree( this.getTopNode() );
+    }
+    console.log( result );
+    //todo send result to backend
+  }
+
+  getTopNode(){
+    let topNode: Node;
+    const haveOutgoingConnections = new Map<string, Node>();
+    this.connections.forEach( (v, k) => {
+      haveOutgoingConnections.set( v.source.getId(), v.source );
+      if( !haveOutgoingConnections.get( v.target.getId()) ){
+        topNode = v.target;
+      }
+    });
+    return topNode;
+  }
+
+  walkTree ( node: Node ) {
+    const children = [];
+    this.connections.forEach(( v, k ) => {
+      if( v.target.getId() === node.getId() ){
+        children.push( this.walkTree(v.source) );
+      }
+    });
+    node.addChildren(children);
+    $('#' + node.getId()).find('.param').each( function(e){
+      const param = $(this).find('label').text();
+      const value = $(this).find('input').val();
+      node[param] = value;
+    });
+    return node;
   }
 
 }
 
 interface Connection{
-  source: string;
-  target: string;
+  source: Node;
+  target: Node;
 }
 
 class Node{
+  children: Node[] = [];
   constructor(
     public id: string,
     public label: string,
@@ -202,5 +244,10 @@ class Node{
   ){}
   getId(){
     return this.id;
+  }
+  addChildren( nodes: Node[] ){
+    nodes.forEach((v, k)=>{
+      this.children.push( v );
+    });
   }
 }
