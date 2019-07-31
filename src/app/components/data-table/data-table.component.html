@@ -20,8 +20,8 @@
       <tbody>
       <tr *ngIf="config.search">
         <td *ngFor="let h of resultSet.header">
-          <input *ngIf="['int4', 'int8', 'serial'].includes(h.dataType)" type="number" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event)">
-          <input *ngIf="! ['int4', 'int8', 'serial'].includes(h.dataType)" type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event)">
+          <input *ngIf="_types.numericTypes().includes(h.dataType)" type="number" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event)">
+          <input *ngIf="! _types.numericTypes().includes(h.dataType)" type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event)">
         </td>
         <td *ngIf="config.update || config.delete"></td>
       </tr>

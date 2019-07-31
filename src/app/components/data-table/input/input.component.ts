@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {DbColumn} from '../models/result-set.model';
+import {DbmsTypesService} from '../../../services/dbms-types.service';
 
 @Component({
   selector: 'app-input',
@@ -13,21 +14,22 @@ export class InputComponent implements OnInit {
   @Output() valueChange = new EventEmitter();
   @Output() enter = new EventEmitter();
 
-  constructor() { }
+  constructor(
+    private _types: DbmsTypesService
+  ) { }
 
   ngOnInit() {}
 
   triggerNull ( value ) {
+    console.log(value);
     if( value !== null) return null;
     else{
-      switch (this.header.dataType) {
-        case 'int4':
-        case 'int8':
-          return 0;
-        case 'bool':
-          return false;
-        default:
-          return '';
+      if( this._types.isNumeric( this.header.dataType )){
+        return 0;
+      } else if ( this._types.isBoolean( this.header.dataType )){
+        return false;
+      } else {
+        return '';
       }
     }
   }

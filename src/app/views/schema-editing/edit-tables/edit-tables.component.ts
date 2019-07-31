@@ -5,6 +5,7 @@ import {ActivatedRoute} from '@angular/router';
 import {DbColumn, ResultSet} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
+import {DbmsTypesService} from '../../../services/dbms-types.service';
 
 @Component({
   selector: 'app-edit-tables',
@@ -13,7 +14,7 @@ import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.
 })
 export class EditTablesComponent implements OnInit, OnDestroy {
 
-  types: string[] = ['int8', 'int4', 'varchar', 'timestamptz', 'bool', 'text'];
+  types: string[] = [];
   schema: string;
   tables: string[];
   truncate = [];
@@ -27,7 +28,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     private _crud: CrudService,
     private _route: ActivatedRoute,
     private _toast: ToastService,
-    private _leftSidebar: LeftSidebarService
+    private _leftSidebar: LeftSidebarService,
+    private _types: DbmsTypesService
   ) { }
 
   ngOnInit() {
@@ -38,6 +40,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       this.getTables();
     });
     this.getTables();
+    this.getTypeInfo();
   }
 
   ngOnDestroy() {}
@@ -139,20 +142,35 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
   triggerDefaultNull ( col: DbColumn ) {
     if( col.defaultValue === null ){
-      switch( col.dataType ){
-        case 'int4':
-        case 'int8':
-          col.defaultValue = 0;
-          break;
-        case 'bool':
-          col.defaultValue = false;
-          break;
-        default:
-          col.defaultValue = '';
+      if( this._types.isNumeric( col.dataType )){
+        col.defaultValue = 0;
+      } else if( this._types.isBoolean( col.dataType )){
+        col.defaultValue = false;
+      } else {
+        col.defaultValue = '';
       }
     }else {
       col.defaultValue = null;
     }
+  }
+
+  getTypeInfo(){
+    this._crud.getTypeInfo().subscribe(
+      res=> {
+        const result = <ResultSet> res;
+        if( result.error ){
+          this._toast.toast( 'server error', 'Could not retrieve DBMS types.', 10, 'bg-danger' );
+          return;
+        }
+        this.types = [];
+        result.data.forEach( (v, i) => {
+          this.types.push(v[0]);
+        });
+        this.types.sort();
+      }, err => {
+        this._toast.toast( 'server error', 'Could not retrieve DBMS types.', 10, 'bg-danger' );
+      }
+    );
   }
 
 }

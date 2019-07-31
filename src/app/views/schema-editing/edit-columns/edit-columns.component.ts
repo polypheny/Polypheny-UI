@@ -8,6 +8,7 @@ import {ToastService} from '../../../components/toast/toast.service';
 import {Input} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
+import {DbmsTypesService} from '../../../services/dbms-types.service';
 
 @Component({
   selector: 'app-edit-columns',
@@ -22,7 +23,7 @@ export class EditColumnsComponent implements OnInit {
   schema: string;
 
   resultSet: ResultSet;
-  types: string[] = ['int8', 'int4', 'varchar', 'timestamptz', 'bool', 'text'];
+  types: string[] = [];
   editColumn = -1;
   createColumn = new DbColumn( '', false, true, 'text', null, null);
   confirm = -1;
@@ -42,13 +43,19 @@ export class EditColumnsComponent implements OnInit {
     private _route: ActivatedRoute,
     private _leftSidebar: LeftSidebarService,
     private _crud: CrudService,
-    private _toast: ToastService
+    private _toast: ToastService,
+    private _types: DbmsTypesService
   ) {
     this.newIndexForm = new FormGroup( {
       name: new FormControl('', Validators.required),
       method: new FormControl('btree'),
       columns: new FormControl(null, Validators.required)
     });
+    this._types.getTypes().subscribe(
+      type => {
+        this.types = type;
+      }
+    );
   }
 
   ngOnInit() {
@@ -104,7 +111,7 @@ export class EditColumnsComponent implements OnInit {
       this.editColumn = i;
     }
   }
-  
+
   saveCol() {
     const oldColumn = this.oldColumns.get( this.updateColumn.controls['oldName'].value );
     const newColumn = new DbColumn(
@@ -164,7 +171,7 @@ export class EditColumnsComponent implements OnInit {
     }
     );
   }
-  
+
   dropColumn ( col: DbColumn , i ) {
     if ( this.confirm !== i ){
       this.confirm = i;
@@ -180,7 +187,7 @@ export class EditColumnsComponent implements OnInit {
       );
     }
   }
-  
+
   getConstraints () {
     this._crud.getConstraints( new ColumnRequest(this.tableId) ).subscribe(
       res => {
@@ -244,28 +251,20 @@ export class EditColumnsComponent implements OnInit {
 
   assignDefault ( col: any, isFormGroup: boolean ) {
     if( isFormGroup ){
-      switch( col.controls['dataType'].value ){
-        case 'int4':
-        case 'int8':
-          col.controls['defaultValue'].setValue(0);
-          break;
-        case 'bool':
-          col.controls['defaultValue'].setValue(false);
-          break;
-        default:
-          col.controls['defaultValue'].setValue('');
+      if ( this._types.isNumeric( col.controls['dataType'].value )){
+        col.controls['defaultValue'].setValue(0);
+      } else if ( this._types.isBoolean( col.controls['dataType'].value )) {
+        col.controls['defaultValue'].setValue(false);
+      } else {
+        col.controls['defaultValue'].setValue('');
       }
     } else {
-      switch( col.dataType ){
-        case 'int4':
-        case 'int8':
-          col.defaultValue = 0;
-          break;
-        case 'bool':
-          col.defaultValue = false;
-          break;
-        default:
-          col.defaultValue = '';
+      if( this._types.isNumeric( col.dataType )){
+        col.defaultValue = 0;
+      } else if ( this._types.isBoolean( col.dataType )){
+        col.defaultValue = false;
+      } else {
+        col.defaultValue = '';
       }
     }
   }
@@ -302,7 +301,7 @@ export class EditColumnsComponent implements OnInit {
       }
     }
   }
-  
+
   getIndexes () {
     this._crud.getIndexes( new EditTableRequest( this.schema, this.table ) ).subscribe(
       res => {

@@ -47,9 +47,8 @@
                   <div class="input-group">
                       <input type="hidden" formControlName="oldName">
                     <ng-container [ngSwitch]="updateColumn.controls['dataType'].value">
-                      <input *ngSwitchCase="'int8'" type="number" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue">
-                      <input *ngSwitchCase="'int4'" type="number" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue">
-                      <ng-container *ngSwitchCase="'bool'">
+                      <input *ngSwitchCase="_types.numericTypes().includes( updateColumn.controls['dataType'].value ) ? updateColumn.controls['dataType'].value : ''" type="number" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue">
+                      <ng-container *ngSwitchCase="_types.booleanTypes().includes( updateColumn.controls['dataType'].value ) ? updateColumn.controls['dataType'].value : ''">
                         <div class="form-check form-check-inline">
                           <label *ngIf="col.defaultValue === null" class="form-check-label disabled" [for]="'default'+col.name">null&nbsp;</label>
                           <label *ngIf="col.defaultValue === true" class="form-check-label" [for]="'default'+col.name">true&nbsp;</label>
@@ -102,9 +101,8 @@
           <td>
             <div class="input-group">
               <ng-container [ngSwitch]="createColumn.dataType">
-                <input *ngSwitchCase="'int8'" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="createColumn.defaultValue" [disabled]="createColumn.defaultValue === null">
-                <input *ngSwitchCase="'int4'" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="createColumn.defaultValue" [disabled]="createColumn.defaultValue === null">
-                <ng-container *ngSwitchCase="'bool'">
+                <input *ngSwitchCase="_types.numericTypes().includes( createColumn.dataType ) ? createColumn.dataType : ''" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="createColumn.defaultValue" [disabled]="createColumn.defaultValue === null">
+                <ng-container *ngSwitchCase="_types.booleanTypes().includes( createColumn.dataType ) ? createColumn.dataType : ''">
                   <div class="form-check form-check-inline">
                     <label *ngIf="createColumn.defaultValue === null" class="form-check-label disabled" [for]="'default'+createColumn.name">null&nbsp;</label>
                     <label *ngIf="createColumn.defaultValue === true" class="form-check-label" [for]="'default'+createColumn.name">true&nbsp;</label>

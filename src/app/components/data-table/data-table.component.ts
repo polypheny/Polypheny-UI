@@ -8,6 +8,7 @@ import {SortDirection, SortState} from './models/sort-state.model';
 import {ToastService} from '../toast/toast.service';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
+import {DbmsTypesService} from '../../services/dbms-types.service';
 
 @Component({
   selector: 'app-data-table',
@@ -32,7 +33,8 @@ export class DataTableComponent implements OnInit, OnChanges {
     private _crud: CrudService,
     private _toast: ToastService,
     private _route: ActivatedRoute,
-    private _router: Router
+    private _router: Router,
+    private _types: DbmsTypesService
   ) {}
 
 
@@ -154,16 +156,12 @@ export class DataTableComponent implements OnInit, OnChanges {
         //set insertValues
         if( g.nullable ) { this.insertValues.set(g.name, null); }
         else{
-          switch (g.dataType) {
-            case 'int4':
-            case 'int8':
-              this.insertValues.set(g.name, 0);
-              break;
-            case 'bool':
-              this.insertValues.set(g.name, false);
-            break;
-            default:
-              this.insertValues.set(g.name, '');
+          if ( this._types.isNumeric(( g.dataType ))) {
+            this.insertValues.set(g.name, 0);
+          } else if ( this._types.isBoolean( g.dataType )){
+            this.insertValues.set(g.name, false);
+          } else {
+            this.insertValues.set(g.name, '');
           }
         }
       });

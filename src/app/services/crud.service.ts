@@ -218,4 +218,11 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/schemaRequest`, schema, this.httpOptions);
   }
 
+  /**
+   * Get all supported data types of the DBMS.
+   */
+  getTypeInfo () {
+    return this._http.get(`${this.httpUrl}/getTypeInfo`, this.httpOptions);
+  }
+
 }
