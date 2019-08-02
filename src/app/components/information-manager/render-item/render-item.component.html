@@ -36,9 +36,9 @@
     <app-graph [data]="li.data" [labels]="li.labels" [chartType]="li.graphType"></app-graph>
   </ng-container>
 
-  <ng-container *ngIf="li.type == 'InformationQueryPlan'">
+  <ng-container *ngIf="li.type == 'InformationQueryPlan' && li.queryPlan">
     <div class="card-body">
-      {{li.queryPlan}}
+      <app-plan-view [query]="''" [planObject]="li.queryPlan"></app-plan-view>
     </div>
   </ng-container>
 

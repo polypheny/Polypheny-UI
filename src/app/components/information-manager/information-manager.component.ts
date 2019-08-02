@@ -53,4 +53,9 @@ export class InformationManagerComponent implements OnInit {
     return out;
   }
 
+  getZoom () {
+    if (this.data.id === 'informationPagePhysicalQueryPlan' || this.data.id === 'informationPageLogicalQueryPlan' ) return {'column-count': 1};
+    else return {'column-count': this.zoom};
+  }
+
 }

@@ -106,7 +106,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     //clear maxlength for types where it is not applicable
     //delete columns with no column name
     this.newColumns.forEach((v, k) => {
-      if( v.dataType !== 'varchar' && v.maxLength !== null ) v.maxLength = null;
+      if( v.dataType.toLowerCase() !== 'varchar' && v.maxLength !== null ) v.maxLength = null;
       if( v.name === '' ) this.newColumns.delete( k );
     });
     const request = new EditTableRequest( this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()) );

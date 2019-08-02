@@ -5,7 +5,7 @@
       <p *ngIf="data.description">{{data.description}}</p>
     </div>
   </div>
-  <div class="card-columns" [ngStyle]="{'column-count': zoom}">
+  <div class="card-columns" [ngStyle]="getZoom()">
     <div *ngFor="let item of data.groups | keyvalue : order">
       <div [className]="getCardClass(item.value.color)">
         <div class="card-header">{{item.value.id}}</div>

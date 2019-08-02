@@ -19,6 +19,7 @@ import {RenderItemComponent} from './information-manager/render-item/render-item
 import {InformationManagerComponent} from './information-manager/information-manager.component';
 import { InputComponent } from './data-table/input/input.component';
 import { EditorComponent } from './editor/editor.component';
+import {ExplainVisualizerModule} from '../explain-visualizer/explain-visualizer.module';
 //import 'hammerjs';
 
 @NgModule({
@@ -35,7 +36,8 @@ import { EditorComponent } from './editor/editor.component';
     FormsModule, ReactiveFormsModule,
     CollapseModule,
     TooltipModule,
-    ProgressbarModule.forRoot()
+    ProgressbarModule.forRoot(),
+    ExplainVisualizerModule
   ],
   declarations: [
     BreadcrumbComponent,
