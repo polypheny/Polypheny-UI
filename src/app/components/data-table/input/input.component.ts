@@ -15,13 +15,12 @@ export class InputComponent implements OnInit {
   @Output() enter = new EventEmitter();
 
   constructor(
-    private _types: DbmsTypesService
+    public _types: DbmsTypesService
   ) { }
 
   ngOnInit() {}
 
   triggerNull ( value ) {
-    console.log(value);
     if( value !== null) return null;
     else{
       if( this._types.isNumeric( this.header.dataType )){

@@ -19,8 +19,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
   resultSet: ResultSet;
   private counter = 0;
-  private connections = new Map<string, Connection>();
-  private temporalLine: SvgLine;
+  public connections = new Map<string, Connection>();
+  public temporalLine: SvgLine;
   private nodes = new Map<string, Node>();
 
   //offsets

@@ -28,7 +28,7 @@
 									<div class="input-group">
 										<div class="input-group-prepend">
 											<div class="gradient"></div>
-											<label [for]="config.value.key" class="input-group-text" id="basic-addon1">{{ config.value.key }}</label>
+											<label [for]="config.value.key" class="input-group-text" id="basic-addon1" [tooltip]="config.value.description" placement="left">{{ config.value.key }}</label>
 										</div>
 										<ng-container *ngSwitchCase="'TEXT'">
 											<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="text" class="form-control" [ngClass]="inputValidation(config.value.key)">

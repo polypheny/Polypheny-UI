@@ -8,7 +8,7 @@ import {ActivatedRoute} from '@angular/router';
 })
 export class QueryingComponent implements OnInit {
 
-  private route = 'sql-console';
+  public route = 'sql-console';
   constructor(
     private _route: ActivatedRoute
   ) { }
