@@ -1,5 +1,5 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import { FormBuilder } from '@angular/forms';
 import {TableConfig} from '../../../components/data-table/table-config';
 import {CrudService} from '../../../services/crud.service';
 import {ResultSet} from '../../../components/data-table/models/result-set.model';
@@ -21,8 +21,6 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   @ViewChild( 'editor' ) codeEditor;
 
-  myForm: FormGroup;
-  languages = ['SQL', 'PgSql', 'MS-SQL'];
   analyzerOptionsCollapsed = true;
   history: Map<string, SqlHistory> = new Map<string, SqlHistory>();
   readonly MAXHISTORY = 20;//maximum items in history
@@ -58,9 +56,6 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.initWebsocket();
     this.loadAnalyzerPages();
-    this.myForm = this.formBuilder.group({
-      lang: 'SQL'
-    });
 
     SqlHistory.fromJson( localStorage.getItem( 'sql-history' ), this.history );
   }

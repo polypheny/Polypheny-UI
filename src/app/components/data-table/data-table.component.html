@@ -29,7 +29,7 @@
         <ng-container *ngIf="editing === i">
           <td *ngFor="let d2 of d1; let i = index">
             <!--<input type="text" class="form-control form-control-sm editing" [value]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name">-->
-            <app-input class="editing" [header]="resultSet.header[i]" [value]="updateValues.get(resultSet.header[i].name)" (valueChange)="newUpdateValue(resultSet.header[i].name, $event)" (enter)="updateRow()" [attr.data-new]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name"></app-input>
+            <app-input class="editing" [header]="resultSet.header[i]" [value]="updateValues.get(resultSet.header[i].name)" (valueChange)="newUpdateValue(resultSet.header[i].name, $event)" (enter)="updateRow()" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name"></app-input>
           </td>
           <td *ngIf="config.update || config.delete">
             <button class="btn btn-primary" id="editColSave" (click)="updateRow()"><i class="fa fa-save"></i></button>

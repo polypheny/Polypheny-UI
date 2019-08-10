@@ -1,7 +1,5 @@
 import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
-import 'jquery-ui/ui/widget';
-import 'jquery-ui/ui/widgets/draggable';
 import {ActivatedRoute} from '@angular/router';
 import {CrudService} from '../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../models/ui-request.model';

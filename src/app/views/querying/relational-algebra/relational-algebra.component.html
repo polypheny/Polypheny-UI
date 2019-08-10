@@ -6,14 +6,14 @@
   offsetY2: <input type="number" [(ngModel)]="offsetY2"><br>
 </div>
 !-->
-
+<app-toast></app-toast>
 <div class="row" style="padding-bottom: 1em;">
-  <div class="col-sm-3">
-    <ul class="list-group">
+  <div class="col-3" id="nodeList" #nodeList>
+    <ul class="list-group" style="position:fixed;" [ngStyle]="{width: nodeList.offsetWidth-50+'px'}">
       <li *ngFor="let op of getOperators()" class="list-group-item rel-op">{{op}}</li>
     </ul>
   </div>
-  <div class="col-sm-9" id="drop">
+  <div class="col-9" id="drop">
     <div class="btn-circle btn btn-primary" id="run" (click)="runPlan()"><i class="fa fa-play"></i></div>
     <svg width="100%" height="100%">
       <marker id="arrowhead"

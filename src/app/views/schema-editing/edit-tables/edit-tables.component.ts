@@ -33,7 +33,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.newColumns.set( ++this.counter, new DbColumn('', false, false, this.types[0], null));
+    this.newColumns.set( this.counter++, new DbColumn('', false, false, this.types[0], null));
     this.schema = this._route.snapshot.paramMap.get('id');
     this._route.params.subscribe((params) => {
       this.schema = params['id'];
@@ -120,7 +120,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this._toast.toast('success', 'Generated table ' + request.table, 1, 'bg-success' );
           this.newColumns.clear();
           this.counter = 0;
-          this.newColumns.set( ++this.counter, new DbColumn('', false, false, this.types[0], null));
+          this.newColumns.set( this.counter++, new DbColumn('', false, false, this.types[0], null));
           this.newTableName = '';
           this._leftSidebar.setSchema( new SchemaRequest('/views/schema-editing/', false, 2) );
         }
@@ -133,7 +133,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   addNewColumn() {
-    this.newColumns.set( ++this.counter, new DbColumn('', false, false, this.types[0], null));
+    this.newColumns.set( this.counter++, new DbColumn('', false, false, this.types[0], null));
   }
 
   removeNewColumn( i:number ){
@@ -155,20 +155,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   getTypeInfo(){
-    this._crud.getTypeInfo().subscribe(
-      res=> {
-        const result = <ResultSet> res;
-        if( result.error ){
-          this._toast.toast( 'server error', 'Could not retrieve DBMS types.', 10, 'bg-danger' );
-          return;
-        }
-        this.types = [];
-        result.data.forEach( (v, i) => {
-          this.types.push(v[0]);
-        });
-        this.types.sort();
-      }, err => {
-        this._toast.toast( 'server error', 'Could not retrieve DBMS types.', 10, 'bg-danger' );
+    this._types.getTypes().subscribe(
+      t => {
+        this.types = t;
+        this.newColumns.get(0).dataType = t[0];
       }
     );
   }

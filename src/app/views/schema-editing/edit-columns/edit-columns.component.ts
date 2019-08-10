@@ -35,6 +35,7 @@ export class EditColumnsComponent implements OnInit {
 
   indexes: ResultSet;
   confirmIndex = -1;
+  //todo put the available methods of the Polypheny-DB system or get it via the crud service
   indexMethods = ['btree', 'hash', 'gist', 'gin'];
   newIndexForm: FormGroup;
   indexSubmitted = false;
@@ -105,7 +106,7 @@ export class EditColumnsComponent implements OnInit {
         oldName: new FormControl( col.name ),
         nullable: new FormControl( col.nullable ),
         dataType: new FormControl( col.dataType ),
-        maxLength: new FormControl( {value: col.maxLength, disabled: col.dataType !== 'varchar'} ),
+        maxLength: new FormControl( {value: col.maxLength, disabled: col.dataType.toLowerCase() !== 'varchar'} ),
         defaultValue: new FormControl( {value: col.defaultValue, disabled: col.defaultValue === null} )
       });
       this.editColumn = i;
@@ -121,7 +122,7 @@ export class EditColumnsComponent implements OnInit {
       this.updateColumn.controls['maxLength'].value,
       this.updateColumn.controls['defaultValue'].value
     );
-    if( newColumn.dataType !== 'varchar' && newColumn.maxLength !== null ){
+    if( newColumn.dataType.toLowerCase() !== 'varchar' && newColumn.maxLength !== null ){
       newColumn.maxLength = null;
     }
     const req = new ColumnRequest( this.tableId, oldColumn, newColumn );
@@ -147,7 +148,7 @@ export class EditColumnsComponent implements OnInit {
       this._toast.toast( 'missing column name', 'Please provide a name for the new column.', 0, 'bg-warning');
       return;
     }
-    if( this.createColumn.dataType !== 'varchar' && this.createColumn.maxLength !== null ){
+    if( this.createColumn.dataType.toLowerCase() !== 'varchar' && this.createColumn.maxLength !== null ){
       this.createColumn.maxLength = null;
     }
     //const newColumn = new DbColumn( this.createColumn.name, false, this.createColumn.nullable, this.createColumn.dataType, this.createColumn.maxLength );
@@ -360,7 +361,7 @@ export class EditColumnsComponent implements OnInit {
   }
 
   onTypeChange( event ){
-    if( event.target.value === 'varchar'){
+    if( event.target.value.toLowerCase() === 'varchar'){
       this.updateColumn.controls['maxLength'].enable();
     }else{
       this.updateColumn.controls['maxLength'].setValue( null );

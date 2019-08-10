@@ -60,9 +60,9 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         if( $(ui.draggable).hasClass('rel-op') ){
           const leftPosition = ui.position.left - 220;
           const topPosition = ui.position.top - 100;
-          const label = $(ui.draggable).text();
+          const type = $(ui.draggable).text();
           //$('#drop').append('<div class="card node" style="left: ' + leftPosition + 'px; top: ' + topPosition + 'px;" id="node' + self.counter++ + '"><div class="in"></div><div class="out"></div><span class="drag-handle">' + label + '</span><span class="del"><i class="cui-trash"></i></span></div>');
-          const node = new Node( 'node'+ self.counter++, label, leftPosition, topPosition );
+          const node = new Node( 'node'+ self.counter++, type, leftPosition, topPosition );
           $('#drop').append( self.createNode( node ));
           self.nodes.set( node.getId(), node );
           $('#drop .card').draggable({containment: '#drop', handle: '.drag-handle'});
@@ -89,7 +89,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         self.temporalLine.y2 = y;
       }
     }).on('mouseup',function(e){
-        if(!isDragging) return;
+        if(!isDragging) { return; }
         if( $(e.target).hasClass( 'in' ) ){
           const target = $(e.target).parents('.node').attr('id');
           if( source !== target ){//don't allow to connect with own node
@@ -115,21 +115,15 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
   createNode( node: Node ) {
     let parameters: string[];
-    switch ( node.label ) {
+    switch ( node.type ) {
       case 'TableScan':
         parameters = ['table'];
         break;
       case 'Join':
-        parameters = ['join', 'condition'];
+        parameters = ['join', 'operator', 'col1', 'col2'];
         break;
       case 'Filter':
-        parameters = ['condition'];
-        break;
-      case 'Project':
-        parameters = ['fields', 'expressions'];
-        break;
-      case 'Aggregate':
-        parameters = ['group', 'aggs'];
+        parameters = ['operator', 'field', 'filter'];
         break;
       default:
         parameters = [];
@@ -141,7 +135,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     if(parameters.length > 0){
       params = '<ul class="list-group list-group-flush form-inline">' + params + '</ul>';
     }
-    return '<div class="card node" style="left: ' + node.left + 'px; top: ' + node.top + 'px;" id="' + node.id + '"><div class="in"></div><div class="out"></div><div class="drag-handle card-header">' + node.label + '<span class="del float-right"><i class="cui-trash"></i></span></div>' + params + '</div>';
+    return '<div class="card node" style="left: ' + node.left + 'px; top: ' + node.top + 'px;" id="' + node.id + '"><div class="in"></div><div class="out"></div><div class="drag-handle card-header">' + node.type + '<span class="del float-right"><i class="cui-trash"></i></span></div>' + params + '</div>';
   }
 
   addConnection( source, target ) {
@@ -163,40 +157,50 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   }
 
   getX1( s ){
-    if( s === undefined ) return;
+    if( s === undefined ) { return; }
     const ele = $('#'+s);
     return $(ele).position().left + $(ele).width()/2 + this.offsetX1;
   }
   getX2( t ){
-    if( t === undefined ) return;
+    if( t === undefined ) { return; }
     const ele = $('#'+t);
     return $(ele).position().left + $(ele).width()/2 + this.offsetX2;
   }
   getY1( s ){
-    if( s === undefined ) return;
+    if( s === undefined ) { return; }
     const ele = $('#'+s);
     return $(ele).position().top + this.offsetY1;
   }
   getY2( t ){
-    if( t === undefined ) return;
+    if( t === undefined ) { return; }
     const ele = $('#'+t);
     return $(ele).position().top + $(ele).height() + this.offsetY2;
   }
 
   runPlan(){
-    let result;
+    $('#run i').removeClass().addClass('fa fa-hourglass-half');
+    let tree;
     if( this.connections.size === 0 ){
       if( this.nodes.size === 1 ){
         //get only node in Map
-        result = this.walkTree( this.nodes.values().next().value );
+        tree = this.walkTree( this.nodes.values().next().value.clone() );
       }else {
+        $('#run i').removeClass().addClass('fa fa-play');
+        this._toast.toast( 'no plan', 'Please provide a plan to be executed.', 10, 'bg-warning' );
         return;
       }
     }else{
-      result = this.walkTree( this.getTopNode() );
+      tree = this.walkTree( this.getTopNode().clone() );
     }
-    console.log( result );
-    //todo send result to backend
+    this._crud.executeRelAlg( tree ).subscribe(
+      res => {
+        $('#run i').removeClass().addClass('fa fa-play');
+        this.resultSet = <ResultSet> res;
+        }, err => {
+        $('#run i').removeClass().addClass('fa fa-play');
+        this._toast.toast( 'Server error', 'Could not execute relational algebra: ', 0, 'bg-danger' );
+      }
+    );
   }
 
   getTopNode(){
@@ -218,12 +222,24 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         children.push( this.walkTree(v.source) );
       }
     });
-    node.addChildren(children);
+    node.setChildren(children);
     $('#' + node.getId()).find('.param').each( function(e){
       const param = $(this).find('label').text();
       const value = $(this).find('input').val();
       node[param] = value;
     });
+    node = this.getInputCount( node );
+    return node;
+  }
+
+  getInputCount( node: Node ) {
+    let counter = 0;
+    this.connections.forEach( conn => {
+      if( conn.target.getId() === node.getId() ){
+        counter++;
+      }
+    });
+    node.setInputCount( counter );
     return node;
   }
 
@@ -236,18 +252,23 @@ interface Connection{
 
 class Node{
   children: Node[] = [];
+  inputCount = 0;
   constructor(
     public id: string,
-    public label: string,
+    public type: string,
     public left: number,
     public top: number
   ){}
   getId(){
     return this.id;
   }
-  addChildren( nodes: Node[] ){
-    nodes.forEach((v, k)=>{
-      this.children.push( v );
-    });
+  setChildren(nodes: Node[] ){
+    this.children = nodes;
+  }
+  setInputCount( inputCount: number ){
+    this.inputCount = inputCount;
+  }
+  clone(){
+    return new Node( this.id, this.type, this.left, this.top );
   }
 }

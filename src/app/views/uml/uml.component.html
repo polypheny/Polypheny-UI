@@ -80,14 +80,14 @@
           </div>
           <form [formGroup]="fkForm">
             <div class="col-lg-12">
-              <span>on update</span>
+              <span>on update&nbsp;</span>
               <div class="btn-group" btnRadioGroup formControlName="update">
                 <label *ngFor="let action of onUpdate" [btnRadio]="action" class="btn btn-light"
                        role="btn">{{action}}</label>
               </div>
             </div>
             <div class="col-lg-12">
-              <span>on update&nbsp;</span>
+              <span>on delete&nbsp;</span>
               <div class="btn-group" btnRadioGroup formControlName="delete">
                 <label *ngFor="let action of onDelete" [btnRadio]="action" class="btn btn-light"
                        role="btn">{{action}}</label>
