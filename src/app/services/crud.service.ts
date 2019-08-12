@@ -147,8 +147,8 @@ export class CrudService {
   /**
    * Drop an index of a table
    */
-  dropIndex( request: EditTableRequest ){
-    return this._http.post(`${this.httpUrl}/dropIndex`, request, this.httpOptions);
+  dropIndex( index: Index ){
+    return this._http.post(`${this.httpUrl}/dropIndex`, index, this.httpOptions);
   }
 
   /**
@@ -223,6 +223,13 @@ export class CrudService {
    */
   getTypeInfo () {
     return this._http.get(`${this.httpUrl}/getTypeInfo`, this.httpOptions);
+  }
+
+  /**
+   * Fetch available actions for foreign key constraints
+   */
+  getFkActions(){
+    return this._http.get(`${this.httpUrl}/getForeignKeyActions`, this.httpOptions);
   }
 
 }

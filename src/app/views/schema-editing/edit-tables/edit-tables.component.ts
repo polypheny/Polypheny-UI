@@ -115,7 +115,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         const result = <ResultSet> res;
         if( result.error ) {
           this._toast.toast( 'error', 'Could not generate table: '+result.error, 10, 'bg-warning' );
-          console.log( result.info.generatedQuery );
         } else {
           this._toast.toast('success', 'Generated table ' + request.table, 1, 'bg-success' );
           this.newColumns.clear();

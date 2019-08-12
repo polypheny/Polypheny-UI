@@ -95,8 +95,8 @@
                    [ngModelOptions]="{standalone: true}">-->
           </td>
           <td>
-            <input *ngIf="createColumn.dataType === 'varchar'" type="number" placeholder="max-length" class="form-control form-control-sm" [(ngModel)]="createColumn.maxLength">
-            <input *ngIf="createColumn.dataType !== 'varchar'" type="number" placeholder="max-length" class="form-control form-control-sm" disabled>
+            <input *ngIf="createColumn.dataType.toLowerCase() === 'varchar'" type="number" placeholder="max-length" class="form-control form-control-sm" [(ngModel)]="createColumn.maxLength">
+            <input *ngIf="createColumn.dataType.toLowerCase() !== 'varchar'" type="number" placeholder="max-length" class="form-control form-control-sm" disabled>
           </td>
           <td>
             <div class="input-group">
@@ -152,7 +152,7 @@
         <tr *ngFor="let d1 of constraints.data; let i = index">
           <td *ngFor="let d2 of d1">{{d2}}</td>
           <td class="delete">
-            <i [ngClass]="{ 'cui-trash': i!==confirmConstraint, 'fa fa-warning': i===confirmConstraint }" (click)="dropConstraint(d1[0], i)" (mouseleave)="confirmConstraint = -1"></i>
+            <i [ngClass]="{ 'cui-trash': i!==confirmConstraint, 'fa fa-warning': i===confirmConstraint }" (click)="dropConstraint(d1[0], d1[1], i)" (mouseleave)="confirmConstraint = -1"></i>
           </td>
         </tr>
       </tbody>

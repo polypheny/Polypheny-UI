@@ -9,6 +9,7 @@ import {ModalDirective} from 'ngx-bootstrap';
 import {FormBuilder} from '@angular/forms';
 import {ToastService} from '../../components/toast/toast.service';
 import {DbColumn, ResultSet} from '../../components/data-table/models/result-set.model';
+import {DbmsTypesService} from '../../services/dbms-types.service';
 
 @Component({
   selector: 'app-uml',
@@ -30,9 +31,9 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   sourceCol;
   targetTable;
   targetCol;
-  onUpdate = ['NO ACTION', 'RESTRICT', 'CASCADE'];
-  onDelete = ['NO ACTION', 'RESTRICT', 'CASCADE'];
-  fkForm = this._formBuilder.group({update: 'NO ACTION', delete: 'NO ACTION'});
+  onUpdate = ['CASCADE', 'RESTRICT', 'SET NULL', 'SET DEFAULT'];
+  onDelete = ['CASCADE', 'RESTRICT', 'SET NULL', 'SET DEFAULT'];
+  fkForm = this._formBuilder.group({update: 'RESTRICT', delete: 'RESTRICT'});
   constraintName = 'fk1';
 
 
@@ -50,8 +51,17 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     private _crud: CrudService,
     private _leftSidebar: LeftSidebarService,
     private _formBuilder: FormBuilder,
-    private _toast: ToastService
-  ) {}
+    private _toast: ToastService,
+    private _dbmsTypes: DbmsTypesService
+  ) {
+    this._dbmsTypes.getFkActions().subscribe(
+      types => {
+        console.log(types);
+        this.onUpdate = types;
+        this.onDelete = types;
+      }
+    );
+  }
 
   ngOnInit() {
     this.schema = this._route.snapshot.paramMap.get('id');
@@ -73,7 +83,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getUml () {
-    if(!this.schema) return;
+    if(!this.schema) { return; }
     this._crud.getUml( new EditTableRequest( this.schema ) ).subscribe(
       res => {
         this.errorMsg = null;
@@ -135,7 +145,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         e.preventDefault();
       }
     }).on('mouseup', function (e) {
-      if(!isDragging) return;
+      if(!isDragging) { return; }
       if ( ( $(e.target).hasClass('pk') || $(e.target).hasClass('unique') ) && $(e.target).parents('.uml').attr('tableName') !== self.sourceTable) {
         self.myModal.show();
         self.targetTable = $(e.target).parents('.uml').attr('tableName');
@@ -149,10 +159,10 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   /** get x position of div of source column
    * param: source:string, target:string -> ids of the column divs */
   getX1(source:string, target:string){
-    if(source === undefined || target === undefined) return;
+    if(source === undefined || target === undefined) { return; }
     const sourceEle = $('#'+source);
     const targetEle = $('#'+target);
-    if(sourceEle === undefined || targetEle === undefined) return;
+    if(sourceEle === undefined || targetEle === undefined) { return; }
     // if($(sourceEle).offset() === undefined || $(targetEle).offset() === undefined ) return;
     if($(sourceEle).offset().left < $(targetEle).offset().left){
       return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + $(sourceEle).width() + this.offsetConnLeft1 -5;//-5 because no arrowhead
@@ -163,7 +173,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   /** get x position of div of target column
    * param: source:string, target:string -> ids of the column divs */
   getX2(source:string, target:string){
-    if(source === undefined || target === undefined) return;
+    if(source === undefined || target === undefined) { return; }
     const sourceEle = $('#'+source);
     const targetEle = $('#'+target);
     // if($(sourceEle).offset() === undefined || $(targetEle).offset() === undefined ) return;
@@ -176,7 +186,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   /** get y position of div of source/target column
    * param: source:string, target:string -> ids of the column divs */
   getY(ele:string) {
-    if (ele === undefined) return;
+    if (ele === undefined) { return; }
     const element = $('#' + ele);
     // if( $(element).position() === undefined ) return;
     return $(element).position().top + $(element).parents('.uml').position().top + this.offsetConnTop;
@@ -203,6 +213,8 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         else if( result.info.affectedRows === 1) {
           this._toast.toast( 'success', 'new foreign key was created', 10, 'bg-success');
+          this.getUml();
+          this.connectTables();
         }
       }, err => {
         this.closeModal();

@@ -199,11 +199,11 @@ export class EditColumnsComponent implements OnInit {
     );
   }
 
-  dropConstraint ( constraintName:string, i:number) {
+  dropConstraint ( constraintName:string, constraintType:string, i:number) {
     if( this.confirmConstraint !== i ){
       this.confirmConstraint = i;
     } else {
-      this._crud.dropConstraint( new ConstraintRequest( this.tableId, new TableConstraint( constraintName ) )).subscribe(
+      this._crud.dropConstraint( new ConstraintRequest( this.tableId, new TableConstraint( constraintName, constraintType ) )).subscribe(
         res => {
           const result = <ResultSet> res;
           if( result.error){
@@ -317,7 +317,7 @@ export class EditColumnsComponent implements OnInit {
     if (this.confirmIndex !== i) {
       this.confirmIndex = i;
     } else {
-      this._crud.dropIndex( new EditTableRequest(this.schema, this.table, index) ).subscribe(
+      this._crud.dropIndex( new Index( this.schema, this.table, index, null, null ) ).subscribe(
         res => {
           const result = <ResultSet> res;
           if( !result.error ){
