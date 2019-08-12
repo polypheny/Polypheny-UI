@@ -108,6 +108,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
             self.connections.delete( k );
           }
         });
+        self.nodes.delete(id);
         $(this).parents('.node').remove();
         self.connections.delete( id );
     });
