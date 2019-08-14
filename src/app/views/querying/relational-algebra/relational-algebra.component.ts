@@ -224,23 +224,12 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       }
     });
     node.setChildren(children);
+    node.setInputCount( children.length );
     $('#' + node.getId()).find('.param').each( function(e){
       const param = $(this).find('label').text();
       const value = $(this).find('input').val();
       node[param] = value;
     });
-    node = this.getInputCount( node );
-    return node;
-  }
-
-  getInputCount( node: Node ) {
-    let counter = 0;
-    this.connections.forEach( conn => {
-      if( conn.target.getId() === node.getId() ){
-        counter++;
-      }
-    });
-    node.setInputCount( counter );
     return node;
   }
 

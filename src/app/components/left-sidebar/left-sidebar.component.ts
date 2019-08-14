@@ -80,7 +80,7 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
         $(this).val('');
       }
       treeModel.filterNodes((node) => {
-        return node.data.name.startsWith($(this).val());
+        return node.data.name.toLowerCase().includes($(this).val().toLowerCase());
       });
     });
 
@@ -104,8 +104,9 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
     );
 
     this._sidebar.getResetSubject().subscribe(
-      sub => {
-        if ( sub === true ) this.reset();
+      collapse => {
+        if ( collapse === true ) this.reset();
+        else this.treeComponent.treeModel.activeNodeIds = {};
       }
     );
 

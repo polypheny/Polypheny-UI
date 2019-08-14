@@ -104,10 +104,11 @@ export class LeftSidebarService {
   }
 
   /**
-   * Reset tree completely, set all active nodes to inactive, collapse all
+   * Reset tree completely, set all active nodes to inactive
+   * @param collapse collapse tree if true
    */
-  reset(){
-    this.resetSubject.next(true);
+  reset( collapse = false ){
+    this.resetSubject.next( collapse );
   }
 
   getResetSubject(){

@@ -56,7 +56,6 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {
     this._dbmsTypes.getFkActions().subscribe(
       types => {
-        console.log(types);
         this.onUpdate = types;
         this.onDelete = types;
       }
@@ -83,7 +82,11 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getUml () {
-    if(!this.schema) { return; }
+    if(!this.schema) {
+      this.uml = null;
+      this._leftSidebar.reset();
+      return;
+    }
     this._crud.getUml( new EditTableRequest( this.schema ) ).subscribe(
       res => {
         this.errorMsg = null;

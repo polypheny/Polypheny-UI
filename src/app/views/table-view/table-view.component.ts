@@ -88,6 +88,9 @@ export class TableViewComponent implements OnInit, OnDestroy {
           this.loading = false;
         }
       );
+    } else {
+      this.resultSet = null;
+      this._sidebar.reset();
     }
 
   }

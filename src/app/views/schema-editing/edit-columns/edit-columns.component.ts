@@ -36,7 +36,7 @@ export class EditColumnsComponent implements OnInit {
   indexes: ResultSet;
   confirmIndex = -1;
   //todo put the available methods of the Polypheny-DB system or get it via the crud service
-  indexMethods = ['btree', 'hash', 'gist', 'gin'];
+  indexMethods = ['btree', 'hash']; // 'gist', 'gin'
   newIndexForm: FormGroup;
   indexSubmitted = false;
 

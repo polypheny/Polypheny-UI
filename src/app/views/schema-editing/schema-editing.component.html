@@ -11,16 +11,12 @@
             <form [formGroup]="createForm" (submit)="createSchema()">
                 <div class="form-group">
                     <label for="schemaNameCreate">Schema name</label>
-                    <input type="text" id="schemaNameCreate" class="form-control" formControlName="name" [ngClass]="getValidationClass(createForm, createSubmitted, 'name')">
+                    <input type="text" id="schemaNameCreate" class="form-control" formControlName="name" [ngClass]="getValidationClass(createForm, createSubmitted, 'name')" placeholder="schema name">
                     <div class="invalid-feedback">required</div>
                 </div>
                 <div class="form-check checkbox">
                     <input type="checkbox" id="ifNotExists" class="form-check-input" formControlName="ifNotExists">
                     <label for="ifNotExists" class="form-check-label">if not exists</label>
-                </div>
-                <div class="form-group">
-                    <label for="auth">Authorization</label>
-                    <input type="text" id="auth" class="form-control" formControlName="auth" placeholder="user">
                 </div>
                 <div class="form-group">
                     <label>Schema type</label>
@@ -38,12 +34,9 @@
             <h2>Drop Schema</h2>
             <form [formGroup]="dropForm" (submit)="dropSchema()">
                 <div class="form-group">
-                    <label for="schemaNameDrop">Schema name</label>
-                    <select name="" id="schemaNameDrop" class="form-control" formControlName="name" [ngClass]="getValidationClass(dropForm, dropSubmitted, 'name')">
-                        <option value="" selected>Select schema</option>
-                        <option *ngFor="let schema of schemas" value="{{schema.name}}">{{schema.name}}</option>
-                    </select>
-                    <div class="invalid-feedback">required</div>
+                  <label for="schemaNameDrop">Schema name</label>
+                  <input type="text" class="form-control" formControlName="name" id="schemaNameDrop" placeholder="schema name" [ngClass]="getValidationClass(dropForm, dropSubmitted, 'name')">
+                  <div class="invalid-feedback">required</div>
                 </div>
                 <div class="form-check checkbox">
                     <input type="checkbox" id="exists" class="form-check-input" formControlName="exists">

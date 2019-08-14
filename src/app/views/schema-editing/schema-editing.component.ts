@@ -45,6 +45,8 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     this.routeParam = this._route.snapshot.paramMap.get('id');
     this._route.params.subscribe((params) => {
       this.routeParam = params['id'];
+      // set active nodes to inactive if going back to the schema-editing main view
+      if( this.routeParam === '' ) this._leftSidebar.reset();
     });
   }
 
@@ -63,7 +65,6 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     this.createForm = new FormGroup({
       name: new FormControl('', Validators.required),
       ifNotExists: new FormControl(true),
-      auth: new FormControl(''),
       type: new FormControl('relational', Validators.required)
     });
     this.dropForm = new FormGroup({
@@ -77,7 +78,6 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     switch ( formName ) {
       case 'createForm':
         this.createForm.controls['name'].setValue('');
-        this.createForm.controls['auth'].setValue('');
         this.createForm.markAsPristine();
         break;
       case 'dropForm':
@@ -87,13 +87,13 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         break;
     }
   }
-  
+
   createSchema(){
     this.createSubmitted = true;
     if( this.createForm.valid ){
       const val = this.createForm.value;
       console.log(val);
-      this._crud.createOrDropSchema( new Schema( val.name, val.type ).setCreate( true ).setIfNotExists( val.ifNotExists ).setAuthorization( val.auth ) ).subscribe(
+      this._crud.createOrDropSchema( new Schema( val.name, val.type ).setCreate( true ).setIfNotExists( val.ifNotExists ) ).subscribe(
         res => {
           const result = <ResultSet> res;
           if( result.error ){
@@ -135,9 +135,10 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   }
 
   getValidationClass( group: FormGroup, submitted: boolean, key: string ){
-    if(group.controls[key].valid && ( group.controls[key].dirty || submitted ) ){
+    if( !submitted ) return;
+    if(group.controls[key].valid){
       return {'is-valid':true};
-    }else if(!group.controls[key].valid && ( group.controls[key].dirty || submitted )) {
+    }else if(!group.controls[key].valid) {
       return {'is-invalid': true };
     }
   }
