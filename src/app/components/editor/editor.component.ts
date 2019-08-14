@@ -3,6 +3,10 @@ import * as $ from 'jquery';
 import * as ace from 'ace-builds'; // ace module ..
 import 'ace-builds/src-noconflict/mode-sql';
 import 'ace-builds/src-noconflict/theme-tomorrow';
+import 'ace-builds/src-noconflict/ext-language_tools';
+import {CrudService} from '../../services/crud.service';
+import {SchemaRequest} from '../../models/ui-request.model';
+import {SidebarNode} from '../../models/sidebar-node.model';
 
 @Component({
   selector: 'app-editor',
@@ -25,7 +29,18 @@ export class EditorComponent implements OnInit, AfterViewInit {
   THEME = 'ace/theme/' + this.theme;
   LANG = 'ace/mode/' + this.lang;
 
-  constructor() {}
+  suggestions: string[] = [];
+
+  constructor( private _crud: CrudService ) {
+    this._crud.getSchema( new SchemaRequest( '', false, 3 ) ).subscribe(
+      res => {
+        const map = this.computeSuggestions( <SidebarNode[]> res );
+        map.forEach((v, k) => {
+          this.suggestions.push( v );
+        });
+      }
+    );
+  }
 
   ngOnInit() {
     this.initEditor();
@@ -64,6 +79,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
       // from https://stackoverflow.com/questions/28283344/is-there-a-way-to-hide-the-line-numbers-in-ace-editor
       this.codeEditor.setHighlightActiveLine(false);
     }
+    this.setAutocomplete();
   }
 
   getCode(){
@@ -80,6 +96,49 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
   setCode ( code: string ) {
     if( this.codeEditor) this.codeEditor.setValue( code, 1 );
+  }
+
+  // from: https://stackoverflow.com/questions/30041816/ace-editor-autocomplete-custom-strings
+  setAutocomplete(){
+    this.codeEditor.setOptions({ enableLiveAutocompletion: true });
+    const self = this;
+    const staticWordCompleter = {
+      getCompletions: function( editor, session, pos, prefix, callback ){
+        const wordList = self.suggestions;
+        callback(null, wordList.map(function(word) {
+          return {
+            caption: word,
+            value: word,
+            meta: 'static'
+          };
+        }));
+      }
+    };
+    this.codeEditor['completers'].push(staticWordCompleter);
+  }
+
+  /**
+   * Compute a map containing all schemas, tables and columns
+   */
+  computeSuggestions( tree: SidebarNode[] ){
+    let map = new Map<string, string>();
+    tree.forEach( ( v, k ) => {
+      map = this.suggestionBuilder( v, map );
+    });
+    return map;
+  }
+
+  /**
+   * recursive function to build map with all schemas, tables and columns
+   */
+  suggestionBuilder( node: SidebarNode, map: Map<string, string> ){
+    map.set( node.name, node.name );
+    if( node.children.length > 0 ){
+      node.children.forEach( (v, n) => {
+        map = this.suggestionBuilder( v, map );
+      });
+    }
+    return map;
   }
 
 }
