@@ -94,7 +94,7 @@ export class DbmsTypesService {
    * @return if the dbms type is numeric
    */
   isNumeric ( type: string ){
-    return this.numericArray.includes( type );
+    return this.numericArray.includes( type.toLowerCase() );
   }
 
   /**
@@ -102,7 +102,7 @@ export class DbmsTypesService {
    * @return if the dbms type is of boolean type
    */
   isBoolean ( type: string ) {
-    return this.booleanArray.includes( type );
+    return this.booleanArray.includes( type.toLowerCase() );
   }
 
 }

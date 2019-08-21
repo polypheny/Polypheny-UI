@@ -45,8 +45,6 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     this.routeParam = this._route.snapshot.paramMap.get('id');
     this._route.params.subscribe((params) => {
       this.routeParam = params['id'];
-      // set active nodes to inactive if going back to the schema-editing main view
-      if( this.routeParam === '' ) this._leftSidebar.reset();
     });
   }
 

@@ -21,7 +21,6 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   @ViewChild( 'editor' ) codeEditor;
 
-  analyzerOptionsCollapsed = true;
   history: Map<string, SqlHistory> = new Map<string, SqlHistory>();
   readonly MAXHISTORY = 20;//maximum items in history
 
@@ -29,6 +28,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   queryAnalysis: InformationPage;
   analyzerId: string;//current analyzer id
   analyzeQuery = true;
+  showingAnalysis = false;
+  websocketSubscription;
 
   tableConfig: TableConfig = {
     create: false,
@@ -51,18 +52,18 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
         self._crud.closeAnalyzer( self.analyzerId ).subscribe();
       }
     };
+    this.initWebsocket();
   }
 
   ngOnInit() {
-    this.initWebsocket();
     this.loadAnalyzerPages();
-
     SqlHistory.fromJson( localStorage.getItem( 'sql-history' ), this.history );
   }
 
   ngOnDestroy(){
     this._leftSidebar.close();
     this._crud.closeAnalyzer( this.analyzerId ).subscribe();
+    this.websocketSubscription.unsubscribe();
   }
 
   submitQuery () {
@@ -115,7 +116,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   }
 
   initWebsocket() {
-    this._crud.onSocketEvent().subscribe(
+    this.websocketSubscription = this._crud.onSocketEvent().subscribe(
       msg => {
 
         //if msg contains nodes of the sidebar
@@ -126,21 +127,13 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
             const split = sidebarNodes[0].routerLink.split('/');
             this.analyzerId = split[0];
           }
+          sidebarNodes.unshift( new SidebarNode( 'sql-console', 'sql-console', 'fa fa-keyboard-o', '' ) );
           this._leftSidebar.setNodes(sidebarNodes);
           if(sidebarNodes.length > 0) {
             this._leftSidebar.open();
             const split = sidebarNodes[0].routerLink.split('/');
             const analyzerId = split[0];
             const analyzerPage = split[1];
-            if( analyzerId !== undefined && analyzerPage !== undefined ){
-              this._crud.getAnalyzerPage( analyzerId, analyzerPage ).subscribe(
-                res => {
-                  this.queryAnalysis = <InformationPage> res;
-                }, err => {
-                  console.log(err);
-                }
-              );
-            }
           }
           else {
             this._leftSidebar.close();
@@ -164,6 +157,12 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   loadAnalyzerPages() {
     this._leftSidebar.setAction( ( node: TreeNode ) => {
+      if( node.data.id === 'sql-console' ){
+        //this.queryAnalysis = null;
+        this.showingAnalysis = false;
+        node.setIsActive( true );
+        return;
+      }
       const split = node.data.routerLink.split('/');
       const analyzerId = split[0];
       const analyzerPage = split[1];
@@ -171,6 +170,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
         this._crud.getAnalyzerPage( analyzerId, analyzerPage ).subscribe(
           res => {
             this.queryAnalysis = <InformationPage> res;
+            this.showingAnalysis = true;
             node.setIsActive(true);
           }, err => {
             console.log(err);

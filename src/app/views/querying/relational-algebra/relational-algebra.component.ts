@@ -131,10 +131,12 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     }
     let params = '';
     parameters.forEach( (v, i) => {
-      params += `<li class="param list-group-item"><div class="form-group"><label for="${node.getId()}param${i}">${v}</label><input type="text" placeholder="${v}" id="${node.getId()}param${i}" class="form-control form-control-sm"></div></li>`;
+      //capitalise: see https://dzone.com/articles/how-to-capitalize-the-first-letter-of-a-string-in
+      const capitalizedName = v.charAt(0).toUpperCase()+ v.slice(1).toLowerCase();
+      params += `<li class="param list-group-item"><div class="param-wrapper"><label for="${node.getId()}param${i}">${capitalizedName}</label><input type="text" placeholder="${capitalizedName}" id="${node.getId()}param${i}" name="${v}" class="form-control form-control-sm param-input"></div></li>`;
     });
     if(parameters.length > 0){
-      params = '<ul class="list-group list-group-flush form-inline">' + params + '</ul>';
+      params = '<ul class="list-group list-group-flush">' + params + '</ul>';
     }
     return '<div class="card node" style="left: ' + node.left + 'px; top: ' + node.top + 'px;" id="' + node.id + '"><div class="in"></div><div class="out"></div><div class="drag-handle card-header">' + node.type + '<span class="del float-right"><i class="cui-trash"></i></span></div>' + params + '</div>';
   }
@@ -226,7 +228,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     node.setChildren(children);
     node.setInputCount( children.length );
     $('#' + node.getId()).find('.param').each( function(e){
-      const param = $(this).find('label').text();
+      const param = $(this).find('input').attr('name');
       const value = $(this).find('input').val();
       node[param] = value;
     });

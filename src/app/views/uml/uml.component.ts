@@ -131,7 +131,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     let isDragging = false;
     let offsetX = this.offsetLineX1;
     $(document).on('mousedown', '.uml .cols', function(e) {
-      if($('body').hasClass('sidebar-lg-show')){
+      if( $('body').hasClass('sidebar-lg-show') && document.documentElement.clientWidth > 992 ){
         offsetX = self.offsetLineX2;
       } else {
         offsetX = self.offsetLineX1;

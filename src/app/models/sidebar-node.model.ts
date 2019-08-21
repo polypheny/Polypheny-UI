@@ -4,7 +4,7 @@ export class SidebarNode{
   icon:string;
   routerLink:string;
   cssClass: string;
-  children: SidebarNode[];
+  children: SidebarNode[] = [];
   constructor ( id, name, icon, routerLink ){
     this.id = id;
     this.name = name;

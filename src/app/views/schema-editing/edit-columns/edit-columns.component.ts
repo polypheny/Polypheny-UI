@@ -55,6 +55,7 @@ export class EditColumnsComponent implements OnInit {
     this._types.getTypes().subscribe(
       type => {
         this.types = type;
+        this.createColumn.dataType = type[0];
       }
     );
   }

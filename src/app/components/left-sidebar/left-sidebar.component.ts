@@ -26,31 +26,21 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
     this.options = {
       actionMapping: {
         mouse: {
-          dblClick: (tree, node, $event) => {
-            /*if (node.hasChildren) {
-              TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-            }*/
-          },
           click: (tree, node, $event) => {
-            if (node.hasChildren){
+            if( _sidebar.action !== null ){
+              _sidebar.action( node );
               TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-              if( _sidebar.action !== null ){
-                _sidebar.action( node );
-              }else{
-                if( node.data.routerLink !== '' ){
-                  _router.navigate([node.data.routerLink]);
-                  node.setIsActive(true);
+            } else{
+              if( node.data.routerLink !== '' ){
+                _router.navigate([node.data.routerLink]);
+                if( node.isCollapsed ){
+                  TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+                } else if( !node.isCollapsed && node.isActive === true ){
+                  TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
                 }
-              }
-            }
-            else if ( ! node.hasChildren){
-              if( _sidebar.action !== null ){
-                _sidebar.action( node );
-              }else {
-                if (node.data.routerLink !== '') {
-                  _router.navigate([node.data.routerLink]);
-                  node.setIsActive(true);
-                }
+                node.setIsActive(true, false);
+              } else {
+                TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
               }
             }
           }

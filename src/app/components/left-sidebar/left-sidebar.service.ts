@@ -126,9 +126,13 @@ export class LeftSidebarService {
         //Schema editing view
         if( !schemaRequest.views && schemaRequest.depth === 2 ){
           schema.forEach( (val, key) => {
-            val.routerLink = schemaRequest.routerLinkRoot + '/';
-            val.children[0].routerLink = schemaRequest.routerLinkRoot + val.id;
+            val.routerLink = schemaRequest.routerLinkRoot;
+            val.children.forEach( (v, k) => {
+              v.routerLink = schemaRequest.routerLinkRoot + val.id;
+            });
+            //val.children.unshift( new SidebarNode( val.id+'.manageTables', 'manage tables', 'fa fa-clone', schemaRequest.routerLinkRoot + val.id ) );
           });
+          //schema.unshift( new SidebarNode( 'schema', 'schema', 'fa fa-database', '/views/schema-editing') );
         }
         //Uml view
         else if( schemaRequest.depth === 1 ){

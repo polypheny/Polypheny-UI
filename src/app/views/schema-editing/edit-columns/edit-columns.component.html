@@ -10,17 +10,19 @@
     <table class="table table-hover table-striped" *ngIf="resultSet">
       <thead>
         <tr>
-          <th>name</th>
-          <th>nullable</th>
-          <th>type</th>
-          <th>max-length</th>
-          <th>default-value</th>
+          <th class="pk">PK</th>
+          <th>Name</th>
+          <th>Nullable</th>
+          <th>Type</th>
+          <th>Length</th>
+          <th>Default</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let col of resultSet.header; let i = index" (dblclick)="editCol(i, col)" [ngClass]="{'editing': i === editColumn}">
           <ng-container *ngIf="i === editColumn" [formGroup]="updateColumn">
+                <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
                 <td>
                   <input type="text" class="form-control form-control-sm" formControlName="name" [attr.data-before]="col.name" id="colName">
                 </td>
@@ -47,9 +49,9 @@
                   <!--<input type="text" [(ngModel)]="col.defaultValue" class="form-control form-control-sm" id="defaultValue" [attr.data-before]="col.defaultValue">-->
                   <div class="input-group">
                       <input type="hidden" formControlName="oldName">
-                    <ng-container [ngSwitch]="updateColumn.controls['dataType'].value">
-                      <input *ngSwitchCase="_types.numericTypes().includes( updateColumn.controls['dataType'].value ) ? updateColumn.controls['dataType'].value : ''" type="number" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue">
-                      <ng-container *ngSwitchCase="_types.booleanTypes().includes( updateColumn.controls['dataType'].value ) ? updateColumn.controls['dataType'].value : ''">
+                    <ng-container [ngSwitch]="updateColumn.controls['dataType'].value.toLowerCase()">
+                      <input *ngSwitchCase="_types.numericTypes().includes( updateColumn.controls['dataType'].value.toLowerCase() ) ? updateColumn.controls['dataType'].value.toLowerCase() : ''" type="number" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue">
+                      <ng-container *ngSwitchCase="_types.booleanTypes().includes( updateColumn.controls['dataType'].value.toLowerCase() ) ? updateColumn.controls['dataType'].value.toLowerCase() : ''">
                         <div class="form-check form-check-inline">
                           <label *ngIf="col.defaultValue === null" class="form-check-label disabled" [for]="'default'+col.name">null&nbsp;</label>
                           <label *ngIf="col.defaultValue === true" class="form-check-label" [for]="'default'+col.name">true&nbsp;</label>
@@ -67,8 +69,11 @@
                 <td><button class="btn btn-primary" (click)="saveCol()"><i class="fa fa-save editColSave"></i></button></td>
           </ng-container>
           <ng-container *ngIf="i !== editColumn">
+            <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
             <td>{{col.name}}</td>
-            <td>{{col.nullable}}</td>
+            <td>
+              <i class="fa fa-check" *ngIf="col.nullable"></i>
+            </td>
             <td>{{col.dataType}}</td>
             <td>{{col.maxLength}}</td>
             <td>{{col.defaultValue}}</td>
@@ -77,6 +82,7 @@
         </tr>
 
         <tr>
+          <td class="pk"></td>
           <td>
             <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name" [(ngModel)]="createColumn.name">
           </td>
@@ -101,9 +107,9 @@
           </td>
           <td>
             <div class="input-group">
-              <ng-container [ngSwitch]="createColumn.dataType">
-                <input *ngSwitchCase="_types.numericTypes().includes( createColumn.dataType ) ? createColumn.dataType : ''" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="createColumn.defaultValue" [disabled]="createColumn.defaultValue === null">
-                <ng-container *ngSwitchCase="_types.booleanTypes().includes( createColumn.dataType ) ? createColumn.dataType : ''">
+              <ng-container [ngSwitch]="createColumn.dataType.toLowerCase()">
+                <input *ngSwitchCase="_types.numericTypes().includes( createColumn.dataType.toLowerCase() ) ? createColumn.dataType.toLowerCase() : ''" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="createColumn.defaultValue" [disabled]="createColumn.defaultValue === null">
+                <ng-container *ngSwitchCase="_types.booleanTypes().includes( createColumn.dataType.toLowerCase() ) ? createColumn.dataType.toLowerCase() : ''">
                   <div class="form-check form-check-inline">
                     <label *ngIf="createColumn.defaultValue === null" class="form-check-label disabled" [for]="'default'+createColumn.name">null&nbsp;</label>
                     <label *ngIf="createColumn.defaultValue === true" class="form-check-label" [for]="'default'+createColumn.name">true&nbsp;</label>
