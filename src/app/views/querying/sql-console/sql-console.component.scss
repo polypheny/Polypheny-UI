@@ -7,7 +7,7 @@ select{
 #history {
   max-height: 240px;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   .header{
     background: #f0f3f5;
   }

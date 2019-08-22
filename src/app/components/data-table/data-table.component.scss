@@ -3,7 +3,7 @@
   min-width: 60%;
   max-width: 100%;
   margin: 0 auto;
-  overflow-x: scroll;
+  overflow-x: auto;
   // display: inline-block;
   tr th{
     vertical-align: middle;
@@ -17,7 +17,7 @@
 }
 #data-table-wrapper {
   text-align: center;
-  overflow-x: scroll;
+  overflow-x: auto;
 }
 
 th.delete, td.delete{
