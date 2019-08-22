@@ -33,6 +33,7 @@ export class DbColumn {
 
     //for editing columns
     primary: boolean;
+    unique: boolean;
     nullable: boolean;
     maxLength: string;
     defaultValue: any;

@@ -146,8 +146,8 @@ export class DataTableComponent implements OnInit, OnChanges {
     if(this.resultSet.header){
       this.resultSet.header.forEach( (g, idx) => {
         //set insertDirty
-        if( ! g.nullable && g.dataType !== 'serial' ){
-          //set dirty if not nullable, so it will be submitted, except if it has autoincrement (dataType 'serial')
+        if( ! g.nullable && g.dataType !== 'serial' && g.defaultValue === undefined ){
+          //set dirty if not nullable, so it will be submitted, except if it has autoincrement (dataType 'serial') or a default value
           this.insertDirty.set( g.name, true );
         }
         else{

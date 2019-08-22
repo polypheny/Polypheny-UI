@@ -138,6 +138,13 @@ export class CrudService {
   }
 
   /**
+   * Add a unique constraint to a table
+   */
+  addUniqueConstraint ( request: ConstraintRequest ) {
+    return this._http.post(`${this.httpUrl}/addUniqueConstraint`, request, this.httpOptions);
+  }
+
+  /**
    * Get indexes of a table
    */
   getIndexes ( request: EditTableRequest ) {

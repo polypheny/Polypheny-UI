@@ -15,12 +15,16 @@ h5{
 tr:hover .delete i{
   visibility: visible;
 }
-#addPK {
+.add-constraint {
   display: inline-flex;
   margin-top: -0.4em;
 }
-#primaryKeys{
+.constraint-columns{
   line-height: 2em;
+}
+.constraint-title{
+  display: inline-flex;
+  margin-bottom: 0.5em;
 }
 .form-inline .form-control, .form-inline label{
   margin-right: 1em;

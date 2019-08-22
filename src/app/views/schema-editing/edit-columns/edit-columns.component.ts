@@ -33,6 +33,8 @@ export class EditColumnsComponent implements OnInit {
   constraints: ResultSet;
   confirmConstraint = -1;
 
+  uniqueConstraintName = '';
+
   indexes: ResultSet;
   confirmIndex = -1;
   //todo put the available methods of the Polypheny-DB system or get it via the crud service
@@ -232,11 +234,50 @@ export class EditColumnsComponent implements OnInit {
         const result = <ResultSet> res;
         if( !result.error ){
           this.getConstraints();
+          this._toast.toast( 'added primary key', 'The primary key was added.', 5, 'bg-success' );
         }else {
           this._toast.toast( 'primary key error', result.error, 0, 'bg-warning');
         }
       }, err => {
         this._toast.toast( 'Server error', 'Could not add primary key.', 0, 'bg-danger');
+        console.log(err);
+      }
+    );
+  }
+
+  addUniqueConstraint(){
+    if( this.uniqueConstraintName === '' ){
+      this._toast.toast( 'constraint name', 'Please provide a name for the unique constraint.', 10, 'bg-warning' );
+      return;
+    }
+    const constraint = new TableConstraint( this.uniqueConstraintName, 'UNIQUE');
+    let counter = 0;
+    this.resultSet.header.forEach((v, k) => {
+      if( v.unique ){
+        constraint.addColumn( v.name );
+        counter++;
+      }
+    });
+    if( counter === 0 ) {
+      this._toast.toast( 'unique constraint', 'Please select at least one column that should be part of the unique constraint.', 10, 'bg-warning' );
+      return;
+    }
+    const constraintRequest = new ConstraintRequest( this.tableId, constraint );
+    this._crud.addUniqueConstraint( constraintRequest ).subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if( !result.error ){
+          this.getConstraints();
+          this._toast.toast( 'added constraint', 'The unique constraint was successfully created', 5, 'bg-success' );
+          this.uniqueConstraintName = '';
+          this.resultSet.header.forEach((v, k) => {
+            v.unique = false;
+          });
+        }else {
+          this._toast.toast( 'unique constraint error', result.error, 0, 'bg-warning');
+        }
+      }, err => {
+        this._toast.toast( 'Server error', 'Could not add unique constraint.', 0, 'bg-danger');
         console.log(err);
       }
     );

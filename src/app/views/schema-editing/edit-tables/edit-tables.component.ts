@@ -69,10 +69,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
    */
   sendRequest ( table:string, action, confirm: string ) {
     let request;
-    if( confirm.toLowerCase() === 'drop' && action === 'drop'){
-      request = new EditTableRequest( this.schema, table, confirm );
-    }else if( confirm.toLowerCase() === 'truncate' && action === 'truncate'){
-      request = new EditTableRequest( this.schema, table, confirm );
+    if( confirm === table && action === 'drop'){
+      request = new EditTableRequest( this.schema, table, action );
+    }else if( confirm === table && action === 'truncate'){
+      request = new EditTableRequest( this.schema, table, action );
     }else {
       return;
     }

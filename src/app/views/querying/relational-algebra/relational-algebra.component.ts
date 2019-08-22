@@ -126,6 +126,9 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       case 'Filter':
         parameters = ['operator', 'field', 'filter'];
         break;
+      case 'Project':
+        parameters = ['fields'];
+        break;
       default:
         parameters = [];
     }

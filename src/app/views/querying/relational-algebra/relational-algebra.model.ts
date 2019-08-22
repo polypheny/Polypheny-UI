@@ -1,7 +1,8 @@
 export enum LogicalOperators {
   TableScan,
   Join,
-  Filter
+  Filter,
+  Project
 
   /*
   Aggregate,
@@ -11,7 +12,6 @@ export enum LogicalOperators {
   Intersect,
   Match,
   Minus,
-  Project,
   Sort,
   SortExchange,
   TableFunctionScan,
