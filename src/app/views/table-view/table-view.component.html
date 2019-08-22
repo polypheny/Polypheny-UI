@@ -3,5 +3,6 @@
 	<br>
 </ng-container>
 <a routerLink="." class="btn btn-light btn-circle" [ngClass]="{'rotating': loading}" id="reload-btn" (click)="getTable()"><i class="icon-reload"></i></a>
-<app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="tableConfig" [tableId]="tableId"></app-data-table>
+<span *ngIf="!resultSet && loading">Loading table...</span>
+<app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="tableConfig" [tableId]="tableId" [loading]="loading"></app-data-table>
 <p *ngIf="!tableId">Please select a table in the left sidebar to view its data.</p>

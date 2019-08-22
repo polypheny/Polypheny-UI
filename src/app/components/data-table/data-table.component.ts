@@ -19,6 +19,7 @@ export class DataTableComponent implements OnInit, OnChanges {
   @Input() resultSet: ResultSet;
   @Input() config: TableConfig;
   @Input() tableId: string;
+  @Input() loading?: boolean;
 
   pagination: PaginationElement[] = [];
   insertValues = new Map<string, any>();

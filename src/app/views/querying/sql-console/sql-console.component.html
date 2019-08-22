@@ -24,7 +24,8 @@
       <input type="checkbox" class="custom-control-input" id="checkbox1" [checked]="analyzeQuery" (change)="analyzeQuery = !analyzeQuery">
       <label class="custom-control-label" for="checkbox1">analyze query</label>
     </div>
-    <button type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
+    <button *ngIf="!loading" type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
+    <button *ngIf="loading" type="submit" class="btn btn-primary pull-right" disabled>Loading</button>
   </div>
 </div>
 

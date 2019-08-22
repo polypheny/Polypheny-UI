@@ -30,6 +30,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   analyzeQuery = true;
   showingAnalysis = false;
   websocketSubscription;
+  loading = false;
 
   tableConfig: TableConfig = {
     create: false,
@@ -81,10 +82,13 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     }
     this.queryAnalysis = null;
 
+    this.loading = true;
     this._crud.anyQuery( new QueryRequest( this.codeEditor.getCodeWithoutComments(), this.analyzeQuery ) ).subscribe(
         res => {
+          this.loading = false;
           this.resultSets = <ResultSet[]> res;
         }, err => {
+          this.loading = false;
           this.resultSets = [new ResultSet( err.message )];
     });
   }

@@ -22,6 +22,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   @ViewChild('editorGenerated') editorGenerated;
   generatedSQL;
   resultSet: ResultSet;
+  loading = false;
 
   //fields for the graphical query generation
   schemas = new Map<string, string>();//schemaName, schemaName
@@ -133,12 +134,15 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   executeQuery () {
+    this.loading = true;
     this._crud.anyQuery( new QueryRequest( this.editorGenerated.getCode(), false ) ).subscribe(
       res => {
         const result = <ResultSet>res;
         this.resultSet = result[0];
+        this.loading = false;
       }, err => {
         this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
+        this.loading = false;
       }
     );
   }
