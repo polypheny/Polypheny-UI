@@ -61,22 +61,22 @@ tr:hover .selector input{
 }
 
 /*
-from:
+see:
 https://stackoverflow.com/questions/38773538/css-table-loading-overlay-for-tbody
 respectively
 https://plnkr.co/edit/qOwmd9xJvwYdJ37wsKWX?p=preview
 */
 table thead,
 table tbody {
-  display: table;
   width: 100%;
 }
 
-table.loading tbody {
+table.loading {
   position: relative;
+  border: none;
 }
 
-table.loading tbody:after {
+table.loading:after {
   position: absolute;
   top: 0;
   left: 0;
