@@ -142,7 +142,7 @@
           <div class="card-body">
             <strong class="constraint-title">add primary key:</strong>
             <div class="constraint-columns">
-              <div class="form-check form-check-inline" *ngFor="let c of resultSet.header; let j = index">
+              <div class="form-check form-check-inline" *ngFor="let c of newPrimaryKey; let j = index">
                 <input type="checkbox" class="form-check-input" [id]="'pkcol'+j" [(ngModel)]="c.primary">
                 <label class="form-check-label" [for]="'pkcol'+j">{{c.name}}</label>
               </div>

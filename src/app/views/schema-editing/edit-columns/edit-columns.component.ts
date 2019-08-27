@@ -32,6 +32,7 @@ export class EditColumnsComponent implements OnInit {
 
   constraints: ResultSet;
   confirmConstraint = -1;
+  newPrimaryKey: DbColumn[];
 
   uniqueConstraintName = '';
 
@@ -95,6 +96,8 @@ export class EditColumnsComponent implements OnInit {
         this.resultSet.header.forEach(( v ,k )=>{
           this.oldColumns.set( v.name, DbColumn.fromJson( v ));
         });
+        // deep copy: from: https://stackoverflow.com/questions/35504310/deep-copy-an-array-in-angular-2-typescript
+        this.newPrimaryKey = this.resultSet.header.map( x => Object.assign({}, x));
       }, err => {
         this._toast.toast( 'server error', 'Could not load columns of the table.', 0, 'bg-danger' );
         console.log(err);
@@ -184,6 +187,10 @@ export class EditColumnsComponent implements OnInit {
         res => {
           this.getColumns();
           this.confirm = -1;
+          const result = <ResultSet> res;
+          if( result.error ){
+            this._toast.toast( 'server error', 'Could not delete column:\n' + result.error, 0, 'bg-warning' );
+          }
         }, err => {
           this._toast.toast( 'server error', 'Could not delete column.', 0, 'bg-danger' );
           console.log(err);
@@ -223,7 +230,7 @@ export class EditColumnsComponent implements OnInit {
 
   addPrimaryKey () {
     const pk = new TableConstraint( 'pk', 'PRIMARY KEY' );
-    this.resultSet.header.forEach((v, k) => {
+    this.newPrimaryKey.forEach((v, k) => {
       if( v.primary ){
         pk.addColumn( v.name );
       }
@@ -235,6 +242,7 @@ export class EditColumnsComponent implements OnInit {
         if( !result.error ){
           this.getConstraints();
           this._toast.toast( 'added primary key', 'The primary key was added.', 5, 'bg-success' );
+          this.getColumns();
         }else {
           this._toast.toast( 'primary key error', result.error, 0, 'bg-warning');
         }

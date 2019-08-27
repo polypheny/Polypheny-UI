@@ -142,6 +142,9 @@ export class DataTableComponent implements OnInit, OnChanges {
   }
 
   buildInsertObject () {
+    if( !this.config.create ){
+      return;
+    }
     this.insertValues.clear();
     this.insertDirty.clear();
     if(this.resultSet.header){
