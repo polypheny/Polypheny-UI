@@ -107,13 +107,16 @@ export class EditColumnsComponent implements OnInit {
 
   editCol( i:number, col: DbColumn ) {
     if(this.editColumn !== i) {
+      if( col.defaultValue === undefined ){
+        col.defaultValue = null;
+      }
       this.updateColumn = new FormGroup({
         name: new FormControl( col.name, Validators.required ),
         oldName: new FormControl( col.name ),
         nullable: new FormControl( col.nullable ),
         dataType: new FormControl( col.dataType ),
         maxLength: new FormControl( {value: col.maxLength, disabled: col.dataType.toLowerCase() !== 'varchar'} ),
-        defaultValue: new FormControl( {value: col.defaultValue, disabled: col.defaultValue === null} )
+        defaultValue: new FormControl( {value: col.defaultValue, disabled: col.defaultValue === null || col.defaultValue === undefined} )
       });
       this.editColumn = i;
     }
@@ -422,6 +425,16 @@ export class EditColumnsComponent implements OnInit {
 
   onTypeChange2( col ){
     if( col.defaultValue !== null ) this.assignDefault( col, false );
+  }
+
+  validate( defaultValue ){
+    if( defaultValue === null ){
+      return '';
+    } else if ( isNaN(defaultValue) || defaultValue === '' ) {
+      return 'is-invalid';
+    }else{
+      return 'is-valid';
+    }
   }
 
 }

@@ -50,7 +50,7 @@
                   <div class="input-group">
                       <input type="hidden" formControlName="oldName">
                     <ng-container [ngSwitch]="updateColumn.controls['dataType'].value.toLowerCase()">
-                      <input *ngSwitchCase="_types.numericTypes().includes( updateColumn.controls['dataType'].value.toLowerCase() ) ? updateColumn.controls['dataType'].value.toLowerCase() : ''" type="number" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue">
+                      <input *ngSwitchCase="_types.numericTypes().includes( updateColumn.controls['dataType'].value.toLowerCase() ) ? updateColumn.controls['dataType'].value.toLowerCase() : ''" type="text" inputmode="decimal" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue" [ngClass]="validate(updateColumn.controls['defaultValue'].value)">
                       <ng-container *ngSwitchCase="_types.booleanTypes().includes( updateColumn.controls['dataType'].value.toLowerCase() ) ? updateColumn.controls['dataType'].value.toLowerCase() : ''">
                         <div class="form-check form-check-inline">
                           <label *ngIf="col.defaultValue === null" class="form-check-label disabled" [for]="'default'+col.name">null&nbsp;</label>
@@ -62,7 +62,7 @@
                       <input *ngSwitchDefault type="text" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue">
                     </ng-container>
                     <div class="input-group-append">
-                      <button class="btn btn-sm" [disabled]="updateColumn.controls['nullable'].value === false" [ngClass]="{'btn-primary': updateColumn.controls['defaultValue'].value === null, 'btn-light': updateColumn.controls['defaultValue'].value !== null}" (click)="triggerDefaultNull()">null</button>
+                      <button class="btn btn-sm" [disabled]="updateColumn.controls['nullable'].value === false" [ngClass]="{'btn-primary': updateColumn.controls['defaultValue'].value === null || updateColumn.controls['defaultValue'].value === undefined, 'btn-light': updateColumn.controls['defaultValue'].value !== null}" (click)="triggerDefaultNull()">null</button>
                     </div>
                   </div>
                 </td>
@@ -108,7 +108,7 @@
           <td>
             <div class="input-group">
               <ng-container [ngSwitch]="createColumn.dataType.toLowerCase()">
-                <input *ngSwitchCase="_types.numericTypes().includes( createColumn.dataType.toLowerCase() ) ? createColumn.dataType.toLowerCase() : ''" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="createColumn.defaultValue" [disabled]="createColumn.defaultValue === null">
+                <input *ngSwitchCase="_types.numericTypes().includes( createColumn.dataType.toLowerCase() ) ? createColumn.dataType.toLowerCase() : ''" type="text" inputmode="decimal" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="createColumn.defaultValue" [disabled]="createColumn.defaultValue === null" [ngClass]="validate(createColumn.defaultValue)">
                 <ng-container *ngSwitchCase="_types.booleanTypes().includes( createColumn.dataType.toLowerCase() ) ? createColumn.dataType.toLowerCase() : ''">
                   <div class="form-check form-check-inline">
                     <label *ngIf="createColumn.defaultValue === null" class="form-check-label disabled" [for]="'default'+createColumn.name">null&nbsp;</label>

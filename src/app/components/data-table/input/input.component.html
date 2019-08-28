@@ -4,9 +4,10 @@
 
     <!-- multiple cases: from: https://stackoverflow.com/questions/40176061/two-switch-case-values-in-angular2/40177408#40177408 -->
     <ng-container *ngSwitchCase="_types.numericTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
-      <input type="number" class="form-control form-control-sm" [value]="value" [disabled]="value === null && header.nullable === true" (keyup)="onValueChange($event.target.value, $event)">
+      <!-- use input type text to prevent problems when having current values such as "12." (dot at the end) -->
+      <input type="text" inputmode="decimal" class="form-control form-control-sm" [value]="value" [disabled]="value === null && header.nullable === true" (keyup)="onNumericValueChange($event.target.value, inputElement, $event)" #inputElement>
       <div class="input-group-append" *ngIf="header.nullable">
-        <div class="btn btn-sm" [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}" (click)="onValueChange( triggerNull(value) )">null</div>
+        <div class="btn btn-sm" [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}" (click)="onNumericValueChange( triggerNull(value), inputElement )">null</div>
       </div>
     </ng-container>
 
