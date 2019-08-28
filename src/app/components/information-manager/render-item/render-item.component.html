@@ -12,7 +12,7 @@
     </div>
   </ng-container>
 
-  <ng-container *ngIf="li.type == 'InformationHtml'">
+  <ng-container *ngIf="li.type == 'InformationHtml' || li.type == 'InformationTable'">
     <div class="card-body" [innerHTML]="li.html"></div>
   </ng-container>
 
