@@ -62,7 +62,7 @@
                       <input *ngSwitchDefault type="text" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue">
                     </ng-container>
                     <div class="input-group-append">
-                      <button class="btn btn-sm" [disabled]="updateColumn.controls['nullable'].value === false" [ngClass]="{'btn-primary': updateColumn.controls['defaultValue'].value === null || updateColumn.controls['defaultValue'].value === undefined, 'btn-light': updateColumn.controls['defaultValue'].value !== null}" (click)="triggerDefaultNull()">null</button>
+                      <button class="btn btn-sm" [ngClass]="{'btn-primary': updateColumn.controls['defaultValue'].value === null, 'btn-light': updateColumn.controls['defaultValue'].value !== null}" (click)="triggerDefaultNull()">null</button>
                     </div>
                   </div>
                 </td>
@@ -120,7 +120,7 @@
                 <input *ngSwitchDefault type="text" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="createColumn.defaultValue" [disabled]="createColumn.defaultValue === null">
               </ng-container>
               <div class="input-group-append">
-                <button class="btn btn-sm" [disabled]="createColumn.nullable === false" [ngClass]="{'btn-primary': createColumn.defaultValue ===null, 'btn-light': createColumn.defaultValue !== null}" (click)="triggerDefaultNull( createColumn )">null</button>
+                <button class="btn btn-sm" [ngClass]="{'btn-primary': createColumn.defaultValue ===null, 'btn-light': createColumn.defaultValue !== null}" (click)="triggerDefaultNull( createColumn )">null</button>
               </div>
             </div>
           </td>

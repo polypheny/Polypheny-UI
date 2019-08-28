@@ -116,7 +116,7 @@ export class EditColumnsComponent implements OnInit {
         nullable: new FormControl( col.nullable ),
         dataType: new FormControl( col.dataType ),
         maxLength: new FormControl( {value: col.maxLength, disabled: col.dataType.toLowerCase() !== 'varchar'} ),
-        defaultValue: new FormControl( {value: col.defaultValue, disabled: col.defaultValue === null || col.defaultValue === undefined} )
+        defaultValue: new FormControl( {value: col.defaultValue, disabled: col.defaultValue === null} )
       });
       this.editColumn = i;
     }
