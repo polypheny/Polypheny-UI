@@ -57,7 +57,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
       this._information.getPageList().subscribe(
         res => {
           this.pageList = res;
-          this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('informationManager')]);
+          this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Monitoring')]);
           this.serverError = null;
         }, err => {
           this.serverError = err;
@@ -68,10 +68,10 @@ export class MonitoringComponent implements OnInit, OnDestroy {
         res => {
           if(res == null){
             this.onPageNotFound();
-            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('informationManager')]);
+            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Monitoring')]);
           }else{
             this.data = <InformationPage>res;
-            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('informationManager', '/views/monitoring/'), new BreadcrumbItem(this.data.name.toString())]);
+            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Monitoring', '/views/monitoring/'), new BreadcrumbItem(this.data.name.toString())]);
             this.serverError = null;
           }
         }, err => {

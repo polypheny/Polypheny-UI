@@ -42,7 +42,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.onHashChange();
     this.initWebSocket();
-    this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem('ConfigManager')] );
+    this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem('Config')] );
     this._sidebar.open();
   }
 
@@ -107,7 +107,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
           }
 
           this.formObj = <JavaUiPage> <unknown> res;
-          this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem( 'ConfigManager', '/views/config/' ),
+          this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem( 'Config', '/views/config/' ),
             new BreadcrumbItem( this.formObj.title.toString())] );
 
           this.buildFormGroup();
