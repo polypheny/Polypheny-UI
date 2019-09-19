@@ -34,7 +34,7 @@
     <div class="accordion col-lg-12" id="accordion">
         <div class="card" *ngFor="let resultSet of resultSets; let i = index; let collapsed = true;">
             <div class="card-header" [ngClass]="{'pointer': resultSets.length > 1}" (click)="collapsed = !collapsed">
-                {{resultSet.info.generatedQuery}}
+                {{filter(resultSet.info.generatedQuery)}}
             </div>
 
             <div [id]="'collapse'+i" class="collapse show" data-parent="#accordion">
@@ -53,11 +53,6 @@
                         <hr>
                         <app-data-table [resultSet]="resultSet" [config]="tableConfig"></app-data-table>
                     </div>
-
-                    <!--<div class="col-md-12">
-                        <app-graph chartType="bar"></app-graph>
-                    </div>-->
-
                 </div>
             </div>
         </div>

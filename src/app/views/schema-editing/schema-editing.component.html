@@ -11,7 +11,7 @@
             <form [formGroup]="createForm" (submit)="createSchema()">
                 <div class="form-group">
                     <label for="schemaNameCreate">Schema name</label>
-                    <input type="text" id="schemaNameCreate" class="form-control" formControlName="name" [ngClass]="getValidationClass(createForm, createSubmitted, 'name')" placeholder="schema name">
+                    <input type="text" id="schemaNameCreate" autocomplete="off" class="form-control" formControlName="name" [ngClass]="getValidationClass(createForm, createSubmitted, 'name')" placeholder="schema name">
                     <div class="invalid-feedback">required</div>
                 </div>
                 <div class="form-check checkbox">
@@ -25,7 +25,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">create</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
                 </div>
             </form>
         </div>
@@ -47,7 +47,7 @@
                     <label for="cascade" class="form-check-label">cascade</label>
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn btn-danger">drop</button>
+                    <button type="submit" class="btn btn-danger">Drop</button>
                 </div>
             </form>
         </div>

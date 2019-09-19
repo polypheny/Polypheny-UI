@@ -83,7 +83,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     this.queryAnalysis = null;
 
     this.loading = true;
-    this._crud.anyQuery( new QueryRequest( this.codeEditor.getCodeWithoutComments(), this.analyzeQuery ) ).subscribe(
+    this._crud.anyQuery( new QueryRequest( this.codeEditor.getCode(), this.analyzeQuery ) ).subscribe(
         res => {
           this.loading = false;
           this.resultSets = <ResultSet[]> res;
@@ -182,6 +182,14 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
         );
       }
     });
+  }
+
+  filter( query ){
+    if( query.length > 50 ){
+      return( query.substr(0, 49) + '...' );
+    } else {
+      return query;
+    }
   }
 
 }

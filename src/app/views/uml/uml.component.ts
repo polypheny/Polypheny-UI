@@ -216,8 +216,11 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         else if( result.info.affectedRows === 1) {
           this._toast.toast( 'success', 'new foreign key was created', 10, 'bg-success');
-          this.getUml();
-          this.connectTables();
+          // this.getUml();
+          // this.connectTables();
+          const fkTable = fk.fkTableName.substr(fk.fkTableName.indexOf('.')+1, fk.fkTableName.length);
+          const pkTable = fk.pkTableName.substr(fk.pkTableName.indexOf('.')+1, fk.pkTableName.length);
+          this.connections.push( { source: fk.fkTableSchema+'_'+fkTable+'_'+fk.fkColumnName, target: fk.pkTableSchema+'_'+pkTable+'_'+fk.pkColumnName } );
         }
       }, err => {
         this.closeModal();

@@ -115,7 +115,7 @@ export class EditColumnsComponent implements OnInit {
         oldName: new FormControl( col.name ),
         nullable: new FormControl( col.nullable ),
         dataType: new FormControl( col.dataType ),
-        maxLength: new FormControl( {value: col.maxLength, disabled: col.dataType.toLowerCase() !== 'varchar'} ),
+        maxLength: new FormControl( {value: col.maxLength, disabled: ! ['varchar', 'varbinary'].includes(col.dataType.toLowerCase())} ),
         defaultValue: new FormControl( {value: col.defaultValue, disabled: col.defaultValue === null} )
       });
       this.editColumn = i;
@@ -131,7 +131,7 @@ export class EditColumnsComponent implements OnInit {
       this.updateColumn.controls['maxLength'].value,
       this.updateColumn.controls['defaultValue'].value
     );
-    if( newColumn.dataType.toLowerCase() !== 'varchar' && newColumn.maxLength !== null ){
+    if( ! ['varchar', 'varbinary'].includes( newColumn.dataType.toLowerCase()) && newColumn.maxLength !== null ){
       newColumn.maxLength = null;
     }
     const req = new ColumnRequest( this.tableId, oldColumn, newColumn );
@@ -157,7 +157,7 @@ export class EditColumnsComponent implements OnInit {
       this._toast.toast( 'missing column name', 'Please provide a name for the new column.', 0, 'bg-warning');
       return;
     }
-    if( this.createColumn.dataType.toLowerCase() !== 'varchar' && this.createColumn.maxLength !== null ){
+    if( ! ['varchar', 'varbinary'].includes(this.createColumn.dataType.toLowerCase()) && this.createColumn.maxLength !== null ){
       this.createColumn.maxLength = null;
     }
     //const newColumn = new DbColumn( this.createColumn.name, false, this.createColumn.nullable, this.createColumn.dataType, this.createColumn.maxLength );
@@ -414,7 +414,7 @@ export class EditColumnsComponent implements OnInit {
   }
 
   onTypeChange( event ){
-    if( event.target.value.toLowerCase() === 'varchar'){
+    if( ['varchar', 'varbinary'].includes( event.target.value.toLowerCase() ) ){
       this.updateColumn.controls['maxLength'].enable();
     }else{
       this.updateColumn.controls['maxLength'].setValue( null );

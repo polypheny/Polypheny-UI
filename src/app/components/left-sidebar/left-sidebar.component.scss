@@ -29,17 +29,12 @@
   color: white;
   margin-right: 0.4em;
 }
-#search-tree {
-  margin-top: 1.5em;
-}
 #collapse, #expand {
-  position: absolute;
-  top: 0.5em;
-  text-decoration: none;
+  color: black;
 }
-#collapse {
-  left: 1em;
+#search-tree {
+  border: none;
 }
-#expand {
-  right: 1em;
+#search-group {
+  margin-bottom: 0.5rem;
 }

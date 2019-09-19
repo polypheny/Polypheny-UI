@@ -80,7 +80,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       res => {
         const result = <ResultSet> res;
         if( result.error ){
-          this._toast.toast( 'error', 'Could not '+confirm+' the table '+table+': '+result.error, 10, 'bg-warning' );
+          this._toast.toast( 'error', 'Could not '+action+' the table '+table+': '+result.error, 10, 'bg-warning' );
           console.log( result );
         }else {
           let toastAction = 'Truncated';
@@ -106,7 +106,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     //clear maxlength for types where it is not applicable
     //delete columns with no column name
     this.newColumns.forEach((v, k) => {
-      if( v.dataType.toLowerCase() !== 'varchar' && v.maxLength !== null ) v.maxLength = null;
+      if( !['varchar', 'varbinary'].includes(v.dataType.toLowerCase()) && v.maxLength !== null ) v.maxLength = null;
       if( v.name === '' ) this.newColumns.delete( k );
     });
     const request = new EditTableRequest( this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()) );
@@ -116,7 +116,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         if( result.error ) {
           this._toast.toast( 'error', 'Could not generate table: '+result.error, 10, 'bg-warning' );
         } else {
-          this._toast.toast('success', 'Generated table ' + request.table, 1, 'bg-success' );
+          this._toast.toast('success', 'Generated table ' + request.table, 5, 'bg-success' );
           this.newColumns.clear();
           this.counter = 0;
           this.newColumns.set( this.counter++, new DbColumn('', false, false, this.types[0], null));

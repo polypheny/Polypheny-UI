@@ -90,8 +90,8 @@
                         </div>
                     </td>
                     <td>
-                        <input *ngIf="col.value.dataType && col.value.dataType.toLowerCase() !== 'varchar'" type="number" class="form-control form-control-sm" disabled placeholder="length">
-                        <input *ngIf="col.value.dataType && col.value.dataType.toLowerCase() === 'varchar'" type="number" class="form-control form-control-sm" placeholder="length" [(ngModel)]="col.value.maxLength">
+                        <input *ngIf="col.value.dataType && ! ['varchar', 'varbinary'].includes(col.value.dataType.toLowerCase())" type="number" class="form-control form-control-sm" disabled placeholder="length">
+                        <input *ngIf="col.value.dataType && ['varchar', 'varbinary'].includes(col.value.dataType.toLowerCase())" type="number" class="form-control form-control-sm" placeholder="length" [(ngModel)]="col.value.maxLength">
                     </td>
                     <td>
                         <i class="cui-trash del" (click)="removeNewColumn(col.key)"></i>
