@@ -1,0 +1,5 @@
+<ng-container [ngSwitch]="route">
+  <app-graphical-querying *ngSwitchCase="'graphical-querying'"></app-graphical-querying>
+  <app-relational-algebra *ngSwitchCase="'relational-algebra'"></app-relational-algebra>
+  <app-sql-console *ngSwitchDefault></app-sql-console>
+</ng-container>

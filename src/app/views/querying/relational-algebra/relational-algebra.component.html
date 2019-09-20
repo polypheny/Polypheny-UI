@@ -1,0 +1,35 @@
+<!-- uncomment to adjust offsets
+<div class="row">
+  offsetX1: <input type="number" [(ngModel)]="offsetX1"><br>
+  offsetY1: <input type="number" [(ngModel)]="offsetY1"><br>
+  offsetX2: <input type="number" [(ngModel)]="offsetX2"><br>
+  offsetY2: <input type="number" [(ngModel)]="offsetY2"><br>
+</div>
+!-->
+<app-toast></app-toast>
+<div class="row" style="padding-bottom: 1em;">
+  <div class="col-3" id="nodeList" #nodeList>
+    <ul class="list-group" style="position:fixed;" [ngStyle]="{width: nodeList.offsetWidth-50+'px'}">
+      <li *ngFor="let op of getOperators()" class="list-group-item rel-op">{{op}}</li>
+    </ul>
+  </div>
+  <div class="col-9" id="drop">
+    <div class="btn-circle btn btn-primary" id="run" (click)="runPlan()"><i class="fa fa-play"></i></div>
+    <svg width="100%" height="100%">
+      <marker id="arrowhead"
+              viewBox="0 0 10 10" refX="0" refY="5"
+              markerUnits="strokeWidth"
+              markerWidth="5" markerHeight="5"
+              orient="auto">
+        <path d="M 0,0 l 10,5 l -10,5 z" />
+      </marker>
+      <line *ngIf="temporalLine" [attr.x1]="temporalLine.x1" [attr.y1]="temporalLine.y1" [attr.x2]="temporalLine.x2" [attr.y2]="temporalLine.y2" marker-end="url(#arrowhead)"></line>
+      <line *ngFor="let conn of connections | keyvalue" [attr.x1]="getX1(conn.value.source.getId())" [attr.y1]="getY1(conn.value.source.getId())" [attr.x2]="getX2(conn.value.target.getId())" [attr.y2]="getY2(conn.value.target.getId())" marker-end="url(#arrowhead)"></line>
+    </svg>
+  </div>
+</div>
+<div class="row" *ngIf="resultSet">
+  <div class="col-sm-9 offset-sm-3" id="result-wrapper">
+    <app-data-table [resultSet]="resultSet" [config]="{create: false, update: false, delete: false, sort: false, search: false}"></app-data-table>
+  </div>
+</div>

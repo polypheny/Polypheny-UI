@@ -1,0 +1,62 @@
+<div class="row" [hidden]="showingAnalysis">
+  <div class="col-lg-8 col-md-8 col-sm-12">
+      <div class="form-group">
+          <app-editor #editor id="sql-editor" [height]="'240px'"></app-editor>
+      </div>
+  </div>
+  <div class="col-lg-4 col-md-4 col-sm-12">
+      <ul class="list-group" id="history">
+          <li class="list-group-item header">
+              History
+          </li>
+          <li class="list-group-item empty" *ngIf="history.size == 0">(empty)</li>
+          <li class="list-group-item history-item" *ngFor="let h of history | keyvalue:orderHistory" (click)="applyHistory( h.value.query, false )" (dblclick)="applyHistory( h.value.query, true)">
+              <small class="time">{{h.value.displayTime()}}</small>
+              {{ (h.value.query.length>120) ? (h.value.query | slice:0:120)+'...':(h.value.query) }}
+              <!-- see https://stackoverflow.com/questions/44669340/how-to-truncate-text-in-angular2 -->
+              <!--{{h.value.query}}-->
+          </li>
+      </ul>
+  </div>
+
+  <div class="col-lg-8" [hidden]="showingAnalysis">
+    <div class="custom-control custom-checkbox custom-control-inline">
+      <input type="checkbox" class="custom-control-input" id="checkbox1" [checked]="analyzeQuery" (change)="analyzeQuery = !analyzeQuery">
+      <label class="custom-control-label" for="checkbox1">analyze query</label>
+    </div>
+    <button *ngIf="!loading" type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
+    <button *ngIf="loading" type="submit" class="btn btn-primary pull-right" disabled>Loading</button>
+  </div>
+</div>
+
+<div class="row" style="padding: 2em 0;" [hidden]="showingAnalysis">
+    <div class="col-lg-12" *ngIf="resultSets && resultSets.length > 1">Click on a query to view its result and additional information.</div>
+    <div class="accordion col-lg-12" id="accordion">
+        <div class="card" *ngFor="let resultSet of resultSets; let i = index; let collapsed = true;">
+            <div class="card-header" [ngClass]="{'pointer': resultSets.length > 1}" (click)="collapsed = !collapsed">
+                {{filter(resultSet.info.generatedQuery)}}
+            </div>
+
+            <div [id]="'collapse'+i" class="collapse show" data-parent="#accordion">
+                <div class="card-body" [collapse]="!collapsed && resultSets.length !== 1">
+                    <ng-container *ngFor="let i of resultSet.info | keyvalue">
+                        {{i.key}}: {{i.value}}<br>
+                    </ng-container>
+
+                    <div class="text-danger col-lg-12" *ngIf="resultSet && resultSet.error">
+                        <hr>
+                        <strong>error:</strong>
+                        <p *ngIf="resultSet.error">{{resultSet.error}}</p>
+                    </div>
+
+                    <div class="col-lg-12 result-wrapper" *ngIf="resultSet && resultSet.data">
+                        <hr>
+                        <app-data-table [resultSet]="resultSet" [config]="tableConfig"></app-data-table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-information-manager *ngIf="queryAnalysis" [data]="queryAnalysis" [zoom]="_breadcrumb.getMasonryZoom()" [hidden]="!showingAnalysis"></app-information-manager>

@@ -1,176 +1,232 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
-import 'jquery-ui/ui/widget';
-import 'jquery-ui/ui/widgets/draggable';
 import {ActivatedRoute} from '@angular/router';
-import {Md5} from 'ts-md5/dist/md5';
+import {CrudService} from '../../services/crud.service';
+import {EditTableRequest, SchemaRequest} from '../../models/ui-request.model';
+import {DbTable, ForeignKey, SvgLine, Uml} from './uml.model';
+import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
+import {ModalDirective} from 'ngx-bootstrap';
+import {FormBuilder} from '@angular/forms';
+import {ToastService} from '../../components/toast/toast.service';
+import {DbColumn, ResultSet} from '../../components/data-table/models/result-set.model';
+import {DbmsTypesService} from '../../services/dbms-types.service';
 
-// warning (linter) here because total file overwritten by copy paste?
 @Component({
   selector: 'app-uml',
   templateUrl: './uml.component.html',
   styleUrls: ['./uml.component.scss']
 })
 
-export class UmlComponent implements OnInit, AfterViewInit {
+export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  uml: UML[];
-  lines: svgLine[];
-  connections: Map<string, Connection> = new Map();
-  dbId: number;
+  uml: Uml;
+  temporalLine: SvgLine;
+  schema;
+  connections = [];
+  zIndex = 2;
+  errorMsg:string;
 
-  existingConnections;
+  @ViewChild('myModal') myModal: ModalDirective;
+  sourceTable;
+  sourceCol;
+  targetTable;
+  targetCol;
+  onUpdate = ['CASCADE', 'RESTRICT', 'SET NULL', 'SET DEFAULT'];
+  onDelete = ['CASCADE', 'RESTRICT', 'SET NULL', 'SET DEFAULT'];
+  fkForm = this._formBuilder.group({update: 'RESTRICT', delete: 'RESTRICT'});
+  constraintName = 'fk1';
 
-  constructor(private _route: ActivatedRoute) { }
+
+  //offsets
+  offsetLineX1 = 15;
+  offsetLineX2 = 220;
+  offsetLineY = 150;
+  offsetConnLeft1 = 21;
+  offsetConnLeft2 = -5;
+  offsetConnTop = 20;
+
+
+  constructor(
+    private _route: ActivatedRoute,
+    private _crud: CrudService,
+    private _leftSidebar: LeftSidebarService,
+    private _formBuilder: FormBuilder,
+    private _toast: ToastService,
+    private _dbmsTypes: DbmsTypesService
+  ) {
+    this._dbmsTypes.getFkActions().subscribe(
+      types => {
+        this.onUpdate = types;
+        this.onDelete = types;
+      }
+    );
+  }
 
   ngOnInit() {
-
-    this.dbId = +this._route.snapshot.paramMap.get('id');
-
-    this.uml = [
-      {tableName: 'table1', cols: ['a', 'b', 'c'], methods: ['method1', 'method2']},
-      {tableName: 'table2', cols: ['d', 'e', 'f'], methods: ['method1', 'method2']},
-      {tableName: 'table3', cols: ['g', 'h', 'i', 'j'], methods: []},
-      {tableName: 'table4', cols: ['so wide so wide so wide so wide so wide', 'h', 'i', 'j'], methods: ['method1', 'method2']},
-      {tableName: 'table5', cols: ['so wide so wide so wide so wide so wide', 'h', 'i', 'j'], methods: ['method1', 'method2']}
-    ];
-
-    // todo error if it has values from the beginning
-    this.existingConnections = [
-      {source: 'col-table1-b', target: 'col-table2-f'},
-      {source: 'col-table2-f', target: 'col-table3-h'},
-      {source: 'col-table3-i', target: 'col-table4-j'}
-    ];
-
-    this.lines = [];
-
+    this.schema = this._route.snapshot.paramMap.get('id');
+    this._route.params.subscribe( params => {
+      this.schema = params['id'];
+      this.getUml();
+    });
+    this._leftSidebar.setSchema( new SchemaRequest( '/views/uml/', false, 1) );
   }
 
   ngAfterViewInit() {
-    // this.loadExistingConnections(); // todo throws error: ExpressionChangedAfterItHasBeenCheckedError
+    this.getUml();
     this.connectTables();
-    this.dragTables();
   }
 
-  dragTables() {
-    // const self = this;
+  ngOnDestroy() {
+    $(document).off();//remove event listener from connectTables() when leaving this view
+    this._leftSidebar.close();
+  }
 
-    //todo expandable parent div: http://jsfiddle.net/74Sxn/
-    $('.uml').draggable({
-      handle: '.tableName',
-      containment: 'parent'
+  getUml () {
+    if(!this.schema) {
+      this.uml = null;
+      this._leftSidebar.reset();
+      return;
+    }
+    this._crud.getUml( new EditTableRequest( this.schema ) ).subscribe(
+      res => {
+        this.errorMsg = null;
+        const uml:Uml = <Uml> res;
+        this.uml = new Uml(uml.tables, uml.foreignKeys);
+        this.mapConnections();
+      }, err => {
+        this.errorMsg = 'Could not connect with the server.';
+      }
+    );
+  }
+
+  getColumnClass( table: DbTable, col: DbColumn ){
+    if( table.primaryKeyFields.indexOf(col.name) > -1 ){
+      return 'bg-primary pk';
+    } else if ( table.uniqueColumns.indexOf(col.name) > -1 ){
+      return 'bg-warning unique';
+    } else {
+      return '';
+    }
+  }
+
+  mapConnections() {
+    this.connections = [];
+    this.uml.foreignKeys.forEach((v, k) => {
+      this.connections.push( { source: v.fkTableSchema+'_'+v.fkTableName+'_'+v.fkColumnName, target: v.pkTableSchema+'_'+v.pkTableName+'_'+v.pkColumnName, } );
     });
+  }
+
+  updateZIndex( e ){
+    this.zIndex++;
+    const z = this.zIndex;
+    $(e.source.element.nativeElement).css('z-index', z);
+  }
+
+  onDragging( e ){
+    $(e.source.element.nativeElement).css('z-index', 9000);
   }
 
   connectTables () {
-    let line;
     const self = this;
     let isDragging = false;
-    let fromTable;
-    let source;
+    let offsetX = this.offsetLineX1;
     $(document).on('mousedown', '.uml .cols', function(e) {
+      if( $('body').hasClass('sidebar-lg-show') && document.documentElement.clientWidth > 992 ){
+        offsetX = self.offsetLineX2;
+      } else {
+        offsetX = self.offsetLineX1;
+      }
       isDragging = true;
-      fromTable = $(e.target).parent().attr('id');
-      source = $(e.target).attr('id');
-      line = {x1: e.pageX, y1: e.pageY, x2: e.pageX, y2: e.pageY};
-      self.lines.push(line);
-
-      // todo control z-index when released
-
+      self.sourceTable = $(e.target).parents('.uml').attr('tableName');
+      self.sourceCol = $(e.target).attr('colName');
+      self.temporalLine = {x1: e.pageX - offsetX, y1: e.pageY - self.offsetLineY, x2: e.pageX - offsetX, y2: e.pageY - self.offsetLineY};
+      e.preventDefault();
     }).on('mousemove', function (e) {
       if (isDragging) {
-        line.x2 = e.pageX;
-        line.y2 = e.pageY;
+        self.temporalLine.x2 = e.pageX - offsetX;
+        self.temporalLine.y2 = e.pageY - self.offsetLineY;
+        e.preventDefault();
       }
     }).on('mouseup', function (e) {
-      if ($(e.target).hasClass('cols') && $(e.target).parent().attr('id') !== fromTable) {
-        const target = $(e.target).attr('id');
-        const c:Connection = new Connection(source, target);
-        self.connections.set(c.toString(),c);
+      if(!isDragging) { return; }
+      if ( ( $(e.target).hasClass('pk') || $(e.target).hasClass('unique') ) && $(e.target).parents('.uml').attr('tableName') !== self.sourceTable) {
+        self.myModal.show();
+        self.targetTable = $(e.target).parents('.uml').attr('tableName');
+        self.targetCol = $(e.target).attr('colName');
       }
-      self.lines.pop();
+      self.temporalLine = null;
       isDragging = false;
     });
-  }
-
-  loadExistingConnections(){
-    if(this.existingConnections === undefined || this.existingConnections.length === 0) return;
-    for(const conn of this.existingConnections){
-      const connObj = new Connection(conn.source, conn.target);
-      this.connections.set(connObj.toString(), connObj);
-    }
   }
 
   /** get x position of div of source column
    * param: source:string, target:string -> ids of the column divs */
   getX1(source:string, target:string){
-    if(source === undefined || target === undefined) return;
+    if(source === undefined || target === undefined) { return; }
     const sourceEle = $('#'+source);
     const targetEle = $('#'+target);
-    if(sourceEle === undefined || targetEle === undefined) return;
+    if(sourceEle === undefined || targetEle === undefined) { return; }
+    // if($(sourceEle).offset() === undefined || $(targetEle).offset() === undefined ) return;
     if($(sourceEle).offset().left < $(targetEle).offset().left){
-      return $(sourceEle).offset().left + $(sourceEle).width() + 6;
+      return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + $(sourceEle).width() + this.offsetConnLeft1 -5;//-5 because no arrowhead
     }else{
-      return $(sourceEle).offset().left;
+      return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + this.offsetConnLeft2 +5;//+5 because no arrowhead
     }
   }
   /** get x position of div of target column
    * param: source:string, target:string -> ids of the column divs */
   getX2(source:string, target:string){
-    if(source === undefined || target === undefined) return;
+    if(source === undefined || target === undefined) { return; }
     const sourceEle = $('#'+source);
     const targetEle = $('#'+target);
-    if($(sourceEle).offset().left < $(targetEle).offset().left){
-      return $(targetEle).offset().left;
+    // if($(sourceEle).offset() === undefined || $(targetEle).offset() === undefined ) return;
+    if( $(sourceEle).offset().left < $(targetEle).offset().left + $(targetEle).width()/2 ){
+      return $(targetEle).position().left + $(targetEle).parents('.uml').position().left + this.offsetConnLeft2;
     }else{
-      return $(targetEle).offset().left + $(targetEle).width() + 6;
+      return $(targetEle).position().left + $(targetEle).parents('.uml').position().left + $(targetEle).width() + this.offsetConnLeft1;
     }
   }
   /** get y position of div of source/target column
    * param: source:string, target:string -> ids of the column divs */
-  getY(ele:string){
-    if(ele === undefined) return;
-    const element= $('#'+ele);
-    return $(element).offset().top + 10;
+  getY(ele:string) {
+    if (ele === undefined) { return; }
+    const element = $('#' + ele);
+    // if( $(element).position() === undefined ) return;
+    return $(element).position().top + $(element).parents('.uml').position().top + this.offsetConnTop;
   }
 
-  hash(s:string[]){
-    const md5 = new Md5();
-    for(const b of s){
-      md5.appendStr(b);
-    }
-    return md5.end();
+  closeModal(){
+    this.myModal.hide();
+    this.sourceTable = null;
+    this.sourceCol = null;
+    this.targetTable = null;
+    this.targetCol = null;
   }
 
-}
+  createForeignKey(){
+    const fk: ForeignKey = new ForeignKey( this.constraintName, this.schema, this.sourceTable, this.sourceCol, this.targetTable, this.targetCol )
+      .onUpdate( this.fkForm.value.update ).onDelete( this.fkForm.value.delete );
 
-export interface UML {
-  tableName: string;
-  cols: string[];
-  methods?: string[];
-}
-export interface svgLine {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-}
-
-export class Connection {
-  source: string;
-  target: string;
-  constructor(s:string, t:string) {
-    this.source = s;
-    this.target = t;
+    this._crud.addForeignKey( fk ).subscribe(
+      res => {
+        this.closeModal();
+        const result = <ResultSet> res;
+        if( result.error ){
+          this._toast.toast( 'failed', result.error, 0, 'bg-warning');
+        }
+        else if( result.info.affectedRows === 1) {
+          this._toast.toast( 'success', 'new foreign key was created', 10, 'bg-success');
+          // this.getUml();
+          // this.connectTables();
+          const fkTable = fk.fkTableName.substr(fk.fkTableName.indexOf('.')+1, fk.fkTableName.length);
+          const pkTable = fk.pkTableName.substr(fk.pkTableName.indexOf('.')+1, fk.pkTableName.length);
+          this.connections.push( { source: fk.fkTableSchema+'_'+fkTable+'_'+fk.fkColumnName, target: fk.pkTableSchema+'_'+pkTable+'_'+fk.pkColumnName } );
+        }
+      }, err => {
+        this.closeModal();
+        this._toast.toast( 'error', 'An unknown error occurred on the server', 10, 'bg-danger');
+      }
+    );
   }
 
-  equals(s:Connection){
-    return this.source===s.source && this.target===s.target;
-  }
-
-  //must be unique for unique elements (key of the map)
-  toString() {
-    const md5 = new Md5();
-    return md5.appendStr(this.source).appendStr(this.target).end() as string;
-  }
 }

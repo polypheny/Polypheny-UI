@@ -1,10 +1,7 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
-import 'jquery-ui/ui/widget';
-import 'jquery-ui/ui/widgets/draggable';
 import {KEYS, TREE_ACTIONS, TreeComponent, TreeModel, TreeNode } from 'angular-tree-component';
-import {ConfigService} from '../../services/config.service';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
 
 @Component({
@@ -13,57 +10,58 @@ import {LeftSidebarService} from './left-sidebar.service';
   styleUrls: ['./left-sidebar.component.scss']
 })
 
-//https://angular2-tree.readme.io/docs/
+//docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarComponent implements OnInit , AfterViewInit {
 
   @ViewChild('tree') treeComponent: TreeComponent;
-  nodes;
+  nodes = [];
   options;
+  error;
 
-  constructor( _config:ConfigService,
-               _router:Router,
-               _sidebar: LeftSidebarService,
+  constructor(
+    _router:Router,
+    private _sidebar: LeftSidebarService,
   ) {
     //this.nodes = nodes;
     this.options = {
       actionMapping: {
         mouse: {
-          dblClick: (tree, node, $event) => {
-            if (node.hasChildren) TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-          },
           click: (tree, node, $event) => {
-            if ( ! node.hasChildren){
-              _router.navigate([node.data.routerLink]);
-              node.setIsActive(true);
+            if( _sidebar.action !== null ){
+              _sidebar.action( node );
+              TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+            } else{
+              if( node.data.routerLink !== '' ){
+                _router.navigate([node.data.routerLink]);
+                if( node.isCollapsed ){
+                  TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+                } else if( !node.isCollapsed && node.isActive === true ){
+                  TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+                }
+                node.setIsActive(true, false);
+              } else {
+                TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+              }
             }
           }
         },
       },
-      allowDrag: true,
+      allowDrag: false,
       allowDrop: false
     };
 
-    _sidebar.getNodes().subscribe(
-      nodes => {
-        this.nodes = nodes;
+    _sidebar.getError().subscribe(
+      error => {
+        this.error = error;
       }
     );
-    /*_config.getPageList().subscribe(
-      res => {
-        this.nodes = res;
-      }, err => {
-        console.log(err);
-      }
-    );*/
   }
 
   ngOnInit() {
-    $('body').addClass('sidebar-lg-show');
   }
 
   ngAfterViewInit(): void {
     const treeModel: TreeModel = this.treeComponent.treeModel;
-    // treeModel.setState({id: 1, name: 'test'});// not working yet
 
     // todo 2-way-binding https://angular2-tree.readme.io/docs/save-restore
 
@@ -72,17 +70,55 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
         $(this).val('');
       }
       treeModel.filterNodes((node) => {
-        return node.data.name.startsWith($(this).val());
+        return node.data.name.toLowerCase().includes($(this).val().toLowerCase());
       });
     });
 
+    this._sidebar.getNodes().subscribe(
+      nodes => {
+        this.nodes = nodes;
+        if(nodes.length === 0){
+          this.treeComponent.treeModel.activeNodeIds = {};
+          // this.treeComponent.treeModel.setFocusedNode(null);
+          // this.treeComponent.treeModel.expandedNodeIds = {};
+        }
+      }
+    );
+
+    this._sidebar.getInactiveNode().subscribe(
+      inactiveNode => {
+        if (inactiveNode !== null) {
+          this.treeComponent.treeModel.getNodeById(inactiveNode).setIsActive(false, true);
+        }
+      }
+    );
+
+    this._sidebar.getResetSubject().subscribe(
+      collapse => {
+        if ( collapse === true ) this.reset();
+        else this.treeComponent.treeModel.activeNodeIds = {};
+      }
+    );
+
   }
 
-  nodeIsActive ( node:any ): boolean {
-    const regex = new RegExp('\\/('+ node.id +')$');
-    return location.hash.match(regex) !== null;
-    //  location.hash.match(/\/(\w+)$/)
 
+  expandAll(){
+    this.treeComponent.treeModel.expandAll();
+  }
+
+  collapseAll(){
+    this.treeComponent.treeModel.collapseAll();
+  }
+
+  /**
+   * Reset tree completely, set all active nodes to inactive, collapse all
+   */
+  reset(){
+    // from: https://angular2-tree.readme.io/discuss/583cc18bf0f9af0f007218ff
+    this.treeComponent.treeModel.setFocusedNode(null);
+    this.treeComponent.treeModel.expandedNodeIds = {};
+    this.treeComponent.treeModel.activeNodeIds = {};
   }
 
 }

@@ -1,28 +1,47 @@
 .uml{
-  border: 1px grey solid;
-  margin: 20px;
-  width: fit-content;
-  position: relative;
+  width: auto;
+  min-width: 100px;
   float: left;
-  *{
-    padding: 0.2em;
-  }
-  .tableName{
-    font-weight: bold;
-    background: #494949;
-    color: white;
-    cursor: move;
-  }
-  .cols{
-    border-bottom: 1px grey solid;
-  }
-  .methods{
-    border-bottom: 1px grey solid;
-  }
+  margin-right: 2em;
+  margin-bottom: 2em;
+  background: transparent;
+}
+.card-header, .list-group-item{
+  padding: 0.5em;
+}
+.tableName{
+  cursor: move;
+}
+.cols{
+  background: #ffffffee;
+}
+.cols:hover{
+  background: darken(#fff, 10%);
+}
+.cols{
+  cursor: pointer;
+}
+.cols.pk{
+  text-decoration: underline;
+}
+.cols.unique{
+  font-style: italic;
+  color: black;
+}
+#badge-pk{
+  background:#20a8d8;
+  color:white;
+  text-decoration: underline;
+}
+#badge-unique{
+  background: #ffc107;
+  font-style: italic;
 }
 
-.uml.ui-draggable-dragging{
-  z-index: 10;
+#drag-container{
+  margin-bottom: 1em;
+  padding-bottom: 300px;
+  overflow: hidden;
 }
 
 svg{
@@ -33,4 +52,18 @@ svg{
 
   stroke: black;
   stroke-width:1;
+
+  line{
+    z-index: 2;
+  }
+  line:hover{
+    cursor: pointer;
+  }
+}
+
+.modal-body .row .col-lg-12{
+  margin-bottom: 1em;
+}
+.modal-body form span{
+  vertical-align: text-bottom;
 }

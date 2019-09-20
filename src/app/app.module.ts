@@ -19,25 +19,6 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 
 import { AppComponent } from './app.component';
 
-// Import containers
-import { DefaultLayoutComponent } from './containers';
-
-import { P404Component } from './views/error/404.component';
-import { P500Component } from './views/error/500.component';
-import { LoginComponent } from './views/login/login.component';
-
-const APP_CONTAINERS = [
-  DefaultLayoutComponent
-];
-
-import {
-  AppAsideModule,
-  AppBreadcrumbModule,
-  AppHeaderModule,
-  AppFooterModule,
-  AppSidebarModule,
-} from '@coreui/angular';
-
 // Import routing module
 import { AppRoutingModule } from './app.routing';
 
@@ -46,65 +27,49 @@ import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
-import { EditColumnsComponent } from './views/edit-columns/edit-columns.component';
-import { UmlComponent } from './views/uml/uml.component';
-import { GraphicalQueryingComponent } from './views/graphical-querying/graphical-querying.component';
-import { RightSidebarComponent } from './components/right-sidebar/right-sidebar.component';
-import { DynamicFormsComponent } from './components/dynamic-forms/dynamic-forms.component';
-import { FormGeneratorComponent } from './views/forms/form-generator/form-generator.component';
-import { LeftSidebarComponent } from './components/left-sidebar/left-sidebar.component';
-import {ButtonsModule} from 'ngx-bootstrap/buttons';
-import { CollapseModule } from 'ngx-bootstrap/collapse';
 import {ViewsModule} from './views/views.module';
-import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
-import {HttpClientModule, HttpHeaders} from '@angular/common/http';
+import {HttpClientModule} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
-//import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
+import {DefaultLayoutComponent} from './containers/default-layout';
+import {P404Component} from './views/error/404.component';
+import {P500Component} from './views/error/500.component';
+import {LoginComponent} from './views/login/login.component';
 
 @NgModule({
   imports:[
-    BrowserModule,
+    ComponentsModule,
     AppRoutingModule,
-    ViewsModule,
-    AppAsideModule,
-    AppBreadcrumbModule.forRoot(),
-    AppFooterModule,
-    AppHeaderModule,
-    AppSidebarModule,
+    BrowserModule,
     PerfectScrollbarModule,
     BsDropdownModule.forRoot(),
     TabsModule.forRoot(),
     ChartsModule,
     // coreui / bootstrap
     TooltipModule.forRoot(),
+    AppHeaderModule,
+    AppAsideModule,
+    AppSidebarModule,
+    AppFooterModule,
     // forms
     FormsModule, ReactiveFormsModule,
     TreeModule.forRoot(),
-    //ButtonsModule.forRoot(),
-    //CollapseModule,
     BsDropdownModule,
     TypeaheadModule.forRoot(),
-    HttpClientModule, ComponentsModule
-    //SocketIoModule.forRoot(config)
+    HttpClientModule
   ],
   declarations: [
     AppComponent,
-    ...APP_CONTAINERS,
+    DefaultLayoutComponent,
     P404Component,
     P500Component,
-    LoginComponent,
-    UmlComponent,
-    GraphicalQueryingComponent,
-    RightSidebarComponent,
-    DynamicFormsComponent,
-    FormGeneratorComponent,
-    LeftSidebarComponent,
-    BreadcrumbComponent
+    LoginComponent
   ],
   providers: [{
     provide: LocationStrategy,
     useClass: HashLocationStrategy
   }],
-  bootstrap: [ AppComponent ]
+  bootstrap: [ AppComponent ],
+  exports: []
 })
 export class AppModule { }

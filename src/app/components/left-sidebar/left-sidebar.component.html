@@ -1,5 +1,20 @@
 <div id="tree-outer-wrapper">
-	<input type="text" class="form-control form-control-sm" placeholder="search" id="search-tree">
+
+  <div class="input-group input-group-sm" id="search-group">
+    <div class="input-group-prepend">
+    <span class="input-group-text">
+      <a [routerLink]="[]" (click)="collapseAll()" id="collapse"><i class="fa fa-compress"></i></a>
+      </span>
+    </div>
+    <input type="text" class="form-control form-control-sm" placeholder="search" id="search-tree">
+    <div class="input-group-append">
+    <span class="input-group-text">
+        <a [routerLink]="[]" (click)="expandAll()" id="expand"><i class="fa fa-expand"></i></a>
+        </span>
+    </div>
+  </div>
+
+	<span *ngIf="error">{{error}}</span>
 	<div id="tree-inner-wrapper">
 
 		<tree-root [nodes]="nodes" [options]="options" #tree>
@@ -7,8 +22,9 @@
 				<div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
 					<tree-node-expander [node]="node"></tree-node-expander>
 					<div class="node-content-wrapper"
-						 [class.node-content-wrapper-active]="nodeIsActive(node)"
+						 [class.node-content-wrapper-active]="node.isActive"
 						 [class.node-content-wrapper-focused]="false"
+						 [ngClass]="node.data.cssClass"
 						 (click)="node.mouseAction('click', $event)"
 						 (dblclick)="node.mouseAction('dblClick', $event)"
 						 (contextmenu)="node.mouseAction('contextMenu', $event)"

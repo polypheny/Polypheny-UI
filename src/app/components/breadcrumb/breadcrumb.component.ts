@@ -9,12 +9,9 @@ import { BreadcrumbService } from './breadcrumb.service';
 export class BreadcrumbComponent implements OnInit {
 
   breadcrumbs:BreadcrumbItem[] = [];
-  size;
   zoom;
-  masonry;
   hidden = true;
 
-  mode;
   routerId;
 
   constructor (
@@ -23,11 +20,8 @@ export class BreadcrumbComponent implements OnInit {
 
   ngOnInit() {
 
-    this.mode = this._breadcrumb.mode;
     this.routerId = this._breadcrumb.routerId;
-    this.size = this._breadcrumb.getSize();
     this.zoom = this._breadcrumb.getZoom();
-    this.masonry = this._breadcrumb.getMasonry();
 
     this._breadcrumb.getBreadcrumbs().subscribe(breadcrumbs => {
       this.breadcrumbs = breadcrumbs;
@@ -41,10 +35,6 @@ export class BreadcrumbComponent implements OnInit {
 
   zoomOut() {
     this.zoom = this._breadcrumb.zoomOut();
-  }
-
-  toggleMasonry() {
-    this.masonry = this._breadcrumb.toggleMasonry();
   }
 
 }

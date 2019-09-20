@@ -20,41 +20,46 @@
     <li class="nav-item px-3">
       <a class="nav-link" href="https://valor-software.com/ngx-bootstrap/#/documentation" target="_blank">Ang Btrap</a>
     </li>-->
-    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/home/logic']" routerLinkActive="active">
-      <i class="fa fa-database"></i><span class="d-md-down-none"> logic</span>
-    </a></li>-->
-    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/home/global']" routerLinkActive="active">
-      <i class="cui-graph"></i><span class="d-md-down-none"> monitoring</span>
+    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/views/monitoring']" routerLinkActive="active">
+      <i class="fa fa-area-chart"></i><span class="d-md-down-none">Monitoring</span>
     </a></li>
-    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/dashboard']" routerLinkActive="active">
-      <i class="icon-speedometer"></i><span class="d-md-down-none"> dashboard</span>
-    </a></li>-->
-    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/sql-console']" routerLinkActive="active">
-      <i class="icon-note"></i><span class="d-md-down-none"> SQL</span>
-    </a></li>-->
-
-    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/data-table']">
-      <i class="fa fa-table"></i><
-    </a></li>-->
-    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/edit-columns']">
-      <i class="icon-list"></i>
-    </a></li>-->
-    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/graphical-querying']" tooltip="Graphical Querying" placement="bottom" [delay]="1000">
-      <i class="icon-layers"></i>
-    </a></li>-->
-    <!--<li class="nav-item px-3"><a class="nav-link" [routerLink]="['/uml']">
-      <i class="icon-vector"></i>
-    </a></li>-->
-    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/config']" routerLinkActive="active"><!--tooltip="Dynamic Form" placement="bottom"-->
-      <i class="icon-settings"></i><span class="d-md-down-none"> config</span>
+    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/views/config']" routerLinkActive="active"><!--tooltip="Dynamic Form" placement="bottom"-->
+      <i class="icon-settings"></i><span class="d-md-down-none">Config</span>
     </a></li>
 
-    <li style="color: #73818f; margin-left: 1rem;">
-      <i class="fa fa-database"></i><span class="d-md-down-none"> schema</span>
+    <li class="nav-item px-3">
+      <a [routerLink]="['/views/schema-editing']" class="nav-link" routerLinkActive="active" (click)="_sidebar.reset()">
+        <i class="fa fa-database"></i><span class="d-md-down-none">Schema</span>
+      </a>
     </li>
 
-    <li style="color: #73818f; margin-left: 2rem;">
-      <i class="icon-note"></i><span class="d-md-down-none"> query</span>
+    <li class="nav-item px-3">
+      <a [routerLink]="['/views/uml']" class="nav-link" routerLinkActive="active">
+        <i class="cui-graph"></i><span class="d-md-down-none">UML</span>
+      </a>
+    </li>
+
+    <li class="nav-item px-3">
+      <a [routerLink]="['/views/data-table']" class="nav-link" routerLinkActive="active">
+        <i class="fa fa-table"></i><span class="d-md-down-none">Data</span>
+      </a>
+    </li>
+
+    <li class="nav-item" dropdown triggers="mouseover" placement="bottom left" #dropdown="bs-dropdown" (mouseleave)="dropdown.hide()">
+        <a class="nav-link dropdown-toggle p-2" dropdownToggle [routerLink]="['/views/querying']">
+          <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Query</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-left text-center" *dropdownMenu style="margin-top: -1px;">
+          <a class="dropdown-item" [routerLink]="['/views/querying/sql-console']" routerLinkActive="active">
+            <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">SQL console</span>
+          </a>
+          <a class="dropdown-item" [routerLink]="['/views/querying/graphical-querying']" routerLinkActive="active">
+            <i class="icon-pencil"></i><span class="d-md-down-none">Graphical Querying</span>
+          </a>
+          <a class="dropdown-item" [routerLink]="['/views/querying/relational-algebra']" routerLinkActive="active">
+            <i class="fa fa-cubes"></i><span class="d-md-down-none">Plan Builder</span>
+          </a>
+        </div>
     </li>
 
   </ul>
@@ -112,7 +117,7 @@
     <app-right-sidebar></app-right-sidebar>
   </app-aside>
 </div>
-<app-footer>
-  <span><a href="https://dbis.dmi.unibas.ch/publications/2018/scdm18/">Polypheny-DB</a></span>
-  <span class="ml-auto">Powered by <a href="https://coreui.io/angular">CoreUI for Angular</a></span>
+<app-footer style="z-index: 2;">
+  <span>Polypheny-DB</span>
+  <span class="ml-auto">Powered by <a href="https://coreui.io/angular" style="color: #5c6873;">CoreUI for Angular</a></span>
 </app-footer>

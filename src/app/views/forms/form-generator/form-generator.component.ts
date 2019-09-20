@@ -6,8 +6,7 @@ import { LeftSidebarService } from '../../../components/left-sidebar/left-sideba
 import {KeyValue} from '@angular/common';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
-import {BehaviorSubject} from 'rxjs';
-import {Toast} from '../../../components/toast/toast.component';
+import {ToastService} from '../../../components/toast/toast.service';
 
 @Component({
   selector: 'app-form-generator',
@@ -20,18 +19,18 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   submitted = false;
   form: FormGroup;
   //toasts:Toast[] = [];
-  toasts: Map<Date, Toast> = new Map<Date, Toast>();
-  toastEvent: BehaviorSubject<Map<Date, Toast>> = new BehaviorSubject<Map<Date, Toast>>( new Map<Date, Toast>() );
   pageId = '';
   pageNotFound = false;
   pageList;//wenn man nicht auf einer gewissen Seite ist und alle Pages als links aufgelisted werden sollen.
   serverError;//wenn der Server nicht antwortet
+  switchColors = ['switch-primary', 'switch-success', 'switch-warning', 'switch-danger'];
 
   constructor(
     private _config:ConfigService,
     private _route:ActivatedRoute,
     private _sidebar:LeftSidebarService,
-    private _breadcrumb:BreadcrumbService
+    private _breadcrumb:BreadcrumbService,
+    private _toast: ToastService
   ) {
 
     this.pageId = this._route.snapshot.paramMap.get('page') || '';
@@ -43,12 +42,14 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.onHashChange();
     this.initWebSocket();
-    this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem('ConfigManager')] );
+    this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem('Config')] );
+    this._sidebar.open();
   }
 
   ngOnDestroy() {
     //this._config.closeSocket();
     this._breadcrumb.hide();
+    this._sidebar.close();
   }
 
   private onHashChange() {
@@ -70,7 +71,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
           c.value = update.value;
         }else {//has been edited
           if(this.form.controls[c.key].value !== update.value){
-            this.toast( 'incoming change',
+            this._toast.toast( 'incoming change',
               'The setting with id ' + c.key + ' has been changed to the new value "'+ update.value +'" by the server. If you save, these changes will be overwritten.',
               0, 'bg-warning');
           }else{
@@ -106,7 +107,8 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
           }
 
           this.formObj = <JavaUiPage> <unknown> res;
-          this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem( 'ConfigManager', '/config/' ), new BreadcrumbItem( this.formObj.title.toString())] );
+          this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem( 'Config', '/views/config/' ),
+            new BreadcrumbItem( this.formObj.title.toString())] );
 
           this.buildFormGroup();
 
@@ -214,35 +216,22 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         const f: Feedback = <Feedback> res;
         //console.log(f);
         if( f.success ){
-          this.toast('success', 'Saved changes.', 2000, 'bg-success');
+          this._toast.toast('success', 'Saved changes.', 2, 'bg-success');
         } else {
-          this.toast('warning', f.warning, 0, 'bg-warning');
+          this._toast.toast('warning', f.warning, 0, 'bg-warning');
         }
         this.form.markAsPristine();
       }, err=>{
         console.log(err);
-        this.toast('server error', 'an error occurred on the server', 3000,  'bg-danger');
+        this._toast.toast('server error', 'an error occurred on the server', 3,  'bg-danger');
       });
     } else {
-      this.toast('no success', 'Changes could not be saved. Please check invalid inputs.', 0, 'bg-warning');
+      this._toast.toast('invalid input', 'Changes could not be saved. Please check invalid input.', 0, 'bg-warning');
     }
   }
 
-  toast(title:string, message:string, delay:number, type:String=''){
-    const t:Toast = new Toast( title, message, delay, type );
-    const d:Date = new Date();
-    this.toasts.set(d, t);
-    this.toastEvent.next(this.toasts);
-    if(t.delay > 0){
-      setTimeout( () => {
-        this.toasts.delete(d);
-        this.toastEvent.next(this.toasts);
-      }, t.delay);
-    }
-  }
-
-  onToastDeleted( e ) {
-    this.toasts = e;
+  getSwitchColor (key: number) {
+    return this.switchColors[key%4];
   }
 
 }

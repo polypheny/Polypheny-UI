@@ -35,6 +35,10 @@ export class WebuiSettingsService {
         'http://' + this.host + ':' + localStorage.getItem( 'informationServer.port' ) );
     this.connections.set( 'information.socket',
         'ws://' + this.host + ':' + localStorage.getItem( 'informationServer.port' ) + '/informationWebSocket' );
+    this.connections.set( 'crud.rest',
+        'http://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) );
+    this.connections.set( 'crud.socket',
+        'ws://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) + '/queryAnalyzer' );
 
   }
 

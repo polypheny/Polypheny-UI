@@ -16,7 +16,7 @@ export class InformationService {
   httpUrl = this._settings.getConnection('information.rest');
   httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
-  getPage(pageId:number) {
+  getPage( pageId: string ) {
     return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
   }
 

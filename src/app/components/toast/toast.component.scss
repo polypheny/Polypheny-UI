@@ -1,12 +1,16 @@
 #toast-wrapper{
-  position: absolute;
-  top: 1em;
+  position: fixed;
+  top: 8em;
   right: 1em;
   min-width: 300px;
-  max-height: 65vh;
-  overflow: scroll;
-  z-index: 2;
+  max-height: 80%;
+  overflow: auto;
+  z-index: 10;
 }
 .close{
   outline: none;
+}
+.toast-body{
+  max-height: 200px;
+  overflow: auto;
 }

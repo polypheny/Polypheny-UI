@@ -1,0 +1,82 @@
+<div class="menu" [class.menu-hidden]="hideMenu">
+  <header>
+    <i class="fa fa-cogs menu-toggle" (click)="hideMenu = !hideMenu"></i>
+    <h3>display options</h3>
+  </header>
+
+  <ul>
+    <li>
+      <input id="showPlanStats" type="checkbox" [(ngModel)]="viewOptions.showPlanStats">
+      <label class="clickable" for="showPlanStats"> show plan stats</label>
+    </li>
+    <li>
+      <input id="showPlannerEstimate" type="checkbox" [(ngModel)]="viewOptions.showPlannerEstimate">
+      <label class="clickable" for="showPlannerEstimate"> show planner estimate</label>
+    </li>
+    <li>
+      <input id="showTags" type="checkbox" [(ngModel)]="viewOptions.showTags">
+      <label class="clickable" for="showTags"> show analysis tags</label>
+    </li>
+    <li>
+      <label>view mode: </label>
+      <div class="button-group">
+        <button [class.selected]="viewOptions.viewMode == viewModes.FULL" (click)="viewOptions.viewMode = viewModes.FULL">full</button>
+        <button [class.selected]="viewOptions.viewMode == viewModes.COMPACT" (click)="viewOptions.viewMode = viewModes.COMPACT">compact</button>
+        <button [class.selected]="viewOptions.viewMode == viewModes.DOT" (click)="viewOptions.viewMode = viewModes.DOT">dot</button>
+      </div>
+    </li>
+
+    <li>
+      <label>graph metric: </label>
+      <div class="button-group">
+        <button [class.selected]="viewOptions.highlightType === highlightTypes.NONE" (click)="viewOptions.highlightType = highlightTypes.NONE">none</button>
+        <button [class.selected]="viewOptions.highlightType === highlightTypes.CPU" (click)="viewOptions.highlightType = highlightTypes.CPU">cpu</button>
+        <button [class.selected]="viewOptions.highlightType === highlightTypes.ROWS" (click)="viewOptions.highlightType = highlightTypes.ROWS">rows</button>
+        <button [class.selected]="viewOptions.highlightType === highlightTypes.COST" (click)="viewOptions.highlightType = highlightTypes.COST">io cost</button>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<div class="page page-stretch" *ngIf="plan">
+  <!--
+  <h2><span *ngIf="!editName">{{plan.name}}</span>
+    <input *ngIf="editName" class="input-box input-box-main" type="text" [(ngModel)]="plan.name">
+    <button class="btn btn-link btn-lg" (click) = "editName = !editName">
+      <i class="fa fa-pencil"></i>
+    </button>
+  </h2>
+  -->
+
+  <div *ngIf="viewOptions.showPlanStats" class="plan-stats">
+    <div *ngIf="plan.planStats.maxCpu">
+      <span class="stat-value">{{plan.planStats.maxCpu| number:'.0-2'}}</span>
+      <span class="stat-label">most cpu</span>
+    </div>
+    <div *ngIf="plan.planStats.executionTime">
+      <span class="stat-value">{{plan.planStats.executionTime | duration}}</span>
+      <span class="stat-label">execution time ({{plan.planStats.executionTime | durationUnit}})</span>
+    </div>
+    <div *ngIf="plan.planStats.planningTime">
+      <span class="stat-value">{{plan.planStats.planningTime | number:'.0-2'}}</span>
+      <span class="stat-label">planning time (ms)</span>
+    </div>
+    <div *ngIf="plan.planStats.maxDuration">
+      <span class="stat-value">{{plan.planStats.maxDuration | duration}}</span>
+      <span class="stat-label">slowest node ({{plan.planStats.maxDuration | durationUnit}})</span>
+    </div>
+    <div *ngIf="plan.planStats.maxRows">
+      <span class="stat-value">{{plan.planStats.maxRows | number:'.0-2'}}</span>
+      <span class="stat-label">largest node (rows)</span>
+    </div>
+    <div *ngIf="plan.planStats.maxCost">
+      <span class="stat-value">{{plan.planStats.maxCost | number:'.0-2'}}</span>
+      <span class="stat-label">costliest node</span>
+    </div>
+    <div class="btn-close" (click)="viewOptions.showPlanStats = false"><i class="fa fa-close"></i></div>
+  </div>
+
+  <div class="plan" *ngIf="plan && rootContainer">
+    <app-plan-node [plan]="plan" [node]="rootContainer.Plan" [viewOptions]="viewOptions"></app-plan-node>
+  </div>
+</div>

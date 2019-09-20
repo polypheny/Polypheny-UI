@@ -1,10 +1,19 @@
 #tree-outer-wrapper{
   padding: 1em;
+  position: fixed;
+  width: 200px;
+  overflow: auto;
+  height: 100%;
+  padding-bottom: 120px;
 }
 #tree-inner-wrapper{
   display: flex;
   max-width: 160px;
   overflow: auto;
+
+  .node-content-wrapper{
+    width: 100%;
+  }
 
   .node-content-wrapper-focused, .node-content-wrapper:hover{
     // color: black;
@@ -18,4 +27,14 @@
 .sidebarIcon{
   //redundant at the moment
   color: white;
+  margin-right: 0.4em;
+}
+#collapse, #expand {
+  color: black;
+}
+#search-tree {
+  border: none;
+}
+#search-group {
+  margin-bottom: 0.5rem;
 }

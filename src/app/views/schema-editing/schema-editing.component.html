@@ -1,0 +1,55 @@
+<app-toast></app-toast>
+<app-edit-columns *ngIf="routeParam && routeParam.includes('.')" [tableId]="routeParam"></app-edit-columns>
+<app-edit-tables *ngIf="routeParam && !routeParam.includes('.')"></app-edit-tables>
+<ng-container *ngIf="!routeParam">
+    <h1>Schema editing</h1>
+    <p>Select an item from the left sidebar to edit or create tables or columns.</p>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <h2>Create Schema</h2>
+            <form [formGroup]="createForm" (submit)="createSchema()">
+                <div class="form-group">
+                    <label for="schemaNameCreate">Schema name</label>
+                    <input type="text" id="schemaNameCreate" autocomplete="off" class="form-control" formControlName="name" [ngClass]="getValidationClass(createForm, createSubmitted, 'name')" placeholder="schema name">
+                    <div class="invalid-feedback">required</div>
+                </div>
+                <div class="form-check checkbox">
+                    <input type="checkbox" id="ifNotExists" class="form-check-input" formControlName="ifNotExists">
+                    <label for="ifNotExists" class="form-check-label">if not exists</label>
+                </div>
+                <div class="form-group">
+                    <label>Schema type</label>
+                    <select class="form-control" formControlName="type">
+                        <option value="relational">relational</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-6">
+            <h2>Drop Schema</h2>
+            <form [formGroup]="dropForm" (submit)="dropSchema()">
+                <div class="form-group">
+                  <label for="schemaNameDrop">Schema name</label>
+                  <input type="text" class="form-control" formControlName="name" id="schemaNameDrop" placeholder="schema name" [ngClass]="getValidationClass(dropForm, dropSubmitted, 'name')">
+                  <div class="invalid-feedback">required</div>
+                </div>
+                <div class="form-check checkbox">
+                    <input type="checkbox" id="exists" class="form-check-input" formControlName="exists">
+                    <label for="exists" class="form-check-label">if exists</label>
+                </div>
+                <div class="form-check checkbox">
+                    <input type="checkbox" id="cascade" class="form-check-input" formControlName="cascade">
+                    <label for="cascade" class="form-check-label">cascade</label>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-danger">Drop</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</ng-container>

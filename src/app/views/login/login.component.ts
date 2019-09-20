@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit{
   submit(form) {
     this.submitted = true;
     if(form.valid) {
-      this._router.navigateByUrl('/global');
+      this._router.navigateByUrl('');
     }
   }
   

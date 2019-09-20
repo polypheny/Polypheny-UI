@@ -1,0 +1,53 @@
+<div class="row" style="position: relative;">
+  <div class="col-lg-12 col-sm-12" style="margin-bottom: 1em;">
+
+    <h5>Graphical Querying</h5>
+    <p>Select columns from the left sidebar to get started. If needed, you can edit the generated SQL code.</p>
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text">select</span>
+      </div>
+      <div class="form-control fit" id="selectBox"></div>
+    </div>
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text">from</span>
+      </div>
+      <div class="form-control fit" id="fromBox">
+        <span *ngFor="let t of tables | keyvalue" class="badge badge-secondary dbTable">{{t.key}}</span>
+      </div>
+    </div>
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text">join<br>conditions</span>
+      </div>
+      <div class="form-control fit" id="joinConditionBox">
+        <ng-container *ngFor="let con of joinConditions | keyvalue">
+          <input type="checkbox" [(ngModel)]="con.value.active" [id]="con.key" (click)="toggleCondition(con.value)"><label [for]="con.key">&nbsp;{{con.value.condition}}</label><br>
+        </ng-container>
+      </div>
+    </div>
+
+    <h5>Generated query</h5>
+    <p>Edit your code if needed. Your changes will be overwritten, as soon as you add or remove a column in the select box or change any join condition.</p>
+    <div id="aceWrapper">
+      <app-editor #editorGenerated [height]="'150px'"></app-editor>
+    </div>
+
+    <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
+    <button *ngIf="loading" class="btn btn-primary" disabled>Loading</button>
+  </div>
+
+</div>
+
+<hr *ngIf="resultSet">
+
+<div class="row" *ngIf="resultSet">
+  <div class="col-lg-12" style="padding-bottom: 1em;">
+    <h5>Query Result</h5>
+    <app-data-table [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false}" [loading]="loading"></app-data-table>
+  </div>
+</div>

@@ -1,0 +1,124 @@
+﻿/* include if using query container */
+/* @import url(query-container.css); */
+@import url(font-awesome.css);
+
+.text-muted,
+.plan-stats .btn-close {
+	color: #999ea7
+}
+
+.text-warning {
+	color: #FB4418
+}
+
+.hero-container {
+	margin: 30px;
+	font-size: 22px;
+	text-align: center
+}
+
+.pull-right {
+	float: right
+}
+
+.align-right {
+	text-align: right
+}
+
+a {
+	color: #00B5E2;
+	text-decoration: none
+}
+
+.clickable {
+	cursor: pointer
+}
+
+code,
+.code {
+	/*font-family: "source code";*/
+	font-weight: 600
+}
+
+.pad-left {
+	margin-left: 10px
+}
+
+.pad-top {
+	margin-top: 10px
+}
+
+.pad-bottom {
+	margin-bottom: 10px
+}
+
+[tooltip]:before {
+	width: 150px;
+	text-transform: none;
+	text-align: left;
+	content: attr(tooltip);
+	position: absolute;
+	opacity: 0;
+	transition: all 0.15s ease;
+	padding: 10px;
+	color: #fff;
+	border-radius: 6px;
+	margin-top: -10px;
+	margin-left: 20px;
+	z-index: 5;
+	pointer-events: none
+}
+
+[tooltip]:hover:before {
+	opacity: 1;
+	background: #008CAF
+}
+
+.banner {
+	font-size: 17px;
+	padding: 10px;
+	margin: auto;
+	margin-top: 10px;
+	text-align: center;
+	background-color: #008CAF;
+	color: #65DDFB
+}
+
+.banner a {
+	color: white
+}
+
+.btn {
+	border-radius: 3px;
+	padding: 6px 10px;
+	font-size: 13px;
+	line-height: 1.2;
+	text-decoration: none;
+	text-transform: uppercase;
+	cursor: pointer;
+	margin-left: 6px
+}
+
+.btn-slim .fa,
+.btn-close .fa {
+	margin: 0
+}
+.btn-close {
+	border-radius: 50%;
+	box-shadow: none;
+	line-height: 1.5;
+	border: 1px solid #dedede;
+	background-color: #fff
+}
+
+.error-message {
+	background-color: #FB4418;
+	padding: 6px;
+	color: #fff
+}
+
+.plan {
+	padding-bottom: 30px;
+	margin-left: 100px
+}
+

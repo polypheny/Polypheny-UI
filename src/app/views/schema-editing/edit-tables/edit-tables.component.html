@@ -1,0 +1,116 @@
+<app-toast></app-toast>
+<ng-container *ngIf="schema && tables">
+    <h5>Tables in <i>{{schema}}</i></h5>
+    <p>Type the name of a table into the text-fields to perform these actions.</p>
+</ng-container>
+
+<table class="table table-hover table-striped" *ngIf="tables">
+    <thead>
+        <tr>
+            <th>Table</th>
+            <th>Truncate</th>
+            <th>Drop</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let table of tables let i = index">
+            <td>{{table}}</td>
+            <td>
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm" placeholder="truncate {{table}}" [(ngModel)]="truncate[i]">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm" [ngClass]="{'btn-danger': truncate[i] === table, 'btn-light disabled': truncate[i] !== table}" type="button" (click)="sendRequest(table, 'truncate', truncate[i])">truncate</button>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm" placeholder="drop {{table}}" [(ngModel)]="drop[i]">
+                    <div class="input-group-append">
+                        <button class="btn btn-sm" [ngClass]="{'btn-danger': drop[i] === table, 'btn-light disabled': drop[i] !== table}" type="button" (click)="sendRequest(table, 'drop', drop[i])">drop</button>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<hr>
+
+<div class="row">
+    <br><br>
+    <div class="col-lg-12">
+        <h5>Create new table</h5>
+        <p>Columns without column_name will be ignored.</p>
+        <table class="table table-hover table-striped">
+            <thead>
+                <tr>
+                   <th>Name</th>
+                    <th>Primary</th>
+                    <th>Nullable</th>
+                    <th>Type</th>
+                    <th>Default</th>
+                    <th>Length</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let col of newColumns | keyvalue">
+                    <td>
+                        <input type="text" class="form-control form-control-sm" placeholder="column name" [(ngModel)]="col.value.name">
+                    </td>
+                    <td>
+                        <input type="checkbox" [(ngModel)]="col.value.primary">
+                    </td>
+                    <td>
+                        <input type="checkbox" [(ngModel)]="col.value.nullable">
+                    </td>
+                    <td>
+                        <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.dataType">
+                            <option *ngFor="let t of types" [ngValue]="t">{{t}}</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <ng-container [ngSwitch]="col.value.dataType" *ngIf="col.value.dataType">
+                                <input *ngSwitchCase="_types.numericTypes().includes(col.value.dataType.toLowerCase()) ? col.value.dataType : ''" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
+                                <ng-container *ngSwitchCase="_types.booleanTypes().includes(col.value.dataType.toLowerCase()) ? col.value.dataType : ''">
+                                    <div class="form-check form-check-inline">
+                                        <label *ngIf="col.value.defaultValue === null" class="form-check-label disabled" [for]="'default'+col.value.name">null&nbsp;</label>
+                                        <label *ngIf="col.value.defaultValue === true" class="form-check-label" [for]="'default'+col.value.name">true&nbsp;</label>
+                                        <label *ngIf="col.value.defaultValue === false" class="form-check-label" [for]="'default'+col.value.name">false&nbsp;</label>
+                                        <input type="checkbox" class="form-check-input" [(ngModel)]="col.value.defaultValue" [id]="'default'+col.value.name" [disabled]="col.value.defaultValue === null">
+                                    </div>
+                                </ng-container>
+                                <input *ngSwitchDefault type="text" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
+                            </ng-container>
+                            <div class="input-group-append">
+                                <button class="btn btn-sm" [ngClass]="{'btn-primary': col.value.defaultValue ===null, 'btn-light': col.value.defaultValue !== null}" (click)="triggerDefaultNull( col.value )">null</button>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <input *ngIf="col.value.dataType && ! ['varchar', 'varbinary'].includes(col.value.dataType.toLowerCase())" type="number" class="form-control form-control-sm" disabled placeholder="length">
+                        <input *ngIf="col.value.dataType && ['varchar', 'varbinary'].includes(col.value.dataType.toLowerCase())" type="number" class="form-control form-control-sm" placeholder="length" [(ngModel)]="col.value.maxLength">
+                    </td>
+                    <td>
+                        <i class="cui-trash del" (click)="removeNewColumn(col.key)"></i>
+                    </td>
+                </tr>
+            <tr>
+                <td>
+                    <button class="btn btn-light" (click)="addNewColumn()">add column</button>
+                </td>
+                <td colspan="6">
+                    <div class="input-group" style="justify-content: flex-end">
+                        <input type="text" placeholder="table name" class="form-control" style="max-width: 200px;" [(ngModel)]="newTableName">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" (click)="createTable()">create table</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
