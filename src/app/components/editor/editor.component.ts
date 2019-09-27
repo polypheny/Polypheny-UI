@@ -18,7 +18,7 @@ import {SidebarNode} from '../../models/sidebar-node.model';
 
 export class EditorComponent implements OnInit, AfterViewInit {
 
-  @ViewChild( 'editor' ) codeEditorElmRef: ElementRef;
+  @ViewChild( 'editor', {static: false}) codeEditorElmRef: ElementRef;
   private codeEditor: ace.Ace.Editor;
   @Input() readonly ? = false;
   @Input() theme ? = 'tomorrow';
@@ -43,10 +43,11 @@ export class EditorComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.initEditor();
+
   }
 
   ngAfterViewInit(): void {
+    this.initEditor();
     if(this.code) this.codeEditor.setValue(this.code);
     $('#editor-wrapper').height(this.height);
     this.codeEditor.resize();

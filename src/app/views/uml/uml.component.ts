@@ -26,7 +26,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   zIndex = 2;
   errorMsg:string;
 
-  @ViewChild('myModal') myModal: ModalDirective;
+  @ViewChild('myModal', {static: false}) myModal: ModalDirective;
   sourceTable;
   sourceCol;
   targetTable;

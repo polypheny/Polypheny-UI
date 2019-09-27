@@ -19,7 +19,7 @@ import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.servi
 })
 export class SqlConsoleComponent implements OnInit, OnDestroy {
 
-  @ViewChild( 'editor' ) codeEditor;
+  @ViewChild( 'editor', {static: false}) codeEditor;
 
   history: Map<string, SqlHistory> = new Map<string, SqlHistory>();
   readonly MAXHISTORY = 20;//maximum items in history

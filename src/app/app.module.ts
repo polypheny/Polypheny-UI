@@ -26,8 +26,7 @@ import { AppRoutingModule } from './app.routing';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TabsModule } from 'ngx-bootstrap/tabs';
-import { ChartsModule } from 'ng2-charts/ng2-charts';
-import {ViewsModule} from './views/views.module';
+import {ChartsModule} from 'ng2-charts';
 import {HttpClientModule} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
 import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
@@ -35,11 +34,14 @@ import {DefaultLayoutComponent} from './containers/default-layout';
 import {P404Component} from './views/error/404.component';
 import {P500Component} from './views/error/500.component';
 import {LoginComponent} from './views/login/login.component';
+import {ViewsModule} from './views/views.module';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 @NgModule({
   imports:[
     ComponentsModule,
     AppRoutingModule,
+    BrowserAnimationsModule,
     BrowserModule,
     PerfectScrollbarModule,
     BsDropdownModule.forRoot(),
@@ -56,7 +58,8 @@ import {LoginComponent} from './views/login/login.component';
     TreeModule.forRoot(),
     BsDropdownModule,
     TypeaheadModule.forRoot(),
-    HttpClientModule
+    HttpClientModule,
+    ViewsModule
   ],
   declarations: [
     AppComponent,
