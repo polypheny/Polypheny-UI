@@ -76,7 +76,8 @@
           </div>
           <div class="col-lg-12 form-inline">
             <div>
-              constraint name<br><input type="text" [(ngModel)]="constraintName" class="form-control form-control-sm">
+              constraint name<br><input type="text" [(ngModel)]="constraintName" class="form-control form-control-sm" [ngClass]="_crud.getValidationClass(constraintName)">
+              <div class="invalid-feedback">invalid name</div>
             </div>
           </div>
           <form [formGroup]="fkForm">

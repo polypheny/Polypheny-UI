@@ -61,7 +61,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
   initForms(){
     this.createForm = new FormGroup({
-      name: new FormControl('', Validators.required),
+      name: new FormControl('', this._crud.getNameValidator( true ) ),
       ifNotExists: new FormControl(true),
       type: new FormControl('relational', Validators.required)
     });
@@ -90,7 +90,6 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     this.createSubmitted = true;
     if( this.createForm.valid ){
       const val = this.createForm.value;
-      console.log(val);
       this._crud.createOrDropSchema( new Schema( val.name, val.type ).setCreate( true ).setIfNotExists( val.ifNotExists ) ).subscribe(
         res => {
           const result = <ResultSet> res;
@@ -106,6 +105,8 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
           this._toast.toast( 'server error', 'An unknown error occured on the server', 10, 'bg-danger');
         }
       );
+    } else {
+      this._toast.toast( 'invalid name', this._crud.invalidNameMessage('schema'), 10, 'bg-warning');
     }
   }
 

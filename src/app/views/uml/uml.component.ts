@@ -204,6 +204,10 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   createForeignKey(){
+    if( ! this._crud.nameIsValid( this.constraintName )){
+      this._toast.toast( 'invalid constraint name', this._crud.invalidNameMessage('constraint'), 0, 'bg-warning');
+      return;
+    }
     const fk: ForeignKey = new ForeignKey( this.constraintName, this.schema, this.sourceTable, this.sourceCol, this.targetTable, this.targetCol )
       .onUpdate( this.fkForm.value.update ).onDelete( this.fkForm.value.delete );
 

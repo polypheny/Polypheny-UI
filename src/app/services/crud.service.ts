@@ -15,6 +15,7 @@ import {
   Schema
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
+import {Validators} from '@angular/forms';
 
 @Injectable({
   providedIn: 'root'
@@ -237,6 +238,36 @@ export class CrudService {
    */
   getFkActions(){
     return this._http.get(`${this.httpUrl}/getForeignKeyActions`, this.httpOptions);
+  }
+
+  getNameValidator ( required: boolean = false ) {
+    if ( required ){
+      return [Validators.pattern('^[a-zA-Z_][a-zA-Z0-9_]*$'), Validators.required, Validators.max(100)];
+    } else {
+      return [Validators.pattern('^[a-zA-Z_][a-zA-Z0-9_]*$'), Validators.max(100)];
+    }
+  }
+
+  invalidNameMessage ( type: string = '' ) {
+    type = type + ' ';
+    return `Please provide a valid ${type}name`;
+  }
+
+  nameIsValid( name: string ) {
+    const regex = new RegExp( '^[a-zA-Z_][a-zA-Z0-9_]*$' );
+    return regex.test( name ) && name.length <= 100;
+  }
+
+  getValidationClass( name: string ){
+    const regex = new RegExp( '^[a-zA-Z_][a-zA-Z0-9_]*$' );
+    if( name === '' ){
+      return '';
+    }
+    else if( regex.test( name ) && name.length <= 100 ){
+      return 'is-valid';
+    } else {
+      return 'is-invalid';
+    }
   }
 
 }

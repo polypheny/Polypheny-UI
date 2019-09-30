@@ -24,7 +24,7 @@
           <ng-container *ngIf="i === editColumn" [formGroup]="updateColumn">
                 <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
                 <td>
-                  <input type="text" class="form-control form-control-sm" formControlName="name" [attr.data-before]="col.name" id="colName">
+                  <input type="text" class="form-control form-control-sm" formControlName="name" [attr.data-before]="col.name" id="colName" #editColName [ngClass]="_crud.getValidationClass(editColName.value)">
                 </td>
                 <td>
                   <input type="checkbox" class="form-control form-control-sm" formControlName="nullable" id="nullable" [attr.data-before]="col.nullable" (change)="changeNullable()">
@@ -84,7 +84,7 @@
         <tr>
           <td class="pk"></td>
           <td>
-            <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name" [(ngModel)]="createColumn.name">
+            <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name" [(ngModel)]="createColumn.name" [ngClass]="_crud.getValidationClass(createColumn.name)">
           </td>
           <td>
             <input type="checkbox" class="form-control form-control-sm" [(ngModel)]="createColumn.nullable" [checked]="createColumn.nullable" (change)="changeNullable(createColumn)">
@@ -158,7 +158,7 @@
             <div class="form-inline">
               <div class="form-group" style="margin-bottom: 0.5em;">
                 <label for="uniqueName">Constraint name</label>
-                <input id="uniqueName" type="text" class="form-control form-control-sm" placeholder="constraint name" [(ngModel)]="uniqueConstraintName">
+                <input id="uniqueName" type="text" class="form-control form-control-sm" placeholder="constraint name" [(ngModel)]="uniqueConstraintName" [ngClass]="_crud.getValidationClass(uniqueConstraintName)">
               </div>
             </div>
             <div class="constraint-columns">
@@ -200,7 +200,7 @@
                     <label for="indexName">name </label>
                     <div class="form-group">
                         <input id="indexName" type="text" autocomplete="off" class="form-control" placeholder="name" name="name" required formControlName="name" [ngClass]="inputValidation('name')">
-                        <div class="invalid-feedback">required</div>
+                        <div class="invalid-feedback">invalid name</div>
                     </div>
                     <div class="form-group">
                       <label for="indexMethod">method</label><select id="indexMethod" class="form-control" formControlName="method" >

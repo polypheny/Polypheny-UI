@@ -103,12 +103,29 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       this._toast.toast( 'missing table name', 'Please provide a name for the new table. The new table was not created.', 0, 'bg-warning');
       return;
     }
+    if( !this._crud.nameIsValid(this.newTableName) ){
+      this._toast.toast( 'invalid table name', 'Please provide a valid name for the new table. The new table was not created.', 0, 'bg-warning');
+      return;
+    }
+    let valid = true;
     //clear maxlength for types where it is not applicable
     //delete columns with no column name
     this.newColumns.forEach((v, k) => {
-      if( !['varchar', 'varbinary'].includes(v.dataType.toLowerCase()) && v.maxLength !== null ) v.maxLength = null;
-      if( v.name === '' ) this.newColumns.delete( k );
+      if( !['varchar', 'varbinary'].includes(v.dataType.toLowerCase()) && v.maxLength !== null ){
+        v.maxLength = null;
+      }
+      if( v.name === '' ){
+        this.newColumns.delete( k );
+      }
+      if( ! this._crud.nameIsValid( v.name )){
+        valid = false;
+        return;
+      }
     });
+    if ( !valid ){
+      this._toast.toast( 'invalid column name', 'Please make sure all column names are valid. The new table was not created.', 0, 'bg-warning');
+      return;
+    }
     const request = new EditTableRequest( this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()) );
     this._crud.createTable( request ).subscribe(
       res => {
