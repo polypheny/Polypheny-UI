@@ -87,14 +87,6 @@ export class EditorComponent implements OnInit, AfterViewInit {
     return this.codeEditor.getValue();
   }
 
-  getCodeWithoutComments() {
-    let query = '';
-    $('#editor').clone().find('.ace_comment').remove().end().find('.ace_line').each(function(){
-      query = query + $(this).text()+'\n';
-    });
-    return query;
-  }
-
   setCode ( code: string ) {
     if( this.codeEditor) this.codeEditor.setValue( code, 1 );
   }
