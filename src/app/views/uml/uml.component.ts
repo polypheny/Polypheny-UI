@@ -48,7 +48,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private _route: ActivatedRoute,
-    private _crud: CrudService,
+    public _crud: CrudService,
     private _leftSidebar: LeftSidebarService,
     private _formBuilder: FormBuilder,
     private _toast: ToastService,

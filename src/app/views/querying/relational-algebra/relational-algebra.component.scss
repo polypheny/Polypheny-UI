@@ -1,3 +1,6 @@
+#operatorList .rel-op:hover {
+  background: rgba( 0, 0, 0, 0.05 );
+}
 .rel-op{
   cursor: grab;
 }
@@ -7,7 +10,7 @@
   border-radius: 0.25rem;
   height: 1000px;
 }
-#drop .node {
+#drop .node, .cdk-drag-preview .node {
   position: absolute;
   min-width: 260px;
   z-index: 1;
@@ -67,6 +70,9 @@
 #drop.connecting .in:hover{
   background: rgba(181, 229, 160, 0.7);
 }
+#drop .cdk-drag-placeholder{
+  display: none;
+}
 
 svg{
   position: absolute;
@@ -74,6 +80,7 @@ svg{
   left:0;
   stroke: black;
   stroke-width:1;
+  z-index: -1;
 }
 
 #run{

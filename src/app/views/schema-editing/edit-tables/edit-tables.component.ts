@@ -25,7 +25,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   newTableName = '';
 
   constructor(
-    private _crud: CrudService,
+    public _crud: CrudService,
     private _route: ActivatedRoute,
     private _toast: ToastService,
     private _leftSidebar: LeftSidebarService,
