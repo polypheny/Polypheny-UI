@@ -4,6 +4,11 @@
 export class SortState {
     direction: SortDirection = SortDirection.DESC;
     sorting = false;
+    //for the PlanBuilder
+    column: string;
+  constructor () {
+    this.column = '';
+  }
 }
 
 /**
@@ -14,10 +19,10 @@ export enum SortDirection {
     /**
      * ascending
      */
-    ASC='ASC',
+    ASC = 'ASC',
 
     /**
      * descending
      */
-    DESC='DESC'
+    DESC = 'DESC'
 }

@@ -1,18 +1,20 @@
-export enum LogicalOperators {
+import {SortState} from '../../../components/data-table/models/sort-state.model';
+
+export enum LogicalOperator {
   TableScan,
   Join,
   Filter,
-  Project
+  Project,
+  Aggregate,
+  Sort
 
   /*
-  Aggregate,
   Calc,
   Correlate,
   Exchange,
   Intersect,
   Match,
   Minus,
-  Sort,
   SortExchange,
   TableFunctionScan,
   TableModify,
@@ -32,9 +34,32 @@ export class Node{
   inputCount = 0;
   dragging;
   height: number;
+
+  //parameters:
+  //TableScan
+  tableName;
+  //Join
+  join = 'INNER';
+  operator = '=';
+  col1;
+  col2;
+  //filter
+  //(operator)
+  field;
+  filter;
+  //project
+  fields;
+  //aggregate
+  groupBy;
+  aggregation = 'SUM';
+  alias;
+  //(field)
+  //sort
+  sortColumns: SortState[] = [new SortState()];
+
   constructor(
     public id: string,
-    public type: string,
+    public type: LogicalOperator,
     public left: number,
     public top: number
   ){
@@ -50,7 +75,11 @@ export class Node{
     this.inputCount = inputCount;
   }
   clone(){
-    return new Node( this.id, this.type, this.left, this.top );
+    const n = new Node( this.id, this.type, this.left, this.top );
+    for( const [key, val] of Object.entries(this) ){
+      n[key] = val;
+    }
+    return n;
   }
   setDragging( isDragging: boolean ){
     this.dragging = isDragging;

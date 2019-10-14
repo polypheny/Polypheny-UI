@@ -1,5 +1,5 @@
-import {AfterViewInit, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import {Connection, LogicalOperators, Node} from './relational-algebra.model';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Connection, LogicalOperator, Node} from './relational-algebra.model';
 import {ResultSet} from '../../../components/data-table/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {ToastService} from '../../../components/toast/toast.service';
@@ -120,13 +120,13 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   }
 
   /**
-   * List enums of LogicalOperators for the select menu
+   * List LogicalOperators for the select menu
    */
   getOperators () {
     //see https://stackoverflow.com/questions/43100718/typescript-enum-to-object-array
-    this.operators = Object.keys(LogicalOperators)
+    this.operators = Object.keys(LogicalOperator)
       .filter(k => !isNaN(Number(k)))
-      .map(key => LogicalOperators[key]);
+      .map(key => LogicalOperator[key]);
   }
 
   getX1( s: Node ){
@@ -213,12 +213,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     });
     node.setChildren(children);
     node.setInputCount( children.length );
-    $('#' + node.getId()).find('.param').each( function(e){
-      const param = $(this).find('.param-input').attr('name');
-      const value = $(this).find('.param-input').val();
-      node[param] = value;
-    });
-    console.log(node);
     return node;
   }
 

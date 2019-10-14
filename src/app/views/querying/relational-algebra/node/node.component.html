@@ -10,7 +10,7 @@
     <li class="param list-group-item" *ngSwitchCase="'TableScan'">
       <div class="param-wrapper">
         <label for="tableName">Table</label>
-        <input type="text" placeholder="schema.table" id="tableName" name="table" class="form-control form-control-sm param-input" [(ngModel)]="tableName">
+        <input type="text" placeholder="schema.table" id="tableName" name="tableName" class="form-control form-control-sm param-input" [(ngModel)]="node.tableName">
       </div>
     </li>
 
@@ -18,7 +18,7 @@
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="join">Join Type</label>
-          <select name="join" id="join" class="form-control form-control-sm param-input" [(ngModel)]="join">
+          <select name="join" id="join" class="form-control form-control-sm param-input" [(ngModel)]="node.join">
             <option value="INNER">INNER</option>
             <option value="OUTER">OUTER</option>
           </select>
@@ -27,7 +27,7 @@
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="operator">operator</label>
-          <select name="operator" id="operator" class="form-control form-control-sm param-input" [(ngModel)]="operator">
+          <select name="operator" id="operator" class="form-control form-control-sm param-input" [(ngModel)]="node.operator">
             <option value="=">=</option>
             <option value="<>">&lt;&gt;</option>
             <option value="<">&lt;</option>
@@ -40,13 +40,13 @@
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="col1">Col 1</label>
-          <input type="text" placeholder="column 1" id="col1" name="col1" class="form-control form-control-sm param-input" [(ngModel)]="col1">
+          <input type="text" placeholder="column 1" id="col1" name="col1" class="form-control form-control-sm param-input" [(ngModel)]="node.col1">
         </div>
       </li>
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="col2">Col 2</label>
-          <input type="text" placeholder="column 2" id="col2" name="col2" class="form-control form-control-sm param-input" [(ngModel)]="col2">
+          <input type="text" placeholder="column 2" id="col2" name="col2" class="form-control form-control-sm param-input" [(ngModel)]="node.col2">
         </div>
       </li>
     </ng-container>
@@ -55,7 +55,7 @@
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="operator">Operator</label>
-          <select name="operator" id="operator" class="form-control form-control-sm param-input" [(ngModel)]="operator">
+          <select name="operator" id="operator" class="form-control form-control-sm param-input" [(ngModel)]="node.operator">
             <option value="=">=</option>
             <option value="<>">&lt;&gt;</option>
             <option value="<">&lt;</option>
@@ -67,13 +67,13 @@
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="col1">field</label>
-          <input type="text" placeholder="table.column" id="field" name="field" class="form-control form-control-sm param-input" [(ngModel)]="field">
+          <input type="text" placeholder="table.column" id="field" name="field" class="form-control form-control-sm param-input" [(ngModel)]="node.field">
         </div>
       </li>
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="col1">filter</label>
-          <input type="text" placeholder="filter value" id="filter" name="filter" class="form-control form-control-sm param-input" [(ngModel)]="filter">
+          <input type="text" placeholder="filter value" id="filter" name="filter" class="form-control form-control-sm param-input" [(ngModel)]="node.filter">
         </div>
       </li>
     </ng-container>
@@ -82,7 +82,53 @@
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="col1">fields</label>
-          <input type="text" placeholder="column1, column2" id="fields" name="fields" class="form-control form-control-sm param-input" [(ngModel)]="fields">
+          <input type="text" placeholder="column1, column2" id="fields" name="fields" class="form-control form-control-sm param-input" [(ngModel)]="node.fields">
+        </div>
+      </li>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="'Aggregate'">
+      <li class="param list-group-item">
+        <div class="param-wrapper">
+          <label for="groupBy">group by</label>
+          <input type="text" placeholder="column" id="groupBy" name="groupBy" class="form-control form-control-sm param-input" [(ngModel)]="node.groupBy">
+        </div>
+      </li>
+      <li class="param list-group-item">
+        <div class="param-wrapper">
+          <label for="aggregation">aggregation</label>
+          <select name="aggregation" id="aggregation" class="form-control form-control-sm param-input" [(ngModel)]="node.aggregation">
+            <option value="SUM">SUM</option>
+            <option value="COUNT">COUNT</option>
+            <!--<option value="AVG">AVG</option>-->
+          </select>
+        </div>
+      </li>
+      <li class="param list-group-item">
+        <div class="param-wrapper">
+          <label for="field">field</label>
+          <input type="text" placeholder="table.column" id="field" name="field" class="form-control form-control-sm param-input" [(ngModel)]="node.field">
+        </div>
+      </li>
+      <li class="param list-group-item">
+        <div class="param-wrapper">
+          <label for="as">as</label>
+          <input type="text" placeholder="alias" id="as" name="as" class="form-control form-control-sm param-input" [(ngModel)]="node.alias">
+        </div>
+      </li>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="'Sort'">
+      <li class="param list-group-item" style="text-align: center">
+        <a [routerLink]="[]" (click)="addSortColumn()" class="text-secondary">+ add column</a>
+      </li>
+      <li class="list-group-item" cdkDropList (cdkDropListDropped)="sortColumn(node, $event)">
+        <div class="param-wrapper sort-wrapper" *ngFor="let col of node.sortColumns | keyvalue" cdkDrag cdkDragLockAxis="y">
+          <i class="icon-menu" cdkDragHandle></i>
+          <div class="sort-placeholder param-wrapper" *cdkDragPlaceholder>&nbsp;</div>
+          <input type="text" placeholder="table.column" class="form-control form-control-sm sort-col" [(ngModel)]="col.value.column">
+          <a [routerLink]="[]"  class="btn btn-light btn-sm sort-direction" (click)="toggleDirection(col.value)">{{col.value.direction}}</a>
+          <i class="fa fa-close sort-remove" (click)="removeSortColumn( col.key )"></i>
         </div>
       </li>
     </ng-container>
