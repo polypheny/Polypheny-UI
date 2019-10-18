@@ -1,4 +1,12 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation
+} from '@angular/core';
 import {Connection, LogicalOperator, Node} from './relational-algebra.model';
 import {ResultSet} from '../../../components/data-table/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
@@ -25,17 +33,13 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   public nodes = new Map<string, Node>();
   operators = [];
 
-  //offsets
-  private offsetX1 = 1;
-  private offsetX2 = 3;
-  private offsetY1 = 0;
-  private offsetY2 = 5;
-
   //temporal values while dragging
   scrollTop: number;
   scrollLeft: number;
   draggingNodeX: number;
   draggingNodeY: number;
+  dropMouseX: number;
+  dropMouseY: number;
 
   constructor(
     private _crud: CrudService,
@@ -59,9 +63,15 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   dropped( event ){
     if(event.previousContainer.id === 'operatorList'){
       const id = 'node' + this.counter++;
-      //todo calculate correct position
-      this.nodes.set( id, new Node(id, event.item.data, event.distance.x, event.distance.y ));
+      const x = Math.max(0, Math.min(this.dropArea.nativeElement.offsetWidth - 270, this.dropMouseX));
+      const y = Math.max(0, Math.min(this.dropArea.nativeElement.offsetHeight - 140, this.dropMouseY));
+      this.nodes.set( id, new Node( id, event.item.data, x, y) );
     }
+  }
+
+  dropMousePosition(event){
+    this.dropMouseX = event.layerX;
+    this.dropMouseY = event.layerY;
   }
 
   initDraggable() {
@@ -115,7 +125,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     if( this.connections.has( source + target )){
       this.connections.delete( source + target );
     }else {
-      this.connections.set( source + target, {source: this.nodes.get(source), target: this.nodes.get(target) });
+      this.connections.set( source + target, {id: source + target, source: this.nodes.get(source), target: this.nodes.get(target) });
     }
   }
 
@@ -131,38 +141,34 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
   getX1( s: Node ){
     if( s === undefined ) { return; }
-    const ele = $('#'+s.getId());
     if( ! s.isDragging() ){
-      return $(ele).parent().position().left + $(ele).width()/2 + this.offsetX1;
+      return s.left + s.getWidth()/2;
     } else {
-      return this.draggingNodeX + $(ele).parent().width()/2 + 35;
+      return this.draggingNodeX + s.getWidth()/2;
     }
   }
   getX2( t: Node ){
     if( t === undefined ) { return; }
-    const ele = $('#'+t.getId());
     if( ! t.isDragging() ){
-      return $(ele).parent().position().left + $(ele).width()/2 + this.offsetX2;
+      return t.left + t.getWidth()/2;
     } else {
-      return this.draggingNodeX + $(ele).parent().width()/2 + 36;
+      return this.draggingNodeX + t.getWidth()/2;
     }
   }
   getY1( s: Node ){
     if( s === undefined ) { return; }
-    const ele = $('#'+s.getId());
     if( ! s.isDragging() ){
-      return $(ele).parent().position().top + this.offsetY1;
+      return s.top;
     } else {
-      return this.draggingNodeY + this.offsetY1;
+      return this.draggingNodeY;
     }
   }
   getY2( t: Node ){
     if( t === undefined ) { return; }
-    const ele = $('#'+t.getId());
     if( ! t.isDragging() ){
-      return $(ele).parent().position().top + $(ele).height() + this.offsetY2;
+      return t.top + t.getHeight() + 5;
     } else {
-      return this.draggingNodeY + t.height + this.offsetY2;
+      return this.draggingNodeY + t.getHeight() + 5;
     }
   }
 
@@ -223,7 +229,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   }
 
   draggingNode( e, node: Node ){
-    //todo scrolling fix
     this.draggingNodeX = node.left + e.distance.x + document.documentElement.scrollLeft - this.scrollLeft;
     this.draggingNodeY = node.top + e.distance.y + document.documentElement.scrollTop - this.scrollTop;
   }
@@ -239,12 +244,60 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     node.top = Math.max( 0, Math.min( node.top + e.distance.y + scrollTopDistance, this.dropArea.nativeElement.offsetHeight - nodeHeight - 4 ));
   }
 
-  trackId( index: number, n: Node ): number {
+  trackNode( index: number, n: Node ) {
     if(n.id){
-      return Number.parseInt(n.id.substr(4));
+      return n.id;
     }else{
       return 1;
     }
+  }
+
+  exportTree(){
+    if( this.nodes.size === 0){
+      return;
+    }
+    // see https://2ality.com/2015/08/es6-map-json.html
+    const out = { nodes: [...this.nodes], connections: [...this.connections] };
+    this.copyMessage( JSON.stringify(out) );
+    this._toast.toast( 'exported', 'The plan was exported to JSON and copied to your clipboard', 5, 'bg-success' );
+  }
+
+  importTree(){
+    const input = prompt('Please paste your plan here.');
+    if(input === null || input === '' ){
+      return;
+    }
+    const inputObj = JSON.parse( input );
+    if( inputObj.nodes ){
+      const importedNodes = new Map<string, Node>();
+      for( const [k, v] of Object.entries( inputObj.nodes )){
+        importedNodes.set( v[0], Node.fromJson( v[1] ));
+      }
+      this.nodes = importedNodes;
+      this.counter = importedNodes.size;
+    }
+    if( inputObj.connections ){
+      const importedConnections = new Map<string, Connection>();
+      for( const conn of Object.values( inputObj.connections )){
+        importedConnections.set( conn[0], {id: conn[1].id, source: this.nodes.get(conn[1].source.id), target: this.nodes.get(conn[1].target.id)} );
+      }
+      this.connections = importedConnections;
+    }
+  }
+
+  // from https://stackoverflow.com/questions/49102724/angular-5-copy-to-clipboard
+  copyMessage( msg: string ){
+    const selBox = document.createElement('textarea');
+    selBox.style.position = 'fixed';
+    selBox.style.left = '0';
+    selBox.style.top = '0';
+    selBox.style.opacity = '0';
+    selBox.value = msg;
+    document.body.appendChild(selBox);
+    selBox.focus();
+    selBox.select();
+    document.execCommand('copy');
+    document.body.removeChild(selBox);
   }
 
 }

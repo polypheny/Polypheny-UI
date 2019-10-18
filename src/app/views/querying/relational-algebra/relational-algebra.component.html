@@ -1,11 +1,3 @@
-<!-- uncomment to adjust offsets
-<div class="row">
-  offsetX1: <input type="number" [(ngModel)]="offsetX1"><br>
-  offsetY1: <input type="number" [(ngModel)]="offsetY1"><br>
-  offsetX2: <input type="number" [(ngModel)]="offsetX2"><br>
-  offsetY2: <input type="number" [(ngModel)]="offsetY2"><br>
-</div>
-!-->
 <app-toast></app-toast>
 <div class="row" style="padding-bottom: 1em;">
 
@@ -26,22 +18,30 @@
     </ul>
   </div>
 
-  <div class="col-9" id="drop" cdkDropList cdkDropListSortingDisabled (cdkDropListDropped)="dropped($event)" #dropArea>
-    <app-node *ngFor="let n of nodes | keyvalue; trackBy: trackId"
-              [node]="n.value"
-              cdkDrag
-              style="position:absolute;"
-              [ngStyle]="{'top': n.value.top+'px', 'left':n.value.left+'px'}"
-              [cdkDragFreeDragPosition]="{x: n.value.left, y: n.value.top}"
-              (cdkDragStarted)="dragStart($event, n.value)"
-              (cdkDragMoved)="draggingNode($event, n.value)"
-              (cdkDragEnded)="savePos($event, n.value)"
-              cdkDragBoundary="#drop">
-      <!--<div *cdkDragPreview class="node-drag-preview">preview</div>-->
-      <div class="drag-handle card-header" cdkDragHandle>{{n.value.type}}<span class="del float-right" (click)="deleteNode(n.value)"><i class="cui-trash"></i></span></div>
-    </app-node>
+  <div class="col-9" id="drop" cdkDropList cdkDropListSortingDisabled (cdkDropListDropped)="dropped($event)" (mousemove)="dropMousePosition($event)" #dropArea>
+    <ng-container *ngFor="let n of nodes | keyvalue; trackBy: trackNode">
+      <app-node [node]="n.value"
+                cdkDrag
+                style="position:absolute;"
+                [ngStyle]="{'top': n.value.top+'px', 'left':n.value.left+'px'}"
+                [cdkDragFreeDragPosition]="{x: n.value.left, y: n.value.top}"
+                (cdkDragStarted)="dragStart($event, n.value)"
+                (cdkDragMoved)="draggingNode($event, n.value)"
+                (cdkDragEnded)="savePos($event, n.value)"
+                cdkDragBoundary="#drop">
+        <!--<div *cdkDragPreview class="node-drag-preview">preview</div>-->
+        <div class="drag-handle card-header" cdkDragHandle>{{n.value.type}}<span class="del float-right" (click)="deleteNode(n.value)"><i class="cui-trash"></i></span></div>
+      </app-node>
+    </ng-container>
 
     <div class="btn-circle btn btn-primary" id="run" (click)="runPlan()"><i class="fa fa-play"></i></div>
+    <div id="menu-top-left">
+      <div class="btn-group">
+        <a [routerLink]="[]" class="btn btn-light btn-sm" (click)="exportTree()">export</a>
+        <a [routerLink]="[]" class="btn btn-light btn-sm" (click)="importTree()">import</a>
+      </div>
+    </div>
+
     <svg width="100%" height="100%">
       <marker id="arrowhead"
               viewBox="0 0 10 10" refX="0" refY="5"

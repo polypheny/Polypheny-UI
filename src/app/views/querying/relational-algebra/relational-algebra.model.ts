@@ -6,7 +6,9 @@ export enum LogicalOperator {
   Filter,
   Project,
   Aggregate,
-  Sort
+  Sort,
+  Union,
+  Minus
 
   /*
   Calc,
@@ -14,17 +16,16 @@ export enum LogicalOperator {
   Exchange,
   Intersect,
   Match,
-  Minus,
   SortExchange,
   TableFunctionScan,
   TableModify,
-  Union,
   Values,
   Window
   */
 }
 
 export interface Connection{
+  id: string;
   source: Node;
   target: Node;
 }
@@ -32,30 +33,39 @@ export interface Connection{
 export class Node{
   children: Node[] = [];
   inputCount = 0;
-  dragging;
+  dragging: boolean;
   height: number;
+  width: number;
 
   //parameters:
   //TableScan
-  tableName;
+  tableName: string;
+
   //Join
   join = 'INNER';
   operator = '=';
-  col1;
-  col2;
+  col1: string;
+  col2: string;
+
   //filter
   //(operator)
-  field;
-  filter;
+  field: string;
+  filter: string;
+
   //project
-  fields;
+  fields: string;
+
   //aggregate
-  groupBy;
+  groupBy: string;
   aggregation = 'SUM';
-  alias;
+  alias: string;
   //(field)
+
   //sort
   sortColumns: SortState[] = [new SortState()];
+
+  //union
+  all: boolean;
 
   constructor(
     public id: string,
@@ -64,6 +74,13 @@ export class Node{
     public top: number
   ){
     this.dragging = false;
+  }
+  static fromJson( o: any ){
+    const n = new Node( o.id, o.type, o.left, o.top );
+    for( const [key, val] of Object.entries(o) ){
+      n[key] = o[key];
+    }
+    return n;
   }
   getId(){
     return this.id;
@@ -86,5 +103,17 @@ export class Node{
   }
   isDragging(){
     return this.dragging;
+  }
+  getWidth(){
+    return this.width;
+  }
+  setWidth( w: number ){
+    this.width = w;
+  }
+  getHeight(){
+    return this.height;
+  }
+  setHeight( h: number ){
+    this.height = h;
   }
 }

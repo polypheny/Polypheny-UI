@@ -19,16 +19,19 @@ export class NodeComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(){
-    this.node.height = this.nodeEle.nativeElement.offsetHeight;
+    this.node.setHeight(this.nodeEle.nativeElement.offsetHeight);
+    this.node.setWidth(this.nodeEle.nativeElement.offsetWidth);
   }
 
   addSortColumn(){
     this.node.sortColumns.push( new SortState() );
+    this.node.setHeight( this.node.getHeight() + 35 );
   }
 
   removeSortColumn( index:number ) {
     if( this.node.sortColumns.length > 1){
       this.node.sortColumns.splice( index, 1 );
+      this.node.setHeight( this.node.getHeight() - 35 );
     }
   }
 

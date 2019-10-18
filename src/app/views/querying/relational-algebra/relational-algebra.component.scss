@@ -62,6 +62,9 @@
   .param-input{
     width:150px;
   }
+  input[type=checkbox].param-input {
+    box-shadow: none;
+  }
 }
 #drop:not(.connecting) .out:hover{
   background: rgba(150, 216, 228, 0.7);
@@ -93,4 +96,10 @@ svg{
 
 #result-wrapper{
   padding-bottom: 1em;
+}
+
+#menu-top-left {
+  position: absolute;
+  top: 1em;
+  left: 1em;
 }
