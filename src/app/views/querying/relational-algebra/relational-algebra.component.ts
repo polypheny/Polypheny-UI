@@ -141,34 +141,34 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
   getX1( s: Node ){
     if( s === undefined ) { return; }
-    if( ! s.isDragging() ){
-      return s.left + s.getWidth()/2;
-    } else {
+    if( s.isDragging() && this.draggingNodeX !== undefined ){
       return this.draggingNodeX + s.getWidth()/2;
+    } else {
+      return s.left + s.getWidth()/2;
     }
   }
   getX2( t: Node ){
     if( t === undefined ) { return; }
-    if( ! t.isDragging() ){
-      return t.left + t.getWidth()/2;
-    } else {
+    if( t.isDragging() && this.draggingNodeX !== undefined ){
       return this.draggingNodeX + t.getWidth()/2;
+    } else {
+      return t.left + t.getWidth()/2;
     }
   }
   getY1( s: Node ){
     if( s === undefined ) { return; }
-    if( ! s.isDragging() ){
-      return s.top;
-    } else {
+    if( s.isDragging() && this.draggingNodeY !== undefined ){
       return this.draggingNodeY;
+    } else {
+      return s.top;
     }
   }
   getY2( t: Node ){
     if( t === undefined ) { return; }
-    if( ! t.isDragging() ){
-      return t.top + t.getHeight() + 5;
-    } else {
+    if( t.isDragging() && this.draggingNodeY !== undefined ){
       return this.draggingNodeY + t.getHeight() + 5;
+    } else {
+      return t.top + t.getHeight() + 5;
     }
   }
 
@@ -242,6 +242,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     const scrollLeftDistance = document.documentElement.scrollLeft - this.scrollLeft;
     node.left = Math.max( 0, Math.min( node.left + e.distance.x + scrollLeftDistance, this.dropArea.nativeElement.offsetWidth - nodeWidth - 4 ));
     node.top = Math.max( 0, Math.min( node.top + e.distance.y + scrollTopDistance, this.dropArea.nativeElement.offsetHeight - nodeHeight - 4 ));
+    this.draggingNodeX = undefined;
+    this.draggingNodeY = undefined;
   }
 
   trackNode( index: number, n: Node ) {
