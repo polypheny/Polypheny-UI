@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {Node} from '../relational-algebra.model';
 import {SortDirection, SortState} from '../../../../components/data-table/models/sort-state.model';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
@@ -14,6 +14,7 @@ export class NodeComponent implements OnInit, AfterViewInit {
 
   @ViewChild('nodeEle', {static: false}) public nodeEle: ElementRef;
   @Input() node: Node;
+  @Output() autocompleteChanged = new EventEmitter();
 
   ngOnInit() {
   }
@@ -45,6 +46,18 @@ export class NodeComponent implements OnInit, AfterViewInit {
     } else {
       col.direction = SortDirection.DESC;
     }
+  }
+
+  getAcCols(): string[]{
+    return [...this.node.getAcColumns()];
+  }
+
+  getAcTableCols(): string[]{
+    return [...this.node.getAcTableColumns()];
+  }
+
+  autocompleteChange(){
+    this.autocompleteChanged.emit();
   }
 
 }

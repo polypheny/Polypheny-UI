@@ -1,14 +1,14 @@
 import {SortState} from '../../../components/data-table/models/sort-state.model';
 
 export enum LogicalOperator {
-  TableScan,
-  Join,
-  Filter,
-  Project,
-  Aggregate,
-  Sort,
-  Union,
-  Minus
+  TableScan = 'TableScan',
+  Join = 'Join',
+  Filter = 'Filter',
+  Project = 'Project',
+  Aggregate = 'Aggregate',
+  Sort = 'Sort',
+  Union = 'Union',
+  Minus = 'Minus'
 
   /*
   Calc,
@@ -36,6 +36,14 @@ export class Node{
   dragging: boolean;
   height: number;
   width: number;
+
+  //autocomplete
+  autocomplete: string[];
+  acColumns = new Set<string>();
+  acTableColumns = new Set<string>();
+  acSchema = new Set<string>();
+  acTable = new Set<string>();
+  zIndex = 1;
 
   //parameters:
   //TableScan
@@ -80,10 +88,22 @@ export class Node{
     for( const [key, val] of Object.entries(o) ){
       n[key] = o[key];
     }
+    //handle sets
+    const sets = ['acColumns', 'acTableColumns', 'acSchema', 'acTable'];
+    for( const s of sets ){
+      if( o[s].size !== undefined ){
+        n[s] = new Set<string>([...o[s]]);
+      } else {
+        n[s] = new Set<string>();
+      }
+    }
     return n;
   }
   getId(){
     return this.id;
+  }
+  getChildren(){
+    return this.children;
   }
   setChildren(nodes: Node[] ){
     this.children = nodes;
@@ -115,5 +135,32 @@ export class Node{
   }
   setHeight( h: number ){
     this.height = h;
+  }
+  setAutocomplete( autocomplete: string[] ){
+    this.autocomplete = autocomplete;
+  }
+  getAcSchema(){
+    return this.acSchema;
+  }
+  setAcSchema( s: Set<string> ){
+    this.acSchema = s;
+  }
+  getAcTable(){
+    return this.acTable;
+  }
+  setAcTable( t: Set<string> ){
+    this.acTable = t;
+  }
+  getAcColumns(){
+    return this.acColumns;
+  }
+  setAcColumns( c: Set<string> ){
+    this.acColumns = c;
+  }
+  getAcTableColumns () {
+    return this.acTableColumns;
+  }
+  setAcTableColumns ( tc: Set<string> ) {
+    this.acTableColumns = tc;
   }
 }

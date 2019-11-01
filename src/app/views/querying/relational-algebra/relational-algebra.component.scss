@@ -103,3 +103,42 @@ svg{
   top: 1em;
   left: 1em;
 }
+
+/* autocomplete package */
+.ng-autocomplete{
+  width: auto !important;
+}
+.autocomplete-container{
+  box-shadow: none !important;
+  border: 1px solid #e4e7ea;
+  border-radius: 0.25rem;
+  line-height: 2;
+  height: auto !important;
+}
+.input-container{
+  height: initial;
+  line-height: initial;
+  input{
+    background-color:transparent !important;
+    height: auto !important;
+    line-height: 1 !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+}
+.autocomplete-container .suggestions-container ul li a{
+  padding: 0 0.5em !important;
+}
+.input-container input::placeholder{
+  font-size:0.765625rem;
+}
+
+/* bootstrap styles */
+.autocomplete-container{
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.autocomplete-container:focus-within{
+  border: 1px #8ad4ee solid !important;
+  border-radius: 0.25rem;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.2rem rgba(32, 168, 216, 0.25) !important;
+}

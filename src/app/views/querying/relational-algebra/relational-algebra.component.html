@@ -21,9 +21,12 @@
   <div class="col-9" id="drop" cdkDropList cdkDropListSortingDisabled (cdkDropListDropped)="dropped($event)" (mousemove)="dropMousePosition($event)" #dropArea>
     <ng-container *ngFor="let n of nodes | keyvalue; trackBy: trackNode">
       <app-node [node]="n.value"
+                (autocompleteChanged)="setAutocomplete()"
+                (focusin)="n.value.zIndex = 2"
+                (focusout)="setAutocomplete(); n.value.zIndex = 1"
                 cdkDrag
                 style="position:absolute;"
-                [ngStyle]="{'top': n.value.top+'px', 'left':n.value.left+'px'}"
+                [ngStyle]="{'top': n.value.top+'px', 'left':n.value.left+'px', 'z-index': n.value.zIndex}"
                 [cdkDragFreeDragPosition]="{x: n.value.left, y: n.value.top}"
                 (cdkDragStarted)="dragStart($event, n.value)"
                 (cdkDragMoved)="draggingNode($event, n.value)"

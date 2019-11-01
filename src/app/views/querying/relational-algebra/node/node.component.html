@@ -10,7 +10,15 @@
     <li class="param list-group-item" *ngSwitchCase="'TableScan'">
       <div class="param-wrapper">
         <label for="{{node.id}}tableName">Table</label>
-        <input type="text" placeholder="schema.table" id="{{node.id}}tableName" name="tableName" class="form-control form-control-sm param-input" [(ngModel)]="node.tableName">
+        <ng-autocomplete
+          id="{{node.id}}tableName"
+          [data]="node.autocomplete"
+          [(ngModel)]="node.tableName"
+          (inputChanged)="autocompleteChange()"
+          placeHolder="schema.table"
+          [searchKeyword]="node.tableName"
+          [itemTemplate]="itemTemplate"
+          [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
       </div>
     </li>
 
@@ -40,13 +48,27 @@
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="{{node.id}}col1">Col 1</label>
-          <input type="text" placeholder="column 1" id="{{node.id}}col1" name="col1" class="form-control form-control-sm param-input" [(ngModel)]="node.col1">
+          <ng-autocomplete
+            id="{{node.id}}col1"
+            [data]="getAcTableCols()"
+            [(ngModel)]="node.col1"
+            placeHolder="column 1"
+            [searchKeyword]="node.col1"
+            [itemTemplate]="itemTemplate"
+            [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
         </div>
       </li>
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="{{node.id}}col2">Col 2</label>
-          <input type="text" placeholder="column 2" id="{{node.id}}col2" name="col2" class="form-control form-control-sm param-input" [(ngModel)]="node.col2">
+          <ng-autocomplete
+            id="{{node.id}}col2"
+            [data]="getAcTableCols()"
+            [(ngModel)]="node.col2"
+            placeHolder="column 2"
+            [searchKeyword]="node.col2"
+            [itemTemplate]="itemTemplate"
+            [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
         </div>
       </li>
     </ng-container>
@@ -67,7 +89,14 @@
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="{{node.id}}filterField">field</label>
-          <input type="text" placeholder="table.column" id="{{node.id}}filterField" name="field" class="form-control form-control-sm param-input" [(ngModel)]="node.field">
+          <ng-autocomplete
+            id="{{node.id}}filterField"
+            [data]="getAcTableCols()"
+            [(ngModel)]="node.field"
+            placeHolder="table.column"
+            [searchKeyword]="node.field"
+            [itemTemplate]="itemTemplate"
+            [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
         </div>
       </li>
       <li class="param list-group-item">
@@ -82,7 +111,7 @@
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="{{node.id}}fields">fields</label>
-          <input type="text" placeholder="column1, column2" id="{{node.id}}fields" name="fields" class="form-control form-control-sm param-input" [(ngModel)]="node.fields">
+          <input type="text" placeholder="column1, column2" id="{{node.id}}fields" name="fields" class="form-control form-control-sm param-input" [(ngModel)]="node.fields" (focusout)="autocompleteChange()">
         </div>
       </li>
     </ng-container>
@@ -91,7 +120,15 @@
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="{{node.id}}groupBy">group by</label>
-          <input type="text" placeholder="column" id="{{node.id}}groupBy" name="groupBy" class="form-control form-control-sm param-input" [(ngModel)]="node.groupBy">
+          <ng-autocomplete
+            id="{{node.id}}groupBy"
+            [data]="getAcCols()"
+            [(ngModel)]="node.groupBy"
+            (inputChanged)="autocompleteChange()"
+            placeHolder="column"
+            [searchKeyword]="node.groupBy"
+            [itemTemplate]="itemTemplate"
+            [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
         </div>
       </li>
       <li class="param list-group-item">
@@ -107,7 +144,15 @@
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="{{node.id}}field">field</label>
-          <input type="text" placeholder="table.column" id="{{node.id}}field" name="field" class="form-control form-control-sm param-input" [(ngModel)]="node.field">
+          <ng-autocomplete
+            id="{{node.id}}field"
+            [data]="getAcTableCols()"
+            [(ngModel)]="node.field"
+            (inputChanged)="autocompleteChange()"
+            placeHolder="table.column"
+            [searchKeyword]="node.field"
+            [itemTemplate]="itemTemplate"
+            [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
         </div>
       </li>
       <li class="param list-group-item">
@@ -126,7 +171,13 @@
         <div class="param-wrapper sort-wrapper" *ngFor="let col of node.sortColumns | keyvalue" cdkDrag cdkDragLockAxis="y" #sortCols>
           <i class="icon-menu" cdkDragHandle></i>
           <div class="sort-placeholder param-wrapper" *cdkDragPlaceholder>&nbsp;</div>
-          <input type="text" placeholder="table.column" class="form-control form-control-sm sort-col" [(ngModel)]="col.value.column">
+          <ng-autocomplete
+            [data]="getAcTableCols()"
+            [(ngModel)]="col.value.column"
+            placeHolder="table.column"
+            [searchKeyword]="col.value.column"
+            [itemTemplate]="itemTemplate"
+            [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
           <a [routerLink]="[]"  class="btn btn-light btn-sm sort-direction" (click)="toggleDirection(col.value)">{{col.value.direction}}</a>
           <i class="fa fa-close sort-remove" (click)="removeSortColumn( col.key )"></i>
         </div>
@@ -149,3 +200,11 @@
 
   </ng-container>
 </div>
+
+<!-- autocomplete templates -->
+<ng-template #itemTemplate let-item>
+  <a [innerHTML]="item"></a>
+</ng-template>
+<ng-template #notFoundTemplate let-notFound>
+  <div [innerHTML]="notFound"></div>
+</ng-template>
