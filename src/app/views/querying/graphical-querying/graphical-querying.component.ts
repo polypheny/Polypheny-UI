@@ -23,6 +23,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   generatedSQL;
   resultSet: ResultSet;
   loading = false;
+  hasOptions = true;
+  optionsOpen = false;
 
   //fields for the graphical query generation
   schemas = new Map<string, string>();//schemaName, schemaName
@@ -201,6 +203,13 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
       });
     });
+  }
+
+  /**
+   * Toggle visability of additonal refinement options
+   */
+  toggleOptions () {
+    this.optionsOpen = !this.optionsOpen;
   }
 
 }
