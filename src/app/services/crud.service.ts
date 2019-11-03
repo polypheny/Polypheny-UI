@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {Index} from '../components/data-table/models/result-set.model';
+import {Debug, Index} from '../components/data-table/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
   UIRequest,
@@ -12,7 +12,7 @@ import {
   QueryRequest,
   DeleteRequest,
   UpdateRequest,
-  Schema
+  Schema, StatisticRequest
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
@@ -56,6 +56,20 @@ export class CrudService {
    */
   anyQuery ( query: QueryRequest ) {
     return this._http.post(`${this.httpUrl}/anyQuery`, query, this.httpOptions);
+  }
+
+  /**
+   * Request all aviable statistic from the server
+   */
+  allStatistics ( statistics: StatisticRequest) {
+    //TODO: comment is out send dummy request for the moment
+    return this._http.post(`${this.httpUrl}/allStatistics`,statistics,  this.httpOptions);
+    /* return {
+      data: [["10"]],
+      table: "test",
+      type: "min", //min,max etc.
+      info: "it's a test"
+    }*/
   }
 
   /**

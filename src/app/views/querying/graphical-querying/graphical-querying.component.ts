@@ -4,10 +4,10 @@ import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
 import 'jquery-ui/ui/widgets/draggable';
 import {CrudService} from '../../../services/crud.service';
-import {ResultSet} from '../../../components/data-table/models/result-set.model';
+import {ResultSet, StatisticSet} from '../../../components/data-table/models/result-set.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToastService} from '../../../components/toast/toast.service';
-import {EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {EditTableRequest, QueryRequest, SchemaRequest, StatisticRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
 
@@ -22,6 +22,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   @ViewChild('editorGenerated', {static: false}) editorGenerated;
   generatedSQL;
   resultSet: ResultSet;
+  statisticSet: StatisticSet;
   loading = false;
   hasOptions = true;
   optionsOpen = false;
@@ -147,6 +148,22 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.loading = false;
       }
     );
+  }
+
+  getStatistic () {
+    this._crud.allStatistics( new StatisticRequest()).subscribe(
+        res => {
+          const statistics = <StatisticSet>res;
+          this.statisticSet = statistics[0];
+        }, err => {
+          this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
+        }
+      );
+
+    this.statisticSet = new StatisticSet ("error");
+    this.statisticSet.data = [["10"]];
+    this.statisticSet.table = "test";
+    this.statisticSet.type = "min";
   }
 
   addCol(data){

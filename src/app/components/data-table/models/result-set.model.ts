@@ -20,6 +20,23 @@ export class ResultSet{
 }
 
 /**
+ * model for statistics comming from the server
+ */
+export class StatisticSet{
+    data: string[][];
+    table: string;
+    tables: string[];
+    type: string; //min,max etc.
+    info: Debug;
+    error: string;
+
+    constructor ( error: string ){
+        this.error = error;
+    }
+}
+
+
+/**
  * Model for a column of a table
  */
 export class DbColumn {
