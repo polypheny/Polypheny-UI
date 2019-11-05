@@ -54,6 +54,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     });
 
     this.initGraphicalQuerying();
+    this.getStatistic();
   }
 
   ngAfterViewInit() {
@@ -137,6 +138,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   executeQuery () {
+    console.log("executeQuery Start");
     this.loading = true;
     this._crud.anyQuery( new QueryRequest( this.editorGenerated.getCode(), false ) ).subscribe(
       res => {
@@ -151,6 +153,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   getStatistic () {
+    console.log("getStatistics");
     this._crud.allStatistics( new StatisticRequest()).subscribe(
         res => {
           const statistics = <StatisticSet>res;
@@ -164,6 +167,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.statisticSet.data = [["10"]];
     this.statisticSet.table = "test";
     this.statisticSet.type = "min";
+    console.log(this.statisticSet);
   }
 
   addCol(data){
