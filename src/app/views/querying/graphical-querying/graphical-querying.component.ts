@@ -156,6 +156,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     console.log("getStatistics");
     this._crud.allStatistics( new StatisticRequest()).subscribe(
         res => {
+          console.log("response received");
+          console.log(res);
           const statistics = <StatisticSet>res;
           this.statisticSet = statistics[0];
         }, err => {
