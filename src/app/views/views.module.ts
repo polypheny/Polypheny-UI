@@ -21,6 +21,7 @@ import { RelationalAlgebraComponent } from './querying/relational-algebra/relati
 import { QueryingComponent } from './querying/querying.component';
 import { NodeComponent } from './querying/relational-algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
+import { RefinementOptionsComponent } from './querying/graphical-querying/refinement-options/refinement-options.component';
 
 @NgModule({
   imports: [
@@ -56,7 +57,8 @@ import {AutocompleteLibModule} from 'angular-ng-autocomplete';
     MonitoringComponent,
     RelationalAlgebraComponent,
     QueryingComponent,
-    NodeComponent
+    NodeComponent,
+    RefinementOptionsComponent
   ],
   exports: []
 })
