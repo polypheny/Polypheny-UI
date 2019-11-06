@@ -67,12 +67,14 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       const node = new Node( id, event.item.data, x, y);
       if( event.item.data === 'TableScan' ){
         const ac = [];
-        this.autocomplete.schemas.forEach( (v1, i1) => {
-          this.autocomplete[v1].tables.forEach( (v2, i2) => {
-            ac.push( v1 + '.' + v2 );
+        if( this.autocomplete ){
+          this.autocomplete.schemas.forEach( (v1, i1) => {
+            this.autocomplete[v1].tables.forEach( (v2, i2) => {
+              ac.push( v1 + '.' + v2 );
+            });
           });
-        });
-        node.setAutocomplete( ac );
+          node.setAutocomplete( ac );
+        }
       }
       this.nodes.set( id, node );
     }
@@ -187,6 +189,9 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
    * The the topmost node and perform a bottomUp iteration to setup the autocomplete for all nodes
    */
   setAutocomplete() {
+    if( this.autocomplete === undefined ) {
+      return;
+    }
     const tree = this.getTree();
     if( tree !== undefined ){
       this.bottomUp(tree);

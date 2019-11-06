@@ -8,13 +8,13 @@ export enum LogicalOperator {
   Aggregate = 'Aggregate',
   Sort = 'Sort',
   Union = 'Union',
-  Minus = 'Minus'
+  Minus = 'Minus',
+  Intersect = 'Intersect'
 
   /*
   Calc,
   Correlate,
   Exchange,
-  Intersect,
   Match,
   SortExchange,
   TableFunctionScan,
@@ -72,8 +72,8 @@ export class Node{
   //sort
   sortColumns: SortState[] = [new SortState()];
 
-  //union
-  all: boolean;
+  //union, minus, intersect
+  all = false;
 
   constructor(
     public id: string,

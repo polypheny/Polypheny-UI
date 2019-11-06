@@ -198,6 +198,13 @@
       </div>
     </li>
 
+    <li class="param list-group-item" *ngSwitchCase="'Intersect'">
+      <div class="param-wrapper">
+        <label for="{{node.id}}intersectAll">intersect all</label>
+        <input type="checkbox" id="{{node.id}}intersectAll" name="all" class="form-control form-control-sm param-input" [(ngModel)]="node.all">
+      </div>
+    </li>
+
   </ng-container>
 </div>
 
