@@ -11,7 +11,7 @@
             <form [formGroup]="createForm" (submit)="createSchema()">
                 <div class="form-group">
                     <label for="schemaNameCreate">Schema name</label>
-                    <input type="text" id="schemaNameCreate" autocomplete="off" class="form-control" formControlName="name" [ngClass]="getValidationClass(createForm, createSubmitted, 'name')" placeholder="schema name">
+                    <input type="text" id="schemaNameCreate" autocomplete="off" class="form-control" formControlName="name" [ngClass]="_crud.getValidationClass(createForm.controls['name'].value)" placeholder="schema name">
                     <div class="invalid-feedback">invalid name</div>
                 </div>
                 <div class="form-check checkbox">
@@ -35,8 +35,8 @@
             <form [formGroup]="dropForm" (submit)="dropSchema()">
                 <div class="form-group">
                   <label for="schemaNameDrop">Schema name</label>
-                  <input type="text" class="form-control" formControlName="name" id="schemaNameDrop" placeholder="schema name" [ngClass]="getValidationClass(dropForm, dropSubmitted, 'name')">
-                  <div class="invalid-feedback">required</div>
+                  <input type="text" class="form-control" formControlName="name" id="schemaNameDrop" placeholder="schema name" autocomplete="off" [ngClass]="getValidationClass(dropForm.controls['name'].value)">
+                  <div class="invalid-feedback">this schema does not exist</div>
                 </div>
                 <div class="form-check checkbox">
                     <input type="checkbox" id="exists" class="form-check-input" formControlName="exists">

@@ -418,9 +418,12 @@ export class EditColumnsComponent implements OnInit {
   }
 
   inputValidation(key){
-    if(this.indexSubmitted  && this.newIndexForm.controls[key].valid && this.newIndexForm.controls[key].dirty ){
+    if(this.newIndexForm.controls[key].value === ''){
+      return '';
+    }
+    else if(this.newIndexForm.controls[key].valid){
       return {'is-valid':true};
-    }else if(this.indexSubmitted  && !this.newIndexForm.controls[key].valid) {
+    }else {
       return {'is-invalid': true };
     }
   }

@@ -133,12 +133,13 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
   }
 
-  getValidationClass( group: FormGroup, submitted: boolean, key: string ){
-    if( !submitted ) return;
-    if(group.controls[key].valid){
-      return {'is-valid':true};
-    }else if(!group.controls[key].valid) {
-      return {'is-invalid': true };
+  getValidationClass( val ){
+    if( val === '' ){
+      return '';
+    } else if ( this.schemas.filter( (o) => o.name === val ).length > 0 ){
+      return 'is-valid';
+    } else {
+      return 'is-invalid';
     }
   }
 
