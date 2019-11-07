@@ -254,22 +254,21 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     }
     else if ( node.type === LogicalOperator.Project ){
       node = this.getFromChildren( node );
-      if( node.fields === undefined ){
-        return node;
-      }
-      const fields = node.fields.split(/[\s]*,[\s]*/);
       for( const col of getNode().getAcColumns() ){
         let contains = false;
-        for ( const f of fields ){
+        for ( const f of node.fields ){
           if( f.split('\.')[1] === col ) contains = true;
         }
         if( ! contains ) getNode().getAcColumns().delete( col );
       }
+      const ac = [];
       for( const tCol of getNode().getAcTableColumns() ){
-        if( ! fields.includes( tCol ) ){
+        ac.push(tCol);
+        if( ! node.fields.includes( tCol ) ){
           getNode().getAcTableColumns().delete( tCol );
         }
       }
+      getNode().setAutocomplete(ac);
     } else { // all other nodes
       node = this.getFromChildren( node );
     }
@@ -471,7 +470,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     if( inputObj.nodes ){
       const importedNodes = new Map<string, Node>();
       for( const [k, v] of Object.entries( inputObj.nodes )){
-        importedNodes.set( v[0], Node.fromJson( v[1] ));
+        importedNodes.set( v[0], Node.fromJson( v[1], this.dropArea.nativeElement.offsetWidth, this.dropArea.nativeElement.offsetHeight ));
       }
       this.nodes = importedNodes;
       this.counter = importedNodes.size;

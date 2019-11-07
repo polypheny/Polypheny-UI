@@ -29,11 +29,26 @@ export class NodeComponent implements OnInit, AfterViewInit {
     this.node.setHeight( this.node.getHeight() + 35 );
   }
 
+  addProjectionColumn(){
+    this.node.fields.push('');
+    this.node.setHeight( this.node.getHeight() + 35 );
+  }
+
   removeSortColumn( index:number ) {
     if( this.node.sortColumns.length > 1){
       this.node.sortColumns.splice( index, 1 );
       this.node.setHeight( this.node.getHeight() - 35 );
     }
+  }
+
+  removeProjectionColumn( index:number ) {
+    if( this.node.fields.length > 1){
+      this.node.fields.splice( index, 1 );
+      this.node.setHeight( this.node.getHeight() - 35 );
+    } else {
+      this.node.fields[0] = '';
+    }
+    this.autocompleteChange();
   }
 
   sortColumn(node:Node, event: CdkDragDrop<string[]>) {
@@ -58,6 +73,10 @@ export class NodeComponent implements OnInit, AfterViewInit {
 
   autocompleteChange(){
     this.autocompleteChanged.emit();
+  }
+
+  trackFields(index: number, obj: any): any {
+    return obj.length;
   }
 
 }

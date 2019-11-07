@@ -108,10 +108,20 @@
     </ng-container>
 
     <ng-container *ngSwitchCase="'Project'">
-      <li class="param list-group-item">
-        <div class="param-wrapper">
-          <label for="{{node.id}}fields">fields</label>
-          <input type="text" placeholder="column1, column2" id="{{node.id}}fields" name="fields" class="form-control form-control-sm param-input" [(ngModel)]="node.fields" (focusout)="autocompleteChange()">
+      <li class="param list-group-item" style="text-align: center">
+        <a [routerLink]="[]" class="text-secondary" (click)="addProjectionColumn()">+ add column</a>
+      </li>
+      <li class="list-group-item">
+        <div class="param-wrapper sort-wrapper" *ngFor="let field of node.fields | keyvalue; let index = index; trackBy: trackFields">
+          <ng-autocomplete
+            [data]="node.autocomplete"
+            [(ngModel)]="node.fields[index]"
+            (inputChanged)="autocompleteChange()"
+            placeHolder="table.column"
+            [searchKeyword]="node.fields[index]"
+            [itemTemplate]="itemTemplate"
+            [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
+          <i class="fa fa-close sort-remove" (click)="removeProjectionColumn( field.key )"></i>
         </div>
       </li>
     </ng-container>
