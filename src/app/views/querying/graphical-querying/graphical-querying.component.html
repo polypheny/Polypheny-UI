@@ -37,15 +37,7 @@
       <app-editor #editorGenerated [height]="'150px'"></app-editor>
     </div>
 
-    <div class="row">
-      <button *ngIf="hasOptions && !optionsOpen" class="btn btn-primary" (click)="toggleOptions()">filter options</button>
-      <button *ngIf="hasOptions && optionsOpen" class="btn btn-primary" (click)="toggleOptions()">close options</button>
-    </div>
-
-    <div *ngIf="optionsOpen" class="more-options">
-      <h1>open</h1>
-      <input type="range" min="1" max="100" value="50" id="" class="slider" name="test" />
-    </div>
+    <app-refinement-options></app-refinement-options>
 
     <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
     <button *ngIf="loading" class="btn btn-primary" disabled>Loading</button>

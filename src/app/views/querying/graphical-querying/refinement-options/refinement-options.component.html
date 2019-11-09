@@ -1,1 +1,13 @@
-<p>refinement-options works!</p>
+<div class="refinement-button">
+    <button *ngIf="hasOptions && !optionsOpen" class="btn btn-primary" (click)="toggleOptions()">filter options</button>
+    <button *ngIf="hasOptions && optionsOpen" class="btn btn-primary" (click)="toggleOptions()">close options</button>
+</div>
+
+<div *ngIf="optionsOpen" class="more-options">
+    <div *ngFor="let type of statisticSet.type, let i = index">
+        <div *ngIf="type === 'range'">
+            <h5>{{statisticSet.data[i].name}}</h5>
+            <input type="range" [min]="statisticSet.data[i].min" [max]="statisticSet.data[i].max" [value]="statisticSet.data[i].value" id="" class="slider" name="test" />
+        <div>
+    </div>
+</div>

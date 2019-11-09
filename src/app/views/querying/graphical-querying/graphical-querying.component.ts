@@ -22,10 +22,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   @ViewChild('editorGenerated', {static: false}) editorGenerated;
   generatedSQL;
   resultSet: ResultSet;
-  statisticSet: StatisticSet;
   loading = false;
-  hasOptions = true;
-  optionsOpen = false;
+
 
   //fields for the graphical query generation
   schemas = new Map<string, string>();//schemaName, schemaName
@@ -54,7 +52,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     });
 
     this.initGraphicalQuerying();
-    this.getStatistic();
   }
 
   ngAfterViewInit() {
@@ -152,25 +149,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     );
   }
 
-  getStatistic () {
-    console.log("getStatistics");
-    this._crud.allStatistics( new StatisticRequest()).subscribe(
-        res => {
-          console.log("response received");
-          console.log(res);
-          const statistics = <StatisticSet>res;
-          this.statisticSet = statistics[0];
-        }, err => {
-          this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
-        }
-      );
-
-    this.statisticSet = new StatisticSet ("error");
-    this.statisticSet.data = [["10"]];
-    this.statisticSet.table = "test";
-    this.statisticSet.type = "min";
-    console.log(this.statisticSet);
-  }
 
   addCol(data){
     const treeElement = new SidebarNode( data.id, data.name, null, null );
@@ -226,13 +204,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
       });
     });
-  }
-
-  /**
-   * Toggle visability of additonal refinement options
-   */
-  toggleOptions () {
-    this.optionsOpen = !this.optionsOpen;
   }
 
 }
