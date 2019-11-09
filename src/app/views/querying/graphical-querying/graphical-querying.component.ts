@@ -22,6 +22,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   @ViewChild('editorGenerated', {static: false}) editorGenerated;
   generatedSQL;
   resultSet: ResultSet;
+  filterSet = new StatisticSet('err') ;
   loading = false;
 
 
@@ -31,6 +32,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   columns = new Map<string, SidebarNode>();//columnId, columnName
   umlData = new Map<string, Uml>();//schemaName, uml
   joinConditions = new Map<string, JoinCondition>();//id of column, generated query
+
+
 
   constructor(
     private _crud: CrudService,
@@ -52,6 +55,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     });
 
     this.initGraphicalQuerying();
+
   }
 
   ngAfterViewInit() {
@@ -98,6 +102,19 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.generateSQL();
   }
 
+  updatedMinMax(update: Object){
+    if (this.filterSet.tables.length === 0 && !this.filterSet.tables.includes(update['name'])){
+      this.filterSet.tables.push(update['name']);
+      this.filterSet.data.push({'min': update['event']['value'], 'max': update['event']['highValue']});
+    }else {
+      const index = this.filterSet.tables.indexOf(update['name']);
+      this.filterSet.data[index]['min'] = update['event']['value'];
+      this.filterSet.data[index]['max'] = update['event']['value'];
+    }
+    console.log(this.filterSet);
+    this.generateSQL();
+  }
+
   generateSQL() {
     if( this.columns.size === 0 ){
       this.editorGenerated.setCode( '' );
@@ -130,8 +147,26 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       sql += '\nWHERE ' + joinConditions.join(' AND ');
     }
 
+    //only for one table atm
+    if (this.filterSet.tables.length !== 0 && tables.length !== 0 && counter === 0){
+      /*for (const table of tables){
+        if(this.filterSet.tables.includes(table)){
+          const index = this.filterSet.tables.indexOf(table);
+          const data = this.filterSet.data[index];
+          if (data['min']){
+            sql += '\nWHERE ' + table + ' > ' + data['min'];
+          }
+          if (data['max']){
+            sql += '\nWHERE ' + table + ' < ' + data['max'];
+          }
+        }
+      }*/
+      sql += '\nWHERE ' + "test" + '<' + "4";
+    }
+
     this.generatedSQL = sql;
     this.editorGenerated.setCode( sql );
+
   }
 
   executeQuery () {

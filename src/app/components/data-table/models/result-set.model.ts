@@ -33,6 +33,7 @@ export class StatisticSet{
         this.error = error;
         this.type = [];
         this.data = [];
+        this.tables = [];
     }
 }
 

@@ -36,6 +36,7 @@ import {P500Component} from './views/error/500.component';
 import {LoginComponent} from './views/login/login.component';
 import {ViewsModule} from './views/views.module';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { Ng5SliderModule } from 'ng5-slider';
 
 @NgModule({
   imports:[
@@ -59,7 +60,8 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     BsDropdownModule,
     TypeaheadModule.forRoot(),
     HttpClientModule,
-    ViewsModule
+    ViewsModule,
+    Ng5SliderModule
   ],
   declarations: [
     AppComponent,

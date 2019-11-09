@@ -22,6 +22,7 @@ import { QueryingComponent } from './querying/querying.component';
 import { NodeComponent } from './querying/relational-algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import { RefinementOptionsComponent } from './querying/graphical-querying/refinement-options/refinement-options.component';
+import {Ng5SliderModule} from 'ng5-slider';
 
 @NgModule({
   imports: [
@@ -43,7 +44,7 @@ import { RefinementOptionsComponent } from './querying/graphical-querying/refine
     BsDropdownModule,
     DragDropModule,
     ModalModule.forRoot(),
-    AutocompleteLibModule
+    AutocompleteLibModule, Ng5SliderModule
   ],
   declarations: [
     EditColumnsComponent,
