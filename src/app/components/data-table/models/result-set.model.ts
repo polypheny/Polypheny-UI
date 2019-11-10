@@ -23,17 +23,15 @@ export class ResultSet{
  * model for statistics comming from the server
  */
 export class StatisticSet{
-    data: object[];
-    type: string[];
-    table: string;
-    tables: string[];
-    error: string;
+   // error: string;
+    [column: string]: {
+        type: string[],
+        min: null,
+        max: null
+    }
 
-    constructor ( error: string ){
-        this.error = error;
-        this.type = [];
-        this.data = [];
-        this.tables = [];
+    constructor( ){
+       // this.error = error;
     }
 }
 

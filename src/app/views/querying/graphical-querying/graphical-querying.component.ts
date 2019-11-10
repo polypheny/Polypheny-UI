@@ -22,8 +22,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   @ViewChild('editorGenerated', {static: false}) editorGenerated;
   generatedSQL;
   resultSet: ResultSet;
-  filterSet = new StatisticSet('err') ;
+  filterSet = new StatisticSet();
   loading = false;
+  whereCounter = 0;
 
 
   //fields for the graphical query generation
@@ -103,14 +104,25 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   updatedMinMax(update: Object){
-    if (this.filterSet.tables.length === 0 && !this.filterSet.tables.includes(update['name'])){
+    if(this.filterSet.hasOwnProperty(update['name'])){
+      this.filterSet[update['name']]['min'] = update['event']['value'];
+      this.filterSet[update['name']]['max'] = update['event']['highValue'];
+    }else{
+      this.filterSet[update['name']] = {
+        min: update['event']['value'],
+        max: update['event']['highValue'],
+        type: []
+      }
+    }
+
+    /*if (!this.filterSet.tables.length === 0 && !this.filterSet.tables.includes(update['name'])){
       this.filterSet.tables.push(update['name']);
       this.filterSet.data.push({'min': update['event']['value'], 'max': update['event']['highValue']});
     }else {
       const index = this.filterSet.tables.indexOf(update['name']);
       this.filterSet.data[index]['min'] = update['event']['value'];
       this.filterSet.data[index]['max'] = update['event']['value'];
-    }
+    }*/
     console.log(this.filterSet);
     this.generateSQL();
   }
@@ -148,25 +160,35 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     //only for one table atm
-    if (this.filterSet.tables.length !== 0 && tables.length !== 0 && counter === 0){
-      /*for (const table of tables){
-        if(this.filterSet.tables.includes(table)){
-          const index = this.filterSet.tables.indexOf(table);
-          const data = this.filterSet.data[index];
+    if (Object.keys(this.filterSet).length !== 0 && tables.length !== 0 && counter === 0){
+      console.log(this.filterSet);
+      for (const col of cols){
+        console.log(col);
+        if(this.filterSet[col]){
+          const data = this.filterSet[col];
           if (data['min']){
-            sql += '\nWHERE ' + table + ' > ' + data['min'];
+            sql += this.connectWheres() + col + ' > ' + data['min'];
           }
           if (data['max']){
-            sql += '\nWHERE ' + table + ' < ' + data['max'];
+            sql += this.connectWheres() + col + ' < ' + data['max'];
           }
         }
-      }*/
-      sql += '\nWHERE ' + "test" + '<' + "4";
+      }
+      //sql += '\nWHERE ' + "test" + '<' + "4";
     }
 
     this.generatedSQL = sql;
     this.editorGenerated.setCode( sql );
 
+  }
+
+  connectWheres(){
+    if(this.whereCounter === 0){
+      this.whereCounter += 1;
+      return "\nWHERE ";
+    }else {
+      return "\nAND ";
+    }
   }
 
   executeQuery () {

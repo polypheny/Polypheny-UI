@@ -5,12 +5,13 @@
 
 
 <div *ngIf="optionsOpen" class="more-options">
-    <div *ngFor="let type of statisticSet.type, let i = index">
-        <div *ngIf="type === 'range'">
-            <h5>{{statisticSet.data[i].name}}</h5>
-            <ng5-slider [(value)]="statisticSet.data[i].min"
-                        [(highValue)]="statisticSet.data[i].max" [options]="statisticSet.data[i].options"
-                        (userChangeEnd)="updateFilterOptions($event, statisticSet.data[i].name)"></ng5-slider>
+
+    <div *ngFor="let entry of statisticSet | keyvalue">
+        <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'range')">
+            <h5>{{entry.key}}</h5>
+            <ng5-slider [(value)]="entry.value['min']"
+                        [(highValue)]="entry.value['max']" [options]="entry.value['options']"
+                        (userChangeEnd)="updateFilterOptions($event, entry.key)"></ng5-slider>
         </div>
     </div>
 </div>

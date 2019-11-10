@@ -34,33 +34,55 @@ export class RefinementOptionsComponent implements OnInit {
             res => {
                 console.log('response received');
                 console.log(res);
-                const statistics = <StatisticSet>res;
-                this.statisticSet = statistics[0];
+                this.processStatistics(<StatisticSet>res);
             }, err => {
                 this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
             }
         );
-        let dummyResult = [{
-            'header': [
+        /*let dummyResult:Object = {
+            'test.test.id':
                 {
                     'name': 'id',
                     'min': 1,
                     'max': 10
                 },
+            'test.test.name':
                 {
-                    'name': 'length',
+                    'name': 'name',
                     'min': 11,
                     'max': 333
                 }
-            ],
-        }];
-        this.processStatistics(dummyResult);
+
+        };*/
+        //this.processStatistics(<StatisticSet>dummyResult);
     }
 
-    processStatistics(res: object[]) {
-        this.statisticSet = new StatisticSet('err');
+    includes(o : string[], name: string){
+        return o.includes(name);
+    }
+
+
+
+    processStatistics(res: StatisticSet) {
+        this.statisticSet = res;
         console.log(this.statisticSet);
-        for (const table of res) {
+        Object.keys(this.statisticSet).forEach(key => {
+            const el = this.statisticSet[key];
+            if(el['min'] && el['max']){
+                if(key['type']){
+                    this.statisticSet[key]['type'].push('range');
+                }else {
+                    this.statisticSet[key]['type'] = ['range'];
+                }
+
+                this.statisticSet[key]['options'] = {
+                    floor: el['min'],
+                    ceil: el['max'],
+                    step: 1
+                };
+            }
+        });
+        /*for (const table of res) {
             for (let [index, header] of table['header'].entries()) {
                 if (header['min'] && header['max']) {
                     let value = (header['max'] - header['min']) / 2;
@@ -79,7 +101,7 @@ export class RefinementOptionsComponent implements OnInit {
                     });
                 }
             }
-        }
+        }*/
         console.log(this.statisticSet);
     }
 
