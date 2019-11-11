@@ -40,6 +40,16 @@ select{
   padding-bottom: 1rem;
 }
 
+#results .card-header {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+#results .card-body{
+  padding-bottom: 0.25rem;
+}
 .accordion .card{
   margin-bottom: 0;
 }
