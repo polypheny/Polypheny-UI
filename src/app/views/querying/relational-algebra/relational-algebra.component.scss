@@ -55,12 +55,13 @@
     display: flex;
     justify-content: space-between;
     label{
+      margin-bottom: 0;
       margin-right: 1em;
       line-height: 2em;
     }
   }
   .param-input{
-    width:150px;
+    width: 100%;
   }
   input[type=checkbox].param-input {
     box-shadow: none;
