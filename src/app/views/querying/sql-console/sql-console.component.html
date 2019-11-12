@@ -52,6 +52,10 @@
                         <p *ngIf="resultSet.error">{{resultSet.error}}</p>
                     </div>
 
+                  <p *ngIf="resultSet.info.generatedQuery == filter( resultSet.info.generatedQuery ) && resultSet && !resultSet.error">
+                    <i>Successfully executed</i>
+                  </p>
+
                     <div class="col-lg-12 result-wrapper" *ngIf="resultSet && resultSet.data">
                         <app-data-table [resultSet]="resultSet" [config]="tableConfig"></app-data-table>
                     </div>
