@@ -16,6 +16,12 @@
     <div class="card-body" [innerHTML]="li.html"></div>
   </ng-container>
 
+  <ng-container *ngIf="li.type == 'InformationCode'">
+    <div class="card-body" [ngStyle]="{'height': getCodeHeight()}">
+      <app-editor readonly="true" [lang]="li.language" [code]="li.code"></app-editor>
+    </div>
+  </ng-container>
+
   <ng-container *ngIf="li.type == 'InformationProgress'">
     <div class="card-body">
       <div class="clearfix">

@@ -14,7 +14,7 @@ export class InputComponent implements OnInit, OnChanges {
   @Input() value;
   @Output() valueChange = new EventEmitter();
   @Output() enter = new EventEmitter();
-  @ViewChild('inputElement') inputElement: ElementRef;
+  @ViewChild('inputElement', {static: false}) inputElement: ElementRef;
 
   constructor(
     public _types: DbmsTypesService

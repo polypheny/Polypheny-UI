@@ -26,7 +26,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   zIndex = 2;
   errorMsg:string;
 
-  @ViewChild('myModal') myModal: ModalDirective;
+  @ViewChild('myModal', {static: false}) myModal: ModalDirective;
   sourceTable;
   sourceCol;
   targetTable;
@@ -48,7 +48,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private _route: ActivatedRoute,
-    private _crud: CrudService,
+    public _crud: CrudService,
     private _leftSidebar: LeftSidebarService,
     private _formBuilder: FormBuilder,
     private _toast: ToastService,
@@ -204,6 +204,10 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   createForeignKey(){
+    if( ! this._crud.nameIsValid( this.constraintName )){
+      this._toast.toast( 'invalid constraint name', this._crud.invalidNameMessage('constraint'), 0, 'bg-warning');
+      return;
+    }
     const fk: ForeignKey = new ForeignKey( this.constraintName, this.schema, this.sourceTable, this.sourceCol, this.targetTable, this.targetCol )
       .onUpdate( this.fkForm.value.update ).onDelete( this.fkForm.value.delete );
 

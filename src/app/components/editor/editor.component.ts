@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import * as $ from 'jquery';
 import * as ace from 'ace-builds'; // ace module ..
 import 'ace-builds/src-noconflict/mode-sql';
+import 'ace-builds/src-noconflict/mode-java';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import {CrudService} from '../../services/crud.service';
@@ -18,16 +18,12 @@ import {SidebarNode} from '../../models/sidebar-node.model';
 
 export class EditorComponent implements OnInit, AfterViewInit {
 
-  @ViewChild( 'editor' ) codeEditorElmRef: ElementRef;
+  @ViewChild( 'editor', {static: false}) codeEditorElmRef: ElementRef;
   private codeEditor: ace.Ace.Editor;
   @Input() readonly ? = false;
   @Input() theme ? = 'tomorrow';
   @Input() lang ? = 'sql';
   @Input() code ?;
-  @Input() height ? = '50px';
-
-  THEME = 'ace/theme/' + this.theme;
-  LANG = 'ace/mode/' + this.lang;
 
   suggestions: string[] = [];
 
@@ -43,19 +39,19 @@ export class EditorComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.initEditor();
+
   }
 
   ngAfterViewInit(): void {
+    this.initEditor();
     if(this.code) this.codeEditor.setValue(this.code);
-    $('#editor-wrapper').height(this.height);
     this.codeEditor.resize();
   }
 
   initEditor () {
     const element = this.codeEditorElmRef.nativeElement;
     const editorOptions: Partial<ace.Ace.EditorOptions> = {
-      highlightActiveLine: true,
+      highlightActiveLine: true
     };
 
     //from: https://github.com/angular-ui/ui-ace/issues/44
@@ -69,8 +65,8 @@ export class EditorComponent implements OnInit, AfterViewInit {
     ace.config.set( 'workerPath', path );
 
     this.codeEditor = ace.edit( element, editorOptions );
-    this.codeEditor.setTheme( this.THEME );
-    this.codeEditor.getSession().setMode( this.LANG );
+    this.codeEditor.setTheme( 'ace/theme/' + this.theme );
+    this.codeEditor.getSession().setMode( 'ace/mode/' + this.lang );
     this.codeEditor.setShowFoldWidgets( true ); // for the scope fold feature
     if( this.readonly === true ) {
       this.codeEditor.setReadOnly(true);
@@ -84,14 +80,6 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
   getCode(){
     return this.codeEditor.getValue();
-  }
-
-  getCodeWithoutComments() {
-    let query = '';
-    $('#editor').clone().find('.ace_comment').remove().end().find('.ace_line').each(function(){
-      query = query + $(this).text()+'\n';
-    });
-    return query;
   }
 
   setCode ( code: string ) {

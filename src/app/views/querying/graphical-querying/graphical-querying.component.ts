@@ -19,7 +19,7 @@ import {ForeignKey, Uml} from '../../uml/uml.model';
 })
 export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChild('editorGenerated') editorGenerated;
+  @ViewChild('editorGenerated', {static: false}) editorGenerated;
   generatedSQL;
   resultSet: ResultSet;
   loading = false;
@@ -50,12 +50,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       }
     });
 
-    this.generateSQL();
-
     this.initGraphicalQuerying();
   }
 
-  ngAfterViewInit() { }
+  ngAfterViewInit() {
+    this.generateSQL();
+  }
 
   ngOnDestroy() {
     this._leftSidebar.close();

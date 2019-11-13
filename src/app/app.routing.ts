@@ -42,7 +42,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'views',
-        loadChildren: './views/views.module#ViewsModule',
+        loadChildren: () => import('./views/views.module').then( m => m.ViewsModule )
       }
     ]
   },

@@ -51,7 +51,7 @@ export class EditColumnsComponent implements OnInit {
     private _types: DbmsTypesService
   ) {
     this.newIndexForm = new FormGroup( {
-      name: new FormControl('', Validators.required),
+      name: new FormControl('', this._crud.getNameValidator() ),
       method: new FormControl('btree'),
       columns: new FormControl(null, Validators.required)
     });
@@ -123,6 +123,10 @@ export class EditColumnsComponent implements OnInit {
   }
 
   saveCol() {
+    if( ! this._crud.nameIsValid( this.updateColumn.controls['name'].value ) ){
+      this._toast.toast( 'invalid column name', this._crud.invalidNameMessage('column'), 10, 'bg-warning' );
+      return;
+    }
     const oldColumn = this.oldColumns.get( this.updateColumn.controls['oldName'].value );
     const newColumn = new DbColumn(
       this.updateColumn.controls['name'].value, null,
@@ -155,6 +159,10 @@ export class EditColumnsComponent implements OnInit {
   addColumn() {
     if( this.createColumn.name === ''){
       this._toast.toast( 'missing column name', 'Please provide a name for the new column.', 0, 'bg-warning');
+      return;
+    }
+    if( ! this._crud.nameIsValid( this.createColumn.name ) ){
+      this._toast.toast( 'invalid column name', this._crud.invalidNameMessage('column'), 10, 'bg-warning' );
       return;
     }
     if( ! ['varchar', 'varbinary'].includes(this.createColumn.dataType.toLowerCase()) && this.createColumn.maxLength !== null ){
@@ -259,6 +267,10 @@ export class EditColumnsComponent implements OnInit {
   addUniqueConstraint(){
     if( this.uniqueConstraintName === '' ){
       this._toast.toast( 'constraint name', 'Please provide a name for the unique constraint.', 10, 'bg-warning' );
+      return;
+    }
+    if( ! this._crud.nameIsValid( this.uniqueConstraintName ) ){
+      this._toast.toast( 'invalid constraint name', this._crud.invalidNameMessage('unique constraint'), 10, 'bg-warning' );
       return;
     }
     const constraint = new TableConstraint( this.uniqueConstraintName, 'UNIQUE');
@@ -406,9 +418,12 @@ export class EditColumnsComponent implements OnInit {
   }
 
   inputValidation(key){
-    if(this.indexSubmitted  && this.newIndexForm.controls[key].valid && this.newIndexForm.controls[key].dirty ){
+    if(this.newIndexForm.controls[key].value === ''){
+      return '';
+    }
+    else if(this.newIndexForm.controls[key].valid){
       return {'is-valid':true};
-    }else if(this.indexSubmitted  && !this.newIndexForm.controls[key].valid) {
+    }else {
       return {'is-invalid': true };
     }
   }

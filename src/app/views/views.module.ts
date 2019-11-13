@@ -19,6 +19,8 @@ import { MonitoringComponent } from './monitoring/monitoring.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import { RelationalAlgebraComponent } from './querying/relational-algebra/relational-algebra.component';
 import { QueryingComponent } from './querying/querying.component';
+import { NodeComponent } from './querying/relational-algebra/node/node.component';
+import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 
 @NgModule({
   imports: [
@@ -39,7 +41,8 @@ import { QueryingComponent } from './querying/querying.component';
     TreeModule,
     BsDropdownModule,
     DragDropModule,
-    ModalModule.forRoot()
+    ModalModule.forRoot(),
+    AutocompleteLibModule
   ],
   declarations: [
     EditColumnsComponent,
@@ -52,7 +55,8 @@ import { QueryingComponent } from './querying/querying.component';
     EditTablesComponent,
     MonitoringComponent,
     RelationalAlgebraComponent,
-    QueryingComponent
+    QueryingComponent,
+    NodeComponent
   ],
   exports: []
 })

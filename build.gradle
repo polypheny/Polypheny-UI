@@ -41,12 +41,12 @@ apply plugin: 'com.moowork.node'
 
 
 dependencies {
-    
+
 }
 
 
 node {
-  version = '11.14.0'
+  version = '12.11.0'
   npmVersion = '6.7.0'
   download = true
 }
@@ -61,7 +61,7 @@ jar.dependsOn(npm_run_build)
 
 jar {
   from 'dist' into 'webapp'
-  
+
   manifest {
         attributes "Manifest-Version": "1.0"
         attributes "Copyright": "Databases and Information Systems Group, Department Mathematics and Computer Science, University of Basel, Switzerland"
