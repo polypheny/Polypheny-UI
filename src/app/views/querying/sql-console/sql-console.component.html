@@ -44,11 +44,11 @@
             <div [id]="'collapse'+i" class="collapse show" data-parent="#accordion">
                 <div class="card-body" [collapse]="!collapsed && resultSets.length !== 1">
                     <ng-container *ngIf="resultSet.info.generatedQuery != filter( resultSet.info.generatedQuery )">
-                      <p>generated Query: {{resultSet.info.generatedQuery}}</p>
+                      <p>Query: {{resultSet.info.generatedQuery}}</p>
                     </ng-container>
 
                     <div class="text-danger" *ngIf="resultSet && resultSet.error">
-                        <strong>error:</strong>
+                        <strong>Error:</strong>
                         <p *ngIf="resultSet.error">{{resultSet.error}}</p>
                     </div>
 
