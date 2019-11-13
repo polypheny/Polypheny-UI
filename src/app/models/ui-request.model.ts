@@ -135,20 +135,12 @@ export class Schema {
     this.create = create;
     return this;
   }
-  setIfNotExists( ifNotExists: boolean ){
-    this.ifExists = ifNotExists;
-    return this;
-  }
   setAuthorization( auth: string ){
     this.authorization = auth;
     return this;
   }
   setDrop( drop: boolean ){
     this.drop = drop;
-    return this;
-  }
-  setIfExists( ifExists: boolean ){
-    this.ifExists = ifExists;
     return this;
   }
   setCascade( cascade: boolean ){

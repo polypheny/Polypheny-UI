@@ -107,6 +107,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       this._toast.toast( 'invalid table name', 'Please provide a valid name for the new table. The new table was not created.', 0, 'bg-warning');
       return;
     }
+    if( this.tables.indexOf( this.newTableName ) !== -1 ){
+      this._toast.toast( 'invalid table name', 'A table with this name already exists. Please choose another name.', 0, 'bg-warning');
+      return;
+    }
     let valid = true;
     //clear maxlength for types where it is not applicable
     //delete columns with no column name
@@ -146,6 +150,18 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         console.log( err );
       }
     );
+  }
+
+  createTableValidation( name: string ){
+    const regex = this._crud.getValidationRegex();
+    if( name === '' ){
+      return '';
+    }
+    else if( regex.test( name ) && name.length <= 100 && this.tables.indexOf( name ) === -1 ){
+      return 'is-valid';
+    } else {
+      return 'is-invalid';
+    }
   }
 
   addNewColumn() {
