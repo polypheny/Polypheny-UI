@@ -37,4 +37,7 @@ export interface InformationObject {
   graphType?:string;
   //debugger
   queryPlan: string;
+  //code
+  code?: string;
+  language?: string;
 }
