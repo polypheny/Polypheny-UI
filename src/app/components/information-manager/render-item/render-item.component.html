@@ -17,8 +17,8 @@
   </ng-container>
 
   <ng-container *ngIf="li.type == 'InformationCode'">
-    <div class="card-body" style="height: 340px">
-      <app-editor readonly="true" [lang]="li.language" [code]="li.code" height="300px"></app-editor>
+    <div class="card-body" [ngStyle]="{'height': getCodeHeight()}">
+      <app-editor readonly="true" [lang]="li.language" [code]="li.code"></app-editor>
     </div>
   </ng-container>
 

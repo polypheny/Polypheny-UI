@@ -1,7 +1,7 @@
 <div class="row" [hidden]="showingAnalysis">
   <div class="col-lg-8 col-md-8 col-sm-12">
-      <div class="form-group">
-          <app-editor #editor id="sql-editor" [height]="'240px'"></app-editor>
+      <div class="form-group" style="height: 100%">
+          <app-editor #editor id="sql-editor"></app-editor>
       </div>
   </div>
   <div class="col-lg-4 col-md-4 col-sm-12">
@@ -19,7 +19,7 @@
       </ul>
   </div>
 
-  <div class="col-lg-8" [hidden]="showingAnalysis">
+  <div class="col-lg-8" [hidden]="showingAnalysis" style="margin-top: 1rem;">
     <div class="custom-control custom-checkbox custom-control-inline">
       <input type="checkbox" class="custom-control-input" id="checkbox1" [checked]="analyzeQuery" (change)="analyzeQuery = !analyzeQuery">
       <label class="custom-control-label" for="checkbox1">analyze query</label>
