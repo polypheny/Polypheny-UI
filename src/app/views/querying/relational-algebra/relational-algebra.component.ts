@@ -100,6 +100,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         const y = $(e.target).parents('.node').parent().position().top;
         self.temporalLine = {x1: x, x2: x, y1: y, y2: y};
         source = $(e.target).parents('.node').attr('id');
+        e.preventDefault();
     }).on('mousemove', function(e){
       if( isDragging){
         e.preventDefault();
