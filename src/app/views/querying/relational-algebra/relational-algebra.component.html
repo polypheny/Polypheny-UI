@@ -24,7 +24,6 @@
 
   <div class="col-9" id="drop" cdkDropList cdkDropListSortingDisabled (cdkDropListDropped)="dropped($event)" (mousemove)="dropMousePosition($event)" #dropArea>
     <ng-container *ngFor="let n of nodes | keyvalue; trackBy: trackNode">
-      <h1>TEST REL 2</h1>
       <app-node [node]="n.value"
                 (autocompleteChanged)="setAutocomplete()"
                 (focusin)="n.value.zIndex = 2"
@@ -67,6 +66,5 @@
   <div class="col-sm-9 offset-sm-3" id="result-wrapper">
     <app-data-table [resultSet]="resultSet" [config]="{create: false, update: false, delete: false, sort: false, search: false}"></app-data-table>
   </div>
-  <h2>Button1</h2>
+
 </div>
-<h1>Button</h1>
