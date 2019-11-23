@@ -533,4 +533,45 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     document.body.removeChild(selBox);
   }
 
+  stringToNodes(input: string){
+    console.log(input);
+    const type = input.toLowerCase()
+    console.log(type);
+    var operator;
+    switch (type) {
+      case 'tablescan':
+        operator = LogicalOperator.TableScan;
+        break;
+      case 'join':
+        operator = LogicalOperator.Join;
+        break;
+      case 'filter':
+        operator = LogicalOperator.Filter;
+        break;
+      case 'aggregate':
+        operator = LogicalOperator.Aggregate;
+        break;
+      case 'sort':
+        operator = LogicalOperator.Sort;
+        break;
+      case 'union':
+        operator = LogicalOperator.Union;
+        break;
+      case 'minus':
+        operator = LogicalOperator.Minus;
+        break;
+      case 'intersect':
+        operator = LogicalOperator.Intersect;
+        break;
+      default:
+        console.log('no valid string')
+        return
+     }
+
+    const id = 'node' + this.counter++;
+    const node = new Node(id, operator, 0, 0)
+    this.nodes.set(id,node);
+
+  }
+
 }
