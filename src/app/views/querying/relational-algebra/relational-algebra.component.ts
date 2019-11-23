@@ -486,6 +486,35 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     this.setAutocomplete();
   }
 
+  importTreeFile(){
+
+    fetch("./assets/testfile.json")
+      .then(res => res.json())
+        .then(data => {
+        console.log(data)
+        const inputObj = JSON.parse(JSON.stringify(data))
+        console.log(inputObj)
+        if( inputObj.nodes ){
+          const importedNodes = new Map<string, Node>();
+          for( const [k, v] of Object.entries( inputObj.nodes )){
+            importedNodes.set( v[0], Node.fromJson( v[1], this.dropArea.nativeElement.offsetWidth, this.dropArea.nativeElement.offsetHeight ));
+          }
+          this.nodes = importedNodes;
+          this.counter = importedNodes.size;
+        }
+        if( inputObj.connections ){
+          const importedConnections = new Map<string, Connection>();
+          for( const conn of Object.values( inputObj.connections )){
+            importedConnections.set( conn[0], {id: conn[1].id, source: this.nodes.get(conn[1].source.id), target: this.nodes.get(conn[1].target.id)} );
+          }
+          this.connections = importedConnections;
+        }
+        this.setAutocomplete();
+      })
+        .catch(err => console.log(err))
+
+  }
+
   /**
    * Copy a string to the clipboard
    */

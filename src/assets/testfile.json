@@ -1,0 +1,38 @@
+{
+  "nodes": [
+    [
+      "node0",
+      {
+        "id": "node0",
+        "type": "Sort",
+        "left": 454,
+        "top": 211,
+        "children": [],
+        "inputCount": 0,
+        "acColumns": {},
+        "acTableColumns": {},
+        "acSchema": {},
+        "acTable": {},
+        "zIndex": 1,
+        "join": "INNER",
+        "operator": "=",
+        "fields": [
+          ""
+        ],
+        "aggregation": "SUM",
+        "sortColumns": [
+          {
+            "direction": "DESC",
+            "sorting": false,
+            "column": ""
+          }
+        ],
+        "all": false,
+        "dragging": false,
+        "height": 361,
+        "width": 297
+      }
+    ]
+  ],
+  "connections": []
+}
