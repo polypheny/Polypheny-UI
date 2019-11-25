@@ -29,7 +29,7 @@
 
     <li class="nav-item px-3">
       <a [routerLink]="['/views/schema-editing']" class="nav-link" routerLinkActive="active" (click)="_sidebar.reset()">
-        <i class="fa fa-database"></i><span class="d-md-down-none">Schema</span>
+        <i class="fa fa-cubes"></i><span class="d-md-down-none">Schema</span>
       </a>
     </li>
 
@@ -60,6 +60,18 @@
             <i class="fa fa-cubes"></i><span class="d-md-down-none">Plan Builder</span>
           </a>
         </div>
+    </li>
+
+    <li class="nav-item px-3">
+      <a [routerLink]="['/views/stores']" class="nav-link" routerLinkActive="active">
+        <i class="fa fa-database"></i><span class="d-md-down-none">Stores</span>
+      </a>
+    </li>
+
+    <li class="nav-item px-3">
+      <a [routerLink]="['/views/hub']" class="nav-link" routerLinkActive="active">
+        <i class="fa fa-cloud"></i><span class="d-md-down-none">Hub</span>
+      </a>
     </li>
 
   </ul>

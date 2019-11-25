@@ -21,6 +21,8 @@ import { RelationalAlgebraComponent } from './querying/relational-algebra/relati
 import { QueryingComponent } from './querying/querying.component';
 import { NodeComponent } from './querying/relational-algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
+import { StoresComponent } from './stores/stores.component';
+import { HubComponent } from './hub/hub.component';
 
 @NgModule({
   imports: [
@@ -56,7 +58,9 @@ import {AutocompleteLibModule} from 'angular-ng-autocomplete';
     MonitoringComponent,
     RelationalAlgebraComponent,
     QueryingComponent,
-    NodeComponent
+    NodeComponent,
+    StoresComponent,
+    HubComponent
   ],
   exports: []
 })

@@ -1,0 +1,269 @@
+<app-toast></app-toast>
+<button class="btn btn-primary float-right login-btn" *ngIf="loggedIn === 0" (click)="loginModal.show()">login</button>
+<button class="btn btn-primary float-right login-btn" *ngIf="loggedIn !== 0" (click)="logout()">logout</button>
+
+<ng-container [ngSwitch]="subpage">
+
+  <ng-container *ngSwitchCase="'configuration'">
+    Configuration
+  </ng-container>
+
+  <ng-container *ngSwitchCase="'manage'">
+    <div class="row" *ngIf="loggedIn != 0">
+      <div class="col-md-4">
+        <div class="card" id="changePwCard">
+          <div class="card-header">Change password</div>
+          <div class="card-body">
+            <form [formGroup]="changePwForm" (ngSubmit)="changePassword()">
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label for="oldPw" class="input-group-text">old pw</label></div>
+                  <input type="password" class="form-control" name="oldPw" id="oldPw" formControlName="oldPw" [ngClass]="getPwValidation('oldPw')">
+                  <div class="invalid-feedback" *ngIf="!changePwForm.controls['oldPw'].valid ">required</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label for="newPw1" class="input-group-text">new pw</label></div>
+                  <input type="password" class="form-control" name="newPw1" id="newPw1" formControlName="newPw1" [ngClass]="getPwValidation('newPw1')">
+                  <div class="invalid-feedback" *ngIf="!changePwForm.controls['newPw1'].valid ">required</div>
+                  <div class="invalid-feedback" *ngIf="changePwForm.controls['newPw1'].valid && this.changePwForm.errors && this.changePwForm.errors['equals']">The new passwords do not match</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label for="newPw2" class="input-group-text">new pw</label></div>
+                  <input type="password" class="form-control" name="newPw2" id="newPw2" formControlName="newPw2" [ngClass]="getPwValidation('newPw2')">
+                  <div class="invalid-feedback" *ngIf="!changePwForm.controls['newPw2'].valid ">required</div>
+                  <div class="invalid-feedback" *ngIf="changePwForm.controls['newPw2'].valid && this.changePwForm.errors && this.changePwForm.errors['equals']">The new passwords do not match</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary float-right">Change password</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-8" *ngIf="users">
+        <div class="card">
+          <div class="card-header">Manage users</div>
+          <div class="card-body">
+            <table class="table table-hover table-sm table-bordered table-striped">
+              <thead>
+              <tr>
+                <th>id</th>
+                <th>user</th>
+                <th>admin</th>
+                <th class="iconColumn"><i class="cui-trash"></i></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let user of users.data | keyvalue">
+                <td>{{user.value[0]}}</td>
+                <td>{{user.value[1]}}</td>
+                <td>{{user.value[2]}}</td>
+                <td class="iconColumn"><i class="ptr" [ngClass]="{'fa fa-warning': deleteUserConfirm === +user.value[0], 'cui-trash': deleteUserConfirm !== +user.value[0]}" (click)="deleteUser(+user.value[0])" (mouseout)="deleteUserConfirm = -1"></i></td>
+              </tr>
+              </tbody>
+            </table>
+            <form id="newUserForm" class="form-inline" [formGroup]="newUserForm" (ngSubmit)="createUser()">
+              <div class="form-group">
+                <p>Create a new user:</p>
+                <div class="input-group">
+
+                  <div class="input-group-prepend"><label for="userName" class="input-group-text">username</label></div>
+                  <input type="text" class="form-control" name="username" id="userName" formControlName="name" [ngClass]="newUserValidation('name')">
+
+                  <span><label for="email" class="input-group-text middle">email</label></span>
+                  <input type="text" class="form-control" name="username" id="email" formControlName="email" [ngClass]="newUserValidation('email')">
+
+                  <span><label for="admin" class="input-group-text middle">admin</label></span>
+                  <div class="checkbox-wrapper-inline">
+                    <input type="checkbox" name="admin" id="admin" formControlName="admin">
+                  </div>
+
+                  <button class="btn btn-primary input-group-append">create</button>
+
+                </div>
+
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- datasets -->
+  <ng-container *ngSwitchDefault>
+
+    <p *ngIf="!_hub.getSecret()">Please log in to upload a dataset.</p>
+    <div class="row">
+      <div class="col-lg-4" *ngIf="_hub.getSecret()">
+
+        <div class="card">
+          <div class="card-header">Upload dataset</div>
+          <div class="card-body">
+            <p>Only files of type <span class="badge badge-light" style="font-size: 90%">.zip</span> are allowed.</p>
+            <form [formGroup]="newDsForm" (ngSubmit)="newDsFormSubmit()">
+              <div class="form-group">
+                <div class="custom-file">
+                  <input type="file" class="custom-file-input" id="newDsFile" formControlName="dataset" [ngClass]="newDsFormValidation('dataset')" (change)="setFileToUpload($event.target.files)">
+                  <label class="custom-file-label" for="newDsFile" *ngIf="!fileToUpload">choose your Dataset</label>
+                  <label class="custom-file-label" for="newDsFile" *ngIf="fileToUpload">{{fileToUpload[0].name}}</label>
+                  <div class="invalid-feedback" *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['required']">required</div>
+                  <div class="invalid-feedback" *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['pattern']">only files of type zip are allowed</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label style="width:83px" for="newDsName" class="input-group-text">name</label></div>
+                  <input type="text" placeholder="name" id="newDsName" class="form-control" formControlName="name" [ngClass]="newDsFormValidation('name')">
+                  <div class="invalid-feedback">required</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label for="newDsPublic" class="input-group-text">public</label></div>
+
+                  <div class="checkbox-wrapper">
+                    <div style="display: flex;justify-content: center;">
+                      <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;">
+                        <input type="checkbox" class="form-control switch-input" id="newDsPublic" formControlName="pub" [ngClass]="newDsFormValidation('pub')">
+                        <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="from-group">
+                <button type="submit" class="btn btn-primary btn-sm pull-right">upload</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-lg-8">
+        <table class="table table-hover table-sm table-bordered table-striped" *ngIf="datasets">
+          <thead>
+          <tr>
+            <th>name</th>
+            <th>uploaded</th>
+            <th class="iconColumn"><i class="cui-cloud-download"></i></th>
+            <th class="iconColumn"><i class="cui-pencil"></i></th>
+            <th class="iconColumn"><i class="cui-trash"></i></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let row of datasets.data | keyvalue">
+            <td>{{row.value[0]}}</td>
+            <td>{{row.value[1] | date:'dd.MM.yyyy - HH:mm'}}</td>
+            <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="downloadDataModal.show()"></i></td>
+            <td class="iconColumn"><i class="cui-pencil ptr" (click)="initEditDataset(row.key)"></i></td>
+            <td class="iconColumn"><i class="ptr" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value[3], 'fa fa-warning':deleteDsConfirm === +row.value[3]}" (click)="deleteDataset(+row.value[3])" (mouseout)="deleteDsConfirm = undefined"></i></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</ng-container>
+
+<div bsModal #downloadDataModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Download</h4>
+        <button type="button" class="close" (click)="downloadDataModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Select schema</p>
+        <p>Select store</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="downloadDataModal.hide()">Close</button>
+        <button type="button" class="btn btn-primary">Download</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div bsModal #loginModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetLoginModal()">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Login</h4>
+        <button type="button" class="close" (click)="loginModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="text-danger">{{loginError}}</p>
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-prepend"><label style="width:83px" for="loginUser" class="input-group-text">username</label></div>
+            <input type="text" placeholder="username" id="loginUser" class="form-control" [(ngModel)]="loginUser">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-prepend"><label style="width:83px" for="loginPw" class="input-group-text">password</label></div>
+            <input type="password" placeholder="password" id="loginPw" class="form-control" [(ngModel)]="loginPw">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="loginModal.hide()">Close</button>
+        <button type="button" class="btn btn-primary" (click)="login(loginUser, loginPw)">Login</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<div bsModal #editDatasetModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetEditDataset()">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Login</h4>
+        <button type="button" class="close" (click)="editDatasetModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-prepend"><label for="editDsName" class="input-group-text">name</label></div>
+            <input type="text" placeholder="name" id="editDsName" class="form-control" [(ngModel)]="editDsName">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-prepend"><label for="editDsPublic" class="input-group-text">public</label></div>
+
+            <div class="checkbox-wrapper">
+              <div style="display: flex;justify-content: center;">
+                <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;">
+                  <input type="checkbox" class="form-control switch-input" id="editDsPublic" [(ngModel)]="editDsPublic">
+                  <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="editDatasetModal.hide()">Close</button>
+        <button type="button" class="btn btn-primary" (click)="editDataset()">Save</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
