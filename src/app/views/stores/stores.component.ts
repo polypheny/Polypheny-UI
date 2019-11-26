@@ -9,7 +9,7 @@ import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 })
 export class StoresComponent implements OnInit {
 
-  constructor( private _breadcrumb: BreadcrumbService ) { }
+  constructor( public _breadcrumb: BreadcrumbService ) { }
 
   ngOnInit() {
     this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Stores')]);
