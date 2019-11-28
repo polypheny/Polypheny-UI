@@ -575,7 +575,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     const node = new Node(id, operator,0,0)
     this.nodes.set(id,node);
 
-    this.formatNodes()
+    this.formatNodesTree()
 
 
     this.treeHeight()
@@ -589,7 +589,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     return height
   }
 
-  formatNodes(){
+  formatNodesTree(){
     const height = this.treeHeight()
     let leftPadding = 0;
     let upperPadding = 0;
@@ -603,13 +603,32 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         this.nodes.get("node" + ind).top = upperPadding
 
         ind++
+
       }
 
     }
 
-    this.nodes.forEach(function(node: Node,name: string,tuple: Map<string, Node>){
+  }
 
-    }, undefined)
+  formatNodesSquare(){
+    const height = this.treeHeight()
+    let leftPadding = 0;
+    let upperPadding = 0;
+    let ind = 0
+    var edge = Math.ceil(Math.sqrt(this.counter))
+    for(var i = 0; i < edge; i++){
+      upperPadding = i * 250;
+      for (var j = 0; j < edge; j++){
+        console.log("i"+ i, "j"+j)
+        leftPadding = 300*j
+        this.nodes.get("node" + ind).left = leftPadding
+        this.nodes.get("node" + ind).top = upperPadding
+
+        ind++
+
+      }
+
+    }
   }
 
 
