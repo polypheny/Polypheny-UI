@@ -10,6 +10,8 @@ import 'jquery-ui/ui/widgets/droppable';
 import {SvgLine} from '../../uml/uml.model';
 import {SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
+import {Ace} from "ace-builds";
+import execEventHandler = Ace.execEventHandler;
 
 @Component({
   selector: 'app-relational-algebra',
@@ -569,9 +571,46 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
      }
 
     const id = 'node' + this.counter++;
-    const node = new Node(id, operator, 0, 0)
+
+    const node = new Node(id, operator,0,0)
     this.nodes.set(id,node);
 
+    this.formatNodes()
+
+
+    this.treeHeight()
+
   }
+
+
+  treeHeight(){
+    const height = Math.floor(Math.log2(this.counter))
+    console.log(height)
+    return height
+  }
+
+  formatNodes(){
+    const height = this.treeHeight()
+    let leftPadding = 0;
+    let upperPadding = 0;
+    let ind = 0
+    for(var i = 0; i <= height; i++){
+      upperPadding = i * 250;
+      for (var j = 0; j <= Math.pow(2,i)-1; j++){
+        console.log("i"+ i, "j"+j)
+        leftPadding = 300*j
+        this.nodes.get("node" + ind).left = leftPadding
+        this.nodes.get("node" + ind).top = upperPadding
+
+        ind++
+      }
+
+    }
+
+    this.nodes.forEach(function(node: Node,name: string,tuple: Map<string, Node>){
+
+    }, undefined)
+  }
+
 
 }
