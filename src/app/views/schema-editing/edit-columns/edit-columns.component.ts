@@ -43,6 +43,8 @@ export class EditColumnsComponent implements OnInit {
   newIndexForm: FormGroup;
   indexSubmitted = false;
 
+  dataPlacements: ResultSet;
+
   constructor(
     private _route: ActivatedRoute,
     private _leftSidebar: LeftSidebarService,
@@ -69,6 +71,7 @@ export class EditColumnsComponent implements OnInit {
     this.getColumns();
     this.getConstraints();
     this.getIndexes();
+    this.getDataPlacements();
 
     this.documentListener();
   }
@@ -372,6 +375,21 @@ export class EditColumnsComponent implements OnInit {
     this._crud.getIndexes( new EditTableRequest( this.schema, this.table ) ).subscribe(
       res => {
         this.indexes = <ResultSet> res;
+      }, err => {
+        console.log(err);
+      }
+    );
+  }
+
+  getDataPlacements () {
+    this._crud.getDataPlacements( this.schema, this.table ).subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if(! result.error){
+          this.dataPlacements = result;
+        }else{
+          console.log(result.error);
+        }
       }, err => {
         console.log(err);
       }
