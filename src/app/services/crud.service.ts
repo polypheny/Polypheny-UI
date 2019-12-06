@@ -16,13 +16,18 @@ import {
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
+import {HubService} from './hub.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CrudService {
 
-  constructor( private _http:HttpClient, private _settings:WebuiSettingsService ) {
+  constructor(
+    private _http:HttpClient,
+    private _settings:WebuiSettingsService,
+    private _hub: HubService
+  ) {
     this.initWebSocket();
   }
 
@@ -247,6 +252,28 @@ export class CrudService {
    */
   getFkActions(){
     return this._http.get(`${this.httpUrl}/getForeignKeyActions`, this.httpOptions);
+  }
+
+  importDataset ( schema: string, store: string, url: string ) {
+    return this._http.post(`${this.httpUrl}/importDataset`, {schema: schema, store: store, url: url}, this.httpOptions);
+  }
+
+  exportTable( name: string, schema: string, table: string, pub: boolean ){
+    const body = {
+      userId: this._hub.getId(),
+      secret: this._hub.getSecret(),
+      name: name,
+      schema: schema,
+      table: table,
+      pub: pub,
+      hubLink: this._settings.getConnection('hub.url')
+    };
+    //const index = new Index( schema, table, this._settings.getConnection('hub.url'), null, null );
+    return this._http.post( `${this.httpUrl}/exportTable`, body );
+  }
+
+  getStores(){
+    return this._http.get( `${this.httpUrl}/getStores` );
   }
 
   getNameValidator ( required: boolean = false ) {

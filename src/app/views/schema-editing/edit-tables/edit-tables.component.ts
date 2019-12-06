@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
@@ -6,6 +6,9 @@ import {DbColumn, ResultSet} from '../../../components/data-table/models/result-
 import {ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {ModalDirective} from 'ngx-bootstrap';
+import {HubService} from '../../../services/hub.service';
 
 @Component({
   selector: 'app-edit-tables',
@@ -24,12 +27,23 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   newColumns = new Map<number, DbColumn>();
   newTableName = '';
 
+  //export table
+  exportingTable: string;
+  uploading = false;
+  exportForm = new FormGroup({
+    name: new FormControl('', Validators.required),
+    pub: new FormControl(true, Validators.required),
+    table: new FormControl('', Validators.required)
+  });
+  @ViewChild('exportTableModal', {static: false}) public exportTableModal: ModalDirective;
+
   constructor(
     public _crud: CrudService,
     private _route: ActivatedRoute,
     private _toast: ToastService,
     private _leftSidebar: LeftSidebarService,
-    private _types: DbmsTypesService
+    private _types: DbmsTypesService,
+    public _hub: HubService
   ) { }
 
   ngOnInit() {
@@ -150,6 +164,42 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         console.log( err );
       }
     );
+  }
+
+  initExportModal( table: string ){
+    this.exportingTable = table;
+    this.exportTableModal.show();
+  }
+
+  resetExport(){
+    this.exportForm.reset({pub:true});
+    this.exportingTable = undefined;
+    this.uploading = false;
+  }
+
+  exportTable(){
+    console.log(this.exportForm);
+    if( this.exportForm.valid ){
+      this.uploading = true;
+      this._crud.exportTable( this.exportForm.controls['name'].value, this.schema, this.exportingTable, this.exportForm.controls['pub'].value ).subscribe(
+        res => {
+          const result = <ResultSet> res;
+          console.log(result);
+          if( result.error ){
+            this._toast.toast( 'error', result.error, 5, 'bg-warning');
+          } else {
+            this._toast.toast( 'success', 'Exported table to Polypheny-Hub', 5, 'bg-success');
+          }
+        }, err => {
+          this._toast.toast( 'error', 'Could not export table', 5, 'bg-danger');
+          console.log(err);
+        }
+        //"finally block"
+      ).add( () => {
+        this.resetExport();
+        this.exportTableModal.hide();
+      });
+    }
   }
 
   createTableValidation( name: string ){

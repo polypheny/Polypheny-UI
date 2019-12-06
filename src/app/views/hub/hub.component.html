@@ -9,6 +9,7 @@
   </ng-container>
 
   <ng-container *ngSwitchCase="'manage'">
+    <p *ngIf="loggedIn == 0">Please log in to manage your account.</p>
     <div class="row" *ngIf="loggedIn != 0">
       <div class="col-md-4">
         <div class="card" id="changePwCard">
@@ -45,24 +46,22 @@
           </div>
         </div>
       </div>
-      <div class="col-md-8" *ngIf="users">
+      <div class="col-md-8" *ngIf="users && !users.error">
         <div class="card">
           <div class="card-header">Manage users</div>
           <div class="card-body">
             <table class="table table-hover table-sm table-bordered table-striped">
               <thead>
               <tr>
-                <th>id</th>
-                <th>user</th>
-                <th>admin</th>
+                <th *ngFor="let h of users.header">{{h}}</th>
+                <th class="iconColumn"><i class="cui-pencil"></i></th>
                 <th class="iconColumn"><i class="cui-trash"></i></th>
               </tr>
               </thead>
               <tbody>
               <tr *ngFor="let user of users.data | keyvalue">
-                <td>{{user.value[0]}}</td>
-                <td>{{user.value[1]}}</td>
-                <td>{{user.value[2]}}</td>
+                <td *ngFor="let v of user.value">{{v}}</td>
+                <td class="iconColumn"><i class="cui-pencil ptr" (click)="initEditUserModal(user.value)"></i></td>
                 <td class="iconColumn"><i class="ptr" [ngClass]="{'fa fa-warning': deleteUserConfirm === +user.value[0], 'cui-trash': deleteUserConfirm !== +user.value[0]}" (click)="deleteUser(+user.value[0])" (mouseout)="deleteUserConfirm = -1"></i></td>
               </tr>
               </tbody>
@@ -147,23 +146,23 @@
       </div>
 
       <div class="col-lg-8">
-        <table class="table table-hover table-sm table-bordered table-striped" *ngIf="datasets">
+        <table class="table table-hover table-sm table-bordered table-striped" *ngIf="datasets && datasets.data && datasets.data.length > 0">
           <thead>
           <tr>
             <th>name</th>
             <th>uploaded</th>
             <th class="iconColumn"><i class="cui-cloud-download"></i></th>
-            <th class="iconColumn"><i class="cui-pencil"></i></th>
-            <th class="iconColumn"><i class="cui-trash"></i></th>
+            <th class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil"></i></th>
+            <th class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-trash"></i></th>
           </tr>
           </thead>
           <tbody>
           <tr *ngFor="let row of datasets.data | keyvalue">
             <td>{{row.value[0]}}</td>
             <td>{{row.value[1] | date:'dd.MM.yyyy - HH:mm'}}</td>
-            <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="downloadDataModal.show()"></i></td>
-            <td class="iconColumn"><i class="cui-pencil ptr" (click)="initEditDataset(row.key)"></i></td>
-            <td class="iconColumn"><i class="ptr" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value[3], 'fa fa-warning':deleteDsConfirm === +row.value[3]}" (click)="deleteDataset(+row.value[3])" (mouseout)="deleteDsConfirm = undefined"></i></td>
+            <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value[4])"></i></td>
+            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value[3])" (click)="initEditDataset(row.key)"></i></td>
+            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="ptr" *ngIf="canDeleteAndUpdate(+row.value[3])" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value[3], 'fa fa-warning':deleteDsConfirm === +row.value[3]}" (click)="deleteDataset(+row.value[3])" (mouseout)="deleteDsConfirm = undefined"></i></td>
           </tr>
           </tbody>
         </table>
@@ -178,20 +177,37 @@
 <div bsModal #downloadDataModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Download</h4>
-        <button type="button" class="close" (click)="downloadDataModal.hide()" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Select schema</p>
-        <p>Select store</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="downloadDataModal.hide()">Close</button>
-        <button type="button" class="btn btn-primary">Download</button>
-      </div>
+      <form [formGroup]="importDsForm" (ngSubmit)="importIntoPolypheny()">
+        <div class="modal-header">
+          <h4 class="modal-title">Download dataset</h4>
+          <button type="button" class="close" (click)="downloadDataModal.hide()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-inline mb-3">
+              <label for="importIntoSchema" class="mr-2">Select schema</label>
+              <select id="importIntoSchema" class="form-control" *ngIf="schemas" formControlName="schema">
+                <option value="">select schema</option>
+                <option *ngFor="let s of schemas" [value]="s.name">{{s.name}}</option>
+              </select>
+            </div>
+            <div class="form-inline mb-3" *ngIf="availableStores">
+              <label for="importIntoStore" class="mr-2">Select store</label>
+              <select id="importIntoStore" class="form-control" formControlName="store">
+                <option value="">choose</option>
+                <option *ngFor="let s of availableStores" [value]="s.adapterName">{{s.adapterName}}</option>
+              </select>
+            </div>
+            <input type="hidden" [value]="downloadPath" formControlName="url">
+          <p class="text-danger mb-0" *ngIf="importDsFormSubmitted && !importDsForm.valid">Please select a schema and store before importing into Polypheny.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="downloadDataModal.hide()">Close</button>
+          <a class="btn btn-primary" [href]="downloadPath">Download locally</a>
+          <button type="submit" class="btn btn-primary">Import into Polypheny</button>
+        </div>
+      </form>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
@@ -232,7 +248,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Login</h4>
+        <h4 class="modal-title">Edit dataset</h4>
         <button type="button" class="close" (click)="editDatasetModal.hide()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -267,3 +283,65 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div>
+
+<div bsModal #editUserModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="resetEditUserModal()">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form [formGroup]="editUserForm" (ngSubmit)="editUser()">
+        <div class="modal-header">
+          <h4 class="modal-title">Edit user</h4>
+          <button type="button" class="close" (click)="editUserModal.hide()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" formControlName="id">
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <label for="editUsername" class="input-group-text">Username</label>
+              </div>
+              <input type="text" formControlName="name" class="form-control" id="editUsername" [ngClass]="editUserValidation('name')">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <label for="editUserPw" class="input-group-text">Password</label>
+              </div>
+              <input type="password" formControlName="password" class="form-control" id="editUserPw" [ngClass]="editUserValidation('password')">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <label for="editUserEmail" class="input-group-text">Email</label>
+              </div>
+              <input type="email" formControlName="email" class="form-control" id="editUserEmail" [ngClass]="editUserValidation('email')">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label for="editUserAdmin" class="input-group-text">Admin</label></div>
+
+              <div class="checkbox-wrapper">
+                <div style="display: flex;justify-content: center;">
+                  <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;">
+                    <input type="checkbox" class="form-control switch-input" id="editUserAdmin" formControlName="admin" [ngClass]="editUserValidation('admin')">
+                    <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-danger mb-0" *ngIf="editUserSubmitted && !editUserForm.valid">Please fill in all the required fields.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="editUserModal.hide()">Close</button>
+          <button type="submit" class="btn btn-primary">Edit</button>
+        </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

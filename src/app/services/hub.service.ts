@@ -6,18 +6,21 @@ import {WebuiSettingsService} from './webui-settings.service';
   providedIn: 'root'
 })
 export class HubService {
-
-  httpUrl = this._settings.getConnection('crud.rest');
-  httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
+x
+  hubUrl = this._settings.getConnection('hub.url');
+  //httpUrl = this._settings.getConnection('crud.rest');
+  //httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
   constructor( private _http:HttpClient, private _settings: WebuiSettingsService ) { }
 
   login( user: string, pw: string ){
-    return this._http.post(`${this.httpUrl}/login`, {user: user, password: pw, action: 'login'});
+    const body ={username: user, password: pw, action: 'login'};
+    return this._http.post(this.hubUrl, this.toFormData(body) );
   }
 
   logout(){
-    this._http.post(`${this.httpUrl}/logout`, {secret: localStorage.getItem('hub.secret'), action: 'logout'}).subscribe();
+    const body = {userId: this.getId(), action: 'logout'};
+    this._http.post(this.hubUrl, this.toFormData(body) ).subscribe( res => console.log(res) );
     localStorage.setItem( 'hub.id', '' );
     localStorage.setItem( 'hub.user', '' );
     localStorage.setItem( 'hub.secret', '' );
@@ -48,53 +51,76 @@ export class HubService {
   }
 
   checkLogin(){
-    return this._http.post(`${this.httpUrl}/checkLogin`, {userId: this.getId(), secret: this.getSecret(), action: 'checkLogin'});
+    const body = {userId: this.getId(), secret: this.getSecret(), action: 'checkLogin'};
+    return this._http.post(this.hubUrl, this.toFormData(body) );
   }
 
   getUsers(){
-    return this._http.post(`${this.httpUrl}/getUsers`, {userId: this.getId(), secret: this.getSecret(), action: 'getUsers'});
+    const body = {userId: this.getId(), secret: this.getSecret(), action: 'getUsers'};
+    return this._http.post(this.hubUrl, this.toFormData(body));
   }
 
   changePassword( oldPw, newPw1, newPw2 ){
     const body = {userId: this.getId(), secret: this.getSecret(), oldPw: oldPw, newPw1: newPw1, newPw2: newPw2, action: 'changePassword'};
-    console.log(body);
-    return this._http.post(`${this.httpUrl}/changePassword`, body);
+    return this._http.post(this.hubUrl, this.toFormData(body));
   }
 
   deleteUser( deleteUser: number ){
     const body = {userId: this.getId(), secret: this.getSecret(), deleteUser: deleteUser, action: 'deleteUser'};
-    console.log(body);
-    return this._http.post(`${this.httpUrl}/deleteUser`, body);
+    return this._http.post(this.hubUrl, this.toFormData(body));
   }
 
   createUser( userName: string, admin: string, email: string ){
-    const body = {userId: this.getId(), secret: this.getSecret(), name: userName, admin: admin, email: email, action: 'createUser'};
-    console.log(body);
-    return this._http.post(`${this.httpUrl}/createUser`, body);
+    const body = {userId: this.getId(), secret: this.getSecret(), userName: userName, admin: admin, email: email, action: 'createUser'};
+    return this._http.post(this.hubUrl, this.toFormData(body));
+  }
+
+  updateUser( userId: number, userName: string, pw: string, email: string, admin: boolean ){
+    const body = {
+      action: 'updateUser',
+      adminId: this.getId(),
+      secret: this.getSecret(),
+      userId: userId,
+      userName: userName,
+      userPw: pw,
+      userEmail: email,
+      userIsAdmin: admin
+    };
+    return this._http.post(this.hubUrl, this.toFormData(body));
   }
 
   getDatasets(){
-    return this._http.post(`${this.httpUrl}/getDatasets`, {userId: this.getId(), secret: this.getSecret(), action: 'getDatasets'});
+    const body = {userId: this.getId(), secret: this.getSecret(), action: 'getDatasets'};
+    return this._http.post(this.hubUrl, this.toFormData(body));
   }
 
-  editDataset( userId:number, name: string, pub:boolean ){
-    return this._http.post(`${this.httpUrl}/editDataset`, {userId: userId, name: name, pub: pub, action: 'editDataset'});
+  editDataset( dsId:number, name: string, pub:boolean ){
+    const body = {userId: this.getId(), secret: this.getSecret(), dsId: dsId, name: name, pub: pub, action: 'editDataset'};
+    return this._http.post(this.hubUrl, this.toFormData(body));
   }
 
   uploadDataset( userId: number, secret: string, name: string, pub: boolean, dataset ){
-    /*const formData = new FormData();
+    const formData = new FormData();
     formData.append( 'action', 'uploadDataset');
+    formData.append( 'userId', String(userId ));
+    formData.append( 'secret', secret );
     formData.append( 'name', name );
     formData.append( 'pub', String(pub) );
     formData.append( 'dataset', dataset[0] );
-    return this._http.post( `${this.httpUrl}/uploadDataset`,formData );// {headers: new HttpHeaders({'Content-Type': 'multipart/form-data'})}*/
-    return this._http.post( `${this.httpUrl}/uploadDataset`, {action: 'uploadDataset', userId: userId, secret: secret, name: name, pub: pub, dataset: dataset } );
+    return this._http.post( this.hubUrl, formData );
   }
 
-  deleteDataset( userId: number, secret: string, dsId: number ){
-    const data = {action: 'deleteDataset', userId: userId, secret: secret, datasetId: dsId };
-    console.log(data);
-    return this._http.post( `${this.httpUrl}/deleteDataset`, data );
+  deleteDataset( dsId: number ){
+    const body = {action: 'deleteDataset', userId: this.getId(), secret: this.getSecret(), datasetId: dsId };
+    return this._http.post(this.hubUrl, this.toFormData(body));
+  }
+
+  toFormData( obj ){
+    const formData = new FormData();
+    for (const [k, v] of Object.entries(obj)) {
+      formData.append(k,String(v));
+    }
+    return formData;
   }
 
 }

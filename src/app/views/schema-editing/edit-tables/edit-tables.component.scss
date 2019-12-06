@@ -20,3 +20,9 @@ label:not(.disabled){
 label.disabled{
   color: grey;
 }
+.checkbox-wrapper{
+  flex: 1;
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  border: 1px solid #e4e7ea;
+}
