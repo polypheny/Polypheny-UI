@@ -12,6 +12,7 @@ import {SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {Ace} from "ace-builds";
 import execEventHandler = Ace.execEventHandler;
+import {WebSocketService} from "../../../web-socket.service";
 
 @Component({
   selector: 'app-relational-algebra',
@@ -40,7 +41,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
   constructor(
     private _crud: CrudService,
-    private _toast: ToastService
+    private _toast: ToastService,
+    private _webSocketService: WebSocketService
   ) { }
 
   ngOnInit() {
@@ -630,6 +632,18 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
     }
   }
+  makeSocketConnection(){
+    //let socket = io.connect('http://localhost:1234');
+    console.log('connecting to server');
+
+    this._webSocketService.listen('test event').subscribe((data) => {
+      console.log(data);
+    });
+
+
+  }
+
+
 
 
 }
