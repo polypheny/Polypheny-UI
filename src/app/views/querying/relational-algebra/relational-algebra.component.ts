@@ -12,7 +12,7 @@ import {SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {Ace} from "ace-builds";
 import execEventHandler = Ace.execEventHandler;
-import {WebSocketService} from "../../../web-socket.service";
+import {WebSocketService} from "../../../services/web-socket.service";
 
 @Component({
   selector: 'app-relational-algebra',
