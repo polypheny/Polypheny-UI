@@ -104,6 +104,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   updatedMinMax(update: Object){
+    console.log(update);
     if(this.filterSet.hasOwnProperty(update['name'])){
       this.filterSet[update['name']]['min'] = update['event']['value'];
       this.filterSet[update['name']]['max'] = update['event']['highValue'];
@@ -112,7 +113,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         min: update['event']['value'],
         max: update['event']['highValue'],
         type: []
-      }
+      };
     }
 
     /*if (!this.filterSet.tables.length === 0 && !this.filterSet.tables.includes(update['name'])){
@@ -128,6 +129,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   generateSQL() {
+    this.whereCounter = 0;
+
     if( this.columns.size === 0 ){
       this.editorGenerated.setCode( '' );
       return;
@@ -161,16 +164,15 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     //only for one table atm
     if (Object.keys(this.filterSet).length !== 0 && tables.length !== 0 && counter === 0){
-      console.log(this.filterSet);
       for (const col of cols){
         console.log(col);
         if(this.filterSet[col]){
           const data = this.filterSet[col];
           if (data['min']){
-            sql += this.connectWheres() + col + ' > ' + data['min'];
+            sql += this.connectWheres() + col + ' >= ' + data['min'];
           }
           if (data['max']){
-            sql += this.connectWheres() + col + ' < ' + data['max'];
+            sql += this.connectWheres() + col + ' <= ' + data['max'];
           }
         }
       }

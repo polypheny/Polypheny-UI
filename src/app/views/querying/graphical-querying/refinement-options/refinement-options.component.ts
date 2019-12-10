@@ -57,7 +57,7 @@ export class RefinementOptionsComponent implements OnInit {
         //this.processStatistics(<StatisticSet>dummyResult);
     }
 
-    includes(o : string[], name: string){
+    includes(o: string[], name: string){
         return o.includes(name);
     }
 
@@ -65,7 +65,6 @@ export class RefinementOptionsComponent implements OnInit {
 
     processStatistics(res: StatisticSet) {
         this.statisticSet = res;
-        console.log(this.statisticSet);
         Object.keys(this.statisticSet).forEach(key => {
             const el = this.statisticSet[key];
             if(el['min'] && el['max']){
@@ -81,34 +80,26 @@ export class RefinementOptionsComponent implements OnInit {
                     step: 1
                 };
             }
-        });
-        /*for (const table of res) {
-            for (let [index, header] of table['header'].entries()) {
-                if (header['min'] && header['max']) {
-                    let value = (header['max'] - header['min']) / 2;
-                    this.statisticSet.type.push('range');
-                    this.statisticSet.data.push({
-                        'name': header['name'],
-                        'min': header['min'],
-                        'max': header['max'],
-                        'value': value,
-                        'options': {
-                            floor: header['min'],
-                            ceil: header['max'],
-                            step: 1
-                            ,
-                        }
-                    });
+            // add length of uniqueValue === empty
+            if(el['isFull'] === false ){
+                if(key['type']){
+                    this.statisticSet[key]['type'].push('uniqueVal');
+                }else{
+                    this.statisticSet[key]['type'] = ['uniqueVal'];
                 }
+                Object.keys(el['uniqueValue']).forEach(val => {
+                    [] = ['uniqueValue'][val];
+                });
+                this.statisticSet[key]['options']['uniqueVal'] = Object.keys(el['uniqueValue']);
             }
-        }*/
-        console.log(this.statisticSet);
+        });
     }
 
 
     @Output() updateFilterSQL = new EventEmitter();
 
     updateFilterOptions(event: Object, name: String) {
+        console.log('update');
         const updated = {name, event};
         this.updateFilterSQL.emit(updated);
     }
