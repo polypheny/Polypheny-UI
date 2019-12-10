@@ -17,6 +17,7 @@ import {
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
+import {Store} from '../views/stores/store.model';
 
 @Injectable({
   providedIn: 'root'
@@ -274,6 +275,22 @@ export class CrudService {
 
   getStores(){
     return this._http.get( `${this.httpUrl}/getStores` );
+  }
+
+  updateStoreSettings( store: Store ){
+    return this._http.post( `${this.httpUrl}/updateStoreSettings`, store );
+  }
+
+  getAdapters(){
+    return this._http.get( `${this.httpUrl}/getAdapters` );
+  }
+
+  addStore( store: any ){
+    return this._http.post( `${this.httpUrl}/addStore`, store, this.httpOptions );
+  }
+
+  removeStore( storeId: string ){
+    return this._http.post( `${this.httpUrl}/removeStore`, storeId, this.httpOptions );
   }
 
   getNameValidator ( required: boolean = false ) {

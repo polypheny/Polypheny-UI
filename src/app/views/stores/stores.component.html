@@ -1,17 +1,106 @@
-<div class="row">
-  <div class="col-lg-12">
-    <div class="card-columns" [ngStyle]="{'column-count': _breadcrumb.getMasonryZoom()}">
+<app-toast></app-toast>
+<ng-container [ngSwitch]="route">
 
-      <div class="card" *ngFor="let store of stores">
-        <div class="card-header">{{store.uniqueName}}</div>
-        <div class="card-body">
-          <p>id: {{store.id}}
-            <br>
-            adapter name: {{store.adapterName}}</p>
-          <button class="btn btn-primary">configure</button>
+  <!-- adapters -->
+  <div class="row" *ngSwitchCase="'addStore'">
+    <button class="btn btn-circle btn-primary topRight" [routerLink]="['./../']"><i class="fa fa-close"></i></button>
+    <div class="col-lg-12" *ngIf="adapters">
+      <div class="card-columns" [ngStyle]="{'column-count': _breadcrumb.getMasonryZoom()}">
+
+        <div class="card" *ngFor="let adapter of adapters">
+          <div class="card-header">
+            {{adapter.name}}
+            <!--<span class="badge badge-secondary pull-right">{{adapter.}}</span>-->
+          </div>
+          <div class="card-body">
+            <p class="m-0">
+              {{adapter.description}}
+            </p>
+          </div>
+          <div class="card-footer bg-transparent adapter-footer">
+            <button class="btn btn-primary" (click)="initAdapterSettings(adapter)">Deploy</button>
+          </div>
         </div>
-      </div>
 
+      </div>
     </div>
   </div>
+
+  <!-- stores -->
+  <div class="row" *ngSwitchDefault>
+    <button class="btn btn-circle btn-primary topRight" [routerLink]="['./addStore']"><i class="fa fa-plus"></i></button>
+    <div class="col-lg-12">
+      <div class="card-columns" [ngStyle]="{'column-count': _breadcrumb.getMasonryZoom()}">
+
+        <div class="card" *ngFor="let store of stores">
+          <div class="card-header">
+            {{store.uniqueName}}
+            <span class="badge badge-secondary pull-right">{{store.storeId}}</span>
+          </div>
+          <div class="card-body">
+            <p class="m-0">Adapter: {{store.adapterName}}</p>
+          </div>
+          <div class="card-footer bg-transparent">
+            <button class="btn btn-danger" (click)="removeStore(store)" (mouseleave)="deletingStore = undefined">
+              <i class="cui-trash" [ngClass]="{'cui-trash': store !== deletingStore, 'fa fa-warning': store === deletingStore}"></i>
+            </button>
+            <button class="btn btn-primary pull-right" (click)="initStoreSettings(store)">configure</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</ng-container>
+
+
+<div bsModal #storeSettingsModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="onCloseModal()">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <!--<form>-->
+      <div class="modal-header">
+        <h4 class="modal-title">Settings</h4>
+        <button type="button" class="close" (click)="storeSettingsModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" *ngIf="editingStore && editingStore.settings">
+
+        <form [formGroup]="editingStoreForm">
+          <div class="form-group" *ngFor="let control of editingStoreForm.controls | keyvalue">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <label [for]="control.key" class="input-group-text">{{control.key}}</label>
+              </div>
+              <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key" [ngClass]="validate(editingStoreForm, control.key)">
+            </div>
+          </div>
+        </form>
+
+      </div>
+
+      <div class="modal-body" *ngIf="editingAdapter && editingAdapter.settings">
+
+        <form [formGroup]="editingAdapterForm">
+          <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <label [for]="control.key" class="input-group-text">{{control.key}}</label>
+              </div>
+              <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key" [ngClass]="validate(editingAdapterForm, control.key)">
+            </div>
+          </div>
+        </form>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="storeSettingsModal.hide()">Close</button>
+        <button *ngIf="editingStore" type="submit" class="btn btn-primary" (click)="saveStoreSettings()">Save</button>
+        <button *ngIf="editingAdapter" type="submit" class="btn btn-primary" (click)="deploy()">Deploy</button>
+      </div>
+      <!--</form>-->
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
 </div>

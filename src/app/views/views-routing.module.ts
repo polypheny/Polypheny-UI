@@ -101,6 +101,13 @@ const routes: Routes = [
     }
   },
   {
+    path: 'stores/:action',
+    component: StoresComponent,
+    data: {
+      title: 'Stores'
+    }
+  },
+  {
     path: 'hub',
     component: HubComponent,
     data: {

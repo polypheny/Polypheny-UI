@@ -3,7 +3,7 @@ import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service'
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {ActivatedRoute} from '@angular/router';
 import {HubService} from '../../services/hub.service';
-import {HubResult, Store} from './hub.model';
+import {HubResult} from './hub.model';
 import {ModalDirective} from 'ngx-bootstrap';
 import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms';
 import {ToastService} from '../../components/toast/toast.service';
@@ -12,6 +12,7 @@ import {CrudService} from '../../services/crud.service';
 import {SchemaRequest} from '../../models/ui-request.model';
 import {SidebarNode} from '../../models/sidebar-node.model';
 import {ResultSet} from '../../components/data-table/models/result-set.model';
+import {Store} from '../stores/store.model';
 
 @Component({
   selector: 'app-hub',

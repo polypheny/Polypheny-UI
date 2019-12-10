@@ -1,0 +1,17 @@
+.topRight{
+  position: absolute;
+  top: -0.5rem;
+  right: 1rem;
+  z-index: 2;
+}
+
+.checkbox-wrapper{
+  flex: 1;
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  border: 1px solid #e4e7ea;
+}
+.adapter-footer{
+  display: flex;
+  justify-content: flex-end;
+}
