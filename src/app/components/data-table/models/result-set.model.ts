@@ -27,7 +27,8 @@ export class StatisticSet{
     [column: string]: {
         type: string[],
         min: null,
-        max: null
+        max: null,
+        check: string
     }
 
     constructor( ){

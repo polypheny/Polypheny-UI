@@ -13,7 +13,20 @@
                         [(highValue)]="entry.value['max']" [options]="entry.value['options']"
                         (userChangeEnd)="updateFilterOptions($event, entry.key)"></ng5-slider>
         </div>
+        <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues')">
+            <h5>{{entry.key}}</h5>
+            <div *ngFor="let val of entry.value['options']['uniqueValues']">
+                <div class="btn-group-toggle" data-toggle="buttons" (click)="updateFilterOptions(val, 'check')">
+                    <label class="btn btn-secondary active">
+                        <input type="checkbox" checked autocomplete="off"> {{val}}
+                    </label>
+                </div>
+            </div>
+        </div>
     </div>
+
+
+
 </div>
 
 <!--

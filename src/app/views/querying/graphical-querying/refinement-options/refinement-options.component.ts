@@ -68,7 +68,7 @@ export class RefinementOptionsComponent implements OnInit {
         Object.keys(this.statisticSet).forEach(key => {
             const el = this.statisticSet[key];
             if(el['min'] && el['max']){
-                if(key['type']){
+                if(this.statisticSet[key]['type']){
                     this.statisticSet[key]['type'].push('range');
                 }else {
                     this.statisticSet[key]['type'] = ['range'];
@@ -77,20 +77,39 @@ export class RefinementOptionsComponent implements OnInit {
                 this.statisticSet[key]['options'] = {
                     floor: el['min'],
                     ceil: el['max'],
-                    step: 1
+                    step: 1,
+                    uniqueValues: []
                 };
             }
-            // add length of uniqueValue === empty
-            if(el['isFull'] === false ){
-                if(key['type']){
-                    this.statisticSet[key]['type'].push('uniqueVal');
+            if(this.statisticSet[key]['uniqueValues']){
+                if(this.statisticSet[key]['type']){
+                    this.statisticSet[key]['type'].push('uniqueValues');
                 }else{
-                    this.statisticSet[key]['type'] = ['uniqueVal'];
+                    this.statisticSet[key]['type'] = ['uniqueValues'];
                 }
-                Object.keys(el['uniqueValue']).forEach(val => {
-                    [] = ['uniqueValue'][val];
+
+                const uniqueValData = [];
+                Object.keys(this.statisticSet[key]['uniqueValues']).forEach((i, k) => {
+                    uniqueValData[i] = [k];
                 });
-                this.statisticSet[key]['options']['uniqueVal'] = Object.keys(el['uniqueValue']);
+
+
+                if(this.statisticSet[key]['options']){
+                    // tslint:disable-next-line:forin
+                    for(const i in uniqueValData){
+                        this.statisticSet[key]['options']['uniqueValues'].push(i);
+                    }
+                }else{
+                    this.statisticSet[key]['options'] = {
+                        uniqueValues: []
+                    };
+                    // tslint:disable-next-line:forin
+                    for(const i in uniqueValData){
+                        this.statisticSet[key]['options']['uniqueValues'].push(i);
+                    }
+
+                }
+
             }
         });
     }
@@ -103,6 +122,7 @@ export class RefinementOptionsComponent implements OnInit {
         const updated = {name, event};
         this.updateFilterSQL.emit(updated);
     }
+
 
     /**
      * Toggle visability of additonal refinement options

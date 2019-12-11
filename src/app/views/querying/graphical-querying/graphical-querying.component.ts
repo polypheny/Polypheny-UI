@@ -113,17 +113,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         min: update['event']['value'],
         max: update['event']['highValue'],
         type: []
+        check:
       };
     }
-
-    /*if (!this.filterSet.tables.length === 0 && !this.filterSet.tables.includes(update['name'])){
-      this.filterSet.tables.push(update['name']);
-      this.filterSet.data.push({'min': update['event']['value'], 'max': update['event']['highValue']});
-    }else {
-      const index = this.filterSet.tables.indexOf(update['name']);
-      this.filterSet.data[index]['min'] = update['event']['value'];
-      this.filterSet.data[index]['max'] = update['event']['value'];
-    }*/
     console.log(this.filterSet);
     this.generateSQL();
   }
