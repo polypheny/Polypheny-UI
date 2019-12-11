@@ -278,12 +278,7 @@ export class HubComponent implements OnInit, OnDestroy {
   getStores(){
     this._crud.getStores().subscribe(
       res => {
-        const result = <ResultSet> res;
-        const stores = [];
-        for( const s of result.data ){
-          stores.push( { id: s[0], uniqueName: s[1], adapterName: s[2] } );
-        }
-        this.availableStores = stores;
+        this.availableStores = <Store[]> res;
       }, err => {
         console.log(err);
       }
@@ -452,6 +447,7 @@ export class HubComponent implements OnInit, OnDestroy {
             this._toast.toast('error', 'Import failed: ' + result.error, 10, 'bg-warning');
           }else{
             this._toast.toast('success', result.message, 5, 'bg-success');
+            this.downloadDataModal.hide();
           }
         }, err => {
           this._toast.toast('error', 'The dataset could not be imported', 10, 'bg-warning');

@@ -169,11 +169,12 @@ export class StoresComponent implements OnInit, OnDestroy {
     if( this.deletingStore !== store ){
       this.deletingStore = store;
     } else {
-      this._crud.removeStore( String(store.uniqueName) ).subscribe(
+      this._crud.removeStore( store.uniqueName ).subscribe(
         res => {
           const result = <boolean> res;
           if(result){
             this._toast.toast( 'success', 'Removed store', 5, 'bg-success');
+            this.getStores();
           }else{
             this._toast.toast( 'error', 'Could not remove store', 5, 'bg-warning');
           }
