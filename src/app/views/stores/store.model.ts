@@ -2,7 +2,7 @@ export interface Store {
   storeId: number;
   uniqueName: string;
   adapterName;
-  settings: any;
+  settings: AdapterSetting[];
 }
 
 export interface AdapterInformation {
@@ -18,4 +18,5 @@ export interface AdapterSetting {
   canBeNull: boolean;
   required: boolean;
   modifiable: boolean;
+  options: string[];
 }

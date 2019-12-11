@@ -4,9 +4,9 @@ import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute} from '@angular/router';
 import {ModalDirective} from 'ngx-bootstrap';
-import {Store, AdapterInformation} from './store.model';
+import {Store, AdapterInformation, AdapterSetting} from './store.model';
 import {ToastService} from '../../components/toast/toast.service';
-import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-stores',
@@ -22,9 +22,11 @@ export class StoresComponent implements OnInit, OnDestroy {
 
   editingStore: Store;
   editingStoreForm: FormGroup;
+  deletingStore;
+
   editingAdapter: AdapterInformation;
   editingAdapterForm: FormGroup;
-  deletingStore;
+  adapterUniqueNameForm: FormGroup;
 
   @ViewChild('storeSettingsModal', {static: false}) public storeSettingsModal: ModalDirective;
 
@@ -89,15 +91,18 @@ export class StoresComponent implements OnInit, OnDestroy {
     this.editingStore = store;
     const fc = {};
     for( const [k,v] of Object.entries(this.editingStore.settings)){
-      //todo add validator required?
-      fc[k] = new FormControl(v);
+      const validators = [];
+      if(v.required) validators.push( Validators.required );
+      let val = v.defaultValue;
+      if( v.options ) val = v.options[0];
+      fc[v.name] = new FormControl({value: val, disabled: !v.modifiable}, validators);
     }
     this.editingStoreForm = new FormGroup( fc );
     this.storeSettingsModal.show();
   }
 
   saveStoreSettings(){
-    const store = this.editingStore;
+    const store = <any> this.editingStore;
     store.settings = {};
     for( const [k,v] of Object.entries( this.editingStoreForm.controls )){
       store.settings[k] = v.value;
@@ -106,6 +111,7 @@ export class StoresComponent implements OnInit, OnDestroy {
       res => {
         this._toast.toast( 'success', 'updated store settings', 5, 'bg-success');
         this.storeSettingsModal.hide();
+        this.getStores();
       }, err => {
         this._toast.toast( 'error', 'could not update store settings', 5, 'bg-danger');
         console.log(err);
@@ -117,23 +123,34 @@ export class StoresComponent implements OnInit, OnDestroy {
     this.editingAdapter = adapter;
     const fc = {};
     for( const [k,v] of Object.entries(this.editingAdapter.settings)){
-      const validator = [];
-      if(v.required) validator.push( Validators.required );
-      fc[v.name] = new FormControl(v.defaultValue, validator);
+      const validators = [];
+      if(v.required) validators.push( Validators.required );
+      let val = v.defaultValue;
+      if( v.options ) val = v.options[0];
+      fc[v.name] = new FormControl(val, validators);
     }
     this.editingAdapterForm = new FormGroup( fc );
+    this.adapterUniqueNameForm = new FormGroup({
+      uniqueName: new FormControl(null, Validators.required)
+    });
     this.storeSettingsModal.show();
   }
 
+  getAdapterSetting( adapter, key: string ): AdapterSetting{
+    return adapter.settings.filter( (a, i) => a.name === key )[0];
+  }
+
   deploy(){
+    if(!this.editingAdapterForm.valid) return;
+    if(!this.adapterUniqueNameForm.valid) return;
     const deploy = {
+      uniqueName: this.adapterUniqueNameForm.controls['uniqueName'].value,
       clazzName: this.editingAdapter.clazz,
       settings: {}
     };
     for( const [k,v] of Object.entries( this.editingAdapterForm.controls )){
       deploy.settings[k] = v.value;
     }
-    if(!this.editingAdapterForm.valid) return;
     this._crud.addStore( deploy ).subscribe(
       res => {
         if(<boolean> res === true){
@@ -152,7 +169,7 @@ export class StoresComponent implements OnInit, OnDestroy {
     if( this.deletingStore !== store ){
       this.deletingStore = store;
     } else {
-      this._crud.removeStore( String(store.storeId) ).subscribe(
+      this._crud.removeStore( String(store.uniqueName) ).subscribe(
         res => {
           const result = <boolean> res;
           if(result){
@@ -170,6 +187,7 @@ export class StoresComponent implements OnInit, OnDestroy {
 
   validate( form: FormGroup, key ) {
     if(form === undefined) return;
+    if( form.controls[key].status === 'DISABLED' ) return;
     if( form.controls[key].valid ){
       return 'is-valid';
     } else {

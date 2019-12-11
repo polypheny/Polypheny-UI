@@ -15,3 +15,7 @@
   display: flex;
   justify-content: flex-end;
 }
+.input-group > .form-control:not(:last-child), .input-group > .custom-select:not(:last-child) {
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}

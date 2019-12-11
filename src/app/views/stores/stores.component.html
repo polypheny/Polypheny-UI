@@ -10,7 +10,6 @@
         <div class="card" *ngFor="let adapter of adapters">
           <div class="card-header">
             {{adapter.name}}
-            <!--<span class="badge badge-secondary pull-right">{{adapter.}}</span>-->
           </div>
           <div class="card-body">
             <p class="m-0">
@@ -35,7 +34,6 @@
         <div class="card" *ngFor="let store of stores">
           <div class="card-header">
             {{store.uniqueName}}
-            <span class="badge badge-secondary pull-right">{{store.storeId}}</span>
           </div>
           <div class="card-body">
             <p class="m-0">Adapter: {{store.adapterName}}</p>
@@ -58,41 +56,64 @@
 <div bsModal #storeSettingsModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="onCloseModal()">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <!--<form>-->
       <div class="modal-header">
         <h4 class="modal-title">Settings</h4>
         <button type="button" class="close" (click)="storeSettingsModal.hide()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body" *ngIf="editingStore && editingStore.settings">
 
+      <!-- stores -->
+      <div class="modal-body" *ngIf="editingStore && editingStore.settings">
         <form [formGroup]="editingStoreForm">
           <div class="form-group" *ngFor="let control of editingStoreForm.controls | keyvalue">
-            <div class="input-group">
+            <div class="input-group" *ngIf="!getAdapterSetting(editingStore, control.key).options">
               <div class="input-group-prepend">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key" [ngClass]="validate(editingStoreForm, control.key)">
+              <div class="invalid-feedback">required</div>
+            </div>
+            <div class="form-inline" *ngIf="getAdapterSetting(editingStore, control.key).options">
+              <label class="mr-3" [for]="control.key">{{control.key}}</label>
+              <select [id]="control.key" class="form-control" [formControlName]="control.key">
+                <option *ngFor="let option of getAdapterSetting(editingStore, control.key).options" [value]="option">{{option}}</option>
+              </select>
             </div>
           </div>
         </form>
-
       </div>
 
+      <!-- adapters -->
       <div class="modal-body" *ngIf="editingAdapter && editingAdapter.settings">
-
+        <form [formGroup]="adapterUniqueNameForm">
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <label for="adapterUniqueName" class="input-group-text">Unique name</label>
+              </div>
+              <input type="text" class="form-control" id="adapterUniqueName" formControlName="uniqueName" [ngClass]="validate(adapterUniqueNameForm, 'uniqueName')">
+              <div class="invalid-feedback">required</div>
+            </div>
+          </div>
+        </form>
         <form [formGroup]="editingAdapterForm">
           <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
-            <div class="input-group">
+            <div class="input-group" *ngIf="!getAdapterSetting(editingAdapter, control.key).options">
               <div class="input-group-prepend">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key" [ngClass]="validate(editingAdapterForm, control.key)">
+              <div class="invalid-feedback">required</div>
+            </div>
+            <div class="form-inline" *ngIf="getAdapterSetting(editingAdapter, control.key).options">
+              <label class="mr-3" [for]="control.key">{{control.key}}</label>
+              <select [id]="control.key" class="form-control" [formControlName]="control.key">
+                <option *ngFor="let option of getAdapterSetting(editingAdapter, control.key).options" [value]="option">{{option}}</option>
+              </select>
             </div>
           </div>
         </form>
-
       </div>
 
       <div class="modal-footer">
@@ -100,7 +121,6 @@
         <button *ngIf="editingStore" type="submit" class="btn btn-primary" (click)="saveStoreSettings()">Save</button>
         <button *ngIf="editingAdapter" type="submit" class="btn btn-primary" (click)="deploy()">Deploy</button>
       </div>
-      <!--</form>-->
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div>
