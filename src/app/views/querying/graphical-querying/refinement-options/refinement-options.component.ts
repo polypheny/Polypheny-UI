@@ -117,9 +117,17 @@ export class RefinementOptionsComponent implements OnInit {
 
     @Output() updateFilterSQL = new EventEmitter();
 
-    updateFilterOptions(event: Object, name: String) {
-        console.log('update');
-        const updated = {name, event};
+    updateMinMax(event: Object, name: String) {
+        console.log('update min max');
+        const updateType = 'minmax';
+        const updated = {name, event, updateType};
+        this.updateFilterSQL.emit(updated);
+    }
+
+    updateCheck(event: Object, name: String){
+        console.log('update Checkbox');
+        const updateType = 'check';
+        const updated = {name, event, updateType};
         this.updateFilterSQL.emit(updated);
     }
 

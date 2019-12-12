@@ -103,19 +103,44 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.generateSQL();
   }
 
-  updatedMinMax(update: Object){
+  updatedFilter(update: Object){
     console.log(update);
-    if(this.filterSet.hasOwnProperty(update['name'])){
-      this.filterSet[update['name']]['min'] = update['event']['value'];
-      this.filterSet[update['name']]['max'] = update['event']['highValue'];
-    }else{
-      this.filterSet[update['name']] = {
-        min: update['event']['value'],
-        max: update['event']['highValue'],
-        type: []
-        check:
-      };
+
+    if(update['updateType'] === 'minmax'){
+      console.log('im in first minmax');
+      console.log(update);
+      console.log(update['updateType']);
+        if (this.filterSet.hasOwnProperty(update['name'])) {
+            this.filterSet[update['name']]['min'] = update['event']['value'];
+            this.filterSet[update['name']]['max'] = update['event']['highValue'];
+        } else {
+            this.filterSet[update['name']] = {
+                min: update['event']['value'],
+                max: update['event']['highValue'],
+                type: [],
+                check: []
+            };
+        }
     }
+    if(update['updateType'] === 'check'){
+
+        if (this.filterSet.hasOwnProperty(update['name'])) {
+            if(this.filterSet[update['name']]['check'].includes(update['event'])){
+              this.filterSet[update['name']]['check'].splice(this.filterSet[update['name']]['check'].indexOf(update['event']), 1);
+            }else{
+              this.filterSet[update['name']]['check'].push(update['event']);
+            }
+        } else {
+            this.filterSet[update['name']] = {
+                min: null,
+                max: null,
+                type: [],
+                check: [update['event']]
+            };
+        }
+    }
+
+
     console.log(this.filterSet);
     this.generateSQL();
   }
@@ -165,6 +190,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
           }
           if (data['max']){
             sql += this.connectWheres() + col + ' <= ' + data['max'];
+          }
+          if (data['check']){
+            sql += this.connectWheres() + col + '=' + '"' + data['check'] + '"';
           }
         }
       }

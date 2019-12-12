@@ -37,7 +37,7 @@
       <app-editor #editorGenerated [height]="'150px'"></app-editor>
     </div>
 
-    <app-refinement-options (updateFilterSQL)="updatedMinMax($event)"></app-refinement-options>
+    <app-refinement-options (updateFilterSQL)="updatedFilter($event)"></app-refinement-options>
 
     <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
     <button *ngIf="loading" class="btn btn-primary" disabled>Loading</button>

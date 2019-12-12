@@ -11,33 +11,21 @@
             <h5>{{entry.key}}</h5>
             <ng5-slider [(value)]="entry.value['min']"
                         [(highValue)]="entry.value['max']" [options]="entry.value['options']"
-                        (userChangeEnd)="updateFilterOptions($event, entry.key)"></ng5-slider>
+                        (userChangeEnd)="updateMinMax($event, entry.key)"></ng5-slider>
         </div>
         <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues')">
             <h5>{{entry.key}}</h5>
             <div *ngFor="let val of entry.value['options']['uniqueValues']">
-                <div class="btn-group-toggle" data-toggle="buttons" (click)="updateFilterOptions(val, 'check')">
-                    <label class="btn btn-secondary active">
-                        <input type="checkbox" checked autocomplete="off"> {{val}}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" (click)="updateCheck(val, entry.key)">
+                    <label class="form-check-label" for="defaultCheck1">
+                        {{val}}
                     </label>
                 </div>
             </div>
         </div>
     </div>
 
-
-
 </div>
 
-<!--
-<div *ngIf="optionsOpen" class="more-options">
-    <div *ngFor="let type of statisticSet.type, let i = index">
-        <div *ngIf="type === 'range'">
-            <h5>{{statisticSet.data[i].name}}</h5>
-            <input type="range" [min]="statisticSet.data[i].min" [max]="statisticSet.data[i].max" [value]="statisticSet.data[i].value" id="" class="slider" name="test" />
-            <ng5-slider [(value)]="value2" [options]="options2"></ng5-slider>
-        <div>
-    </div>
-</div>
--->
 
