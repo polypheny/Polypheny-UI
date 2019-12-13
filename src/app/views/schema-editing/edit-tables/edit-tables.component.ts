@@ -33,7 +33,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   exportForm = new FormGroup({
     name: new FormControl('', Validators.required),
     pub: new FormControl(true, Validators.required),
-    table: new FormControl('', Validators.required)
+    table: new FormControl('', Validators.required),
+    createPrimaryKeys: new FormControl(true, Validators.required),
+    addDefaultValue: new FormControl(true, Validators.required)
   });
   @ViewChild('exportTableModal', {static: false}) public exportTableModal: ModalDirective;
 
@@ -181,7 +183,14 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     console.log(this.exportForm);
     if( this.exportForm.valid ){
       this.uploading = true;
-      this._crud.exportTable( this.exportForm.controls['name'].value, this.schema, this.exportingTable, this.exportForm.controls['pub'].value ).subscribe(
+      this._crud.exportTable(
+        this.exportForm.controls['name'].value,
+        this.schema,
+        this.exportingTable,
+        this.exportForm.controls['pub'].value,
+        this.exportForm.controls['createPrimaryKeys'].value,
+        this.exportForm.controls['addDefaultValue'].value,
+      ).subscribe(
         res => {
           const result = <ResultSet> res;
           console.log(result);

@@ -255,11 +255,11 @@ export class CrudService {
     return this._http.get(`${this.httpUrl}/getForeignKeyActions`, this.httpOptions);
   }
 
-  importDataset ( schema: string, store: string, url: string ) {
-    return this._http.post(`${this.httpUrl}/importDataset`, {schema: schema, store: store, url: url}, this.httpOptions);
+  importDataset ( schema: string, store: string, url: string, createPks: boolean, addDefault: boolean ) {
+    return this._http.post(`${this.httpUrl}/importDataset`, {schema: schema, store: store, url: url, createPks: createPks, defaultValues: addDefault}, this.httpOptions);
   }
 
-  exportTable( name: string, schema: string, table: string, pub: boolean ){
+  exportTable( name: string, schema: string, table: string, pub: boolean, createPks: boolean, addDefault: boolean ){
     const body = {
       userId: this._hub.getId(),
       secret: this._hub.getSecret(),
@@ -267,7 +267,9 @@ export class CrudService {
       schema: schema,
       table: table,
       pub: pub,
-      hubLink: this._settings.getConnection('hub.url')
+      hubLink: this._settings.getConnection('hub.url'),
+      createPks: createPks,
+      defaultValues: addDefault
     };
     //const index = new Index( schema, table, this._settings.getConnection('hub.url'), null, null );
     return this._http.post( `${this.httpUrl}/exportTable`, body );

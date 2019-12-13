@@ -62,6 +62,8 @@ export class HubComponent implements OnInit, OnDestroy {
     schema: new FormControl('', Validators.required),
     store: new FormControl('', Validators.required),
     url: new FormControl('', Validators.required),
+    createPrimaryKeys: new FormControl(true, Validators.required),
+    addDefaultValue: new FormControl(true, Validators.required)
   });
   importDsFormSubmitted = false;
   availableStores: Store[];
@@ -440,7 +442,13 @@ export class HubComponent implements OnInit, OnDestroy {
   importIntoPolypheny(){
     this.importDsFormSubmitted = true;
     if(this.importDsForm.valid){
-      this._crud.importDataset( this.importDsForm.controls['schema'].value, this.importDsForm.controls['store'].value, this.importDsForm.controls['url'].value ).subscribe(
+      this._crud.importDataset(
+        this.importDsForm.controls['schema'].value,
+        this.importDsForm.controls['store'].value,
+        this.importDsForm.controls['url'].value,
+        this.importDsForm.controls['createPrimaryKeys'].value,
+        this.importDsForm.controls['addDefaultValue'].value
+      ).subscribe(
         res => {
           const result = <HubResult> res;
           if(result.error){

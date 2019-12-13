@@ -185,21 +185,35 @@
           </button>
         </div>
         <div class="modal-body">
-            <div class="form-inline mb-3">
-              <label for="importIntoSchema" class="mr-2">Select schema</label>
-              <select id="importIntoSchema" class="form-control" *ngIf="schemas" formControlName="schema">
-                <option value="">select schema</option>
-                <option *ngFor="let s of schemas" [value]="s.name">{{s.name}}</option>
-              </select>
-            </div>
-            <div class="form-inline mb-3" *ngIf="availableStores">
-              <label for="importIntoStore" class="mr-2">Select store</label>
-              <select id="importIntoStore" class="form-control" formControlName="store">
-                <option value="">choose</option>
-                <option *ngFor="let s of availableStores" [value]="s.adapterName">{{s.adapterName}}</option>
-              </select>
-            </div>
-            <input type="hidden" [value]="downloadPath" formControlName="url">
+          <div class="form-inline mb-3" *ngIf="availableStores">
+            <label for="importIntoStore" class="mr-2">Select store</label>
+            <select id="importIntoStore" class="form-control" formControlName="store">
+              <option value="">choose</option>
+              <option *ngFor="let s of availableStores" [value]="s.adapterName">{{s.adapterName}}</option>
+            </select>
+          </div>
+          <div class="form-inline mb-3">
+            <label for="importIntoSchema" class="mr-2">Select schema</label>
+            <select id="importIntoSchema" class="form-control" *ngIf="schemas" formControlName="schema">
+              <option value="">select schema</option>
+              <option *ngFor="let s of schemas" [value]="s.name">{{s.name}}</option>
+            </select>
+          </div>
+          <div class="form-group mb-0" style="display: flex">
+            <label for="addDefaultVals" class="switch-label2">Add default value</label>
+            <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="addDefaultVals">
+              <input type="checkbox" class="form-control switch-input" id="addDefaultVals" formControlName="addDefaultValue">
+              <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+            </label>
+          </div>
+          <div class="form-group mb-0" style="display: flex">
+            <label for="createPK" class="switch-label2">Create PK</label>
+            <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="createPK">
+              <input type="checkbox" class="form-control switch-input" id="createPK" formControlName="createPrimaryKeys">
+              <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+            </label>
+          </div>
+          <input type="hidden" [value]="downloadPath" formControlName="url">
           <p class="text-danger mb-0" *ngIf="importDsFormSubmitted && !importDsForm.valid">Please select a schema and store before importing into Polypheny.</p>
         </div>
         <div class="modal-footer">
