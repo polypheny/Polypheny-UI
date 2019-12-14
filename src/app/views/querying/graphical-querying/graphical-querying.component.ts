@@ -191,8 +191,17 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
           if (data['max']){
             sql += this.connectWheres() + col + ' <= ' + data['max'];
           }
-          if (data['check']){
-            sql += this.connectWheres() + col + '=' + '"' + data['check'] + '"';
+          if (data['check'].length > 0){
+            if (data['check'].length > 1){
+              let checkData = [];
+              for(let i = 0; i < data['check'].length; i++){
+                checkData[i] = '\'' + data['check'][i] + '\'';
+              }
+              sql += this.connectWheres() + col + ' IN ' + '(' + checkData + ')';
+              checkData = [];
+            }else{
+              sql += this.connectWheres() + col + '=' + '\'' + data['check'] + '\'';
+            }
           }
         }
       }
