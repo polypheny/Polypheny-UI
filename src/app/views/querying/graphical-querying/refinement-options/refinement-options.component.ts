@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {StatisticSet} from '../../../../components/data-table/models/result-set.model';
 import {StatisticRequest} from '../../../../models/ui-request.model';
 import {CrudService} from '../../../../services/crud.service';
@@ -14,6 +14,7 @@ export class RefinementOptionsComponent implements OnInit {
 
     statisticSet: StatisticSet;
     hasOptions = true;
+    _choosenTables = {};
     optionsOpen = false;
     hasFiter = false;
 
@@ -25,7 +26,13 @@ export class RefinementOptionsComponent implements OnInit {
 
     ngOnInit() {
         this.getStatistic();
+    }
 
+    @Input()
+    set choosenTables(choosenTables: {}){
+        this._choosenTables = choosenTables;
+        console.log('its working');
+        console.log(this._choosenTables);
     }
 
     getStatistic() {
@@ -39,29 +46,11 @@ export class RefinementOptionsComponent implements OnInit {
                 this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
             }
         );
-        /*let dummyResult:Object = {
-            'test.test.id':
-                {
-                    'name': 'id',
-                    'min': 1,
-                    'max': 10
-                },
-            'test.test.name':
-                {
-                    'name': 'name',
-                    'min': 11,
-                    'max': 333
-                }
-
-        };*/
-        //this.processStatistics(<StatisticSet>dummyResult);
     }
 
     includes(o: string[], name: string){
         return o.includes(name);
     }
-
-
 
     processStatistics(res: StatisticSet) {
         this.statisticSet = res;

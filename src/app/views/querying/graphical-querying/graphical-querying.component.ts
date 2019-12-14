@@ -23,6 +23,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   generatedSQL;
   resultSet: ResultSet;
   filterSet = new StatisticSet();
+  selectedColumn = {};
   loading = false;
   whereCounter = 0;
 
@@ -179,6 +180,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       sql += '\nWHERE ' + joinConditions.join(' AND ');
     }
 
+    //to only show filters for selected tables/cols
+    this.selectedCol(cols);
+
     //only for one table atm
     if (Object.keys(this.filterSet).length !== 0 && tables.length !== 0 && counter === 0){
       for (const col of cols){
@@ -195,22 +199,36 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             if (data['check'].length > 1){
               let checkData = [];
               for(let i = 0; i < data['check'].length; i++){
-                checkData[i] = '\'' + data['check'][i] + '\'';
+                if (isNaN(+data['check'][i])){
+                  checkData[i] = '\'' + data['check'][i] + '\'';
+                }else{
+                  checkData[i] = +data['check'][i];
+                }
               }
               sql += this.connectWheres() + col + ' IN ' + '(' + checkData + ')';
               checkData = [];
             }else{
-              sql += this.connectWheres() + col + '=' + '\'' + data['check'] + '\'';
+              if (isNaN(+data['check'])){
+                sql += this.connectWheres() + col + ' = ' + '\'' + data['check'] + '\'';
+              }else{
+                sql += this.connectWheres() + col + ' = ' +  +data['check'];
+              }
+
             }
           }
         }
       }
-      //sql += '\nWHERE ' + "test" + '<' + "4";
     }
-
     this.generatedSQL = sql;
     this.editorGenerated.setCode( sql );
+  }
 
+  selectedCol(col: {}){
+    this.selectedColumn = {
+      column: col
+    };
+    console.log('in my selectedCol');
+    console.log(this.selectedColumn);
   }
 
   connectWheres(){

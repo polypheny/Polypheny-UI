@@ -37,13 +37,14 @@
       <app-editor #editorGenerated></app-editor>
     </div>
 
-    <app-refinement-options (updateFilterSQL)="updatedFilter($event)"></app-refinement-options>
+    <app-refinement-options [choosenTables]="selectedColumn" (updateFilterSQL)="updatedFilter($event)"></app-refinement-options>
 
     <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
     <button *ngIf="loading" class="btn btn-primary" disabled>Loading</button>
   </div>
 
 </div>
+
 
 <hr *ngIf="resultSet">
 
