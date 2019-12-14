@@ -43,6 +43,8 @@ export class EditColumnsComponent implements OnInit {
   newIndexForm: FormGroup;
   indexSubmitted = false;
 
+  dataPlacements: ResultSet;
+
   constructor(
     private _route: ActivatedRoute,
     private _leftSidebar: LeftSidebarService,
@@ -69,6 +71,7 @@ export class EditColumnsComponent implements OnInit {
     this.getColumns();
     this.getConstraints();
     this.getIndexes();
+    this.getDataPlacements();
 
     this.documentListener();
   }
@@ -378,6 +381,21 @@ export class EditColumnsComponent implements OnInit {
     );
   }
 
+  getDataPlacements () {
+    this._crud.getDataPlacements( this.schema, this.table ).subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if(! result.error){
+          this.dataPlacements = result;
+        }else{
+          console.log(result.error);
+        }
+      }, err => {
+        console.log(err);
+      }
+    );
+  }
+
   dropIndex ( index: string, i ) {
     if (this.confirmIndex !== i) {
       this.confirmIndex = i;
@@ -418,9 +436,12 @@ export class EditColumnsComponent implements OnInit {
   }
 
   inputValidation(key){
-    if(this.indexSubmitted  && this.newIndexForm.controls[key].valid && this.newIndexForm.controls[key].dirty ){
+    if(this.newIndexForm.controls[key].value === ''){
+      return '';
+    }
+    else if(this.newIndexForm.controls[key].valid){
       return {'is-valid':true};
-    }else if(this.indexSubmitted  && !this.newIndexForm.controls[key].valid) {
+    }else {
       return {'is-invalid': true };
     }
   }

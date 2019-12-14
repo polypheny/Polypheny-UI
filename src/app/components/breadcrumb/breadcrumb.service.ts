@@ -10,11 +10,16 @@ export class BreadcrumbService implements OnInit, OnDestroy {
   //BehaviorSubjects: https://pillar-soft.com/2018/07/02/behavior-subjects-in-angular-6/
   breadcrumbs: BehaviorSubject<BreadcrumbItem[]> = new BehaviorSubject<BreadcrumbItem[]>([]);
   MAXCOLS = 10;
-  zoom = this.MAXCOLS - 2;
+  zoom: number;
 
   routerId;
 
-  constructor() { }
+  constructor() {
+    if( localStorage.getItem( 'breadcrumb.zoom' ) === null ) {
+      localStorage.setItem( 'breadcrumb.zoom', String(this.MAXCOLS - 2) );
+    }
+    this.zoom = +localStorage.getItem( 'breadcrumb.zoom' );
+  }
 
   ngOnInit() {}
 
@@ -22,16 +27,21 @@ export class BreadcrumbService implements OnInit, OnDestroy {
     this.breadcrumbs.next([]);
   }
 
+  private setZoom( zoom: number ){
+    this.zoom = zoom;
+    localStorage.setItem( 'breadcrumb.zoom', String(zoom) );
+  }
+
   zoomIn() {
     if (this.zoom < this.MAXCOLS) {
-      this.zoom++;
+      this.setZoom( this.zoom+1 );
     }
     return this.zoom;
   }
 
   zoomOut() {
     if (this.zoom > 1) {
-      this.zoom--;
+      this.setZoom( this.zoom-1 );
     }
     return this.zoom;
   }

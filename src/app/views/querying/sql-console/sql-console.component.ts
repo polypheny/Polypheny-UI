@@ -11,6 +11,7 @@ import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.
 import {InformationObject, InformationPage} from '../../../models/information-page.model';
 import {TreeNode } from 'angular-tree-component';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
+import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 
 @Component({
   selector: 'app-sql-console',
@@ -59,12 +60,14 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadAnalyzerPages();
     SqlHistory.fromJson( localStorage.getItem( 'sql-history' ), this.history );
+    this._breadcrumb.hide();
   }
 
   ngOnDestroy(){
     this._leftSidebar.close();
     this._crud.closeAnalyzer( this.analyzerId ).subscribe();
     this.websocketSubscription.unsubscribe();
+    this._breadcrumb.hide();
   }
 
   submitQuery () {
@@ -164,6 +167,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
       if( node.data.id === 'sql-console' ){
         //this.queryAnalysis = null;
         this.showingAnalysis = false;
+        this._breadcrumb.hide();
         node.setIsActive( true );
         return;
       }
@@ -175,6 +179,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
           res => {
             this.queryAnalysis = <InformationPage> res;
             this.showingAnalysis = true;
+            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Query analysis')]);
             node.setIsActive(true);
           }, err => {
             console.log(err);

@@ -53,4 +53,13 @@ export class RenderItemComponent implements OnInit {
     }
   }
 
+  getCodeHeight(){
+    if( ! this.li.code ){
+      return '20px';
+    } else {
+      const numberOfLines = this.li.code.match( /\n/g ).length;
+      return numberOfLines*16 + 60 + 'px';
+    }
+  }
+
 }

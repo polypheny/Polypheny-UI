@@ -67,12 +67,14 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       const node = new Node( id, event.item.data, x, y);
       if( event.item.data === 'TableScan' ){
         const ac = [];
-        this.autocomplete.schemas.forEach( (v1, i1) => {
-          this.autocomplete[v1].tables.forEach( (v2, i2) => {
-            ac.push( v1 + '.' + v2 );
+        if( this.autocomplete ){
+          this.autocomplete.schemas.forEach( (v1, i1) => {
+            this.autocomplete[v1].tables.forEach( (v2, i2) => {
+              ac.push( v1 + '.' + v2 );
+            });
           });
-        });
-        node.setAutocomplete( ac );
+          node.setAutocomplete( ac );
+        }
       }
       this.nodes.set( id, node );
     }
@@ -98,6 +100,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         const y = $(e.target).parents('.node').parent().position().top;
         self.temporalLine = {x1: x, x2: x, y1: y, y2: y};
         source = $(e.target).parents('.node').attr('id');
+        e.preventDefault();
     }).on('mousemove', function(e){
       if( isDragging){
         e.preventDefault();
@@ -187,6 +190,9 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
    * The the topmost node and perform a bottomUp iteration to setup the autocomplete for all nodes
    */
   setAutocomplete() {
+    if( this.autocomplete === undefined ) {
+      return;
+    }
     const tree = this.getTree();
     if( tree !== undefined ){
       this.bottomUp(tree);
@@ -249,22 +255,21 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     }
     else if ( node.type === LogicalOperator.Project ){
       node = this.getFromChildren( node );
-      if( node.fields === undefined ){
-        return node;
-      }
-      const fields = node.fields.split(/[\s]*,[\s]*/);
       for( const col of getNode().getAcColumns() ){
         let contains = false;
-        for ( const f of fields ){
+        for ( const f of node.fields ){
           if( f.split('\.')[1] === col ) contains = true;
         }
         if( ! contains ) getNode().getAcColumns().delete( col );
       }
+      const ac = [];
       for( const tCol of getNode().getAcTableColumns() ){
-        if( ! fields.includes( tCol ) ){
+        ac.push(tCol);
+        if( ! node.fields.includes( tCol ) ){
           getNode().getAcTableColumns().delete( tCol );
         }
       }
+      getNode().setAutocomplete(ac);
     } else { // all other nodes
       node = this.getFromChildren( node );
     }
@@ -466,7 +471,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     if( inputObj.nodes ){
       const importedNodes = new Map<string, Node>();
       for( const [k, v] of Object.entries( inputObj.nodes )){
-        importedNodes.set( v[0], Node.fromJson( v[1] ));
+        importedNodes.set( v[0], Node.fromJson( v[1], this.dropArea.nativeElement.offsetWidth, this.dropArea.nativeElement.offsetHeight ));
       }
       this.nodes = importedNodes;
       this.counter = importedNodes.size;

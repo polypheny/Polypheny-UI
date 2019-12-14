@@ -34,7 +34,7 @@
       </li>
       <li class="param list-group-item">
         <div class="param-wrapper">
-          <label for="{{node.id}}joinOperator">operator</label>
+          <label for="{{node.id}}joinOperator">Operator</label>
           <select name="operator" id="{{node.id}}joinOperator" class="form-control form-control-sm param-input" [(ngModel)]="node.operator">
             <option value="=">=</option>
             <option value="<>">&lt;&gt;</option>
@@ -52,7 +52,7 @@
             id="{{node.id}}col1"
             [data]="getAcTableCols()"
             [(ngModel)]="node.col1"
-            placeHolder="column 1"
+            placeHolder="table.column"
             [searchKeyword]="node.col1"
             [itemTemplate]="itemTemplate"
             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -65,7 +65,7 @@
             id="{{node.id}}col2"
             [data]="getAcTableCols()"
             [(ngModel)]="node.col2"
-            placeHolder="column 2"
+            placeHolder="table.column"
             [searchKeyword]="node.col2"
             [itemTemplate]="itemTemplate"
             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -88,7 +88,7 @@
         </div>
       <li class="param list-group-item">
         <div class="param-wrapper">
-          <label for="{{node.id}}filterField">field</label>
+          <label for="{{node.id}}filterField">Field</label>
           <ng-autocomplete
             id="{{node.id}}filterField"
             [data]="getAcTableCols()"
@@ -101,17 +101,27 @@
       </li>
       <li class="param list-group-item">
         <div class="param-wrapper">
-          <label for="{{node.id}}filter">filter</label>
+          <label for="{{node.id}}filter">Filter</label>
           <input type="text" placeholder="filter value" id="{{node.id}}filter" name="filter" class="form-control form-control-sm param-input" [(ngModel)]="node.filter">
         </div>
       </li>
     </ng-container>
 
     <ng-container *ngSwitchCase="'Project'">
-      <li class="param list-group-item">
-        <div class="param-wrapper">
-          <label for="{{node.id}}fields">fields</label>
-          <input type="text" placeholder="column1, column2" id="{{node.id}}fields" name="fields" class="form-control form-control-sm param-input" [(ngModel)]="node.fields" (focusout)="autocompleteChange()">
+      <li class="param list-group-item" style="text-align: center">
+        <a [routerLink]="[]" class="text-secondary" (click)="addProjectionColumn()">+ add column</a>
+      </li>
+      <li class="list-group-item">
+        <div class="param-wrapper sort-wrapper" *ngFor="let field of node.fields | keyvalue; let index = index; trackBy: trackFields">
+          <ng-autocomplete
+            [data]="node.autocomplete"
+            [(ngModel)]="node.fields[index]"
+            (inputChanged)="autocompleteChange()"
+            placeHolder="table.column"
+            [searchKeyword]="node.fields[index]"
+            [itemTemplate]="itemTemplate"
+            [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
+          <i class="fa fa-close sort-remove" (click)="removeProjectionColumn( field.key )"></i>
         </div>
       </li>
     </ng-container>
@@ -119,7 +129,7 @@
     <ng-container *ngSwitchCase="'Aggregate'">
       <li class="param list-group-item">
         <div class="param-wrapper">
-          <label for="{{node.id}}groupBy">group by</label>
+          <label for="{{node.id}}groupBy">Group By</label>
           <ng-autocomplete
             id="{{node.id}}groupBy"
             [data]="getAcCols()"
@@ -133,17 +143,19 @@
       </li>
       <li class="param list-group-item">
         <div class="param-wrapper">
-          <label for="{{node.id}}aggregation">aggregation</label>
+          <label for="{{node.id}}aggregation">Function</label>
           <select name="aggregation" id="{{node.id}}aggregation" class="form-control form-control-sm param-input" [(ngModel)]="node.aggregation">
             <option value="SUM">SUM</option>
             <option value="COUNT">COUNT</option>
-            <!--<option value="AVG">AVG</option>-->
+            <option value="AVG">AVG</option>
+            <option value="MIN">MIN</option>
+            <option value="MAX">MAX</option>
           </select>
         </div>
       </li>
       <li class="param list-group-item">
         <div class="param-wrapper">
-          <label for="{{node.id}}field">field</label>
+          <label for="{{node.id}}field">Field</label>
           <ng-autocomplete
             id="{{node.id}}field"
             [data]="getAcTableCols()"
@@ -157,7 +169,7 @@
       </li>
       <li class="param list-group-item">
         <div class="param-wrapper">
-          <label for="{{node.id}}as">as</label>
+          <label for="{{node.id}}as">As</label>
           <input type="text" placeholder="alias" id="{{node.id}}as" name="as" class="form-control form-control-sm param-input" [(ngModel)]="node.alias">
         </div>
       </li>
@@ -195,6 +207,13 @@
       <div class="param-wrapper">
         <label for="{{node.id}}exceptAll">except all</label>
         <input type="checkbox" id="{{node.id}}exceptAll" name="all" class="form-control form-control-sm param-input" [(ngModel)]="node.all">
+      </div>
+    </li>
+
+    <li class="param list-group-item" *ngSwitchCase="'Intersect'">
+      <div class="param-wrapper">
+        <label for="{{node.id}}intersectAll">intersect all</label>
+        <input type="checkbox" id="{{node.id}}intersectAll" name="all" class="form-control form-control-sm param-input" [(ngModel)]="node.all">
       </div>
     </li>
 

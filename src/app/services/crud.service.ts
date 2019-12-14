@@ -180,6 +180,15 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/createIndex`, index, this.httpOptions);
   }
 
+
+  /**
+   * Get data placement information
+   */
+  getDataPlacements( schema: string, table: string ){
+    const index = new Index( schema, table, '', '', [] );
+    return this._http.post(`${this.httpUrl}/getPlacements`, index, this.httpOptions);
+  }
+
   /**
    * Get information for the Uml view, such as
    * the list of all tables of a schema with their columns
@@ -267,13 +276,17 @@ export class CrudService {
     return `Please provide a valid ${type}name`;
   }
 
+  getValidationRegex(){
+    return new RegExp( '^[a-zA-Z_][a-zA-Z0-9_]*$' );
+  }
+
   nameIsValid( name: string ) {
-    const regex = new RegExp( '^[a-zA-Z_][a-zA-Z0-9_]*$' );
+    const regex = this.getValidationRegex();
     return regex.test( name ) && name.length <= 100;
   }
 
   getValidationClass( name: string ){
-    const regex = new RegExp( '^[a-zA-Z_][a-zA-Z0-9_]*$' );
+    const regex = this.getValidationRegex();
     if( name === '' ){
       return '';
     }

@@ -8,13 +8,13 @@ export enum LogicalOperator {
   Aggregate = 'Aggregate',
   Sort = 'Sort',
   Union = 'Union',
-  Minus = 'Minus'
+  Minus = 'Minus',
+  Intersect = 'Intersect'
 
   /*
   Calc,
   Correlate,
   Exchange,
-  Intersect,
   Match,
   SortExchange,
   TableFunctionScan,
@@ -61,7 +61,7 @@ export class Node{
   filter: string;
 
   //project
-  fields: string;
+  fields: string[] = [''];
 
   //aggregate
   groupBy: string;
@@ -72,8 +72,8 @@ export class Node{
   //sort
   sortColumns: SortState[] = [new SortState()];
 
-  //union
-  all: boolean;
+  //union, minus, intersect
+  all = false;
 
   constructor(
     public id: string,
@@ -83,7 +83,7 @@ export class Node{
   ){
     this.dragging = false;
   }
-  static fromJson( o: any ){
+  static fromJson( o: any, width: number, height: number ){
     const n = new Node( o.id, o.type, o.left, o.top );
     for( const [key, val] of Object.entries(o) ){
       n[key] = o[key];
@@ -97,6 +97,10 @@ export class Node{
         n[s] = new Set<string>();
       }
     }
+    //make sure, it is in the working area
+    if( n.left > width ) n.left = width - 260;
+    if( n.top > height ) n.top = height - 100;
+
     return n;
   }
   getId(){
