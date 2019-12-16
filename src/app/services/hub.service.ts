@@ -9,7 +9,7 @@ export class HubService {
 x
   hubUrl = this._settings.getConnection('hub.url');
   //httpUrl = this._settings.getConnection('crud.rest');
-  //httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
+  httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
   constructor( private _http:HttpClient, private _settings: WebuiSettingsService ) { }
 
