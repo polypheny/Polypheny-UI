@@ -159,7 +159,10 @@
           </thead>
           <tbody>
           <tr *ngFor="let row of datasets.data | keyvalue">
-            <td>{{row.value[0]}}</td>
+            <td>
+              {{row.value[0]}}
+              <i class="fa fa-globe public" *ngIf="_hub.getSecret() && row.value[2] === '1'"></i>
+            </td>
             <td>{{row.value[5]}}</td>
             <td>{{row.value[1] | date:'dd.MM.yyyy - HH:mm'}}</td>
             <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value[4])"></i></td>
