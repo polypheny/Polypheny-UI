@@ -1,31 +1,46 @@
-<div class="refinement-button">
+<!--<div class="refinement-button">
     <button *ngIf="hasOptions && !optionsOpen" class="btn btn-primary" (click)="toggleOptions()">filter options</button>
     <button *ngIf="hasOptions && optionsOpen" class="btn btn-primary" (click)="toggleOptions()">close options</button>
 </div>
 
 
-<div *ngIf="optionsOpen" class="more-options">
+<div *ngIf="optionsOpen" class="more-options">-->
 
-    <div *ngFor="let entry of statisticSet | keyvalue">
-        <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'range') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
-            <h5>{{entry.key}}</h5>
-            <ng5-slider [(value)]="entry.value['min']"
-                        [(highValue)]="entry.value['max']" [options]="entry.value['options']"
-                        (userChangeEnd)="updateMinMax($event, entry.key)"></ng5-slider>
-        </div>
-        <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
-            <h5>{{entry.key}}</h5>
-            <div *ngFor="let val of entry.value['options']['uniqueValues']">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" (click)="updateCheck(val, entry.key)">
-                    <label class="form-check-label" for="defaultCheck1">
-                        {{val}}
-                    </label>
-                </div>
-            </div>
+<div *ngFor="let entry of statisticSet | keyvalue">
+
+    <div *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
+        <h5>Sort: {{entry.key}}</h5>
+        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <label class="btn btn-secondary active">
+                <input type="radio" name="options" id="option1" autocomplete="off"  checked (click)="sortOff($event , entry.key)" > off
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio" name="options" id="option2" autocomplete="off" (click)="sortAscending($event , entry.key)"> ascending
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio" name="options" id="option3" autocomplete="off" (click)="sortDescending($event, entry.key)"> descending
+            </label>
         </div>
     </div>
 
+    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'range') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
+        <h5>{{entry.key}}</h5>
+        <ng5-slider [(value)]="entry.value['min']"
+                    [(highValue)]="entry.value['max']" [options]="entry.value['options']"
+                    (userChangeEnd)="updateMinMax($event, entry.key)"></ng5-slider>
+    </div>
+    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
+        <h5>{{entry.key}}</h5>
+        <div *ngFor="let val of entry.value['options']['uniqueValues']">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" (click)="updateCheck(val, entry.key)">
+                <label class="form-check-label" for="defaultCheck1">
+                    {{val}}
+                </label>
+            </div>
+        </div>
+    </div>
 </div>
+<!--</div>-->
 
 

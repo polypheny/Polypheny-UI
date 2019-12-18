@@ -108,9 +108,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     console.log(update);
 
     if(update['updateType'] === 'minmax'){
-      console.log('im in first minmax');
-      console.log(update);
-      console.log(update['updateType']);
         if (this.filterSet.hasOwnProperty(update['name'])) {
             this.filterSet[update['name']]['min'] = update['event']['value'];
             this.filterSet[update['name']]['max'] = update['event']['highValue'];
@@ -119,7 +116,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 min: update['event']['value'],
                 max: update['event']['highValue'],
                 type: [],
-                check: []
+                check: [],
+                sort: ''
             };
         }
     }
@@ -136,9 +134,23 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 min: null,
                 max: null,
                 type: [],
-                check: [update['event']]
+                check: [update['event']],
+                sort: ''
             };
         }
+    }
+    if(update['updateType'] === 'DESC' || update['updateType'] === 'ASC' || update['updateType'] === 'OFF'){
+      if(this.filterSet.hasOwnProperty(update['name'])){
+          this.filterSet[update['name']]['sort'] = update['updateType'];
+      } else{
+        this.filterSet[update['name']] = {
+          min: null,
+          max: null,
+          type: [],
+          check: [],
+          sort: update['updateType']
+        };
+      }
     }
 
 
@@ -186,7 +198,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     //only for one table atm
     if (Object.keys(this.filterSet).length !== 0 && tables.length !== 0 && counter === 0){
       for (const col of cols){
-        console.log(col);
         if(this.filterSet[col]){
           const data = this.filterSet[col];
           if (data['min']){
@@ -196,24 +207,29 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             sql += this.connectWheres() + col + ' <= ' + data['max'];
           }
           if (data['check'].length > 0){
-            if (data['check'].length > 1){
-              let checkData = [];
-              for(let i = 0; i < data['check'].length; i++){
-                if (isNaN(+data['check'][i])){
-                  checkData[i] = '\'' + data['check'][i] + '\'';
-                }else{
-                  checkData[i] = +data['check'][i];
+              if (data['check'].length > 1){
+                let checkData = [];
+                for(let i = 0; i < data['check'].length; i++){
+                  if (isNaN(+data['check'][i])){
+                    checkData[i] = '\'' + data['check'][i] + '\'';
+                  }else{
+                    checkData[i] = +data['check'][i];
+                  }
                 }
-              }
-              sql += this.connectWheres() + col + ' IN ' + '(' + checkData + ')';
-              checkData = [];
-            }else{
-              if (isNaN(+data['check'])){
-                sql += this.connectWheres() + col + ' = ' + '\'' + data['check'] + '\'';
+                sql += this.connectWheres() + col + ' IN ' + '(' + checkData + ')';
+                checkData = [];
               }else{
-                sql += this.connectWheres() + col + ' = ' +  +data['check'];
-              }
+                if (isNaN(+data['check'])){
+                  sql += this.connectWheres() + col + ' = ' + '\'' + data['check'] + '\'';
+                }else{
+                  sql += this.connectWheres() + col + ' = ' +  +data['check'];
+                }
 
+            }
+          }
+          if(!(data['sort'] === 'OFF')){
+            if(data['sort'] === 'ASC' || data['sort'] === 'DESC'){
+              sql += '\nORDER BY ' + col +  ' ' + data['sort'];
             }
           }
         }
@@ -227,15 +243,13 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.selectedColumn = {
       column: col
     };
-    console.log('in my selectedCol');
-    console.log(this.selectedColumn);
   }
 
   connectWheres(){
     if(this.whereCounter === 0){
       this.whereCounter += 1;
       return "\nWHERE ";
-    }else {
+    } else {
       return "\nAND ";
     }
   }

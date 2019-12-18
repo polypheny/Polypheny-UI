@@ -31,16 +31,12 @@ export class RefinementOptionsComponent implements OnInit {
     @Input()
     set choosenTables(choosenTables: {}){
         this._choosenTables = choosenTables;
-        console.log('its working');
-        console.log(this._choosenTables);
     }
 
     getStatistic() {
         console.log('getStatistics');
         this._crud.allStatistics(new StatisticRequest()).subscribe(
             res => {
-                console.log('response received');
-                console.log(res);
                 this.processStatistics(<StatisticSet>res);
             }, err => {
                 this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
@@ -120,6 +116,28 @@ export class RefinementOptionsComponent implements OnInit {
         this.updateFilterSQL.emit(updated);
     }
 
+    sortAscending(event: Object, name: String){
+        console.log('sort ascending');
+        const updateType = 'ASC';
+        const updated = {name, event, updateType};
+        console.log(updated);
+        this.updateFilterSQL.emit(updated);
+    }
+    sortDescending(event: Object, name: String){
+        console.log('sort descending');
+        const updateType = 'DESC';
+        const updated = {name, event, updateType};
+        console.log(updated);
+        this.updateFilterSQL.emit(updated);
+    }
+
+    sortOff(event: Object, name: String){
+        console.log('sort descending');
+        const updateType = 'OFF';
+        const updated = {name, event, updateType};
+        console.log(updated);
+        this.updateFilterSQL.emit(updated);
+    }
 
     /**
      * Toggle visability of additonal refinement options
