@@ -13,6 +13,7 @@ import {SidebarNode} from '../../../models/sidebar-node.model';
 import {Ace} from "ace-builds";
 import execEventHandler = Ace.execEventHandler;
 import {WebSocketService} from "../../../services/web-socket.service";
+// import {ChatService} from "../../../services/chat.service";
 
 @Component({
   selector: 'app-relational-algebra',
@@ -40,9 +41,10 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   dropMouseY: number;
 
   constructor(
-    private _crud: CrudService,
-    private _toast: ToastService,
-    private _webSocketService: WebSocketService
+      private _crud: CrudService,
+      private _toast: ToastService,
+      private _webSocketService: WebSocketService,
+      //private _chat: ChatService
   ) { }
 
   ngOnInit() {
@@ -632,11 +634,16 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
     }
   }
+
+
   makeSocketConnection(){
     //let socket = io.connect('http://localhost:1234');
-    console.log('connecting to server');
+    // console.log('connecting to server');
+    // this._chat.messages.subscribe(msg => {
+    //   console.log(msg);
+    // })
 
-    this._webSocketService.listen('test event').subscribe((data) => {
+    this._webSocketService.listen('my_message').subscribe((data) => {
       console.log(data);
     });
 

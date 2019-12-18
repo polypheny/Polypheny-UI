@@ -10,19 +10,16 @@ export class WebSocketService {
   socket: any;
 
   constructor() {
-    this.socket = io('ws://localhost:5000');
+    this.socket = io('ws://localhost:4999');
   }
 
 
   listen(eventName: string) {
     return new Observable((subscriber) => {
       this.socket.on(eventName, (data) => {
+        console.log(data);
         subscriber.next(data);
       })
     });
   }
-  emit(eventName: string, data: any){
-    this.socket.emit(eventName,data);
-  }
-
 }
