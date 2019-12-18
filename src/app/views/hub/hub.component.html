@@ -149,8 +149,9 @@
         <table class="table table-hover table-sm table-bordered table-striped" *ngIf="datasets && datasets.data && datasets.data.length > 0">
           <thead>
           <tr>
-            <th>name</th>
-            <th>uploaded</th>
+            <th>Dataset</th>
+            <th>Owner</th>
+            <th>Uploaded</th>
             <th class="iconColumn"><i class="cui-cloud-download"></i></th>
             <th class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil"></i></th>
             <th class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-trash"></i></th>
@@ -159,6 +160,7 @@
           <tbody>
           <tr *ngFor="let row of datasets.data | keyvalue">
             <td>{{row.value[0]}}</td>
+            <td>{{row.value[5]}}</td>
             <td>{{row.value[1] | date:'dd.MM.yyyy - HH:mm'}}</td>
             <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value[4])"></i></td>
             <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value[3])" (click)="initEditDataset(row.key)"></i></td>

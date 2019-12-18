@@ -333,7 +333,7 @@ export class HubComponent implements OnInit, OnDestroy {
   initEditDataset( key: number ){
     this.editDatasetModal.show();
     this.editDsName = this.datasets.data[key][0];
-    this.editDsPublic = <boolean><unknown> this.datasets.data[key][2];
+    this.editDsPublic = Boolean(+this.datasets.data[key][2]).valueOf();
     this.editDsId = +this.datasets.data[key][3];
   }
 

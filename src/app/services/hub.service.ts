@@ -95,7 +95,7 @@ export class HubService {
   }
 
   editDataset( dsId:number, name: string, pub:boolean ){
-    const body = {userId: this.getId(), secret: this.getSecret(), dsId: dsId, name: name, pub: pub, action: 'editDataset'};
+    const body = {userId: this.getId(), secret: this.getSecret(), dsId: dsId, name: name, pub: +pub, action: 'editDataset'};
     return this._http.post(this.hubUrl, this.toFormData(body));
   }
 
