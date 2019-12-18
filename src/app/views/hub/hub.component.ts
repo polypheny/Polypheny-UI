@@ -11,7 +11,6 @@ import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {CrudService} from '../../services/crud.service';
 import {SchemaRequest} from '../../models/ui-request.model';
 import {SidebarNode} from '../../models/sidebar-node.model';
-import {ResultSet} from '../../components/data-table/models/result-set.model';
 import {Store} from '../stores/store.model';
 
 @Component({

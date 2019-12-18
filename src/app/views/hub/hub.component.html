@@ -191,7 +191,7 @@
             <label for="importIntoStore" class="mr-2">Select store</label>
             <select id="importIntoStore" class="form-control" formControlName="store">
               <option value="">choose</option>
-              <option *ngFor="let s of availableStores" [value]="s.adapterName">{{s.adapterName}}</option>
+              <option *ngFor="let s of availableStores" [value]="s.uniqueName">{{s.uniqueName}}</option>
             </select>
           </div>
           <div class="form-inline mb-3">
