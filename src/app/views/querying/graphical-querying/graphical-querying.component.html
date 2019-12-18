@@ -8,14 +8,14 @@
       <div class="input-group-prepend">
         <span class="input-group-text">select</span>
       </div>
-      <div class="form-control fit" id="selectBox"></div>
+      <div class="form-control" id="selectBox"></div>
     </div>
 
     <div class="input-group mb-3">
       <div class="input-group-prepend">
         <span class="input-group-text">from</span>
       </div>
-      <div class="form-control fit" id="fromBox">
+      <div class="form-control" id="fromBox">
         <span *ngFor="let t of tables | keyvalue" class="badge badge-secondary dbTable">{{t.key}}</span>
       </div>
     </div>
@@ -24,7 +24,7 @@
       <div class="input-group-prepend">
         <span class="input-group-text">join<br>conditions</span>
       </div>
-      <div class="form-control fit" id="joinConditionBox">
+      <div class="form-control" id="joinConditionBox">
         <ng-container *ngFor="let con of joinConditions | keyvalue">
           <input type="checkbox" [(ngModel)]="con.value.active" [id]="con.key" (click)="toggleCondition(con.value)"><label [for]="con.key">&nbsp;{{con.value.condition}}</label><br>
         </ng-container>

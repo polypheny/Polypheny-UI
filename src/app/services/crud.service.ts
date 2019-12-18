@@ -166,6 +166,15 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/createIndex`, index, this.httpOptions);
   }
 
+
+  /**
+   * Get data placement information
+   */
+  getDataPlacements( schema: string, table: string ){
+    const index = new Index( schema, table, '', '', [] );
+    return this._http.post(`${this.httpUrl}/getPlacements`, index, this.httpOptions);
+  }
+
   /**
    * Get information for the Uml view, such as
    * the list of all tables of a schema with their columns

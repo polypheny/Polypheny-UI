@@ -635,7 +635,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-
   makeSocketConnection(){
     //let socket = io.connect('http://localhost:1234');
     // console.log('connecting to server');
@@ -644,7 +643,14 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     // })
 
     this._webSocketService.listen('my_message').subscribe((data) => {
+    interface NetNode{
+      name: string;
+    }
       console.log(data);
+      console.log(JSON.stringify(data));
+      let netNode: NetNode = JSON.parse(JSON.stringify(data));
+      console.log(netNode.name)
+      this.stringToNodes(netNode.name)
     });
 
 

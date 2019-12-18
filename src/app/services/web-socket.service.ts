@@ -13,7 +13,6 @@ export class WebSocketService {
     this.socket = io('ws://localhost:4999');
   }
 
-
   listen(eventName: string) {
     return new Observable((subscriber) => {
       this.socket.on(eventName, (data) => {
