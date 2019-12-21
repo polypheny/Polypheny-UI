@@ -40,6 +40,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   dropMouseX: number;
   dropMouseY: number;
 
+  private lastNode = null;
+
   constructor(
       private _crud: CrudService,
       private _toast: ToastService,
@@ -470,10 +472,12 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
    */
   importTree(){
     const input = prompt('Please paste your plan here.');
+    console.log(input)
     if(input === null || input === '' ){
       return;
     }
     const inputObj = JSON.parse( input );
+    console.log(inputObj.nodes)
     if( inputObj.nodes ){
       const importedNodes = new Map<string, Node>();
       for( const [k, v] of Object.entries( inputObj.nodes )){
@@ -579,10 +583,12 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     const node = new Node(id, operator,0,0)
     this.nodes.set(id,node);
 
-    this.formatNodesTree()
+    //this.formatNodesTree()
 
 
     this.treeHeight()
+
+    return node;
 
   }
 
@@ -643,17 +649,45 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     // })
 
     this._webSocketService.listen('my_message').subscribe((data) => {
-    interface NetNode{
-      name: string;
-    }
-      console.log(data);
-      console.log(JSON.stringify(data));
-      let netNode: NetNode = JSON.parse(JSON.stringify(data));
-      console.log(netNode.name)
-      this.stringToNodes(netNode.name)
+      if (data.toString().startsWith("{")){
+        this.insertNode(data)}
+      this.formatNodesTree()
+
     });
 
 
+  }
+
+  insertNode(data) {
+   this.parseJson(data)
+  }
+
+  parseJson(data){
+    const input = data;
+    if(input === null || input === '' ){
+      console.log("invalid")
+      return;
+    }
+    const inputObj = JSON.parse(data)
+    console.log("LOG:", inputObj)
+    console.log(inputObj.nodes)
+    if( inputObj.nodes ){
+      const importedNodes = new Map<string, Node>();
+      for( const [k, v] of Object.entries( inputObj.nodes )){
+        console.log("for")
+        importedNodes.set( v[0], Node.fromJson( v[1], this.dropArea.nativeElement.offsetWidth, this.dropArea.nativeElement.offsetHeight ));
+      }
+      this.nodes = importedNodes;
+      this.counter = importedNodes.size;
+    }
+    if( inputObj.connections ){
+      const importedConnections = new Map<string, Connection>();
+      for( const conn of Object.values( inputObj.connections )){
+        importedConnections.set( conn[0], {id: conn[1].id, source: this.nodes.get(conn[1].source.id), target: this.nodes.get(conn[1].target.id)} );
+      }
+      this.connections = importedConnections;
+    }
+    this.setAutocomplete();
   }
 
 

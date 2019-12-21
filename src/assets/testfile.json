@@ -4,9 +4,9 @@
       "node0",
       {
         "id": "node0",
-        "type": "Sort",
-        "left": 454,
-        "top": 211,
+        "type": "Join",
+        "left": 384,
+        "top": 45,
         "children": [],
         "inputCount": 0,
         "acColumns": {},
@@ -29,10 +29,209 @@
         ],
         "all": false,
         "dragging": false,
-        "height": 361,
-        "width": 297
+        "height": 232,
+        "width": 260
+      }
+    ],
+    [
+      "node1",
+      {
+        "id": "node1",
+        "type": "Sort",
+        "left": 202,
+        "top": 320,
+        "children": [],
+        "inputCount": 0,
+        "acColumns": {},
+        "acTableColumns": {},
+        "acSchema": {},
+        "acTable": {},
+        "zIndex": 1,
+        "join": "INNER",
+        "operator": "=",
+        "fields": [
+          ""
+        ],
+        "aggregation": "SUM",
+        "sortColumns": [
+          {
+            "direction": "DESC",
+            "sorting": false,
+            "column": ""
+          }
+        ],
+        "all": false,
+        "dragging": false,
+        "height": 134,
+        "width": 260
+      }
+    ],
+    [
+      "node2",
+      {
+        "id": "node2",
+        "type": "Project",
+        "left": 597,
+        "top": 322,
+        "children": [],
+        "inputCount": 0,
+        "acColumns": {},
+        "acTableColumns": {},
+        "acSchema": {},
+        "acTable": {},
+        "zIndex": 1,
+        "join": "INNER",
+        "operator": "=",
+        "fields": [
+          ""
+        ],
+        "aggregation": "SUM",
+        "sortColumns": [
+          {
+            "direction": "DESC",
+            "sorting": false,
+            "column": ""
+          }
+        ],
+        "all": false,
+        "dragging": false,
+        "height": 134,
+        "width": 260
       }
     ]
   ],
-  "connections": []
+  "connections": [
+    [
+      "node1node0",
+      {
+        "id": "node1node0",
+        "source": {
+          "id": "node1",
+          "type": "Sort",
+          "left": 202,
+          "top": 320,
+          "children": [],
+          "inputCount": 0,
+          "acColumns": {},
+          "acTableColumns": {},
+          "acSchema": {},
+          "acTable": {},
+          "zIndex": 1,
+          "join": "INNER",
+          "operator": "=",
+          "fields": [
+            ""
+          ],
+          "aggregation": "SUM",
+          "sortColumns": [
+            {
+              "direction": "DESC",
+              "sorting": false,
+              "column": ""
+            }
+          ],
+          "all": false,
+          "dragging": false,
+          "height": 134,
+          "width": 260
+        },
+        "target": {
+          "id": "node0",
+          "type": "Join",
+          "left": 384,
+          "top": 45,
+          "children": [],
+          "inputCount": 0,
+          "acColumns": {},
+          "acTableColumns": {},
+          "acSchema": {},
+          "acTable": {},
+          "zIndex": 1,
+          "join": "INNER",
+          "operator": "=",
+          "fields": [
+            ""
+          ],
+          "aggregation": "SUM",
+          "sortColumns": [
+            {
+              "direction": "DESC",
+              "sorting": false,
+              "column": ""
+            }
+          ],
+          "all": false,
+          "dragging": false,
+          "height": 232,
+          "width": 260
+        }
+      }
+    ],
+    [
+      "node2node0",
+      {
+        "id": "node2node0",
+        "source": {
+          "id": "node2",
+          "type": "Project",
+          "left": 597,
+          "top": 322,
+          "children": [],
+          "inputCount": 0,
+          "acColumns": {},
+          "acTableColumns": {},
+          "acSchema": {},
+          "acTable": {},
+          "zIndex": 1,
+          "join": "INNER",
+          "operator": "=",
+          "fields": [
+            ""
+          ],
+          "aggregation": "SUM",
+          "sortColumns": [
+            {
+              "direction": "DESC",
+              "sorting": false,
+              "column": ""
+            }
+          ],
+          "all": false,
+          "dragging": false,
+          "height": 134,
+          "width": 260
+        },
+        "target": {
+          "id": "node0",
+          "type": "Join",
+          "left": 384,
+          "top": 45,
+          "children": [],
+          "inputCount": 0,
+          "acColumns": {},
+          "acTableColumns": {},
+          "acSchema": {},
+          "acTable": {},
+          "zIndex": 1,
+          "join": "INNER",
+          "operator": "=",
+          "fields": [
+            ""
+          ],
+          "aggregation": "SUM",
+          "sortColumns": [
+            {
+              "direction": "DESC",
+              "sorting": false,
+              "column": ""
+            }
+          ],
+          "all": false,
+          "dragging": false,
+          "height": 232,
+          "width": 260
+        }
+      }
+    ]
+  ]
 }
