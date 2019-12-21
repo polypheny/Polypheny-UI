@@ -29,7 +29,9 @@
                     [(highValue)]="entry.value['max']" [options]="entry.value['options']"
                     (userChangeEnd)="updateMinMax($event, entry.key)"></ng5-slider>
     </div>
-    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
+
+    <!-- add && entry.value['isFull'] == false as soon as isFull is working -->
+    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key ) && entry.value['options']['uniqueValues'].length < 4">
         <h5>{{entry.key}}</h5>
         <div *ngFor="let val of entry.value['options']['uniqueValues']">
             <div class="form-check">
@@ -40,6 +42,18 @@
             </div>
         </div>
     </div>
+
+    <!-- add && entry.value['isFull'] == true as soon as isFull is working -->
+    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key) && entry.value['options']['uniqueValues'].length > 3 ">
+        <h5>Find: {{entry.key}}</h5>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">starts with</span>
+                </div>
+                <input type="text" class="form-control" placeholder="starts with" aria-label="starts with" aria-describedby="basic-addon1" >
+            </div>
+    </div>
+
 </div>
 <!--</div>-->
 

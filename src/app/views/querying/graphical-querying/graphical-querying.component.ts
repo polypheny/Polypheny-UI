@@ -195,48 +195,80 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     //to only show filters for selected tables/cols
     this.selectedCol(cols);
 
-    //only for one table atm
+    //statements for the different filter options
+    let sqlMinMax = '';
+    let sqlCheckbox = '';
+    let sqlSort = '';
+
     if (Object.keys(this.filterSet).length !== 0 && tables.length !== 0 && counter === 0){
       for (const col of cols){
         if(this.filterSet[col]){
           const data = this.filterSet[col];
-          if (data['min']){
-            sql += this.connectWheres() + col + ' >= ' + data['min'];
-          }
-          if (data['max']){
-            sql += this.connectWheres() + col + ' <= ' + data['max'];
-          }
-          if (data['check'].length > 0){
-              if (data['check'].length > 1){
-                let checkData = [];
-                for(let i = 0; i < data['check'].length; i++){
-                  if (isNaN(+data['check'][i])){
-                    checkData[i] = '\'' + data['check'][i] + '\'';
-                  }else{
-                    checkData[i] = +data['check'][i];
-                  }
-                }
-                sql += this.connectWheres() + col + ' IN ' + '(' + checkData + ')';
-                checkData = [];
-              }else{
-                if (isNaN(+data['check'])){
-                  sql += this.connectWheres() + col + ' = ' + '\'' + data['check'] + '\'';
-                }else{
-                  sql += this.connectWheres() + col + ' = ' +  +data['check'];
-                }
 
-            }
-          }
-          if(!(data['sort'] === 'OFF')){
-            if(data['sort'] === 'ASC' || data['sort'] === 'DESC'){
-              sql += '\nORDER BY ' + col +  ' ' + data['sort'];
-            }
-          }
+          sqlMinMax += this.selectMinMax(data, col);
+          sqlCheckbox += this.selectCheckbox(data, col);
+          sqlSort += this.selectSort(data, col, sqlSort);
         }
       }
     }
+
+    sql += sqlMinMax + sqlCheckbox + sqlSort;
     this.generatedSQL = sql;
     this.editorGenerated.setCode( sql );
+  }
+
+  selectSort(data, col, sqlSort) {
+
+    if (!(data['sort'] === 'OFF')) {
+      if(sqlSort.startsWith('\nORDER BY ')){
+        if (data['sort'] === 'ASC' || data['sort'] === 'DESC') {
+          sqlSort += ' ,' + col + ' ' + data['sort'];
+        }
+      } else {
+        if (data['sort'] === 'ASC' || data['sort'] === 'DESC') {
+          sqlSort += '\nORDER BY ' + col + ' ' + data['sort'];
+        }
+      }
+
+    }
+    return sqlSort;
+  }
+
+  selectCheckbox(data, col) {
+    let sqlCheckbox = '';
+    if (data['check'].length > 0) {
+      if (data['check'].length > 1) {
+        let checkData = [];
+        for (let i = 0; i < data['check'].length; i++) {
+          if (isNaN(+data['check'][i])) {
+            checkData[i] = '\'' + data['check'][i] + '\'';
+          } else {
+            checkData[i] = +data['check'][i];
+          }
+        }
+        sqlCheckbox += this.connectWheres() + col + ' IN ' + '(' + checkData + ')';
+        checkData = [];
+      } else {
+        if (isNaN(+data['check'])) {
+          sqlCheckbox += this.connectWheres() + col + ' = ' + '\'' + data['check'] + '\'';
+        } else {
+          sqlCheckbox += this.connectWheres() + col + ' = ' + +data['check'];
+        }
+
+      }
+    }
+    return sqlCheckbox;
+  }
+
+  selectMinMax(data, col) {
+    let sqlMinMax = '';
+    if (data['min']) {
+      sqlMinMax += this.connectWheres() + col + ' >= ' + data['min'];
+    }
+    if (data['max']) {
+      sqlMinMax += this.connectWheres() + col + ' <= ' + data['max'];
+    }
+    return sqlMinMax;
   }
 
   selectedCol(col: {}){
@@ -337,5 +369,9 @@ class JoinCondition {
   }
   toggle(){
     this.active = !this.active;
+  }
+
+  getChildUpdate(){
+
   }
 }

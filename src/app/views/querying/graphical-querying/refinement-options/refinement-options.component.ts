@@ -49,6 +49,8 @@ export class RefinementOptionsComponent implements OnInit {
     }
 
     processStatistics(res: StatisticSet) {
+        console.log('statistc set');
+        console.log(res);
         this.statisticSet = res;
         Object.keys(this.statisticSet).forEach(key => {
             const el = this.statisticSet[key];
@@ -84,7 +86,7 @@ export class RefinementOptionsComponent implements OnInit {
                     for(const i in uniqueValData){
                         this.statisticSet[key]['options']['uniqueValues'].push(i);
                     }
-                }else{
+                } else{
                     this.statisticSet[key]['options'] = {
                         uniqueValues: []
                     };
