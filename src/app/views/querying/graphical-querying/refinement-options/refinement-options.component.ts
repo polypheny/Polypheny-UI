@@ -1,9 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {StatisticSet} from '../../../../components/data-table/models/result-set.model';
+import {FilteredUserInput, StatisticSet} from '../../../../components/data-table/models/result-set.model';
 import {StatisticRequest} from '../../../../models/ui-request.model';
 import {CrudService} from '../../../../services/crud.service';
 import {ToastService} from '../../../../components/toast/toast.service';
-import {Options} from 'ng5-slider';
 
 @Component({
     selector: 'app-refinement-options',
@@ -13,10 +12,12 @@ import {Options} from 'ng5-slider';
 export class RefinementOptionsComponent implements OnInit {
 
     statisticSet: StatisticSet;
+    filteredUserInput: FilteredUserInput;
     hasOptions = true;
     _choosenTables = {};
     optionsOpen = false;
     hasFiter = false;
+
 
     constructor(
         private _crud: CrudService,
@@ -38,6 +39,9 @@ export class RefinementOptionsComponent implements OnInit {
         this._crud.allStatistics(new StatisticRequest()).subscribe(
             res => {
                 this.processStatistics(<StatisticSet>res);
+                console.log('before user stats');
+                this.processUserInput(<StatisticSet>res);
+                console.log('after user stats');
             }, err => {
                 this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
             }
@@ -48,7 +52,15 @@ export class RefinementOptionsComponent implements OnInit {
         return o.includes(name);
     }
 
+    processUserInput(res: StatisticSet){
+        console.log('test');
+        this.filteredUserInput = res;
+        console.log('choosenTables');
+        console.log(this.filteredUserInput);
+    }
+
     processStatistics(res: StatisticSet) {
+        console.log('test processStatistics');
         console.log('statistc set');
         console.log(res);
         this.statisticSet = res;

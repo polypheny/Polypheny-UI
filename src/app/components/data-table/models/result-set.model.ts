@@ -20,7 +20,7 @@ export class ResultSet{
 }
 
 /**
- * model for statistics comming from the server
+ * model for statistics coming from the server
  */
 export class StatisticSet{
    // error: string;
@@ -35,6 +35,13 @@ export class StatisticSet{
     constructor( ){
        // this.error = error;
     }
+}
+
+/**
+ * model for filtered options coming from user input
+ */
+export class FilteredUserInput{
+    [column: string]: { }
 }
 
 
