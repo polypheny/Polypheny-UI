@@ -24,7 +24,7 @@ export class WebuiSettingsService {
     }
     //hub
     if( localStorage.getItem('hub.url') === null ) {
-      localStorage.setItem('hub.url', 'http://polyphenydb.dmi.unibas.ch/');
+      localStorage.setItem('hub.url', 'https://hub.polypheny.org/index.php');
     }
 
     this.settings.set( 'configServer.port', localStorage.getItem('configServer.port'));
@@ -67,7 +67,7 @@ export class WebuiSettingsService {
     localStorage.setItem('configServer.port', '8081');
     localStorage.setItem('informationServer.port', '8082');
     localStorage.setItem('webUI.port', '8083');
-    localStorage.setItem('hub.url', 'http://polyphenydb.dmi.unibas.ch/');
+    localStorage.setItem('hub.url', 'https://hub.polypheny.org/index.php');
     location.reload();
   }
 
