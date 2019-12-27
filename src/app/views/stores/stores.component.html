@@ -86,18 +86,18 @@
 
       <!-- adapters -->
       <div class="modal-body" *ngIf="editingAdapter && editingAdapter.settings">
-        <form [formGroup]="adapterUniqueNameForm">
+        <form [formGroup]="adapterUniqueNameForm" (ngSubmit)="deploy()">
           <div class="form-group">
             <div class="input-group">
               <div class="input-group-prepend">
                 <label for="adapterUniqueName" class="input-group-text">Unique name</label>
               </div>
               <input type="text" class="form-control" id="adapterUniqueName" formControlName="uniqueName" [ngClass]="validate(adapterUniqueNameForm, 'uniqueName')">
-              <div class="invalid-feedback">required</div>
+              <div class="invalid-feedback">{{getFeedback()}}</div>
             </div>
           </div>
         </form>
-        <form [formGroup]="editingAdapterForm">
+        <form [formGroup]="editingAdapterForm" (ngSubmit)="deploy()">
           <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
             <div class="input-group" *ngIf="!getAdapterSetting(editingAdapter, control.key).options">
               <div class="input-group-prepend">
@@ -106,11 +106,15 @@
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key" [ngClass]="validate(editingAdapterForm, control.key)">
               <div class="invalid-feedback">required</div>
             </div>
-            <div class="form-inline" *ngIf="getAdapterSetting(editingAdapter, control.key).options">
-              <label class="mr-3" [for]="control.key">{{control.key}}</label>
-              <select [id]="control.key" class="form-control" [formControlName]="control.key">
-                <option *ngFor="let option of getAdapterSetting(editingAdapter, control.key).options" [value]="option">{{option}}</option>
-              </select>
+            <div class="form-group" *ngIf="getAdapterSetting(editingAdapter, control.key).options">
+              <div class="input-group select-wrapper">
+                <div class="input-group-prepend">
+                  <label class="input-group-text" [for]="control.key">{{control.key}}</label>
+                </div>
+                <select [id]="control.key" class="form-control" [formControlName]="control.key" class="form-control">
+                  <option *ngFor="let option of getAdapterSetting(editingAdapter, control.key).options" [value]="option">{{option}}</option>
+                </select>
+              </div>
             </div>
           </div>
         </form>

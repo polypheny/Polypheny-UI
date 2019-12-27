@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {CrudService} from '../../services/crud.service';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {ModalDirective} from 'ngx-bootstrap';
 import {Store, AdapterInformation, AdapterSetting} from './store.model';
 import {ToastService} from '../../components/toast/toast.service';
@@ -34,6 +34,7 @@ export class StoresComponent implements OnInit, OnDestroy {
     public _breadcrumb: BreadcrumbService,
     private _crud: CrudService,
     private _route: ActivatedRoute,
+    private _router: Router,
     private _toast: ToastService
   ) { }
 
@@ -131,9 +132,18 @@ export class StoresComponent implements OnInit, OnDestroy {
     }
     this.editingAdapterForm = new FormGroup( fc );
     this.adapterUniqueNameForm = new FormGroup({
-      uniqueName: new FormControl(null, Validators.required)
+      uniqueName: new FormControl(null, [Validators.required, Validators.pattern( this._crud.getValidationRegex() )])
     });
     this.storeSettingsModal.show();
+  }
+
+  getFeedback(){
+    const errors = this.adapterUniqueNameForm.controls['uniqueName'].errors;
+    if( errors ){
+      if (errors.required) return 'missing unique name';
+      else if (errors.pattern) return 'invalid unique name';
+    }
+    return '';
   }
 
   getAdapterSetting( adapter, key: string ): AdapterSetting{
@@ -159,6 +169,7 @@ export class StoresComponent implements OnInit, OnDestroy {
           this._toast.toast( 'error', 'Could not deploy store', 5, 'bg-warning');
         }
         this.storeSettingsModal.hide();
+        this._router.navigate(['./../'], {relativeTo: this._route});
       }, err => {
         this._toast.toast( 'error', 'Could not deploy store', 5, 'bg-danger');
       }

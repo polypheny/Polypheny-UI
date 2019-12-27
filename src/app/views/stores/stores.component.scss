@@ -19,3 +19,24 @@
   border-top-right-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
 }
+.input-group select{
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  /** from: https://www.clickstorm.de/blog/dropdown-css3/*/
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.noRadiusRight{
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.select-wrapper::after{
+  /* see: https://www.clickstorm.de/blog/dropdown-css3/ */
+  content: "\25BE";
+  font-family: initial;
+  font-size:1em;
+  position: absolute;
+  right: 15px;
+  top: 0.5em;
+}
