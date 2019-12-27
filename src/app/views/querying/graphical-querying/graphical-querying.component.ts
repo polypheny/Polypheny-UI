@@ -15,7 +15,8 @@ import {ForeignKey, Uml} from '../../uml/uml.model';
   selector: 'app-graphical-querying',
   templateUrl: './graphical-querying.component.html',
   styleUrls: ['./graphical-querying.component.scss'],
-  encapsulation: ViewEncapsulation.None // new elements in sortable should have margin as well
+  encapsulation: ViewEncapsulation.None, // new elements in sortable should have margin as well
+
 })
 export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -33,9 +34,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   tables = new Map<string, number>();//tableName, number of columns of this table
   columns = new Map<string, SidebarNode>();//columnId, columnName
   umlData = new Map<string, Uml>();//schemaName, uml
-  joinConditions = new Map<string, JoinCondition>();//id of column, generated query
-
-
+  joinConditions = new Map<string, JoinCondition>();
 
   constructor(
     private _crud: CrudService,
@@ -104,8 +103,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.generateSQL();
   }
 
+  userInput(fSet: Object){
+    console.log('testing a new approche');
+    console.log(fSet);
+  }
+
   updatedFilter(update: Object){
-    console.log(update);
 
     if(update['updateType'] === 'minmax'){
         if (this.filterSet.hasOwnProperty(update['name'])) {
@@ -369,9 +372,5 @@ class JoinCondition {
   }
   toggle(){
     this.active = !this.active;
-  }
-
-  getChildUpdate(){
-
   }
 }

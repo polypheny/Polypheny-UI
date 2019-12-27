@@ -1,23 +1,35 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, NgModule} from '@angular/core';
 import {FilteredUserInput, StatisticSet} from '../../../../components/data-table/models/result-set.model';
 import {StatisticRequest} from '../../../../models/ui-request.model';
 import {CrudService} from '../../../../services/crud.service';
 import {ToastService} from '../../../../components/toast/toast.service';
+import {BrowserModule} from '@angular/platform-browser';
+import {FormsModule} from '@angular/forms';
+import {AppComponent} from '../../../../app.component';
 
 @Component({
     selector: 'app-refinement-options',
     templateUrl: './refinement-options.component.html',
     styleUrls: ['./refinement-options.component.scss']
 })
+
+@NgModule({
+    imports: [
+        BrowserModule,
+        FormsModule
+    ],
+    providers: [],
+    bootstrap: [AppComponent]
+})
 export class RefinementOptionsComponent implements OnInit {
 
     statisticSet: StatisticSet;
     filteredUserInput: FilteredUserInput;
-    hasOptions = true;
+    //hasOptions = true;
     _choosenTables = {};
-    optionsOpen = false;
-    hasFiter = false;
-
+    //optionsOpen = false;
+    //hasFiter = false;
+    //filteredUserInput = new Map();
 
     constructor(
         private _crud: CrudService,
@@ -39,9 +51,7 @@ export class RefinementOptionsComponent implements OnInit {
         this._crud.allStatistics(new StatisticRequest()).subscribe(
             res => {
                 this.processStatistics(<StatisticSet>res);
-                console.log('before user stats');
                 this.processUserInput(<StatisticSet>res);
-                console.log('after user stats');
             }, err => {
                 this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
             }
@@ -52,15 +62,21 @@ export class RefinementOptionsComponent implements OnInit {
         return o.includes(name);
     }
 
-    processUserInput(res: StatisticSet){
-        console.log('test');
-        this.filteredUserInput = res;
-        console.log('choosenTables');
+    @Output() filteredUserInputChange = new EventEmitter();
+    changeUserInput(){
+        console.log('filteredUserInput');
         console.log(this.filteredUserInput);
+        this.filteredUserInputChange.emit(this.filteredUserInput);
+    }
+
+    processUserInput(res: StatisticSet){
+        this.filteredUserInput = new FilteredUserInput();
+        Object.keys(res).forEach(key => {
+            this.filteredUserInput[key] = {};
+        });
     }
 
     processStatistics(res: StatisticSet) {
-        console.log('test processStatistics');
         console.log('statistc set');
         console.log(res);
         this.statisticSet = res;
@@ -72,7 +88,6 @@ export class RefinementOptionsComponent implements OnInit {
                 }else {
                     this.statisticSet[key]['type'] = ['range'];
                 }
-
                 this.statisticSet[key]['options'] = {
                     floor: el['min'],
                     ceil: el['max'],
@@ -86,12 +101,10 @@ export class RefinementOptionsComponent implements OnInit {
                 }else{
                     this.statisticSet[key]['type'] = ['uniqueValues'];
                 }
-
                 const uniqueValData = [];
                 Object.keys(this.statisticSet[key]['uniqueValues']).forEach((i, k) => {
                     uniqueValData[i] = [k];
                 });
-
 
                 if(this.statisticSet[key]['options']){
                     // tslint:disable-next-line:forin
@@ -106,17 +119,15 @@ export class RefinementOptionsComponent implements OnInit {
                     for(const i in uniqueValData){
                         this.statisticSet[key]['options']['uniqueValues'].push(i);
                     }
-
                 }
-
             }
         });
     }
 
 
-    @Output() updateFilterSQL = new EventEmitter();
+    /**@Output() updateFilterSQL = new EventEmitter();
 
-    updateMinMax(event: Object, name: String) {
+   updateMinMax(event: Object, name: String) {
         console.log('update min max');
         const updateType = 'minmax';
         const updated = {name, event, updateType};
@@ -152,11 +163,13 @@ export class RefinementOptionsComponent implements OnInit {
         console.log(updated);
         this.updateFilterSQL.emit(updated);
     }
-
+    **/
     /**
      * Toggle visability of additonal refinement options
      */
+    /**
     toggleOptions() {
         this.optionsOpen = !this.optionsOpen;
     }
+     **/
 }

@@ -8,21 +8,53 @@
 
 <div *ngFor="let entry of statisticSet | keyvalue">
 
+    <!-- sorting columns ascending, descending or off -->
     <div *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
         <h5>Sort: {{entry.key}}</h5>
         <div class="btn-group btn-group-toggle" data-toggle="buttons">
             <label class="btn btn-secondary active">
-                <input type="radio" name="options" id="option1" autocomplete="off" > off
+                <input type="radio" class="form-control" name="sort" value="sortOff" id="sortOf" autocomplete="off" [(ngModel)]="this.filteredUserInput[entry.key]['sorting']"  (ngModelChange)="changeUserInput()"> off
             </label>
             <label class="btn btn-secondary">
-                <input type="radio" name="options" id="option2" autocomplete="off" (click)="sortAscending($event , entry.key)"> ascending
+                <input type="radio" class="form-control" name="sort" value="ASC" id="ASC" autocomplete="off" [(ngModel)]="this.filteredUserInput[entry.key]['sorting']" (ngModelChange)="changeUserInput()" > ascending
             </label>
             <label class="btn btn-secondary">
-                <input type="radio" name="options" id="option3" autocomplete="off" (click)="sortDescending($event, entry.key)"> descending
+                <input type="radio" class="form-control" name="sort" value="DEC" id="DEC" autocomplete="off" [(ngModel)]="this.filteredUserInput[entry.key]['sorting']" (ngModelChange)="changeUserInput()"> descending
             </label>
         </div>
     </div>
 
+    <!-- min max for numeric values -->
+    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'range') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
+        <h5>{{entry.key}}</h5>
+        <ng5-slider  [(value)]="entry.value['min']"
+                    [(highValue)]="entry.value['max']" [options]="entry.value['options']" [(ngModel)]="this.filteredUserInput[entry.key]['minMax']" (ngModelChange)="changeUserInput()"></ng5-slider>
+    </div>
+
+    <!-- column value starts with -->
+    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
+        <h5>Find: {{entry.key}}</h5>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">starts with</span>
+            </div>
+            <input type="text" class="form-control" placeholder="starts with" aria-label="starts with" aria-describedby="basic-addon1" [(ngModel)]="this.filteredUserInput[entry.key]['startsWith']" (ngModelChange)="changeUserInput()">
+        </div>
+    </div>
+
+    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key ) && entry.value['options']['uniqueValues'].length < 4">
+        <h5>{{entry.key}}</h5>
+        <div *ngFor="let val of entry.value['options']['uniqueValues']">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="defaultCheck1" [(ngModel)]="this.filteredUserInput[entry.key]['check']" (ngModelChange)="changeUserInput()">
+                <label class="form-check-label" for="defaultCheck1">
+                    {{val}}
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- old version without binding
     <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'range') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
         <h5>{{entry.key}}</h5>
         <ng5-slider [(value)]="entry.value['min']"
@@ -30,7 +62,7 @@
                     (userChangeEnd)="updateMinMax($event, entry.key)"></ng5-slider>
     </div>
 
-    <!-- add && entry.value['isFull'] == false as soon as isFull is working -->
+    add && entry.value['isFull'] == false as soon as isFull is working
     <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key ) && entry.value['options']['uniqueValues'].length < 4">
         <h5>{{entry.key}}</h5>
         <div *ngFor="let val of entry.value['options']['uniqueValues']">
@@ -43,7 +75,8 @@
         </div>
     </div>
 
-    <!-- add && entry.value['isFull'] == true as soon as isFull is working -->
+
+     add && entry.value['isFull'] == true as soon as isFull is working
     <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key) && entry.value['options']['uniqueValues'].length > 3 ">
         <h5>Find: {{entry.key}}</h5>
             <div class="input-group mb-3">
@@ -53,6 +86,7 @@
                 <input type="text" class="form-control" placeholder="starts with" aria-label="starts with" aria-describedby="basic-addon1" >
             </div>
     </div>
+    -->
 
 </div>
 <!--</div>-->
