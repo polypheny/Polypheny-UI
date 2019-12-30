@@ -74,11 +74,15 @@
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key" [ngClass]="validate(editingStoreForm, control.key)">
               <div class="invalid-feedback">required</div>
             </div>
-            <div class="form-inline" *ngIf="getAdapterSetting(editingStore, control.key).options">
-              <label class="mr-3" [for]="control.key">{{control.key}}</label>
-              <select [id]="control.key" class="form-control" [formControlName]="control.key">
-                <option *ngFor="let option of getAdapterSetting(editingStore, control.key).options" [value]="option">{{option}}</option>
-              </select>
+            <div class="form-group" *ngIf="getAdapterSetting(editingStore, control.key).options">
+              <div class="input-group select-wrapper">
+                <div class="input-group-prepend">
+                  <label class="input-group-text" [for]="control.key">{{control.key}}</label>
+                </div>
+                <select [id]="control.key" class="form-control" [formControlName]="control.key">
+                  <option *ngFor="let option of getAdapterSetting(editingStore, control.key).options" [value]="option">{{option}}</option>
+                </select>
+              </div>
             </div>
           </div>
         </form>

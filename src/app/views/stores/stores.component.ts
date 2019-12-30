@@ -6,7 +6,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ModalDirective} from 'ngx-bootstrap';
 import {Store, AdapterInformation, AdapterSetting} from './store.model';
 import {ToastService} from '../../components/toast/toast.service';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-stores',
@@ -132,7 +132,7 @@ export class StoresComponent implements OnInit, OnDestroy {
     }
     this.editingAdapterForm = new FormGroup( fc );
     this.adapterUniqueNameForm = new FormGroup({
-      uniqueName: new FormControl(null, [Validators.required, Validators.pattern( this._crud.getValidationRegex() )])
+      uniqueName: new FormControl(null, [Validators.required, Validators.pattern( this._crud.getValidationRegex() ), validateUniqueStore(this.stores)])
     });
     this.storeSettingsModal.show();
   }
@@ -142,6 +142,7 @@ export class StoresComponent implements OnInit, OnDestroy {
     if( errors ){
       if (errors.required) return 'missing unique name';
       else if (errors.pattern) return 'invalid unique name';
+      else if (errors.unique) return 'name is not unique';
     }
     return '';
   }
@@ -165,11 +166,11 @@ export class StoresComponent implements OnInit, OnDestroy {
       res => {
         if(<boolean> res === true){
           this._toast.toast( 'success', 'Deployed store', 5, 'bg-success');
+          this._router.navigate(['./../'], {relativeTo: this._route});
         } else {
           this._toast.toast( 'error', 'Could not deploy store', 5, 'bg-warning');
         }
         this.storeSettingsModal.hide();
-        this._router.navigate(['./../'], {relativeTo: this._route});
       }, err => {
         this._toast.toast( 'error', 'Could not deploy store', 5, 'bg-danger');
       }
@@ -207,4 +208,15 @@ export class StoresComponent implements OnInit, OnDestroy {
     }
   }
 
+}
+
+// see https://angular.io/guide/form-validation#custom-validators
+function validateUniqueStore(stores: Store[]): ValidatorFn {
+  return (control: AbstractControl): {[key: string]: any} | null => {
+    if(! control.value) return null;
+    for(const s of stores ){
+      if( s.uniqueName === control.value ) return {unique: true};
+    }
+    return null;
+  };
 }
