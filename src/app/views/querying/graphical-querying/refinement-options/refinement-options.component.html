@@ -1,11 +1,3 @@
-<!--<div class="refinement-button">
-    <button *ngIf="hasOptions && !optionsOpen" class="btn btn-primary" (click)="toggleOptions()">filter options</button>
-    <button *ngIf="hasOptions && optionsOpen" class="btn btn-primary" (click)="toggleOptions()">close options</button>
-</div>
-
-
-<div *ngIf="optionsOpen" class="more-options">-->
-
 <div *ngFor="let entry of statisticSet | keyvalue">
 
     <!-- sorting columns ascending, descending or off -->
@@ -42,53 +34,20 @@
         </div>
     </div>
 
-    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key ) && entry.value['options']['uniqueValues'].length < 4">
+    <!-- checkbox for unique values -->
+    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key ) && entry.value['uniqueValues'].length < 4">
         <h5>{{entry.key}}</h5>
-        <div *ngFor="let val of entry.value['options']['uniqueValues']">
+        <div *ngFor="let val of entry.value['uniqueValues']">
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="defaultCheck1" [(ngModel)]="this.filteredUserInput[entry.key]['check']" (ngModelChange)="changeUserInput()">
+                <input class="form-check-input" type="checkbox" id="defaultCheck1" [(ngModel)]="this.filteredUserInput[entry.key]['check' + val]" (ngModelChange)="changeUserInput()">
                 <label class="form-check-label" for="defaultCheck1">
                     {{val}}
                 </label>
             </div>
         </div>
     </div>
-
-    <!-- old version without binding
-    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'range') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
-        <h5>{{entry.key}}</h5>
-        <ng5-slider [(value)]="entry.value['min']"
-                    [(highValue)]="entry.value['max']" [options]="entry.value['options']"
-                    (userChangeEnd)="updateMinMax($event, entry.key)"></ng5-slider>
-    </div>
-
-    add && entry.value['isFull'] == false as soon as isFull is working
-    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key ) && entry.value['options']['uniqueValues'].length < 4">
-        <h5>{{entry.key}}</h5>
-        <div *ngFor="let val of entry.value['options']['uniqueValues']">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" (click)="updateCheck(val, entry.key)">
-                <label class="form-check-label" for="defaultCheck1">
-                    {{val}}
-                </label>
-            </div>
-        </div>
-    </div>
-
-
-     add && entry.value['isFull'] == true as soon as isFull is working
-    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key) && entry.value['options']['uniqueValues'].length > 3 ">
-        <h5>Find: {{entry.key}}</h5>
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">starts with</span>
-                </div>
-                <input type="text" class="form-control" placeholder="starts with" aria-label="starts with" aria-describedby="basic-addon1" >
-            </div>
-    </div>
-    -->
 
 </div>
-<!--</div>-->
+
 
 

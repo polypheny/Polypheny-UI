@@ -25,11 +25,7 @@ export class RefinementOptionsComponent implements OnInit {
 
     statisticSet: StatisticSet;
     filteredUserInput: FilteredUserInput;
-    //hasOptions = true;
     _choosenTables = {};
-    //optionsOpen = false;
-    //hasFiter = false;
-    //filteredUserInput = new Map();
 
     constructor(
         private _crud: CrudService,
@@ -41,11 +37,17 @@ export class RefinementOptionsComponent implements OnInit {
         this.getStatistic();
     }
 
+    /**
+     * to only show the filter options for the chosen Tables
+     */
     @Input()
     set choosenTables(choosenTables: {}){
         this._choosenTables = choosenTables;
     }
 
+    /**
+     * get filter statistics form data sets
+     */
     getStatistic() {
         console.log('getStatistics');
         this._crud.allStatistics(new StatisticRequest()).subscribe(
@@ -62,6 +64,9 @@ export class RefinementOptionsComponent implements OnInit {
         return o.includes(name);
     }
 
+    /**
+     * after changing the filter values emiting changes for graphical-querying component
+     */
     @Output() filteredUserInputChange = new EventEmitter();
     changeUserInput(){
         console.log('filteredUserInput');
@@ -69,13 +74,34 @@ export class RefinementOptionsComponent implements OnInit {
         this.filteredUserInputChange.emit(this.filteredUserInput);
     }
 
+    /**
+     * initializing filteredUserInput for dynamic binding
+     */
     processUserInput(res: StatisticSet){
         this.filteredUserInput = new FilteredUserInput();
         Object.keys(res).forEach(key => {
             this.filteredUserInput[key] = {};
+            const el = res[key];
+            if(el['min'] && el['max']){
+                this.filteredUserInput[key]['minMax'] = [el['min'], el['max']];
+            }
+            /** after implementing isFull on the server side to try to store the checkbox values differently
+            if(el['isFull'] === false){
+                this.filteredUserInput[key]['check'] = [];
+
+                Object.keys(el['uniqueValues']).forEach(els =>{
+                    const uniqueVal = el['uniqueValues'][els];
+
+                    this.filteredUserInput[key]['check'].push(uniqueVal);
+                });
+            }
+             **/
         });
     }
 
+    /**
+     * add additional information to the statistics for the components
+     */
     processStatistics(res: StatisticSet) {
         console.log('statistc set');
         console.log(res);
@@ -94,6 +120,7 @@ export class RefinementOptionsComponent implements OnInit {
                     step: 1,
                     uniqueValues: []
                 };
+
             }
             if(this.statisticSet[key]['uniqueValues']){
                 if(this.statisticSet[key]['type']){
@@ -101,75 +128,8 @@ export class RefinementOptionsComponent implements OnInit {
                 }else{
                     this.statisticSet[key]['type'] = ['uniqueValues'];
                 }
-                const uniqueValData = [];
-                Object.keys(this.statisticSet[key]['uniqueValues']).forEach((i, k) => {
-                    uniqueValData[i] = [k];
-                });
-
-                if(this.statisticSet[key]['options']){
-                    // tslint:disable-next-line:forin
-                    for(const i in uniqueValData){
-                        this.statisticSet[key]['options']['uniqueValues'].push(i);
-                    }
-                } else{
-                    this.statisticSet[key]['options'] = {
-                        uniqueValues: []
-                    };
-                    // tslint:disable-next-line:forin
-                    for(const i in uniqueValData){
-                        this.statisticSet[key]['options']['uniqueValues'].push(i);
-                    }
-                }
             }
         });
     }
 
-
-    /**@Output() updateFilterSQL = new EventEmitter();
-
-   updateMinMax(event: Object, name: String) {
-        console.log('update min max');
-        const updateType = 'minmax';
-        const updated = {name, event, updateType};
-        this.updateFilterSQL.emit(updated);
-    }
-
-    updateCheck(event: Object, name: String){
-        console.log('update Checkbox');
-        const updateType = 'check';
-        const updated = {name, event, updateType};
-        this.updateFilterSQL.emit(updated);
-    }
-
-    sortAscending(event: Object, name: String){
-        console.log('sort ascending');
-        const updateType = 'ASC';
-        const updated = {name, event, updateType};
-        console.log(updated);
-        this.updateFilterSQL.emit(updated);
-    }
-    sortDescending(event: Object, name: String){
-        console.log('sort descending');
-        const updateType = 'DESC';
-        const updated = {name, event, updateType};
-        console.log(updated);
-        this.updateFilterSQL.emit(updated);
-    }
-
-    sortOff(event: Object, name: String){
-        console.log('sort descending');
-        const updateType = 'OFF';
-        const updated = {name, event, updateType};
-        console.log(updated);
-        this.updateFilterSQL.emit(updated);
-    }
-    **/
-    /**
-     * Toggle visability of additonal refinement options
-     */
-    /**
-    toggleOptions() {
-        this.optionsOpen = !this.optionsOpen;
-    }
-     **/
 }
