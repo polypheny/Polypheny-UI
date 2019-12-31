@@ -147,6 +147,11 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     this.connections.delete( id );
   }
 
+  deleteAll(){
+    this.nodes = null;
+    this.connections = null;
+  }
+
   /**
    * When two nodes are connected:
    * if there was a connection: delete it
@@ -649,9 +654,12 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     // })
 
     this._webSocketService.listen('my_message').subscribe((data) => {
+      if (data.toString() == "delete"){
+        this.deleteAll()
+      }
+
       if (data.toString().startsWith("{")){
         this.insertNode(data)}
-      this.formatNodesTree()
 
     });
 
