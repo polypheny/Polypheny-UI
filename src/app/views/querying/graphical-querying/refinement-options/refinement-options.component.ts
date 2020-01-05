@@ -84,6 +84,7 @@ export class RefinementOptionsComponent implements OnInit {
             const el = res[key];
             if(el['min'] && el['max']){
                 this.filteredUserInput[key]['minMax'] = [el['min'], el['max']];
+                this.filteredUserInput[key]['startMinMax'] = [el['min'], el['max']];
             }
             /** after implementing isFull on the server side to try to store the checkbox values differently
             if(el['isFull'] === false){
@@ -123,6 +124,7 @@ export class RefinementOptionsComponent implements OnInit {
 
             }
             if(this.statisticSet[key]['uniqueValues']){
+
                 if(this.statisticSet[key]['type']){
                     this.statisticSet[key]['type'].push('uniqueValues');
                 }else{

@@ -5,13 +5,13 @@
         <h5>Sort: {{entry.key}}</h5>
         <div class="btn-group btn-group-toggle" data-toggle="buttons">
             <label class="btn btn-secondary active">
-                <input type="radio" class="form-control" name="sort" value="sortOff" id="sortOf" autocomplete="off" [(ngModel)]="this.filteredUserInput[entry.key]['sorting']"  (ngModelChange)="changeUserInput()"> off
+                <input type="radio" class="form-control" name="sort" value="OFF" id="sortOff" autocomplete="off" [(ngModel)]="this.filteredUserInput[entry.key]['sorting']"  (ngModelChange)="changeUserInput()"> off
             </label>
             <label class="btn btn-secondary">
                 <input type="radio" class="form-control" name="sort" value="ASC" id="ASC" autocomplete="off" [(ngModel)]="this.filteredUserInput[entry.key]['sorting']" (ngModelChange)="changeUserInput()" > ascending
             </label>
             <label class="btn btn-secondary">
-                <input type="radio" class="form-control" name="sort" value="DEC" id="DEC" autocomplete="off" [(ngModel)]="this.filteredUserInput[entry.key]['sorting']" (ngModelChange)="changeUserInput()"> descending
+                <input type="radio" class="form-control" name="sort" value="DESC" id="DESC" autocomplete="off" [(ngModel)]="this.filteredUserInput[entry.key]['sorting']" (ngModelChange)="changeUserInput()"> descending
             </label>
         </div>
     </div>

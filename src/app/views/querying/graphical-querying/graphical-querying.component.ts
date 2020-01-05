@@ -4,7 +4,7 @@ import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
 import 'jquery-ui/ui/widgets/draggable';
 import {CrudService} from '../../../services/crud.service';
-import {ResultSet, StatisticSet} from '../../../components/data-table/models/result-set.model';
+import {FilteredUserInput, ResultSet, StatisticSet} from '../../../components/data-table/models/result-set.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToastService} from '../../../components/toast/toast.service';
 import {EditTableRequest, QueryRequest, SchemaRequest, StatisticRequest} from '../../../models/ui-request.model';
@@ -27,7 +27,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   selectedColumn = {};
   loading = false;
   whereCounter = 0;
-
+  andCounter = 0;
+  filteredUserSet: FilteredUserInput;
 
   //fields for the graphical query generation
   schemas = new Map<string, string>();//schemaName, schemaName
@@ -54,9 +55,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.removeCol( node.data.id );
       }
     });
-
     this.initGraphicalQuerying();
-
   }
 
   ngAfterViewInit() {
@@ -104,65 +103,70 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   userInput(fSet: Object){
-    console.log('testing a new approche');
-    console.log(fSet);
+    if (fSet instanceof FilteredUserInput) {
+      this.filteredUserSet = fSet;
+    }
+    console.log('filtered User Set');
+    console.log(this.filteredUserSet);
+    this.generateSQL();
   }
 
-  updatedFilter(update: Object){
+  checkbox(col: string, key: string, bol: boolean){
+    if(bol){
+      return (this.connectWheresAndOr() + col + ' = ' + key.replace('check', '') + ';');
+    }
+  }
 
-    if(update['updateType'] === 'minmax'){
-        if (this.filterSet.hasOwnProperty(update['name'])) {
-            this.filterSet[update['name']]['min'] = update['event']['value'];
-            this.filterSet[update['name']]['max'] = update['event']['highValue'];
-        } else {
-            this.filterSet[update['name']] = {
-                min: update['event']['value'],
-                max: update['event']['highValue'],
-                type: [],
-                check: [],
-                sort: ''
-            };
+  minMax(col: string, minMax){
+    return (this.connectWheres() + col + ' BETWEEN ' + minMax[0] + ' AND ' + minMax[1]  + ';');
+  }
+
+  startingWith(col: string, firstLetters: string){
+    return (this.connectWheres() + col + ' LIKE ' + '\'' + firstLetters  + '%' + '\''  + ';');
+  }
+
+  sorting(col: string, sort: string){
+    return ('\nORDER BY ' + col + ' ' + sort  + ';');
+  }
+
+  processfilterSet(){
+    const whereSql = [];
+    const orderBySql = [];
+    if(this.filteredUserSet) {
+      Object.keys(this.filteredUserSet).forEach(key => {
+        const el = this.filteredUserSet[key];
+
+        if (el['minMax']) {
+          if (!(el['minMax'].toString() === el['startMinMax'].toString())) {
+            whereSql.push(this.minMax(key, el['minMax']));
+          }
         }
-    }
-    if(update['updateType'] === 'check'){
 
-        if (this.filterSet.hasOwnProperty(update['name'])) {
-            if(this.filterSet[update['name']]['check'].includes(update['event'])){
-              this.filterSet[update['name']]['check'].splice(this.filterSet[update['name']]['check'].indexOf(update['event']), 1);
-            }else{
-              this.filterSet[update['name']]['check'].push(update['event']);
-            }
-        } else {
-            this.filterSet[update['name']] = {
-                min: null,
-                max: null,
-                type: [],
-                check: [update['event']],
-                sort: ''
-            };
+        if (el['startsWith']) {
+          whereSql.push(this.startingWith(key, el['startsWith']));
         }
-    }
-    if(update['updateType'] === 'DESC' || update['updateType'] === 'ASC' || update['updateType'] === 'OFF'){
-      if(this.filterSet.hasOwnProperty(update['name'])){
-          this.filterSet[update['name']]['sort'] = update['updateType'];
-      } else{
-        this.filterSet[update['name']] = {
-          min: null,
-          max: null,
-          type: [],
-          check: [],
-          sort: update['updateType']
-        };
-      }
-    }
 
+        if (el['sorting'] && (el['sorting'] === 'ASC' || el['sorting'] === 'DESC')) {
+          orderBySql.push(this.sorting(key, el['sorting']));
+        }
 
-    console.log(this.filterSet);
-    this.generateSQL();
+        Object.keys(el).forEach(k => {
+          if (k.startsWith('check', 0)) {
+            whereSql.push(this.checkbox(key, k, el[k]));
+          }
+
+        });
+      });
+      return (whereSql.join('') + orderBySql.join(''));
+    } else {
+      return '';
+    }
   }
 
   generateSQL() {
     this.whereCounter = 0;
+    this.andCounter = 0;
+    let filteredInfos = '';
 
     if( this.columns.size === 0 ){
       this.editorGenerated.setCode( '' );
@@ -192,86 +196,19 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       }
     });
     if( counter > 0 ){
-      sql += '\nWHERE ' + joinConditions.join(' AND ');
-    }
+      sql += this.connectWheres() + joinConditions.join(' AND ');
+      }
 
     //to only show filters for selected tables/cols
     this.selectedCol(cols);
 
-    //statements for the different filter options
-    let sqlMinMax = '';
-    let sqlCheckbox = '';
-    let sqlSort = '';
 
-    if (Object.keys(this.filterSet).length !== 0 && tables.length !== 0 && counter === 0){
-      for (const col of cols){
-        if(this.filterSet[col]){
-          const data = this.filterSet[col];
+    filteredInfos = this.processfilterSet();
 
-          sqlMinMax += this.selectMinMax(data, col);
-          sqlCheckbox += this.selectCheckbox(data, col);
-          sqlSort += this.selectSort(data, col, sqlSort);
-        }
-      }
-    }
-
-    sql += sqlMinMax + sqlCheckbox + sqlSort;
-    this.generatedSQL = sql;
-    this.editorGenerated.setCode( sql );
-  }
-
-  selectSort(data, col, sqlSort) {
-
-    if (!(data['sort'] === 'OFF')) {
-      if(sqlSort.startsWith('\nORDER BY ')){
-        if (data['sort'] === 'ASC' || data['sort'] === 'DESC') {
-          sqlSort += ' ,' + col + ' ' + data['sort'];
-        }
-      } else {
-        if (data['sort'] === 'ASC' || data['sort'] === 'DESC') {
-          sqlSort += '\nORDER BY ' + col + ' ' + data['sort'];
-        }
-      }
-
-    }
-    return sqlSort;
-  }
-
-  selectCheckbox(data, col) {
-    let sqlCheckbox = '';
-    if (data['check'].length > 0) {
-      if (data['check'].length > 1) {
-        let checkData = [];
-        for (let i = 0; i < data['check'].length; i++) {
-          if (isNaN(+data['check'][i])) {
-            checkData[i] = '\'' + data['check'][i] + '\'';
-          } else {
-            checkData[i] = +data['check'][i];
-          }
-        }
-        sqlCheckbox += this.connectWheres() + col + ' IN ' + '(' + checkData + ')';
-        checkData = [];
-      } else {
-        if (isNaN(+data['check'])) {
-          sqlCheckbox += this.connectWheres() + col + ' = ' + '\'' + data['check'] + '\'';
-        } else {
-          sqlCheckbox += this.connectWheres() + col + ' = ' + +data['check'];
-        }
-
-      }
-    }
-    return sqlCheckbox;
-  }
-
-  selectMinMax(data, col) {
-    let sqlMinMax = '';
-    if (data['min']) {
-      sqlMinMax += this.connectWheres() + col + ' >= ' + data['min'];
-    }
-    if (data['max']) {
-      sqlMinMax += this.connectWheres() + col + ' <= ' + data['max'];
-    }
-    return sqlMinMax;
+    console.log('is it here ' + filteredInfos);
+    const finalized = sql + filteredInfos;
+    this.generatedSQL = finalized;
+    this.editorGenerated.setCode( finalized );
   }
 
   selectedCol(col: {}){
@@ -283,9 +220,21 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   connectWheres(){
     if(this.whereCounter === 0){
       this.whereCounter += 1;
-      return "\nWHERE ";
+      return '\nWHERE ';
     } else {
-      return "\nAND ";
+      return '\nAND ';
+    }
+  }
+
+  connectWheresAndOr(){
+    if(this.whereCounter === 0){
+      this.whereCounter += 1;
+      return '\nWHERE ';
+    } else if (this.andCounter === 0){
+      this.andCounter += 1;
+      return '\nAND ';
+    } else {
+      return '\nOR ';
     }
   }
 
