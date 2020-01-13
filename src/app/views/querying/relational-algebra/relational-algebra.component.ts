@@ -39,19 +39,20 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   draggingNodeY: number;
   dropMouseX: number;
   dropMouseY: number;
+  socketOff: boolean;
 
   private lastNode = null;
 
   constructor(
       private _crud: CrudService,
       private _toast: ToastService,
-      private _webSocketService: WebSocketService,
-      //private _chat: ChatService
+      private _webSocketService: WebSocketService
   ) { }
 
   ngOnInit() {
     this.getOperators();
     this.getAutocomplete();
+    this.socketOff = true;
   }
 
   ngAfterViewInit() {
@@ -647,23 +648,26 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   }
 
   makeSocketConnection(){
+    console.log(this.socketOff);
+
     //let socket = io.connect('http://localhost:1234');
     // console.log('connecting to server');
     // this._chat.messages.subscribe(msg => {
     //   console.log(msg);
     // })
-
-    this._webSocketService.listen('my_message').subscribe((data) => {
-      if (data.toString() == "delete"){
-        this.deleteAll()
-      }
-
-      if (data.toString().startsWith("{")){
-        this.insertNode(data)}
-
-    });
-
-
+    if(this.socketOff){
+      this._webSocketService.listen('my_message');
+      this.socketOff = false;
+    }else{
+      this._webSocketService.listen('my_message').subscribe((data) => {
+        if (data.toString() == "delete"){
+          this.deleteAll()
+        }
+        if (data.toString().startsWith("{")){
+          this.insertNode(data)}
+      });
+      this.socketOff = true;
+    }
   }
 
   insertNode(data) {
