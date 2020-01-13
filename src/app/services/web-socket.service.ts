@@ -21,4 +21,7 @@ export class WebSocketService {
       })
     });
   }
+  delete(){
+    this.socket.emit('server_event', 'delete');
+  }
 }

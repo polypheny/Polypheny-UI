@@ -657,6 +657,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     // })
     if(this.socketOff){
       this._webSocketService.listen('my_message');
+      this._webSocketService.delete();
       this.socketOff = false;
     }else{
       this._webSocketService.listen('my_message').subscribe((data) => {
@@ -677,16 +678,16 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   parseJson(data){
     const input = data;
     if(input === null || input === '' ){
-      console.log("invalid")
+      console.log("invalid");
       return;
     }
-    const inputObj = JSON.parse(data)
-    console.log("LOG:", inputObj)
-    console.log(inputObj.nodes)
+    const inputObj = JSON.parse(data);
+    console.log("LOG:", inputObj);
+    console.log(inputObj.nodes);
     if( inputObj.nodes ){
       const importedNodes = new Map<string, Node>();
       for( const [k, v] of Object.entries( inputObj.nodes )){
-        console.log("for")
+        console.log("for");
         importedNodes.set( v[0], Node.fromJson( v[1], this.dropArea.nativeElement.offsetWidth, this.dropArea.nativeElement.offsetHeight ));
       }
       this.nodes = importedNodes;
