@@ -23,8 +23,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   @ViewChild('editorGenerated', {static: false}) editorGenerated;
   generatedSQL;
   resultSet: ResultSet;
-  filterSet = new StatisticSet();
   selectedColumn = {};
+  nothingSelected = 'nothingSelected';
   loading = false;
   whereCounter = 0;
   andCounter = 0;
@@ -53,6 +53,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       else if (node.isActive && node.isLeaf ){
         node.setIsActive( false, true );
         this.removeCol( node.data.id );
+        console.log('oninit' + node.data.id);
+        const ob = 'nothing';
+        this.selectedCol(ob);
       }
     });
     this.initGraphicalQuerying();
@@ -82,6 +85,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     $('#selectBox').on('click', 'div span.del', function() {
       const id = $(this).parent().attr('data-id');
       self.removeCol( id );
+      console.log('test remove' + id);
+      const ob = 'nothing';
+      self.selectedCol(ob);
     });
   }
 
@@ -113,20 +119,20 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
   checkbox(col: string, key: string, bol: boolean){
     if(bol){
-      return (this.connectWheresAndOr() + col + ' = ' + key.replace('check', '') + ';');
+      return (this.connectWheresAndOr() + col + ' = ' + '\'' + key.replace('check', '') + '\'' );
     }
   }
 
   minMax(col: string, minMax){
-    return (this.connectWheres() + col + ' BETWEEN ' + minMax[0] + ' AND ' + minMax[1]  + ';');
+    return (this.connectWheres() + col + ' BETWEEN ' + minMax[0] + ' AND ' + minMax[1] );
   }
 
   startingWith(col: string, firstLetters: string){
-    return (this.connectWheres() + col + ' LIKE ' + '\'' + firstLetters  + '%' + '\''  + ';');
+    return (this.connectWheres() + col + ' LIKE ' + '\'' + firstLetters  + '%' + '\'');
   }
 
   sorting(col: string, sort: string){
-    return ('\nORDER BY ' + col + ' ' + sort  + ';');
+    return ('\nORDER BY ' + col + ' ' + sort);
   }
 
   processfilterSet(){
@@ -200,6 +206,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       }
 
     //to only show filters for selected tables/cols
+    console.log('cols' + cols);
     this.selectedCol(cols);
 
 
@@ -217,6 +224,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     };
   }
 
+
   connectWheres(){
     if(this.whereCounter === 0){
       this.whereCounter += 1;
@@ -229,6 +237,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   connectWheresAndOr(){
     if(this.whereCounter === 0){
       this.whereCounter += 1;
+      this.andCounter += 1;
       return '\nWHERE ';
     } else if (this.andCounter === 0){
       this.andCounter += 1;
