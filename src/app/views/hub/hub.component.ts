@@ -26,9 +26,12 @@ export class HubComponent implements OnInit, OnDestroy {
 
   //login
   loggedIn = 0;
-  loginUser = '';
-  loginPw = '';
   loginError;
+  loginSubmitted;
+  loginForm = new FormGroup({
+    user: new FormControl( '', Validators.required ),
+    pw: new FormControl( '', Validators.required )
+  });
 
   changePwSubmitted = false;
   changePwForm = new FormGroup({
@@ -116,7 +119,11 @@ export class HubComponent implements OnInit, OnDestroy {
     this.subscribe.unsubscribe();
   }
 
-  login( user: string, pw: string ){
+  login(){
+    this.loginSubmitted = true;
+    if( ! this.loginForm.valid ) return;
+    const user = this.loginForm.controls['user'].value;
+    const pw = this.loginForm.controls['pw'].value;
     this._hub.login( user, pw ).subscribe(
       res => {
         const result = <HubResult> res;
@@ -130,6 +137,7 @@ export class HubComponent implements OnInit, OnDestroy {
           this._hub.setId( result.id );
           this._hub.setUsername( result.user );
           this._hub.setSecret( result.secret );
+          this.loginSubmitted = false;
           this.refreshContent();
         }
       }, err => {
@@ -231,6 +239,13 @@ export class HubComponent implements OnInit, OnDestroy {
     return this.newUserForm.controls[key].valid ? 'is-valid' : 'is-invalid';
   }
 
+  getValidation( f: FormGroup, c: string ){
+    if( this.loginSubmitted ) {
+      return f.controls[c].valid ? 'is-valid' : 'is-invalid';
+    }
+    return '';
+  }
+
   initEditUserModal( user ){
     this.editUserModal.show();
     this.editUserForm.controls['id'].setValue(+user[0]);
@@ -320,8 +335,8 @@ export class HubComponent implements OnInit, OnDestroy {
 
   resetLoginModal(){
     this.loginError = null;
-    this.loginUser = '';
-    this.loginPw = '';
+    this.loginForm.reset();
+    this.loginSubmitted = false;
   }
 
   initEditDataset( key: number ){

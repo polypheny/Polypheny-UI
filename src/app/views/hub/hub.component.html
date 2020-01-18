@@ -232,35 +232,39 @@
 </div><!-- /.modal -->
 
 <div bsModal #loginModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetLoginModal()">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Login</h4>
-        <button type="button" class="close" (click)="loginModal.hide()" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p class="text-danger">{{loginError}}</p>
-        <div class="form-group">
-          <div class="input-group">
-            <div class="input-group-prepend"><label style="width:83px" for="loginUser" class="input-group-text">username</label></div>
-            <input type="text" placeholder="username" id="loginUser" class="form-control" [(ngModel)]="loginUser">
+  <form [formGroup]="loginForm" (ngSubmit)="login()">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Login</h4>
+          <button type="button" class="close" (click)="loginModal.hide()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="text-danger">{{loginError}}</p>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label style="width:83px" for="loginUser" class="input-group-text">username</label></div>
+              <input type="text" placeholder="username" id="loginUser" class="form-control" formControlName="user" [ngClass]="getValidation(loginForm, 'user')">
+              <div class="invalid-feedback">Required</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label style="width:83px" for="loginPw" class="input-group-text">password</label></div>
+              <input type="password" placeholder="password" id="loginPw" class="form-control" formControlName="pw" [ngClass]="getValidation(loginForm, 'pw')">
+              <div class="invalid-feedback">Required</div>
+            </div>
           </div>
         </div>
-        <div class="form-group">
-          <div class="input-group">
-            <div class="input-group-prepend"><label style="width:83px" for="loginPw" class="input-group-text">password</label></div>
-            <input type="password" placeholder="password" id="loginPw" class="form-control" [(ngModel)]="loginPw">
-          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="loginModal.hide()">Close</button>
+          <button type="submit" class="btn btn-primary">Login</button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="loginModal.hide()">Close</button>
-        <button type="button" class="btn btn-primary" (click)="login(loginUser, loginPw)">Login</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </form>
 </div>
 
 <div bsModal #editDatasetModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetEditDataset()">
