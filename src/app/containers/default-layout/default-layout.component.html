@@ -68,10 +68,18 @@
       </a>
     </li>
 
-    <li class="nav-item px-3">
-      <a [routerLink]="['/views/hub']" class="nav-link" routerLinkActive="active">
+    <li class="nav-item" dropdown triggers="mouseover" placement="bottom left" #dropdownHub="bs-dropdown" (mouseleave)="dropdownHub.hide()">
+      <a class="nav-link dropdown-toggle p-2" dropdownToggle [routerLink]="['/views/hub']" routerLinkActive="active">
         <i class="fa fa-cloud"></i><span class="d-md-down-none">Hub</span>
       </a>
+      <div class="dropdown-menu dropdown-menu-left text-center" *dropdownMenu style="margin-top: -1px;">
+        <a class="dropdown-item" [routerLink]="['/views/hub/data']" routerLinkActive="active">
+          <i class="fa fa-table"></i><span class="d-md-down-none">Data</span>
+        </a>
+        <a class="dropdown-item" [routerLink]="['/views/hub/manage']" routerLinkActive="active">
+          <i class="fa fa-user"></i><span class="d-md-down-none">Account</span>
+        </a>
+      </div>
     </li>
 
   </ul>

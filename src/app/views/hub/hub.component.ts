@@ -1,6 +1,4 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
-import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {ActivatedRoute} from '@angular/router';
 import {HubService} from '../../services/hub.service';
 import {HubResult} from './hub.model';
@@ -92,7 +90,6 @@ export class HubComponent implements OnInit, OnDestroy {
   @ViewChild('editUserModal', {static: false}) public editUserModal: ModalDirective;
 
   constructor(
-    private _breadcrumb: BreadcrumbService,
     private _route: ActivatedRoute,
     private _hub: HubService,
     private _toast: ToastService,
@@ -105,7 +102,6 @@ export class HubComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Data', ['/views/hub/data']), new BreadcrumbItem('Configuration', '/views/hub/configuration'), new BreadcrumbItem('Manage', '/views/hub/manage')]);
     this.subpage = this._route.snapshot.paramMap.get('sub');
     this.subscribe = this._route.params.subscribe(params => {
       this.subpage = params['sub'];
@@ -118,7 +114,6 @@ export class HubComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(){
     this.subscribe.unsubscribe();
-    this._breadcrumb.hide();
   }
 
   login( user: string, pw: string ){
