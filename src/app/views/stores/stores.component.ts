@@ -93,9 +93,9 @@ export class StoresComponent implements OnInit, OnDestroy {
     const fc = {};
     for( const [k,v] of Object.entries(this.editingStore.settings)){
       const validators = [];
-      if(v.required) validators.push( Validators.required );
+      if(v.required) { validators.push( Validators.required ); }
       let val = v.defaultValue;
-      if( v.options ) val = v.options[0];
+      if( v.options ) { val = v.options[0]; }
       fc[v.name] = new FormControl({value: val, disabled: !v.modifiable}, validators);
     }
     this.editingStoreForm = new FormGroup( fc );
@@ -125,9 +125,9 @@ export class StoresComponent implements OnInit, OnDestroy {
     const fc = {};
     for( const [k,v] of Object.entries(this.editingAdapter.settings)){
       const validators = [];
-      if(v.required) validators.push( Validators.required );
+      if(v.required) { validators.push( Validators.required ); }
       let val = v.defaultValue;
-      if( v.options ) val = v.options[0];
+      if( v.options ) { val = v.options[0]; }
       fc[v.name] = new FormControl(val, validators);
     }
     this.editingAdapterForm = new FormGroup( fc );
@@ -140,9 +140,9 @@ export class StoresComponent implements OnInit, OnDestroy {
   getFeedback(){
     const errors = this.adapterUniqueNameForm.controls['uniqueName'].errors;
     if( errors ){
-      if (errors.required) return 'missing unique name';
-      else if (errors.pattern) return 'invalid unique name';
-      else if (errors.unique) return 'name is not unique';
+      if (errors.required) { return 'missing unique name'; }
+      else if (errors.pattern) { return 'invalid unique name'; }
+      else if (errors.unique) { return 'name is not unique'; }
     }
     return '';
   }
@@ -152,8 +152,8 @@ export class StoresComponent implements OnInit, OnDestroy {
   }
 
   deploy(){
-    if(!this.editingAdapterForm.valid) return;
-    if(!this.adapterUniqueNameForm.valid) return;
+    if(!this.editingAdapterForm.valid) { return; }
+    if(!this.adapterUniqueNameForm.valid) { return; }
     const deploy = {
       uniqueName: this.adapterUniqueNameForm.controls['uniqueName'].value,
       clazzName: this.editingAdapter.clazz,
@@ -199,12 +199,26 @@ export class StoresComponent implements OnInit, OnDestroy {
   }
 
   validate( form: FormGroup, key ) {
-    if(form === undefined) return;
-    if( form.controls[key].status === 'DISABLED' ) return;
+    if(form === undefined) { return; }
+    if( form.controls[key].status === 'DISABLED' ) { return; }
     if( form.controls[key].valid ){
       return 'is-valid';
     } else {
       return 'is-invalid';
+    }
+  }
+
+  getLogo( adapterName: string ){
+    const path = 'assets/dbms-logos/';
+    switch ( adapterName ) {
+      case 'CSV':
+        return path + 'csv.png';
+      case 'HSQLDB':
+        return path + 'hsqldb.jpg';
+      case 'PostgreSQL':
+        return path + 'postgres.svg';
+      default:
+        return null;
     }
   }
 
@@ -213,9 +227,9 @@ export class StoresComponent implements OnInit, OnDestroy {
 // see https://angular.io/guide/form-validation#custom-validators
 function validateUniqueStore(stores: Store[]): ValidatorFn {
   return (control: AbstractControl): {[key: string]: any} | null => {
-    if(! control.value) return null;
+    if(! control.value) { return null; }
     for(const s of stores ){
-      if( s.uniqueName === control.value ) return {unique: true};
+      if( s.uniqueName === control.value ) { return {unique: true}; }
     }
     return null;
   };

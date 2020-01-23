@@ -40,3 +40,26 @@
   right: 15px;
   top: 0.5em;
 }
+#adapter-table img{
+  max-width: 50px;
+  max-height: 50px;
+}
+#adapter-table tr td:first-child{
+  padding:0.5em;
+}
+#stores .logo{
+  max-width: 60px;
+  max-height: 60px;
+  float: right;
+  font-size: 50px;
+}
+#stores .card .card-body{
+  overflow: auto;
+}
+.center{
+  text-align: center;
+  vertical-align: middle;
+}
+.center i{
+  font-size: 50px;
+}
