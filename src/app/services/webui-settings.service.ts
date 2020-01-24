@@ -59,8 +59,6 @@ export class WebuiSettingsService {
   public setSetting ( key:string, val:string ) {
     this.settings.set( key, val );
     localStorage.setItem( key, val );
-    console.log(key);
-    console.log(val);
   }
 
   public reset(){

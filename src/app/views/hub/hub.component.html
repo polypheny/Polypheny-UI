@@ -118,12 +118,10 @@
                   <div class="input-group-prepend"><label for="newDsPublic" class="input-group-text">public</label></div>
 
                   <div class="checkbox-wrapper">
-                    <div style="display: flex;justify-content: center;">
-                      <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;">
-                        <input type="checkbox" class="form-control switch-input" id="newDsPublic" formControlName="pub" [ngClass]="newDsFormValidation('pub')">
-                        <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
-                      </label>
-                    </div>
+                    <label class="switch switch-label switch-pill switch-sm switch-primary">
+                      <input class="form-control switch-input" type="checkbox" id="newDsPublic" formControlName="pub" [ngClass]="newDsFormValidation('pub')">
+                      <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                    </label>
                   </div>
                 </div>
               </div>
