@@ -1,6 +1,4 @@
 <app-toast></app-toast>
-<button class="btn btn-primary float-right login-btn" *ngIf="loggedIn === 0" (click)="loginModal.show()">login</button>
-<button class="btn btn-primary float-right login-btn" *ngIf="loggedIn !== 0" (click)="logout()">logout</button>
 
 <ng-container [ngSwitch]="subpage">
 
@@ -9,6 +7,13 @@
   </ng-container>
 
   <ng-container *ngSwitchCase="'manage'">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1>Hub account</h1>
+        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn === 0" (click)="loginModal.show()">login</button>
+        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn !== 0" (click)="logout()">logout</button>
+      </div>
+    </div>
     <p *ngIf="loggedIn == 0">Please log in to manage your account.</p>
     <div class="row" *ngIf="loggedIn != 0">
       <div class="col-md-4">
@@ -48,7 +53,9 @@
       </div>
       <div class="col-md-8" *ngIf="users && !users.error">
         <div class="card">
-          <div class="card-header">Manage users</div>
+          <div class="card-header">Manage users
+            <a [routerLink]="[]" class="pull-right" (click)="createUserModal.show()">create user</a>
+          </div>
           <div class="card-body">
             <table class="table table-hover table-sm table-bordered table-striped">
               <thead>
@@ -66,28 +73,6 @@
               </tr>
               </tbody>
             </table>
-            <form id="newUserForm" class="form-inline" [formGroup]="newUserForm" (ngSubmit)="createUser()">
-              <div class="form-group">
-                <p>Create a new user:</p>
-                <div class="input-group">
-
-                  <div class="input-group-prepend"><label for="userName" class="input-group-text">username</label></div>
-                  <input type="text" class="form-control no-radius" name="username" id="userName" formControlName="name" [ngClass]="newUserValidation('name')">
-
-                  <span><label for="email" class="input-group-text middle">email</label></span>
-                  <input type="text" class="form-control no-radius" name="username" id="email" formControlName="email" [ngClass]="newUserValidation('email')">
-
-                  <span><label for="admin" class="input-group-text middle">admin</label></span>
-                  <div class="checkbox-wrapper-inline">
-                    <input type="checkbox" name="admin" id="admin" formControlName="admin">
-                  </div>
-
-                  <button class="btn btn-primary input-group-append">create</button>
-
-                </div>
-
-              </div>
-            </form>
           </div>
         </div>
       </div>
@@ -96,7 +81,13 @@
 
   <!-- datasets -->
   <ng-container *ngSwitchDefault>
-
+    <div class="row">
+      <div class="col-lg-12">
+        <h1>Hub datasets</h1>
+        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn === 0" (click)="loginModal.show()">login</button>
+        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn !== 0" (click)="logout()">logout</button>
+      </div>
+    </div>
     <p *ngIf="!_hub.getSecret()">Please log in to upload a dataset.</p>
     <div class="row">
       <div class="col-lg-4" *ngIf="_hub.getSecret()">
@@ -368,3 +359,50 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+<div #createUserModal="bs-modal" aria-hidden="true" aria-labelledby="myModalLabel" bsModal class="modal fade" role="dialog" tabindex="-1" (onHidden)="resetNewUserModal()">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form (ngSubmit)="createUser()" [formGroup]="newUserForm" id="newUserForm">
+      <div class="modal-header">
+        <h4 class="modal-title">Create user</h4>
+        <button (click)="createUserModal.hide()" aria-label="Close" class="close" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label class="input-group-text" for="userName">username</label></div>
+              <input [ngClass]="newUserValidation('name')" class="form-control" formControlName="name" id="userName" name="username" type="text">
+              <div class="invalid-feedback">required</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label class="input-group-text" for="email">email</label></div>
+              <input [ngClass]="newUserValidation('email')" class="form-control" formControlName="email" id="email" name="username" type="text">
+              <div *ngIf="newUserForm.controls['email'].errors.email" class="invalid-feedback">invalid</div>
+              <div *ngIf="newUserForm.controls['email'].errors.required" class="invalid-feedback">required</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label class="input-group-text" for="admin">admin</label></div>
+              <div class="checkbox-wrapper">
+                <label class="switch switch-label switch-pill switch-sm switch-primary">
+                  <input class="form-control switch-input" formControlName="admin" id="admin" name="admin" type="checkbox">
+                  <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="createUserModal.hide();" class="btn btn-secondary" type="button">Close</button>
+        <button type="submit" class="btn btn-primary">Create</button>
+      </div>
+        </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>

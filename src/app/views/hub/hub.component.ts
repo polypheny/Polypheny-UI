@@ -91,6 +91,7 @@ export class HubComponent implements OnInit, OnDestroy {
   @ViewChild('editDatasetModal', {static: false}) public editDatasetModal: ModalDirective;
   @ViewChild('downloadDataModal', {static: false}) public downloadDataModal: ModalDirective;
   @ViewChild('editUserModal', {static: false}) public editUserModal: ModalDirective;
+  @ViewChild('createUserModal', {static: false}) public createUserModal: ModalDirective;
 
   constructor(
     private _route: ActivatedRoute,
@@ -225,6 +226,7 @@ export class HubComponent implements OnInit, OnDestroy {
             this.getUsers();
             this.newUserForm.reset();
             this.newUserFormSubmitted = false;
+            this.createUserModal.hide();
           }
         }, err => {
           this._toast.toast('server error', 'Could not create user', 10, 'bg-danger');
@@ -257,6 +259,11 @@ export class HubComponent implements OnInit, OnDestroy {
   resetEditUserModal(){
     this.editUserForm.reset();
     this.editUserSubmitted = false;
+  }
+
+  resetNewUserModal(){
+    this.newUserForm.reset();
+    this.newUserFormSubmitted = false;
   }
 
   editUser(){

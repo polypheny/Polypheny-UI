@@ -31,7 +31,7 @@ export class HubService {
 
   logout(){
     const body = {userId: this.getId(), action: 'logout'};
-    this._http.post(this.hubUrl, this.toFormData(body) ).subscribe( res => console.log(res) );
+    this._http.post(this.hubUrl, this.toFormData(body) ).subscribe();
     localStorage.setItem( 'hub.id', '' );
     localStorage.setItem( 'hub.user', '' );
     localStorage.setItem( 'hub.secret', '' );
