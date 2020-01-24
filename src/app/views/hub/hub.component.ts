@@ -355,7 +355,6 @@ export class HubComponent implements OnInit, OnDestroy {
   editDataset(){
     this._hub.editDataset( this.editDsId, this.editDsName, this.editDsPublic ).subscribe(
       res => {
-        console.log(res);
         this.editDatasetModal.hide();
         this.getDatasets();
       }, err => {
@@ -443,7 +442,12 @@ export class HubComponent implements OnInit, OnDestroy {
         console.log(err);
       }
     );
-    this.downloadPath = this._settings.getConnection('hub.url') + '/../uploaded-files/' + dataset;
+    let hubUrl = this._hub.getHubUrl();
+    // remove index.php part
+    hubUrl = hubUrl.slice( 0, hubUrl.lastIndexOf('/')+1 );
+    hubUrl = hubUrl + 'uploaded-files/';
+    this.downloadPath = hubUrl + dataset;
+    //this.downloadPath = this._settings.getConnection('hub.url') + '/../uploaded-files/' + dataset;
     this.importDsForm.controls['url'].setValue(this.downloadPath);
     this.downloadDataModal.show();
   }

@@ -97,7 +97,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         const result = <ResultSet> res;
         if( result.error ){
           this._toast.toast( 'error', 'Could not '+action+' the table '+table+': '+result.error, 10, 'bg-warning' );
-          console.log( result );
         }else {
           let toastAction = 'Truncated';
           if( request.getAction() === 'drop'){
@@ -180,7 +179,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   exportTable(){
-    console.log(this.exportForm);
     if( this.exportForm.valid ){
       this.uploading = true;
       this._crud.exportTable(
@@ -193,7 +191,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       ).subscribe(
         res => {
           const result = <ResultSet> res;
-          console.log(result);
           if( result.error ){
             this._toast.toast( 'error', result.error, 5, 'bg-warning');
           } else {

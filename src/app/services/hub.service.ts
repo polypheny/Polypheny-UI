@@ -7,11 +7,22 @@ import {WebuiSettingsService} from './webui-settings.service';
 })
 export class HubService {
 
-  hubUrl = this._settings.getConnection('hub.url');
+  private hubUrl;//contains hubUrl with index.php at the end
   //httpUrl = this._settings.getConnection('crud.rest');
   httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
-  constructor( private _http:HttpClient, private _settings: WebuiSettingsService ) { }
+  constructor( private _http:HttpClient, private _settings: WebuiSettingsService ) {
+    let hubUrl = this._settings.getConnection('hub.url');
+    if( !hubUrl.endsWith('\.php') ){
+      if( hubUrl.endsWith('/') ) hubUrl = hubUrl + 'index.php';
+      else hubUrl = hubUrl + '/index.php';
+    }
+    this.hubUrl = hubUrl;
+  }
+
+  getHubUrl(){
+    return this.hubUrl;
+  }
 
   login( user: string, pw: string ){
     const body ={username: user, password: pw, action: 'login'};

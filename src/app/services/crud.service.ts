@@ -267,7 +267,7 @@ export class CrudService {
       schema: schema,
       table: table,
       pub: pub,
-      hubLink: this._settings.getConnection('hub.url'),
+      hubLink: this._hub.getHubUrl(),
       createPks: createPks,
       defaultValues: addDefault
     };
