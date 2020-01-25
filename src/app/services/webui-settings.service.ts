@@ -22,10 +22,15 @@ export class WebuiSettingsService {
     if( localStorage.getItem('webUI.port') === null ) {
       localStorage.setItem('webUI.port', '8083');
     }
+    if( localStorage.getItem('websocketGestureRecognition.ip:port') === null ) {
+      localStorage.setItem('websocketGestureRecognition.ip:port', 'localhost:4999');
+    }
+
 
     this.settings.set( 'configServer.port', localStorage.getItem('configServer.port'));
     this.settings.set( 'informationServer.port', localStorage.getItem('informationServer.port'));
     this.settings.set( 'webUI.port', localStorage.getItem('webUI.port'));
+    this.settings.set( 'websocketGestureRecognition.ip:port', localStorage.getItem('websocketGestureRecognition.ip:port'));
 
     this.connections.set( 'config.rest',
         'http://' + this.host + ':' + localStorage.getItem( 'configServer.port' ) );
@@ -39,7 +44,7 @@ export class WebuiSettingsService {
         'http://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) );
     this.connections.set( 'crud.socket',
         'ws://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) + '/queryAnalyzer' );
-
+    this.connections.set('websocketGestureRecogniton', 'ws://' + localStorage.getItem('websocketGestureRecognition.ip:port'))
   }
 
   public getConnection(key:string ){
@@ -61,6 +66,7 @@ export class WebuiSettingsService {
     localStorage.setItem('configServer.port', '8081');
     localStorage.setItem('informationServer.port', '8082');
     localStorage.setItem('webUI.port', '8083');
+    localStorage.setItem('websocketGestureRecognition.ip:port', 'localhost:4999');
     location.reload();
   }
 

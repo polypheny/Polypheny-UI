@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
 import {Observable} from "rxjs";
+import {WebuiSettingsService} from "./webui-settings.service";
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +10,8 @@ export class WebSocketService {
 
   socket: any;
 
-  constructor() {
-    this.socket = io('ws://localhost:4999');
+  constructor( private _settings:WebuiSettingsService ) {
+    this.socket = io(this._settings.getConnection('websocketGestureRecogniton'));
   }
 
   listen(eventName: string) {
