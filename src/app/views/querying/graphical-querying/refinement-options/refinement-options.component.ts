@@ -86,6 +86,9 @@ export class RefinementOptionsComponent implements OnInit {
                 this.filteredUserInput[key]['minMax'] = [el['min'], el['max']];
                 this.filteredUserInput[key]['startMinMax'] = [el['min'], el['max']];
             }
+            this.filteredUserInput[key]['sorting'] = 'OFF';
+            this.filteredUserInput[key]['columnType'] = el['columnType'];
+
             /** after implementing isFull on the server side to try to store the checkbox values differently
             if(el['isFull'] === false){
                 this.filteredUserInput[key]['check'] = [];

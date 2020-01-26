@@ -123,9 +123,15 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.generateSQL();
   }
 
-  checkbox(col: string, key: string, bol: boolean){
+  checkboxAlphabetic(col: string, key: string, bol: boolean){
     if(bol){
       return (this.connectWheresAndOr() + col + ' = ' + '\'' + key.replace('check', '') + '\'' );
+    }
+  }
+
+  checkboxNumeric(col: string, key: string, bol: boolean){
+    if(bol){
+      return (this.connectWheresAndOr() + col + ' = ' + key.replace('check', ''));
     }
   }
 
@@ -166,8 +172,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
 
         Object.keys(el).forEach(k => {
-          if (k.startsWith('check', 0)) {
-            whereSql.push(this.checkbox(key, k, el[k]));
+          if (k.startsWith('check', 0) && el['columnType'] === 'alphabetic' ) {
+            whereSql.push(this.checkboxAlphabetic(key, k, el[k]));
+          }
+          if (k.startsWith('check', 0) && el['columnType'] === 'numeric' ) {
+            whereSql.push(this.checkboxNumeric(key, k, el[k]));
           }
 
         });

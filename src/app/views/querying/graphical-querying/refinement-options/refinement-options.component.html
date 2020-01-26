@@ -3,14 +3,14 @@
     <!-- sorting columns ascending, descending or off -->
     <div *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
         <h5>Sort: {{entry.key}}</h5>
-        <div class="btn-group btn-group-toggle" data-toggle="buttons">
-            <label class="btn btn-secondary active">
+        <div class="btn-group btn-group-toggle" >
+            <label [className]="this.filteredUserInput[entry.key]['sorting'] == 'OFF' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
                 <input type="radio" class="form-control" name="sort" value="OFF" id="sortOff" autocomplete="off" [(ngModel)]="this.filteredUserInput[entry.key]['sorting']"  (ngModelChange)="changeUserInput()"> off
             </label>
-            <label class="btn btn-secondary">
+            <label [className]="this.filteredUserInput[entry.key]['sorting'] == 'ASC' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
                 <input type="radio" class="form-control" name="sort" value="ASC" id="ASC" autocomplete="off" [(ngModel)]="this.filteredUserInput[entry.key]['sorting']" (ngModelChange)="changeUserInput()" > ascending
             </label>
-            <label class="btn btn-secondary">
+            <label [className]="this.filteredUserInput[entry.key]['sorting'] == 'DESC' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
                 <input type="radio" class="form-control" name="sort" value="DESC" id="DESC" autocomplete="off" [(ngModel)]="this.filteredUserInput[entry.key]['sorting']" (ngModelChange)="changeUserInput()"> descending
             </label>
         </div>
@@ -24,7 +24,7 @@
     </div>
 
     <!-- column value starts with -->
-    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
+    <div *ngIf="entry.value['type'] && includes(entry.value['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key) && entry.value['columnType'] == 'alphabetic' && entry.value['isFull'] ">
         <h5>Find: {{entry.key}}</h5>
         <div class="input-group mb-3">
             <div class="input-group-prepend">
