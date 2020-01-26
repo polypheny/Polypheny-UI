@@ -24,7 +24,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   generatedSQL;
   resultSet: ResultSet;
   selectedColumn = {};
-  nothingSelected = 'nothingSelected';
   loading = false;
   whereCounter = 0;
   andCounter = 0;
@@ -53,9 +52,13 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       else if (node.isActive && node.isLeaf ){
         node.setIsActive( false, true );
         this.removeCol( node.data.id );
-        console.log('oninit' + node.data.id);
-        const ob = 'nothing';
-        this.selectedCol(ob);
+
+        //deletes the selection if nothing is choosen
+        if(this.selectedColumn['column'].toString() === node.data.id){
+          const ob = 'nothing';
+          this.selectedCol(ob);
+        }
+
       }
     });
     this.initGraphicalQuerying();
@@ -85,9 +88,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     $('#selectBox').on('click', 'div span.del', function() {
       const id = $(this).parent().attr('data-id');
       self.removeCol( id );
-      console.log('test remove' + id);
-      const ob = 'nothing';
-      self.selectedCol(ob);
+
+      //deletes the selection if nothing is choosen
+      if(self.selectedColumn['column'].toString() === id){
+        const ob = 'nothing';
+        self.selectedCol(ob);
+      }
     });
   }
 
@@ -135,6 +141,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     return ('\nORDER BY ' + col + ' ' + sort);
   }
 
+  /**
+   * adds everything selected in the filterset to two arrays in order to add in the generated query
+   */
   processfilterSet(){
     const whereSql = [];
     const orderBySql = [];
@@ -206,9 +215,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       }
 
     //to only show filters for selected tables/cols
-    console.log('cols' + cols);
     this.selectedCol(cols);
-
 
     filteredInfos = this.processfilterSet();
 
