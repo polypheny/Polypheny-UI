@@ -61,7 +61,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         private _webSocketService: WebSocketService,
         private _sToRa: SettingsToRelationalalgebraService
     ) {
-        this.socketOn = true;
+        this.socketOn = false;
     }
 
 
@@ -695,12 +695,13 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
     public makeSocketConnection() {
         this._webSocketService.startConnection();
+        console.log("here bitch");
         if (this.socketOn) {
-            this._webSocketService.listen('my_message');
-            this._webSocketService.delete();
             this.socketOn = false;
+            console.log("Falsch");
         } else {
             this._webSocketService.listen('my_message').subscribe((data) => {
+                console.log(data);
                 if (data.toString() == "delete") {
                     this.deleteAll()
                 }
@@ -709,6 +710,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
                 }
             });
             this.socketOn = true;
+          console.log("Richtig");
+
         }
     }
 

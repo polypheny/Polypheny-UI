@@ -25,8 +25,6 @@ export class WebSocketService {
     this.running = !this.running;
   }
 
-
-
   listen(eventName: string) {
     return new Observable((subscriber) => {
       this.socket.on(eventName, (data) => {
@@ -35,32 +33,4 @@ export class WebSocketService {
       })
     });
   }
-  delete(){
-    this.socket.emit('server_event', 'delete');
-  }
 }
-//
-//
-// console.log('Killer funktioniert');
-// console.log(this.socketOff);
-//
-// //let socket = io.connect('http://localhost:1234');
-// // console.log('connecting to server');
-// // this._chat.messages.subscribe(msg => {
-// //   console.log(msg);
-// // })
-// if(this.socketOff){
-//   this._webSocketService.listen('my_message');
-//   this._webSocketService.delete();
-//   this.socketOff = false;
-// }else{
-//   this._webSocketService.listen('my_message').subscribe((data) => {
-//     if (data.toString() == "delete"){
-//       this.deleteAll()
-//     }
-//     if (data.toString().startsWith("{")){
-//       this.insertNode(data)}
-//   });
-//   this.socketOff = true;
-//
-// }
