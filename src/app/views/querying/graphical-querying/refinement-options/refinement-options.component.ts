@@ -43,6 +43,8 @@ export class RefinementOptionsComponent implements OnInit {
     @Input()
     set choosenTables(choosenTables: {}){
         this._choosenTables = choosenTables;
+        console.log('test');
+        console.log(this._choosenTables);
     }
 
     /**
@@ -112,6 +114,11 @@ export class RefinementOptionsComponent implements OnInit {
         this.statisticSet = res;
         Object.keys(this.statisticSet).forEach(key => {
             const el = this.statisticSet[key];
+            console.log('test-test');
+            console.log(this._choosenTables);
+            if (el === this._choosenTables){
+                console.log('test');
+            }
             if(el['min'] && el['max']){
                 if(this.statisticSet[key]['type']){
                     this.statisticSet[key]['type'].push('range');
