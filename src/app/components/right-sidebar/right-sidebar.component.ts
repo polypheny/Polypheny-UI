@@ -13,6 +13,8 @@ export class RightSidebarComponent implements OnInit {
 
   settings = this._settings.getSettings();
   form: FormGroup;
+  public buttonName: string = 'connect';
+
 
   constructor(
       private _settings: WebuiSettingsService,
@@ -43,6 +45,11 @@ export class RightSidebarComponent implements OnInit {
   }
 
   public connectToRA(): void {
+    if(this.buttonName == 'connect'){
+      this.buttonName = 'disconnect';
+    } else {
+      this.buttonName = 'connect';
+    }
     this._sToRa.toggle();
     }
  }
