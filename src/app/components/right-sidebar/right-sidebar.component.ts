@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {FormControl, FormGroup} from '@angular/forms';
+import {SettingsToRelationalalgebraService} from "../../services/settings-to-relationalalgebra.service";
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-right-sidebar',
@@ -12,16 +14,18 @@ export class RightSidebarComponent implements OnInit {
   settings = this._settings.getSettings();
   form: FormGroup;
 
-  constructor( private _settings: WebuiSettingsService ) {
+  constructor(
+      private _settings: WebuiSettingsService,
+      private _sToRa:SettingsToRelationalalgebraService
+  ) {
     const controls = {};
-    this.settings.forEach( (val, key) => {
-      controls[key] = new FormControl( val );
+    this.settings.forEach((val, key) => {
+      controls[key] = new FormControl(val);
     });
-    this.form = new FormGroup( controls );
+    this.form = new FormGroup(controls);
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {  }
 
   saveSettings () {
     console.log(this.form.value);
@@ -32,9 +36,13 @@ export class RightSidebarComponent implements OnInit {
     location.reload();
   }
 
+
   resetSettings() {
     this._settings.reset();
     return false;
   }
 
-}
+  public connectToRA(): void {
+    this._sToRa.toggle();
+    }
+ }
