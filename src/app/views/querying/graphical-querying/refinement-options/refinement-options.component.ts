@@ -82,8 +82,19 @@ export class RefinementOptionsComponent implements OnInit {
     processUserInput(res: StatisticSet){
         this.filteredUserInput = new FilteredUserInput();
         Object.keys(res).forEach(key => {
+            Object.keys(res[key]).forEach(keySchema =>{
+                Object.keys(res[key][keySchema]).forEach(keyTable =>{
+                    this.statisticSet[res[key][keySchema][keyTable]['fullColumnName']] = res[key][keySchema][keyTable];
+                    console.log('test new statistic set');
+                    console.log(this.statisticSet);
+
+                });
+            });
+        });
+
+        Object.keys(this.statisticSet).forEach(key => {
             this.filteredUserInput[key] = {};
-            const el = res[key];
+            const el = this.statisticSet[key];
             if(el['min'] && el['max']){
                 this.filteredUserInput[key]['minMax'] = [el['min'], el['max']];
                 this.filteredUserInput[key]['startMinMax'] = [el['min'], el['max']];
@@ -111,14 +122,20 @@ export class RefinementOptionsComponent implements OnInit {
     processStatistics(res: StatisticSet) {
         console.log('statistc set');
         console.log(res);
-        this.statisticSet = res;
+        this.statisticSet = {};
+        Object.keys(res).forEach(key => {
+            Object.keys(res[key]).forEach(keySchema =>{
+                Object.keys(res[key][keySchema]).forEach(keyTable =>{
+                    this.statisticSet[res[key][keySchema][keyTable]['fullColumnName']] = res[key][keySchema][keyTable];
+                    console.log('test new statistic set');
+                    console.log(this.statisticSet);
+
+                });
+            });
+        });
+
         Object.keys(this.statisticSet).forEach(key => {
             const el = this.statisticSet[key];
-            console.log('test-test');
-            console.log(this._choosenTables);
-            if (el === this._choosenTables){
-                console.log('test');
-            }
             if(el['min'] && el['max']){
                 if(this.statisticSet[key]['type']){
                     this.statisticSet[key]['type'].push('range');
@@ -142,6 +159,8 @@ export class RefinementOptionsComponent implements OnInit {
                 }
             }
         });
+
+
     }
 
 }
