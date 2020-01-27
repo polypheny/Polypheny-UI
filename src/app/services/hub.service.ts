@@ -118,7 +118,8 @@ export class HubService {
     formData.append( 'name', name );
     formData.append( 'pub', String(pub) );
     formData.append( 'dataset', dataset[0] );
-    return this._http.post( this.hubUrl, formData );
+    //see https://www.techiediaries.com/angular-file-upload-progress-bar/
+    return this._http.post( this.hubUrl, formData, {reportProgress: true, observe: 'events'} );
   }
 
   deleteDataset( dsId: number ){

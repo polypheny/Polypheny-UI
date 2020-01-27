@@ -120,7 +120,7 @@
     </div>
 </div>
 
-<div bsModal #exportTableModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetExport()">
+<div bsModal #exportTableModal="bs-modal" class="modal fade" id="exportTableModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetExport()">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <form [formGroup]="exportForm">
@@ -187,6 +187,10 @@
             <span class="spinner-border spinner-border-sm" *ngIf="uploading"></span>
             Export
           </button>
+          <div class="progress-wrapper">
+            <progressbar *ngIf="uploading && exportProgress < 1" class="progress progress-striped" [value]="exportProgress" [max]="1"></progressbar>
+            <progressbar *ngIf="uploading && exportProgress === 1" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>
+          </div>
         </div>
       </form>
     </div><!-- /.modal-content -->

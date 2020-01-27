@@ -10,6 +10,8 @@ import {CrudService} from '../../services/crud.service';
 import {SchemaRequest} from '../../models/ui-request.model';
 import {SidebarNode} from '../../models/sidebar-node.model';
 import {Store} from '../stores/store.model';
+import {HttpEventType} from '@angular/common/http';
+import {Status} from '../../components/data-table/models/result-set.model';
 
 @Component({
   selector: 'app-hub',
@@ -54,6 +56,7 @@ export class HubComponent implements OnInit, OnDestroy {
   });
   newDsFormSubmitted = false;
   fileToUpload;
+  uploadProgress = 0;
 
   //download/import dataset
   downloadPath: string;
@@ -66,6 +69,7 @@ export class HubComponent implements OnInit, OnDestroy {
     addDefaultValue: new FormControl(true, Validators.required)
   });
   importDsFormSubmitted = false;
+  importProgress = -1;
   availableStores: Store[];
 
   //delete user
@@ -375,32 +379,35 @@ export class HubComponent implements OnInit, OnDestroy {
     this.newDsFormSubmitted = true;
 
     if(this.newDsForm.valid){
-      //https://stackoverflow.com/questions/39272970/angular-2-encode-image-to-base64/39275214
-      const file:File = this.fileToUpload[0];
-      const myReader:FileReader = new FileReader();
-      myReader.readAsDataURL(file);
-      myReader.onloadend = (e) => {
-        const base64 = myReader.result;
-        this._hub.uploadDataset( this._hub.getId(), this._hub.getSecret(), this.newDsForm.controls['name'].value, this.newDsForm.controls['pub'].value, this.fileToUpload ).subscribe(
-          res => {
-            const result = <HubResult> res;
+      this._hub.uploadDataset( this._hub.getId(), this._hub.getSecret(), this.newDsForm.controls['name'].value, this.newDsForm.controls['pub'].value, this.fileToUpload ).subscribe(
+        res => {
+          //see https://www.techiediaries.com/angular-file-upload-progress-bar/
+          if( res.type && res.type === HttpEventType.UploadProgress ){
+            this.uploadProgress = Math.round(100 * res.loaded / res.total);
+            console.log(this.uploadProgress);
+          } else if( res.type === HttpEventType.Response ){
+            const result = <HubResult> res.body;
             if( result.error ){
               this._toast.toast( 'error', 'Could not upload dataset: ' + result.error, 10, 'bg-warning' );
+              this.uploadProgress = 0;
             } else {
               this._toast.toast( 'uploaded', result.message, 5, 'bg-success' );
               this.getDatasets();
               this.newDsForm.reset();
               this.newDsFormSubmitted = false;
               this.fileToUpload = undefined;
+              this.uploadProgress = 0;
             }
-          }, err => {
-            this._toast.toast( 'error', 'Could not upload dataset', 10, 'bg-danger' );
-            console.log(err);
           }
-        );
-      };
+        }, err => {
+          this._toast.toast( 'error', 'Could not upload dataset', 10, 'bg-danger' );
+          console.log(err);
+        }
+      );
     }
   }
+
+
 
   canDeleteAndUpdate( dsId: number ): boolean{
     return this.loggedIn === 2 || dsId === this._hub.getId();
@@ -418,7 +425,7 @@ export class HubComponent implements OnInit, OnDestroy {
         if( result.error ){
           this._toast.toast( 'error', 'Could not delete dataset: ' + result.error, 10, 'bg-warning' );
         } else {
-          this._toast.toast( 'deleted', result.message, 5, 'bg-success' );
+          // this._toast.toast( 'deleted', result.message, 5, 'bg-success' );
           this.getDatasets();
         }
       }, err => {
@@ -462,6 +469,16 @@ export class HubComponent implements OnInit, OnDestroy {
   importIntoPolypheny(){
     this.importDsFormSubmitted = true;
     if(this.importDsForm.valid){
+      //get import status
+      this._crud.onSocketEvent().subscribe(
+        msg => {
+          const s = <Status> msg;
+          if( s.context === 'tableImport' ){
+            this.importProgress = s.status;
+          }
+        }, err => {
+          console.log(err);
+      });
       this._crud.importDataset(
         this.importDsForm.controls['schema'].value,
         this.importDsForm.controls['store'].value,
@@ -470,6 +487,7 @@ export class HubComponent implements OnInit, OnDestroy {
         this.importDsForm.controls['addDefaultValue'].value
       ).subscribe(
         res => {
+          this.importProgress = -1;
           const result = <HubResult> res;
           if(result.error){
             this._toast.toast('error', 'Import failed: ' + result.error, 10, 'bg-warning');

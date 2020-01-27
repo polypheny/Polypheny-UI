@@ -92,7 +92,7 @@
     <div class="row">
       <div class="col-lg-4" *ngIf="_hub.getSecret()">
 
-        <div class="card">
+        <div class="card" id="upload-card">
           <div class="card-header">Upload dataset</div>
           <div class="card-body">
             <p>Only files of type <span class="badge badge-light" style="font-size: 90%">.zip</span> are allowed.</p>
@@ -128,6 +128,8 @@
               <div class="from-group">
                 <button type="submit" class="btn btn-primary btn-sm pull-right">upload</button>
               </div>
+              <progressbar *ngIf="newDsFormSubmitted && uploadProgress < 100 && uploadProgress > 0" class="progress progress-striped" [value]="uploadProgress" [max]="100"></progressbar>
+              <progressbar *ngIf="newDsFormSubmitted && uploadProgress === 100" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>
             </form>
           </div>
         </div>
@@ -168,7 +170,7 @@
 
 </ng-container>
 
-<div bsModal #downloadDataModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div bsModal #downloadDataModal="bs-modal" id="downloadDataModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <form [formGroup]="importDsForm" (ngSubmit)="importIntoPolypheny()">
@@ -214,6 +216,10 @@
           <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="downloadDataModal.hide()">Close</button>
           <a class="btn btn-primary" [href]="downloadPath">Download locally</a>
           <button type="submit" class="btn btn-primary">Import into Polypheny</button>
+          <div class="progress-wrapper">
+            <progressbar *ngIf="importDsFormSubmitted && importProgress < 1 && importProgress > 0" class="progress progress-striped" [value]="importProgress" [max]="1"></progressbar>
+            <progressbar *ngIf="importDsFormSubmitted && (importProgress === 1 || importProgress === 0)" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>
+          </div>
         </div>
       </form>
     </div><!-- /.modal-content -->
@@ -277,12 +283,10 @@
             <div class="input-group-prepend"><label for="editDsPublic" class="input-group-text">public</label></div>
 
             <div class="checkbox-wrapper">
-              <div style="display: flex;justify-content: center;">
-                <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;">
-                  <input type="checkbox" class="form-control switch-input" id="editDsPublic" [(ngModel)]="editDsPublic">
-                  <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
-                </label>
-              </div>
+              <label class="switch switch-label switch-pill switch-sm switch-primary">
+                <input type="checkbox" class="form-control switch-input" id="editDsPublic" [(ngModel)]="editDsPublic">
+                <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+              </label>
             </div>
           </div>
         </div>
@@ -337,12 +341,10 @@
               <div class="input-group-prepend"><label for="editUserAdmin" class="input-group-text">Admin</label></div>
 
               <div class="checkbox-wrapper">
-                <div style="display: flex;justify-content: center;">
-                  <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;">
-                    <input type="checkbox" class="form-control switch-input" id="editUserAdmin" formControlName="admin" [ngClass]="editUserValidation('admin')">
-                    <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
-                  </label>
-                </div>
+                <label class="switch switch-label switch-pill switch-sm switch-primary">
+                  <input type="checkbox" class="form-control switch-input" id="editUserAdmin" formControlName="admin" [ngClass]="editUserValidation('admin')">
+                  <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                </label>
               </div>
             </div>
           </div>

@@ -26,3 +26,16 @@ label.disabled{
   border-bottom-right-radius: 0.25rem;
   border: 1px solid #e4e7ea;
 }
+#exportTableModal .modal-footer{
+  position: relative;
+}
+.progress-wrapper{
+  position: absolute;
+  top: 0;
+  left: -4px;
+  right: 0;
+}
+.progress-wrapper progressbar{
+  border-radius: 0;
+  height: 5px;
+}

@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
-import {DbColumn, ResultSet} from '../../../components/data-table/models/result-set.model';
+import {DbColumn, ResultSet, Status} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -29,6 +29,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
   //export table
   exportingTable: string;
+  exportProgress = 0.0;
   uploading = false;
   exportForm = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -173,14 +174,24 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   resetExport(){
-    this.exportForm.reset({pub:true});
+    this.exportForm.reset({pub:true, createPrimaryKeys: true, addDefaultValue: true});
     this.exportingTable = undefined;
     this.uploading = false;
+    this.exportProgress = 0.0;
   }
 
   exportTable(){
     if( this.exportForm.valid ){
       this.uploading = true;
+      this._crud.onSocketEvent().subscribe(
+        msg => {
+          const s = <Status> msg;
+          if( s.context === 'tableExport' ){
+            this.exportProgress = s.status;
+          }
+        }, err => {
+          console.log(err);
+      });
       this._crud.exportTable(
         this.exportForm.controls['name'].value,
         this.schema,

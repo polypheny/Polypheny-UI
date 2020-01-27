@@ -5,7 +5,15 @@ import { ViewsRoutingModule } from './views-routing.module';
 import {TableViewComponent} from './table-view/table-view.component';
 import {SqlConsoleComponent} from './querying/sql-console/sql-console.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {BsDropdownModule, ButtonsModule, CollapseModule, ModalModule, TooltipModule, TypeaheadModule} from 'ngx-bootstrap';
+import {
+  BsDropdownModule,
+  ButtonsModule,
+  CollapseModule,
+  ModalModule,
+  ProgressbarModule,
+  TooltipModule,
+  TypeaheadModule
+} from 'ngx-bootstrap';
 import {ComponentsModule} from '../components/components.module';
 import {EditColumnsComponent} from './schema-editing/edit-columns/edit-columns.component';
 import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
@@ -44,7 +52,8 @@ import { HubComponent } from './hub/hub.component';
     BsDropdownModule,
     DragDropModule,
     ModalModule.forRoot(),
-    AutocompleteLibModule
+    AutocompleteLibModule,
+    ProgressbarModule
   ],
   declarations: [
     EditColumnsComponent,
