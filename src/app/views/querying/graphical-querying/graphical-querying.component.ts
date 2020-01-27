@@ -155,7 +155,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     if(this.filteredUserSet) {
       Object.keys(this.filteredUserSet).forEach(key => {
         const el = this.filteredUserSet[key];
-        console.log(this.selectedColumn);
         if(this.selectedColumn['column'].includes(key)) {
 
           if (el['minMax']) {
@@ -231,7 +230,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     filteredInfos = await this.processfilterSet();
 
-    console.log('is it here ' + filteredInfos);
     const finalized = sql + filteredInfos;
     this.generatedSQL = finalized;
     this.editorGenerated.setCode( finalized );

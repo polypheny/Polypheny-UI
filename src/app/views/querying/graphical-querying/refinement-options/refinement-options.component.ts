@@ -43,8 +43,6 @@ export class RefinementOptionsComponent implements OnInit {
     @Input()
     set choosenTables(choosenTables: {}){
         this._choosenTables = choosenTables;
-        console.log('test');
-        console.log(this._choosenTables);
     }
 
     /**
@@ -70,21 +68,10 @@ export class RefinementOptionsComponent implements OnInit {
      */
     @Output() filteredUserInputChange = new EventEmitter();
     changeUserInput(){
-        console.log('filteredUserInput');
-        console.log(this.filteredUserInput);
-        /*this.filteredUserInputChange.emit(this.filteredUserInput);
-        console.log('show me this chosen tables');
-        console.log(this._choosenTables);*/
-
         const transmitSet = new FilteredUserInput();
         this._choosenTables['column'].forEach(el => {
-            console.log('inside for each');
-            console.log(el);
             if (this.filteredUserInput.hasOwnProperty(el)){
-                console.log('inside if');
-                console.log(el);
                 transmitSet[el] = this.filteredUserInput[el];
-                //this.filteredUserInput[el] = this.statisticSet[el];
             }
         });
         this.filteredUserInputChange.emit(transmitSet);
@@ -105,23 +92,10 @@ export class RefinementOptionsComponent implements OnInit {
             this.filteredUserInput[key]['sorting'] = 'OFF';
             this.filteredUserInput[key]['columnType'] = el['columnType'];
 
-            /** after implementing isFull on the server side to try to store the checkbox values differently
-            if(el['isFull'] === false){
-                this.filteredUserInput[key]['check'] = [];
-
-                Object.keys(el['uniqueValues']).forEach(els =>{
-                    const uniqueVal = el['uniqueValues'][els];
-
-                    this.filteredUserInput[key]['check'].push(uniqueVal);
-                });
-            }
-             **/
         });
     }
 
     prepareStatisticSet (res: StatisticSet) {
-        console.log('statistics I get');
-        console.log(res);
         this.statisticSet = new StatisticSet();
         Object.keys(res).forEach(keySchema => {
             Object.keys(res[keySchema]).forEach(keyTable => {
@@ -130,8 +104,6 @@ export class RefinementOptionsComponent implements OnInit {
                 });
             });
         });
-        console.log('print my new statisicset');
-        console.log(this.statisticSet);
         this.processStatistics(this.statisticSet);
         this.processUserInput(this.statisticSet);
     }

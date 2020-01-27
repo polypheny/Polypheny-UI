@@ -1,6 +1,8 @@
 <div *ngFor="let entry of statisticSet | keyvalue">
     <div *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], entry.key)">
 
+        <h5><strong>{{entry.value['schema']}} {{entry.value['table']}}</strong></h5>
+        <h5>{{entry.value['column']}}</h5>
 
         <div class="row" >
         <!-- sorting columns ascending, descending or off -->
