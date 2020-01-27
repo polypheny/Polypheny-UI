@@ -39,8 +39,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     resultSet: ResultSet;
     private counter = 0;
     public connections = new Map<string, Connection>();
-    public temporalLine: SvgLine;
     public nodes = new Map<string, Node>();
+    public temporalLine: SvgLine;
     operators = [];
     autocomplete;// names of the schemas, tables and columns
 
@@ -169,8 +169,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     }
 
     deleteAll() {
-        this.nodes = null;
-        this.connections = null;
+        this.nodes = new Map<string, Node>();
+        this.connections = new Map<string, Connection>();
     }
 
     /**
@@ -695,10 +695,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
     public makeSocketConnection() {
         this._webSocketService.startConnection();
-        console.log("here bitch");
         if (this.socketOn) {
             this.socketOn = false;
-            console.log("Falsch");
         } else {
             this._webSocketService.listen('my_message').subscribe((data) => {
                 console.log(data);
@@ -710,8 +708,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
                 }
             });
             this.socketOn = true;
-          console.log("Richtig");
-
         }
     }
 

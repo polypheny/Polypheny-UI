@@ -7,6 +7,7 @@ export class WebuiSettingsService {
 
   connections = new Map<string, string>();
   settings = new Map<string, string>();
+  settingsGR = new Map<string, string>();
   host: string;
 
   constructor() {
@@ -30,7 +31,7 @@ export class WebuiSettingsService {
     this.settings.set( 'configServer.port', localStorage.getItem('configServer.port'));
     this.settings.set( 'informationServer.port', localStorage.getItem('informationServer.port'));
     this.settings.set( 'webUI.port', localStorage.getItem('webUI.port'));
-    this.settings.set( 'websocketGestureRecognition.ip:port', localStorage.getItem('websocketGestureRecognition.ip:port'));
+    this.settingsGR.set( 'websocketGestureRecognition.ip:port', localStorage.getItem('websocketGestureRecognition.ip:port'));
 
     this.connections.set( 'config.rest',
         'http://' + this.host + ':' + localStorage.getItem( 'configServer.port' ) );
@@ -55,8 +56,20 @@ export class WebuiSettingsService {
     return this.settings;
   }
 
+
   public setSetting ( key:string, val:string ) {
     this.settings.set( key, val );
+    localStorage.setItem( key, val );
+    console.log(key);
+    console.log(val);
+  }
+
+  public getSettingsGR(){
+    return this.settingsGR;
+  }
+
+  public setSettingGR ( key:string, val:string ) {
+    this.settingsGR.set( key, val );
     localStorage.setItem( key, val );
     console.log(key);
     console.log(val);
@@ -66,7 +79,6 @@ export class WebuiSettingsService {
     localStorage.setItem('configServer.port', '8081');
     localStorage.setItem('informationServer.port', '8082');
     localStorage.setItem('webUI.port', '8083');
-    localStorage.setItem('websocketGestureRecognition.ip:port', 'localhost:4999');
     location.reload();
   }
 }
