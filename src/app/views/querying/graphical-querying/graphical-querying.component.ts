@@ -26,6 +26,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   selectedColumn = {};
   loading = false;
   whereCounter = 0;
+  orderByCounter = 0;
   andCounter = 0;
   filteredUserSet: FilteredUserInput;
 
@@ -118,8 +119,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     if (fSet instanceof FilteredUserInput) {
       this.filteredUserSet = fSet;
     }
-    console.log('filtered User Set');
-    console.log(this.filteredUserSet);
     this.generateSQL();
   }
 
@@ -144,7 +143,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   sorting(col: string, sort: string){
-    return ('\nORDER BY ' + col + ' ' + sort);
+    return (this.connectOrderby() + col + ' ' + sort);
   }
 
   /**
@@ -156,30 +155,33 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     if(this.filteredUserSet) {
       Object.keys(this.filteredUserSet).forEach(key => {
         const el = this.filteredUserSet[key];
+        console.log(this.selectedColumn);
+        if(this.selectedColumn['column'].includes(key)) {
 
-        if (el['minMax']) {
-          if (!(el['minMax'].toString() === el['startMinMax'].toString())) {
-            whereSql.push(this.minMax(key, el['minMax']));
-          }
-        }
-
-        if (el['startsWith']) {
-          whereSql.push(this.startingWith(key, el['startsWith']));
-        }
-
-        if (el['sorting'] && (el['sorting'] === 'ASC' || el['sorting'] === 'DESC')) {
-          orderBySql.push(this.sorting(key, el['sorting']));
-        }
-
-        Object.keys(el).forEach(k => {
-          if (k.startsWith('check', 0) && el['columnType'] === 'alphabetic' ) {
-            whereSql.push(this.checkboxAlphabetic(key, k, el[k]));
-          }
-          if (k.startsWith('check', 0) && el['columnType'] === 'numeric' ) {
-            whereSql.push(this.checkboxNumeric(key, k, el[k]));
+          if (el['minMax']) {
+            if (!(el['minMax'].toString() === el['startMinMax'].toString())) {
+              whereSql.push(this.minMax(key, el['minMax']));
+            }
           }
 
-        });
+          if (el['startsWith']) {
+            whereSql.push(this.startingWith(key, el['startsWith']));
+          }
+
+          if (el['sorting'] && (el['sorting'] === 'ASC' || el['sorting'] === 'DESC')) {
+            orderBySql.push(this.sorting(key, el['sorting']));
+          }
+
+          Object.keys(el).forEach(k => {
+            if (k.startsWith('check', 0) && el['columnType'] === 'alphabetic' ) {
+              whereSql.push(this.checkboxAlphabetic(key, k, el[k]));
+            }
+            if (k.startsWith('check', 0) && el['columnType'] === 'numeric' ) {
+              whereSql.push(this.checkboxNumeric(key, k, el[k]));
+            }
+
+          });
+        }
       });
       return (whereSql.join('') + orderBySql.join(''));
     } else {
@@ -187,9 +189,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  generateSQL() {
+  async generateSQL() {
     this.whereCounter = 0;
     this.andCounter = 0;
+    this.orderByCounter = 0;
     let filteredInfos = '';
 
     if( this.columns.size === 0 ){
@@ -226,7 +229,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     //to only show filters for selected tables/cols
     this.selectedCol(cols);
 
-    filteredInfos = this.processfilterSet();
+    filteredInfos = await this.processfilterSet();
 
     console.log('is it here ' + filteredInfos);
     const finalized = sql + filteredInfos;
@@ -240,7 +243,21 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     };
   }
 
+  /*
+   * to select correct keyword ORDER BY Comma
+   */
+  connectOrderby(){
+    if(this.orderByCounter === 0){
+      this.orderByCounter += 1;
+      return '\nORDER BY ';
+    } else {
+      return ', ';
+    }
+  }
 
+  /*
+   * to select correct keyword WHERE AND
+   */
   connectWheres(){
     if(this.whereCounter === 0){
       this.whereCounter += 1;
@@ -250,6 +267,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
+  /*
+     * to select correct keyword WHERE OR AND
+     */
   connectWheresAndOr(){
     if(this.whereCounter === 0){
       this.whereCounter += 1;

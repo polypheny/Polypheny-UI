@@ -54,8 +54,7 @@ export class RefinementOptionsComponent implements OnInit {
         console.log('getStatistics');
         this._crud.allStatistics(new StatisticRequest()).subscribe(
             res => {
-                this.processStatistics(<StatisticSet>res);
-                this.processUserInput(<StatisticSet>res);
+                this.prepareStatisticSet(<StatisticSet>res);
             }, err => {
                 this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
             }
@@ -73,26 +72,30 @@ export class RefinementOptionsComponent implements OnInit {
     changeUserInput(){
         console.log('filteredUserInput');
         console.log(this.filteredUserInput);
-        this.filteredUserInputChange.emit(this.filteredUserInput);
+        /*this.filteredUserInputChange.emit(this.filteredUserInput);
+        console.log('show me this chosen tables');
+        console.log(this._choosenTables);*/
+
+        const transmitSet = new FilteredUserInput();
+        this._choosenTables['column'].forEach(el => {
+            console.log('inside for each');
+            console.log(el);
+            if (this.filteredUserInput.hasOwnProperty(el)){
+                console.log('inside if');
+                console.log(el);
+                transmitSet[el] = this.filteredUserInput[el];
+                //this.filteredUserInput[el] = this.statisticSet[el];
+            }
+        });
+        this.filteredUserInputChange.emit(transmitSet);
     }
 
     /**
      * initializing filteredUserInput for dynamic binding
      */
-    processUserInput(res: StatisticSet){
+    processUserInput(stat: StatisticSet){
         this.filteredUserInput = new FilteredUserInput();
-        Object.keys(res).forEach(key => {
-            Object.keys(res[key]).forEach(keySchema =>{
-                Object.keys(res[key][keySchema]).forEach(keyTable =>{
-                    this.statisticSet[res[key][keySchema][keyTable]['fullColumnName']] = res[key][keySchema][keyTable];
-                    console.log('test new statistic set');
-                    console.log(this.statisticSet);
-
-                });
-            });
-        });
-
-        Object.keys(this.statisticSet).forEach(key => {
+        Object.keys(stat).forEach(key => {
             this.filteredUserInput[key] = {};
             const el = this.statisticSet[key];
             if(el['min'] && el['max']){
@@ -116,26 +119,29 @@ export class RefinementOptionsComponent implements OnInit {
         });
     }
 
-    /**
-     * add additional information to the statistics for the components
-     */
-    processStatistics(res: StatisticSet) {
-        console.log('statistc set');
+    prepareStatisticSet (res: StatisticSet) {
+        console.log('statistics I get');
         console.log(res);
-        this.statisticSet = {};
-        Object.keys(res).forEach(key => {
-            Object.keys(res[key]).forEach(keySchema =>{
-                Object.keys(res[key][keySchema]).forEach(keyTable =>{
-                    this.statisticSet[res[key][keySchema][keyTable]['fullColumnName']] = res[key][keySchema][keyTable];
-                    console.log('test new statistic set');
-                    console.log(this.statisticSet);
-
+        this.statisticSet = new StatisticSet();
+        Object.keys(res).forEach(keySchema => {
+            Object.keys(res[keySchema]).forEach(keyTable => {
+                Object.keys(res[keySchema][keyTable]).forEach(key => {
+                    this.statisticSet[res[keySchema][keyTable][key]['fullColumnName']] = res[keySchema][keyTable][key];
                 });
             });
         });
+        console.log('print my new statisicset');
+        console.log(this.statisticSet);
+        this.processStatistics(this.statisticSet);
+        this.processUserInput(this.statisticSet);
+    }
 
-        Object.keys(this.statisticSet).forEach(key => {
-            const el = this.statisticSet[key];
+    /**
+     * add additional information to the statistics for the components
+     */
+    processStatistics(stat: StatisticSet) {
+        Object.keys(stat).forEach(key => {
+            const el = stat[key];
             if(el['min'] && el['max']){
                 if(this.statisticSet[key]['type']){
                     this.statisticSet[key]['type'].push('range');
@@ -148,10 +154,8 @@ export class RefinementOptionsComponent implements OnInit {
                     step: 1,
                     uniqueValues: []
                 };
-
             }
             if(this.statisticSet[key]['uniqueValues']){
-
                 if(this.statisticSet[key]['type']){
                     this.statisticSet[key]['type'].push('uniqueValues');
                 }else{
@@ -159,8 +163,6 @@ export class RefinementOptionsComponent implements OnInit {
                 }
             }
         });
-
-
     }
 
 }
