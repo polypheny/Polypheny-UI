@@ -81,8 +81,9 @@ export class HubService {
     return this._http.post(this.hubUrl, this.toFormData(body));
   }
 
-  createUser( userName: string, admin: string, email: string ){
-    const body = {userId: this.getId(), secret: this.getSecret(), userName: userName, admin: admin, email: email, action: 'createUser'};
+  createUser( userName: string, admin: boolean, email: string ){
+    const adminAsInt = +admin;
+    const body = {userId: this.getId(), secret: this.getSecret(), userName: userName, admin: adminAsInt, email: email, action: 'createUser'};
     return this._http.post(this.hubUrl, this.toFormData(body));
   }
 
