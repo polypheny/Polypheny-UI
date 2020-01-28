@@ -25,6 +25,7 @@ export class RefinementOptionsComponent implements OnInit {
 
     statisticSet: StatisticSet;
     filteredUserInput: FilteredUserInput;
+    stylingSet: {};
     _choosenTables = {};
 
     constructor(
@@ -53,6 +54,10 @@ export class RefinementOptionsComponent implements OnInit {
         this._crud.allStatistics(new StatisticRequest()).subscribe(
             res => {
                 this.prepareStatisticSet(<StatisticSet>res);
+                this.stylingSet = res;
+                console.log('show me the stylingSet');
+                console.log(this.stylingSet);
+
             }, err => {
                 this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
             }
