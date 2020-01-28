@@ -228,7 +228,7 @@ export class HubComponent implements OnInit, OnDestroy {
           }else{
             this._toast.toast('success', result.message, 5, 'bg-success');
             this.getUsers();
-            this.newUserForm.reset();
+            this.newUserForm.reset({admin:false});
             this.newUserFormSubmitted = false;
             this.createUserModal.hide();
           }
@@ -468,6 +468,7 @@ export class HubComponent implements OnInit, OnDestroy {
 
   importIntoPolypheny(){
     this.importDsFormSubmitted = true;
+    this.importProgress = 0;
     if(this.importDsForm.valid){
       //get import status
       this._crud.onSocketEvent().subscribe(
@@ -496,6 +497,7 @@ export class HubComponent implements OnInit, OnDestroy {
             this.downloadDataModal.hide();
           }
         }, err => {
+          this.importProgress = -1;
           this._toast.toast('error', 'The dataset could not be imported', 10, 'bg-warning');
           console.log(err);
         }

@@ -108,7 +108,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this.getTables();
         }
       }, err => {
-        this._toast.toast( 'server error', 'Could not '+confirm+' the table '+table+' due to an unknown error', 10, 'bg-danger' );
+        this._toast.toast( 'server error', 'Could not '+action+' the table '+table+' due to an unknown error', 10, 'bg-danger' );
         console.log( err );
       }
     );

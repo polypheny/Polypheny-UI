@@ -226,7 +226,7 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<div bsModal #loginModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetLoginModal()">
+<div bsModal #loginModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetLoginModal();" (onShown)="usernameInput.focus()">
   <form [formGroup]="loginForm" (ngSubmit)="login()">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -241,7 +241,7 @@
           <div class="form-group">
             <div class="input-group">
               <div class="input-group-prepend"><label style="width:83px" for="loginUser" class="input-group-text">username</label></div>
-              <input type="text" placeholder="username" id="loginUser" class="form-control" formControlName="user" [ngClass]="getValidation(loginForm, 'user')">
+              <input type="text" placeholder="username" id="loginUser" class="form-control" formControlName="user" [ngClass]="getValidation(loginForm, 'user')" #usernameInput>
               <div class="invalid-feedback">Required</div>
             </div>
           </div>
@@ -262,7 +262,7 @@
   </form>
 </div>
 
-<div bsModal #editDatasetModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetEditDataset()">
+<div bsModal #editDatasetModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetEditDataset()" (onShown)="dsNameInput.focus()">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -274,7 +274,7 @@
       <div class="modal-body">
         <div class="form-group">
           <div class="input-group">
-            <div class="input-group-prepend"><label for="editDsName" class="input-group-text">name</label></div>
+            <div class="input-group-prepend"><label for="editDsName" class="input-group-text" #dsNameInput>name</label></div>
             <input type="text" placeholder="name" id="editDsName" class="form-control" [(ngModel)]="editDsName">
           </div>
         </div>
@@ -300,7 +300,7 @@
   </div><!-- /.modal-dialog -->
 </div>
 
-<div bsModal #editUserModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="resetEditUserModal()">
+<div bsModal #editUserModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="resetEditUserModal()" (onShown)="editUsernameInput.focus()">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <form [formGroup]="editUserForm" (ngSubmit)="editUser()">
@@ -317,7 +317,7 @@
               <div class="input-group-prepend">
                 <label for="editUsername" class="input-group-text">Username</label>
               </div>
-              <input type="text" formControlName="name" class="form-control" id="editUsername" [ngClass]="editUserValidation('name')">
+              <input type="text" formControlName="name" class="form-control" id="editUsername" [ngClass]="editUserValidation('name')" #editUsernameInput>
             </div>
           </div>
           <div class="form-group">
@@ -360,7 +360,7 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<div #createUserModal="bs-modal" aria-hidden="true" aria-labelledby="myModalLabel" bsModal class="modal fade" role="dialog" tabindex="-1" (onHidden)="resetNewUserModal()">
+<div #createUserModal="bs-modal" aria-hidden="true" aria-labelledby="myModalLabel" bsModal class="modal fade" role="dialog" tabindex="-1" (onHidden)="resetNewUserModal()" (onShown)="createUserInput.focus()">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <form (ngSubmit)="createUser()" [formGroup]="newUserForm" id="newUserForm">
@@ -374,7 +374,7 @@
           <div class="form-group">
             <div class="input-group">
               <div class="input-group-prepend"><label class="input-group-text" for="userName">username</label></div>
-              <input [ngClass]="newUserValidation('name')" class="form-control" formControlName="name" id="userName" name="username" type="text">
+              <input [ngClass]="newUserValidation('name')" class="form-control" formControlName="name" id="userName" name="username" type="text" #createUserInput>
               <div class="invalid-feedback">required</div>
             </div>
           </div>
@@ -382,8 +382,8 @@
             <div class="input-group">
               <div class="input-group-prepend"><label class="input-group-text" for="email">email</label></div>
               <input [ngClass]="newUserValidation('email')" class="form-control" formControlName="email" id="email" name="username" type="text">
-              <div *ngIf="newUserForm.controls['email'].errors.email" class="invalid-feedback">invalid</div>
-              <div *ngIf="newUserForm.controls['email'].errors.required" class="invalid-feedback">required</div>
+              <div *ngIf="newUserForm.controls['email'].errors && newUserForm.controls['email'].errors.email" class="invalid-feedback">invalid</div>
+              <div *ngIf="newUserForm.controls['email'].errors && newUserForm.controls['email'].errors.required" class="invalid-feedback">required</div>
             </div>
           </div>
           <div class="form-group">
