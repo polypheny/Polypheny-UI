@@ -23,10 +23,12 @@ import {AppComponent} from '../../../../app.component';
 })
 export class RefinementOptionsComponent implements OnInit {
 
+    activeHeaders: {};
     statisticSet: StatisticSet;
     filteredUserInput: FilteredUserInput;
     stylingSet: {};
     _choosenTables = {};
+    active: String;
 
     constructor(
         private _crud: CrudService,
@@ -43,7 +45,30 @@ export class RefinementOptionsComponent implements OnInit {
      */
     @Input()
     set choosenTables(choosenTables: {}){
+        const oldChoosen = this._choosenTables;
         this._choosenTables = choosenTables;
+
+
+        if( choosenTables && ( (oldChoosen === 'nothing' && choosenTables !== 'nothing') || JSON.stringify(oldChoosen['column']) !== JSON.stringify(choosenTables['column']))){
+            this.resetHeader(choosenTables);
+        }
+
+    }
+
+    resetHeader(choosenTables) {
+        if(!this.stylingSet || !choosenTables || choosenTables === 'nothing'  ){
+            return;
+        }
+        this.activeHeaders = {};
+        Object.keys(this.stylingSet).forEach(s => {
+            let i = 0;
+            Object.keys(this.stylingSet[s]).forEach( t => {
+                if(choosenTables !== 'nothing' && this.includesTable(choosenTables['column'], t) && i === 0 ){
+                    this.activeHeaders[s] = t;
+                    i++;
+                }
+            });
+        });
     }
 
     /**
@@ -66,6 +91,28 @@ export class RefinementOptionsComponent implements OnInit {
 
     includes(o: string[], name: string){
         return o.includes(name);
+    }
+
+    includesSchema(o, name: string){
+        const schema = [];
+        if( !o || o === 'nothing' || !o.length ) {
+            return false;
+        }
+        o.forEach(s => {
+           schema.push(s.split('.', 1)[0]);
+        });
+        return this.includes(schema, name);
+    }
+
+    includesTable(o, name: string){
+        const schema = [];
+        if( !o || o === 'nothing' || !o.length ) {
+            return false;
+        }
+        o.forEach(s => {
+            schema.push(s.split('.')[1]);
+        });
+        return this.includes(schema, name);
     }
 
     /**
@@ -142,4 +189,56 @@ export class RefinementOptionsComponent implements OnInit {
         });
     }
 
+    filterHeaders(stylingSet: {}, choosenTable: {}, schema: string) {
+        if (!choosenTable && !choosenTable['column'] ){
+            return null;
+        }
+        const filtered = {};
+        Object.keys(stylingSet).forEach((table, i) => {
+            if(this.includesTable(choosenTable['column'], table)){
+                filtered[table] = stylingSet[table];
+            }
+        });
+
+        /*if(choosenTable['column'] !== 'noting' && choosenTable['column']){
+            this.activeHeaders = {};
+            console.log('iside');
+            console.log(choosenTable['column']);
+            console.log(choosenTable);
+            choosenTable['column'].forEach((table, index) => {
+                if (index === 0) {
+                    const splits = table.split('.');
+                    this.activeHeaders[splits[0]] = splits[1];
+                }
+            });
+            console.log('activ headers');
+            console.log(this.activeHeaders);
+        }*/
+
+        return filtered;
+    }
+
+    addToHeader(schema: string, table: string) {
+        console.log('clicked');
+        console.log('clicked + ' + schema + ' ' + table);
+        if( !this.activeHeaders ){
+            this.activeHeaders = {};
+        }
+        this.activeHeaders[schema] = table;
+    }
+
+    hasMultipleSchemas() {
+        return Object.keys(this.stylingSet).length > 1;
+    }
+
+    hasMultipleCols(schema: string, table: string, column: string) {
+        let i = 0;
+        this._choosenTables['column'].forEach(e => {
+            const splits = e.split('.');
+            if(splits[0] === schema && splits[1] === table ){
+                i++;
+            }
+        });
+        return i > 1;
+    }
 }
