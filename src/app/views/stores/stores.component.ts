@@ -217,6 +217,8 @@ export class StoresComponent implements OnInit, OnDestroy {
         return path + 'hsqldb.jpg';
       case 'PostgreSQL':
         return path + 'postgres.svg';
+      case 'MonetDB':
+        return path + 'monetdb.png';
       default:
         return null;
     }
