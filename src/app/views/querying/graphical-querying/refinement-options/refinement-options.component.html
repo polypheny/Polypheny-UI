@@ -1,6 +1,7 @@
 <div *ngFor="let schema of stylingSet | keyvalue">
     <div *ngIf="_choosenTables && _choosenTables['column'] && includesSchema(_choosenTables['column'], schema.key)">
-        <h5 class="my-2" *ngIf="hasMultipleSchemas()">{{schema.key}}</h5>
+        <h5>Refinement Options</h5>
+        <h4 class="my-2" *ngIf="hasMultipleSchemas()">{{'Schema: ' + schema.key}}</h4>
 
         <div class="card text-center">
             <div class="card-header">
@@ -17,12 +18,13 @@
                     <div *ngIf="_choosenTables && _choosenTables['column'] && includesTable(_choosenTables['column'], table.key) && this.activeHeaders && this.activeHeaders[schema.key] === table.key">
                         <div *ngFor="let col of stylingSet[schema.key][table.key] | keyvalue">
                             <div *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['fullColumnName'])">
+                                <div class="border-top border-secondary my-2" *ngIf="isFirstCol(schema.key, table.key, col.key)"> </div>
                                 <h5>{{col.key}}</h5>
 
                                 <div class="row" [id]="this.statisticSet[col.value['fullColumnName']]['table']">
                                     <!-- sorting columns ascending, descending or off -->
                                     <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['fullColumnName'])">
-                                        <p>sort</p>
+                                        <p>Sorting</p>
                                         <div class="btn-group btn-group-toggle" id="radio" data-toggle="buttons">
                                             <label [className]="this.filteredUserInput[col.value['fullColumnName']]['sorting'] == 'OFF' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
                                                 <input type="radio" class="form-control" name="sort" value="OFF" id="{col.value['fullColumnName'] + 'sortOff'}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['fullColumnName']]['sorting']" (ngModelChange)="changeUserInput()"> off
@@ -38,14 +40,14 @@
 
                                     <!-- min max for numeric values -->
                                     <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf="this.statisticSet[col.value['fullColumnName']]['type'] && includes(this.statisticSet[col.value['fullColumnName']]['type'], 'range') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['fullColumnName'])">
-                                        <label for="slider">value</label>
+                                        <label for="slider">Min - Max</label>
                                         <ng5-slider  id="slider" [(value)]="this.statisticSet[col.value['fullColumnName']]['min']"
                                                      [(highValue)]="this.statisticSet[col.value['fullColumnName']]['max']" [options]="this.statisticSet[col.value['fullColumnName']]['options']" [(ngModel)]="this.filteredUserInput[col.value['fullColumnName']]['minMax']" (ngModelChange)="changeUserInput()"></ng5-slider>
                                     </div>
 
                                     <!-- column value starts with -->
                                     <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf="this.statisticSet[col.value['fullColumnName']]['type'] && includes(this.statisticSet[col.value['fullColumnName']]['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['fullColumnName']) && this.statisticSet[col.value['fullColumnName']]['columnType'] == 'alphabetic' && this.statisticSet[col.value['fullColumnName']]['isFull']">
-                                        <label for="search">search</label>
+                                        <label for="search">Search</label>
                                         <div class="input-group mb-3" id="search">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" id="basic-addon1">starts with</span>
@@ -56,7 +58,7 @@
 
                                     <!-- checkbox for unique values -->
                                     <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf="this.statisticSet[col.value['fullColumnName']]['type'] && includes(this.statisticSet[col.value['fullColumnName']]['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['fullColumnName']) && !(this.statisticSet[col.value['fullColumnName']]['isFull']) && this.statisticSet[col.value['fullColumnName']]['uniqueValues'].length ">
-                                        <label for="check">select</label>
+                                        <label for="check">Unique Values</label>
                                         <div *ngFor="let val of this.statisticSet[col.value['fullColumnName']]['uniqueValues']">
                                             <div class="form-check" id="check">
                                                 <input class="form-check-input" type="checkbox" id="defaultCheck1" [(ngModel)]="this.filteredUserInput[col.value['fullColumnName']]['check' + val]" (ngModelChange)="changeUserInput()">
@@ -67,9 +69,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-
-                                <div class="border-top border-secondary my-2" *ngIf="hasMultipleCols(schema.key, table.key, col.key)"> </div>
 
 
                             </div>

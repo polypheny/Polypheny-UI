@@ -241,4 +241,20 @@ export class RefinementOptionsComponent implements OnInit {
         });
         return i > 1;
     }
+
+    isFirstCol(schema: string, table: string, col: string ) {
+        const cols = [];
+        const colName = schema+'.'+table+'.'+col;
+        this._choosenTables['column'].forEach(e => {
+            const splits = e.split('.');
+            if(splits[0] === schema && splits[1] === table) {
+                cols.push(e);
+            }
+        });
+        if( cols.length > 0 ){
+            return cols[0] !== colName;
+        }else {
+            return false;
+        }
+    }
 }
