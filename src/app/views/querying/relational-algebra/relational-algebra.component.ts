@@ -22,8 +22,6 @@ import {SidebarNode} from '../../../models/sidebar-node.model';
 import {Ace} from "ace-builds";
 import execEventHandler = Ace.execEventHandler;
 import {WebSocketService} from "../../../services/web-socket.service";
-// import {ChatService} from "../../../services/chat.service";
-import {WebuiSettingsService} from "../../../services/webui-settings.service"
 import {RightSidebarToRelationalalgebraService} from "../../../services/right-sidebar-to-relationalalgebra.service";
 
 @Component({
@@ -168,6 +166,9 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         this.connections.delete(id);
     }
 
+    /**
+     * Delete every single node
+     */
     deleteAll() {
         this.nodes = new Map<string, Node>();
         this.connections = new Map<string, Connection>();
@@ -543,6 +544,10 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         this.setAutocomplete();
     }
 
+    /**
+     * Imports a Query Plan from a file.
+     * Not necessary anymore - still left in the code, could be useful some time
+     */
     importTreeFile() {
 
         fetch("./assets/testfile.json")
@@ -594,62 +599,19 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         document.body.removeChild(selBox);
     }
 
-    stringToNodes(input: string) {
-        console.log(input);
-        const type = input.toLowerCase();
-        console.log(type);
-        var operator;
-        switch (type) {
-            case 'tablescan':
-                operator = LogicalOperator.TableScan;
-                break;
-            case 'join':
-                operator = LogicalOperator.Join;
-                break;
-            case 'filter':
-                operator = LogicalOperator.Filter;
-                break;
-            case 'aggregate':
-                operator = LogicalOperator.Aggregate;
-                break;
-            case 'sort':
-                operator = LogicalOperator.Sort;
-                break;
-            case 'union':
-                operator = LogicalOperator.Union;
-                break;
-            case 'minus':
-                operator = LogicalOperator.Minus;
-                break;
-            case 'intersect':
-                operator = LogicalOperator.Intersect;
-                break;
-            default:
-                console.log('no valid string')
-                return
-        }
 
-        const id = 'node' + this.counter++;
-
-        const node = new Node(id, operator, 0, 0)
-        this.nodes.set(id, node);
-
-        //this.formatNodesTree()
-
-
-        this.treeHeight()
-
-        return node;
-
-    }
-
-
+    /**
+     * Calculates tree height of a balanced tree
+     */
     treeHeight() {
         const height = Math.floor(Math.log2(this.counter));
         console.log(height);
         return height
     }
 
+    /**
+     * Formats all nodes in the working field
+     */
     formatNodesTree() {
         const height = this.treeHeight();
         let leftPadding = 0;
@@ -671,6 +633,9 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
     }
 
+    /**
+     * Formats all nodes as a square in the working field
+     */
     formatNodesSquare() {
         const height = this.treeHeight();
         let leftPadding = 0;
@@ -692,7 +657,10 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
-
+    /**
+     * Establishes the socket connection to the Query by Gesture Bridge and listens to incoming data.
+     *
+     */
     public makeSocketConnection() {
         this._webSocketService.startConnection();
         if (this.socketOn) {
@@ -704,19 +672,19 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
                     this.deleteAll()
                 }
                 if (data.toString().startsWith("{")) {
-                    this.insertNode(data)
+                    this.parseJson(data)
                 }
             });
             this.socketOn = true;
         }
     }
 
-    
 
-    insertNode(data) {
-        this.parseJson(data)
-    }
-
+    /**
+     * Parses the whole JSON string received from the Query by Gesture Bridge and puts the parsed tree into the
+     * Pan Builder working field.
+     * @param data is JSON string received over the Web SOcket
+     */
     parseJson(data) {
         const input = data;
         if (input === null || input === '') {
