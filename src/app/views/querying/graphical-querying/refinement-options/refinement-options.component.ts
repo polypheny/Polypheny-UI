@@ -274,11 +274,12 @@ export class RefinementOptionsComponent implements OnInit {
         }
         const filtered =  {};
         Object.keys(inputSet).forEach(e => {
-            if(this.includes(this._choosenTables['column'], inputSet['FullColumnName'])){
+            if(this.includes(this._choosenTables['column'], inputSet[e]['fullColumnName'])){
             filtered[e] = inputSet[e];
             }
         });
         console.log('sets');
+        console.log(inputSet)
         console.log(this._choosenTables['column']);
         console.log(filtered);
         return filtered;
