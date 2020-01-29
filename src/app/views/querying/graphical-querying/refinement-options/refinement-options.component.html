@@ -7,7 +7,7 @@
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item" *ngFor="let table of filterHeaders(stylingSet[schema.key], _choosenTables, schema.key) | keyvalue">
-                        <a [className]="this.activeHeaders[schema.key] === table.key ? 'nav-link active': 'nav-link'" (click)="addToHeader(schema.key, table.key)" >{{table.key}}</a>
+                        <a [className]="this.activeHeaders && this.activeHeaders[schema.key] === table.key ? 'nav-link active': 'nav-link'" (click)="addToHeader(schema.key, table.key)" >{{table.key}}</a>
                     </li>
                 </ul>
             </div>
@@ -16,9 +16,8 @@
             <div class="card-body text-left">
                 <div *ngFor="let table of stylingSet[schema.key] | keyvalue">
                     <div *ngIf="_choosenTables && _choosenTables['column'] && includesTable(_choosenTables['column'], table.key) && this.activeHeaders && this.activeHeaders[schema.key] === table.key">
-                        <div *ngFor="let col of stylingSet[schema.key][table.key] | keyvalue">
-                            <div *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['fullColumnName'])">
-                                <div class="border-top border-secondary my-2" *ngIf="isFirstCol(schema.key, table.key, col.key)"> </div>
+                        <div *ngFor="let col of filterSet(stylingSet[schema.key][table.key]) | keyvalue; index as i">
+                            <div class="refinement-column" *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['fullColumnName'])">
                                 <h5>{{col.key}}</h5>
 
                                 <div class="row" [id]="this.statisticSet[col.value['fullColumnName']]['table']">

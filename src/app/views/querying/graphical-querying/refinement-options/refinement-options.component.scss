@@ -2,6 +2,16 @@
   margin-bottom: 0.5rem;
 }
 
+.refinement-column{
+  border-top: 1px solid #c8ced3;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+}
+
+.refinement-column:nth-child(1){
+  border-top: 1px solid transparent;
+}
+
 input[type=range] {
   background: grey;
   height: 0.8rem;

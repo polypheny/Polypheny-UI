@@ -191,7 +191,7 @@ export class RefinementOptionsComponent implements OnInit {
 
     filterHeaders(stylingSet: {}, choosenTable: {}, schema: string) {
         if (!choosenTable && !choosenTable['column'] ){
-            return null;
+            return [];
         }
         const filtered = {};
         Object.keys(stylingSet).forEach((table, i) => {
@@ -242,19 +242,46 @@ export class RefinementOptionsComponent implements OnInit {
         return i > 1;
     }
 
-    isFirstCol(schema: string, table: string, col: string ) {
+    getFullName( schema: string, table: string, col:string ) {
+        return schema+'.'+table+'.'+col
+    }
+
+    needsLine(schema: string, table: string, col: string ) {
         const cols = [];
-        const colName = schema+'.'+table+'.'+col;
-        this._choosenTables['column'].forEach(e => {
-            const splits = e.split('.');
-            if(splits[0] === schema && splits[1] === table) {
-                cols.push(e);
-            }
-        });
-        if( cols.length > 0 ){
-            return cols[0] !== colName;
-        }else {
+
+        if(!this.statisticSet || !this.statisticSet[schema] || !this.statisticSet[schema][table]){
             return false;
         }
+
+        Object.keys(this.statisticSet[schema][table]).forEach(c => {
+            const name = this.getFullName(schema, table, col);
+            if(this.includes(this._choosenTables['column'], name)){
+                cols.push(name)
+            }
+        });
+        console.log(cols);
+
+        if( cols.length > 0 ){
+            return cols[0] !== this.getFullName(schema, table, col);
+        }else {
+            return true;
+        }
+    }
+
+    filterSet(inputSet: {}) {
+        if(!inputSet || !this._choosenTables || !this._choosenTables['column']) {
+            return {};
+        }
+        const filtered =  {};
+        Object.keys(inputSet).forEach(e => {
+            if(this.includes(this._choosenTables['column'], inputSet['FullColumnName'])){
+            filtered[e] = inputSet[e];
+            }
+        });
+        console.log('sets');
+        console.log(this._choosenTables['column']);
+        console.log(filtered);
+        return filtered;
+
     }
 }
