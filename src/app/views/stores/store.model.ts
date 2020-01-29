@@ -2,14 +2,15 @@ export interface Store {
   storeId: number;
   uniqueName: string;
   adapterName;
-  settings: AdapterSetting[];
+  adapterSettings: AdapterSetting[];
+  currentSettings: Map<string, string>;
 }
 
 export interface AdapterInformation {
   name: string;
   description: string;
   clazz: string;
-  settings: AdapterSetting[];
+  adapterSettings: AdapterSetting[];
 }
 
 export interface AdapterSetting {

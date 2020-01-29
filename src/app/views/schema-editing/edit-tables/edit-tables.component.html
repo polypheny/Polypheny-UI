@@ -135,7 +135,8 @@
           <div class="form-group">
             <div class="input-group">
               <div class="input-group-prepend"><label for="exportName" class="input-group-text">name</label></div>
-              <input type="text" placeholder="name" id="exportName" class="form-control" formControlName="name">
+              <input type="text" placeholder="name" id="exportName" class="form-control" formControlName="name"
+                     autocomplete="off">
             </div>
           </div>
           <input type="hidden" formControlName="table" [(ngModel)]="exportingTable">

@@ -20,11 +20,12 @@
         <div class="card" id="changePwCard">
           <div class="card-header">Change password</div>
           <div class="card-body">
-            <form [formGroup]="changePwForm" (ngSubmit)="changePassword()">
+            <form [formGroup]="changePwForm" (ngSubmit)="changePassword()" autocomplete="off">
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-prepend"><label for="oldPw" class="input-group-text">old pw</label></div>
-                  <input type="password" class="form-control" name="oldPw" id="oldPw" formControlName="oldPw" [ngClass]="getPwValidation('oldPw')">
+                  <input type="password" class="form-control" name="oldPw" id="oldPw" formControlName="oldPw"
+                         [ngClass]="getPwValidation('oldPw')">
                   <div class="invalid-feedback" *ngIf="!changePwForm.controls['oldPw'].valid ">required</div>
                 </div>
               </div>
@@ -96,14 +97,21 @@
           <div class="card-header">Upload dataset</div>
           <div class="card-body">
             <p>Only files of type <span class="badge badge-light" style="font-size: 90%">.zip</span> are allowed.</p>
-            <form [formGroup]="newDsForm" (ngSubmit)="newDsFormSubmit()">
+            <form [formGroup]="newDsForm" (ngSubmit)="newDsFormSubmit()" autocomplete="off">
               <div class="form-group">
                 <div class="custom-file">
-                  <input type="file" class="custom-file-input" id="newDsFile" formControlName="dataset" [ngClass]="newDsFormValidation('dataset')" (change)="setFileToUpload($event.target.files)">
+                  <input type="file" class="custom-file-input" id="newDsFile" formControlName="dataset"
+                         [ngClass]="newDsFormValidation('dataset')" (change)="setFileToUpload($event.target.files)">
                   <label class="custom-file-label" for="newDsFile" *ngIf="!fileToUpload">choose your Dataset</label>
                   <label class="custom-file-label" for="newDsFile" *ngIf="fileToUpload">{{fileToUpload[0].name}}</label>
-                  <div class="invalid-feedback" *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['required']">required</div>
-                  <div class="invalid-feedback" *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['pattern']">only files of type zip are allowed</div>
+                  <div class="invalid-feedback"
+                       *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['required']">
+                    required
+                  </div>
+                  <div class="invalid-feedback"
+                       *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['pattern']">
+                    only files of type zip are allowed
+                  </div>
                 </div>
               </div>
               <div class="form-group">
@@ -173,7 +181,7 @@
 <div bsModal #downloadDataModal="bs-modal" id="downloadDataModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <form [formGroup]="importDsForm" (ngSubmit)="importIntoPolypheny()">
+      <form [formGroup]="importDsForm" (ngSubmit)="importIntoPolypheny()" autocomplete="off">
         <div class="modal-header">
           <h4 class="modal-title">Download dataset</h4>
           <button type="button" class="close" (click)="downloadDataModal.hide()" aria-label="Close">
@@ -227,7 +235,7 @@
 </div><!-- /.modal -->
 
 <div bsModal #loginModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetLoginModal();" (onShown)="usernameInput.focus()">
-  <form [formGroup]="loginForm" (ngSubmit)="login()">
+  <form [formGroup]="loginForm" (ngSubmit)="login()" autocomplete="off">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -303,7 +311,7 @@
 <div bsModal #editUserModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="resetEditUserModal()" (onShown)="editUsernameInput.focus()">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <form [formGroup]="editUserForm" (ngSubmit)="editUser()">
+      <form [formGroup]="editUserForm" (ngSubmit)="editUser()" autocomplete="off">
         <div class="modal-header">
           <h4 class="modal-title">Edit user</h4>
           <button type="button" class="close" (click)="editUserModal.hide()" aria-label="Close">
@@ -363,14 +371,14 @@
 <div #createUserModal="bs-modal" aria-hidden="true" aria-labelledby="myModalLabel" bsModal class="modal fade" role="dialog" tabindex="-1" (onHidden)="resetNewUserModal()" (onShown)="createUserInput.focus()">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <form (ngSubmit)="createUser()" [formGroup]="newUserForm" id="newUserForm">
-      <div class="modal-header">
-        <h4 class="modal-title">Create user</h4>
-        <button (click)="createUserModal.hide()" aria-label="Close" class="close" type="button">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
+      <form (ngSubmit)="createUser()" [formGroup]="newUserForm" id="newUserForm" autocomplete="off">
+        <div class="modal-header">
+          <h4 class="modal-title">Create user</h4>
+          <button (click)="createUserModal.hide()" aria-label="Close" class="close" type="button">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
           <div class="form-group">
             <div class="input-group">
               <div class="input-group-prepend"><label class="input-group-text" for="userName">username</label></div>

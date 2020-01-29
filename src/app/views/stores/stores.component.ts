@@ -91,11 +91,12 @@ export class StoresComponent implements OnInit, OnDestroy {
   initStoreSettings( store: Store ){
     this.editingStore = store;
     const fc = {};
-    for( const [k,v] of Object.entries(this.editingStore.settings)){
+    for (const [k, v] of Object.entries(this.editingStore.adapterSettings)) {
       const validators = [];
-      if(v.required) { validators.push( Validators.required ); }
-      let val = v.defaultValue;
-      if( v.options ) { val = v.options[0]; }
+      if (v.required) {
+        validators.push(Validators.required);
+      }
+      const val = store.currentSettings[v.name];
       fc[v.name] = new FormControl({value: val, disabled: !v.modifiable}, validators);
     }
     this.editingStoreForm = new FormGroup( fc );
@@ -123,11 +124,15 @@ export class StoresComponent implements OnInit, OnDestroy {
   initAdapterSettings( adapter: AdapterInformation ){
     this.editingAdapter = adapter;
     const fc = {};
-    for( const [k,v] of Object.entries(this.editingAdapter.settings)){
+    for (const [k, v] of Object.entries(this.editingAdapter.adapterSettings)) {
       const validators = [];
-      if(v.required) { validators.push( Validators.required ); }
+      if (v.required) {
+        validators.push(Validators.required);
+      }
       let val = v.defaultValue;
-      if( v.options ) { val = v.options[0]; }
+      if (v.options) {
+        val = v.options[0];
+      }
       fc[v.name] = new FormControl(val, validators);
     }
     this.editingAdapterForm = new FormGroup( fc );
@@ -148,7 +153,7 @@ export class StoresComponent implements OnInit, OnDestroy {
   }
 
   getAdapterSetting( adapter, key: string ): AdapterSetting{
-    return adapter.settings.filter( (a, i) => a.name === key )[0];
+    return adapter.adapterSettings.filter((a, i) => a.name === key)[0];
   }
 
   deploy(){

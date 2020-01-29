@@ -73,14 +73,15 @@
       </div>
 
       <!-- stores -->
-      <div class="modal-body" *ngIf="editingStore && editingStore.settings">
-        <form [formGroup]="editingStoreForm">
+      <div class="modal-body" *ngIf="editingStore && editingStore.adapterSettings">
+        <form [formGroup]="editingStoreForm" autocomplete="off">
           <div class="form-group" *ngFor="let control of editingStoreForm.controls | keyvalue">
             <div class="input-group" *ngIf="!getAdapterSetting(editingStore, control.key).options">
               <div class="input-group-prepend">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
-              <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key" [ngClass]="validate(editingStoreForm, control.key)">
+              <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
+                     [ngClass]="validate(editingStoreForm, control.key)">
               <div class="invalid-feedback">required</div>
             </div>
             <div class="form-group" *ngIf="getAdapterSetting(editingStore, control.key).options">
@@ -89,7 +90,8 @@
                   <label class="input-group-text" [for]="control.key">{{control.key}}</label>
                 </div>
                 <select [id]="control.key" class="form-control" [formControlName]="control.key">
-                  <option *ngFor="let option of getAdapterSetting(editingStore, control.key).options" [value]="option">{{option}}</option>
+                  <option *ngFor="let option of getAdapterSetting(editingStore, control.key).options"
+                          [value]="option">{{option}}</option>
                 </select>
               </div>
             </div>
@@ -98,25 +100,27 @@
       </div>
 
       <!-- adapters -->
-      <div class="modal-body" *ngIf="editingAdapter && editingAdapter.settings">
-        <form [formGroup]="adapterUniqueNameForm" (ngSubmit)="deploy()">
+      <div class="modal-body" *ngIf="editingAdapter && editingAdapter.adapterSettings">
+        <form [formGroup]="adapterUniqueNameForm" (ngSubmit)="deploy()" autocomplete="off">
           <div class="form-group">
             <div class="input-group">
               <div class="input-group-prepend">
                 <label for="adapterUniqueName" class="input-group-text">Unique name</label>
               </div>
-              <input type="text" class="form-control" id="adapterUniqueName" formControlName="uniqueName" [ngClass]="validate(adapterUniqueNameForm, 'uniqueName')">
+              <input type="text" class="form-control" id="adapterUniqueName" formControlName="uniqueName"
+                     [ngClass]="validate(adapterUniqueNameForm, 'uniqueName')">
               <div class="invalid-feedback">{{getFeedback()}}</div>
             </div>
           </div>
         </form>
-        <form [formGroup]="editingAdapterForm" (ngSubmit)="deploy()">
+        <form [formGroup]="editingAdapterForm" (ngSubmit)="deploy()" autocomplete="off">
           <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
             <div class="input-group" *ngIf="!getAdapterSetting(editingAdapter, control.key).options">
               <div class="input-group-prepend">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
-              <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key" [ngClass]="validate(editingAdapterForm, control.key)">
+              <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
+                     [ngClass]="validate(editingAdapterForm, control.key)">
               <div class="invalid-feedback">required</div>
             </div>
             <div class="form-group" *ngIf="getAdapterSetting(editingAdapter, control.key).options">
