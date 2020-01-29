@@ -24,7 +24,7 @@ import execEventHandler = Ace.execEventHandler;
 import {WebSocketService} from "../../../services/web-socket.service";
 // import {ChatService} from "../../../services/chat.service";
 import {WebuiSettingsService} from "../../../services/webui-settings.service"
-import {SettingsToRelationalalgebraService} from "../../../services/settings-to-relationalalgebra.service";
+import {RightSidebarToRelationalalgebraService} from "../../../services/right-sidebar-to-relationalalgebra.service";
 
 @Component({
     selector: 'app-relational-algebra',
@@ -59,7 +59,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         private _crud: CrudService,
         private _toast: ToastService,
         private _webSocketService: WebSocketService,
-        private _sToRa: SettingsToRelationalalgebraService
+        private _RsToRa: RightSidebarToRelationalalgebraService
     ) {
         this.socketOn = false;
     }
@@ -68,7 +68,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     ngOnInit() {
         this.getOperators();
         this.getAutocomplete();
-        this._sToRa.change.subscribe(run => {
+        this._RsToRa.change.subscribe(run => {
             this.makeSocketConnection();
         });
     }

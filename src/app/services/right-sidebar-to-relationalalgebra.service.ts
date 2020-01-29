@@ -3,7 +3,7 @@ import { Injectable, Output, EventEmitter } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class SettingsToRelationalalgebraService {
+export class RightSidebarToRelationalalgebraService {
 
   constructor() { }
 

@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {FormControl, FormGroup} from '@angular/forms';
-import {SettingsToRelationalalgebraService} from "../../services/settings-to-relationalalgebra.service";
+import {RightSidebarToRelationalalgebraService} from "../../services/right-sidebar-to-relationalalgebra.service";
 import { DOCUMENT } from '@angular/common';
 
 @Component({
@@ -21,7 +21,7 @@ export class RightSidebarComponent implements OnInit {
 
   constructor(
       private _settings: WebuiSettingsService,
-      private _sToRa:SettingsToRelationalalgebraService
+      private _RsToRa:RightSidebarToRelationalalgebraService
   ) {
     const controls = {};
     this.settings.forEach((val, key) => {
@@ -66,6 +66,6 @@ export class RightSidebarComponent implements OnInit {
     } else {
       this.buttonName = 'connect';
     }
-    this._sToRa.toggle();
+    this._RsToRa.toggle();
     }
  }
