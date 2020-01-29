@@ -168,6 +168,9 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         this.connections.delete(id);
     }
 
+    /**
+     * Delete every single node
+     */
     deleteAll() {
         this.nodes = new Map<string, Node>();
         this.connections = new Map<string, Connection>();
@@ -543,6 +546,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         this.setAutocomplete();
     }
 
+    //TODO Delete
     importTreeFile() {
 
         fetch("./assets/testfile.json")
@@ -594,6 +598,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         document.body.removeChild(selBox);
     }
 
+    //TODO delete
     stringToNodes(input: string) {
         console.log(input);
         const type = input.toLowerCase();
@@ -643,13 +648,18 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
     }
 
-
+    /**
+     * Calculates tree height of a balanced tree
+     */
     treeHeight() {
         const height = Math.floor(Math.log2(this.counter));
         console.log(height);
         return height
     }
 
+    /**
+     * Formats all nodes in the working field
+     */
     formatNodesTree() {
         const height = this.treeHeight();
         let leftPadding = 0;
@@ -671,6 +681,9 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
     }
 
+    /**
+     * Formats all nodes as a square in the working field
+     */
     formatNodesSquare() {
         const height = this.treeHeight();
         let leftPadding = 0;
@@ -692,7 +705,10 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
-
+    /**
+     * Establishes the socket connection to the Query by Gesture Bridge and listens to incoming data.
+     *
+     */
     public makeSocketConnection() {
         this._webSocketService.startConnection();
         if (this.socketOn) {
@@ -704,19 +720,19 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
                     this.deleteAll()
                 }
                 if (data.toString().startsWith("{")) {
-                    this.insertNode(data)
+                    this.parseJson(data)
                 }
             });
             this.socketOn = true;
         }
     }
 
-    
 
-    insertNode(data) {
-        this.parseJson(data)
-    }
-
+    /**
+     * Parses the whole JSON string received from the Query by Gesture Bridge and puts the parsed tree into the
+     * Pan Builder working field.
+     * @param data is JSON string received over the Web SOcket
+     */
     parseJson(data) {
         const input = data;
         if (input === null || input === '') {
