@@ -259,9 +259,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     const cols = [];
     const filterCols = [];
     $('#selectBox').find('.dbCol').each( (i, el) => {
-      const id = "\""+$(el).attr('data-id').split(".").join("\".\"")+"\""
+      const name = $(el).attr('data-id')
+      const id = "\""+name.split(".").join("\".\"")+"\""
       cols.push( id );
-      cols.push( $(el).attr('data-id') );
+      filterCols.push( name );
     });
     sql += cols.join(', ');
     sql += '\nFROM ';
@@ -285,7 +286,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       }
 
     //to only show filters for selected tables/cols
-    this.selectedCol(cols);
+    this.selectedCol(filterCols);
 
     filteredInfos = await this.processfilterSet();
 
