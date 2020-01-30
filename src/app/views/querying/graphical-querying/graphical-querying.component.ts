@@ -122,15 +122,27 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.generateSQL();
   }
 
-  checkboxAlphabetic(col: string, key: string, bol: boolean){
-    if(bol){
-      return (this.connectWheresAndOr() + col + ' = ' + '\'' + key.replace('check', '') + '\'' );
+  checkboxMultipAlphabetic(col: string, checked: [string]){
+    const checkbox = [];
+    checked.forEach(val => {
+        checkbox.push('\'' + val.replace('check', '') + '\'');
+    });
+    if (checkbox.length > 1){
+      return (this.connectWheres() + col + ' IN (' + checkbox + ')');
+    } else {
+      return (this.connectWheres() + col + ' = ' + checkbox);
     }
   }
 
-  checkboxNumeric(col: string, key: string, bol: boolean){
-    if(bol){
-      return (this.connectWheresAndOr() + col + ' = ' + key.replace('check', ''));
+  checkboxMultipNumeric(col: string, checked: [string]){
+    const checkbox = [];
+    checked.forEach(val => {
+      checkbox.push(val.replace('check', ''));
+    });
+    if (checkbox.length > 1){
+      return (this.connectWheresAndOr() + col + ' IN (' + checkbox + ')');
+    } else {
+      return (this.connectWheresAndOr() + col + ' = ' + checkbox );
     }
   }
 
@@ -152,37 +164,73 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   processfilterSet(){
     const whereSql = [];
     const orderBySql = [];
+    const numericalSQL = [];
+    const checkboxSQLAlphabetic = {};
+    const checkboxSQLNumerical = {};
     if(this.filteredUserSet) {
-      Object.keys(this.filteredUserSet).forEach(key => {
-        const el = this.filteredUserSet[key];
-        if(this.selectedColumn['column'].includes(key)) {
+      Object.keys(this.filteredUserSet).forEach(col => {
+        const el = this.filteredUserSet[col];
+        if(this.selectedColumn['column'].includes(col)) {
 
           if (el['minMax']) {
             if (!(el['minMax'].toString() === el['startMinMax'].toString())) {
-              whereSql.push(this.minMax(key, el['minMax']));
+              numericalSQL.push(this.minMax(col, el['minMax']));
             }
           }
 
           if (el['startsWith']) {
-            whereSql.push(this.startingWith(key, el['startsWith']));
+            whereSql.push(this.startingWith(col, el['startsWith']));
           }
 
           if (el['sorting'] && (el['sorting'] === 'ASC' || el['sorting'] === 'DESC')) {
-            orderBySql.push(this.sorting(key, el['sorting']));
+            orderBySql.push(this.sorting(col, el['sorting']));
           }
 
           Object.keys(el).forEach(k => {
-            if (k.startsWith('check', 0) && el['columnType'] === 'alphabetic' ) {
-              whereSql.push(this.checkboxAlphabetic(key, k, el[k]));
+            if (k.startsWith('check', 0) && el['columnType'] === 'alphabetic') {
+              //whereSql.push(this.checkboxAlphabetic(col, k, el[k]));
+              if(el[k]){
+                if (checkboxSQLAlphabetic[col]){
+                  checkboxSQLAlphabetic[col].push(k);
+                } else {
+                  checkboxSQLAlphabetic[col] = [k];
+                }
+              }
             }
             if (k.startsWith('check', 0) && el['columnType'] === 'numeric' ) {
-              whereSql.push(this.checkboxNumeric(key, k, el[k]));
+              //whereSql.push(this.checkboxNumeric(col, k, el[k]));
+              if(el[k]){
+                if (checkboxSQLNumerical[col]){
+                  checkboxSQLNumerical[col].push(k);
+                } else {
+                  checkboxSQLNumerical[col] = [k];
+                }
+              }
             }
 
           });
         }
       });
-      return (whereSql.join('') + orderBySql.join(''));
+      if (checkboxSQLAlphabetic) {
+       Object.keys(checkboxSQLAlphabetic).forEach(col => {
+          whereSql.push(this.checkboxMultipAlphabetic(col, checkboxSQLAlphabetic[col]));
+       });
+      }
+      if (checkboxSQLNumerical) {
+        Object.keys(checkboxSQLNumerical).forEach(col => {
+          numericalSQL.push(this.checkboxMultipNumeric(col, checkboxSQLNumerical[col]));
+        });
+      }
+
+      let newNumericalSQL = '';
+      if(numericalSQL.length > 1){
+        newNumericalSQL = numericalSQL.join('') + ')';
+        newNumericalSQL = [newNumericalSQL.slice(0, 7), '(', newNumericalSQL.slice(7)].join('');
+      } else {
+        newNumericalSQL = numericalSQL.join('');
+      }
+
+      return (newNumericalSQL + whereSql.join('') + orderBySql.join(''));
     } else {
       return '';
     }
@@ -265,7 +313,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  /*
+    /*
      * to select correct keyword WHERE OR AND
      */
   connectWheresAndOr(){
@@ -273,10 +321,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       this.whereCounter += 1;
       this.andCounter += 1;
       return '\nWHERE ';
-    } else if (this.andCounter === 0){
+    } /* else if (this.andCounter === 0){
       this.andCounter += 1;
       return '\nAND ';
-    } else {
+    } */
+    else {
       return '\nOR ';
     }
   }

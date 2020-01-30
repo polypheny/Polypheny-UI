@@ -80,19 +80,22 @@ export class RefinementOptionsComponent implements OnInit {
             res => {
                 this.prepareStatisticSet(<StatisticSet>res);
                 this.stylingSet = res;
-                console.log('show me the stylingSet');
-                console.log(this.stylingSet);
-
             }, err => {
                 this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
             }
         );
     }
 
+    /**
+     * Checks if a column value is included in the chosen table
+     */
     includes(o: string[], name: string){
         return o.includes(name);
     }
 
+    /**
+     * Checks if a schema is included in the chosen tables
+     */
     includesSchema(o, name: string){
         const schema = [];
         if( !o || o === 'nothing' || !o.length ) {
@@ -104,6 +107,9 @@ export class RefinementOptionsComponent implements OnInit {
         return this.includes(schema, name);
     }
 
+    /**
+     * Checks if a table is chosen
+     */
     includesTable(o, name: string){
         const schema = [];
         if( !o || o === 'nothing' || !o.length ) {
@@ -147,6 +153,9 @@ export class RefinementOptionsComponent implements OnInit {
         });
     }
 
+    /**
+     * prepares the statisticSet from Server
+     */
     prepareStatisticSet (res: StatisticSet) {
         this.statisticSet = new StatisticSet();
         Object.keys(res).forEach(keySchema => {
@@ -199,28 +208,10 @@ export class RefinementOptionsComponent implements OnInit {
                 filtered[table] = stylingSet[table];
             }
         });
-
-        /*if(choosenTable['column'] !== 'noting' && choosenTable['column']){
-            this.activeHeaders = {};
-            console.log('iside');
-            console.log(choosenTable['column']);
-            console.log(choosenTable);
-            choosenTable['column'].forEach((table, index) => {
-                if (index === 0) {
-                    const splits = table.split('.');
-                    this.activeHeaders[splits[0]] = splits[1];
-                }
-            });
-            console.log('activ headers');
-            console.log(this.activeHeaders);
-        }*/
-
         return filtered;
     }
 
     addToHeader(schema: string, table: string) {
-        console.log('clicked');
-        console.log('clicked + ' + schema + ' ' + table);
         if( !this.activeHeaders ){
             this.activeHeaders = {};
         }
@@ -229,43 +220,6 @@ export class RefinementOptionsComponent implements OnInit {
 
     hasMultipleSchemas() {
         return Object.keys(this.stylingSet).length > 1;
-    }
-
-    hasMultipleCols(schema: string, table: string, column: string) {
-        let i = 0;
-        this._choosenTables['column'].forEach(e => {
-            const splits = e.split('.');
-            if(splits[0] === schema && splits[1] === table ){
-                i++;
-            }
-        });
-        return i > 1;
-    }
-
-    getFullName( schema: string, table: string, col:string ) {
-        return schema+'.'+table+'.'+col
-    }
-
-    needsLine(schema: string, table: string, col: string ) {
-        const cols = [];
-
-        if(!this.statisticSet || !this.statisticSet[schema] || !this.statisticSet[schema][table]){
-            return false;
-        }
-
-        Object.keys(this.statisticSet[schema][table]).forEach(c => {
-            const name = this.getFullName(schema, table, col);
-            if(this.includes(this._choosenTables['column'], name)){
-                cols.push(name)
-            }
-        });
-        console.log(cols);
-
-        if( cols.length > 0 ){
-            return cols[0] !== this.getFullName(schema, table, col);
-        }else {
-            return true;
-        }
     }
 
     filterSet(inputSet: {}) {
@@ -278,11 +232,6 @@ export class RefinementOptionsComponent implements OnInit {
             filtered[e] = inputSet[e];
             }
         });
-        console.log('sets');
-        console.log(inputSet)
-        console.log(this._choosenTables['column']);
-        console.log(filtered);
         return filtered;
-
     }
 }
