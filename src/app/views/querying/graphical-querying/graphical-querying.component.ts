@@ -257,9 +257,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     let sql = 'SELECT ';
     const cols = [];
+    const filterCols = [];
     $('#selectBox').find('.dbCol').each( (i, el) => {
       const id = "\""+$(el).attr('data-id').split(".").join("\".\"")+"\""
       cols.push( id );
+      cols.push( $(el).attr('data-id') );
     });
     sql += cols.join(', ');
     sql += '\nFROM ';
