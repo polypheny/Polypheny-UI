@@ -225,7 +225,15 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       let newNumericalSQL = '';
       if(numericalSQL.length > 1){
         newNumericalSQL = numericalSQL.join('') + ')';
-        newNumericalSQL = [newNumericalSQL.slice(0, 7), '(', newNumericalSQL.slice(7)].join('');
+        console.log(newNumericalSQL);
+        if (newNumericalSQL.startsWith('\nWHERE')){
+          newNumericalSQL = [newNumericalSQL.slice(0, 7), '(', newNumericalSQL.slice(7)].join('');
+        } if (newNumericalSQL.startsWith('\nAND')){
+          newNumericalSQL = [newNumericalSQL.slice(0, 5), '(', newNumericalSQL.slice(5)].join('');
+        } if (newNumericalSQL.startsWith('\nOR')){
+          newNumericalSQL = [newNumericalSQL.slice(0, 4), '(', newNumericalSQL.slice(4)].join('');
+        }
+
       } else {
         newNumericalSQL = numericalSQL.join('');
       }
