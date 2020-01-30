@@ -174,16 +174,16 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
           if (el['minMax']) {
             if (!(el['minMax'].toString() === el['startMinMax'].toString())) {
-              numericalSQL.push(this.minMax(col, el['minMax']));
+              numericalSQL.push(this.minMax(this.wrapInParetheses(col), el['minMax']));
             }
           }
 
           if (el['startsWith']) {
-            whereSql.push(this.startingWith(col, el['startsWith']));
+            whereSql.push(this.startingWith(this.wrapInParetheses(col), el['startsWith']));
           }
 
           if (el['sorting'] && (el['sorting'] === 'ASC' || el['sorting'] === 'DESC')) {
-            orderBySql.push(this.sorting(col, el['sorting']));
+            orderBySql.push(this.sorting(this.wrapInParetheses(col), el['sorting']));
           }
 
           Object.keys(el).forEach(k => {
@@ -213,12 +213,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       });
       if (checkboxSQLAlphabetic) {
        Object.keys(checkboxSQLAlphabetic).forEach(col => {
-          whereSql.push(this.checkboxMultipAlphabetic(col, checkboxSQLAlphabetic[col]));
+          whereSql.push(this.checkboxMultipAlphabetic(this.wrapInParetheses(col), checkboxSQLAlphabetic[col]));
        });
       }
       if (checkboxSQLNumerical) {
         Object.keys(checkboxSQLNumerical).forEach(col => {
-          numericalSQL.push(this.checkboxMultipNumeric(col, checkboxSQLNumerical[col]));
+          numericalSQL.push(this.checkboxMultipNumeric(this.wrapInParetheses(col), checkboxSQLNumerical[col]));
         });
       }
 
@@ -242,6 +242,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     } else {
       return '';
     }
+  }
+
+  wrapInParetheses(k){
+    return "\"" + k.split(".").join("\".\"") + "\"";
   }
 
   async generateSQL() {
@@ -408,7 +412,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         const pkId = fk.pkTableSchema + '.' + fk.pkTableName + '.' + fk.pkColumnName;
         if ( this.tables.get( fk.pkTableSchema + '.' + fk.pkTableName ) !== undefined &&
              this.tables.get( fk.fkTableSchema + '.' + fk.fkTableName ) !== undefined ){
-          this.joinConditions.set( fkId + pkId, new JoinCondition( fkId + ' = ' + pkId ) );
+          this.joinConditions.set( fkId + pkId, new JoinCondition( this.wrapInParetheses( fkId ) + ' = ' + this.wrapInParetheses( pkId ) ) );
         }
       });
     });
