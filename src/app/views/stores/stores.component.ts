@@ -64,7 +64,9 @@ export class StoresComponent implements OnInit, OnDestroy {
   getStores(){
     this._crud.getStores().subscribe(
       res => {
-        this.stores = <Store[]> res;
+        const stores = <Store[]> res;
+        stores.sort((a, b) => (a.uniqueName > b.uniqueName) ? 1 : -1);
+        this.stores = stores;
       }, err => {
         console.log(err);
       }
@@ -74,6 +76,8 @@ export class StoresComponent implements OnInit, OnDestroy {
   getAdapters(){
     this._crud.getAdapters().subscribe(
       res => {
+        const adapters = <AdapterInformation[]> res;
+        adapters.sort((a, b) => (a.name > b.name) ? 1 : -1);
         this.adapters = <AdapterInformation[]> res;
       }, err => {
         console.log(err);
