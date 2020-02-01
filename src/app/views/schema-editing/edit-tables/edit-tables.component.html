@@ -8,6 +8,7 @@
     <thead>
         <tr>
             <th>Table</th>
+            <th *ngIf="_hub && _hub.getSecret()">Export</th>
             <th>Truncate</th>
             <th>Drop</th>
         </tr>
@@ -15,6 +16,10 @@
     <tbody>
         <tr *ngFor="let table of tables let i = index">
             <td>{{table}}</td>
+            <td *ngIf="_hub && _hub.getSecret()"><button class="btn" (click)="initExportModal(table)">
+              <i class="cui-cloud-upload"></i>
+              <!--<span class="spinner-border spinner-border-sm" *ngIf="exportingTable === table"></span>-->
+            </button></td>
             <td>
                 <div class="input-group">
                     <input type="text" class="form-control form-control-sm" placeholder="truncate {{table}}" [(ngModel)]="truncate[i]">
@@ -113,4 +118,82 @@
             </tbody>
         </table>
     </div>
+</div>
+
+<div bsModal #exportTableModal="bs-modal" class="modal fade" id="exportTableModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetExport()">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form [formGroup]="exportForm">
+        <div class="modal-header">
+          <h4 class="modal-title">Export table</h4>
+          <button type="button" class="close" (click)="exportTableModal.hide()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Keep in mind that exporting a whole table can lead to a large dataset. If you want to proceed, specify the name the exported dataset should have and click on the export button.</p>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label for="exportName" class="input-group-text">name</label></div>
+              <input type="text" placeholder="name" id="exportName" class="form-control" formControlName="name"
+                     autocomplete="off">
+            </div>
+          </div>
+          <input type="hidden" formControlName="table" [(ngModel)]="exportingTable">
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label for="exportPublic" class="input-group-text">public</label></div>
+              <div class="checkbox-wrapper">
+                <div style="display: flex;justify-content: center;">
+                  <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="exportPublic">
+                    <input type="checkbox" class="form-control switch-input" id="exportPublic" formControlName="pub">
+                    <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label for="createPK" class="input-group-text">Create PK</label></div>
+              <div class="checkbox-wrapper">
+                <div style="display: flex;justify-content: center;">
+                  <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="createPK">
+                    <input type="checkbox" class="form-control switch-input" id="createPK" formControlName="createPrimaryKeys">
+                    <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label for="addDefaultVals" class="input-group-text">Default values</label></div>
+              <div class="checkbox-wrapper">
+                <div style="display: flex;justify-content: center;">
+                  <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="addDefaultVals">
+                    <input type="checkbox" class="form-control switch-input" id="addDefaultVals" formControlName="addDefaultValue">
+                    <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="exportTableModal.hide()">Close</button>
+          <button type="button" class="btn btn-primary" (click)="exportTable()" [disabled]="uploading">
+            <span class="spinner-border spinner-border-sm" *ngIf="uploading"></span>
+            Export
+          </button>
+          <div class="progress-wrapper">
+            <progressbar *ngIf="uploading && exportProgress < 1" class="progress progress-striped" [value]="exportProgress" [max]="1"></progressbar>
+            <progressbar *ngIf="uploading && exportProgress === 1" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>
+          </div>
+        </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
 </div>

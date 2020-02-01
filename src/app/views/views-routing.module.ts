@@ -6,6 +6,8 @@ import {TableViewComponent} from './table-view/table-view.component';
 import {SchemaEditingComponent} from './schema-editing/schema-editing.component';
 import {MonitoringComponent} from './monitoring/monitoring.component';
 import {QueryingComponent} from './querying/querying.component';
+import {StoresComponent} from './stores/stores.component';
+import {HubComponent} from './hub/hub.component';
 
 const routes: Routes = [
   {
@@ -90,7 +92,35 @@ const routes: Routes = [
     data: {
       title: 'Form Generator'
     }
-  }
+  },
+  {
+    path: 'stores',
+    component: StoresComponent,
+    data: {
+      title: 'Stores'
+    }
+  },
+  {
+    path: 'stores/:action',
+    component: StoresComponent,
+    data: {
+      title: 'Stores'
+    }
+  },
+  {
+    path: 'hub',
+    component: HubComponent,
+    data: {
+      title: 'Polypheny-DB Hub'
+    }
+  },
+  {
+    path: 'hub/:sub',
+    component: HubComponent,
+    data: {
+      title: 'Polypheny-DB Hub'
+    }
+  },
 ];
 
 @NgModule({

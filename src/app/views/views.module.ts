@@ -5,7 +5,15 @@ import { ViewsRoutingModule } from './views-routing.module';
 import {TableViewComponent} from './table-view/table-view.component';
 import {SqlConsoleComponent} from './querying/sql-console/sql-console.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {BsDropdownModule, ButtonsModule, CollapseModule, ModalModule, TooltipModule, TypeaheadModule} from 'ngx-bootstrap';
+import {
+  BsDropdownModule,
+  ButtonsModule,
+  CollapseModule,
+  ModalModule,
+  ProgressbarModule,
+  TooltipModule,
+  TypeaheadModule
+} from 'ngx-bootstrap';
 import {ComponentsModule} from '../components/components.module';
 import {EditColumnsComponent} from './schema-editing/edit-columns/edit-columns.component';
 import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
@@ -21,6 +29,8 @@ import { RelationalAlgebraComponent } from './querying/relational-algebra/relati
 import { QueryingComponent } from './querying/querying.component';
 import { NodeComponent } from './querying/relational-algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
+import { StoresComponent } from './stores/stores.component';
+import { HubComponent } from './hub/hub.component';
 
 @NgModule({
   imports: [
@@ -42,7 +52,8 @@ import {AutocompleteLibModule} from 'angular-ng-autocomplete';
     BsDropdownModule,
     DragDropModule,
     ModalModule.forRoot(),
-    AutocompleteLibModule
+    AutocompleteLibModule,
+    ProgressbarModule
   ],
   declarations: [
     EditColumnsComponent,
@@ -56,7 +67,9 @@ import {AutocompleteLibModule} from 'angular-ng-autocomplete';
     MonitoringComponent,
     RelationalAlgebraComponent,
     QueryingComponent,
-    NodeComponent
+    NodeComponent,
+    StoresComponent,
+    HubComponent
   ],
   exports: []
 })
