@@ -9,7 +9,7 @@
   <ng-container *ngSwitchCase="'manage'">
     <div class="row">
       <div class="col-lg-12">
-        <h1>Hub account</h1>
+        <h1>Polypheny Hub: Accounts</h1>
         <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn === 0" (click)="loginModal.show()">login</button>
         <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn !== 0" (click)="logout()">logout</button>
       </div>
@@ -23,7 +23,7 @@
             <form [formGroup]="changePwForm" (ngSubmit)="changePassword()" autocomplete="off">
               <div class="form-group">
                 <div class="input-group">
-                  <div class="input-group-prepend"><label for="oldPw" class="input-group-text">old pw</label></div>
+                  <div class="input-group-prepend"><label for="oldPw" class="input-group-text">Old</label></div>
                   <input type="password" class="form-control" name="oldPw" id="oldPw" formControlName="oldPw"
                          [ngClass]="getPwValidation('oldPw')">
                   <div class="invalid-feedback" *ngIf="!changePwForm.controls['oldPw'].valid ">required</div>
@@ -31,7 +31,7 @@
               </div>
               <div class="form-group">
                 <div class="input-group">
-                  <div class="input-group-prepend"><label for="newPw1" class="input-group-text">new pw</label></div>
+                  <div class="input-group-prepend"><label for="newPw1" class="input-group-text">New</label></div>
                   <input type="password" class="form-control" name="newPw1" id="newPw1" formControlName="newPw1" [ngClass]="getPwValidation('newPw1')">
                   <div class="invalid-feedback" *ngIf="!changePwForm.controls['newPw1'].valid ">required</div>
                   <div class="invalid-feedback" *ngIf="changePwForm.controls['newPw1'].valid && this.changePwForm.errors && this.changePwForm.errors['equals']">The new passwords do not match</div>
@@ -39,7 +39,7 @@
               </div>
               <div class="form-group">
                 <div class="input-group">
-                  <div class="input-group-prepend"><label for="newPw2" class="input-group-text">new pw</label></div>
+                  <div class="input-group-prepend"><label for="newPw2" class="input-group-text">Repeat</label></div>
                   <input type="password" class="form-control" name="newPw2" id="newPw2" formControlName="newPw2" [ngClass]="getPwValidation('newPw2')">
                   <div class="invalid-feedback" *ngIf="!changePwForm.controls['newPw2'].valid ">required</div>
                   <div class="invalid-feedback" *ngIf="changePwForm.controls['newPw2'].valid && this.changePwForm.errors && this.changePwForm.errors['equals']">The new passwords do not match</div>
@@ -84,9 +84,9 @@
   <ng-container *ngSwitchDefault>
     <div class="row">
       <div class="col-lg-12">
-        <h1>Hub datasets</h1>
-        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn === 0" (click)="loginModal.show()">login</button>
-        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn !== 0" (click)="logout()">logout</button>
+        <h1>Polypheny Hub: Datasets</h1>
+        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn === 0" (click)="loginModal.show()">Login</button>
+        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn !== 0" (click)="logout()">Logout</button>
       </div>
     </div>
     <p *ngIf="!_hub.getSecret()">Please log in to upload a dataset.</p>
@@ -94,7 +94,7 @@
       <div class="col-lg-4" *ngIf="_hub.getSecret()">
 
         <div class="card" id="upload-card">
-          <div class="card-header">Upload dataset</div>
+          <div class="card-header">Manual upload</div>
           <div class="card-body">
             <p>Only files of type <span class="badge badge-light" style="font-size: 90%">.zip</span> are allowed.</p>
             <form [formGroup]="newDsForm" (ngSubmit)="newDsFormSubmit()" autocomplete="off">
@@ -102,7 +102,7 @@
                 <div class="custom-file">
                   <input type="file" class="custom-file-input" id="newDsFile" formControlName="dataset"
                          [ngClass]="newDsFormValidation('dataset')" (change)="setFileToUpload($event.target.files)">
-                  <label class="custom-file-label" for="newDsFile" *ngIf="!fileToUpload">choose your Dataset</label>
+                  <label class="custom-file-label" for="newDsFile" *ngIf="!fileToUpload">Choose a dataset</label>
                   <label class="custom-file-label" for="newDsFile" *ngIf="fileToUpload">{{fileToUpload[0].name}}</label>
                   <div class="invalid-feedback"
                        *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['required']">
@@ -110,20 +110,20 @@
                   </div>
                   <div class="invalid-feedback"
                        *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['pattern']">
-                    only files of type zip are allowed
+                    only files of type .zip are allowed
                   </div>
                 </div>
               </div>
               <div class="form-group">
                 <div class="input-group">
-                  <div class="input-group-prepend"><label style="width:83px" for="newDsName" class="input-group-text">name</label></div>
+                  <div class="input-group-prepend"><label style="width:83px" for="newDsName" class="input-group-text">Name</label></div>
                   <input type="text" placeholder="name" id="newDsName" class="form-control" formControlName="name" [ngClass]="newDsFormValidation('name')">
                   <div class="invalid-feedback">required</div>
                 </div>
               </div>
               <div class="form-group">
                 <div class="input-group">
-                  <div class="input-group-prepend"><label for="newDsPublic" class="input-group-text">public</label></div>
+                  <div class="input-group-prepend"><label for="newDsPublic" class="input-group-text">Public</label></div>
 
                   <div class="checkbox-wrapper">
                     <label class="switch switch-label switch-pill switch-sm switch-primary">
@@ -134,7 +134,7 @@
                 </div>
               </div>
               <div class="from-group">
-                <button type="submit" class="btn btn-primary btn-sm pull-right">upload</button>
+                <button type="submit" class="btn btn-primary btn-sm pull-right">Upload</button>
               </div>
               <progressbar *ngIf="newDsFormSubmitted && uploadProgress < 100 && uploadProgress > 0" class="progress progress-striped" [value]="uploadProgress" [max]="100"></progressbar>
               <progressbar *ngIf="newDsFormSubmitted && uploadProgress === 100" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>
@@ -183,35 +183,35 @@
     <div class="modal-content">
       <form [formGroup]="importDsForm" (ngSubmit)="importIntoPolypheny()" autocomplete="off">
         <div class="modal-header">
-          <h4 class="modal-title">Download dataset</h4>
+          <h4 class="modal-title">Import dataset</h4>
           <button type="button" class="close" (click)="downloadDataModal.hide()" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
           <div class="form-inline mb-3" *ngIf="availableStores">
-            <label for="importIntoStore" class="mr-2">Select store</label>
+            <label for="importIntoStore" class="mr-2">Store</label>
             <select id="importIntoStore" class="form-control" formControlName="store">
-              <option value="">choose</option>
+              <option value="">Select store</option>
               <option *ngFor="let s of availableStores" [value]="s.uniqueName">{{s.uniqueName}}</option>
             </select>
           </div>
           <div class="form-inline mb-3">
-            <label for="importIntoSchema" class="mr-2">Select schema</label>
+            <label for="importIntoSchema" class="mr-2">Schema</label>
             <select id="importIntoSchema" class="form-control" *ngIf="schemas" formControlName="schema">
-              <option value="">select schema</option>
+              <option value="">Select schema</option>
               <option *ngFor="let s of schemas" [value]="s.name">{{s.name}}</option>
             </select>
           </div>
           <div class="form-group mb-0" style="display: flex">
-            <label for="addDefaultVals" class="switch-label2">Add default value</label>
+            <label for="addDefaultVals" class="switch-label2">Add default values</label>
             <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="addDefaultVals">
               <input type="checkbox" class="form-control switch-input" id="addDefaultVals" formControlName="addDefaultValue">
               <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
             </label>
           </div>
           <div class="form-group mb-0" style="display: flex">
-            <label for="createPK" class="switch-label2">Create PK</label>
+            <label for="createPK" class="switch-label2">Create primary key</label>
             <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="createPK">
               <input type="checkbox" class="form-control switch-input" id="createPK" formControlName="createPrimaryKeys">
               <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
@@ -222,8 +222,8 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="downloadDataModal.hide()">Close</button>
-          <a class="btn btn-primary" [href]="downloadPath">Download locally</a>
-          <button type="submit" class="btn btn-primary">Import into Polypheny</button>
+          <a class="btn btn-secondary" [href]="downloadPath">Download</a>
+          <button type="submit" class="btn btn-primary">Import</button>
           <div class="progress-wrapper">
             <progressbar *ngIf="importDsFormSubmitted && importProgress < 1 && importProgress > 0" class="progress progress-striped" [value]="importProgress" [max]="1"></progressbar>
             <progressbar *ngIf="importDsFormSubmitted && (importProgress === 1 || importProgress === 0)" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>
@@ -248,14 +248,14 @@
           <p class="text-danger">{{loginError}}</p>
           <div class="form-group">
             <div class="input-group">
-              <div class="input-group-prepend"><label style="width:83px" for="loginUser" class="input-group-text">username</label></div>
+              <div class="input-group-prepend"><label style="width:83px" for="loginUser" class="input-group-text">Username</label></div>
               <input type="text" placeholder="username" id="loginUser" class="form-control" formControlName="user" [ngClass]="getValidation(loginForm, 'user')" #usernameInput>
               <div class="invalid-feedback">Required</div>
             </div>
           </div>
           <div class="form-group">
             <div class="input-group">
-              <div class="input-group-prepend"><label style="width:83px" for="loginPw" class="input-group-text">password</label></div>
+              <div class="input-group-prepend"><label style="width:83px" for="loginPw" class="input-group-text">Password</label></div>
               <input type="password" placeholder="password" id="loginPw" class="form-control" formControlName="pw" [ngClass]="getValidation(loginForm, 'pw')">
               <div class="invalid-feedback">Required</div>
             </div>
@@ -282,13 +282,13 @@
       <div class="modal-body">
         <div class="form-group">
           <div class="input-group">
-            <div class="input-group-prepend"><label for="editDsName" class="input-group-text" #dsNameInput>name</label></div>
+            <div class="input-group-prepend"><label for="editDsName" class="input-group-text" #dsNameInput>Name</label></div>
             <input type="text" placeholder="name" id="editDsName" class="form-control" [(ngModel)]="editDsName">
           </div>
         </div>
         <div class="form-group">
           <div class="input-group">
-            <div class="input-group-prepend"><label for="editDsPublic" class="input-group-text">public</label></div>
+            <div class="input-group-prepend"><label for="editDsPublic" class="input-group-text">Public</label></div>
 
             <div class="checkbox-wrapper">
               <label class="switch switch-label switch-pill switch-sm switch-primary">
@@ -361,7 +361,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="editUserModal.hide()">Close</button>
-          <button type="submit" class="btn btn-primary">Edit</button>
+          <button type="submit" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div><!-- /.modal-content -->
@@ -381,14 +381,14 @@
         <div class="modal-body">
           <div class="form-group">
             <div class="input-group">
-              <div class="input-group-prepend"><label class="input-group-text" for="userName">username</label></div>
+              <div class="input-group-prepend"><label class="input-group-text" for="userName">Username</label></div>
               <input [ngClass]="newUserValidation('name')" class="form-control" formControlName="name" id="userName" name="username" type="text" #createUserInput>
               <div class="invalid-feedback">required</div>
             </div>
           </div>
           <div class="form-group">
             <div class="input-group">
-              <div class="input-group-prepend"><label class="input-group-text" for="email">email</label></div>
+              <div class="input-group-prepend"><label class="input-group-text" for="email">Email</label></div>
               <input [ngClass]="newUserValidation('email')" class="form-control" formControlName="email" id="email" name="username" type="text">
               <div *ngIf="newUserForm.controls['email'].errors && newUserForm.controls['email'].errors.email" class="invalid-feedback">invalid</div>
               <div *ngIf="newUserForm.controls['email'].errors && newUserForm.controls['email'].errors.required" class="invalid-feedback">required</div>
@@ -396,7 +396,7 @@
           </div>
           <div class="form-group">
             <div class="input-group">
-              <div class="input-group-prepend"><label class="input-group-text" for="admin">admin</label></div>
+              <div class="input-group-prepend"><label class="input-group-text" for="admin">Admin</label></div>
               <div class="checkbox-wrapper">
                 <label class="switch switch-label switch-pill switch-sm switch-primary">
                   <input class="form-control switch-input" formControlName="admin" id="admin" name="admin" type="checkbox">
@@ -407,7 +407,7 @@
           </div>
       </div>
       <div class="modal-footer">
-        <button (click)="createUserModal.hide();" class="btn btn-secondary" type="button">Close</button>
+        <button (click)="createUserModal.hide();" class="btn btn-secondary" type="button" style="position: absolute; left: 1rem;">Close</button>
         <button type="submit" class="btn btn-primary">Create</button>
       </div>
         </form>

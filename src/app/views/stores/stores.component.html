@@ -51,7 +51,7 @@
             <button class="btn btn-danger" (click)="removeStore(store)" (mouseleave)="deletingStore = undefined">
               <i class="cui-trash" [ngClass]="{'cui-trash': store !== deletingStore, 'fa fa-warning': store === deletingStore}"></i>
             </button>
-            <button class="btn btn-primary pull-right" (click)="initStoreSettings(store)">configure</button>
+            <button class="btn btn-primary pull-right" (click)="initStoreSettings(store)">Configure</button>
           </div>
         </div>
 
@@ -105,7 +105,7 @@
           <div class="form-group">
             <div class="input-group">
               <div class="input-group-prepend">
-                <label for="adapterUniqueName" class="input-group-text">Unique name</label>
+                <label for="adapterUniqueName" class="input-group-text">Store Name</label>
               </div>
               <input type="text" class="form-control" id="adapterUniqueName" formControlName="uniqueName"
                      [ngClass]="validate(adapterUniqueNameForm, 'uniqueName')">
