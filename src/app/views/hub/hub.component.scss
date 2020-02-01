@@ -1,0 +1,73 @@
+h1{
+  display: inline-block;
+}
+#changePwCard .input-group-text {
+  width: 75px;
+}
+.iconColumn{
+  width: 2rem;
+  text-align:center;
+}
+.checkbox-wrapper{
+  flex: 1;
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  border: 1px solid #e4e7ea;
+}
+.ptr:hover{
+  cursor: pointer;
+}
+.iconColumn .fa-warning{
+  color: #dc3545;
+}
+.checkbox-wrapper{
+  position: relative;
+  flex: 1;
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  border: 1px solid #e4e7ea;
+}
+.checkbox-wrapper .switch{
+  position: absolute;
+  top: calc(50% - 0.75em);
+  left: calc(50% - 1.4em);
+}
+#editUserModal .input-group-text{
+  width: 84px;
+}
+.input-group > .form-control:not(:last-child), .input-group > .custom-select:not(:last-child) {
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+.no-radius{
+  border-radius: 0 !important;
+}
+.switch-label2{
+  margin:0 1em 0 0;
+  line-height: 2.5em;
+}
+.public{
+  float: right;
+  line-height: 1.5em;
+}
+#upload-card progressbar{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 0;
+  height: 5px;
+}
+#downloadDataModal .modal-footer{
+  position: relative;
+}
+.progress-wrapper{
+  position: absolute;
+  top: 0;
+  left: -4px;
+  right: 0;
+}
+.progress-wrapper progressbar{
+  border-radius: 0;
+  height: 5px;
+}

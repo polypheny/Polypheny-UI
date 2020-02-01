@@ -16,13 +16,19 @@ import {
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
+import {HubService} from './hub.service';
+import {Store} from '../views/stores/store.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CrudService {
 
-  constructor( private _http:HttpClient, private _settings:WebuiSettingsService ) {
+  constructor(
+    private _http:HttpClient,
+    private _settings:WebuiSettingsService,
+    private _hub: HubService
+  ) {
     this.initWebSocket();
   }
 
@@ -261,6 +267,46 @@ export class CrudService {
    */
   getFkActions(){
     return this._http.get(`${this.httpUrl}/getForeignKeyActions`, this.httpOptions);
+  }
+
+  importDataset ( schema: string, store: string, url: string, createPks: boolean, addDefault: boolean ) {
+    return this._http.post(`${this.httpUrl}/importDataset`, {schema: schema, store: store, url: url, createPks: createPks, defaultValues: addDefault}, this.httpOptions);
+  }
+
+  exportTable( name: string, schema: string, table: string, pub: boolean, createPks: boolean, addDefault: boolean ){
+    const body = {
+      userId: this._hub.getId(),
+      secret: this._hub.getSecret(),
+      name: name,
+      schema: schema,
+      table: table,
+      pub: pub,
+      hubLink: this._hub.getHubUrl(),
+      createPks: createPks,
+      defaultValues: addDefault
+    };
+    //const index = new Index( schema, table, this._settings.getConnection('hub.url'), null, null );
+    return this._http.post( `${this.httpUrl}/exportTable`, body );
+  }
+
+  getStores(){
+    return this._http.get( `${this.httpUrl}/getStores` );
+  }
+
+  updateStoreSettings( store: Store ){
+    return this._http.post( `${this.httpUrl}/updateStoreSettings`, store );
+  }
+
+  getAdapters(){
+    return this._http.get( `${this.httpUrl}/getAdapters` );
+  }
+
+  addStore( store: any ){
+    return this._http.post( `${this.httpUrl}/addStore`, store, this.httpOptions );
+  }
+
+  removeStore( storeId: string ){
+    return this._http.post( `${this.httpUrl}/removeStore`, storeId, this.httpOptions );
   }
 
   getNameValidator ( required: boolean = false ) {

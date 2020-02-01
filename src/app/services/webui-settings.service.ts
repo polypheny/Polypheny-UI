@@ -22,10 +22,15 @@ export class WebuiSettingsService {
     if( localStorage.getItem('webUI.port') === null ) {
       localStorage.setItem('webUI.port', '8083');
     }
+    //hub
+    if( localStorage.getItem('hub.url') === null ) {
+      localStorage.setItem('hub.url', 'https://hub.polypheny.org/index.php');
+    }
 
     this.settings.set( 'configServer.port', localStorage.getItem('configServer.port'));
     this.settings.set( 'informationServer.port', localStorage.getItem('informationServer.port'));
     this.settings.set( 'webUI.port', localStorage.getItem('webUI.port'));
+    this.settings.set( 'hub.url', localStorage.getItem('hub.url'));
 
     this.connections.set( 'config.rest',
         'http://' + this.host + ':' + localStorage.getItem( 'configServer.port' ) );
@@ -39,6 +44,7 @@ export class WebuiSettingsService {
         'http://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) );
     this.connections.set( 'crud.socket',
         'ws://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) + '/queryAnalyzer' );
+    this.connections.set( 'hub.url', localStorage.getItem('hub.url'));
 
   }
 
@@ -53,14 +59,13 @@ export class WebuiSettingsService {
   public setSetting ( key:string, val:string ) {
     this.settings.set( key, val );
     localStorage.setItem( key, val );
-    console.log(key);
-    console.log(val);
   }
 
   public reset(){
     localStorage.setItem('configServer.port', '8081');
     localStorage.setItem('informationServer.port', '8082');
     localStorage.setItem('webUI.port', '8083');
+    localStorage.setItem('hub.url', 'https://hub.polypheny.org/index.php');
     location.reload();
   }
 

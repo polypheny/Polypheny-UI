@@ -1,0 +1,416 @@
+<app-toast></app-toast>
+
+<ng-container [ngSwitch]="subpage">
+
+  <ng-container *ngSwitchCase="'configuration'">
+    Configuration
+  </ng-container>
+
+  <ng-container *ngSwitchCase="'manage'">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1>Polypheny Hub: Accounts</h1>
+        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn === 0" (click)="loginModal.show()">Login</button>
+        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn !== 0" (click)="logout()">Logout</button>
+      </div>
+    </div>
+    <p *ngIf="loggedIn == 0">Please log in to manage your account.</p>
+    <div class="row" *ngIf="loggedIn != 0">
+      <div class="col-md-4">
+        <div class="card" id="changePwCard">
+          <div class="card-header">Change password</div>
+          <div class="card-body">
+            <form [formGroup]="changePwForm" (ngSubmit)="changePassword()" autocomplete="off">
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label for="oldPw" class="input-group-text">Old</label></div>
+                  <input type="password" class="form-control" name="oldPw" id="oldPw" formControlName="oldPw"
+                         [ngClass]="getPwValidation('oldPw')">
+                  <div class="invalid-feedback" *ngIf="!changePwForm.controls['oldPw'].valid ">required</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label for="newPw1" class="input-group-text">New</label></div>
+                  <input type="password" class="form-control" name="newPw1" id="newPw1" formControlName="newPw1" [ngClass]="getPwValidation('newPw1')">
+                  <div class="invalid-feedback" *ngIf="!changePwForm.controls['newPw1'].valid ">required</div>
+                  <div class="invalid-feedback" *ngIf="changePwForm.controls['newPw1'].valid && this.changePwForm.errors && this.changePwForm.errors['equals']">The new passwords do not match</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label for="newPw2" class="input-group-text">Repeat</label></div>
+                  <input type="password" class="form-control" name="newPw2" id="newPw2" formControlName="newPw2" [ngClass]="getPwValidation('newPw2')">
+                  <div class="invalid-feedback" *ngIf="!changePwForm.controls['newPw2'].valid ">required</div>
+                  <div class="invalid-feedback" *ngIf="changePwForm.controls['newPw2'].valid && this.changePwForm.errors && this.changePwForm.errors['equals']">The new passwords do not match</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary float-right">Change password</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-8" *ngIf="users && !users.error">
+        <div class="card">
+          <div class="card-header">Manage users
+            <a [routerLink]="[]" class="pull-right" (click)="createUserModal.show()">create user</a>
+          </div>
+          <div class="card-body">
+            <table class="table table-hover table-sm table-bordered table-striped">
+              <thead>
+              <tr>
+                <th *ngFor="let h of users.header">{{h}}</th>
+                <th class="iconColumn"><i class="cui-pencil"></i></th>
+                <th class="iconColumn"><i class="cui-trash"></i></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let user of users.data | keyvalue">
+                <td *ngFor="let v of user.value">{{v}}</td>
+                <td class="iconColumn"><i class="cui-pencil ptr" (click)="initEditUserModal(user.value)"></i></td>
+                <td class="iconColumn"><i class="ptr" [ngClass]="{'fa fa-warning': deleteUserConfirm === +user.value[0], 'cui-trash': deleteUserConfirm !== +user.value[0]}" (click)="deleteUser(+user.value[0])" (mouseout)="deleteUserConfirm = -1"></i></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- datasets -->
+  <ng-container *ngSwitchDefault>
+    <div class="row">
+      <div class="col-lg-12">
+        <h1>Polypheny Hub: Datasets</h1>
+        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn === 0" (click)="loginModal.show()">Login</button>
+        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn !== 0" (click)="logout()">Logout</button>
+      </div>
+    </div>
+    <p *ngIf="!_hub.getSecret()">Please log in to upload a dataset.</p>
+    <div class="row">
+      <div class="col-lg-4" *ngIf="_hub.getSecret()">
+
+        <div class="card" id="upload-card">
+          <div class="card-header">Manual upload</div>
+          <div class="card-body">
+            <p>Only files of type <span class="badge badge-light" style="font-size: 90%">.zip</span> are allowed.</p>
+            <form [formGroup]="newDsForm" (ngSubmit)="newDsFormSubmit()" autocomplete="off">
+              <div class="form-group">
+                <div class="custom-file">
+                  <input type="file" class="custom-file-input" id="newDsFile" formControlName="dataset"
+                         [ngClass]="newDsFormValidation('dataset')" (change)="setFileToUpload($event.target.files)">
+                  <label class="custom-file-label" for="newDsFile" *ngIf="!fileToUpload">Choose a dataset</label>
+                  <label class="custom-file-label" for="newDsFile" *ngIf="fileToUpload">{{fileToUpload[0].name}}</label>
+                  <div class="invalid-feedback"
+                       *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['required']">
+                    required
+                  </div>
+                  <div class="invalid-feedback"
+                       *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['pattern']">
+                    only files of type .zip are allowed
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label style="width:83px" for="newDsName" class="input-group-text">Name</label></div>
+                  <input type="text" placeholder="name" id="newDsName" class="form-control" formControlName="name" [ngClass]="newDsFormValidation('name')">
+                  <div class="invalid-feedback">required</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label for="newDsPublic" class="input-group-text">Public</label></div>
+
+                  <div class="checkbox-wrapper">
+                    <label class="switch switch-label switch-pill switch-sm switch-primary">
+                      <input class="form-control switch-input" type="checkbox" id="newDsPublic" formControlName="pub" [ngClass]="newDsFormValidation('pub')">
+                      <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="from-group">
+                <button type="submit" class="btn btn-primary btn-sm pull-right">Upload</button>
+              </div>
+              <progressbar *ngIf="newDsFormSubmitted && uploadProgress < 100 && uploadProgress > 0" class="progress progress-striped" [value]="uploadProgress" [max]="100"></progressbar>
+              <progressbar *ngIf="newDsFormSubmitted && uploadProgress === 100" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>
+            </form>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-lg-8">
+        <table class="table table-hover table-sm table-bordered table-striped" *ngIf="datasets && datasets.data && datasets.data.length > 0">
+          <thead>
+          <tr>
+            <th>Dataset</th>
+            <th>Owner</th>
+            <th>Uploaded</th>
+            <th class="iconColumn"><i class="cui-cloud-download"></i></th>
+            <th class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil"></i></th>
+            <th class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-trash"></i></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let row of datasets.data | keyvalue">
+            <td>
+              {{row.value[0]}}
+              <i class="fa fa-globe public" *ngIf="_hub.getSecret() && row.value[2] === '1'"></i>
+            </td>
+            <td>{{row.value[5]}}</td>
+            <td>{{row.value[1] | date:'dd.MM.yyyy - HH:mm'}}</td>
+            <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value[4])"></i></td>
+            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value[3])" (click)="initEditDataset(row.key)"></i></td>
+            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="ptr" *ngIf="canDeleteAndUpdate(+row.value[3])" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value[3], 'fa fa-warning':deleteDsConfirm === +row.value[3]}" (click)="deleteDataset(+row.value[3])" (mouseout)="deleteDsConfirm = undefined"></i></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</ng-container>
+
+<div bsModal #downloadDataModal="bs-modal" id="downloadDataModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form [formGroup]="importDsForm" (ngSubmit)="importIntoPolypheny()" autocomplete="off">
+        <div class="modal-header">
+          <h4 class="modal-title">Import dataset</h4>
+          <button type="button" class="close" (click)="downloadDataModal.hide()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-inline mb-3" *ngIf="availableStores">
+            <label for="importIntoStore" class="mr-2">Store</label>
+            <select id="importIntoStore" class="form-control" formControlName="store">
+              <option value="">Select store</option>
+              <option *ngFor="let s of availableStores" [value]="s.uniqueName">{{s.uniqueName}}</option>
+            </select>
+          </div>
+          <div class="form-inline mb-3">
+            <label for="importIntoSchema" class="mr-2">Schema</label>
+            <select id="importIntoSchema" class="form-control" *ngIf="schemas" formControlName="schema">
+              <option value="">Select schema</option>
+              <option *ngFor="let s of schemas" [value]="s.name">{{s.name}}</option>
+            </select>
+          </div>
+          <div class="form-group mb-0" style="display: flex">
+            <label for="addDefaultVals" class="switch-label2">Add default values</label>
+            <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="addDefaultVals">
+              <input type="checkbox" class="form-control switch-input" id="addDefaultVals" formControlName="addDefaultValue">
+              <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+            </label>
+          </div>
+          <div class="form-group mb-0" style="display: flex">
+            <label for="createPK" class="switch-label2">Create primary key</label>
+            <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="createPK">
+              <input type="checkbox" class="form-control switch-input" id="createPK" formControlName="createPrimaryKeys">
+              <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+            </label>
+          </div>
+          <input type="hidden" [value]="downloadPath" formControlName="url">
+          <p class="text-danger mb-0" *ngIf="importDsFormSubmitted && !importDsForm.valid">Please select a schema and store before importing into Polypheny.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="downloadDataModal.hide()">Close</button>
+          <a class="btn btn-secondary" [href]="downloadPath">Download</a>
+          <button type="submit" class="btn btn-primary">Import</button>
+          <div class="progress-wrapper">
+            <progressbar *ngIf="importDsFormSubmitted && importProgress < 1 && importProgress > 0" class="progress progress-striped" [value]="importProgress" [max]="1"></progressbar>
+            <progressbar *ngIf="importDsFormSubmitted && (importProgress === 1 || importProgress === 0)" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>
+          </div>
+        </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div bsModal #loginModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetLoginModal();" (onShown)="usernameInput.focus()">
+  <form [formGroup]="loginForm" (ngSubmit)="login()" autocomplete="off">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Login</h4>
+          <button type="button" class="close" (click)="loginModal.hide()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="text-danger">{{loginError}}</p>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label style="width:83px" for="loginUser" class="input-group-text">Username</label></div>
+              <input type="text" placeholder="username" id="loginUser" class="form-control" formControlName="user" [ngClass]="getValidation(loginForm, 'user')" #usernameInput>
+              <div class="invalid-feedback">Required</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label style="width:83px" for="loginPw" class="input-group-text">Password</label></div>
+              <input type="password" placeholder="password" id="loginPw" class="form-control" formControlName="pw" [ngClass]="getValidation(loginForm, 'pw')">
+              <div class="invalid-feedback">Required</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="loginModal.hide()">Close</button>
+          <button type="submit" class="btn btn-primary">Login</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </form>
+</div>
+
+<div bsModal #editDatasetModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetEditDataset()" (onShown)="dsNameInput.focus()">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Edit dataset</h4>
+        <button type="button" class="close" (click)="editDatasetModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-prepend"><label for="editDsName" class="input-group-text" #dsNameInput>Name</label></div>
+            <input type="text" placeholder="name" id="editDsName" class="form-control" [(ngModel)]="editDsName">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-prepend"><label for="editDsPublic" class="input-group-text">Public</label></div>
+
+            <div class="checkbox-wrapper">
+              <label class="switch switch-label switch-pill switch-sm switch-primary">
+                <input type="checkbox" class="form-control switch-input" id="editDsPublic" [(ngModel)]="editDsPublic">
+                <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="editDatasetModal.hide()" style="position: absolute; left: 1rem;">Close</button>
+        <button type="button" class="btn btn-primary" (click)="editDataset()">Save</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<div bsModal #editUserModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="resetEditUserModal()" (onShown)="editUsernameInput.focus()">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form [formGroup]="editUserForm" (ngSubmit)="editUser()" autocomplete="off">
+        <div class="modal-header">
+          <h4 class="modal-title">Edit user</h4>
+          <button type="button" class="close" (click)="editUserModal.hide()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" formControlName="id">
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <label for="editUsername" class="input-group-text">Username</label>
+              </div>
+              <input type="text" formControlName="name" class="form-control" id="editUsername" [ngClass]="editUserValidation('name')" #editUsernameInput>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <label for="editUserPw" class="input-group-text">Password</label>
+              </div>
+              <input type="password" formControlName="password" class="form-control" id="editUserPw" [ngClass]="editUserValidation('password')">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <label for="editUserEmail" class="input-group-text">Email</label>
+              </div>
+              <input type="email" formControlName="email" class="form-control" id="editUserEmail" [ngClass]="editUserValidation('email')">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label for="editUserAdmin" class="input-group-text">Admin</label></div>
+
+              <div class="checkbox-wrapper">
+                <label class="switch switch-label switch-pill switch-sm switch-primary">
+                  <input type="checkbox" class="form-control switch-input" id="editUserAdmin" formControlName="admin" [ngClass]="editUserValidation('admin')">
+                  <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-danger mb-0" *ngIf="editUserSubmitted && !editUserForm.valid">Please fill in all the required fields.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="editUserModal.hide()">Close</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div #createUserModal="bs-modal" aria-hidden="true" aria-labelledby="myModalLabel" bsModal class="modal fade" role="dialog" tabindex="-1" (onHidden)="resetNewUserModal()" (onShown)="createUserInput.focus()">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form (ngSubmit)="createUser()" [formGroup]="newUserForm" id="newUserForm" autocomplete="off">
+        <div class="modal-header">
+          <h4 class="modal-title">Create user</h4>
+          <button (click)="createUserModal.hide()" aria-label="Close" class="close" type="button">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label class="input-group-text" for="userName">Username</label></div>
+              <input [ngClass]="newUserValidation('name')" class="form-control" formControlName="name" id="userName" name="username" type="text" #createUserInput>
+              <div class="invalid-feedback">required</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label class="input-group-text" for="email">Email</label></div>
+              <input [ngClass]="newUserValidation('email')" class="form-control" formControlName="email" id="email" name="username" type="text">
+              <div *ngIf="newUserForm.controls['email'].errors && newUserForm.controls['email'].errors.email" class="invalid-feedback">invalid</div>
+              <div *ngIf="newUserForm.controls['email'].errors && newUserForm.controls['email'].errors.required" class="invalid-feedback">required</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label class="input-group-text" for="admin">Admin</label></div>
+              <div class="checkbox-wrapper">
+                <label class="switch switch-label switch-pill switch-sm switch-primary">
+                  <input class="form-control switch-input" formControlName="admin" id="admin" name="admin" type="checkbox">
+                  <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="createUserModal.hide();" class="btn btn-secondary" type="button" style="position: absolute; left: 1rem;">Close</button>
+        <button type="submit" class="btn btn-primary">Create</button>
+      </div>
+        </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>

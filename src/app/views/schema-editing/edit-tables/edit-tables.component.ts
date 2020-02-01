@@ -1,11 +1,14 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
-import {DbColumn, ResultSet} from '../../../components/data-table/models/result-set.model';
+import {DbColumn, ResultSet, Status} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {ModalDirective} from 'ngx-bootstrap';
+import {HubService} from '../../../services/hub.service';
 
 @Component({
   selector: 'app-edit-tables',
@@ -24,12 +27,26 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   newColumns = new Map<number, DbColumn>();
   newTableName = '';
 
+  //export table
+  exportingTable: string;
+  exportProgress = 0.0;
+  uploading = false;
+  exportForm = new FormGroup({
+    name: new FormControl('', Validators.required),
+    pub: new FormControl(true, Validators.required),
+    table: new FormControl('', Validators.required),
+    createPrimaryKeys: new FormControl(true, Validators.required),
+    addDefaultValue: new FormControl(true, Validators.required)
+  });
+  @ViewChild('exportTableModal', {static: false}) public exportTableModal: ModalDirective;
+
   constructor(
     public _crud: CrudService,
     private _route: ActivatedRoute,
     private _toast: ToastService,
     private _leftSidebar: LeftSidebarService,
-    private _types: DbmsTypesService
+    private _types: DbmsTypesService,
+    public _hub: HubService
   ) { }
 
   ngOnInit() {
@@ -81,7 +98,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         const result = <ResultSet> res;
         if( result.error ){
           this._toast.toast( 'error', 'Could not '+action+' the table '+table+': '+result.error, 10, 'bg-warning' );
-          console.log( result );
         }else {
           let toastAction = 'Truncated';
           if( request.getAction() === 'drop'){
@@ -92,7 +108,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this.getTables();
         }
       }, err => {
-        this._toast.toast( 'server error', 'Could not '+confirm+' the table '+table+' due to an unknown error', 10, 'bg-danger' );
+        this._toast.toast( 'server error', 'Could not '+action+' the table '+table+' due to an unknown error', 10, 'bg-danger' );
         console.log( err );
       }
     );
@@ -150,6 +166,57 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         console.log( err );
       }
     );
+  }
+
+  initExportModal( table: string ){
+    this.exportingTable = table;
+    this.exportTableModal.show();
+  }
+
+  resetExport(){
+    this.exportForm.reset({pub:true, createPrimaryKeys: true, addDefaultValue: true});
+    this.exportingTable = undefined;
+    this.uploading = false;
+    this.exportProgress = 0.0;
+  }
+
+  exportTable(){
+    if( this.exportForm.valid ){
+      this.uploading = true;
+      this._crud.onSocketEvent().subscribe(
+        msg => {
+          const s = <Status> msg;
+          if( s.context === 'tableExport' ){
+            this.exportProgress = s.status;
+          }
+        }, err => {
+          console.log(err);
+      });
+      this._crud.exportTable(
+        this.exportForm.controls['name'].value,
+        this.schema,
+        this.exportingTable,
+        this.exportForm.controls['pub'].value,
+        this.exportForm.controls['createPrimaryKeys'].value,
+        this.exportForm.controls['addDefaultValue'].value,
+      ).subscribe(
+        res => {
+          const result = <ResultSet> res;
+          if( result.error ){
+            this._toast.toast( 'error', result.error, 5, 'bg-warning');
+          } else {
+            this._toast.toast( 'success', 'Exported table to Polypheny-Hub', 5, 'bg-success');
+          }
+        }, err => {
+          this._toast.toast( 'error', 'Could not export table', 5, 'bg-danger');
+          console.log(err);
+        }
+        //"finally block"
+      ).add( () => {
+        this.resetExport();
+        this.exportTableModal.hide();
+      });
+    }
   }
 
   createTableValidation( name: string ){

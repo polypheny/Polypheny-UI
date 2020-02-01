@@ -5,7 +5,15 @@ import { ViewsRoutingModule } from './views-routing.module';
 import {TableViewComponent} from './table-view/table-view.component';
 import {SqlConsoleComponent} from './querying/sql-console/sql-console.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {BsDropdownModule, ButtonsModule, CollapseModule, ModalModule, TooltipModule, TypeaheadModule} from 'ngx-bootstrap';
+import {
+  BsDropdownModule,
+  ButtonsModule,
+  CollapseModule,
+  ModalModule,
+  ProgressbarModule,
+  TooltipModule,
+  TypeaheadModule
+} from 'ngx-bootstrap';
 import {ComponentsModule} from '../components/components.module';
 import {EditColumnsComponent} from './schema-editing/edit-columns/edit-columns.component';
 import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
@@ -21,6 +29,8 @@ import { RelationalAlgebraComponent } from './querying/relational-algebra/relati
 import { QueryingComponent } from './querying/querying.component';
 import { NodeComponent } from './querying/relational-algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
+import { StoresComponent } from './stores/stores.component';
+import { HubComponent } from './hub/hub.component';
 import { RefinementOptionsComponent } from './querying/graphical-querying/refinement-options/refinement-options.component';
 import {Ng5SliderModule} from 'ng5-slider';
 
@@ -44,7 +54,9 @@ import {Ng5SliderModule} from 'ng5-slider';
     BsDropdownModule,
     DragDropModule,
     ModalModule.forRoot(),
-    AutocompleteLibModule, Ng5SliderModule
+    AutocompleteLibModule,
+    ProgressbarModule,
+    Ng5SliderModule
   ],
   declarations: [
     EditColumnsComponent,
@@ -59,6 +71,8 @@ import {Ng5SliderModule} from 'ng5-slider';
     RelationalAlgebraComponent,
     QueryingComponent,
     NodeComponent,
+    StoresComponent,
+    HubComponent,
     RefinementOptionsComponent
   ],
   exports: []

@@ -122,3 +122,13 @@ export class Index {
       private columns: string[]
     ){}
 }
+
+/**
+ * Status of an import or export operation
+ */
+export interface Status {
+  context: string;
+  totalRows: number;
+  currentRow: number;
+  status: number;
+}
