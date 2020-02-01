@@ -10,8 +10,8 @@
     <div class="row">
       <div class="col-lg-12">
         <h1>Polypheny Hub: Accounts</h1>
-        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn === 0" (click)="loginModal.show()">login</button>
-        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn !== 0" (click)="logout()">logout</button>
+        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn === 0" (click)="loginModal.show()">Login</button>
+        <button class="btn btn-primary float-right login-btn" *ngIf="loggedIn !== 0" (click)="logout()">Logout</button>
       </div>
     </div>
     <p *ngIf="loggedIn == 0">Please log in to manage your account.</p>
@@ -301,7 +301,7 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="editDatasetModal.hide()">Close</button>
+        <button type="button" class="btn btn-secondary" (click)="editDatasetModal.hide()" style="position: absolute; left: 1rem;">Close</button>
         <button type="button" class="btn btn-primary" (click)="editDataset()">Save</button>
       </div>
     </div><!-- /.modal-content -->
