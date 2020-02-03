@@ -56,8 +56,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
         //deletes the selection if nothing is choosen
         if(this.selectedColumn['column'].toString() === node.data.id){
-          const ob = 'nothing';
-          this.selectedCol(ob);
+          this.selectedCol([]);
         }
 
       }
@@ -92,8 +91,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
       //deletes the selection if nothing is choosen
       if(self.selectedColumn['column'].toString() === id){
-        const ob = 'nothing';
-        self.selectedCol(ob);
+        self.selectedCol([]);
       }
     });
   }

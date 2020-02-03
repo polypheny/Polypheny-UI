@@ -49,21 +49,21 @@ export class RefinementOptionsComponent implements OnInit {
         this._choosenTables = choosenTables;
 
 
-        if( choosenTables && ( (oldChoosen === 'nothing' && choosenTables !== 'nothing') || JSON.stringify(oldChoosen['column']) !== JSON.stringify(choosenTables['column']))){
+        if( choosenTables && ((oldChoosen === null) || JSON.stringify(oldChoosen['column']) !== JSON.stringify(choosenTables['column']))){
             this.resetHeader(choosenTables);
         }
 
     }
 
     resetHeader(choosenTables) {
-        if(!this.stylingSet || !choosenTables || choosenTables === 'nothing'  ){
+        if(!this.stylingSet || !choosenTables ){
             return;
         }
         this.activeHeaders = {};
         Object.keys(this.stylingSet).forEach(s => {
             let i = 0;
             Object.keys(this.stylingSet[s]).forEach( t => {
-                if(choosenTables !== 'nothing' && this.includesTable(choosenTables['column'], t) && i === 0 ){
+                if(choosenTables !== null && this.includesTable(choosenTables['column'], t) && i === 0 ){
                     this.activeHeaders[s] = t;
                     i++;
                 }
@@ -98,7 +98,7 @@ export class RefinementOptionsComponent implements OnInit {
      */
     includesSchema(o, name: string){
         const schema = [];
-        if( !o || o === 'nothing' || !o.length ) {
+        if( !o || !o.length ) {
             return false;
         }
         o.forEach(s => {
@@ -112,7 +112,7 @@ export class RefinementOptionsComponent implements OnInit {
      */
     includesTable(o, name: string){
         const schema = [];
-        if( !o || o === 'nothing' || !o.length ) {
+        if( !o || !o.length ) {
             return false;
         }
         o.forEach(s => {
