@@ -161,7 +161,7 @@ export class RefinementOptionsComponent implements OnInit {
         Object.keys(res).forEach(keySchema => {
             Object.keys(res[keySchema]).forEach(keyTable => {
                 Object.keys(res[keySchema][keyTable]).forEach(key => {
-                    this.statisticSet[res[keySchema][keyTable][key]['fullColumnName']] = res[keySchema][keyTable][key];
+                    this.statisticSet[res[keySchema][keyTable][key]['qualifiedColumnName']] = res[keySchema][keyTable][key];
                 });
             });
         });
@@ -228,7 +228,7 @@ export class RefinementOptionsComponent implements OnInit {
         }
         const filtered =  {};
         Object.keys(inputSet).forEach(e => {
-            if(this.includes(this._choosenTables['column'], inputSet[e]['fullColumnName'])){
+            if(this.includes(this._choosenTables['column'], inputSet[e]['qualifiedColumnName'])){
             filtered[e] = inputSet[e];
             }
         });
