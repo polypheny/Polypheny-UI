@@ -9,7 +9,7 @@ import {
   BsDropdownModule,
   ButtonsModule,
   CollapseModule,
-  ModalModule,
+  ModalModule, PopoverModule,
   ProgressbarModule,
   TooltipModule,
   TypeaheadModule
@@ -56,7 +56,7 @@ import {Ng5SliderModule} from 'ng5-slider';
     ModalModule.forRoot(),
     AutocompleteLibModule,
     ProgressbarModule,
-    Ng5SliderModule
+    Ng5SliderModule, PopoverModule
   ],
   declarations: [
     EditColumnsComponent,

@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output, NgModule} from '@angular/core';
 import * as $ from 'jquery';
+import {PopoverModule} from 'ngx-bootstrap/popover';
 import {FilteredUserInput, StatisticSet} from '../../../../components/data-table/models/result-set.model';
 import {StatisticRequest} from '../../../../models/ui-request.model';
 import {CrudService} from '../../../../services/crud.service';
@@ -18,7 +19,8 @@ import {AppComponent} from '../../../../app.component';
 @NgModule({
     imports: [
         BrowserModule,
-        FormsModule
+        FormsModule,
+        PopoverModule.forRoot()
     ],
     providers: [],
     bootstrap: [AppComponent]
@@ -40,18 +42,6 @@ export class RefinementOptionsComponent implements OnInit {
 
     ngOnInit() {
         this.getStatistic();
-        this.popOverToggle();
-
-    }
-
-
-    popOverToggle(){
-
-        $(function () {
-            $('[data-toggle="popover"]').popover();
-        });
-
-        $('.input-group-prepend').popover('show');
     }
 
     /**
