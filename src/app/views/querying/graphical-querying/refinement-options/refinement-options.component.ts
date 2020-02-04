@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output, NgModule} from '@angular/core';
+import * as $ from 'jquery';
 import {FilteredUserInput, StatisticSet} from '../../../../components/data-table/models/result-set.model';
 import {StatisticRequest} from '../../../../models/ui-request.model';
 import {CrudService} from '../../../../services/crud.service';
@@ -6,6 +7,7 @@ import {ToastService} from '../../../../components/toast/toast.service';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms';
 import {AppComponent} from '../../../../app.component';
+
 
 @Component({
     selector: 'app-refinement-options',
@@ -38,6 +40,18 @@ export class RefinementOptionsComponent implements OnInit {
 
     ngOnInit() {
         this.getStatistic();
+        this.popOverToggle();
+
+    }
+
+
+    popOverToggle(){
+
+        $(function () {
+            $('[data-toggle="popover"]').popover();
+        });
+
+        $('.input-group-prepend').popover('show');
     }
 
     /**
@@ -148,6 +162,7 @@ export class RefinementOptionsComponent implements OnInit {
                 this.filteredUserInput[key]['startMinMax'] = [el['min'], el['max']];
             }
             this.filteredUserInput[key]['sorting'] = 'OFF';
+            this.filteredUserInput[key]['aggregate'] = 'OFF';
             this.filteredUserInput[key]['columnType'] = el['columnType'];
 
         });

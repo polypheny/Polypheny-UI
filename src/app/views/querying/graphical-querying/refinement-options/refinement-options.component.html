@@ -37,6 +37,31 @@
                                         </div>
                                     </div>
 
+                                    <!-- avg, min max for numerical values -->
+                                    <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && this.statisticSet[col.value['qualifiedColumnName']]['columnType'] == 'numeric'">
+                                        <p>Aggregate</p>
+                                        <div class="btn-group btn-group-toggle" id="radio-numeric" data-toggle="buttons">
+                                            <label [className]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate'] == 'OFF' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
+                                                <input type="radio" class="form-control" name="aggregate" value="OFF" id="{col.value['aggregate'] + 'OFF'}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate']" (ngModelChange)="changeUserInput()"> off
+                                            </label>
+                                            <label [className]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate'] == 'MIN' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
+                                                <input type="radio" class="form-control" name="aggregate" value="MIN" id="{col.value['aggregate'] + 'MIN'}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate']" (ngModelChange)="changeUserInput()" > MIN
+                                            </label>
+                                            <label [className]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate'] == 'MAX' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
+                                                <input type="radio" class="form-control" name="aggregate" value="MAX" id="{col.value['aggregate'] + 'MAX'}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate']" (ngModelChange)="changeUserInput()"> MAX
+                                            </label>
+                                            <label [className]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate'] == 'COUNT' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
+                                                <input type="radio" class="form-control" name="aggregate" value="COUNT" id="{col.value['aggregate'] + 'COUNT'}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate']" (ngModelChange)="changeUserInput()"> COUNT
+                                            </label>
+                                            <label [className]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate'] == 'SUM' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
+                                                <input type="radio" class="form-control" name="aggregate" value="SUM" id="{col.value['aggregate'] + 'SUM'}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate']" (ngModelChange)="changeUserInput()"> SUM
+                                            </label>
+                                            <label [className]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate'] == 'AVG' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
+                                                <input type="radio" class="form-control" name="aggregate" value="AVG" id="{col.value['aggregate'] + 'AVG'}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate']" (ngModelChange)="changeUserInput()"> AVG
+                                            </label>
+                                        </div>
+                                    </div>
+
                                     <!-- min max for numeric values -->
                                     <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf="this.statisticSet[col.value['qualifiedColumnName']]['type'] && includes(this.statisticSet[col.value['qualifiedColumnName']]['type'], 'range') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && this.statisticSet[col.value['qualifiedColumnName']]['isFull']">
                                         <label for="slider">Min - Max</label>
@@ -48,8 +73,8 @@
                                     <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf="this.statisticSet[col.value['qualifiedColumnName']]['type'] && includes(this.statisticSet[col.value['qualifiedColumnName']]['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && this.statisticSet[col.value['qualifiedColumnName']]['columnType'] == 'alphabetic' && this.statisticSet[col.value['qualifiedColumnName']]['isFull']">
                                         <label for="search">Search</label>
                                         <div class="input-group mb-3" id="search">
-                                            <div class="input-group-prepend">
-                                                <button class="btn btn-outline-secondary" type="button" data-toggle="popover" data-placement="top" data-content="word -> whole word | *letter -> ends with letters | letter* -> starts with letters">search</button>
+                                            <div class="input-group-prepend" (click)="popOverToggle()" data-toggle="popover" data-content="word -> whole word | *letter -> ends with letters | letter* -> starts with letters">
+                                                <span class="input-group-text">search</span>
                                             </div>
                                             <input type="text" class="form-control" placeholder="starts with" aria-label="starts with" aria-describedby="basic-addon1" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['startsWith']" (ngModelChange)="changeUserInput()">
                                         </div>
@@ -68,8 +93,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-
                             </div>
                         </div>
                     </div>

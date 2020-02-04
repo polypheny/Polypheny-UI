@@ -94,11 +94,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         self.selectedCol([]);
       }
     });
-
-
-    $(function () {
-      $('[data-toggle="popover"]').popover();
-    });
   }
 
   removeCol ( colId: string ) {
@@ -173,7 +168,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   processfilterSet(){
     const whereSql = [];
     const orderBySql = [];
-    const numericalSQL = [];
     const checkboxSQLAlphabetic = {};
     const checkboxSQLNumerical = {};
     if(this.filteredUserSet) {
@@ -231,24 +225,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         });
       }
 
-      /*
-      let newNumericalSQL = '';
-      if(numericalSQL.length > 1){
-        newNumericalSQL = numericalSQL.join('') + ')';
-        console.log(newNumericalSQL);
-        if (newNumericalSQL.startsWith('\nWHERE')){
-          newNumericalSQL = [newNumericalSQL.slice(0, 7), '(', newNumericalSQL.slice(7)].join('');
-        } if (newNumericalSQL.startsWith('\nAND')){
-          newNumericalSQL = [newNumericalSQL.slice(0, 5), '(', newNumericalSQL.slice(5)].join('');
-        } if (newNumericalSQL.startsWith('\nOR')){
-          newNumericalSQL = [newNumericalSQL.slice(0, 4), '(', newNumericalSQL.slice(4)].join('');
-        }
-
-      } else {
-        newNumericalSQL = numericalSQL.join('');
-      }
-       */
-
       return (whereSql.join('') + orderBySql.join(''));
     } else {
       return '';
@@ -274,8 +250,21 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     const cols = [];
     const filterCols = [];
     $('#selectBox').find('.dbCol').each( (i, el) => {
-      const name = $(el).attr('data-id')
-      const id = "\""+name.split(".").join("\".\"")+"\""
+      const name = $(el).attr('data-id');
+      let id = "\""+name.split(".").join("\".\"")+"\"";
+      if(this.filteredUserSet) {
+        Object.keys(this.filteredUserSet).forEach(col => {
+          const element = this.filteredUserSet[col];
+          if(this.selectedColumn['column'].includes(col)) {
+            if (element['aggregate'] && !(element['aggregate'] === 'OFF')) {
+              if (col === name){
+                id = element['aggregate'] + '(' + id + ')';
+              }
+            }
+          }
+        });
+      }
+
       cols.push( id );
       filterCols.push( name );
     });
@@ -340,25 +329,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-    /*
-     * to select correct keyword WHERE OR AND
-     */
-  connectWheresAndOr(){
-    if(this.whereCounter === 0){
-      this.whereCounter += 1;
-      this.andCounter += 1;
-      return '\nWHERE ';
-    } /* else if (this.andCounter === 0){
-      this.andCounter += 1;
-      return '\nAND ';
-    } */
-    else {
-      return '\nOR ';
-    }
-  }
-
   executeQuery () {
-    console.log("executeQuery Start");
+    console.log('executeQuery Start');
     this.loading = true;
     this._crud.anyQuery( new QueryRequest( this.editorGenerated.getCode(), false ) ).subscribe(
       res => {
