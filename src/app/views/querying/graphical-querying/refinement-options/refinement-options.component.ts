@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, OnInit, Output, NgModule} from '@angular/core';
-import * as $ from 'jquery';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {FilteredUserInput, StatisticSet} from '../../../../components/data-table/models/result-set.model';
 import {StatisticRequest} from '../../../../models/ui-request.model';
@@ -8,7 +7,6 @@ import {ToastService} from '../../../../components/toast/toast.service';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms';
 import {AppComponent} from '../../../../app.component';
-
 
 @Component({
     selector: 'app-refinement-options',
@@ -35,8 +33,8 @@ export class RefinementOptionsComponent implements OnInit {
     active: String;
 
     constructor(
-        private _crud: CrudService,
-        private _toast: ToastService
+            private _crud: CrudService,
+            private _toast: ToastService
     ) {
     }
 
@@ -48,26 +46,24 @@ export class RefinementOptionsComponent implements OnInit {
      * to only show the filter options for the chosen Tables
      */
     @Input()
-    set choosenTables(choosenTables: {}){
+    set choosenTables(choosenTables: {}) {
         const oldChoosen = this._choosenTables;
         this._choosenTables = choosenTables;
 
-
-        if( choosenTables && ((oldChoosen === null) || JSON.stringify(oldChoosen['column']) !== JSON.stringify(choosenTables['column']))){
+        if (choosenTables && ((oldChoosen === null) || JSON.stringify(oldChoosen['column']) !== JSON.stringify(choosenTables['column']))) {
             this.resetHeader(choosenTables);
         }
-
     }
 
     resetHeader(choosenTables) {
-        if(!this.stylingSet || !choosenTables ){
+        if (!this.stylingSet || !choosenTables) {
             return;
         }
         this.activeHeaders = {};
         Object.keys(this.stylingSet).forEach(s => {
             let i = 0;
-            Object.keys(this.stylingSet[s]).forEach( t => {
-                if(choosenTables !== null && this.includesTable(choosenTables['column'], t) && i === 0 ){
+            Object.keys(this.stylingSet[s]).forEach(t => {
+                if (choosenTables !== null && this.includesTable(choosenTables['column'], t) && i === 0) {
                     this.activeHeaders[s] = t;
                     i++;
                 }
@@ -81,32 +77,32 @@ export class RefinementOptionsComponent implements OnInit {
     getStatistic() {
         console.log('getStatistics');
         this._crud.allStatistics(new StatisticRequest()).subscribe(
-            res => {
-                this.prepareStatisticSet(<StatisticSet>res);
-                this.stylingSet = res;
-            }, err => {
-                this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
-            }
+                res => {
+                    this.prepareStatisticSet(<StatisticSet>res);
+                    this.stylingSet = res;
+                }, err => {
+                    this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
+                }
         );
     }
 
     /**
      * Checks if a column value is included in the chosen table
      */
-    includes(o: string[], name: string){
+    includes(o: string[], name: string) {
         return o.includes(name);
     }
 
     /**
      * Checks if a schema is included in the chosen tables
      */
-    includesSchema(o, name: string){
+    includesSchema(o, name: string) {
         const schema = [];
-        if( !o || !o.length ) {
+        if (!o || !o.length) {
             return false;
         }
         o.forEach(s => {
-           schema.push(s.split('.', 1)[0]);
+            schema.push(s.split('.', 1)[0]);
         });
         return this.includes(schema, name);
     }
@@ -114,9 +110,9 @@ export class RefinementOptionsComponent implements OnInit {
     /**
      * Checks if a table is chosen
      */
-    includesTable(o, name: string){
+    includesTable(o, name: string) {
         const schema = [];
-        if( !o || !o.length ) {
+        if (!o || !o.length) {
             return false;
         }
         o.forEach(s => {
@@ -129,10 +125,11 @@ export class RefinementOptionsComponent implements OnInit {
      * after changing the filter values emiting changes for graphical-querying component
      */
     @Output() filteredUserInputChange = new EventEmitter();
-    changeUserInput(){
+
+    changeUserInput() {
         const transmitSet = new FilteredUserInput();
         this._choosenTables['column'].forEach(el => {
-            if (this.filteredUserInput.hasOwnProperty(el)){
+            if (this.filteredUserInput.hasOwnProperty(el)) {
                 transmitSet[el] = this.filteredUserInput[el];
             }
         });
@@ -142,12 +139,12 @@ export class RefinementOptionsComponent implements OnInit {
     /**
      * initializing filteredUserInput for dynamic binding
      */
-    processUserInput(stat: StatisticSet){
+    processUserInput(stat: StatisticSet) {
         this.filteredUserInput = new FilteredUserInput();
         Object.keys(stat).forEach(key => {
             this.filteredUserInput[key] = {};
             const el = this.statisticSet[key];
-            if(el['min'] && el['max']){
+            if (el['min'] && el['max']) {
                 this.filteredUserInput[key]['minMax'] = [el['min'], el['max']];
                 this.filteredUserInput[key]['startMinMax'] = [el['min'], el['max']];
             }
@@ -161,7 +158,7 @@ export class RefinementOptionsComponent implements OnInit {
     /**
      * prepares the statisticSet from Server
      */
-    prepareStatisticSet (res: StatisticSet) {
+    prepareStatisticSet(res: StatisticSet) {
         this.statisticSet = new StatisticSet();
         Object.keys(res).forEach(keySchema => {
             Object.keys(res[keySchema]).forEach(keyTable => {
@@ -180,10 +177,10 @@ export class RefinementOptionsComponent implements OnInit {
     processStatistics(stat: StatisticSet) {
         Object.keys(stat).forEach(key => {
             const el = stat[key];
-            if(el['min'] && el['max']){
-                if(this.statisticSet[key]['type']){
+            if (el['min'] && el['max']) {
+                if (this.statisticSet[key]['type']) {
                     this.statisticSet[key]['type'].push('range');
-                }else {
+                } else {
                     this.statisticSet[key]['type'] = ['range'];
                 }
                 this.statisticSet[key]['options'] = {
@@ -193,10 +190,10 @@ export class RefinementOptionsComponent implements OnInit {
                     uniqueValues: []
                 };
             }
-            if(this.statisticSet[key]['uniqueValues']){
-                if(this.statisticSet[key]['type']){
+            if (this.statisticSet[key]['uniqueValues']) {
+                if (this.statisticSet[key]['type']) {
                     this.statisticSet[key]['type'].push('uniqueValues');
-                }else{
+                } else {
                     this.statisticSet[key]['type'] = ['uniqueValues'];
                 }
             }
@@ -204,12 +201,12 @@ export class RefinementOptionsComponent implements OnInit {
     }
 
     filterHeaders(stylingSet: {}, choosenTable: {}, schema: string) {
-        if (!choosenTable && !choosenTable['column'] ){
+        if (!choosenTable && !choosenTable['column']) {
             return [];
         }
         const filtered = {};
         Object.keys(stylingSet).forEach((table, i) => {
-            if(this.includesTable(choosenTable['column'], table)){
+            if (this.includesTable(choosenTable['column'], table)) {
                 filtered[table] = stylingSet[table];
             }
         });
@@ -217,7 +214,7 @@ export class RefinementOptionsComponent implements OnInit {
     }
 
     addToHeader(schema: string, table: string) {
-        if( !this.activeHeaders ){
+        if (!this.activeHeaders) {
             this.activeHeaders = {};
         }
         this.activeHeaders[schema] = table;
@@ -228,13 +225,13 @@ export class RefinementOptionsComponent implements OnInit {
     }
 
     filterSet(inputSet: {}) {
-        if(!inputSet || !this._choosenTables || !this._choosenTables['column']) {
+        if (!inputSet || !this._choosenTables || !this._choosenTables['column']) {
             return {};
         }
-        const filtered =  {};
+        const filtered = {};
         Object.keys(inputSet).forEach(e => {
-            if(this.includes(this._choosenTables['column'], inputSet[e]['qualifiedColumnName'])){
-            filtered[e] = inputSet[e];
+            if (this.includes(this._choosenTables['column'], inputSet[e]['qualifiedColumnName'])) {
+                filtered[e] = inputSet[e];
             }
         });
         return filtered;
