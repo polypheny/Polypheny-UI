@@ -18,7 +18,7 @@
                     <div class="refinement-table" *ngIf="_choosenTables && _choosenTables['column'] && includesTable(_choosenTables['column'], table.key) && this.activeHeaders && this.activeHeaders[schema.key] === table.key">
                         <div class="refinement-column" *ngFor="let col of filterSet(stylingSet[schema.key][table.key]) | keyvalue; index as i">
                             <div *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName'])">
-                                <h5>{{col.key}}</h5>
+                                <h5>Column: {{col.key}}</h5>
 
                                 <div class="row" [id]="this.statisticSet[col.value['qualifiedColumnName']]['table']">
                                     <!-- sorting columns ascending, descending or off -->

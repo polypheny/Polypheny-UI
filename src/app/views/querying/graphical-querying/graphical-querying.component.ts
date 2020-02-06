@@ -162,12 +162,18 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     return (this.connectOrderby() + col + ' ' + sort);
   }
 
+  sortingAggregate(col: string, sort: string, aggregate: string){
+    return (this.connectOrderby() + aggregate + '(' + col + ') ' + sort);
+  }
+
   /**
    * adds everything selected in the filterset to two arrays in order to add in the generated query
    */
   processfilterSet(){
     const whereSql = [];
     const orderBySql = [];
+    const groupBy = [];
+    let flag = false;
     const checkboxSQLAlphabetic = {};
     const checkboxSQLNumerical = {};
     if(this.filteredUserSet) {
@@ -186,7 +192,24 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
           }
 
           if (el['sorting'] && (el['sorting'] === 'ASC' || el['sorting'] === 'DESC')) {
-            orderBySql.push(this.sorting(this.wrapInParetheses(col), el['sorting']));
+            if (el['aggregate'] && !(el['aggregate'] === 'OFF')) {
+              orderBySql.push(this.sortingAggregate(this.wrapInParetheses(col), el['sorting'], el['aggregate']));
+            } else {
+              orderBySql.push(this.sorting(this.wrapInParetheses(col), el['sorting']));
+            }
+
+          }
+
+          if (!el['aggregate'] || el['aggregate'] === 'OFF'){
+            if(!groupBy || !groupBy.length){
+              groupBy.push('\nGROUP BY ' + this.wrapInParetheses(col));
+            } else{
+              groupBy.push(' , ' + this.wrapInParetheses(col));
+            }
+          }
+
+          if (el['aggregate'] && !(el['aggregate'] === 'OFF')) {
+            flag = true;
           }
 
           Object.keys(el).forEach(k => {
@@ -225,7 +248,25 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         });
       }
 
-      return (whereSql.join('') + orderBySql.join(''));
+      /*
+      if( orderBySql || orderBySql.length ) {
+        groupBy.push('\nGROUP BY ');
+        if(this.filteredUserSet){
+          Object.keys(this.filteredUserSet).forEach(col => {
+            if (!(orderBySql.includes(col))){
+              groupBy.push(col);
+            }
+          });
+        }
+      }
+       */
+
+      if (flag){
+        return (whereSql.join('') + groupBy.join('') + orderBySql.join(''));
+      } else {
+        return (whereSql.join('') + orderBySql.join(''));
+      }
+
     } else {
       return '';
     }
