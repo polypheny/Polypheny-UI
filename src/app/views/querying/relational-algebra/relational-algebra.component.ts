@@ -19,10 +19,9 @@ import 'jquery-ui/ui/widgets/droppable';
 import {SvgLine} from '../../uml/uml.model';
 import {SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
-import {Ace} from "ace-builds";
-import execEventHandler = Ace.execEventHandler;
-import {WebSocketService} from "../../../services/web-socket.service";
-import {RightSidebarToRelationalalgebraService} from "../../../services/right-sidebar-to-relationalalgebra.service";
+import {Ace} from 'ace-builds';
+import {WebSocketService} from '../../../services/web-socket.service';
+import {RightSidebarToRelationalalgebraService} from '../../../services/right-sidebar-to-relationalalgebra.service';
 
 @Component({
     selector: 'app-relational-algebra',
@@ -297,9 +296,9 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
             for (const col of getNode().getAcColumns()) {
                 let contains = false;
                 for (const f of node.fields) {
-                    if (f.split('\.')[1] === col) contains = true;
+                    if (f.split('\.')[1] === col) { contains = true; }
                 }
-                if (!contains) getNode().getAcColumns().delete(col);
+                if (!contains) { getNode().getAcColumns().delete(col); }
             }
             const ac = [];
             for (const tCol of getNode().getAcTableColumns()) {
@@ -516,12 +515,10 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
      */
     importTree() {
         const input = prompt('Please paste your plan here.');
-        console.log(input)
         if (input === null || input === '') {
             return;
         }
         const inputObj = JSON.parse(input);
-        console.log(inputObj.nodes)
         if (inputObj.nodes) {
             const importedNodes = new Map<string, Node>();
             for (const [k, v] of Object.entries(inputObj.nodes)) {
@@ -550,12 +547,10 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
      */
     importTreeFile() {
 
-        fetch("./assets/testfile.json")
+        fetch('./assets/testfile.json')
             .then(res => res.json())
             .then(data => {
-                console.log(data)
-                const inputObj = JSON.parse(JSON.stringify(data))
-                console.log(inputObj)
+                const inputObj = JSON.parse(JSON.stringify(data));
                 if (inputObj.nodes) {
                     const importedNodes = new Map<string, Node>();
                     for (const [k, v] of Object.entries(inputObj.nodes)) {
@@ -577,7 +572,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
                 }
                 this.setAutocomplete();
             })
-            .catch(err => console.log(err))
+            .catch(err => console.log(err));
 
     }
 
@@ -605,8 +600,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
      */
     treeHeight() {
         const height = Math.floor(Math.log2(this.counter));
-        console.log(height);
-        return height
+        return height;
     }
 
     /**
@@ -617,15 +611,14 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         let leftPadding = 0;
         let upperPadding = 0;
         let ind = 0;
-        for (var i = 0; i <= height; i++) {
+        for (let i = 0; i <= height; i++) {
             upperPadding = i * 250;
-            for (var j = 0; j <= Math.pow(2, i) - 1; j++) {
-                console.log("i" + i, "j" + j)
+            for (let j = 0; j <= Math.pow(2, i) - 1; j++) {
                 leftPadding = 300 * j;
-                this.nodes.get("node" + ind).left = leftPadding;
-                this.nodes.get("node" + ind).top = upperPadding;
+                this.nodes.get('node' + ind).left = leftPadding;
+                this.nodes.get('node' + ind).top = upperPadding;
 
-                ind++
+                ind++;
 
             }
 
@@ -640,17 +633,16 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         const height = this.treeHeight();
         let leftPadding = 0;
         let upperPadding = 0;
-        let ind = 0
-        var edge = Math.ceil(Math.sqrt(this.counter));
-        for (var i = 0; i < edge; i++) {
+        let ind = 0;
+        let edge = Math.ceil(Math.sqrt(this.counter));
+        for (let i = 0; i < edge; i++) {
             upperPadding = i * 250;
-            for (var j = 0; j < edge; j++) {
-                console.log("i" + i, "j" + j);
+            for (let j = 0; j < edge; j++) {
                 leftPadding = 300 * j;
-                this.nodes.get("node" + ind).left = leftPadding;
-                this.nodes.get("node" + ind).top = upperPadding;
+                this.nodes.get('node' + ind).left = leftPadding;
+                this.nodes.get('node' + ind).top = upperPadding;
 
-                ind++
+                ind++;
 
             }
 
@@ -667,12 +659,11 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
             this.socketOn = false;
         } else {
             this._webSocketService.listen('my_message').subscribe((data) => {
-                console.log(data);
-                if (data.toString() == "delete") {
-                    this.deleteAll()
+                if (data.toString() == 'delete') {
+                    this.deleteAll();
                 }
-                if (data.toString().startsWith("{")) {
-                    this.parseJson(data)
+                if (data.toString().startsWith('{')) {
+                    this.parseJson(data);
                 }
             });
             this.socketOn = true;
@@ -688,16 +679,12 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     parseJson(data) {
         const input = data;
         if (input === null || input === '') {
-            console.log("invalid");
             return;
         }
         const inputObj = JSON.parse(data);
-        console.log("LOG:", inputObj);
-        console.log(inputObj.nodes);
         if (inputObj.nodes) {
             const importedNodes = new Map<string, Node>();
             for (const [k, v] of Object.entries(inputObj.nodes)) {
-                console.log("for");
                 importedNodes.set(v[0], Node.fromJson(v[1], this.dropArea.nativeElement.offsetWidth, this.dropArea.nativeElement.offsetHeight));
             }
             this.nodes = importedNodes;

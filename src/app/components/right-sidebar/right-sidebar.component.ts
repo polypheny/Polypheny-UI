@@ -40,7 +40,6 @@ export class RightSidebarComponent implements OnInit {
   ngOnInit() {  }
 
   saveSettings () {
-    console.log(this.form.value);
     this.settings.forEach( (val, key) => {
       this._settings.setSetting( key, this.form.value[key] );
     });
@@ -53,7 +52,6 @@ export class RightSidebarComponent implements OnInit {
   }
 
   saveSettingsGR () {
-    console.log(this.formGR.value);
     this.settingsGR.forEach( (val, key) => {
       this._settings.setSettingGR( key, this.formGR.value[key] );
     });
@@ -61,7 +59,7 @@ export class RightSidebarComponent implements OnInit {
   }
 
   public connectToRA(): void {
-    if(this.buttonName == 'connect'){
+    if(this.buttonName === 'connect'){
       this.buttonName = 'disconnect';
     } else {
       this.buttonName = 'connect';

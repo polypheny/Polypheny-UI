@@ -75,8 +75,6 @@ export class WebuiSettingsService {
   public setSettingGR ( key:string, val:string ) {
     this.settingsGR.set( key, val );
     localStorage.setItem( key, val );
-    console.log(key);
-    console.log(val);
   }
 
   public reset(){
