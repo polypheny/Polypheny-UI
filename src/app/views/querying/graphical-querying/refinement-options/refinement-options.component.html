@@ -24,7 +24,7 @@
                                     <!-- sorting columns ascending, descending or off -->
                                     <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName'])">
                                         <p>Sorting</p>
-                                        <div class="btn-group-vertical btn-group-toggle" id="radio" data-toggle="buttons">
+                                        <div class="btn-group flex-wrap btn-group-toggle" id="radio" data-toggle="buttons">
                                             <label class="btn btn-secondary" [ngClass]="{'active' : filteredUserInput[col.value['qualifiedColumnName']]['sorting'] === 'OFF'}">
                                                 <input type="radio" class="form-control" name="sort" value="OFF" id="{{col.value['qualifiedColumnName'] + 'sortOff'}}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']" (ngModelChange)="changeUserInput()"> off
                                             </label>
@@ -40,7 +40,7 @@
                                     <!-- avg, min max for numerical values -->
                                     <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && this.statisticSet[col.value['qualifiedColumnName']]['columnType'] == 'numeric'">
                                         <p>Aggregate</p>
-                                        <div class="btn-group-vertical btn-group-toggle" id="radio-numeric" data-toggle="buttons">
+                                        <div class="btn-group flew-wrap btn-group-toggle" id="radio-numeric" data-toggle="buttons">
                                             <label [className]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate'] == 'OFF' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
                                                 <input type="radio" class="form-control" name="aggregate" value="OFF" id="{col.value['aggregate'] + 'OFF'}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate']" (ngModelChange)="changeUserInput()"> off
                                             </label>
