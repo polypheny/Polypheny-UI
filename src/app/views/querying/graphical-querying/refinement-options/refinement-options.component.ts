@@ -1,12 +1,8 @@
-import {Component, EventEmitter, Input, OnInit, Output, NgModule} from '@angular/core';
-import {PopoverModule} from 'ngx-bootstrap/popover';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FilteredUserInput, StatisticSet} from '../../../../components/data-table/models/result-set.model';
 import {StatisticRequest} from '../../../../models/ui-request.model';
 import {CrudService} from '../../../../services/crud.service';
 import {ToastService} from '../../../../components/toast/toast.service';
-import {BrowserModule} from '@angular/platform-browser';
-import {FormsModule} from '@angular/forms';
-import {AppComponent} from '../../../../app.component';
 
 @Component({
     selector: 'app-refinement-options',
@@ -14,15 +10,6 @@ import {AppComponent} from '../../../../app.component';
     styleUrls: ['./refinement-options.component.scss']
 })
 
-@NgModule({
-    imports: [
-        BrowserModule,
-        FormsModule,
-        PopoverModule.forRoot()
-    ],
-    providers: [],
-    bootstrap: [AppComponent]
-})
 export class RefinementOptionsComponent implements OnInit {
 
     activeHeaders: {};
@@ -31,6 +18,7 @@ export class RefinementOptionsComponent implements OnInit {
     stylingSet: {};
     _choosenTables = {};
     active: String;
+    @Output() filteredUserInputChange = new EventEmitter();
 
     constructor(
             private _crud: CrudService,
@@ -124,9 +112,7 @@ export class RefinementOptionsComponent implements OnInit {
     /**
      * after changing the filter values emiting changes for graphical-querying component
      */
-    @Output() filteredUserInputChange = new EventEmitter();
-
-    changeUserInput() {
+    changeUserInput(){
         const transmitSet = new FilteredUserInput();
         this._choosenTables['column'].forEach(el => {
             if (this.filteredUserInput.hasOwnProperty(el)) {

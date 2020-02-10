@@ -24,15 +24,15 @@
                                     <!-- sorting columns ascending, descending or off -->
                                     <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName'])">
                                         <p>Sorting</p>
-                                        <div class="btn-group btn-group-toggle" id="radio" data-toggle="buttons">
-                                            <label [className]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting'] == 'OFF' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
-                                                <input type="radio" class="form-control" name="sort" value="OFF" id="{col.value['qualifiedColumnName'] + 'sortOff'}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']" (ngModelChange)="changeUserInput()"> off
+                                        <div class="btn-group-vertical btn-group-toggle" id="radio" data-toggle="buttons">
+                                            <label class="btn btn-secondary" [ngClass]="{'active' : filteredUserInput[col.value['qualifiedColumnName']]['sorting'] === 'OFF'}">
+                                                <input type="radio" class="form-control" name="sort" value="OFF" id="{{col.value['qualifiedColumnName'] + 'sortOff'}}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']" (ngModelChange)="changeUserInput()"> off
                                             </label>
-                                            <label [className]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting'] == 'ASC' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
-                                                <input type="radio" class="form-control" name="sort" value="ASC" id="{col.value['qualifiedColumnName'] + 'ASC'}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']" (ngModelChange)="changeUserInput()" > ascending
+                                            <label class="btn btn-secondary" [ngClass]="{'active': filteredUserInput[col.value['qualifiedColumnName']]['sorting'] === 'ASC'}">
+                                                <input type="radio" class="form-control" name="sort" value="ASC" id="{{col.value['qualifiedColumnName'] + 'ASC'}}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']" (ngModelChange)="changeUserInput()" > ascending
                                             </label>
-                                            <label [className]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting'] == 'DESC' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
-                                                <input type="radio" class="form-control" name="sort" value="DESC" id="{col.value['qualifiedColumnName'] + 'DESC'}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']" (ngModelChange)="changeUserInput()"> descending
+                                            <label class="btn btn-secondary" [ngClass]="{'active': filteredUserInput[col.value['qualifiedColumnName']]['sorting'] == 'DESC'}">
+                                                <input type="radio" class="form-control" name="sort" value="DESC" id="{{col.value['qualifiedColumnName'] + 'DESC'}}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']" (ngModelChange)="changeUserInput()"> descending
                                             </label>
                                         </div>
                                     </div>
@@ -40,7 +40,7 @@
                                     <!-- avg, min max for numerical values -->
                                     <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && this.statisticSet[col.value['qualifiedColumnName']]['columnType'] == 'numeric'">
                                         <p>Aggregate</p>
-                                        <div class="btn-group btn-group-toggle" id="radio-numeric" data-toggle="buttons">
+                                        <div class="btn-group-vertical btn-group-toggle" id="radio-numeric" data-toggle="buttons">
                                             <label [className]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate'] == 'OFF' ? 'btn btn-secondary active' : 'btn btn-secondary' ">
                                                 <input type="radio" class="form-control" name="aggregate" value="OFF" id="{col.value['aggregate'] + 'OFF'}" autocomplete="off" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate']" (ngModelChange)="changeUserInput()"> off
                                             </label>
@@ -82,10 +82,10 @@
                                     <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf="this.statisticSet[col.value['qualifiedColumnName']]['type'] && includes(this.statisticSet[col.value['qualifiedColumnName']]['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && !(this.statisticSet[col.value['qualifiedColumnName']]['isFull']) && this.statisticSet[col.value['qualifiedColumnName']]['uniqueValues'].length ">
                                         <p>Unique Values</p>
                                         <div *ngFor="let val of this.statisticSet[col.value['qualifiedColumnName']]['uniqueValues']">
-                                            <div class="form-check" id="check">
-                                                <input class="form-check-input" type="checkbox" id="defaultCheck1" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['check' + val]" (ngModelChange)="changeUserInput()">
-                                                <label class="form-check-label" for="defaultCheck1">
-                                                    {{val}}
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                  <input class="form-check-input" type="checkbox" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['check' + val]" (ngModelChange)="changeUserInput()">
+                                                  {{val}}
                                                 </label>
                                             </div>
                                         </div>
