@@ -4,9 +4,7 @@
 
   <!--<div class="drag-handle card-header">{{type}} (node component)<span class="del float-right"><i class="cui-trash"></i></span></div>-->
   <ng-content></ng-content>
-
   <ng-container [ngSwitch]="node.type">
-
     <li class="param list-group-item" *ngSwitchCase="'TableScan'">
       <div class="param-wrapper">
         <label for="{{node.id}}tableName">Table</label>
@@ -32,6 +30,7 @@
           </select>
         </div>
       </li>
+
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="{{node.id}}joinOperator">Operator</label>
@@ -45,6 +44,7 @@
           </select>
         </div>
       </li>
+
       <li class="param list-group-item">
         <div class="param-wrapper">
           <label for="{{node.id}}col1">Col 1</label>
@@ -125,6 +125,7 @@
         </div>
       </li>
     </ng-container>
+
 
     <ng-container *ngSwitchCase="'Aggregate'">
       <li class="param list-group-item">

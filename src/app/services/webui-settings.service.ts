@@ -7,6 +7,7 @@ export class WebuiSettingsService {
 
   connections = new Map<string, string>();
   settings = new Map<string, string>();
+  settingsGR = new Map<string, string>();
   host: string;
 
   constructor() {
@@ -26,11 +27,16 @@ export class WebuiSettingsService {
     if( localStorage.getItem('hub.url') === null ) {
       localStorage.setItem('hub.url', 'https://hub.polypheny.org/index.php');
     }
+    if( localStorage.getItem('websocketGestureRecognition.ip:port') == null ) {
+      localStorage.setItem('websocketGestureRecognition.ip:port', 'localhost:4999');
+    }
+
 
     this.settings.set( 'configServer.port', localStorage.getItem('configServer.port'));
     this.settings.set( 'informationServer.port', localStorage.getItem('informationServer.port'));
     this.settings.set( 'webUI.port', localStorage.getItem('webUI.port'));
     this.settings.set( 'hub.url', localStorage.getItem('hub.url'));
+    this.settingsGR.set( 'websocketGestureRecognition.ip:port', localStorage.getItem('websocketGestureRecognition.ip:port'));
 
     this.connections.set( 'config.rest',
         'http://' + this.host + ':' + localStorage.getItem( 'configServer.port' ) );
@@ -45,7 +51,7 @@ export class WebuiSettingsService {
     this.connections.set( 'crud.socket',
         'ws://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) + '/queryAnalyzer' );
     this.connections.set( 'hub.url', localStorage.getItem('hub.url'));
-
+    this.connections.set('websocketGestureRecognition', 'ws://' + localStorage.getItem('websocketGestureRecognition.ip:port'))
   }
 
   public getConnection(key:string ){
@@ -56,8 +62,18 @@ export class WebuiSettingsService {
     return this.settings;
   }
 
+
   public setSetting ( key:string, val:string ) {
     this.settings.set( key, val );
+    localStorage.setItem( key, val );
+  }
+
+  public getSettingsGR(){
+    return this.settingsGR;
+  }
+
+  public setSettingGR ( key:string, val:string ) {
+    this.settingsGR.set( key, val );
     localStorage.setItem( key, val );
   }
 
@@ -68,5 +84,4 @@ export class WebuiSettingsService {
     localStorage.setItem('hub.url', 'https://hub.polypheny.org/index.php');
     location.reload();
   }
-
 }

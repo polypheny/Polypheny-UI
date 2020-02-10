@@ -213,12 +213,35 @@
         <div class="aside-options">
           <small>saving and resetting will reload the page</small>
         </div>
-
         <div class="aside-options">
           <button type="submit" class="btn btn-primary">save</button>
           <button class="btn btn-danger float-right" (click)="resetSettings()">reset</button>
         </div>
 
+      </form>
+
+    </div>
+  </tab>
+
+  <tab>
+    <ng-template tabHeading>Gesture Recognition</ng-template>
+    <div class="p-3">
+      <h6>Gesture Recognition</h6>
+      <small>(You need to be in the Plan Builder to start the connection)</small>
+      <form [formGroup]="formGR" (ngSubmit)="saveSettingsGR()">
+        <div class="aside-options">
+          <div class="form-group" *ngFor="let s of settingsGR | keyvalue">
+            <label>{{s.key}}</label>
+            <input type="text" class="form-control form-control-sm" [id]="s.key" [value]="s.value" [formControlName]="s.key">
+          </div>
+        </div>
+        <div class="aside-options">
+          <small>saving will reload the page</small>
+        </div>
+        <div class="aside-options">
+          <button type="submit" class="btn btn-primary">save</button>
+          <button class="btn btn-success float-right" (click)="connectToRA()">{{buttonName}}</button>
+        </div>
       </form>
 
     </div>

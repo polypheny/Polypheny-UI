@@ -15,8 +15,10 @@ export class NodeComponent implements OnInit, AfterViewInit {
   @ViewChild('nodeEle', {static: false}) public nodeEle: ElementRef;
   @Input() node: Node;
   @Output() autocompleteChanged = new EventEmitter();
+  public highlighted = "node1";
 
   ngOnInit() {
+
   }
 
   ngAfterViewInit(){
@@ -95,5 +97,6 @@ export class NodeComponent implements OnInit, AfterViewInit {
   trackFields(index: number, obj: any): any {
     return obj.length;
   }
+
 
 }
