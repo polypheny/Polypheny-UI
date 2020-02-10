@@ -68,14 +68,7 @@ export class CrudService {
    * Request all aviable statistic from the server
    */
   allStatistics ( statistics: StatisticRequest) {
-    //TODO: comment is out send dummy request for the moment
     return this._http.post(`${this.httpUrl}/allStatistics`,statistics,  this.httpOptions);
-    /* return {
-      data: [["10"]],
-      table: "test",
-      type: "min", //min,max etc.
-      info: "it's a test"
-    }*/
   }
 
   /**
