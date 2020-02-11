@@ -42,6 +42,7 @@
     "moment": "^2.24.0",
     "mutationobserver-shim": "^0.3.3",
     "ng2-charts": "^2.3.0",
+    "ng5-slider": "^1.2.4",
     "ngx-bootstrap": "^5.1.2",
     "ngx-perfect-scrollbar": "^8.0.0",
     "node-sass": "^4.12.0",

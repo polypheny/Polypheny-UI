@@ -20,6 +20,32 @@ export class ResultSet{
 }
 
 /**
+ * model for statistics coming from the server
+ */
+export class StatisticSet{
+   // error: string;
+    [column: string]: {
+        type: string[],
+        min: null,
+        max: null,
+        check: string[],
+        sort: string
+    }
+
+    constructor( ){
+       // this.error = error;
+    }
+}
+
+/**
+ * model for filtered options coming from user input
+ */
+export class FilteredUserInput{
+    [column: string]: { }
+}
+
+
+/**
  * Model for a column of a table
  */
 export class DbColumn {

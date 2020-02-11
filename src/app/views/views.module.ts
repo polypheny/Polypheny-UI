@@ -9,7 +9,7 @@ import {
   BsDropdownModule,
   ButtonsModule,
   CollapseModule,
-  ModalModule,
+  ModalModule, PopoverModule,
   ProgressbarModule,
   TooltipModule,
   TypeaheadModule
@@ -31,6 +31,8 @@ import { NodeComponent } from './querying/relational-algebra/node/node.component
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import { StoresComponent } from './stores/stores.component';
 import { HubComponent } from './hub/hub.component';
+import { RefinementOptionsComponent } from './querying/graphical-querying/refinement-options/refinement-options.component';
+import {Ng5SliderModule} from 'ng5-slider';
 
 @NgModule({
   imports: [
@@ -53,7 +55,8 @@ import { HubComponent } from './hub/hub.component';
     DragDropModule,
     ModalModule.forRoot(),
     AutocompleteLibModule,
-    ProgressbarModule
+    ProgressbarModule,
+    Ng5SliderModule, PopoverModule
   ],
   declarations: [
     EditColumnsComponent,
@@ -69,7 +72,8 @@ import { HubComponent } from './hub/hub.component';
     QueryingComponent,
     NodeComponent,
     StoresComponent,
-    HubComponent
+    HubComponent,
+    RefinementOptionsComponent
   ],
   exports: []
 })

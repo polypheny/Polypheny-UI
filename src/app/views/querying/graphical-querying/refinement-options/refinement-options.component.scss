@@ -1,0 +1,25 @@
+.refinement-button {
+  margin-bottom: 0.5rem;
+}
+
+.refinement-column {
+  border-top: 1px solid #c8ced3;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+}
+
+.refinement-column:nth-of-type(1){
+  border-top: 1px solid transparent;
+}
+
+input[type=range] {
+  background: grey;
+  height: 0.8rem;
+}
+
+input[type=range]::-webkit-slider-thumb,
+input[type=range]::-moz-range-thumb,
+input[type=range]::-ms-thumb {
+  background: cornflowerblue;
+  height: 0.9rem;
+}

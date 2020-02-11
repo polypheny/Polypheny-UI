@@ -36,12 +36,19 @@
     <div id="aceWrapper" style="height: 150px">
       <app-editor #editorGenerated></app-editor>
     </div>
+    <div></div>
+
+
+    <app-refinement-options [choosenTables]="selectedColumn" (filteredUserInputChange)="userInput($event)"></app-refinement-options>
+
+
 
     <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
     <button *ngIf="loading" class="btn btn-primary" disabled>Loading</button>
   </div>
 
 </div>
+
 
 <hr *ngIf="resultSet">
 

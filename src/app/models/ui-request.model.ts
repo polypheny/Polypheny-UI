@@ -31,6 +31,13 @@ export class QueryRequest extends UIRequest {
   }
 }
 
+export class StatisticRequest extends UIRequest {
+  constructor (){
+    super();
+    return this;
+  }
+}
+
 export class DeleteRequest extends UIRequest {
   constructor ( tableId: string, data: any) {
     super();
