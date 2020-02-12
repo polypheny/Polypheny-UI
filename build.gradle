@@ -1,9 +1,9 @@
 
-group 'ch.unibas.dmi.dbis.polyphenydb'
+group 'org.polypheny'
 
 version '1.0'
 
-description = "Polypheny-DB UI App"
+description = "Web-based user interface for Polypheny-DB"
 
 
 
@@ -23,8 +23,8 @@ buildscript {
 
 repositories {
     maven {
-        // DBIS Artifactory
-        url 'https://dbis-artifactory.dmi.unibas.ch/maven2/'
+        // DBIS Nexus
+        url "https://dbis-nexus.dmi.unibas.ch/repository/maven2/"
     }
     flatDir {
         dirs 'libs'
