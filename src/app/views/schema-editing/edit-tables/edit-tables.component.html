@@ -24,7 +24,9 @@
                 <div class="input-group">
                     <input type="text" class="form-control form-control-sm" placeholder="truncate {{table}}" [(ngModel)]="truncate[i]">
                     <div class="input-group-append">
-                        <button class="btn btn-sm" [ngClass]="{'btn-danger': truncate[i] === table, 'btn-light disabled': truncate[i] !== table}" type="button" (click)="sendRequest(table, 'truncate', truncate[i])">truncate</button>
+                        <button class="btn btn-sm" [ngClass]="dropTruncateClass('truncate', table, i)" type="button"
+                                (click)="sendRequest(table, 'truncate', truncate[i])">truncate
+                        </button>
                     </div>
                 </div>
             </td>
@@ -32,7 +34,9 @@
                 <div class="input-group">
                     <input type="text" class="form-control form-control-sm" placeholder="drop {{table}}" [(ngModel)]="drop[i]">
                     <div class="input-group-append">
-                        <button class="btn btn-sm" [ngClass]="{'btn-danger': drop[i] === table, 'btn-light disabled': drop[i] !== table}" type="button" (click)="sendRequest(table, 'drop', drop[i])">drop</button>
+                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('drop', table, i)" type="button"
+                              (click)="sendRequest(table, 'drop', drop[i])">drop
+                      </button>
                     </div>
                 </div>
             </td>

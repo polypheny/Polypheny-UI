@@ -75,21 +75,34 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this.drop[key] = '';
         });
       }, err => {
-        this._toast.toast( 'server error', 'could not retrieve list of tables', 10, 'bg-danger' );
+        this._toast.toast('server error', 'could not retrieve list of tables', 10, 'bg-danger');
         console.log(err);
       }
     );
   }
 
   /**
+   * get the right class for the 'drop' and 'truncate' buttons
+   * enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
+   */
+  dropTruncateClass(action: string, table: string, i: number) {
+    if (action === 'drop' && (this.drop[i] === 'drop ' + table || this.drop[i] === table)) {
+      return 'btn-danger';
+    } else if (action === 'truncate' && (this.truncate[i] === 'truncate ' + table || this.truncate[i] === table)) {
+      return 'btn-danger';
+    }
+    return 'btn-light disabled';
+  }
+
+  /**
    * send a request to either drop or truncate a table
    */
-  sendRequest ( table:string, action, confirm: string ) {
+  sendRequest(table: string, action, confirm: string) {
     let request;
-    if( confirm === table && action === 'drop'){
-      request = new EditTableRequest( this.schema, table, action );
-    }else if( confirm === table && action === 'truncate'){
-      request = new EditTableRequest( this.schema, table, action );
+    if (confirm === table && action === 'drop') {
+      request = new EditTableRequest(this.schema, table, action);
+    } else if (confirm === table && action === 'truncate') {
+      request = new EditTableRequest(this.schema, table, action);
     }else {
       return;
     }
