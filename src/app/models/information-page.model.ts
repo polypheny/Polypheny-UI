@@ -30,14 +30,16 @@ export interface InformationObject {
   key?:string;
   //information
   id?:string;
-  informationGroup?:string;
+  informationGroup?: string;
   //graph:
   data?: number[];
   labels?: string[];
-  graphType?:string;
+  graphType?: string;
   //debugger
   queryPlan: string;
   //code
   code?: string;
   language?: string;
+  //table
+  rows?: string[];
 }

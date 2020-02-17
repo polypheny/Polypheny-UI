@@ -13,7 +13,18 @@
   </ng-container>
 
   <ng-container *ngIf="li.type == 'InformationHtml' || li.type == 'InformationTable'">
-    <div class="card-body" [innerHTML]="li.html"></div>
+    <table class="table table-responsive-sm">
+      <thead>
+      <tr>
+        <th *ngFor="let l of li.labels">{{l}}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let row of li.rows">
+        <td *ngFor="let data of row">{{data}}</td>
+      </tr>
+      </tbody>
+    </table>
   </ng-container>
 
   <ng-container *ngIf="li.type == 'InformationCode'">
