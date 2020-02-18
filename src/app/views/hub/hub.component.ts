@@ -184,14 +184,14 @@ export class HubComponent implements OnInit, OnDestroy {
         res => {
           const result = <HubResult> res;
           if(result.error){
-            this._toast.toast( 'error', result.error, 5, 'bg-warning');
+            this._toast.warn(result.error);
           }else{
-            this._toast.toast( 'Password changed', result.message, 5, 'bg-success');
+            this._toast.success(result.message, 'Password changed');
             this.changePwSubmitted = false;
             this.changePwForm.reset();
           }
         }, err => {
-          this._toast.toast( 'error', 'Unknown server error', 5, 'bg-danger');
+          this._toast.error('Unknown server error');
         }
       );
     }
@@ -206,13 +206,13 @@ export class HubComponent implements OnInit, OnDestroy {
       res => {
         const result = <HubResult> res;
         if( result.error ){
-          this._toast.toast('error', 'Could not delete user: ' + result.error, 10, 'bg-warning');
+          this._toast.warn('Could not delete user: ' + result.error);
         }else{
-          this._toast.toast('success', 'The user was deleted.', 5, 'bg-success');
+          this._toast.success('The user was deleted.');
           this.getUsers();
         }
       }, err => {
-        this._toast.toast('server error', 'Could not delete user', 10, 'bg-danger');
+        this._toast.error('Could not delete user');
       }
     );
   }
@@ -224,16 +224,16 @@ export class HubComponent implements OnInit, OnDestroy {
         res => {
           const result = <HubResult> res;
           if( result.error ){
-            this._toast.toast('error', 'Could not create user: ' + result.error, 10, 'bg-warning');
+            this._toast.warn('Could not create user: ' + result.error);
           }else{
-            this._toast.toast('success', result.message, 5, 'bg-success');
+            this._toast.success(result.message);
             this.getUsers();
             this.newUserForm.reset({admin:false});
             this.newUserFormSubmitted = false;
             this.createUserModal.hide();
           }
         }, err => {
-          this._toast.toast('server error', 'Could not create user', 10, 'bg-danger');
+          this._toast.error('Could not create user');
           console.log(err);
         }
       );
@@ -278,14 +278,14 @@ export class HubComponent implements OnInit, OnDestroy {
         res => {
           const result = <HubResult> res;
           if( result.error ){
-            this._toast.toast('error', 'Could not update user: ' + result.error, 10, 'bg-warning');
+            this._toast.error('Could not update user: ' + result.error);
           }else{
-            this._toast.toast('success', 'The user was updated.', 5, 'bg-success');
+            this._toast.success('The user was updated.');
             this.getUsers();
             this.editUserModal.hide();
           }
         }, err => {
-          this._toast.toast('server error', 'Could not update user', 10, 'bg-danger');
+          this._toast.error('Could not update user');
           console.log(err);
         }
       );
@@ -369,7 +369,7 @@ export class HubComponent implements OnInit, OnDestroy {
         this.editDatasetModal.hide();
         this.getDatasets();
       }, err => {
-        this._toast.toast('error', 'Could not update dataset', 5, 'bg-danger');
+        this._toast.error('Could not update dataset');
         console.log(err);
       }
     );
@@ -388,10 +388,10 @@ export class HubComponent implements OnInit, OnDestroy {
           } else if( res.type === HttpEventType.Response ){
             const result = <HubResult> res.body;
             if( result.error ){
-              this._toast.toast( 'error', 'Could not upload dataset: ' + result.error, 10, 'bg-warning' );
+              this._toast.warn('Could not upload dataset: ' + result.error);
               this.uploadProgress = 0;
             } else {
-              this._toast.toast( 'uploaded', result.message, 5, 'bg-success' );
+              this._toast.success(result.message, 'uploaded');
               this.getDatasets();
               this.newDsForm.reset();
               this.newDsFormSubmitted = false;
@@ -400,7 +400,7 @@ export class HubComponent implements OnInit, OnDestroy {
             }
           }
         }, err => {
-          this._toast.toast( 'error', 'Could not upload dataset', 10, 'bg-danger' );
+          this._toast.error('Could not upload dataset');
           console.log(err);
         }
       );
@@ -423,14 +423,14 @@ export class HubComponent implements OnInit, OnDestroy {
         const result = <HubResult> res;
         this.deleteDsConfirm = undefined;
         if( result.error ){
-          this._toast.toast( 'error', 'Could not delete dataset: ' + result.error, 10, 'bg-warning' );
+          this._toast.warn('Could not delete dataset: ' + result.error);
         } else {
-          // this._toast.toast( 'deleted', result.message, 5, 'bg-success' );
+          // this._toast.success( result.message, 'deleted' );
           this.getDatasets();
         }
       }, err => {
         this.deleteDsConfirm = undefined;
-        this._toast.toast( 'error', 'Could not delete dataset', 10, 'bg-danger' );
+        this._toast.error('Could not delete dataset');
       }
     );
   }
@@ -491,14 +491,14 @@ export class HubComponent implements OnInit, OnDestroy {
           this.importProgress = -1;
           const result = <HubResult> res;
           if(result.error){
-            this._toast.toast('error', 'Import failed: ' + result.error, 10, 'bg-warning');
+            this._toast.warn('Import failed: ' + result.error);
           }else{
-            this._toast.toast('success', result.message, 5, 'bg-success');
+            this._toast.success(result.message);
             this.downloadDataModal.hide();
           }
         }, err => {
           this.importProgress = -1;
-          this._toast.toast('error', 'The dataset could not be imported', 10, 'bg-warning');
+          this._toast.error('The dataset could not be imported');
           console.log(err);
         }
       );

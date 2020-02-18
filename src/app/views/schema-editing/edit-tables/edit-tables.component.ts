@@ -3,7 +3,7 @@ import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
 import {DbColumn, ResultSet, Status} from '../../../components/data-table/models/result-set.model';
-import {ToastService} from '../../../components/toast/toast.service';
+import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
@@ -67,7 +67,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       res => {
         const result = <ResultSet> res;
         if( result.error !== undefined ){
-          this._toast.toast( 'error', 'Could not retrieve list of tables: '+result.error, 10, 'bg-warning' );
+          this._toast.warn('Could not retrieve list of tables: ' + result.error);
         }
         this.tables = result.tables;
         this.tables.forEach((val, key) => {
@@ -75,7 +75,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this.drop[key] = '';
         });
       }, err => {
-        this._toast.toast( 'server error', 'could not retrieve list of tables', 10, 'bg-danger' );
+        this._toast.error('could not retrieve list of tables');
         console.log(err);
       }
     );
@@ -97,34 +97,34 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       res => {
         const result = <ResultSet> res;
         if( result.error ){
-          this._toast.toast( 'error', 'Could not '+action+' the table '+table+': '+result.error, 10, 'bg-warning' );
+          this._toast.warn('Could not ' + action + ' the table ' + table + ': ' + result.error);
         }else {
           let toastAction = 'Truncated';
           if( request.getAction() === 'drop'){
             toastAction = 'Dropped';
             this._leftSidebar.setSchema( new SchemaRequest('/views/schema-editing/', false, 2) );
           }
-          this._toast.toast('success', toastAction + ' table '+request.table, 10, 'bg-success');
+          this._toast.success(toastAction + ' table ' + request.table);
           this.getTables();
         }
       }, err => {
-        this._toast.toast( 'server error', 'Could not '+action+' the table '+table+' due to an unknown error', 10, 'bg-danger' );
-        console.log( err );
+        this._toast.error('Could not ' + action + ' the table ' + table + ' due to an unknown error');
+        console.log(err);
       }
     );
   }
 
   createTable () {
     if(this.newTableName === ''){
-      this._toast.toast( 'missing table name', 'Please provide a name for the new table. The new table was not created.', 0, 'bg-warning');
+      this._toast.warn('Please provide a name for the new table. The new table was not created.', 'missing table name', ToastDuration.INFINITE);
       return;
     }
     if( !this._crud.nameIsValid(this.newTableName) ){
-      this._toast.toast( 'invalid table name', 'Please provide a valid name for the new table. The new table was not created.', 0, 'bg-warning');
+      this._toast.warn('Please provide a valid name for the new table. The new table was not created.', 'invalid table name', ToastDuration.INFINITE);
       return;
     }
     if( this.tables.indexOf( this.newTableName ) !== -1 ){
-      this._toast.toast( 'invalid table name', 'A table with this name already exists. Please choose another name.', 0, 'bg-warning');
+      this._toast.warn('A table with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
       return;
     }
     let valid = true;
@@ -143,7 +143,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       }
     });
     if ( !valid ){
-      this._toast.toast( 'invalid column name', 'Please make sure all column names are valid. The new table was not created.', 0, 'bg-warning');
+      this._toast.warn('Please make sure all column names are valid. The new table was not created.', 'invalid column name', ToastDuration.INFINITE);
       return;
     }
     const request = new EditTableRequest( this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()) );
@@ -151,9 +151,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       res => {
         const result = <ResultSet> res;
         if( result.error ) {
-          this._toast.toast( 'error', 'Could not generate table: '+result.error, 10, 'bg-warning' );
+          this._toast.warn('Could not generate table: ' + result.error);
         } else {
-          this._toast.toast('success', 'Generated table ' + request.table, 5, 'bg-success' );
+          this._toast.success('Generated table ' + request.table);
           this.newColumns.clear();
           this.counter = 0;
           this.newColumns.set( this.counter++, new DbColumn('', false, false, this.types[0], null));
@@ -162,8 +162,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         }
         this.getTables();
       }, err => {
-        this._toast.toast( 'server error', 'Could not generate table', 10, 'bg-warning' );
-        console.log( err );
+        this._toast.error('Could not generate table');
+        console.log(err);
       }
     );
   }
@@ -203,12 +203,12 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         res => {
           const result = <ResultSet> res;
           if( result.error ){
-            this._toast.toast( 'error', result.error, 5, 'bg-warning');
+            this._toast.warn(result.error);
           } else {
-            this._toast.toast( 'success', 'Exported table to Polypheny-Hub', 5, 'bg-success');
+            this._toast.success('Exported table to Polypheny-Hub');
           }
         }, err => {
-          this._toast.toast( 'error', 'Could not export table', 5, 'bg-danger');
+          this._toast.error('Could not export table');
           console.log(err);
         }
         //"finally block"

@@ -390,7 +390,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         const tree = this.getTree();
         if (tree === undefined) {
             $('#run i').removeClass().addClass('fa fa-play');
-            this._toast.toast('no plan', 'Please provide a plan to be executed.', 10, 'bg-warning');
+          this._toast.warn('Please provide a plan to be executed.', 'no plan');
             return;
         }
         this._crud.executeRelAlg(tree).subscribe(
@@ -398,8 +398,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
                 $('#run i').removeClass().addClass('fa fa-play');
                 this.resultSet = <ResultSet>res;
             }, err => {
-                $('#run i').removeClass().addClass('fa fa-play');
-                this._toast.toast('Server error', 'Could not execute relational algebra: ', 0, 'bg-danger');
+            $('#run i').removeClass().addClass('fa fa-play');
+            this._toast.error('Could not execute relational algebra');
             }
         );
     }
@@ -430,8 +430,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
                 //get only node in Map
                 tree = this.walkTree(this.nodes.values().next().value.clone());
             } else {
-                //$('#run i').removeClass().addClass('fa fa-play');
-                //this._toast.toast( 'no plan', 'Please provide a plan to be executed.', 10, 'bg-warning' );
+              //$('#run i').removeClass().addClass('fa fa-play');
+              //this._toast.warn( 'Please provide a plan to be executed.', 'no plan' );
                 return undefined;
             }
         } else {
@@ -506,8 +506,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         }
         // see https://2ality.com/2015/08/es6-map-json.html
         const out = {nodes: [...this.nodes], connections: [...this.connections]};
-        this.copyMessage(JSON.stringify(out));
-        this._toast.toast('exported', 'The plan was exported to JSON and copied to your clipboard', 5, 'bg-success');
+      this.copyMessage(JSON.stringify(out));
+      this._toast.success('The plan was exported to JSON and copied to your clipboard', 'exported');
     }
 
     /**

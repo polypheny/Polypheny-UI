@@ -1,12 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ConfigService } from '../../../services/config.service';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { LeftSidebarService } from '../../../components/left-sidebar/left-sidebar.service';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ConfigService} from '../../../services/config.service';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute} from '@angular/router';
+import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {KeyValue} from '@angular/common';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
-import {ToastService} from '../../../components/toast/toast.service';
+import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 
 @Component({
   selector: 'app-form-generator',
@@ -71,9 +71,9 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
           c.value = update.value;
         }else {//has been edited
           if(this.form.controls[c.key].value !== update.value){
-            this._toast.toast( 'incoming change',
-              'The setting with id ' + c.key + ' has been changed to the new value "'+ update.value +'" by the server. If you save, these changes will be overwritten.',
-              0, 'bg-warning');
+            this._toast.warn(
+              'The setting with id ' + c.key + ' has been changed to the new value "' + update.value + '" by the server. If you save, these changes will be overwritten.',
+              'incoming change', ToastDuration.INFINITE);
           }else{
             c.value = update.value;
           }
@@ -216,17 +216,17 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         const f: Feedback = <Feedback> res;
         //console.log(f);
         if( f.success ){
-          this._toast.toast('success', 'Saved changes.', 2, 'bg-success');
+          this._toast.success('Saved changes.', null, ToastDuration.SHORT);
         } else {
-          this._toast.toast('warning', f.warning, 0, 'bg-warning');
+          this._toast.warn(f.warning, null, ToastDuration.INFINITE);
         }
         this.form.markAsPristine();
       }, err=>{
         console.log(err);
-        this._toast.toast('server error', 'an error occurred on the server', 3,  'bg-danger');
+        this._toast.error('an error occurred on the server');
       });
     } else {
-      this._toast.toast('invalid input', 'Changes could not be saved. Please check invalid input.', 0, 'bg-warning');
+      this._toast.warn('Changes could not be saved. Please check invalid input.', 'invalid input', ToastDuration.INFINITE);
     }
   }
 
