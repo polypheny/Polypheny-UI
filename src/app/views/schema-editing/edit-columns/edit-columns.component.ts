@@ -9,6 +9,7 @@ import {Input} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
+import {Store} from '../../stores/store.model';
 
 @Component({
   selector: 'app-edit-columns',
@@ -43,7 +44,11 @@ export class EditColumnsComponent implements OnInit {
   newIndexForm: FormGroup;
   indexSubmitted = false;
 
+  //data placement handling
+  stores: Store[];
+  selectedStore;
   dataPlacements: ResultSet;
+  confirmPlacement = -1;
 
   constructor(
     private _route: ActivatedRoute,
@@ -71,6 +76,7 @@ export class EditColumnsComponent implements OnInit {
     this.getColumns();
     this.getConstraints();
     this.getIndexes();
+    this.getStores();
     this.getDataPlacements();
 
     this.documentListener();
@@ -371,23 +377,32 @@ export class EditColumnsComponent implements OnInit {
     }
   }
 
-  getIndexes () {
-    this._crud.getIndexes( new EditTableRequest( this.schema, this.table ) ).subscribe(
+  getIndexes() {
+    this._crud.getIndexes(new EditTableRequest(this.schema, this.table)).subscribe(
       res => {
-        this.indexes = <ResultSet> res;
+        this.indexes = <ResultSet>res;
       }, err => {
         console.log(err);
       }
     );
   }
 
-  getDataPlacements () {
-    this._crud.getDataPlacements( this.schema, this.table ).subscribe(
+  getStores() {
+    this._crud.getStores().subscribe(
       res => {
-        const result = <ResultSet> res;
-        if(! result.error){
+        this.stores = <Store[]>res;
+      }, err => {
+        console.log(err);
+      });
+  }
+
+  getDataPlacements() {
+    this._crud.getDataPlacements(this.schema, this.table).subscribe(
+      res => {
+        const result = <ResultSet>res;
+        if (!result.error) {
           this.dataPlacements = result;
-        }else{
+        } else {
           console.log(result.error);
         }
       }, err => {
@@ -396,14 +411,44 @@ export class EditColumnsComponent implements OnInit {
     );
   }
 
-  dropIndex ( index: string, i ) {
+  addPlacement() {
+    if (!this.selectedStore) {
+      return;
+    }
+    this._crud.addDropPlacement(this.schema, this.table, this.selectedStore, 'ADD').subscribe(
+      res => {
+        this._toast.toast('Added placement on store ' + this.selectedStore, 'Added placement', 5, 'bg-success');
+        this.selectedStore = null;
+        this.getDataPlacements();
+      }, err => {
+        this._toast.toast('Could not drop placement on store ' + this.selectedStore, 'Error', 5, 'bg-danger');
+      }
+    );
+  }
+
+  dropPlacement(store: string, i: number) {
+    if (i !== this.confirmPlacement) {
+      this.confirmPlacement = i;
+      return;
+    }
+    this._crud.addDropPlacement(this.schema, this.table, store, 'DROP').subscribe(
+      res => {
+        this._toast.toast('Dropped placement on store ' + store, 'Dropped placement', 5, 'bg-success');
+        this.getDataPlacements();
+      }, err => {
+        this._toast.toast('Could not drop placement on store ' + store, 'Error', 5, 'bg-danger');
+      }
+    );
+  }
+
+  dropIndex(index: string, i) {
     if (this.confirmIndex !== i) {
       this.confirmIndex = i;
     } else {
-      this._crud.dropIndex( new Index( this.schema, this.table, index, null, null ) ).subscribe(
+      this._crud.dropIndex(new Index(this.schema, this.table, index, null, null)).subscribe(
         res => {
-          const result = <ResultSet> res;
-          if( !result.error ){
+          const result = <ResultSet>res;
+          if (!result.error) {
             this.getIndexes();
           }else{
             this._toast.toast( 'error', 'Could not drop index: ' + result.error, 10, 'bg-warning');
