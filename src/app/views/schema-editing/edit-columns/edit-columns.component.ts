@@ -1,11 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
 import {DbColumn, Index, ResultSet, TableConstraint} from '../../../components/data-table/models/result-set.model';
-import {ToastService} from '../../../components/toast/toast.service';
-import {Input} from '@angular/core';
+import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -102,7 +101,7 @@ export class EditColumnsComponent implements OnInit {
         // deep copy: from: https://stackoverflow.com/questions/35504310/deep-copy-an-array-in-angular-2-typescript
         this.newPrimaryKey = this.resultSet.header.map( x => Object.assign({}, x));
       }, err => {
-        this._toast.toast( 'server error', 'Could not load columns of the table.', 0, 'bg-danger' );
+        this._toast.error('Could not load columns of the table.', null, ToastDuration.INFINITE);
         console.log(err);
       }
     );
@@ -127,7 +126,7 @@ export class EditColumnsComponent implements OnInit {
 
   saveCol() {
     if( ! this._crud.nameIsValid( this.updateColumn.controls['name'].value ) ){
-      this._toast.toast( 'invalid column name', this._crud.invalidNameMessage('column'), 10, 'bg-warning' );
+      this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
       return;
     }
     const oldColumn = this.oldColumns.get( this.updateColumn.controls['oldName'].value );
@@ -148,12 +147,12 @@ export class EditColumnsComponent implements OnInit {
         this.editColumn = -1;
         this.getColumns();
         if( result.error ){
-          this._toast.toast( 'error', 'Could not update column: '+result.error, 0, 'bg-warning' );
+          this._toast.warn('Could not update column: ' + result.error);
         }else{
-          this._toast.toast( 'column saved', 'The new column was saved.', 10, 'bg-success' );
+          this._toast.success('The new column was saved.', 'column saved');
         }
       }, err => {
-        this._toast.toast( 'server error', 'Could not save column due to an error on the server.', 0, 'bg-danger' );
+        this._toast.error('Could not save column due to an error on the server.', null, ToastDuration.INFINITE);
         console.log(err);
       }
     );
@@ -161,11 +160,11 @@ export class EditColumnsComponent implements OnInit {
 
   addColumn() {
     if( this.createColumn.name === ''){
-      this._toast.toast( 'missing column name', 'Please provide a name for the new column.', 0, 'bg-warning');
+      this._toast.warn('Please provide a name for the new column.', 'missing column name');
       return;
     }
     if( ! this._crud.nameIsValid( this.createColumn.name ) ){
-      this._toast.toast( 'invalid column name', this._crud.invalidNameMessage('column'), 10, 'bg-warning' );
+      this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
       return;
     }
     if( ! ['varchar', 'varbinary'].includes(this.createColumn.dataType.toLowerCase()) && this.createColumn.maxLength !== null ){
@@ -184,10 +183,10 @@ export class EditColumnsComponent implements OnInit {
           this.createColumn.maxLength = null;
           this.createColumn.defaultValue = null;
         } else {
-          this._toast.toast( 'server error', result.error, 0, 'bg-warning' );
+          this._toast.warn(result.error, 'server error', ToastDuration.INFINITE);
         }
       }, err => {
-        this._toast.toast( 'server error', 'An error occured on the server.', 0, 'bg-danger' );
+        this._toast.error('An error occurred on the server.', null, ToastDuration.INFINITE);
         console.log(err);
     }
     );
@@ -203,10 +202,10 @@ export class EditColumnsComponent implements OnInit {
           this.confirm = -1;
           const result = <ResultSet> res;
           if( result.error ){
-            this._toast.toast( 'server error', 'Could not delete column:\n' + result.error, 0, 'bg-warning' );
+            this._toast.warn('Could not delete column:\n' + result.error, 'server error', ToastDuration.INFINITE);
           }
         }, err => {
-          this._toast.toast( 'server error', 'Could not delete column.', 0, 'bg-danger' );
+          this._toast.error('Could not delete column.', null, ToastDuration.INFINITE);
           console.log(err);
         }
       );
@@ -231,7 +230,7 @@ export class EditColumnsComponent implements OnInit {
         res => {
           const result = <ResultSet> res;
           if( result.error){
-            this._toast.toast( 'constraint error', result.error, 10, 'bg-warning');
+            this._toast.warn(result.error, 'constraint error');
           }else{
             this.getConstraints();
           }
@@ -255,13 +254,13 @@ export class EditColumnsComponent implements OnInit {
         const result = <ResultSet> res;
         if( !result.error ){
           this.getConstraints();
-          this._toast.toast( 'added primary key', 'The primary key was added.', 5, 'bg-success' );
+          this._toast.success('The primary key was added.', 'added primary key');
           this.getColumns();
         }else {
-          this._toast.toast( 'primary key error', result.error, 0, 'bg-warning');
+          this._toast.warn(result.error, 'primary key error', ToastDuration.INFINITE);
         }
       }, err => {
-        this._toast.toast( 'Server error', 'Could not add primary key.', 0, 'bg-danger');
+        this._toast.error('Could not add primary key.', null, ToastDuration.INFINITE);
         console.log(err);
       }
     );
@@ -269,11 +268,11 @@ export class EditColumnsComponent implements OnInit {
 
   addUniqueConstraint(){
     if( this.uniqueConstraintName === '' ){
-      this._toast.toast( 'constraint name', 'Please provide a name for the unique constraint.', 10, 'bg-warning' );
+      this._toast.warn('Please provide a name for the unique constraint.', 'constraint name');
       return;
     }
     if( ! this._crud.nameIsValid( this.uniqueConstraintName ) ){
-      this._toast.toast( 'invalid constraint name', this._crud.invalidNameMessage('unique constraint'), 10, 'bg-warning' );
+      this._toast.warn(this._crud.invalidNameMessage('unique constraint'), 'invalid constraint name');
       return;
     }
     const constraint = new TableConstraint( this.uniqueConstraintName, 'UNIQUE');
@@ -285,7 +284,7 @@ export class EditColumnsComponent implements OnInit {
       }
     });
     if( counter === 0 ) {
-      this._toast.toast( 'unique constraint', 'Please select at least one column that should be part of the unique constraint.', 10, 'bg-warning' );
+      this._toast.warn('Please select at least one column that should be part of the unique constraint.', 'unique constraint');
       return;
     }
     const constraintRequest = new ConstraintRequest( this.tableId, constraint );
@@ -294,16 +293,16 @@ export class EditColumnsComponent implements OnInit {
         const result = <ResultSet> res;
         if( !result.error ){
           this.getConstraints();
-          this._toast.toast( 'added constraint', 'The unique constraint was successfully created', 5, 'bg-success' );
+          this._toast.success('The unique constraint was successfully created', 'added constraint');
           this.uniqueConstraintName = '';
           this.resultSet.header.forEach((v, k) => {
             v.unique = false;
           });
         }else {
-          this._toast.toast( 'unique constraint error', result.error, 0, 'bg-warning');
+          this._toast.warn(result.error, 'unique constraint error', ToastDuration.INFINITE);
         }
       }, err => {
-        this._toast.toast( 'Server error', 'Could not add unique constraint.', 0, 'bg-danger');
+        this._toast.error('Could not add unique constraint.', null, ToastDuration.INFINITE);
         console.log(err);
       }
     );
@@ -406,7 +405,7 @@ export class EditColumnsComponent implements OnInit {
           if( !result.error ){
             this.getIndexes();
           }else{
-            this._toast.toast( 'error', 'Could not drop index: ' + result.error, 10, 'bg-warning');
+            this._toast.warn('Could not drop index: ' + result.error);
           }
         }, err => {
           console.log(err);
@@ -426,7 +425,7 @@ export class EditColumnsComponent implements OnInit {
           if( !result.error ){
             this.getIndexes();
           }else{
-            this._toast.toast( 'error', 'Could not create index: ' + result.error, 10, 'bg-warning');
+            this._toast.warn('Could not create index: ' + result.error);
           }
         }, err => {
           console.log(err);

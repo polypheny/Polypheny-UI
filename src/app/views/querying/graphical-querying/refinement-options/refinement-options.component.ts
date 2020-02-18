@@ -69,7 +69,7 @@ export class RefinementOptionsComponent implements OnInit {
                     this.prepareStatisticSet(<StatisticSet>res);
                     this.stylingSet = res;
                 }, err => {
-                    this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
+                    this._toast.error('Unknown error on the server.');
                 }
         );
     }

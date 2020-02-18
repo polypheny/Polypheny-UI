@@ -7,7 +7,7 @@ import {DbTable, ForeignKey, SvgLine, Uml} from './uml.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {ModalDirective} from 'ngx-bootstrap';
 import {FormBuilder} from '@angular/forms';
-import {ToastService} from '../../components/toast/toast.service';
+import {ToastDuration, ToastService} from '../../components/toast/toast.service';
 import {DbColumn, ResultSet} from '../../components/data-table/models/result-set.model';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 
@@ -205,7 +205,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   createForeignKey(){
     if( ! this._crud.nameIsValid( this.constraintName )){
-      this._toast.toast( 'invalid constraint name', this._crud.invalidNameMessage('constraint'), 0, 'bg-warning');
+      this._toast.warn(this._crud.invalidNameMessage('constraint'), 'invalid constraint name', ToastDuration.INFINITE);
       return;
     }
     const fk: ForeignKey = new ForeignKey( this.constraintName, this.schema, this.sourceTable, this.sourceCol, this.targetTable, this.targetCol )
@@ -216,10 +216,10 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         this.closeModal();
         const result = <ResultSet> res;
         if( result.error ){
-          this._toast.toast( 'failed', result.error, 0, 'bg-warning');
+          this._toast.warn(result.error, null, ToastDuration.INFINITE);
         }
         else if( result.info.affectedRows === 1) {
-          this._toast.toast( 'success', 'new foreign key was created', 10, 'bg-success');
+          this._toast.success('new foreign key was created');
           // this.getUml();
           // this.connectTables();
           const fkTable = fk.fkTableName.substr(fk.fkTableName.indexOf('.')+1, fk.fkTableName.length);
@@ -228,7 +228,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }, err => {
         this.closeModal();
-        this._toast.toast( 'error', 'An unknown error occurred on the server', 10, 'bg-danger');
+        this._toast.error('An unknown error occurred on the server');
       }
     );
   }
