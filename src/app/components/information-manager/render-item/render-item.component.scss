@@ -2,7 +2,11 @@
   overflow: auto;
 }
 
-table {
-  display: inline-block;
+.table-wrapper {
   overflow: auto;
+}
+
+table {
+  display: inline-table;
+  min-width: 100%;
 }
