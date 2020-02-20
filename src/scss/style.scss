@@ -17,6 +17,11 @@
   padding: 0;
   border-radius: 50%;
 }
+
 .btn-circle i {
   position: relative;
+}
+
+.form-check label {
+  user-select: none;
 }

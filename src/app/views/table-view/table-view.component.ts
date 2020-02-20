@@ -17,86 +17,88 @@ export class TableViewComponent implements OnInit, OnDestroy {
   currentPage = 1;
   resultSet: ResultSet;
   tableConfig: TableConfig = {
-    create: true,
-    search: true,
-    sort: true,
-    update: true,
-    delete: true
+	create: true,
+	search: true,
+	sort: true,
+	update: true,
+	delete: true
   };
   loading: boolean;
 
   constructor(
-      private _route: ActivatedRoute,
-      private _router: Router,
-      private _crud:CrudService,
-      private _sidebar: LeftSidebarService,
+	private _route: ActivatedRoute,
+	private _router: Router,
+	private _crud: CrudService,
+	private _sidebar: LeftSidebarService,
   ) { }
 
   ngOnInit() {
 
-    this._sidebar.open();
+	this._sidebar.open();
 
-    this.tableId = this._route.snapshot.paramMap.get('id');
-    if( this._route.snapshot.paramMap.get('page') ){
-      this.currentPage = +this._route.snapshot.paramMap.get('page');
-    }else {
-      this.currentPage = 1;
-    }
-    if( this.resultSet ) this.resultSet.currentPage = this.currentPage;
+	this.tableId = this._route.snapshot.paramMap.get('id');
+	if (this._route.snapshot.paramMap.get('page')) {
+	  this.currentPage = +this._route.snapshot.paramMap.get('page');
+	} else {
+	  this.currentPage = 1;
+	}
+	if (this.resultSet) {
+	  this.resultSet.currentPage = this.currentPage;
+	}
 
-    this._sidebar.setSchema( new SchemaRequest('/views/data-table/', true, 2) );
+	this._sidebar.setSchema(new SchemaRequest('/views/data-table/', true, 2), this._router);
 
-    //listen to parameter changes
-    this._route.params.subscribe((params) => {
-      this.tableId = params['id'];
-      if( this._route.snapshot.paramMap.get('page') ){
-        this.currentPage = +this._route.snapshot.paramMap.get('page');
-      }else {
-        this.currentPage = 1;
-      }
-      if( this.resultSet ){
-        this.resultSet.currentPage = this.currentPage;
-      }
-      this.getTable();
-    });
+	//listen to parameter changes
+	this._route.params.subscribe((params) => {
+	  this.tableId = params['id'];
+	  if (this._route.snapshot.paramMap.get('page')) {
+		this.currentPage = +this._route.snapshot.paramMap.get('page');
+	  } else {
+		this.currentPage = 1;
+	  }
+	  if (this.resultSet) {
+		this.resultSet.currentPage = this.currentPage;
+	  }
+	  this.getTable();
+	});
 
   }
 
   getTable() {
-    if( this.tableId ) {
-      this.loading = true;
-      const req: UIRequest  = new TableRequest( this.tableId, this.currentPage );
-      this._crud.getTable( req ).subscribe(
-        res => {
-          this.resultSet = <ResultSet> res;
-          //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
-          if( + this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage ){
-            this._router.navigate([ '/views/data-table/'+ this.tableId +'/'+this.resultSet.highestPage ]);
-          }
-          if( this.resultSet.type === 'TABLE') {
-            this.tableConfig.create = true;
-            this.tableConfig.update = true;
-            this.tableConfig.delete = true;
-          } else {
-            this.tableConfig.create = false;
-            this.tableConfig.update = false;
-            this.tableConfig.delete = false;
-          }
-          this.loading = false;
-        }, err => {
-          console.log(err);
-          this.loading = false;
-        }
-      );
-    } else {
-      this.resultSet = null;
-      this._sidebar.reset();
-    }
+	if (this.tableId) {
+	  this.loading = true;
+	  const req: UIRequest = new TableRequest(this.tableId, this.currentPage);
+	  this._crud.getTable(req).subscribe(
+		res => {
+		  this.resultSet = <ResultSet>res;
+		  //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
+		  if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
+			this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
+		  }
+		  if (this.resultSet.type === 'TABLE') {
+			this.tableConfig.create = true;
+			this.tableConfig.update = true;
+			this.tableConfig.delete = true;
+		  } else {
+			this.tableConfig.create = false;
+			this.tableConfig.update = false;
+			this.tableConfig.delete = false;
+		  }
+		  this.loading = false;
+		}, err => {
+		  console.log(err);
+		  this.loading = false;
+		}
+	  );
+	} else {
+	  this.resultSet = null;
+	  this._sidebar.reset();
+	}
 
   }
 
   ngOnDestroy() {
-    this._sidebar.close();
+	this._sidebar.close();
   }
 
 }

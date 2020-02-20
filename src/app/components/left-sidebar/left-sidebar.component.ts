@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
-import {KEYS, TREE_ACTIONS, TreeComponent, TreeModel, TreeNode } from 'angular-tree-component';
+import {KEYS, TREE_ACTIONS, TreeComponent, TreeModel, TreeNode} from 'angular-tree-component';
 import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
 
@@ -11,7 +11,7 @@ import {LeftSidebarService} from './left-sidebar.service';
 })
 
 //docs: https://angular2-tree.readme.io/docs/
-export class LeftSidebarComponent implements OnInit , AfterViewInit {
+export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
   @ViewChild('tree', {static: false}) treeComponent: TreeComponent;
   nodes = [];
@@ -19,7 +19,7 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
   error;
 
   constructor(
-    _router:Router,
+    _router: Router,
     private _sidebar: LeftSidebarService,
   ) {
     //this.nodes = nodes;
@@ -27,26 +27,23 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
       actionMapping: {
         mouse: {
           click: (tree, node, $event) => {
-            if( _sidebar.action !== null ){
-              _sidebar.action( node );
-              TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-            } else{
-              if( node.data.routerLink !== '' ){
-                _router.navigate([node.data.routerLink]);
-                if( node.isCollapsed ){
-                  TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-                } else if( !node.isCollapsed && node.isActive === true ){
-                  TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-                }
-                node.setIsActive(true, false);
-              } else {
-                TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-              }
+            if (node.data.action !== null) {
+              node.data.action(tree, node, $event);
+            }
+            if (node.data.routerLink && node.data.allowRouting) {
+              _router.navigate([node.data.routerLink]);
+            }
+            if (node.data.isAutoExpand()) {
+              node.toggleExpanded();
+              //TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+            }
+            if (node.data.isAutoActive()) {
+              node.setIsActive(true, false);
             }
           }
         },
       },
-      allowDrag: false,
+      allowDrag: (node) => node.data.allowDrag,
       allowDrop: false
     };
 
@@ -65,7 +62,7 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
 
     // todo 2-way-binding https://angular2-tree.readme.io/docs/save-restore
 
-    $('#search-tree').on('keyup', function(e) {
+    $('#search-tree').on('keyup', function (e) {
       if (e.which === 27) { // esc
         $(this).val('');
       }
@@ -77,7 +74,7 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
     this._sidebar.getNodes().subscribe(
       nodes => {
         this.nodes = nodes;
-        if(nodes.length === 0){
+        if (nodes.length === 0) {
           this.treeComponent.treeModel.activeNodeIds = {};
           // this.treeComponent.treeModel.setFocusedNode(null);
           // this.treeComponent.treeModel.expandedNodeIds = {};
@@ -95,26 +92,29 @@ export class LeftSidebarComponent implements OnInit , AfterViewInit {
 
     this._sidebar.getResetSubject().subscribe(
       collapse => {
-        if ( collapse === true ) this.reset();
-        else this.treeComponent.treeModel.activeNodeIds = {};
+        if (collapse === true) {
+          this.reset();
+        } else {
+          this.treeComponent.treeModel.activeNodeIds = {};
+        }
       }
     );
 
   }
 
 
-  expandAll(){
+  expandAll() {
     this.treeComponent.treeModel.expandAll();
   }
 
-  collapseAll(){
+  collapseAll() {
     this.treeComponent.treeModel.collapseAll();
   }
 
   /**
    * Reset tree completely, set all active nodes to inactive, collapse all
    */
-  reset(){
+  reset() {
     // from: https://angular2-tree.readme.io/discuss/583cc18bf0f9af0f007218ff
     this.treeComponent.treeModel.setFocusedNode(null);
     this.treeComponent.treeModel.expandedNodeIds = {};

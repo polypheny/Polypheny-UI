@@ -2,24 +2,13 @@
 
 <div class="row" style="padding-bottom: 1em;">
 
-  <div class="col-3" id="nodeList" #nodeList>
-    <ul class="list-group"
-        id="operatorList"
-        style="position:fixed;"
-        [ngStyle]="{width: nodeList.offsetWidth-50+'px'}"
-        cdkDropList
-        cdkDropListSortingDisabled
-        cdkDropListConnectedTo="drop"
-    >
-      <li class="list-group-item rel-op"
-          *ngFor="let op of operators"
-          cdkDrag
-          [cdkDragData]="op"
-      >{{op}}</li>
-    </ul>
+  <div class="col-12" *ngIf="queryAnalysis">
+    <app-information-manager [data]="queryAnalysis" [zoom]="_breadcrumb.getMasonryZoom()"
+                             [hidden]="!showingAnalysis"></app-information-manager>
   </div>
 
-  <div class="col-9" id="drop" cdkDropList cdkDropListSortingDisabled (cdkDropListDropped)="dropped($event)" (mousemove)="dropMousePosition($event)" #dropArea>
+  <div class="col-12" id="drop" cdkDropList cdkDropListSortingDisabled #dropArea (treeDrop)="treeDrop($event)"
+       [hidden]="showingAnalysis">
     <ng-container *ngFor="let n of nodes | keyvalue; trackBy: trackNode">
       <app-node [node]="n.value"
                 (autocompleteChanged)="setAutocomplete()"
@@ -34,7 +23,9 @@
                 (cdkDragEnded)="savePos($event, n.value)"
                 cdkDragBoundary="#drop">
         <!--<div *cdkDragPreview class="node-drag-preview">preview</div>-->
-        <div class="drag-handle card-header" cdkDragHandle>{{n.value.type}}<span class="del float-right" (click)="deleteNode(n.value)"><i class="cui-trash"></i></span></div>
+        <div class="drag-handle card-header" cdkDragHandle>{{n.value.type}}<span class="del float-right"
+                                                                                 (click)="deleteNode(n.value)"><i
+          class="cui-trash"></i></span></div>
       </app-node>
     </ng-container>
 
@@ -52,16 +43,20 @@
               markerUnits="strokeWidth"
               markerWidth="5" markerHeight="5"
               orient="auto">
-        <path d="M 0,0 l 10,5 l -10,5 z" />
+        <path d="M 0,0 l 10,5 l -10,5 z"/>
       </marker>
-      <line *ngIf="temporalLine" [attr.x1]="temporalLine.x1" [attr.y1]="temporalLine.y1" [attr.x2]="temporalLine.x2" [attr.y2]="temporalLine.y2" marker-end="url(#arrowhead)"></line>
-      <line *ngFor="let conn of connections | keyvalue" [attr.x1]="getX1(conn.value.source)" [attr.y1]="getY1(conn.value.source)" [attr.x2]="getX2(conn.value.target)" [attr.y2]="getY2(conn.value.target)" marker-end="url(#arrowhead)"></line>
+      <line *ngIf="temporalLine" [attr.x1]="temporalLine.x1" [attr.y1]="temporalLine.y1" [attr.x2]="temporalLine.x2"
+            [attr.y2]="temporalLine.y2" marker-end="url(#arrowhead)"></line>
+      <line *ngFor="let conn of connections | keyvalue" [attr.x1]="getX1(conn.value.source)"
+            [attr.y1]="getY1(conn.value.source)" [attr.x2]="getX2(conn.value.target)"
+            [attr.y2]="getY2(conn.value.target)" marker-end="url(#arrowhead)"></line>
     </svg>
   </div>
 </div>
-<div class="row" *ngIf="resultSet">
+<div class="row" *ngIf="resultSet" [hidden]="showingAnalysis">
   <div class="col-sm-9 offset-sm-3" id="result-wrapper">
-    <app-data-table [resultSet]="resultSet" [config]="{create: false, update: false, delete: false, sort: false, search: false}"></app-data-table>
+    <app-data-table [resultSet]="resultSet"
+                    [config]="{create: false, update: false, delete: false, sort: false, search: false}"></app-data-table>
   </div>
 
 </div>
