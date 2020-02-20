@@ -93,19 +93,19 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         res => {
           const result = <ResultSet> res;
           if( result.error ){
-            this._toast.toast( 'error', result.error, 10, 'bg-warning');
+            this._toast.warn(result.error);
           }else{
-            this._toast.toast( 'success', 'Created schema ' + val.name, 10, 'bg-success');
+            this._toast.success('Created schema ' + val.name);
             this.getSchema();
           }
           this.createSubmitted = false;
           this.resetForm('createForm');
         }, err => {
-          this._toast.toast( 'server error', 'An unknown error occured on the server', 10, 'bg-danger');
+          this._toast.error('An unknown error occurred on the server');
         }
       );
     } else {
-      this._toast.toast( 'cannot create', this.createSchemaFeedback, 10, 'bg-warning');
+      this._toast.warn(this.createSchemaFeedback, 'cannot create');
     }
   }
 
@@ -117,19 +117,19 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         res => {
           const result = <ResultSet> res;
           if( result.error ){
-            this._toast.toast( 'error', result.error, 10, 'bg-warning');
+            this._toast.warn(result.error);
           }else{
-            this._toast.toast( 'success', 'Dropped schema ' + val.name, 10, 'bg-success');
+            this._toast.success('Dropped schema ' + val.name);
             this.getSchema();
           }
           this.dropSubmitted = false;
           this.resetForm('dropForm');
         }, err => {
-          this._toast.toast( 'server error', 'An unknown error occured on the server', 10, 'bg-danger');
+          this._toast.error('An unknown error occurred on the server');
         }
       );
     } else {
-      this._toast.toast( 'cannot drop', 'This schema does not exist', 10, 'bg-warning');
+      this._toast.warn('This schema does not exist', 'cannot drop');
     }
 
   }

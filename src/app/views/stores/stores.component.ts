@@ -115,11 +115,11 @@ export class StoresComponent implements OnInit, OnDestroy {
     }
     this._crud.updateStoreSettings( store ).subscribe(
       res => {
-        this._toast.toast( 'success', 'updated store settings', 5, 'bg-success');
+        this._toast.success('updated store settings');
         this.storeSettingsModal.hide();
         this.getStores();
       }, err => {
-        this._toast.toast( 'error', 'could not update store settings', 5, 'bg-danger');
+        this._toast.error('could not update store settings');
         console.log(err);
       }
     );
@@ -174,14 +174,14 @@ export class StoresComponent implements OnInit, OnDestroy {
     this._crud.addStore( deploy ).subscribe(
       res => {
         if(<boolean> res === true){
-          this._toast.toast( 'success', 'Deployed store', 5, 'bg-success');
+          this._toast.success('Deployed store');
           this._router.navigate(['./../'], {relativeTo: this._route});
         } else {
-          this._toast.toast( 'error', 'Could not deploy store', 5, 'bg-warning');
+          this._toast.warn('Could not deploy store');
         }
         this.storeSettingsModal.hide();
       }, err => {
-        this._toast.toast( 'error', 'Could not deploy store', 5, 'bg-danger');
+        this._toast.error('Could not deploy store');
       }
     );
   }
@@ -194,13 +194,13 @@ export class StoresComponent implements OnInit, OnDestroy {
         res => {
           const result = <boolean> res;
           if(result){
-            this._toast.toast( 'success', 'Removed store', 5, 'bg-success');
+            this._toast.success('Removed store');
             this.getStores();
           }else{
-            this._toast.toast( 'error', 'Could not remove store', 5, 'bg-warning');
+            this._toast.warn('Could not remove store');
           }
         }, err => {
-          this._toast.toast( 'error', 'Could not remove store', 5, 'bg-danger');
+          this._toast.error('Could not remove store', 'server error');
           console.log(err);
         }
       );
