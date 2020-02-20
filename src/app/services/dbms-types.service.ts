@@ -29,7 +29,7 @@ export class DbmsTypesService {
       res=> {
         const result = <ResultSet> res;
         if( result.error ){
-          this._toast.toast( 'server error', 'Could not retrieve DBMS types.', 10, 'bg-danger' );
+          this._toast.error('Could not retrieve DBMS types.');
           return;
         }
         const types = [];
@@ -39,7 +39,7 @@ export class DbmsTypesService {
         types.sort();
         this.types.next( types );
       }, err => {
-        this._toast.toast( 'server error', 'Could not retrieve DBMS types.', 10, 'bg-danger' );
+        this._toast.error('Could not retrieve DBMS types.');
       }
     );
 
@@ -53,7 +53,7 @@ export class DbmsTypesService {
       res => {
         this.foreignKeyActions.next( res );
       }, err => {
-        this._toast.toast( 'server error', 'Could not retrieve DBMS foreign key actions.', 10, 'bg-danger' );
+        this._toast.error('Could not retrieve DBMS foreign key actions.');
     }
     );
   }

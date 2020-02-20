@@ -378,7 +378,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.resultSet = result[0];
         this.loading = false;
       }, err => {
-        this._toast.toast('server error', 'Unknown error on the server.', 10, 'bg-danger');
+        this._toast.error(  'Unknown error on the server.' );
         this.loading = false;
       }
     );
@@ -409,7 +409,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
           this.umlData.set(treeElement.getSchema(), uml);
           this.generateJoinConditions();
         }, err => {
-          this._toast.toast('server error', 'Could not get foreign keys of the schema ' + treeElement.getSchema(), 10, 'bg-danger');
+          this._toast.error( 'Could not get foreign keys of the schema ' + treeElement.getSchema() );
         }
       );
     } else {

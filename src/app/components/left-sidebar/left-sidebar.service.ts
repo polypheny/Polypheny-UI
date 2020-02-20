@@ -172,7 +172,6 @@ export class LeftSidebarService {
         this.setNodes(schema);
       }, err => {
         this.error.next('Could not load database schema.');
-        //this._toast.toast( 'server error', 'Could not load database schema.', 0, 'bg-danger' );
         console.log(err);
       }
     );
