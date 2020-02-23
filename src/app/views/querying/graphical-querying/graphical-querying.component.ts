@@ -148,10 +148,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     startingWith(col: string, firstLetters: string) {
-        if (firstLetters.startsWith('*')) {
-            return (this.connectWheres() + col + ' LIKE ' + '\'' + '%' + firstLetters.replace('*', '') + '\'');
-        } else if (firstLetters.endsWith('*')) {
-            return (this.connectWheres() + col + ' LIKE ' + '\'' + firstLetters.replace('*', '') + '%' + '\'');
+        if (firstLetters.includes('*')) {
+            return (this.connectWheres() + col + ' LIKE ' + '\'' + firstLetters.replace(new RegExp('\\*', 'g'), '%') + '\'');
         } else {
             return (this.connectWheres() + col + ' LIKE ' + '\'' + firstLetters + '\'');
         }
