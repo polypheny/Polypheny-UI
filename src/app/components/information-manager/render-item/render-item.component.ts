@@ -1,5 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
-import { InformationObject } from '../../../models/information-page.model';
+import {InformationObject, InformationResponse} from '../../../models/information-page.model';
+import {InformationService} from '../../../services/information.service';
+import {ToastService} from '../../toast/toast.service';
 
 @Component({
   selector: 'app-render-item',
@@ -8,18 +10,23 @@ import { InformationObject } from '../../../models/information-page.model';
 })
 export class RenderItemComponent implements OnInit {
 
-  @Input() li:InformationObject;
+  @Input() li: InformationObject;
+  executingInformationAction = false;
 
-  constructor() { }
+  constructor(
+    private _infoService: InformationService,
+    private _toast: ToastService
+  ) {
+  }
 
-  ngOnInit() { }
+  ngOnInit() {
+  }
 
   displayProgressValue(li) {
-    if((li.min===undefined || li.min===0) && (li.max===undefined || li.max===100)){
-      return li.value+'%';
-    }
-    else{
-      li.max = li.max ||100;
+    if ((li.min === undefined || li.min === 0) && (li.max === undefined || li.max === 100)) {
+      return li.value + '%';
+    } else {
+      li.max = li.max || 100;
       return li.value + '/' + li.max;
     }
   }
@@ -53,13 +60,30 @@ export class RenderItemComponent implements OnInit {
     }
   }
 
-  getCodeHeight(){
-    if( ! this.li.code ){
+  getCodeHeight() {
+    if (!this.li.code) {
       return '20px';
     } else {
-      const numberOfLines = this.li.code.match( /\n/g ).length;
-      return numberOfLines*16 + 60 + 'px';
+      const numberOfLines = this.li.code.match(/\n/g).length;
+      return numberOfLines * 16 + 60 + 'px';
     }
+  }
+
+  executeInformationAction(i: InformationObject) {
+    this.executingInformationAction = true;
+    this._infoService.executeAction(i).subscribe(
+      res => {
+        const result = <InformationResponse>res;
+        if (result.errorMsg) {
+          this._toast.warn(result.errorMsg);
+        } else if (result.successMsg) {
+          this._toast.success(result.successMsg);
+        }
+      }, err => {
+        console.log(err);
+        this._toast.error(err.message);
+      }
+    ).add(() => this.executingInformationAction = false);
   }
 
 }

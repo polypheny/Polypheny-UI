@@ -50,7 +50,9 @@
         </div>
       </div>
       <div class="progress progress-xs">
-        <progressbar [type]="getProgressColor(li)" [value]="li.value" [max]="li.max || 100">{{li.value}}%</progressbar>
+        <progressbar [type]="getProgressColor(li)" [value]="li.value" [max]="li.max || 100"
+                     [animate]="true">{{li.value}}%
+        </progressbar>
       </div>
     </div>
   </ng-container>
@@ -62,6 +64,16 @@
   <ng-container *ngIf="li.type == 'InformationQueryPlan' && li.queryPlan">
     <div class="card-body">
       <app-plan-view [query]="''" [planObject]="li.queryPlan"></app-plan-view>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="li.type == 'InformationAction'">
+    <div class="card-body">
+      <button class="btn btn-primary" (click)="executeInformationAction(li)" [disabled]="executingInformationAction">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+              *ngIf="executingInformationAction"></span>
+        {{li.label}}
+      </button>
     </div>
   </ng-container>
 

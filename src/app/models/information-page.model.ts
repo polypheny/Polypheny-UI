@@ -26,11 +26,11 @@ export interface InformationObject {
   step?: number;
   html?: string;
   //config
-  webUiGroup?:string;
-  key?:string;
+  webUiGroup?: string;
+  key?: string;
   //information
-  id?:string;
-  informationGroup?: string;
+  id?: string;
+  groupId?: string;
   //graph:
   data?: number[];
   labels?: string[];
@@ -42,4 +42,9 @@ export interface InformationObject {
   language?: string;
   //table
   rows?: string[];
+}
+
+export interface InformationResponse {
+  errorMsg?: string;
+  successMsg?: string;
 }
