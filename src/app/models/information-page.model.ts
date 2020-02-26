@@ -4,11 +4,13 @@ export interface InformationPage {
   name?: string;
   id?: string;
   description?: string;
+  refreshable: boolean;
 }
 
 export interface InformationGroup {
   color?: string;
   informationObjects: InformationObject[];
+  refreshable: boolean;
 }
 
 export interface InformationObject {

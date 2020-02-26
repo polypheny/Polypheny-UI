@@ -1,6 +1,7 @@
 import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {InformationPage} from '../../models/information-page.model';
 import {KeyValue} from '@angular/common';
+import {InformationService} from '../../services/information.service';
 
 @Component({
   selector: 'app-information-manager',
@@ -12,8 +13,13 @@ export class InformationManagerComponent implements OnInit {
 
   @Input() data: InformationPage;
   @Input() zoom;
+  refreshingPage = false;
+  refreshingGroup = [];
 
-  constructor() {}
+  constructor(
+    private _information: InformationService
+  ) {
+  }
 
   ngOnInit() {
   }
@@ -22,8 +28,8 @@ export class InformationManagerComponent implements OnInit {
     let card = '';
     switch (color) {
       case 'BLUE':
-          card = 'bg-primary';
-          break;
+        card = 'bg-primary';
+        break;
       case 'LIGHTBLUE':
         card = 'bg-info';
         break;
@@ -47,15 +53,32 @@ export class InformationManagerComponent implements OnInit {
   private order ( a: KeyValue<string, any>, b: KeyValue<string, any>) {
     let out = 0;
     if ( a.value.uiOrder !== 0 && b.value.uiOrder === 0 ) out = -1;
-    else if ( a.value.uiOrder === 0 && b.value.uiOrder !== 0 ) out = 1;
-    else if ( a.value.uiOrder > b.value.uiOrder ) out = 1;
-    else if ( a.value.uiOrder < b.value.uiOrder ) out = -1;
+    else if (a.value.uiOrder === 0 && b.value.uiOrder !== 0) {
+      out = 1;
+    } else if (a.value.uiOrder > b.value.uiOrder) {
+      out = 1;
+    } else if (a.value.uiOrder < b.value.uiOrder) {
+      out = -1;
+    }
     return out;
   }
 
-  getZoom () {
-    if (this.data.id === 'informationPagePhysicalQueryPlan' || this.data.id === 'informationPageLogicalQueryPlan' ) return {'column-count': 1};
-    else return {'column-count': this.zoom};
+  getZoom() {
+    if (this.data.id === 'informationPagePhysicalQueryPlan' || this.data.id === 'informationPageLogicalQueryPlan') {
+      return {'column-count': 1};
+    } else {
+      return {'column-count': this.zoom};
+    }
+  }
+
+  refreshPage() {
+    this.refreshingPage = true;
+    this._information.refreshPage(this.data.id).subscribe().add(() => this.refreshingPage = false);
+  }
+
+  refreshGroup(id: string) {
+    this.refreshingGroup[id] = true;
+    this._information.refreshGroup(id).subscribe().add(() => this.refreshingGroup[id] = false);
   }
 
 }

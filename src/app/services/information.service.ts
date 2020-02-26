@@ -25,6 +25,14 @@ export class InformationService {
     return this._http.get(`${this.httpUrl}/getPageList`, this.httpOptions);
   }
 
+  refreshPage(id: string) {
+    return this._http.post(`${this.httpUrl}/refreshPage`, id, this.httpOptions);
+  }
+
+  refreshGroup(id: string) {
+    return this._http.post(`${this.httpUrl}/refreshGroup`, id, this.httpOptions);
+  }
+
   executeAction(i: InformationObject) {
     return this._http.post(`${this.httpUrl}/executeAction`, i.id, this.httpOptions);
   }

@@ -18,10 +18,39 @@
   right: 0.75rem;
   top: 0.6rem;
 }
-.card-body p{
+
+.card-body p {
   margin: 0;
 }
 
 .pageLink {
   margin-right: 1rem;
+}
+
+#refreshPage {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.refreshGroup {
+  box-shadow: none !important;
+  background: transparent;
+  float: right;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+
+  i {
+    font-size: 0.85em;
+    margin-top: -4px !important;
+  }
+}
+
+.refreshGroup:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.refreshGroup:active {
+  background-color: rgba(0, 0, 0, 0.15) !important;
 }
