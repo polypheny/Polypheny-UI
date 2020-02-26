@@ -34,7 +34,8 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   onUpdate = ['CASCADE', 'RESTRICT', 'SET NULL', 'SET DEFAULT'];
   onDelete = ['CASCADE', 'RESTRICT', 'SET NULL', 'SET DEFAULT'];
   fkForm = this._formBuilder.group({update: 'RESTRICT', delete: 'RESTRICT'});
-  constraintName = 'fk1';
+  constraintName = '';
+  proposedConstraintName = 'fk1';
 
 
   //offsets
@@ -75,6 +76,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     this.getUml();
     this.connectTables();
+    this.getGeneratedNames();
   }
 
   ngOnDestroy() {
@@ -96,6 +98,21 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         this.mapConnections();
       }, err => {
         this.errorMsg = 'Could not connect with the server.';
+      }
+    );
+  }
+
+  getGeneratedNames() {
+    this._crud.getGeneratedNames().subscribe(
+      res => {
+        const names = <ResultSet>res;
+        if (!names.error) {
+          this.proposedConstraintName = names.data[0][1];
+        } else {
+          console.log(names.error);
+        }
+      }, err => {
+        console.log(err);
       }
     );
   }
@@ -220,7 +237,10 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   createForeignKey() {
-    if( ! this._crud.nameIsValid( this.constraintName )) {
+    if (!this.constraintName || this.constraintName === '') {
+      this.constraintName = this.proposedConstraintName;
+    }
+    if (!this._crud.nameIsValid(this.constraintName)) {
       this._toast.warn(this._crud.invalidNameMessage('constraint'), 'invalid constraint name', ToastDuration.INFINITE);
       return;
     }
@@ -244,6 +264,8 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
             source: fk.fkTableSchema + '_' + fkTable + '_' + fk.fkColumnName,
             target: fk.pkTableSchema + '_' + pkTable + '_' + fk.pkColumnName
           });
+          this.constraintName = '';
+          this.getGeneratedNames();
         }
       }, err => {
         this.closeModal();

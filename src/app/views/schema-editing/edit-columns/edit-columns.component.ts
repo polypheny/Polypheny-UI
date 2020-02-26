@@ -35,6 +35,7 @@ export class EditColumnsComponent implements OnInit {
   newPrimaryKey: DbColumn[];
 
   uniqueConstraintName = '';
+  proposedConstraintName = 'constraintName';
 
   indexes: ResultSet;
   confirmIndex = -1;
@@ -42,6 +43,7 @@ export class EditColumnsComponent implements OnInit {
   indexMethods = ['btree', 'hash']; // 'gist', 'gin'
   newIndexForm: FormGroup;
   indexSubmitted = false;
+  proposedIndexName = 'indexName';
 
   //data placement handling
   stores: Store[];
@@ -77,6 +79,7 @@ export class EditColumnsComponent implements OnInit {
     this.getIndexes();
     this.getStores();
     this.getDataPlacements();
+    this.getGeneratedNames();
 
     this.documentListener();
   }
@@ -273,9 +276,13 @@ export class EditColumnsComponent implements OnInit {
   }
 
   addUniqueConstraint(){
-    if( this.uniqueConstraintName === '' ){
-      this._toast.warn('Please provide a name for the unique constraint.', 'constraint name');
-      return;
+    if( this.uniqueConstraintName === '' ) {
+      if (!this.proposedConstraintName) {
+        this._toast.warn('Please provide a name for the unique constraint.', 'constraint name');
+        return;
+      } else {
+        this.uniqueConstraintName = this.proposedConstraintName;
+      }
     }
     if( ! this._crud.nameIsValid( this.uniqueConstraintName ) ){
       this._toast.warn(this._crud.invalidNameMessage('unique constraint'), 'invalid constraint name');
@@ -301,6 +308,7 @@ export class EditColumnsComponent implements OnInit {
           this.getConstraints();
           this._toast.success('The unique constraint was successfully created', 'added constraint');
           this.uniqueConstraintName = '';
+          this.getGeneratedNames();
           this.resultSet.header.forEach((v, k) => {
             v.unique = false;
           });
@@ -459,17 +467,23 @@ export class EditColumnsComponent implements OnInit {
     }
   }
 
-  addIndex(){
+  addIndex() {
     this.indexSubmitted = true;
-    if(this.newIndexForm.valid){
+    if (this.newIndexForm.controls['method'].valid && this.newIndexForm.controls['columns'].valid && this.newIndexForm.controls['name'].errors) {
+      this.newIndexForm.controls['name'].setValue(this.proposedIndexName);
+    }
+    if (this.newIndexForm.valid) {
       const i = this.newIndexForm.value;
-      const index = new Index( this.schema, this.table, i.name, i.method, i.columns);
-      this._crud.createIndex( index ).subscribe(
+      const index = new Index(this.schema, this.table, i.name, i.method, i.columns);
+      this._crud.createIndex(index).subscribe(
         res => {
-          const result = <ResultSet> res;
-          if( !result.error ){
+          const result = <ResultSet>res;
+          if (!result.error) {
             this.getIndexes();
-          }else{
+            this.getGeneratedNames();
+            this.newIndexForm.reset({name: '', method: 'btree', columns: null});
+            this.indexSubmitted = false;
+          } else {
             this._toast.warn('Could not create index: ' + result.error);
           }
         }, err => {
@@ -479,14 +493,29 @@ export class EditColumnsComponent implements OnInit {
     }
   }
 
-  inputValidation(key){
-    if(this.newIndexForm.controls[key].value === ''){
+  getGeneratedNames() {
+    this._crud.getGeneratedNames().subscribe(
+      res => {
+        const names = <ResultSet>res;
+        if (!names.error) {
+          this.proposedConstraintName = names.data[0][0];
+          this.proposedIndexName = names.data[0][2];
+        } else {
+          console.log(names.error);
+        }
+      }, err => {
+        console.log(err);
+      }
+    );
+  }
+
+  inputValidation(key) {
+    if (this.newIndexForm.controls[key].value === '') {
       return '';
-    }
-    else if(this.newIndexForm.controls[key].valid){
-      return {'is-valid':true};
-    }else {
-      return {'is-invalid': true };
+    } else if (this.newIndexForm.controls[key].valid) {
+      return {'is-valid': true};
+    } else {
+      return {'is-invalid': true};
     }
   }
 

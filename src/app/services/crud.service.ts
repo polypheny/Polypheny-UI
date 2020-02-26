@@ -126,14 +126,18 @@ export class CrudService {
   /**
    * Create a new table
    */
-  createTable ( tableRequest: EditTableRequest ) {
+  createTable(tableRequest: EditTableRequest) {
     return this._http.post(`${this.httpUrl}/createTable`, tableRequest, this.httpOptions);
+  }
+
+  getGeneratedNames() {
+    return this._http.get(`${this.httpUrl}/getGeneratedNames`, this.httpOptions);
   }
 
   /**
    * Get constraints of a table
    */
-  getConstraints ( tableRequest: ColumnRequest ) {
+  getConstraints(tableRequest: ColumnRequest) {
     return this._http.post(`${this.httpUrl}/getConstraints`, tableRequest, this.httpOptions);
   }
 

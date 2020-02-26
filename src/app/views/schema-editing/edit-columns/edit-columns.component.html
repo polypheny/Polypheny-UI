@@ -158,7 +158,9 @@
             <div class="form-inline">
               <div class="form-group" style="margin-bottom: 0.5em;">
                 <label for="uniqueName">Constraint name</label>
-                <input id="uniqueName" type="text" class="form-control form-control-sm" placeholder="constraint name" [(ngModel)]="uniqueConstraintName" [ngClass]="_crud.getValidationClass(uniqueConstraintName)">
+                <input id="uniqueName" type="text" class="form-control form-control-sm"
+                       [placeholder]="proposedConstraintName" [(ngModel)]="uniqueConstraintName"
+                       [ngClass]="_crud.getValidationClass(uniqueConstraintName)">
               </div>
             </div>
             <div class="constraint-columns">
@@ -199,7 +201,9 @@
                 <form class="form-inline" [formGroup]="newIndexForm" (submit)="addIndex()">
                     <label for="indexName">name </label>
                     <div class="form-group">
-                        <input id="indexName" type="text" autocomplete="off" class="form-control form-control-sm" placeholder="name" name="name" required formControlName="name" [ngClass]="inputValidation('name')">
+                      <input id="indexName" type="text" autocomplete="off" class="form-control form-control-sm"
+                             [placeholder]="proposedIndexName" name="name" required formControlName="name"
+                             [ngClass]="inputValidation('name')">
                         <div class="invalid-feedback">invalid name</div>
                     </div>
                     <div class="form-group">

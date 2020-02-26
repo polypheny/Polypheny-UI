@@ -135,8 +135,6 @@ export class LeftSidebarService {
           const nodeBehavior = (tree, node, $event) => {
             if (node.data.routerLink !== '') {
               _router.navigate([node.data.routerLink]);
-              console.log('collapsed: ' + node.isCollapsed);
-              console.log('active: ' + node.isActive);
               if (node.isCollapsed) {
                 node.expand();
               } else if (!node.isCollapsed && node.isActive === true) {
