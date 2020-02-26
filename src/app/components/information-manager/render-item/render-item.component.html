@@ -58,7 +58,8 @@
   </ng-container>
 
   <ng-container *ngIf="li.type == 'InformationGraph'">
-    <app-graph [data]="li.data" [labels]="li.labels" [chartType]="li.graphType"></app-graph>
+    <app-graph [data]="li.data" [labels]="li.labels" [chartType]="li.graphType" [min]="li.min"
+               [max]="li.max"></app-graph>
   </ng-container>
 
   <ng-container *ngIf="li.type == 'InformationQueryPlan' && li.queryPlan">

@@ -32,7 +32,7 @@ export interface InformationObject {
   id?: string;
   groupId?: string;
   //graph:
-  data?: number[];
+  data?: any;
   labels?: string[];
   graphType?: string;
   //debugger
