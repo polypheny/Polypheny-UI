@@ -95,6 +95,7 @@ export class EditColumnsComponent implements OnInit {
         this.getColumns();
         this.getConstraints();
         this.getIndexes();
+        this.getDataPlacements();
       }
     });
   }

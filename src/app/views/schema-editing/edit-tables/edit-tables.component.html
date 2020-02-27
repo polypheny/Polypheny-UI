@@ -107,17 +107,39 @@
                     </td>
                 </tr>
             <tr>
-                <td>
-                    <button class="btn btn-light" (click)="addNewColumn()">add column</button>
-                </td>
-                <td colspan="6">
-                    <div class="input-group" style="justify-content: flex-end">
-                        <input type="text" placeholder="table name" class="form-control" style="max-width: 200px;" [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" (click)="createTable()">create table</button>
-                        </div>
-                    </div>
-                </td>
+              <td colspan="4">
+                <button class="btn btn-light" (click)="addNewColumn()">add column</button>
+              </td>
+              <td>
+                <div class="btn-group float-right">
+                  <div class="btn-group" dropdown placement="top right" [dropup]="true">
+                    <button dropdownToggle type="button" class="btn btn-light dropdown-toggle">
+                      <span *ngIf="!selectedStore">Select store</span><span
+                      *ngIf="selectedStore">{{selectedStore}}</span> <span
+                      class="caret"></span>
+                    </button>
+                    <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+                      <li role="menuitem">
+                        <a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = null">none</a>
+                      </li>
+                      <li class="dropdown-divider"></li>
+                      <li role="menuitem" *ngFor="let store of stores">
+                        <a class="dropdown-item" [routerLink]="[]"
+                           (click)="selectedStore = store.uniqueName">{{store.uniqueName}}</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </td>
+              <td colspan="2">
+                <div class="input-group" style="justify-content: flex-end">
+                  <input type="text" placeholder="table name" class="form-control" style="max-width: 200px;"
+                         [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)">
+                  <div class="input-group-append">
+                    <button class="btn btn-primary" (click)="createTable()">create table</button>
+                  </div>
+                </div>
+              </td>
             </tr>
             </tbody>
         </table>

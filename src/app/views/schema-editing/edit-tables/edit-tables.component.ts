@@ -9,6 +9,7 @@ import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ModalDirective} from 'ngx-bootstrap';
 import {HubService} from '../../../services/hub.service';
+import {Store} from '../../stores/store.model';
 
 @Component({
   selector: 'app-edit-tables',
@@ -26,6 +27,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   counter = 0;
   newColumns = new Map<number, DbColumn>();
   newTableName = '';
+  stores: Store[];
+  selectedStore;
 
   //export table
   exportingTable: string;
@@ -60,6 +63,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     });
     this.getTables();
     this.getTypeInfo();
+    this.getStores();
   }
 
   ngOnDestroy() {
@@ -82,6 +86,16 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         console.log(err);
       }
     );
+  }
+
+  getStores() {
+    this._crud.getStores().subscribe(
+      res => {
+        this.stores = <Store[]>res;
+        console.log(this.stores);
+      }, err => {
+        console.log(err);
+      });
   }
 
   /**
@@ -162,7 +176,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       this._toast.warn('Please make sure all column names are valid. The new table was not created.', 'invalid column name', ToastDuration.INFINITE);
       return;
     }
-    const request = new EditTableRequest(this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()));
+    const request = new EditTableRequest(this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore);
     this._crud.createTable(request).subscribe(
       res => {
         const result = <ResultSet>res;
@@ -174,6 +188,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this.counter = 0;
           this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], null));
           this.newTableName = '';
+          this.selectedStore = null;
           this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2), this._router);
         }
         this.getTables();
