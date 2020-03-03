@@ -31,6 +31,21 @@ export class QueryRequest extends UIRequest {
   }
 }
 
+/**
+ * Request to classify data
+ */
+export class ClassifyRequest{
+  tableId: string;
+  columnInfo: string[];
+  data: string[][];
+  constructor ( tableId: string, columnInfo: string[], data: string[][] ) {
+    this.tableId = tableId;
+    this.columnInfo = columnInfo;
+    this.data = data;
+    return this;
+  }
+}
+
 export class StatisticRequest extends UIRequest {
   constructor (){
     super();
@@ -115,13 +130,6 @@ export class EditTableRequest {
  */
 export class ConstraintRequest {
   constructor ( private table: string, private constraint: TableConstraint ) {}
-}
-
-export class ExploreByExample {
-  arr: any;
-  constructor(arr: any) {
-    this.arr = arr;
-  }
 }
 
 /**

@@ -20,6 +20,13 @@ export class ResultSet{
 }
 
 /**
+ * model with classified data coming form server
+ */
+//TODO add model for data from server after classification
+
+
+
+/**
  * model for statistics coming from the server
  */
 export class StatisticSet{

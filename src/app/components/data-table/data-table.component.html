@@ -36,11 +36,11 @@
         </ng-container>
         <!-- table which shows resultSet  -->
         <ng-container *ngIf="editing !== i">
-          <td *ngFor="let d2 of d1" (dblclick)="triggerEditing(i)">{{d2}}</td>
+          <td *ngFor="let d2 of d1" (dblclick)="triggerEditing(i)" >{{d2}}</td>
           <td>
             <div class="btn-group-toggle" data-toggle="buttons">
               <label class="btn btn-secondary active">
-                <input type="checkbox" checked autocomplete="off" [(ngModel)]="this.chosenCol[d1]" > Checked{{d1}}
+                <input type="checkbox" checked autocomplete="off" [(ngModel)]="this.userInput[d1]" > Checked
               </label>
             </div>
           </td>
