@@ -117,6 +117,13 @@ export class ConstraintRequest {
   constructor ( private table: string, private constraint: TableConstraint ) {}
 }
 
+export class ExploreByExample {
+  arr: any;
+  constructor(arr: any) {
+    this.arr = arr;
+  }
+}
+
 /**
  * Send request to either create or drop a schema
  */

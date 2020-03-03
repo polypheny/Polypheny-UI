@@ -64,6 +64,10 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/anyQuery`, query, this.httpOptions);
   }
 
+  exploreByExample ( info ){
+    return this._http.post(`${this.httpUrl}/infoExploration`, info, this.httpOptions);
+  }
+
   /**
    * Request all aviable statistic from the server
    */

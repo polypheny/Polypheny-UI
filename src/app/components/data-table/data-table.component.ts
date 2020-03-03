@@ -1,7 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {TableConfig} from './table-config';
 import * as $ from 'jquery';
-import {DeleteRequest, TableRequest, UpdateRequest} from '../../models/ui-request.model';
+import {DeleteRequest, ExploreByExample, TableRequest, UpdateRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
 import {ResultSet} from './models/result-set.model';
 import {SortDirection, SortState} from './models/sort-state.model';
@@ -20,6 +20,8 @@ export class DataTableComponent implements OnInit, OnChanges {
   @Input() config: TableConfig;
   @Input() tableId: string;
   @Input() loading?: boolean;
+  chosenCol = {};
+  e:ExploreByExample;
 
   pagination: PaginationElement[] = [];
   insertValues = new Map<string, any>();
@@ -343,6 +345,20 @@ export class DataTableComponent implements OnInit, OnChanges {
       obj[k] = v;
     });
     return obj;
+  }
+
+  sendChosenCols(){
+    console.log('testing if new sending method is working');
+    console.log(this.chosenCol);
+    this.e = new ExploreByExample(this.chosenCol);
+    console.log(this.e);
+    this._crud.exploreByExample(this.e).subscribe(
+            res => {
+              console.log(res);
+            }, err => {
+              console.log(err);
+            }
+    );
   }
 
 }

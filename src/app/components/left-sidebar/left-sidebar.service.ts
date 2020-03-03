@@ -150,6 +150,53 @@ export class LeftSidebarService {
     this.open();
   }
 
+  setTableSchema ( schemaRequest: SchemaRequest ){
+    this._crud.getSchema( schemaRequest ).subscribe(
+            res => {
+              console.log('test if im in setTableSchema');
+              this.error.next(null);
+              const schema = <SidebarNode[]> res;
+              //Schema editing view
+              if( !schemaRequest.views && schemaRequest.depth === 2 ){
+                schema.forEach( (val, key) => {
+                  console.log('schema, val, key');
+                  console.log(schema);
+                  console.log(val);
+                  console.log(key);
+                  val.routerLink = schemaRequest.routerLinkRoot;
+                  console.log('val.routerLink');
+                  console.log(val.routerLink);
+                  val.children.forEach( (v, k) => {
+                    v.routerLink = schemaRequest.routerLinkRoot + val.id;
+                    console.log('v.routerLink');
+                    console.log(v.routerLink);
+                    console.log(schemaRequest.routerLinkRoot);
+                    console.log(val.id);
+                  });
+                  //val.children.unshift( new SidebarNode( val.id+'.manageTables', 'manage tables', 'fa fa-clone', schemaRequest.routerLinkRoot + val.id ) );
+                });
+                //schema.unshift( new SidebarNode( 'schema', 'schema', 'fa fa-database', '/views/schema-editing') );
+              }
+              //Uml view
+              else if( schemaRequest.depth === 1 ){
+                schema.forEach( (val, key) => {
+                  val.routerLink = schemaRequest.routerLinkRoot + val.id;
+                });
+              }
+              console.log('test Schema');
+              console.log(schema);
+              this.setNodes( schema );
+            }, err => {
+              this.error.next('Could not load database schema.');
+              //this._toast.toast( 'server error', 'Could not load database schema.', 0, 'bg-danger' );
+              console.log(err);
+            }
+    );
+    this.open();
+  }
+
+
+
   /**
    * return the action to check if it is null
    */
