@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
 import {Toast} from './toast.model';
+import {ResultSet} from '../data-table/models/result-set.model';
 
 @Injectable({
   providedIn: 'root'
@@ -8,9 +8,22 @@ import {Toast} from './toast.model';
 export class ToastService {
 
   public toasts: Map<string, Toast> = new Map<string, Toast>();
+
   //public toastEvent: BehaviorSubject<Map<Date, Toast>> = new BehaviorSubject<Map<Date, Toast>>( new Map<Date, Toast>() );
 
-  constructor() { }
+  constructor() {
+  }
+
+  private setToast(t: Toast) {
+    this.toasts.set(t.hash, t);
+    //this.toastEvent.next(this.toasts);
+    if (t.delay > 0) {
+      setTimeout(() => {
+        this.toasts.delete(t.hash);
+        //this.toastEvent.next(this.toasts);
+      }, t.delay * 1000);
+    }
+  }
 
   /**
    * Generate a toast message
@@ -21,16 +34,7 @@ export class ToastService {
    */
   private toast(title: string, message: string, delay: number, type: String = '') {
     const t: Toast = new Toast(title, message, delay, type);
-    //const d:Date = new Date();
-    //this.toasts.set(d, t);
-    this.toasts.set(t.hash, t);
-    //this.toastEvent.next(this.toasts);
-    if (t.delay > 0) {
-      setTimeout(() => {
-        this.toasts.delete(t.hash);
-        //this.toastEvent.next(this.toasts);
-      }, t.delay * 1000);
-    }
+    this.setToast(t);
   }
 
   /**
@@ -60,7 +64,7 @@ export class ToastService {
   }
 
   /**
-   * Generate a error toast message. Use this method for errors from the backend.
+   * Generate a error toast message. Use this method for uncaught errors from the backend.
    * @param message Message
    * @param title Title of the message, default: 'error'. If null, it will be set to 'error'
    * @param duration Optional. Set the duration of the toast message. Default LONG
@@ -70,6 +74,33 @@ export class ToastService {
       title = 'error';
     }
     this.toast(title, message, duration.valueOf(), 'bg-danger');
+  }
+
+  /**
+   * Generate an warning toast message. Use this method for ResultSets containing an error message (and optionally an exception with Stacktrace)
+   * If the ResultSet contains a StackTrace, it will appear in a modal when clicking on the toast message
+   * @param result ResultSet with the error message
+   * @param message Additional message to the exception message (optional)
+   * @param title Title of the message, default: 'error'. If null, it will be set to 'error'
+   * @param duration Optional. Set the duration of the toast message. Default LONG
+   */
+  exception(result: ResultSet, message: string = null, title = 'error', duration = ToastDuration.LONG) {
+    let msg = result.error;
+    if (message) {
+      if (message.endsWith(' ')) {
+        msg = message + msg;
+      } else {
+        msg = message + ' ' + msg;
+      }
+    }
+    if (!title) {
+      title = 'error';
+    }
+    const t: Toast = new Toast(title, msg, duration, 'bg-warning');
+    if (result.exception) {
+      t.setException(result.exception);
+    }
+    this.setToast(t);
   }
 
   deleteToast(key) {

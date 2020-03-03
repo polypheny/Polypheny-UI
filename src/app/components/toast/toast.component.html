@@ -1,17 +1,41 @@
 <div id="toast-wrapper">
   <!--<div aria-atomic="true" aria-live="assertive" class="toast" role="alert" *ngFor="let toast of toasts |keyvalue">-->
   <ng-container *ngFor="let toast of toasts | keyvalue :orderToasts">
-    <div class="toast fade show" [ngClass]="toast.value.type">
+    <div class="toast fade show" [ngClass]="getToastClass( toast.value )">
       <div class="toast-header">
         <strong class="mr-auto">{{toast.value.title}}</strong>
         <small class="text-muted">{{toast.value.timeAsString}}</small>
-        <button aria-label="Close" class="ml-2 mb-1 close" data-dismiss="toast" type="button" (click)="closeToast(toast.key)">
+        <button aria-label="Close" class="ml-2 mb-1 close" data-dismiss="toast" type="button"
+                (click)="closeToast(toast.key)">
           <span aria-hidden="true">×</span>
         </button>
       </div>
-      <div class="toast-body">
+      <div class="toast-body" (click)="showStackTraceModal(toast.value)">
         {{toast.value.message}}
       </div>
     </div>
   </ng-container>
+</div>
+
+<!-- stackTrace modal -->
+<div #stackTraceModal="bs-modal" aria-hidden="true" aria-labelledby="myModalLabel" bsModal class="modal fade"
+     role="dialog" tabindex="-1" id="stackTraceModal">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+    <div class="modal-content bg-warning">
+      <div class="modal-header">
+        <h5>Exception</h5>
+      </div>
+      <div class="modal-body text-muted" *ngIf="exception">
+        <p class="font-weight-bold">{{exception.detailMessage}}</p>
+        <ul *ngIf="exception.stackTrace">
+          <li *ngFor="let s of exception.stackTrace">at {{s.declaringClass}}.{{s.methodName}}(<span
+            class="text-primary">{{s.fileName}}:{{s.lineNumber}}</span>)
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="stackTraceModal.hide()">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
 </div>

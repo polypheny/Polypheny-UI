@@ -94,7 +94,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         res => {
           const result = <ResultSet> res;
           if( result.error ){
-            this._toast.warn(result.error);
+            this._toast.exception(result);
           }else{
             this._toast.success('Created schema ' + val.name);
             this.getSchema();
@@ -118,7 +118,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         res => {
           const result = <ResultSet> res;
           if( result.error ){
-            this._toast.warn(result.error);
+            this._toast.exception(result);
           }else{
             this._toast.success('Dropped schema ' + val.name);
             this.getSchema();

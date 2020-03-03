@@ -74,7 +74,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       res => {
         const result = <ResultSet>res;
         if (result.error !== undefined) {
-          this._toast.warn('Could not retrieve list of tables: ' + result.error);
+          this._toast.exception(result, 'Could not retrieve list of tables:');
         }
         this.tables = result.tables;
         this.tables.forEach((val, key) => {
@@ -127,7 +127,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       res => {
         const result = <ResultSet>res;
         if (result.error) {
-          this._toast.warn('Could not ' + action + ' the table ' + table + ': ' + result.error);
+          this._toast.exception(result, 'Could not ' + action + ' the table ' + table + ':');
         } else {
           let toastAction = 'Truncated';
           if (request.getAction() === 'drop') {
@@ -181,7 +181,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       res => {
         const result = <ResultSet>res;
         if (result.error) {
-          this._toast.warn('Could not generate table: ' + result.error);
+          this._toast.exception(result, 'Could not generate table:');
         } else {
           this._toast.success('Generated table ' + request.table);
           this.newColumns.clear();
@@ -234,7 +234,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         res => {
           const result = <ResultSet>res;
           if (result.error) {
-            this._toast.warn(result.error);
+            this._toast.exception(result);
           } else {
             this._toast.success('Exported table to Polypheny-Hub');
           }

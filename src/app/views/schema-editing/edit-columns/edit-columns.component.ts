@@ -157,7 +157,7 @@ export class EditColumnsComponent implements OnInit {
         this.editColumn = -1;
         this.getColumns();
         if( result.error ){
-          this._toast.warn('Could not update column: ' + result.error);
+          this._toast.exception(result, 'Could not update column:');
         }else{
           this._toast.success('The new column was saved.', 'column saved');
         }
@@ -193,7 +193,7 @@ export class EditColumnsComponent implements OnInit {
           this.createColumn.maxLength = null;
           this.createColumn.defaultValue = null;
         } else {
-          this._toast.warn(result.error, 'server error', ToastDuration.INFINITE);
+          this._toast.exception(result, null, 'server error', ToastDuration.INFINITE);
         }
       }, err => {
         this._toast.error('An error occurred on the server.', null, ToastDuration.INFINITE);
@@ -212,7 +212,7 @@ export class EditColumnsComponent implements OnInit {
           this.confirm = -1;
           const result = <ResultSet> res;
           if( result.error ){
-            this._toast.warn('Could not delete column:\n' + result.error, 'server error', ToastDuration.INFINITE);
+            this._toast.exception(result, 'Could not delete column:', 'server error', ToastDuration.INFINITE);
           }
         }, err => {
           this._toast.error('Could not delete column.', null, ToastDuration.INFINITE);
@@ -240,7 +240,7 @@ export class EditColumnsComponent implements OnInit {
         res => {
           const result = <ResultSet> res;
           if( result.error){
-            this._toast.warn(result.error, 'constraint error');
+            this._toast.exception(result, null, 'constraint error');
           }else{
             this.getConstraints();
           }
@@ -267,7 +267,7 @@ export class EditColumnsComponent implements OnInit {
           this._toast.success('The primary key was added.', 'added primary key');
           this.getColumns();
         }else {
-          this._toast.warn(result.error, 'primary key error', ToastDuration.INFINITE);
+          this._toast.exception(result, null, 'primary key error', ToastDuration.INFINITE);
         }
       }, err => {
         this._toast.error('Could not add primary key.', null, ToastDuration.INFINITE);
@@ -314,7 +314,7 @@ export class EditColumnsComponent implements OnInit {
             v.unique = false;
           });
         }else {
-          this._toast.warn(result.error, 'unique constraint error', ToastDuration.INFINITE);
+          this._toast.exception(result, null, 'unique constraint error', ToastDuration.INFINITE);
         }
       }, err => {
         this._toast.error('Could not add unique constraint.', null, ToastDuration.INFINITE);
@@ -459,7 +459,7 @@ export class EditColumnsComponent implements OnInit {
           if (!result.error) {
             this.getIndexes();
           }else{
-            this._toast.warn('Could not drop index: ' + result.error);
+            this._toast.exception(result, 'Could not drop index:');
           }
         }, err => {
           console.log(err);
@@ -485,7 +485,7 @@ export class EditColumnsComponent implements OnInit {
             this.newIndexForm.reset({name: '', method: 'btree', columns: null});
             this.indexSubmitted = false;
           } else {
-            this._toast.warn('Could not create index: ' + result.error);
+            this._toast.exception(result, 'Could not create index:');
           }
         }, err => {
           console.log(err);
