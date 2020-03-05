@@ -1,9 +1,10 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {TableConfig} from './table-config';
 import * as $ from 'jquery';
+import { cloneDeep } from 'lodash';
 import {ClassifyRequest, DeleteRequest, TableRequest, UpdateRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
-import {ResultSet} from './models/result-set.model';
+import {DbColumn, ResultSet} from './models/result-set.model';
 import {SortDirection, SortState} from './models/sort-state.model';
 import {ToastDuration, ToastService} from '../toast/toast.service';
 import {CrudService} from '../../services/crud.service';
@@ -28,7 +29,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     sortStates = new Map<string, SortState>();
     filter = new Map<string, string>();
     classifiedData: string[][];
-    columns: string[];
+    columns = [];
     userInput = {};
     editing = -1;//-1 if not editing any row, else the index of that row
     confirm = -1;
@@ -251,7 +252,9 @@ export class DataTableComponent implements OnInit, OnChanges {
                 res => {
                     //this.resultSet = <ResultSet> res;
                     const result = <ResultSet>res;
+                    this.resultSet.header = result.header;
                     this.resultSet.data = result.data;
+                    this.resultSet.info = result.info;
                     this.resultSet.highestPage = result.highestPage;
                     //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
                     if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
@@ -350,17 +353,17 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
     prepareClassifiedData() {
+
         let tableInfo: any;
         let tableInfoString: String[];
 
-        //TODO only working with one table, ugly way to get first table id
         tableInfoString = this.resultSet.info.generatedQuery.replace('SELECT ', '').split('\n');
         tableInfo = tableInfoString[0].split(',');
         this.columns = tableInfo;
         tableInfoString = tableInfo[0].split('.');
         this.tableId = tableInfoString[0].toString() + '.' + tableInfoString[1];
 
-        this.classifiedData = [...this.resultSet.data];
+        this.classifiedData = cloneDeep(this.resultSet.data);
 
         this.classifiedData.forEach(value => {
             if (this.userInput) {
@@ -379,11 +382,10 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
     sendChosenCols() {
+
         this.prepareClassifiedData();
-        console.log(this.tableId);
-        console.log(this.columns);
-        console.log(this.classifiedData);
-        this._crud.exploreByExample(new ClassifyRequest(this.tableId, this.columns, this.classifiedData)).subscribe(
+
+        this._crud.exploreByExample(new ClassifyRequest(this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, this.classifiedData)).subscribe(
                 res => {
                     this.resultSet = <ResultSet> res;
                     console.log(res);

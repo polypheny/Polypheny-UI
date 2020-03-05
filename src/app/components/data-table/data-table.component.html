@@ -38,9 +38,9 @@
         <ng-container *ngIf="editing !== i">
           <td *ngFor="let d2 of d1" (dblclick)="triggerEditing(i)" >{{d2}}</td>
           <td>
-            <div class="btn-group-toggle" data-toggle="buttons">
-              <label class="btn btn-secondary active">
-                <input type="checkbox" checked autocomplete="off" [(ngModel)]="this.userInput[d1]" > Checked
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-secondary active" [ngClass]="{'active' : this.userInput[d1] === 'true'}">
+                <input type="checkbox" name="classify" autocomplete="off" [(ngModel)]="this.userInput[d1]" [checked]="this.userInput[d1] === 'true'" > Checked
               </label>
             </div>
           </td>
