@@ -385,6 +385,7 @@ export class DataTableComponent implements OnInit, OnChanges {
         console.log(this.classifiedData);
         this._crud.exploreByExample(new ClassifyRequest(this.tableId, this.columns, this.classifiedData)).subscribe(
                 res => {
+                    this.resultSet = <ResultSet> res;
                     console.log(res);
                 }, err => {
                     console.log(err);
