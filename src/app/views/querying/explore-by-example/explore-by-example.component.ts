@@ -1,14 +1,19 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ResultSet} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
+import * as dot from 'graphlib-dot';
+import * as dagreD3 from 'dagre-d3';
+import * as d3 from 'd3';
+
 
 @Component({
     selector: 'app-explore-by-example',
     templateUrl: './explore-by-example.component.html',
-    styleUrls: ['./explore-by-example.component.scss']
+    styleUrls: ['./explore-by-example.component.scss'],
+    encapsulation: ViewEncapsulation.None
 })
 export class ExploreByExampleComponent implements OnInit {
 
@@ -26,6 +31,14 @@ export class ExploreByExampleComponent implements OnInit {
     }
 
     ngOnInit() {
+
+        const digraph = dot.read('digraph J48Tree { N0; N1; N2; N0 [label="attr3" ] N0->N1 [label="= Success"] N1 [label="true (5.0/1.0)" ] N0->N2 [label="= Failure"] N2 [label="false (5.0)"] }');
+        const render = new dagreD3.render();
+
+        const svg = d3.select('svg'),
+                svgGroup = svg.append('g');
+
+        render(d3.select('svg g'), digraph);
 
         this._leftSidebar.setTableSchema(new SchemaRequest('views/explore-by-example/', false, 2));
         this._leftSidebar.setAction((node) => {
