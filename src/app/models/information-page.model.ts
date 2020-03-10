@@ -13,7 +13,7 @@ export interface InformationGroup {
   refreshable: boolean;
 }
 
-export interface InformationObject {
+export interface InformationObject extends Duration {
   type?: string;
   label?: string;
   routerLink?: any;
@@ -44,9 +44,21 @@ export interface InformationObject {
   language?: string;
   //table
   rows?: string[];
+  //InformationDuration
+  //=> extended by Duration interface
 }
 
 export interface InformationResponse {
   errorMsg?: string;
   successMsg?: string;
+}
+
+export interface Duration {
+  name: string;
+  duration: number;
+  limit: number;
+  sequence: number;
+  isChild: boolean;
+  children: Duration[];//Durations map
+  noProgressBar: boolean;
 }

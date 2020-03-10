@@ -1,3 +1,7 @@
+app-render-item {
+  border: none !important;
+}
+
 .card-body {
   overflow: auto;
 }
@@ -9,4 +13,27 @@
 table {
   display: inline-table;
   min-width: 100%;
+}
+
+.isParent:not(.duration) > .duration > .durationText {
+  font-weight: bold;
+}
+
+.duration .duration {
+  padding-left: 1rem;
+  border-left: 1px #c8ced3 dashed;
+}
+
+.isParent {
+  padding: 0.75rem 1.25rem;
+}
+
+.InformationDuration .progress {
+  height: 4px;
+  margin-left: 1rem;
+  margin-top: 1em;
+}
+
+.progress-bar {
+  min-width: 5px;
 }

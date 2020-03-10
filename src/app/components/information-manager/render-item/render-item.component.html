@@ -78,4 +78,48 @@
     </div>
   </ng-container>
 
+  <div class="InformationDuration" *ngIf="li.type === 'InformationDuration'">
+    <div [ngClass]="{'duration': li.isChild || showTotalDuration(li), 'isParent': !li.isChild}">
+      <strong *ngIf="showTotalDuration(li)">
+        total time: {{displayTime(li.duration)}}
+      </strong>
+      <br *ngIf="showTotalDuration(li) && li.name">
+      <span class="durationText" [ngClass]="{'text-danger': li.limit && li.duration > li.limit}" *ngIf="li.name">
+        {{li.name}}: {{displayTime(li.duration)}}
+      </span>
+      <div class="progress" *ngIf="!li.noProgressBar && li.children && li.children.length > 1">
+        <div
+          *ngFor="let c of li.children; let i = index"
+          class="progress-bar"
+          [ngClass]="getDurationColor(i)"
+          [tooltip]="c.name"
+          container="body"
+          [ngStyle]="{width: getProgressWidth(li, c)+'%'}"
+        >&nbsp;
+        </div>
+      </div>
+      <div class="duration" *ngFor="let duration of li.children ">
+        <strong *ngIf="showTotalDuration(castDuration(duration))">
+          total {{duration.duration}}
+        </strong>
+        <br *ngIf="showTotalDuration(castDuration(duration)) && duration.name">
+        <span class="durationText" [ngClass]="{'text-danger': duration.limit && duration.duration > duration.limit}">
+          {{duration.name}}: {{displayTime(duration.duration)}}
+        </span>
+        <div class="progress" *ngIf="!duration.noProgressBar && duration.children && duration.children.length > 1">
+          <div
+            *ngFor="let c of duration.children; let i = index"
+            class="progress-bar"
+            [ngClass]="getDurationColor(i)"
+            [tooltip]="c.name"
+            container="body"
+            [ngStyle]="{width: getProgressWidth(duration, c)+'%'}"
+          >&nbsp;
+          </div>
+        </div>
+        <app-render-item *ngFor="let d of duration.children" [li]="castDuration(d)"></app-render-item>
+      </div>
+    </div>
+  </div>
+
 </ng-container>

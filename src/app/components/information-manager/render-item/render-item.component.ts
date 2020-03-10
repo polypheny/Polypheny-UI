@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {InformationObject, InformationResponse} from '../../../models/information-page.model';
+import {Duration, InformationObject, InformationResponse} from '../../../models/information-page.model';
 import {InformationService} from '../../../services/information.service';
 import {ToastService} from '../../toast/toast.service';
 
@@ -84,6 +84,54 @@ export class RenderItemComponent implements OnInit {
         this._toast.error(err.message);
       }
     ).add(() => this.executingInformationAction = false);
+  }
+
+  displayTime(nanoSecs: number) {
+    const text = [];
+    if (Math.floor(nanoSecs / 3.6e12) > 1) {
+      text.push(Math.floor(nanoSecs / 3.6e12) + 'h');
+      nanoSecs = nanoSecs % 3.6e12;
+    }
+    if (Math.floor(nanoSecs / 6e10) > 1) {
+      text.push(Math.floor(nanoSecs / 6e10) + 'min');
+      nanoSecs = nanoSecs % 6e10;
+    }
+    if (Math.floor(nanoSecs / 1e9) > 1) {
+      text.push(Math.floor(nanoSecs / 1e9) + 's');
+      nanoSecs = nanoSecs % 1e9;
+    }
+    if (Math.floor(nanoSecs / 1e6) > 1) {
+      text.push(Math.floor(nanoSecs / 1e6) + 'ms');
+      nanoSecs = nanoSecs % 1e6;
+    }
+    text.push(nanoSecs + 'ns');
+    return text.join(' ');
+  }
+
+  showTotalDuration(d: InformationObject) {
+    return d.name == null && d.children && d.children.length !== 1;
+  }
+
+  castDuration(d: Duration): InformationObject {
+    return <InformationObject>d;
+  }
+
+  /**
+   * Get the width in percent
+   * Min-width is 5px (set by CSS)
+   */
+  getProgressWidth(parent: Duration, child: Duration) {
+    let total = 0;
+    for (const c of parent.children) {
+      total += c.duration;
+    }
+    return child.duration / total * 100;
+  }
+
+  getDurationColor(i: number) {
+    //alternate between blue and yellow
+    const colors = ['', 'bg-warning'];
+    return colors[i % colors.length];
   }
 
 }

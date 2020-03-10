@@ -1,10 +1,10 @@
 {
-  "name": "Polypheny-DB-UI",
+  "name": "Polypheny-UI",
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --aot -o",
     "build": "ng build --prod --aot --buildOptimizer --commonChunk --vendorChunk --optimization --progress",
     "test": "ng test",
     "lint": "ng lint",
