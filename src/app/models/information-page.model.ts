@@ -5,6 +5,7 @@ export interface InformationPage {
   id?: string;
   description?: string;
   refreshable: boolean;
+  fullWidth?: boolean;
 }
 
 export interface InformationGroup {
