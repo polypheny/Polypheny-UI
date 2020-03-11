@@ -33,6 +33,7 @@ import { StoresComponent } from './stores/stores.component';
 import { HubComponent } from './hub/hub.component';
 import { RefinementOptionsComponent } from './querying/graphical-querying/refinement-options/refinement-options.component';
 import {Ng5SliderModule} from 'ng5-slider';
+import {AboutComponent} from './about/about.component';
 
 @NgModule({
   imports: [
@@ -73,7 +74,8 @@ import {Ng5SliderModule} from 'ng5-slider';
     NodeComponent,
     StoresComponent,
     HubComponent,
-    RefinementOptionsComponent
+    RefinementOptionsComponent,
+    AboutComponent
   ],
   exports: []
 })
