@@ -22,20 +22,22 @@
             </button></td>
             <td>
                 <div class="input-group">
-                    <input type="text" class="form-control form-control-sm" placeholder="truncate {{table}}" [(ngModel)]="truncate[i]">
+                    <input type="text" class="form-control form-control-sm" placeholder="truncate {{table}}"
+                           [(ngModel)]="truncate[i]" (keyup.enter)="sendRequest('truncate', table, i)">
                     <div class="input-group-append">
-                        <button class="btn btn-sm" [ngClass]="dropTruncateClass('truncate', table, i)" type="button"
-                                (click)="sendRequest(table, 'truncate', truncate[i])">truncate
-                        </button>
+                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('truncate', table, i)" type="button"
+                              (click)="sendRequest('truncate', table, i)">truncate
+                      </button>
                     </div>
                 </div>
             </td>
             <td>
                 <div class="input-group">
-                    <input type="text" class="form-control form-control-sm" placeholder="drop {{table}}" [(ngModel)]="drop[i]">
+                  <input type="text" class="form-control form-control-sm" placeholder="drop {{table}}"
+                         [(ngModel)]="drop[i]" (keyup.enter)="sendRequest('drop', table, i)">
                     <div class="input-group-append">
                       <button class="btn btn-sm" [ngClass]="dropTruncateClass('drop', table, i)" type="button"
-                              (click)="sendRequest(table, 'drop', drop[i])">drop
+                              (click)="sendRequest('drop', table, i)">drop
                       </button>
                     </div>
                 </div>

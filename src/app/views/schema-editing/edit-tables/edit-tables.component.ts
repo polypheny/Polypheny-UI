@@ -114,11 +114,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   /**
    * send a request to either drop or truncate a table
    */
-  sendRequest(table: string, action, confirm: string) {
+  sendRequest(action, table: string, i: number) {
     let request;
-    if (confirm === table && action === 'drop') {
-      request = new EditTableRequest(this.schema, table, action);
-    } else if (confirm === table && action === 'truncate') {
+    if (this.dropTruncateClass(action, table, i) === 'btn-danger') {
       request = new EditTableRequest(this.schema, table, action);
     } else {
       return;
