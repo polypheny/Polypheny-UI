@@ -23,9 +23,16 @@
                 (cdkDragEnded)="savePos($event, n.value)"
                 cdkDragBoundary="#drop">
         <!--<div *cdkDragPreview class="node-drag-preview">preview</div>-->
-        <div class="drag-handle card-header" cdkDragHandle>{{n.value.type}}<span class="del float-right"
-                                                                                 (click)="deleteNode(n.value)"><i
-          class="cui-trash"></i></span></div>
+        <div class="drag-handle card-header" cdkDragHandle>
+          {{n.value.type}}
+          <span>
+            &nbsp;(
+            <span *ngIf="n.value.relAlgSymbol" [innerHTML]="n.value.relAlgSymbol"></span>
+            <span *ngIf="!n.value.relAlgSymbol"><i [ngClass]="n.value.icon"></i></span>
+            )
+          </span>
+          <span class="del float-right" (click)="deleteNode(n.value)"><i
+            class="cui-trash"></i></span></div>
       </app-node>
     </ng-container>
 

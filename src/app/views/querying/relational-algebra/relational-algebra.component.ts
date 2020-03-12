@@ -1,14 +1,5 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  HostBinding,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-  ViewEncapsulation
-} from '@angular/core';
-import {Connection, LogicalOperator, Node} from './relational-algebra.model';
+import {AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Connection, LogicalOperator, LogicalOperatorUtil, Node} from './relational-algebra.model';
 import {ResultSet} from '../../../components/data-table/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {ToastService} from '../../../components/toast/toast.service';
@@ -91,7 +82,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       new SidebarNode('operatorHeading', 'operators', '', '').asSeparator()
     ];
     for (const op of Object.keys(LogicalOperator)) {
-      nodes.push(new SidebarNode('operator_' + op, op, 'fa fa-arrows', null, true).setAutoActive(false));
+      nodes.push(LogicalOperatorUtil.operatorToSidbearNode(LogicalOperator[op]));
     }
     this.sidebarNodes = nodes;
     this._leftSidebar.setNodes(nodes);
@@ -141,6 +132,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
             }
           }
           sidebarNodes.unshift(new SidebarNode('analyzer', 'analyzer').asSeparator());
+          sidebarNodes.unshift(new SidebarNode('separator', '&nbsp;').asSeparator());
           this._leftSidebar.setNodes(this.sidebarNodes.concat(sidebarNodes));
         }
       }, err => {
@@ -153,7 +145,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     const id = 'node' + this.counter++;
     const x = Math.max(0, Math.min(this.dropArea.nativeElement.offsetWidth - 270, e.event.offsetX));
     const y = Math.max(0, Math.min(this.dropArea.nativeElement.offsetHeight - 140, e.event.offsetY));
-    const node = new Node(id, e.element.data.name, x, y);
+    const node = new Node(id, e.element.data.name, x, y).setRelAlgSymbol(e.element.data.relAlgSymbol).setIcon(e.element.data.icon);
     if (e.element.data.name === 'TableScan') {
       const ac = [];
       if (this.autocomplete) {
