@@ -1,7 +1,7 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewEncapsulation} from '@angular/core';
 import {TableConfig} from './table-config';
 import * as $ from 'jquery';
-import { cloneDeep } from 'lodash';
+import {cloneDeep} from 'lodash';
 import {ClassifyRequest, DeleteRequest, TableRequest, UpdateRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
 import {DbColumn, ResultSet} from './models/result-set.model';
@@ -10,11 +10,15 @@ import {ToastDuration, ToastService} from '../toast/toast.service';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../services/dbms-types.service';
+import * as dot from 'graphlib-dot';
+import * as dagreD3 from 'dagre-d3';
+import * as d3 from 'd3';
 
 @Component({
     selector: 'app-data-table',
     templateUrl: './data-table.component.html',
-    styleUrls: ['./data-table.component.scss']
+    styleUrls: ['./data-table.component.scss'],
+    encapsulation: ViewEncapsulation.None
 })
 export class DataTableComponent implements OnInit, OnChanges {
     @Input() resultSet: ResultSet;
@@ -229,7 +233,9 @@ export class DataTableComponent implements OnInit, OnChanges {
                     if (result.info.affectedRows) {
                         this.getTable();
                         let rows = ' rows';
-                        if (result.info.affectedRows === 1) rows = ' row';
+                        if (result.info.affectedRows === 1) {
+                            rows = ' row';
+                        }
                         this._toast.success('Updated ' + result.info.affectedRows + rows, 'update', ToastDuration.SHORT);
                     } else if (result.error) {
                         this._toast.warn('Could not update this row: ' + result.error);
@@ -387,8 +393,30 @@ export class DataTableComponent implements OnInit, OnChanges {
 
         this._crud.exploreByExample(new ClassifyRequest(this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, this.classifiedData)).subscribe(
                 res => {
-                    this.resultSet = <ResultSet> res;
+                    //this.resultSet = <ResultSet> res;
                     console.log(res);
+                    let tree = <string>res;
+
+
+                    const digraph = dot.read(res);
+                    const nodes = digraph.nodes().join('; ');
+
+                    const treeArray = tree.split(' shape=box style=filled ').join('').split('{');
+
+                    if (treeArray.length > 1){
+                        console.log('starting over mit david');
+                        tree = treeArray[0] + '{ ' + nodes.toString() + '; ' + treeArray[1];
+                    }
+                    console.log('tree with nodes' + tree);
+
+                    const treeGraph = dot.read(tree);
+                    const render = new dagreD3.render();
+
+                    const svg = d3.select('svg'),
+                            svgGroup = svg.append('g');
+
+                    render(d3.select('svg g'), treeGraph);
+
                 }, err => {
                     console.log(err);
                 }

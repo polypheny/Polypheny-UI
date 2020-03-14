@@ -92,3 +92,19 @@ table.loading:after {
   background-size: 50px 50px;
   content: "";
 }
+
+
+rect {
+  fill: #fff;
+  stroke: #306f91;
+  stroke-width: 1;
+}
+
+path {
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+text {
+  fill:blue;
+}
