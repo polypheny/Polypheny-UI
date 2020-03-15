@@ -35,6 +35,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     classifiedData: string[][];
     columns = [];
     userInput = {};
+    tableColor= '#FFFFFF';
     editing = -1;//-1 if not editing any row, else the index of that row
     confirm = -1;
 
@@ -59,6 +60,7 @@ export class DataTableComponent implements OnInit, OnChanges {
         if (this.config.create) {
             this.buildInsertObject();
         }
+
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -389,14 +391,20 @@ export class DataTableComponent implements OnInit, OnChanges {
 
     sendChosenCols() {
 
+        console.log('testing');
+        console.log(this.userInput);
         this.prepareClassifiedData();
+        console.log(this.resultSet.header);
+        console.log(this.resultSet.info.generatedQuery);
+        console.log(this.columns);
+        console.log(this.classifiedData);
 
         this._crud.exploreByExample(new ClassifyRequest(this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, this.classifiedData)).subscribe(
                 res => {
                     //this.resultSet = <ResultSet> res;
                     console.log(res);
+                    /*
                     let tree = <string>res;
-
 
                     const digraph = dot.read(res);
                     const nodes = digraph.nodes().join('; ');
@@ -417,10 +425,28 @@ export class DataTableComponent implements OnInit, OnChanges {
 
                     render(d3.select('svg g'), treeGraph);
 
+                     */
                 }, err => {
                     console.log(err);
                 }
         );
     }
 
+    changeColor(input:string) {
+        console.log(input);
+
+        switch (input) {
+            case 'true':
+                this.tableColor = '#9FF781';
+                break;
+            case 'false':
+                this.tableColor = '#FA5858';
+                break;
+            case '?':
+                this.tableColor ='#FFFFFF';
+                break;
+            default:
+                this.tableColor = '#FFFFFF';
+        }
+    }
 }

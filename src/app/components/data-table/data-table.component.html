@@ -1,7 +1,7 @@
 <app-toast></app-toast>
 <div class="row" *ngIf="resultSet.data">
   <div class="col-lg-12" id="data-table-wrapper">
-    <table class="table table-hover table-sm table-bordered table-striped" [ngClass]="{'loading': loading}" id="data-table" [attr.data-table]="resultSet.table">
+    <table class="table table-hover table-sm table-bordered" [ngClass]="{'loading': loading}" id="data-table" [attr.data-table]="resultSet.table">
       <thead>
       <tr>
         <ng-container *ngFor="let h of resultSet.header">
@@ -24,7 +24,7 @@
         </td>
         <td *ngIf="config.update || config.delete"></td>
       </tr>
-      <tr *ngFor="let d1 of resultSet.data; let i = index" [ngClass]="{'editing': editing === i}">
+      <tr *ngFor="let d1 of resultSet.data; let i = index" [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table-danger': this.userInput[d1] === 'false', 'table-light': this.userInput[d1] === '?'}" >
         <ng-container *ngIf="editing === i">
           <td *ngFor="let d2 of d1; let i = index">
             <!--<input type="text" class="form-control form-control-sm editing" [value]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name">-->
@@ -39,8 +39,14 @@
           <td *ngFor="let d2 of d1" (dblclick)="triggerEditing(i)" >{{d2}}</td>
           <td>
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
-              <label class="btn btn-secondary active" [ngClass]="{'active' : this.userInput[d1] === 'true'}">
-                <input type="checkbox" name="classify" autocomplete="off" [(ngModel)]="this.userInput[d1]" [checked]="this.userInput[d1] === 'true'" > Checked
+              <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === 'true'}">
+                <input type="radio" class="form-control" name="choose" value="true" id="true" autocomplete="off" [(ngModel)]="this.userInput[d1]" > true
+              </label>
+              <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === 'false'}">
+                <input type="radio" class="form-control" name="choose" value="false" id="false" autocomplete="off" [(ngModel)]="this.userInput[d1]" > false
+              </label>
+              <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === '?'}">
+                <input type="radio" class="form-control" name="choose" value="?" id="ignored" autocomplete="off" [(ngModel)]="this.userInput[d1]" > ignored
               </label>
             </div>
           </td>
@@ -82,6 +88,6 @@
 
 <p>show me the tree</p>
 
-<svg>
+<svg style="width: 100%; height: 100%">
   <g/>
 </svg>
