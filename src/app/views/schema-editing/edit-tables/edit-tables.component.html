@@ -121,14 +121,17 @@
                       class="caret"></span>
                     </button>
                     <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-                      <li role="menuitem">
-                        <a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = null">none</a>
-                      </li>
-                      <li class="dropdown-divider"></li>
-                      <li role="menuitem" *ngFor="let store of stores">
-                        <a class="dropdown-item" [routerLink]="[]"
-                           (click)="selectedStore = store.uniqueName">{{store.uniqueName}}</a>
-                      </li>
+                      <ng-container *ngIf="getWritableStores().length > 0">
+                        <li role="menuitem">
+                          <a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = null">none</a>
+                        </li>
+                        <li class="dropdown-divider"></li>
+                        <li role="menuitem" *ngFor="let store of getWritableStores()">
+                          <a class="dropdown-item" [routerLink]="[]"
+                             (click)="selectedStore = store.uniqueName">{{store.uniqueName}}</a>
+                        </li>
+                      </ng-container>
+                      <li *ngIf="getWritableStores().length === 0" role="menuitem"><a class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
                     </ul>
                   </div>
                 </div>
