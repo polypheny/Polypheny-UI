@@ -40,13 +40,13 @@
           <td>
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
               <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === 'true'}">
-                <input type="radio" class="form-control" name="choose" value="true" id="true" autocomplete="off" [(ngModel)]="this.userInput[d1]" > true
+                <input type="radio" class="form-control" name="choose" value="true" id="true" autocomplete="off" [(ngModel)]="this.userInput[d1]" (click)="exploreData()"> true
               </label>
               <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === 'false'}">
-                <input type="radio" class="form-control" name="choose" value="false" id="false" autocomplete="off" [(ngModel)]="this.userInput[d1]" > false
+                <input type="radio" class="form-control" name="choose" value="false" id="false" autocomplete="off" [(ngModel)]="this.userInput[d1]" (click)="exploreData()" > false
               </label>
               <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === '?'}">
-                <input type="radio" class="form-control" name="choose" value="?" id="ignored" autocomplete="off" [(ngModel)]="this.userInput[d1]" > ignored
+                <input type="radio" class="form-control" name="choose" value="?" id="ignored" autocomplete="off" [(ngModel)]="this.userInput[d1]" (click)="exploreData()"> ignored
               </label>
             </div>
           </td>

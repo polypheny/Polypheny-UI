@@ -12,7 +12,7 @@ import {
   QueryRequest,
   DeleteRequest,
   UpdateRequest,
-  Schema, StatisticRequest
+  Schema, StatisticRequest, Exploration
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
@@ -64,8 +64,13 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/anyQuery`, query, this.httpOptions);
   }
 
-  exploreByExample ( info ){
-    return this._http.post(`${this.httpUrl}/infoExploration`, info, this.httpOptions);
+  exploreUserInput(exploration) {
+    return this._http.post(`${this.httpUrl}/exploration`, exploration, this.httpOptions);
+  }
+
+
+  classifyData ( info ){
+    return this._http.post(`${this.httpUrl}/classifyData`, info, this.httpOptions);
   }
 
   /**

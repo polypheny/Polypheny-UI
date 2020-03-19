@@ -48,6 +48,25 @@ export class ClassifyRequest{
   }
 }
 
+export class Exploration{
+  id: number;
+  header: DbColumn[];
+  query: string;
+  columnInfo: string[];
+  labeled: string[][];
+  unlabeled: string[][];
+
+  constructor( id: number, header: DbColumn[], query: string, columnInfo: string[], labeled: string [][], unlabeled: string[][]) {
+    this.id = id;
+    this.header = header;
+    this.query = query;
+    this.columnInfo = columnInfo;
+    this.labeled = labeled;
+    this.unlabeled = unlabeled;
+  }
+}
+
+
 export class StatisticRequest extends UIRequest {
   constructor (){
     super();

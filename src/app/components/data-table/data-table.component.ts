@@ -2,9 +2,9 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewEncapsulation} f
 import {TableConfig} from './table-config';
 import * as $ from 'jquery';
 import {cloneDeep} from 'lodash';
-import {ClassifyRequest, DeleteRequest, TableRequest, UpdateRequest} from '../../models/ui-request.model';
+import {ClassifyRequest, DeleteRequest, Exploration, TableRequest, UpdateRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
-import {DbColumn, ResultSet} from './models/result-set.model';
+import {DbColumn, ExploreSet, ResultSet} from './models/result-set.model';
 import {SortDirection, SortState} from './models/sort-state.model';
 import {ToastDuration, ToastService} from '../toast/toast.service';
 import {CrudService} from '../../services/crud.service';
@@ -25,6 +25,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     @Input() config: TableConfig;
     @Input() tableId: string;
     @Input() loading?: boolean;
+    @Input() exploreSet: ExploreSet;
 
     pagination: PaginationElement[] = [];
     insertValues = new Map<string, any>();
@@ -35,9 +36,11 @@ export class DataTableComponent implements OnInit, OnChanges {
     classifiedData: string[][];
     columns = [];
     userInput = {};
-    tableColor= '#FFFFFF';
+    tableColor = '#FFFFFF';
     editing = -1;//-1 if not editing any row, else the index of that row
     confirm = -1;
+    exploreManagerId = null;
+    exploreDataCounter = 0;
 
     constructor(
             private _crud: CrudService,
@@ -359,17 +362,22 @@ export class DataTableComponent implements OnInit, OnChanges {
         });
         return obj;
     }
+    resetExporationData() {
+        this.exploreManagerId = null;
+        this.exploreDataCounter = 0;
+    }
 
-    prepareClassifiedData() {
+    exploreData() {
 
         let tableInfo: any;
         let tableInfoString: String[];
 
         tableInfoString = this.resultSet.info.generatedQuery.replace('SELECT ', '').split('\n');
         tableInfo = tableInfoString[0].split(',');
-        this.columns = tableInfo;
+        this.columns = tableInfo; /*
         tableInfoString = tableInfo[0].split('.');
         this.tableId = tableInfoString[0].toString() + '.' + tableInfoString[1];
+        */
 
         this.classifiedData = cloneDeep(this.resultSet.data);
 
@@ -382,28 +390,90 @@ export class DataTableComponent implements OnInit, OnChanges {
                         count += 1;
                     }
                 });
-                if (count === 0) {
-                    value.push('false');
+                if (count === 0){
+                    value.push('?');
                 }
             }
         });
+
+        const unlabled = [];
+        const labled = [];
+
+        this.classifiedData.forEach( value => {
+            if (value.includes('?') ){
+                unlabled.push(value);
+            }else {
+                labled.push(value);
+                value.forEach( val => {
+                    if ( val === 'true' || val === 'false'){
+                        val = '?';
+                    }
+                });
+                unlabled.push(value);
+            }
+        });
+        this.exploreDataCounter++;
+        if (this.exploreDataCounter > 4){
+            console.log('inside if');
+
+            this._crud.exploreUserInput(new Exploration( this.exploreManagerId, this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, labled, unlabled)).subscribe(
+                    res => {
+                        this.exploreSet = <ExploreSet> res;
+                        this.userInput = {};
+                        this.exploreManagerId = this.exploreSet.exploreManagerId;
+                        this.exploreDataCounter = 2;
+                        console.log(this.exploreManagerId);
+
+                        for (let i = 0; i < this.exploreSet.label.length; i++){
+                            this.userInput[this.resultSet.data[i].toString()] = this.exploreSet.label[i];
+                        }
+                        console.log(this.userInput);
+                        /*
+                        this.resultSet.data.forEach( value => {
+                            const array =  [];
+                            let trueFalse = '';
+                            value.forEach( val => {
+                                if(val === 'true' || val === 'false' || val === '?'){
+                                    trueFalse = val;
+                                }
+                               array.push(val);
+                            });
+                            this.userInput[array.toString()] = trueFalse;
+                        });
+
+                        console.log('userinput 2');
+                        console.log( this.userInput);
+                        console.log(res);
+                         */
+
+                    }, err => {
+                        console.log(err);
+
+                    }
+            );
+
+        }
+
+    }
+
+    prepareClassifiedData() {
+
+
     }
 
     sendChosenCols() {
 
-        console.log('testing');
-        console.log(this.userInput);
         this.prepareClassifiedData();
-        console.log(this.resultSet.header);
-        console.log(this.resultSet.info.generatedQuery);
-        console.log(this.columns);
-        console.log(this.classifiedData);
 
-        this._crud.exploreByExample(new ClassifyRequest(this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, this.classifiedData)).subscribe(
+
+
+        /*
+
+        this._crud.classifyData(new ClassifyRequest(this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, this.classifiedData)).subscribe(
                 res => {
                     //this.resultSet = <ResultSet> res;
                     console.log(res);
-                    /*
+
                     let tree = <string>res;
 
                     const digraph = dot.read(res);
@@ -425,28 +495,12 @@ export class DataTableComponent implements OnInit, OnChanges {
 
                     render(d3.select('svg g'), treeGraph);
 
-                     */
+
                 }, err => {
                     console.log(err);
                 }
         );
+*/
     }
 
-    changeColor(input:string) {
-        console.log(input);
-
-        switch (input) {
-            case 'true':
-                this.tableColor = '#9FF781';
-                break;
-            case 'false':
-                this.tableColor = '#FA5858';
-                break;
-            case '?':
-                this.tableColor ='#FFFFFF';
-                break;
-            default:
-                this.tableColor = '#FFFFFF';
-        }
-    }
 }

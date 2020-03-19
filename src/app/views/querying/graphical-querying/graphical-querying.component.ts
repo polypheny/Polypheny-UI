@@ -10,6 +10,7 @@ import {ToastService} from '../../../components/toast/toast.service';
 import {EditTableRequest, QueryRequest, SchemaRequest, StatisticRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
+import {DataTableComponent} from '../../../components/data-table/data-table.component';
 
 @Component({
     selector: 'app-graphical-querying',
@@ -29,6 +30,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     orderByCounter = 0;
     andCounter = 0;
     filteredUserSet: FilteredUserInput;
+    dataTableCounter = 0;
 
     //fields for the graphical query generation
     schemas = new Map<string, string>();//schemaName, schemaName
@@ -36,6 +38,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     columns = new Map<string, SidebarNode>();//columnId, columnName
     umlData = new Map<string, Uml>();//schemaName, uml
     joinConditions = new Map<string, JoinCondition>();
+
+    @ViewChild(DataTableComponent, {static: false}) dataTable: DataTableComponent;
 
     constructor(
             private _crud: CrudService,
@@ -353,6 +357,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     executeQuery() {
+        this.dataTableCounter++;
         console.log('executeQuery Start');
         this.loading = true;
         this._crud.anyQuery(new QueryRequest(this.editorGenerated.getCode(), false)).subscribe(
@@ -365,6 +370,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             this.loading = false;
                 }
         );
+        if(this.dataTableCounter > 1){
+            this.dataTable.resetExporationData();
+        }
+
     }
 
 
