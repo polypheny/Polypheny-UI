@@ -26,6 +26,7 @@ export class ExploreSet{
     header: DbColumn[];
     label: String[];
     exploreManagerId;
+    graph: String;
 }
 
 

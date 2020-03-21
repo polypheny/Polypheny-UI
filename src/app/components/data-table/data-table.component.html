@@ -24,7 +24,7 @@
         </td>
         <td *ngIf="config.update || config.delete"></td>
       </tr>
-      <tr *ngFor="let d1 of resultSet.data; let i = index" [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table-danger': this.userInput[d1] === 'false', 'table-light': this.userInput[d1] === '?'}" >
+      <tr *ngFor="let d1 of resultSet.data; let i = index" [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table-dark' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table-light': this.userInput[d1] === '?'}" >
         <ng-container *ngIf="editing === i">
           <td *ngFor="let d2 of d1; let i = index">
             <!--<input type="text" class="form-control form-control-sm editing" [value]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name">-->

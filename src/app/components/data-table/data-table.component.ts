@@ -41,6 +41,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     confirm = -1;
     exploreManagerId = null;
     exploreDataCounter = 0;
+    labled = [];
 
     constructor(
             private _crud: CrudService,
@@ -397,13 +398,13 @@ export class DataTableComponent implements OnInit, OnChanges {
         });
 
         const unlabled = [];
-        const labled = [];
+        //this.labled = [];
 
         this.classifiedData.forEach( value => {
             if (value.includes('?') ){
                 unlabled.push(value);
             }else {
-                labled.push(value);
+                this.labled.push(value);
                 value.forEach( val => {
                     if ( val === 'true' || val === 'false'){
                         val = '?';
@@ -414,37 +415,41 @@ export class DataTableComponent implements OnInit, OnChanges {
         });
         this.exploreDataCounter++;
         if (this.exploreDataCounter > 4){
-            console.log('inside if');
 
-            this._crud.exploreUserInput(new Exploration( this.exploreManagerId, this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, labled, unlabled)).subscribe(
+            this._crud.exploreUserInput(new Exploration( this.exploreManagerId, this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, this.labled, unlabled)).subscribe(
                     res => {
                         this.exploreSet = <ExploreSet> res;
                         this.userInput = {};
                         this.exploreManagerId = this.exploreSet.exploreManagerId;
                         this.exploreDataCounter = 2;
-                        console.log(this.exploreManagerId);
 
                         for (let i = 0; i < this.exploreSet.label.length; i++){
                             this.userInput[this.resultSet.data[i].toString()] = this.exploreSet.label[i];
                         }
-                        console.log(this.userInput);
-                        /*
-                        this.resultSet.data.forEach( value => {
-                            const array =  [];
-                            let trueFalse = '';
-                            value.forEach( val => {
-                                if(val === 'true' || val === 'false' || val === '?'){
-                                    trueFalse = val;
-                                }
-                               array.push(val);
-                            });
-                            this.userInput[array.toString()] = trueFalse;
-                        });
 
-                        console.log('userinput 2');
-                        console.log( this.userInput);
-                        console.log(res);
-                         */
+                        let tree = <string>this.exploreSet.graph;
+
+                        const digraph = dot.read(tree);
+                        const nodes = digraph.nodes().join('; ');
+                        console.log(nodes);
+
+                        const treeArray = tree.split(' shape=box style=filled ').join('').split('{');
+
+                        console.log(treeArray.toString());
+                        console.log(treeArray.length);
+                        if (treeArray.length > 1){
+                            tree = treeArray[0] + '{ ' + nodes.toString() + '; ' + treeArray[1];
+                        }
+
+                        console.log(tree);
+                        const treeGraph = dot.read(tree);
+                        const render = new dagreD3.render();
+
+                        const svg = d3.select('svg'),
+                                svgGroup = svg.append('g');
+
+                        render(d3.select('svg g'), treeGraph);
+
 
                     }, err => {
                         console.log(err);
@@ -466,41 +471,19 @@ export class DataTableComponent implements OnInit, OnChanges {
         this.prepareClassifiedData();
 
 
-
-        /*
-
-        this._crud.classifyData(new ClassifyRequest(this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, this.classifiedData)).subscribe(
+        this._crud.classifyData(new ClassifyRequest(this.exploreManagerId, this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, this.labled )).subscribe(
                 res => {
-                    //this.resultSet = <ResultSet> res;
+                    this.userInput = {};
+                    console.log(this.userInput);
+                    this.resultSet = <ResultSet>res;
                     console.log(res);
-
-                    let tree = <string>res;
-
-                    const digraph = dot.read(res);
-                    const nodes = digraph.nodes().join('; ');
-
-                    const treeArray = tree.split(' shape=box style=filled ').join('').split('{');
-
-                    if (treeArray.length > 1){
-                        console.log('starting over mit david');
-                        tree = treeArray[0] + '{ ' + nodes.toString() + '; ' + treeArray[1];
-                    }
-                    console.log('tree with nodes' + tree);
-
-                    const treeGraph = dot.read(tree);
-                    const render = new dagreD3.render();
-
-                    const svg = d3.select('svg'),
-                            svgGroup = svg.append('g');
-
-                    render(d3.select('svg g'), treeGraph);
-
+                    console.log('test');
 
                 }, err => {
                     console.log(err);
                 }
         );
-*/
+
     }
 
 }

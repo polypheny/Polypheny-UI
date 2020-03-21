@@ -35,15 +35,17 @@ export class QueryRequest extends UIRequest {
  * Request to classify data
  */
 export class ClassifyRequest{
+  id: number;
   header: DbColumn[];
   query: string;
   columnInfo: string[];
-  data: string[][];
-  constructor (  header: DbColumn[], query: string, columnInfo: string[], data: string[][] ) {
+  labeled: String[][];
+  constructor ( id: number, header: DbColumn[], query: string, columnInfo: string[], labeled: string [][] ) {
+    this.id = id;
     this.header = header;
     this.query = query;
     this.columnInfo = columnInfo;
-    this.data = data;
+    this.labeled = labeled;
     return this;
   }
 }
