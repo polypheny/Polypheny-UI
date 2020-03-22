@@ -38,7 +38,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     update: false,
     delete: false,
     sort: false,
-    search: false
+    search: false,
+    exploring: false
   };
 
   constructor(

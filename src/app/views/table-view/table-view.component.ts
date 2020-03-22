@@ -21,7 +21,8 @@ export class TableViewComponent implements OnInit, OnDestroy {
     search: true,
     sort: true,
     update: true,
-    delete: true
+    delete: true,
+    exploring: false
   };
   loading: boolean;
 

@@ -4,4 +4,5 @@ export interface TableConfig {
   delete: boolean;
   sort: boolean;
   search: boolean;
+  exploring: boolean;
 }
