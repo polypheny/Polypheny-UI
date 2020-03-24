@@ -123,7 +123,7 @@
                     <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
                       <ng-container *ngIf="getWritableStores().length > 0">
                         <li role="menuitem">
-                          <a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = null">none</a>
+                          <a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = null">auto</a>
                         </li>
                         <li class="dropdown-divider"></li>
                         <li role="menuitem" *ngFor="let store of getWritableStores()">
