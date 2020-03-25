@@ -1,12 +1,13 @@
 import {Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import {QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {QueryExplorationRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
-import {ResultSet} from '../../../components/data-table/models/result-set.model';
+import {ExplorColSet, ResultSet, SelectedColSet} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import * as dot from 'graphlib-dot';
 import * as dagreD3 from 'dagre-d3';
 import * as d3 from 'd3';
+import {DataTableComponent} from '../../../components/data-table/data-table.component';
 
 
 @Component({
@@ -21,8 +22,13 @@ export class ExploreByExampleComponent implements OnInit {
     schema: {};
     loading = false;
     resultSet: ResultSet;
+    exploreCols: ExplorColSet;
+    selectedCols: SelectedColSet;
     choosenTables = [];
+    ids = [];
+    tables = [];
 
+    @ViewChild(DataTableComponent, {static: false}) dataTable: DataTableComponent;
 
     constructor(
             private _crud: CrudService,
@@ -31,14 +37,6 @@ export class ExploreByExampleComponent implements OnInit {
     }
 
     ngOnInit() {
-
-        const digraph = dot.read('digraph J48Tree { N0; N1; N2; N0 [label="attr3" ] N0->N1 [label="= Success"] N1 [label="true (5.0/1.0)" ] N0->N2 [label="= Failure"] N2 [label="false (5.0)"] }');
-        const render = new dagreD3.render();
-
-        const svg = d3.select('svg'),
-                svgGroup = svg.append('g');
-
-        render(d3.select('svg g'), digraph);
 
         this._leftSidebar.setTableSchema(new SchemaRequest('views/explore-by-example/', false, 2));
         this._leftSidebar.setAction((node) => {
@@ -67,27 +65,42 @@ export class ExploreByExampleComponent implements OnInit {
     }
 
     buildObject(schema: {}) {
-        const ids = [];
-        const tables = [];
+        this.exploreCols = new ExplorColSet();
+        this.ids = [];
+        this.tables = [];
         Object.keys(schema).forEach(child1 => {
             (schema[child1]['children']).forEach(child2 => {
                 (child2['children']).forEach(child3 => {
                     const table = child3['id'];
                     if (this.choosenTables && this.choosenTables.includes(table)) {
-                        tables.push(table);
+                        this.tables.push(table);
                         (child3['children'].forEach(value => {
                             const id = value['id'];
-                            ids.push(id);
+                            this.ids.push(id);
+                            this.exploreCols[id] = false;
+                            console.log(this.exploreCols);
+                            console.log('show me if this works for the col names: ' + id.replace(table, ''));
                         }));
                     }
                 });
             });
         });
-        this.generateTableSQL(ids, tables);
-        console.log('ids');
-        console.log(ids);
-        console.log('tables');
-        console.log(tables);
+        if(this.ids.length < 11){
+            this.generateTableSQL(this.ids, this.tables);
+        }
+    }
+
+
+    selectedColumns() {
+        const id = [];
+        console.log(this.exploreCols);
+        Object.keys(this.exploreCols).forEach(value => {
+            if (this.exploreCols[value] === true){
+                id.push(value);
+            }
+        });
+        console.log('shwo me the table in selected cols' + this.tables);
+        this.generateTableSQL(id, this.tables);
 
     }
 
@@ -103,7 +116,10 @@ export class ExploreByExampleComponent implements OnInit {
         tables.forEach(table => {
             tab.push(table);
         });
+
         sql += tab.join(', ');
+
+        console.log('show me the sql statement' + sql);
 
 
         this.sendSQL(sql);
@@ -111,19 +127,22 @@ export class ExploreByExampleComponent implements OnInit {
 
 
     sendSQL(sql: string) {
-        this.editGenerated.setCode(sql);
+        //this.editGenerated.setCode(sql);
         console.log('executeQuery for explore by example');
         this.loading = true;
-        this._crud.anyQuery(new QueryRequest(this.editGenerated.getCode(), false)).subscribe(
+        this._crud.createQuery(new QueryExplorationRequest(sql, false)).subscribe(
                 res => {
-                    const result = <ResultSet>res;
-                    const initialResult = result[0];
+
+                    console.log(res);
+                    this.resultSet = <ResultSet>res;
+                    this.loading = false;
+                    /*const initialResult = result[0];
                     this.resultSet = initialResult;
                     //this.prepareResultSet(initialResult);
                     console.log('THIS IS THA RESULT SET');
                     console.log(initialResult);
 
-                    this.loading = false;
+                    this.loading = false;*/
                 }, err => {
                     this._toast.error('Unknown error on the server.');
                     this.loading = false;
@@ -147,6 +166,7 @@ export class ExploreByExampleComponent implements OnInit {
         });
         this.resultSet = res;
     }
+
 
 
 }

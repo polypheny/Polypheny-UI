@@ -64,6 +64,10 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/anyQuery`, query, this.httpOptions);
   }
 
+  createQuery ( query ){
+    return this._http.post(`${this.httpUrl}/createQuery`, query, this.httpOptions);
+  }
+
   exploreUserInput(exploration) {
     return this._http.post(`${this.httpUrl}/exploration`, exploration, this.httpOptions);
   }

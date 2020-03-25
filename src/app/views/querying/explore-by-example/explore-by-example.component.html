@@ -1,8 +1,20 @@
-<p>explore-by-example works!</p>
+<div class="selectedCol">
 
-<div id="aceWrapper" style="height: 150px">
-    <app-editor #editGenerated></app-editor>
+    <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf="this.ids.length > 10">
+        <p>select important columns</p>
+        <div *ngFor="let val of this.ids">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox" [(ngModel)]="this.exploreCols[val]" >
+                    {{val}}
+                </label>
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary" (click)="selectedColumns()">Send</button>
+
+    </div>
 </div>
+
 
 
 <div class="row" *ngIf="resultSet">
@@ -11,8 +23,6 @@
         <app-data-table [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: true}" [loading]="loading"></app-data-table>
     </div>
 </div>
-
-<p>show me the tree</p>
 
 <svg>
     <g/>

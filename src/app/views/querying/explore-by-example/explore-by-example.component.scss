@@ -13,3 +13,18 @@ path {
 text {
     fill:blue;
 }
+
+.form-control.fit{
+    display: inline-table;
+}
+.dbCol, .dbTable{
+    margin-right: 0.5rem;
+    margin-top: 0.5rem;
+}
+.dbTable{
+    font-size: 1em;
+    font-weight:normal;
+}
+#tablesList li{
+    cursor: grab;
+}

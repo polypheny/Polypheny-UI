@@ -397,6 +397,9 @@ export class DataTableComponent implements OnInit, OnChanges {
             }
         });
 
+        console.log('classified Data ' + this.classifiedData);
+        console.log('this.userInput ' + this.userInput);
+
         const unlabled = [];
         //this.labled = [];
 
@@ -413,15 +416,19 @@ export class DataTableComponent implements OnInit, OnChanges {
                 unlabled.push(value);
             }
         });
+
+        console.log('unlabled: ' + unlabled );
+        console.log('labled: ' + this.labled);
+
         this.exploreDataCounter++;
-        if (this.exploreDataCounter > 4){
+        if (this.exploreDataCounter > 10){
+            console.log('id: ' + this.exploreManagerId + '\n' + 'header: ' + this.resultSet.header + '\n'+ 'query ' + this.resultSet.info.generatedQuery + '\n'+ 'cols: ' + this.columns + '\n'+ 'labeld: ' + this.labled + '\n'+ 'unlabeld: ' + unlabled);
 
             this._crud.exploreUserInput(new Exploration( this.exploreManagerId, this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, this.labled, unlabled)).subscribe(
                     res => {
                         this.exploreSet = <ExploreSet> res;
                         this.userInput = {};
                         this.exploreManagerId = this.exploreSet.exploreManagerId;
-                        this.exploreDataCounter = 2;
 
                         for (let i = 0; i < this.exploreSet.label.length; i++){
                             this.userInput[this.resultSet.data[i].toString()] = this.exploreSet.label[i];

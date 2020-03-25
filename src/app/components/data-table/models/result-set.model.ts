@@ -29,7 +29,16 @@ export class ExploreSet{
     graph: String;
 }
 
+export class ExplorColSet{
+    [column: string]: {
+    }
+}
 
+export class SelectedColSet{
+    [column: string]: {
+        selected: string
+    }
+}
 
 /**
  * model for statistics coming from the server

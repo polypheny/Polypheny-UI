@@ -31,6 +31,17 @@ export class QueryRequest extends UIRequest {
   }
 }
 
+export class QueryExplorationRequest extends UIRequest {
+  query: string;
+  analyze: boolean;
+  constructor ( query: string, analyze: boolean ) {
+    super();
+    this.query = query;
+    this.analyze = analyze;
+    return this;
+  }
+}
+
 /**
  * Request to classify data
  */
