@@ -70,7 +70,17 @@
 
   <ng-container *ngIf="li.type == 'InformationAction'">
     <div class="card-body">
-      <button class="btn btn-primary" (click)="executeInformationAction(li)" [disabled]="executingInformationAction">
+      <div class="form-row" *ngIf="li.parameters">
+        <div class="input-group col-md-6 mb-2" *ngFor="let p of li.parameters | keyvalue; let i=index; trackBy:trackBy">
+          <div class="input-group-prepend">
+            <div class="input-group-text">{{p.key}}</div>
+          </div>
+          <input type="text" class="form-control" [(ngModel)]="li.parameters[p.key]">
+        </div>
+      </div>
+      <button class="btn btn-primary" (click)="executeInformationAction(li)" [disabled]="executingInformationAction"
+              tooltip="Warning: Not all parameters are set!" placement="auto" triggers=""
+              #tooltip="bs-tooltip" (mouseenter)="parameterWarning(li, tooltip)" (mouseleave)="tooltip.hide()">
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
               *ngIf="executingInformationAction"></span>
         {{li.label}}

@@ -53,3 +53,16 @@
 #search-group {
   margin-bottom: 0.5rem;
 }
+
+.relAlgSymbol {
+  font-weight: bold;
+  width: 2rem;
+  text-align: center;
+  margin-right: 0.4em;
+  display: inline-block;
+}
+
+.fa, .relAlgSymbol {
+  width: 1rem;
+  text-align: center;
+}

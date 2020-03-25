@@ -4,6 +4,8 @@ export interface Store {
   adapterName;
   adapterSettings: AdapterSetting[];
   currentSettings: Map<string, string>;
+  dataReadOnly: boolean;
+  schemaReadOnly: boolean;
 }
 
 export interface AdapterInformation {

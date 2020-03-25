@@ -7,6 +7,7 @@ import {ModalDirective} from 'ngx-bootstrap';
 import {Store, AdapterInformation, AdapterSetting} from './store.model';
 import {ToastService} from '../../components/toast/toast.service';
 import {AbstractControl, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
+import {ResultSet} from '../../components/data-table/models/result-set.model';
 
 @Component({
   selector: 'app-stores',
@@ -192,12 +193,12 @@ export class StoresComponent implements OnInit, OnDestroy {
     } else {
       this._crud.removeStore( store.uniqueName ).subscribe(
         res => {
-          const result = <boolean> res;
-          if(result){
+          const result = <ResultSet> res;
+          if(!result.error){
             this._toast.success('Removed store');
             this.getStores();
           }else{
-            this._toast.warn('Could not remove store');
+            this._toast.exception( result );
           }
         }, err => {
           this._toast.error('Could not remove store', 'server error');

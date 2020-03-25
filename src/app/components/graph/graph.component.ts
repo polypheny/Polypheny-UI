@@ -118,8 +118,8 @@ export class GraphComponent implements OnInit {
 
   updateOptions() {
     if (['line', 'bar'].includes(this._chartType)) {
-      this.options.scales.yAxes[0].ticks.suggestedMin = this._min;
-      this.options.scales.yAxes[0].ticks.suggestedMax = this._max;
+      if(this._min) this.options.scales.yAxes[0].ticks.suggestedMin = this._min;
+      if(this._max) this.options.scales.yAxes[0].ticks.suggestedMax = this._max;
     }
   }
 

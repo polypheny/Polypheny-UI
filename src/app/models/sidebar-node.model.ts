@@ -2,6 +2,7 @@ export class SidebarNode {
   id: any;// of the form "schema.table.column"
   name: string;
   icon: string;
+  relAlgSymbol: string;
   routerLink: any;
   allowRouting = true;
   cssClass: string;
@@ -96,6 +97,12 @@ export class SidebarNode {
 
   isAutoActive() {
     return this.autoActive;
+  }
+
+  setRelAlgSymbol(symbol: string) {
+    this.relAlgSymbol = symbol;
+    this.icon = null;
+    return this;
   }
 }
 

@@ -128,7 +128,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   }
 
   initWebsocket() {
-    //function to define node behavior
+    //function to define behavior when clicking on a page link
     const nodeBehavior = (tree, node, $event) => {
       if (node.data.id === 'sql-console') {
         //this.queryAnalysis = null;
@@ -145,7 +145,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
           res => {
             this.queryAnalysis = <InformationPage>res;
             this.showingAnalysis = true;
-            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Query analysis')]);
+            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem(node.data.name)]);
+            if( this.queryAnalysis.fullWidth ) this._breadcrumb.hideZoom();
             node.setIsActive(true);
           }, err => {
             console.log(err);

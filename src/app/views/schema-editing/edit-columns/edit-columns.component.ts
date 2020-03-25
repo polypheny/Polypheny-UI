@@ -404,6 +404,28 @@ export class EditColumnsComponent implements OnInit {
       });
   }
 
+  getAddableStores () {
+    return this.stores.filter( (s) => {
+      // hide stores that are schemaReadOnly or dataReadOnly
+      if( s.schemaReadOnly || s.dataReadOnly ) {
+        return false;
+      }
+      //hide stores that are already part of the placement
+      else if ( this.dataPlacements && this.dataPlacements.data && this.dataPlacements.data.length > 0 ) {
+        let showStore = true;
+        for ( const store of this.dataPlacements.data ) {
+          if( store[0] === s.uniqueName ) {
+            showStore = false;
+          }
+        }
+        return showStore;
+      }
+      else {
+        return true;
+      }
+    });
+  }
+
   getDataPlacements() {
     this._crud.getDataPlacements(this.schema, this.table).subscribe(
       res => {
@@ -425,9 +447,14 @@ export class EditColumnsComponent implements OnInit {
     }
     this._crud.addDropPlacement(this.schema, this.table, this.selectedStore, 'ADD').subscribe(
       res => {
-        this._toast.success( 'Added placement on store ' + this.selectedStore, 'Added placement' );
+        const result = <ResultSet> res;
+        if( result.error ) {
+          this._toast.exception( result );
+        } else {
+          this._toast.success( 'Added placement on store ' + this.selectedStore, 'Added placement' );
+          this.getDataPlacements();
+        }
         this.selectedStore = null;
-        this.getDataPlacements();
       }, err => {
         this._toast.error( 'Could not drop placement on store ' + this.selectedStore );
       }
@@ -441,8 +468,13 @@ export class EditColumnsComponent implements OnInit {
     }
     this._crud.addDropPlacement(this.schema, this.table, store, 'DROP').subscribe(
       res => {
-        this._toast.success( 'Dropped placement on store ' + store, 'Dropped placement' );
-        this.getDataPlacements();
+        const result = <ResultSet> res;
+        if( result.error ) {
+          this._toast.exception( result );
+        } else {
+          this._toast.success( 'Dropped placement on store ' + store, 'Dropped placement' );
+          this.getDataPlacements();
+        }
       }, err => {
         this._toast.error( 'Could not drop placement on store ' + store, 'Error' );
       }

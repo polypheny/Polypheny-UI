@@ -31,7 +31,7 @@
     </ng-container>
 
     <ng-container *ngSwitchCase="_types.dateTimeTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
-      <input type="text" class="form-control form-control-sm fPickerInput"
+      <input type="text" class="form-control form-control-sm fPickerInput" [value]="value"
              [placeholder]="header.dataType.toLowerCase() === 'time' ? 'Select time..': 'Select date..'" #flatpickr>
       <div class="input-group-append" *ngIf="header.nullable">
         <div class="btn btn-sm" [ngClass]="{'btn-primary': value == null, 'btn-light': value !== null}"

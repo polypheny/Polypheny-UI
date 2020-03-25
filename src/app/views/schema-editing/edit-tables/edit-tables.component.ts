@@ -92,10 +92,13 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this._crud.getStores().subscribe(
       res => {
         this.stores = <Store[]>res;
-        console.log(this.stores);
       }, err => {
         console.log(err);
       });
+  }
+
+  getWritableStores () {
+    return this.stores.filter( (s) => !s.dataReadOnly && !s.schemaReadOnly );
   }
 
   /**
