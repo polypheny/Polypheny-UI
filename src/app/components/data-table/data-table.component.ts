@@ -39,7 +39,6 @@ export class DataTableComponent implements OnInit, OnChanges {
     tableColor = '#FFFFFF';
     editing = -1;//-1 if not editing any row, else the index of that row
     confirm = -1;
-    exploreManagerId = null;
     exploreDataCounter = 0;
     labled = [];
 
@@ -364,11 +363,12 @@ export class DataTableComponent implements OnInit, OnChanges {
         return obj;
     }
     resetExporationData() {
-        this.exploreManagerId = null;
+
         this.exploreDataCounter = 0;
     }
 
     exploreData() {
+        /*
 
         let tableInfo: any;
         let tableInfoString: String[];
@@ -400,6 +400,7 @@ export class DataTableComponent implements OnInit, OnChanges {
         console.log('classified Data ' + this.classifiedData);
         console.log('this.userInput ' + this.userInput);
 
+        /*
         const unlabled = [];
         //this.labled = [];
 
@@ -420,15 +421,16 @@ export class DataTableComponent implements OnInit, OnChanges {
         console.log('unlabled: ' + unlabled );
         console.log('labled: ' + this.labled);
 
+         */
+
         this.exploreDataCounter++;
         if (this.exploreDataCounter > 10){
-            console.log('id: ' + this.exploreManagerId + '\n' + 'header: ' + this.resultSet.header + '\n'+ 'query ' + this.resultSet.info.generatedQuery + '\n'+ 'cols: ' + this.columns + '\n'+ 'labeld: ' + this.labled + '\n'+ 'unlabeld: ' + unlabled);
+            console.log('id: ' + this.resultSet.explorerId + '\n' + 'header: ' + this.resultSet.header + '\n'+ 'query ' + this.resultSet.info.generatedQuery + '\n'+ 'cols: ' + this.columns + '\n'+ 'labeld: ' + this.labled + '\n'+ 'unlabeld: ');
 
-            this._crud.exploreUserInput(new Exploration( this.exploreManagerId, this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, this.labled, unlabled)).subscribe(
+            this._crud.exploreUserInput(new Exploration( this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
                     res => {
                         this.exploreSet = <ExploreSet> res;
                         this.userInput = {};
-                        this.exploreManagerId = this.exploreSet.exploreManagerId;
 
                         for (let i = 0; i < this.exploreSet.label.length; i++){
                             this.userInput[this.resultSet.data[i].toString()] = this.exploreSet.label[i];
@@ -477,8 +479,8 @@ export class DataTableComponent implements OnInit, OnChanges {
 
         this.prepareClassifiedData();
 
-
-        this._crud.classifyData(new ClassifyRequest(this.exploreManagerId, this.resultSet.header, this.resultSet.info.generatedQuery, this.columns, this.labled )).subscribe(
+        console.log(this.classifiedData);
+        this._crud.classifyData(new ClassifyRequest(this.resultSet.explorerId, this.resultSet.header, this.classifiedData )).subscribe(
                 res => {
                     this.userInput = {};
                     console.log(this.userInput);

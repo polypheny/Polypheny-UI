@@ -48,15 +48,11 @@ export class QueryExplorationRequest extends UIRequest {
 export class ClassifyRequest{
   id: number;
   header: DbColumn[];
-  query: string;
-  columnInfo: string[];
-  labeled: String[][];
-  constructor ( id: number, header: DbColumn[], query: string, columnInfo: string[], labeled: string [][] ) {
+  classified: string[][];
+  constructor ( id: number, header: DbColumn[], classified: string[][] ) {
     this.id = id;
     this.header = header;
-    this.query = query;
-    this.columnInfo = columnInfo;
-    this.labeled = labeled;
+    this.classified = classified;
     return this;
   }
 }
@@ -64,18 +60,13 @@ export class ClassifyRequest{
 export class Exploration{
   id: number;
   header: DbColumn[];
-  query: string;
-  columnInfo: string[];
-  labeled: string[][];
-  unlabeled: string[][];
+  classified: string[][];
 
-  constructor( id: number, header: DbColumn[], query: string, columnInfo: string[], labeled: string [][], unlabeled: string[][]) {
+  constructor( id: number, header: DbColumn[], classified: string[][]) {
     this.id = id;
     this.header = header;
-    this.query = query;
-    this.columnInfo = columnInfo;
-    this.labeled = labeled;
-    this.unlabeled = unlabeled;
+    this.classified = classified;
+
   }
 }
 

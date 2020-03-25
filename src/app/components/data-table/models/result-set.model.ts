@@ -13,6 +13,7 @@ export class ResultSet{
     error: string;
     info: Debug;
     type: string;//"table" or "view"
+    explorerId: number;
 
     constructor ( error: string ){
         this.error = error;
