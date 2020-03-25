@@ -8,8 +8,16 @@ import {MonitoringComponent} from './monitoring/monitoring.component';
 import {QueryingComponent} from './querying/querying.component';
 import {StoresComponent} from './stores/stores.component';
 import {HubComponent} from './hub/hub.component';
+import {AboutComponent} from './about/about.component';
 
 const routes: Routes = [
+  {
+    path: 'about',
+    component: AboutComponent,
+    data: {
+      title: 'about'
+    }
+  },
   {
     path: 'monitoring',
     component: MonitoringComponent,

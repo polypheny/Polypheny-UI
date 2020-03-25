@@ -11,7 +11,7 @@
   </div>
   <div class="col-md-6">
     <div class="custom-control-inline breadcrumb" id="zoom-wrapper">
-      <div class="custom-control">
+      <div class="custom-control" *ngIf="_breadcrumb._showZoom">
         Zoom: {{zoom}} <button class="btn btn-light" (click)="zoomOut()">-</button> <button class="btn btn-light" style="margin-left:0.5em;" (click)="zoomIn()">+</button>
         <span>  </span>
       </div>

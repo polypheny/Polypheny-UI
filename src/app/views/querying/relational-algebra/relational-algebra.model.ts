@@ -1,4 +1,5 @@
 import {SortState} from '../../../components/data-table/models/sort-state.model';
+import {SidebarNode} from '../../../models/sidebar-node.model';
 
 export enum LogicalOperator {
   TableScan = 'TableScan',
@@ -6,9 +7,9 @@ export enum LogicalOperator {
   Filter = 'Filter',
   Project = 'Project',
   Aggregate = 'Aggregate',
+  Minus = 'Minus',
   Sort = 'Sort',
   Union = 'Union',
-  Minus = 'Minus',
   Intersect = 'Intersect'
 
   /*
@@ -24,18 +25,59 @@ export enum LogicalOperator {
   */
 }
 
-export interface Connection{
+export class LogicalOperatorUtil {
+  static operatorToSidbearNode(operator: LogicalOperator): SidebarNode {
+    let sidebarNode;
+    switch (operator) {
+      case LogicalOperator.TableScan:
+        sidebarNode = new SidebarNode('operator_' + operator, operator, 'fa fa-database', null, true);
+        break;
+      case LogicalOperator.Join:
+        sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setRelAlgSymbol('&#8904;');
+        break;
+      case LogicalOperator.Filter:
+        sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setRelAlgSymbol('&sigma;');
+        break;
+      case LogicalOperator.Project:
+        sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setRelAlgSymbol('&pi;');
+        break;
+      case LogicalOperator.Aggregate:
+        sidebarNode = new SidebarNode('operator_' + operator, operator, 'fa fa-plus-circle', null, true);
+        break;
+      case LogicalOperator.Sort:
+        sidebarNode = new SidebarNode('operator_' + operator, operator, 'fa fa-arrows-v', null, true);
+        break;
+      case LogicalOperator.Union:
+        sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setRelAlgSymbol('&cup;');
+        break;
+      case LogicalOperator.Minus:
+        //sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setRelAlgSymbol('-');
+        sidebarNode = new SidebarNode('operator_' + operator, operator, 'fa fa-minus-circle', null, true);
+        break;
+      case LogicalOperator.Intersect:
+        sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setRelAlgSymbol('&cap;');
+        break;
+      default:
+        sidebarNode = new SidebarNode('operator_' + operator, operator, 'fa fa-arrows', null, true);
+    }
+    return sidebarNode.setAutoActive(false);
+  }
+}
+
+export interface Connection {
   id: string;
   source: Node;
   target: Node;
 }
 
-export class Node{
+export class Node {
   children: Node[] = [];
   inputCount = 0;
   dragging: boolean;
   height: number;
   width: number;
+  icon: string;
+  relAlgSymbol: string;
 
   //autocomplete
   autocomplete: string[];
@@ -158,13 +200,26 @@ export class Node{
   getAcColumns(){
     return this.acColumns;
   }
-  setAcColumns( c: Set<string> ){
+
+  setAcColumns(c: Set<string>) {
     this.acColumns = c;
   }
-  getAcTableColumns () {
+
+  getAcTableColumns() {
     return this.acTableColumns;
   }
-  setAcTableColumns ( tc: Set<string> ) {
+
+  setAcTableColumns(tc: Set<string>) {
     this.acTableColumns = tc;
+  }
+
+  setIcon(icon: string) {
+    this.icon = icon;
+    return this;
+  }
+
+  setRelAlgSymbol(symbol: string) {
+    this.relAlgSymbol = symbol;
+    return this;
   }
 }

@@ -7,38 +7,40 @@ import * as $ from 'jquery';
 import {CrudService} from '../../services/crud.service';
 import {SchemaRequest} from '../../models/ui-request.model';
 import {SidebarNode, JavaPage} from '../../models/sidebar-node.model';
-import {TreeNode} from 'angular-tree-component';
+import {Router} from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
+
+//docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarService {
 
   constructor(
-    private _http:HttpClient,
-    private _informationService:InformationService,
-    private _configService:ConfigService,
+    private _http: HttpClient,
+    private _informationService: InformationService,
+    private _configService: ConfigService,
     private _crud: CrudService
-  ) {}
+  ) {
+  }
 
   nodes: BehaviorSubject<Object[]> = new BehaviorSubject<Object[]>([]);
   error: BehaviorSubject<string> = new BehaviorSubject<string>(null);
-  action: (node: TreeNode) => void = null;
   //node that should be set inactive:
   private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
-  private resetSubject = new BehaviorSubject<boolean>( false );
+  private resetSubject = new BehaviorSubject<boolean>(false);
 
-  private mapPages ( res:Object, mode:string ) {
-    const pages = <JavaPage[]> res;
-    const nodes:SidebarNode[] = [];
+  private mapPages(res: Object, mode: string) {
+    const pages = <JavaPage[]>res;
+    const nodes: SidebarNode[] = [];
     let routerLink = '';
-    for( const p of pages ) {
+    for (const p of pages) {
       switch (mode) {
         case 'config':
-          routerLink = '/views/config/'+p.id;
+          routerLink = '/views/config/' + p.id;
           break;
         case 'information':
-          routerLink = '/views/monitoring/'+p.id;
+          routerLink = '/views/monitoring/' + p.id;
           break;
         default:
           console.error('sidebarNode with unknown group');
@@ -48,7 +50,7 @@ export class LeftSidebarService {
     return nodes;
   }
 
-  listInformationManagerPages () {
+  listInformationManagerPages() {
     return this._informationService.getPageList().subscribe(
       res => {
         this.nodes.next(this.mapPages(res, 'information'));
@@ -61,7 +63,7 @@ export class LeftSidebarService {
     );
   }
 
-  listConfigManagerPages () {
+  listConfigManagerPages() {
     return this._configService.getPageList().subscribe(
       res => {
         this.nodes.next(this.mapPages(res, 'config'));
@@ -74,32 +76,31 @@ export class LeftSidebarService {
     );
   }
 
-  getNodes () {
+  getNodes() {
     return this.nodes;
   }
 
-  setNodes ( n: SidebarNode[] ) {
+  setNodes(n: SidebarNode[]) {
     n = [].concat(n); // convert to array if it is not an array
-    this.nodes.next( n );
+    this.nodes.next(n);
     this.error.next(null);
   }
 
-  getError () {
+  getError() {
     return this.error;
   }
 
-  setError ( msg: string ) {
+  setError(msg: string) {
     this.error.next(msg);
     this.nodes.next([]);
   }
 
-  open () {
+  open() {
     $('body').addClass('sidebar-lg-show');
   }
 
   close() {
-    this.nodes.next( [] );
-    this.clearAction();
+    this.nodes.next([]);
     $('body').removeClass('sidebar-lg-show');
   }
 
@@ -107,43 +108,68 @@ export class LeftSidebarService {
    * Reset tree completely, set all active nodes to inactive
    * @param collapse collapse tree if true
    */
-  reset( collapse = false ){
-    this.resetSubject.next( collapse );
+  reset(collapse = false) {
+    this.resetSubject.next(collapse);
   }
 
-  getResetSubject(){
+  getResetSubject() {
     return this.resetSubject;
   }
 
   /**
    * Retrieve a schemaTree using the _crud service and apply it to the left sidebar
    */
-  setSchema ( schemaRequest: SchemaRequest ){
-    this._crud.getSchema( schemaRequest ).subscribe(
+  setSchema(schemaRequest: SchemaRequest, _router: Router) {
+    this._crud.getSchema(schemaRequest).subscribe(
       res => {
         this.error.next(null);
-        const schema = <SidebarNode[]> res;
+        const schemaTemp = <SidebarNode[]>res;
+        const schema = [];
+        for (const s of schemaTemp) {
+          schema.push(SidebarNode.fromJson(s));
+        }
         //Schema editing view
-        if( !schemaRequest.views && schemaRequest.depth === 2 ){
-          schema.forEach( (val, key) => {
+        if (!schemaRequest.views && schemaRequest.depth === 2) {
+
+          //function to define node behavior
+          const nodeBehavior = (tree, node, $event) => {
+            if (node.data.routerLink !== '') {
+              _router.navigate([node.data.routerLink]);
+              if (node.isCollapsed) {
+                node.expand();
+              } else if (!node.isCollapsed && node.isActive === true) {
+                node.collapse();
+              }
+              node.setIsActive(true, false);
+            } else {
+              node.toggleExpanded();
+            }
+          };
+
+          schema.forEach((val: SidebarNode, key) => {
             val.routerLink = schemaRequest.routerLinkRoot;
-            val.children.forEach( (v, k) => {
+            val.disableRouting();
+            val.setAutoExpand(false);
+            val.setAction(nodeBehavior);
+            val.children.forEach((v: SidebarNode, k) => {
               v.routerLink = schemaRequest.routerLinkRoot + val.id;
+              v.disableRouting();
+              v.setAutoExpand(false);
+              v.setAction(nodeBehavior);
             });
             //val.children.unshift( new SidebarNode( val.id+'.manageTables', 'manage tables', 'fa fa-clone', schemaRequest.routerLinkRoot + val.id ) );
           });
           //schema.unshift( new SidebarNode( 'schema', 'schema', 'fa fa-database', '/views/schema-editing') );
         }
         //Uml view
-        else if( schemaRequest.depth === 1 ){
-          schema.forEach( (val, key) => {
+        else if (schemaRequest.depth === 1) {
+          schema.forEach((val, key) => {
             val.routerLink = schemaRequest.routerLinkRoot + val.id;
           });
         }
-        this.setNodes( schema );
+        this.setNodes(schema);
       }, err => {
         this.error.next('Could not load database schema.');
-        //this._toast.toast( 'server error', 'Could not load database schema.', 0, 'bg-danger' );
         console.log(err);
       }
     );
@@ -151,35 +177,16 @@ export class LeftSidebarService {
   }
 
   /**
-   * return the action to check if it is null
-   */
-  getAction(){
-    return this.action;
-  }
-
-  /**
-   * Define what should happen if you click on a node in the sidebar
-   * @param action method to define what should happen if you click on a node in the sidebar
-   */
-  setAction ( action: ( node: TreeNode) => void ) {
-    this.action = action;
-  }
-
-  clearAction(){
-    this.action = null;
-  }
-
-  /**
    * sets a SidebarNode with id nodeId to inactive
    */
-  setInactive( nodeId: string ) {
-    this.inactiveNode.next( nodeId );
+  setInactive(nodeId: string) {
+    this.inactiveNode.next(nodeId);
   }
 
   /**
    * Call this function to subscribe to the BehaviorSubject inactiveNode
    */
-  getInactiveNode(){
+  getInactiveNode() {
     return this.inactiveNode;
   }
 

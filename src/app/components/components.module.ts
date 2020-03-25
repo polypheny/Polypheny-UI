@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GraphComponent } from './graph/graph.component';
-import { ChartsModule } from 'ng2-charts';
-import {CollapseModule, ProgressbarModule, TabsModule, TooltipModule, TypeaheadModule} from 'ngx-bootstrap';
-import { ToastComponent } from './toast/toast.component';
+import {ChartsModule} from 'ng2-charts';
+import {CollapseModule, ModalModule, ProgressbarModule, TabsModule, TooltipModule, TypeaheadModule} from 'ngx-bootstrap';
+import {ToastComponent} from './toast/toast.component';
 
 import { AppBreadcrumbModule } from '@coreui/angular';
 
@@ -37,7 +37,8 @@ import {ExplainVisualizerModule} from '../explain-visualizer/explain-visualizer.
     CollapseModule,
     TooltipModule,
     ProgressbarModule.forRoot(),
-    ExplainVisualizerModule
+    ExplainVisualizerModule,
+    ModalModule.forRoot()
   ],
   declarations: [
     BreadcrumbComponent,

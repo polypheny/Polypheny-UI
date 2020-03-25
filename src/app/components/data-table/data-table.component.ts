@@ -195,7 +195,7 @@ export class DataTableComponent implements OnInit, OnChanges {
             this.buildInsertObject();
             this.getTable();
           } else if ( result.error ) {
-            this._toast.warn('Could not insert the data: ' + result.error, 'insert error');
+            this._toast.exception(result, 'Could not insert the data:', 'insert error');
           }
         }, err => {
         this._toast.error('Could not insert the data.');
@@ -227,7 +227,7 @@ export class DataTableComponent implements OnInit, OnChanges {
           if(result.info.affectedRows === 1) rows = ' row';
           this._toast.success('Updated ' + result.info.affectedRows + rows, 'update', ToastDuration.SHORT);
         } else if ( result.error ){
-          this._toast.warn('Could not update this row: ' + result.error);
+          this._toast.exception(result, 'Could not update this row:');
         }
       }, err => {
         this._toast.error('Could not update the data.');
@@ -328,7 +328,7 @@ export class DataTableComponent implements OnInit, OnChanges {
             this.getTable();
           }else {
             const result2 = <ResultSet> res;
-            this._toast.warn('Could not delete this row: ' + result2.error);
+            this._toast.exception(result2, 'Could not delete this row:');
           }
         }, err => {
         this._toast.error('Could not delete this row.');

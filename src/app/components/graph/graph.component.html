@@ -1,8 +1,9 @@
 <div class="chart-wrapper">
-<canvas baseChart class="chart"
-        [datasets]="data"
-        [labels]="labels"
-        [options]="options"
-        [legend]="legend"
-        [chartType]="chartType"></canvas>
+  <canvas baseChart class="chart"
+          [chartType]="_chartType"
+          [datasets]="_data"
+          [labels]="_labels"
+          [options]="options"
+          [legend]="legend">
+  </canvas>
 </div>

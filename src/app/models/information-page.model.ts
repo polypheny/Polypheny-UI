@@ -4,14 +4,17 @@ export interface InformationPage {
   name?: string;
   id?: string;
   description?: string;
+  refreshable: boolean;
+  fullWidth?: boolean;
 }
 
 export interface InformationGroup {
   color?: string;
   informationObjects: InformationObject[];
+  refreshable: boolean;
 }
 
-export interface InformationObject {
+export interface InformationObject extends Duration {
   type?: string;
   label?: string;
   routerLink?: any;
@@ -26,18 +29,39 @@ export interface InformationObject {
   step?: number;
   html?: string;
   //config
-  webUiGroup?:string;
-  key?:string;
+  webUiGroup?: string;
+  key?: string;
   //information
-  id?:string;
-  informationGroup?:string;
+  id?: string;
+  groupId?: string;
   //graph:
-  data?: number[];
+  data?: any;
   labels?: string[];
-  graphType?:string;
+  graphType?: string;
   //debugger
   queryPlan: string;
   //code
   code?: string;
   language?: string;
+  //table
+  rows?: string[];
+  //InformationDuration
+  //=> extended by Duration interface
+  //action
+  parameters: any;
+}
+
+export interface InformationResponse {
+  errorMsg?: string;
+  successMsg?: string;
+}
+
+export interface Duration {
+  name: string;
+  duration: number;
+  limit: number;
+  sequence: number;
+  isChild: boolean;
+  children: Duration[];//Durations map
+  noProgressBar: boolean;
 }

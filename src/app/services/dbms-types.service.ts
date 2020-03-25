@@ -10,6 +10,7 @@ export class DbmsTypesService {
 
   private numericArray = ['int2','int4','int8','integer','bigint','smallint','float','float4','float8','double'];
   private booleanArray = ['bool', 'boolean'];
+  private dateTimeArray = ['date', 'time', 'timestamp'];
   private types = new EventEmitter();
   private foreignKeyActions = new EventEmitter();
 
@@ -85,24 +86,40 @@ export class DbmsTypesService {
    * for ngIf and ngSwitchCase
    * usage: _types.booleanTypes().includes( val )
    */
-  booleanTypes () {
+  booleanTypes() {
     return this.booleanArray;
+  }
+
+  /**
+   * for ngIf and ngSwitchCase
+   * usage: _types.dateTimeTypes().includes( val )
+   */
+  dateTimeTypes() {
+    return this.dateTimeArray;
   }
 
   /**
    * @param type dmbs type name
    * @return if the dbms type is numeric
    */
-  isNumeric ( type: string ){
-    return this.numericArray.includes( type.toLowerCase() );
+  isNumeric(type: string) {
+    return this.numericArray.includes(type.toLowerCase());
   }
 
   /**
    * @param type dmbs type name
    * @return if the dbms type is of boolean type
    */
-  isBoolean ( type: string ) {
-    return this.booleanArray.includes( type.toLowerCase() );
+  isBoolean(type: string) {
+    return this.booleanArray.includes(type.toLowerCase());
+  }
+
+  /**
+   * @param type dmbs type name
+   * @return if the dbms type is of date / time / timestamp type
+   */
+  isDateTime(type: string) {
+    return this.dateTimeArray.includes(type.toLowerCase());
   }
 
 }
