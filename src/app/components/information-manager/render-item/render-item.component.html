@@ -78,7 +78,9 @@
           <input type="text" class="form-control" [(ngModel)]="li.parameters[p.key]">
         </div>
       </div>
-      <button class="btn btn-primary" (click)="executeInformationAction(li)" [disabled]="executingInformationAction">
+      <button class="btn btn-primary" (click)="executeInformationAction(li)" [disabled]="executingInformationAction"
+              tooltip="Warning: Not all parameters are set!" placement="auto" triggers=""
+              #tooltip="bs-tooltip" (mouseenter)="parameterWarning(li, tooltip)" (mouseleave)="tooltip.hide()">
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
               *ngIf="executingInformationAction"></span>
         {{li.label}}

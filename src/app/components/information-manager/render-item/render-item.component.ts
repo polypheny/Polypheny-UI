@@ -134,6 +134,16 @@ export class RenderItemComponent implements OnInit {
     return colors[i % colors.length];
   }
 
+  parameterWarning ( i:InformationObject, tooltip ) {
+    let show = false;
+    for( const p of Object.keys(i.parameters) ){
+      if( !i.parameters[p] ) show = true;
+    }
+    if( show ) {
+      tooltip.show();
+    }
+  }
+
   trackBy (index: any, item: any) {
     return index;
   }
