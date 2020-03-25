@@ -34,7 +34,7 @@ export class InformationService {
   }
 
   executeAction(i: InformationObject) {
-    return this._http.post(`${this.httpUrl}/executeAction`, i.id, this.httpOptions);
+    return this._http.post(`${this.httpUrl}/executeAction`, JSON.stringify(i), this.httpOptions);
   }
 
   //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket

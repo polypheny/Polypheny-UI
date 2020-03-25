@@ -134,4 +134,8 @@ export class RenderItemComponent implements OnInit {
     return colors[i % colors.length];
   }
 
+  trackBy (index: any, item: any) {
+    return index;
+  }
+
 }

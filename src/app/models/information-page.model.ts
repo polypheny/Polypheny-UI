@@ -47,6 +47,8 @@ export interface InformationObject extends Duration {
   rows?: string[];
   //InformationDuration
   //=> extended by Duration interface
+  //action
+  parameters: any;
 }
 
 export interface InformationResponse {
