@@ -144,6 +144,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     } else {
       return (this.connectWheres() + col + ' = ' + checkbox);
     }
+
   }
 
   checkboxMultipNumeric(col: string, checked: [string]) {
@@ -158,19 +159,18 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  minMax(col: string, minMax) {
-    return (this.connectWheres() + col + ' BETWEEN ' + minMax[0] + ' AND ' + minMax[1]);
-  }
-
-  startingWith(col: string, firstLetters: string) {
-    if (firstLetters.startsWith('*')) {
-      return (this.connectWheres() + col + ' LIKE ' + '\'' + '%' + firstLetters.replace('*', '') + '\'');
-    } else if (firstLetters.endsWith('*')) {
-      return (this.connectWheres() + col + ' LIKE ' + '\'' + firstLetters.replace('*', '') + '%' + '\'');
-    } else {
-      return (this.connectWheres() + col + ' LIKE ' + '\'' + firstLetters + '\'');
+    minMax(col: string, minMax) {
+        return (this.connectWheres() + col + ' BETWEEN ' + minMax[0] + ' AND ' + minMax[1]);
     }
-  }
+
+    startingWith(col: string, firstLetters: string) {
+        if (firstLetters.includes('*')) {
+            return (this.connectWheres() + col + ' LIKE ' + '\'' + firstLetters.replace(new RegExp('\\*', 'g'), '%') + '\'');
+        } else {
+            return (this.connectWheres() + col + ' LIKE ' + '\'' + firstLetters + '\'');
+        }
+
+    }
 
   sorting(col: string, sort: string) {
     return (this.connectOrderby() + col + ' ' + sort);
