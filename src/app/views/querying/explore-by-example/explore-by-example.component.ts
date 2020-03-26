@@ -37,13 +37,10 @@ export class ExploreByExampleComponent implements OnInit {
     }
 
     ngOnInit() {
-
+        // TODO Isabel only select table possible at the moment
         this._leftSidebar.setTableSchema(new SchemaRequest('views/explore-by-example/', false, 2));
         this._leftSidebar.setAction((node) => {
             if (!node.isActive && node.isLeaf) {
-                console.log('testing');
-                console.log(node);
-                console.log(node.data['id']);
                 this.choosenTables.push(node.data['id']);
                 this.buildObject(this.schema);
                 node.setIsActive(true, true);
@@ -55,8 +52,6 @@ export class ExploreByExampleComponent implements OnInit {
         this._crud.getSchema(new SchemaRequest('views/explore-by-example/', false, 3)).subscribe(
                 res => {
                     this.schema = res;
-                    console.log('schema');
-                    console.log(res);
                 }, err => {
                     console.log(err);
                 }
@@ -98,9 +93,9 @@ export class ExploreByExampleComponent implements OnInit {
             }
         });
         this.generateTableSQL(id, this.tables);
-
     }
 
+    //TODO Isabel Joins not possible at the moment
     generateTableSQL(ids, tables) {
         let sql = 'SELECT ';
         const cols = [];
@@ -121,39 +116,17 @@ export class ExploreByExampleComponent implements OnInit {
 
 
     sendSQL(sql: string) {
-        //this.editGenerated.setCode(sql);
-        console.log('executeQuery for explore by example');
         this.loading = true;
         this._crud.createQuery(new QueryExplorationRequest(sql, false)).subscribe(
                 res => {
-
                     this.resultSet = <ResultSet>res;
                     this.loading = false;
-                    /*const initialResult = result[0];
-                    this.resultSet = initialResult;
-                    //this.prepareResultSet(initialResult);
-                    console.log('THIS IS THA RESULT SET');
-                    console.log(initialResult);
 
-                    this.loading = false;*/
                 }, err => {
                     this._toast.error('Unknown error on the server.');
                     this.loading = false;
                 }
         );
-    }
-
-    prepareResultSet(res) {
-        (res['data']).forEach(value => {
-
-            /**
-             (value['data'].forEach(data =>{
-                console.log('show me the data');
-                console.log(data);
-
-            }));**/
-        });
-        this.resultSet = res;
     }
 
 

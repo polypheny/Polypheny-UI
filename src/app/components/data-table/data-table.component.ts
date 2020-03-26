@@ -395,9 +395,7 @@ export class DataTableComponent implements OnInit, OnChanges {
                         this.userInput = {};
                         this.exploreDataCounter = 0;
 
-                        console.log('can i see the correc thins or the wrong ons');
                         for (let i = 0; i < this.exploreSet.dataAfterClassification.length; i++){
-                            console.log(this.exploreSet.dataAfterClassification.length);
                             let data = '';
                             const label = [];
                             for (let j = 0; j < this.exploreSet.dataAfterClassification[i].length; j++){
@@ -408,36 +406,20 @@ export class DataTableComponent implements OnInit, OnChanges {
                                     label.push(this.exploreSet.dataAfterClassification[i][j].split('\'').join(''));
                                 }
                             }
-
                             this.userInput[label.join(',').toString()] = data;
-                            console.log(data);
-                            console.log(label.join(',').toString());
-
                         }
-
-                        //this.userInput = this.exploreSet.dataAfterClassification;
-
-                        /*
-                        for (let i = 0; i < this.exploreSet.label.length; i++){
-                            this.userInput[this.resultSet.data[i].toString()] = this.exploreSet.label[i];
-                        }
-
-                         */
 
                         let tree = <string>this.exploreSet.graph;
 
                         const digraph = dot.read(tree);
                         const nodes = digraph.nodes().join('; ');
-                        console.log(nodes);
 
                         const treeArray = tree.split(' shape=box style=filled ').join('').split('{');
 
-                        console.log(treeArray.toString());
                         if (treeArray.length > 1){
                             tree = treeArray[0] + '{ ' + nodes.toString() + '; ' + treeArray[1];
                         }
 
-                        console.log(tree);
                         const treeGraph = dot.read(tree);
                         const render = new dagreD3.render();
 
@@ -446,40 +428,25 @@ export class DataTableComponent implements OnInit, OnChanges {
 
                         render(d3.select('svg g'), treeGraph);
 
-
                     }, err => {
                         console.log(err);
 
                     }
             );
-
         }
-
-    }
-
-    prepareClassifiedData() {
-
-
     }
 
     sendChosenCols() {
-
-        this.prepareClassifiedData();
-
-        console.log(this.classifiedData);
         this._crud.classifyData(new ClassifyRequest(this.resultSet.explorerId, this.resultSet.header, this.classifiedData )).subscribe(
                 res => {
                     this.userInput = {};
                     console.log(this.userInput);
                     this.resultSet = <ResultSet>res;
-                    console.log(res);
-                    console.log('test');
 
                 }, err => {
                     console.log(err);
                 }
         );
-
     }
 
 }
