@@ -78,8 +78,6 @@ export class ExploreByExampleComponent implements OnInit {
                             const id = value['id'];
                             this.ids.push(id);
                             this.exploreCols[id] = false;
-                            console.log(this.exploreCols);
-                            console.log('show me if this works for the col names: ' + id.replace(table, ''));
                         }));
                     }
                 });
@@ -99,7 +97,6 @@ export class ExploreByExampleComponent implements OnInit {
                 id.push(value);
             }
         });
-        console.log('shwo me the table in selected cols' + this.tables);
         this.generateTableSQL(id, this.tables);
 
     }
@@ -119,9 +116,6 @@ export class ExploreByExampleComponent implements OnInit {
 
         sql += tab.join(', ');
 
-        console.log('show me the sql statement' + sql);
-
-
         this.sendSQL(sql);
     }
 
@@ -133,7 +127,6 @@ export class ExploreByExampleComponent implements OnInit {
         this._crud.createQuery(new QueryExplorationRequest(sql, false)).subscribe(
                 res => {
 
-                    console.log(res);
                     this.resultSet = <ResultSet>res;
                     this.loading = false;
                     /*const initialResult = result[0];
@@ -152,10 +145,6 @@ export class ExploreByExampleComponent implements OnInit {
 
     prepareResultSet(res) {
         (res['data']).forEach(value => {
-            console.log('show me the value');
-            console.log(value);
-            console.log('can i see the new change');
-            value.push('test');
 
             /**
              (value['data'].forEach(data =>{

@@ -368,17 +368,6 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
     exploreData() {
-        /*
-
-        let tableInfo: any;
-        let tableInfoString: String[];
-
-        tableInfoString = this.resultSet.info.generatedQuery.replace('SELECT ', '').split('\n');
-        tableInfo = tableInfoString[0].split(',');
-        this.columns = tableInfo; /*
-        tableInfoString = tableInfo[0].split('.');
-        this.tableId = tableInfoString[0].toString() + '.' + tableInfoString[1];
-        */
 
         this.classifiedData = cloneDeep(this.resultSet.data);
 
@@ -397,44 +386,43 @@ export class DataTableComponent implements OnInit, OnChanges {
             }
         });
 
-        console.log('classified Data ' + this.classifiedData);
-        console.log('this.userInput ' + this.userInput);
-
-        /*
-        const unlabled = [];
-        //this.labled = [];
-
-        this.classifiedData.forEach( value => {
-            if (value.includes('?') ){
-                unlabled.push(value);
-            }else {
-                this.labled.push(value);
-                value.forEach( val => {
-                    if ( val === 'true' || val === 'false'){
-                        val = '?';
-                    }
-                });
-                unlabled.push(value);
-            }
-        });
-
-        console.log('unlabled: ' + unlabled );
-        console.log('labled: ' + this.labled);
-
-         */
-
         this.exploreDataCounter++;
         if (this.exploreDataCounter > 10){
-            console.log('id: ' + this.resultSet.explorerId + '\n' + 'header: ' + this.resultSet.header + '\n'+ 'query ' + this.resultSet.info.generatedQuery + '\n'+ 'cols: ' + this.columns + '\n'+ 'labeld: ' + this.labled + '\n'+ 'unlabeld: ');
 
             this._crud.exploreUserInput(new Exploration( this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
                     res => {
                         this.exploreSet = <ExploreSet> res;
                         this.userInput = {};
+                        this.exploreDataCounter = 0;
 
+                        console.log('can i see the correc thins or the wrong ons');
+                        for (let i = 0; i < this.exploreSet.dataAfterClassification.length; i++){
+                            console.log(this.exploreSet.dataAfterClassification.length);
+                            let data = '';
+                            const label = [];
+                            for (let j = 0; j < this.exploreSet.dataAfterClassification[i].length; j++){
+                                if(this.exploreSet.dataAfterClassification[i][j] === 'true' || this.exploreSet.dataAfterClassification[i][j] === 'false' ){
+                                    data += (this.exploreSet.dataAfterClassification[i][j]);
+
+                                }else {
+                                    label.push(this.exploreSet.dataAfterClassification[i][j].split('\'').join(''));
+                                }
+                            }
+
+                            this.userInput[label.join(',').toString()] = data;
+                            console.log(data);
+                            console.log(label.join(',').toString());
+
+                        }
+
+                        //this.userInput = this.exploreSet.dataAfterClassification;
+
+                        /*
                         for (let i = 0; i < this.exploreSet.label.length; i++){
                             this.userInput[this.resultSet.data[i].toString()] = this.exploreSet.label[i];
                         }
+
+                         */
 
                         let tree = <string>this.exploreSet.graph;
 
@@ -445,7 +433,6 @@ export class DataTableComponent implements OnInit, OnChanges {
                         const treeArray = tree.split(' shape=box style=filled ').join('').split('{');
 
                         console.log(treeArray.toString());
-                        console.log(treeArray.length);
                         if (treeArray.length > 1){
                             tree = treeArray[0] + '{ ' + nodes.toString() + '; ' + treeArray[1];
                         }

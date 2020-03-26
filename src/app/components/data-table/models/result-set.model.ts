@@ -25,7 +25,7 @@ export class ResultSet{
  */
 export class ExploreSet{
     header: DbColumn[];
-    label: String[];
+    dataAfterClassification: String[];
     exploreManagerId;
     graph: String;
 }
