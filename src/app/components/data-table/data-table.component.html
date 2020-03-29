@@ -45,9 +45,11 @@
               <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === 'false'}">
                 <input type="radio" class="form-control" name="choose" value="false" id="false" autocomplete="off" [(ngModel)]="this.userInput[d1]" (click)="exploreData()" > false
               </label>
+              <!--
               <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === '?'}">
                 <input type="radio" class="form-control" name="choose" value="?" id="ignored" autocomplete="off" [(ngModel)]="this.userInput[d1]" (click)="exploreData()"> ignored
               </label>
+              -->
             </div>
           </td>
           <td class="delete" *ngIf="config.update || config.delete">
@@ -84,9 +86,9 @@
 <div *ngIf="!resultSet.data && !resultSet.error">data-table: nothing to show.</div>
 <div class="text-danger" *ngIf="resultSet.error">{{resultSet.error}}</div>
 
-<button type="button" class="btn btn-primary" (click)="sendChosenCols()">Send</button>
+<button id="sendClassification" type="button" class="btn btn-primary" (click)="sendChosenCols()">Send</button>
 
-<p>show me the tree</p>
+<h5>Decision Tree</h5>
 
 <svg style="width: 100%; height: 100%">
   <g/>

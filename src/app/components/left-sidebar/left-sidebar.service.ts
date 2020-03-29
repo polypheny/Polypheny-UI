@@ -153,25 +153,14 @@ export class LeftSidebarService {
   setTableSchema ( schemaRequest: SchemaRequest ){
     this._crud.getSchema( schemaRequest ).subscribe(
             res => {
-              console.log('test if im in setTableSchema');
               this.error.next(null);
               const schema = <SidebarNode[]> res;
               //Schema editing view
               if( !schemaRequest.views && schemaRequest.depth === 2 ){
                 schema.forEach( (val, key) => {
-                  console.log('schema, val, key');
-                  console.log(schema);
-                  console.log(val);
-                  console.log(key);
                   val.routerLink = schemaRequest.routerLinkRoot;
-                  console.log('val.routerLink');
-                  console.log(val.routerLink);
                   val.children.forEach( (v, k) => {
                     v.routerLink = schemaRequest.routerLinkRoot + val.id;
-                    console.log('v.routerLink');
-                    console.log(v.routerLink);
-                    console.log(schemaRequest.routerLinkRoot);
-                    console.log(val.id);
                   });
                   //val.children.unshift( new SidebarNode( val.id+'.manageTables', 'manage tables', 'fa fa-clone', schemaRequest.routerLinkRoot + val.id ) );
                 });
@@ -183,8 +172,6 @@ export class LeftSidebarService {
                   val.routerLink = schemaRequest.routerLinkRoot + val.id;
                 });
               }
-              console.log('test Schema');
-              console.log(schema);
               this.setNodes( schema );
             }, err => {
               this.error.next('Could not load database schema.');

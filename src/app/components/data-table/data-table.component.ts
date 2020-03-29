@@ -440,7 +440,6 @@ export class DataTableComponent implements OnInit, OnChanges {
         this._crud.classifyData(new ClassifyRequest(this.resultSet.explorerId, this.resultSet.header, this.classifiedData )).subscribe(
                 res => {
                     this.userInput = {};
-                    console.log(this.userInput);
                     this.resultSet = <ResultSet>res;
 
                 }, err => {

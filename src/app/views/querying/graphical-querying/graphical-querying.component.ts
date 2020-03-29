@@ -91,7 +91,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         $('#selectBox').on('click', 'div span.del', function () {
             const id = $(this).parent().attr('data-id');
             self.removeCol(id);
-
             //deletes the selection if nothing is choosen
             if (self.selectedColumn['column'].toString() === id) {
                 self.selectedCol([]);

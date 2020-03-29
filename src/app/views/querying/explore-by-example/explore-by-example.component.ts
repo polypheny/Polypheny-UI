@@ -4,9 +4,6 @@ import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ExplorColSet, ResultSet, SelectedColSet} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
-import * as dot from 'graphlib-dot';
-import * as dagreD3 from 'dagre-d3';
-import * as d3 from 'd3';
 import {DataTableComponent} from '../../../components/data-table/data-table.component';
 
 
@@ -23,10 +20,11 @@ export class ExploreByExampleComponent implements OnInit {
     loading = false;
     resultSet: ResultSet;
     exploreCols: ExplorColSet;
-    selectedCols: SelectedColSet;
     choosenTables = [];
     ids = [];
     tables = [];
+    colNames = [];
+    showResultTable: boolean;
 
     @ViewChild(DataTableComponent, {static: false}) dataTable: DataTableComponent;
 
@@ -37,17 +35,26 @@ export class ExploreByExampleComponent implements OnInit {
     }
 
     ngOnInit() {
-        // TODO Isabel only select table possible at the moment
         this._leftSidebar.setTableSchema(new SchemaRequest('views/explore-by-example/', false, 2));
         this._leftSidebar.setAction((node) => {
             if (!node.isActive && node.isLeaf) {
                 this.choosenTables.push(node.data['id']);
-                this.buildObject(this.schema);
+                this.processSchema(this.schema);
                 node.setIsActive(true, true);
             } else if (node.isActive && node.isLeaf) {
+ 
+                const tables = [];
+                this.choosenTables.forEach( value => {
+                    if(value !== node.data['id']){
+                        tables.push(value);
+                    }
+                });
+                this.choosenTables = tables;
+                this.processSchema(this.schema);
                 node.setIsActive(false, true);
             }
         });
+
 
         this._crud.getSchema(new SchemaRequest('views/explore-by-example/', false, 3)).subscribe(
                 res => {
@@ -59,7 +66,7 @@ export class ExploreByExampleComponent implements OnInit {
 
     }
 
-    buildObject(schema: {}) {
+    processSchema(schema: {}) {
         this.exploreCols = new ExplorColSet();
         this.ids = [];
         this.tables = [];
@@ -78,7 +85,9 @@ export class ExploreByExampleComponent implements OnInit {
                 });
             });
         });
-        if(this.ids.length < 11){
+        this.showResultTable = false;
+        if(this.ids.length < 11 && this.tables.length > 0){
+            this.showResultTable = true;
             this.generateTableSQL(this.ids, this.tables);
         }
     }
@@ -86,7 +95,6 @@ export class ExploreByExampleComponent implements OnInit {
 
     selectedColumns() {
         const id = [];
-        console.log(this.exploreCols);
         Object.keys(this.exploreCols).forEach(value => {
             if (this.exploreCols[value] === true){
                 id.push(value);
@@ -116,6 +124,7 @@ export class ExploreByExampleComponent implements OnInit {
 
 
     sendSQL(sql: string) {
+        this.showResultTable = true;
         this.loading = true;
         this._crud.createQuery(new QueryExplorationRequest(sql, false)).subscribe(
                 res => {
