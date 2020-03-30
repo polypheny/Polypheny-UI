@@ -369,9 +369,8 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
     exploreData() {
-
+        console.log('final');
         this.classifiedData = cloneDeep(this.resultSet.data);
-
         this.classifiedData.forEach(value => {
             if (this.userInput) {
                 let count = 0;

@@ -88,8 +88,14 @@
 
 <button id="sendClassification" type="button" class="btn btn-primary" (click)="sendChosenCols()">Send</button>
 
-<h5>Decision Tree</h5>
+<div *ngIf="this.exploreSet !== undefined">
+  <h5>Decision Tree</h5>
+</div>
 
-<svg style="width: 100%; height: 100%">
-  <g/>
-</svg>
+<div class="row" id="tree">
+  <svg class="col" style="width: 100%; height: 100%">
+    <g/>
+  </svg>
+</div>
+
+
