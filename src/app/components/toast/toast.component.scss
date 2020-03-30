@@ -7,10 +7,26 @@
   overflow: auto;
   z-index: 10;
 }
-.close{
+
+.close {
   outline: none;
 }
-.toast-body{
+
+.toast-body {
   max-height: 200px;
   overflow: auto;
+}
+
+.exception .toast-body {
+  cursor: pointer;
+}
+
+#stackTraceModal {
+  h5 {
+    margin: 0;
+  }
+
+  .modal-body, .modal-footer {
+    background-color: rgba(255, 255, 255, 0.85);
+  }
 }

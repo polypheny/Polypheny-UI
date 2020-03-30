@@ -66,7 +66,7 @@
                                         <p>Search</p>
                                         <div class="input-group mb-3" id="search">
                                             <span class="input-group-text" popover="Use *-character as wildcard, e.g. 'word*' searches for result starting with 'word'." triggers="mouseenter:mouseleave">search</span>
-                                            <input type="text" class="form-control" placeholder="starts with" aria-label="search" aria-describedby="basic-addon1" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['startsWith']" (ngModelChange)="changeUserInput()">
+                                            <input type="text" class="form-control" placeholder="search" aria-label="search" aria-describedby="basic-addon1" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['startsWith']" (ngModelChange)="changeUserInput()">
                                         </div>
                                     </div>
 

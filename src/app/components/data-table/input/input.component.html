@@ -14,20 +14,41 @@
     <ng-container *ngSwitchCase="_types.booleanTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
       <div class="form-check form-check-inline">
           <label class="switch switch-label switch-pill switch-outline-primary-alt switch-sm">
-              <input type="checkbox" class="switch-input" [id]="'insertRow'+header.name" [checked]="value === true" [disabled]="value === null && header.nullable === true" (change)="onValueChange($event.target.checked)">
-              <span class="switch-slider"></span>
+            <input type="checkbox" class="switch-input" [id]="'insertRow'+header.name" [checked]="value === true"
+                   [disabled]="value === null && header.nullable === true"
+                   (change)="onValueChange($event.target.checked)">
+            <span class="switch-slider"></span>
           </label>
-        <label class="form-check-label insertRowLabel" [for]="'insertRow'+header.name">{{ value === null ? 'null': value }}</label>
+        <label class="form-check-label insertRowLabel"
+               [for]="'insertRow'+header.name">{{ value === null ? 'null' : value }}</label>
         <div class="input-group-append" *ngIf="header.nullable">
-          <div class="btn btn-sm" [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}" (click)="onValueChange( triggerNull(value) )">null</div>
+          <div class="btn btn-sm"
+               [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}"
+               (click)="onValueChange( triggerNull(value) )">null
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="_types.dateTimeTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
+      <input type="text" class="form-control form-control-sm fPickerInput" [value]="value"
+             [placeholder]="header.dataType.toLowerCase() === 'time' ? 'Select time..': 'Select date..'" #flatpickr>
+      <div class="input-group-append" *ngIf="header.nullable">
+        <div class="btn btn-sm" [ngClass]="{'btn-primary': value == null, 'btn-light': value !== null}"
+             (click)="clearFlatpickr()">null
         </div>
       </div>
     </ng-container>
 
     <ng-container *ngSwitchDefault>
-      <input type="text" class="form-control form-control-sm" [value]="value" [maxLength]="header.maxLength || 524288" [disabled]="value === null && header.nullable === true" (keyup)="onValueChange($event.target.value, $event)">
+      <input type="text" class="form-control form-control-sm" [value]="value" [maxLength]="header.maxLength || 524288"
+             [disabled]="value === null && header.nullable === true"
+             (keyup)="onValueChange($event.target.value, $event)">
       <div class="input-group-append" *ngIf="header.nullable">
-        <div class="btn btn-sm" [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}" (click)="onValueChange( triggerNull(value) )">null</div>
+        <div class="btn btn-sm"
+             [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}"
+             (click)="onValueChange( triggerNull(value) )">null
+        </div>
       </div>
     </ng-container>
 

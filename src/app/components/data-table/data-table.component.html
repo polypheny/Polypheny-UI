@@ -1,7 +1,7 @@
 <app-toast></app-toast>
 <div class="row" *ngIf="resultSet.data">
   <div class="col-lg-12" id="data-table-wrapper">
-    <table class="table table-hover table-sm table-bordered" [ngClass]="{'loading': loading}" id="data-table" [attr.data-table]="resultSet.table">
+    <table class="table table-hover table-sm table-bordered"  [ngClass]="{'loading': loading, 'table-striped': !config.exploring}" id="data-table" [attr.data-table]="resultSet.table">
       <thead>
       <tr>
         <ng-container *ngFor="let h of resultSet.header">

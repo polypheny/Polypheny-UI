@@ -11,6 +11,7 @@ export class BreadcrumbService implements OnInit, OnDestroy {
   breadcrumbs: BehaviorSubject<BreadcrumbItem[]> = new BehaviorSubject<BreadcrumbItem[]>([]);
   MAXCOLS = 10;
   zoom: number;
+  _showZoom = true;
 
   routerId;
 
@@ -65,10 +66,19 @@ export class BreadcrumbService implements OnInit, OnDestroy {
 
   public setBreadcrumbs( breadcrumbs: BreadcrumbItem[] ) {
     this.breadcrumbs.next( breadcrumbs );
+    this.showZoom();
   }
 
   hide() {
     this.breadcrumbs.next([]);
+  }
+
+  hideZoom() {
+    this._showZoom = false;
+  }
+
+  showZoom() {
+    this._showZoom = true;
   }
 
 }

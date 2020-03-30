@@ -8,6 +8,7 @@ import {ToastDuration, ToastService} from '../../../components/toast/toast.servi
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
+import {Store} from '../../stores/store.model';
 
 @Component({
   selector: 'app-edit-columns',
@@ -34,6 +35,7 @@ export class EditColumnsComponent implements OnInit {
   newPrimaryKey: DbColumn[];
 
   uniqueConstraintName = '';
+  proposedConstraintName = 'constraintName';
 
   indexes: ResultSet;
   confirmIndex = -1;
@@ -41,8 +43,13 @@ export class EditColumnsComponent implements OnInit {
   indexMethods = ['btree', 'hash']; // 'gist', 'gin'
   newIndexForm: FormGroup;
   indexSubmitted = false;
+  proposedIndexName = 'indexName';
 
+  //data placement handling
+  stores: Store[];
+  selectedStore;
   dataPlacements: ResultSet;
+  confirmPlacement = -1;
 
   constructor(
     private _route: ActivatedRoute,
@@ -70,7 +77,9 @@ export class EditColumnsComponent implements OnInit {
     this.getColumns();
     this.getConstraints();
     this.getIndexes();
+    this.getStores();
     this.getDataPlacements();
+    this.getGeneratedNames();
 
     this.documentListener();
   }
@@ -86,6 +95,7 @@ export class EditColumnsComponent implements OnInit {
         this.getColumns();
         this.getConstraints();
         this.getIndexes();
+        this.getDataPlacements();
       }
     });
   }
@@ -147,7 +157,7 @@ export class EditColumnsComponent implements OnInit {
         this.editColumn = -1;
         this.getColumns();
         if( result.error ){
-          this._toast.warn('Could not update column: ' + result.error);
+          this._toast.exception(result, 'Could not update column:');
         }else{
           this._toast.success('The new column was saved.', 'column saved');
         }
@@ -183,7 +193,7 @@ export class EditColumnsComponent implements OnInit {
           this.createColumn.maxLength = null;
           this.createColumn.defaultValue = null;
         } else {
-          this._toast.warn(result.error, 'server error', ToastDuration.INFINITE);
+          this._toast.exception(result, null, 'server error', ToastDuration.INFINITE);
         }
       }, err => {
         this._toast.error('An error occurred on the server.', null, ToastDuration.INFINITE);
@@ -202,7 +212,7 @@ export class EditColumnsComponent implements OnInit {
           this.confirm = -1;
           const result = <ResultSet> res;
           if( result.error ){
-            this._toast.warn('Could not delete column:\n' + result.error, 'server error', ToastDuration.INFINITE);
+            this._toast.exception(result, 'Could not delete column:', 'server error', ToastDuration.INFINITE);
           }
         }, err => {
           this._toast.error('Could not delete column.', null, ToastDuration.INFINITE);
@@ -230,7 +240,7 @@ export class EditColumnsComponent implements OnInit {
         res => {
           const result = <ResultSet> res;
           if( result.error){
-            this._toast.warn(result.error, 'constraint error');
+            this._toast.exception(result, null, 'constraint error');
           }else{
             this.getConstraints();
           }
@@ -257,7 +267,7 @@ export class EditColumnsComponent implements OnInit {
           this._toast.success('The primary key was added.', 'added primary key');
           this.getColumns();
         }else {
-          this._toast.warn(result.error, 'primary key error', ToastDuration.INFINITE);
+          this._toast.exception(result, null, 'primary key error', ToastDuration.INFINITE);
         }
       }, err => {
         this._toast.error('Could not add primary key.', null, ToastDuration.INFINITE);
@@ -267,9 +277,13 @@ export class EditColumnsComponent implements OnInit {
   }
 
   addUniqueConstraint(){
-    if( this.uniqueConstraintName === '' ){
-      this._toast.warn('Please provide a name for the unique constraint.', 'constraint name');
-      return;
+    if( this.uniqueConstraintName === '' ) {
+      if (!this.proposedConstraintName) {
+        this._toast.warn('Please provide a name for the unique constraint.', 'constraint name');
+        return;
+      } else {
+        this.uniqueConstraintName = this.proposedConstraintName;
+      }
     }
     if( ! this._crud.nameIsValid( this.uniqueConstraintName ) ){
       this._toast.warn(this._crud.invalidNameMessage('unique constraint'), 'invalid constraint name');
@@ -295,11 +309,12 @@ export class EditColumnsComponent implements OnInit {
           this.getConstraints();
           this._toast.success('The unique constraint was successfully created', 'added constraint');
           this.uniqueConstraintName = '';
+          this.getGeneratedNames();
           this.resultSet.header.forEach((v, k) => {
             v.unique = false;
           });
         }else {
-          this._toast.warn(result.error, 'unique constraint error', ToastDuration.INFINITE);
+          this._toast.exception(result, null, 'unique constraint error', ToastDuration.INFINITE);
         }
       }, err => {
         this._toast.error('Could not add unique constraint.', null, ToastDuration.INFINITE);
@@ -370,23 +385,54 @@ export class EditColumnsComponent implements OnInit {
     }
   }
 
-  getIndexes () {
-    this._crud.getIndexes( new EditTableRequest( this.schema, this.table ) ).subscribe(
+  getIndexes() {
+    this._crud.getIndexes(new EditTableRequest(this.schema, this.table)).subscribe(
       res => {
-        this.indexes = <ResultSet> res;
+        this.indexes = <ResultSet>res;
       }, err => {
         console.log(err);
       }
     );
   }
 
-  getDataPlacements () {
-    this._crud.getDataPlacements( this.schema, this.table ).subscribe(
+  getStores() {
+    this._crud.getStores().subscribe(
       res => {
-        const result = <ResultSet> res;
-        if(! result.error){
+        this.stores = <Store[]>res;
+      }, err => {
+        console.log(err);
+      });
+  }
+
+  getAddableStores () {
+    return this.stores.filter( (s) => {
+      // hide stores that are schemaReadOnly or dataReadOnly
+      if( s.schemaReadOnly || s.dataReadOnly ) {
+        return false;
+      }
+      //hide stores that are already part of the placement
+      else if ( this.dataPlacements && this.dataPlacements.data && this.dataPlacements.data.length > 0 ) {
+        let showStore = true;
+        for ( const store of this.dataPlacements.data ) {
+          if( store[0] === s.uniqueName ) {
+            showStore = false;
+          }
+        }
+        return showStore;
+      }
+      else {
+        return true;
+      }
+    });
+  }
+
+  getDataPlacements() {
+    this._crud.getDataPlacements(this.schema, this.table).subscribe(
+      res => {
+        const result = <ResultSet>res;
+        if (!result.error) {
           this.dataPlacements = result;
-        }else{
+        } else {
           console.log(result.error);
         }
       }, err => {
@@ -395,17 +441,57 @@ export class EditColumnsComponent implements OnInit {
     );
   }
 
-  dropIndex ( index: string, i ) {
+  addPlacement() {
+    if (!this.selectedStore) {
+      return;
+    }
+    this._crud.addDropPlacement(this.schema, this.table, this.selectedStore, 'ADD').subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if( result.error ) {
+          this._toast.exception( result );
+        } else {
+          this._toast.success( 'Added placement on store ' + this.selectedStore, 'Added placement' );
+          this.getDataPlacements();
+        }
+        this.selectedStore = null;
+      }, err => {
+        this._toast.error( 'Could not drop placement on store ' + this.selectedStore );
+      }
+    );
+  }
+
+  dropPlacement(store: string, i: number) {
+    if (i !== this.confirmPlacement) {
+      this.confirmPlacement = i;
+      return;
+    }
+    this._crud.addDropPlacement(this.schema, this.table, store, 'DROP').subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if( result.error ) {
+          this._toast.exception( result );
+        } else {
+          this._toast.success( 'Dropped placement on store ' + store, 'Dropped placement' );
+          this.getDataPlacements();
+        }
+      }, err => {
+        this._toast.error( 'Could not drop placement on store ' + store, 'Error' );
+      }
+    );
+  }
+
+  dropIndex(index: string, i) {
     if (this.confirmIndex !== i) {
       this.confirmIndex = i;
     } else {
-      this._crud.dropIndex( new Index( this.schema, this.table, index, null, null ) ).subscribe(
+      this._crud.dropIndex(new Index(this.schema, this.table, index, null, null)).subscribe(
         res => {
-          const result = <ResultSet> res;
-          if( !result.error ){
+          const result = <ResultSet>res;
+          if (!result.error) {
             this.getIndexes();
           }else{
-            this._toast.warn('Could not drop index: ' + result.error);
+            this._toast.exception(result, 'Could not drop index:');
           }
         }, err => {
           console.log(err);
@@ -414,18 +500,24 @@ export class EditColumnsComponent implements OnInit {
     }
   }
 
-  addIndex(){
+  addIndex() {
     this.indexSubmitted = true;
-    if(this.newIndexForm.valid){
+    if (this.newIndexForm.controls['method'].valid && this.newIndexForm.controls['columns'].valid && this.newIndexForm.controls['name'].errors) {
+      this.newIndexForm.controls['name'].setValue(this.proposedIndexName);
+    }
+    if (this.newIndexForm.valid) {
       const i = this.newIndexForm.value;
-      const index = new Index( this.schema, this.table, i.name, i.method, i.columns);
-      this._crud.createIndex( index ).subscribe(
+      const index = new Index(this.schema, this.table, i.name, i.method, i.columns);
+      this._crud.createIndex(index).subscribe(
         res => {
-          const result = <ResultSet> res;
-          if( !result.error ){
+          const result = <ResultSet>res;
+          if (!result.error) {
             this.getIndexes();
-          }else{
-            this._toast.warn('Could not create index: ' + result.error);
+            this.getGeneratedNames();
+            this.newIndexForm.reset({name: '', method: 'btree', columns: null});
+            this.indexSubmitted = false;
+          } else {
+            this._toast.exception(result, 'Could not create index:');
           }
         }, err => {
           console.log(err);
@@ -434,14 +526,29 @@ export class EditColumnsComponent implements OnInit {
     }
   }
 
-  inputValidation(key){
-    if(this.newIndexForm.controls[key].value === ''){
+  getGeneratedNames() {
+    this._crud.getGeneratedNames().subscribe(
+      res => {
+        const names = <ResultSet>res;
+        if (!names.error) {
+          this.proposedConstraintName = names.data[0][0];
+          this.proposedIndexName = names.data[0][2];
+        } else {
+          console.log(names.error);
+        }
+      }, err => {
+        console.log(err);
+      }
+    );
+  }
+
+  inputValidation(key) {
+    if (this.newIndexForm.controls[key].value === '') {
       return '';
-    }
-    else if(this.newIndexForm.controls[key].valid){
-      return {'is-valid':true};
-    }else {
-      return {'is-invalid': true };
+    } else if (this.newIndexForm.controls[key].valid) {
+      return {'is-valid': true};
+    } else {
+      return {'is-invalid': true};
     }
   }
 

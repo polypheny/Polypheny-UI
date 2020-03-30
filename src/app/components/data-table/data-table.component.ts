@@ -346,7 +346,7 @@ export class DataTableComponent implements OnInit, OnChanges {
                         this.getTable();
                     } else {
                         const result2 = <ResultSet>res;
-                        this._toast.warn('Could not delete this row: ' + result2.error);
+                        this._toast.exception(result2, 'Could not delete this row:');
                     }
                 }, err => {
                     this._toast.error('Could not delete this row.');
@@ -362,6 +362,7 @@ export class DataTableComponent implements OnInit, OnChanges {
         });
         return obj;
     }
+
     resetExporationData() {
 
         this.exploreDataCounter = 0;
@@ -380,29 +381,29 @@ export class DataTableComponent implements OnInit, OnChanges {
                         count += 1;
                     }
                 });
-                if (count === 0){
+                if (count === 0) {
                     value.push('?');
                 }
             }
         });
 
         this.exploreDataCounter++;
-        if (this.exploreDataCounter > 10){
+        if (this.exploreDataCounter > 10) {
 
-            this._crud.exploreUserInput(new Exploration( this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
+            this._crud.exploreUserInput(new Exploration(this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
                     res => {
-                        this.exploreSet = <ExploreSet> res;
+                        this.exploreSet = <ExploreSet>res;
                         this.userInput = {};
                         this.exploreDataCounter = 0;
 
-                        for (let i = 0; i < this.exploreSet.dataAfterClassification.length; i++){
+                        for (let i = 0; i < this.exploreSet.dataAfterClassification.length; i++) {
                             let data = '';
                             const label = [];
-                            for (let j = 0; j < this.exploreSet.dataAfterClassification[i].length; j++){
-                                if(this.exploreSet.dataAfterClassification[i][j] === 'true' || this.exploreSet.dataAfterClassification[i][j] === 'false' ){
+                            for (let j = 0; j < this.exploreSet.dataAfterClassification[i].length; j++) {
+                                if (this.exploreSet.dataAfterClassification[i][j] === 'true' || this.exploreSet.dataAfterClassification[i][j] === 'false') {
                                     data += (this.exploreSet.dataAfterClassification[i][j]);
 
-                                }else {
+                                } else {
                                     label.push(this.exploreSet.dataAfterClassification[i][j].split('\'').join(''));
                                 }
                             }
@@ -416,7 +417,7 @@ export class DataTableComponent implements OnInit, OnChanges {
 
                         const treeArray = tree.split(' shape=box style=filled ').join('').split('{');
 
-                        if (treeArray.length > 1){
+                        if (treeArray.length > 1) {
                             tree = treeArray[0] + '{ ' + nodes.toString() + '; ' + treeArray[1];
                         }
 
@@ -434,10 +435,11 @@ export class DataTableComponent implements OnInit, OnChanges {
                     }
             );
         }
+
     }
 
     sendChosenCols() {
-        this._crud.classifyData(new ClassifyRequest(this.resultSet.explorerId, this.resultSet.header, this.classifiedData )).subscribe(
+        this._crud.classifyData(new ClassifyRequest(this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
                 res => {
                     this.userInput = {};
                     this.resultSet = <ResultSet>res;

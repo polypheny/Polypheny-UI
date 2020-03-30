@@ -4,13 +4,14 @@ import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
 import 'jquery-ui/ui/widgets/draggable';
 import {CrudService} from '../../../services/crud.service';
-import {FilteredUserInput, ResultSet, StatisticSet} from '../../../components/data-table/models/result-set.model';
+import {FilteredUserInput, ResultSet} from '../../../components/data-table/models/result-set.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToastService} from '../../../components/toast/toast.service';
-import {EditTableRequest, QueryRequest, SchemaRequest, StatisticRequest} from '../../../models/ui-request.model';
+import {EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
 import {DataTableComponent} from '../../../components/data-table/data-table.component';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-graphical-querying',
@@ -44,26 +45,40 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     constructor(
             private _crud: CrudService,
             private _leftSidebar: LeftSidebarService,
-            private _toast: ToastService
+            private _toast: ToastService,
+            private _router: Router
     ) {
     }
 
     ngOnInit() {
-        this._leftSidebar.setSchema(new SchemaRequest('views/graphical-querying/', false, 3));
-        this._leftSidebar.setAction((node) => {
-            if (!node.isActive && node.isLeaf) {
-                this.addCol(node.data);
-                node.setIsActive(true, true);
-            } else if (node.isActive && node.isLeaf) {
-                node.setIsActive(false, true);
-                this.removeCol(node.data.id);
+        this._crud.getSchema(new SchemaRequest('views/graphical-querying/', false, 3)).subscribe(
+                res => {
+                    const nodeAction = (tree, node, $event) => {
+                        if (!node.isActive && node.isLeaf) {
+                            this.addCol(node.data);
+                            node.setIsActive(true, true);
+                        } else if (node.isActive && node.isLeaf) {
+                            node.setIsActive(false, true);
+                            this.removeCol(node.data.id);
 
-                //deletes the selection if nothing is choosen
-                if (this.selectedColumn['column'].toString() === node.data.id) {
-                    this.selectedCol([]);
+                            //deletes the selection if nothing is choosen
+                            if (this.selectedColumn['column'].toString() === node.data.id) {
+                                this.selectedCol([]);
+                            }
+                        }
+                    };
+
+                    const schemaTemp = <SidebarNode[]>res;
+                    const schema = [];
+                    for (const s of schemaTemp) {
+                        const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
+                        schema.push(node);
+                    }
+
+                    this._leftSidebar.setNodes(schema);
+                    this._leftSidebar.open();
                 }
-            }
-        });
+        );
         this.initGraphicalQuerying();
     }
 
@@ -91,6 +106,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         $('#selectBox').on('click', 'div span.del', function () {
             const id = $(this).parent().attr('data-id');
             self.removeCol(id);
+
             //deletes the selection if nothing is choosen
             if (self.selectedColumn['column'].toString() === id) {
                 self.selectedCol([]);
@@ -132,6 +148,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         } else {
             return (this.connectWheres() + col + ' = ' + checkbox);
         }
+
     }
 
     checkboxMultipNumeric(col: string, checked: [string]) {
@@ -156,6 +173,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         } else {
             return (this.connectWheres() + col + ' LIKE ' + '\'' + firstLetters + '\'');
         }
+
     }
 
     sorting(col: string, sort: string) {
@@ -258,7 +276,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     wrapInParetheses(k) {
-        return "\"" + k.split(".").join("\".\"") + "\"";
+        return '"' + k.split('.').join('"."') + '"';
     }
 
     async generateSQL() {
@@ -277,7 +295,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         const filterCols = [];
         $('#selectBox').find('.dbCol').each((i, el) => {
             const name = $(el).attr('data-id');
-            let id = "\"" + name.split(".").join("\".\"") + "\"";
+            let id = '"' + name.split('.').join('"."') + '"';
             if (this.filteredUserSet) {
                 Object.keys(this.filteredUserSet).forEach(col => {
                     const element = this.filteredUserSet[col];
@@ -298,7 +316,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         sql += '\nFROM ';
         const tables = [];
         this.tables.forEach((v, k) => {
-            tables.push("\"" + k.split(".").join("\".\"") + "\"");
+            tables.push('"' + k.split('.').join('"."') + '"');
         });
         sql += tables.join(', ');
 
@@ -366,13 +384,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                     this.loading = false;
                 }, err => {
                     this._toast.error('Unknown error on the server.');
-            this.loading = false;
+                    this.loading = false;
                 }
         );
-        if(this.dataTableCounter > 1){
+        if (this.dataTableCounter > 1) {
             this.dataTable.resetExporationData();
         }
-
     }
 
 
@@ -400,7 +417,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         this.umlData.set(treeElement.getSchema(), uml);
                         this.generateJoinConditions();
                     }, err => {
-                this._toast.error('Could not get foreign keys of the schema ' + treeElement.getSchema());
+                        this._toast.error('Could not get foreign keys of the schema ' + treeElement.getSchema());
                     }
             );
         } else {

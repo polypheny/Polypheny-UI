@@ -300,7 +300,7 @@ export class HubComponent implements OnInit, OnDestroy {
   getStores(){
     this._crud.getStores().subscribe(
       res => {
-        this.availableStores = <Store[]> res;
+        this.availableStores = (<Store[]> res).filter( (s) => !s.dataReadOnly || !s.schemaReadOnly );
       }, err => {
         console.log(err);
       }

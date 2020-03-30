@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {DbColumn, ResultSet, Status} from '../../../components/data-table/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
@@ -9,6 +9,7 @@ import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ModalDirective} from 'ngx-bootstrap';
 import {HubService} from '../../../services/hub.service';
+import {Store} from '../../stores/store.model';
 
 @Component({
   selector: 'app-edit-tables',
@@ -26,6 +27,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   counter = 0;
   newColumns = new Map<number, DbColumn>();
   newTableName = '';
+  stores: Store[];
+  selectedStore;
 
   //export table
   exportingTable: string;
@@ -44,13 +47,15 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     public _crud: CrudService,
     private _route: ActivatedRoute,
     private _toast: ToastService,
+    private _router: Router,
     private _leftSidebar: LeftSidebarService,
     private _types: DbmsTypesService,
     public _hub: HubService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
-    this.newColumns.set( this.counter++, new DbColumn('', false, false, this.types[0], null));
+    this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], null));
     this.schema = this._route.snapshot.paramMap.get('id');
     this._route.params.subscribe((params) => {
       this.schema = params['id'];
@@ -58,16 +63,18 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     });
     this.getTables();
     this.getTypeInfo();
+    this.getStores();
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+  }
 
-  getTables () {
-    this._crud.getTables( new EditTableRequest( this.schema ) ).subscribe(
+  getTables() {
+    this._crud.getTables(new EditTableRequest(this.schema)).subscribe(
       res => {
-        const result = <ResultSet> res;
-        if( result.error !== undefined ){
-          this._toast.warn('Could not retrieve list of tables: ' + result.error);
+        const result = <ResultSet>res;
+        if (result.error !== undefined) {
+          this._toast.exception(result, 'Could not retrieve list of tables:');
         }
         this.tables = result.tables;
         this.tables.forEach((val, key) => {
@@ -81,28 +88,52 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     );
   }
 
+  getStores() {
+    this._crud.getStores().subscribe(
+      res => {
+        this.stores = <Store[]>res;
+      }, err => {
+        console.log(err);
+      });
+  }
+
+  getWritableStores () {
+    return this.stores.filter( (s) => !s.dataReadOnly && !s.schemaReadOnly );
+  }
+
+  /**
+   * get the right class for the 'drop' and 'truncate' buttons
+   * enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
+   */
+  dropTruncateClass(action: string, table: string, i: number) {
+    if (action === 'drop' && (this.drop[i] === 'drop ' + table || this.drop[i] === table)) {
+      return 'btn-danger';
+    } else if (action === 'truncate' && (this.truncate[i] === 'truncate ' + table || this.truncate[i] === table)) {
+      return 'btn-danger';
+    }
+    return 'btn-light disabled';
+  }
+
   /**
    * send a request to either drop or truncate a table
    */
-  sendRequest ( table:string, action, confirm: string ) {
+  sendRequest(action, table: string, i: number) {
     let request;
-    if( confirm === table && action === 'drop'){
-      request = new EditTableRequest( this.schema, table, action );
-    }else if( confirm === table && action === 'truncate'){
-      request = new EditTableRequest( this.schema, table, action );
-    }else {
+    if (this.dropTruncateClass(action, table, i) === 'btn-danger') {
+      request = new EditTableRequest(this.schema, table, action);
+    } else {
       return;
     }
-    this._crud.dropTruncateTable( request ).subscribe(
+    this._crud.dropTruncateTable(request).subscribe(
       res => {
-        const result = <ResultSet> res;
-        if( result.error ){
-          this._toast.warn('Could not ' + action + ' the table ' + table + ': ' + result.error);
-        }else {
+        const result = <ResultSet>res;
+        if (result.error) {
+          this._toast.exception(result, 'Could not ' + action + ' the table ' + table + ':');
+        } else {
           let toastAction = 'Truncated';
-          if( request.getAction() === 'drop'){
+          if (request.getAction() === 'drop') {
             toastAction = 'Dropped';
-            this._leftSidebar.setSchema( new SchemaRequest('/views/schema-editing/', false, 2) );
+            this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2), this._router);
           }
           this._toast.success(toastAction + ' table ' + request.table);
           this.getTables();
@@ -114,16 +145,16 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     );
   }
 
-  createTable () {
-    if(this.newTableName === ''){
+  createTable() {
+    if (this.newTableName === '') {
       this._toast.warn('Please provide a name for the new table. The new table was not created.', 'missing table name', ToastDuration.INFINITE);
       return;
     }
-    if( !this._crud.nameIsValid(this.newTableName) ){
+    if (!this._crud.nameIsValid(this.newTableName)) {
       this._toast.warn('Please provide a valid name for the new table. The new table was not created.', 'invalid table name', ToastDuration.INFINITE);
       return;
     }
-    if( this.tables.indexOf( this.newTableName ) !== -1 ){
+    if (this.tables.indexOf(this.newTableName) !== -1) {
       this._toast.warn('A table with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
       return;
     }
@@ -131,34 +162,35 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     //clear maxlength for types where it is not applicable
     //delete columns with no column name
     this.newColumns.forEach((v, k) => {
-      if( !['varchar', 'varbinary'].includes(v.dataType.toLowerCase()) && v.maxLength !== null ){
+      if (!['varchar', 'varbinary'].includes(v.dataType.toLowerCase()) && v.maxLength !== null) {
         v.maxLength = null;
       }
-      if( v.name === '' ){
-        this.newColumns.delete( k );
+      if (v.name === '') {
+        this.newColumns.delete(k);
       }
-      if( ! this._crud.nameIsValid( v.name )){
+      if (!this._crud.nameIsValid(v.name)) {
         valid = false;
         return;
       }
     });
-    if ( !valid ){
+    if (!valid) {
       this._toast.warn('Please make sure all column names are valid. The new table was not created.', 'invalid column name', ToastDuration.INFINITE);
       return;
     }
-    const request = new EditTableRequest( this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()) );
-    this._crud.createTable( request ).subscribe(
+    const request = new EditTableRequest(this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore);
+    this._crud.createTable(request).subscribe(
       res => {
-        const result = <ResultSet> res;
-        if( result.error ) {
-          this._toast.warn('Could not generate table: ' + result.error);
+        const result = <ResultSet>res;
+        if (result.error) {
+          this._toast.exception(result, 'Could not generate table:');
         } else {
           this._toast.success('Generated table ' + request.table);
           this.newColumns.clear();
           this.counter = 0;
-          this.newColumns.set( this.counter++, new DbColumn('', false, false, this.types[0], null));
+          this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], null));
           this.newTableName = '';
-          this._leftSidebar.setSchema( new SchemaRequest('/views/schema-editing/', false, 2) );
+          this.selectedStore = null;
+          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2), this._router);
         }
         this.getTables();
       }, err => {
@@ -168,30 +200,30 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     );
   }
 
-  initExportModal( table: string ){
+  initExportModal(table: string) {
     this.exportingTable = table;
     this.exportTableModal.show();
   }
 
-  resetExport(){
-    this.exportForm.reset({pub:true, createPrimaryKeys: true, addDefaultValue: true});
+  resetExport() {
+    this.exportForm.reset({pub: true, createPrimaryKeys: true, addDefaultValue: true});
     this.exportingTable = undefined;
     this.uploading = false;
     this.exportProgress = 0.0;
   }
 
-  exportTable(){
-    if( this.exportForm.valid ){
+  exportTable() {
+    if (this.exportForm.valid) {
       this.uploading = true;
       this._crud.onSocketEvent().subscribe(
         msg => {
-          const s = <Status> msg;
-          if( s.context === 'tableExport' ){
+          const s = <Status>msg;
+          if (s.context === 'tableExport') {
             this.exportProgress = s.status;
           }
         }, err => {
           console.log(err);
-      });
+        });
       this._crud.exportTable(
         this.exportForm.controls['name'].value,
         this.schema,
@@ -201,9 +233,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         this.exportForm.controls['addDefaultValue'].value,
       ).subscribe(
         res => {
-          const result = <ResultSet> res;
-          if( result.error ){
-            this._toast.warn(result.error);
+          const result = <ResultSet>res;
+          if (result.error) {
+            this._toast.exception(result);
           } else {
             this._toast.success('Exported table to Polypheny-Hub');
           }
@@ -212,19 +244,18 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           console.log(err);
         }
         //"finally block"
-      ).add( () => {
+      ).add(() => {
         this.resetExport();
         this.exportTableModal.hide();
       });
     }
   }
 
-  createTableValidation( name: string ){
+  createTableValidation(name: string) {
     const regex = this._crud.getValidationRegex();
-    if( name === '' ){
+    if (name === '') {
       return '';
-    }
-    else if( regex.test( name ) && name.length <= 100 && this.tables.indexOf( name ) === -1 ){
+    } else if (regex.test(name) && name.length <= 100 && this.tables.indexOf(name) === -1) {
       return 'is-valid';
     } else {
       return 'is-invalid';
@@ -232,28 +263,28 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   addNewColumn() {
-    this.newColumns.set( this.counter++, new DbColumn('', false, false, this.types[0], null));
+    this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], null));
   }
 
-  removeNewColumn( i:number ){
+  removeNewColumn(i: number) {
     this.newColumns.delete(i);
   }
 
-  triggerDefaultNull ( col: DbColumn ) {
-    if( col.defaultValue === null ){
-      if( this._types.isNumeric( col.dataType )){
+  triggerDefaultNull(col: DbColumn) {
+    if (col.defaultValue === null) {
+      if (this._types.isNumeric(col.dataType)) {
         col.defaultValue = 0;
-      } else if( this._types.isBoolean( col.dataType )){
+      } else if (this._types.isBoolean(col.dataType)) {
         col.defaultValue = false;
       } else {
         col.defaultValue = '';
       }
-    }else {
+    } else {
       col.defaultValue = null;
     }
   }
 
-  getTypeInfo(){
+  getTypeInfo() {
     this._types.getTypes().subscribe(
       t => {
         this.types = t;

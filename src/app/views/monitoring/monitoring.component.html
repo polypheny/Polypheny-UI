@@ -1,4 +1,5 @@
-<app-information-manager [data]="data" [zoom]="_breadcrumb.getMasonryZoom()"></app-information-manager>
+<app-toast></app-toast>
+<app-information-manager *ngIf="data" [data]="data" [zoom]="_breadcrumb.getMasonryZoom()"></app-information-manager>
 
 <ng-container *ngIf="pageNotFound">
   <p class="text-danger">This page does not exist or could not be loaded.</p>

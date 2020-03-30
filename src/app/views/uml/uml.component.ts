@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {CrudService} from '../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../models/ui-request.model';
 import {DbTable, ForeignKey, SvgLine, Uml} from './uml.model';
@@ -24,7 +24,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   schema;
   connections = [];
   zIndex = 2;
-  errorMsg:string;
+  errorMsg: string;
 
   @ViewChild('myModal', {static: false}) myModal: ModalDirective;
   sourceTable;
@@ -34,7 +34,8 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   onUpdate = ['CASCADE', 'RESTRICT', 'SET NULL', 'SET DEFAULT'];
   onDelete = ['CASCADE', 'RESTRICT', 'SET NULL', 'SET DEFAULT'];
   fkForm = this._formBuilder.group({update: 'RESTRICT', delete: 'RESTRICT'});
-  constraintName = 'fk1';
+  constraintName = '';
+  proposedConstraintName = 'fk1';
 
 
   //offsets
@@ -48,6 +49,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private _route: ActivatedRoute,
+    private _router: Router,
     public _crud: CrudService,
     private _leftSidebar: LeftSidebarService,
     private _formBuilder: FormBuilder,
@@ -64,16 +66,17 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     this.schema = this._route.snapshot.paramMap.get('id');
-    this._route.params.subscribe( params => {
+    this._route.params.subscribe(params => {
       this.schema = params['id'];
       this.getUml();
     });
-    this._leftSidebar.setSchema( new SchemaRequest( '/views/uml/', false, 1) );
+    this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', false, 1), this._router);
   }
 
   ngAfterViewInit() {
     this.getUml();
     this.connectTables();
+    this.getGeneratedNames();
   }
 
   ngOnDestroy() {
@@ -81,16 +84,16 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     this._leftSidebar.close();
   }
 
-  getUml () {
-    if(!this.schema) {
+  getUml() {
+    if (!this.schema) {
       this.uml = null;
       this._leftSidebar.reset();
       return;
     }
-    this._crud.getUml( new EditTableRequest( this.schema ) ).subscribe(
+    this._crud.getUml(new EditTableRequest(this.schema)).subscribe(
       res => {
         this.errorMsg = null;
-        const uml:Uml = <Uml> res;
+        const uml: Uml = <Uml>res;
         this.uml = new Uml(uml.tables, uml.foreignKeys);
         this.mapConnections();
       }, err => {
@@ -99,10 +102,25 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  getColumnClass( table: DbTable, col: DbColumn ){
-    if( table.primaryKeyFields.indexOf(col.name) > -1 ){
+  getGeneratedNames() {
+    this._crud.getGeneratedNames().subscribe(
+      res => {
+        const names = <ResultSet>res;
+        if (!names.error) {
+          this.proposedConstraintName = names.data[0][1];
+        } else {
+          console.log(names.error);
+        }
+      }, err => {
+        console.log(err);
+      }
+    );
+  }
+
+  getColumnClass(table: DbTable, col: DbColumn) {
+    if (table.primaryKeyFields.indexOf(col.name) > -1) {
       return 'bg-primary pk';
-    } else if ( table.uniqueColumns.indexOf(col.name) > -1 ){
+    } else if (table.uniqueColumns.indexOf(col.name) > -1) {
       return 'bg-warning unique';
     } else {
       return '';
@@ -112,26 +130,29 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   mapConnections() {
     this.connections = [];
     this.uml.foreignKeys.forEach((v, k) => {
-      this.connections.push( { source: v.fkTableSchema+'_'+v.fkTableName+'_'+v.fkColumnName, target: v.pkTableSchema+'_'+v.pkTableName+'_'+v.pkColumnName, } );
+      this.connections.push({
+        source: v.fkTableSchema + '_' + v.fkTableName + '_' + v.fkColumnName,
+        target: v.pkTableSchema + '_' + v.pkTableName + '_' + v.pkColumnName,
+      });
     });
   }
 
-  updateZIndex( e ){
+  updateZIndex(e) {
     this.zIndex++;
     const z = this.zIndex;
     $(e.source.element.nativeElement).css('z-index', z);
   }
 
-  onDragging( e ){
+  onDragging(e) {
     $(e.source.element.nativeElement).css('z-index', 9000);
   }
 
-  connectTables () {
+  connectTables() {
     const self = this;
     let isDragging = false;
     let offsetX = this.offsetLineX1;
-    $(document).on('mousedown', '.uml .cols', function(e) {
-      if( $('body').hasClass('sidebar-lg-show') && document.documentElement.clientWidth > 992 ){
+    $(document).on('mousedown', '.uml .cols', function (e) {
+      if ($('body').hasClass('sidebar-lg-show') && document.documentElement.clientWidth > 992) {
         offsetX = self.offsetLineX2;
       } else {
         offsetX = self.offsetLineX1;
@@ -148,8 +169,10 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         e.preventDefault();
       }
     }).on('mouseup', function (e) {
-      if(!isDragging) { return; }
-      if ( ( $(e.target).hasClass('pk') || $(e.target).hasClass('unique') ) && $(e.target).parents('.uml').attr('tableName') !== self.sourceTable) {
+      if (!isDragging) {
+        return;
+      }
+      if (($(e.target).hasClass('pk') || $(e.target).hasClass('unique')) && $(e.target).parents('.uml').attr('tableName') !== self.sourceTable) {
         self.myModal.show();
         self.targetTable = $(e.target).parents('.uml').attr('tableName');
         self.targetCol = $(e.target).attr('colName');
@@ -161,41 +184,51 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** get x position of div of source column
    * param: source:string, target:string -> ids of the column divs */
-  getX1(source:string, target:string){
-    if(source === undefined || target === undefined) { return; }
-    const sourceEle = $('#'+source);
-    const targetEle = $('#'+target);
-    if(sourceEle === undefined || targetEle === undefined) { return; }
+  getX1(source: string, target: string) {
+    if (source === undefined || target === undefined) {
+      return;
+    }
+    const sourceEle = $('#' + source);
+    const targetEle = $('#' + target);
+    if (sourceEle === undefined || targetEle === undefined) {
+      return;
+    }
     // if($(sourceEle).offset() === undefined || $(targetEle).offset() === undefined ) return;
-    if($(sourceEle).offset().left < $(targetEle).offset().left){
-      return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + $(sourceEle).width() + this.offsetConnLeft1 -5;//-5 because no arrowhead
-    }else{
-      return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + this.offsetConnLeft2 +5;//+5 because no arrowhead
+    if ($(sourceEle).offset().left < $(targetEle).offset().left) {
+      return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + $(sourceEle).width() + this.offsetConnLeft1 - 5;//-5 because no arrowhead
+    } else {
+      return $(sourceEle).position().left + $(sourceEle).parents('.uml').position().left + this.offsetConnLeft2 + 5;//+5 because no arrowhead
     }
   }
+
   /** get x position of div of target column
    * param: source:string, target:string -> ids of the column divs */
-  getX2(source:string, target:string){
-    if(source === undefined || target === undefined) { return; }
-    const sourceEle = $('#'+source);
-    const targetEle = $('#'+target);
+  getX2(source: string, target: string) {
+    if (source === undefined || target === undefined) {
+      return;
+    }
+    const sourceEle = $('#' + source);
+    const targetEle = $('#' + target);
     // if($(sourceEle).offset() === undefined || $(targetEle).offset() === undefined ) return;
-    if( $(sourceEle).offset().left < $(targetEle).offset().left + $(targetEle).width()/2 ){
+    if ($(sourceEle).offset().left < $(targetEle).offset().left + $(targetEle).width() / 2) {
       return $(targetEle).position().left + $(targetEle).parents('.uml').position().left + this.offsetConnLeft2;
-    }else{
+    } else {
       return $(targetEle).position().left + $(targetEle).parents('.uml').position().left + $(targetEle).width() + this.offsetConnLeft1;
     }
   }
+
   /** get y position of div of source/target column
    * param: source:string, target:string -> ids of the column divs */
-  getY(ele:string) {
-    if (ele === undefined) { return; }
+  getY(ele: string) {
+    if (ele === undefined) {
+      return;
+    }
     const element = $('#' + ele);
     // if( $(element).position() === undefined ) return;
     return $(element).position().top + $(element).parents('.uml').position().top + this.offsetConnTop;
   }
 
-  closeModal(){
+  closeModal() {
     this.myModal.hide();
     this.sourceTable = null;
     this.sourceCol = null;
@@ -203,28 +236,36 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     this.targetCol = null;
   }
 
-  createForeignKey(){
-    if( ! this._crud.nameIsValid( this.constraintName )){
+  createForeignKey() {
+    if (!this.constraintName || this.constraintName === '') {
+      this.constraintName = this.proposedConstraintName;
+    }
+    if (!this._crud.nameIsValid(this.constraintName)) {
       this._toast.warn(this._crud.invalidNameMessage('constraint'), 'invalid constraint name', ToastDuration.INFINITE);
       return;
     }
-    const fk: ForeignKey = new ForeignKey( this.constraintName, this.schema, this.sourceTable, this.sourceCol, this.targetTable, this.targetCol )
-      .onUpdate( this.fkForm.value.update ).onDelete( this.fkForm.value.delete );
+    const fk: ForeignKey = new ForeignKey(this.constraintName, this.schema, this.sourceTable, this.sourceCol, this.targetTable, this.targetCol)
+      .onUpdate(this.fkForm.value.update).onDelete(this.fkForm.value.delete);
 
-    this._crud.addForeignKey( fk ).subscribe(
+    this._crud.addForeignKey(fk).subscribe(
       res => {
         this.closeModal();
-        const result = <ResultSet> res;
-        if( result.error ){
-          this._toast.warn(result.error, null, ToastDuration.INFINITE);
+        const result = <ResultSet>res;
+        if( result.error ) {
+          this._toast.exception(result, null, null, ToastDuration.INFINITE);
         }
-        else if( result.info.affectedRows === 1) {
+        else if( result.info.affectedRows === 1 ) {
           this._toast.success('new foreign key was created');
           // this.getUml();
           // this.connectTables();
-          const fkTable = fk.fkTableName.substr(fk.fkTableName.indexOf('.')+1, fk.fkTableName.length);
-          const pkTable = fk.pkTableName.substr(fk.pkTableName.indexOf('.')+1, fk.pkTableName.length);
-          this.connections.push( { source: fk.fkTableSchema+'_'+fkTable+'_'+fk.fkColumnName, target: fk.pkTableSchema+'_'+pkTable+'_'+fk.pkColumnName } );
+          const fkTable = fk.fkTableName.substr(fk.fkTableName.indexOf('.') + 1, fk.fkTableName.length);
+          const pkTable = fk.pkTableName.substr(fk.pkTableName.indexOf('.') + 1, fk.pkTableName.length);
+          this.connections.push({
+            source: fk.fkTableSchema + '_' + fkTable + '_' + fk.fkColumnName,
+            target: fk.pkTableSchema + '_' + pkTable + '_' + fk.pkColumnName
+          });
+          this.constraintName = '';
+          this.getGeneratedNames();
         }
       }, err => {
         this.closeModal();

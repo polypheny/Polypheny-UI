@@ -1,10 +1,11 @@
-import {Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {QueryExplorationRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ExplorColSet, ResultSet, SelectedColSet} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {DataTableComponent} from '../../../components/data-table/data-table.component';
+import {SidebarNode} from '../../../models/sidebar-node.model';
 
 
 @Component({
@@ -13,7 +14,8 @@ import {DataTableComponent} from '../../../components/data-table/data-table.comp
     styleUrls: ['./explore-by-example.component.scss'],
     encapsulation: ViewEncapsulation.None
 })
-export class ExploreByExampleComponent implements OnInit {
+export class ExploreByExampleComponent implements OnInit, OnDestroy{
+
 
     @ViewChild('editGenerated', {static: false}) editGenerated;
     schema: {};
@@ -35,25 +37,37 @@ export class ExploreByExampleComponent implements OnInit {
     }
 
     ngOnInit() {
-        this._leftSidebar.setTableSchema(new SchemaRequest('views/explore-by-example/', false, 2));
-        this._leftSidebar.setAction((node) => {
-            if (!node.isActive && node.isLeaf) {
-                this.choosenTables.push(node.data['id']);
-                this.processSchema(this.schema);
-                node.setIsActive(true, true);
-            } else if (node.isActive && node.isLeaf) {
- 
-                const tables = [];
-                this.choosenTables.forEach( value => {
-                    if(value !== node.data['id']){
-                        tables.push(value);
+        this._crud.getSchema(new SchemaRequest('views/graphical-querying/', false, 2)).subscribe(
+                res => {
+                    const nodeAction = (tree, node, $event) => {
+                        if (!node.isActive && node.isLeaf) {
+                            this.choosenTables.push(node.data['id']);
+                            this.processSchema(this.schema);
+                            node.setIsActive(true, true);
+                        } else if (node.isActive && node.isLeaf) {
+
+                            const tables = [];
+                            this.choosenTables.forEach(value => {
+                                if (value !== node.data['id']) {
+                                    tables.push(value);
+                                }
+                            });
+                            this.choosenTables = tables;
+                            this.processSchema(this.schema);
+                            node.setIsActive(false, true);
+                        }
+                    };
+                    const schemaTemp = <SidebarNode[]>res;
+                    const schema = [];
+                    for (const s of schemaTemp) {
+                        const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
+                        schema.push(node);
                     }
-                });
-                this.choosenTables = tables;
-                this.processSchema(this.schema);
-                node.setIsActive(false, true);
-            }
-        });
+
+                    this._leftSidebar.setNodes(schema);
+                    this._leftSidebar.open();
+                }
+        );
 
 
         this._crud.getSchema(new SchemaRequest('views/explore-by-example/', false, 3)).subscribe(
@@ -63,7 +77,10 @@ export class ExploreByExampleComponent implements OnInit {
                     console.log(err);
                 }
         );
+    }
 
+    ngOnDestroy(): void {
+       this._leftSidebar.close();
     }
 
     processSchema(schema: {}) {

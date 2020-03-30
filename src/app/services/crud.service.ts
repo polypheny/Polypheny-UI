@@ -139,14 +139,18 @@ export class CrudService {
   /**
    * Create a new table
    */
-  createTable ( tableRequest: EditTableRequest ) {
+  createTable(tableRequest: EditTableRequest) {
     return this._http.post(`${this.httpUrl}/createTable`, tableRequest, this.httpOptions);
+  }
+
+  getGeneratedNames() {
+    return this._http.get(`${this.httpUrl}/getGeneratedNames`, this.httpOptions);
   }
 
   /**
    * Get constraints of a table
    */
-  getConstraints ( tableRequest: ColumnRequest ) {
+  getConstraints(tableRequest: ColumnRequest) {
     return this._http.post(`${this.httpUrl}/getConstraints`, tableRequest, this.httpOptions);
   }
 
@@ -196,9 +200,17 @@ export class CrudService {
   /**
    * Get data placement information
    */
-  getDataPlacements( schema: string, table: string ){
-    const index = new Index( schema, table, '', '', [] );
+  getDataPlacements(schema: string, table: string) {
+    const index = new Index(schema, table, '', '', []);
     return this._http.post(`${this.httpUrl}/getPlacements`, index, this.httpOptions);
+  }
+
+  /**
+   * Add or drop a placement
+   */
+  addDropPlacement(schema: string, table: string, store: string, method: 'ADD' | 'DROP') {
+    const index = new Index(schema, table, store, method, []);
+    return this._http.post(`${this.httpUrl}/addDropPlacement`, index, this.httpOptions);
   }
 
   /**
@@ -206,7 +218,7 @@ export class CrudService {
    * the list of all tables of a schema with their columns
    * and a list of all the foreign keys of a schema
    */
-  getUml ( request: EditTableRequest ) {
+  getUml(request: EditTableRequest) {
     return this._http.post(`${this.httpUrl}/getUml`, request, this.httpOptions);
   }
 
