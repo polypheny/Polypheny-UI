@@ -11,6 +11,8 @@ import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.
 import {InformationObject, InformationPage} from '../../../models/information-page.model';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-sql-console',
@@ -29,7 +31,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   analyzerId: string;//current analyzer id
   analyzeQuery = true;
   showingAnalysis = false;
-  websocketSubscription;
+  private subscriptions = new Subscription();
   loading = false;
 
   tableConfig: TableConfig = {
@@ -44,7 +46,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private _crud: CrudService,
     private _leftSidebar: LeftSidebarService,
-    private _breadcrumb: BreadcrumbService
+    private _breadcrumb: BreadcrumbService,
+    private _settings: WebuiSettingsService
   ) {
     //when leaving the page, close the queryAnalyzer
     const self = this;
@@ -64,7 +67,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this._leftSidebar.close();
     this._crud.closeAnalyzer(this.analyzerId).subscribe();
-    this.websocketSubscription.unsubscribe();
+    this.subscriptions.unsubscribe();
     this._breadcrumb.hide();
   }
 
@@ -155,7 +158,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
       }
     };
 
-    this.websocketSubscription = this._crud.onSocketEvent().subscribe(
+    const sub = this._crud.onSocketEvent().subscribe(
       msg => {
 
         //if msg contains nodes of the sidebar
@@ -191,8 +194,12 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
         }
       },
       err => {
-        this._leftSidebar.setError('Lost connection with the server.');
+        //this._leftSidebar.setError('Lost connection with the server.');
+        setTimeout(() => {
+          this.initWebsocket();
+        }, +this._settings.getSetting('reconnection.timeout'));
       });
+    this.subscriptions.add(sub);
   }
 
   filter(query) {

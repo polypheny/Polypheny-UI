@@ -2,6 +2,7 @@ import { Component, OnDestroy, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { navItems } from '../../_nav';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
+import {InformationService} from '../../services/information.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,6 +16,7 @@ export class DefaultLayoutComponent implements OnDestroy {
   public element: HTMLElement;
   constructor(
     public _sidebar: LeftSidebarService,
+    public _information: InformationService,
     @Inject(DOCUMENT) _document?: any
   ) {
 
@@ -30,5 +32,9 @@ export class DefaultLayoutComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.changes.disconnect();
+  }
+
+  getConnectionClass () {
+    return this._information.connected ? 'connected' : 'disconnected';
   }
 }

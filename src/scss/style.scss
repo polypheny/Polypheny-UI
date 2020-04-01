@@ -27,6 +27,10 @@
   user-select: none;
 }
 
+.navbar-toggler {
+  outline: none !important;
+}
+
 /* rotating btn-circle */
 .rotating {
   -webkit-animation: rotating 2s linear infinite;

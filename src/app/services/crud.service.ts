@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {Debug, Index} from '../components/data-table/models/result-set.model';
+import {Index} from '../components/data-table/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
   UIRequest,
@@ -32,6 +32,8 @@ export class CrudService {
     this.initWebSocket();
   }
 
+  public connected = false;
+  private reconnected = new EventEmitter<boolean>();
   httpUrl = this._settings.getConnection('crud.rest');
   httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
   private socket;
@@ -213,7 +215,25 @@ export class CrudService {
    * Initialize the websocket for the queryAnalyzer
    */
   private initWebSocket() {
-    this.socket = webSocket(this._settings.getConnection('crud.socket'));
+    this.socket = webSocket({
+      url: this._settings.getConnection('crud.socket'),
+      openObserver: {
+        next: (n) => {
+          this.reconnected.emit(true);
+          this.connected = true;
+        }
+      }
+    });
+    this.socket.subscribe(
+      msg => {},
+      err => {
+        //this.reconnected.emit(false);
+        this.connected = false;
+        setTimeout(() => {
+          this.initWebSocket();
+        }, +this._settings.getSetting('reconnection.timeout'));
+      }
+    );
   }
 
   /*socketSend( msg: string ) {
@@ -224,9 +244,9 @@ export class CrudService {
     return this.socket;
   }
 
-  /*closeSocket() {
-    this.socket.complete();
-  }*/
+  onReconnection(){
+    return this.reconnected;
+  }
 
   getAnalyzerPage (analyzerId: string, analyzerPage: string ) {
     return this._http.post(`${this.httpUrl}/getAnalyzerPage`, [analyzerId, analyzerPage], this.httpOptions);

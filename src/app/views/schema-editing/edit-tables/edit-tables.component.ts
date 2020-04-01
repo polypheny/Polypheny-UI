@@ -10,6 +10,8 @@ import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ModalDirective} from 'ngx-bootstrap';
 import {HubService} from '../../../services/hub.service';
 import {Store} from '../../stores/store.model';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-edit-tables',
@@ -34,6 +36,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   exportingTable: string;
   exportProgress = 0.0;
   uploading = false;
+  private subscriptions = new Subscription();
   exportForm = new FormGroup({
     name: new FormControl('', Validators.required),
     pub: new FormControl(true, Validators.required),
@@ -50,7 +53,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     private _router: Router,
     private _leftSidebar: LeftSidebarService,
     private _types: DbmsTypesService,
-    public _hub: HubService
+    public _hub: HubService,
+    private _settings: WebuiSettingsService
   ) {
   }
 
@@ -64,9 +68,22 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this.getTables();
     this.getTypeInfo();
     this.getStores();
+    this.initSocket();
+    const sub = this._crud.onReconnection().subscribe((b)=> {
+      if(b) this.onReconnect();
+    });
+    this.subscriptions.add(sub);
   }
 
   ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
+
+  onReconnect() {
+    this.getTables();
+    this.getTypeInfo();
+    this.getStores();
+    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2), this._router);
   }
 
   getTables() {
@@ -215,15 +232,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   exportTable() {
     if (this.exportForm.valid) {
       this.uploading = true;
-      this._crud.onSocketEvent().subscribe(
-        msg => {
-          const s = <Status>msg;
-          if (s.context === 'tableExport') {
-            this.exportProgress = s.status;
-          }
-        }, err => {
-          console.log(err);
-        });
       this._crud.exportTable(
         this.exportForm.controls['name'].value,
         this.schema,
@@ -249,6 +257,21 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         this.exportTableModal.hide();
       });
     }
+  }
+
+  initSocket() {
+    const sub = this._crud.onSocketEvent().subscribe(
+      msg => {
+        const s = <Status>msg;
+        if (s.context === 'tableExport') {
+          this.exportProgress = s.status;
+        }
+      }, err => {
+        setTimeout( ()=>{
+          this.initSocket();
+        }, +this._settings.getSetting('reconnection.timeout'));
+      });
+    this.subscriptions.add(sub);
   }
 
   createTableValidation(name: string) {

@@ -5,6 +5,8 @@ import {InformationObject, InformationPage} from '../../models/information-page.
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
+import {WebuiSettingsService} from '../../services/webui-settings.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-monitoring',
@@ -18,13 +20,15 @@ export class MonitoringComponent implements OnInit, OnDestroy {
   pageList;
   serverError;
   pageNotFound = false;
+  private subscriptions = new Subscription();
 
   constructor(
     private _information: InformationService,
     private _router: Router,
     private _route: ActivatedRoute,
     public _breadcrumb: BreadcrumbService,
-    private _sidebar: LeftSidebarService
+    private _sidebar: LeftSidebarService,
+    private _settings: WebuiSettingsService
   ) { }
 
   ngOnInit() {
@@ -38,8 +42,23 @@ export class MonitoringComponent implements OnInit, OnDestroy {
     this._sidebar.listInformationManagerPages();
     this._sidebar.open();
 
-    this._information.onSocketEvent().subscribe(
+    this.initSocket();
+    const sub = this._information.onReconnection().subscribe(
+      b => {
+        if(b) {
+          this.getServiceData();
+          this._sidebar.listInformationManagerPages();
+        }
+      }
+    );
+    this.subscriptions.add(sub);
+  }
+
+  initSocket(){
+    //this.subscription = this._information.onSocketEvent().subscribe(
+    const sub = this._information.onSocketEvent().subscribe(
       update => {
+        console.log(update);
         const info: InformationObject = <InformationObject>update;
         if (this.data && this.data.groups[info.groupId] && this.data.groups[info.groupId].informationObjects[info.id]) {
           switch (info.type) {
@@ -54,13 +73,20 @@ export class MonitoringComponent implements OnInit, OnDestroy {
               this.data.groups[info.groupId].informationObjects[info.id] = info;
           }
         }
+      },
+      err => {
+        setTimeout( ()=>{
+          this.initSocket();
+        }, +this._settings.getSetting('reconnection.timeout'));
       }
     );
+    this.subscriptions.add(sub);
   }
 
   ngOnDestroy() {
     this._breadcrumb.hide();
     this._sidebar.close();
+    this.subscriptions.unsubscribe();
   }
 
   getServiceData() {

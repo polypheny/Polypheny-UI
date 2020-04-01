@@ -16,6 +16,8 @@ import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.
 import {InformationPage} from '../../../models/information-page.model';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-relational-algebra',
@@ -35,7 +37,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   operators = [];
   autocomplete;// names of the schemas, tables and columns
   sidebarNodes: SidebarNode[] = [];
-  websocketSubscription;
+  private subscriptions = new Subscription();
   analyzerId: string;
   showingAnalysis = false;
   queryAnalysis: InformationPage;
@@ -55,7 +57,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     private _webSocketService: WebSocketService,
     private _RsToRa: RightSidebarToRelationalalgebraService,
     private _leftSidebar: LeftSidebarService,
-    private _breadcrumb: BreadcrumbService
+    private _breadcrumb: BreadcrumbService,
+    private _settings:WebuiSettingsService
   ) {
     this.socketOn = false;
   }
@@ -64,10 +67,20 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   ngOnInit() {
     this.getOperators();
     this.getAutocomplete();
-    this._RsToRa.change.subscribe(run => {
+    const sub1 = this._RsToRa.change.subscribe(run => {
       this.makeSocketConnection();
     });
+    this.subscriptions.add(sub1);
     this.initWebsocket();
+    const sub2 = this._crud.onReconnection().subscribe(
+      b => {
+        if(b) {
+          this.getOperators();
+          this.getAutocomplete();
+        }
+      }
+    );
+    this.subscriptions.add(sub2);
   }
 
   ngAfterViewInit() {
@@ -95,11 +108,11 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     $('#drop').off();
     this._leftSidebar.close();
     this._crud.closeAnalyzer(this.analyzerId).subscribe();
-    this.websocketSubscription.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   initWebsocket() {
-    this.websocketSubscription = this._crud.onSocketEvent().subscribe(
+    const sub = this._crud.onSocketEvent().subscribe(
       msg => {
         //if msg contains nodes of the sidebar
         if (Array.isArray(msg)) {
@@ -136,9 +149,12 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
           this._leftSidebar.setNodes(this.sidebarNodes.concat(sidebarNodes));
         }
       }, err => {
-        console.log(err);
+        setTimeout(() => {
+          this.initWebsocket();
+        }, +this._settings.getSetting('reconnection.timeout'));
       }
     );
+    this.subscriptions.add(sub);
   }
 
   treeDrop(e) {
@@ -713,7 +729,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     if (this.socketOn) {
       this.socketOn = false;
     } else {
-      this._webSocketService.listen('my_message').subscribe((data) => {
+      const sub = this._webSocketService.listen('my_message').subscribe((data) => {
         if (data.toString() == 'delete') {
           this.deleteAll();
         }
@@ -721,6 +737,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
           this.parseJson(data);
         }
       });
+      this.subscriptions.add(sub);
       this.socketOn = true;
     }
   }
