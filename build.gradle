@@ -65,7 +65,7 @@ jar {
 publishing {
     publications {
         "${project.name}"(MavenPublication) {
-            artifact jar
+            from components.java
             pom {
                 licenses {
                     license {
