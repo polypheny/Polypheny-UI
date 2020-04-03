@@ -54,7 +54,6 @@ jar.dependsOn(npm_run_build)
 
 jar {
   from 'dist' into 'webapp'
-
   manifest {
         attributes "Manifest-Version": "1.0"
         attributes "Copyright": "The Polypheny Project"
@@ -63,14 +62,9 @@ jar {
 }
 
 
-artifacts {
-    archives jar
-}
-
 publishing {
     publications {
         "${project.name}"(MavenPublication) {
-            from components.java
             artifact jar
             pom {
                 licenses {
@@ -93,3 +87,6 @@ clean {
 	delete "/build"
 	delete "/node_modules"
 }
+
+// Add install task
+task install(group: 'other', dependsOn: publishToMavenLocal)
