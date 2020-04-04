@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import {QueryExplorationRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, EditTableRequest, QueryExplorationRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ExplorColSet, ResultSet, SelectedColSet} from '../../../components/data-table/models/result-set.model';
@@ -27,8 +27,10 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
     tables = [];
     colNames = [];
     showResultTable: boolean;
+    join = [];
 
     @ViewChild(DataTableComponent, {static: false}) dataTable: DataTableComponent;
+    constraints = new Map<string, string>();
 
     constructor(
             private _crud: CrudService,
@@ -83,7 +85,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
        this._leftSidebar.close();
     }
 
-    processSchema(schema: {}) {
+    async processSchema(schema: {}) {
         this.exploreCols = new ExplorColSet();
         this.ids = [];
         this.tables = [];
@@ -102,13 +104,82 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
                 });
             });
         });
+        await this.getConstraints(this.tables);
+
+        console.log("i am first");
+
         this.showResultTable = false;
-        if(this.ids.length < 11 && this.tables.length > 0){
+        if(this.ids.length < 11 && this.tables.length > 0) {
             this.showResultTable = true;
             this.generateTableSQL(this.ids, this.tables);
         }
     }
 
+
+    async getConstraints (tables: string[]) {
+        this.constraints = new Map<string, string>();
+        console.log("i am first...");
+        for( const table of tables){
+            await this._crud.getConstraints( new ColumnRequest(table) ).toPromise().then(
+                    async res => {
+                        console.log("test");
+                        const constraintsInfo = <ResultSet> res;
+                        if (constraintsInfo.data.length > 0){
+                            this.constraints.set(table, constraintsInfo.data.toString());
+                        }
+                        await this.generateJoinConditions();
+                        console.log('test');
+                        console.log(this.constraints);
+                    }, err => {
+                        console.log(err);
+                        console.log('fehler mit constraint');
+                    }
+            );
+        }
+        console.log("why here");
+    }
+
+    async generateJoinConditions(){
+        const keyValue = [];
+        const name = [];
+        const fullName = [];
+        const keyValues = new Map<string, string>();
+        this.join = [];
+        let values =[];
+        console.log('generateJoinCondition');
+
+        this.constraints.forEach((value, key) => {
+
+
+            values = value.split(',');
+
+            console.log('testing again');
+            console.log('values: ' + values);
+            console.log('value: ' + value);
+            console.log(values[1]);
+            console.log(values[2]);
+            console.log('show me the values length: ' + values.length);
+            if (values[1] === 'PRIMARY KEY' || values[1] === 'FOREIGN KEY') {
+                console.log('am I in the if');
+                if (name.includes(values[2])) {
+                    console.log('test if I am in the second if');
+                    if ((values[1] === 'PRIMARY KEY' && keyValues.get(fullName[name.indexOf(values[2])]) === 'FOREIGN KEY') || (values[1] === 'FOREIGN KEY' && keyValues.get(fullName[name.indexOf(values[2])]) === 'PRIMARY KEY')) {
+                        console.log('inside of if where join is made');
+                        console.log(fullName[name.indexOf(values[2])] + '=' + key + '.' + values[2]);
+                        this.join.push(fullName[name.indexOf(values[2])] + ' = ' + key + '.' + values[2]);
+                    }
+                }
+                keyValues.set(key + '.' + values[2], values[1]);
+                keyValue.push(values[1]);
+                name.push(values[2]);
+                fullName.push(key + '.' + values[2], values[1]);
+            }
+
+            });
+
+        console.log('keyvale:' + keyValue);
+        console.log('name: '+ name);
+    }
 
     selectedColumns() {
         const id = [];
@@ -120,8 +191,8 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
         this.generateTableSQL(id, this.tables);
     }
 
-    //TODO Isabel Joins not possible at the moment
-    generateTableSQL(ids, tables) {
+    async generateTableSQL(ids, tables) {
+
         let sql = 'SELECT ';
         const cols = [];
         const tab = [];
@@ -135,7 +206,11 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
         });
 
         sql += tab.join(', ');
+        if(this.join !== undefined && this.join.length > 0){
+            sql += '\nWHERE ' + this.join.join('AND ');
+        }
 
+        console.log('sql: ' + sql);
         this.sendSQL(sql);
     }
 
@@ -154,7 +229,5 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
                 }
         );
     }
-
-
 
 }
