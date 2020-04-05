@@ -1,11 +1,12 @@
 import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import {ColumnRequest, EditTableRequest, QueryExplorationRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, EditTableRequest, PrimaryForeignKeyRequest, QueryExplorationRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ExplorColSet, ResultSet, SelectedColSet} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {DataTableComponent} from '../../../components/data-table/data-table.component';
 import {SidebarNode} from '../../../models/sidebar-node.model';
+import {ForeignKey, Uml} from '../../uml/uml.model';
 
 
 @Component({
@@ -31,6 +32,10 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
 
     @ViewChild(DataTableComponent, {static: false}) dataTable: DataTableComponent;
     constraints = new Map<string, string>();
+    schemas = new Map<string, string>();
+    umlData = new Map<string, Uml>();//schemaName, uml
+    joinConditions = new Map<string, JoinCondition>();
+    tab = new Map<string, number>();//tableName, number of columns of this table
 
     constructor(
             private _crud: CrudService,
@@ -43,7 +48,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
                 res => {
                     const nodeAction = (tree, node, $event) => {
                         if (!node.isActive && node.isLeaf) {
-                            this.choosenTables.push(node.data['id']);
+                            this.choosenTables.push(node.data.id);
                             this.processSchema(this.schema);
                             node.setIsActive(true, true);
                         } else if (node.isActive && node.isLeaf) {
@@ -97,6 +102,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
                         this.tables.push(table);
                         (child3['children'].forEach(value => {
                             const id = value['id'];
+                            this.getConstraints(value);
                             this.ids.push(id);
                             this.exploreCols[id] = false;
                         }));
@@ -104,9 +110,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
                 });
             });
         });
-        await this.getConstraints(this.tables);
-
-        console.log("i am first");
+        //await this.getConstraints(this.tables);
 
         this.showResultTable = false;
         if(this.ids.length < 11 && this.tables.length > 0) {
@@ -116,70 +120,56 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
     }
 
 
-    async getConstraints (tables: string[]) {
-        this.constraints = new Map<string, string>();
-        console.log("i am first...");
-        for( const table of tables){
-            await this._crud.getConstraints( new ColumnRequest(table) ).toPromise().then(
-                    async res => {
-                        console.log("test");
-                        const constraintsInfo = <ResultSet> res;
-                        if (constraintsInfo.data.length > 0){
-                            this.constraints.set(table, constraintsInfo.data.toString());
-                        }
-                        await this.generateJoinConditions();
-                        console.log('test');
-                        console.log(this.constraints);
+    async getConstraints (value) {
+
+        console.log('id: ' + value.id);
+        console.log('name: ' + value.name);
+        const treeElement = new SidebarNode(value.id, value.name, null, null);
+
+        if (this.tab.get(treeElement.getTable()) !== undefined) {
+            this.tab.set(treeElement.getTable(), this.tab.get(treeElement.getTable()) + 1);
+        } else {
+            this.tab.set(treeElement.getTable(), 1);
+        }
+
+        if (this.schemas.get(treeElement.getSchema()) === undefined) {
+            this.schemas.set(treeElement.getSchema(), treeElement.getSchema());
+            this._crud.getUml(new EditTableRequest(treeElement.getSchema())).subscribe(
+                    res => {
+                        const uml = <Uml>res;
+                        console.log('uml foreignkeys: ' + uml);
+                        this.umlData.set(treeElement.getSchema(), uml);
+                        this.generateJoinConditions();
                     }, err => {
-                        console.log(err);
-                        console.log('fehler mit constraint');
+                        this._toast.error('Could not get foreign keys of the schema ' + treeElement.getSchema());
                     }
             );
+        } else {
+            this.generateJoinConditions();
         }
-        console.log("why here");
+        
     }
 
-    async generateJoinConditions(){
-        const keyValue = [];
-        const name = [];
-        const fullName = [];
-        const keyValues = new Map<string, string>();
-        this.join = [];
-        let values =[];
-        console.log('generateJoinCondition');
-
-        this.constraints.forEach((value, key) => {
-
-
-            values = value.split(',');
-
-            console.log('testing again');
-            console.log('values: ' + values);
-            console.log('value: ' + value);
-            console.log(values[1]);
-            console.log(values[2]);
-            console.log('show me the values length: ' + values.length);
-            if (values[1] === 'PRIMARY KEY' || values[1] === 'FOREIGN KEY') {
-                console.log('am I in the if');
-                if (name.includes(values[2])) {
-                    console.log('test if I am in the second if');
-                    if ((values[1] === 'PRIMARY KEY' && keyValues.get(fullName[name.indexOf(values[2])]) === 'FOREIGN KEY') || (values[1] === 'FOREIGN KEY' && keyValues.get(fullName[name.indexOf(values[2])]) === 'PRIMARY KEY')) {
-                        console.log('inside of if where join is made');
-                        console.log(fullName[name.indexOf(values[2])] + '=' + key + '.' + values[2]);
-                        this.join.push(fullName[name.indexOf(values[2])] + ' = ' + key + '.' + values[2]);
-                    }
+    /**
+     * Generate the needed join conditions
+     */
+    generateJoinConditions() {
+        this.joinConditions.clear();
+        this.umlData.forEach((uml, key) => {
+            uml.foreignKeys.forEach((fk: ForeignKey, key2) => {
+                const fkId = fk.fkTableSchema + '.' + fk.fkTableName + '.' + fk.fkColumnName;
+                const pkId = fk.pkTableSchema + '.' + fk.pkTableName + '.' + fk.pkColumnName;
+                if (this.tab.get(fk.pkTableSchema + '.' + fk.pkTableName) !== undefined &&
+                        this.tab.get(fk.fkTableSchema + '.' + fk.fkTableName) !== undefined) {
+                    this.joinConditions.set(fkId + pkId, new JoinCondition(fkId + ' = ' + pkId));
+                    console.log('fkId; ' + fkId);
+                    console.log('pkId: ' + pkId);
                 }
-                keyValues.set(key + '.' + values[2], values[1]);
-                keyValue.push(values[1]);
-                name.push(values[2]);
-                fullName.push(key + '.' + values[2], values[1]);
-            }
-
             });
-
-        console.log('keyvale:' + keyValue);
-        console.log('name: '+ name);
+        });
+        console.log('join: ' + this.joinConditions.values() + 'more: ' + this.joinConditions.keys());
     }
+
 
     selectedColumns() {
         const id = [];
@@ -195,20 +185,31 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
 
         let sql = 'SELECT ';
         const cols = [];
-        const tab = [];
+        const tabs = [];
         ids.forEach(id => {
             cols.push(id);
         });
         sql += cols.join(', ');
         sql += '\nFROM ';
         tables.forEach(table => {
-            tab.push(table);
+            tabs.push(table);
         });
 
-        sql += tab.join(', ');
-        if(this.join !== undefined && this.join.length > 0){
-            sql += '\nWHERE ' + this.join.join('AND ');
+        sql += tabs.join(', ');
+
+        let counter = 0;
+        const joinConditions = [];
+        this.joinConditions.forEach((v, k) => {
+            if (v.active) {
+                counter++;
+                joinConditions.push(v.condition);
+
+            }
+        });
+        if (counter > 0) {
+            sql += '\nWHERE ' + joinConditions.join(' AND ');
         }
+
 
         console.log('sql: ' + sql);
         this.sendSQL(sql);
@@ -230,4 +231,18 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
         );
     }
 
+}
+
+class JoinCondition {
+    condition: string;
+    active: boolean;
+
+    constructor(condition: string) {
+        this.condition = condition;
+        this.active = true;
+    }
+
+    toggle() {
+        this.active = !this.active;
+    }
 }
