@@ -7,6 +7,11 @@ import {ToastService} from '../../../components/toast/toast.service';
 import {DataTableComponent} from '../../../components/data-table/data-table.component';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
+import {WebSocketService} from '../../../services/web-socket.service';
+import {InformationPage} from '../../../models/information-page.model';
+import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
+import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
+import {LogicalOperator, LogicalOperatorUtil} from '../relational-algebra/relational-algebra.model';
 
 
 @Component({
@@ -94,6 +99,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         this._leftSidebar.close();
     }
 
+
     async processSchema(schema: {}) {
         this.exploreCols = new ExplorColSet();
         this.ids = [];
@@ -114,12 +120,10 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
                 });
             });
         });
-        //await this.getConstraints(this.tables);
-
+        this.classificationPossible = true;
         this.showResultTable = false;
         if (this.ids.length < 11 && this.tables.length > 0) {
             this.showResultTable = true;
-            this.classificationPossible = true;
             this.generateTableSQL(this.ids, this.tables);
         }
     }
