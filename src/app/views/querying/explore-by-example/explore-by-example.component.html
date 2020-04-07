@@ -4,11 +4,11 @@
         <h5>Select Columns</h5>
         <div class="btn-group btn-group-toggle" data-toggle="buttons" *ngFor="let val of this.ids">
             <label class="btn btn-secondary active" [ngClass]="{'active' : this.exploreCols[val]}" *ngIf="this.tables.length > 1">
-                <input type="checkbox" value="true" autocomplete="off" [(ngModel)]="this.exploreCols[val]" >
+                <input type="checkbox" value="true" autocomplete="off" [(ngModel)]="this.exploreCols[val]">
                 {{val}}
             </label>
             <label class="btn btn-secondary active" [ngClass]="{'active' : this.exploreCols[val]}" *ngIf="this.tables.length == 1">
-                <input type="checkbox" value="true" autocomplete="off" [(ngModel)]="this.exploreCols[val]" >
+                <input type="checkbox" value="true" autocomplete="off" [(ngModel)]="this.exploreCols[val]">
                 {{val.toString().split('.').pop()}}
             </label>
 
@@ -19,6 +19,10 @@
     </div>
 </div>
 
+<div *ngIf="this.classificationPossible === false">
+    <h5>Classification Information</h5>
+    <p>The whole table is visible therefore a classification is not possible.</p>
+</div>
 
 
 <div class="row" *ngIf="resultSet && this.tables.length > 0 && showResultTable == true ">

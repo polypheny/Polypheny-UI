@@ -77,6 +77,7 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/classifyData`, info, this.httpOptions);
   }
 
+
   /**
    * Request all aviable statistic from the server
    */

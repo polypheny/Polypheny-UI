@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import {ColumnRequest, EditTableRequest, PrimaryForeignKeyRequest, QueryExplorationRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, EditTableRequest, QueryExplorationRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ExplorColSet, ResultSet, SelectedColSet} from '../../../components/data-table/models/result-set.model';
@@ -15,7 +15,7 @@ import {ForeignKey, Uml} from '../../uml/uml.model';
     styleUrls: ['./explore-by-example.component.scss'],
     encapsulation: ViewEncapsulation.None
 })
-export class ExploreByExampleComponent implements OnInit, OnDestroy{
+export class ExploreByExampleComponent implements OnInit, OnDestroy {
 
 
     @ViewChild('editGenerated', {static: false}) editGenerated;
@@ -29,6 +29,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
     colNames = [];
     showResultTable: boolean;
     join = [];
+    classificationPossible = true;
 
     @ViewChild(DataTableComponent, {static: false}) dataTable: DataTableComponent;
     constraints = new Map<string, string>();
@@ -60,6 +61,9 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
                                 }
                             });
                             this.choosenTables = tables;
+                            if (this.choosenTables.length <= 0) {
+                                this.classificationPossible = true;
+                            }
                             this.processSchema(this.schema);
                             node.setIsActive(false, true);
                         }
@@ -87,7 +91,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
     }
 
     ngOnDestroy(): void {
-       this._leftSidebar.close();
+        this._leftSidebar.close();
     }
 
     async processSchema(schema: {}) {
@@ -113,17 +117,16 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
         //await this.getConstraints(this.tables);
 
         this.showResultTable = false;
-        if(this.ids.length < 11 && this.tables.length > 0) {
+        if (this.ids.length < 11 && this.tables.length > 0) {
             this.showResultTable = true;
+            this.classificationPossible = true;
             this.generateTableSQL(this.ids, this.tables);
         }
     }
 
 
-    async getConstraints (value) {
+    async getConstraints(value) {
 
-        console.log('id: ' + value.id);
-        console.log('name: ' + value.name);
         const treeElement = new SidebarNode(value.id, value.name, null, null);
 
         if (this.tab.get(treeElement.getTable()) !== undefined) {
@@ -137,7 +140,6 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
             this._crud.getUml(new EditTableRequest(treeElement.getSchema())).subscribe(
                     res => {
                         const uml = <Uml>res;
-                        console.log('uml foreignkeys: ' + uml);
                         this.umlData.set(treeElement.getSchema(), uml);
                         this.generateJoinConditions();
                     }, err => {
@@ -147,7 +149,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
         } else {
             this.generateJoinConditions();
         }
-        
+
     }
 
     /**
@@ -162,19 +164,16 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
                 if (this.tab.get(fk.pkTableSchema + '.' + fk.pkTableName) !== undefined &&
                         this.tab.get(fk.fkTableSchema + '.' + fk.fkTableName) !== undefined) {
                     this.joinConditions.set(fkId + pkId, new JoinCondition(fkId + ' = ' + pkId));
-                    console.log('fkId; ' + fkId);
-                    console.log('pkId: ' + pkId);
                 }
             });
         });
-        console.log('join: ' + this.joinConditions.values() + 'more: ' + this.joinConditions.keys());
     }
 
 
     selectedColumns() {
         const id = [];
         Object.keys(this.exploreCols).forEach(value => {
-            if (this.exploreCols[value] === true){
+            if (this.exploreCols[value] === true) {
                 id.push(value);
             }
         });
@@ -211,7 +210,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
         }
 
 
-        console.log('sql: ' + sql);
+        //console.log('sql: ' + sql);
         this.sendSQL(sql);
     }
 
@@ -223,6 +222,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy{
                 res => {
                     this.resultSet = <ResultSet>res;
                     this.loading = false;
+                    this.classificationPossible = this.resultSet.classificationInfo !== 'NoClassificationPossible';
 
                 }, err => {
                     this._toast.error('Unknown error on the server.');

@@ -16,6 +16,7 @@ export class ResultSet{
     info: Debug;
     type: string;//"table" or "view"
     explorerId: number;
+    classificationInfo: string;
 
     constructor ( error: string ){
         this.error = error;
