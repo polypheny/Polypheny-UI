@@ -394,7 +394,6 @@ export class DataTableComponent implements OnInit, OnChanges {
                         this.exploreSet = <ExploreSet>res;
                         this.userInput = {};
                         this.exploreDataCounter = 0;
-                        console.log(this.exploreSet.dataAfterClassification);
 
                         for (let i = 0; i < this.exploreSet.dataAfterClassification.length; i++) {
                             let data = '';
@@ -409,8 +408,6 @@ export class DataTableComponent implements OnInit, OnChanges {
                             }
                             this.userInput[label.join(',').toString()] = data;
                         }
-
-                        console.log(this.userInput);
 
                         let tree = <string>this.exploreSet.graph;
 
