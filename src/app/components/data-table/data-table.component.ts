@@ -396,15 +396,18 @@ export class DataTableComponent implements OnInit, OnChanges {
         this.exploreDataCounter = 0;
     }
 
+
     exploreData() {
+
         console.log('final');
         this.classifiedData = cloneDeep(this.resultSet.data);
         this.classifiedData.forEach(value => {
             if (this.userInput) {
                 let count = 0;
                 Object.keys(this.userInput).forEach(val => {
-                    if (val === value.toString()) {
+                    if (this.userInput[val] !== '?' && val === value.toString()) {
                         value.push(this.userInput[val]);
+                        console.log(value);
                         count += 1;
                     }
                 });
@@ -412,6 +415,7 @@ export class DataTableComponent implements OnInit, OnChanges {
                     value.push('?');
                 }
             }
+            console.log(value);
         });
 
         this.exploreDataCounter++;

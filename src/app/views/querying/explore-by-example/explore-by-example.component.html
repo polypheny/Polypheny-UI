@@ -3,11 +3,11 @@
     <div class="col col-lg-auto col-md-auto col-sm-auto" *ngIf="this.ids.length > 10">
         <h5>Select Columns</h5>
         <div class="btn-group btn-group-toggle" data-toggle="buttons" *ngFor="let val of this.ids">
-            <label class="btn btn-secondary active" [ngClass]="{'active' : this.exploreCols[val]}" *ngIf="this.tables.length > 1">
+            <label class="btn btn-secondary active" id="selectedCols" [ngClass]="{'active' : this.exploreCols[val]}" *ngIf="this.tables.length > 1">
                 <input type="checkbox" value="true" autocomplete="off" [(ngModel)]="this.exploreCols[val]">
                 {{val}}
             </label>
-            <label class="btn btn-secondary active" [ngClass]="{'active' : this.exploreCols[val]}" *ngIf="this.tables.length == 1">
+            <label class="btn btn-secondary active" id="fullNameSelectedcols" [ngClass]="{'active' : this.exploreCols[val]}" *ngIf="this.tables.length == 1">
                 <input type="checkbox" value="true" autocomplete="off" [(ngModel)]="this.exploreCols[val]">
                 {{val.toString().split('.').pop()}}
             </label>
