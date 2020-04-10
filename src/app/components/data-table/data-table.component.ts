@@ -2,7 +2,7 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewEncapsulation} f
 import {TableConfig} from './table-config';
 import * as $ from 'jquery';
 import {cloneDeep} from 'lodash';
-import {ClassifyRequest, DeleteRequest, Exploration, TableRequest, UpdateRequest} from '../../models/ui-request.model';
+import {ClassifyRequest, DeleteRequest, Exploration, ExploreTable, TableRequest, UpdateRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
 import {DbColumn, ExploreSet, ResultSet} from './models/result-set.model';
 import {SortDirection, SortState} from './models/sort-state.model';
@@ -252,6 +252,29 @@ export class DataTableComponent implements OnInit, OnChanges {
         );
     }
 
+    getExploreTables(){
+
+        this._crud.getExploreTables(new ExploreTable(this.resultSet.explorerId, this.resultSet.header, this.resultSet.currentPage)).subscribe(
+                res => {
+                    const result = <ResultSet>res;
+                    this.resultSet.header = result.header;
+                    this.resultSet.data = result.data;
+                    this.resultSet.info = result.info;
+                    this.resultSet.highestPage = result.highestPage;
+                    //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
+                    if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
+                        this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
+                    }
+                    this.setPagination();
+
+                }, err => {
+                    this._toast.error('Could not load the data.');
+                    console.log(err);
+
+                }
+        );
+    }
+
     getTable() {
         const filterObj = this.mapToObject(this.filter);
         const sortState = {};
@@ -289,6 +312,7 @@ export class DataTableComponent implements OnInit, OnChanges {
         );
     }
 
+
     filterTable(e) {
         this.resultSet.currentPage = 1;
         if (e.keyCode === 27) { //esc
@@ -309,7 +333,11 @@ export class DataTableComponent implements OnInit, OnChanges {
 
     paginate(p: PaginationElement) {
         this.resultSet.currentPage = p.page;
-        this.getTable();
+        if(this.config.exploring){
+            this.getExploreTables();
+        }else{
+            this.getTable();
+        }
     }
 
     sortTable(s: SortState) {

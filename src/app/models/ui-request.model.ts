@@ -70,6 +70,20 @@ export class Exploration{
   }
 }
 
+export class ExploreTable extends UIRequest{
+  id: number;
+  header: DbColumn[];
+  cPage: number;
+
+  constructor( id: number, header: DbColumn[], cPage: number) {
+    super();
+    this.id = id;
+    this.header = header;
+    this.cPage = cPage;
+
+  }
+}
+
 
 export class StatisticRequest extends UIRequest {
   constructor (){

@@ -1,17 +1,13 @@
 import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import {ColumnRequest, EditTableRequest, QueryExplorationRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {EditTableRequest, QueryExplorationRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
-import {ExplorColSet, ResultSet, SelectedColSet} from '../../../components/data-table/models/result-set.model';
+import {ExplorColSet, ResultSet} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {DataTableComponent} from '../../../components/data-table/data-table.component';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
-import {WebSocketService} from '../../../services/web-socket.service';
-import {InformationPage} from '../../../models/information-page.model';
-import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
-import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
-import {LogicalOperator, LogicalOperatorUtil} from '../relational-algebra/relational-algebra.model';
+
 
 
 @Component({

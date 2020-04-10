@@ -12,7 +12,7 @@ import {
   QueryRequest,
   DeleteRequest,
   UpdateRequest,
-  Schema, StatisticRequest, Exploration
+  Schema, StatisticRequest, Exploration, ExploreTable
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
@@ -77,6 +77,10 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/classifyData`, info, this.httpOptions);
   }
 
+
+  getExploreTables(getExploreTables: ExploreTable){
+    return this._http.post(`${this.httpUrl}/getExploreTables`, getExploreTables, this.httpOptions);
+  }
 
   /**
    * Request all aviable statistic from the server
