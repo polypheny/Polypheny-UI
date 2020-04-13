@@ -431,6 +431,8 @@ export class DataTableComponent implements OnInit, OnChanges {
             if (this.userInput) {
                 let count = 0;
                 Object.keys(this.userInput).forEach(val => {
+                    console.log('how does val look like: ' +val);
+                    console.log('how does userinput[val] look like: ' + this.userInput[val]);
                     if (this.userInput[val] !== '?' && val === value.toString()) {
                         value.push(this.userInput[val]);
                         count += 1;
@@ -499,6 +501,7 @@ export class DataTableComponent implements OnInit, OnChanges {
                 res => {
                     this.userInput = {};
                     this.resultSet = <ResultSet>res;
+                    this.setPagination();
 
                 }, err => {
                     console.log(err);
