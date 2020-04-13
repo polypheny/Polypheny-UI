@@ -253,10 +253,35 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
     getExploreTables(){
-
+        console.log('Testing my stuff');
         this._crud.getExploreTables(new ExploreTable(this.resultSet.explorerId, this.resultSet.header, this.resultSet.currentPage)).subscribe(
                 res => {
                     const result = <ResultSet>res;
+                    console.log(result);
+                    this.userInput = {};
+
+                    if(result.includesClassificationInfo){
+
+                        for (let i = 0; i < result.classifedData.length; i++) {
+                            let data = '';
+                            const label = [];
+                            for (let j = 0; j < result.classifedData[i].length; j++) {
+                                if (result.classifedData[i][j] === 'true' || result.classifedData[i][j] === 'false') {
+                                    data += (result.classifedData[i][j]);
+                                    console.log(data);
+
+                                } else {
+                                    label.push(result.classifedData[i][j].split('\'').join(''));
+                                    console.log(label);
+                                }
+                            }
+                            this.userInput[label.join(',').toString()] = data;
+                            console.log(this.userInput);
+                        }
+
+                    }
+
+                    console.log(result);
                     this.resultSet.header = result.header;
                     this.resultSet.data = result.data;
                     this.resultSet.info = result.info;
@@ -334,8 +359,10 @@ export class DataTableComponent implements OnInit, OnChanges {
     paginate(p: PaginationElement) {
         this.resultSet.currentPage = p.page;
         if(this.config.exploring){
+            console.log('inside getExploreTables');
             this.getExploreTables();
         }else{
+            console.log('inside get Table');
             this.getTable();
         }
     }
@@ -399,7 +426,6 @@ export class DataTableComponent implements OnInit, OnChanges {
 
     exploreData() {
 
-        console.log('final');
         this.classifiedData = cloneDeep(this.resultSet.data);
         this.classifiedData.forEach(value => {
             if (this.userInput) {
@@ -407,7 +433,6 @@ export class DataTableComponent implements OnInit, OnChanges {
                 Object.keys(this.userInput).forEach(val => {
                     if (this.userInput[val] !== '?' && val === value.toString()) {
                         value.push(this.userInput[val]);
-                        console.log(value);
                         count += 1;
                     }
                 });

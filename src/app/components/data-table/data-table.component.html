@@ -24,7 +24,7 @@
                 </td>
                 <td *ngIf="config.update || config.delete"></td>
             </tr>
-            <tr *ngFor="let d1 of resultSet.data; let i = index" [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table-dark' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
+            <tr *ngFor="let d1 of resultSet.data; let i = index" [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
                 <ng-container *ngIf="editing === i">
                     <td *ngFor="let d2 of d1; let i = index">
                         <!--<input type="text" class="form-control form-control-sm editing" [value]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name">-->
@@ -92,17 +92,19 @@
     <h5>Decision Tree</h5>
 </div>
 
-
-<svg>
+<!--
+<svg width="100" height="100"
+     xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 100 100"
+     preserveAspectRatio="xMidYMid meet">
     <g/>
 </svg>
+-->
 
-<!--
 <div class="scaling-svg-container" style="padding-bottom: 92%">
     <svg xmlns="http://www.w3.org/2000/svg" class="scaling-svg" viewBox="auto">
         <g/>
     </svg>
 </div>
--->
 
 

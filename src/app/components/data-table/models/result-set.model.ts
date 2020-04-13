@@ -17,6 +17,8 @@ export class ResultSet{
     type: string;//"table" or "view"
     explorerId: number;
     classificationInfo: string;
+    includesClassificationInfo:boolean;
+    classifedData: string[][];
 
     constructor ( error: string ){
         this.error = error;

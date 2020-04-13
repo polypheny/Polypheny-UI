@@ -80,7 +80,6 @@ export class ExploreTable extends UIRequest{
     this.id = id;
     this.header = header;
     this.cPage = cPage;
-
   }
 }
 
