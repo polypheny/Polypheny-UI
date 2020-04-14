@@ -31,6 +31,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     showResultTable: boolean;
     join = [];
     classificationPossible = true;
+    colMax = 5;
 
     @ViewChild(DataTableComponent, {static: false}) dataTable: DataTableComponent;
     constraints = new Map<string, string>();
@@ -118,7 +119,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         });
         this.classificationPossible = true;
         this.showResultTable = false;
-        if (this.ids.length < 11 && this.tables.length > 0) {
+        if (this.ids.length < this.colMax + 1 && this.tables.length > 0) {
             this.showResultTable = true;
             this.generateTableSQL(this.ids, this.tables);
         }

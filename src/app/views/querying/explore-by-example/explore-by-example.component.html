@@ -3,7 +3,7 @@
         <div class="col col-lg-auto col-md-auto col-sm-auto" >
             <h5>Explore by Example</h5>
             <p>Select tables from the left sidebar to get started.</p>
-            <div *ngIf="this.ids.length > 10">
+            <div *ngIf="this.ids.length > this.colMax">
                 <h5>Select Columns</h5>
                 <p>Please select the columns you are interested in.</p>
                 <div class="btn-group btn-group-toggle" data-toggle="buttons" *ngFor="let val of this.ids">
@@ -21,7 +21,7 @@
                 <h5>Classification Information</h5>
                 <p>Not enough Data to use the classification.</p>
             </div>
-            <div class="col col-lg-auto col-md-auto col-sm-auto" *ngIf="this.ids.length > 10">
+            <div class="col col-lg-auto col-md-auto col-sm-auto" *ngIf="this.ids.length > this.colMax">
                 <button type="button" id="explore-button" class="btn btn-primary" (click)="selectedColumns()">Send</button>
             </div>
         </div>

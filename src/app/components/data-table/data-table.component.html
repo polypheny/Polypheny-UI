@@ -91,7 +91,7 @@
         Select "send" to classify all data with the given classification.</p>
 </div>
 
-<button id="sendClassification" type="button" class="btn btn-primary" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'" (click)="sendChosenCols()">Send</button>
+<button id="sendClassification" type="button" class="btn btn-primary" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined"  (click)="sendChosenCols()">Send</button>
 
 <div *ngIf="this.exploreSet !== undefined && config.exploring">
     <h5>Decision Tree</h5>
