@@ -34,6 +34,9 @@ export class DataTableComponent implements OnInit, OnChanges {
     sortStates = new Map<string, SortState>();
     filter = new Map<string, string>();
     classifiedData: string[][];
+    isExploringData = false;
+    cData: string[][];
+
     columns = [];
     userInput = {};
     tableColor = '#FFFFFF';
@@ -252,40 +255,25 @@ export class DataTableComponent implements OnInit, OnChanges {
         );
     }
 
-    getExploreTables(){
-        console.log('Testing my stuff');
+
+    getExploreTables() {
+
+        if (this.isExploringData) {
+            this.prepareClassifiedData();
+        }
         this._crud.getExploreTables(new ExploreTable(this.resultSet.explorerId, this.resultSet.header, this.resultSet.currentPage)).subscribe(
                 res => {
                     const result = <ResultSet>res;
-                    console.log(result);
-                    this.userInput = {};
 
-                    if(result.includesClassificationInfo){
-
-                        for (let i = 0; i < result.classifedData.length; i++) {
-                            let data = '';
-                            const label = [];
-                            for (let j = 0; j < result.classifedData[i].length; j++) {
-                                if (result.classifedData[i][j] === 'true' || result.classifedData[i][j] === 'false') {
-                                    data += (result.classifedData[i][j]);
-                                    console.log(data);
-
-                                } else {
-                                    label.push(result.classifedData[i][j].split('\'').join(''));
-                                    console.log(label);
-                                }
-                            }
-                            this.userInput[label.join(',').toString()] = data;
-                            console.log(this.userInput);
-                        }
-
+                    if (result.includesClassificationInfo) {
+                        this.userInput = {};
+                        this.prepareUserInput(result.classifedData);
                     }
-
-                    console.log(result);
                     this.resultSet.header = result.header;
                     this.resultSet.data = result.data;
                     this.resultSet.info = result.info;
                     this.resultSet.highestPage = result.highestPage;
+
                     //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
                     if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
                         this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
@@ -295,7 +283,6 @@ export class DataTableComponent implements OnInit, OnChanges {
                 }, err => {
                     this._toast.error('Could not load the data.');
                     console.log(err);
-
                 }
         );
     }
@@ -358,11 +345,9 @@ export class DataTableComponent implements OnInit, OnChanges {
 
     paginate(p: PaginationElement) {
         this.resultSet.currentPage = p.page;
-        if(this.config.exploring){
-            console.log('inside getExploreTables');
+        if (this.config.exploring) {
             this.getExploreTables();
-        }else{
-            console.log('inside get Table');
+        } else {
             this.getTable();
         }
     }
@@ -419,54 +404,72 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
     resetExporationData() {
-
         this.exploreDataCounter = 0;
+    }
+
+    prepareClassifiedData() {
+        this.cData.forEach(value => {
+            if (!this.classifiedData) {
+                this.classifiedData = [];
+            }
+            this.classifiedData.forEach(val => {
+                if (val.slice(0, -1).toString() === value.slice(0, -1).toString() && value.slice(-1).toString() !== '?') {
+                    this.classifiedData.splice(this.classifiedData.indexOf(val));
+                }
+            });
+            this.classifiedData.push(value);
+        });
+    }
+
+    prepareUserInput(dataAfterClassification) {
+        for (let i = 0; i < dataAfterClassification.length; i++) {
+            let data = '';
+            const label = [];
+            for (let j = 0; j < dataAfterClassification[i].length; j++) {
+                if (dataAfterClassification[i][j] === 'true' || dataAfterClassification[i][j] === 'false') {
+                    data += (dataAfterClassification[i][j]);
+
+                } else {
+                    label.push(dataAfterClassification[i][j].split('\'').join(''));
+                }
+            }
+            this.userInput[label.join(',').toString()] = data;
+        }
     }
 
 
     exploreData() {
-
-        this.classifiedData = cloneDeep(this.resultSet.data);
-        this.classifiedData.forEach(value => {
+        this.isExploringData = true;
+        this.cData = cloneDeep(this.resultSet.data);
+        this.cData.forEach(value => {
             if (this.userInput) {
                 let count = 0;
                 Object.keys(this.userInput).forEach(val => {
-                    console.log('how does val look like: ' +val);
-                    console.log('how does userinput[val] look like: ' + this.userInput[val]);
                     if (this.userInput[val] !== '?' && val === value.toString()) {
                         value.push(this.userInput[val]);
                         count += 1;
                     }
                 });
+
                 if (count === 0) {
                     value.push('?');
                 }
             }
-            console.log(value);
         });
 
         this.exploreDataCounter++;
-        if (this.exploreDataCounter > 10) {
+        if (this.exploreDataCounter > 9) {
+
+            this.prepareClassifiedData();
 
             this._crud.exploreUserInput(new Exploration(this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
                     res => {
                         this.exploreSet = <ExploreSet>res;
                         this.userInput = {};
+                        this.cData = [];
                         this.exploreDataCounter = 0;
 
-                        for (let i = 0; i < this.exploreSet.dataAfterClassification.length; i++) {
-                            let data = '';
-                            const label = [];
-                            for (let j = 0; j < this.exploreSet.dataAfterClassification[i].length; j++) {
-                                if (this.exploreSet.dataAfterClassification[i][j] === 'true' || this.exploreSet.dataAfterClassification[i][j] === 'false') {
-                                    data += (this.exploreSet.dataAfterClassification[i][j]);
-
-                                } else {
-                                    label.push(this.exploreSet.dataAfterClassification[i][j].split('\'').join(''));
-                                }
-                            }
-                            this.userInput[label.join(',').toString()] = data;
-                        }
+                        this.prepareUserInput(this.exploreSet.dataAfterClassification);
 
                         let tree = <string>this.exploreSet.graph;
 
@@ -487,6 +490,11 @@ export class DataTableComponent implements OnInit, OnChanges {
 
                         render(d3.select('svg g'), treeGraph);
 
+                        const xCenterOffset = (svg.attr('width') - treeGraph.graph().width) / 2;
+                        svgGroup.attr('transform', 'translate(' + xCenterOffset + ',20');
+                        svg.attr('height', treeGraph.graph().height + 40);
+
+
                     }, err => {
                         console.log(err);
 
@@ -500,6 +508,7 @@ export class DataTableComponent implements OnInit, OnChanges {
         this._crud.classifyData(new ClassifyRequest(this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
                 res => {
                     this.userInput = {};
+                    this.classifiedData = [];
                     this.resultSet = <ResultSet>res;
                     this.setPagination();
 

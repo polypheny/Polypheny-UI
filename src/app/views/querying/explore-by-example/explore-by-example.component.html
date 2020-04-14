@@ -1,29 +1,32 @@
-<div class="selectedCol">
-
-    <div class="col col-lg-auto col-md-auto col-sm-auto" *ngIf="this.ids.length > 10">
-        <h5>Select Columns</h5>
-        <div class="btn-group btn-group-toggle" data-toggle="buttons" *ngFor="let val of this.ids">
-            <label class="btn btn-secondary active" id="selectedCols" [ngClass]="{'active' : this.exploreCols[val]}" *ngIf="this.tables.length > 1">
-                <input type="checkbox" value="true" autocomplete="off" [(ngModel)]="this.exploreCols[val]">
-                {{val}}
-            </label>
-            <label class="btn btn-secondary active" id="fullNameSelectedcols" [ngClass]="{'active' : this.exploreCols[val]}" *ngIf="this.tables.length == 1">
-                <input type="checkbox" value="true" autocomplete="off" [(ngModel)]="this.exploreCols[val]">
-                {{val.toString().split('.').pop()}}
-            </label>
-
+<div class="row" style="position: relative;">
+    <div class="selectedCol">
+        <div class="col col-lg-auto col-md-auto col-sm-auto" >
+            <h5>Explore by Example</h5>
+            <p>Select tables from the left sidebar to get started.</p>
+            <div *ngIf="this.ids.length > 10">
+                <h5>Select Columns</h5>
+                <p>Please select the columns you are interested in.</p>
+                <div class="btn-group btn-group-toggle" data-toggle="buttons" *ngFor="let val of this.ids">
+                    <label class="btn btn-secondary active" id="selectedCols" [ngClass]="{'active' : this.exploreCols[val]}" *ngIf="this.tables.length > 1">
+                        <input type="checkbox" value="true" autocomplete="off" [(ngModel)]="this.exploreCols[val]">
+                        {{val}}
+                    </label>
+                    <label class="btn btn-secondary active" id="fullNameSelectedcols" [ngClass]="{'active' : this.exploreCols[val]}" *ngIf="this.tables.length == 1">
+                        <input type="checkbox" value="true" autocomplete="off" [(ngModel)]="this.exploreCols[val]">
+                        {{val.toString().split('.').pop()}}
+                    </label>
+                </div>
+            </div>
+            <div *ngIf="this.classificationPossible === false">
+                <h5>Classification Information</h5>
+                <p>Not enough Data to use the classification.</p>
+            </div>
+            <div class="col col-lg-auto col-md-auto col-sm-auto" *ngIf="this.ids.length > 10">
+                <button type="button" id="explore-button" class="btn btn-primary" (click)="selectedColumns()">Send</button>
+            </div>
         </div>
     </div>
-    <div class="col col-lg-auto col-md-auto col-sm-auto" *ngIf="this.ids.length > 10">
-        <button type="button" id="explore-button" class="btn btn-primary" (click)="selectedColumns()">Send</button>
-    </div>
 </div>
-
-<div *ngIf="this.classificationPossible === false">
-    <h5>Classification Information</h5>
-    <p>The whole table is visible therefore a classification is not possible.</p>
-</div>
-
 
 <div class="row" *ngIf="resultSet && this.tables.length > 0 && showResultTable == true ">
     <div class="col-lg-12" style="padding-bottom: 1em;">

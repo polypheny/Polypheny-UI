@@ -40,13 +40,13 @@
                     <td *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === 'true'}">
-                                <input type="radio" class="form-control" name="choose" value="true" id="true" autocomplete="off" [(ngModel)]="this.userInput[d1]" (click)="exploreData()"> true
+                                <input type="radio" class="form-control" name="choose" value="true" id="true" autocomplete="off" [(ngModel)]="this.userInput[d1]" (ngModelChange)="exploreData()"> true
                             </label>
                             <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === '?'}">
-                                <input type="radio" class="form-control" name="choose" checked value="?" id="ignored" autocomplete="off" [(ngModel)]="this.userInput[d1]" (click)="exploreData()"> N/A
+                                <input type="radio" class="form-control" name="choose" checked value="?" id="ignored" autocomplete="off" [(ngModel)]="this.userInput[d1]" (ngModelChange)="exploreData()"> N/A
                             </label>
                             <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === 'false'}">
-                                <input type="radio" class="form-control" name="choose" value="false" id="false" autocomplete="off" [(ngModel)]="this.userInput[d1]" (click)="exploreData()"> false
+                                <input type="radio" class="form-control" name="choose" value="false" id="false" autocomplete="off" [(ngModel)]="this.userInput[d1]" (ngModelChange)="exploreData()"> false
                             </label>
                         </div>
                     </td>
@@ -86,23 +86,21 @@
 <div *ngIf="!resultSet.data && !resultSet.error">data-table: nothing to show.</div>
 <div class="text-danger" *ngIf="resultSet.error">{{resultSet.error}}</div>
 
+<div *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">
+    <p>Select "true" in the rows you are interested in and otherwise "false". As soon as 10 rows are classified, you will get a first classification. <br/>
+        Select "send" to classify all data with the given classification.</p>
+</div>
+
 <button id="sendClassification" type="button" class="btn btn-primary" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'" (click)="sendChosenCols()">Send</button>
 
 <div *ngIf="this.exploreSet !== undefined && config.exploring">
     <h5>Decision Tree</h5>
+    <p>The decision tree shows how you data has been classified.</p>
 </div>
 
-<!--
-<svg width="100" height="100"
-     xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 100 100"
-     preserveAspectRatio="xMidYMid meet">
-    <g/>
-</svg>
--->
 
-<div class="scaling-svg-container" style="padding-bottom: 92%">
-    <svg xmlns="http://www.w3.org/2000/svg" class="scaling-svg" viewBox="auto">
+<div class="scaling-svg-container">
+    <svg xmlns="http://www.w3.org/2000/svg" class="scaling-svg" viewBox="auto" width="100%">
         <g/>
     </svg>
 </div>
