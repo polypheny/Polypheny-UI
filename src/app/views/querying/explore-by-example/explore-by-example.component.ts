@@ -219,7 +219,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     sendSQL(sql: string) {
         this.showResultTable = true;
         this.loading = true;
-        this._crud.createQuery(new QueryExplorationRequest(sql, false)).subscribe(
+        this._crud.createInitialExploreQuery(new QueryExplorationRequest(sql, false)).subscribe(
                 res => {
                     this.resultSet = <ResultSet>res;
                     this.loading = false;

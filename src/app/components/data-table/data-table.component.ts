@@ -405,6 +405,7 @@ export class DataTableComponent implements OnInit, OnChanges {
 
     resetExporationData() {
         this.exploreDataCounter = 0;
+        this.userInput = [];
     }
 
     prepareClassifiedData() {
@@ -481,6 +482,8 @@ export class DataTableComponent implements OnInit, OnChanges {
                         if (treeArray.length > 1) {
                             tree = treeArray[0] + '{ ' + nodes.toString() + '; ' + treeArray[1];
                         }
+
+                        console.log(tree);
 
                         const treeGraph = dot.read(tree);
                         const render = new dagreD3.render();

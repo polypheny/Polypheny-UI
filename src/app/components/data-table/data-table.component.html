@@ -39,13 +39,13 @@
                     <td *ngFor="let d2 of d1" (dblclick)="triggerEditing(i)">{{d2}}</td>
                     <td *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                            <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === 'true'}">
+                            <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'true'}">
                                 <input type="radio" class="form-control" name="choose" value="true" id="true" autocomplete="off" [(ngModel)]="this.userInput[d1]" (ngModelChange)="exploreData()"> true
                             </label>
-                            <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === '?'}">
-                                <input type="radio" class="form-control" name="choose" checked value="?" id="ignored" autocomplete="off" [(ngModel)]="this.userInput[d1]" (ngModelChange)="exploreData()"> N/A
+                            <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === '?' || userInput[d1] === undefined }">
+                                <input type="radio" class="form-control" name="choose" value="?" id="ignored" autocomplete="off" checked [(ngModel)]="this.userInput[d1]" (ngModelChange)="exploreData()"> N/A
                             </label>
-                            <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === 'false'}">
+                            <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'false'}">
                                 <input type="radio" class="form-control" name="choose" value="false" id="false" autocomplete="off" [(ngModel)]="this.userInput[d1]" (ngModelChange)="exploreData()"> false
                             </label>
                         </div>
@@ -80,6 +80,7 @@
                 </li>
             </ul>
         </nav>
+        <button id="resetClassification" class="btn btn-primary" type="button" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' " (click)="resetExporationData()">Reset</button>
     </div>
 </div>
 
@@ -88,10 +89,10 @@
 
 <div *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">
     <p>Select "true" in the rows you are interested in and otherwise "false". As soon as 10 rows are classified, you will get a first classification. <br/>
-        Select "send" to classify all data with the given classification.</p>
+        Select "Execute" to classify all data with the given classification.</p>
 </div>
 
-<button id="sendClassification" type="button" class="btn btn-primary" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined"  (click)="sendChosenCols()">Send</button>
+<button id="sendClassification" type="button" class="btn btn-primary" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined"  (click)="sendChosenCols()">Execute</button>
 
 <div *ngIf="this.exploreSet !== undefined && config.exploring">
     <h5>Decision Tree</h5>
