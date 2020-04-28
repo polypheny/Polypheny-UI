@@ -32,8 +32,9 @@
   border-radius: 50%;
 }
 #connection-status.connected {
-  background-color: #28a745;
-  box-shadow: 0 0 1px 3px #28a745;
+  /*background-color: #28a745;
+  box-shadow: 0 0 1px 3px #28a745;*/
+  display: none;
 }
 #connection-status.disconnected {
   background: #dc3545;
