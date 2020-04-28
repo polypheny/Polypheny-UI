@@ -1,4 +1,5 @@
-import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation, TemplateRef, Output, EventEmitter} from '@angular/core';
+import * as $ from 'jquery';
 import {EditTableRequest, QueryExplorationRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
@@ -7,8 +8,7 @@ import {ToastService} from '../../../components/toast/toast.service';
 import {DataTableComponent} from '../../../components/data-table/data-table.component';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
-
-
+import {  BsModalService, BsModalRef  } from 'ngx-bootstrap/modal';
 
 @Component({
     selector: 'app-explore-by-example',
@@ -20,18 +20,14 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
 
 
     @ViewChild('editGenerated', {static: false}) editGenerated;
-    schema: {};
     loading = false;
     resultSet: ResultSet;
-    exploreCols: ExplorColSet;
-    choosenTables = [];
-    ids = [];
-    tables = [];
-    colNames = [];
     showResultTable: boolean;
     join = [];
     classificationPossible = true;
-    colMax = 5;
+    @ViewChild('template', {static: false}) public template: TemplateRef<any>;
+    @ViewChild('informationExploreProcess', {static: false}) public informationExploreProcess: TemplateRef<any>;
+    @Output() tutorialModeChange = new EventEmitter();
 
     @ViewChild(DataTableComponent, {static: false}) dataTable: DataTableComponent;
     constraints = new Map<string, string>();
@@ -39,37 +35,35 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     umlData = new Map<string, Uml>();//schemaName, uml
     joinConditions = new Map<string, JoinCondition>();
     tab = new Map<string, number>();//tableName, number of columns of this table
+    tables = new Map<string, number>();//tableName, number of columns of this table
+    columns = new Map<string, SidebarNode>();//columnId, columnName
+    modalRef: BsModalRef;
+    tutorialMode = false;
+
 
     constructor(
             private _crud: CrudService,
             private _leftSidebar: LeftSidebarService,
-            private _toast: ToastService) {
+            private _toast: ToastService,
+            private modalService: BsModalService) {
     }
 
+
     ngOnInit() {
-        this._crud.getSchema(new SchemaRequest('views/graphical-querying/', false, 2)).subscribe(
+
+        this._crud.getSchema(new SchemaRequest('views/explore-by-example/', false, 3)).subscribe(
                 res => {
                     const nodeAction = (tree, node, $event) => {
                         if (!node.isActive && node.isLeaf) {
-                            this.choosenTables.push(node.data.id);
-                            this.processSchema(this.schema);
+                            this.addCol(node.data);
                             node.setIsActive(true, true);
                         } else if (node.isActive && node.isLeaf) {
-
-                            const tables = [];
-                            this.choosenTables.forEach(value => {
-                                if (value !== node.data['id']) {
-                                    tables.push(value);
-                                }
-                            });
-                            this.choosenTables = tables;
-                            if (this.choosenTables.length <= 0) {
-                                this.classificationPossible = true;
-                            }
-                            this.processSchema(this.schema);
                             node.setIsActive(false, true);
+                            this.removeCol(node.data.id);
+
                         }
                     };
+
                     const schemaTemp = <SidebarNode[]>res;
                     const schema = [];
                     for (const s of schemaTemp) {
@@ -82,14 +76,21 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
                 }
         );
 
+    }
 
-        this._crud.getSchema(new SchemaRequest('views/explore-by-example/', false, 3)).subscribe(
-                res => {
-                    this.schema = res;
-                }, err => {
-                    console.log(err);
-                }
-        );
+
+    removeCol(colId: string) {
+        const data = colId.split('.');
+        const tableId = data[0] + '.' + data[1];
+        const tableCounter = this.tables.get(tableId);
+        if (tableCounter === 1) {
+            this.tables.delete(tableId);
+        } else {
+            this.tables.set(tableId, tableCounter - 1);
+        }
+        this.columns.delete(colId);
+        this.generateJoinConditions();
+
     }
 
     ngOnDestroy(): void {
@@ -97,43 +98,22 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     }
 
 
-    async processSchema(schema: {}) {
-        this.exploreCols = new ExplorColSet();
-        this.ids = [];
-        this.tables = [];
-        Object.keys(schema).forEach(child1 => {
-            (schema[child1]['children']).forEach(child2 => {
-                (child2['children']).forEach(child3 => {
-                    const table = child3['id'];
-                    if (this.choosenTables && this.choosenTables.includes(table)) {
-                        this.tables.push(table);
-                        (child3['children'].forEach(value => {
-                            const id = value['id'];
-                            this.getConstraints(value);
-                            this.ids.push(id);
-                            this.exploreCols[id] = false;
-                        }));
-                    }
-                });
-            });
-        });
-        this.classificationPossible = true;
-        this.showResultTable = false;
-        if (this.ids.length < this.colMax + 1 && this.tables.length > 0) {
-            this.showResultTable = true;
-            this.generateTableSQL(this.ids, this.tables);
-        }
-    }
+    addCol(data) {
+        const treeElement = new SidebarNode(data.id, data.name, null, null);
+        console.log(data);
 
-
-    async getConstraints(value) {
-
-        const treeElement = new SidebarNode(value.id, value.name, null, null);
-
-        if (this.tab.get(treeElement.getTable()) !== undefined) {
-            this.tab.set(treeElement.getTable(), this.tab.get(treeElement.getTable()) + 1);
+        if (this.columns.get(treeElement.id) !== undefined) {
+            //skip if already in select list
+            return;
         } else {
-            this.tab.set(treeElement.getTable(), 1);
+            this.columns.set(treeElement.id, treeElement);
+            console.log(this.columns);
+        }
+
+        if (this.tables.get(treeElement.getTable()) !== undefined) {
+            this.tables.set(treeElement.getTable(), this.tables.get(treeElement.getTable()) + 1);
+        } else {
+            this.tables.set(treeElement.getTable(), 1);
         }
 
         if (this.schemas.get(treeElement.getSchema()) === undefined) {
@@ -150,8 +130,11 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         } else {
             this.generateJoinConditions();
         }
+        $('#selectBox').append(`<div class="btn btn-secondary btn-sm dbCol" data-id="${treeElement.id}">${treeElement.getColumn()} <span class="del">&times;</span></div>`).sortable('refresh');
+
 
     }
+
 
     /**
      * Generate the needed join conditions
@@ -162,23 +145,34 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
             uml.foreignKeys.forEach((fk: ForeignKey, key2) => {
                 const fkId = fk.fkTableSchema + '.' + fk.fkTableName + '.' + fk.fkColumnName;
                 const pkId = fk.pkTableSchema + '.' + fk.pkTableName + '.' + fk.pkColumnName;
-                if (this.tab.get(fk.pkTableSchema + '.' + fk.pkTableName) !== undefined &&
-                        this.tab.get(fk.fkTableSchema + '.' + fk.fkTableName) !== undefined) {
+                if (this.tables.get(fk.pkTableSchema + '.' + fk.pkTableName) !== undefined &&
+                        this.tables.get(fk.fkTableSchema + '.' + fk.fkTableName) !== undefined) {
                     this.joinConditions.set(fkId + pkId, new JoinCondition(fkId + ' = ' + pkId));
                 }
             });
         });
     }
 
-
     selectedColumns() {
         const id = [];
-        Object.keys(this.exploreCols).forEach(value => {
-            if (this.exploreCols[value] === true) {
-                id.push(value);
-            }
+        const table = [];
+
+        this.columns.forEach((v, k) =>{
+            id.push(k);
         });
-        this.generateTableSQL(id, this.tables);
+
+        this.tables.forEach((v, k) =>{
+           table.push(k);
+        });
+
+        if(table.length > 0){
+            this.generateTableSQL(id, table);
+        }else{
+            console.log('das ist ein test');
+            this._toast.warn('test', 'test');
+            this._toast.error('Please select at least one column from the left sidebar to start the process.');
+        }
+
     }
 
     async generateTableSQL(ids, tables) {
@@ -216,17 +210,30 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     }
 
 
+    openModal(template: TemplateRef<any>) {
+        this.modalRef = this.modalService.show(template);
+    }
+
     sendSQL(sql: string) {
         this.showResultTable = true;
         this.loading = true;
+        console.log(sql);
         this._crud.createInitialExploreQuery(new QueryExplorationRequest(sql, false)).subscribe(
                 res => {
+
                     this.resultSet = <ResultSet>res;
+                    console.log(this.tutorialMode);
+                    if(this.tutorialMode && this.classificationPossible){
+                        this.openModal(this.informationExploreProcess);
+                    }
                     this.loading = false;
                     this.classificationPossible = this.resultSet.classificationInfo !== 'NoClassificationPossible';
-
+                    if(!this.classificationPossible){
+                        this._toast.warn('Not enough Data to use the classification. All available data is already within the initial table.');
+                    }
+                    this._toast.success('Initial table successfully loaded.');
                 }, err => {
-                    this._toast.error('Unknown error on the server.');
+                    this._toast.error('Creation of initial table failed.');
                     this.loading = false;
                 }
         );

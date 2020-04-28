@@ -79,6 +79,8 @@ import {AboutComponent} from './about/about.component';
     ExploreByExampleComponent,
     AboutComponent
   ],
-  exports: []
+    exports: [
+        ExploreByExampleComponent
+    ]
 })
 export class ViewsModule { }

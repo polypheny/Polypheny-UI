@@ -20,6 +20,7 @@ import {InformationManagerComponent} from './information-manager/information-man
 import { InputComponent } from './data-table/input/input.component';
 import { EditorComponent } from './editor/editor.component';
 import {ExplainVisualizerModule} from '../explain-visualizer/explain-visualizer.module';
+import {ViewsModule} from '../views/views.module';
 //import 'hammerjs';
 
 @NgModule({

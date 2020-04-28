@@ -81,29 +81,71 @@
             </ul>
         </nav>
         <button id="resetClassification" class="btn btn-primary" type="button" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' " (click)="resetExporationData()">Reset</button>
+        <button id= "showDecisionTree" type="button" class="btn btn-primary" *ngIf="this.exploreSet !== undefined && config.exploring" (click)="openDecisionTree(decisionTree)">Show Decision Tree</button>
+        <button id= "showSQL" type="button" class="btn btn-primary" *ngIf="this.exploreSet !== undefined && config.exploring && this.finalresult" (click)="openSQL(sql)">Show SQL Statement</button>
+        <button id="sendClassification" type="button" class="btn btn-primary" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined"  (click)="sendChosenCols()">Execute</button>
+
     </div>
 </div>
 
 <div *ngIf="!resultSet.data && !resultSet.error">data-table: nothing to show.</div>
 <div class="text-danger" *ngIf="resultSet.error">{{resultSet.error}}</div>
 
-<div *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">
-    <p>Select "true" in the rows you are interested in and otherwise "false". As soon as 10 rows are classified, you will get a first classification. <br/>
-        Select "Execute" to classify all data with the given classification.</p>
+
+<ng-template #decisionTree>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title pull-left">Decision Tree</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefDecision.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="modal-body-tree">
+           The decision tree shows how the data has been classified.
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #sql>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title pull-left">SQL Statement</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="modal-body-SQL">
+            <div id="example-wrapper" style="height: 150px">
+                <app-editor #editorGenerated [code]="createdSQL"></app-editor>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #tutorial>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title pull-left">Check Classification</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefTutorial.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="modal-body-tutorial">
+            Now a classifier has been created, if it is not as wished it can be changed by changing "true" and "false". Otherwise the final dataset can be created with "Execute".
+            (Bild hinzufügen)
+        </div>
+    </div>
+</ng-template>
+
+
+<div class="hidden-layer">
+    <div class="scaling-svg-container">
+        <svg id="tree" xmlns="http://www.w3.org/2000/svg" class="scaling-svg" viewBox="auto" width="110%">
+            <g/>
+        </svg>
+    </div>
 </div>
 
-<button id="sendClassification" type="button" class="btn btn-primary" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined"  (click)="sendChosenCols()">Execute</button>
 
-<div *ngIf="this.exploreSet !== undefined && config.exploring">
-    <h5>Decision Tree</h5>
-    <p>The decision tree shows how you data has been classified.</p>
-</div>
-
-
-<div class="scaling-svg-container">
-    <svg xmlns="http://www.w3.org/2000/svg" class="scaling-svg" viewBox="auto" width="100%">
-        <g/>
-    </svg>
-</div>
 
 

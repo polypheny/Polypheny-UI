@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewEncapsulation} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import {TableConfig} from './table-config';
 import * as $ from 'jquery';
 import {cloneDeep} from 'lodash';
@@ -13,6 +13,8 @@ import {DbmsTypesService} from '../../services/dbms-types.service';
 import * as dot from 'graphlib-dot';
 import * as dagreD3 from 'dagre-d3';
 import * as d3 from 'd3';
+import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
+
 
 @Component({
     selector: 'app-data-table',
@@ -26,6 +28,10 @@ export class DataTableComponent implements OnInit, OnChanges {
     @Input() tableId: string;
     @Input() loading?: boolean;
     @Input() exploreSet: ExploreSet;
+    @ViewChild('decisionTree', {static: false}) public decisionTree: TemplateRef<any>;
+    @ViewChild('sql', {static: false}) public sql: TemplateRef<any>;
+    @ViewChild('editorGenerated', {static: false}) editorGenerated;
+    @ViewChild('tutorial', {static: false}) public tutorial: TemplateRef<any>;
 
     pagination: PaginationElement[] = [];
     insertValues = new Map<string, any>();
@@ -36,6 +42,12 @@ export class DataTableComponent implements OnInit, OnChanges {
     classifiedData: string[][];
     isExploringData = false;
     cData: string[][];
+    modalRef: BsModalRef;
+    modalRefDecision: BsModalRef;
+    modalRefTutorial: BsModalRef;
+    @Input()tutorialMode:boolean;
+    createdSQL: string;
+    finalresult = false;
 
     columns = [];
     userInput = {};
@@ -50,7 +62,8 @@ export class DataTableComponent implements OnInit, OnChanges {
             private _toast: ToastService,
             private _route: ActivatedRoute,
             private _router: Router,
-            private _types: DbmsTypesService
+            private _types: DbmsTypesService,
+            private modalService: BsModalService
     ) {
     }
 
@@ -465,7 +478,14 @@ export class DataTableComponent implements OnInit, OnChanges {
 
             this._crud.exploreUserInput(new Exploration(this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
                     res => {
+                        this._toast.success('Classification successful');
+
+                        this.finalresult = false;
+                        if(this.tutorialMode){
+                            this.openTutorial(this.tutorial);
+                        }
                         this.exploreSet = <ExploreSet>res;
+                        // this.openModal(this.template);
                         this.userInput = {};
                         this.cData = [];
                         this.exploreDataCounter = 0;
@@ -488,17 +508,19 @@ export class DataTableComponent implements OnInit, OnChanges {
                         const treeGraph = dot.read(tree);
                         const render = new dagreD3.render();
 
-                        const svg = d3.select('svg'),
+                        const svg = d3.select('svg#tree'),
                                 svgGroup = svg.append('g');
 
-                        render(d3.select('svg g'), treeGraph);
+                        render(d3.select('svg#tree g'), treeGraph);
 
                         const xCenterOffset = (svg.attr('width') - treeGraph.graph().width) / 2;
                         svgGroup.attr('transform', 'translate(' + xCenterOffset + ',20');
                         svg.attr('height', treeGraph.graph().height + 40);
 
 
+
                     }, err => {
+                        this._toast.error(('Classification Failed'));
                         console.log(err);
 
                     }
@@ -507,18 +529,44 @@ export class DataTableComponent implements OnInit, OnChanges {
 
     }
 
+    openTutorial(tutorial: TemplateRef<any>){
+        this.modalRefTutorial = this.modalService.show(tutorial);
+    }
+
+    openDecisionTree(decisionTree: TemplateRef<any>) {
+
+        this.modalRefDecision = this.modalService.show(decisionTree);
+
+        const finalTree = $('.hidden-layer').clone().removeClass('hidden-layer');
+        finalTree.appendTo('#modal-body-tree');
+
+    }
+
+    openSQL(sql: TemplateRef<any>){
+        this.modalRef = this.modalService.show(sql, {class:'modal-lg'});
+    }
+
+
     sendChosenCols() {
         this._crud.classifyData(new ClassifyRequest(this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
                 res => {
+                    this._toast.success('Final Result');
+                    this.finalresult = true;
                     this.userInput = {};
                     this.classifiedData = [];
                     this.resultSet = <ResultSet>res;
+                    if(this.resultSet.info.generatedQuery){
+                        this.createdSQL = this.resultSet.info.generatedQuery;
+                    }
+
                     this.setPagination();
 
                 }, err => {
+                    this._toast.error(('Error showing final Result'));
                     console.log(err);
                 }
         );
     }
+
 
 }
