@@ -49,6 +49,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   ngOnInit() {
+    this._leftSidebar.open();
     this.initSchema();
     this.initGraphicalQuerying();
     const sub = this._crud.onReconnection().subscribe(
