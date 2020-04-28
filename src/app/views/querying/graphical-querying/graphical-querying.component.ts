@@ -11,6 +11,7 @@ import {EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
 import {Router} from '@angular/router';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-graphical-querying',
@@ -30,6 +31,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   orderByCounter = 0;
   andCounter = 0;
   filteredUserSet: FilteredUserInput;
+  private subscriptions = new Subscription();
 
   //fields for the graphical query generation
   schemas = new Map<string, string>();//schemaName, schemaName
@@ -47,6 +49,28 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   ngOnInit() {
+    this._leftSidebar.open();
+    this.initSchema();
+    this.initGraphicalQuerying();
+    const sub = this._crud.onReconnection().subscribe(
+      b => {
+        if(b) this.initSchema();
+      }
+    );
+    this.subscriptions.add(sub);
+  }
+
+  ngAfterViewInit() {
+    this.generateSQL();
+  }
+
+  ngOnDestroy() {
+    this._leftSidebar.close();
+    // this._leftSidebar.reset();
+    this.subscriptions.unsubscribe();
+  }
+
+  initSchema() {
     this._crud.getSchema(new SchemaRequest('views/graphical-querying/', false, 3)).subscribe(
       res => {
         const nodeAction = (tree, node, $event) => {
@@ -75,16 +99,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this._leftSidebar.open();
       }
     );
-    this.initGraphicalQuerying();
-  }
-
-  ngAfterViewInit() {
-    this.generateSQL();
-  }
-
-  ngOnDestroy() {
-    this._leftSidebar.close();
-    // this._leftSidebar.reset();
   }
 
   initGraphicalQuerying() {

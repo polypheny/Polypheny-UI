@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {webSocket} from 'rxjs/webSocket';
 import {WebuiSettingsService} from './webui-settings.service';
@@ -13,6 +13,8 @@ export class InformationService {
     this.initWebSocket();
   }
 
+  public connected = false;
+  private reconnected = new EventEmitter<boolean>();
   private socket;
   httpUrl = this._settings.getConnection('information.rest');
   httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
@@ -37,9 +39,32 @@ export class InformationService {
     return this._http.post(`${this.httpUrl}/executeAction`, JSON.stringify(i), this.httpOptions);
   }
 
+  //websocket:
   //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
+  //openObserver:
+  //https://rxjs-dev.firebaseapp.com/api/webSocket/WebSocketSubjectConfig
+  //it's not possible to suppress the websocket exception during the reconnect:
+  //https://stackoverflow.com/questions/31978298/suppress-websocket-connection-to-xyz-failed
   private initWebSocket() {
-    this.socket = webSocket(this._settings.getConnection('information.socket'));
+    this.socket = webSocket({
+      url: this._settings.getConnection('information.socket'),
+      openObserver: {
+        next: (n) => {
+          this.reconnected.emit(true);
+          this.connected = true;
+        }
+      }
+    });
+    this.socket.subscribe(
+      msg => {},
+      err => {
+        //this.reconnected.emit(false);
+        this.connected = false;
+        setTimeout(() => {
+          this.initWebSocket();
+        }, +this._settings.getSetting('reconnection.timeout'));
+      }
+    );
   }
 
   socketSend(msg: string) {
@@ -52,6 +77,10 @@ export class InformationService {
 
   closeSocket() {
     this.socket.complete();
+  }
+
+  onReconnection(){
+    return this.reconnected;
   }
 
 }

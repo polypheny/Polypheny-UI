@@ -206,7 +206,7 @@
         <div class="aside-options">
           <div class="form-group" *ngFor="let s of settings | keyvalue">
             <label [for]="s.key">{{s.key}}</label>
-            <input type="text" class="form-control form-control-sm" [id]="s.key" [value]="s.value" [formControlName]="s.key">
+            <input type="text" class="form-control form-control-sm" [id]="s.key" [value]="s.value.value" [formControlName]="s.key">
           </div>
         </div>
 

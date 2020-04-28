@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 export class WebuiSettingsService {
 
   connections = new Map<string, string>();
-  settings = new Map<string, string>();
+  settings = new Map<string, Setting>();
   settingsGR = new Map<string, string>();
   host: string;
 
@@ -14,29 +14,13 @@ export class WebuiSettingsService {
 
     this.host = location.hostname;
 
-    if( localStorage.getItem('configServer.port') === null ) {
-      localStorage.setItem('configServer.port', '8081');
-    }
-    if( localStorage.getItem('informationServer.port') === null ) {
-      localStorage.setItem('informationServer.port', '8082');
-    }
-    if( localStorage.getItem('webUI.port') === null ) {
-      localStorage.setItem('webUI.port', '8083');
-    }
-    //hub
-    if( localStorage.getItem('hub.url') === null ) {
-      localStorage.setItem('hub.url', 'https://hub.polypheny.org/index.php');
-    }
-    if( localStorage.getItem('websocketGestureRecognition.ip:port') == null ) {
-      localStorage.setItem('websocketGestureRecognition.ip:port', 'localhost:4999');
-    }
-
-
-    this.settings.set( 'configServer.port', localStorage.getItem('configServer.port'));
-    this.settings.set( 'informationServer.port', localStorage.getItem('informationServer.port'));
-    this.settings.set( 'webUI.port', localStorage.getItem('webUI.port'));
-    this.settings.set( 'hub.url', localStorage.getItem('hub.url'));
-    this.settingsGR.set( 'websocketGestureRecognition.ip:port', localStorage.getItem('websocketGestureRecognition.ip:port'));
+    // tslint:disable:no-unused-expression
+    new Setting( this.settings, 'configServer.port', '8081');
+    new Setting( this.settings, 'informationServer.port', '8082');
+    new Setting( this.settings, 'webUI.port', '8083');
+    new Setting( this.settings, 'hub.url', 'https://hub.polypheny.org/index.php');
+    new Setting( this.settings, 'websocketGestureRecognition.ip:port', 'localhost:4999/index.php');
+    new Setting( this.settings, 'reconnection.timeout', '5000' );
 
     this.connections.set( 'config.rest',
         'http://' + this.host + ':' + localStorage.getItem( 'configServer.port' ) );
@@ -51,7 +35,7 @@ export class WebuiSettingsService {
     this.connections.set( 'crud.socket',
         'ws://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) + '/queryAnalyzer' );
     this.connections.set( 'hub.url', localStorage.getItem('hub.url'));
-    this.connections.set('websocketGestureRecognition', 'ws://' + localStorage.getItem('websocketGestureRecognition.ip:port'))
+    this.connections.set('websocketGestureRecognition', 'ws://' + localStorage.getItem('websocketGestureRecognition.ip:port'));
   }
 
   public getConnection(key:string ){
@@ -64,8 +48,12 @@ export class WebuiSettingsService {
 
 
   public setSetting ( key:string, val:string ) {
-    this.settings.set( key, val );
+    this.settings.get(key).value = val;
     localStorage.setItem( key, val );
+  }
+
+  public getSetting ( key:string ) {
+    return this.settings.get( key ).value;
   }
 
   public getSettingsGR(){
@@ -78,10 +66,26 @@ export class WebuiSettingsService {
   }
 
   public reset(){
-    localStorage.setItem('configServer.port', '8081');
-    localStorage.setItem('informationServer.port', '8082');
-    localStorage.setItem('webUI.port', '8083');
-    localStorage.setItem('hub.url', 'https://hub.polypheny.org/index.php');
+    for( const s of this.settings.values() ){
+      localStorage.setItem( s.key, s.default );
+    }
     location.reload();
+  }
+}
+
+export class Setting {
+  key: string;
+  value: string;
+  default: string;
+  constructor( map:Map<string, Setting>, key:string, defaultValue:string ) {
+    this.key = key;
+    this.default = defaultValue;
+    if( localStorage.getItem(key) === null) {
+      this.value = defaultValue;
+      localStorage.setItem(key, defaultValue);
+    } else {
+      this.value = localStorage.getItem(key);
+    }
+    map.set( key, this );
   }
 }

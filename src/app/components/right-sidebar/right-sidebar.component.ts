@@ -1,8 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
-import {WebuiSettingsService} from '../../services/webui-settings.service';
+import {Setting, WebuiSettingsService} from '../../services/webui-settings.service';
 import {FormControl, FormGroup} from '@angular/forms';
-import {RightSidebarToRelationalalgebraService} from "../../services/right-sidebar-to-relationalalgebra.service";
-import { DOCUMENT } from '@angular/common';
+import {RightSidebarToRelationalalgebraService} from '../../services/right-sidebar-to-relationalalgebra.service';
 
 @Component({
   selector: 'app-right-sidebar',
@@ -11,12 +10,12 @@ import { DOCUMENT } from '@angular/common';
 })
 export class RightSidebarComponent implements OnInit {
 
-  settings = this._settings.getSettings();
+  settings: Map<string, Setting> = this._settings.getSettings();
   form: FormGroup;
 
   settingsGR = this._settings.getSettingsGR();
   formGR: FormGroup;
-  public buttonName: string = 'connect';
+  public buttonName = 'connect';
 
 
   constructor(
@@ -24,8 +23,8 @@ export class RightSidebarComponent implements OnInit {
       private _RsToRa:RightSidebarToRelationalalgebraService
   ) {
     const controls = {};
-    this.settings.forEach((val, key) => {
-      controls[key] = new FormControl(val);
+    this.settings.forEach((val:Setting, key:string) => {
+      controls[key] = new FormControl(<string>val.value);
     });
     this.form = new FormGroup(controls);
 

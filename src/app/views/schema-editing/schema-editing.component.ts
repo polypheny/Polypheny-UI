@@ -7,6 +7,7 @@ import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {SidebarNode} from '../../models/sidebar-node.model';
 import {ResultSet} from '../../components/data-table/models/result-set.model';
 import {ToastService} from '../../components/toast/toast.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-schema-editing',
@@ -22,80 +23,87 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   createSubmitted = false;
   dropSubmitted = false;
   createSchemaFeedback = 'Schema name is invalid';
+  private subscriptions = new Subscription();
 
   constructor(
-	private _route: ActivatedRoute,
-	private _router: Router,
-	private _leftSidebar: LeftSidebarService,
-	private _crud: CrudService,
-	private _toast: ToastService
+    private _route: ActivatedRoute,
+    private _router: Router,
+    private _leftSidebar: LeftSidebarService,
+    private _crud: CrudService,
+    private _toast: ToastService
   ) { }
 
   ngOnInit() {
 
-	this.getRouteParam();
-	this.getSchema();
-	this.initForms();
-
+    this.getRouteParam();
+    this.getSchema();
+    this.initForms();
+    const sub = this._crud.onReconnection().subscribe(
+      b => {
+        this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2), this._router);
+      }
+    );
+    this.subscriptions.add(sub);
   }
 
   ngOnDestroy() {
-	this._leftSidebar.close();
+    this._leftSidebar.close();
+    this.subscriptions.unsubscribe();
   }
 
   getRouteParam() {
-	this.routeParam = this._route.snapshot.paramMap.get('id');
-	this._route.params.subscribe((params) => {
-	  this.routeParam = params['id'];
-	});
+    this.routeParam = this._route.snapshot.paramMap.get('id');
+    this._route.params.subscribe((params) => {
+      this.routeParam = params['id'];
+    });
   }
 
   public getSchema() {
-	this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2), this._router);
-	this._crud.getSchema(new SchemaRequest('/views/schema-editing/', false, 1)).subscribe(
-	  res => {
-		this.schemas = <SidebarNode[]>res;
-	  }, err => {
-		console.log(err);
-	  }
-	);
+    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2), this._router);
+    this._crud.getSchema(new SchemaRequest('/views/schema-editing/', false, 1)).subscribe(
+      res => {
+        this.schemas = <SidebarNode[]>res;
+      }, err => {
+        console.log(err);
+      }
+    );
   }
 
   initForms() {
-	this.createForm = new FormGroup({
-	  name: new FormControl('', this._crud.getNameValidator(true)),
-	  type: new FormControl('relational', Validators.required)
-	});
-	this.dropForm = new FormGroup({
-	  name: new FormControl('', Validators.required),
-	  cascade: new FormControl()
-	});
+    this.createForm = new FormGroup({
+      name: new FormControl('', this._crud.getNameValidator(true)),
+      type: new FormControl('relational', Validators.required)
+    });
+    this.dropForm = new FormGroup({
+      name: new FormControl('', Validators.required),
+      cascade: new FormControl()
+    });
   }
 
   resetForm(formName: string) {
-	switch (formName) {
-	  case 'createForm':
-		this.createForm.controls['name'].setValue('');
-		this.createForm.markAsPristine();
-		break;
-	  case 'dropForm':
-		this.dropForm.controls['name'].setValue('');
-		this.dropForm.controls['cascade'].setValue(false);
-		this.dropForm.markAsPristine();
-		break;
-	}
+    switch (formName) {
+      case 'createForm':
+        this.createForm.controls['name'].setValue('');
+        this.createForm.markAsPristine();
+        break;
+      case 'dropForm':
+        this.dropForm.controls['name'].setValue('');
+        this.dropForm.controls['cascade'].setValue(false);
+        this.dropForm.markAsPristine();
+        break;
+    }
   }
 
-  createSchema(){
+  createSchema() {
     this.createSubmitted = true;
-    if( this.createForm.valid && this.createSchemaValidation( this.createForm.controls['name'].value ) === 'is-valid' ){
+    if (this.createForm.valid && this.createSchemaValidation(this.createForm.controls['name'].value) === 'is-valid') {
       const val = this.createForm.value;
-      this._crud.createOrDropSchema( new Schema( val.name, val.type ).setCreate( true ) ).subscribe(
+      this._crud.createOrDropSchema(new Schema(val.name, val.type).setCreate(true)).subscribe(
         res => {
-          const result = <ResultSet> res;
-          if( result.error ){
+          const result = <ResultSet>res;
+          if (result.error) {
             this._toast.exception(result);
-          }else{
+          } else {
             this._toast.success('Created schema ' + val.name);
             this.getSchema();
           }
@@ -110,16 +118,16 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     }
   }
 
-  dropSchema(){
+  dropSchema() {
     this.dropSubmitted = true;
-    if( this.dropForm.valid && this.getValidationClass( this.dropForm.controls['name'].value ) === 'is-valid' ){
+    if (this.dropForm.valid && this.getValidationClass(this.dropForm.controls['name'].value) === 'is-valid') {
       const val = this.dropForm.value;
-      this._crud.createOrDropSchema( new Schema( val.name, val.type ).setDrop( true ).setCascade( val.cascade ) ).subscribe(
+      this._crud.createOrDropSchema(new Schema(val.name, val.type).setDrop(true).setCascade(val.cascade)).subscribe(
         res => {
-          const result = <ResultSet> res;
-          if( result.error ){
+          const result = <ResultSet>res;
+          if (result.error) {
             this._toast.exception(result);
-          }else{
+          } else {
             this._toast.success('Dropped schema ' + val.name);
             this.getSchema();
           }
@@ -136,33 +144,33 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   }
 
   getValidationClass(val) {
-	if (val === '') {
-	  return '';
-	} else if (this.schemas.filter((o) => o.name === val).length > 0) {
-	  return 'is-valid';
-	} else {
-	  return 'is-invalid';
-	}
+    if (val === '') {
+      return '';
+    } else if (this.schemas.filter((o) => o.name === val).length > 0) {
+      return 'is-valid';
+    } else {
+      return 'is-invalid';
+    }
   }
 
   createSchemaValidation(name) {
-	if (name === '') {
-	  return '';
-	}
-	if (this.schemas) {
-	  if (this.schemas.filter((o) => o.name === name).length > 0) {
-		this.createSchemaFeedback = 'Schema name is already taken';
-		return 'is-invalid';
-	  } else {
-		this.createSchemaFeedback = 'Schema name is invalid';
-	  }
-	}
-	const regex = this._crud.getValidationRegex();
-	if (regex.test(name) && name.length <= 100) {
-	  return 'is-valid';
-	} else {
-	  return 'is-invalid';
-	}
+    if (name === '') {
+      return '';
+    }
+    if (this.schemas) {
+      if (this.schemas.filter((o) => o.name === name).length > 0) {
+        this.createSchemaFeedback = 'Schema name is already taken';
+        return 'is-invalid';
+      } else {
+        this.createSchemaFeedback = 'Schema name is invalid';
+      }
+    }
+    const regex = this._crud.getValidationRegex();
+    if (regex.test(name) && name.length <= 100) {
+      return 'is-valid';
+    } else {
+      return 'is-invalid';
+    }
   }
 
 }
