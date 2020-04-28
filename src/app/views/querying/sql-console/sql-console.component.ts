@@ -66,7 +66,9 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._leftSidebar.close();
-    this._crud.closeAnalyzer(this.analyzerId).subscribe();
+    if(this.analyzerId) {
+      this._crud.closeAnalyzer(this.analyzerId).subscribe();
+    }
     this.subscriptions.unsubscribe();
     this._breadcrumb.hide();
   }
@@ -82,12 +84,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     }
     //close the previous analyzer
     if (this.analyzerId) {
-      this._crud.closeAnalyzer(this.analyzerId).subscribe(
-        res => {
-        },
-        err => {
-        }
-      );
+      this._crud.closeAnalyzer(this.analyzerId).subscribe();
     }
     this.queryAnalysis = null;
 

@@ -58,7 +58,6 @@ export class MonitoringComponent implements OnInit, OnDestroy {
     //this.subscription = this._information.onSocketEvent().subscribe(
     const sub = this._information.onSocketEvent().subscribe(
       update => {
-        console.log(update);
         const info: InformationObject = <InformationObject>update;
         if (this.data && this.data.groups[info.groupId] && this.data.groups[info.groupId].informationObjects[info.id]) {
           switch (info.type) {
