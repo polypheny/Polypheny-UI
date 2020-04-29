@@ -39,6 +39,8 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     columns = new Map<string, SidebarNode>();//columnId, columnName
     modalRef: BsModalRef;
     tutorialMode = false;
+    tableModeImage = 'assets/img/explore/tutorialModeTable.PNG';
+    tableModeImageButton = 'assets/img/explore/buttonsResetStart.PNG';
 
 
     constructor(
