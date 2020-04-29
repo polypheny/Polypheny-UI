@@ -13,7 +13,7 @@ import {DbmsTypesService} from '../../services/dbms-types.service';
 import * as dot from 'graphlib-dot';
 import * as dagreD3 from 'dagre-d3';
 import * as d3 from 'd3';
-import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
+import {BsModalService, BsModalRef, ModalOptions} from 'ngx-bootstrap/modal';
 
 
 @Component({
@@ -451,6 +451,60 @@ export class DataTableComponent implements OnInit, OnChanges {
         }
     }
 
+    sendClassificationData(){
+
+        this.prepareClassifiedData();
+
+        this._crud.exploreUserInput(new Exploration(this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
+                res => {
+                    this._toast.success('Classification successful');
+
+                    this.finalresult = false;
+                    if(this.tutorialMode){
+                        this.openTutorial(this.tutorial);
+                    }
+                    this.exploreSet = <ExploreSet>res;
+                    // this.openModal(this.template);
+                    this.userInput = {};
+                    this.cData = [];
+                    this.exploreDataCounter = 0;
+
+                    this.prepareUserInput(this.exploreSet.dataAfterClassification);
+
+                    let tree = <string>this.exploreSet.graph;
+
+                    const digraph = dot.read(tree);
+                    const nodes = digraph.nodes().join('; ');
+
+                    const treeArray = tree.split(' shape=box style=filled ').join('').split('{');
+
+                    if (treeArray.length > 1) {
+                        tree = treeArray[0] + '{ ' + nodes.toString() + '; ' + treeArray[1];
+                    }
+
+                    console.log(tree);
+
+                    const treeGraph = dot.read(tree);
+                    const render = new dagreD3.render();
+
+                    const svg = d3.select('svg#tree'),
+                            svgGroup = svg.append('g');
+
+                    render(d3.select('svg#tree g'), treeGraph);
+
+                    const xCenterOffset = (svg.attr('width') - treeGraph.graph().width) / 2;
+                    svgGroup.attr('transform', 'translate(' + xCenterOffset + ',20');
+                    svg.attr('height', treeGraph.graph().height + 40);
+
+
+
+                }, err => {
+                    this._toast.error(('Classification Failed'));
+                    console.log(err);
+
+                }
+        );
+    }
 
     exploreData() {
         this.isExploringData = true;
@@ -472,60 +526,6 @@ export class DataTableComponent implements OnInit, OnChanges {
         });
 
         this.exploreDataCounter++;
-        if (this.exploreDataCounter > 9) {
-
-            this.prepareClassifiedData();
-
-            this._crud.exploreUserInput(new Exploration(this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
-                    res => {
-                        this._toast.success('Classification successful');
-
-                        this.finalresult = false;
-                        if(this.tutorialMode){
-                            this.openTutorial(this.tutorial);
-                        }
-                        this.exploreSet = <ExploreSet>res;
-                        // this.openModal(this.template);
-                        this.userInput = {};
-                        this.cData = [];
-                        this.exploreDataCounter = 0;
-
-                        this.prepareUserInput(this.exploreSet.dataAfterClassification);
-
-                        let tree = <string>this.exploreSet.graph;
-
-                        const digraph = dot.read(tree);
-                        const nodes = digraph.nodes().join('; ');
-
-                        const treeArray = tree.split(' shape=box style=filled ').join('').split('{');
-
-                        if (treeArray.length > 1) {
-                            tree = treeArray[0] + '{ ' + nodes.toString() + '; ' + treeArray[1];
-                        }
-
-                        console.log(tree);
-
-                        const treeGraph = dot.read(tree);
-                        const render = new dagreD3.render();
-
-                        const svg = d3.select('svg#tree'),
-                                svgGroup = svg.append('g');
-
-                        render(d3.select('svg#tree g'), treeGraph);
-
-                        const xCenterOffset = (svg.attr('width') - treeGraph.graph().width) / 2;
-                        svgGroup.attr('transform', 'translate(' + xCenterOffset + ',20');
-                        svg.attr('height', treeGraph.graph().height + 40);
-
-
-
-                    }, err => {
-                        this._toast.error(('Classification Failed'));
-                        console.log(err);
-
-                    }
-            );
-        }
 
     }
 
@@ -543,7 +543,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
     openSQL(sql: TemplateRef<any>){
-        this.modalRef = this.modalService.show(sql, {class:'modal-lg'});
+        this.modalRef = this.modalService.show(sql);
     }
 
 

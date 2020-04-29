@@ -81,6 +81,7 @@
             </ul>
         </nav>
         <button id="resetClassification" class="btn btn-primary" type="button" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' " (click)="resetExporationData()">Reset</button>
+        <button id="startClassification" class="btn btn-primary" type="button" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && this.exploreDataCounter > 7" (click)="sendClassificationData()">Start Classification</button>
         <button id= "showDecisionTree" type="button" class="btn btn-primary" *ngIf="this.exploreSet !== undefined && config.exploring" (click)="openDecisionTree(decisionTree)">Show Decision Tree</button>
         <button id= "showSQL" type="button" class="btn btn-primary" *ngIf="this.exploreSet !== undefined && config.exploring && this.finalresult" (click)="openSQL(sql)">Show SQL Statement</button>
         <button id="sendClassification" type="button" class="btn btn-primary" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined"  (click)="sendChosenCols()">Execute</button>
