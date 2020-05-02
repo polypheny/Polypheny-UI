@@ -28,6 +28,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     @Input() tableId: string;
     @Input() loading?: boolean;
     @Input() exploreSet: ExploreSet;
+    @Input() exploreId: number;
     @ViewChild('decisionTree', {static: false}) public decisionTree: TemplateRef<any>;
     @ViewChild('sql', {static: false}) public sql: TemplateRef<any>;
     @ViewChild('editorGenerated', {static: false}) editorGenerated;
@@ -48,6 +49,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     @Input()tutorialMode:boolean;
     createdSQL: string;
     finalresult = false;
+    initalClassifiation = true;
 
     columns = [];
     userInput = {};
@@ -56,6 +58,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     confirm = -1;
     exploreDataCounter = 0;
     labled = [];
+
 
     constructor(
             private _crud: CrudService,
@@ -419,6 +422,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     resetExporationData() {
         this.exploreDataCounter = 0;
         this.userInput = [];
+        this.exploreSet = undefined;
     }
 
     prepareClassifiedData() {
@@ -455,15 +459,16 @@ export class DataTableComponent implements OnInit, OnChanges {
 
         this.prepareClassifiedData();
 
-        this._crud.exploreUserInput(new Exploration(this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
+        this._crud.exploreUserInput(new Exploration(this.exploreId, this.resultSet.header, this.classifiedData)).subscribe(
                 res => {
                     this._toast.success('Classification successful');
-
+                    this.initalClassifiation = false;
                     this.finalresult = false;
                     if(this.tutorialMode){
                         this.openTutorial(this.tutorial);
                     }
                     this.exploreSet = <ExploreSet>res;
+                    this.exploreId = this.resultSet.explorerId;
                     // this.openModal(this.template);
                     this.userInput = {};
                     this.cData = [];
@@ -481,8 +486,6 @@ export class DataTableComponent implements OnInit, OnChanges {
                     if (treeArray.length > 1) {
                         tree = treeArray[0] + '{ ' + nodes.toString() + '; ' + treeArray[1];
                     }
-
-                    console.log(tree);
 
                     const treeGraph = dot.read(tree);
                     const render = new dagreD3.render();
@@ -548,13 +551,14 @@ export class DataTableComponent implements OnInit, OnChanges {
 
 
     sendChosenCols() {
-        this._crud.classifyData(new ClassifyRequest(this.resultSet.explorerId, this.resultSet.header, this.classifiedData)).subscribe(
+        this._crud.classifyData(new ClassifyRequest(this.exploreId, this.resultSet.header, this.classifiedData)).subscribe(
                 res => {
                     this._toast.success('Final Result');
                     this.finalresult = true;
                     this.userInput = {};
                     this.classifiedData = [];
                     this.resultSet = <ResultSet>res;
+                    this.exploreId = this.resultSet.explorerId;
                     if(this.resultSet.info.generatedQuery){
                         this.createdSQL = this.resultSet.info.generatedQuery;
                     }

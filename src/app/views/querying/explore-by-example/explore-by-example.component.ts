@@ -3,7 +3,7 @@ import * as $ from 'jquery';
 import {EditTableRequest, QueryExplorationRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
-import {ExplorColSet, ResultSet} from '../../../components/data-table/models/result-set.model';
+import {ExplorColSet, ExploreSet, ResultSet} from '../../../components/data-table/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {DataTableComponent} from '../../../components/data-table/data-table.component';
 import {SidebarNode} from '../../../models/sidebar-node.model';
@@ -40,7 +40,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     modalRef: BsModalRef;
     tutorialMode = false;
     tableModeImage = 'assets/img/explore/tutorialModeTable.PNG';
-    tableModeImageButton = 'assets/img/explore/buttonsResetStart.PNG';
+    exploreId = 0;
 
 
     constructor(
@@ -156,9 +156,9 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     }
 
     selectedColumns() {
+        this.resultSet = null;
         const id = [];
         const table = [];
-
         this.columns.forEach((v, k) =>{
             id.push(k);
         });
@@ -170,8 +170,6 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         if(table.length > 0){
             this.generateTableSQL(id, table);
         }else{
-            console.log('das ist ein test');
-            this._toast.warn('test', 'test');
             this._toast.error('Please select at least one column from the left sidebar to start the process.');
         }
 
@@ -222,9 +220,9 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         console.log(sql);
         this._crud.createInitialExploreQuery(new QueryExplorationRequest(sql, false)).subscribe(
                 res => {
-
                     this.resultSet = <ResultSet>res;
-                    console.log(this.tutorialMode);
+                    this.exploreId= this.resultSet.explorerId;
+
                     if(this.tutorialMode && this.classificationPossible){
                         this.openModal(this.informationExploreProcess);
                     }
