@@ -17,7 +17,7 @@
 							<div style="width: 95%;">
 								<strong>{{group.value.title}}</strong>
 								<ng-container *ngIf="group.value.description">
-									<small style="color: #5c6873;">{{group.value.description}}</small>
+									<small>{{group.value.description}}</small>
 								</ng-container>
 							</div>
 						</div>
@@ -52,6 +52,13 @@
 											</div>
 
 										</ng-container>
+
+                    <!-- ConfigClazz -->
+                    <ng-container *ngSwitchCase="'SELECT'">
+                      <select [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" class="form-control" [ngClass]="inputValidation(config.value.key)">
+                        <option *ngFor="let c of config.value.classes" [value]="c">{{c.split('$')[1]}}</option>
+                      </select>
+                    </ng-container>
 
 										<div class="invalid-feedback" *ngIf="submitted && !form.controls[config.value.key].valid">
 											<div *ngIf="form.controls[config.value.key].errors.required">

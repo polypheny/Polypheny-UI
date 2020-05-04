@@ -275,6 +275,7 @@ export interface JavaUiGroup {
 export interface JavaUiConfig {
   key: String;
   value: any;
+  classes: String[];
   requiresRestart: boolean;
   webUiFormType: String;
   webUiGroup: string;
