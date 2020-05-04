@@ -55,6 +55,10 @@
 .card-header{
   padding: 1rem;
   line-height: 1.25em;
+  small {
+    margin-left: 0.5em;
+    color: #5c6873;
+  }
 }
 
 .input-group-prepend{

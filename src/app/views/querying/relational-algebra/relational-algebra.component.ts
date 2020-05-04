@@ -65,6 +65,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
 
   ngOnInit() {
+    this._leftSidebar.open();
     this.getOperators();
     this.getAutocomplete();
     const sub1 = this._RsToRa.change.subscribe(run => {
