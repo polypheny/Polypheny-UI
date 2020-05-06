@@ -221,6 +221,10 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         this._crud.createInitialExploreQuery(new QueryExplorationRequest(sql, false)).subscribe(
                 res => {
                     this.resultSet = <ResultSet>res;
+                    if(this.resultSet.error){
+                        this._toast.error(this.resultSet.error);
+                        return;
+                    }
                     this.exploreId= this.resultSet.explorerId;
 
                     if(this.tutorialMode && this.classificationPossible){

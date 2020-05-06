@@ -14,6 +14,7 @@ import * as dot from 'graphlib-dot';
 import * as dagreD3 from 'dagre-d3';
 import * as d3 from 'd3';
 import {BsModalService, BsModalRef, ModalOptions} from 'ngx-bootstrap/modal';
+import {ConfigService} from '../../services/config.service';
 
 
 @Component({
@@ -440,18 +441,23 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
     prepareUserInput(dataAfterClassification) {
+        console.log(dataAfterClassification);
+
         for (let i = 0; i < dataAfterClassification.length; i++) {
             let data = '';
             const label = [];
             for (let j = 0; j < dataAfterClassification[i].length; j++) {
                 if (dataAfterClassification[i][j] === 'true' || dataAfterClassification[i][j] === 'false') {
                     data += (dataAfterClassification[i][j]);
-
+                    console.log('data: ' + data);
                 } else {
                     label.push(dataAfterClassification[i][j].split('\'').join(''));
+
                 }
             }
             this.userInput[label.join(',').toString()] = data;
+            console.log(this.userInput);
+
         }
     }
 
@@ -510,15 +516,24 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
     exploreData() {
+        console.log('im here');
+        console.log(this.userInput);
+        Object.keys(this.userInput).forEach( value => {
+                    console.log('value: ' + value);
+                }
+        );
+
         this.isExploringData = true;
         this.cData = cloneDeep(this.resultSet.data);
         this.cData.forEach(value => {
             if (this.userInput) {
                 let count = 0;
                 Object.keys(this.userInput).forEach(val => {
+                    console.log(val);
                     if (this.userInput[val] !== '?' && val === value.toString()) {
                         value.push(this.userInput[val]);
                         count += 1;
+                        console.log(count);
                     }
                 });
 
@@ -532,6 +547,9 @@ export class DataTableComponent implements OnInit, OnChanges {
 
     }
 
+    loging(){
+        console.log('es wuurder gedrückt');
+    }
     openTutorial(tutorial: TemplateRef<any>){
         this.modalRefTutorial = this.modalService.show(tutorial);
     }
@@ -573,4 +591,15 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
 
+    async startClassification() {
+        await this.exploreData();
+        this.sendClassificationData();
+    }
+
+    getSelected() {
+        const values = Object.values(this.userInput);
+        return values.filter((el, i, a) => {
+            return el !== '?';
+        }).length;
+    }
 }

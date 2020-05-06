@@ -40,13 +40,13 @@
                     <td *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'true'}">
-                                <input type="radio" class="form-control" name="choose" value="true" id="true" autocomplete="off" [(ngModel)]="this.userInput[d1]" (change)="exploreData()"> true
+                                <input type="radio" class="form-control" name="choose" value="true" id="true" autocomplete="off" (click)="this.userInput[d1] = 'true'"> true
                             </label>
                             <label class="btn btn-secondary active" [ngClass]="{'active' : userInput[d1] === '?' || userInput[d1] === undefined }">
-                                <input type="radio" class="form-control" name="choose" value="?" id="ignored" autocomplete="off" checked [(ngModel)]="this.userInput[d1]" (change)="exploreData()"> N/A
+                                <input type="radio" class="form-control" name="choose" value="?" id="ignored" autocomplete="off" checked (click)="this.userInput[d1] = '?'" > N/A
                             </label>
                             <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'false'}">
-                                <input type="radio" class="form-control" name="choose" value="false" id="false" autocomplete="off" [(ngModel)]="this.userInput[d1]" (change)="exploreData()"> false
+                                <input type="radio" class="form-control" name="choose" value="false" id="false" autocomplete="off" (click)="this.userInput[d1] = 'false'; exploreData()" > false
                             </label>
                         </div>
                     </td>
@@ -81,7 +81,7 @@
             </ul>
         </nav>
         <button id="resetClassification" class="btn btn-primary" type="button" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' " (click)="resetExporationData()">Reset</button>
-        <button id="startClassification" class="btn btn-primary" type="button" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && ((this.initalClassifiation && this.exploreDataCounter > 7) || (!this.initalClassifiation))" (click)="sendClassificationData()">Start Classification</button>
+        <button id="startClassification" class="btn btn-primary" type="button" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && ((this.initalClassifiation && this.getSelected() > 7 ) || (!this.initalClassifiation))" (click)="startClassification()">Start Classification</button>
         <button id= "showDecisionTree" type="button" class="btn btn-primary" *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring " (click)="openDecisionTree(decisionTree)">Show Decision Tree</button>
         <button id= "showSQL" type="button" class="btn btn-primary" *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult " (click)="openSQL(sql)">Show SQL Statement</button>
         <button id="sendClassification" type="button" class="btn btn-primary" *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined "  (click)="sendChosenCols()">Execute</button>
