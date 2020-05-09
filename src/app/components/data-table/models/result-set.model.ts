@@ -19,6 +19,7 @@ export class ResultSet{
     classificationInfo: string;
     includesClassificationInfo:boolean;
     classifedData: string[][];
+    isConvertedToSql: boolean;
 
     constructor ( error: string ){
         this.error = error;
