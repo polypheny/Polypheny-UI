@@ -51,6 +51,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     createdSQL: string;
     finalresult = false;
     initalClassifiation = true;
+    cPage = 1;
 
     columns = [];
     userInput = {};
@@ -296,6 +297,16 @@ export class DataTableComponent implements OnInit, OnChanges {
                         this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
                     }
                     this.setPagination();
+                    this.editing = -1;
+                    if (result.type === 'TABLE') {
+                        this.config.create = true;
+                        this.config.update = true;
+                        this.config.delete = true;
+                    } else {
+                        this.config.create = false;
+                        this.config.update = false;
+                        this.config.delete = false;
+                    }
 
                 }, err => {
                     this._toast.error('Could not load the data.');
@@ -441,7 +452,6 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
     prepareUserInput(dataAfterClassification) {
-        console.log(dataAfterClassification);
 
         for (let i = 0; i < dataAfterClassification.length; i++) {
             let data = '';
@@ -449,14 +459,12 @@ export class DataTableComponent implements OnInit, OnChanges {
             for (let j = 0; j < dataAfterClassification[i].length; j++) {
                 if (dataAfterClassification[i][j] === 'true' || dataAfterClassification[i][j] === 'false') {
                     data += (dataAfterClassification[i][j]);
-                    console.log('data: ' + data);
                 } else {
                     label.push(dataAfterClassification[i][j].split('\'').join(''));
 
                 }
             }
             this.userInput[label.join(',').toString()] = data;
-            console.log(this.userInput);
 
         }
     }
@@ -516,12 +524,6 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
     exploreData() {
-        console.log('im here');
-        console.log(this.userInput);
-        Object.keys(this.userInput).forEach( value => {
-                    console.log('value: ' + value);
-                }
-        );
 
         this.isExploringData = true;
         this.cData = cloneDeep(this.resultSet.data);
@@ -529,11 +531,9 @@ export class DataTableComponent implements OnInit, OnChanges {
             if (this.userInput) {
                 let count = 0;
                 Object.keys(this.userInput).forEach(val => {
-                    console.log(val);
                     if (this.userInput[val] !== '?' && val === value.toString()) {
                         value.push(this.userInput[val]);
                         count += 1;
-                        console.log(count);
                     }
                 });
 
@@ -547,9 +547,7 @@ export class DataTableComponent implements OnInit, OnChanges {
 
     }
 
-    loging(){
-        console.log('es wuurder gedrückt');
-    }
+
     openTutorial(tutorial: TemplateRef<any>){
         this.modalRefTutorial = this.modalService.show(tutorial);
     }
@@ -569,7 +567,7 @@ export class DataTableComponent implements OnInit, OnChanges {
 
 
     sendChosenCols() {
-        this._crud.classifyData(new ClassifyRequest(this.exploreId, this.resultSet.header, this.classifiedData)).subscribe(
+        this._crud.classifyData(new ClassifyRequest(this.exploreId, this.resultSet.header, this.classifiedData, this.cPage)).subscribe(
                 res => {
                     this._toast.success('Final Result');
                     this.finalresult = true;

@@ -34,10 +34,12 @@ export class QueryRequest extends UIRequest {
 export class QueryExplorationRequest extends UIRequest {
   query: string;
   analyze: boolean;
-  constructor ( query: string, analyze: boolean ) {
+  cPage: number;
+  constructor ( query: string, analyze: boolean, cPage: number ) {
     super();
     this.query = query;
     this.analyze = analyze;
+    this.cPage = cPage;
     return this;
   }
 }
@@ -49,10 +51,12 @@ export class ClassifyRequest{
   id: number;
   header: DbColumn[];
   classified: string[][];
-  constructor ( id: number, header: DbColumn[], classified: string[][] ) {
+  cPage: number;
+  constructor ( id: number, header: DbColumn[], classified: string[][], cPage: number ) {
     this.id = id;
     this.header = header;
     this.classified = classified;
+    this.cPage = cPage;
     return this;
   }
 }

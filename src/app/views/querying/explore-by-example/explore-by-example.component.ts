@@ -41,6 +41,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     tutorialMode = false;
     tableModeImage = 'assets/img/explore/tutorialModeTable.PNG';
     exploreId = 0;
+    cPage = 1;
 
 
     constructor(
@@ -102,14 +103,12 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
 
     addCol(data) {
         const treeElement = new SidebarNode(data.id, data.name, null, null);
-        console.log(data);
 
         if (this.columns.get(treeElement.id) !== undefined) {
             //skip if already in select list
             return;
         } else {
             this.columns.set(treeElement.id, treeElement);
-            console.log(this.columns);
         }
 
         if (this.tables.get(treeElement.getTable()) !== undefined) {
@@ -217,8 +216,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     sendSQL(sql: string) {
         this.showResultTable = true;
         this.loading = true;
-        console.log(sql);
-        this._crud.createInitialExploreQuery(new QueryExplorationRequest(sql, false)).subscribe(
+        this._crud.createInitialExploreQuery(new QueryExplorationRequest(sql, false, this.cPage)).subscribe(
                 res => {
                     this.resultSet = <ResultSet>res;
                     if(this.resultSet.error){
