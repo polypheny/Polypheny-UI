@@ -509,9 +509,12 @@ export class DataTableComponent implements OnInit, OnChanges {
 
                     render(d3.select('svg#tree g'), treeGraph);
 
+
+                    console.log(treeGraph.graph().width);
                     const xCenterOffset = (svg.attr('width') - treeGraph.graph().width) / 2;
                     svgGroup.attr('transform', 'translate(' + xCenterOffset + ',20');
-                    svg.attr('height', treeGraph.graph().height + 40);
+                    svg.attr('height', treeGraph.graph().height + 1);
+                    svg.attr('width', treeGraph.graph().width + 1);
 
 
 
