@@ -10,8 +10,8 @@ import {ToastService} from '../../../components/toast/toast.service';
 import {EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
-import {DataTableComponent} from '../../../components/data-table/data-table.component';
 import {Router} from '@angular/router';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'app-graphical-querying',
@@ -31,7 +31,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     orderByCounter = 0;
     andCounter = 0;
     filteredUserSet: FilteredUserInput;
-    dataTableCounter = 0;
+    private subscriptions = new Subscription();
 
     //fields for the graphical query generation
     schemas = new Map<string, string>();//schemaName, schemaName
@@ -39,8 +39,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     columns = new Map<string, SidebarNode>();//columnId, columnName
     umlData = new Map<string, Uml>();//schemaName, uml
     joinConditions = new Map<string, JoinCondition>();
-
-    @ViewChild(DataTableComponent, {static: false}) dataTable: DataTableComponent;
 
     constructor(
             private _crud: CrudService,
@@ -51,6 +49,28 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     ngOnInit() {
+        this._leftSidebar.open();
+        this.initSchema();
+        this.initGraphicalQuerying();
+        const sub = this._crud.onReconnection().subscribe(
+                b => {
+                    if(b) { this.initSchema(); }
+                }
+        );
+        this.subscriptions.add(sub);
+    }
+
+    ngAfterViewInit() {
+        this.generateSQL();
+    }
+
+    ngOnDestroy() {
+        this._leftSidebar.close();
+        // this._leftSidebar.reset();
+        this.subscriptions.unsubscribe();
+    }
+
+    initSchema() {
         this._crud.getSchema(new SchemaRequest('views/graphical-querying/', false, 3)).subscribe(
                 res => {
                     const nodeAction = (tree, node, $event) => {
@@ -79,16 +99,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                     this._leftSidebar.open();
                 }
         );
-        this.initGraphicalQuerying();
-    }
-
-    ngAfterViewInit() {
-        this.generateSQL();
-    }
-
-    ngOnDestroy() {
-        this._leftSidebar.close();
-        // this._leftSidebar.reset();
     }
 
     initGraphicalQuerying() {
@@ -374,7 +384,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     executeQuery() {
-        this.dataTableCounter++;
         console.log('executeQuery Start');
         this.loading = true;
         this._crud.anyQuery(new QueryRequest(this.editorGenerated.getCode(), false)).subscribe(
@@ -383,13 +392,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                     this.resultSet = result[0];
                     this.loading = false;
                 }, err => {
-                    this._toast.error('Unknown error on the server.');
+                    this._toast.error(  'Unknown error on the server.' );
                     this.loading = false;
                 }
         );
-        if (this.dataTableCounter > 1) {
-            this.dataTable.resetExporationData();
-        }
     }
 
 
@@ -417,7 +423,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         this.umlData.set(treeElement.getSchema(), uml);
                         this.generateJoinConditions();
                     }, err => {
-                        this._toast.error('Could not get foreign keys of the schema ' + treeElement.getSchema());
+                        this._toast.error( 'Could not get foreign keys of the schema ' + treeElement.getSchema() );
                     }
             );
         } else {

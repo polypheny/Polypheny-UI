@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {webSocket} from 'rxjs/webSocket';
 import {WebuiSettingsService} from './webui-settings.service';
@@ -9,6 +9,8 @@ import {WebuiSettingsService} from './webui-settings.service';
 export class ConfigService {
 
   private socket;
+  public connected = false;
+  private reconnected = new EventEmitter<boolean>();
   httpUrl;
   httpOptions;
 
@@ -34,7 +36,25 @@ export class ConfigService {
 
   //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
   private initWebSocket() {
-    this.socket = webSocket(this._settings.getConnection('config.socket'));
+    this.socket = webSocket({
+      url: this._settings.getConnection('config.socket'),
+      openObserver: {
+        next: (n) => {
+          this.reconnected.emit(true);
+          this.connected = true;
+        }
+      }
+    });
+    this.socket.subscribe(
+      msg => {},
+      err => {
+        //this.reconnected.emit(false);
+        this.connected = false;
+        setTimeout(() => {
+          this.initWebSocket();
+        }, +this._settings.getSetting('reconnection.timeout'));
+      }
+    );
   }
 
   socketSend( msg: string ) {
@@ -47,6 +67,10 @@ export class ConfigService {
 
   closeSocket() {
     this.socket.complete();
+  }
+
+  onReconnection(){
+    return this.reconnected;
   }
 
 }

@@ -5,6 +5,7 @@ import {CrudService} from '../../services/crud.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {ResultSet} from '../../components/data-table/models/result-set.model';
 import {SchemaRequest, TableRequest, UIRequest} from '../../models/ui-request.model';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'app-table-view',
@@ -25,6 +26,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
         exploring: false
     };
     loading: boolean;
+    private subscriptions = new Subscription();
 
     constructor(
             private _route: ActivatedRoute,
@@ -49,6 +51,14 @@ export class TableViewComponent implements OnInit, OnDestroy {
         }
 
         this._sidebar.setSchema(new SchemaRequest('/views/data-table/', true, 2), this._router);
+        const sub = this._crud.onReconnection().subscribe(
+                b => {
+                    if (b) {
+                        this._sidebar.setSchema(new SchemaRequest('/views/data-table/', true, 2), this._router);
+                    }
+                }
+        );
+        this.subscriptions.add(sub);
 
         //listen to parameter changes
         this._route.params.subscribe((params) => {
@@ -65,6 +75,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
         });
 
     }
+
 
     getTable() {
         if (this.tableId) {
@@ -101,6 +112,8 @@ export class TableViewComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this._sidebar.close();
+        this.subscriptions.unsubscribe();
     }
+
 
 }

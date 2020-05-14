@@ -8,6 +8,7 @@ import {Store, AdapterInformation, AdapterSetting} from './store.model';
 import {ToastService} from '../../components/toast/toast.service';
 import {AbstractControl, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {ResultSet} from '../../components/data-table/models/result-set.model';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-stores',
@@ -20,6 +21,7 @@ export class StoresComponent implements OnInit, OnDestroy {
   adapters: AdapterInformation[];
   route: String;
   routeListener;
+  private subscriptions = new Subscription();
 
   editingStore: Store;
   editingStoreForm: FormGroup;
@@ -48,10 +50,20 @@ export class StoresComponent implements OnInit, OnDestroy {
       this.route = params['action'];
       this.updateBreadcrumb();
     });
+    const sub = this._crud.onReconnection().subscribe(
+      b => {
+        if(b) {
+          this.getStores();
+          this.getAdapters();
+        }
+      }
+    );
+    this.subscriptions.add(sub);
   }
 
   ngOnDestroy() {
     this._breadcrumb.hide();
+    this.subscriptions.unsubscribe();
   }
 
   updateBreadcrumb(){
@@ -224,7 +236,7 @@ export class StoresComponent implements OnInit, OnDestroy {
       case 'CSV':
         return path + 'csv.png';
       case 'HSQLDB':
-        return path + 'hsqldb.jpg';
+        return path + 'hsqldb.png';
       case 'PostgreSQL':
         return path + 'postgres.svg';
       case 'MonetDB':

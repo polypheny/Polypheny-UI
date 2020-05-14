@@ -10,6 +10,7 @@ import {FormBuilder} from '@angular/forms';
 import {ToastDuration, ToastService} from '../../components/toast/toast.service';
 import {DbColumn, ResultSet} from '../../components/data-table/models/result-set.model';
 import {DbmsTypesService} from '../../services/dbms-types.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-uml',
@@ -36,6 +37,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   fkForm = this._formBuilder.group({update: 'RESTRICT', delete: 'RESTRICT'});
   constraintName = '';
   proposedConstraintName = 'fk1';
+  private subscriptions = new Subscription();
 
 
   //offsets
@@ -70,6 +72,12 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
       this.schema = params['id'];
       this.getUml();
     });
+    const sub = this._crud.onReconnection().subscribe(
+      b => {
+        if(b) this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', false, 1), this._router);
+      }
+    );
+    this.subscriptions.add(sub);
     this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', false, 1), this._router);
   }
 
@@ -82,6 +90,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy() {
     $(document).off();//remove event listener from connectTables() when leaving this view
     this._leftSidebar.close();
+    this.subscriptions.unsubscribe();
   }
 
   getUml() {

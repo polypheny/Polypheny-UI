@@ -1,10 +1,11 @@
 
 group 'org.polypheny'
-
-version '1.0'
-
 description = "Web-based user interface for Polypheny-DB"
 
+def versionMajor = 1
+def versionMinor = 0
+def versionQualifier = "-SNAPSHOT"
+version = versionMajor + "." + versionMinor + versionQualifier
 
 
 buildscript {
@@ -22,20 +23,12 @@ buildscript {
 
 
 repositories {
-    maven {
-        // DBIS Nexus
-        url "https://dbis-nexus.dmi.unibas.ch/repository/maven2/"
-    }
-    flatDir {
-        dirs 'libs'
-    }
-    mavenCentral()
-    jcenter()
+   
 }
 
 
 apply plugin: 'java'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'com.moowork.node'
 
 
@@ -61,18 +54,30 @@ jar.dependsOn(npm_run_build)
 
 jar {
   from 'dist' into 'webapp'
-
   manifest {
         attributes "Manifest-Version": "1.0"
-        attributes "Copyright": "Databases and Information Systems Group, Department Mathematics and Computer Science, University of Basel, Switzerland"
+        attributes "Copyright": "The Polypheny Project"
         attributes "Version": "$version"
     }
 }
 
 
-artifacts {
-    archives jar
+publishing {
+    publications {
+        "${project.name}"(MavenPublication) {
+            from components.java
+            pom {
+                licenses {
+                    license {
+                        name = 'Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0'
+                    }
+                }
+            }
+        }
+    }
 }
+task generatePom(group: 'publishing', dependsOn: "generatePomFileFor${project.name.capitalize()}Publication")
 
 
 //clean.dependsOn(npm_cache_clean)
@@ -82,3 +87,6 @@ clean {
 	delete "/build"
 	delete "/node_modules"
 }
+
+// Add install task
+task install(group: 'other', dependsOn: publishToMavenLocal)

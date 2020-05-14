@@ -12,6 +12,7 @@ import {SidebarNode} from '../../models/sidebar-node.model';
 import {Store} from '../stores/store.model';
 import {HttpEventType} from '@angular/common/http';
 import {Status} from '../../components/data-table/models/result-set.model';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-hub',
@@ -20,8 +21,8 @@ import {Status} from '../../components/data-table/models/result-set.model';
 })
 export class HubComponent implements OnInit, OnDestroy {
 
+  private subscriptions = new Subscription();
   subpage: string;
-  subscribe;
   result: HubResult;
   datasets: HubResult;
   users: HubResult;
@@ -111,17 +112,23 @@ export class HubComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subpage = this._route.snapshot.paramMap.get('sub');
-    this.subscribe = this._route.params.subscribe(params => {
+    const sub1 = this._route.params.subscribe(params => {
       this.subpage = params['sub'];
       this.refreshContent();
     });
+    this.subscriptions.add(sub1);
     this.refreshContent();
     this.checkLogin();
     this.getStores();
+    this.initWebsocket();
+    const sub2 = this._crud.onReconnection().subscribe(b => {
+      if(b) this.getStores();
+    });
+    this.subscriptions.add(sub2);
   }
 
   ngOnDestroy(){
-    this.subscribe.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   login(){
@@ -470,16 +477,7 @@ export class HubComponent implements OnInit, OnDestroy {
     this.importDsFormSubmitted = true;
     this.importProgress = 0;
     if(this.importDsForm.valid){
-      //get import status
-      this._crud.onSocketEvent().subscribe(
-        msg => {
-          const s = <Status> msg;
-          if( s.context === 'tableImport' ){
-            this.importProgress = s.status;
-          }
-        }, err => {
-          console.log(err);
-      });
+      //get import status: see initWebsocket()
       this._crud.importDataset(
         this.importDsForm.controls['schema'].value,
         this.importDsForm.controls['store'].value,
@@ -503,6 +501,22 @@ export class HubComponent implements OnInit, OnDestroy {
         }
       );
     }
+  }
+
+  initWebsocket() {
+    //get import status
+    const sub = this._crud.onSocketEvent().subscribe(
+      msg => {
+        const s = <Status> msg;
+        if( s.context === 'tableImport' ){
+          this.importProgress = s.status;
+        }
+      }, err => {
+        setTimeout(() => {
+          this.initWebsocket();
+        }, +this._settings.getSetting('reconnection.timeout'));
+      });
+    this.subscriptions.add(sub);
   }
 
 }

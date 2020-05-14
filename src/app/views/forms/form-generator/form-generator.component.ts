@@ -7,6 +7,8 @@ import {KeyValue} from '@angular/common';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-form-generator',
@@ -24,13 +26,15 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   pageList;//wenn man nicht auf einer gewissen Seite ist und alle Pages als links aufgelisted werden sollen.
   serverError;//wenn der Server nicht antwortet
   switchColors = ['switch-primary', 'switch-success', 'switch-warning', 'switch-danger'];
+  private subscriptions = new Subscription();
 
   constructor(
     private _config:ConfigService,
     private _route:ActivatedRoute,
     private _sidebar:LeftSidebarService,
     private _breadcrumb:BreadcrumbService,
-    private _toast: ToastService
+    private _toast: ToastService,
+    private _settings: WebuiSettingsService
   ) {
 
     this.pageId = this._route.snapshot.paramMap.get('page') || '';
@@ -42,6 +46,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.onHashChange();
     this.initWebSocket();
+    this.onReconnect();
     this._breadcrumb.setBreadcrumbs( [new BreadcrumbItem('Config')] );
     this._sidebar.open();
   }
@@ -50,6 +55,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     //this._config.closeSocket();
     this._breadcrumb.hide();
     this._sidebar.close();
+    this.subscriptions.unsubscribe();
   }
 
   private onHashChange() {
@@ -63,7 +69,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   private initWebSocket() {
     //this._config.socketSend('hello world');
     //todo only update config if not ng-dirty. Test with string
-    this._config.onSocketEvent().subscribe(msg => {
+    const sub = this._config.onSocketEvent().subscribe(msg => {
       const update = <JavaUiConfig>msg;
       if(this.formObj && this.formObj.groups[update.webUiGroup] && this.formObj.groups[update.webUiGroup].configs[update.key]) {
         const c = this.formObj.groups[update.webUiGroup].configs[update.key];
@@ -83,8 +89,24 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         //console.log('could not update from WebSocket');
       }
     }, err => {
-      console.log(err);
+      setTimeout( ()=>{
+        this.initWebSocket();
+      }, +this._settings.getSetting('reconnection.timeout'));
     });
+    this.subscriptions.add(sub);
+  }
+
+  private onReconnect () {
+    const sub = this._config.onReconnection().subscribe(
+      b => {
+        if(b) {
+          this.loadPage();
+          this.submitted = false;
+          this._sidebar.listConfigManagerPages();
+        }
+      }
+    );
+    this.subscriptions.add(sub);
   }
 
   private loadPage () {
@@ -253,6 +275,7 @@ export interface JavaUiGroup {
 export interface JavaUiConfig {
   key: String;
   value: any;
+  classes: String[];
   requiresRestart: boolean;
   webUiFormType: String;
   webUiGroup: string;

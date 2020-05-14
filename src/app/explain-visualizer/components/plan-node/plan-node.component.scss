@@ -22,6 +22,9 @@ ul ul::before {
 /* css fix when using different recursion */
 ul li:last-child:not(:first-child) ul{
 	margin-left: -4px;
+  li:only-child ul {
+    margin-left: 0 !important;
+  }
 }
 
 ul li {
