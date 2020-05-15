@@ -9,6 +9,7 @@ import {DataTableComponent} from '../../../components/data-table/data-table.comp
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
 import {  BsModalService, BsModalRef  } from 'ngx-bootstrap/modal';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'app-explore-by-example',
@@ -28,8 +29,8 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     @ViewChild('template', {static: false}) public template: TemplateRef<any>;
     @ViewChild('informationExploreProcess', {static: false}) public informationExploreProcess: TemplateRef<any>;
     @Output() tutorialModeChange = new EventEmitter();
-
     @ViewChild(DataTableComponent, {static: false}) dataTable: DataTableComponent;
+    private subscriptions = new Subscription();
     constraints = new Map<string, string>();
     schemas = new Map<string, string>();
     umlData = new Map<string, Uml>();//schemaName, uml
@@ -37,6 +38,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     tab = new Map<string, number>();//tableName, number of columns of this table
     tables = new Map<string, number>();//tableName, number of columns of this table
     columns = new Map<string, SidebarNode>();//columnId, columnName
+
     modalRef: BsModalRef;
     tutorialMode = false;
     tableModeImage = 'assets/img/explore/tutorialModeTable.PNG';
@@ -53,8 +55,20 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
 
 
     ngOnInit() {
+        this._leftSidebar.open();
+        this.initSchema();
+        const sub = this._crud.onReconnection().subscribe(
+                b => {
+                    if(b) { this.initSchema(); }
+                }
+        );
+        this.subscriptions.add(sub);
 
-        this._crud.getSchema(new SchemaRequest('views/explore-by-example/', false, 3)).subscribe(
+
+    }
+
+    initSchema() {
+        this._crud.getSchema(new SchemaRequest('views/graphical-querying/', false, 3)).subscribe(
                 res => {
                     const nodeAction = (tree, node, $event) => {
                         if (!node.isActive && node.isLeaf) {
@@ -78,9 +92,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
                     this._leftSidebar.open();
                 }
         );
-
     }
-
 
     removeCol(colId: string) {
         const data = colId.split('.');
