@@ -14,7 +14,6 @@ import * as dot from 'graphlib-dot';
 import * as dagreD3 from 'dagre-d3';
 import * as d3 from 'd3';
 import {BsModalService, BsModalRef, ModalOptions} from 'ngx-bootstrap/modal';
-import {ConfigService} from '../../services/config.service';
 
 
 @Component({
@@ -279,15 +278,16 @@ export class DataTableComponent implements OnInit, OnChanges {
         if (this.isExploringData) {
             this.prepareClassifiedData();
         }
+        const savedResultHead = this.resultSet.header;
         this._crud.getExploreTables(new ExploreTable(this.resultSet.explorerId, this.resultSet.header, this.resultSet.currentPage)).subscribe(
                 res => {
                     const result = <ResultSet>res;
 
                     if (result.includesClassificationInfo) {
                         this.userInput = {};
-                        this.prepareUserInput(result.classifedData);
+                        this.prepareUserInput(result.classifiedData);
                     }
-                    this.resultSet.header = result.header;
+                    this.resultSet.header = savedResultHead;
                     this.resultSet.data = result.data;
                     this.resultSet.info = result.info;
                     this.resultSet.highestPage = result.highestPage;
@@ -509,8 +509,6 @@ export class DataTableComponent implements OnInit, OnChanges {
 
                     render(d3.select('svg#tree g'), treeGraph);
 
-
-                    console.log(treeGraph.graph().width);
                     const xCenterOffset = (svg.attr('width') - treeGraph.graph().width) / 2;
                     svgGroup.attr('transform', 'translate(' + xCenterOffset + ',20');
                     svg.attr('height', treeGraph.graph().height + 1);
@@ -578,9 +576,12 @@ export class DataTableComponent implements OnInit, OnChanges {
                     this.classifiedData = [];
                     this.resultSet = <ResultSet>res;
                     this.exploreId = this.resultSet.explorerId;
-                    if(this.resultSet.info.generatedQuery){
-                        this.createdSQL = this.resultSet.info.generatedQuery;
+                    if(this.resultSet.info !== undefined){
+                        if(this.resultSet.info.generatedQuery){
+                            this.createdSQL = this.resultSet.info.generatedQuery;
+                        }
                     }
+
 
                     this.setPagination();
 

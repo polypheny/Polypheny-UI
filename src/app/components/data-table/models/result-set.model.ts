@@ -18,7 +18,7 @@ export class ResultSet{
     explorerId: number;
     classificationInfo: string;
     includesClassificationInfo:boolean;
-    classifedData: string[][];
+    classifiedData: string[][];
     isConvertedToSql: boolean;
 
     constructor ( error: string ){
