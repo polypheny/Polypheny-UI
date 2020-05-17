@@ -126,12 +126,17 @@ export class SchemaRequest extends UIRequest {
    * depth 3: schemas + tables + columns
    */
   depth: number;
+  /**
+   * if show table is false, "table" will not be shown in left sidebar
+   */
+  showTable: boolean;
 
-  constructor( routerLinkRoot: string, views: boolean, depth: number ) {
+  constructor( routerLinkRoot: string, views: boolean, depth: number, showTable: boolean ) {
     super();
     this.routerLinkRoot = routerLinkRoot;
     this.views = views;
     this.depth = depth;
+    this.showTable = showTable;
   }
 }
 

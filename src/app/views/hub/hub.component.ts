@@ -456,7 +456,7 @@ export class HubComponent implements OnInit, OnDestroy {
   }
 
   initDownloadModal( dataset ){
-    this._crud.getSchema(new SchemaRequest('', false, 1)).subscribe(
+    this._crud.getSchema(new SchemaRequest('', false, 1, true)).subscribe(
       res => {
         this.schemas = <SidebarNode[]> res;
       }, err => {
