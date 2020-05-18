@@ -17,6 +17,11 @@ import {Subscription} from 'rxjs';
     styleUrls: ['./explore-by-example.component.scss'],
     encapsulation: ViewEncapsulation.None
 })
+
+/**
+ * Same structure as graphical-querying
+ */
+
 export class ExploreByExampleComponent implements OnInit, OnDestroy {
 
 
@@ -225,6 +230,10 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         this.modalRef = this.modalService.show(template);
     }
 
+    /**
+     * Creation of initial table with given sql statement
+     * @param sql
+     */
     sendSQL(sql: string) {
         this.showResultTable = true;
         this.loading = true;

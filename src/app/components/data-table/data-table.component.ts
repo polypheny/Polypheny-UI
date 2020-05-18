@@ -46,7 +46,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     modalRef: BsModalRef;
     modalRefDecision: BsModalRef;
     modalRefTutorial: BsModalRef;
-    @Input()tutorialMode:boolean;
+    @Input() tutorialMode: boolean;
     createdSQL: string;
     finalresult = false;
     initalClassifiation = true;
@@ -273,6 +273,9 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
 
+    /**
+     * Pagination for Explore-by-Example
+     */
     getExploreTables() {
 
         if (this.isExploringData) {
@@ -431,12 +434,18 @@ export class DataTableComponent implements OnInit, OnChanges {
         return obj;
     }
 
+    /**
+     * Reset button within Explore-by-Example, resets actual Pagination Page
+     */
     resetExporationData() {
         this.exploreDataCounter = 0;
         this.userInput = [];
         this.exploreSet = undefined;
     }
 
+    /**
+     * Prepares labeled user data for Explore-by-Example
+     */
     prepareClassifiedData() {
         this.cData.forEach(value => {
             if (!this.classifiedData) {
@@ -451,6 +460,10 @@ export class DataTableComponent implements OnInit, OnChanges {
         });
     }
 
+    /**
+     * Prepares data from backend in order to show data with correct colors and buttons
+     * @param dataAfterClassification
+     */
     prepareUserInput(dataAfterClassification) {
 
         for (let i = 0; i < dataAfterClassification.length; i++) {
@@ -469,16 +482,18 @@ export class DataTableComponent implements OnInit, OnChanges {
         }
     }
 
-    sendClassificationData(){
-
+    /**
+     * Send Classification for Explore-by-Example
+     * Preparse tree to be shown in frontend
+     */
+    sendClassificationData() {
         this.prepareClassifiedData();
-
         this._crud.exploreUserInput(new Exploration(this.exploreId, this.resultSet.header, this.classifiedData)).subscribe(
                 res => {
                     this._toast.success('Classification successful');
                     this.initalClassifiation = false;
                     this.finalresult = false;
-                    if(this.tutorialMode){
+                    if (this.tutorialMode) {
                         this.openTutorial(this.tutorial);
                     }
                     this.exploreSet = <ExploreSet>res;
@@ -515,7 +530,6 @@ export class DataTableComponent implements OnInit, OnChanges {
                     svg.attr('width', treeGraph.graph().width + 1);
 
 
-
                 }, err => {
                     this._toast.error(('Classification Failed'));
                     console.log(err);
@@ -525,7 +539,6 @@ export class DataTableComponent implements OnInit, OnChanges {
     }
 
     exploreData() {
-
         this.isExploringData = true;
         this.cData = cloneDeep(this.resultSet.data);
         this.cData.forEach(value => {
@@ -543,30 +556,28 @@ export class DataTableComponent implements OnInit, OnChanges {
                 }
             }
         });
-
         this.exploreDataCounter++;
-
     }
 
 
-    openTutorial(tutorial: TemplateRef<any>){
+    openTutorial(tutorial: TemplateRef<any>) {
         this.modalRefTutorial = this.modalService.show(tutorial);
     }
 
     openDecisionTree(decisionTree: TemplateRef<any>) {
-
         this.modalRefDecision = this.modalService.show(decisionTree);
-
         const finalTree = $('.hidden-layer').clone().removeClass('hidden-layer');
         finalTree.appendTo('#modal-body-tree');
-
     }
 
-    openSQL(sql: TemplateRef<any>){
+    openSQL(sql: TemplateRef<any>) {
         this.modalRef = this.modalService.show(sql);
     }
 
 
+    /**
+     * Final Request for final result Explore-by-Example
+     */
     sendChosenCols() {
         this._crud.classifyData(new ClassifyRequest(this.exploreId, this.resultSet.header, this.classifiedData, this.cPage)).subscribe(
                 res => {
@@ -576,15 +587,12 @@ export class DataTableComponent implements OnInit, OnChanges {
                     this.classifiedData = [];
                     this.resultSet = <ResultSet>res;
                     this.exploreId = this.resultSet.explorerId;
-                    if(this.resultSet.info !== undefined){
-                        if(this.resultSet.info.generatedQuery){
+                    if (this.resultSet.info !== undefined) {
+                        if (this.resultSet.info.generatedQuery) {
                             this.createdSQL = this.resultSet.info.generatedQuery;
                         }
                     }
-
-
                     this.setPagination();
-
                 }, err => {
                     this._toast.error(('Error showing final Result'));
                     console.log(err);
