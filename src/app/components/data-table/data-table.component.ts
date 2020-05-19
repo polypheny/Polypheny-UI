@@ -3,7 +3,7 @@ import {TableConfig} from './table-config';
 import * as $ from 'jquery';
 import {DeleteRequest, TableRequest, UpdateRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
-import {ResultSet} from './models/result-set.model';
+import {DbColumn, ResultSet} from './models/result-set.model';
 import {SortDirection, SortState} from './models/sort-state.model';
 import {ToastDuration, ToastService} from '../toast/toast.service';
 import {CrudService} from '../../services/crud.service';
@@ -249,6 +249,7 @@ export class DataTableComponent implements OnInit, OnChanges {
           const result = <ResultSet> res;
           this.resultSet.data = result.data;
           this.resultSet.highestPage = result.highestPage;
+          this.resultSet.error = result.error;
           //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
           if( + this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage ){
             this._router.navigate([ '/views/data-table/'+ this.tableId +'/'+this.resultSet.highestPage ]);
@@ -271,7 +272,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     );
   }
 
-  filterTable (e) {
+  filterTable ( e, filterVal, col: DbColumn ) {
     this.resultSet.currentPage = 1;
     if( e.keyCode === 27){ //esc
       $('.table-filter').val('');
@@ -279,13 +280,13 @@ export class DataTableComponent implements OnInit, OnChanges {
       this.getTable();
       return;
     }
-    this.filter.clear();
-    const self = this;
-    $('.table-filter').each(function() {
-      const col = $(this).attr('data-col');
-      const val = $(this).val();
-      self.filter.set(col, val);
-    });
+    if(col.dataType.includes('ARRAY')){
+      if( this.isValidArray(filterVal) || !filterVal ) {
+        this.filter.set(col.name, filterVal);
+      }
+    } else {
+      this.filter.set( col.name, filterVal );
+    }
    this.getTable();
   }
 
@@ -343,6 +344,27 @@ export class DataTableComponent implements OnInit, OnChanges {
       obj[k] = v;
     });
     return obj;
+  }
+
+  isValidArray( val:string ): boolean {
+    if(val.startsWith('[') && val.endsWith(']')) {
+      try {
+        JSON.parse(val);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  isValidFilter(val, col:DbColumn){
+    if(!val) return;
+    if(col.dataType.includes('ARRAY')) {
+      if(!this.isValidArray(val)){
+        return 'is-invalid';
+      }
+    }
   }
 
 }
