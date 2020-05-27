@@ -186,7 +186,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         if(table.length > 0){
             this.generateTableSQL(id, table);
         }else{
-            this._toast.error('Please select at least one column from the left sidebar to start the process.');
+            this._toast.warn('Please select at least one column from the left sidebar to start the process.');
         }
 
     }
