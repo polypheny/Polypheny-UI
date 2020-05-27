@@ -33,6 +33,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   showingAnalysis = false;
   private subscriptions = new Subscription();
   loading = false;
+  saveInHistory = true;
+  confirmDeletingHistory;
 
   tableConfig: TableConfig = {
     create: false,
@@ -75,7 +77,9 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   submitQuery() {
 
-    this.addToHistory(this.codeEditor.getCode());
+    if(this.saveInHistory) {
+      this.addToHistory(this.codeEditor.getCode());
+    }
     this._leftSidebar.setNodes([]);
     if (this.analyzeQuery) {
       this._leftSidebar.open();
@@ -120,6 +124,15 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     if (run) {
       this.submitQuery();
     }
+  }
+
+  deleteHistoryItem( key, e ){
+    if(this.confirmDeletingHistory===key){
+      this.history.delete(key);
+    } else {
+      this.confirmDeletingHistory = key;
+    }
+    e.stopPropagation();
   }
 
   //from: https://stackoverflow.com/questions/52793944/angular-keyvalue-pipe-sort-properties-iterate-in-order

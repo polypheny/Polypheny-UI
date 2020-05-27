@@ -56,3 +56,13 @@ select{
 .card-header.pointer{
   cursor: pointer;
 }
+.del-hist-item{
+  position: absolute;
+  right: 1em;
+  top: 50%;
+  margin-top: -1em;
+  display: none;
+}
+.history-item:hover .del-hist-item{
+  display: block;
+}
