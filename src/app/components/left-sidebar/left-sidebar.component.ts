@@ -79,6 +79,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
           // this.treeComponent.treeModel.setFocusedNode(null);
           // this.treeComponent.treeModel.expandedNodeIds = {};
         }
+        this.expandAll();
       }
     );
 
