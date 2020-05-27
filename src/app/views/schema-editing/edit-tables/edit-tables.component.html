@@ -60,13 +60,14 @@
                     <th>Primary</th>
                     <th>Nullable</th>
                     <th>Type</th>
+                    <th>Collection</th>
+                    <th>Parameters</th>
                     <th>Default</th>
-                    <th>Length</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let col of newColumns | keyvalue">
+                <tr *ngFor="let col of newColumns | keyvalue; let i=index">
                     <td>
                         <input type="text" class="form-control form-control-sm" placeholder="column name" [(ngModel)]="col.value.name" #columnName [ngClass]="_crud.getValidationClass(columnName.value)">
                     </td>
@@ -82,9 +83,38 @@
                         </select>
                     </td>
                     <td>
+                      <select name="collection_type" id="collection_type" class="form-control form-control-sm editing" [(ngModel)]="col.value.collectionsType">
+                        <option value="">none</option>
+                        <option value="ARRAY">ARRAY</option>
+                      </select>
+                    </td>
+                    <td>
+                      <!-- length -->
+                      <div class="input-group input-group-sm mt-1" *ngIf="col.value.dataType && ['varchar', 'varbinary'].includes(col.value.dataType.toLowerCase())">
+                        <div class="input-group-prepend">
+                          <label [for]="'len'+i" class="input-group-text">length</label>
+                        </div>
+                        <input [id]="'len'+i" type="number" class="form-control form-control-sm" placeholder="length" [(ngModel)]="col.value.maxLength">
+                      </div>
+                      <!-- dimension -->
+                      <div class="input-group input-group-sm mt-1" *ngIf="col.value.collectionsType === 'ARRAY'">
+                        <div class="input-group-prepend">
+                          <label [for]="'dim'+i" class="input-group-text">dimension</label>
+                        </div>
+                        <input [id]="'dim'+i" type="number" placeholder="dimension" class="form-control form-control-sm" [(ngModel)]="col.value.dimension">
+                      </div>
+                      <!-- cardinality -->
+                      <div class="input-group input-group-sm mt-1" *ngIf="col.value.collectionsType === 'ARRAY'">
+                        <div class="input-group-prepend">
+                          <label [for]="'card'+i" class="input-group-text">cardinality</label>
+                        </div>
+                        <input [id]="'card'+i" type="number" placeholder="dimension" class="form-control form-control-sm" [(ngModel)]="col.value.cardinality">
+                      </div>
+                    </td>
+                    <td>
                         <div class="input-group">
                             <ng-container [ngSwitch]="col.value.dataType" *ngIf="col.value.dataType">
-                                <input *ngSwitchCase="_types.numericTypes().includes(col.value.dataType.toLowerCase()) ? col.value.dataType : ''" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
+                                <input *ngSwitchCase="_types.numericTypes().includes(col.value.dataType.toLowerCase()) && col.value.collectionsType !== 'ARRAY' ? col.value.dataType : ''" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
                                 <ng-container *ngSwitchCase="_types.booleanTypes().includes(col.value.dataType.toLowerCase()) ? col.value.dataType : ''">
                                     <div class="form-check form-check-inline">
                                         <label *ngIf="col.value.defaultValue === null" class="form-check-label disabled" [for]="'default'+col.value.name">null&nbsp;</label>
@@ -101,15 +131,11 @@
                         </div>
                     </td>
                     <td>
-                        <input *ngIf="col.value.dataType && ! ['varchar', 'varbinary'].includes(col.value.dataType.toLowerCase())" type="number" class="form-control form-control-sm" disabled placeholder="length">
-                        <input *ngIf="col.value.dataType && ['varchar', 'varbinary'].includes(col.value.dataType.toLowerCase())" type="number" class="form-control form-control-sm" placeholder="length" [(ngModel)]="col.value.maxLength">
-                    </td>
-                    <td>
                         <i class="cui-trash del" (click)="removeNewColumn(col.key)"></i>
                     </td>
                 </tr>
             <tr>
-              <td colspan="4">
+              <td colspan="5">
                 <button class="btn btn-light" (click)="addNewColumn()">add column</button>
               </td>
               <td>

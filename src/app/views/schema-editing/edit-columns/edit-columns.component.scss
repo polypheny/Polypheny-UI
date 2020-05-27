@@ -40,6 +40,12 @@ table tr td.pk {
   width: 1em;
   text-align: center;
 }
+#dbColumnTable tr td {
+  vertical-align: middle;
+}
+#dbColumnTable td span {
+  display: block;
+}
 
 .dropdown-item {
   padding: 5px 20px;

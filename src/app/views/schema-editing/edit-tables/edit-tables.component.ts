@@ -52,14 +52,14 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     private _toast: ToastService,
     private _router: Router,
     private _leftSidebar: LeftSidebarService,
-    private _types: DbmsTypesService,
+    public _types: DbmsTypesService,
     public _hub: HubService,
     private _settings: WebuiSettingsService
   ) {
   }
 
   ngOnInit() {
-    this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], null));
+    this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], '', null));
     this.schema = this._route.snapshot.paramMap.get('id');
     this._route.params.subscribe((params) => {
       this.schema = params['id'];
@@ -182,6 +182,11 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       if (!['varchar', 'varbinary'].includes(v.dataType.toLowerCase()) && v.maxLength !== null) {
         v.maxLength = null;
       }
+      //clear cardinality and dimension if it is not an array
+      if(v.collectionsType !== 'ARRAY' ) {
+        v.cardinality = null;
+        v.dimension = null;
+      }
       if (v.name === '') {
         this.newColumns.delete(k);
       }
@@ -204,7 +209,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this._toast.success('Generated table ' + request.table);
           this.newColumns.clear();
           this.counter = 0;
-          this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], null));
+          this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], '', null));
           this.newTableName = '';
           this.selectedStore = null;
           this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2), this._router);
@@ -286,7 +291,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   addNewColumn() {
-    this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], null));
+    this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], '', null));
   }
 
   removeNewColumn(i: number) {

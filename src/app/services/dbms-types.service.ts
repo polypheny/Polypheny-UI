@@ -11,6 +11,7 @@ export class DbmsTypesService {
   private numericArray = ['int2','int4','int8','integer','bigint','smallint','float','float4','float8','double'];
   private booleanArray = ['bool', 'boolean'];
   private dateTimeArray = ['date', 'time', 'timestamp'];
+  private requiresLengthArray = ['varchar'];
   private types = new EventEmitter();
   private foreignKeyActions = new EventEmitter();
 
@@ -120,6 +121,14 @@ export class DbmsTypesService {
    */
   isDateTime(type: string) {
     return this.dateTimeArray.includes(type.toLowerCase());
+  }
+
+  /**
+   * @param type dmbs type name
+   * @return if the dbms type requires a maxLength
+   */
+  requiresLength(type:string){
+    return this.requiresLengthArray.includes(type.toLowerCase());
   }
 
 }

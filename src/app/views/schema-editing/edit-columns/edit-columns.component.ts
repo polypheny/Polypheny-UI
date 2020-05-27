@@ -25,7 +25,7 @@ export class EditColumnsComponent implements OnInit {
   resultSet: ResultSet;
   types: string[] = [];
   editColumn = -1;
-  createColumn = new DbColumn( '', false, true, 'text', null, null);
+  createColumn = new DbColumn( '', false, true, 'text', '', null, null);
   confirm = -1;
   oldColumns = new Map<string, DbColumn>();
   updateColumn = new FormGroup({name: new FormControl('')});
@@ -127,7 +127,10 @@ export class EditColumnsComponent implements OnInit {
         oldName: new FormControl( col.name ),
         nullable: new FormControl( col.nullable ),
         dataType: new FormControl( col.dataType ),
+        collectionsType: new FormControl( col.collectionsType ),
         maxLength: new FormControl( {value: col.maxLength, disabled: ! ['varchar', 'varbinary'].includes(col.dataType.toLowerCase())} ),
+        dimension: new FormControl(col.dimension),
+        cardinality: new FormControl(col.cardinality),
         defaultValue: new FormControl( {value: col.defaultValue, disabled: col.defaultValue === null} )
       });
       this.editColumn = i;
@@ -141,11 +144,15 @@ export class EditColumnsComponent implements OnInit {
     }
     const oldColumn = this.oldColumns.get( this.updateColumn.controls['oldName'].value );
     const newColumn = new DbColumn(
-      this.updateColumn.controls['name'].value, null,
+      this.updateColumn.controls['name'].value,
+      null,
       this.updateColumn.controls['nullable'].value,
       this.updateColumn.controls['dataType'].value,
+      this.updateColumn.controls['collectionsType'].value,
       this.updateColumn.controls['maxLength'].value,
-      this.updateColumn.controls['defaultValue'].value
+      this.updateColumn.controls['defaultValue'].value,
+      this.updateColumn.controls['dimension'].value,
+      this.updateColumn.controls['cardinality'].value
     );
     if( ! ['varchar', 'varbinary'].includes( newColumn.dataType.toLowerCase()) && newColumn.maxLength !== null ){
       newColumn.maxLength = null;
@@ -180,7 +187,6 @@ export class EditColumnsComponent implements OnInit {
     if( ! ['varchar', 'varbinary'].includes(this.createColumn.dataType.toLowerCase()) && this.createColumn.maxLength !== null ){
       this.createColumn.maxLength = null;
     }
-    //const newColumn = new DbColumn( this.createColumn.name, false, this.createColumn.nullable, this.createColumn.dataType, this.createColumn.maxLength );
     const req = new ColumnRequest( this.tableId, null, this.createColumn );
     this._crud.addColumn( req ).subscribe(
       res => {
@@ -190,6 +196,7 @@ export class EditColumnsComponent implements OnInit {
           this.createColumn.name = '';
           this.createColumn.nullable = true;
           this.createColumn.dataType = this.types[0];
+          this.createColumn.collectionsType = '';
           this.createColumn.maxLength = null;
           this.createColumn.defaultValue = null;
         } else {
