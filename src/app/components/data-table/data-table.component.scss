@@ -20,6 +20,10 @@
   overflow-x: auto;
 }
 
+.overflow-y-hidden {
+  overflow-y: hidden;
+}
+
 th.delete, td.delete{
   width: 1em;
   background: transparent;
