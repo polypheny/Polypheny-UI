@@ -31,6 +31,63 @@ export class QueryRequest extends UIRequest {
   }
 }
 
+export class QueryExplorationRequest extends UIRequest {
+  query: string;
+  analyze: boolean;
+  cPage: number;
+  constructor ( query: string, analyze: boolean, cPage: number ) {
+    super();
+    this.query = query;
+    this.analyze = analyze;
+    this.cPage = cPage;
+    return this;
+  }
+}
+
+/**
+ * Request to classify data
+ */
+export class ClassifyRequest{
+  id: number;
+  header: DbColumn[];
+  classified: string[][];
+  cPage: number;
+  constructor ( id: number, header: DbColumn[], classified: string[][], cPage: number ) {
+    this.id = id;
+    this.header = header;
+    this.classified = classified;
+    this.cPage = cPage;
+    return this;
+  }
+}
+
+export class Exploration{
+  id: number;
+  header: DbColumn[];
+  classified: string[][];
+
+  constructor( id: number, header: DbColumn[], classified: string[][]) {
+    this.id = id;
+    this.header = header;
+    this.classified = classified;
+
+  }
+}
+
+export class ExploreTable extends UIRequest{
+  id: number;
+  header: DbColumn[];
+  cPage: number;
+
+  constructor( id: number, header: DbColumn[], cPage: number) {
+    super();
+    this.id = id;
+    this.header = header;
+    this.cPage = cPage;
+  }
+}
+
+
 export class StatisticRequest extends UIRequest {
   constructor (){
     super();
@@ -69,12 +126,17 @@ export class SchemaRequest extends UIRequest {
    * depth 3: schemas + tables + columns
    */
   depth: number;
+  /**
+   * if show table is false, "table" will not be shown in left sidebar
+   */
+  showTable: boolean;
 
-  constructor( routerLinkRoot: string, views: boolean, depth: number ) {
+  constructor( routerLinkRoot: string, views: boolean, depth: number, showTable: boolean ) {
     super();
     this.routerLinkRoot = routerLinkRoot;
     this.views = views;
     this.depth = depth;
+    this.showTable = showTable;
   }
 }
 

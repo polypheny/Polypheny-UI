@@ -20,6 +20,10 @@
   overflow-x: auto;
 }
 
+.overflow-y-hidden {
+  overflow-y: hidden;
+}
+
 th.delete, td.delete{
   width: 1em;
   background: transparent;
@@ -60,7 +64,40 @@ tr:hover .selector input{
   vertical-align: middle;
 }
 .pagination{
-  margin-top: 1em;
+  margin-top: 1rem;
+}
+
+#resetClassification{
+  margin-top: 1rem;
+}
+
+#sendClassification{
+  margin-top: 1rem;
+}
+
+#showDecisionTree{
+  margin-top: 1rem;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+}
+
+#treeInformation{
+  margin-bottom: 0.5rem;
+}
+
+#showSQL{
+  margin-top: 1rem;
+  margin-right: 0.25rem;
+}
+
+#startClassification{
+  margin-top: 1rem;
+  margin-left: 0.25rem;
+}
+
+#modal-body-SQL{
+  max-width: 600px !important;
+  width: 600px !important;
 }
 
 /*
@@ -91,4 +128,52 @@ table.loading:after {
   background-repeat: no-repeat;
   background-size: 50px 50px;
   content: "";
+}
+
+
+rect {
+  fill: #fff;
+  stroke: #306f91;
+  stroke-width: 1;
+}
+
+path {
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+text {
+  fill:blue;
+}
+
+
+.hidden-layer {
+  position: absolute;
+  z-index: -1;
+  height: 0;
+  overflow: hidden;
+}
+
+.hidden-layer-sql {
+  position: absolute;
+  z-index: -1;
+  height: 0;
+  overflow: hidden;
+}
+
+.modal-dialog {
+  position: relative;
+  display: table;
+  overflow: auto;
+  width: auto;
+  min-width: 300px;
+}
+.modal-body { /* Restrict Modal width to 90% */
+  overflow-x: auto !important;
+  max-width: 90vw !important;
+}
+
+svg{
+  overflow: visible;
+  margin: 2rem;
 }

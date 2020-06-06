@@ -3,21 +3,48 @@ import {SortState} from './sort-state.model';
 /**
  * model for the result of a query coming from the server
  */
-export class ResultSet {
-  header: DbColumn[];
-  data: string[][];
-  currentPage: number;
-  highestPage: number;
-  table: string;
-  tables: string[];
-  error: string;
-  exception: ResultException;
-  info: Debug;
-  type: string;//"table" or "view"
 
-  constructor(error: string) {
-    this.error = error;
-  }
+export class ResultSet{
+    header: DbColumn[];
+    data: string[][];
+    currentPage: number;
+    highestPage: number;
+    table: string;
+    tables: string[];
+    error: string;
+    exception: ResultException;
+    info: Debug;
+    type: string;//"table" or "view"
+    explorerId: number;
+    classificationInfo: string;
+    includesClassificationInfo:boolean;
+    classifiedData: string[][];
+    isConvertedToSql: boolean;
+
+    constructor ( error: string ){
+        this.error = error;
+    }
+}
+
+/**
+ * model with classified data coming form server
+ */
+export class ExploreSet{
+    header: DbColumn[];
+    dataAfterClassification: String[];
+    exploreManagerId;
+    graph: String;
+}
+
+export class ExplorColSet{
+    [column: string]: {
+    }
+}
+
+export class SelectedColSet{
+    [column: string]: {
+        selected: string
+    }
 }
 
 /**
