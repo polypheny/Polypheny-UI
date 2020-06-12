@@ -5,12 +5,12 @@ import {CrudService} from '../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../models/ui-request.model';
 import {DbTable, ForeignKey, SvgLine, Uml} from './uml.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
-import {ModalDirective} from 'ngx-bootstrap';
 import {FormBuilder} from '@angular/forms';
 import {ToastDuration, ToastService} from '../../components/toast/toast.service';
 import {DbColumn, ResultSet} from '../../components/data-table/models/result-set.model';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {Subscription} from 'rxjs';
+import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-uml',
@@ -74,11 +74,11 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     const sub = this._crud.onReconnection().subscribe(
       b => {
-        if(b) this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', false, 1), this._router);
+        if(b) this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', false, 1, true), this._router);
       }
     );
     this.subscriptions.add(sub);
-    this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', false, 1), this._router);
+    this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', false, 1, true), this._router);
   }
 
   ngAfterViewInit() {

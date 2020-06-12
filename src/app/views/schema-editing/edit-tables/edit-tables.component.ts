@@ -7,11 +7,11 @@ import {ToastDuration, ToastService} from '../../../components/toast/toast.servi
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {ModalDirective} from 'ngx-bootstrap';
 import {HubService} from '../../../services/hub.service';
 import {Store} from '../../stores/store.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
+import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-edit-tables',
@@ -83,7 +83,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this.getTables();
     this.getTypeInfo();
     this.getStores();
-    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2), this._router);
+    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
   }
 
   getTables() {
@@ -150,7 +150,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           let toastAction = 'Truncated';
           if (request.getAction() === 'drop') {
             toastAction = 'Dropped';
-            this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2), this._router);
+            this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
           }
           this._toast.success(toastAction + ' table ' + request.table);
           this.getTables();
@@ -212,7 +212,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], '', null));
           this.newTableName = '';
           this.selectedStore = null;
-          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2), this._router);
+          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
         }
         this.getTables();
       }, err => {

@@ -2,7 +2,6 @@ import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HubService} from '../../services/hub.service';
 import {HubResult} from './hub.model';
-import {ModalDirective} from 'ngx-bootstrap';
 import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms';
 import {ToastService} from '../../components/toast/toast.service';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
@@ -13,6 +12,7 @@ import {Store} from '../stores/store.model';
 import {HttpEventType} from '@angular/common/http';
 import {Status} from '../../components/data-table/models/result-set.model';
 import {Subscription} from 'rxjs';
+import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-hub',
@@ -456,7 +456,7 @@ export class HubComponent implements OnInit, OnDestroy {
   }
 
   initDownloadModal( dataset ){
-    this._crud.getSchema(new SchemaRequest('', false, 1)).subscribe(
+    this._crud.getSchema(new SchemaRequest('', false, 1, true)).subscribe(
       res => {
         this.schemas = <SidebarNode[]> res;
       }, err => {

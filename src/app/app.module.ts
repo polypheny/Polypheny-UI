@@ -37,6 +37,7 @@ import {LoginComponent} from './views/login/login.component';
 import {ViewsModule} from './views/views.module';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { PopoverModule } from 'ngx-bootstrap/popover';
+import { ModalModule } from 'ngx-bootstrap/modal';
 
 @NgModule({
   imports:[
@@ -61,7 +62,8 @@ import { PopoverModule } from 'ngx-bootstrap/popover';
     TypeaheadModule.forRoot(),
     HttpClientModule,
     ViewsModule,
-    PopoverModule.forRoot()
+    PopoverModule.forRoot(),
+    ModalModule.forRoot()
   ],
   declarations: [
     AppComponent,

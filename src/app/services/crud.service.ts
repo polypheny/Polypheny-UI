@@ -12,7 +12,7 @@ import {
   QueryRequest,
   DeleteRequest,
   UpdateRequest,
-  Schema, StatisticRequest
+  Schema, StatisticRequest, Exploration, ExploreTable
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
@@ -64,6 +64,34 @@ export class CrudService {
    */
   anyQuery ( query: QueryRequest ) {
     return this._http.post(`${this.httpUrl}/anyQuery`, query, this.httpOptions);
+  }
+
+  /**
+   * @param query will be converted in the back end to return an initial table for exploration
+   */
+  createInitialExploreQuery (query ){
+    return this._http.post(`${this.httpUrl}/createInitialExploreQuery`, query, this.httpOptions);
+  }
+
+  /**
+   * @param exploration labeled rows for classification, back end creates a decision tree with this data and returns classified initial data and tree
+   */
+  exploreUserInput(exploration) {
+    return this._http.post(`${this.httpUrl}/exploration`, exploration, this.httpOptions);
+  }
+
+  /**
+   * @param info classification of all data is requested from server
+   */
+  classifyData ( info ){
+    return this._http.post(`${this.httpUrl}/classifyData`, info, this.httpOptions);
+  }
+
+  /**
+   * @param getExploreTables pagination for exploration tables
+   */
+  getExploreTables(getExploreTables: ExploreTable){
+    return this._http.post(`${this.httpUrl}/getExploreTables`, getExploreTables, this.httpOptions);
   }
 
   /**

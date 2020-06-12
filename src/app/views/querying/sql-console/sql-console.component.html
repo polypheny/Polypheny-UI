@@ -34,11 +34,11 @@
   </div>
 </div>
 
-<div class="row" style="padding: 2em 0;" [hidden]="showingAnalysis">
+<div class="row" style="padding: 2em 0;" [hidden]="showingAnalysis || loading">
     <div class="col-lg-12" *ngIf="resultSets && resultSets.length > 1">Click on a query to view its result and additional information.</div>
     <div class="accordion col-lg-12" id="accordion" id="results">
-        <div class="card" *ngFor="let resultSet of resultSets; let i = index; let collapsed = true;">
-            <div class="card-header" [ngClass]="{'pointer': resultSets.length > 1}" (click)="collapsed = !collapsed">
+        <div class="card" *ngFor="let resultSet of resultSets; let i = index;">
+            <div class="card-header" [ngClass]="{'pointer': resultSets.length > 1}" (click)="collapsed[i] = !collapsed[i]">
                 {{filter(resultSet.info.generatedQuery)}}
               <span class="badge pull-right" [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
                 <ng-container *ngIf="!resultSet.error">{{resultSet.info.affectedRows}}</ng-container>

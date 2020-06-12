@@ -3,12 +3,12 @@ import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service'
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ModalDirective} from 'ngx-bootstrap';
 import {Store, AdapterInformation, AdapterSetting} from './store.model';
 import {ToastService} from '../../components/toast/toast.service';
 import {AbstractControl, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {ResultSet} from '../../components/data-table/models/result-set.model';
 import {Subscription} from 'rxjs';
+import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-stores',

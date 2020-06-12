@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GraphComponent } from './graph/graph.component';
 import {ChartsModule} from 'ng2-charts';
-import {CollapseModule, ModalModule, ProgressbarModule, TabsModule, TooltipModule, TypeaheadModule} from 'ngx-bootstrap';
 import {ToastComponent} from './toast/toast.component';
 
 import { AppBreadcrumbModule } from '@coreui/angular';
@@ -20,6 +19,13 @@ import {InformationManagerComponent} from './information-manager/information-man
 import { InputComponent } from './data-table/input/input.component';
 import { EditorComponent } from './editor/editor.component';
 import {ExplainVisualizerModule} from '../explain-visualizer/explain-visualizer.module';
+import {ViewsModule} from '../views/views.module';
+import {CollapseModule} from 'ngx-bootstrap/collapse';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
+import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
+import {ModalModule} from 'ngx-bootstrap/modal';
+import {TabsModule} from 'ngx-bootstrap/tabs';
+import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 //import 'hammerjs';
 
 @NgModule({

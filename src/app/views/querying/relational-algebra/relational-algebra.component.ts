@@ -65,6 +65,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
 
   ngOnInit() {
+    this._leftSidebar.open();
     this.getOperators();
     this.getAutocomplete();
     const sub1 = this._RsToRa.change.subscribe(run => {
@@ -272,7 +273,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
    * Rearrange data to an object that can be used for the autocompletion
    */
   getAutocomplete() {
-    this._crud.getSchema(new SchemaRequest('', false, 3)).subscribe(
+    this._crud.getSchema(new SchemaRequest('', false, 3, true)).subscribe(
       res => {
         const schemaTree = <SidebarNode[]>res;
         const autocomplete = {schemas: []};

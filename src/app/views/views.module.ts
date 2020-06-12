@@ -5,15 +5,6 @@ import { ViewsRoutingModule } from './views-routing.module';
 import {TableViewComponent} from './table-view/table-view.component';
 import {SqlConsoleComponent} from './querying/sql-console/sql-console.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {
-  BsDropdownModule,
-  ButtonsModule,
-  CollapseModule,
-  ModalModule, PopoverModule,
-  ProgressbarModule,
-  TooltipModule,
-  TypeaheadModule
-} from 'ngx-bootstrap';
 import {ComponentsModule} from '../components/components.module';
 import {EditColumnsComponent} from './schema-editing/edit-columns/edit-columns.component';
 import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
@@ -33,7 +24,16 @@ import { StoresComponent } from './stores/stores.component';
 import { HubComponent } from './hub/hub.component';
 import { RefinementOptionsComponent } from './querying/graphical-querying/refinement-options/refinement-options.component';
 import {Ng5SliderModule} from 'ng5-slider';
+import { ExploreByExampleComponent } from './querying/explore-by-example/explore-by-example.component';
 import {AboutComponent} from './about/about.component';
+import {ButtonsModule} from 'ngx-bootstrap/buttons';
+import {CollapseModule} from 'ngx-bootstrap/collapse';
+import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
+import {ModalModule} from 'ngx-bootstrap/modal';
+import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
+import {PopoverModule} from 'ngx-bootstrap/popover';
 
 @NgModule({
   imports: [
@@ -75,8 +75,11 @@ import {AboutComponent} from './about/about.component';
     StoresComponent,
     HubComponent,
     RefinementOptionsComponent,
+    ExploreByExampleComponent,
     AboutComponent
   ],
-  exports: []
+    exports: [
+        ExploreByExampleComponent
+    ]
 })
 export class ViewsModule { }
