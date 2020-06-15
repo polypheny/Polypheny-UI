@@ -23,7 +23,6 @@ import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import { StoresComponent } from './stores/stores.component';
 import { HubComponent } from './hub/hub.component';
 import { RefinementOptionsComponent } from './querying/graphical-querying/refinement-options/refinement-options.component';
-import {Ng5SliderModule} from 'ng5-slider';
 import { ExploreByExampleComponent } from './querying/explore-by-example/explore-by-example.component';
 import {AboutComponent} from './about/about.component';
 import {ButtonsModule} from 'ngx-bootstrap/buttons';
@@ -34,6 +33,8 @@ import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
 import {PopoverModule} from 'ngx-bootstrap/popover';
+import { NgxSliderModule } from '@m0t0r/ngx-slider';
+
 
 @NgModule({
   imports: [
@@ -57,7 +58,8 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
     ModalModule.forRoot(),
     AutocompleteLibModule,
     ProgressbarModule,
-    Ng5SliderModule, PopoverModule
+    PopoverModule,
+    NgxSliderModule
   ],
   declarations: [
     EditColumnsComponent,

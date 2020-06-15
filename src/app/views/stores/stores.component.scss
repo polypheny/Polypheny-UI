@@ -55,6 +55,12 @@
 }
 #stores .card .card-body{
   overflow: auto;
+  > span {
+    display: block;
+    span{
+      width: 1.2em;
+    }
+  }
 }
 .center{
   text-align: center;

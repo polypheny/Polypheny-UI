@@ -6,6 +6,7 @@ export interface Store {
   currentSettings: Map<string, string>;
   dataReadOnly: boolean;
   schemaReadOnly: boolean;
+  persistent: boolean;
 }
 
 export interface AdapterInformation {
