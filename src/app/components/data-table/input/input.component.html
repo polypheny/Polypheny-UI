@@ -41,7 +41,7 @@
     </ng-container>
 
     <ng-container *ngSwitchDefault>
-      <input type="text" class="form-control form-control-sm" [value]="value" [maxLength]="header.maxLength || 524288"
+      <input type="text" class="form-control form-control-sm" [value]="value" [maxLength]="header.precision || 524288"
              [disabled]="value === null && header.nullable === true"
              (keyup)="onValueChange($event.target.value, $event)">
       <div class="input-group-append" *ngIf="header.nullable">

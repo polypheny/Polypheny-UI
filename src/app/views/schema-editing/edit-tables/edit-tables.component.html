@@ -79,7 +79,7 @@
                     </td>
                     <td>
                         <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.dataType">
-                            <option *ngFor="let t of types" [ngValue]="t">{{t}}</option>
+                            <option *ngFor="let t of types" [ngValue]="t.name">{{t.name}}</option>
                         </select>
                     </td>
                     <td>
@@ -89,12 +89,19 @@
                       </select>
                     </td>
                     <td>
-                      <!-- length -->
-                      <div class="input-group input-group-sm mt-1" *ngIf="col.value.dataType && ['varchar', 'varbinary'].includes(col.value.dataType.toLowerCase())">
+                      <!-- precision -->
+                      <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsPrecision(col.value.dataType)">
                         <div class="input-group-prepend">
-                          <label [for]="'len'+i" class="input-group-text">length</label>
+                          <label [for]="'precision'+i" class="input-group-text">precision</label>
                         </div>
-                        <input [id]="'len'+i" type="number" class="form-control form-control-sm" placeholder="length" [(ngModel)]="col.value.maxLength">
+                        <input [id]="'precision'+i" type="number" class="form-control form-control-sm" placeholder="precision" [(ngModel)]="col.value.precision">
+                      </div>
+                      <!-- scale -->
+                      <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsScale(col.value.dataType)">
+                        <div class="input-group-prepend">
+                          <label [for]="'scale'+i" class="input-group-text">scale</label>
+                        </div>
+                        <input [id]="'scale'+i" type="number" class="form-control form-control-sm" placeholder="scale" [(ngModel)]="col.value.scale">
                       </div>
                       <!-- dimension -->
                       <div class="input-group input-group-sm mt-1" *ngIf="col.value.collectionsType === 'ARRAY'">

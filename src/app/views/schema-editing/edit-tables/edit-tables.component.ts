@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DbColumn, ResultSet, Status} from '../../../components/data-table/models/result-set.model';
+import {DbColumn, PolyType, ResultSet, Status} from '../../../components/data-table/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -20,7 +20,7 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 })
 export class EditTablesComponent implements OnInit, OnDestroy {
 
-  types: string[] = [];
+  types: PolyType[] = [];
   schema: string;
   tables: string[];
   truncate = [];
@@ -59,7 +59,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], '', null));
+    this.newColumns.set(this.counter++, new DbColumn('', false, false, '', '', null, null ));
     this.schema = this._route.snapshot.paramMap.get('id');
     this._route.params.subscribe((params) => {
       this.schema = params['id'];
@@ -176,14 +176,13 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       return;
     }
     let valid = true;
-    //clear maxlength for types where it is not applicable
+    //clear precision/scale for types where it is not applicable
     //delete columns with no column name
     this.newColumns.forEach((v, k) => {
-      if (!['varchar', 'varbinary'].includes(v.dataType.toLowerCase()) && v.maxLength !== null) {
-        v.maxLength = null;
-      }
+      if( !this._types.supportsPrecision(v.dataType) && v.precision !== null ) v.precision = null;
+      if( !this._types.supportsScale(v.dataType) && v.scale !== null ) v.scale = null;
       //clear cardinality and dimension if it is not an array
-      if(v.collectionsType !== 'ARRAY' ) {
+      if( v.collectionsType !== 'ARRAY' ) {
         v.cardinality = null;
         v.dimension = null;
       }
@@ -209,7 +208,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this._toast.success('Generated table ' + request.table);
           this.newColumns.clear();
           this.counter = 0;
-          this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], '', null));
+          this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0].name, '', null, null ));
           this.newTableName = '';
           this.selectedStore = null;
           this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
@@ -291,7 +290,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   addNewColumn() {
-    this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0], '', null));
+    this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0].name, '', null, null ));
   }
 
   removeNewColumn(i: number) {
@@ -316,7 +315,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this._types.getTypes().subscribe(
       t => {
         this.types = t;
-        this.newColumns.get(0).dataType = t[0];
+        this.newColumns.get(0).dataType = t[0].name;
       }
     );
   }
