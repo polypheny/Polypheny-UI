@@ -27,12 +27,15 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   readonly MAXHISTORY = 20;//maximum items in history
 
   resultSets: ResultSet[];
+  collapsed: boolean[];
   queryAnalysis: InformationPage;
   analyzerId: string;//current analyzer id
   analyzeQuery = true;
   showingAnalysis = false;
   private subscriptions = new Subscription();
   loading = false;
+  saveInHistory = true;
+  confirmDeletingHistory;
 
   tableConfig: TableConfig = {
     create: false,
@@ -76,7 +79,9 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   submitQuery() {
 
-    this.addToHistory(this.codeEditor.getCode());
+    if(this.saveInHistory) {
+      this.addToHistory(this.codeEditor.getCode());
+    }
     this._leftSidebar.setNodes([]);
     if (this.analyzeQuery) {
       this._leftSidebar.open();
@@ -94,6 +99,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
       res => {
         this.loading = false;
         this.resultSets = <ResultSet[]>res;
+        this.collapsed = new Array(this.resultSets.length);
+        this.collapsed.fill(false);
       }, err => {
         this.loading = false;
         this.resultSets = [new ResultSet(err.message)];
@@ -121,6 +128,16 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     if (run) {
       this.submitQuery();
     }
+  }
+
+  deleteHistoryItem( key, e ){
+    if(this.confirmDeletingHistory===key){
+      this.history.delete(key);
+      localStorage.setItem('sql-history', JSON.stringify(Array.from(this.history.values())));
+    } else {
+      this.confirmDeletingHistory = key;
+    }
+    e.stopPropagation();
   }
 
   //from: https://stackoverflow.com/questions/52793944/angular-keyvalue-pipe-sort-properties-iterate-in-order

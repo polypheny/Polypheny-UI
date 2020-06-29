@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
-import {DbColumn, Index, ResultSet, TableConstraint} from '../../../components/data-table/models/result-set.model';
+import {DbColumn, Index, PolyType, ResultSet, TableConstraint} from '../../../components/data-table/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
@@ -23,9 +23,9 @@ export class EditColumnsComponent implements OnInit {
   schema: string;
 
   resultSet: ResultSet;
-  types: string[] = [];
+  types: PolyType[] = [];
   editColumn = -1;
-  createColumn = new DbColumn( '', false, true, 'text', null, null);
+  createColumn = new DbColumn( '', false, true, 'text', '', null, null, null);
   confirm = -1;
   oldColumns = new Map<string, DbColumn>();
   updateColumn = new FormGroup({name: new FormControl('')});
@@ -54,9 +54,9 @@ export class EditColumnsComponent implements OnInit {
   constructor(
     private _route: ActivatedRoute,
     private _leftSidebar: LeftSidebarService,
-    private _crud: CrudService,
+    public _crud: CrudService,
     private _toast: ToastService,
-    private _types: DbmsTypesService
+    public _types: DbmsTypesService
   ) {
     this.newIndexForm = new FormGroup( {
       name: new FormControl('', this._crud.getNameValidator() ),
@@ -66,7 +66,7 @@ export class EditColumnsComponent implements OnInit {
     this._types.getTypes().subscribe(
       type => {
         this.types = type;
-        this.createColumn.dataType = type[0];
+        this.createColumn.dataType = type[0].name;
       }
     );
   }
@@ -127,7 +127,11 @@ export class EditColumnsComponent implements OnInit {
         oldName: new FormControl( col.name ),
         nullable: new FormControl( col.nullable ),
         dataType: new FormControl( col.dataType ),
-        maxLength: new FormControl( {value: col.maxLength, disabled: ! ['varchar', 'varbinary'].includes(col.dataType.toLowerCase())} ),
+        collectionsType: new FormControl( col.collectionsType ),
+        precision: new FormControl( col.precision ),
+        scale: new FormControl( col.scale ),
+        dimension: new FormControl(col.dimension),
+        cardinality: new FormControl(col.cardinality),
         defaultValue: new FormControl( {value: col.defaultValue, disabled: col.defaultValue === null} )
       });
       this.editColumn = i;
@@ -141,14 +145,22 @@ export class EditColumnsComponent implements OnInit {
     }
     const oldColumn = this.oldColumns.get( this.updateColumn.controls['oldName'].value );
     const newColumn = new DbColumn(
-      this.updateColumn.controls['name'].value, null,
+      this.updateColumn.controls['name'].value,
+      null,
       this.updateColumn.controls['nullable'].value,
       this.updateColumn.controls['dataType'].value,
-      this.updateColumn.controls['maxLength'].value,
-      this.updateColumn.controls['defaultValue'].value
+      this.updateColumn.controls['collectionsType'].value,
+      this.updateColumn.controls['precision'].value,
+      this.updateColumn.controls['scale'].value,
+      this.updateColumn.controls['defaultValue'].value,
+      this.updateColumn.controls['dimension'].value,
+      this.updateColumn.controls['cardinality'].value
     );
-    if( ! ['varchar', 'varbinary'].includes( newColumn.dataType.toLowerCase()) && newColumn.maxLength !== null ){
-      newColumn.maxLength = null;
+    if( !this._types.supportsPrecision(newColumn.dataType) && newColumn.precision !== null ){
+      newColumn.precision = null;
+    }
+    if( !this._types.supportsScale(newColumn.dataType) && newColumn.scale !== null ){
+      newColumn.scale = null;
     }
     const req = new ColumnRequest( this.tableId, oldColumn, newColumn );
     this._crud.updateColumn( req ).subscribe(
@@ -177,10 +189,12 @@ export class EditColumnsComponent implements OnInit {
       this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
       return;
     }
-    if( ! ['varchar', 'varbinary'].includes(this.createColumn.dataType.toLowerCase()) && this.createColumn.maxLength !== null ){
-      this.createColumn.maxLength = null;
+    if( !this._types.supportsPrecision(this.createColumn.dataType) && this.createColumn.precision !== null ){
+      this.createColumn.precision = null;
     }
-    //const newColumn = new DbColumn( this.createColumn.name, false, this.createColumn.nullable, this.createColumn.dataType, this.createColumn.maxLength );
+    if( !this._types.supportsScale(this.createColumn.dataType) && this.createColumn.scale !== null ){
+      this.createColumn.scale = null;
+    }
     const req = new ColumnRequest( this.tableId, null, this.createColumn );
     this._crud.addColumn( req ).subscribe(
       res => {
@@ -189,8 +203,10 @@ export class EditColumnsComponent implements OnInit {
           this.getColumns();
           this.createColumn.name = '';
           this.createColumn.nullable = true;
-          this.createColumn.dataType = this.types[0];
-          this.createColumn.maxLength = null;
+          this.createColumn.dataType = this.types[0].name;
+          this.createColumn.collectionsType = '';
+          this.createColumn.precision = null;
+          this.createColumn.scale = null;
           this.createColumn.defaultValue = null;
         } else {
           this._toast.exception(result, null, 'server error', ToastDuration.INFINITE);
@@ -552,18 +568,14 @@ export class EditColumnsComponent implements OnInit {
     }
   }
 
-  onTypeChange( event ){
-    if( ['varchar', 'varbinary'].includes( event.target.value.toLowerCase() ) ){
-      this.updateColumn.controls['maxLength'].enable();
-    }else{
-      this.updateColumn.controls['maxLength'].setValue( null );
-      this.updateColumn.controls['maxLength'].disable();
-    }
-    this.assignDefault( this.updateColumn, true);
+  onTypeChange(){
+    this.updateColumn.controls['defaultValue'].setValue(null);
   }
 
-  onTypeChange2( col ){
+  onTypeChange2( col: DbColumn ){
     if( col.defaultValue !== null ) this.assignDefault( col, false );
+    col.precision = null;
+    col.scale = null;
   }
 
   validate( defaultValue ){

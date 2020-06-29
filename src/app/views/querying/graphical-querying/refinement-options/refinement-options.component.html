@@ -57,8 +57,8 @@
                                     <!-- min max for numeric values -->
                                     <div class="col col-lg-4 col-md-6 col-sm-12" *ngIf="this.statisticSet[col.value['qualifiedColumnName']]['type'] && includes(this.statisticSet[col.value['qualifiedColumnName']]['type'], 'range') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && this.statisticSet[col.value['qualifiedColumnName']]['isFull']">
                                         <p>Min - Max</p>
-                                        <ng5-slider  id="slider" [(value)]="this.statisticSet[col.value['qualifiedColumnName']]['min']"
-                                                     [(highValue)]="this.statisticSet[col.value['qualifiedColumnName']]['max']" [options]="this.statisticSet[col.value['qualifiedColumnName']]['options']" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['minMax']" (ngModelChange)="changeUserInput()"></ng5-slider>
+                                        <ngx-slider  id="slider" [(value)]="this.statisticSet[col.value['qualifiedColumnName']]['min']"
+                                                     [(highValue)]="this.statisticSet[col.value['qualifiedColumnName']]['max']" [options]="this.statisticSet[col.value['qualifiedColumnName']]['options']" [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['minMax']" (ngModelChange)="changeUserInput()"></ngx-slider>
                                     </div>
 
                                     <!-- column value for search -->
@@ -93,6 +93,3 @@
 
 
 </div>
-
-
-

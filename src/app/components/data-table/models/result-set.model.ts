@@ -83,27 +83,41 @@ export class DbColumn {
   //for the data-table
   sort: SortState;
   dataType: string;
+  collectionsType: string;
   filter: string;
 
   //for editing columns
   primary: boolean;
   unique: boolean;
   nullable: boolean;
-  maxLength: string;
+  precision: number;
+  scale: number;
   defaultValue: any;
+  dimension: number;
+  cardinality: number;
 
-  constructor(name: string, primary: boolean = null, nullable: boolean = null, type: string = null, maxLength: string = null, defaultValue: string = null) {
+  constructor(
+    name: string, primary: boolean = null, nullable: boolean = null, type: string = null, collectionsType: string = null, precision: number = null, scale: number, defaultValue: string = null, dimension: number = -1, cardinality: number = -1) {
     this.name = name;
     this.primary = primary;
     this.nullable = nullable;
     this.dataType = type;
-    this.maxLength = maxLength;
+    this.collectionsType = collectionsType;
+    this.precision = precision;
+    this.scale = scale;
     this.defaultValue = defaultValue;
+    this.dimension = dimension;
+    this.cardinality = cardinality;
   }
 
   static fromJson(obj) {
-    return new DbColumn(obj.name, obj.primary, obj.nullable, obj.dataType, obj.maxLength, obj.defaultValue);
+    return new DbColumn(obj.name, obj.primary, obj.nullable, obj.dataType, obj.collectionsType, obj.precision, obj.scale, obj.defaultValue, obj.dimension, obj.cardinality);
   }
+}
+
+export interface PolyType {
+  name: string;
+  signatures: number;
 }
 
 /**

@@ -1,6 +1,6 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {CrudService} from './crud.service';
-import {ResultSet} from '../components/data-table/models/result-set.model';
+import {PolyType} from '../components/data-table/models/result-set.model';
 import {ToastService} from '../components/toast/toast.service';
 
 @Injectable({
@@ -12,6 +12,7 @@ export class DbmsTypesService {
   private booleanArray = ['bool', 'boolean'];
   private dateTimeArray = ['date', 'time', 'timestamp'];
   private types = new EventEmitter();
+  private _types: PolyType[];
   private foreignKeyActions = new EventEmitter();
 
   constructor(
@@ -28,17 +29,22 @@ export class DbmsTypesService {
   private fetchTypes() {
     this._crud.getTypeInfo().subscribe(
       res=> {
-        const result = <ResultSet> res;
-        if( result.error ){
+        const result = <PolyType[]> res;
+        if( result == undefined ){
           this._toast.error('Could not retrieve DBMS types.');
           return;
         }
-        const types = [];
-        result.data.forEach( (v, i) => {
-          types.push(v[0]);
+        result.sort((a: PolyType, b:PolyType) => {
+          if( a.name.toLowerCase() < b.name.toLowerCase() ){
+            return -1;
+          }
+          if( a.name.toLowerCase() > b.name.toLowerCase() ){
+            return 1;
+          }
+          return 0;
         });
-        types.sort();
-        this.types.next( types );
+        this.types.next( result );
+        this._types = result;
       }, err => {
         this._toast.error('Could not retrieve DBMS types.');
       }
@@ -120,6 +126,54 @@ export class DbmsTypesService {
    */
   isDateTime(type: string) {
     return this.dateTimeArray.includes(type.toLowerCase());
+  }
+
+  /**
+   * @param type dmbs type name
+   * @return if the dbms type supports precision
+   */
+  supportsPrecision(type:string):boolean {
+    return this.getTypeSignature( type ) >= 3;
+  }
+
+
+  /**
+   * @param type dmbs type name
+   * @return if the dbms type supports scale
+   */
+  supportsScale(type:string):boolean {
+    return this.getTypeSignature( type ) >= 7;
+  }
+
+
+  /**
+   * Check if the labels and placeholders for the precision value should be displayed as "length" or as "precision"
+   */
+  precisionPlaceholder(type:string):string {
+    switch (type.toLowerCase()) {
+      case 'varchar':
+        return 'length';
+      default:
+        return 'precision';
+    }
+  }
+
+
+
+  /**
+   * Get the type signature from a string
+   * 1 if NO_NO, 3 if YES_NO, 7 if YES_YES
+   */
+  private getTypeSignature( typeName: string ):number {
+    if(this._types == null || typeName == null ) {
+      return 0;
+    }
+    const type: PolyType = this._types.find((v:PolyType) => v.name === typeName);
+    if( type == null ) {
+      return 0;
+    } else {
+      return type.signatures;
+    }
   }
 
 }

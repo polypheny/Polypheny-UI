@@ -45,7 +45,12 @@
           <div class="card-body">
             <img *ngIf="getLogo(store.adapterName)" [src]="getLogo(store.adapterName)" alt="" class="logo">
             <i *ngIf="!getLogo(store.adapterName)" class="logo fa fa-database"></i>
-            Adapter: {{store.adapterName}}
+            <span class="mb-1">Adapter: {{store.adapterName}}</span>
+
+            <span *ngIf="store.schemaReadOnly"><span class="fa fa-lock" style="padding-left: 2px"></span> schema-read-only</span>
+            <span *ngIf="store.dataReadOnly"><span class="fa fa-eye"></span> data-read-only</span>
+            <span *ngIf="store.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
+
           </div>
           <div class="card-footer bg-transparent">
             <button class="btn btn-danger" (click)="removeStore(store)" (mouseleave)="deletingStore = undefined">

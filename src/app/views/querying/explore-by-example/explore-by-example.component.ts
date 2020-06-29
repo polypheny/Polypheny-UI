@@ -197,12 +197,12 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         const cols = [];
         const tabs = [];
         ids.forEach(id => {
-            cols.push(id);
+            cols.push('\"' + id.split('.').join('\".\"') + '\"');
         });
         sql += cols.join(', ');
         sql += '\nFROM ';
         tables.forEach(table => {
-            tabs.push(table);
+            tabs.push('\"' + table.split('.').join('\".\"') + '\"');
         });
 
         sql += tabs.join(', ');
