@@ -53,9 +53,9 @@
               <!-- precision -->
               <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsPrecision(updateColumn.controls['dataType'].value)">
                 <div class="input-group-prepend">
-                  <label for="precision" class="input-group-text">precision</label>
+                  <label for="precision" class="input-group-text">{{_types.precisionPlaceholder(updateColumn.controls['dataType'].value)}}</label>
                 </div>
-                <input type="number" placeholder="precision" formControlName="precision" class="form-control form-control-sm" id="precision" [attr.data-before]="col.precision">
+                <input type="number" [placeholder]="_types.precisionPlaceholder(updateColumn.controls['dataType'].value)" formControlName="precision" class="form-control form-control-sm" id="precision" [attr.data-before]="col.precision">
               </div>
 
               <!-- scale -->
@@ -115,7 +115,7 @@
             <td>{{col.dataType}}</td>
             <td>{{col.collectionsType}}</td>
             <td>
-              <span *ngIf="col.precision">precision: {{col.precision}}</span>
+              <span *ngIf="col.precision">{{_types.precisionPlaceholder(col.dataType)}}: {{col.precision}}</span>
               <span *ngIf="col.scale">scale: {{col.scale}}</span>
               <span *ngIf="col.dimension">dimension: {{col.dimension}}</span>
               <span *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
@@ -155,9 +155,9 @@
             <!-- precision -->
             <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsPrecision(createColumn.dataType)">
               <div class="input-group-prepend">
-                <label for="createPrecision" class="input-group-text">precision</label>
+                <label for="createPrecision" class="input-group-text">{{_types.precisionPlaceholder(createColumn.dataType)}}</label>
               </div>
-              <input type="number" placeholder="precision" class="form-control form-control-sm" id="createPrecision" [(ngModel)]="createColumn.precision">
+              <input type="number" [placeholder]="_types.precisionPlaceholder(createColumn.dataType)" class="form-control form-control-sm" id="createPrecision" [(ngModel)]="createColumn.precision">
             </div>
             <!-- scale -->
             <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsScale(createColumn.dataType)">

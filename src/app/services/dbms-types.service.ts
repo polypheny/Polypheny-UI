@@ -146,6 +146,19 @@ export class DbmsTypesService {
   }
 
 
+  /**
+   * Check if the labels and placeholders for the precision value should be displayed as "length" or as "precision"
+   */
+  precisionPlaceholder(type:string):string {
+    switch (type.toLowerCase()) {
+      case 'varchar':
+        return 'length';
+      default:
+        return 'precision';
+    }
+  }
+
+
 
   /**
    * Get the type signature from a string

@@ -92,9 +92,9 @@
                       <!-- precision -->
                       <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsPrecision(col.value.dataType)">
                         <div class="input-group-prepend">
-                          <label [for]="'precision'+i" class="input-group-text">precision</label>
+                          <label [for]="'precision'+i" class="input-group-text">{{_types.precisionPlaceholder(col.value.dataType)}}</label>
                         </div>
-                        <input [id]="'precision'+i" type="number" class="form-control form-control-sm" placeholder="precision" [(ngModel)]="col.value.precision">
+                        <input [id]="'precision'+i" type="number" class="form-control form-control-sm" [placeholder]="_types.precisionPlaceholder(col.value.dataType)" [(ngModel)]="col.value.precision">
                       </div>
                       <!-- scale -->
                       <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsScale(col.value.dataType)">
