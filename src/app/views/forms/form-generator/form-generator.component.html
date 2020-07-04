@@ -53,11 +53,20 @@
 
 										</ng-container>
 
-                    <!-- ConfigClazz -->
+                    <!-- ConfigClazz, ConfigEnum -->
                     <ng-container *ngSwitchCase="'SELECT'">
                       <select [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" class="form-control" [ngClass]="inputValidation(config.value.key)">
-                        <option *ngFor="let c of config.value.classes" [value]="c">{{c.split('$')[1]}}</option>
+                        <option *ngFor="let c of config.value.values" [value]="c">{{classOrEnumName(c)}}</option>
                       </select>
+                    </ng-container>
+
+                    <!-- ConfigClazzList, ConfigEnumList -->
+                    <ng-container *ngSwitchCase="'CHECKBOXES'">
+                      <div class="form-control" style="height:auto">
+                        <div *ngFor="let c of config.value.values">
+                          <label><input type="checkbox" [checked]="config.value.value.includes(c)" style="margin-right:0.5em" #cb (change)="handleClassList(config.value.key, c, cb.checked)">{{classOrEnumName(c)}}</label>
+                        </div>
+                      </div>
                     </ng-container>
 
 										<div class="invalid-feedback" *ngIf="submitted && !form.controls[config.value.key].valid">
