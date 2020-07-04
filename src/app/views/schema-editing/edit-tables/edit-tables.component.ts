@@ -178,6 +178,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     let valid = true;
     //clear precision/scale for types where it is not applicable
     //delete columns with no column name
+    let hasPk = false;
     this.newColumns.forEach((v, k) => {
       if( !this._types.supportsPrecision(v.dataType) && v.precision !== null ) v.precision = null;
       if( !this._types.supportsScale(v.dataType) && v.scale !== null ) v.scale = null;
@@ -193,7 +194,14 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         valid = false;
         return;
       }
+      if(v.primary) {
+        hasPk = true;
+      }
     });
+    if( !hasPk ){
+      this._toast.warn( 'Please specify a primary key. The new table was not created.', 'missing primary key', ToastDuration.INFINITE );
+      return;
+    }
     if (!valid) {
       this._toast.warn('Please make sure all column names are valid. The new table was not created.', 'invalid column name', ToastDuration.INFINITE);
       return;
