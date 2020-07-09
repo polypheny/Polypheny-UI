@@ -1,7 +1,7 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HubService} from '../../services/hub.service';
-import {HubResult} from './hub.model';
+import {HubMeta, HubResult, TableMapping} from './hub.model';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms';
 import {ToastService} from '../../components/toast/toast.service';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
@@ -60,7 +60,9 @@ export class HubComponent implements OnInit, OnDestroy {
   uploadProgress = 0;
 
   //download/import dataset
+  datasetName;
   downloadPath: string;
+  hubMeta: HubMeta;
   schemas: SidebarNode[];
   importDsForm = new FormGroup({
     schema: new FormControl('', Validators.required),
@@ -455,7 +457,12 @@ export class HubComponent implements OnInit, OnDestroy {
     }
   }
 
-  initDownloadModal( dataset ){
+  initDownloadModal( dsName, dataset ){
+    this.datasetName = dsName;
+    //support for previous version
+    if( dataset.endsWith('.zip')) {
+      dataset = dataset.substr(0,dataset.length-4);
+    }
     this._crud.getSchema(new SchemaRequest('', false, 1, true)).subscribe(
       res => {
         this.schemas = <SidebarNode[]> res;
@@ -467,8 +474,14 @@ export class HubComponent implements OnInit, OnDestroy {
     // remove index.php part
     hubUrl = hubUrl.slice( 0, hubUrl.lastIndexOf('/')+1 );
     hubUrl = hubUrl + 'uploaded-files/';
-    this.downloadPath = hubUrl + dataset;
-    //this.downloadPath = this._settings.getConnection('hub.url') + '/../uploaded-files/' + dataset;
+    this.downloadPath = hubUrl + dataset + '.zip';
+    this._hub.getDataSetMeta( hubUrl + dataset + '.json' ).subscribe(
+      res => {
+        this.hubMeta = <HubMeta> res;
+      }, () => {
+        this.hubMeta = null;
+      }
+    );
     this.importDsForm.controls['url'].setValue(this.downloadPath);
     this.downloadDataModal.show();
   }
@@ -479,6 +492,7 @@ export class HubComponent implements OnInit, OnDestroy {
     if(this.importDsForm.valid){
       //get import status: see initWebsocket()
       this._crud.importDataset(
+        this.hubMeta.tables,
         this.importDsForm.controls['schema'].value,
         this.importDsForm.controls['store'].value,
         this.importDsForm.controls['url'].value,
@@ -486,7 +500,6 @@ export class HubComponent implements OnInit, OnDestroy {
         this.importDsForm.controls['addDefaultValue'].value
       ).subscribe(
         res => {
-          this.importProgress = -1;
           const result = <HubResult> res;
           if(result.error){
             this._toast.warn('Import failed: ' + result.error);
@@ -495,11 +508,10 @@ export class HubComponent implements OnInit, OnDestroy {
             this.downloadDataModal.hide();
           }
         }, err => {
-          this.importProgress = -1;
           this._toast.error('The dataset could not be imported');
           console.log(err);
         }
-      );
+      ).add(()=> this.importProgress = -1 );
     }
   }
 
@@ -517,6 +529,12 @@ export class HubComponent implements OnInit, OnDestroy {
         }, +this._settings.getSetting('reconnection.timeout'));
       });
     this.subscriptions.add(sub);
+  }
+
+  //see https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string/10420404
+  humanFileSize(size: number) {
+    const i = size == 0 ? 0 : Math.floor( Math.log(size) / Math.log(1000) );
+    return +( size / Math.pow(1000, i) ).toFixed(2) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
   }
 
 }

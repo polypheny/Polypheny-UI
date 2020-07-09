@@ -22,7 +22,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
   types: PolyType[] = [];
   schema: string;
-  tables: string[];
+  tables = [];
   truncate = [];
   drop = [];
 
@@ -33,14 +33,13 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   selectedStore;
 
   //export table
-  exportingTable: string;
+  showExportButton = false;
   exportProgress = 0.0;
   uploading = false;
   private subscriptions = new Subscription();
   exportForm = new FormGroup({
     name: new FormControl('', Validators.required),
     pub: new FormControl(true, Validators.required),
-    table: new FormControl('', Validators.required),
     createPrimaryKeys: new FormControl(true, Validators.required),
     addDefaultValue: new FormControl(true, Validators.required)
   });
@@ -93,11 +92,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         if (result.error !== undefined) {
           this._toast.exception(result, 'Could not retrieve list of tables:');
         }
-        this.tables = result.tables;
-        this.tables.forEach((val, key) => {
-          this.truncate[key] = '';
-          this.drop[key] = '';
-        });
+        this.tables = [];
+        for(const t of result.tables){
+          this.tables.push({ name:t, truncate:false, drop:false, export:false });
+        }
       }, err => {
         this._toast.error('could not retrieve list of tables');
         console.log(err);
@@ -229,25 +227,47 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     );
   }
 
-  initExportModal(table: string) {
-    this.exportingTable = table;
+  initExportModal() {
     this.exportTableModal.show();
+  }
+
+  /**
+   * Determine if the "export" button should be showed
+   * (if at least one table is selected)
+   */
+  updateShowExportButton( e ){
+    if( e.target.checked ){
+      this.showExportButton = true;
+      return;
+    }
+    for( const t of this.tables ){
+      if( t.export ) {
+        this.showExportButton = true;
+        return;
+      }
+    }
+    this.showExportButton = false;
   }
 
   resetExport() {
     this.exportForm.reset({pub: true, createPrimaryKeys: true, addDefaultValue: true});
-    this.exportingTable = undefined;
     this.uploading = false;
     this.exportProgress = 0.0;
   }
 
   exportTable() {
+    const exportTables = {};
+    for(const t of this.tables){
+      if(t.export){
+        exportTables[t.name] = {initialName: t.name, newName: t.name};
+      }
+    }
     if (this.exportForm.valid) {
       this.uploading = true;
       this._crud.exportTable(
         this.exportForm.controls['name'].value,
         this.schema,
-        this.exportingTable,
+        exportTables,
         this.exportForm.controls['pub'].value,
         this.exportForm.controls['createPrimaryKeys'].value,
         this.exportForm.controls['addDefaultValue'].value,

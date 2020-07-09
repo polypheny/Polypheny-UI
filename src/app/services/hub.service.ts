@@ -128,6 +128,10 @@ export class HubService {
     return this._http.post(this.hubUrl, this.toFormData(body));
   }
 
+  getDataSetMeta( url: string ) {
+    return this._http.get( url );
+  }
+
   toFormData( obj ){
     const formData = new FormData();
     for (const [k, v] of Object.entries(obj)) {

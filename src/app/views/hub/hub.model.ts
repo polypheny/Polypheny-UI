@@ -10,3 +10,15 @@ export interface HubResult {
   secret: string;
   loginStatus: number;//2 if admin, 1 if user
 }
+
+export interface HubMeta {
+  fileSize: number;
+  numberOfRows: number;
+  schema: string;
+  tables: Map<String, TableMapping>;
+}
+
+export interface TableMapping {
+  initialName: string;
+  newName: string;
+}

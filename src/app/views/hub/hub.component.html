@@ -164,7 +164,7 @@
             </td>
             <td>{{row.value[5]}}</td>
             <td>{{row.value[1] | date:'dd.MM.yyyy - HH:mm'}}</td>
-            <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value[4])"></i></td>
+            <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value[0],row.value[4])"></i></td>
             <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value[3])" (click)="initEditDataset(row.key)"></i></td>
             <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="ptr" *ngIf="canDeleteAndUpdate(+row.value[3])" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value[3], 'fa fa-warning':deleteDsConfirm === +row.value[3]}" (click)="deleteDataset(+row.value[3])" (mouseout)="deleteDsConfirm = undefined"></i></td>
           </tr>
@@ -183,47 +183,64 @@
     <div class="modal-content">
       <form [formGroup]="importDsForm" (ngSubmit)="importIntoPolypheny()" autocomplete="off">
         <div class="modal-header">
-          <h4 class="modal-title">Import dataset</h4>
+          <h4 class="modal-title">Import dataset<ng-container *ngIf="datasetName"> "{{datasetName}}"</ng-container></h4>
           <button type="button" class="close" (click)="downloadDataModal.hide()" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          <div class="form-inline mb-3" *ngIf="availableStores">
-            <label for="importIntoStore" class="mr-2">Store</label>
-            <select id="importIntoStore" class="form-control" formControlName="store">
-              <option value="">Select store</option>
-              <option *ngFor="let s of availableStores" [value]="s.uniqueName">{{s.uniqueName}}</option>
-            </select>
-          </div>
-          <div class="form-inline mb-3">
-            <label for="importIntoSchema" class="mr-2">Schema</label>
-            <select id="importIntoSchema" class="form-control" *ngIf="schemas" formControlName="schema">
-              <option value="">Select schema</option>
-              <option *ngFor="let s of schemas" [value]="s.name">{{s.name}}</option>
-            </select>
-          </div>
-          <div class="form-group mb-0" style="display: flex">
-            <label for="addDefaultVals" class="switch-label2">Add default values</label>
-            <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="addDefaultVals">
-              <input type="checkbox" class="form-control switch-input" id="addDefaultVals" formControlName="addDefaultValue">
-              <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
-            </label>
-          </div>
-          <div class="form-group mb-0" style="display: flex">
-            <label for="createPK" class="switch-label2">Create primary key</label>
-            <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="createPK">
-              <input type="checkbox" class="form-control switch-input" id="createPK" formControlName="createPrimaryKeys">
-              <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
-            </label>
-          </div>
+          <ng-container *ngIf="hubMeta">
+            <h5>Info</h5>
+            rows: {{hubMeta.numberOfRows}}<br>
+            size: {{humanFileSize(hubMeta.fileSize)}}
+            <hr>
+            <h5>Table mapping</h5>
+            <div class="form-inline mb-3" *ngFor="let t of hubMeta.tables |keyvalue">
+              <label for="tableName{{t.key}}" class="mr-2">{{t.value.initialName}}</label>
+              <div class="">
+                <input type="email" class="form-control" id="tableName{{t.key}}" [placeholder]="t.value.initialName" [(ngModel)]="t.value.newName" [ngModelOptions]="{standalone: true}">
+              </div>
+            </div>
+            <hr>
+          </ng-container>
+          <ng-container *ngIf="hubMeta">
+            <div class="form-inline mb-3" *ngIf="availableStores">
+              <label for="importIntoStore" class="mr-2">Store</label>
+              <select id="importIntoStore" class="form-control" formControlName="store">
+                <option value="">Select store</option>
+                <option *ngFor="let s of availableStores" [value]="s.uniqueName">{{s.uniqueName}}</option>
+              </select>
+            </div>
+            <div class="form-inline mb-3">
+              <label for="importIntoSchema" class="mr-2">Schema</label>
+              <select id="importIntoSchema" class="form-control" *ngIf="schemas" formControlName="schema">
+                <option value="">Select schema</option>
+                <option *ngFor="let s of schemas" [value]="s.name">{{s.name}}</option>
+              </select>
+            </div>
+            <div class="form-group mb-0" style="display: flex">
+              <label for="addDefaultVals" class="switch-label2">Add default values</label>
+              <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="addDefaultVals">
+                <input type="checkbox" class="form-control switch-input" id="addDefaultVals" formControlName="addDefaultValue">
+                <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+              </label>
+            </div>
+            <div class="form-group mb-0" style="display: flex">
+              <label for="createPK" class="switch-label2">Create primary key</label>
+              <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="createPK">
+                <input type="checkbox" class="form-control switch-input" id="createPK" formControlName="createPrimaryKeys">
+                <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+              </label>
+            </div>
+          </ng-container>
+          <span *ngIf="!hubMeta">This dataset can be downloaded, but not imported.</span>
           <input type="hidden" [value]="downloadPath" formControlName="url">
           <p class="text-danger mb-0" *ngIf="importDsFormSubmitted && !importDsForm.valid">Please select a schema and store before importing into Polypheny.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="downloadDataModal.hide()">Close</button>
           <a class="btn btn-secondary" [href]="downloadPath">Download</a>
-          <button type="submit" class="btn btn-primary">Import</button>
+          <button *ngIf="hubMeta" type="submit" class="btn btn-primary">Import</button>
           <div class="progress-wrapper">
             <progressbar *ngIf="importDsFormSubmitted && importDsForm.valid && importProgress < 1 && importProgress > 0"
                          class="progress progress-striped" [value]="importProgress" [max]="1"></progressbar>
