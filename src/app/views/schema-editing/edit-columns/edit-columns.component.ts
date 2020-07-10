@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
@@ -8,7 +8,9 @@ import {ToastDuration, ToastService} from '../../../components/toast/toast.servi
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {Store} from '../../stores/store.model';
+import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../stores/store.model';
+import {ModalDirective} from 'ngx-bootstrap/modal';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-edit-columns',
@@ -48,8 +50,12 @@ export class EditColumnsComponent implements OnInit {
   //data placement handling
   stores: Store[];
   selectedStore;
-  dataPlacements: ResultSet;
+  dataPlacements: Placements;
   confirmPlacement = -1;
+  columnPlacement: FormGroup;
+  placementMethod: 'ADD' | 'MODIFY' | 'DROP';
+
+  @ViewChild('placementModal', {static: false}) public placementModal: ModalDirective;
 
   constructor(
     private _route: ActivatedRoute,
@@ -115,6 +121,10 @@ export class EditColumnsComponent implements OnInit {
         console.log(err);
       }
     );
+  }
+
+  getColumnArray () {
+    return this.resultSet.header.map((h) => h.name );
   }
 
   editCol( i:number, col: DbColumn ) {
@@ -420,17 +430,17 @@ export class EditColumnsComponent implements OnInit {
       });
   }
 
-  getAddableStores () {
-    return this.stores.filter( (s) => {
+  getAddableStores (): Store[] {
+    return this.stores.filter( (s: Store) => {
       // hide stores that are schemaReadOnly or dataReadOnly
       if( s.schemaReadOnly || s.dataReadOnly ) {
         return false;
       }
       //hide stores that are already part of the placement
-      else if ( this.dataPlacements && this.dataPlacements.data && this.dataPlacements.data.length > 0 ) {
+      else if ( this.dataPlacements && this.dataPlacements.stores && this.dataPlacements.stores.length > 0 ) {
         let showStore = true;
-        for ( const store of this.dataPlacements.data ) {
-          if( store[0] === s.uniqueName ) {
+        for ( const store of this.dataPlacements.stores ) {
+          if( store.uniqueName === s.uniqueName ) {
             showStore = false;
           }
         }
@@ -445,11 +455,13 @@ export class EditColumnsComponent implements OnInit {
   getDataPlacements() {
     this._crud.getDataPlacements(this.schema, this.table).subscribe(
       res => {
-        const result = <ResultSet>res;
-        if (!result.error) {
-          this.dataPlacements = result;
-        } else {
-          console.log(result.error);
+        this.dataPlacements = <Placements>res;
+        for(const s of this.dataPlacements.stores){
+          s.columnPlacements.sort((a,b) => a.columnId - b.columnId);
+        }
+        if( this.dataPlacements.exception ){
+          // @ts-ignore
+          this._toast.exception( {error: this.dataPlacements.exception.detailMessage, exception: this.dataPlacements.exception} );
         }
       }, err => {
         console.log(err);
@@ -457,24 +469,61 @@ export class EditColumnsComponent implements OnInit {
     );
   }
 
-  addPlacement() {
+  initPlacementModal( method: 'ADD' | 'MODIFY', store = null, preselect:CatalogColumnPlacement[] = [] ){
+    this.placementMethod = method;
+    if( store != null ) {
+      this.selectedStore = store;
+    }
     if (!this.selectedStore) {
       return;
     }
-    this._crud.addDropPlacement(this.schema, this.table, this.selectedStore, 'ADD').subscribe(
+    this.columnPlacement = new FormGroup({});
+    this.resultSet.header.forEach(( v ,k )=>{
+      let state = true;
+      if( preselect.length > 0 && !preselect.some( e => e.columnName === v.name && e.placementType === PlacementType.MANUAL ) ) {
+        state = false;
+      }
+      this.columnPlacement.addControl( v.name, new FormControl(state) );
+    });
+    this.placementModal.show();
+  }
+
+  clearPlacementModal(){
+    this.selectedStore = null;
+  }
+
+  selectAllColumns ( selectAll: boolean ) {
+    this.resultSet.header.forEach(( v ,k )=>{
+      this.columnPlacement.get(v.name).setValue( selectAll );
+    });
+  }
+
+  addPlacement() {
+    const cols = [];
+    for( const [k,v] of Object.entries(this.columnPlacement.value) ){
+      //const v = this.columnPlacement.value[k];
+      if(v) {
+        cols.push(k);
+      }
+    }
+    this._crud.addDropPlacement(this.schema, this.table, this.selectedStore, this.placementMethod, cols).subscribe(
       res => {
         const result = <ResultSet> res;
         if( result.error ) {
           this._toast.exception( result );
         } else {
-          this._toast.success( 'Added placement on store ' + this.selectedStore, 'Added placement' );
+          if( this.placementMethod === 'ADD' ){
+            this._toast.success( 'Added placement on store ' + this.selectedStore, 'Added placement' );
+          } else if( this.placementMethod === 'MODIFY' ){
+            this._toast.success( 'Modified placement on store ' + this.selectedStore, 'Modified placement' );
+          }
           this.getDataPlacements();
         }
         this.selectedStore = null;
       }, err => {
-        this._toast.error( 'Could not drop placement on store ' + this.selectedStore );
+        this._toast.error( 'Could not ' + this.placementMethod.toLowerCase() + ' placement on store ' + this.selectedStore );
       }
-    );
+    ).add(() => this.placementModal.hide());
   }
 
   dropPlacement(store: string, i: number) {
@@ -586,6 +635,10 @@ export class EditColumnsComponent implements OnInit {
     }else{
       return 'is-valid';
     }
+  }
+
+  titleCase ( name ) {
+    return _.capitalize(name);
   }
 
 }

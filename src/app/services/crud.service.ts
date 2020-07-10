@@ -225,8 +225,8 @@ export class CrudService {
   /**
    * Add or drop a placement
    */
-  addDropPlacement(schema: string, table: string, store: string, method: 'ADD' | 'DROP') {
-    const index = new Index(schema, table, store, method, []);
+  addDropPlacement(schema: string, table: string, store: string, method: 'ADD' | 'DROP' | 'MODIFY', columns = []) {
+    const index = new Index(schema, table, store, method, columns);
     return this._http.post(`${this.httpUrl}/addDropPlacement`, index, this.httpOptions);
   }
 
