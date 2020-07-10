@@ -153,12 +153,20 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     // https://juristr.com/blog/2017/10/demystify-dynamic-angular-forms/
     for(const gKey of Object.keys(this.formObj.groups)){
       for ( const cKey of Object.keys(this.formObj.groups[gKey].configs)) {
-        let initValue = this.formObj.groups[gKey].configs[cKey].value || '';
-        if( this.formObj.groups[gKey].configs[cKey].webUiFormType === 'BOOLEAN' ){
-          initValue = this.formObj.groups[gKey].configs[cKey].value || false;
+        const config = this.formObj.groups[gKey].configs[cKey];
+        let initValue;
+        if( config.webUiFormType === 'BOOLEAN' ){
+          initValue = config.value || false;
         }
-        else if ( this.formObj.groups[gKey].configs[cKey].webUiFormType === 'CHECKBOXES' ) {
-          initValue = this.formObj.groups[gKey].configs[cKey].value || [];
+        else if ( config.webUiFormType === 'CHECKBOXES' ) {
+          initValue = config.value || [];
+        }
+        else {
+          if( config.value === undefined || config.value === null){
+            initValue = '';
+          } else {
+            initValue = config.value;
+          }
         }
         formGroup[cKey] = new FormControl( initValue,
           this.mapValidators(this.formObj.groups[gKey].configs[cKey]));
