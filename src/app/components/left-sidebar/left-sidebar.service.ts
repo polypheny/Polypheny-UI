@@ -30,6 +30,15 @@ export class LeftSidebarService {
   private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   private resetSubject = new BehaviorSubject<boolean>(false);
 
+  /**
+   * Sort function to sort SidebarNodes alphabetically
+   */
+  public sortNodes = ( a: SidebarNode, b:SidebarNode ) => {
+    if(a.name < b.name) { return -1; }
+    if(a.name > b.name) { return 1; }
+    return 0;
+  }
+
   private mapPages(res: Object, mode: string) {
     const pages = <JavaPage[]>res;
     const nodes: SidebarNode[] = [];

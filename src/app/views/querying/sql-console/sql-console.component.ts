@@ -180,15 +180,24 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
         if (Array.isArray(msg)) {
           const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
           const sidebarNodes: SidebarNode[] = [];
-          for (const s of sidebarNodesTemp) {
-            sidebarNodes.push(SidebarNode.fromJson(s, {allowRouting: false, action: nodeBehavior}));
+          const labels = new Set();
+          sidebarNodesTemp.sort( this._leftSidebar.sortNodes ).forEach((s) => {
+            if(s.label){
+              labels.add(s.label);
+            } else {
+              sidebarNodes.push(SidebarNode.fromJson(s, {allowRouting: false, action: nodeBehavior}));
+            }
+          });
+          for( const l of [...labels].sort() ){
+            sidebarNodes.push( new SidebarNode(l, l).asSeparator() );
+            sidebarNodesTemp.filter((n) => n.label === l ).sort( this._leftSidebar.sortNodes ).forEach(( n ) => {
+              sidebarNodes.push(SidebarNode.fromJson(n, {allowRouting: false, action: nodeBehavior}));
+            });
           }
 
           //set analyzerId to close it when leaving the page.
-          if (sidebarNodes.length > 0) {
-            const split = sidebarNodes[0].routerLink.split('/');
-            this.analyzerId = split[0];
-          }
+          const split = sidebarNodes.find((n) => n.routerLink != null).routerLink.split('/');
+          this.analyzerId = split[0];
           sidebarNodes.unshift(new SidebarNode('sql-console', 'sql-console', 'fa fa-keyboard-o').setAction(nodeBehavior));
           this._leftSidebar.setNodes(sidebarNodes);
           if (sidebarNodes.length > 0) {

@@ -4,6 +4,7 @@ export class SidebarNode {
   icon: string;
   relAlgSymbol: string;
   routerLink: any;
+  label: string;
   allowRouting = true;
   cssClass: string;
   allowDrag = false;
