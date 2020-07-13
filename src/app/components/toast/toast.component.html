@@ -26,12 +26,7 @@
         <h5>Exception</h5>
       </div>
       <div class="modal-body text-muted" *ngIf="exception">
-        <p class="font-weight-bold">{{exception.detailMessage}}</p>
-        <ul *ngIf="exception.stackTrace">
-          <li *ngFor="let s of exception.stackTrace">at {{s.declaringClass}}.{{s.methodName}}(<span
-            class="text-primary">{{s.fileName}}:{{s.lineNumber}}</span>)
-          </li>
-        </ul>
+        <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: exception}"></ng-container>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="stackTraceModal.hide()">Close</button>
@@ -39,3 +34,19 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div>
+
+<ng-template #exceptionTemplate let-e="e">
+  <ng-container *ngIf="e">
+    <p *ngIf="e.detailMessage" class="font-weight-bold">{{e.detailMessage}}</p>
+    <p *ngIf="e.message" class="font-weight-bold">{{e.message}}</p>
+    <ul *ngIf="e.stackTrace">
+      <li *ngFor="let s of e.stackTrace">at {{s.declaringClass}}.{{s.methodName}}(<span
+        class="text-primary">{{s.fileName}}:{{s.lineNumber}}</span>)
+      </li>
+    </ul>
+    <ng-container *ngIf="e.cause">
+      caused by:
+      <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: e.cause}"></ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>

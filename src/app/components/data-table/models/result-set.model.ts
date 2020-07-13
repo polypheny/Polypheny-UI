@@ -182,7 +182,9 @@ export interface Status {
  */
 export interface ResultException {
   detailMessage: string;
+  message: string;
   stackTrace: StackTrace[];
+  cause: ResultException;
 }
 
 /**

@@ -132,4 +132,27 @@
     </div>
   </div>
 
+  <ng-container *ngIf="li.type == 'InformationStacktrace'">
+    <div class="card-body exception" *ngIf="li.exception">
+      <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: li.exception}"></ng-container>
+    </div>
+  </ng-container>
+
 </ng-container>
+
+
+<ng-template #exceptionTemplate let-e="e">
+  <ng-container *ngIf="e">
+    <p *ngIf="e.detailMessage" class="font-weight-bold text-danger">{{e.detailMessage}}</p>
+    <p *ngIf="e.message" class="font-weight-bold text-danger">{{e.message}}</p>
+    <ul *ngIf="e.stackTrace">
+      <li *ngFor="let s of e.stackTrace">at {{s.declaringClass}}.{{s.methodName}}(<span
+        class="text-primary">{{s.fileName}}:{{s.lineNumber}}</span>)
+      </li>
+    </ul>
+    <ng-container *ngIf="e.cause">
+      caused by:
+      <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: e.cause}"></ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>
