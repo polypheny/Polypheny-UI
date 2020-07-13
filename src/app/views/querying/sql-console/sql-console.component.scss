@@ -66,3 +66,6 @@ select{
 .history-item:hover .del-hist-item{
   display: block;
 }
+.query-info p:not(:last-child){
+  margin-bottom: 0;
+}

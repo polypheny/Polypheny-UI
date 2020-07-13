@@ -7,6 +7,7 @@ import {SortState} from './sort-state.model';
 export class ResultSet{
     header: DbColumn[];
     data: string[][];
+    hasMoreRows: boolean;
     currentPage: number;
     highestPage: number;
     table: string;
