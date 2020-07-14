@@ -196,29 +196,26 @@
           <p>Keep in mind that exporting a whole table can lead to a large dataset. If you want to proceed, specify the name the exported dataset should have and click on the export button.</p>
           <div class="form-group">
             <div class="input-group">
-              <div class="input-group-prepend"><label for="exportName" class="input-group-text">name</label></div>
+              <div class="input-group-prepend"><label for="exportName" class="input-group-text">Name</label></div>
               <input type="text" placeholder="name" id="exportName" class="form-control" formControlName="name"
                      autocomplete="off">
             </div>
           </div>
           <div class="form-group">
             <div class="input-group">
-              <div class="input-group-prepend"><label for="exportDescription" class="input-group-text">description</label></div>
+              <div class="input-group-prepend"><label for="exportDescription" class="input-group-text">Description</label></div>
               <textarea placeholder="description" id="exportDescription" class="form-control"
                         formControlName="description" autocomplete="off" #descr [rows]="_util.textareaHeight(descr.value)"></textarea>
             </div>
           </div>
           <div class="form-group">
             <div class="input-group">
-              <div class="input-group-prepend"><label for="exportPublic" class="input-group-text">public</label></div>
-              <div class="checkbox-wrapper">
-                <div style="display: flex;justify-content: center;">
-                  <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="exportPublic">
-                    <input type="checkbox" class="form-control switch-input" id="exportPublic" formControlName="pub">
-                    <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
-                  </label>
-                </div>
-              </div>
+              <div class="input-group-prepend"><label for="exportPublic" class="input-group-text">Visibility</label></div>
+              <select formControlName="pub" id="exportPublic" class="form-control">
+                <option value="0">private</option>
+                <option value="1">internal</option>
+                <option value="2">public</option>
+              </select>
             </div>
           </div>
           <div class="form-group">

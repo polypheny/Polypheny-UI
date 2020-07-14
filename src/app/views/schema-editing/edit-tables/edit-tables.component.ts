@@ -41,7 +41,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   exportForm = new FormGroup({
     name: new FormControl('', Validators.required),
     description: new FormControl(''),
-    pub: new FormControl(true, Validators.required),
+    pub: new FormControl(2, Validators.required),
     createPrimaryKeys: new FormControl(true, Validators.required),
     addDefaultValue: new FormControl(true, Validators.required)
   });

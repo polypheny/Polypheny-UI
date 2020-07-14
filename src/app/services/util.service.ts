@@ -10,4 +10,10 @@ export class UtilService {
     return Math.min( val.split('\n').length, 5 );
   }
 
+  //see https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string/10420404
+  humanFileSize(size: number) {
+    const i = size == 0 ? 0 : Math.floor( Math.log(size) / Math.log(1000) );
+    return +( size / Math.pow(1000, i) ).toFixed(2) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+  }
+
 }

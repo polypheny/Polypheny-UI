@@ -1,6 +1,6 @@
 import {ActivatedRoute} from '@angular/router';
 import {HubService} from '../../services/hub.service';
-import {HubMeta, HubResult, TableMapping} from './hub.model';
+import {HubMeta, HubResult} from './hub.model';
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms';
 import {ToastService} from '../../components/toast/toast.service';
@@ -29,7 +29,8 @@ export class HubComponent implements OnInit, OnDestroy {
   users: HubResult;
 
   //login
-  loggedIn = 0;
+  loggedIn: LoginStatus = LoginStatus.LOGGED_OUT;
+  userId: number;
   loginError;
   loginSubmitted;
   loginForm = new FormGroup({
@@ -48,14 +49,14 @@ export class HubComponent implements OnInit, OnDestroy {
   editDsId: number;
   editDsName: string;
   editDsDescription: string;
-  editDsPublic = true;
+  editDsPublic = 2;
   deleteDsConfirm;
 
   //uploadDataset
   newDsForm = new FormGroup({
     name: new FormControl( '', Validators.required ),
     description: new FormControl(''),
-    pub: new FormControl( true ),
+    pub: new FormControl( 2 ),
     dataset: new FormControl( null, [Validators.required, Validators.pattern(/\.zip$/)] ) // , requiredFileType('zip')
   });
   newDsFormSubmitted = false;
@@ -132,6 +133,7 @@ export class HubComponent implements OnInit, OnDestroy {
       if(b) this.getStores();
     });
     this.subscriptions.add(sub2);
+    this.userId = +this._hub.getId();
   }
 
   ngOnDestroy(){
@@ -153,6 +155,7 @@ export class HubComponent implements OnInit, OnDestroy {
           this.loggedIn = result.loginStatus;
           this.loginError = null;
           this.loginModal.hide();
+          this.userId = +result.id;
           this._hub.setId( result.id );
           this._hub.setUsername( result.user );
           this._hub.setSecret( result.secret );
@@ -368,19 +371,19 @@ export class HubComponent implements OnInit, OnDestroy {
     this.editDatasetModal.show();
     this.editDsName = this.datasets.data[key][0];
     this.editDsDescription = this.datasets.data[key][1];
-    this.editDsPublic = Boolean(+this.datasets.data[key][3]).valueOf();
+    this.editDsPublic = +this.datasets.data[key][3];
     this.editDsId = +this.datasets.data[key][4];
   }
 
   resetEditDataset(){
     this.editDsName = undefined;
-    this.editDsDescription = undefined;
+    this.editDsDescription = '';
     this.editDsPublic = undefined;
     this.editDsId = undefined;
   }
 
   editDataset(){
-    this._hub.editDataset( this.editDsId, this.editDsName, this.editDsDescription, this.editDsPublic ).subscribe(
+    this._hub.editDataset( this.editDsId, this.editDsName, this.editDsDescription || '', +this.editDsPublic ).subscribe(
       res => {
         this.editDatasetModal.hide();
         this.getDatasets();
@@ -395,7 +398,7 @@ export class HubComponent implements OnInit, OnDestroy {
     this.newDsFormSubmitted = true;
 
     if(this.newDsForm.valid){
-      this._hub.uploadDataset( this._hub.getId(), this._hub.getSecret(), this.newDsForm.controls['name'].value, this.newDsForm.controls['description'].value, this.newDsForm.controls['pub'].value, this.fileToUpload ).subscribe(
+      this._hub.uploadDataset( this._hub.getId(), this._hub.getSecret(), this.newDsForm.controls['name'].value, this.newDsForm.controls['description'].value, +this.newDsForm.controls['pub'].value, this.fileToUpload ).subscribe(
         res => {
           //see https://www.techiediaries.com/angular-file-upload-progress-bar/
           if( res.type && res.type === HttpEventType.UploadProgress ){
@@ -425,8 +428,8 @@ export class HubComponent implements OnInit, OnDestroy {
 
 
 
-  canDeleteAndUpdate( dsId: number ): boolean{
-    return this.loggedIn === 2 || dsId === this._hub.getId();
+  canDeleteAndUpdate( owner: number ): boolean{
+    return this.loggedIn === LoginStatus.ADMIN || ( this.loggedIn === LoginStatus.NORMAL_USER && owner === this.userId );
   }
 
   deleteDataset( dsId: number ){
@@ -539,10 +542,9 @@ export class HubComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub);
   }
 
-  //see https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string/10420404
-  humanFileSize(size: number) {
-    const i = size == 0 ? 0 : Math.floor( Math.log(size) / Math.log(1000) );
-    return +( size / Math.pow(1000, i) ).toFixed(2) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
-  }
-
+}
+enum LoginStatus {
+  LOGGED_OUT = 0,
+  NORMAL_USER = 1,
+  ADMIN = 2
 }

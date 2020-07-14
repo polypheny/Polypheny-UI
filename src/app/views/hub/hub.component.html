@@ -131,14 +131,13 @@
               </div>
               <div class="form-group">
                 <div class="input-group">
-                  <div class="input-group-prepend"><label for="newDsPublic" class="input-group-text">Public</label></div>
+                  <div class="input-group-prepend"><label for="newDsPublic" class="input-group-text">Visibility</label></div>
 
-                  <div class="checkbox-wrapper">
-                    <label class="switch switch-label switch-pill switch-sm switch-primary">
-                      <input class="form-control switch-input" type="checkbox" id="newDsPublic" formControlName="pub" [ngClass]="newDsFormValidation('pub')">
-                      <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
-                    </label>
-                  </div>
+                  <select formControlName="pub" id="newDsPublic" class="form-control">
+                    <option value="0">private</option>
+                    <option value="1">internal</option>
+                    <option value="2">public</option>
+                  </select>
                 </div>
               </div>
               <div class="from-group">
@@ -169,14 +168,15 @@
           <tr *ngFor="let row of datasets.data | keyvalue">
             <td>
               {{row.value[0]}}
-              <i class="fa fa-globe public" *ngIf="_hub.getSecret() && row.value[3] === '1'"></i>
+              <i class="icon-people public" *ngIf="_hub.getSecret() && row.value[3] === '1'"></i>
+              <i class="fa fa-globe public" *ngIf="_hub.getSecret() && row.value[3] === '2'"></i>
             </td>
             <td>{{row.value[1]}}</td>
             <td>{{row.value[6]}}</td>
             <td>{{row.value[2] | date:'dd.MM.yyyy - HH:mm'}}</td>
             <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value[0],row.value[1], row.value[5])"></i></td>
-            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value[4])" (click)="initEditDataset(row.key)"></i></td>
-            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="ptr" *ngIf="canDeleteAndUpdate(+row.value[4])" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value[4], 'fa fa-warning':deleteDsConfirm === +row.value[4]}" (click)="deleteDataset(+row.value[4])" (mouseout)="deleteDsConfirm = undefined"></i></td>
+            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value[7])" (click)="initEditDataset(row.key)"></i></td>
+            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="ptr" *ngIf="canDeleteAndUpdate(+row.value[7])" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value[4], 'fa fa-warning':deleteDsConfirm === +row.value[4]}" (click)="deleteDataset(+row.value[4])" (mouseout)="deleteDsConfirm = undefined"></i></td>
           </tr>
           </tbody>
         </table>
@@ -207,7 +207,7 @@
             </tr>
             <tr *ngIf="hubMeta">
               <td>Size:</td>
-              <td>{{humanFileSize(hubMeta.fileSize)}}</td>
+              <td>{{_util.humanFileSize(hubMeta.fileSize)}}</td>
             </tr>
             <tr *ngIf="datasetDescription">
               <td>Description:</td>
@@ -341,14 +341,13 @@
         </div>
         <div class="form-group">
           <div class="input-group">
-            <div class="input-group-prepend"><label for="editDsPublic" class="input-group-text">Public</label></div>
+            <div class="input-group-prepend"><label for="editDsPublic" class="input-group-text">Visibility</label></div>
 
-            <div class="checkbox-wrapper">
-              <label class="switch switch-label switch-pill switch-sm switch-primary">
-                <input type="checkbox" class="form-control switch-input" id="editDsPublic" [(ngModel)]="editDsPublic">
-                <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
-              </label>
-            </div>
+            <select [(ngModel)]="editDsPublic" id="editDsPublic" class="form-control">
+              <option value="0">private</option>
+              <option value="1">internal</option>
+              <option value="2">public</option>
+            </select>
           </div>
         </div>
 
