@@ -123,6 +123,14 @@
               </div>
               <div class="form-group">
                 <div class="input-group">
+                  <div class="input-group-prepend"><label for="newDsDescription" class="input-group-text">Description</label></div>
+                  <textarea placeholder="description" id="newDsDescription" class="form-control"
+                            formControlName="description" [ngClass]="newDsFormValidation('description')" #descr
+                            [rows]="_util.textareaHeight(descr.value)"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
                   <div class="input-group-prepend"><label for="newDsPublic" class="input-group-text">Public</label></div>
 
                   <div class="checkbox-wrapper">
@@ -149,6 +157,7 @@
           <thead>
           <tr>
             <th>Dataset</th>
+            <th>Description</th>
             <th>Owner</th>
             <th>Uploaded</th>
             <th class="iconColumn"><i class="cui-cloud-download"></i></th>
@@ -160,13 +169,14 @@
           <tr *ngFor="let row of datasets.data | keyvalue">
             <td>
               {{row.value[0]}}
-              <i class="fa fa-globe public" *ngIf="_hub.getSecret() && row.value[2] === '1'"></i>
+              <i class="fa fa-globe public" *ngIf="_hub.getSecret() && row.value[3] === '1'"></i>
             </td>
-            <td>{{row.value[5]}}</td>
-            <td>{{row.value[1] | date:'dd.MM.yyyy - HH:mm'}}</td>
-            <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value[0],row.value[4])"></i></td>
-            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value[3])" (click)="initEditDataset(row.key)"></i></td>
-            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="ptr" *ngIf="canDeleteAndUpdate(+row.value[3])" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value[3], 'fa fa-warning':deleteDsConfirm === +row.value[3]}" (click)="deleteDataset(+row.value[3])" (mouseout)="deleteDsConfirm = undefined"></i></td>
+            <td>{{row.value[1]}}</td>
+            <td>{{row.value[6]}}</td>
+            <td>{{row.value[2] | date:'dd.MM.yyyy - HH:mm'}}</td>
+            <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value[0],row.value[1], row.value[5])"></i></td>
+            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value[4])" (click)="initEditDataset(row.key)"></i></td>
+            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="ptr" *ngIf="canDeleteAndUpdate(+row.value[4])" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value[4], 'fa fa-warning':deleteDsConfirm === +row.value[4]}" (click)="deleteDataset(+row.value[4])" (mouseout)="deleteDsConfirm = undefined"></i></td>
           </tr>
           </tbody>
         </table>
@@ -189,11 +199,23 @@
           </button>
         </div>
         <div class="modal-body">
+          <h5 *ngIf="datasetDescription || hubMeta">Info</h5>
+          <table id="metaTable" class="table table-borderless table-sm" *ngIf="datasetDescription || hubMeta">
+            <tr *ngIf="hubMeta">
+              <td>Rows:</td>
+              <td>{{hubMeta.numberOfRows}}</td>
+            </tr>
+            <tr *ngIf="hubMeta">
+              <td>Size:</td>
+              <td>{{humanFileSize(hubMeta.fileSize)}}</td>
+            </tr>
+            <tr *ngIf="datasetDescription">
+              <td>Description:</td>
+              <td class="nl2br">{{datasetDescription}}</td>
+            </tr>
+          </table>
+          <hr *ngIf="datasetDescription || hubMeta">
           <ng-container *ngIf="hubMeta">
-            <h5>Info</h5>
-            rows: {{hubMeta.numberOfRows}}<br>
-            size: {{humanFileSize(hubMeta.fileSize)}}
-            <hr>
             <h5>Table mapping</h5>
             <div class="form-inline mb-3" *ngFor="let t of hubMeta.tables |keyvalue">
               <label for="tableName{{t.key}}" class="mr-2">{{t.value.initialName}}</label>
@@ -237,10 +259,14 @@
           <input type="hidden" [value]="downloadPath" formControlName="url">
           <p class="text-danger mb-0" *ngIf="importDsFormSubmitted && !importDsForm.valid">Please select a schema and store before importing into Polypheny.</p>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="downloadDataModal.hide()">Close</button>
-          <a class="btn btn-secondary" [href]="downloadPath">Download</a>
-          <button *ngIf="hubMeta" type="submit" class="btn btn-primary">Import</button>
+        <div class="modal-footer" style="justify-content: space-between">
+          <div>
+            <button type="button" class="btn btn-secondary" (click)="downloadDataModal.hide()">Close</button>
+          </div>
+          <div>
+            <a class="btn btn-secondary" [href]="downloadPath">Download</a>
+            <button *ngIf="hubMeta" type="submit" class="btn btn-primary" style="margin-left: 0.5rem">Import</button>
+          </div>
           <div class="progress-wrapper">
             <progressbar *ngIf="importDsFormSubmitted && importDsForm.valid && importProgress < 1 && importProgress > 0"
                          class="progress progress-striped" [value]="importProgress" [max]="1"></progressbar>
@@ -305,6 +331,12 @@
           <div class="input-group">
             <div class="input-group-prepend"><label for="editDsName" class="input-group-text" #dsNameInput>Name</label></div>
             <input type="text" placeholder="name" id="editDsName" class="form-control" [(ngModel)]="editDsName">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-prepend"><label for="editDsDescription" class="input-group-text" #dsNameInput>Description</label></div>
+            <textarea type="text" placeholder="description" id="editDsDescription" class="form-control" [(ngModel)]="editDsDescription" [rows]="_util.textareaHeight(editDsDescription)"></textarea>
           </div>
         </div>
         <div class="form-group">

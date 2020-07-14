@@ -13,6 +13,7 @@ import {HttpEventType} from '@angular/common/http';
 import {Status} from '../../components/data-table/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
+import {UtilService} from '../../services/util.service';
 
 @Component({
   selector: 'app-hub',
@@ -46,12 +47,14 @@ export class HubComponent implements OnInit, OnDestroy {
   //editDataset
   editDsId: number;
   editDsName: string;
+  editDsDescription: string;
   editDsPublic = true;
   deleteDsConfirm;
 
   //uploadDataset
   newDsForm = new FormGroup({
     name: new FormControl( '', Validators.required ),
+    description: new FormControl(''),
     pub: new FormControl( true ),
     dataset: new FormControl( null, [Validators.required, Validators.pattern(/\.zip$/)] ) // , requiredFileType('zip')
   });
@@ -61,6 +64,7 @@ export class HubComponent implements OnInit, OnDestroy {
 
   //download/import dataset
   datasetName;
+  datasetDescription;
   downloadPath: string;
   hubMeta: HubMeta;
   schemas: SidebarNode[];
@@ -105,7 +109,8 @@ export class HubComponent implements OnInit, OnDestroy {
     private _hub: HubService,
     private _toast: ToastService,
     private _settings: WebuiSettingsService,
-    private _crud: CrudService
+    private _crud: CrudService,
+    public _util: UtilService
   ) { }
 
   static equalPasswords (form: AbstractControl ){
@@ -362,18 +367,20 @@ export class HubComponent implements OnInit, OnDestroy {
   initEditDataset( key: number ){
     this.editDatasetModal.show();
     this.editDsName = this.datasets.data[key][0];
-    this.editDsPublic = Boolean(+this.datasets.data[key][2]).valueOf();
-    this.editDsId = +this.datasets.data[key][3];
+    this.editDsDescription = this.datasets.data[key][1];
+    this.editDsPublic = Boolean(+this.datasets.data[key][3]).valueOf();
+    this.editDsId = +this.datasets.data[key][4];
   }
 
   resetEditDataset(){
     this.editDsName = undefined;
+    this.editDsDescription = undefined;
     this.editDsPublic = undefined;
     this.editDsId = undefined;
   }
 
   editDataset(){
-    this._hub.editDataset( this.editDsId, this.editDsName, this.editDsPublic ).subscribe(
+    this._hub.editDataset( this.editDsId, this.editDsName, this.editDsDescription, this.editDsPublic ).subscribe(
       res => {
         this.editDatasetModal.hide();
         this.getDatasets();
@@ -388,7 +395,7 @@ export class HubComponent implements OnInit, OnDestroy {
     this.newDsFormSubmitted = true;
 
     if(this.newDsForm.valid){
-      this._hub.uploadDataset( this._hub.getId(), this._hub.getSecret(), this.newDsForm.controls['name'].value, this.newDsForm.controls['pub'].value, this.fileToUpload ).subscribe(
+      this._hub.uploadDataset( this._hub.getId(), this._hub.getSecret(), this.newDsForm.controls['name'].value, this.newDsForm.controls['description'].value, this.newDsForm.controls['pub'].value, this.fileToUpload ).subscribe(
         res => {
           //see https://www.techiediaries.com/angular-file-upload-progress-bar/
           if( res.type && res.type === HttpEventType.UploadProgress ){
@@ -457,8 +464,9 @@ export class HubComponent implements OnInit, OnDestroy {
     }
   }
 
-  initDownloadModal( dsName, dataset ){
+  initDownloadModal( dsName, description, dataset ){
     this.datasetName = dsName;
+    this.datasetDescription = description;
     //support for previous version
     if( dataset.endsWith('.zip')) {
       dataset = dataset.substr(0,dataset.length-4);

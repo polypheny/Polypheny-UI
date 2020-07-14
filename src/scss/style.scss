@@ -31,6 +31,10 @@
   outline: none !important;
 }
 
+.nl2br {
+  white-space: pre-wrap;
+}
+
 /* rotating btn-circle */
 .rotating {
   -webkit-animation: rotating 2s linear infinite;

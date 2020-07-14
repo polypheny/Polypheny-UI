@@ -63,11 +63,20 @@ h1{
 }
 .progress-wrapper{
   position: absolute;
-  top: 0;
+  top: -4px;
   left: -4px;
-  right: 0;
+  right: -4px;
 }
 .progress-wrapper progressbar{
   border-radius: 0;
   height: 5px;
+}
+#metaTable tr td {
+  padding: 0.3em;
+  line-height: 1.3;
+}
+#metaTable tr td:first-child {
+  vertical-align: top;
+  width: 40px;
+  padding-left: 0;
 }

@@ -203,6 +203,13 @@
           </div>
           <div class="form-group">
             <div class="input-group">
+              <div class="input-group-prepend"><label for="exportDescription" class="input-group-text">description</label></div>
+              <textarea placeholder="description" id="exportDescription" class="form-control"
+                        formControlName="description" autocomplete="off" #descr [rows]="_util.textareaHeight(descr.value)"></textarea>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
               <div class="input-group-prepend"><label for="exportPublic" class="input-group-text">public</label></div>
               <div class="checkbox-wrapper">
                 <div style="display: flex;justify-content: center;">

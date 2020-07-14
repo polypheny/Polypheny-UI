@@ -12,6 +12,7 @@ import {Store} from '../../stores/store.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
+import {UtilService} from '../../../services/util.service';
 
 @Component({
   selector: 'app-edit-tables',
@@ -39,6 +40,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
   exportForm = new FormGroup({
     name: new FormControl('', Validators.required),
+    description: new FormControl(''),
     pub: new FormControl(true, Validators.required),
     createPrimaryKeys: new FormControl(true, Validators.required),
     addDefaultValue: new FormControl(true, Validators.required)
@@ -53,7 +55,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     private _leftSidebar: LeftSidebarService,
     public _types: DbmsTypesService,
     public _hub: HubService,
-    private _settings: WebuiSettingsService
+    private _settings: WebuiSettingsService,
+    public _util: UtilService
   ) {
   }
 
@@ -266,6 +269,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       this.uploading = true;
       this._crud.exportTable(
         this.exportForm.controls['name'].value,
+        this.exportForm.controls['description'].value,
         this.schema,
         exportTables,
         this.exportForm.controls['pub'].value,
