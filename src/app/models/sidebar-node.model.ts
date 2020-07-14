@@ -111,4 +111,5 @@ export interface JavaPage {
   id: any;
   name: string;
   icon: string;
+  label: string;
 }
