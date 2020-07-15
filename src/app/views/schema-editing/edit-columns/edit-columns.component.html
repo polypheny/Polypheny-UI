@@ -28,7 +28,7 @@
               <input type="text" class="form-control form-control-sm" formControlName="name" [attr.data-before]="col.name" id="colName" #editColName [ngClass]="_crud.getValidationClass(editColName.value)">
             </td>
             <td>
-              <input type="checkbox" class="form-control form-control-sm" formControlName="nullable" id="nullable" [attr.data-before]="col.nullable" (change)="changeNullable()">
+              <input type="checkbox" class="" formControlName="nullable" id="nullable" [attr.data-before]="col.nullable" (change)="changeNullable()">
             </td>
             <td>
               <select class="form-control form-control-sm" id="udt_name" [attr.data-before]="col.dataType" formControlName="dataType" (change)="onTypeChange()">
@@ -131,7 +131,7 @@
             <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name" [(ngModel)]="createColumn.name" [ngClass]="_crud.getValidationClass(createColumn.name)">
           </td>
           <td>
-            <input type="checkbox" class="form-control form-control-sm" [(ngModel)]="createColumn.nullable" [checked]="createColumn.nullable" (change)="changeNullable(createColumn)">
+            <input type="checkbox" class="" [(ngModel)]="createColumn.nullable" [checked]="createColumn.nullable" (change)="changeNullable(createColumn)">
           </td>
           <td>
             <select class="form-control form-control-sm" [(ngModel)]="createColumn.dataType" (change)="onTypeChange2( createColumn )">

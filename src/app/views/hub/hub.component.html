@@ -182,9 +182,9 @@
                 </td>
                 <td>{{_util.limitedString(row.value.description, 200)}}</td>
                 <td>{{row.value.lines}}</td>
-                <td>{{_util.humanFileSize(row.value.zipSize)}}</td>
+                <td class="no-wrap">{{_util.humanFileSize(row.value.zipSize)}}</td>
                 <td>{{row.value.username}}</td>
-                <td style="white-space: nowrap">{{row.value.uploaded | date:'dd.MM.yyyy - HH:mm'}}</td>
+                <td class="no-wrap">{{row.value.uploaded | date:'dd.MM.yyyy - HH:mm'}}</td>
                 <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value.name,row.value.description, row.value.file)"></i></td>
                 <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value.userId)" (click)="initEditDataset(row.key)"></i></td>
                 <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="ptr" *ngIf="canDeleteAndUpdate(+row.value.userId)" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value.dsId, 'fa fa-warning':deleteDsConfirm === +row.value.dsId}" (click)="deleteDataset(+row.value.dsId)" (mouseout)="deleteDsConfirm = undefined"></i></td>
