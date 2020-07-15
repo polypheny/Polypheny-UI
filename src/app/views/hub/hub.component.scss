@@ -32,6 +32,10 @@ h1{
   top: calc(50% - 0.75em);
   left: calc(50% - 1.4em);
 }
+.admin-icon {
+  float: right;
+  line-height: 1.5em;
+}
 #editUserModal .input-group-text{
   width: 84px;
 }

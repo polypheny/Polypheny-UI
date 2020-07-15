@@ -1,6 +1,6 @@
 import {ActivatedRoute} from '@angular/router';
 import {HubService} from '../../services/hub.service';
-import {HubMeta, HubResult} from './hub.model';
+import {HubDataset, HubMeta, HubResult, HubUser} from './hub.model';
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms';
 import {ToastService} from '../../components/toast/toast.service';
@@ -14,6 +14,7 @@ import {Status} from '../../components/data-table/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {UtilService} from '../../services/util.service';
+import {cloneDeep} from 'lodash';
 
 @Component({
   selector: 'app-hub',
@@ -46,10 +47,7 @@ export class HubComponent implements OnInit, OnDestroy {
   }, { validators: HubComponent.equalPasswords });
 
   //editDataset
-  editDsId: number;
-  editDsName: string;
-  editDsDescription: string;
-  editDsPublic = 2;
+  editingDataset: HubDataset;
   deleteDsConfirm;
 
   //uploadDataset
@@ -269,12 +267,12 @@ export class HubComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  initEditUserModal( user ){
+  initEditUserModal( user: HubUser ){
     this.editUserModal.show();
-    this.editUserForm.controls['id'].setValue(+user[0]);
-    this.editUserForm.controls['name'].setValue(user[1]);
-    this.editUserForm.controls['email'].setValue(user[2]);
-    this.editUserForm.controls['admin'].setValue(Boolean(+user[3]));
+    this.editUserForm.controls['id'].setValue(+user.id);
+    this.editUserForm.controls['name'].setValue(user.name);
+    this.editUserForm.controls['email'].setValue(user.email);
+    this.editUserForm.controls['admin'].setValue(Boolean(+user.admin));
   }
 
   resetEditUserModal(){
@@ -368,22 +366,16 @@ export class HubComponent implements OnInit, OnDestroy {
   }
 
   initEditDataset( key: number ){
+    this.editingDataset = cloneDeep(this.datasets.datasets[key]);
     this.editDatasetModal.show();
-    this.editDsName = this.datasets.data[key][0];
-    this.editDsDescription = this.datasets.data[key][1];
-    this.editDsPublic = +this.datasets.data[key][3];
-    this.editDsId = +this.datasets.data[key][4];
   }
 
   resetEditDataset(){
-    this.editDsName = undefined;
-    this.editDsDescription = '';
-    this.editDsPublic = undefined;
-    this.editDsId = undefined;
+    this.editingDataset = undefined;
   }
 
   editDataset(){
-    this._hub.editDataset( this.editDsId, this.editDsName, this.editDsDescription || '', +this.editDsPublic ).subscribe(
+    this._hub.editDataset( this.editingDataset.dsId, this.editingDataset.name, this.editingDataset.description || '', +this.editingDataset.pub ).subscribe(
       res => {
         this.editDatasetModal.hide();
         this.getDatasets();
@@ -432,7 +424,7 @@ export class HubComponent implements OnInit, OnDestroy {
     return this.loggedIn === LoginStatus.ADMIN || ( this.loggedIn === LoginStatus.NORMAL_USER && owner === this.userId );
   }
 
-  deleteDataset( dsId: number ){
+  deleteDataset( dsId ){
     if( this.deleteDsConfirm !== dsId ){
       this.deleteDsConfirm = dsId;
       return;

@@ -61,16 +61,18 @@
             <table class="table table-hover table-sm table-bordered table-striped">
               <thead>
               <tr>
-                <th *ngFor="let h of users.header">{{h}}</th>
+                <th>user</th>
+                <th>email</th>
                 <th class="iconColumn"><i class="cui-pencil"></i></th>
                 <th class="iconColumn"><i class="cui-trash"></i></th>
               </tr>
               </thead>
               <tbody>
-              <tr *ngFor="let user of users.data | keyvalue">
-                <td *ngFor="let v of user.value">{{v}}</td>
+              <tr *ngFor="let user of users.users | keyvalue">
+                <td>{{user.value.name}}<i class="fa fa-star-o admin-icon" *ngIf="user.value.admin == 1" tooltip="admin" placement="left" delay="200"></i></td>
+                <td>{{user.value.email}}</td>
                 <td class="iconColumn"><i class="cui-pencil ptr" (click)="initEditUserModal(user.value)"></i></td>
-                <td class="iconColumn"><i class="ptr" [ngClass]="{'fa fa-warning': deleteUserConfirm === +user.value[0], 'cui-trash': deleteUserConfirm !== +user.value[0]}" (click)="deleteUser(+user.value[0])" (mouseout)="deleteUserConfirm = -1"></i></td>
+                <td class="iconColumn"><i class="ptr" [ngClass]="{'fa fa-warning': deleteUserConfirm === user.value.id, 'cui-trash': deleteUserConfirm !== user.value.id}" (click)="deleteUser(user.value.id)" (mouseout)="deleteUserConfirm = -1"></i></td>
               </tr>
               </tbody>
             </table>
@@ -152,11 +154,13 @@
       </div>
 
       <div class="col-lg-8">
-        <table class="table table-hover table-sm table-bordered table-striped" *ngIf="datasets && datasets.data && datasets.data.length > 0">
+        <table class="table table-hover table-sm table-bordered table-striped" *ngIf="datasets && datasets.datasets && datasets.datasets.length > 0">
           <thead>
           <tr>
             <th>Dataset</th>
             <th>Description</th>
+            <th>Number of lines</th>
+            <th>Zip size</th>
             <th>Owner</th>
             <th>Uploaded</th>
             <th class="iconColumn"><i class="cui-cloud-download"></i></th>
@@ -165,18 +169,20 @@
           </tr>
           </thead>
           <tbody>
-          <tr *ngFor="let row of datasets.data | keyvalue">
+          <tr *ngFor="let row of datasets.datasets | keyvalue">
             <td>
-              {{row.value[0]}}
-              <i class="icon-people public" *ngIf="_hub.getSecret() && row.value[3] === '1'"></i>
-              <i class="fa fa-globe public" *ngIf="_hub.getSecret() && row.value[3] === '2'"></i>
+              {{row.value.name}}
+              <i class="icon-people public" *ngIf="_hub.getSecret() && row.value.pub === '1'"></i>
+              <i class="fa fa-globe public" *ngIf="_hub.getSecret() && row.value.pub === '2'"></i>
             </td>
-            <td>{{row.value[1]}}</td>
-            <td>{{row.value[6]}}</td>
-            <td>{{row.value[2] | date:'dd.MM.yyyy - HH:mm'}}</td>
-            <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value[0],row.value[1], row.value[5])"></i></td>
-            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value[7])" (click)="initEditDataset(row.key)"></i></td>
-            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="ptr" *ngIf="canDeleteAndUpdate(+row.value[7])" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value[4], 'fa fa-warning':deleteDsConfirm === +row.value[4]}" (click)="deleteDataset(+row.value[4])" (mouseout)="deleteDsConfirm = undefined"></i></td>
+            <td>{{row.value.description}}</td>
+            <td>{{row.value.lines}}</td>
+            <td>{{_util.humanFileSize(row.value.zipSize)}}</td>
+            <td>{{row.value.username}}</td>
+            <td>{{row.value.uploaded | date:'dd.MM.yyyy - HH:mm'}}</td>
+            <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value.name,row.value.description, row.value.file)"></i></td>
+            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value.userId)" (click)="initEditDataset(row.key)"></i></td>
+            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="ptr" *ngIf="canDeleteAndUpdate(+row.value.userId)" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value.dsId, 'fa fa-warning':deleteDsConfirm === +row.value.dsId}" (click)="deleteDataset(+row.value.dsId)" (mouseout)="deleteDsConfirm = undefined"></i></td>
           </tr>
           </tbody>
         </table>
@@ -317,7 +323,7 @@
   </form>
 </div>
 
-<div bsModal #editDatasetModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetEditDataset()" (onShown)="dsNameInput.focus()">
+<div bsModal #editDatasetModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetEditDataset()">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -326,24 +332,24 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" *ngIf="editingDataset">
         <div class="form-group">
           <div class="input-group">
-            <div class="input-group-prepend"><label for="editDsName" class="input-group-text" #dsNameInput>Name</label></div>
-            <input type="text" placeholder="name" id="editDsName" class="form-control" [(ngModel)]="editDsName">
+            <div class="input-group-prepend"><label for="editDsName" class="input-group-text">Name</label></div>
+            <input type="text" placeholder="name" id="editDsName" class="form-control" [(ngModel)]="editingDataset.name">
           </div>
         </div>
         <div class="form-group">
           <div class="input-group">
-            <div class="input-group-prepend"><label for="editDsDescription" class="input-group-text" #dsNameInput>Description</label></div>
-            <textarea type="text" placeholder="description" id="editDsDescription" class="form-control" [(ngModel)]="editDsDescription" [rows]="_util.textareaHeight(editDsDescription)"></textarea>
+            <div class="input-group-prepend"><label for="editDsDescription" class="input-group-text">Description</label></div>
+            <textarea type="text" placeholder="description" id="editDsDescription" class="form-control" [(ngModel)]="editingDataset.description" [rows]="_util.textareaHeight(editingDataset.description)"></textarea>
           </div>
         </div>
         <div class="form-group">
           <div class="input-group">
             <div class="input-group-prepend"><label for="editDsPublic" class="input-group-text">Visibility</label></div>
 
-            <select [(ngModel)]="editDsPublic" id="editDsPublic" class="form-control">
+            <select [(ngModel)]="editingDataset.pub" id="editDsPublic" class="form-control">
               <option value="0">private</option>
               <option value="1">internal</option>
               <option value="2">public</option>
