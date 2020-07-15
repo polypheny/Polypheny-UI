@@ -19,4 +19,9 @@ export class UtilService {
     return +( size / Math.pow(1000, i) ).toFixed(2) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
   }
 
+  limitedString ( str: string, maxLength = 120, postfix = '...' ) {
+    if( str === undefined || str === null ) return;
+    if( str.length <= maxLength ) return str;
+    return str.slice( 0, maxLength) + postfix;
+  }
 }

@@ -13,6 +13,7 @@ import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.servi
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
+import {UtilService} from '../../../services/util.service';
 
 @Component({
   selector: 'app-sql-console',
@@ -51,7 +52,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     private _crud: CrudService,
     private _leftSidebar: LeftSidebarService,
     private _breadcrumb: BreadcrumbService,
-    private _settings: WebuiSettingsService
+    private _settings: WebuiSettingsService,
+    public _util: UtilService
   ) {
     //when leaving the page, close the queryAnalyzer
     const self = this;

@@ -253,7 +253,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   resetExport() {
-    this.exportForm.reset({pub: true, createPrimaryKeys: true, addDefaultValue: true});
+    this.exportForm.reset({pub: 2, createPrimaryKeys: true, addDefaultValue: true});
     this.uploading = false;
     this.exportProgress = 0.0;
   }
@@ -272,7 +272,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         this.exportForm.controls['description'].value,
         this.schema,
         exportTables,
-        this.exportForm.controls['pub'].value,
+        +this.exportForm.controls['pub'].value,
         this.exportForm.controls['createPrimaryKeys'].value,
         this.exportForm.controls['addDefaultValue'].value,
       ).subscribe(

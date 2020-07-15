@@ -326,7 +326,7 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/importDataset`, {tables: tables, schema: schema, store: store, url: url, createPks: createPks, defaultValues: addDefault}, this.httpOptions);
   }
 
-  exportTable( name: string, description: string, schema: string, tables: any, pub: boolean, createPks: boolean, addDefault: boolean ){
+  exportTable( name: string, description: string, schema: string, tables: any, pub: number, createPks: boolean, addDefault: boolean ){
     const body = {
       userId: this._hub.getId(),
       secret: this._hub.getSecret(),

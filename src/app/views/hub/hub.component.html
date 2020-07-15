@@ -58,7 +58,7 @@
             <a [routerLink]="[]" class="pull-right" (click)="createUserModal.show()">create user</a>
           </div>
           <div class="card-body">
-            <table class="table table-hover table-sm table-bordered table-striped">
+            <table class="table table-hover table-sm table-bordered table-striped mb-0">
               <thead>
               <tr>
                 <th>user</th>
@@ -154,38 +154,45 @@
       </div>
 
       <div class="col-lg-8">
-        <table class="table table-hover table-sm table-bordered table-striped" *ngIf="datasets && datasets.datasets && datasets.datasets.length > 0">
-          <thead>
-          <tr>
-            <th>Dataset</th>
-            <th>Description</th>
-            <th>Number of lines</th>
-            <th>Zip size</th>
-            <th>Owner</th>
-            <th>Uploaded</th>
-            <th class="iconColumn"><i class="cui-cloud-download"></i></th>
-            <th class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil"></i></th>
-            <th class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-trash"></i></th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let row of datasets.datasets | keyvalue">
-            <td>
-              {{row.value.name}}
-              <i class="icon-people public" *ngIf="_hub.getSecret() && row.value.pub === '1'"></i>
-              <i class="fa fa-globe public" *ngIf="_hub.getSecret() && row.value.pub === '2'"></i>
-            </td>
-            <td>{{row.value.description}}</td>
-            <td>{{row.value.lines}}</td>
-            <td>{{_util.humanFileSize(row.value.zipSize)}}</td>
-            <td>{{row.value.username}}</td>
-            <td>{{row.value.uploaded | date:'dd.MM.yyyy - HH:mm'}}</td>
-            <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value.name,row.value.description, row.value.file)"></i></td>
-            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value.userId)" (click)="initEditDataset(row.key)"></i></td>
-            <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="ptr" *ngIf="canDeleteAndUpdate(+row.value.userId)" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value.dsId, 'fa fa-warning':deleteDsConfirm === +row.value.dsId}" (click)="deleteDataset(+row.value.dsId)" (mouseout)="deleteDsConfirm = undefined"></i></td>
-          </tr>
-          </tbody>
-        </table>
+        <div class="card">
+          <div class="card-header">
+            Datasets
+          </div>
+          <div class="card-body">
+            <table class="table table-hover table-sm table-bordered table-striped mb-0" *ngIf="datasets && datasets.datasets && datasets.datasets.length > 0">
+              <thead>
+              <tr>
+                <th>Dataset</th>
+                <th>Description</th>
+                <th>Number of lines</th>
+                <th>Zip size</th>
+                <th>Owner</th>
+                <th>Uploaded</th>
+                <th class="iconColumn"><i class="cui-cloud-download"></i></th>
+                <th class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil"></i></th>
+                <th class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-trash"></i></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let row of datasets.datasets | keyvalue">
+                <td>
+                  {{row.value.name}}
+                  <i class="icon-people dsVisibility" *ngIf="_hub.getSecret() && row.value.pub === '1'" tooltip="internal" placement="top" delay="200"></i>
+                  <i class="fa fa-globe dsVisibility" *ngIf="_hub.getSecret() && row.value.pub === '2'" tooltip="public" placement="top" delay="200"></i>
+                </td>
+                <td>{{_util.limitedString(row.value.description, 200)}}</td>
+                <td>{{row.value.lines}}</td>
+                <td>{{_util.humanFileSize(row.value.zipSize)}}</td>
+                <td>{{row.value.username}}</td>
+                <td style="white-space: nowrap">{{row.value.uploaded | date:'dd.MM.yyyy - HH:mm'}}</td>
+                <td class="iconColumn"><i class="cui-cloud-download ptr" (click)="initDownloadModal(row.value.name,row.value.description, row.value.file)"></i></td>
+                <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="cui-pencil ptr" *ngIf="canDeleteAndUpdate(+row.value.userId)" (click)="initEditDataset(row.key)"></i></td>
+                <td class="iconColumn" *ngIf="_hub.getSecret()"><i class="ptr" *ngIf="canDeleteAndUpdate(+row.value.userId)" [ngClass]="{'cui-trash': deleteDsConfirm !== +row.value.dsId, 'fa fa-warning':deleteDsConfirm === +row.value.dsId}" (click)="deleteDataset(+row.value.dsId)" (mouseout)="deleteDsConfirm = undefined"></i></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
     </div>
