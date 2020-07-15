@@ -139,7 +139,7 @@
   </ng-container>
 
   <ng-container *ngIf="li.type == 'InformationKeyValue'">
-    <div class="card-body exception" *ngIf="li.keyValuePairs">
+    <div class="card-body" *ngIf="li.keyValuePairs">
       <table class="table table-sm table-bordered table-striped mb-0">
         <tbody>
           <tr *ngFor="let p of li.keyValuePairs | keyvalue">
@@ -148,6 +148,12 @@
           </tr>
         </tbody>
       </table>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="li.type == 'InformationText'">
+    <div class="card-body" *ngIf="li.text">
+      <p>{{li.text}}</p>
     </div>
   </ng-container>
 
