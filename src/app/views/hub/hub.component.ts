@@ -54,7 +54,7 @@ export class HubComponent implements OnInit, OnDestroy {
   newDsForm = new FormGroup({
     name: new FormControl( '', Validators.required ),
     description: new FormControl(''),
-    pub: new FormControl( 2 ),
+    pub: new FormControl( 0 ),
     dataset: new FormControl( null, [Validators.required, Validators.pattern(/\.zip$/)] ) // , requiredFileType('zip')
   });
   newDsFormSubmitted = false;

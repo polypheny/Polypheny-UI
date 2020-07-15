@@ -41,7 +41,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   exportForm = new FormGroup({
     name: new FormControl('', Validators.required),
     description: new FormControl(''),
-    pub: new FormControl(2, Validators.required),
+    pub: new FormControl(0, Validators.required),
     createPrimaryKeys: new FormControl(true, Validators.required),
     addDefaultValue: new FormControl(true, Validators.required)
   });
@@ -235,7 +235,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Determine if the "export" button should be showed
+   * Determine if the "export" button should be shown
    * (if at least one table is selected)
    */
   updateShowExportButton( e ){
@@ -253,9 +253,12 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   resetExport() {
-    this.exportForm.reset({pub: 2, createPrimaryKeys: true, addDefaultValue: true});
+    this.exportForm.reset({ name: '', description: '', pub: 0, createPrimaryKeys: true, addDefaultValue: true});
     this.uploading = false;
     this.exportProgress = 0.0;
+    for(const t of this.tables){
+      t.export = false;
+    }
   }
 
   exportTable() {
