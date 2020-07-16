@@ -13,8 +13,8 @@
 
 .save-configs{
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 0.75rem;
+  right: 0.75rem;
 }
 .checkbox-wrapper{
   position: relative;
@@ -55,6 +55,7 @@
 .card-header{
   padding: 1rem;
   line-height: 1.25em;
+  min-height: 3rem;
   small {
     margin-left: 0.5em;
     color: #5c6873;

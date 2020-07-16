@@ -201,6 +201,7 @@ export class EditColumnsComponent implements OnInit {
         const result = <ResultSet> res;
         if( result.error === undefined ){
           this.getColumns();
+          this.getDataPlacements();
           this.createColumn.name = '';
           this.createColumn.nullable = true;
           this.createColumn.dataType = this.types[0].name;
@@ -225,6 +226,7 @@ export class EditColumnsComponent implements OnInit {
       this._crud.dropColumn( new ColumnRequest( this.tableId, col ) ).subscribe(
         res => {
           this.getColumns();
+          this.getDataPlacements();
           this.confirm = -1;
           const result = <ResultSet> res;
           if( result.error ){

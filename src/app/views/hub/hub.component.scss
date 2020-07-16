@@ -62,8 +62,9 @@ h1{
   border-radius: 0;
   height: 5px;
 }
-#downloadDataModal .modal-footer{
+.modal-footer{
   position: relative;
+  justify-content: space-between;
 }
 .progress-wrapper{
   position: absolute;

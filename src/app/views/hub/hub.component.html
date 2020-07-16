@@ -16,6 +16,33 @@
     </div>
     <p *ngIf="loggedIn == 0">Please log in to manage your account.</p>
     <div class="row" *ngIf="loggedIn != 0">
+      <div class="col-md-8" *ngIf="users && !users.error">
+        <div class="card">
+          <div class="card-header">Manage users
+            <a [routerLink]="[]" class="pull-right" (click)="createUserModal.show()">create user</a>
+          </div>
+          <div class="card-body">
+            <table class="table table-hover table-sm table-bordered table-striped mb-0">
+              <thead>
+              <tr>
+                <th>user</th>
+                <th>email</th>
+                <th class="iconColumn"><i class="cui-pencil"></i></th>
+                <th class="iconColumn"><i class="cui-trash"></i></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let user of users.users | keyvalue">
+                <td>{{user.value.name}}<i class="fa fa-star-o admin-icon" *ngIf="user.value.admin == 1" tooltip="admin" placement="left" delay="200"></i></td>
+                <td>{{user.value.email}}</td>
+                <td class="iconColumn"><i class="cui-pencil ptr" (click)="initEditUserModal(user.value)"></i></td>
+                <td class="iconColumn"><i class="ptr" [ngClass]="{'fa fa-warning': deleteUserConfirm === user.value.id, 'cui-trash': deleteUserConfirm !== user.value.id}" (click)="deleteUser(user.value.id)" (mouseout)="deleteUserConfirm = -1"></i></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
       <div class="col-md-4">
         <div class="card" id="changePwCard">
           <div class="card-header">Change password</div>
@@ -52,33 +79,6 @@
           </div>
         </div>
       </div>
-      <div class="col-md-8" *ngIf="users && !users.error">
-        <div class="card">
-          <div class="card-header">Manage users
-            <a [routerLink]="[]" class="pull-right" (click)="createUserModal.show()">create user</a>
-          </div>
-          <div class="card-body">
-            <table class="table table-hover table-sm table-bordered table-striped mb-0">
-              <thead>
-              <tr>
-                <th>user</th>
-                <th>email</th>
-                <th class="iconColumn"><i class="cui-pencil"></i></th>
-                <th class="iconColumn"><i class="cui-trash"></i></th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let user of users.users | keyvalue">
-                <td>{{user.value.name}}<i class="fa fa-star-o admin-icon" *ngIf="user.value.admin == 1" tooltip="admin" placement="left" delay="200"></i></td>
-                <td>{{user.value.email}}</td>
-                <td class="iconColumn"><i class="cui-pencil ptr" (click)="initEditUserModal(user.value)"></i></td>
-                <td class="iconColumn"><i class="ptr" [ngClass]="{'fa fa-warning': deleteUserConfirm === user.value.id, 'cui-trash': deleteUserConfirm !== user.value.id}" (click)="deleteUser(user.value.id)" (mouseout)="deleteUserConfirm = -1"></i></td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     </div>
   </ng-container>
 
@@ -93,70 +93,15 @@
     </div>
     <p *ngIf="!_hub.getSecret()">Please log in to upload a dataset.</p>
     <div class="row">
-      <div class="col-lg-4" *ngIf="_hub.getSecret()">
 
-        <div class="card" id="upload-card">
-          <div class="card-header">Manual upload</div>
-          <div class="card-body">
-            <p>Only files of type <span class="badge badge-light" style="font-size: 90%">.zip</span> are allowed.</p>
-            <form [formGroup]="newDsForm" (ngSubmit)="newDsFormSubmit()" autocomplete="off">
-              <div class="form-group">
-                <div class="custom-file">
-                  <input type="file" class="custom-file-input" id="newDsFile" formControlName="dataset"
-                         [ngClass]="newDsFormValidation('dataset')" (change)="setFileToUpload($event.target.files)">
-                  <label class="custom-file-label" for="newDsFile" *ngIf="!fileToUpload">Choose a dataset</label>
-                  <label class="custom-file-label" for="newDsFile" *ngIf="fileToUpload">{{fileToUpload[0].name}}</label>
-                  <div class="invalid-feedback"
-                       *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['required']">
-                    required
-                  </div>
-                  <div class="invalid-feedback"
-                       *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['pattern']">
-                    only files of type .zip are allowed
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="input-group">
-                  <div class="input-group-prepend"><label style="width:83px" for="newDsName" class="input-group-text">Name</label></div>
-                  <input type="text" placeholder="name" id="newDsName" class="form-control" formControlName="name" [ngClass]="newDsFormValidation('name')">
-                  <div class="invalid-feedback">required</div>
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="input-group">
-                  <div class="input-group-prepend"><label for="newDsDescription" class="input-group-text">Description</label></div>
-                  <textarea placeholder="description" id="newDsDescription" class="form-control"
-                            formControlName="description" [ngClass]="newDsFormValidation('description')" #descr
-                            [rows]="_util.textareaHeight(descr.value)"></textarea>
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="input-group">
-                  <div class="input-group-prepend"><label for="newDsPublic" class="input-group-text">Visibility</label></div>
-
-                  <select formControlName="pub" id="newDsPublic" class="form-control">
-                    <option value="0">private</option>
-                    <option value="1">internal</option>
-                    <option value="2">public</option>
-                  </select>
-                </div>
-              </div>
-              <div class="from-group">
-                <button type="submit" class="btn btn-primary btn-sm pull-right">Upload</button>
-              </div>
-              <progressbar *ngIf="newDsFormSubmitted && uploadProgress < 100 && uploadProgress > 0" class="progress progress-striped" [value]="uploadProgress" [max]="100"></progressbar>
-              <progressbar *ngIf="newDsFormSubmitted && uploadProgress === 100" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>
-            </form>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="col-lg-8">
+      <div class="col-lg-12">
         <div class="card">
           <div class="card-header">
             Datasets
+            <!--<a class="float-right"  (click)="manualUploadModal.show()" [routerLink]="[]">manual upload</a>-->
+            <button class="btn btn-primary btn-sm float-right" (click)="manualUploadModal.show();" tooltip="manual upload" placement="left" delay="200">
+              <i class="icon-cloud-upload font-weight-bold"></i>
+            </button>
           </div>
           <div class="card-body">
             <table class="table table-hover table-sm table-bordered table-striped mb-0" *ngIf="datasets && datasets.datasets && datasets.datasets.length > 0">
@@ -366,7 +311,7 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="editDatasetModal.hide()" style="position: absolute; left: 1rem;">Close</button>
+        <button type="button" class="btn btn-secondary" (click)="editDatasetModal.hide()">Close</button>
         <button type="button" class="btn btn-primary" (click)="editDataset()">Save</button>
       </div>
     </div><!-- /.modal-content -->
@@ -425,7 +370,7 @@
           <p class="text-danger mb-0" *ngIf="editUserSubmitted && !editUserForm.valid">Please fill in all the required fields.</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="editUserModal.hide()">Close</button>
+          <button type="button" class="btn btn-secondary" (click)="editUserModal.hide()">Close</button>
           <button type="submit" class="btn btn-primary">Save</button>
         </div>
       </form>
@@ -472,10 +417,76 @@
           </div>
       </div>
       <div class="modal-footer">
-        <button (click)="createUserModal.hide();" class="btn btn-secondary" type="button" style="position: absolute; left: 1rem;">Close</button>
+        <button (click)="createUserModal.hide();" class="btn btn-secondary" type="button">Close</button>
         <button type="submit" class="btn btn-primary">Create</button>
       </div>
         </form>
     </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+
+<div #manualUploadModal="bs-modal" aria-hidden="true" aria-labelledby="manualUploadModal" bsModal class="modal fade" role="dialog" tabindex="-1">
+  <div class="modal-dialog" role="document">
+    <form [formGroup]="newDsForm" (ngSubmit)="newDsFormSubmit()" autocomplete="off">
+      <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Manual upload</h4>
+          </div>
+          <div class="modal-body">
+            <p>Only files of type <span class="badge badge-light" style="font-size: 90%">.zip</span> are allowed.</p>
+              <div class="form-group">
+                <div class="custom-file">
+                  <input type="file" class="custom-file-input" id="newDsFile" formControlName="dataset"
+                         [ngClass]="newDsFormValidation('dataset')" (change)="setFileToUpload($event.target.files)">
+                  <label class="custom-file-label" for="newDsFile" *ngIf="!fileToUpload">Choose a dataset</label>
+                  <label class="custom-file-label" for="newDsFile" *ngIf="fileToUpload">{{fileToUpload[0].name}}</label>
+                  <div class="invalid-feedback"
+                       *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['required']">
+                    required
+                  </div>
+                  <div class="invalid-feedback"
+                       *ngIf="newDsForm.controls['dataset'].errors && newDsForm.controls['dataset'].errors['pattern']">
+                    only files of type .zip are allowed
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label style="width:83px" for="newDsName" class="input-group-text">Name</label></div>
+                  <input type="text" placeholder="name" id="newDsName" class="form-control" formControlName="name" [ngClass]="newDsFormValidation('name')">
+                  <div class="invalid-feedback">required</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label for="newDsDescription" class="input-group-text">Description</label></div>
+                  <textarea placeholder="description" id="newDsDescription" class="form-control"
+                            formControlName="description" [ngClass]="newDsFormValidation('description')" #descr
+                            [rows]="_util.textareaHeight(descr.value)"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend"><label for="newDsPublic" class="input-group-text">Visibility</label></div>
+
+                  <select formControlName="pub" id="newDsPublic" class="form-control">
+                    <option value="0">private</option>
+                    <option value="1">internal</option>
+                    <option value="2">public</option>
+                  </select>
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button (click)="resetNewDsForm();" class="btn btn-secondary" type="button">Close</button>
+            <button type="submit" class="btn btn-primary pull-right">Upload</button>
+            <div class="progress-wrapper">
+              <progressbar *ngIf="newDsFormSubmitted && uploadProgress < 100 && uploadProgress > 0" class="progress progress-striped" [value]="uploadProgress" [max]="100"></progressbar>
+              <progressbar *ngIf="newDsFormSubmitted && uploadProgress === 100" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>
+            </div>
+          </div>
+      </div><!-- /.modal-content -->
+    </form>
   </div><!-- /.modal-dialog -->
 </div>

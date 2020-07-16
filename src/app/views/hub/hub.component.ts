@@ -102,6 +102,7 @@ export class HubComponent implements OnInit, OnDestroy {
   @ViewChild('downloadDataModal', {static: false}) public downloadDataModal: ModalDirective;
   @ViewChild('editUserModal', {static: false}) public editUserModal: ModalDirective;
   @ViewChild('createUserModal', {static: false}) public createUserModal: ModalDirective;
+  @ViewChild('manualUploadModal', {static: false}) public manualUploadModal: ModalDirective;
 
   constructor(
     private _route: ActivatedRoute,
@@ -404,21 +405,24 @@ export class HubComponent implements OnInit, OnDestroy {
             } else {
               this._toast.success(result.message, 'uploaded');
               this.getDatasets();
-              this.newDsForm.reset();
-              this.newDsFormSubmitted = false;
-              this.fileToUpload = undefined;
-              this.uploadProgress = 0;
+              this.resetNewDsForm();
             }
           }
         }, err => {
           this._toast.error('Could not upload dataset');
           console.log(err);
         }
-      );
+      ).add( () => this.uploadProgress = 0 );
     }
   }
 
-
+  resetNewDsForm(){
+    this.manualUploadModal.hide();
+    this.newDsForm.reset({pub:0});
+    this.fileToUpload = undefined;
+    this.uploadProgress = 0;
+    this.newDsFormSubmitted = false;
+  }
 
   canDeleteAndUpdate( owner: number ): boolean{
     return this.loggedIn === LoginStatus.ADMIN || ( this.loggedIn === LoginStatus.NORMAL_USER && owner === this.userId );
