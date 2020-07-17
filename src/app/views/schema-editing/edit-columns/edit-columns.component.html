@@ -49,7 +49,7 @@
                 <option value="ARRAY">ARRAY</option>
               </select>
             </td>
-            <td>
+            <td class="data-type-parameters">
               <!-- precision -->
               <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsPrecision(updateColumn.controls['dataType'].value)">
                 <div class="input-group-prepend">
@@ -299,7 +299,7 @@
                       <select multiple id="indexCols" class="form-control form-control-sm" formControlName="columns" *ngIf="resultSet" [ngClass]="{'is-valid': this.indexSubmitted && newIndexForm.controls['columns'].valid && newIndexForm.controls['columns'].dirty, 'is-invalid': this.indexSubmitted && !newIndexForm.controls['columns'].valid}">
                         <option *ngFor="let c of resultSet.header" [value]="c.name">{{c.name}}</option>
                       </select>
-                        <button type="submit" class="btn btn-primary">create</button>
+                        <button type="submit" class="btn btn-primary btn-sm">create</button>
                     </div>
                 </form>
             </div>

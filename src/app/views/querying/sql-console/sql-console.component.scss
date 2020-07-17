@@ -8,6 +8,7 @@ select{
   max-height: 240px;
   overflow-x: hidden;
   overflow-y: auto;
+  border:1px rgba(0,0,0,.125) solid;
   .header{
     background: #f0f3f5;
   }
@@ -20,9 +21,33 @@ select{
   }
   .history-item {
     cursor: pointer;
+    border-bottom: 1px solid rgba(0,0,0,.125) !important;
+    margin-bottom:0;
+    border-left:none;
+    border-right:none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .history-time-wrapper{
+      display: flex;
+      flex:0 0 67px;
+      flex-direction: column;
+      text-align: center;
+      margin-right: 0.5em;
+      small {
+        font-size: 75%;
+      }
+    }
   }
   .history-item:hover {
     background: #f7fafc;
+  }
+  .history-item:last-of-type{
+    border-bottom:none !important;
+  }
+  .header{
+    border:none !important;
   }
   small {
     padding-right: 1em;

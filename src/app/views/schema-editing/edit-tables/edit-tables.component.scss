@@ -20,6 +20,9 @@ label:not(.disabled){
 label.disabled{
   color: grey;
 }
+.data-type-parameters .input-group-text {
+  width: 78px;
+}
 .checkbox-wrapper{
   flex: 1;
   border-top-right-radius: 0.25rem;
