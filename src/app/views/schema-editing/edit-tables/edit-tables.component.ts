@@ -99,6 +99,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         for(const t of result.tables){
           this.tables.push({ name:t, truncate:false, drop:false, export:false });
         }
+        this.tables = this.tables.sort( (a,b) => a.name.localeCompare(b.name) );
       }, err => {
         this._toast.error('could not retrieve list of tables');
         console.log(err);
