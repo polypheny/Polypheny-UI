@@ -19,7 +19,7 @@
       <div class="col-md-8" *ngIf="users && !users.error">
         <div class="card">
           <div class="card-header">Manage users
-            <a [routerLink]="[]" class="pull-right" (click)="createUserModal.show()">create user</a>
+            <button (click)="createUserModal.show()" class="btn btn-primary btn-sm card-header-button" tooltip="create user" placement="left" delay="200"><i class="cui-user-follow"></i></button>
           </div>
           <div class="card-body">
             <table class="table table-hover table-sm table-bordered table-striped mb-0">
@@ -99,7 +99,7 @@
           <div class="card-header">
             Datasets
             <!--<a class="float-right"  (click)="manualUploadModal.show()" [routerLink]="[]">manual upload</a>-->
-            <button class="btn btn-primary btn-sm float-right" (click)="manualUploadModal.show();" tooltip="manual upload" placement="left" delay="200">
+            <button class="btn btn-primary btn-sm card-header-button" (click)="manualUploadModal.show();" tooltip="manual upload" placement="left" delay="200">
               <i class="icon-cloud-upload font-weight-bold"></i>
             </button>
           </div>
