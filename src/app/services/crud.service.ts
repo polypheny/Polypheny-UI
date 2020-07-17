@@ -301,6 +301,10 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/executeRelAlg`, relAlg, this.httpOptions);
   }
 
+  renameTable ( table: Index ) {
+    return this._http.post(`${this.httpUrl}/renameTable`, table, this.httpOptions);
+  }
+
   /**
    * Send a request to either create or drop a schema
    */

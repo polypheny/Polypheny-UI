@@ -47,3 +47,10 @@ label.disabled{
   background-color: #ebeef0;
   color: black;
 }
+tr .edit-table-name {
+  visibility: hidden;
+}
+tr:hover .edit-table-name {
+  visibility: visible;
+  cursor: pointer;
+}

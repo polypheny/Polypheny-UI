@@ -2,17 +2,17 @@ import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DbColumn, PolyType, ResultSet, Status} from '../../../components/data-table/models/result-set.model';
+import {DbColumn, Index, PolyType, ResultSet, Status} from '../../../components/data-table/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {HubService} from '../../../services/hub.service';
 import {Store} from '../../stores/store.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {UtilService} from '../../../services/util.service';
+import * as $ from 'jquery';
 
 @Component({
   selector: 'app-edit-tables',
@@ -23,9 +23,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
   types: PolyType[] = [];
   schema: string;
-  tables = [];
-  truncate = [];
-  drop = [];
+  tables: TableModel[] = [];
 
   counter = 0;
   newColumns = new Map<number, DbColumn>();
@@ -54,7 +52,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     private _router: Router,
     private _leftSidebar: LeftSidebarService,
     public _types: DbmsTypesService,
-    public _hub: HubService,
     private _settings: WebuiSettingsService,
     public _util: UtilService
   ) {
@@ -75,10 +72,12 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       if(b) this.onReconnect();
     });
     this.subscriptions.add(sub);
+    this.documentListener();
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+    $(document).off('click');
   }
 
   onReconnect() {
@@ -86,6 +85,16 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this.getTypeInfo();
     this.getStores();
     this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
+  }
+
+  documentListener() {
+    const self = this;
+    $(document).on('click', function(e){
+      if( $(e.target).hasClass('edit-table-name') ) return;
+      if( $(e.target).parents('.editing').length === 0 ){
+        self.tables.forEach((t) => t.editing = false );
+      }
+    });
   }
 
   getTables() {
@@ -97,7 +106,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         }
         this.tables = [];
         for(const t of result.tables){
-          this.tables.push({ name:t, truncate:false, drop:false, export:false });
+          this.tables.push( new TableModel(t) );
         }
         this.tables = this.tables.sort( (a,b) => a.name.localeCompare(b.name) );
       }, err => {
@@ -124,10 +133,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
    * get the right class for the 'drop' and 'truncate' buttons
    * enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
    */
-  dropTruncateClass(action: string, table: string, i: number) {
-    if (action === 'drop' && (this.drop[i] === 'drop ' + table || this.drop[i] === table)) {
+  dropTruncateClass( action: string, table: TableModel ) {
+    if (action === 'drop' && ( table.drop === table.name || table.drop === 'drop ' + table.name ) ) {
       return 'btn-danger';
-    } else if (action === 'truncate' && (this.truncate[i] === 'truncate ' + table || this.truncate[i] === table)) {
+    } else if (action === 'truncate' && ( table.truncate === table.name || table.truncate === 'truncate ' + table.name ) ) {
       return 'btn-danger';
     }
     return 'btn-light disabled';
@@ -136,10 +145,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   /**
    * send a request to either drop or truncate a table
    */
-  sendRequest(action, table: string, i: number) {
+  sendRequest( action, table: TableModel ) {
     let request;
-    if (this.dropTruncateClass(action, table, i) === 'btn-danger') {
-      request = new EditTableRequest(this.schema, table, action);
+    if (this.dropTruncateClass( action, table ) === 'btn-danger') {
+      request = new EditTableRequest(this.schema, table.name, action);
     } else {
       return;
     }
@@ -173,7 +182,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       this._toast.warn('Please provide a valid name for the new table. The new table was not created.', 'invalid table name', ToastDuration.INFINITE);
       return;
     }
-    if (this.tables.indexOf(this.newTableName) !== -1) {
+    if( this.tables.filter((t) => t.name === this.newTableName ).length > 0 ){
+    //if (this.tables.indexOf(this.newTableName) !== -1) {
       this._toast.warn('A table with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
       return;
     }
@@ -229,6 +239,33 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         console.log(err);
       }
     );
+  }
+
+  renameTable ( table: TableModel ) {
+    const t = new Index( this.schema, table.name, table.newName, null, null );
+    this._crud.renameTable( t ).subscribe(
+      res => {
+        const r = <ResultSet> res;
+        if( r.exception ) {
+          this._toast.exception( r );
+        } else {
+          this._toast.success( 'Renamed table ' + table.name + ' to ' + table.newName );
+          this.getTables();
+        }
+      }, err => {
+        this._toast.error( 'Could not rename the table ' + table.name );
+        console.log(err);
+      }
+    );
+  }
+
+  /**
+   * Check if the new table name is valid
+   */
+  canRename ( table: TableModel ) {
+    //table.name !== table.newName  not necessary, since the filter will catch it as well
+    return this.tables.filter((t) => t.name === table.newName ).length === 0 &&
+      this._crud.nameIsValid( table.newName );
   }
 
   initExportModal() {
@@ -318,7 +355,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     const regex = this._crud.getValidationRegex();
     if (name === '') {
       return '';
-    } else if (regex.test(name) && name.length <= 100 && this.tables.indexOf(name) === -1) {
+    //} else if (regex.test(name) && name.length <= 100 && this.tables.indexOf(name) === -1) {
+    } else if ( regex.test(name) && name.length <= 100 && this.tables.filter((t) => t.name === name).length === 0 ) {
       return 'is-valid';
     } else {
       return 'is-invalid';
@@ -356,4 +394,17 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     );
   }
 
+}
+
+class TableModel {
+  name:string;
+  truncate = '';
+  drop = '';
+  export = false;
+  editing = false;
+  newName: string;
+  constructor( name:string ) {
+    this.name = name;
+    this.newName = name;
+  }
 }

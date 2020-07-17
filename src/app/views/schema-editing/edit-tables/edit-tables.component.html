@@ -14,16 +14,27 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let table of tables let i = index" [ngClass]="{'table-warning':table.export}">
+        <tr *ngFor="let table of tables let i = index" [ngClass]="{'table-warning':table.export}" [class.editing]="table.editing">
             <td><input type="checkbox" class="" [(ngModel)]="table.export" (change)="updateShowExportButton($event)"></td>
-            <td>{{table.name}}</td>
+          <td>
+            <span *ngIf="!table.editing">
+              {{table.name}}
+              <i class="cui-pencil edit-table-name ml-2" (click)="table.editing = !table.editing"></i>
+            </span>
+            <div class="input-group input-group-sm" *ngIf="table.editing" style="max-width: 200px">
+              <input type="text" class="form-control form-control-sm" placeholder="newName" [(ngModel)]="table.newName" autofocus (keyup.enter)="renameTable(table)" (keyup.escape)="table.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()">
+              <div class="input-group-append">
+                <button class="btn btn-primary btn-sm input-group" [disabled]="!canRename(table)" (click)="renameTable(table)">rename</button>
+              </div>
+            </div>
+          </td>
             <td>
                 <div class="input-group">
                     <input type="text" class="form-control form-control-sm" placeholder="truncate {{table.name}}"
-                           [(ngModel)]="truncate[i]" (keyup.enter)="sendRequest('truncate', table.name, i)">
+                           [(ngModel)]="table.truncate" (keyup.enter)="sendRequest('truncate', table)">
                     <div class="input-group-append">
-                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('truncate', table.name, i)" type="button"
-                              (click)="sendRequest('truncate', table.name, i)">truncate
+                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('truncate', table)" type="button"
+                              (click)="sendRequest('truncate', table)">truncate
                       </button>
                     </div>
                 </div>
@@ -31,10 +42,10 @@
             <td>
                 <div class="input-group">
                   <input type="text" class="form-control form-control-sm" placeholder="drop {{table.name}}"
-                         [(ngModel)]="drop[i]" (keyup.enter)="sendRequest('drop', table.name, i)">
+                         [(ngModel)]="table.drop" (keyup.enter)="sendRequest('drop', table)">
                     <div class="input-group-append">
-                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('drop', table.name, i)" type="button"
-                              (click)="sendRequest('drop', table.name, i)">drop
+                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('drop', table)" type="button"
+                              (click)="sendRequest('drop', table)">drop
                       </button>
                     </div>
                 </div>
