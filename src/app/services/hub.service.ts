@@ -106,17 +106,18 @@ export class HubService {
     return this._http.post(this.hubUrl, this.toFormData(body));
   }
 
-  editDataset( dsId:number, name: string, pub:boolean ){
-    const body = {userId: this.getId(), secret: this.getSecret(), dsId: dsId, name: name, pub: +pub, action: 'editDataset'};
+  editDataset( dsId:number, name: string, description: string, pub: number ){
+    const body = {userId: this.getId(), secret: this.getSecret(), dsId: dsId, name: name, description: description, pub: pub, action: 'editDataset'};
     return this._http.post(this.hubUrl, this.toFormData(body));
   }
 
-  uploadDataset( userId: number, secret: string, name: string, pub: boolean, dataset ){
+  uploadDataset( userId: number, secret: string, name: string, description: string, pub: number, dataset ){
     const formData = new FormData();
     formData.append( 'action', 'uploadDataset');
     formData.append( 'userId', String(userId ));
     formData.append( 'secret', secret );
     formData.append( 'name', name );
+    formData.append( 'description', description );
     formData.append( 'pub', String(pub) );
     formData.append( 'dataset', dataset[0] );
     //see https://www.techiediaries.com/angular-file-upload-progress-bar/
@@ -126,6 +127,10 @@ export class HubService {
   deleteDataset( dsId: number ){
     const body = {action: 'deleteDataset', userId: this.getId(), secret: this.getSecret(), datasetId: dsId };
     return this._http.post(this.hubUrl, this.toFormData(body));
+  }
+
+  getDataSetMeta( url: string ) {
+    return this._http.get( url );
   }
 
   toFormData( obj ){

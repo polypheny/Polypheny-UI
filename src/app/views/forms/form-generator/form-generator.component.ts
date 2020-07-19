@@ -9,6 +9,8 @@ import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
+import {isEqual} from 'lodash';
+import {init} from 'protractor/built/launcher';
 
 @Component({
   selector: 'app-form-generator',
@@ -68,7 +70,6 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
 
   private initWebSocket() {
     //this._config.socketSend('hello world');
-    //todo only update config if not ng-dirty. Test with string
     const sub = this._config.onSocketEvent().subscribe(msg => {
       const update = <JavaUiConfig>msg;
       if(this.formObj && this.formObj.groups[update.webUiGroup] && this.formObj.groups[update.webUiGroup].configs[update.key]) {
@@ -76,7 +77,9 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         if(this.form.controls[c.key].dirty === false){
           c.value = update.value;
         }else {//has been edited
-          if(this.form.controls[c.key].value !== update.value){
+          //if incoming value is different. use lodash.isEqual for arrays and == comparator for values
+          if( (Array.isArray(update.value) && !isEqual( this.form.controls[c.key].value, update.value)) ||
+            (!Array.isArray(update.value) && this.form.controls[c.key].value !== update.value) ){
             this._toast.warn(
               'The setting with id ' + c.key + ' has been changed to the new value "' + update.value + '" by the server. If you save, these changes will be overwritten.',
               'incoming change', ToastDuration.INFINITE);
@@ -150,17 +153,23 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     // https://juristr.com/blog/2017/10/demystify-dynamic-angular-forms/
     for(const gKey of Object.keys(this.formObj.groups)){
       for ( const cKey of Object.keys(this.formObj.groups[gKey].configs)) {
-        if(this.formObj.groups[gKey].configs[cKey].webUiFormType === 'BOOLEAN' ){
-          formGroup[cKey] = new FormControl(
-            //this.parseBoolean(this.formObj.groups[gKey].configs[cKey].value) || false,
-            this.formObj.groups[gKey].configs[cKey].value || false,
-            this.mapValidators(this.formObj.groups[gKey].configs[cKey]));//JSON.parse to convert "true" to true and "false" to false
+        const config = this.formObj.groups[gKey].configs[cKey];
+        let initValue;
+        if( config.webUiFormType === 'BOOLEAN' ){
+          initValue = config.value || false;
+        }
+        else if ( config.webUiFormType === 'CHECKBOXES' ) {
+          initValue = config.value || [];
         }
         else {
-          formGroup[cKey] = new FormControl(
-            this.formObj.groups[gKey].configs[cKey].value || '',
-            this.mapValidators(this.formObj.groups[gKey].configs[cKey]));
+          if( config.value === undefined || config.value === null){
+            initValue = '';
+          } else {
+            initValue = config.value;
+          }
         }
+        formGroup[cKey] = new FormControl( initValue,
+          this.mapValidators(this.formObj.groups[gKey].configs[cKey]));
       }
     }
     this.form = new FormGroup(formGroup);
@@ -212,8 +221,8 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         }
       }
     }
-    if(config.configType !== 'ConfigBoolean'){
-      formValidators.push( Validators.required );//by default, but not for checkboxes
+    if(!['ConfigBoolean', 'ConfigClazzList', 'ConfigEnumList'].includes(config.configType)){
+      formValidators.push( Validators.required );//by default, but not for checkboxes / clazzList / enumList
     }
     return formValidators;
   }
@@ -231,8 +240,13 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     this.submitted = true;
     //console.log(this.form);
     if(this.form.valid){
-      //todo only send ng-dirty..
-      this._config.saveChanges(this.form.value).subscribe(res => {
+      const changes = {};
+      for( const c of Object.keys(this.form.controls) ){
+        if( this.form.controls[c].dirty ){
+          changes[c] = this.form.controls[c].value;
+        }
+      }
+      this._config.saveChanges(changes).subscribe(res => {
         //console.log(res);
         interface Feedback { success?:number; warning?:string; }
         const f: Feedback = <Feedback> res;
@@ -256,6 +270,29 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     return this.switchColors[key%4];
   }
 
+  classOrEnumName( s: string ){
+    if(s.includes('$')) {
+      return s.split('$')[1];
+    } else {
+      return s;
+    }
+  }
+
+  handleClassList( key, val, isChecked ){
+    this.form.controls[key].markAsDirty();
+    if( isChecked ){
+      this.form.controls[key].value.push(val);
+    } else {
+      const newVal = [];
+      for( const v of this.form.controls[key].value ){
+        if( v !== val ) {
+          newVal.push(v);
+        }
+      }
+      this.form.controls[key].setValue( newVal );
+    }
+  }
+
 }
 
 
@@ -275,7 +312,7 @@ export interface JavaUiGroup {
 export interface JavaUiConfig {
   key: String;
   value: any;
-  classes: String[];
+  values: String[];//enumList, clazzList
   requiresRestart: boolean;
   webUiFormType: String;
   webUiGroup: string;

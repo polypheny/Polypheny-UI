@@ -1,3 +1,5 @@
+import {ResultException} from '../components/data-table/models/result-set.model';
+
 export interface InformationPage {
   mansonry?: boolean;
   groups: Map<string, InformationGroup>;
@@ -49,6 +51,12 @@ export interface InformationObject extends Duration {
   //=> extended by Duration interface
   //action
   parameters: any;
+  //exception
+  exception: ResultException;
+  //keyValuePair
+  keyValuePairs: Map<string, string>;
+  //InformationText
+  text: string;
 }
 
 export interface InformationResponse {

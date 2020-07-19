@@ -35,7 +35,7 @@
 
   <ng-container *ngIf="li.type == 'InformationCode'">
     <div class="card-body" [ngStyle]="{'height': getCodeHeight()}">
-      <app-editor readonly="true" [lang]="li.language" [code]="li.code"></app-editor>
+      <app-editor [readonly]="true" [lang]="li.language" [code]="li.code"></app-editor>
     </div>
   </ng-container>
 
@@ -132,4 +132,46 @@
     </div>
   </div>
 
+  <ng-container *ngIf="li.type == 'InformationStacktrace'">
+    <div class="card-body exception" *ngIf="li.exception">
+      <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: li.exception}"></ng-container>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="li.type == 'InformationKeyValue'">
+    <div class="card-body" *ngIf="li.keyValuePairs">
+      <table class="table table-sm table-bordered table-striped mb-0">
+        <tbody>
+          <tr *ngFor="let p of li.keyValuePairs | keyvalue">
+            <td>{{p.key}}</td>
+            <td>{{p.value}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="li.type == 'InformationText'">
+    <div class="card-body" *ngIf="li.text">
+      <p>{{li.text}}</p>
+    </div>
+  </ng-container>
+
 </ng-container>
+
+
+<ng-template #exceptionTemplate let-e="e">
+  <ng-container *ngIf="e">
+    <p *ngIf="e.detailMessage" class="font-weight-bold text-danger">{{e.detailMessage}}</p>
+    <p *ngIf="e.message" class="font-weight-bold text-danger">{{e.message}}</p>
+    <ul *ngIf="e.stackTrace">
+      <li *ngFor="let s of e.stackTrace">at {{s.declaringClass}}.{{s.methodName}}(<span
+        class="text-primary">{{s.fileName}}:{{s.lineNumber}}</span>)
+      </li>
+    </ul>
+    <ng-container *ngIf="e.cause">
+      caused by:
+      <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: e.cause}"></ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>

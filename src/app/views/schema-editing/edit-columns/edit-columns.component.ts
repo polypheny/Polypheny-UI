@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
@@ -18,7 +18,7 @@ import * as _ from 'lodash';
   styleUrls: ['./edit-columns.component.scss']
 })
 
-export class EditColumnsComponent implements OnInit {
+export class EditColumnsComponent implements OnInit, OnDestroy {
 
   @Input() tableId: string;
   table: string;
@@ -88,6 +88,10 @@ export class EditColumnsComponent implements OnInit {
     this.getGeneratedNames();
 
     this.documentListener();
+  }
+
+  ngOnDestroy() {
+    $(document).off('click');
   }
 
   getTableId () {
@@ -211,6 +215,7 @@ export class EditColumnsComponent implements OnInit {
         const result = <ResultSet> res;
         if( result.error === undefined ){
           this.getColumns();
+          this.getDataPlacements();
           this.createColumn.name = '';
           this.createColumn.nullable = true;
           this.createColumn.dataType = this.types[0].name;
@@ -235,6 +240,7 @@ export class EditColumnsComponent implements OnInit {
       this._crud.dropColumn( new ColumnRequest( this.tableId, col ) ).subscribe(
         res => {
           this.getColumns();
+          this.getDataPlacements();
           this.confirm = -1;
           const result = <ResultSet> res;
           if( result.error ){

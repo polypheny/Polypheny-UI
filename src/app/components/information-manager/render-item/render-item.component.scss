@@ -6,6 +6,11 @@ app-render-item {
   overflow: auto;
 }
 
+.card-body.exception {
+  max-height: 600px;
+  white-space: nowrap;
+}
+
 .table-wrapper {
   overflow: auto;
 }

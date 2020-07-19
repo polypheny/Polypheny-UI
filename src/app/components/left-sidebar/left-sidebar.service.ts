@@ -30,10 +30,21 @@ export class LeftSidebarService {
   private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   private resetSubject = new BehaviorSubject<boolean>(false);
 
+  /**
+   * Sort function to sort SidebarNodes alphabetically
+   */
+  public sortNodes = ( a: SidebarNode, b:SidebarNode ) => {
+    if(a.name < b.name) { return -1; }
+    if(a.name > b.name) { return 1; }
+    return 0;
+  }
+
   private mapPages(res: Object, mode: string) {
     const pages = <JavaPage[]>res;
     const nodes: SidebarNode[] = [];
     let routerLink = '';
+    const labels = new Map<string, SidebarNode[]>();
+    const nonLabel: SidebarNode[] = [];
     for (const p of pages) {
       switch (mode) {
         case 'config':
@@ -45,7 +56,23 @@ export class LeftSidebarService {
         default:
           console.error('sidebarNode with unknown group');
       }
-      nodes.push(new SidebarNode(p.id, p.name, p.icon, routerLink));
+      if( p.label ) {
+        if( !labels.has(p.label)) {
+          labels.set( p.label, [] );
+        }
+        labels.get( p.label ).push( new SidebarNode(p.id, p.name, p.icon, routerLink) );
+      } else {
+        nonLabel.push( new SidebarNode(p.id, p.name, p.icon, routerLink) );
+      }
+    }
+    for( const p of nonLabel ) {
+      nodes.push( new SidebarNode(p.id, p.name, p.icon, p.routerLink ));
+    }
+    for( const [k,v] of labels ) {
+      nodes.push( new SidebarNode( k, k ).asSeparator() );
+      for( const p of labels.get(k) ){
+        nodes.push(new SidebarNode(p.id, p.name, p.icon, p.routerLink));
+      }
     }
     return nodes;
   }

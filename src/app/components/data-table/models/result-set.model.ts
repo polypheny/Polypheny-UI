@@ -7,6 +7,7 @@ import {SortState} from './sort-state.model';
 export class ResultSet{
     header: DbColumn[];
     data: string[][];
+    hasMoreRows: boolean;
     currentPage: number;
     highestPage: number;
     table: string;
@@ -182,7 +183,9 @@ export interface Status {
  */
 export interface ResultException {
   detailMessage: string;
+  message: string;
   stackTrace: StackTrace[];
+  cause: ResultException;
 }
 
 /**
