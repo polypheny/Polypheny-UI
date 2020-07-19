@@ -1,3 +1,14 @@
+.col-lg-6.fixed-width {
+  max-width: 400px;
+}
+.fixed-height {
+  height: 240px;
+}
+@media screen and (max-width: 830px){
+  .fixed-width{
+    max-width:100%!important;
+  }
+}
 .topRight{
   position: absolute;
   top: -0.5rem;

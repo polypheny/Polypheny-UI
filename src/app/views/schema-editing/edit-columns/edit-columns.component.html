@@ -28,7 +28,7 @@
               <input type="text" class="form-control form-control-sm" formControlName="name" [attr.data-before]="col.name" id="colName" #editColName [ngClass]="_crud.getValidationClass(editColName.value)">
             </td>
             <td>
-              <input type="checkbox" class="form-control form-control-sm" formControlName="nullable" id="nullable" [attr.data-before]="col.nullable" (change)="changeNullable()">
+              <input type="checkbox" class="" formControlName="nullable" id="nullable" [attr.data-before]="col.nullable" (change)="changeNullable()">
             </td>
             <td>
               <select class="form-control form-control-sm" id="udt_name" [attr.data-before]="col.dataType" formControlName="dataType" (change)="onTypeChange()">
@@ -49,7 +49,7 @@
                 <option value="ARRAY">ARRAY</option>
               </select>
             </td>
-            <td>
+            <td class="data-type-parameters">
               <!-- precision -->
               <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsPrecision(updateColumn.controls['dataType'].value)">
                 <div class="input-group-prepend">
@@ -131,7 +131,7 @@
             <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name" [(ngModel)]="createColumn.name" [ngClass]="_crud.getValidationClass(createColumn.name)">
           </td>
           <td>
-            <input type="checkbox" class="form-control form-control-sm" [(ngModel)]="createColumn.nullable" [checked]="createColumn.nullable" (change)="changeNullable(createColumn)">
+            <input type="checkbox" class="" [(ngModel)]="createColumn.nullable" [checked]="createColumn.nullable" (change)="changeNullable(createColumn)">
           </td>
           <td>
             <select class="form-control form-control-sm" [(ngModel)]="createColumn.dataType" (change)="onTypeChange2( createColumn )">
@@ -217,9 +217,11 @@
     <h5>Constraints</h5>
     <div class="row">
       <div class="col-6">
-        <div class="card">
+        <div class="card" style="height: 153px">
+          <div class="card-header">
+            <span>Add primary key</span>
+          </div>
           <div class="card-body">
-            <strong class="constraint-title">Add primary key</strong>
             <div class="constraint-columns">
               <div class="form-check form-check-inline" *ngFor="let c of newPrimaryKey; let j = index">
                 <input type="checkbox" class="form-check-input" [id]="'pkcol'+j" [(ngModel)]="c.primary">
@@ -231,9 +233,11 @@
         </div>
       </div>
       <div class="col-6">
-        <div class="card">
+        <div class="card" style="height: 153px">
+          <div class="card-header">
+            <span>Add unique constraint</span>
+          </div>
           <div class="card-body">
-            <strong class="constraint-title">Add unique constraint</strong>
             <div class="form-inline">
               <div class="form-group" style="margin-bottom: 0.5em;">
                 <label for="uniqueName">Constraint name</label>
@@ -275,8 +279,10 @@
         <hr>
         <h5>Indexes</h5>
         <div class="card">
+            <div class="card-header">
+                <span>Add index</span>
+            </div>
             <div class="card-body">
-                <strong>Add index</strong>
                 <form class="form-inline" [formGroup]="newIndexForm" (submit)="addIndex()">
                     <label for="indexName">name </label>
                     <div class="form-group">
@@ -289,10 +295,11 @@
                       <label for="indexMethod">method</label><select id="indexMethod" class="form-control form-control-sm" formControlName="method" >
                             <option *ngFor="let m of indexMethods" [value]="m">{{m}}</option>
                         </select>
-                      <label for="indexCols">columns</label><select multiple id="indexCols" class="form-control form-control-sm" formControlName="columns" *ngIf="resultSet" [ngClass]="{'is-valid': this.indexSubmitted && newIndexForm.controls['columns'].valid && newIndexForm.controls['columns'].dirty, 'is-invalid': this.indexSubmitted && !newIndexForm.controls['columns'].valid}">
+                      <label for="indexCols">columns</label>
+                      <select multiple id="indexCols" class="form-control form-control-sm" formControlName="columns" *ngIf="resultSet" [ngClass]="{'is-valid': this.indexSubmitted && newIndexForm.controls['columns'].valid && newIndexForm.controls['columns'].dirty, 'is-invalid': this.indexSubmitted && !newIndexForm.controls['columns'].valid}">
                         <option *ngFor="let c of resultSet.header" [value]="c.name">{{c.name}}</option>
-                        </select>
-                        <button type="submit" class="btn btn-primary">create</button>
+                      </select>
+                        <button type="submit" class="btn btn-primary btn-sm">create</button>
                     </div>
                 </form>
             </div>

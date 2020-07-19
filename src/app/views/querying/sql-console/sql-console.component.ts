@@ -13,6 +13,7 @@ import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.servi
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
+import {UtilService} from '../../../services/util.service';
 
 @Component({
   selector: 'app-sql-console',
@@ -24,7 +25,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   @ViewChild('editor', {static: false}) codeEditor;
 
   history: Map<string, SqlHistory> = new Map<string, SqlHistory>();
-  readonly MAXHISTORY = 20;//maximum items in history
+  readonly MAXHISTORY = 50;//maximum items in history
 
   resultSets: ResultSet[];
   collapsed: boolean[];
@@ -51,7 +52,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     private _crud: CrudService,
     private _leftSidebar: LeftSidebarService,
     private _breadcrumb: BreadcrumbService,
-    private _settings: WebuiSettingsService
+    private _settings: WebuiSettingsService,
+    public _util: UtilService
   ) {
     //when leaving the page, close the queryAnalyzer
     const self = this;
@@ -180,15 +182,24 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
         if (Array.isArray(msg)) {
           const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
           const sidebarNodes: SidebarNode[] = [];
-          for (const s of sidebarNodesTemp) {
-            sidebarNodes.push(SidebarNode.fromJson(s, {allowRouting: false, action: nodeBehavior}));
+          const labels = new Set();
+          sidebarNodesTemp.sort( this._leftSidebar.sortNodes ).forEach((s) => {
+            if(s.label){
+              labels.add(s.label);
+            } else {
+              sidebarNodes.push(SidebarNode.fromJson(s, {allowRouting: false, action: nodeBehavior}));
+            }
+          });
+          for( const l of [...labels].sort() ){
+            sidebarNodes.push( new SidebarNode(l, l).asSeparator() );
+            sidebarNodesTemp.filter((n) => n.label === l ).sort( this._leftSidebar.sortNodes ).forEach(( n ) => {
+              sidebarNodes.push(SidebarNode.fromJson(n, {allowRouting: false, action: nodeBehavior}));
+            });
           }
 
           //set analyzerId to close it when leaving the page.
-          if (sidebarNodes.length > 0) {
-            const split = sidebarNodes[0].routerLink.split('/');
-            this.analyzerId = split[0];
-          }
+          const split = sidebarNodes.find((n) => n.routerLink != null).routerLink.split('/');
+          this.analyzerId = split[0];
           sidebarNodes.unshift(new SidebarNode('sql-console', 'sql-console', 'fa fa-keyboard-o').setAction(nodeBehavior));
           this._leftSidebar.setNodes(sidebarNodes);
           if (sidebarNodes.length > 0) {

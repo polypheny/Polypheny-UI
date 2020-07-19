@@ -7,37 +7,45 @@
 <table class="table table-hover table-striped" *ngIf="tables">
     <thead>
         <tr>
+            <th>Export</th>
             <th>Table</th>
-            <th *ngIf="_hub && _hub.getSecret()">Export</th>
             <th>Truncate</th>
             <th>Drop</th>
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let table of tables let i = index">
-            <td>{{table}}</td>
-            <td *ngIf="_hub && _hub.getSecret()"><button class="btn" (click)="initExportModal(table)">
-              <i class="cui-cloud-upload"></i>
-              <!--<span class="spinner-border spinner-border-sm" *ngIf="exportingTable === table"></span>-->
-            </button></td>
+        <tr *ngFor="let table of tables let i = index" [ngClass]="{'table-warning':table.export}" [class.editing]="table.editing">
+            <td><input type="checkbox" class="" [(ngModel)]="table.export" (change)="updateShowExportButton($event)"></td>
+          <td>
+            <span *ngIf="!table.editing">
+              {{table.name}}
+              <i class="cui-pencil edit-table-name ml-2" (click)="table.editing = !table.editing"></i>
+            </span>
+            <div class="input-group input-group-sm" *ngIf="table.editing" style="max-width: 200px">
+              <input type="text" class="form-control form-control-sm" placeholder="newName" [(ngModel)]="table.newName" autofocus (keyup.enter)="renameTable(table)" (keyup.escape)="table.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()">
+              <div class="input-group-append">
+                <button class="btn btn-primary btn-sm input-group" [disabled]="!canRename(table)" (click)="renameTable(table)">rename</button>
+              </div>
+            </div>
+          </td>
             <td>
                 <div class="input-group">
-                    <input type="text" class="form-control form-control-sm" placeholder="truncate {{table}}"
-                           [(ngModel)]="truncate[i]" (keyup.enter)="sendRequest('truncate', table, i)">
+                    <input type="text" class="form-control form-control-sm" placeholder="truncate {{table.name}}"
+                           [(ngModel)]="table.truncate" (keyup.enter)="sendRequest('truncate', table)">
                     <div class="input-group-append">
-                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('truncate', table, i)" type="button"
-                              (click)="sendRequest('truncate', table, i)">truncate
+                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('truncate', table)" type="button"
+                              (click)="sendRequest('truncate', table)">truncate
                       </button>
                     </div>
                 </div>
             </td>
             <td>
                 <div class="input-group">
-                  <input type="text" class="form-control form-control-sm" placeholder="drop {{table}}"
-                         [(ngModel)]="drop[i]" (keyup.enter)="sendRequest('drop', table, i)">
+                  <input type="text" class="form-control form-control-sm" placeholder="drop {{table.name}}"
+                         [(ngModel)]="table.drop" (keyup.enter)="sendRequest('drop', table)">
                     <div class="input-group-append">
-                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('drop', table, i)" type="button"
-                              (click)="sendRequest('drop', table, i)">drop
+                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('drop', table)" type="button"
+                              (click)="sendRequest('drop', table)">drop
                       </button>
                     </div>
                 </div>
@@ -45,6 +53,7 @@
         </tr>
     </tbody>
 </table>
+<button class="btn btn-primary" (click)="initExportModal()" [hidden]="!showExportButton">Export tables</button>
 
 <hr>
 
@@ -88,7 +97,7 @@
                         <option value="ARRAY">ARRAY</option>
                       </select>
                     </td>
-                    <td>
+                    <td class="data-type-parameters">
                       <!-- precision -->
                       <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsPrecision(col.value.dataType)">
                         <div class="input-group-prepend">
@@ -189,7 +198,7 @@
     <div class="modal-content">
       <form [formGroup]="exportForm">
         <div class="modal-header">
-          <h4 class="modal-title">Export table</h4>
+          <h4 class="modal-title">Export tables</h4>
           <button type="button" class="close" (click)="exportTableModal.hide()" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -198,23 +207,26 @@
           <p>Keep in mind that exporting a whole table can lead to a large dataset. If you want to proceed, specify the name the exported dataset should have and click on the export button.</p>
           <div class="form-group">
             <div class="input-group">
-              <div class="input-group-prepend"><label for="exportName" class="input-group-text">name</label></div>
+              <div class="input-group-prepend"><label for="exportName" class="input-group-text">Name</label></div>
               <input type="text" placeholder="name" id="exportName" class="form-control" formControlName="name"
                      autocomplete="off">
             </div>
           </div>
-          <input type="hidden" formControlName="table" [(ngModel)]="exportingTable">
           <div class="form-group">
             <div class="input-group">
-              <div class="input-group-prepend"><label for="exportPublic" class="input-group-text">public</label></div>
-              <div class="checkbox-wrapper">
-                <div style="display: flex;justify-content: center;">
-                  <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="exportPublic">
-                    <input type="checkbox" class="form-control switch-input" id="exportPublic" formControlName="pub">
-                    <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
-                  </label>
-                </div>
-              </div>
+              <div class="input-group-prepend"><label for="exportDescription" class="input-group-text">Description</label></div>
+              <textarea placeholder="description" id="exportDescription" class="form-control"
+                        formControlName="description" autocomplete="off" #descr [rows]="_util.textareaHeight(descr.value)"></textarea>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label for="exportPublic" class="input-group-text">Visibility</label></div>
+              <select formControlName="pub" id="exportPublic" class="form-control">
+                <option value="0">private</option>
+                <option value="1">internal</option>
+                <option value="2">public</option>
+              </select>
             </div>
           </div>
           <div class="form-group">

@@ -44,7 +44,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.initEditor();
-    if(this.code) this.codeEditor.setValue(this.code);
+    if(this.code) this.codeEditor.setValue(this.code, -1);
     this.codeEditor.resize();
   }
 

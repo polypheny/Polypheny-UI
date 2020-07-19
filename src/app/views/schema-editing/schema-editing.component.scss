@@ -1,3 +1,11 @@
 .checkbox {
-  padding-bottom: 1.25rem;
+  padding-bottom: 1rem;
+}
+.col-lg-6.fixed-width {
+  max-width: 400px;
+}
+@media screen and (max-width: 830px){
+  .fixed-width{
+    max-width:100%!important;
+  }
 }

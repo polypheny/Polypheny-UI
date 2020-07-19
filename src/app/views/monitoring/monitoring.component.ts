@@ -17,7 +17,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 
   data;
   routerId;
-  pageList;
+  pageList: InformationPage[];
   serverError;
   pageNotFound = false;
   private subscriptions = new Subscription();
@@ -92,7 +92,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
     if (!this.routerId) {
       this._information.getPageList().subscribe(
         res => {
-          this.pageList = res;
+          this.pageList = <InformationPage[]>res;
           this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Monitoring')]);
           this.serverError = null;
         }, err => {
@@ -127,7 +127,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
     this.serverError = null;
     this._information.getPageList().subscribe(
       res => {
-        this.pageList = res;
+        this.pageList = <InformationPage[]>res;
       },
       err => {
         this.serverError = err;

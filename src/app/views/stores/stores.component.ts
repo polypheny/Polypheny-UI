@@ -1,6 +1,4 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
-import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store, AdapterInformation, AdapterSetting} from './store.model';
@@ -34,7 +32,6 @@ export class StoresComponent implements OnInit, OnDestroy {
   @ViewChild('storeSettingsModal', {static: false}) public storeSettingsModal: ModalDirective;
 
   constructor(
-    public _breadcrumb: BreadcrumbService,
     private _crud: CrudService,
     private _route: ActivatedRoute,
     private _router: Router,
@@ -45,10 +42,8 @@ export class StoresComponent implements OnInit, OnDestroy {
     this.getStores();
     this.getAdapters();
     this.route = this._route.snapshot.paramMap.get('action');
-    this.updateBreadcrumb();
     this.routeListener = this._route.params.subscribe(params => {
       this.route = params['action'];
-      this.updateBreadcrumb();
     });
     const sub = this._crud.onReconnection().subscribe(
       b => {
@@ -62,16 +57,7 @@ export class StoresComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this._breadcrumb.hide();
     this.subscriptions.unsubscribe();
-  }
-
-  updateBreadcrumb(){
-    if(this.route === 'addStore'){
-      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Adapters')]);
-    }else{
-      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Stores')]);
-    }
   }
 
   getStores(){

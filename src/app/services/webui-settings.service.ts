@@ -15,9 +15,9 @@ export class WebuiSettingsService {
     this.host = location.hostname;
 
     // tslint:disable:no-unused-expression
+    new Setting( this.settings, 'webUI.port', '8080');
     new Setting( this.settings, 'configServer.port', '8081');
     new Setting( this.settings, 'informationServer.port', '8082');
-    new Setting( this.settings, 'webUI.port', '8083');
     new Setting( this.settings, 'hub.url', 'https://hub.polypheny.org/index.php');
     new Setting( this.settings, 'websocketGestureRecognition.ip:port', 'localhost:4999/index.php');
     new Setting( this.settings, 'reconnection.timeout', '5000' );
