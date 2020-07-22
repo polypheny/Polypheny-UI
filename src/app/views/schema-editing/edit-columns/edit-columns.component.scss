@@ -50,6 +50,17 @@ table tr td.pk {
 .dropdown-item {
   padding: 5px 20px;
 }
+#placementBtnGroup {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.modify-placement-btn {
+  visibility: hidden;
+}
+table tr td:hover .modify-placement-btn {
+  visibility: visible;
+}
 .data-type-parameters .input-group-text {
   width: 78px;
 }
