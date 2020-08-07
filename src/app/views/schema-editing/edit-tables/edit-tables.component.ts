@@ -251,6 +251,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         } else {
           this._toast.success( 'Renamed table ' + table.name + ' to ' + table.newName );
           this.getTables();
+          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
         }
       }, err => {
         this._toast.error( 'Could not rename the table ' + table.name );

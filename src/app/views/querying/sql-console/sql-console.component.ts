@@ -80,9 +80,12 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   }
 
   submitQuery() {
-
+    const code = this.codeEditor.getCode();
+    if( !code ) {
+      return;
+    }
     if(this.saveInHistory) {
-      this.addToHistory(this.codeEditor.getCode());
+      this.addToHistory(code);
     }
     this._leftSidebar.setNodes([]);
     if (this.analyzeQuery) {
@@ -97,7 +100,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     this.queryAnalysis = null;
 
     this.loading = true;
-    this._crud.anyQuery(new QueryRequest(this.codeEditor.getCode(), this.analyzeQuery)).subscribe(
+    this._crud.anyQuery(new QueryRequest(code, this.analyzeQuery)).subscribe(
       res => {
         this.loading = false;
         this.resultSets = <ResultSet[]>res;

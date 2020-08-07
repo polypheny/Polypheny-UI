@@ -10,7 +10,6 @@ import {ToastDuration, ToastService} from '../../../components/toast/toast.servi
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {isEqual} from 'lodash';
-import {init} from 'protractor/built/launcher';
 
 @Component({
   selector: 'app-form-generator',
@@ -253,6 +252,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         //console.log(f);
         if( f.success ){
           this._toast.success('Saved changes.', null, ToastDuration.SHORT);
+          this.loadPage();// reload config-page after updating a config, because it can lead to additional groups or elements
         } else {
           this._toast.warn(f.warning, null, ToastDuration.INFINITE);
         }

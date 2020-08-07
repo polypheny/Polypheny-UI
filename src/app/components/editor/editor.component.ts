@@ -68,6 +68,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     this.codeEditor.setTheme( 'ace/theme/' + this.theme );
     this.codeEditor.getSession().setMode( 'ace/mode/' + this.lang );
     this.codeEditor.setShowFoldWidgets( true ); // for the scope fold feature
+    this.codeEditor.setShowPrintMargin(false); // https://stackoverflow.com/questions/14907184/is-there-a-way-to-hide-the-vertical-ruler-in-ace-editor
     if( this.readonly === true ) {
       this.codeEditor.setReadOnly(true);
       // from https://stackoverflow.com/questions/32806060/is-there-a-programmatic-way-to-hide-the-cursor-in-ace-editor
