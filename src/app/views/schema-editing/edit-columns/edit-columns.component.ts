@@ -41,6 +41,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   indexes: ResultSet;
   confirmIndex = -1;
+  newIndexCols;
   //todo put the available methods of the Polypheny-DB system or get it via the crud service
   indexMethods = ['btree', 'hash']; // 'gist', 'gin'
   newIndexForm: FormGroup;
@@ -66,8 +67,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   ) {
     this.newIndexForm = new FormGroup( {
       name: new FormControl('', this._crud.getNameValidator() ),
-      method: new FormControl('btree'),
-      columns: new FormControl(null, Validators.required)
+      method: new FormControl('btree')
     });
     this._types.getTypes().subscribe(
       type => {
@@ -115,8 +115,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       res => {
         this.resultSet = <ResultSet> res;
         this.oldColumns.clear();
+        this.newIndexCols = {};
         this.resultSet.header.forEach(( v ,k )=>{
           this.oldColumns.set( v.name, DbColumn.fromJson( v ));
+          this.newIndexCols[v.name] = false;
         });
         // deep copy: from: https://stackoverflow.com/questions/35504310/deep-copy-an-array-in-angular-2-typescript
         this.newPrimaryKey = this.resultSet.header.map( x => Object.assign({}, x));
@@ -129,6 +131,19 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   getColumnArray () {
     return this.resultSet.header.map((h) => h.name );
+  }
+
+  columnValidation (columnName: string, editing:string = null ) {
+    if( editing ) {
+      if( this.resultSet.header.filter( (h) => h.name === columnName && h.name !== editing ).length > 0 ) {
+        return 'is-invalid';
+      }
+    } else {
+      if( this.resultSet.header.filter( (h) => h.name === columnName ).length > 0 ) {
+        return 'is-invalid';
+      }
+    }
+    return this._crud.getValidationClass( columnName );
   }
 
   editCol( i:number, col: DbColumn ) {
@@ -155,6 +170,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   saveCol() {
     if( ! this._crud.nameIsValid( this.updateColumn.controls['name'].value ) ){
       this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
+      return;
+    }
+    if( this.resultSet.header.filter( (h) => h.name === this.updateColumn.controls['name'].value && h.name !== this.updateColumn.controls['oldName'].value ).length > 0){
+      this._toast.warn( 'This column name already exists', 'invalid column name' );
       return;
     }
     const oldColumn = this.oldColumns.get( this.updateColumn.controls['oldName'].value );
@@ -184,6 +203,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.getColumns();
         if( result.error ){
           this._toast.exception(result, 'Could not update column:');
+          console.log(result);
         }else{
           this._toast.success('The new column was saved.', 'column saved');
         }
@@ -201,6 +221,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
     if( ! this._crud.nameIsValid( this.createColumn.name ) ){
       this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
+      return;
+    }
+    if( this.resultSet.header.filter( (h) => h.name === this.createColumn.name ).length > 0 ) {
+      this._toast.warn( 'There already exists a column with this name', 'invalid column name' );
       return;
     }
     if( !this._types.supportsPrecision(this.createColumn.dataType) && this.createColumn.precision !== null ){
@@ -283,7 +307,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
   }
 
-  addPrimaryKey () {
+  updatePrimaryKey () {
     const pk = new TableConstraint( 'pk', 'PRIMARY KEY' );
     this.newPrimaryKey.forEach((v, k) => {
       if( v.primary ){
@@ -296,13 +320,14 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         const result = <ResultSet> res;
         if( !result.error ){
           this.getConstraints();
-          this._toast.success('The primary key was added.', 'added primary key');
+          this._toast.success('The primary key was updated.', 'updated primary key');
           this.getColumns();
+          this.getDataPlacements();
         }else {
           this._toast.exception(result, null, 'primary key error', ToastDuration.INFINITE);
         }
       }, err => {
-        this._toast.error('Could not add primary key.', null, ToastDuration.INFINITE);
+        this._toast.error('Could not update primary key.', null, ToastDuration.INFINITE);
         console.log(err);
       }
     );
@@ -437,6 +462,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   getAddableStores (): Store[] {
+    if(!this.stores) { return []; }
     return this.stores.filter( (s: Store) => {
       // hide stores that are schemaReadOnly or dataReadOnly
       if( s.schemaReadOnly || s.dataReadOnly ) {
@@ -573,19 +599,27 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   addIndex() {
     this.indexSubmitted = true;
-    if (this.newIndexForm.controls['method'].valid && this.newIndexForm.controls['columns'].valid && this.newIndexForm.controls['name'].errors) {
+    const newCols = [];
+    for ( const [k,v] of Object.entries(this.newIndexCols)) {
+      if(v) { newCols.push(k); }
+    }
+    if ( this.newIndexForm.controls['method'].valid && this.newIndexForm.controls['name'].errors && newCols.length > 0 ) {
       this.newIndexForm.controls['name'].setValue(this.proposedIndexName);
     }
-    if (this.newIndexForm.valid) {
+    if (this.newIndexForm.valid && newCols.length > 0 ) {
       const i = this.newIndexForm.value;
-      const index = new Index(this.schema, this.table, i.name, i.method, i.columns);
+      const index = new Index( this.schema, this.table, i.name, i.method, newCols );
       this._crud.createIndex(index).subscribe(
         res => {
           const result = <ResultSet>res;
           if (!result.error) {
             this.getIndexes();
             this.getGeneratedNames();
-            this.newIndexForm.reset({name: '', method: 'btree', columns: null});
+            this.newIndexForm.reset({name: '', method: 'btree'});
+            this.newIndexCols = {};
+            this.resultSet.header.forEach(( v ,k )=>{
+              this.newIndexCols[v.name] = false;
+            });
             this.indexSubmitted = false;
           } else {
             this._toast.exception(result, 'Could not create index:');

@@ -28,8 +28,8 @@
 								<ng-container [ngSwitch]="config.value.webUiFormType">
 									<div class="input-group">
 										<div class="input-group-prepend">
-											<div class="gradient"></div>
 											<label [for]="config.value.key" class="input-group-text" id="basic-addon1" [tooltip]="config.value.description" placement="left" container="body">{{ config.value.key }}</label>
+											<div class="gradient"></div>
 										</div>
 										<ng-container *ngSwitchCase="'TEXT'">
 											<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="text" class="form-control" [ngClass]="inputValidation(config.value.key)">

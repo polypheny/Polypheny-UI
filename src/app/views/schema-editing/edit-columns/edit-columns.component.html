@@ -25,7 +25,7 @@
           <ng-container *ngIf="i === editColumn" [formGroup]="updateColumn">
             <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
             <td>
-              <input type="text" class="form-control form-control-sm" formControlName="name" [attr.data-before]="col.name" id="colName" #editColName [ngClass]="_crud.getValidationClass(editColName.value)">
+              <input type="text" class="form-control form-control-sm" formControlName="name" [attr.data-before]="col.name" id="colName" #editColName [ngClass]="columnValidation(editColName.value, col.name)">
             </td>
             <td>
               <input type="checkbox" class="" formControlName="nullable" id="nullable" [attr.data-before]="col.nullable" (change)="changeNullable()">
@@ -128,7 +128,7 @@
         <tr>
           <td class="pk"></td>
           <td>
-            <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name" [(ngModel)]="createColumn.name" [ngClass]="_crud.getValidationClass(createColumn.name)">
+            <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name" [(ngModel)]="createColumn.name" [ngClass]="columnValidation(createColumn.name)">
           </td>
           <td>
             <input type="checkbox" class="" [(ngModel)]="createColumn.nullable" [checked]="createColumn.nullable" (change)="changeNullable(createColumn)">
@@ -217,9 +217,9 @@
     <h5>Constraints</h5>
     <div class="row">
       <div class="col-6">
-        <div class="card" style="height: 153px">
+        <div class="card" style="min-height: 153px">
           <div class="card-header">
-            <span>Add primary key</span>
+            <span>Update primary key</span>
           </div>
           <div class="card-body">
             <div class="constraint-columns">
@@ -227,19 +227,19 @@
                 <input type="checkbox" class="form-check-input" [id]="'pkcol'+j" [(ngModel)]="c.primary">
                 <label class="form-check-label" [for]="'pkcol'+j">{{c.name}}</label>
               </div>
-              <button class="btn btn-sm btn-primary add-constraint" (click)="addPrimaryKey()">add</button>
+              <button class="btn btn-sm btn-primary add-constraint" (click)="updatePrimaryKey()">update</button>
             </div>
           </div>
         </div>
       </div>
       <div class="col-6">
-        <div class="card" style="height: 153px">
+        <div class="card" style="min-height: 153px">
           <div class="card-header">
             <span>Add unique constraint</span>
           </div>
           <div class="card-body">
-            <div class="form-inline">
-              <div class="form-group" style="margin-bottom: 0.5em;">
+            <div class="form-inline mb-2">
+              <div class="form-group">
                 <label for="uniqueName">Constraint name</label>
                 <input id="uniqueName" type="text" class="form-control form-control-sm"
                        [placeholder]="proposedConstraintName" [(ngModel)]="uniqueConstraintName"
@@ -282,27 +282,32 @@
             <div class="card-header">
                 <span>Add index</span>
             </div>
-            <div class="card-body">
-                <form class="form-inline" [formGroup]="newIndexForm" (submit)="addIndex()">
-                    <label for="indexName">name </label>
-                    <div class="form-group">
-                      <input id="indexName" type="text" autocomplete="off" class="form-control form-control-sm"
-                             [placeholder]="proposedIndexName" name="name" required formControlName="name"
-                             [ngClass]="inputValidation('name')">
-                        <div class="invalid-feedback">invalid name</div>
-                    </div>
-                    <div class="form-group">
-                      <label for="indexMethod">method</label><select id="indexMethod" class="form-control form-control-sm" formControlName="method" >
-                            <option *ngFor="let m of indexMethods" [value]="m">{{m}}</option>
-                        </select>
-                      <label for="indexCols">columns</label>
-                      <select multiple id="indexCols" class="form-control form-control-sm" formControlName="columns" *ngIf="resultSet" [ngClass]="{'is-valid': this.indexSubmitted && newIndexForm.controls['columns'].valid && newIndexForm.controls['columns'].dirty, 'is-invalid': this.indexSubmitted && !newIndexForm.controls['columns'].valid}">
-                        <option *ngFor="let c of resultSet.header" [value]="c.name">{{c.name}}</option>
-                      </select>
-                        <button type="submit" class="btn btn-primary btn-sm">create</button>
-                    </div>
-                </form>
-            </div>
+          <div class="card-body">
+            <form [formGroup]="newIndexForm" (submit)="addIndex()">
+              <div class="form-inline mb-2">
+                <div class="form-group">
+                  <label for="indexName">name </label>
+                  <input id="indexName" type="text" autocomplete="off" class="form-control form-control-sm"
+                         [placeholder]="proposedIndexName" name="name" required formControlName="name"
+                         [ngClass]="inputValidation('name')">
+                  <div class="invalid-feedback">invalid name</div>
+                </div>
+                <div class="form-group">
+                  <label for="indexMethod">method</label>
+                  <select id="indexMethod" class="form-control form-control-sm" formControlName="method">
+                    <option *ngFor="let m of indexMethods" [value]="m">{{m}}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="constraint-columns">
+                <div class="form-check form-check-inline" *ngFor="let c of newIndexCols | keyvalue; let j=index">
+                  <input type="checkbox" class="form-check-input" [id]="'indexCol'+j" [(ngModel)]="newIndexCols[c.key]" [ngModelOptions]="{standalone: true}">
+                  <label class="form-check-label" [for]="'indexCol'+j">{{c.key}}</label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">create</button>
+              </div>
+            </form>
+          </div>
         </div>
         <table class="table table-hover table-striped" *ngIf="indexes && indexes.data.length > 0">
             <thead>
