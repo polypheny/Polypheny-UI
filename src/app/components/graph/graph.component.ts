@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {CustomTooltips} from '@coreui/coreui-plugin-chartjs-custom-tooltips';
 import {getStyle, hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities';
 
@@ -7,36 +7,24 @@ import {getStyle, hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities';
   templateUrl: './graph.component.html',
   styleUrls: ['./graph.component.scss']
 })
-export class GraphComponent implements OnInit {
+export class GraphComponent implements OnInit, OnChanges {
 
   _chartType: string;
-  @Input() set chartType(val) {
-    this.setChartType(val);
-  }
+  @Input() chartType: string;
 
-  //@Input() data: Array<any>;
   _data;
-  @Input() set data(data) {
-    this._data = this.mapData(data);
-  }
+  @Input() data: Array<any>;
 
   _labels;
-  @Input() set labels(labels) {
-    this._labels = this.mapLabel(labels);
-  }
+  @Input() labels: Array<string>;
 
   //@Input() config?:any;
+
   _min: number;
-  @Input() set min(min) {
-    this._min = min;
-    this.updateOptions();
-  }
+  @Input() min: number;
 
   _max: number;
-  @Input() set max(max) {
-    this._max = max;
-    this.updateOptions();
-  }
+  @Input() max: number;
 
   options: any = {
     animation: false,
@@ -85,6 +73,31 @@ export class GraphComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  /**
+   * ngOnChanges instead of @Input setters is needed to make sure that
+   * the changes on 'chartType' are applied first, since the changes on
+   * other variables depend on it
+   */
+  ngOnChanges(changes: SimpleChanges) {
+    if( changes['chartType'] ) {
+      this.setChartType( changes['chartType'].currentValue );
+    }
+    if( changes['data'] ) {
+      this._data = this.mapData( changes['data'].currentValue );
+    }
+    if( changes['labels'] ) {
+      this._labels = this.mapLabel( changes['labels'].currentValue );
+    }
+    if( changes['min'] ) {
+      this._min = changes['min'].currentValue;
+      this.updateOptions();
+    }
+    if( changes['max'] ) {
+      this._max = changes['max'].currentValue;
+      this.updateOptions();
+    }
   }
 
   setChartType(chartType) {
