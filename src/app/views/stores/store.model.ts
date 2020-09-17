@@ -10,6 +10,7 @@ export interface Store {
   schemaReadOnly: boolean;
   persistent: boolean;
   columnPlacements: CatalogColumnPlacement[];
+  partitionKeys: number[];
 }
 
 export interface AdapterInformation {

@@ -197,3 +197,13 @@ export interface StackTrace {
   fileName: string;
   lineNumber: number;
 }
+
+export class PartitioningRequest {
+  constructor(
+    public schemaName: string = '',
+    public tableName: string = '',
+    public method: string = 'NONE',//enum in Java
+    public numPartitions: number = 2,
+    public column = ''
+  ) {}
+}

@@ -356,6 +356,7 @@
         <th>DataReadOnly</th>
         <th>SchemaReadOnly</th>
         <th>Columns</th>
+        <th>Partitions</th>
         <th></th>
       </tr>
       </thead>
@@ -370,6 +371,13 @@
             <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{p.columnName}}</span>{{isLast ? '' : ', '}}
           </ng-container>
           <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPlacementModal('MODIFY', store.uniqueName, store.columnPlacements)"></span>
+        </td>
+        <td>
+          <span *ngIf="!store.partitionKeys || store.partitionKeys.length === 0" class="font-italic">none</span>
+          <ng-container *ngFor="let pKey of store.partitionKeys; let isLast = last">
+            <span>{{pKey}}</span>{{isLast ? '' : ', '}}
+          </ng-container>
+          <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPartitioningModal( store.uniqueName )"></span>
         </td>
         <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
         <ng-container *ngIf="dataPlacements.stores.length > 1">
@@ -387,6 +395,45 @@
       </tr>
       </tbody>
     </table>
+
+    <div class="mb-3" style="display: flex; justify-content: flex-end;"><!-- *ngIf="isPartitioned()" -->
+      <button class="btn btn-warning btn-sm" (click)="mergePartitions()">
+        merge partitions
+        <span *ngIf="isMergingPartitions" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <div class="card"><!--*ngIf="!isPartitioned()"-->
+      <div class="card-header">Add data partitioning</div>
+      <div class="card-body">
+        <p>This table is not yet partitioned.</p>
+        <div class="form-inline mb-3">
+          <div class="form-group">
+            <label for="partitionMethod">method</label>
+            <select id="partitionMethod" class="form-control form-control-sm" [(ngModel)]="partitioningRequest.method">
+              <option *ngFor="let type of partitionTypes" [value]="type">{{type}}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="numPartitions">number of partitions </label>
+            <input id="numPartitions" type="number" autocomplete="off" class="form-control form-control-sm"
+                   name="numPartitions" required [(ngModel)]="partitioningRequest.numPartitions">
+            <!--<div class="invalid-feedback">invalid name</div>-->
+          </div>
+          <div class="form-group" *ngIf="resultSet">
+            <label for="partitionCol">column</label>
+            <select name="partitionCol" id="partitionCol" class="form-control form-control-sm" [(ngModel)]="partitioningRequest.column">
+              <option *ngFor="let col of resultSet.header" [value]="col.name">{{col.name}}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <button class="btn btn-primary btn-sm" (click)="partitionTable()">partition</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
 </div>
@@ -422,4 +469,36 @@
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </form>
+</div>
+
+<div bsModal #partitioningModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="clearPartitioningModal()">
+  <!--<form [formGroup]="columnPlacement" *ngIf="columnPlacement">-->
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Modify partitions</h4>
+          <button type="button" class="close" (click)="placementModal.hide()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Store: {{selectedStore}}
+          <p>TODO<br>Select the partitions that you want to be part of the new partitioning.</p>
+          <div class="form-group">
+            <a [routerLink]="[]" class="text-muted">select all</a> - <a [routerLink]="[]" class="text-muted">deselect all</a>
+          </div>
+          <div class="form-group">
+            <div class="form-check form-check-inline">
+              <input type="checkbox" class="form-check-input" [id]="'partitionKey'+1">
+              <label [for]="'partitionKey'+1" class="form-check-label">1</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary float-left" (click)="partitioningModal.hide()">Close</button>
+          <button type="submit" class="btn btn-primary" (click)="modifyPartitioning()">Modify</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  <!--</form>-->
 </div>

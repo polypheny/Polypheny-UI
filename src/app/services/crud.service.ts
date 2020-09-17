@@ -1,7 +1,7 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {Index} from '../components/data-table/models/result-set.model';
+import {Index, PartitioningRequest} from '../components/data-table/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
   UIRequest,
@@ -213,7 +213,6 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/createIndex`, index, this.httpOptions);
   }
 
-
   /**
    * Get data placement information
    */
@@ -228,6 +227,20 @@ export class CrudService {
   addDropPlacement(schema: string, table: string, store: string, method: 'ADD' | 'DROP' | 'MODIFY', columns = []) {
     const index = new Index(schema, table, store, method, columns);
     return this._http.post(`${this.httpUrl}/addDropPlacement`, index, this.httpOptions);
+  }
+
+  // PARTITIONING
+
+  getPartitionTypes () {
+    return this._http.get(`${this.httpUrl}/getPartitionTypes`, this.httpOptions);
+  }
+
+  partitionTable ( request: PartitioningRequest ) {
+    return this._http.post(`${this.httpUrl}/partitionTable`, request, this.httpOptions);
+  }
+
+  mergePartitions ( request: PartitioningRequest ) {
+    return this._http.post(`${this.httpUrl}/mergePartitions`, request, this.httpOptions);
   }
 
   /**
