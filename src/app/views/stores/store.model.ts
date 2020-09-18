@@ -11,6 +11,7 @@ export interface Store {
   persistent: boolean;
   columnPlacements: CatalogColumnPlacement[];
   partitionKeys: number[];
+  numPartitions: number;
 }
 
 export interface AdapterInformation {

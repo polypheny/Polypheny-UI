@@ -1,7 +1,7 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {Index, PartitioningRequest} from '../components/data-table/models/result-set.model';
+import {Index, ModifyPartitionRequest, PartitioningRequest} from '../components/data-table/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
   UIRequest,
@@ -241,6 +241,10 @@ export class CrudService {
 
   mergePartitions ( request: PartitioningRequest ) {
     return this._http.post(`${this.httpUrl}/mergePartitions`, request, this.httpOptions);
+  }
+
+  modifyPartitions ( request: ModifyPartitionRequest ) {
+    return this._http.post(`${this.httpUrl}/modifyPartitions`, request, this.httpOptions);
   }
 
   /**

@@ -5,7 +5,7 @@ import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.
 import {CrudService} from '../../../services/crud.service';
 import {
   DbColumn,
-  Index,
+  Index, ModifyPartitionRequest,
   PartitioningRequest,
   PolyType,
   ResultSet,
@@ -18,6 +18,7 @@ import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../stores/store.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
+import {UtilService} from '../../../services/util.service';
 
 @Component({
   selector: 'app-edit-columns',
@@ -57,7 +58,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   //data placement handling
   stores: Store[];
-  selectedStore;
+  selectedStore: Store;
   dataPlacements: Placements;
   confirmPlacement = -1;
   columnPlacement: FormGroup;
@@ -67,6 +68,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   partitionTypes: string[];
   partitioningRequest: PartitioningRequest = new PartitioningRequest();
   isMergingPartitions = false;
+  partitionsToModify: boolean[];
 
   @ViewChild('placementModal', {static: false}) public placementModal: ModalDirective;
   @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
@@ -506,7 +508,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         for(const s of this.dataPlacements.stores){
           s.columnPlacements.sort((a,b) => a.columnId - b.columnId);
         }
-        console.log(this.dataPlacements);
         if( this.dataPlacements.exception ){
           // @ts-ignore
           this._toast.exception( {error: this.dataPlacements.exception.detailMessage, exception: this.dataPlacements.exception} );
@@ -554,22 +555,22 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         cols.push(k);
       }
     }
-    this._crud.addDropPlacement(this.schema, this.table, this.selectedStore, this.placementMethod, cols).subscribe(
+    this._crud.addDropPlacement(this.schema, this.table, this.selectedStore.uniqueName, this.placementMethod, cols).subscribe(
       res => {
         const result = <ResultSet> res;
         if( result.error ) {
           this._toast.exception( result );
         } else {
           if( this.placementMethod === 'ADD' ){
-            this._toast.success( 'Added placement on store ' + this.selectedStore, 'Added placement' );
+            this._toast.success( 'Added placement on store ' + this.selectedStore.uniqueName, 'Added placement' );
           } else if( this.placementMethod === 'MODIFY' ){
-            this._toast.success( 'Modified placement on store ' + this.selectedStore, 'Modified placement' );
+            this._toast.success( 'Modified placement on store ' + this.selectedStore.uniqueName, 'Modified placement' );
           }
           this.getPlacementsAndPartitions();
         }
         this.selectedStore = null;
       }, err => {
-        this._toast.error( 'Could not ' + this.placementMethod.toLowerCase() + ' placement on store ' + this.selectedStore );
+        this._toast.error( 'Could not ' + this.placementMethod.toLowerCase() + ' placement on store ' + this.selectedStore.uniqueName );
       }
     ).add(() => this.placementModal.hide());
   }
@@ -667,16 +668,48 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   modifyPartitioning () {
-    //TODO
+    const partitions = [];
+    for( let i = 0; i < this.partitionsToModify.length; i++) {
+      if( this.partitionsToModify[i] ) {
+        partitions.push(i);
+      }
+    }
+    const split = this.tableId.split('\.');
+    const request = new ModifyPartitionRequest( split[0], split[1], partitions, this.selectedStore.uniqueName );
+    this._crud.modifyPartitions( request ).subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if( !result.error ) {
+          this.partitioningModal.hide();
+          this._toast.success('Modified partitions');
+          this.getPlacementsAndPartitions();
+          console.log(result.info.generatedQuery);
+        } else {
+          this._toast.exception(result);
+          console.log(result.info.generatedQuery);
+        }
+      }, err => {
+        this._toast.error('Could not modify the partitioning');
+      }
+    );
   }
 
-  initPartitioningModal( store: string ){
-    this.partitioningModal.show();
+  initPartitioningModal( store: Store ){
+    this.partitionsToModify = new Array( store.numPartitions ).fill(true);
     this.selectedStore = store;
+    this.partitioningModal.show();
   }
 
   clearPartitioningModal(){
     this.selectedStore = null;
+  }
+
+  selectAllPartitions ( select: boolean) {
+    if( select ) {
+      this.partitionsToModify = new Array( this.selectedStore.numPartitions ).fill(true);
+    } else {
+      this.partitionsToModify = new Array( this.selectedStore.numPartitions ).fill(false);
+    }
   }
 
   dropIndex(index: string, i) {

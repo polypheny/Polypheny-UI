@@ -207,3 +207,12 @@ export class PartitioningRequest {
     public column = ''
   ) {}
 }
+
+export class ModifyPartitionRequest {
+  constructor(
+    public schemaName: string,
+    public tableName: string,
+    public partitions: number[],
+    public storeUniqueName: string
+  ) {}
+}

@@ -335,12 +335,12 @@
         <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="stores && stores.length>3">
           <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
             <span *ngIf="!selectedStore">Select store</span>
-            <span *ngIf="selectedStore">{{selectedStore}}</span>
+            <span *ngIf="selectedStore">{{selectedStore.uniqueName}}</span>
             <span class="caret"></span>
           </button>
           <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
             <ng-container *ngFor="let store of getAddableStores()">
-              <li role="menuitem"><a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = store.uniqueName">{{store.uniqueName}}</a></li>
+              <li role="menuitem"><a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = store">{{store.uniqueName}}</a></li>
             </ng-container>
             <li *ngIf="getAddableStores().length === 0" role="menuitem"><a class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
           </ul>
@@ -370,14 +370,14 @@
           <ng-container *ngFor="let p of store.columnPlacements; let isLast = last">
             <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{p.columnName}}</span>{{isLast ? '' : ', '}}
           </ng-container>
-          <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPlacementModal('MODIFY', store.uniqueName, store.columnPlacements)"></span>
+          <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPlacementModal('MODIFY', store, store.columnPlacements)"></span>
         </td>
         <td>
           <span *ngIf="!store.partitionKeys || store.partitionKeys.length === 0" class="font-italic">none</span>
           <ng-container *ngFor="let pKey of store.partitionKeys; let isLast = last">
             <span>{{pKey}}</span>{{isLast ? '' : ', '}}
           </ng-container>
-          <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPartitioningModal( store.uniqueName )"></span>
+          <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPartitioningModal( store )"></span>
         </td>
         <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
         <ng-container *ngIf="dataPlacements.stores.length > 1">
@@ -448,8 +448,8 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body" *ngIf="columnPlacement">
-          Store: {{selectedStore}}
+        <div class="modal-body" *ngIf="columnPlacement && selectedStore">
+          Store: {{selectedStore.uniqueName}}
           <p>Select the columns that you want to be part of the placement.</p>
           <div class="form-group">
             <a [routerLink]="[]" class="text-muted" (click)="selectAllColumns(true)">select all</a> - <a [routerLink]="[]" class="text-muted" (click)="selectAllColumns(false)">deselect all</a>
@@ -474,7 +474,7 @@
 <div bsModal #partitioningModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="clearPartitioningModal()">
   <!--<form [formGroup]="columnPlacement" *ngIf="columnPlacement">-->
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
+      <div class="modal-content" *ngIf="selectedStore && partitionsToModify">
         <div class="modal-header">
           <h4 class="modal-title">Modify partitions</h4>
           <button type="button" class="close" (click)="placementModal.hide()" aria-label="Close">
@@ -482,21 +482,22 @@
           </button>
         </div>
         <div class="modal-body">
-          Store: {{selectedStore}}
+          Store: {{selectedStore.uniqueName}}
           <p>TODO<br>Select the partitions that you want to be part of the new partitioning.</p>
           <div class="form-group">
-            <a [routerLink]="[]" class="text-muted">select all</a> - <a [routerLink]="[]" class="text-muted">deselect all</a>
+            <a [routerLink]="[]" class="text-muted" (click)="selectAllPartitions(true)">select all</a> - <a [routerLink]="[]" class="text-muted" (click)="selectAllPartitions(false)">deselect all</a>
           </div>
-          <div class="form-group">
-            <div class="form-check form-check-inline">
-              <input type="checkbox" class="form-check-input" [id]="'partitionKey'+1">
-              <label [for]="'partitionKey'+1" class="form-check-label">1</label>
+          <div class="form-group mb-0">
+            <div class="form-check form-check-inline" *ngFor="let p of partitionsToModify | keyvalue">
+              <input type="checkbox" class="form-check-input" [id]="'partitionKey'+p.key" [(ngModel)]="partitionsToModify[p.key]">
+              <label [for]="'partitionKey'+p.key" class="form-check-label">{{p.key}}</label>
             </div>
           </div>
+          <span class="text-danger" *ngIf="!partitionsToModify.includes(true)">Please select at least one partition</span>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary float-left" (click)="partitioningModal.hide()">Close</button>
-          <button type="submit" class="btn btn-primary" (click)="modifyPartitioning()">Modify</button>
+          <button type="submit" class="btn btn-primary" (click)="modifyPartitioning()" [disabled]="!partitionsToModify.includes(true)">Modify</button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
