@@ -396,14 +396,14 @@
       </tbody>
     </table>
 
-    <div class="mb-3" style="display: flex; justify-content: flex-end;"><!-- *ngIf="isPartitioned()" -->
+    <div class="mb-3" style="display: flex; justify-content: flex-end;" *ngIf="isPartitioned()">
       <button class="btn btn-warning btn-sm" (click)="mergePartitions()">
         merge partitions
         <span *ngIf="isMergingPartitions" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
       </button>
     </div>
 
-    <div class="card"><!--*ngIf="!isPartitioned()"-->
+    <div class="card" *ngIf="!isPartitioned()">
       <div class="card-header">Add data partitioning</div>
       <div class="card-body">
         <p>This table is not yet partitioned.</p>
@@ -477,7 +477,7 @@
       <div class="modal-content" *ngIf="selectedStore && partitionsToModify">
         <div class="modal-header">
           <h4 class="modal-title">Modify partitions</h4>
-          <button type="button" class="close" (click)="placementModal.hide()" aria-label="Close">
+          <button type="button" class="close" (click)="partitioningModal.hide()" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>

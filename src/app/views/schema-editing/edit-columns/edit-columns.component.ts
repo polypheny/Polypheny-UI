@@ -613,12 +613,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     if( !this.dataPlacements || !this.dataPlacements.stores ) {
       return false;
     }
-    for( const store of this.dataPlacements.stores ) {
-      if( store.partitionKeys.length > 0 ) {
-        return true;
-      }
-    }
-    return false;
+    return this.dataPlacements.isPartitioned;
   }
 
   partitionTable () {

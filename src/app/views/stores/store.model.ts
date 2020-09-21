@@ -33,6 +33,7 @@ export interface AdapterSetting {
 export interface Placements {
   stores: Store[];
   exception: ResultException;
+  isPartitioned: boolean;
 }
 
 export interface CatalogColumnPlacement {
