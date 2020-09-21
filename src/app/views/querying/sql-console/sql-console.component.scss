@@ -28,6 +28,7 @@ select{
     display: flex;
     flex-direction: row;
     align-items: center;
+    min-height: min-content;// safari fix
 
     .history-time-wrapper{
       display: flex;
