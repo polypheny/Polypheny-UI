@@ -356,7 +356,7 @@
         <th>DataReadOnly</th>
         <th>SchemaReadOnly</th>
         <th>Columns</th>
-        <th>Partitions</th>
+        <th>Partitions</th><!-- *ngIf="isPartitioned()" -->
         <th></th>
       </tr>
       </thead>
@@ -372,7 +372,7 @@
           </ng-container>
           <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPlacementModal('MODIFY', store, store.columnPlacements)"></span>
         </td>
-        <td>
+        <td><!-- *ngIf="isPartitioned()" -->
           <span *ngIf="!store.partitionKeys || store.partitionKeys.length === 0" class="font-italic">none</span>
           <ng-container *ngFor="let pKey of store.partitionKeys; let isLast = last">
             <span>{{pKey}}</span>{{isLast ? '' : ', '}}
@@ -444,7 +444,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">Column placements</h4>
-          <button type="button" class="close" (click)="placementModal.hide()" aria-label="Close">
+          <button type="button" class="close" (click)="placementModal.hide()" aria-label="Close" [disabled]="isAddingPlacement">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -462,9 +462,12 @@
           </div>
 
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary float-left" (click)="placementModal.hide()">Close</button>
-          <button type="submit" class="btn btn-primary" (click)="addPlacement()">{{titleCase(placementMethod)}} placement</button>
+        <div class="modal-footer" style="position: relative">
+          <div class="progress-wrapper" *ngIf="isAddingPlacement">
+            <progressbar type="info" [value]="0" [max]="100" class="progress progress-bar progress-bar-striped progress-bar-animated"></progressbar>
+          </div>
+          <button type="button" class="btn btn-secondary float-left" (click)="placementModal.hide()" [disabled]="isAddingPlacement">Close</button>
+          <button type="submit" class="btn btn-primary" (click)="addPlacement()" [disabled]="isAddingPlacement">{{titleCase(placementMethod)}} placement</button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -483,7 +486,7 @@
         </div>
         <div class="modal-body">
           Store: {{selectedStore.uniqueName}}
-          <p>TODO<br>Select the partitions that you want to be part of the new partitioning.</p>
+          <p>Select the partitions that you want to be part of the new partitioning.</p>
           <div class="form-group">
             <a [routerLink]="[]" class="text-muted" (click)="selectAllPartitions(true)">select all</a> - <a [routerLink]="[]" class="text-muted" (click)="selectAllPartitions(false)">deselect all</a>
           </div>

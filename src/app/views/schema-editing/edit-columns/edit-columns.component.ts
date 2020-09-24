@@ -18,7 +18,6 @@ import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../stores/store.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
-import {UtilService} from '../../../services/util.service';
 
 @Component({
   selector: 'app-edit-columns',
@@ -63,6 +62,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   confirmPlacement = -1;
   columnPlacement: FormGroup;
   placementMethod: 'ADD' | 'MODIFY' | 'DROP';
+  isAddingPlacement = false;
 
   //partition handling
   partitionTypes: string[];
@@ -555,6 +555,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         cols.push(k);
       }
     }
+    this.isAddingPlacement = true;
     this._crud.addDropPlacement(this.schema, this.table, this.selectedStore.uniqueName, this.placementMethod, cols).subscribe(
       res => {
         const result = <ResultSet> res;
@@ -572,7 +573,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       }, err => {
         this._toast.error( 'Could not ' + this.placementMethod.toLowerCase() + ' placement on store ' + this.selectedStore.uniqueName );
       }
-    ).add(() => this.placementModal.hide());
+    ).add(() => {
+      this.isAddingPlacement = false;
+      this.placementModal.hide();
+    });
   }
 
   dropPlacement(store: string, i: number) {
