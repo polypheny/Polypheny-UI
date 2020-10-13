@@ -34,6 +34,7 @@ import {ModalModule} from 'ngx-bootstrap/modal';
 import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import { NgxSliderModule } from '@m0t0r/ngx-slider';
+import { QueryInterfacesComponent } from './query-interfaces/query-interfaces.component';
 
 
 @NgModule({
@@ -78,7 +79,8 @@ import { NgxSliderModule } from '@m0t0r/ngx-slider';
     HubComponent,
     RefinementOptionsComponent,
     ExploreByExampleComponent,
-    AboutComponent
+    AboutComponent,
+    QueryInterfacesComponent
   ],
     exports: [
         ExploreByExampleComponent

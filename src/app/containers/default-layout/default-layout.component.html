@@ -46,7 +46,7 @@
     </li>
 
     <li class="nav-item" dropdown triggers="mouseover" placement="bottom left" #dropdown="bs-dropdown" (mouseleave)="dropdown.hide()">
-        <a class="nav-link dropdown-toggle p-2" dropdownToggle [routerLink]="['/views/querying']">
+        <a class="nav-link dropdown-toggle py-2 px-3" dropdownToggle [routerLink]="['/views/querying']">
           <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Query</span>
         </a>
         <div class="dropdown-menu dropdown-menu-left text-center" *dropdownMenu style="margin-top: -1px;">
@@ -71,8 +71,14 @@
       </a>
     </li>
 
+    <li class="nav-item px-3">
+      <a [routerLink]="['/views/queryInterfaces']" class="nav-link" routerLinkActive="active">
+        <i class="fa fa-exchange"></i><span class="d-md-down-none">Interfaces</span>
+      </a>
+    </li>
+
     <li class="nav-item" dropdown triggers="mouseover" placement="bottom left" #dropdownHub="bs-dropdown" (mouseleave)="dropdownHub.hide()">
-      <a class="nav-link dropdown-toggle p-2" dropdownToggle [routerLink]="['/views/hub']" routerLinkActive="active">
+      <a class="nav-link dropdown-toggle py-2 px-3" dropdownToggle [routerLink]="['/views/hub']" routerLinkActive="active">
         <i class="fa fa-cloud"></i><span class="d-md-down-none">Hub</span>
       </a>
       <div class="dropdown-menu dropdown-menu-left text-center" *dropdownMenu style="margin-top: -1px;">
