@@ -12,6 +12,7 @@ export interface Store {
   columnPlacements: CatalogColumnPlacement[];
   partitionKeys: number[];
   numPartitions: number;
+  partitionType: PartitionType;
 }
 
 export interface AdapterInformation {
@@ -34,6 +35,7 @@ export interface Placements {
   stores: Store[];
   exception: ResultException;
   isPartitioned: boolean;
+  partitionNames: string[];
 }
 
 export interface CatalogColumnPlacement {
@@ -44,4 +46,12 @@ export interface CatalogColumnPlacement {
 
 export enum PlacementType {
   MANUAL='MANUAL', AUTOMATIC='AUTOMATIC'
+}
+
+export enum PartitionType {
+  NONE,
+  RANGE,
+  LIST,
+  HASH,
+  ROUNDROBIN
 }

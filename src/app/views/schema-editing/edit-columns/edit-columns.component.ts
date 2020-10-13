@@ -68,7 +68,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   partitionTypes: string[];
   partitioningRequest: PartitioningRequest = new PartitioningRequest();
   isMergingPartitions = false;
-  partitionsToModify: boolean[];
+  partitionsToModify: { partitionName: string, selected: boolean }[];
 
   @ViewChild('placementModal', {static: false}) public placementModal: ModalDirective;
   @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
@@ -668,9 +668,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   modifyPartitioning () {
     const partitions = [];
-    for( let i = 0; i < this.partitionsToModify.length; i++) {
-      if( this.partitionsToModify[i] ) {
-        partitions.push(i);
+    for(let i = 0; i < this.partitionsToModify.length; i++) {
+      if( this.partitionsToModify[i].selected ) {
+        partitions.push(this.partitionsToModify[i].partitionName);
       }
     }
     const split = this.tableId.split('\.');
@@ -694,7 +694,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   initPartitioningModal( store: Store ){
-    this.partitionsToModify = new Array( store.numPartitions ).fill(true);
+    this.partitionsToModify = [];
+    for( let i = 0; i < this.dataPlacements.partitionNames.length; i++ ) {
+      this.partitionsToModify.push({
+        partitionName: this.dataPlacements.partitionNames[i],
+        selected: store.partitionKeys.includes(i)
+      });
+    }
     this.selectedStore = store;
     this.partitioningModal.show();
   }
@@ -704,10 +710,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   selectAllPartitions ( select: boolean) {
-    if( select ) {
-      this.partitionsToModify = new Array( this.selectedStore.numPartitions ).fill(true);
-    } else {
-      this.partitionsToModify = new Array( this.selectedStore.numPartitions ).fill(false);
+    for( const p of this.partitionsToModify ) {
+      p.selected = select;
     }
   }
 
@@ -808,6 +812,17 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }else{
       return 'is-valid';
     }
+  }
+
+  validatePartitionModification () {
+    if( this.partitionsToModify ){
+      for( const p of this.partitionsToModify ){
+        if( p.selected ){
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   titleCase ( name ) {

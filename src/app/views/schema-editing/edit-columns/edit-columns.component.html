@@ -375,7 +375,7 @@
         <td><!-- *ngIf="isPartitioned()" -->
           <span *ngIf="!store.partitionKeys || store.partitionKeys.length === 0" class="font-italic">none</span>
           <ng-container *ngFor="let pKey of store.partitionKeys; let isLast = last">
-            <span>{{pKey}}</span>{{isLast ? '' : ', '}}
+            <span>{{dataPlacements.partitionNames[pKey]}}</span>{{isLast ? '' : ', '}}
           </ng-container>
           <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPartitioningModal( store )"></span>
         </td>
@@ -396,7 +396,8 @@
       </tbody>
     </table>
 
-    <div class="mb-3" style="display: flex; justify-content: flex-end;" *ngIf="isPartitioned()">
+    <div class="mb-3" style="display: flex; justify-content: space-between;" *ngIf="isPartitioned()">
+      <span>PartitionType: {{dataPlacements.stores[0].partitionType}}</span>
       <button class="btn btn-warning btn-sm" (click)="mergePartitions()">
         merge partitions
         <span *ngIf="isMergingPartitions" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -492,15 +493,15 @@
           </div>
           <div class="form-group mb-0">
             <div class="form-check form-check-inline" *ngFor="let p of partitionsToModify | keyvalue">
-              <input type="checkbox" class="form-check-input" [id]="'partitionKey'+p.key" [(ngModel)]="partitionsToModify[p.key]">
-              <label [for]="'partitionKey'+p.key" class="form-check-label">{{p.key}}</label>
+              <input type="checkbox" class="form-check-input" [id]="'partitionKey'+p.key" [(ngModel)]="partitionsToModify[p.key].selected">
+              <label [for]="'partitionKey'+p.key" class="form-check-label">{{partitionsToModify[p.key].partitionName}}</label>
             </div>
           </div>
-          <span class="text-danger" *ngIf="!partitionsToModify.includes(true)">Please select at least one partition</span>
+          <span class="text-danger" *ngIf="!validatePartitionModification()">Please select at least one partition</span>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary float-left" (click)="partitioningModal.hide()">Close</button>
-          <button type="submit" class="btn btn-primary" (click)="modifyPartitioning()" [disabled]="!partitionsToModify.includes(true)">Modify</button>
+          <button type="submit" class="btn btn-primary" (click)="modifyPartitioning()" [disabled]="!validatePartitionModification()">Modify</button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
