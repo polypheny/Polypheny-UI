@@ -152,8 +152,8 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="storeSettingsModal.hide()">Close</button>
-        <button *ngIf="editingStore" type="submit" class="btn btn-primary" (click)="saveStoreSettings()">Save</button>
-        <button *ngIf="editingAdapter" type="submit" class="btn btn-primary" (click)="deploy()">Deploy</button>
+        <button *ngIf="editingStore" type="submit" class="btn btn-primary" (click)="saveStoreSettings()" [disabled]="!editingStoreForm.valid">Save</button>
+        <button *ngIf="editingAdapter" type="submit" class="btn btn-primary" (click)="deploy()" [disabled]="!adapterUniqueNameForm.valid || !editingAdapterForm.valid">Deploy</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->

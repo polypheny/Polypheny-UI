@@ -114,7 +114,12 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
     }
     this._crud.updateQueryInterfaceSettings( queryInterface ).subscribe(
       res => {
-        this._toast.success('updated queryInterface settings');
+        const result = <ResultSet> res;
+        if( !result.error ) {
+          this._toast.success('updated queryInterface settings');
+        } else {
+          this._toast.exception( result );
+        }
         this.QISettingsModal.hide();
         this.getQueryInterfaces();
       }, err => {
@@ -172,15 +177,17 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
     }
     this._crud.addQueryInterface( deploy ).subscribe(
       res => {
-        if(<boolean> res === true){
+        const result = <ResultSet> res;
+        if( !result.error ){
           this._toast.success('Added query interface');
           this._router.navigate(['./../'], {relativeTo: this._route});
         } else {
-          this._toast.warn('Could not add query interface');
+          this._toast.exception( result );
         }
         this.QISettingsModal.hide();
       }, err => {
         this._toast.error('Could not add query interface');
+        console.log(err);
       }
     );
   }
