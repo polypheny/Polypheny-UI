@@ -54,11 +54,14 @@
         <div class="card-body">
           <img *ngIf="getLogo(store.adapterName)" [src]="getLogo(store.adapterName)" alt="" class="logo">
           <i *ngIf="!getLogo(store.adapterName)" class="logo fa fa-database"></i>
-          <span class="mb-1">Adapter: {{store.adapterName}}</span>
+          <span class="mb-2">Adapter: {{store.adapterName}}</span>
 
           <span *ngIf="store.schemaReadOnly"><span class="fa fa-lock" style="padding-left: 2px"></span> schema-read-only</span>
+          <!--<span *ngIf="!store.schemaReadOnly"><span class="fa fa-cubes" style="padding-left: 2px; width:1.4em"></span> supports schema changes</span>-->
           <span *ngIf="store.dataReadOnly"><span class="fa fa-eye"></span> data-read-only</span>
+          <!--<span *ngIf="!store.dataReadOnly"><span class="icon-pencil" style="display: inline-block; width:1.4em"></span> supports data modification</span>-->
           <span *ngIf="store.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
+          <!--<span *ngIf="!store.persistent"><span class="cui-cloud" style="display: inline-block; padding-left: 1px; width:1.4em"></span> volatile</span>-->
 
         </div>
         <div class="card-footer bg-transparent">
@@ -152,8 +155,8 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="storeSettingsModal.hide()">Close</button>
-        <button *ngIf="editingStore" type="submit" class="btn btn-primary" (click)="saveStoreSettings()">Save</button>
-        <button *ngIf="editingAdapter" type="submit" class="btn btn-primary" (click)="deploy()">Deploy</button>
+        <button *ngIf="editingStore" type="submit" class="btn btn-primary" (click)="saveStoreSettings()" [disabled]="!editingStoreForm.valid">Save</button>
+        <button *ngIf="editingAdapter" type="submit" class="btn btn-primary" (click)="deploy()" [disabled]="!adapterUniqueNameForm.valid || !editingAdapterForm.valid">Deploy</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->

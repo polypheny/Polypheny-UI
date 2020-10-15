@@ -18,6 +18,7 @@ import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
 import {Store} from '../views/stores/store.model';
+import {QueryInterface} from '../views/query-interfaces/query-interfaces.model';
 
 @Injectable({
   providedIn: 'root'
@@ -365,6 +366,26 @@ export class CrudService {
 
   removeStore( storeId: string ){
     return this._http.post( `${this.httpUrl}/removeStore`, storeId, this.httpOptions );
+  }
+
+  getQueryInterfaces () {
+    return this._http.get( `${this.httpUrl}/getQueryInterfaces` );
+  }
+
+  getAvailableQueryInterfaces () {
+    return this._http.get( `${this.httpUrl}/getAvailableQueryInterfaces` );
+  }
+
+  addQueryInterface( request: any ) {
+    return this._http.post( `${this.httpUrl}/addQueryInterface`, request, this.httpOptions );
+  }
+
+  updateQueryInterfaceSettings( request: QueryInterface ) {
+    return this._http.post( `${this.httpUrl}/updateQueryInterfaceSettings`, request, this.httpOptions );
+  }
+
+  removeQueryInterface( queryInterfaceId: string ){
+    return this._http.post( `${this.httpUrl}/removeQueryInterface`, queryInterfaceId, this.httpOptions );
   }
 
   getNameValidator ( required: boolean = false ) {

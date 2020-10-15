@@ -47,25 +47,26 @@
   right: 15px;
   top: 0.5em;
 }
-#adapter-table img{
+#aqi-table img{
   max-width: 50px;
   max-height: 50px;
 }
-#adapter-table tr td:first-child{
+#aqi tr td:first-child{
   padding:0.5em;
 }
-#stores .logo{
+#queryInterfaces .logo{
   max-width: 60px;
   max-height: 60px;
   float: right;
   font-size: 50px;
 }
-#stores .card .card-body{
+#queryInterfaces .card .card-body{
   overflow: auto;
   > span {
     display: block;
     span{
-      width: 1.2em;
+      width: 1.4em;
+      display: inline-block;
     }
   }
 }

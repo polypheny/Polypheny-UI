@@ -9,6 +9,7 @@ import {QueryingComponent} from './querying/querying.component';
 import {StoresComponent} from './stores/stores.component';
 import {HubComponent} from './hub/hub.component';
 import {AboutComponent} from './about/about.component';
+import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 
 const routes: Routes = [
   {
@@ -113,6 +114,20 @@ const routes: Routes = [
     component: StoresComponent,
     data: {
       title: 'Stores'
+    }
+  },
+  {
+    path: 'queryInterfaces',
+    component: QueryInterfacesComponent,
+    data: {
+      title: 'QueryInterfaces'
+    }
+  },
+  {
+    path: 'queryInterfaces/:action',
+    component: QueryInterfacesComponent,
+    data: {
+      title: 'QueryInterfaces'
     }
   },
   {
