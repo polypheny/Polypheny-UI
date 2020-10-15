@@ -59,9 +59,9 @@ export class GraphComponent implements OnInit, OnChanges {
   colorList = [
     '#20a8d8',
     '#f86c6b',
-    '#814848',
-    '#21576A',
     '#ffc107',
+    '#21576A',
+    '#814848',
     '#88bb9a',
     '#3a7c96',
     '#914661',
@@ -90,19 +90,20 @@ export class GraphComponent implements OnInit, OnChanges {
       this.getColor(6),
       this.getColor(7),
       this.getColor(8),
-    ]
+    ],
+    borderWidth: 1
   }];
 
   barColors = [
-    { backgroundColor: hexToRgba( this.getColor(0), 60 ) },
-    { backgroundColor: hexToRgba( this.getColor(1), 60 ) },
-    { backgroundColor: hexToRgba( this.getColor(2), 60 ) },
-    { backgroundColor: hexToRgba( this.getColor(3), 60 ) },
-    { backgroundColor: hexToRgba( this.getColor(4), 60 ) },
-    { backgroundColor: hexToRgba( this.getColor(5), 60 ) },
-    { backgroundColor: hexToRgba( this.getColor(6), 60 ) },
-    { backgroundColor: hexToRgba( this.getColor(7), 60 ) },
-    { backgroundColor: hexToRgba( this.getColor(8), 60 ) },
+    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(0), 60 ) },
+    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(1), 60 ) },
+    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(2), 60 ) },
+    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(3), 60 ) },
+    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(4), 60 ) },
+    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(5), 60 ) },
+    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(6), 60 ) },
+    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(7), 60 ) },
+    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(8), 60 ) },
   ];
 
   legend = true;
