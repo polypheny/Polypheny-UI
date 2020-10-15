@@ -62,6 +62,16 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
         self._crud.closeAnalyzer(self.analyzerId).subscribe();
       }
     };
+    // hit alt-enter to execute a query with the current "save in history" option
+    // hit alt-shift-enter to execute a query in "incognito" mode, no matter of the current "save in history" option
+    window.onkeydown = function (e) {
+      if( e.key === 'Enter' && e.altKey ){
+        if( e.shiftKey ) {
+          self.saveInHistory = false;
+        }
+        self.submitQuery();
+      }
+    };
     this.initWebsocket();
   }
 
@@ -77,6 +87,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     }
     this.subscriptions.unsubscribe();
     this._breadcrumb.hide();
+    window.onbeforeunload = null;
+    window.onkeydown = null;
   }
 
   submitQuery() {
