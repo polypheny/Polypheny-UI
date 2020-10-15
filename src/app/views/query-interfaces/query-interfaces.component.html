@@ -48,8 +48,23 @@
         </div>
         <div class="card-body">
 
-          <span class="mb-1">Type: {{queryInterface.interfaceType}}</span>
-          <span class="mb-1">Id: {{queryInterface.queryInterfaceId}}</span>
+          <span class="mb-2">Type: {{queryInterface.interfaceType}}</span>
+          <span class="mb-0" *ngIf="queryInterface.supportsDdl">
+            <span class="fa fa-cubes"></span>
+            Supports schema changes<!--DDL-->
+          </span>
+          <!--<span class="mb-0" *ngIf="!queryInterface.supportsDdl">
+            <span class="fa fa-lock"></span>
+            schema-read-only
+          </span>-->
+          <span class="mb-0" *ngIf="queryInterface.supportsDml">
+            <span class="icon-pencil"></span>
+            Supports data manipulation<!--DML-->
+          </span>
+          <!--<span class="mb-0" *ngIf="!queryInterface.supportsDml">
+            <span class="fa fa-eye"></span>
+            data-read-only
+          </span>-->
 
         </div>
         <div class="card-footer bg-transparent">

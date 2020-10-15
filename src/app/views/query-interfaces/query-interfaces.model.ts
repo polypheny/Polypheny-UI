@@ -1,6 +1,7 @@
 export interface QueryInterface {
-  queryInterfaceId: number;
   uniqueName: string;
+  supportsDdl: boolean;
+  supportsDml: boolean;
   interfaceType: string;
   availableSettings: QueryInterfaceSetting[];
   currentSettings: Map<string, string>;
