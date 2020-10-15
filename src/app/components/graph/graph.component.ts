@@ -54,17 +54,55 @@ export class GraphComponent implements OnInit, OnChanges {
     }
   };
 
-  colors: Array<any> = [
-    { // brandInfo
-      backgroundColor: hexToRgba(getStyle('--info'), 60),
-      borderColor: getStyle('--info'),
-      pointHoverBackgroundColor: '#fff'
-    },
-    { // brandSuccess
-      backgroundColor: hexToRgba(getStyle('--success'), 60),
-      borderColor: getStyle('--success'),
-      pointHoverBackgroundColor: '#fff'
-    }
+  colors;//will be assigned in function
+
+  colorList = [
+    '#20a8d8',
+    '#f86c6b',
+    '#814848',
+    '#21576A',
+    '#ffc107',
+    '#88bb9a',
+    '#3a7c96',
+    '#914661',
+    '#bfa0ab',
+  ];
+
+  doughnutPolarColors = [{
+    backgroundColor: [
+      hexToRgba( this.getColor(0), 60),
+      hexToRgba( this.getColor(1), 60),
+      hexToRgba( this.getColor(2), 60),
+      hexToRgba( this.getColor(3), 60),
+      hexToRgba( this.getColor(4), 60),
+      hexToRgba( this.getColor(5), 60),
+      hexToRgba( this.getColor(6), 60),
+      hexToRgba( this.getColor(7), 60),
+      hexToRgba( this.getColor(8), 60),
+    ],
+    borderColor: [
+      this.getColor(0),
+      this.getColor(1),
+      this.getColor(2),
+      this.getColor(3),
+      this.getColor(4),
+      this.getColor(5),
+      this.getColor(6),
+      this.getColor(7),
+      this.getColor(8),
+    ]
+  }];
+
+  barColors = [
+    { backgroundColor: hexToRgba( this.getColor(0), 60 ) },
+    { backgroundColor: hexToRgba( this.getColor(1), 60 ) },
+    { backgroundColor: hexToRgba( this.getColor(2), 60 ) },
+    { backgroundColor: hexToRgba( this.getColor(3), 60 ) },
+    { backgroundColor: hexToRgba( this.getColor(4), 60 ) },
+    { backgroundColor: hexToRgba( this.getColor(5), 60 ) },
+    { backgroundColor: hexToRgba( this.getColor(6), 60 ) },
+    { backgroundColor: hexToRgba( this.getColor(7), 60 ) },
+    { backgroundColor: hexToRgba( this.getColor(8), 60 ) },
   ];
 
   legend = true;
@@ -105,6 +143,13 @@ export class GraphComponent implements OnInit, OnChanges {
     if (chartType === 'polararea') {
       chartType = 'polarArea';
     }
+    if (chartType === 'doughnut' || chartType === 'polarArea'){
+      this.colors = this.doughnutPolarColors;
+    } else if (chartType === 'bar'){
+      this.colors = this.barColors;
+    } else {
+      this.colors = undefined;
+    }
     this._chartType = chartType;
     const showAxes = ['bar', 'line'].includes(this._chartType);
     this.options.scales.xAxes[0].display = showAxes;
@@ -134,6 +179,10 @@ export class GraphComponent implements OnInit, OnChanges {
       if(this._min) this.options.scales.yAxes[0].ticks.suggestedMin = this._min;
       if(this._max) this.options.scales.yAxes[0].ticks.suggestedMax = this._max;
     }
+  }
+
+  getColor ( i: number ) {
+    return this.colorList[i];
   }
 
 }
