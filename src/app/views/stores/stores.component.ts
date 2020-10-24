@@ -229,6 +229,8 @@ export class StoresComponent implements OnInit, OnDestroy {
         return path + 'monetdb.png';
       case 'Cassandra':
         return path + 'cassandra.png';
+      case 'Cottontail-DB':
+        return path + 'cottontaildb.png';
       default:
         return null;
     }
