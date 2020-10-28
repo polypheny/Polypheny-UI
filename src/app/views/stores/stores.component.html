@@ -23,8 +23,12 @@
         <tbody>
           <tr *ngFor="let adapter of adapters">
             <td class="center">
-              <img *ngIf="getLogo(adapter.name)" [src]="getLogo(adapter.name)" alt="">
-              <i *ngIf="!getLogo(adapter.name)" class="fa fa-database"></i>
+              <ng-container *ngIf="getLogo(adapter.name).startsWith('assets/')">
+                <img [src]="getLogo(adapter.name)" alt="">
+              </ng-container>
+              <ng-container *ngIf="!getLogo(adapter.name).startsWith('assets/')">
+                <i [class]="getLogo(adapter.name)"></i>
+              </ng-container>
             </td>
             <td><strong>{{adapter.name}}</strong></td>
             <td>{{adapter.description}}</td>

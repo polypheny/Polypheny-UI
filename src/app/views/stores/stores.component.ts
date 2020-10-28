@@ -231,8 +231,10 @@ export class StoresComponent implements OnInit, OnDestroy {
         return path + 'cassandra.png';
       case 'Cottontail-DB':
         return path + 'cottontaildb.png';
+      case 'File':
+        return 'fa fa-file-image-o';
       default:
-        return null;
+        return 'fa fa-database';
     }
   }
 
