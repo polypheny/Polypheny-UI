@@ -228,7 +228,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this._toast.success('Generated table ' + request.table);
           this.newColumns.clear();
           this.counter = 0;
-          this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0].name, '', null, null ));
+          this.newColumns.set(this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null ));
           this.newTableName = '';
           this.selectedStore = null;
           this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
