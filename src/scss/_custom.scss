@@ -5,6 +5,10 @@ table.table{
 .table-hover tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.12);
 }
+table tr.editing td{
+  //for the app-input fields
+  vertical-align:middle;
+}
 .breadcrumb .breadcrumb-item span{
   outline: none;
 }
@@ -15,5 +19,3 @@ img.navbar-brand-full{
 input[type="text"], input[type="number"]{
   color: black !important;
 }
-
-

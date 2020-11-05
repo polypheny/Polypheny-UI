@@ -13,7 +13,8 @@ import {DbmsTypesService} from '../../services/dbms-types.service';
 import * as dot from 'graphlib-dot';
 import * as dagreD3 from 'dagre-d3';
 import * as d3 from 'd3';
-import {BsModalService, BsModalRef, ModalOptions} from 'ngx-bootstrap/modal';
+import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
+import {HttpEventType} from '@angular/common/http';
 
 
 @Component({
@@ -99,6 +100,15 @@ export class DataTableComponent implements OnInit, OnChanges {
       this.resultSet.data[i].forEach((v, k) => {
         if (this.resultSet.header[k].dataType === 'bool') {
           this.updateValues.set(this.resultSet.header[k].name, this.getBoolean(v));
+        }
+        //assign multimedia types: null if the item is NULL, else undefined
+        //null items will be submitted and updated, undefined items will not be part of the UPDATE statement
+        else if ( this._types.isMultimedia( this.resultSet.header[k].dataType )) {
+          if( v === null ){
+            this.updateValues.set(this.resultSet.header[k].name, null);
+          } else {
+            this.updateValues.set(this.resultSet.header[k].name, undefined);
+          }
         } else {
           this.updateValues.set(this.resultSet.header[k].name, v);
         }
@@ -212,24 +222,35 @@ export class DataTableComponent implements OnInit, OnChanges {
   }
 
   insertRow() {
-    const data = {};
+    const formData = new FormData();
     this.insertValues.forEach((v, k) => {
       //only values with dirty state will be submitted. Columns that are not nullable are already set dirty
       if (this.insertDirty.get(k) === true) {
-        data[k] = v;
+        let value;
+        if (isNaN(v)){
+          value = v;
+        } else {
+          value = String(v);
+        }
+        formData.append( k, value );
       }
     });
-    const out = {tableId: this.resultSet.table, data: data};
-    this._crud.insertRow(JSON.stringify(out)).subscribe(
+    formData.append( 'tableId', String(this.resultSet.table) );
+    this._crud.insertRow(formData).subscribe(
       res => {
-        const result = <ResultSet>res;
-        if (result.info.affectedRows === 1) {
-          $('.insert-input').val('');
-          this.insertValues.clear();
-          this.buildInsertObject();
-          this.getTable();
-        } else if (result.error) {
-          this._toast.warn('Could not insert the data: ' + result.error, 'insert error');
+        if( res.type && res.type === HttpEventType.UploadProgress ){
+          //todo display updloadProgress
+          const uploadProgress = Math.round(100 * res.loaded / res.total);
+        } else if( res.type === HttpEventType.Response ) {
+          const result = <ResultSet>res.body;
+          if (result.error) {
+            this._toast.exception(result, 'Could not insert the data', 'insert error');
+          } else if (result.info.affectedRows === 1) {
+            $('.insert-input').val('');
+            this.insertValues.clear();
+            this.buildInsertObject();
+            this.getTable();
+          }
         }
       }, err => {
         this._toast.error('Could not insert the data.');
@@ -251,19 +272,39 @@ export class DataTableComponent implements OnInit, OnChanges {
         oldValues.set(col, oldVal);
       }
     });
-    const req = new UpdateRequest(this.resultSet.table, this.mapToObject(this.updateValues), this.mapToObject(oldValues));
-    this._crud.updateRow(req).subscribe(
+    const formData = new FormData();
+    formData.append( 'tableId', this.resultSet.table);
+    formData.append('oldValues', JSON.stringify(this.mapToObject(oldValues)));
+    for( const [k,v] of this.updateValues ) {
+      if( v === undefined ){
+        //don't add undefined file inputs, but if they are null, they need to be added
+        continue;
+      }
+      if( !(v instanceof File) ){
+        //stringify to distinguish between null and 'null'
+        formData.append( k, JSON.stringify(v) );
+      } else {
+        formData.append( k, v );
+      }
+    }
+    //const req = new UpdateRequest(this.resultSet.table, this.mapToObject(this.updateValues), this.mapToObject(oldValues));
+    this._crud.updateRow(formData).subscribe(
       res => {
-        const result = <ResultSet>res;
-        if (result.info.affectedRows) {
-          this.getTable();
-          let rows = ' rows';
-          if (result.info.affectedRows === 1) {
-            rows = ' row';
+        if( res.type && res.type === HttpEventType.UploadProgress ){
+          //todo display updloadProgress
+          const uploadProgress = Math.round(100 * res.loaded / res.total);
+        } else if( res.type === HttpEventType.Response ) {
+          const result = <ResultSet>res.body;
+          if (result.info.affectedRows) {
+            this.getTable();
+            let rows = ' rows';
+            if (result.info.affectedRows === 1) {
+              rows = ' row';
+            }
+            this._toast.success('Updated ' + result.info.affectedRows + rows, 'update', ToastDuration.SHORT);
+          } else if (result.error) {
+            this._toast.warn('Could not update this row: ' + result.error);
           }
-          this._toast.success('Updated ' + result.info.affectedRows + rows, 'update', ToastDuration.SHORT);
-        } else if (result.error) {
-          this._toast.warn('Could not update this row: ' + result.error);
         }
       }, err => {
         this._toast.error('Could not update the data.');
@@ -633,4 +674,20 @@ export class DataTableComponent implements OnInit, OnChanges {
       return el !== '?';
     }).length;
   }
+
+  displayRowItem ( data: string, col: DbColumn ) {
+    if( data == null ) {
+      return '';
+    } else if ( !col ) {
+      return data;
+    } /*else if( this._types.isMultimedia(col.dataType) ) {
+      return `<a href="${data}">download</a>`;
+    } */ else {
+      if( data.length > 1000 ) {
+        return data.slice(0, 1000) + '...';
+      }
+    }
+    return data;
+  }
+
 }

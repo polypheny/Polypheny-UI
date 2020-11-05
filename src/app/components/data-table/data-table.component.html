@@ -22,16 +22,15 @@
       <tbody>
       <tr *ngIf="config.search">
         <td *ngFor="let h of resultSet.header">
-          <input *ngIf="_types.numericTypes().includes(h.dataType.toLowerCase())" type="number" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter1.value, h)" #filter1>
-          <input *ngIf="! _types.numericTypes().includes(h.dataType.toLowerCase())" type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter2.value, h)" #filter2 [ngClass]="isValidFilter(filter2.value,h)">
+          <input *ngIf="_types.isNumeric(h.dataType)" type="number" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter1.value, h)" #filter1>
+          <input *ngIf="! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType)" type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter2.value, h)" #filter2 [ngClass]="isValidFilter(filter2.value,h)">
         </td>
         <td *ngIf="config.update || config.delete"></td>
       </tr>
       <tr *ngFor="let d1 of resultSet.data; let i = index" [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
         <ng-container *ngIf="editing === i">
-          <td *ngFor="let d2 of d1; let i = index">
-            <!--<input type="text" class="form-control form-control-sm editing" [value]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name">-->
-            <app-input class="editing" [header]="resultSet.header[i]" [value]="updateValues.get(resultSet.header[i].name)" (valueChange)="newUpdateValue(resultSet.header[i].name, $event)" (enter)="updateRow()" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name"></app-input>
+          <td *ngFor="let d2 of d1; let j = index">
+            <app-input class="editing" [header]="resultSet.header[j]" [value]="updateValues.get(resultSet.header[j].name)" (valueChange)="newUpdateValue(resultSet.header[j].name, $event)" (enter)="updateRow()" [attr.data-before]="d2" [attr.data-col]="resultSet.header[j].name"></app-input>
           </td>
           <td *ngIf="config.update || config.delete">
             <button class="btn btn-primary" id="editColSave" (click)="updateRow()"><i class="fa fa-save"></i></button>
@@ -39,7 +38,10 @@
         </ng-container>
         <!-- table which shows resultSet  -->
         <ng-container *ngIf="editing !== i">
-          <td *ngFor="let d2 of d1" (dblclick)="triggerEditing(i)">{{d2}}</td>
+          <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
+            <span *ngIf="!_types.isMultimedia(resultSet.header[j].dataType)">{{displayRowItem(d2, resultSet.header[j])}}</span>
+            <span *ngIf="_types.isMultimedia(resultSet.header[j].dataType)" [innerHTML]="displayRowItem(d2, resultSet.header[j])"></span>
+          </td>
           <td *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
               <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'true'}">

@@ -29,10 +29,13 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChild('inputElement', {static: false}) inputElement: ElementRef;
   @ViewChild('flatpickr', {static: false}) flatpickrElement: ElementRef;
   flatpickrObj;
+  inputFileName = 'Choose file';
+  randomId;
 
   constructor(
     public _types: DbmsTypesService
   ) {
+    this.randomId = Math.floor((Math.random()*10e8));
   }
 
   ngOnInit() {
@@ -48,6 +51,9 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
     } else if (this._types.isDateTime(this.header.dataType) && (changes.value.currentValue == null || changes.value.currentValue === '') && this.flatpickrObj) {
       this.flatpickrObj.setDate(null);
     }
+    if ( !changes.value.currentValue ) {
+      this.inputFileName = 'Choose file';
+    }
   }
 
   triggerNull(value) {
@@ -57,6 +63,8 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
         return 0;
       } else if ( this._types.isBoolean( this.header.dataType )){
         return false;
+      } else if ( this._types.isMultimedia( this.header.dataType )){
+        return null;
       } else {
         return '';
       }
@@ -122,6 +130,28 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
 
   clearFlatpickr() {
     this.valueChange.emit(null);
+  }
+
+  onFileChange ( files, event = null ) {
+    if( files === null ){
+      this.valueChange.emit(null);
+      if(event){
+        event.stopPropagation();
+      }
+      return;
+    }
+    let file;
+    if(files.length > 0){
+      file = files[0];
+    } else {
+      file = undefined;
+    }
+    if( file ) {
+      this.inputFileName = file.name;
+    } else {
+      this.inputFileName = 'Choose file';
+    }
+    this.valueChange.emit(file);
   }
 
 }

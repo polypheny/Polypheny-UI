@@ -4,15 +4,17 @@ import {WebuiSettingsService} from './webui-settings.service';
 import {Index} from '../components/data-table/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
-  UIRequest,
-  SchemaRequest,
-  EditTableRequest,
-  ConstraintRequest,
   ColumnRequest,
-  QueryRequest,
+  ConstraintRequest,
   DeleteRequest,
-  UpdateRequest,
-  Schema, StatisticRequest, Exploration, ExploreTable
+  EditTableRequest,
+  ExploreTable,
+  QueryRequest,
+  Schema,
+  SchemaRequest,
+  StatisticRequest,
+  UIRequest,
+  UpdateRequest
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
@@ -52,12 +54,8 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/getSchemaTree`, request, this.httpOptions);
   }
 
-  /**
-   * @param data Json string with data to insert
-   */
-  //todo input: subclass of UIRequest
-  insertRow ( data: string ) {
-    return this._http.post(`${this.httpUrl}/insertRow`, data, this.httpOptions);
+  insertRow (formData: FormData ) {
+    return this._http.post( `${this.httpUrl}/insertRow`, formData, {reportProgress: true, observe: 'events'} );
   }
 
   /**
@@ -111,11 +109,11 @@ export class CrudService {
   }
 
   /**
-   * update a row from a table
-   * @param request UpdateRequest
+   * Update a row from a table
+   * @param formData Data in the form of a FormData
    */
-  updateRow ( request: UpdateRequest ) {
-    return this._http.post(`${this.httpUrl}/updateRow`, request, this.httpOptions);
+  updateRow ( formData: FormData ) {
+    return this._http.post( `${this.httpUrl}/updateRow`, formData, {reportProgress: true, observe: 'events'} );
   }
 
   /**
