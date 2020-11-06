@@ -680,9 +680,9 @@ export class DataTableComponent implements OnInit, OnChanges {
       return '';
     } else if ( !col ) {
       return data;
-    } /*else if( this._types.isMultimedia(col.dataType) ) {
-      return `<a href="${data}">download</a>`;
-    } */ else {
+    } else if( this._types.isMultimedia(col.dataType) ) {
+      return `<a class="download" href="getFile/${data}"><span class="cui-cloud-download"></span></a>`;
+    } else {
       if( data.length > 1000 ) {
         return data.slice(0, 1000) + '...';
       }

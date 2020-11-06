@@ -38,6 +38,18 @@ tr:hover i{
 tr:hover .delete i:hover{
   color: #dc3545;
 }
+#data-table tr td .download{
+  opacity:.4;
+  text-decoration: none;
+  color: black;
+  padding: 0.3em 0.5em;
+}
+#data-table tr:hover td .download{
+  opacity:.7;
+}
+#data-table tr td .download:hover{
+  opacity: 1;
+}
 .selector{
   width: 1em;
 }
