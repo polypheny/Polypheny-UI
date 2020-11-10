@@ -39,8 +39,19 @@
         <!-- table which shows resultSet  -->
         <ng-container *ngIf="editing !== i">
           <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
-            <span *ngIf="!_types.isMultimedia(resultSet.header[j].dataType)">{{displayRowItem(d2, resultSet.header[j])}}</span>
-            <span *ngIf="_types.isMultimedia(resultSet.header[j].dataType)" [innerHTML]="displayRowItem(d2, resultSet.header[j])"></span>
+            <ng-container [ngSwitch]="resultSet.header[j].dataType" *ngIf="d2">
+              <a *ngSwitchCase="'FILE'" class="download" [href]="getFileLink(d2)"><span class="cui-cloud-download"></span></a>
+              <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)" style="height:100px"/>
+              <video height="200" controls *ngSwitchCase="'VIDEO'">
+                <source [src]="getFileLink(d2)">
+                Your browser does not support the video tag.
+              </video>
+              <audio controls *ngSwitchCase="'SOUND'">
+                <source [src]="getFileLink(d2)">
+                Your browser does not support the audio element.
+              </audio>
+              <span *ngSwitchDefault>{{displayRowItem(d2, resultSet.header[j])}}</span>
+            </ng-container>
           </td>
           <td *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
