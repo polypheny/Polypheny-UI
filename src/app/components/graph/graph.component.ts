@@ -57,8 +57,8 @@ export class GraphComponent implements OnInit, OnChanges {
   colors;//will be assigned in function
 
   colorList = [
-    '#20a8d8',
     '#f86c6b',
+    '#20a8d8',
     '#ffc107',
     '#21576A',
     '#814848',

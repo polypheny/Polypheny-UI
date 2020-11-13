@@ -37,8 +37,8 @@ export class CrudService {
 
   public connected = false;
   private reconnected = new EventEmitter<boolean>();
-  httpUrl = this._settings.getConnection('crud.rest');
-  httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
+  private httpUrl = this._settings.getConnection('crud.rest');
+  private httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
   private socket;
 
   // rendering routerLinks from string might not be possible:7
@@ -384,6 +384,13 @@ export class CrudService {
 
   removeQueryInterface( queryInterfaceId: string ){
     return this._http.post( `${this.httpUrl}/removeQueryInterface`, queryInterfaceId, this.httpOptions );
+  }
+
+  /**
+   * Get the http url with which multimedia files can be displayed or downloaded
+   */
+  getFileUrl ( fileName: string ) :string {
+    return `${this.httpUrl}/getFile/${fileName}`;
   }
 
   getNameValidator ( required: boolean = false ) {

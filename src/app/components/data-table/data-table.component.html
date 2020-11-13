@@ -40,7 +40,7 @@
         <ng-container *ngIf="editing !== i">
           <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
             <ng-container [ngSwitch]="resultSet.header[j].dataType" *ngIf="d2">
-              <a *ngSwitchCase="'FILE'" class="download" [href]="getFileLink(d2)"><span class="cui-cloud-download"></span></a>
+              <a *ngSwitchCase="'FILE'" class="download" [href]="getFileLink(d2)" download><span class="cui-cloud-download"></span></a>
               <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)" style="height:100px"/>
               <video height="200" controls *ngSwitchCase="'VIDEO'">
                 <source [src]="getFileLink(d2)">

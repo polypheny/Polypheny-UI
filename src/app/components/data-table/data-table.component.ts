@@ -452,11 +452,11 @@ export class DataTableComponent implements OnInit, OnChanges {
     this._crud.deleteRow(request).subscribe(
       res => {
         const result = <ResultSet>res;
-        if (result.info.affectedRows) {
-          this.getTable();
-        } else {
+        if ( result.error ) {
           const result2 = <ResultSet>res;
           this._toast.exception(result2, 'Could not delete this row:');
+        } else {
+          this.getTable();
         }
       }, err => {
         this._toast.error('Could not delete this row.');
@@ -689,7 +689,7 @@ export class DataTableComponent implements OnInit, OnChanges {
   }
 
   getFileLink ( data: string ) {
-    return '/mm-files/' + data;
+    return this._crud.getFileUrl(data);
   }
 
 }
