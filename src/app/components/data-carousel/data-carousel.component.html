@@ -1,0 +1,47 @@
+<div *ngIf="resultSet" id="carousel-wrapper">
+  <carousel [noWrap]="true" [interval]="0" [showIndicators]="false" [activeSlide]="currentSlide" [isAnimated]="true">
+    <div id="navigator-wrapper" class="p-2">
+      <button class="btn btn-light btn-sm" (click)="changeSlide(-1)"><i class="cui-chevron-left"></i></button>
+      <button class="btn btn-light btn-sm" (click)="changeSlide(1)"><i class="cui-chevron-right"></i></button>
+    </div>
+    <slide *ngFor="let d1 of resultSet.data; let i=index">
+
+      <!-- load MM types first -->
+      <ng-container *ngFor="let d2 of d1; let j = index">
+        <ng-container *ngIf="d2 && _types.isMultimedia(resultSet.header[j].dataType)" [ngSwitch]="resultSet.header[j].dataType">
+          <img class="carousel-multimedia" *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)"/>
+          <video controls *ngSwitchCase="'VIDEO'" class="carousel-multimedia">
+            <source [src]="getFileLink(d2)">
+            Your browser does not support the video tag.
+          </video>
+          <div *ngSwitchCase="'SOUND'">
+            <audio controls class="carousel-multimedia" style="width: 50%;">
+              <source [src]="getFileLink(d2)">
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+          <div style="text-align: center">
+            <ng-container *ngSwitchCase="'FILE'">
+              <span class="key">
+                {{resultSet.header[j].name}}
+              </span>
+              <span class="val">: <a class="download" [href]="getFileLink(d2)" download><span class="cui-cloud-download"></span></a></span>
+            </ng-container>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <!-- then load all non-MM data -->
+      <div style="text-align: center"><!--<div class="carousel-caption">-->
+        <ng-container *ngFor="let d2 of d1; let j = index">
+          <p *ngIf="d2 && !_types.isMultimedia(resultSet.header[j].dataType)" [ngSwitch]="resultSet.header[j].dataType" class="mt-3">
+            <ng-container *ngSwitchDefault>
+              <span class="key">{{resultSet.header[j].name}}</span>
+              <span class="val">: {{d2}}</span>
+            </ng-container>
+          </p>
+        </ng-container>
+      </div>
+    </slide>
+  </carousel>
+</div>

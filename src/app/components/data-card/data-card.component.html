@@ -1,0 +1,42 @@
+<div class="card" *ngIf="!resultSet || !resultSet.data || resultSet.data.length == 0">
+  <div class="card-body">
+    <p class="text-danger mb-0">no data</p>
+  </div>
+</div>
+
+<div id="card-wrapper" *ngIf="resultSet">
+
+  <div class="card" *ngFor="let d1 of resultSet.data; let i = index">
+    <a [routerLink]="[]" class="text-danger delete-card btn btn-outline-secondary btn-sm" (dblclick)="deleteRow(d1, i)"><i class="cui-trash"></i></a>
+    <ul class="list-group list-group-flush">
+      <!-- load MM types first -->
+      <ng-container *ngFor="let d2 of d1; let j = index">
+        <li class="list-group-item" *ngIf="d2 && _types.isMultimedia(resultSet.header[j].dataType)" [ngSwitch]="resultSet.header[j].dataType" [ngClass]="listClass(resultSet.header[j].dataType)">
+          <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)"/>
+          <video height="200" controls *ngSwitchCase="'VIDEO'">
+            <source [src]="getFileLink(d2)">
+            Your browser does not support the video tag.
+          </video>
+          <audio controls *ngSwitchCase="'SOUND'">
+            <source [src]="getFileLink(d2)">
+            Your browser does not support the audio element.
+          </audio>
+          <ng-container *ngSwitchCase="'FILE'">
+            <span class="key">{{resultSet.header[j].name}}</span>: <a class="download" [href]="getFileLink(d2)" download><span class="cui-cloud-download"></span></a>
+          </ng-container>
+        </li>
+      </ng-container>
+
+      <!-- then load all non-MM data -->
+      <ng-container *ngFor="let d2 of d1; let j = index">
+        <li class="list-group-item" *ngIf="d2 && !_types.isMultimedia(resultSet.header[j].dataType)" [ngSwitch]="resultSet.header[j].dataType">
+          <ng-container *ngSwitchDefault>
+            <span class="key">{{resultSet.header[j].name}}</span><span class="val">: {{d2}}</span>
+          </ng-container>
+        </li>
+      </ng-container>
+
+    </ul>
+  </div>
+
+</div>

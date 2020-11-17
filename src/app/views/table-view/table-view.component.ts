@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {TableConfig} from '../../components/data-table/table-config';
 import {CrudService} from '../../services/crud.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
-import {ResultSet} from '../../components/data-table/models/result-set.model';
+import {DataPresentationType, ResultSet} from '../../components/data-table/models/result-set.model';
 import {SchemaRequest, TableRequest, UIRequest} from '../../models/ui-request.model';
 import {Subscription} from 'rxjs';
 
@@ -17,6 +17,9 @@ export class TableViewComponent implements OnInit, OnDestroy {
     tableId = '';
     currentPage = 1;
     resultSet: ResultSet;
+    presentationType: DataPresentationType = DataPresentationType.TABLE;
+    //see https://stackoverflow.com/questions/35835984/how-to-use-a-typescript-enum-value-in-an-angular2-ngswitch-statement
+    presentationTypes: typeof DataPresentationType = DataPresentationType;
     tableConfig: TableConfig = {
         create: true,
         search: true,
@@ -55,6 +58,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
                 b => {
                     if (b) {
                         this._sidebar.setSchema(new SchemaRequest('/views/data-table/', true, 2, true), this._router);
+                        this.getTable();
                     }
                 }
         );
@@ -101,6 +105,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
                     }, err => {
                         console.log(err);
                         this.loading = false;
+                        this.resultSet = new ResultSet('Server is not available' );
                     }
             );
         } else {

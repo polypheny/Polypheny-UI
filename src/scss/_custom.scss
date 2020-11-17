@@ -19,3 +19,14 @@ img.navbar-brand-full{
 input[type="text"], input[type="number"]{
   color: black !important;
 }
+
+audio, video{
+  outline: none;
+}
+//carousel
+.carousel {
+  outline: none;
+}
+.carousel-control {
+  display: none;
+}

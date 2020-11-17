@@ -24,4 +24,13 @@ export class UtilService {
     if( str.length <= maxLength ) return str;
     return str.slice( 0, maxLength) + postfix;
   }
+
+  /**
+   * Modulo for negative numbers
+   * from https://stackoverflow.com/questions/4467539/javascript-modulo-gives-a-negative-result-for-negative-numbers
+   */
+  mod(n, m) {
+    return ((n % m) + m) % m;
+  }
+
 }

@@ -63,25 +63,25 @@ export class DataTableComponent implements OnInit, OnChanges {
 
 
   constructor(
-    private _crud: CrudService,
-    private _toast: ToastService,
-    private _route: ActivatedRoute,
-    private _router: Router,
-    private _types: DbmsTypesService,
-    private modalService: BsModalService
+    public _crud: CrudService,
+    public _toast: ToastService,
+    public _route: ActivatedRoute,
+    public _router: Router,
+    public _types: DbmsTypesService,
+    public modalService: BsModalService
   ) {
   }
 
 
   ngOnInit() {
 
-    if (this.config.update) {
+    if (this.config && this.config.update) {
       this.documentListener();
     }
 
     this.setPagination();
 
-    if (this.config.create) {
+    if (this.config && this.config.create) {
       this.buildInsertObject();
     }
 
@@ -186,7 +186,7 @@ export class DataTableComponent implements OnInit, OnChanges {
   }
 
   buildInsertObject() {
-    if (!this.config.create) {
+    if (this.config && !this.config.create) {
       return;
     }
     this.insertValues.clear();

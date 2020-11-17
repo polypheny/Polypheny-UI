@@ -148,8 +148,10 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
     }
     if( file ) {
       this.inputFileName = file.name;
+      this.value = file;
     } else {
       this.inputFileName = 'Choose file';
+      this.value = undefined;
     }
     this.valueChange.emit(file);
   }

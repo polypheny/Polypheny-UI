@@ -197,3 +197,10 @@ export interface StackTrace {
   fileName: string;
   lineNumber: number;
 }
+
+/**
+ * How a ResultSet should be displayed
+ */
+export enum DataPresentationType {
+  TABLE, CAROUSEL, CARD
+}

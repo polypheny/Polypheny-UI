@@ -5,3 +5,10 @@
   border-radius: 100%;
 }
 
+#mode_wrapper{
+  display: flex;
+  justify-content: center;
+  button{
+    margin: 0 0.125rem;
+  }
+}
