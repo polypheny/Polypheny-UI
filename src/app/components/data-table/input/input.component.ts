@@ -28,6 +28,7 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
   @Output() enter = new EventEmitter();
   @ViewChild('inputElement', {static: false}) inputElement: ElementRef;
   @ViewChild('flatpickr', {static: false}) flatpickrElement: ElementRef;
+  @ViewChild('fileInput', {static: false}) fileInput: ElementRef;
   flatpickrObj;
   inputFileName = 'Choose file';
   randomId;
@@ -53,6 +54,10 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
     }
     if ( !changes.value.currentValue ) {
       this.inputFileName = 'Choose file';
+      if( this.fileInput) {
+        //see https://stackoverflow.com/questions/49976714/how-to-upload-the-same-file-in-angular4
+        this.fileInput.nativeElement.value = '';
+      }
     }
   }
 

@@ -41,6 +41,9 @@ export class DataTableComponent implements OnInit, OnChanges {
   updateValues = new Map<string, any>();
   sortStates = new Map<string, SortState>();
   filter = new Map<string, string>();
+  /** -1 if not uploading, 0 or 100: striped, else: showing progress */
+  uploadProgress = -1;
+
   classifiedData: string[][];
   isExploringData = false;
   cData: string[][];
@@ -141,7 +144,10 @@ export class DataTableComponent implements OnInit, OnChanges {
     const self = this;
     $(document).on('click', function (e) {
       if ($(e.target).parents('.editing').length === 0) {
-        self.editing = -1;
+        //don't close editing row during upload
+        if ( self.uploadProgress < 0 ) {
+          self.editing = -1;
+        }
       }
     });
   }
@@ -236,12 +242,13 @@ export class DataTableComponent implements OnInit, OnChanges {
       }
     });
     formData.append( 'tableId', String(this.resultSet.table) );
+    this.uploadProgress = 100;//show striped progressbar
     this._crud.insertRow(formData).subscribe(
       res => {
         if( res.type && res.type === HttpEventType.UploadProgress ){
-          //todo display updloadProgress
-          const uploadProgress = Math.round(100 * res.loaded / res.total);
+          this.uploadProgress = Math.round(100 * res.loaded / res.total);
         } else if( res.type === HttpEventType.Response ) {
+          this.uploadProgress = -1;
           const result = <ResultSet>res.body;
           if (result.error) {
             this._toast.exception(result, 'Could not insert the data', 'insert error');
@@ -256,14 +263,15 @@ export class DataTableComponent implements OnInit, OnChanges {
         this._toast.error('Could not insert the data.');
         console.log(err);
       }
-    );
+    ).add( () => this.uploadProgress = -1 );
   }
 
   newUpdateValue(key, val) {
     this.updateValues.set(key, val);
   }
 
-  updateRow() {
+  updateRow(event) {
+    event.stopPropagation();
     const oldValues = new Map<string, string>();//previous values
     $('.editing').each(function (e) {
       const oldVal = $(this).attr('data-before');
@@ -287,13 +295,14 @@ export class DataTableComponent implements OnInit, OnChanges {
         formData.append( k, v );
       }
     }
+    this.uploadProgress = 100;//show striped progressbar
     //const req = new UpdateRequest(this.resultSet.table, this.mapToObject(this.updateValues), this.mapToObject(oldValues));
     this._crud.updateRow(formData).subscribe(
       res => {
         if( res.type && res.type === HttpEventType.UploadProgress ){
-          //todo display updloadProgress
-          const uploadProgress = Math.round(100 * res.loaded / res.total);
+          this.uploadProgress = Math.round(100 * res.loaded / res.total);
         } else if( res.type === HttpEventType.Response ) {
+          this.uploadProgress = -1;
           const result = <ResultSet>res.body;
           if (result.info.affectedRows) {
             this.getTable();
@@ -310,7 +319,7 @@ export class DataTableComponent implements OnInit, OnChanges {
         this._toast.error('Could not update the data.');
         console.log(err);
       }
-    );
+    ).add( () => this.uploadProgress = -1 );
   }
 
 

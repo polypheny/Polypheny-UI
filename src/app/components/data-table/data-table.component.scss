@@ -71,6 +71,12 @@ tr:hover .selector input{
   border-radius: 100%;
   line-height: 1.5rem;
 }
+.file-progress {
+  height:5px;
+  width:100px;
+  display: inline-block;
+  background-color:#3d434a;
+}
 
 #insertRow td{
   vertical-align: middle;

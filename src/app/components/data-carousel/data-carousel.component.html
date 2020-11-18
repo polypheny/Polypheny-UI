@@ -1,8 +1,11 @@
 <div *ngIf="resultSet" id="carousel-wrapper">
   <carousel [noWrap]="true" [interval]="0" [showIndicators]="false" [activeSlide]="currentSlide" [isAnimated]="true">
-    <div id="navigator-wrapper" class="p-2">
+    <div id="navigator-wrapper" class="p-2" *ngIf="resultSet.data && resultSet.data.length > 0">
       <button class="btn btn-light btn-sm" (click)="changeSlide(-1)"><i class="cui-chevron-left"></i></button>
       <button class="btn btn-light btn-sm" (click)="changeSlide(1)"><i class="cui-chevron-right"></i></button>
+    </div>
+    <div style="text-align:center;">
+      <span class="text-danger" *ngIf="resultSet.data && resultSet.data.length == 0">(no data to show)</span>
     </div>
     <slide *ngFor="let d1 of resultSet.data; let i=index">
 

@@ -33,7 +33,10 @@
             <app-input class="editing" [header]="resultSet.header[j]" [value]="updateValues.get(resultSet.header[j].name)" (valueChange)="newUpdateValue(resultSet.header[j].name, $event)" (enter)="updateRow()" [attr.data-before]="d2" [attr.data-col]="resultSet.header[j].name"></app-input>
           </td>
           <td *ngIf="config.update || config.delete">
-            <button class="btn btn-primary" id="editColSave" (click)="updateRow()"><i class="fa fa-save"></i></button>
+            <button *ngIf="uploadProgress === -1" class="btn btn-primary" id="editColSave" (click)="updateRow($event)"><i class="fa fa-save"></i></button>
+            <progressbar *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary" class="file-progress"></progressbar>
+            <progressbar *ngIf="uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)" [animate]="true" [value]="100" [striped]="true" type="primary" class="file-progress"></progressbar>
+            <!--<progressbar *ngIf="uploadProgress > -1" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="uploadProgress === 100 || uploadProgress === 0" type="primary" class="file-progress"></progressbar>-->
           </td>
         </ng-container>
         <!-- table which shows resultSet  -->
@@ -90,7 +93,10 @@
                      (enter)="insertRow()"></app-input>
         </td>
         <td *ngIf="config.update || config.delete">
-          <button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()">+</button>
+          <button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()" *ngIf="uploadProgress === -1 || editing !== -1">+</button>
+          <progressbar *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 0 && uploadProgress !== 100" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary" class="file-progress"></progressbar>
+          <progressbar *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)" [animate]="true" [value]="100" [striped]="true" type="primary" class="file-progress"></progressbar>
+          <!--<progressbar *ngIf="editing === -1 && uploadProgress > -1" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="uploadProgress === 100 || uploadProgress === 0" type="primary" class="file-progress"></progressbar>-->
         </td>
       </tr>
       </tbody>
