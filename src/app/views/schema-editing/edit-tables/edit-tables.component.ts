@@ -58,7 +58,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.newColumns.set(this.counter++, new DbColumn('', false, false, '', '', null, null ));
+    this.newColumns.set( this.counter++, new DbColumn('', true, false, '', '', null, null ) );
     this.schema = this._route.snapshot.paramMap.get('id');
     this._route.params.subscribe((params) => {
       this.schema = params['id'];
@@ -228,7 +228,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this._toast.success('Generated table ' + request.table);
           this.newColumns.clear();
           this.counter = 0;
-          this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0].name, '', null, null ));
+          this.newColumns.set(this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null ));
           this.newTableName = '';
           this.selectedStore = null;
           this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
@@ -365,11 +365,18 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   addNewColumn() {
-    this.newColumns.set(this.counter++, new DbColumn('', false, false, this.types[0].name, '', null, null ));
+    this.newColumns.set( this.counter++, new DbColumn('', false, true, this.types[0].name, '', null, null ) );
   }
 
   removeNewColumn(i: number) {
-    this.newColumns.delete(i);
+    if( this.newColumns.size === 1){
+      this.counter = 0;
+      this.newColumns.clear();
+      this.newColumns.set( this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null ) );
+    } else {
+      //don't change the counter here!
+      this.newColumns.delete( i );
+    }
   }
 
   triggerDefaultNull(col: DbColumn) {

@@ -198,6 +198,25 @@ export interface StackTrace {
   lineNumber: number;
 }
 
+export class PartitioningRequest {
+  constructor(
+    public schemaName: string = '',
+    public tableName: string = '',
+    public method: string = 'NONE',//enum in Java
+    public numPartitions: number = 2,
+    public column = ''
+  ) {}
+}
+
+export class ModifyPartitionRequest {
+  constructor(
+    public schemaName: string,
+    public tableName: string,
+    public partitions: string[],
+    public storeUniqueName: string
+  ) {}
+}
+
 /**
  * How a ResultSet should be displayed
  */

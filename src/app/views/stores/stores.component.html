@@ -23,8 +23,12 @@
         <tbody>
           <tr *ngFor="let adapter of adapters">
             <td class="center">
-              <img *ngIf="getLogo(adapter.name)" [src]="getLogo(adapter.name)" alt="">
-              <i *ngIf="!getLogo(adapter.name)" class="fa fa-database"></i>
+              <ng-container *ngIf="getLogo(adapter.name).startsWith('assets/')">
+                <img [src]="getLogo(adapter.name)" alt="">
+              </ng-container>
+              <ng-container *ngIf="!getLogo(adapter.name).startsWith('assets/')">
+                <i [class]="getLogo(adapter.name)"></i>
+              </ng-container>
             </td>
             <td><strong>{{adapter.name}}</strong></td>
             <td>{{adapter.description}}</td>
@@ -52,8 +56,8 @@
           {{store.uniqueName}}
         </div>
         <div class="card-body">
-          <img *ngIf="getLogo(store.adapterName)" [src]="getLogo(store.adapterName)" alt="" class="logo">
-          <i *ngIf="!getLogo(store.adapterName)" class="logo fa fa-database"></i>
+          <img *ngIf="getLogo(store.adapterName).startsWith('assets/')" [src]="getLogo(store.adapterName)" alt="" class="logo">
+          <i *ngIf="!getLogo(store.adapterName).startsWith('assets/')" [class]="'logo ' + getLogo(store.adapterName)"></i>
           <span class="mb-2">Adapter: {{store.adapterName}}</span>
 
           <span *ngIf="store.schemaReadOnly"><span class="fa fa-lock" style="padding-left: 2px"></span> schema-read-only</span>
