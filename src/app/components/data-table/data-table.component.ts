@@ -13,7 +13,7 @@ import {DbmsTypesService} from '../../services/dbms-types.service';
 import * as dot from 'graphlib-dot';
 import * as dagreD3 from 'dagre-d3';
 import * as d3 from 'd3';
-import {BsModalService, BsModalRef, ModalOptions} from 'ngx-bootstrap/modal';
+import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
 
 
 @Component({

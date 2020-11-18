@@ -64,3 +64,17 @@ table tr td:hover .modify-placement-btn {
 .data-type-parameters .input-group-text {
   width: 78px;
 }
+.modal-footer{
+  position: relative;
+  justify-content: space-between;
+}
+.progress-wrapper{
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+}
+.progress-wrapper progressbar{
+  border-radius: 0;
+  height: 5px;
+}

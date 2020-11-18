@@ -181,7 +181,7 @@
               <td colspan="2">
                 <div class="input-group" style="justify-content: flex-end">
                   <input type="text" placeholder="table name" class="form-control" style="max-width: 200px;"
-                         [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)">
+                         [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)" (keyup.enter)="createTable()">
                   <div class="input-group-append">
                     <button class="btn btn-primary" (click)="createTable()">create table</button>
                   </div>

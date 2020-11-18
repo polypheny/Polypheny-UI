@@ -3,7 +3,14 @@ import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
-import {DbColumn, Index, PolyType, ResultSet, TableConstraint} from '../../../components/data-table/models/result-set.model';
+import {
+  DbColumn,
+  Index, ModifyPartitionRequest,
+  PartitioningRequest,
+  PolyType,
+  ResultSet,
+  TableConstraint
+} from '../../../components/data-table/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
@@ -50,13 +57,21 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   //data placement handling
   stores: Store[];
-  selectedStore;
+  selectedStore: Store;
   dataPlacements: Placements;
   confirmPlacement = -1;
   columnPlacement: FormGroup;
   placementMethod: 'ADD' | 'MODIFY' | 'DROP';
+  isAddingPlacement = false;
+
+  //partition handling
+  partitionTypes: string[];
+  partitioningRequest: PartitioningRequest = new PartitioningRequest();
+  isMergingPartitions = false;
+  partitionsToModify: { partitionName: string, selected: boolean }[];
 
   @ViewChild('placementModal', {static: false}) public placementModal: ModalDirective;
+  @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
 
   constructor(
     private _route: ActivatedRoute,
@@ -84,7 +99,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this.getConstraints();
     this.getIndexes();
     this.getStores();
-    this.getDataPlacements();
+    this.getPlacementsAndPartitions();
+    this.getPartitionTypes();
     this.getGeneratedNames();
 
     this.documentListener();
@@ -105,7 +121,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.getColumns();
         this.getConstraints();
         this.getIndexes();
-        this.getDataPlacements();
+        this.getPlacementsAndPartitions();
       }
     });
   }
@@ -120,6 +136,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
           this.oldColumns.set( v.name, DbColumn.fromJson( v ));
           this.newIndexCols[v.name] = false;
         });
+        this.partitioningRequest.column = this.resultSet.header[0].name;
         // deep copy: from: https://stackoverflow.com/questions/35504310/deep-copy-an-array-in-angular-2-typescript
         this.newPrimaryKey = this.resultSet.header.map( x => Object.assign({}, x));
       }, err => {
@@ -239,7 +256,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         const result = <ResultSet> res;
         if( result.error === undefined ){
           this.getColumns();
-          this.getDataPlacements();
+          this.getPlacementsAndPartitions();
           this.createColumn.name = '';
           this.createColumn.nullable = true;
           this.createColumn.dataType = this.types[0].name;
@@ -264,7 +281,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       this._crud.dropColumn( new ColumnRequest( this.tableId, col ) ).subscribe(
         res => {
           this.getColumns();
-          this.getDataPlacements();
+          this.getPlacementsAndPartitions();
           this.confirm = -1;
           const result = <ResultSet> res;
           if( result.error ){
@@ -322,7 +339,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
           this.getConstraints();
           this._toast.success('The primary key was updated.', 'updated primary key');
           this.getColumns();
-          this.getDataPlacements();
+          this.getPlacementsAndPartitions();
         }else {
           this._toast.exception(result, null, 'primary key error', ToastDuration.INFINITE);
         }
@@ -484,7 +501,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     });
   }
 
-  getDataPlacements() {
+  getPlacementsAndPartitions() {
     this._crud.getDataPlacements(this.schema, this.table).subscribe(
       res => {
         this.dataPlacements = <Placements>res;
@@ -538,24 +555,28 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         cols.push(k);
       }
     }
-    this._crud.addDropPlacement(this.schema, this.table, this.selectedStore, this.placementMethod, cols).subscribe(
+    this.isAddingPlacement = true;
+    this._crud.addDropPlacement(this.schema, this.table, this.selectedStore.uniqueName, this.placementMethod, cols).subscribe(
       res => {
         const result = <ResultSet> res;
         if( result.error ) {
           this._toast.exception( result );
         } else {
           if( this.placementMethod === 'ADD' ){
-            this._toast.success( 'Added placement on store ' + this.selectedStore, 'Added placement' );
+            this._toast.success( 'Added placement on store ' + this.selectedStore.uniqueName, 'Added placement' );
           } else if( this.placementMethod === 'MODIFY' ){
-            this._toast.success( 'Modified placement on store ' + this.selectedStore, 'Modified placement' );
+            this._toast.success( 'Modified placement on store ' + this.selectedStore.uniqueName, 'Modified placement' );
           }
-          this.getDataPlacements();
+          this.getPlacementsAndPartitions();
         }
         this.selectedStore = null;
       }, err => {
-        this._toast.error( 'Could not ' + this.placementMethod.toLowerCase() + ' placement on store ' + this.selectedStore );
+        this._toast.error( 'Could not ' + this.placementMethod.toLowerCase() + ' placement on store ' + this.selectedStore.uniqueName );
       }
-    ).add(() => this.placementModal.hide());
+    ).add(() => {
+      this.isAddingPlacement = false;
+      this.placementModal.hide();
+    });
   }
 
   dropPlacement(store: string, i: number) {
@@ -570,12 +591,128 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
           this._toast.exception( result );
         } else {
           this._toast.success( 'Dropped placement on store ' + store, 'Dropped placement' );
-          this.getDataPlacements();
+          this.getPlacementsAndPartitions();
         }
       }, err => {
         this._toast.error( 'Could not drop placement on store ' + store, 'Error' );
       }
     );
+  }
+
+  getPartitionTypes () {
+    this._crud.getPartitionTypes().subscribe(
+      res => {
+        this.partitionTypes = <string[]>res;
+      },
+      err => {
+        console.log(err);
+      }
+    );
+  }
+
+  /**
+   * Whether the table is partitioned
+   */
+  isPartitioned () {
+    if( !this.dataPlacements || !this.dataPlacements.stores ) {
+      return false;
+    }
+    return this.dataPlacements.isPartitioned;
+  }
+
+  partitionTable () {
+    if( this.partitioningRequest.method === 'NONE' ) {
+      this._toast.warn( 'Please select a partitioning method.' );
+      return;
+    }
+    const split = this.tableId.split('\.');
+    this.partitioningRequest.schemaName = split[0];
+    this.partitioningRequest.tableName = split[1];
+    this._crud.partitionTable( this.partitioningRequest ).subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if( result.error ) {
+          this._toast.exception(result);
+          console.log(result.info.generatedQuery);
+        } else {
+          this._toast.success('Partitioned table');
+          this.getPlacementsAndPartitions();
+        }
+      }, err => {
+        this._toast.error(err);
+      }
+    );
+  }
+
+  mergePartitions () {
+    const split = this.tableId.split('\.');
+    const request = new PartitioningRequest( split[0], split[1] );
+    this.isMergingPartitions = true;
+    this._crud.mergePartitions( request ).subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if( !result.error ) {
+          this._toast.success( 'Merged partitions ' );
+          this.getPlacementsAndPartitions();
+        } else {
+          this._toast.exception(result);
+        }
+      }, err => {
+        this._toast.error('Could not merge partitions');
+        console.log(err);
+      }
+    ).add( () => {
+      this.isMergingPartitions = false;
+    });
+  }
+
+  modifyPartitioning () {
+    const partitions = [];
+    for(let i = 0; i < this.partitionsToModify.length; i++) {
+      if( this.partitionsToModify[i].selected ) {
+        partitions.push(this.partitionsToModify[i].partitionName);
+      }
+    }
+    const split = this.tableId.split('\.');
+    const request = new ModifyPartitionRequest( split[0], split[1], partitions, this.selectedStore.uniqueName );
+    this._crud.modifyPartitions( request ).subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if( !result.error ) {
+          this.partitioningModal.hide();
+          this._toast.success('Modified partitions');
+          this.getPlacementsAndPartitions();
+          console.log(result.info.generatedQuery);
+        } else {
+          this._toast.exception(result);
+          console.log(result.info.generatedQuery);
+        }
+      }, err => {
+        this._toast.error('Could not modify the partitioning');
+      }
+    );
+  }
+
+  initPartitioningModal( store: Store ){
+    this.partitionsToModify = [];
+    for( let i = 0; i < this.dataPlacements.partitionNames.length; i++ ) {
+      this.partitionsToModify.push({
+        partitionName: this.dataPlacements.partitionNames[i],
+        selected: store.partitionKeys.includes(i)
+      });
+    }
+    this.selectedStore = store;
+    this.partitioningModal.show();
+  }
+
+  clearPartitioningModal(){
+    this.selectedStore = null;
+  }
+
+  selectAllPartitions ( select: boolean) {
+    for( const p of this.partitionsToModify ) {
+      p.selected = select;
+    }
   }
 
   dropIndex(index: string, i) {
@@ -675,6 +812,17 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }else{
       return 'is-valid';
     }
+  }
+
+  validatePartitionModification () {
+    if( this.partitionsToModify ){
+      for( const p of this.partitionsToModify ){
+        if( p.selected ){
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   titleCase ( name ) {
