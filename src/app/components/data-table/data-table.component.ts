@@ -701,4 +701,41 @@ export class DataTableComponent implements OnInit, OnChanges {
     return this._crud.getFileUrl(data);
   }
 
+  getTooltip ( col: DbColumn ): string {
+    if( !col ) {
+      return '';
+    }
+    let out = 'name: ' + col.name;
+    out += '\ntype: ' + col.dataType;
+    if( col.collectionsType ){
+      out += '\ncollection: ' + col.collectionsType;
+    }
+    if( col.primary ){
+      out += '\nprimary';
+    }
+    if( col.unique ){
+      out += '\nunique: ' + col.unique;
+    }
+    if( col.nullable ){
+      out += '\nnullable: ' + col.nullable;
+    }
+    if( col.defaultValue ){
+      out += '\ndefaultValue: ' + col.defaultValue;
+    }
+
+    if( col.precision ){
+      out += '\nprecision: ' + col.precision;
+    }
+    if( col.scale ){
+      out += '\nscale: ' + col.scale;
+    }
+    if( col.dimension ){
+      out += '\ndimension: ' + col.dimension;
+    }
+    if( col.cardinality ){
+      out += '\ncardinality: ' + col.cardinality;
+    }
+    return out;
+  }
+
 }

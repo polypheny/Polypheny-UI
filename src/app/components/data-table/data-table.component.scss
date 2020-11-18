@@ -14,6 +14,13 @@
   tr td{
     min-width: 100px;
   }
+  th span {
+    //so the tooltip will show event if the mouse is not exactly on the column name
+    padding: 0 1em;
+  }
+  th .pk {
+    text-decoration: underline;
+  }
 }
 #data-table-wrapper {
   text-align: center;
@@ -76,6 +83,10 @@ tr:hover .selector input{
   width:100px;
   display: inline-block;
   background-color:#3d434a;
+}
+
+.tooltip-inner {
+  white-space: pre-wrap;
 }
 
 #insertRow td{
