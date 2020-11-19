@@ -1,4 +1,4 @@
-import {DbColumn} from '../../components/data-table/models/result-set.model';
+import {DbColumn} from '../../components/data-view/models/result-set.model';
 
 export class Uml {
   constructor(

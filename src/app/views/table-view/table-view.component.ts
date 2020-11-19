@@ -1,9 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {TableConfig} from '../../components/data-table/table-config';
+import {TableConfig} from '../../components/data-view/data-table/table-config';
 import {CrudService} from '../../services/crud.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
-import {DataPresentationType, ResultSet} from '../../components/data-table/models/result-set.model';
+import {ResultSet} from '../../components/data-view/models/result-set.model';
 import {SchemaRequest, TableRequest, UIRequest} from '../../models/ui-request.model';
 import {Subscription} from 'rxjs';
 
@@ -17,9 +17,6 @@ export class TableViewComponent implements OnInit, OnDestroy {
     tableId = '';
     currentPage = 1;
     resultSet: ResultSet;
-    presentationType: DataPresentationType = DataPresentationType.TABLE;
-    //see https://stackoverflow.com/questions/35835984/how-to-use-a-typescript-enum-value-in-an-angular2-ngswitch-statement
-    presentationTypes: typeof DataPresentationType = DataPresentationType;
     tableConfig: TableConfig = {
         create: true,
         search: true,

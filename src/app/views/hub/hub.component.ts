@@ -10,7 +10,7 @@ import {SchemaRequest} from '../../models/ui-request.model';
 import {SidebarNode} from '../../models/sidebar-node.model';
 import {Store} from '../stores/store.model';
 import {HttpEventType} from '@angular/common/http';
-import {Status} from '../../components/data-table/models/result-set.model';
+import {Status} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {UtilService} from '../../services/util.service';

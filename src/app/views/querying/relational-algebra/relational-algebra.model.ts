@@ -1,4 +1,4 @@
-import {SortState} from '../../../components/data-table/models/sort-state.model';
+import {SortState} from '../../../components/data-view/models/sort-state.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 
 export enum LogicalOperator {

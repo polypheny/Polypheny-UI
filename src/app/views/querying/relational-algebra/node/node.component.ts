@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {Node} from '../relational-algebra.model';
-import {SortDirection, SortState} from '../../../../components/data-table/models/sort-state.model';
+import {SortDirection, SortState} from '../../../../components/data-view/models/sort-state.model';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 
 @Component({

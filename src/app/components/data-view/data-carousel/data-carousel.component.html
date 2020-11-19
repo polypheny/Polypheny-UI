@@ -1,3 +1,4 @@
+<app-toast></app-toast>
 <div *ngIf="resultSet" id="carousel-wrapper">
   <carousel [noWrap]="true" [interval]="0" [showIndicators]="false" [activeSlide]="currentSlide" [isAnimated]="true">
     <div id="navigator-wrapper" class="p-2" *ngIf="resultSet.data && resultSet.data.length > 0">
@@ -25,10 +26,12 @@
           </div>
           <div style="text-align: center">
             <ng-container *ngSwitchCase="'FILE'">
-              <span class="key">
+              <p class="mt-3">
+                <span class="key">
                 {{resultSet.header[j].name}}
               </span>
-              <span class="val">: <a class="download" [href]="getFileLink(d2)" download><span class="cui-cloud-download"></span></a></span>
+                <span class="val">: <a class="download" [href]="getFileLink(d2)" download><span class="cui-cloud-download"></span></a></span>
+              </p>
             </ng-container>
           </div>
         </ng-container>

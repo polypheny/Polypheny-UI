@@ -5,7 +5,7 @@ import {AbstractControl, FormControl, FormGroup, ValidatorFn, Validators} from '
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastService} from '../../components/toast/toast.service';
-import {ResultSet} from '../../components/data-table/models/result-set.model';
+import {ResultSet} from '../../components/data-view/models/result-set.model';
 import {QueryInterface, QueryInterfaceInformation, QueryInterfaceInformationRequest, QueryInterfaceSetting} from './query-interfaces.model';
 
 @Component({

@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {Connection, LogicalOperator, LogicalOperatorUtil, Node} from './relational-algebra.model';
-import {ResultSet} from '../../../components/data-table/models/result-set.model';
+import {ResultSet} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {ToastService} from '../../../components/toast/toast.service';
 import * as $ from 'jquery';

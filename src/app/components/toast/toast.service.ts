@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {Toast} from './toast.model';
-import {ResultSet} from '../data-table/models/result-set.model';
+import {ResultSet} from '../data-view/models/result-set.model';
 
 @Injectable({
   providedIn: 'root'

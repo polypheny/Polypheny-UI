@@ -22,8 +22,8 @@
       <tbody>
       <tr *ngIf="config.search">
         <td *ngFor="let h of resultSet.header">
-          <input *ngIf="_types.isNumeric(h.dataType)" type="number" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter1.value, h)" #filter1>
-          <input *ngIf="! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType)" type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter2.value, h)" #filter2 [ngClass]="isValidFilter(filter2.value,h)">
+          <input *ngIf="_types.isNumeric(h.dataType) && !h.collectionsType" type="number" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter1.value, h)" #filter1>
+          <input *ngIf="( ! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType) ) || h.collectionsType" type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter2.value, h)" #filter2 [ngClass]="isValidFilter(filter2.value,h)">
         </td>
         <td *ngIf="config.update || config.delete"></td>
       </tr>

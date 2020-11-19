@@ -1,4 +1,4 @@
-import {ResultException} from '../data-table/models/result-set.model';
+import {ResultException} from '../data-view/models/result-set.model';
 
 export class Toast {
   title: string;

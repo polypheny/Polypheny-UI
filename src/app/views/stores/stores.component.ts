@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Store, AdapterInformation, AdapterSetting} from './store.model';
 import {ToastService} from '../../components/toast/toast.service';
 import {AbstractControl, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
-import {ResultSet} from '../../components/data-table/models/result-set.model';
+import {ResultSet} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 

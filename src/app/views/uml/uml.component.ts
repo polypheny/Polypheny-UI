@@ -7,7 +7,7 @@ import {DbTable, ForeignKey, SvgLine, Uml} from './uml.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {FormBuilder} from '@angular/forms';
 import {ToastDuration, ToastService} from '../../components/toast/toast.service';
-import {DbColumn, ResultSet} from '../../components/data-table/models/result-set.model';
+import {DbColumn, ResultSet} from '../../components/data-view/models/result-set.model';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';

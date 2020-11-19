@@ -1,5 +1,5 @@
-import {SortState} from '../components/data-table/models/sort-state.model';
-import {DbColumn, TableConstraint} from '../components/data-table/models/result-set.model';
+import {SortState} from '../components/data-view/models/sort-state.model';
+import {DbColumn, TableConstraint} from '../components/data-view/models/result-set.model';
 
 export class UIRequest {
   tableId: string;

@@ -10,7 +10,7 @@ import {
   PolyType,
   ResultSet,
   TableConstraint
-} from '../../../components/data-table/models/result-set.model';
+} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';

@@ -1,7 +1,7 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {Index, ModifyPartitionRequest, PartitioningRequest} from '../components/data-table/models/result-set.model';
+import {Index, ModifyPartitionRequest, PartitioningRequest} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
   ColumnRequest,
@@ -13,8 +13,7 @@ import {
   Schema,
   SchemaRequest,
   StatisticRequest,
-  UIRequest,
-  UpdateRequest
+  UIRequest
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
@@ -406,7 +405,7 @@ export class CrudService {
   /**
    * Get the http url with which multimedia files can be displayed or downloaded
    */
-  getFileUrl ( fileName: string ) :string {
+  getFileUrl ( fileName: string ): string {
     return `${this.httpUrl}/getFile/${fileName}`;
   }
 

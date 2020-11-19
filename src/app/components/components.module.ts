@@ -12,11 +12,11 @@ import {LeftSidebarComponent} from './left-sidebar/left-sidebar.component';
 import {TreeModule} from 'angular-tree-component';
 import {RightSidebarComponent} from './right-sidebar/right-sidebar.component';
 import {RouterModule} from '@angular/router';
-import {DataTableComponent} from './data-table/data-table.component';
+import {DataTableComponent} from './data-view/data-table/data-table.component';
 import {DynamicFormsComponent} from './dynamic-forms/dynamic-forms.component';
 import {RenderItemComponent} from './information-manager/render-item/render-item.component';
 import {InformationManagerComponent} from './information-manager/information-manager.component';
-import {InputComponent} from './data-table/input/input.component';
+import {InputComponent} from './data-view/input/input.component';
 import {EditorComponent} from './editor/editor.component';
 import {ExplainVisualizerModule} from '../explain-visualizer/explain-visualizer.module';
 import {CollapseModule} from 'ngx-bootstrap/collapse';
@@ -25,9 +25,10 @@ import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {TabsModule} from 'ngx-bootstrap/tabs';
 import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
-import {DataCardComponent} from './data-card/data-card.component';
-import {DataCarouselComponent} from './data-carousel/data-carousel.component';
+import {DataCardComponent} from './data-view/data-card/data-card.component';
+import {DataCarouselComponent} from './data-view/data-carousel/data-carousel.component';
 import {CarouselModule} from 'ngx-bootstrap/carousel';
+import { DataViewComponent } from './data-view/data-view.component';
 
 //import 'hammerjs';
 
@@ -52,7 +53,6 @@ import {CarouselModule} from 'ngx-bootstrap/carousel';
   ],
   declarations: [
     BreadcrumbComponent,
-    DataTableComponent,
     DynamicFormsComponent,
     GraphComponent,
     LeftSidebarComponent,
@@ -62,11 +62,14 @@ import {CarouselModule} from 'ngx-bootstrap/carousel';
     RenderItemComponent,
     InputComponent,
     EditorComponent,
+    DataViewComponent,
     DataCardComponent,
+    DataTableComponent,
     DataCarouselComponent
   ],
   exports: [
     BreadcrumbComponent,
+    DataViewComponent,
     DataTableComponent,
     DataCardComponent,
     DataCarouselComponent,

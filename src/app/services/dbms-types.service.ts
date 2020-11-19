@@ -1,6 +1,6 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {CrudService} from './crud.service';
-import {PolyType} from '../components/data-table/models/result-set.model';
+import {PolyType} from '../components/data-view/models/result-set.model';
 import {ToastService} from '../components/toast/toast.service';
 
 @Injectable({

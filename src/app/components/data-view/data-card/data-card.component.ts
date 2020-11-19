@@ -1,17 +1,17 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {CrudService} from '../../services/crud.service';
-import {DataTableComponent} from '../data-table/data-table.component';
-import {ToastService} from '../toast/toast.service';
-import {DbmsTypesService} from '../../services/dbms-types.service';
+import {CrudService} from '../../../services/crud.service';
+import {ToastService} from '../../toast/toast.service';
+import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
+import {DataViewComponent} from '../data-view.component';
 
 @Component({
   selector: 'app-data-card',
   templateUrl: './data-card.component.html',
   styleUrls: ['./data-card.component.scss']
 })
-export class DataCardComponent extends DataTableComponent implements OnInit {
+export class DataCardComponent extends DataViewComponent implements OnInit {
 
   constructor(
     public _crud: CrudService,

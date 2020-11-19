@@ -1,18 +1,18 @@
 import {Component, OnInit} from '@angular/core';
-import {DataTableComponent} from '../data-table/data-table.component';
-import {CrudService} from '../../services/crud.service';
-import {ToastService} from '../toast/toast.service';
+import {CrudService} from '../../../services/crud.service';
+import {ToastService} from '../../toast/toast.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DbmsTypesService} from '../../services/dbms-types.service';
+import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {UtilService} from '../../services/util.service';
+import {UtilService} from '../../../services/util.service';
+import {DataViewComponent} from '../data-view.component';
 
 @Component({
   selector: 'app-data-carousel',
   templateUrl: './data-carousel.component.html',
   styleUrls: ['./data-carousel.component.scss']
 })
-export class DataCarouselComponent extends DataTableComponent implements OnInit {
+export class DataCarouselComponent extends DataViewComponent implements OnInit {
 
   currentSlide = 0;
 

@@ -1,20 +1,20 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
-import {TableConfig} from './table-config';
 import * as $ from 'jquery';
 import {cloneDeep} from 'lodash';
-import {ClassifyRequest, DeleteRequest, Exploration, ExploreTable, TableRequest, UpdateRequest} from '../../models/ui-request.model';
-import {PaginationElement} from './models/pagination-element.model';
-import {DbColumn, ExploreSet, ResultSet} from './models/result-set.model';
-import {SortDirection, SortState} from './models/sort-state.model';
-import {ToastDuration, ToastService} from '../toast/toast.service';
-import {CrudService} from '../../services/crud.service';
+import {ClassifyRequest, Exploration, ExploreTable} from '../../../models/ui-request.model';
+import {PaginationElement} from '../models/pagination-element.model';
+import {DbColumn, ExploreSet, ResultSet} from '../models/result-set.model';
+import {SortDirection, SortState} from '../models/sort-state.model';
+import {ToastDuration, ToastService} from '../../toast/toast.service';
+import {CrudService} from '../../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DbmsTypesService} from '../../services/dbms-types.service';
+import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as dot from 'graphlib-dot';
 import * as dagreD3 from 'dagre-d3';
 import * as d3 from 'd3';
 import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
 import {HttpEventType} from '@angular/common/http';
+import {DataViewComponent} from '../data-view.component';
 
 
 @Component({
@@ -23,26 +23,13 @@ import {HttpEventType} from '@angular/common/http';
   styleUrls: ['./data-table.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class DataTableComponent implements OnInit, OnChanges {
-  @Input() resultSet: ResultSet;
-  @Input() config: TableConfig;
-  @Input() tableId: string;
-  @Input() loading?: boolean;
-  @Input() exploreSet: ExploreSet;
-  @Input() exploreId: number;
+export class DataTableComponent extends DataViewComponent implements OnInit, OnChanges {
+  @Input() exploreSet?: ExploreSet;
+  @Input() exploreId?: number;
   @ViewChild('decisionTree', {static: false}) public decisionTree: TemplateRef<any>;
   @ViewChild('sql', {static: false}) public sql: TemplateRef<any>;
   @ViewChild('editorGenerated', {static: false}) editorGenerated;
   @ViewChild('tutorial', {static: false}) public tutorial: TemplateRef<any>;
-
-  pagination: PaginationElement[] = [];
-  insertValues = new Map<string, any>();
-  insertDirty = new Map<string, boolean>();//check if field has been edited (if yes, it is "dirty")
-  updateValues = new Map<string, any>();
-  sortStates = new Map<string, SortState>();
-  filter = new Map<string, string>();
-  /** -1 if not uploading, 0 or 100: striped, else: showing progress */
-  uploadProgress = -1;
 
   classifiedData: string[][];
   isExploringData = false;
@@ -59,8 +46,6 @@ export class DataTableComponent implements OnInit, OnChanges {
   columns = [];
   userInput = {};
   tableColor = '#FFFFFF';
-  editing = -1;//-1 if not editing any row, else the index of that row
-  confirm = -1;
   exploreDataCounter = 0;
   labled = [];
 
@@ -73,6 +58,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     public _types: DbmsTypesService,
     public modalService: BsModalService
   ) {
+    super( _crud, _toast, _route, _router, _types, modalService );
   }
 
 
@@ -150,45 +136,6 @@ export class DataTableComponent implements OnInit, OnChanges {
         }
       }
     });
-  }
-
-  setPagination() {
-    const activePage = this.resultSet.currentPage;
-    const highestPage = this.resultSet.highestPage;
-    this.pagination = [];
-    if (highestPage < 2) {
-      return;
-    }
-    const neighbors = 1;//from active page, show n neighbors to the left and n neighbors to the right.
-    this.pagination.push(new PaginationElement().withPage(this.tableId, Math.max(1, activePage - 1)).withLabel('<'));
-    if (activePage === 1) {
-      this.pagination.push(new PaginationElement().withPage(this.tableId, 1).setActive());
-    } else {
-      this.pagination.push(new PaginationElement().withPage(this.tableId, 1));
-    }
-    if (activePage - neighbors > 2) {
-      this.pagination.push(new PaginationElement().withLabel('..').setDisabled());
-
-    }
-    let counter = Math.max(2, activePage - neighbors);
-    while (counter <= activePage + neighbors && counter <= highestPage) {
-      if (counter === activePage) {
-        this.pagination.push(new PaginationElement().withPage(this.tableId, counter).setActive());
-      } else {
-        this.pagination.push(new PaginationElement().withPage(this.tableId, counter));
-      }
-      counter++;
-    }
-    counter--;
-    if (counter < highestPage) {
-      if (counter + neighbors < highestPage) {
-        this.pagination.push(new PaginationElement().withLabel('..').setDisabled());
-      }
-      this.pagination.push(new PaginationElement().withPage(this.tableId, highestPage));
-    }
-    this.pagination.push(new PaginationElement().withPage(this.tableId, Math.min(highestPage, activePage + 1)).withLabel('>'));
-
-    return this.pagination;
   }
 
   buildInsertObject() {
@@ -368,42 +315,6 @@ export class DataTableComponent implements OnInit, OnChanges {
     );
   }
 
-  getTable() {
-    const filterObj = this.mapToObject(this.filter);
-    const sortState = {};
-    this.resultSet.header.forEach((h) => {
-      this.sortStates.set(h.name, h.sort);
-      sortState[h.name] = h.sort;
-    });
-    this._crud.getTable(new TableRequest(this.tableId, this.resultSet.currentPage, filterObj, sortState)).subscribe(
-      res => {
-        //this.resultSet = <ResultSet> res;
-        const result = <ResultSet>res;
-        this.resultSet.data = result.data;
-        this.resultSet.highestPage = result.highestPage;
-        this.resultSet.error = result.error;
-        //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
-        if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
-          this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
-        }
-        this.setPagination();
-        this.editing = -1;
-        if (result.type === 'TABLE') {
-          this.config.create = true;
-          this.config.update = true;
-          this.config.delete = true;
-        } else {
-          this.config.create = false;
-          this.config.update = false;
-          this.config.delete = false;
-        }
-      }, err => {
-        this._toast.error('Could not load the data.');
-        console.log(err);
-      }
-    );
-  }
-
   filterTable(e, filterVal, col: DbColumn) {
     this.resultSet.currentPage = 1;
     if (e.keyCode === 27) { //esc
@@ -412,7 +323,7 @@ export class DataTableComponent implements OnInit, OnChanges {
       this.getTable();
       return;
     }
-    if (col.dataType.includes('ARRAY')) {
+    if (col.collectionsType || col.dataType.includes('ARRAY')) {
       if (this.isValidArray(filterVal) || !filterVal) {
         this.filter.set(col.name, filterVal);
       }
@@ -445,41 +356,6 @@ export class DataTableComponent implements OnInit, OnChanges {
       }
       this.getTable();
     }
-  }
-
-  deleteRow(values: string[], i) {
-    if (this.confirm !== i) {
-      this.confirm = i;
-      return;
-    }
-    const rowMap = new Map<string, string>();
-    values.forEach((val, key) => {
-      rowMap.set(this.resultSet.header[key].name, val);
-    });
-    const row = this.mapToObject(rowMap);
-    const request = new DeleteRequest(this.resultSet.table, row);
-    this._crud.deleteRow(request).subscribe(
-      res => {
-        const result = <ResultSet>res;
-        if ( result.error ) {
-          const result2 = <ResultSet>res;
-          this._toast.exception(result2, 'Could not delete this row:');
-        } else {
-          this.getTable();
-        }
-      }, err => {
-        this._toast.error('Could not delete this row.');
-        console.log(err);
-      }
-    );
-  }
-
-  mapToObject(map: Map<any, any>) {
-    const obj = {};
-    map.forEach((v, k) => {
-      obj[k] = v;
-    });
-    return obj;
   }
 
   /**
@@ -546,7 +422,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     if (!val) {
       return;
     }
-    if (col.dataType.includes('ARRAY')) {
+    if (col.collectionsType || col.dataType.includes('ARRAY')) {
       if (!this.isValidArray(val)) {
         return 'is-invalid';
       }
@@ -695,10 +571,6 @@ export class DataTableComponent implements OnInit, OnChanges {
       }
     }
     return data;
-  }
-
-  getFileLink ( data: string ) {
-    return this._crud.getFileUrl(data);
   }
 
   getTooltip ( col: DbColumn ): string {

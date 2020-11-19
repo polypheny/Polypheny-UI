@@ -1,8 +1,8 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
-import {TableConfig} from '../../../components/data-table/table-config';
+import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import {CrudService} from '../../../services/crud.service';
-import {ResultSet} from '../../../components/data-table/models/result-set.model';
+import {ResultSet} from '../../../components/data-view/models/result-set.model';
 import {SqlHistory} from './sql-history.model';
 import {KeyValue} from '@angular/common';
 import {QueryRequest} from '../../../models/ui-request.model';

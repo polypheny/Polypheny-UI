@@ -1,4 +1,4 @@
-import {ResultException} from '../../components/data-table/models/result-set.model';
+import {ResultException} from '../../components/data-view/models/result-set.model';
 
 export interface Store {
   storeId: number;

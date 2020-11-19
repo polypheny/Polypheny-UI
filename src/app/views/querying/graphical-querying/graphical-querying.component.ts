@@ -4,7 +4,7 @@ import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
 import 'jquery-ui/ui/widgets/draggable';
 import {CrudService} from '../../../services/crud.service';
-import {FilteredUserInput, ResultSet} from '../../../components/data-table/models/result-set.model';
+import {FilteredUserInput, ResultSet} from '../../../components/data-view/models/result-set.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToastService} from '../../../components/toast/toast.service';
 import {EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';

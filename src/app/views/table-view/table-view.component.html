@@ -3,33 +3,5 @@
 	<br>
 </ng-container>
 <a routerLink="." class="btn btn-light btn-circle" [ngClass]="{'rotating': loading}" id="reload-btn" (click)="getTable()"><i class="icon-reload"></i></a>
-<span *ngIf="!resultSet && loading">Loading data...</span>
-<div id="mode_wrapper" class="mb-2" *ngIf="resultSet">
-  <!--<select [(ngModel)]="presentationType" class="form-control" style="width: 110px">
-    <option [value]="presentationTypes.TABLE">Table</option>
-    <option [value]="presentationTypes.CARD">Card</option>
-    <option [value]="presentationTypes.CAROUSEL">Carousel</option>
-  </select>-->
-  <button class="btn btn-light" (click)="presentationType = presentationTypes.TABLE"
-          [class.active]="presentationType === presentationTypes.TABLE"
-          tooltip="table" placement="top" delay="200"><i class="fa fa-table"></i></button>
-  <button class="btn btn-light" (click)="presentationType = presentationTypes.CAROUSEL"
-          [class.active]="presentationType === presentationTypes.CAROUSEL"
-          tooltip="carousel" placement="top" delay="200"><i class="fa fa-map-o"></i></button>
-  <button class="btn btn-light" (click)="presentationType = presentationTypes.CARD"
-          [class.active]="presentationType === presentationTypes.CARD"
-          tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
-</div>
-<ng-container [ngSwitch]="presentationType">
-  <ng-container *ngSwitchCase="presentationTypes.TABLE">
-    <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="tableConfig" [tableId]="tableId" [loading]="loading"></app-data-table>
-  </ng-container>
-  <ng-container *ngSwitchCase="presentationTypes.CARD">
-    <app-data-card *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading"></app-data-card>
-  </ng-container>
-  <ng-container *ngSwitchCase="presentationTypes.CAROUSEL">
-    <app-data-carousel *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading"></app-data-carousel>
-  </ng-container>
-
-</ng-container>
+<app-data-view [resultSet]="resultSet" [loading]="loading" [config]="tableConfig" [tableId]="tableId"></app-data-view>
 <p *ngIf="!tableId">Please select a table in the left sidebar to view its data.</p>

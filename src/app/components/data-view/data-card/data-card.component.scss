@@ -16,12 +16,17 @@
   top: 5px;
   right: 5px;
   z-index: 2;
-  background: white;
+  background: white !important;
+  color: black;
+  box-shadow: none;
+}
+.delete-card:hover {
+  color: #dc3545 !important;
 }
 .card:hover .delete-card {
   display: initial;
 }
-span.key {
+.key{
   color: #656565;
 }
 

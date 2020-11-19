@@ -62,7 +62,7 @@
 </div>
 <div class="row" *ngIf="resultSet" [hidden]="showingAnalysis">
   <div class="col-lg-12" id="result-wrapper">
-    <app-data-table [resultSet]="resultSet" [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: false}"></app-data-table>
+    <app-data-view [resultSet]="resultSet" [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: false}"></app-data-view>
   </div>
 
 </div>
