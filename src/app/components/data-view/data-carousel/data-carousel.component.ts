@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {ToastService} from '../../toast/toast.service';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -15,6 +15,16 @@ import {DataViewComponent} from '../data-view.component';
 export class DataCarouselComponent extends DataViewComponent implements OnInit {
 
   currentSlide = 0;
+
+  @HostListener('window:keyup', ['$event'])
+  keyEvent(event: KeyboardEvent) {
+    if(event.key === 'ArrowRight'){
+      this.changeSlide(1);
+    }
+    else if(event.key === 'ArrowLeft'){
+      this.changeSlide(-1);
+    }
+  }
 
   constructor(
     public _crud: CrudService,

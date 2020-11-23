@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {DataPresentationType, ExploreSet, ResultSet} from './models/result-set.model';
+import {DataPresentationType, ResultSet} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
 import {ToastService} from '../toast/toast.service';
@@ -9,6 +9,7 @@ import {BsModalService} from 'ngx-bootstrap/modal';
 import {DeleteRequest, TableRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
 import {SortState} from './models/sort-state.model';
+import * as Plyr from 'plyr';
 
 @Component({
   selector: 'app-data-view',
@@ -36,6 +37,7 @@ export class DataViewComponent implements OnInit {
   uploadProgress = -1;
   confirm = -1;
   editing = -1;//-1 if not editing any row, else the index of that row
+  player: Plyr;
 
   constructor(
     public _crud: CrudService,

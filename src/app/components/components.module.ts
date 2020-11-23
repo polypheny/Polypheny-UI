@@ -29,6 +29,8 @@ import {DataCardComponent} from './data-view/data-card/data-card.component';
 import {DataCarouselComponent} from './data-view/data-carousel/data-carousel.component';
 import {CarouselModule} from 'ngx-bootstrap/carousel';
 import { DataViewComponent } from './data-view/data-view.component';
+import {PlyrModule} from 'ngx-plyr';
+import { MediaComponent } from './data-view/media/media.component';
 
 //import 'hammerjs';
 
@@ -49,7 +51,8 @@ import { DataViewComponent } from './data-view/data-view.component';
     ProgressbarModule.forRoot(),
     ExplainVisualizerModule,
     ModalModule.forRoot(),
-    CarouselModule
+    CarouselModule,
+    PlyrModule
   ],
   declarations: [
     BreadcrumbComponent,
@@ -65,7 +68,8 @@ import { DataViewComponent } from './data-view/data-view.component';
     DataViewComponent,
     DataCardComponent,
     DataTableComponent,
-    DataCarouselComponent
+    DataCarouselComponent,
+    MediaComponent
   ],
   exports: [
     BreadcrumbComponent,

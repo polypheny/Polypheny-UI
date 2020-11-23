@@ -44,15 +44,9 @@
           <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
             <ng-container [ngSwitch]="resultSet.header[j].dataType" *ngIf="d2">
               <a *ngSwitchCase="'FILE'" class="download" [href]="getFileLink(d2)" download><span class="cui-cloud-download"></span></a>
-              <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)" style="height:100px"/>
-              <video height="200" controls *ngSwitchCase="'VIDEO'">
-                <source [src]="getFileLink(d2)">
-                Your browser does not support the video tag.
-              </video>
-              <audio controls *ngSwitchCase="'SOUND'">
-                <source [src]="getFileLink(d2)">
-                Your browser does not support the audio element.
-              </audio>
+              <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)" style="max-height:200px; max-width: 300px"/>
+              <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
+              <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
               <span *ngSwitchDefault>{{displayRowItem(d2, resultSet.header[j])}}</span>
             </ng-container>
           </td>

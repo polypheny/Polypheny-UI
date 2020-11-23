@@ -12,14 +12,8 @@
       <ng-container *ngFor="let d2 of d1; let j = index">
         <li class="list-group-item" *ngIf="d2 && _types.isMultimedia(resultSet.header[j].dataType)" [ngSwitch]="resultSet.header[j].dataType" [ngClass]="listClass(resultSet.header[j].dataType)">
           <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)"/>
-          <video height="200" controls *ngSwitchCase="'VIDEO'">
-            <source [src]="getFileLink(d2)">
-            Your browser does not support the video tag.
-          </video>
-          <audio controls *ngSwitchCase="'SOUND'">
-            <source [src]="getFileLink(d2)">
-            Your browser does not support the audio element.
-          </audio>
+          <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType"></app-media>
+          <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType"></app-media>
           <ng-container *ngSwitchCase="'FILE'">
             <span class="key">{{resultSet.header[j].name}}:</span> <a class="download val" [href]="getFileLink(d2)" download><span class="cui-cloud-download"></span></a>
           </ng-container>
