@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DataPresentationType, ResultSet} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
@@ -10,13 +10,16 @@ import {DeleteRequest, TableRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
 import {SortState} from './models/sort-state.model';
 import * as Plyr from 'plyr';
+import {Subscription} from 'rxjs';
+import {WebuiSettingsService} from '../../services/webui-settings.service';
+import {WebSocket} from '../../services/webSocket';
 
 @Component({
   selector: 'app-data-view',
   templateUrl: './data-view.component.html',
   styleUrls: ['./data-view.component.scss']
 })
-export class DataViewComponent implements OnInit {
+export class DataViewComponent implements OnInit, OnDestroy {
 
   @Input() resultSet: ResultSet;
   @Input() config: TableConfig;
@@ -38,6 +41,8 @@ export class DataViewComponent implements OnInit {
   confirm = -1;
   editing = -1;//-1 if not editing any row, else the index of that row
   player: Plyr;
+  webSocket: WebSocket;
+  subscriptions = new Subscription();
 
   constructor(
     public _crud: CrudService,
@@ -45,11 +50,51 @@ export class DataViewComponent implements OnInit {
     public _route: ActivatedRoute,
     public _router: Router,
     public _types: DbmsTypesService,
+    public _settings: WebuiSettingsService,
     public modalService: BsModalService
   ) {
+    this.webSocket = new WebSocket(_settings);
+    this.initWebsocket();
   }
 
   ngOnInit(): void {
+    //ngOnInit is overwritten by subclasses
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+    this.webSocket.close();
+  }
+
+  initWebsocket () {
+    const sub = this.webSocket.onMessage().subscribe(
+      res => {
+        //this.resultSet = <ResultSet> res;
+        const result = <ResultSet>res;
+        this.resultSet.data = result.data;
+        this.resultSet.highestPage = result.highestPage;
+        this.resultSet.error = result.error;
+        //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
+        if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
+          this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
+        }
+        this.setPagination();
+        this.editing = -1;
+        if (this.resultSet.type === 'TABLE') {
+          this.config.create = true;
+          this.config.update = true;
+          this.config.delete = true;
+        } else {
+          this.config.create = false;
+          this.config.update = false;
+          this.config.delete = false;
+        }
+      }, err => {
+        this._toast.error('Could not load the data.');
+        console.log(err);
+      }
+    );
+    this.subscriptions.add(sub);
   }
 
   mapToObject(map: Map<any, any>) {
@@ -68,33 +113,9 @@ export class DataViewComponent implements OnInit {
       sortState[h.name] = h.sort;
     });
     const request = new TableRequest(this.tableId, this.resultSet.currentPage, filterObj, sortState);
-    this._crud.getTable( request ).subscribe(
-      res => {
-        //this.resultSet = <ResultSet> res;
-        const result = <ResultSet>res;
-        this.resultSet.data = result.data;
-        this.resultSet.highestPage = result.highestPage;
-        this.resultSet.error = result.error;
-        //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
-        if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
-          this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
-        }
-        this.setPagination();
-        this.editing = -1;
-        if (result.type === 'TABLE') {
-          this.config.create = true;
-          this.config.update = true;
-          this.config.delete = true;
-        } else {
-          this.config.create = false;
-          this.config.update = false;
-          this.config.delete = false;
-        }
-      }, err => {
-        this._toast.error('Could not load the data.');
-        console.log(err);
-      }
-    );
+    if(!this._crud.getTable( this.webSocket, request )) {
+      this.resultSet = new ResultSet('Could not establish a connection with the server.');
+    }
   }
 
   deleteRow(values: string[], i) {

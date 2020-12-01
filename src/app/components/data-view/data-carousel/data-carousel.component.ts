@@ -6,6 +6,7 @@ import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {UtilService} from '../../../services/util.service';
 import {DataViewComponent} from '../data-view.component';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
 
 @Component({
   selector: 'app-data-carousel',
@@ -32,10 +33,11 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
     public _route: ActivatedRoute,
     public _router: Router,
     public _types: DbmsTypesService,
+    public _settings: WebuiSettingsService,
     public modalService: BsModalService,
     public _util: UtilService
   ) {
-    super( _crud, _toast, _route, _router, _types, modalService );
+    super( _crud, _toast, _route, _router, _types, _settings, modalService );
   }
 
   ngOnInit(): void { }

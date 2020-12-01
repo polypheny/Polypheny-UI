@@ -15,6 +15,7 @@ import * as d3 from 'd3';
 import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
 import {HttpEventType} from '@angular/common/http';
 import {DataViewComponent} from '../data-view.component';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
 
 
 @Component({
@@ -56,9 +57,10 @@ export class DataTableComponent extends DataViewComponent implements OnInit, OnC
     public _route: ActivatedRoute,
     public _router: Router,
     public _types: DbmsTypesService,
+    public _settings: WebuiSettingsService,
     public modalService: BsModalService
   ) {
-    super( _crud, _toast, _route, _router, _types, modalService );
+    super( _crud, _toast, _route, _router, _types, _settings, modalService );
   }
 
 

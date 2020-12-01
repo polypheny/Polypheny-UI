@@ -14,6 +14,7 @@ import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
+import {WebSocket} from '../../../services/webSocket';
 
 @Component({
   selector: 'app-sql-console',
@@ -30,9 +31,9 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   resultSets: ResultSet[];
   collapsed: boolean[];
   queryAnalysis: InformationPage;
-  analyzerId: string;//current analyzer id
   analyzeQuery = true;
   showingAnalysis = false;
+  websocket: WebSocket;
   private subscriptions = new Subscription();
   loading = false;
   saveInHistory = true;
@@ -55,13 +56,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     private _settings: WebuiSettingsService,
     public _util: UtilService
   ) {
-    //when leaving the page, close the queryAnalyzer
     const self = this;
-    window.onbeforeunload = function (e) {
-      if (self.analyzerId) {
-        self._crud.closeAnalyzer(self.analyzerId).subscribe();
-      }
-    };
+    this.websocket = new WebSocket(_settings);
     // hit alt-enter to execute a query with the current "save in history" option
     // hit alt-shift-enter to execute a query in "incognito" mode, no matter of the current "save in history" option
     window.onkeydown = function (e) {
@@ -82,10 +78,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._leftSidebar.close();
-    if(this.analyzerId) {
-      this._crud.closeAnalyzer(this.analyzerId).subscribe();
-    }
     this.subscriptions.unsubscribe();
+    this.websocket.close();
     this._breadcrumb.hide();
     window.onbeforeunload = null;
     window.onkeydown = null;
@@ -105,23 +99,13 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     } else {
       this._leftSidebar.close();
     }
-    //close the previous analyzer
-    if (this.analyzerId) {
-      this._crud.closeAnalyzer(this.analyzerId).subscribe();
-    }
     this.queryAnalysis = null;
 
     this.loading = true;
-    this._crud.anyQuery(new QueryRequest(code, this.analyzeQuery)).subscribe(
-      res => {
-        this.loading = false;
-        this.resultSets = <ResultSet[]>res;
-        this.collapsed = new Array(this.resultSets.length);
-        this.collapsed.fill(false);
-      }, err => {
-        this.loading = false;
-        this.resultSets = [new ResultSet(err.message)];
-      });
+    if(!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery))){
+      this.loading = false;
+      this.resultSets = [new ResultSet('Could not establish a connection with the server.', code)];
+    }
   }
 
   addToHistory(query: string): void {
@@ -190,11 +174,11 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
       }
     };
 
-    const sub = this._crud.onSocketEvent().subscribe(
+    const sub = this.websocket.onMessage().subscribe(
       msg => {
 
         //if msg contains nodes of the sidebar
-        if (Array.isArray(msg)) {
+        if (Array.isArray(msg) && msg[0].hasOwnProperty('routerLink')) {
           const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
           const sidebarNodes: SidebarNode[] = [];
           const labels = new Set();
@@ -212,9 +196,6 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
             });
           }
 
-          //set analyzerId to close it when leaving the page.
-          const split = sidebarNodes.find((n) => n.routerLink != null).routerLink.split('/');
-          this.analyzerId = split[0];
           sidebarNodes.unshift(new SidebarNode('sql-console', 'sql-console', 'fa fa-keyboard-o').setAction(nodeBehavior));
           this._leftSidebar.setNodes(sidebarNodes);
           if (sidebarNodes.length > 0) {
@@ -224,12 +205,22 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
           }
         }
 
+
+        // array of ResultSets
+        else if (Array.isArray(msg) && (msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('error'))) {
+          this.loading = false;
+          this.resultSets = <ResultSet[]>msg;
+          this.collapsed = new Array(this.resultSets.length);
+          this.collapsed.fill(false);
+        }
+
         //if msg contains a notification of a changed information object
-        else if (msg.type) {
+        else if (msg.hasOwnProperty('type')) {
+          const iObj = <InformationObject>msg;
           if (this.queryAnalysis) {
-            const group = this.queryAnalysis.groups[msg.informationGroup];
+            const group = this.queryAnalysis.groups[iObj.groupId];
             if (group != null) {
-              group.informationObjects[msg.id] = <InformationObject>msg;
+              group.informationObjects[iObj.id] = iObj;
             }
           }
         }

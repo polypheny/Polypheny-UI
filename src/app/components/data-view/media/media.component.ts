@@ -34,6 +34,9 @@ export class MediaComponent implements OnInit, AfterViewInit {
   }
 
   getStyle(){
+    if( this.plyr && this.plyr.fullscreen.active ) {
+      return;
+    }
     return this.style ? this.style : {};
   }
 

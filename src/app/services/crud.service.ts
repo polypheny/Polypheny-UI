@@ -10,16 +10,19 @@ import {
   EditTableRequest,
   ExploreTable,
   QueryRequest,
+  RelAlgRequest,
   Schema,
   SchemaRequest,
   StatisticRequest,
-  UIRequest
+  TableRequest
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
 import {Store} from '../views/stores/store.model';
 import {QueryInterface} from '../views/query-interfaces/query-interfaces.model';
+import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
+import {WebSocket} from './webSocket';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +35,7 @@ export class CrudService {
     private _hub: HubService
   ) {
     this.initWebSocket();
+    setInterval(() => this.socket.next('keepalive'), 10_000);
   }
 
   public connected = false;
@@ -45,8 +49,8 @@ export class CrudService {
   // workarounds:
   // https://stackoverflow.com/questions/44613069/angular4-routerlink-inside-innerhtml-turned-to-lowercase
 
-  getTable( data: UIRequest ) {
-    return this._http.post(`${this.httpUrl}/getTable`, JSON.stringify(data), this.httpOptions);
+  getTable( socket: WebSocket, data: TableRequest ): boolean {
+    return socket.sendMessage(data);
   }
 
   getSchema ( request: SchemaRequest ) {
@@ -58,10 +62,11 @@ export class CrudService {
   }
 
   /**
-   * @param query any query that should be executed on the server
+   * @param socket Socket object that is used to send the query
+   * @param query Any query that should be executed on the server
    */
-  anyQuery ( query: QueryRequest ) {
-    return this._http.post(`${this.httpUrl}/anyQuery`, query, this.httpOptions);
+  anyQuery ( socket: WebSocket, query: QueryRequest ): boolean {
+    return socket.sendMessage( query );
   }
 
   /**
@@ -296,13 +301,6 @@ export class CrudService {
   }
 
   /**
-   * Close a query analyzer when not needed anymore
-   */
-  closeAnalyzer (id: string ) {
-    return this._http.post(`${this.httpUrl}/closeAnalyzer`, id, this.httpOptions);
-  }
-
-  /**
    * Add a foreign key (in the Uml view)
    */
   addForeignKey ( fk: ForeignKey ) {
@@ -312,8 +310,9 @@ export class CrudService {
   /**
    * Execute a relational algebra
    */
-  executeRelAlg ( relAlg: any ) {
-    return this._http.post(`${this.httpUrl}/executeRelAlg`, relAlg, this.httpOptions);
+  executeRelAlg ( socket: WebSocket, relAlg: Node ): boolean {
+    const request = new RelAlgRequest( relAlg );
+    return socket.sendMessage( request );
   }
 
   renameTable ( table: Index ) {

@@ -1,11 +1,11 @@
-<ng-container [ngSwitch]="type">
+<div [ngSwitch]="type" [ngStyle]="getStyle()">
   <img *ngSwitchCase="'IMAGE'" [src]="src" />
-  <video controls *ngSwitchCase="'VIDEO'" #video [ngStyle]="getStyle()">
+  <video controls *ngSwitchCase="'VIDEO'" #video>
     <source [src]="src">
     Your browser does not support the video tag.
   </video>
-  <audio controls *ngSwitchCase="'SOUND'" #audio [ngStyle]="getStyle()">
+  <audio controls *ngSwitchCase="'SOUND'" #audio>
     <source [src]="src">
     Your browser does not support the audio element.
   </audio>
-</ng-container>
+</div>

@@ -5,6 +5,7 @@ import {ToastService} from '../../toast/toast.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {DataViewComponent} from '../data-view.component';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
 
 @Component({
   selector: 'app-data-card',
@@ -19,9 +20,10 @@ export class DataCardComponent extends DataViewComponent implements OnInit {
     public _route: ActivatedRoute,
     public _router: Router,
     public _types: DbmsTypesService,
+    public _settings: WebuiSettingsService,
     public modalService: BsModalService
   ) {
-    super( _crud, _toast, _route, _router, _types, modalService );
+    super( _crud, _toast, _route, _router, _types, _settings, modalService );
   }
 
   ngOnInit(): void { }
