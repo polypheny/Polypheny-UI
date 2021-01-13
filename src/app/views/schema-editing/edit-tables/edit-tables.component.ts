@@ -242,7 +242,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   renameTable ( table: TableModel ) {
-    const t = new Index( this.schema, table.name, table.newName, null, null );
+    const t = new Index( this.schema, table.name, table.newName, null, null, null );
     this._crud.renameTable( t ).subscribe(
       res => {
         const r = <ResultSet> res;

@@ -220,7 +220,7 @@ export class CrudService {
    * Get data placement information
    */
   getDataPlacements(schema: string, table: string) {
-    const index = new Index(schema, table, '', '', []);
+    const index = new Index(schema, table, '', '', '', []);
     return this._http.post(`${this.httpUrl}/getPlacements`, index, this.httpOptions);
   }
 
@@ -228,7 +228,7 @@ export class CrudService {
    * Add or drop a placement
    */
   addDropPlacement(schema: string, table: string, store: string, method: 'ADD' | 'DROP' | 'MODIFY', columns = []) {
-    const index = new Index(schema, table, store, method, columns);
+    const index = new Index(schema, table, null, store, method, columns);
     return this._http.post(`${this.httpUrl}/addDropPlacement`, index, this.httpOptions);
   }
 

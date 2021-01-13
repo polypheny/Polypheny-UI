@@ -1,4 +1,4 @@
-import {ResultException} from '../../components/data-view/models/result-set.model';
+import {AvailableIndexMethod, ResultException} from '../../components/data-view/models/result-set.model';
 
 export interface Store {
   storeId: number;
@@ -13,6 +13,7 @@ export interface Store {
   partitionKeys: number[];
   numPartitions: number;
   partitionType: PartitionType;
+  availableIndexMethods: AvailableIndexMethod[];
 }
 
 export interface AdapterInformation {

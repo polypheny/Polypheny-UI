@@ -17,6 +17,7 @@
   th span {
     //so the tooltip will show event if the mouse is not exactly on the column name
     padding: 0 1em;
+    display: inline-table;
   }
   th .pk {
     text-decoration: underline;

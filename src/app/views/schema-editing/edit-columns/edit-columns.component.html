@@ -286,16 +286,22 @@
             <form [formGroup]="newIndexForm" (submit)="addIndex()">
               <div class="form-inline mb-2">
                 <div class="form-group">
-                  <label for="indexName">name </label>
+                  <label for="indexName">Name </label>
                   <input id="indexName" type="text" autocomplete="off" class="form-control form-control-sm"
                          [placeholder]="proposedIndexName" name="name" required formControlName="name"
                          [ngClass]="inputValidation('name')">
                   <div class="invalid-feedback">invalid name</div>
                 </div>
                 <div class="form-group">
-                  <label for="indexMethod">method</label>
+                  <label for="storeName">Store</label>
+                  <select name="storeName" id="storeName" class="form-control form-control-sm" [(ngModel)]="selectedStoreForIndex" [ngModelOptions]="{standalone: true}">
+                    <option *ngFor="let store of availableStoresForIndexes()" [ngValue]="store">{{store.uniqueName}}</option>
+                  </select>
+                </div>
+                <div class="form-group" *ngIf="selectedStoreForIndex != null">
+                  <label for="indexMethod">Method</label>
                   <select id="indexMethod" class="form-control form-control-sm" formControlName="method">
-                    <option *ngFor="let m of indexMethods" [value]="m">{{m}}</option>
+                    <option *ngFor="let m of selectedStoreForIndex.availableIndexMethods" [value]="m.name">{{m.displayName}}</option>
                   </select>
                 </div>
               </div>
@@ -304,7 +310,7 @@
                   <input type="checkbox" class="form-check-input" [id]="'indexCol'+j" [(ngModel)]="newIndexCols[c.key]" [ngModelOptions]="{standalone: true}">
                   <label class="form-check-label" [for]="'indexCol'+j">{{c.key}}</label>
                 </div>
-                <button type="submit" class="btn btn-primary btn-sm">create</button>
+                <button type="submit" class="btn btn-primary btn-sm" [ngClass]="{'progress-bar-striped progress-bar-animated': addingIndex}" [disabled]="addingIndex">create</button>
               </div>
             </form>
           </div>
@@ -320,7 +326,7 @@
                 <tr *ngFor="let d1 of indexes.data; let i = index">
                     <td *ngFor="let d2 of d1">{{d2}}</td>
                     <td class="delete">
-                        <i [ngClass]="{ 'cui-trash': i!==confirmIndex, 'fa fa-warning': i===confirmIndex }" (click)="dropIndex(d1[0], i)" (mouseleave)="confirmIndex = -1"></i>
+                        <i *ngIf="d1[4] != 'FUNCTIONAL'" [ngClass]="{ 'cui-trash': i!==confirmIndex, 'fa fa-warning': i===confirmIndex }" (click)="dropIndex(d1[0], i)" (mouseleave)="confirmIndex = -1"></i>
                     </td>
                 </tr>
             </tbody>
@@ -410,19 +416,19 @@
         <p>This table is not yet partitioned.</p>
         <div class="form-inline mb-3">
           <div class="form-group">
-            <label for="partitionMethod">method</label>
+            <label for="partitionMethod">Method</label>
             <select id="partitionMethod" class="form-control form-control-sm" [(ngModel)]="partitioningRequest.method">
               <option *ngFor="let type of partitionTypes" [value]="type">{{type}}</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="numPartitions">number of partitions </label>
+            <label for="numPartitions">Number of partitions </label>
             <input id="numPartitions" type="number" autocomplete="off" class="form-control form-control-sm"
                    name="numPartitions" required [(ngModel)]="partitioningRequest.numPartitions">
             <!--<div class="invalid-feedback">invalid name</div>-->
           </div>
           <div class="form-group" *ngIf="resultSet">
-            <label for="partitionCol">column</label>
+            <label for="partitionCol">Column</label>
             <select name="partitionCol" id="partitionCol" class="form-control form-control-sm" [(ngModel)]="partitioningRequest.column">
               <option *ngFor="let col of resultSet.header" [value]="col.name">{{col.name}}</option>
             </select>

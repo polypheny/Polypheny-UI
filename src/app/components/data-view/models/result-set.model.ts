@@ -162,10 +162,16 @@ export class Index {
     private schema: string,
     private table: string,
     private name: string,
+    private storeUniqueName: string,
     private method: string,
     private columns: string[]
   ) {
   }
+}
+
+export class AvailableIndexMethod {
+  name: string;
+  displayName: string;
 }
 
 /**
