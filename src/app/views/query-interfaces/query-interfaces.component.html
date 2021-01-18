@@ -100,7 +100,7 @@
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
-                     [ngClass]="validate(editingQIForm, control.key)">
+                     [ngClass]="validate(editingQIForm, control.key)" (keyup.enter)="saveQISettings()">
               <div class="invalid-feedback">required</div>
             </div>
             <div class="form-group" *ngIf="getAvailableQISetting(editingQI, control.key).options">

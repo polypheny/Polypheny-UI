@@ -110,7 +110,12 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
     const queryInterface = <any> this.editingQI;
     queryInterface.availableSettings = null;
     for( const [k,v] of Object.entries( this.editingQIForm.controls )){
-      queryInterface.currentSettings[k] = v.value;
+      if(!v.disabled){
+        queryInterface.currentSettings[k] = v.value;
+      } else {
+        //remove disabled (=non-modifiable) entries, else the backend will throw an exception
+        delete queryInterface.currentSettings[k];
+      }
     }
     this._crud.updateQueryInterfaceSettings( queryInterface ).subscribe(
       res => {
