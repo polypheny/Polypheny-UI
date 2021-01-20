@@ -57,6 +57,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   //data placement handling
   stores: Store[];
+  availableStoresForIndexes: Store[];
   selectedStore: Store;
   dataPlacements: Placements;
   confirmPlacement = -1;
@@ -122,6 +123,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.getConstraints();
         this.getIndexes();
         this.getPlacementsAndPartitions();
+        this.getAvailableStoresForIndexes();
       }
     });
   }
@@ -477,14 +479,15 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       }, err => {
         console.log(err);
       });
+    this.getAvailableStoresForIndexes();
   }
 
   initNewIndexValues() {
-    const selectedStore = this.availableStoresForIndexes();
-    if (selectedStore && selectedStore.length > 0) {
-      this.selectedStoreForIndex = selectedStore[0];
-      if (selectedStore[0].availableIndexMethods && selectedStore[0].availableIndexMethods.length > 0) {
-        this.newIndexForm.controls['method'].setValue(selectedStore[0].availableIndexMethods[0].name);
+    const availableStores = this.availableStoresForIndexes;
+    if (availableStores && availableStores.length > 0) {
+      this.selectedStoreForIndex = availableStores[0];
+      if (availableStores[0].availableIndexMethods && availableStores[0].availableIndexMethods.length > 0) {
+        this.newIndexForm.controls['method'].setValue(availableStores[0].availableIndexMethods[0].name);
       }
     } else {
       this.selectedStoreForIndex = null;
@@ -492,19 +495,27 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
   }
 
-  availableStoresForIndexes (): Store[] {
-    if(!this.stores || !this.dataPlacements){
-      return [];
-    }
-    return this.stores.filter((s) => {
-      if( s.schemaReadOnly || s.availableIndexMethods == null || s.availableIndexMethods.length === 0 ){
-        return false;
+  onSelectingIndexStore (store:Store) {
+    this.selectedStoreForIndex = store;
+    this.newIndexForm.controls['method'].setValue(store.availableIndexMethods[0].name);
+  }
+
+  getAvailableStoresForIndexes () {
+    this._crud.getAvailableStoresForIndexes( new Index(this.schema, this.table, null, null, null, null) ).subscribe(
+      res => {
+        this.availableStoresForIndexes = <Store[]> res;
+        if(this.availableStoresForIndexes && this.availableStoresForIndexes.length > 0 ){
+          this.selectedStoreForIndex = this.availableStoresForIndexes[0];
+          this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.availableIndexMethods[0].name);
+        } else {
+          this.selectedStoreForIndex = null;
+        }
+      }, err => {
+        console.log(err);
+        this.availableStoresForIndexes = null;
+        this.selectedStoreForIndex = null;
       }
-      if( this.dataPlacements.stores.filter((dp) => dp.uniqueName === s.uniqueName ).length === 0){
-        return false;
-      }
-      return true;
-    });
+    );
   }
 
   getAddableStores (): Store[] {

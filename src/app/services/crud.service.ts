@@ -365,6 +365,10 @@ export class CrudService {
     return this._http.get( `${this.httpUrl}/getStores` );
   }
 
+  getAvailableStoresForIndexes( request: Index ){
+    return this._http.post( `${this.httpUrl}/getAvailableStoresForIndexes`, request, this.httpOptions );
+  }
+
   updateStoreSettings( store: Store ){
     return this._http.post( `${this.httpUrl}/updateStoreSettings`, store );
   }

@@ -292,10 +292,10 @@
                          [ngClass]="inputValidation('name')">
                   <div class="invalid-feedback">invalid name</div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" *ngIf="availableStoresForIndexes && availableStoresForIndexes.length > 0">
                   <label for="storeName">Store</label>
-                  <select name="storeName" id="storeName" class="form-control form-control-sm" [(ngModel)]="selectedStoreForIndex" [ngModelOptions]="{standalone: true}">
-                    <option *ngFor="let store of availableStoresForIndexes()" [ngValue]="store">{{store.uniqueName}}</option>
+                  <select name="storeName" id="storeName" class="form-control form-control-sm" [ngModel]="selectedStoreForIndex" (ngModelChange)="onSelectingIndexStore($event)" [ngModelOptions]="{standalone: true}">
+                    <option *ngFor="let store of availableStoresForIndexes" [ngValue]="store">{{store.uniqueName}}</option>
                   </select>
                 </div>
                 <div class="form-group" *ngIf="selectedStoreForIndex != null">
@@ -310,7 +310,7 @@
                   <input type="checkbox" class="form-check-input" [id]="'indexCol'+j" [(ngModel)]="newIndexCols[c.key]" [ngModelOptions]="{standalone: true}">
                   <label class="form-check-label" [for]="'indexCol'+j">{{c.key}}</label>
                 </div>
-                <button type="submit" class="btn btn-primary btn-sm" [ngClass]="{'progress-bar-striped progress-bar-animated': addingIndex}" [disabled]="addingIndex">create</button>
+                <button type="submit" class="btn btn-primary btn-sm" [ngClass]="{'progress-bar-striped progress-bar-animated': addingIndex}" [disabled]="addingIndex || !availableStoresForIndexes || availableStoresForIndexes.length == 0">create</button>
               </div>
             </form>
           </div>
