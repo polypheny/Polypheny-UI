@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {KeyValue} from '@angular/common';
 import {ToastService} from './toast.service';
 import {Toast} from './toast.model';
-import {ResultException} from '../data-table/models/result-set.model';
+import {ResultException} from '../data-view/models/result-set.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({

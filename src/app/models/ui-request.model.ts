@@ -1,7 +1,9 @@
-import {SortState} from '../components/data-table/models/sort-state.model';
-import {DbColumn, TableConstraint} from '../components/data-table/models/result-set.model';
+import {SortState} from '../components/data-view/models/sort-state.model';
+import {DbColumn, TableConstraint} from '../components/data-view/models/result-set.model';
+import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
 
 export class UIRequest {
+  requestType = 'UIRequest';
   tableId: string;
   currentPage: number;
   data: Map<string, string>;
@@ -10,6 +12,7 @@ export class UIRequest {
 }
 
 export class TableRequest extends UIRequest {
+  requestType = 'TableRequest';
   constructor ( tableId: string, currentPage: number, filter: any = null, sortState: any = null ) {
     super();
     this.tableId = tableId;
@@ -20,7 +23,17 @@ export class TableRequest extends UIRequest {
   }
 }
 
+export class RelAlgRequest extends UIRequest {
+  requestType = 'RelAlgRequest';
+  topNode: Node;
+  constructor( node: Node ) {
+    super();
+    this.topNode = node;
+  }
+}
+
 export class QueryRequest extends UIRequest {
+  requestType = 'QueryRequest';
   query: string;
   analyze: boolean;
   constructor ( query: string, analyze: boolean ) {

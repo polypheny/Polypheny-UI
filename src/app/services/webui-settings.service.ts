@@ -33,7 +33,7 @@ export class WebuiSettingsService {
     this.connections.set( 'crud.rest',
         'http://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) );
     this.connections.set( 'crud.socket',
-        'ws://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) + '/queryAnalyzer' );
+        'ws://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) + '/webSocket' );
     this.connections.set( 'hub.url', localStorage.getItem('hub.url'));
     this.connections.set('websocketGestureRecognition', 'ws://' + localStorage.getItem('websocketGestureRecognition.ip:port'));
   }

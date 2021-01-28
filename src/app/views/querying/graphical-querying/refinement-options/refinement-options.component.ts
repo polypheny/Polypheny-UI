@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FilteredUserInput, StatisticSet} from '../../../../components/data-table/models/result-set.model';
+import {FilteredUserInput, StatisticSet} from '../../../../components/data-view/models/result-set.model';
 import {StatisticRequest} from '../../../../models/ui-request.model';
 import {CrudService} from '../../../../services/crud.service';
 import {ToastService} from '../../../../components/toast/toast.service';

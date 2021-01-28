@@ -5,7 +5,7 @@ import {CrudService} from '../../services/crud.service';
 import {Schema, SchemaRequest} from '../../models/ui-request.model';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {SidebarNode} from '../../models/sidebar-node.model';
-import {ResultSet} from '../../components/data-table/models/result-set.model';
+import {ResultSet} from '../../components/data-view/models/result-set.model';
 import {ToastService} from '../../components/toast/toast.service';
 import {Subscription} from 'rxjs';
 

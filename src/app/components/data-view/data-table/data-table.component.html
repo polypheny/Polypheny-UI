@@ -8,7 +8,7 @@
       <thead>
       <tr>
         <ng-container *ngFor="let h of resultSet.header">
-          <th>{{h.name}}
+          <th><span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body" [ngClass]="{'pk': h.primary}">{{h.name}}</span>
             <a *ngIf="config.sort" [routerLink]="" [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}" (click)="sortTable(h.sort)">
               <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
             </a>
@@ -22,24 +22,34 @@
       <tbody>
       <tr *ngIf="config.search">
         <td *ngFor="let h of resultSet.header">
-          <input *ngIf="_types.numericTypes().includes(h.dataType.toLowerCase())" type="number" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter1.value, h)" #filter1>
-          <input *ngIf="! _types.numericTypes().includes(h.dataType.toLowerCase())" type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter2.value, h)" #filter2 [ngClass]="isValidFilter(filter2.value,h)">
+          <input *ngIf="_types.isNumeric(h.dataType) && !h.collectionsType" type="number" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter1.value, h)" #filter1>
+          <input *ngIf="( ! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType) ) || h.collectionsType" type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter2.value, h)" #filter2 [ngClass]="isValidFilter(filter2.value,h)">
         </td>
         <td *ngIf="config.update || config.delete"></td>
       </tr>
       <tr *ngFor="let d1 of resultSet.data; let i = index" [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
         <ng-container *ngIf="editing === i">
-          <td *ngFor="let d2 of d1; let i = index">
-            <!--<input type="text" class="form-control form-control-sm editing" [value]="d2" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name">-->
-            <app-input class="editing" [header]="resultSet.header[i]" [value]="updateValues.get(resultSet.header[i].name)" (valueChange)="newUpdateValue(resultSet.header[i].name, $event)" (enter)="updateRow()" [attr.data-before]="d2" [attr.data-col]="resultSet.header[i].name"></app-input>
+          <td *ngFor="let d2 of d1; let j = index">
+            <app-input class="editing" [header]="resultSet.header[j]" [value]="updateValues.get(resultSet.header[j].name)" (valueChange)="newUpdateValue(resultSet.header[j].name, $event)" (enter)="updateRow()" [attr.data-before]="d2" [attr.data-col]="resultSet.header[j].name"></app-input>
           </td>
           <td *ngIf="config.update || config.delete">
-            <button class="btn btn-primary" id="editColSave" (click)="updateRow()"><i class="fa fa-save"></i></button>
+            <button *ngIf="uploadProgress === -1" class="btn btn-primary" id="editColSave" (click)="updateRow($event)"><i class="fa fa-save"></i></button>
+            <progressbar *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary" class="file-progress"></progressbar>
+            <progressbar *ngIf="uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)" [animate]="true" [value]="100" [striped]="true" type="primary" class="file-progress"></progressbar>
+            <!--<progressbar *ngIf="uploadProgress > -1" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="uploadProgress === 100 || uploadProgress === 0" type="primary" class="file-progress"></progressbar>-->
           </td>
         </ng-container>
         <!-- table which shows resultSet  -->
         <ng-container *ngIf="editing !== i">
-          <td *ngFor="let d2 of d1" (dblclick)="triggerEditing(i)">{{d2}}</td>
+          <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
+            <ng-container [ngSwitch]="resultSet.header[j].dataType" *ngIf="d2">
+              <a *ngSwitchCase="'FILE'" class="download" [href]="getFileLink(d2)" download><span class="cui-cloud-download"></span></a>
+              <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)" style="max-height:200px; max-width: 300px"/>
+              <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
+              <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
+              <span *ngSwitchDefault>{{displayRowItem(d2, resultSet.header[j])}}</span>
+            </ng-container>
+          </td>
           <td *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
               <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'true'}">
@@ -77,7 +87,10 @@
                      (enter)="insertRow()"></app-input>
         </td>
         <td *ngIf="config.update || config.delete">
-          <button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()">+</button>
+          <button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()" *ngIf="uploadProgress === -1 || editing !== -1">+</button>
+          <progressbar *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 0 && uploadProgress !== 100" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary" class="file-progress"></progressbar>
+          <progressbar *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)" [animate]="true" [value]="100" [striped]="true" type="primary" class="file-progress"></progressbar>
+          <!--<progressbar *ngIf="editing === -1 && uploadProgress > -1" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="uploadProgress === 100 || uploadProgress === 0" type="primary" class="file-progress"></progressbar>-->
         </td>
       </tr>
       </tbody>

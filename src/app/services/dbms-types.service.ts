@@ -1,6 +1,6 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {CrudService} from './crud.service';
-import {PolyType} from '../components/data-table/models/result-set.model';
+import {PolyType} from '../components/data-view/models/result-set.model';
 import {ToastService} from '../components/toast/toast.service';
 
 @Injectable({
@@ -11,6 +11,7 @@ export class DbmsTypesService {
   private numericArray = ['int2','int4','int8','integer','bigint','smallint','float','float4','float8','double'];
   private booleanArray = ['bool', 'boolean'];
   private dateTimeArray = ['date', 'time', 'timestamp'];
+  private multimediaArray = ['file', 'image', 'video', 'sound'];
   private types = new EventEmitter();
   private _types: PolyType[];
   private foreignKeyActions = new EventEmitter();
@@ -104,6 +105,10 @@ export class DbmsTypesService {
     return this.dateTimeArray;
   }
 
+  multimediaTypes() {
+    return this.multimediaArray;
+  }
+
   /**
    * @param type dmbs type name
    * @return if the dbms type is numeric
@@ -126,6 +131,14 @@ export class DbmsTypesService {
    */
   isDateTime(type: string) {
     return this.dateTimeArray.includes(type.toLowerCase());
+  }
+
+  /**
+   * @param type PolyType
+   * @return Return true if the type is of the multimedia family
+   */
+  isMultimedia(type: string) {
+    return this.multimediaArray.includes(type.toLowerCase());
   }
 
   /**

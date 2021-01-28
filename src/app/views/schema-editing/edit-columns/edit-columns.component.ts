@@ -10,7 +10,7 @@ import {
   PolyType,
   ResultSet,
   TableConstraint
-} from '../../../components/data-table/models/result-set.model';
+} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
@@ -49,14 +49,15 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   indexes: ResultSet;
   confirmIndex = -1;
   newIndexCols;
-  //todo put the available methods of the Polypheny-DB system or get it via the crud service
-  indexMethods = ['btree', 'hash']; // 'gist', 'gin'
+  selectedStoreForIndex: Store;
   newIndexForm: FormGroup;
   indexSubmitted = false;
   proposedIndexName = 'indexName';
+  addingIndex = false;
 
   //data placement handling
   stores: Store[];
+  availableStoresForIndexes: Store[];
   selectedStore: Store;
   dataPlacements: Placements;
   confirmPlacement = -1;
@@ -82,7 +83,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   ) {
     this.newIndexForm = new FormGroup( {
       name: new FormControl('', this._crud.getNameValidator() ),
-      method: new FormControl('btree')
+      method: new FormControl('')
     });
     this._types.getTypes().subscribe(
       type => {
@@ -122,6 +123,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.getConstraints();
         this.getIndexes();
         this.getPlacementsAndPartitions();
+        this.getAvailableStoresForIndexes();
       }
     });
   }
@@ -473,9 +475,47 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this._crud.getStores().subscribe(
       res => {
         this.stores = <Store[]>res;
+        this.initNewIndexValues();
       }, err => {
         console.log(err);
       });
+    this.getAvailableStoresForIndexes();
+  }
+
+  initNewIndexValues() {
+    const availableStores = this.availableStoresForIndexes;
+    if (availableStores && availableStores.length > 0) {
+      this.selectedStoreForIndex = availableStores[0];
+      if (availableStores[0].availableIndexMethods && availableStores[0].availableIndexMethods.length > 0) {
+        this.newIndexForm.controls['method'].setValue(availableStores[0].availableIndexMethods[0].name);
+      }
+    } else {
+      this.selectedStoreForIndex = null;
+      this.newIndexForm.controls['method'].setValue('');
+    }
+  }
+
+  onSelectingIndexStore (store:Store) {
+    this.selectedStoreForIndex = store;
+    this.newIndexForm.controls['method'].setValue(store.availableIndexMethods[0].name);
+  }
+
+  getAvailableStoresForIndexes () {
+    this._crud.getAvailableStoresForIndexes( new Index(this.schema, this.table, null, null, null, null) ).subscribe(
+      res => {
+        this.availableStoresForIndexes = <Store[]> res;
+        if(this.availableStoresForIndexes && this.availableStoresForIndexes.length > 0 ){
+          this.selectedStoreForIndex = this.availableStoresForIndexes[0];
+          this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.availableIndexMethods[0].name);
+        } else {
+          this.selectedStoreForIndex = null;
+        }
+      }, err => {
+        console.log(err);
+        this.availableStoresForIndexes = null;
+        this.selectedStoreForIndex = null;
+      }
+    );
   }
 
   getAddableStores (): Store[] {
@@ -508,6 +548,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         for(const s of this.dataPlacements.stores){
           s.columnPlacements.sort((a,b) => a.columnId - b.columnId);
         }
+        this.getIndexes();
+        this.initNewIndexValues();
         if( this.dataPlacements.exception ){
           // @ts-ignore
           this._toast.exception( {error: this.dataPlacements.exception.detailMessage, exception: this.dataPlacements.exception} );
@@ -719,7 +761,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     if (this.confirmIndex !== i) {
       this.confirmIndex = i;
     } else {
-      this._crud.dropIndex(new Index(this.schema, this.table, index, null, null)).subscribe(
+      this._crud.dropIndex(new Index(this.schema, this.table, index, null, null, null)).subscribe(
         res => {
           const result = <ResultSet>res;
           if (!result.error) {
@@ -743,16 +785,18 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     if ( this.newIndexForm.controls['method'].valid && this.newIndexForm.controls['name'].errors && newCols.length > 0 ) {
       this.newIndexForm.controls['name'].setValue(this.proposedIndexName);
     }
-    if (this.newIndexForm.valid && newCols.length > 0 ) {
+    if (this.newIndexForm.valid && newCols.length > 0 && this.selectedStoreForIndex != null ) {
       const i = this.newIndexForm.value;
-      const index = new Index( this.schema, this.table, i.name, i.method, newCols );
+      const index = new Index( this.schema, this.table, i.name, this.selectedStoreForIndex.uniqueName, i.method, newCols );
+      this.addingIndex = true;
       this._crud.createIndex(index).subscribe(
         res => {
           const result = <ResultSet>res;
           if (!result.error) {
             this.getIndexes();
             this.getGeneratedNames();
-            this.newIndexForm.reset({name: '', method: 'btree'});
+            this.newIndexForm.reset({name: '', method: ''});
+            this.initNewIndexValues();
             this.newIndexCols = {};
             this.resultSet.header.forEach(( v ,k )=>{
               this.newIndexCols[v.name] = false;
@@ -764,7 +808,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }, err => {
           console.log(err);
         }
-      );
+      ).add(() => this.addingIndex = false);
     }
   }
 

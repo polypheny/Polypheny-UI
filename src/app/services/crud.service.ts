@@ -1,24 +1,28 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {Index, ModifyPartitionRequest, PartitioningRequest} from '../components/data-table/models/result-set.model';
+import {Index, ModifyPartitionRequest, PartitioningRequest} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
-  UIRequest,
-  SchemaRequest,
-  EditTableRequest,
-  ConstraintRequest,
   ColumnRequest,
-  QueryRequest,
+  ConstraintRequest,
   DeleteRequest,
-  UpdateRequest,
-  Schema, StatisticRequest, Exploration, ExploreTable
+  EditTableRequest,
+  ExploreTable,
+  QueryRequest,
+  RelAlgRequest,
+  Schema,
+  SchemaRequest,
+  StatisticRequest,
+  TableRequest
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
 import {Store} from '../views/stores/store.model';
 import {QueryInterface} from '../views/query-interfaces/query-interfaces.model';
+import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
+import {WebSocket} from './webSocket';
 
 @Injectable({
   providedIn: 'root'
@@ -31,12 +35,13 @@ export class CrudService {
     private _hub: HubService
   ) {
     this.initWebSocket();
+    setInterval(() => this.socket.next('keepalive'), 10_000);
   }
 
   public connected = false;
   private reconnected = new EventEmitter<boolean>();
-  httpUrl = this._settings.getConnection('crud.rest');
-  httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
+  private httpUrl = this._settings.getConnection('crud.rest');
+  private httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
   private socket;
 
   // rendering routerLinks from string might not be possible:7
@@ -44,27 +49,24 @@ export class CrudService {
   // workarounds:
   // https://stackoverflow.com/questions/44613069/angular4-routerlink-inside-innerhtml-turned-to-lowercase
 
-  getTable( data: UIRequest ) {
-    return this._http.post(`${this.httpUrl}/getTable`, JSON.stringify(data), this.httpOptions);
+  getTable( socket: WebSocket, data: TableRequest ): boolean {
+    return socket.sendMessage(data);
   }
 
   getSchema ( request: SchemaRequest ) {
     return this._http.post(`${this.httpUrl}/getSchemaTree`, request, this.httpOptions);
   }
 
-  /**
-   * @param data Json string with data to insert
-   */
-  //todo input: subclass of UIRequest
-  insertRow ( data: string ) {
-    return this._http.post(`${this.httpUrl}/insertRow`, data, this.httpOptions);
+  insertRow (formData: FormData ) {
+    return this._http.post( `${this.httpUrl}/insertRow`, formData, {reportProgress: true, observe: 'events'} );
   }
 
   /**
-   * @param query any query that should be executed on the server
+   * @param socket Socket object that is used to send the query
+   * @param query Any query that should be executed on the server
    */
-  anyQuery ( query: QueryRequest ) {
-    return this._http.post(`${this.httpUrl}/anyQuery`, query, this.httpOptions);
+  anyQuery ( socket: WebSocket, query: QueryRequest ): boolean {
+    return socket.sendMessage( query );
   }
 
   /**
@@ -111,11 +113,11 @@ export class CrudService {
   }
 
   /**
-   * update a row from a table
-   * @param request UpdateRequest
+   * Update a row from a table
+   * @param formData Data in the form of a FormData
    */
-  updateRow ( request: UpdateRequest ) {
-    return this._http.post(`${this.httpUrl}/updateRow`, request, this.httpOptions);
+  updateRow ( formData: FormData ) {
+    return this._http.post( `${this.httpUrl}/updateRow`, formData, {reportProgress: true, observe: 'events'} );
   }
 
   /**
@@ -218,7 +220,7 @@ export class CrudService {
    * Get data placement information
    */
   getDataPlacements(schema: string, table: string) {
-    const index = new Index(schema, table, '', '', []);
+    const index = new Index(schema, table, '', '', '', []);
     return this._http.post(`${this.httpUrl}/getPlacements`, index, this.httpOptions);
   }
 
@@ -226,7 +228,7 @@ export class CrudService {
    * Add or drop a placement
    */
   addDropPlacement(schema: string, table: string, store: string, method: 'ADD' | 'DROP' | 'MODIFY', columns = []) {
-    const index = new Index(schema, table, store, method, columns);
+    const index = new Index(schema, table, null, store, method, columns);
     return this._http.post(`${this.httpUrl}/addDropPlacement`, index, this.httpOptions);
   }
 
@@ -299,13 +301,6 @@ export class CrudService {
   }
 
   /**
-   * Close a query analyzer when not needed anymore
-   */
-  closeAnalyzer (id: string ) {
-    return this._http.post(`${this.httpUrl}/closeAnalyzer`, id, this.httpOptions);
-  }
-
-  /**
    * Add a foreign key (in the Uml view)
    */
   addForeignKey ( fk: ForeignKey ) {
@@ -315,8 +310,9 @@ export class CrudService {
   /**
    * Execute a relational algebra
    */
-  executeRelAlg ( relAlg: any ) {
-    return this._http.post(`${this.httpUrl}/executeRelAlg`, relAlg, this.httpOptions);
+  executeRelAlg ( socket: WebSocket, relAlg: Node ): boolean {
+    const request = new RelAlgRequest( relAlg );
+    return socket.sendMessage( request );
   }
 
   renameTable ( table: Index ) {
@@ -369,6 +365,10 @@ export class CrudService {
     return this._http.get( `${this.httpUrl}/getStores` );
   }
 
+  getAvailableStoresForIndexes( request: Index ){
+    return this._http.post( `${this.httpUrl}/getAvailableStoresForIndexes`, request, this.httpOptions );
+  }
+
   updateStoreSettings( store: Store ){
     return this._http.post( `${this.httpUrl}/updateStoreSettings`, store );
   }
@@ -403,6 +403,13 @@ export class CrudService {
 
   removeQueryInterface( queryInterfaceId: string ){
     return this._http.post( `${this.httpUrl}/removeQueryInterface`, queryInterfaceId, this.httpOptions );
+  }
+
+  /**
+   * Get the http url with which multimedia files can be displayed or downloaded
+   */
+  getFileUrl ( fileName: string ): string {
+    return `${this.httpUrl}/getFile/${fileName}`;
   }
 
   getNameValidator ( required: boolean = false ) {

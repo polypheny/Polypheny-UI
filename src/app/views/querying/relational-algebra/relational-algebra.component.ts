@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, ElementRef, HostBinding, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {Connection, LogicalOperator, LogicalOperatorUtil, Node} from './relational-algebra.model';
-import {ResultSet} from '../../../components/data-table/models/result-set.model';
+import {ResultSet} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {ToastService} from '../../../components/toast/toast.service';
 import * as $ from 'jquery';
@@ -18,6 +18,7 @@ import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
+import {WebSocket} from '../../../services/webSocket';
 
 @Component({
   selector: 'app-relational-algebra',
@@ -41,6 +42,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   analyzerId: string;
   showingAnalysis = false;
   queryAnalysis: InformationPage;
+  webSocket: WebSocket;
 
   //temporal values while dragging
   scrollTop: number;
@@ -61,6 +63,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     private _settings:WebuiSettingsService
   ) {
     this.socketOn = false;
+    this.webSocket = new WebSocket(_settings);
+    this.initWebsocket();
   }
 
 
@@ -72,8 +76,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       this.makeSocketConnection();
     });
     this.subscriptions.add(sub1);
-    this.initWebsocket();
-    const sub2 = this._crud.onReconnection().subscribe(
+    const sub2 = this.webSocket.onReconnect().subscribe(
       b => {
         if(b) {
           this.getOperators();
@@ -108,12 +111,12 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     $(document).off();
     $('#drop').off();
     this._leftSidebar.close();
-    this._crud.closeAnalyzer(this.analyzerId).subscribe();
     this.subscriptions.unsubscribe();
+    this.webSocket.close();
   }
 
   initWebsocket() {
-    const sub = this._crud.onSocketEvent().subscribe(
+    const sub = this.webSocket.onMessage().subscribe(
       msg => {
         //if msg contains nodes of the sidebar
         if (Array.isArray(msg)) {
@@ -148,6 +151,11 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
           sidebarNodes.unshift(new SidebarNode('analyzer', 'analyzer').asSeparator());
           sidebarNodes.unshift(new SidebarNode('separator', '&nbsp;').asSeparator());
           this._leftSidebar.setNodes(this.sidebarNodes.concat(sidebarNodes));
+        }
+        //a result
+        else {
+            $('#run i').removeClass().addClass('fa fa-play');
+            this.resultSet = <ResultSet>msg;
         }
       }, err => {
         setTimeout(() => {
@@ -465,15 +473,10 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       this._toast.warn( 'Please provide a plan to be executed.', 'no plan' );
       return;
     }
-    this._crud.executeRelAlg(tree).subscribe(
-      res => {
-        $('#run i').removeClass().addClass('fa fa-play');
-        this.resultSet = <ResultSet>res;
-      }, err => {
-        $('#run i').removeClass().addClass('fa fa-play');
-        this._toast.error('Could not execute relational algebra');
-      }
-    );
+    if(!this._crud.executeRelAlg( this.webSocket, tree )){
+      $('#run i').removeClass().addClass('fa fa-play');
+      this.resultSet = new ResultSet('Could not establish a connection with the server.');
+    }
   }
 
   /**
@@ -515,7 +518,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   /**
    * Add all children to a node recursively
    */
-  walkTree(node: Node) {
+  walkTree(node: Node): Node {
     const children = [];
     this.connections.forEach((v, k) => {
       if (v.target.getId() === node.getId()) {

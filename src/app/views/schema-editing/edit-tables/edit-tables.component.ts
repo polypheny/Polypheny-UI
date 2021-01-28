@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DbColumn, Index, PolyType, ResultSet, Status} from '../../../components/data-table/models/result-set.model';
+import {DbColumn, Index, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -242,7 +242,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   renameTable ( table: TableModel ) {
-    const t = new Index( this.schema, table.name, table.newName, null, null );
+    const t = new Index( this.schema, table.name, table.newName, null, null, null );
     this._crud.renameTable( t ).subscribe(
       res => {
         const r = <ResultSet> res;

@@ -1,19 +1,21 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
-import {TableConfig} from './table-config';
 import * as $ from 'jquery';
 import {cloneDeep} from 'lodash';
-import {ClassifyRequest, DeleteRequest, Exploration, ExploreTable, TableRequest, UpdateRequest} from '../../models/ui-request.model';
-import {PaginationElement} from './models/pagination-element.model';
-import {DbColumn, ExploreSet, ResultSet} from './models/result-set.model';
-import {SortDirection, SortState} from './models/sort-state.model';
-import {ToastDuration, ToastService} from '../toast/toast.service';
-import {CrudService} from '../../services/crud.service';
+import {ClassifyRequest, Exploration, ExploreTable} from '../../../models/ui-request.model';
+import {PaginationElement} from '../models/pagination-element.model';
+import {DbColumn, ExploreSet, ResultSet} from '../models/result-set.model';
+import {SortDirection, SortState} from '../models/sort-state.model';
+import {ToastDuration, ToastService} from '../../toast/toast.service';
+import {CrudService} from '../../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DbmsTypesService} from '../../services/dbms-types.service';
+import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as dot from 'graphlib-dot';
 import * as dagreD3 from 'dagre-d3';
 import * as d3 from 'd3';
 import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
+import {HttpEventType} from '@angular/common/http';
+import {DataViewComponent} from '../data-view.component';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
 
 
 @Component({
@@ -22,24 +24,14 @@ import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
   styleUrls: ['./data-table.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class DataTableComponent implements OnInit, OnChanges {
-  @Input() resultSet: ResultSet;
-  @Input() config: TableConfig;
-  @Input() tableId: string;
-  @Input() loading?: boolean;
-  @Input() exploreSet: ExploreSet;
-  @Input() exploreId: number;
+export class DataTableComponent extends DataViewComponent implements OnInit, OnChanges {
+  @Input() exploreSet?: ExploreSet;
+  @Input() exploreId?: number;
   @ViewChild('decisionTree', {static: false}) public decisionTree: TemplateRef<any>;
   @ViewChild('sql', {static: false}) public sql: TemplateRef<any>;
   @ViewChild('editorGenerated', {static: false}) editorGenerated;
   @ViewChild('tutorial', {static: false}) public tutorial: TemplateRef<any>;
 
-  pagination: PaginationElement[] = [];
-  insertValues = new Map<string, any>();
-  insertDirty = new Map<string, boolean>();//check if field has been edited (if yes, it is "dirty")
-  updateValues = new Map<string, any>();
-  sortStates = new Map<string, SortState>();
-  filter = new Map<string, string>();
   classifiedData: string[][];
   isExploringData = false;
   cData: string[][];
@@ -55,32 +47,32 @@ export class DataTableComponent implements OnInit, OnChanges {
   columns = [];
   userInput = {};
   tableColor = '#FFFFFF';
-  editing = -1;//-1 if not editing any row, else the index of that row
-  confirm = -1;
   exploreDataCounter = 0;
   labled = [];
 
 
   constructor(
-    private _crud: CrudService,
-    private _toast: ToastService,
-    private _route: ActivatedRoute,
-    private _router: Router,
-    private _types: DbmsTypesService,
-    private modalService: BsModalService
+    public _crud: CrudService,
+    public _toast: ToastService,
+    public _route: ActivatedRoute,
+    public _router: Router,
+    public _types: DbmsTypesService,
+    public _settings: WebuiSettingsService,
+    public modalService: BsModalService
   ) {
+    super( _crud, _toast, _route, _router, _types, _settings, modalService );
   }
 
 
   ngOnInit() {
 
-    if (this.config.update) {
+    if (this.config && this.config.update) {
       this.documentListener();
     }
 
     this.setPagination();
 
-    if (this.config.create) {
+    if (this.config && this.config.create) {
       this.buildInsertObject();
     }
 
@@ -99,6 +91,15 @@ export class DataTableComponent implements OnInit, OnChanges {
       this.resultSet.data[i].forEach((v, k) => {
         if (this.resultSet.header[k].dataType === 'bool') {
           this.updateValues.set(this.resultSet.header[k].name, this.getBoolean(v));
+        }
+        //assign multimedia types: null if the item is NULL, else undefined
+        //null items will be submitted and updated, undefined items will not be part of the UPDATE statement
+        else if ( this._types.isMultimedia( this.resultSet.header[k].dataType )) {
+          if( v === null ){
+            this.updateValues.set(this.resultSet.header[k].name, null);
+          } else {
+            this.updateValues.set(this.resultSet.header[k].name, undefined);
+          }
         } else {
           this.updateValues.set(this.resultSet.header[k].name, v);
         }
@@ -131,52 +132,16 @@ export class DataTableComponent implements OnInit, OnChanges {
     const self = this;
     $(document).on('click', function (e) {
       if ($(e.target).parents('.editing').length === 0) {
-        self.editing = -1;
+        //don't close editing row during upload
+        if ( self.uploadProgress < 0 ) {
+          self.editing = -1;
+        }
       }
     });
   }
 
-  setPagination() {
-    const activePage = this.resultSet.currentPage;
-    const highestPage = this.resultSet.highestPage;
-    this.pagination = [];
-    if (highestPage < 2) {
-      return;
-    }
-    const neighbors = 1;//from active page, show n neighbors to the left and n neighbors to the right.
-    this.pagination.push(new PaginationElement().withPage(this.tableId, Math.max(1, activePage - 1)).withLabel('<'));
-    if (activePage === 1) {
-      this.pagination.push(new PaginationElement().withPage(this.tableId, 1).setActive());
-    } else {
-      this.pagination.push(new PaginationElement().withPage(this.tableId, 1));
-    }
-    if (activePage - neighbors > 2) {
-      this.pagination.push(new PaginationElement().withLabel('..').setDisabled());
-
-    }
-    let counter = Math.max(2, activePage - neighbors);
-    while (counter <= activePage + neighbors && counter <= highestPage) {
-      if (counter === activePage) {
-        this.pagination.push(new PaginationElement().withPage(this.tableId, counter).setActive());
-      } else {
-        this.pagination.push(new PaginationElement().withPage(this.tableId, counter));
-      }
-      counter++;
-    }
-    counter--;
-    if (counter < highestPage) {
-      if (counter + neighbors < highestPage) {
-        this.pagination.push(new PaginationElement().withLabel('..').setDisabled());
-      }
-      this.pagination.push(new PaginationElement().withPage(this.tableId, highestPage));
-    }
-    this.pagination.push(new PaginationElement().withPage(this.tableId, Math.min(highestPage, activePage + 1)).withLabel('>'));
-
-    return this.pagination;
-  }
-
   buildInsertObject() {
-    if (!this.config.create) {
+    if (this.config && !this.config.create) {
       return;
     }
     this.insertValues.clear();
@@ -212,37 +177,50 @@ export class DataTableComponent implements OnInit, OnChanges {
   }
 
   insertRow() {
-    const data = {};
+    const formData = new FormData();
     this.insertValues.forEach((v, k) => {
       //only values with dirty state will be submitted. Columns that are not nullable are already set dirty
       if (this.insertDirty.get(k) === true) {
-        data[k] = v;
+        let value;
+        if (isNaN(v)){
+          value = v;
+        } else {
+          value = String(v);
+        }
+        formData.append( k, value );
       }
     });
-    const out = {tableId: this.resultSet.table, data: data};
-    this._crud.insertRow(JSON.stringify(out)).subscribe(
+    formData.append( 'tableId', String(this.resultSet.table) );
+    this.uploadProgress = 100;//show striped progressbar
+    this._crud.insertRow(formData).subscribe(
       res => {
-        const result = <ResultSet>res;
-        if (result.info.affectedRows === 1) {
-          $('.insert-input').val('');
-          this.insertValues.clear();
-          this.buildInsertObject();
-          this.getTable();
-        } else if (result.error) {
-          this._toast.warn('Could not insert the data: ' + result.error, 'insert error');
+        if( res.type && res.type === HttpEventType.UploadProgress ){
+          this.uploadProgress = Math.round(100 * res.loaded / res.total);
+        } else if( res.type === HttpEventType.Response ) {
+          this.uploadProgress = -1;
+          const result = <ResultSet>res.body;
+          if (result.error) {
+            this._toast.exception(result, 'Could not insert the data', 'insert error');
+          } else if (result.info.affectedRows === 1) {
+            $('.insert-input').val('');
+            this.insertValues.clear();
+            this.buildInsertObject();
+            this.getTable();
+          }
         }
       }, err => {
         this._toast.error('Could not insert the data.');
         console.log(err);
       }
-    );
+    ).add( () => this.uploadProgress = -1 );
   }
 
   newUpdateValue(key, val) {
     this.updateValues.set(key, val);
   }
 
-  updateRow() {
+  updateRow(event) {
+    event.stopPropagation();
     const oldValues = new Map<string, string>();//previous values
     $('.editing').each(function (e) {
       const oldVal = $(this).attr('data-before');
@@ -251,25 +229,46 @@ export class DataTableComponent implements OnInit, OnChanges {
         oldValues.set(col, oldVal);
       }
     });
-    const req = new UpdateRequest(this.resultSet.table, this.mapToObject(this.updateValues), this.mapToObject(oldValues));
-    this._crud.updateRow(req).subscribe(
+    const formData = new FormData();
+    formData.append( 'tableId', this.resultSet.table);
+    formData.append('oldValues', JSON.stringify(this.mapToObject(oldValues)));
+    for( const [k,v] of this.updateValues ) {
+      if( v === undefined ){
+        //don't add undefined file inputs, but if they are null, they need to be added
+        continue;
+      }
+      if( !(v instanceof File) ){
+        //stringify to distinguish between null and 'null'
+        formData.append( k, JSON.stringify(v) );
+      } else {
+        formData.append( k, v );
+      }
+    }
+    this.uploadProgress = 100;//show striped progressbar
+    //const req = new UpdateRequest(this.resultSet.table, this.mapToObject(this.updateValues), this.mapToObject(oldValues));
+    this._crud.updateRow(formData).subscribe(
       res => {
-        const result = <ResultSet>res;
-        if (result.info.affectedRows) {
-          this.getTable();
-          let rows = ' rows';
-          if (result.info.affectedRows === 1) {
-            rows = ' row';
+        if( res.type && res.type === HttpEventType.UploadProgress ){
+          this.uploadProgress = Math.round(100 * res.loaded / res.total);
+        } else if( res.type === HttpEventType.Response ) {
+          this.uploadProgress = -1;
+          const result = <ResultSet>res.body;
+          if (result.info.affectedRows) {
+            this.getTable();
+            let rows = ' rows';
+            if (result.info.affectedRows === 1) {
+              rows = ' row';
+            }
+            this._toast.success('Updated ' + result.info.affectedRows + rows, 'update', ToastDuration.SHORT);
+          } else if (result.error) {
+            this._toast.warn('Could not update this row: ' + result.error);
           }
-          this._toast.success('Updated ' + result.info.affectedRows + rows, 'update', ToastDuration.SHORT);
-        } else if (result.error) {
-          this._toast.warn('Could not update this row: ' + result.error);
         }
       }, err => {
         this._toast.error('Could not update the data.');
         console.log(err);
       }
-    );
+    ).add( () => this.uploadProgress = -1 );
   }
 
 
@@ -318,42 +317,6 @@ export class DataTableComponent implements OnInit, OnChanges {
     );
   }
 
-  getTable() {
-    const filterObj = this.mapToObject(this.filter);
-    const sortState = {};
-    this.resultSet.header.forEach((h) => {
-      this.sortStates.set(h.name, h.sort);
-      sortState[h.name] = h.sort;
-    });
-    this._crud.getTable(new TableRequest(this.tableId, this.resultSet.currentPage, filterObj, sortState)).subscribe(
-      res => {
-        //this.resultSet = <ResultSet> res;
-        const result = <ResultSet>res;
-        this.resultSet.data = result.data;
-        this.resultSet.highestPage = result.highestPage;
-        this.resultSet.error = result.error;
-        //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
-        if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
-          this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
-        }
-        this.setPagination();
-        this.editing = -1;
-        if (result.type === 'TABLE') {
-          this.config.create = true;
-          this.config.update = true;
-          this.config.delete = true;
-        } else {
-          this.config.create = false;
-          this.config.update = false;
-          this.config.delete = false;
-        }
-      }, err => {
-        this._toast.error('Could not load the data.');
-        console.log(err);
-      }
-    );
-  }
-
   filterTable(e, filterVal, col: DbColumn) {
     this.resultSet.currentPage = 1;
     if (e.keyCode === 27) { //esc
@@ -362,7 +325,7 @@ export class DataTableComponent implements OnInit, OnChanges {
       this.getTable();
       return;
     }
-    if (col.dataType.includes('ARRAY')) {
+    if (col.collectionsType || col.dataType.includes('ARRAY')) {
       if (this.isValidArray(filterVal) || !filterVal) {
         this.filter.set(col.name, filterVal);
       }
@@ -395,41 +358,6 @@ export class DataTableComponent implements OnInit, OnChanges {
       }
       this.getTable();
     }
-  }
-
-  deleteRow(values: string[], i) {
-    if (this.confirm !== i) {
-      this.confirm = i;
-      return;
-    }
-    const rowMap = new Map<string, string>();
-    values.forEach((val, key) => {
-      rowMap.set(this.resultSet.header[key].name, val);
-    });
-    const row = this.mapToObject(rowMap);
-    const request = new DeleteRequest(this.resultSet.table, row);
-    this._crud.deleteRow(request).subscribe(
-      res => {
-        const result = <ResultSet>res;
-        if (result.info.affectedRows) {
-          this.getTable();
-        } else {
-          const result2 = <ResultSet>res;
-          this._toast.exception(result2, 'Could not delete this row:');
-        }
-      }, err => {
-        this._toast.error('Could not delete this row.');
-        console.log(err);
-      }
-    );
-  }
-
-  mapToObject(map: Map<any, any>) {
-    const obj = {};
-    map.forEach((v, k) => {
-      obj[k] = v;
-    });
-    return obj;
   }
 
   /**
@@ -496,7 +424,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     if (!val) {
       return;
     }
-    if (col.dataType.includes('ARRAY')) {
+    if (col.collectionsType || col.dataType.includes('ARRAY')) {
       if (!this.isValidArray(val)) {
         return 'is-invalid';
       }
@@ -633,4 +561,55 @@ export class DataTableComponent implements OnInit, OnChanges {
       return el !== '?';
     }).length;
   }
+
+  displayRowItem ( data: string, col: DbColumn ) {
+    if( data == null ) {
+      return '';
+    } else if ( !col ) {
+      return data;
+    } else {
+      if( data.length > 1000 ) {
+        return data.slice(0, 1000) + '...';
+      }
+    }
+    return data;
+  }
+
+  getTooltip ( col: DbColumn ): string {
+    if( !col ) {
+      return '';
+    }
+    let out = 'name: ' + col.name;
+    out += '\ntype: ' + col.dataType;
+    if( col.collectionsType ){
+      out += '\ncollection: ' + col.collectionsType;
+    }
+    if( col.primary ){
+      out += '\nprimary';
+    }
+    if( col.unique ){
+      out += '\nunique: ' + col.unique;
+    }
+    if( col.nullable ){
+      out += '\nnullable: ' + col.nullable;
+    }
+    if( col.defaultValue ){
+      out += '\ndefaultValue: ' + col.defaultValue;
+    }
+
+    if( col.precision ){
+      out += '\nprecision: ' + col.precision;
+    }
+    if( col.scale ){
+      out += '\nscale: ' + col.scale;
+    }
+    if( col.dimension ){
+      out += '\ndimension: ' + col.dimension;
+    }
+    if( col.cardinality ){
+      out += '\ncardinality: ' + col.cardinality;
+    }
+    return out;
+  }
+
 }

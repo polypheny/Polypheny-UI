@@ -4,48 +4,48 @@ import {SortState} from './sort-state.model';
  * model for the result of a query coming from the server
  */
 
-export class ResultSet{
-    header: DbColumn[];
-    data: string[][];
-    hasMoreRows: boolean;
-    currentPage: number;
-    highestPage: number;
-    table: string;
-    tables: string[];
-    error: string;
-    exception: ResultException;
-    info: Debug;
-    type: string;//"table" or "view"
-    explorerId: number;
-    classificationInfo: string;
-    includesClassificationInfo:boolean;
-    classifiedData: string[][];
-    isConvertedToSql: boolean;
+export class ResultSet {
+  header: DbColumn[];
+  data: string[][];
+  hasMoreRows: boolean;
+  currentPage: number;
+  highestPage: number;
+  table: string;
+  tables: string[];
+  error: string;
+  exception: ResultException;
+  info: Debug;
+  type: string;//"table" or "view"
+  explorerId: number;
+  classificationInfo: string;
+  includesClassificationInfo: boolean;
+  classifiedData: string[][];
+  isConvertedToSql: boolean;
 
-    constructor ( error: string ){
-        this.error = error;
-    }
+  constructor(error: string, generatedQuery = '', affectedRows = 0) {
+    this.error = error;
+    this.info = {generatedQuery: generatedQuery, affectedRows: affectedRows};
+  }
 }
 
 /**
  * model with classified data coming form server
  */
-export class ExploreSet{
-    header: DbColumn[];
-    dataAfterClassification: String[];
-    exploreManagerId;
-    graph: String;
+export class ExploreSet {
+  header: DbColumn[];
+  dataAfterClassification: String[];
+  exploreManagerId;
+  graph: String;
 }
 
-export class ExplorColSet{
-    [column: string]: {
-    }
+export class ExplorColSet {
+  [column: string]: {}
 }
 
-export class SelectedColSet{
-    [column: string]: {
-        selected: string
-    }
+export class SelectedColSet {
+  [column: string]: {
+    selected: string
+  }
 }
 
 /**
@@ -162,10 +162,16 @@ export class Index {
     private schema: string,
     private table: string,
     private name: string,
+    private storeUniqueName: string,
     private method: string,
     private columns: string[]
   ) {
   }
+}
+
+export class AvailableIndexMethod {
+  name: string;
+  displayName: string;
 }
 
 /**
@@ -215,4 +221,11 @@ export class ModifyPartitionRequest {
     public partitions: string[],
     public storeUniqueName: string
   ) {}
+}
+
+/**
+ * How a ResultSet should be displayed
+ */
+export enum DataPresentationType {
+  TABLE, CAROUSEL, CARD
 }
