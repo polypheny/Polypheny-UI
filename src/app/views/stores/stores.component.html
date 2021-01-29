@@ -1,16 +1,16 @@
 <app-toast></app-toast>
 <ng-container [ngSwitch]="route">
 
-  <!-- adapters -->
-  <div class="row" *ngSwitchCase="'addStore'">
+  <!-- availableAdapters -->
+  <div class="row" *ngSwitchCase="['addStore','addSource'].includes(route) ? route : ''">
     <div class="col-lg-12">
       <h2>Adapters</h2>
     </div>
   </div>
-  <div class="row" *ngSwitchCase="'addStore'">
+  <div class="row" *ngSwitchCase="['addStore','addSource'].includes(route) ? route : ''">
     <button class="btn btn-circle btn-primary topRight" [routerLink]="['./../']"><i class="fa fa-close"></i></button>
 
-    <div class="col-lg-12" *ngIf="adapters">
+    <div class="col-lg-12" *ngIf="getAvailableAdapters()">
       <table class="table table-hover table-sm table-bordered table-striped" id="adapter-table">
         <thead>
           <tr>
@@ -21,7 +21,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let adapter of adapters">
+          <tr *ngFor="let adapter of getAvailableAdapters()">
             <td class="center">
               <ng-container *ngIf="getLogo(adapter.name).startsWith('assets/')">
                 <img [src]="getLogo(adapter.name)" alt="">
@@ -41,41 +41,58 @@
     </div>
   </div>
 
-  <!-- stores -->
-  <div class="row" *ngSwitchDefault>
-    <div class="col-lg-12">
-      <h2>Stores</h2>
-    </div>
-  </div>
-  <div class="row" *ngSwitchDefault id="stores">
-    <button class="btn btn-circle btn-primary topRight" [routerLink]="['./addStore']"><i class="fa fa-plus"></i></button>
-    <div class="col-lg-6 fixed-width" *ngFor="let store of stores">
+  <!-- template for current stores and sources, it is called below -->
+  <ng-template #adapterTemplate let-adapters="adapters" let-type="type">
+    <div class="col-lg-6 fixed-width" *ngFor="let adapter of adapters">
 
       <div class="card fixed-height">
         <div class="card-header">
-          {{store.uniqueName}}
+          {{adapter.uniqueName}}
         </div>
         <div class="card-body">
-          <img *ngIf="getLogo(store.adapterName).startsWith('assets/')" [src]="getLogo(store.adapterName)" alt="" class="logo">
-          <i *ngIf="!getLogo(store.adapterName).startsWith('assets/')" [class]="'logo ' + getLogo(store.adapterName)"></i>
-          <span class="mb-2">Adapter: {{store.adapterName}}</span>
+          <img *ngIf="getLogo(adapter.adapterName).startsWith('assets/')" [src]="getLogo(adapter.adapterName)" alt="" class="logo">
+          <i *ngIf="!getLogo(adapter.adapterName).startsWith('assets/')" [class]="'logo ' + getLogo(adapter.adapterName)"></i>
+          <span class="mb-2">Adapter: {{adapter.adapterName}}</span>
 
-          <span *ngIf="store.schemaReadOnly"><span class="fa fa-lock" style="padding-left: 2px"></span> schema-read-only</span>
-          <!--<span *ngIf="!store.schemaReadOnly"><span class="fa fa-cubes" style="padding-left: 2px; width:1.4em"></span> supports schema changes</span>-->
-          <span *ngIf="store.dataReadOnly"><span class="fa fa-eye"></span> data-read-only</span>
-          <!--<span *ngIf="!store.dataReadOnly"><span class="icon-pencil" style="display: inline-block; width:1.4em"></span> supports data modification</span>-->
-          <span *ngIf="store.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
-          <!--<span *ngIf="!store.persistent"><span class="cui-cloud" style="display: inline-block; padding-left: 1px; width:1.4em"></span> volatile</span>-->
+          <span *ngIf="adapter.schemaReadOnly"><span class="fa fa-lock" style="padding-left: 2px"></span> schema-read-only</span>
+          <span *ngIf="adapter.dataReadOnly"><span class="fa fa-eye"></span> data-read-only</span>
+          <span *ngIf="adapter.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
 
         </div>
         <div class="card-footer bg-transparent">
-          <button class="btn btn-danger" (click)="removeStore(store)" (mouseleave)="deletingStore = undefined">
-            <i class="cui-trash" [ngClass]="{'cui-trash': store !== deletingStore, 'fa fa-warning': store === deletingStore}"></i>
+          <button class="btn btn-danger" (click)="removeAdapter(adapter)" (mouseleave)="deletingAdapter = undefined">
+            <i class="cui-trash" [ngClass]="{'cui-trash': adapter !== deletingAdapter, 'fa fa-warning': adapter === deletingAdapter}"></i>
           </button>
-          <button class="btn btn-primary pull-right" (click)="initStoreSettings(store)">Configure</button>
+          <button class="btn btn-primary pull-right" (click)="initStoreSettings(adapter)">Configure</button>
         </div>
       </div>
 
+    </div>
+    <div class="col-lg-6 fixed-height add-adapter-wrapper">
+      <button *ngIf="type === 'source'" class="btn btn-primary add-adapter" [routerLink]="['./addSource']"><i class="fa fa-plus"></i></button>
+      <button *ngIf="type === 'store'" class="btn btn-primary add-adapter" [routerLink]="['./addStore']"><i class="fa fa-plus"></i></button>
+    </div>
+  </ng-template>
+
+  <!-- show current stores and sources -->
+  <div *ngSwitchDefault>
+    <div class="row">
+      <div class="col-lg-12">
+        <h2>Stores</h2>
+      </div>
+    </div>
+    <div class="row adapters">
+      <ng-container *ngTemplateOutlet="adapterTemplate; context:{adapters: stores, type: 'store'}"></ng-container>
+    </div>
+  </div>
+  <div *ngSwitchDefault>
+    <div class="row">
+      <div class="col-lg-12">
+        <h2>Sources</h2>
+      </div>
+    </div>
+    <div class="row adapters">
+      <ng-container *ngTemplateOutlet="adapterTemplate; context:{adapters: sources, type: 'source'}"></ng-container>
     </div>
   </div>
 
@@ -92,7 +109,7 @@
         </button>
       </div>
 
-      <!-- stores -->
+      <!-- Edit adapter settings -->
       <div class="modal-body" *ngIf="editingStore && editingStore.adapterSettings">
         <form [formGroup]="editingStoreForm" autocomplete="off">
           <div class="form-group" *ngFor="let control of editingStoreForm.controls | keyvalue">
@@ -101,7 +118,7 @@
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
-                     [ngClass]="validate(editingStoreForm, control.key)">
+                     [ngClass]="validate(editingStoreForm, control.key)" (keyup.enter)="saveStoreSettings()">
               <div class="invalid-feedback">required</div>
             </div>
             <div class="form-group" *ngIf="getAdapterSetting(editingStore, control.key).options">
@@ -119,7 +136,7 @@
         </form>
       </div>
 
-      <!-- adapters -->
+      <!-- Form for deploying -->
       <div class="modal-body" *ngIf="editingAdapter && editingAdapter.adapterSettings">
         <form [formGroup]="adapterUniqueNameForm" (ngSubmit)="deploy()" autocomplete="off">
           <div class="form-group">
@@ -128,7 +145,7 @@
                 <label for="adapterUniqueName" class="input-group-text">Store Name</label>
               </div>
               <input type="text" class="form-control" id="adapterUniqueName" formControlName="uniqueName"
-                     [ngClass]="validate(adapterUniqueNameForm, 'uniqueName')">
+                     [ngClass]="validate(adapterUniqueNameForm, 'uniqueName')" (keyup.enter)="deploy()">
               <div class="invalid-feedback">{{getFeedback()}}</div>
             </div>
           </div>
@@ -140,7 +157,7 @@
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
-                     [ngClass]="validate(editingAdapterForm, control.key)">
+                     [ngClass]="validate(editingAdapterForm, control.key)" (keyup.enter)="deploy()">
               <div class="invalid-feedback">required</div>
             </div>
             <div class="form-group" *ngIf="getAdapterSetting(editingAdapter, control.key).options">

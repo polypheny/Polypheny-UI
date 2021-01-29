@@ -95,9 +95,9 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   }
 
   createSchema() {
-    this.createSubmitted = true;
     if (this.createForm.valid && this.createSchemaValidation(this.createForm.controls['name'].value) === 'is-valid') {
       const val = this.createForm.value;
+      this.createSubmitted = true;
       this._crud.createOrDropSchema(new Schema(val.name, val.type).setCreate(true)).subscribe(
         res => {
           const result = <ResultSet>res;
@@ -107,21 +107,20 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
             this._toast.success('Created schema ' + val.name);
             this.getSchema();
           }
-          this.createSubmitted = false;
           this.resetForm('createForm');
         }, err => {
           this._toast.error('An unknown error occurred on the server');
         }
-      );
+      ).add( () => this.createSubmitted = false );
     } else {
       this._toast.warn(this.createSchemaFeedback, 'cannot create');
     }
   }
 
   dropSchema() {
-    this.dropSubmitted = true;
     if (this.dropForm.valid && this.getValidationClass(this.dropForm.controls['name'].value) === 'is-valid') {
       const val = this.dropForm.value;
+      this.dropSubmitted = true;
       this._crud.createOrDropSchema(new Schema(val.name, val.type).setDrop(true).setCascade(val.cascade)).subscribe(
         res => {
           const result = <ResultSet>res;
@@ -131,12 +130,11 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
             this._toast.success('Dropped schema ' + val.name);
             this.getSchema();
           }
-          this.dropSubmitted = false;
           this.resetForm('dropForm');
         }, err => {
           this._toast.error('An unknown error occurred on the server');
         }
-      );
+      ).add( () => this.dropSubmitted = false );
     } else {
       this._toast.warn('This schema does not exist', 'cannot drop');
     }

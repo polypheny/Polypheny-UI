@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Store, AdapterInformation, AdapterSetting} from './store.model';
+import {Store, AdapterInformation, AdapterSetting, Source, Adapter} from './store.model';
 import {ToastService} from '../../components/toast/toast.service';
 import {AbstractControl, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {ResultSet} from '../../components/data-view/models/result-set.model';
@@ -16,14 +16,16 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 export class StoresComponent implements OnInit, OnDestroy {
 
   stores: Store[];
-  adapters: AdapterInformation[];
+  sources: Source[];
+  availableStores: AdapterInformation[];
+  availableSources: AdapterInformation[];
   route: String;
   routeListener;
   private subscriptions = new Subscription();
 
-  editingStore: Store;
+  editingStore: Adapter;
   editingStoreForm: FormGroup;
-  deletingStore;
+  deletingAdapter;
 
   editingAdapter: AdapterInformation;
   editingAdapterForm: FormGroup;
@@ -39,7 +41,7 @@ export class StoresComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.getStores();
+    this.getStoresAndSources();
     this.getAdapters();
     this.route = this._route.snapshot.paramMap.get('action');
     this.routeListener = this._route.params.subscribe(params => {
@@ -48,7 +50,7 @@ export class StoresComponent implements OnInit, OnDestroy {
     const sub = this._crud.onReconnection().subscribe(
       b => {
         if(b) {
-          this.getStores();
+          this.getStoresAndSources();
           this.getAdapters();
         }
       }
@@ -60,7 +62,7 @@ export class StoresComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  getStores(){
+  getStoresAndSources(){
     this._crud.getStores().subscribe(
       res => {
         const stores = <Store[]> res;
@@ -70,18 +72,43 @@ export class StoresComponent implements OnInit, OnDestroy {
         console.log(err);
       }
     );
-  }
-
-  getAdapters(){
-    this._crud.getAdapters().subscribe(
+    this._crud.getSources().subscribe(
       res => {
-        const adapters = <AdapterInformation[]> res;
-        adapters.sort((a, b) => (a.name > b.name) ? 1 : -1);
-        this.adapters = <AdapterInformation[]> res;
+        this.sources = <Source[]> res;
       }, err => {
         console.log(err);
       }
     );
+  }
+
+  getAdapters(){
+    this._crud.getAvailableStores().subscribe(
+      res => {
+        const stores = <AdapterInformation[]> res;
+        stores.sort((a, b) => (a.name > b.name) ? 1 : -1);
+        this.availableStores = stores;
+      }, err => {
+        console.log(err);
+      }
+    );
+    this._crud.getAvailableSources().subscribe(
+      res => {
+        const sources = <AdapterInformation[]> res;
+        sources.sort((a, b) => (a.name > b.name) ? 1 : -1);
+        this.availableSources = sources;
+      }, err => {
+        console.log(err);
+      }
+    );
+  }
+
+  getAvailableAdapters() {
+    if(this.route === 'addStore'){
+      return this.availableStores;
+    } else if(this.route === 'addSource'){
+      return this.availableSources;
+    }
+    return null;
   }
 
   onCloseModal(){
@@ -91,15 +118,15 @@ export class StoresComponent implements OnInit, OnDestroy {
     this.editingAdapterForm = undefined;
   }
 
-  initStoreSettings( store: Store ){
-    this.editingStore = store;
+  initStoreSettings( adapter: Adapter ){
+    this.editingStore = adapter;
     const fc = {};
     for (const [k, v] of Object.entries(this.editingStore.adapterSettings)) {
       const validators = [];
       if (v.required) {
         validators.push(Validators.required);
       }
-      const val = store.currentSettings[v.name];
+      const val = adapter.currentSettings[v.name];
       fc[v.name] = new FormControl({value: val, disabled: !v.modifiable}, validators);
     }
     this.editingStoreForm = new FormGroup( fc );
@@ -112,11 +139,11 @@ export class StoresComponent implements OnInit, OnDestroy {
     for( const [k,v] of Object.entries( this.editingStoreForm.controls )){
       store.settings[k] = v.value;
     }
-    this._crud.updateStoreSettings( store ).subscribe(
+    this._crud.updateAdapterSettings( store ).subscribe(
       res => {
         this._toast.success('updated store settings');
         this.storeSettingsModal.hide();
-        this.getStores();
+        this.getStoresAndSources();
       }, err => {
         this._toast.error('could not update store settings');
         console.log(err);
@@ -185,21 +212,21 @@ export class StoresComponent implements OnInit, OnDestroy {
     );
   }
 
-  removeStore( store: Store ){
-    if( this.deletingStore !== store ){
-      this.deletingStore = store;
+  removeAdapter(adapter: Adapter ){
+    if( this.deletingAdapter !== adapter ){
+      this.deletingAdapter = adapter;
     } else {
-      this._crud.removeStore( store.uniqueName ).subscribe(
+      this._crud.removeAdapter( adapter.uniqueName ).subscribe(
         res => {
           const result = <ResultSet> res;
           if(!result.error){
-            this._toast.success('Removed store');
-            this.getStores();
+            this._toast.success('Removed adapter');
+            this.getStoresAndSources();
           }else{
             this._toast.exception( result );
           }
         }, err => {
-          this._toast.error('Could not remove store', 'server error');
+          this._toast.error('Could not remove adapter', 'server error');
           console.log(err);
         }
       );

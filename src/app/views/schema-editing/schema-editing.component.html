@@ -29,7 +29,7 @@
                   </select>
                 </div>
                 <div class="form-group mb-0">
-                  <button type="submit" class="btn btn-primary float-right">Create</button>
+                  <button type="submit" class="btn btn-primary float-right" [ngClass]="{'progress-bar-striped progress-bar-animated': createSubmitted}" [disabled]="createSubmitted">Create</button>
                 </div>
               </form>
             </div>
@@ -55,7 +55,7 @@
                     <label for="cascade" class="form-check-label">cascade</label>
                 </div>-->
                 <div class="form-group mb-0">
-                  <button type="submit" class="btn btn-danger float-right">Drop</button>
+                  <button type="submit" class="btn btn-danger float-right" [ngClass]="{'progress-bar-striped progress-bar-animated': dropSubmitted}" [disabled]="dropSubmitted">Drop</button>
                 </div>
               </form>
             </div>

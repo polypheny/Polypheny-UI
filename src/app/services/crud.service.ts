@@ -369,20 +369,28 @@ export class CrudService {
     return this._http.post( `${this.httpUrl}/getAvailableStoresForIndexes`, request, this.httpOptions );
   }
 
-  updateStoreSettings( store: Store ){
-    return this._http.post( `${this.httpUrl}/updateStoreSettings`, store );
+  updateAdapterSettings(store: Store ){
+    return this._http.post( `${this.httpUrl}/updateAdapterSettings`, store );
   }
 
-  getAdapters(){
-    return this._http.get( `${this.httpUrl}/getAdapters` );
+  getSources(){
+    return this._http.get( `${this.httpUrl}/getSources` );
+  }
+
+  getAvailableStores(){
+    return this._http.get( `${this.httpUrl}/getAvailableStores` );
+  }
+
+  getAvailableSources() {
+    return this._http.get( `${this.httpUrl}/getAvailableSources` );
   }
 
   addStore( store: any ){
     return this._http.post( `${this.httpUrl}/addStore`, store, this.httpOptions );
   }
 
-  removeStore( storeId: string ){
-    return this._http.post( `${this.httpUrl}/removeStore`, storeId, this.httpOptions );
+  removeAdapter(storeId: string ){
+    return this._http.post( `${this.httpUrl}/removeAdapter`, storeId, this.httpOptions );
   }
 
   getQueryInterfaces () {

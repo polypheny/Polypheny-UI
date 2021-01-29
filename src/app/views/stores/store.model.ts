@@ -1,7 +1,7 @@
 import {AvailableIndexMethod, ResultException} from '../../components/data-view/models/result-set.model';
 
-export interface Store {
-  storeId: number;
+export interface Adapter {
+  adapterId: number;
   uniqueName: string;
   adapterName;
   adapterSettings: AdapterSetting[];
@@ -13,7 +13,15 @@ export interface Store {
   partitionKeys: number[];
   numPartitions: number;
   partitionType: PartitionType;
+}
+
+export interface Source extends Adapter{
+  //intentionally empty
+}
+
+export interface Store extends Adapter{
   availableIndexMethods: AvailableIndexMethod[];
+  persistent: boolean;
 }
 
 export interface AdapterInformation {

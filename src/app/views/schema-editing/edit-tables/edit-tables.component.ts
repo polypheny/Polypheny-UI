@@ -30,6 +30,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   newTableName = '';
   stores: Store[];
   selectedStore;
+  creatingTable = false;
 
   //export table
   showExportButton = false;
@@ -219,6 +220,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       return;
     }
     const request = new EditTableRequest(this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore);
+    this.creatingTable = true;
     this._crud.createTable(request).subscribe(
       res => {
         const result = <ResultSet>res;
@@ -238,7 +240,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         this._toast.error('Could not generate table');
         console.log(err);
       }
-    );
+    ).add( () => this.creatingTable = false );
   }
 
   renameTable ( table: TableModel ) {
