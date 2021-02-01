@@ -115,12 +115,12 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         if( result.error){
           this._toast.exception(result);
         } else{
-          this._toast.success('Renamed column ' + oldCol.name + ' to ' + newName);
+          this._toast.success('Renamed column "' + oldCol.name + '" to "' + newName + '"');
         }
         this.editingCol = undefined;
         this.fetchCurrentColumns();
       }, err => {
-        this._toast.error('Could not rename the column ' + oldCol.name + ' to ' + newName);
+        this._toast.error('Could not rename the column "' + oldCol.name + '" to "' + newName + '"');
         console.log(err);
       }
     );
@@ -134,12 +134,12 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         if( result.error){
           this._toast.exception(result);
         } else{
-          this._toast.success('Added column ' + newName);
+          this._toast.success('Added column "' + newName + '"');
         }
         this.fetchCurrentColumns();
         this.editingCol = undefined;
       }, err => {
-        this._toast.error('Could not add the column ' + newName);
+        this._toast.error('Could not add the column "' + newName + '"');
         console.log(err);
       }
     );
