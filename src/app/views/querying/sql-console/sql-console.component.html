@@ -35,7 +35,7 @@
       <label class="custom-control-label" for="checkbox2">save in history</label>
     </div>
     <button *ngIf="!loading" type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
-    <button *ngIf="loading" type="submit" class="btn btn-primary pull-right" disabled>Loading</button>
+    <button *ngIf="loading" type="submit" class="btn btn-primary progress-bar-striped progress-bar-animated pull-right" disabled>Loading</button>
   </div>
 </div>
 

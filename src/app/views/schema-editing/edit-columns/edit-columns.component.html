@@ -1,5 +1,6 @@
 <app-toast></app-toast>
-<div class="row">
+<app-edit-source-columns *ngIf="isSource()"></app-edit-source-columns>
+<div class="row" *ngIf="!isSource()">
 
   <div class="col-lg-12">
 
@@ -445,7 +446,7 @@
 
 </div>
 
-<div bsModal #placementModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="clearPlacementModal()">
+<div *ngIf="!isSource()" bsModal #placementModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="clearPlacementModal()">
   <form [formGroup]="columnPlacement" *ngIf="columnPlacement">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -481,7 +482,7 @@
   </form>
 </div>
 
-<div bsModal #partitioningModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="clearPartitioningModal()">
+<div *ngIf="!isSource()" bsModal #partitioningModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="clearPartitioningModal()">
   <!--<form [formGroup]="columnPlacement" *ngIf="columnPlacement">-->
     <div class="modal-dialog" role="document">
       <div class="modal-content" *ngIf="selectedStore && partitionsToModify">

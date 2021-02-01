@@ -80,6 +80,7 @@ export class FilteredUserInput {
 export class DbColumn {
   //for both
   name: string;
+  physicalName: string;
 
   //for the data-table
   sort: SortState;
@@ -97,8 +98,11 @@ export class DbColumn {
   dimension: number;
   cardinality: number;
 
+  //for data sources
+  as: string;
+
   constructor(
-    name: string, primary: boolean = null, nullable: boolean = null, type: string = null, collectionsType: string = null, precision: number = null, scale: number, defaultValue: string = null, dimension: number = -1, cardinality: number = -1) {
+    name: string, primary: boolean = null, nullable: boolean = null, type: string = null, collectionsType: string = null, precision: number = null, scale: number, defaultValue: string = null, dimension: number = -1, cardinality: number = -1, as = null) {
     this.name = name;
     this.primary = primary;
     this.nullable = nullable;
@@ -109,10 +113,11 @@ export class DbColumn {
     this.defaultValue = defaultValue;
     this.dimension = dimension;
     this.cardinality = cardinality;
+    this.as = as;
   }
 
   static fromJson(obj) {
-    return new DbColumn(obj.name, obj.primary, obj.nullable, obj.dataType, obj.collectionsType, obj.precision, obj.scale, obj.defaultValue, obj.dimension, obj.cardinality);
+    return new DbColumn(obj.name, obj.primary, obj.nullable, obj.dataType, obj.collectionsType, obj.precision, obj.scale, obj.defaultValue, obj.dimension, obj.cardinality, obj.as);
   }
 }
 

@@ -128,6 +128,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     });
   }
 
+  isSource() {
+    if(!this.resultSet){
+      return true;
+    }
+    return this.resultSet.type.toLowerCase() === 'view';
+  }
+
   getColumns () {
     this._crud.getColumns( new ColumnRequest( this.tableId )).subscribe(
       res => {

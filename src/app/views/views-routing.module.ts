@@ -103,17 +103,17 @@ const routes: Routes = [
     }
   },
   {
-    path: 'stores',
+    path: 'adapters',
     component: StoresComponent,
     data: {
-      title: 'Stores'
+      title: 'Adapters'
     }
   },
   {
-    path: 'stores/:action',
+    path: 'adapters/:action',
     component: StoresComponent,
     data: {
-      title: 'Stores'
+      title: 'Adapters'
     }
   },
   {

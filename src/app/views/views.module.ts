@@ -35,6 +35,7 @@ import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import { NgxSliderModule } from '@m0t0r/ngx-slider';
 import { QueryInterfacesComponent } from './query-interfaces/query-interfaces.component';
+import { EditSourceColumnsComponent } from './schema-editing/edit-source-columns/edit-source-columns.component';
 
 
 @NgModule({
@@ -80,7 +81,8 @@ import { QueryInterfacesComponent } from './query-interfaces/query-interfaces.co
     RefinementOptionsComponent,
     ExploreByExampleComponent,
     AboutComponent,
-    QueryInterfacesComponent
+    QueryInterfacesComponent,
+    EditSourceColumnsComponent
   ],
     exports: [
         ExploreByExampleComponent

@@ -121,10 +121,21 @@ export class CrudService {
   }
 
   /**
-   * get the columns of a table
+   * get the columns of a DataStore
    */
   getColumns ( columnRequest: ColumnRequest ) {
     return this._http.post(`${this.httpUrl}/getColumns`, columnRequest, this.httpOptions);
+  }
+
+  /**
+   * Get the columns of a DataSource
+   */
+  getDataSourceColumns ( request: TableRequest ) {
+    return this._http.post(`${this.httpUrl}/getDataSourceColumns`, request, this.httpOptions);
+  }
+
+  getExportedColumns ( request: TableRequest ) {
+    return this._http.post(`${this.httpUrl}/getExportedColumns`, request, this.httpOptions);
   }
 
   /**
