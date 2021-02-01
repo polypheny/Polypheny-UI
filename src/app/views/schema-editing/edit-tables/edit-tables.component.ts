@@ -13,6 +13,7 @@ import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {UtilService} from '../../../services/util.service';
 import * as $ from 'jquery';
+import {DbTable} from '../../uml/uml.model';
 
 @Component({
   selector: 'app-edit-tables',
@@ -101,12 +102,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   getTables() {
     this._crud.getTables(new EditTableRequest(this.schema)).subscribe(
       res => {
-        const result = <ResultSet>res;
-        if (result.error !== undefined) {
-          this._toast.exception(result, 'Could not retrieve list of tables:');
-        }
+        const result = <DbTable[]>res;
         this.tables = [];
-        for(const t of result.tables){
+        for(const t of result){
           this.tables.push( new TableModel(t) );
         }
         this.tables = this.tables.sort( (a,b) => a.name.localeCompare(b.name) );
@@ -413,8 +411,12 @@ class TableModel {
   export = false;
   editing = false;
   newName: string;
-  constructor( name:string ) {
-    this.name = name;
-    this.newName = name;
+  modifiable: boolean;
+  tableType: string;
+  constructor( table:DbTable) {
+    this.name = table.tableName;
+    this.newName = table.tableName;
+    this.modifiable = table.modifiable;
+    this.tableType = table.tableType;
   }
 }

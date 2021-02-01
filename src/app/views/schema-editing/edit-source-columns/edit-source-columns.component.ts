@@ -5,6 +5,7 @@ import {ColumnRequest, TableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {ToastService} from '../../../components/toast/toast.service';
+import {Placements} from '../../adapters/adapter.model';
 
 @Component({
   selector: 'app-edit-source-columns',
@@ -18,6 +19,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   exportedColumns: Map<string, ResultSet> = new Map<string, ResultSet>();
   errorMsg: string;
   editingCol: string;
+  dataPlacement: Placements;
 
   constructor(
     private _crud: CrudService,
@@ -30,9 +32,11 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     this._route.params.subscribe((params) => {
       this.tableId = params['id'];
       this.fetchCurrentColumns();
+      this.getPlacements();
     });
     this.fetchCurrentColumns();
     this.fetchExportedColumns();
+    this.getPlacements();
     const self = this;
     $(document).on('click', function(e){
       if( $(e.target).hasClass('rename') || $(e.target).hasClass('add-col') ) {
@@ -140,6 +144,18 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         this.editingCol = undefined;
       }, err => {
         this._toast.error('Could not add the column "' + newName + '"');
+        console.log(err);
+      }
+    );
+  }
+
+  getPlacements () {
+    const t = this.tableId.split('.');
+    this._crud.getDataPlacements( t[0], t[1] ).subscribe(
+      res => {
+        this.dataPlacement = <Placements> res;
+      }, err => {
+        this._toast.error('Could not load data placements');
         console.log(err);
       }
     );

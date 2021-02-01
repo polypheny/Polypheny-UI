@@ -29,7 +29,7 @@
             </div>
           </td>
             <td>
-                <div class="input-group">
+                <div class="input-group" *ngIf="table.modifiable">
                     <input type="text" class="form-control form-control-sm" placeholder="truncate {{table.name}}"
                            [(ngModel)]="table.truncate" (keyup.enter)="sendRequest('truncate', table)">
                     <div class="input-group-append">
@@ -40,7 +40,7 @@
                 </div>
             </td>
             <td>
-                <div class="input-group">
+                <div class="input-group" *ngIf="table.tableType !== 'SOURCE'">
                   <input type="text" class="form-control form-control-sm" placeholder="drop {{table.name}}"
                          [(ngModel)]="table.drop" (keyup.enter)="sendRequest('drop', table)">
                     <div class="input-group-append">
