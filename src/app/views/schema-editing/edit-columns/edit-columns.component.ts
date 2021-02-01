@@ -15,7 +15,7 @@ import {ToastDuration, ToastService} from '../../../components/toast/toast.servi
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../stores/store.model';
+import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
 

@@ -33,7 +33,7 @@
             <td><strong>{{adapter.name}}</strong></td>
             <td>{{adapter.description}}</td>
             <td class="center">
-              <button class="btn btn-sm btn-primary" (click)="initAdapterSettings(adapter)">Deploy</button>
+              <button class="btn btn-sm btn-primary" (click)="initDeployModal(adapter)">Deploy</button>
             </td>
           </tr>
         </tbody>
@@ -63,7 +63,7 @@
           <button class="btn btn-danger" (click)="removeAdapter(adapter)" (mouseleave)="deletingAdapter = undefined">
             <i class="cui-trash" [ngClass]="{'cui-trash': adapter !== deletingAdapter, 'fa fa-warning': adapter === deletingAdapter}"></i>
           </button>
-          <button class="btn btn-primary pull-right" (click)="initStoreSettings(adapter)">Configure</button>
+          <button class="btn btn-primary pull-right" (click)="initAdapterSettingsModal(adapter)">Configure</button>
         </div>
       </div>
 
@@ -99,35 +99,35 @@
 </ng-container>
 
 
-<div bsModal #storeSettingsModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="onCloseModal()">
+<div bsModal #adapterSettingsModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="onCloseModal()">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h4 class="modal-title">Settings</h4>
-        <button type="button" class="close" (click)="storeSettingsModal.hide()" aria-label="Close">
+        <button type="button" class="close" (click)="adapterSettingsModal.hide()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
 
       <!-- Edit adapter settings -->
-      <div class="modal-body" *ngIf="editingStore && editingStore.adapterSettings">
-        <form [formGroup]="editingStoreForm" autocomplete="off">
-          <div class="form-group" *ngFor="let control of editingStoreForm.controls | keyvalue">
-            <div class="input-group" *ngIf="!getAdapterSetting(editingStore, control.key).options">
+      <div class="modal-body" *ngIf="editingAdapter && editingAdapter.adapterSettings">
+        <form [formGroup]="editingAdapterForm" autocomplete="off">
+          <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
+            <div class="input-group" *ngIf="!getAdapterSetting(editingAdapter, control.key).options">
               <div class="input-group-prepend">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
-                     [ngClass]="validate(editingStoreForm, control.key)" (keyup.enter)="saveStoreSettings()">
+                     [ngClass]="validate(editingAdapterForm, control.key)" (keyup.enter)="saveAdapterSettings()">
               <div class="invalid-feedback">required</div>
             </div>
-            <div class="form-group" *ngIf="getAdapterSetting(editingStore, control.key).options">
+            <div class="form-group" *ngIf="getAdapterSetting(editingAdapter, control.key).options">
               <div class="input-group select-wrapper">
                 <div class="input-group-prepend">
                   <label class="input-group-text" [for]="control.key">{{control.key}}</label>
                 </div>
                 <select [id]="control.key" class="form-control" [formControlName]="control.key">
-                  <option *ngFor="let option of getAdapterSetting(editingStore, control.key).options"
+                  <option *ngFor="let option of getAdapterSetting(editingAdapter, control.key).options"
                           [value]="option">{{option}}</option>
                 </select>
               </div>
@@ -137,36 +137,36 @@
       </div>
 
       <!-- Form for deploying -->
-      <div class="modal-body" *ngIf="editingAdapter && editingAdapter.adapterSettings">
-        <form [formGroup]="adapterUniqueNameForm" (ngSubmit)="deploy()" autocomplete="off">
+      <div class="modal-body" *ngIf="editingAvailableAdapter && editingAvailableAdapter.adapterSettings">
+        <form [formGroup]="availableAdapterUniqueNameForm" (ngSubmit)="deploy()" autocomplete="off">
           <div class="form-group">
             <div class="input-group">
               <div class="input-group-prepend">
                 <label for="adapterUniqueName" class="input-group-text">Store Name</label>
               </div>
               <input type="text" class="form-control" id="adapterUniqueName" formControlName="uniqueName"
-                     [ngClass]="validate(adapterUniqueNameForm, 'uniqueName')" (keyup.enter)="deploy()">
+                     [ngClass]="validate(availableAdapterUniqueNameForm, 'uniqueName')" (keyup.enter)="deploy()">
               <div class="invalid-feedback">{{getFeedback()}}</div>
             </div>
           </div>
         </form>
-        <form [formGroup]="editingAdapterForm" (ngSubmit)="deploy()" autocomplete="off">
-          <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
-            <div class="input-group" *ngIf="!getAdapterSetting(editingAdapter, control.key).options">
+        <form [formGroup]="editingAvailableAdapterForm" (ngSubmit)="deploy()" autocomplete="off">
+          <div class="form-group" *ngFor="let control of editingAvailableAdapterForm.controls | keyvalue">
+            <div class="input-group" *ngIf="!getAdapterSetting(editingAvailableAdapter, control.key).options">
               <div class="input-group-prepend">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
-                     [ngClass]="validate(editingAdapterForm, control.key)" (keyup.enter)="deploy()">
+                     [ngClass]="validate(editingAvailableAdapterForm, control.key)" (keyup.enter)="deploy()">
               <div class="invalid-feedback">required</div>
             </div>
-            <div class="form-group" *ngIf="getAdapterSetting(editingAdapter, control.key).options">
+            <div class="form-group" *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).options">
               <div class="input-group select-wrapper">
                 <div class="input-group-prepend">
                   <label class="input-group-text" [for]="control.key">{{control.key}}</label>
                 </div>
                 <select [id]="control.key" class="form-control" [formControlName]="control.key" class="form-control">
-                  <option *ngFor="let option of getAdapterSetting(editingAdapter, control.key).options" [value]="option">{{option}}</option>
+                  <option *ngFor="let option of getAdapterSetting(editingAvailableAdapter, control.key).options" [value]="option">{{option}}</option>
                 </select>
               </div>
             </div>
@@ -175,9 +175,9 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="storeSettingsModal.hide()">Close</button>
-        <button *ngIf="editingStore" type="submit" class="btn btn-primary" (click)="saveStoreSettings()" [disabled]="!editingStoreForm.valid">Save</button>
-        <button *ngIf="editingAdapter" type="submit" class="btn btn-primary" (click)="deploy()" [disabled]="!adapterUniqueNameForm.valid || !editingAdapterForm.valid">Deploy</button>
+        <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="adapterSettingsModal.hide()">Close</button>
+        <button *ngIf="editingAdapter" type="submit" class="btn btn-primary" (click)="saveAdapterSettings()" [disabled]="!editingAdapterForm.valid">Save</button>
+        <button *ngIf="editingAvailableAdapter" type="submit" class="btn btn-primary" (click)="deploy()" [disabled]="!availableAdapterUniqueNameForm.valid || !editingAvailableAdapterForm.valid">Deploy</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->

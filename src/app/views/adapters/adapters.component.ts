@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Store, AdapterInformation, AdapterSetting, Source, Adapter} from './store.model';
+import {Store, AdapterInformation, AdapterSetting, Source, Adapter} from './adapter.model';
 import {ToastService} from '../../components/toast/toast.service';
 import {AbstractControl, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {ResultSet} from '../../components/data-view/models/result-set.model';
@@ -9,11 +9,11 @@ import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({
-  selector: 'app-stores',
-  templateUrl: './stores.component.html',
-  styleUrls: ['./stores.component.scss']
+  selector: 'app-adapters',
+  templateUrl: './adapters.component.html',
+  styleUrls: ['./adapters.component.scss']
 })
-export class StoresComponent implements OnInit, OnDestroy {
+export class AdaptersComponent implements OnInit, OnDestroy {
 
   stores: Store[];
   sources: Source[];
@@ -23,15 +23,15 @@ export class StoresComponent implements OnInit, OnDestroy {
   routeListener;
   private subscriptions = new Subscription();
 
-  editingStore: Adapter;
-  editingStoreForm: FormGroup;
+  editingAdapter: Adapter;
+  editingAdapterForm: FormGroup;
   deletingAdapter;
 
-  editingAdapter: AdapterInformation;
-  editingAdapterForm: FormGroup;
-  adapterUniqueNameForm: FormGroup;
+  editingAvailableAdapter: AdapterInformation;
+  editingAvailableAdapterForm: FormGroup;
+  availableAdapterUniqueNameForm: FormGroup;
 
-  @ViewChild('storeSettingsModal', {static: false}) public storeSettingsModal: ModalDirective;
+  @ViewChild('adapterSettingsModal', {static: false}) public adapterSettingsModal: ModalDirective;
 
   constructor(
     private _crud: CrudService,
@@ -42,7 +42,7 @@ export class StoresComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getStoresAndSources();
-    this.getAdapters();
+    this.fetchAvailableAdapters();
     this.route = this._route.snapshot.paramMap.get('action');
     this.routeListener = this._route.params.subscribe(params => {
       this.route = params['action'];
@@ -51,7 +51,7 @@ export class StoresComponent implements OnInit, OnDestroy {
       b => {
         if(b) {
           this.getStoresAndSources();
-          this.getAdapters();
+          this.fetchAvailableAdapters();
         }
       }
     );
@@ -81,7 +81,7 @@ export class StoresComponent implements OnInit, OnDestroy {
     );
   }
 
-  getAdapters(){
+  fetchAvailableAdapters(){
     this._crud.getAvailableStores().subscribe(
       res => {
         const stores = <AdapterInformation[]> res;
@@ -112,16 +112,16 @@ export class StoresComponent implements OnInit, OnDestroy {
   }
 
   onCloseModal(){
-    this.editingStore = undefined;
-    this.editingStoreForm = undefined;
     this.editingAdapter = undefined;
     this.editingAdapterForm = undefined;
+    this.editingAvailableAdapter = undefined;
+    this.editingAvailableAdapterForm = undefined;
   }
 
-  initStoreSettings( adapter: Adapter ){
-    this.editingStore = adapter;
+  initAdapterSettingsModal(adapter: Adapter ){
+    this.editingAdapter = adapter;
     const fc = {};
-    for (const [k, v] of Object.entries(this.editingStore.adapterSettings)) {
+    for (const [k, v] of Object.entries(this.editingAdapter.adapterSettings)) {
       const validators = [];
       if (v.required) {
         validators.push(Validators.required);
@@ -129,32 +129,32 @@ export class StoresComponent implements OnInit, OnDestroy {
       const val = adapter.currentSettings[v.name];
       fc[v.name] = new FormControl({value: val, disabled: !v.modifiable}, validators);
     }
-    this.editingStoreForm = new FormGroup( fc );
-    this.storeSettingsModal.show();
+    this.editingAdapterForm = new FormGroup( fc );
+    this.adapterSettingsModal.show();
   }
 
-  saveStoreSettings(){
-    const store = <any> this.editingStore;
-    store.settings = {};
-    for( const [k,v] of Object.entries( this.editingStoreForm.controls )){
-      store.settings[k] = v.value;
+  saveAdapterSettings(){
+    const adapter = <any> this.editingAdapter;
+    adapter.settings = {};
+    for( const [k,v] of Object.entries( this.editingAdapterForm.controls )){
+      adapter.settings[k] = v.value;
     }
-    this._crud.updateAdapterSettings( store ).subscribe(
+    this._crud.updateAdapterSettings( adapter ).subscribe(
       res => {
-        this._toast.success('updated store settings');
-        this.storeSettingsModal.hide();
+        this._toast.success('Updated adapter settings');
+        this.adapterSettingsModal.hide();
         this.getStoresAndSources();
       }, err => {
-        this._toast.error('could not update store settings');
+        this._toast.error('Could not update adapter settings');
         console.log(err);
       }
     );
   }
 
-  initAdapterSettings( adapter: AdapterInformation ){
-    this.editingAdapter = adapter;
+  initDeployModal(adapter: AdapterInformation ){
+    this.editingAvailableAdapter = adapter;
     const fc = {};
-    for (const [k, v] of Object.entries(this.editingAdapter.adapterSettings)) {
+    for (const [k, v] of Object.entries(this.editingAvailableAdapter.adapterSettings)) {
       const validators = [];
       if (v.required) {
         validators.push(Validators.required);
@@ -165,15 +165,15 @@ export class StoresComponent implements OnInit, OnDestroy {
       }
       fc[v.name] = new FormControl(val, validators);
     }
-    this.editingAdapterForm = new FormGroup( fc );
-    this.adapterUniqueNameForm = new FormGroup({
-      uniqueName: new FormControl(null, [Validators.required, Validators.pattern( this._crud.getValidationRegex() ), validateUniqueStore(this.stores)])
+    this.editingAvailableAdapterForm = new FormGroup( fc );
+    this.availableAdapterUniqueNameForm = new FormGroup({
+      uniqueName: new FormControl(null, [Validators.required, Validators.pattern( this._crud.getValidationRegex() ), validateUniqueName([...this.stores, ...this.sources])])
     });
-    this.storeSettingsModal.show();
+    this.adapterSettingsModal.show();
   }
 
   getFeedback(){
-    const errors = this.adapterUniqueNameForm.controls['uniqueName'].errors;
+    const errors = this.availableAdapterUniqueNameForm.controls['uniqueName'].errors;
     if( errors ){
       if (errors.required) { return 'missing unique name'; }
       else if (errors.pattern) { return 'invalid unique name'; }
@@ -187,27 +187,27 @@ export class StoresComponent implements OnInit, OnDestroy {
   }
 
   deploy(){
-    if(!this.editingAdapterForm.valid) { return; }
-    if(!this.adapterUniqueNameForm.valid) { return; }
+    if(!this.editingAvailableAdapterForm.valid) { return; }
+    if(!this.availableAdapterUniqueNameForm.valid) { return; }
     const deploy = {
-      uniqueName: this.adapterUniqueNameForm.controls['uniqueName'].value,
-      clazzName: this.editingAdapter.clazz,
+      uniqueName: this.availableAdapterUniqueNameForm.controls['uniqueName'].value,
+      clazzName: this.editingAvailableAdapter.clazz,
       settings: {}
     };
-    for( const [k,v] of Object.entries( this.editingAdapterForm.controls )){
+    for( const [k,v] of Object.entries( this.editingAvailableAdapterForm.controls )){
       deploy.settings[k] = v.value;
     }
-    this._crud.addStore( deploy ).subscribe(
+    this._crud.addAdapter( deploy ).subscribe(
       res => {
         if(<boolean> res === true){
-          this._toast.success('Deployed store');
+          this._toast.success('Deployed "' + deploy.uniqueName + '"');
           this._router.navigate(['./../'], {relativeTo: this._route});
         } else {
-          this._toast.warn('Could not deploy store');
+          this._toast.warn('Could not deploy adapter');
         }
-        this.storeSettingsModal.hide();
+        this.adapterSettingsModal.hide();
       }, err => {
-        this._toast.error('Could not deploy store');
+        this._toast.error('Could not deploy adapter');
       }
     );
   }
@@ -220,7 +220,7 @@ export class StoresComponent implements OnInit, OnDestroy {
         res => {
           const result = <ResultSet> res;
           if(!result.error){
-            this._toast.success('Removed adapter');
+            this._toast.success('Dropped "' + adapter.uniqueName + '"');
             this.getStoresAndSources();
           }else{
             this._toast.exception( result );
@@ -268,10 +268,10 @@ export class StoresComponent implements OnInit, OnDestroy {
 }
 
 // see https://angular.io/guide/form-validation#custom-validators
-function validateUniqueStore(stores: Store[]): ValidatorFn {
+function validateUniqueName(adapters: Adapter[]): ValidatorFn {
   return (control: AbstractControl): {[key: string]: any} | null => {
     if(! control.value) { return null; }
-    for(const s of stores ){
+    for(const s of adapters ){
       if( s.uniqueName === control.value ) { return {unique: true}; }
     }
     return null;

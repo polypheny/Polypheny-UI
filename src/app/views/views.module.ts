@@ -20,7 +20,7 @@ import { RelationalAlgebraComponent } from './querying/relational-algebra/relati
 import { QueryingComponent } from './querying/querying.component';
 import { NodeComponent } from './querying/relational-algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
-import { StoresComponent } from './stores/stores.component';
+import { AdaptersComponent } from './adapters/adapters.component';
 import { HubComponent } from './hub/hub.component';
 import { RefinementOptionsComponent } from './querying/graphical-querying/refinement-options/refinement-options.component';
 import { ExploreByExampleComponent } from './querying/explore-by-example/explore-by-example.component';
@@ -76,7 +76,7 @@ import { EditSourceColumnsComponent } from './schema-editing/edit-source-columns
     RelationalAlgebraComponent,
     QueryingComponent,
     NodeComponent,
-    StoresComponent,
+    AdaptersComponent,
     HubComponent,
     RefinementOptionsComponent,
     ExploreByExampleComponent,

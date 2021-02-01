@@ -19,7 +19,7 @@ import {
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
-import {Store} from '../views/stores/store.model';
+import {Store} from '../views/adapters/adapter.model';
 import {QueryInterface} from '../views/query-interfaces/query-interfaces.model';
 import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
 import {WebSocket} from './webSocket';
@@ -396,8 +396,8 @@ export class CrudService {
     return this._http.get( `${this.httpUrl}/getAvailableSources` );
   }
 
-  addStore( store: any ){
-    return this._http.post( `${this.httpUrl}/addStore`, store, this.httpOptions );
+  addAdapter(adapter: any ){
+    return this._http.post( `${this.httpUrl}/addAdapter`, adapter, this.httpOptions );
   }
 
   removeAdapter(storeId: string ){

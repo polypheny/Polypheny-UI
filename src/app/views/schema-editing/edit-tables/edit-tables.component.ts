@@ -7,7 +7,7 @@ import {ToastDuration, ToastService} from '../../../components/toast/toast.servi
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {Store} from '../../stores/store.model';
+import {Store} from '../../adapters/adapter.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
