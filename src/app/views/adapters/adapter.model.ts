@@ -38,6 +38,7 @@ export interface AdapterSetting {
   required: boolean;
   modifiable: boolean;
   options: string[];
+  fileNames: string[];
 }
 
 export interface Placements {

@@ -31,6 +31,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   editingAvailableAdapterForm: FormGroup;
   availableAdapterUniqueNameForm: FormGroup;
 
+  fileLabel = 'Choose File';
+  deploying = false;
+
   @ViewChild('adapterSettingsModal', {static: false}) public adapterSettingsModal: ModalDirective;
 
   constructor(
@@ -137,6 +140,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     const adapter = <any> this.editingAdapter;
     adapter.settings = {};
     for( const [k,v] of Object.entries( this.editingAdapterForm.controls )){
+      const setting = this.getAdapterSetting(this.editingAdapter, k);
+      if(!setting.modifiable){
+        continue;
+      }
       adapter.settings[k] = v.value;
     }
     this._crud.updateAdapterSettings( adapter ).subscribe(
@@ -162,6 +169,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       let val = v.defaultValue;
       if (v.options) {
         val = v.options[0];
+      } else if (v.fileNames) {
+        val = '';
       }
       fc[v.name] = new FormControl(val, validators);
     }
@@ -170,6 +179,23 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       uniqueName: new FormControl(null, [Validators.required, Validators.pattern( this._crud.getValidationRegex() ), validateUniqueName([...this.stores, ...this.sources])])
     });
     this.adapterSettingsModal.show();
+  }
+
+  onFileChange(event, form: FormGroup, key) {
+    const files = event.target.files;
+    if(files){
+      const fileNames = [];
+      for(let i = 0; i < files.length; i++){
+        fileNames.push(files.item(i).name);
+      }
+      this.fileLabel = fileNames.join(', ');
+      //todo this line throws an error.
+      // If you remove this line, the files will not be assigned in the formGroup.
+      form.controls[key].setValue(files);
+    } else {
+      form.controls[key].setValue('');
+      this.fileLabel = 'Choose File';
+    }
   }
 
   getFeedback(){
@@ -194,10 +220,25 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       clazzName: this.editingAvailableAdapter.clazz,
       settings: {}
     };
+    const fd: FormData = new FormData();
     for( const [k,v] of Object.entries( this.editingAvailableAdapterForm.controls )){
-      deploy.settings[k] = v.value;
+      const setting = this.getAdapterSetting(this.editingAvailableAdapter, k);
+      if (v.value instanceof FileList) {
+        const fileNames = [];
+        for(let i = 0; i<v.value.length; i++){
+          const file = v.value.item(i);
+          fd.append(file.name, file);
+          fileNames.push(file.name);
+        }
+        setting.fileNames = fileNames;
+      } else {
+        setting.defaultValue = v.value;
+      }
+      deploy.settings[k] = setting;
     }
-    this._crud.addAdapter( deploy ).subscribe(
+    fd.append('body', JSON.stringify(deploy));
+    this.deploying = true;
+    this._crud.addAdapter( fd ).subscribe(
       res => {
         if(<boolean> res === true){
           this._toast.success('Deployed "' + deploy.uniqueName + '"');
@@ -209,7 +250,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       }, err => {
         this._toast.error('Could not deploy adapter');
       }
-    );
+    ).add( () => this.deploying = false );
   }
 
   removeAdapter(adapter: Adapter ){

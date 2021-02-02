@@ -113,7 +113,7 @@
       <div class="modal-body" *ngIf="editingAdapter && editingAdapter.adapterSettings">
         <form [formGroup]="editingAdapterForm" autocomplete="off">
           <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
-            <div class="input-group" *ngIf="!getAdapterSetting(editingAdapter, control.key).options">
+            <div class="input-group" *ngIf="!getAdapterSetting(editingAdapter, control.key).options && !getAdapterSetting(editingAdapter, control.key).fileNames">
               <div class="input-group-prepend">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
@@ -131,6 +131,18 @@
                           [value]="option">{{option}}</option>
                 </select>
               </div>
+            </div>
+            <div class="input-group" *ngIf="getAdapterSetting(editingAdapter, control.key).fileNames">
+              <div class="input-group-prepend">
+                <label [for]="control.key" class="input-group-text">{{control.key}}</label>
+              </div>
+              <input *ngIf="!getAdapterSetting(editingAdapter, control.key).modifiable" type="text" class="form-control" disabled [value]="getAdapterSetting(editingAdapter, control.key).fileNames.join(', ')">
+              <label [for]="control.key" *ngIf="getAdapterSetting(editingAdapter, control.key).modifiable" class="form-control" style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
+                <input type="file" multiple style="display: none" [id]="control.key" [formControlName]="control.key"
+                       [ngClass]="validate(editingAdapterForm, control.key)" (change)="onFileChange($event, editingAvailableAdapterForm, control.key)">
+                {{fileLabel}}
+              </label>
+              <div class="invalid-feedback">required</div>
             </div>
           </div>
         </form>
@@ -152,7 +164,7 @@
         </form>
         <form [formGroup]="editingAvailableAdapterForm" (ngSubmit)="deploy()" autocomplete="off">
           <div class="form-group" *ngFor="let control of editingAvailableAdapterForm.controls | keyvalue">
-            <div class="input-group" *ngIf="!getAdapterSetting(editingAvailableAdapter, control.key).options">
+            <div class="input-group" *ngIf="!getAdapterSetting(editingAvailableAdapter, control.key).options && !getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
               <div class="input-group-prepend">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
@@ -170,6 +182,17 @@
                 </select>
               </div>
             </div>
+            <div class="input-group" *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
+              <div class="input-group-prepend">
+                <label [for]="control.key" class="input-group-text">{{control.key}}</label>
+              </div>
+              <label [for]="control.key" class="form-control" style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
+                <input type="file" multiple style="display: none" [id]="control.key" [formControlName]="control.key"
+                       [ngClass]="validate(editingAvailableAdapterForm, control.key)" (change)="onFileChange($event, editingAvailableAdapterForm, control.key)">
+                {{fileLabel}}
+              </label>
+              <div class="invalid-feedback">required</div>
+            </div>
           </div>
         </form>
       </div>
@@ -177,7 +200,9 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="adapterSettingsModal.hide()">Close</button>
         <button *ngIf="editingAdapter" type="submit" class="btn btn-primary" (click)="saveAdapterSettings()" [disabled]="!editingAdapterForm.valid">Save</button>
-        <button *ngIf="editingAvailableAdapter" type="submit" class="btn btn-primary" (click)="deploy()" [disabled]="!availableAdapterUniqueNameForm.valid || !editingAvailableAdapterForm.valid">Deploy</button>
+        <button *ngIf="editingAvailableAdapter" type="submit" class="btn btn-primary" (click)="deploy()"
+                [disabled]="!availableAdapterUniqueNameForm.valid || !editingAvailableAdapterForm.valid || deploying"
+                [ngClass]="{'progress-bar-striped progress-bar-animated': deploying}">Deploy</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
