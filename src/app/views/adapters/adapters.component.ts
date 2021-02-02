@@ -301,6 +301,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         return path + 'cottontaildb.png';
       case 'File':
         return 'fa fa-file-image-o';
+      case 'MySQL':
+        return path + 'mysql.png';
       default:
         return 'fa fa-database';
     }
