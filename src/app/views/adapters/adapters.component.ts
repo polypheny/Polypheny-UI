@@ -3,7 +3,7 @@ import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store, AdapterInformation, AdapterSetting, Source, Adapter} from './adapter.model';
 import {ToastService} from '../../components/toast/toast.service';
-import {AbstractControl, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {ResultSet} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -40,7 +40,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     private _crud: CrudService,
     private _route: ActivatedRoute,
     private _router: Router,
-    private _toast: ToastService
+    private _toast: ToastService,
+    private _fb: FormBuilder
   ) { }
 
   ngOnInit() {
@@ -119,6 +120,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     this.editingAdapterForm = undefined;
     this.editingAvailableAdapter = undefined;
     this.editingAvailableAdapterForm = undefined;
+    this.fileLabel = 'Choose File';
   }
 
   initAdapterSettingsModal(adapter: Adapter ){
@@ -126,11 +128,15 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     const fc = {};
     for (const [k, v] of Object.entries(this.editingAdapter.adapterSettings)) {
       const validators = [];
-      if (v.required) {
-        validators.push(Validators.required);
+      if( v.fileNames ){
+        fc[v.name] = this._fb.array([]);
+      } else {
+        if (v.required) {
+          validators.push(Validators.required);
+        }
+        const val = adapter.currentSettings[v.name];
+        fc[v.name] = new FormControl({value: val, disabled: !v.modifiable}, validators);
       }
-      const val = adapter.currentSettings[v.name];
-      fc[v.name] = new FormControl({value: val, disabled: !v.modifiable}, validators);
     }
     this.editingAdapterForm = new FormGroup( fc );
     this.adapterSettingsModal.show();
@@ -141,7 +147,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     adapter.settings = {};
     for( const [k,v] of Object.entries( this.editingAdapterForm.controls )){
       const setting = this.getAdapterSetting(this.editingAdapter, k);
-      if(!setting.modifiable){
+      if(!setting.modifiable || setting.fileNames){
         continue;
       }
       adapter.settings[k] = v.value;
@@ -167,12 +173,16 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         validators.push(Validators.required);
       }
       let val = v.defaultValue;
-      if (v.options) {
-        val = v.options[0];
-      } else if (v.fileNames) {
-        val = '';
+      if( v.fileNames ){
+        fc[v.name] = this._fb.array([]);
+      } else {
+        if (v.options) {
+          val = v.options[0];
+        } else if (v.fileNames) {
+          val = '';
+        }
+        fc[v.name] = new FormControl(val, validators);
       }
-      fc[v.name] = new FormControl(val, validators);
     }
     this.editingAvailableAdapterForm = new FormGroup( fc );
     this.availableAdapterUniqueNameForm = new FormGroup({
@@ -185,15 +195,16 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     const files = event.target.files;
     if(files){
       const fileNames = [];
+      const arr = form.controls[key] as FormArray;
+      arr.clear();
       for(let i = 0; i < files.length; i++){
         fileNames.push(files.item(i).name);
+        arr.push(this._fb.control(files.item(i)));
       }
       this.fileLabel = fileNames.join(', ');
-      //todo this line throws an error.
-      // If you remove this line, the files will not be assigned in the formGroup.
-      form.controls[key].setValue(files);
     } else {
-      form.controls[key].setValue('');
+      const arr = form.controls[key] as FormArray;
+      arr.clear();
       this.fileLabel = 'Choose File';
     }
   }
@@ -223,10 +234,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     const fd: FormData = new FormData();
     for( const [k,v] of Object.entries( this.editingAvailableAdapterForm.controls )){
       const setting = this.getAdapterSetting(this.editingAvailableAdapter, k);
-      if (v.value instanceof FileList) {
+      if (setting.fileNames) {
         const fileNames = [];
-        for(let i = 0; i<v.value.length; i++){
-          const file = v.value.item(i);
+        const arr = v as FormArray;
+        for(let i = 0; i<arr.length; i++){
+          const file = arr.at(i).value as File;
           fd.append(file.name, file);
           fileNames.push(file.name);
         }

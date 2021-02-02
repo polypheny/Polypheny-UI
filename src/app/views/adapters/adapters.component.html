@@ -138,8 +138,8 @@
               </div>
               <input *ngIf="!getAdapterSetting(editingAdapter, control.key).modifiable" type="text" class="form-control" disabled [value]="getAdapterSetting(editingAdapter, control.key).fileNames.join(', ')">
               <label [for]="control.key" *ngIf="getAdapterSetting(editingAdapter, control.key).modifiable" class="form-control" style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
-                <input type="file" multiple style="display: none" [id]="control.key" [formControlName]="control.key"
-                       [ngClass]="validate(editingAdapterForm, control.key)" (change)="onFileChange($event, editingAvailableAdapterForm, control.key)">
+                <input type="file" multiple style="display: none" [id]="control.key" [ngClass]="validate(editingAdapterForm, control.key)"
+                       (change)="onFileChange($event, editingAdapterForm, control.key)">
                 {{fileLabel}}
               </label>
               <div class="invalid-feedback">required</div>
@@ -187,8 +187,8 @@
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <label [for]="control.key" class="form-control" style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
-                <input type="file" multiple style="display: none" [id]="control.key" [formControlName]="control.key"
-                       [ngClass]="validate(editingAvailableAdapterForm, control.key)" (change)="onFileChange($event, editingAvailableAdapterForm, control.key)">
+                <input type="file" multiple style="display: none" [id]="control.key" [ngClass]="validate(editingAvailableAdapterForm, control.key)"
+                       (change)="onFileChange($event, editingAvailableAdapterForm, control.key)">
                 {{fileLabel}}
               </label>
               <div class="invalid-feedback">required</div>
