@@ -13,6 +13,7 @@
         <th>Nullable</th>
         <th>Type</th>
         <th>Collection</th>
+        <th>Parameters</th>
         <th>Default</th>
         <th class="small-col"></th>
       </tr>
@@ -33,6 +34,12 @@
         <td><i class="fa fa-check" *ngIf="col.nullable"></i></td>
         <td>{{col.dataType}}</td>
         <td>{{col.collectionsType}}</td>
+        <td>
+          <span *ngIf="col.precision">{{_types.precisionPlaceholder(col.dataType)}}: {{col.precision}}</span>
+          <span *ngIf="col.scale">scale: {{col.scale}}</span>
+          <span *ngIf="col.dimension">dimension: {{col.dimension}}</span>
+          <span *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
+        </td>
         <td>{{col.defaultValue}}</td>
         <th class="small-col"><app-delete-confirm (delete)="dropColumn(col)"></app-delete-confirm></th>
       </tr>
@@ -54,6 +61,12 @@
           <td><i class="fa fa-check" *ngIf="col.nullable"></i></td>
           <td>{{col.dataType}}</td>
           <td>{{col.collectionsType}}</td>
+          <td>
+            <span *ngIf="col.precision">{{_types.precisionPlaceholder(col.dataType)}}: {{col.precision}}</span>
+            <span *ngIf="col.scale">scale: {{col.scale}}</span>
+            <span *ngIf="col.dimension">dimension: {{col.dimension}}</span>
+            <span *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
+          </td>
           <td>
             <input type="text" class="form-control form-control-sm" placeholder="default value" style="max-width: 250px" #newDefault (keyup.enter)="addColumn(col, newName.value, newDefault.value)">
           </td>

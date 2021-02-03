@@ -7,6 +7,7 @@ import * as $ from 'jquery';
 import {ToastService} from '../../../components/toast/toast.service';
 import {Placements} from '../../adapters/adapter.model';
 import {Subscription} from 'rxjs';
+import {DbmsTypesService} from '../../../services/dbms-types.service';
 
 @Component({
   selector: 'app-edit-source-columns',
@@ -26,7 +27,8 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   constructor(
     private _crud: CrudService,
     private _route: ActivatedRoute,
-    private _toast: ToastService
+    private _toast: ToastService,
+    public _types: DbmsTypesService
   ) { }
 
   ngOnInit(): void {
