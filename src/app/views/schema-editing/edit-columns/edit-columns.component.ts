@@ -18,6 +18,7 @@ import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-edit-columns',
@@ -27,7 +28,7 @@ import * as _ from 'lodash';
 
 export class EditColumnsComponent implements OnInit, OnDestroy {
 
-  @Input() tableId: string;
+  tableId: string;
   table: string;
   schema: string;
 
@@ -71,6 +72,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   isMergingPartitions = false;
   partitionsToModify: { partitionName: string, selected: boolean }[];
 
+  subscriptions = new Subscription();
+
   @ViewChild('placementModal', {static: false}) public placementModal: ModalDirective;
   @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
 
@@ -109,11 +112,12 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     $(document).off('click');
+    this.subscriptions.unsubscribe();
   }
 
   getTableId () {
     this.tableId = this._route.snapshot.paramMap.get('id');
-    this._route.params.subscribe((params) => {
+    const sub = this._route.params.subscribe((params) => {
       this.tableId = params['id'];
       if( this.tableId.includes('.') ){
         const t = this.tableId.split('\.');
@@ -126,6 +130,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.getAvailableStoresForIndexes();
       }
     });
+    this.subscriptions.add(sub);
   }
 
   isSource() {

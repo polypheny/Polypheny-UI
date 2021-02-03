@@ -1,5 +1,5 @@
 <app-toast></app-toast>
-<app-edit-source-columns *ngIf="isSource()"></app-edit-source-columns>
+<app-edit-source-columns *ngIf="isSource() && tableId && tableId.includes('.')"></app-edit-source-columns>
 <div class="row" *ngIf="!isSource()">
 
   <div class="col-lg-12">

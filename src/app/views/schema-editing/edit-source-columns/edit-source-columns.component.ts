@@ -6,6 +6,7 @@ import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {ToastService} from '../../../components/toast/toast.service';
 import {Placements} from '../../adapters/adapter.model';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-edit-source-columns',
@@ -20,6 +21,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   errorMsg: string;
   editingCol: string;
   dataPlacement: Placements;
+  subscriptions = new Subscription();
 
   constructor(
     private _crud: CrudService,
@@ -29,11 +31,12 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.tableId = this._route.snapshot.paramMap.get('id');
-    this._route.params.subscribe((params) => {
+    const sub = this._route.params.subscribe((params) => {
       this.tableId = params['id'];
       this.fetchCurrentColumns();
       this.getPlacements();
     });
+    this.subscriptions.add(sub);
     this.fetchCurrentColumns();
     this.fetchExportedColumns();
     this.getPlacements();
@@ -50,6 +53,8 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     $(document).off('click');
+    this.subscriptions.unsubscribe();
+    console.log('destroy source col');
   }
 
   fetchCurrentColumns() {
@@ -150,6 +155,9 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   }
 
   getPlacements () {
+    if(!this.tableId || !this.tableId.includes('.')){
+      return;
+    }
     const t = this.tableId.split('.');
     this._crud.getDataPlacements( t[0], t[1] ).subscribe(
       res => {

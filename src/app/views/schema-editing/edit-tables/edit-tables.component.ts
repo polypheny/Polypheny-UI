@@ -62,18 +62,19 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.newColumns.set( this.counter++, new DbColumn('', true, false, '', '', null, null ) );
     this.schema = this._route.snapshot.paramMap.get('id');
-    this._route.params.subscribe((params) => {
+    const sub1 = this._route.params.subscribe((params) => {
       this.schema = params['id'];
       this.getTables();
     });
+    this.subscriptions.add(sub1);
     this.getTables();
     this.getTypeInfo();
     this.getStores();
     this.initSocket();
-    const sub = this._crud.onReconnection().subscribe((b)=> {
+    const sub2 = this._crud.onReconnection().subscribe((b)=> {
       if(b) this.onReconnect();
     });
-    this.subscriptions.add(sub);
+    this.subscriptions.add(sub2);
     this.documentListener();
   }
 

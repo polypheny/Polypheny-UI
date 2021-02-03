@@ -1,5 +1,5 @@
 <app-toast></app-toast>
-<app-edit-columns *ngIf="routeParam && routeParam.includes('.')" [tableId]="routeParam"></app-edit-columns>
+<app-edit-columns *ngIf="routeParam && routeParam.includes('.')"></app-edit-columns>
 <app-edit-tables *ngIf="routeParam && !routeParam.includes('.')"></app-edit-tables>
 <ng-container *ngIf="!routeParam">
     <h1>Schema editing</h1>

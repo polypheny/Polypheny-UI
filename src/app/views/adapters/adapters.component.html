@@ -114,7 +114,7 @@
         <form [formGroup]="editingAdapterForm" autocomplete="off">
           <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
             <div class="input-group" *ngIf="!getAdapterSetting(editingAdapter, control.key).options && !getAdapterSetting(editingAdapter, control.key).fileNames">
-              <div class="input-group-prepend">
+              <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAdapter, control.key).description" placement="left" delay="200">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
@@ -123,7 +123,7 @@
             </div>
             <div class="form-group" *ngIf="getAdapterSetting(editingAdapter, control.key).options">
               <div class="input-group select-wrapper">
-                <div class="input-group-prepend">
+                <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAdapter, control.key).description" placement="left" delay="200">
                   <label class="input-group-text" [for]="control.key">{{control.key}}</label>
                 </div>
                 <select [id]="control.key" class="form-control" [formControlName]="control.key">
@@ -133,7 +133,7 @@
               </div>
             </div>
             <div class="input-group" *ngIf="getAdapterSetting(editingAdapter, control.key).fileNames">
-              <div class="input-group-prepend">
+              <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAdapter, control.key).description" placement="left" delay="200">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <input *ngIf="!getAdapterSetting(editingAdapter, control.key).modifiable" type="text" class="form-control" disabled [value]="getAdapterSetting(editingAdapter, control.key).fileNames.join(', ')">
@@ -165,7 +165,7 @@
         <form [formGroup]="editingAvailableAdapterForm" (ngSubmit)="deploy()" autocomplete="off">
           <div class="form-group" *ngFor="let control of editingAvailableAdapterForm.controls | keyvalue">
             <div class="input-group" *ngIf="!getAdapterSetting(editingAvailableAdapter, control.key).options && !getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
-              <div class="input-group-prepend">
+              <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
@@ -174,7 +174,7 @@
             </div>
             <div class="form-group" *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).options">
               <div class="input-group select-wrapper">
-                <div class="input-group-prepend">
+                <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
                   <label class="input-group-text" [for]="control.key">{{control.key}}</label>
                 </div>
                 <select [id]="control.key" class="form-control" [formControlName]="control.key" class="form-control">
@@ -183,7 +183,7 @@
               </div>
             </div>
             <div class="input-group" *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
-              <div class="input-group-prepend">
+              <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <label [for]="control.key" class="form-control" style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">

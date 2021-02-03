@@ -33,6 +33,7 @@ export interface AdapterInformation {
 
 export interface AdapterSetting {
   name: string;
+  description: string;
   defaultValue: string;
   canBeNull: boolean;
   required: boolean;
