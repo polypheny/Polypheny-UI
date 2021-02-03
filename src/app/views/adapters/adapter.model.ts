@@ -6,9 +6,6 @@ export interface Adapter {
   adapterName;
   adapterSettings: AdapterSetting[];
   currentSettings: Map<string, string>;
-  dataReadOnly: boolean;
-  schemaReadOnly: boolean;
-  persistent: boolean;
   columnPlacements: CatalogColumnPlacement[];
   partitionKeys: number[];
   numPartitions: number;
@@ -16,7 +13,7 @@ export interface Adapter {
 }
 
 export interface Source extends Adapter{
-  //intentionally empty
+  dataReadOnly: boolean;
 }
 
 export interface Store extends Adapter{

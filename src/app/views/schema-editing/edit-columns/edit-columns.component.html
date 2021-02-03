@@ -360,8 +360,6 @@
       <tr>
         <th>Store</th>
         <th>Adapter</th>
-        <th>DataReadOnly</th>
-        <th>SchemaReadOnly</th>
         <th>Columns</th>
         <th>Partitions</th><!-- *ngIf="isPartitioned()" -->
         <th></th>
@@ -371,8 +369,6 @@
       <tr *ngFor="let store of dataPlacements.stores; let i = index">
         <td>{{store.uniqueName}}</td>
         <td>{{store.adapterName}}</td>
-        <td>{{store.dataReadOnly}}</td>
-        <td>{{store.schemaReadOnly}}</td>
         <td>
           <ng-container *ngFor="let p of store.columnPlacements; let isLast = last">
             <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{p.columnName}}</span>{{isLast ? '' : ', '}}
@@ -388,12 +384,9 @@
         </td>
         <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
         <ng-container *ngIf="dataPlacements.stores.length > 1">
-          <!-- show delete icon only if the store does not have dataReadOnly or schemaReadOnly set to true -->
-          <td *ngIf="store.dataReadOnly === false && store.schemaReadOnly === false" class="delete">
-            <i (click)="dropPlacement(store.uniqueName, i)" (mouseleave)="confirmPlacement = -1"
-               [ngClass]="{ 'cui-trash': i!==confirmPlacement, 'fa fa-warning': i===confirmPlacement }"></i>
+          <td class="delete">
+            <app-delete-confirm (delete)="dropPlacement(store.uniqueName)"></app-delete-confirm>
           </td>
-          <td *ngIf="store.dataReadOnly === true || store.schemaReadOnly === true"></td>
         </ng-container>
         <!-- don't show delete icon if there is only one placement --->
         <ng-container *ngIf="dataPlacements.stores.length < 2">

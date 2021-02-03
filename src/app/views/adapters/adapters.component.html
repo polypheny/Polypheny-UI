@@ -54,8 +54,7 @@
           <i *ngIf="!getLogo(adapter.adapterName).startsWith('assets/')" [class]="'logo ' + getLogo(adapter.adapterName)"></i>
           <span class="mb-2">Adapter: {{adapter.adapterName}}</span>
 
-          <span *ngIf="adapter.schemaReadOnly"><span class="fa fa-lock" style="padding-left: 2px"></span> schema-read-only</span>
-          <span *ngIf="adapter.dataReadOnly"><span class="fa fa-eye"></span> data-read-only</span>
+          <span *ngIf="adapter.dataReadOnly"><span class="fa fa-eye"></span> read-only</span>
           <span *ngIf="adapter.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
 
         </div>

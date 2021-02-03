@@ -61,7 +61,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   availableStoresForIndexes: Store[];
   selectedStore: Store;
   dataPlacements: Placements;
-  confirmPlacement = -1;
   columnPlacement: FormGroup;
   placementMethod: 'ADD' | 'MODIFY' | 'DROP';
   isAddingPlacement = false;
@@ -533,12 +532,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   getAddableStores (): Store[] {
     if(!this.stores) { return []; }
     return this.stores.filter( (s: Store) => {
-      // hide stores that are schemaReadOnly or dataReadOnly
-      if( s.schemaReadOnly || s.dataReadOnly ) {
-        return false;
-      }
       //hide stores that are already part of the placement
-      else if ( this.dataPlacements && this.dataPlacements.stores && this.dataPlacements.stores.length > 0 ) {
+      if ( this.dataPlacements && this.dataPlacements.stores && this.dataPlacements.stores.length > 0 ) {
         let showStore = true;
         for ( const store of this.dataPlacements.stores ) {
           if( store.uniqueName === s.uniqueName ) {
@@ -633,11 +628,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     });
   }
 
-  dropPlacement(store: string, i: number) {
-    if (i !== this.confirmPlacement) {
-      this.confirmPlacement = i;
-      return;
-    }
+  dropPlacement(store: string) {
     this._crud.addDropPlacement(this.schema, this.table, store, 'DROP').subscribe(
       res => {
         const result = <ResultSet> res;

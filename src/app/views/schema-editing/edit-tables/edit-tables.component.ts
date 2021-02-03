@@ -125,10 +125,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       });
   }
 
-  getWritableStores () {
-    return this.stores.filter( (s) => !s.dataReadOnly && !s.schemaReadOnly );
-  }
-
   /**
    * get the right class for the 'drop' and 'truncate' buttons
    * enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'

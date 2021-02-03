@@ -56,7 +56,6 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     $(document).off('click');
     this.subscriptions.unsubscribe();
-    console.log('destroy source col');
   }
 
   fetchCurrentColumns() {
