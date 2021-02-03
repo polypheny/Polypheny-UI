@@ -15,9 +15,10 @@ import {ToastDuration, ToastService} from '../../../components/toast/toast.servi
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../stores/store.model';
+import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-edit-columns',
@@ -27,7 +28,7 @@ import * as _ from 'lodash';
 
 export class EditColumnsComponent implements OnInit, OnDestroy {
 
-  @Input() tableId: string;
+  tableId: string;
   table: string;
   schema: string;
 
@@ -60,7 +61,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   availableStoresForIndexes: Store[];
   selectedStore: Store;
   dataPlacements: Placements;
-  confirmPlacement = -1;
   columnPlacement: FormGroup;
   placementMethod: 'ADD' | 'MODIFY' | 'DROP';
   isAddingPlacement = false;
@@ -70,6 +70,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   partitioningRequest: PartitioningRequest = new PartitioningRequest();
   isMergingPartitions = false;
   partitionsToModify: { partitionName: string, selected: boolean }[];
+
+  subscriptions = new Subscription();
 
   @ViewChild('placementModal', {static: false}) public placementModal: ModalDirective;
   @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
@@ -109,11 +111,12 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     $(document).off('click');
+    this.subscriptions.unsubscribe();
   }
 
   getTableId () {
     this.tableId = this._route.snapshot.paramMap.get('id');
-    this._route.params.subscribe((params) => {
+    const sub = this._route.params.subscribe((params) => {
       this.tableId = params['id'];
       if( this.tableId.includes('.') ){
         const t = this.tableId.split('\.');
@@ -126,6 +129,14 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.getAvailableStoresForIndexes();
       }
     });
+    this.subscriptions.add(sub);
+  }
+
+  isSource() {
+    if(!this.resultSet){
+      return true;
+    }
+    return this.resultSet.type.toLowerCase() === 'view';
   }
 
   getColumns () {
@@ -521,12 +532,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   getAddableStores (): Store[] {
     if(!this.stores) { return []; }
     return this.stores.filter( (s: Store) => {
-      // hide stores that are schemaReadOnly or dataReadOnly
-      if( s.schemaReadOnly || s.dataReadOnly ) {
-        return false;
-      }
       //hide stores that are already part of the placement
-      else if ( this.dataPlacements && this.dataPlacements.stores && this.dataPlacements.stores.length > 0 ) {
+      if ( this.dataPlacements && this.dataPlacements.stores && this.dataPlacements.stores.length > 0 ) {
         let showStore = true;
         for ( const store of this.dataPlacements.stores ) {
           if( store.uniqueName === s.uniqueName ) {
@@ -621,11 +628,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     });
   }
 
-  dropPlacement(store: string, i: number) {
-    if (i !== this.confirmPlacement) {
-      this.confirmPlacement = i;
-      return;
-    }
+  dropPlacement(store: string) {
     this._crud.addDropPlacement(this.schema, this.table, store, 'DROP').subscribe(
       res => {
         const result = <ResultSet> res;

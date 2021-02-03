@@ -8,7 +8,7 @@ import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {CrudService} from '../../services/crud.service';
 import {SchemaRequest} from '../../models/ui-request.model';
 import {SidebarNode} from '../../models/sidebar-node.model';
-import {Store} from '../stores/store.model';
+import {Store} from '../adapters/adapter.model';
 import {HttpEventType} from '@angular/common/http';
 import {Status} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
@@ -316,7 +316,7 @@ export class HubComponent implements OnInit, OnDestroy {
   getStores(){
     this._crud.getStores().subscribe(
       res => {
-        this.availableStores = (<Store[]> res).filter( (s) => !s.dataReadOnly || !s.schemaReadOnly );
+        this.availableStores = <Store[]> res;
       }, err => {
         console.log(err);
       }

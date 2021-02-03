@@ -40,3 +40,10 @@
   background: #dc3545;
   box-shadow: 0 0 1px 3px #dc3545;
 }
+
+/* fix for the breaking menu */
+@media (max-width: 1185px){
+  .d-md-down-none {
+    display: none !important;
+  }
+}

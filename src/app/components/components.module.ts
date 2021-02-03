@@ -31,6 +31,7 @@ import {CarouselModule} from 'ngx-bootstrap/carousel';
 import { DataViewComponent } from './data-view/data-view.component';
 import {PlyrModule} from 'ngx-plyr';
 import { MediaComponent } from './data-view/media/media.component';
+import { DeleteConfirmComponent } from './delete-confirm/delete-confirm.component';
 
 //import 'hammerjs';
 
@@ -69,7 +70,8 @@ import { MediaComponent } from './data-view/media/media.component';
     DataCardComponent,
     DataTableComponent,
     DataCarouselComponent,
-    MediaComponent
+    MediaComponent,
+    DeleteConfirmComponent
   ],
   exports: [
     BreadcrumbComponent,
@@ -84,7 +86,8 @@ import { MediaComponent } from './data-view/media/media.component';
     ToastComponent,
     InformationManagerComponent,
     InputComponent,
-    EditorComponent
+    EditorComponent,
+    DeleteConfirmComponent
   ]
 })
 export class ComponentsModule { }

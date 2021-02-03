@@ -6,7 +6,7 @@ import {TableViewComponent} from './table-view/table-view.component';
 import {SchemaEditingComponent} from './schema-editing/schema-editing.component';
 import {MonitoringComponent} from './monitoring/monitoring.component';
 import {QueryingComponent} from './querying/querying.component';
-import {StoresComponent} from './stores/stores.component';
+import {AdaptersComponent} from './adapters/adapters.component';
 import {HubComponent} from './hub/hub.component';
 import {AboutComponent} from './about/about.component';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
@@ -103,17 +103,17 @@ const routes: Routes = [
     }
   },
   {
-    path: 'stores',
-    component: StoresComponent,
+    path: 'adapters',
+    component: AdaptersComponent,
     data: {
-      title: 'Stores'
+      title: 'Adapters'
     }
   },
   {
-    path: 'stores/:action',
-    component: StoresComponent,
+    path: 'adapters/:action',
+    component: AdaptersComponent,
     data: {
-      title: 'Stores'
+      title: 'Adapters'
     }
   },
   {

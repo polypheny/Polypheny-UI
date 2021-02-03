@@ -20,7 +20,7 @@ import { RelationalAlgebraComponent } from './querying/relational-algebra/relati
 import { QueryingComponent } from './querying/querying.component';
 import { NodeComponent } from './querying/relational-algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
-import { StoresComponent } from './stores/stores.component';
+import { AdaptersComponent } from './adapters/adapters.component';
 import { HubComponent } from './hub/hub.component';
 import { RefinementOptionsComponent } from './querying/graphical-querying/refinement-options/refinement-options.component';
 import { ExploreByExampleComponent } from './querying/explore-by-example/explore-by-example.component';
@@ -35,6 +35,7 @@ import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import { NgxSliderModule } from '@m0t0r/ngx-slider';
 import { QueryInterfacesComponent } from './query-interfaces/query-interfaces.component';
+import { EditSourceColumnsComponent } from './schema-editing/edit-source-columns/edit-source-columns.component';
 
 
 @NgModule({
@@ -75,12 +76,13 @@ import { QueryInterfacesComponent } from './query-interfaces/query-interfaces.co
     RelationalAlgebraComponent,
     QueryingComponent,
     NodeComponent,
-    StoresComponent,
+    AdaptersComponent,
     HubComponent,
     RefinementOptionsComponent,
     ExploreByExampleComponent,
     AboutComponent,
-    QueryInterfacesComponent
+    QueryInterfacesComponent,
+    EditSourceColumnsComponent
   ],
     exports: [
         ExploreByExampleComponent

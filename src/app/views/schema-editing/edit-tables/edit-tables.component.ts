@@ -7,12 +7,13 @@ import {ToastDuration, ToastService} from '../../../components/toast/toast.servi
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {Store} from '../../stores/store.model';
+import {Store} from '../../adapters/adapter.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {UtilService} from '../../../services/util.service';
 import * as $ from 'jquery';
+import {DbTable} from '../../uml/uml.model';
 
 @Component({
   selector: 'app-edit-tables',
@@ -30,6 +31,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   newTableName = '';
   stores: Store[];
   selectedStore;
+  creatingTable = false;
 
   //export table
   showExportButton = false;
@@ -60,18 +62,19 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.newColumns.set( this.counter++, new DbColumn('', true, false, '', '', null, null ) );
     this.schema = this._route.snapshot.paramMap.get('id');
-    this._route.params.subscribe((params) => {
+    const sub1 = this._route.params.subscribe((params) => {
       this.schema = params['id'];
       this.getTables();
     });
+    this.subscriptions.add(sub1);
     this.getTables();
     this.getTypeInfo();
     this.getStores();
     this.initSocket();
-    const sub = this._crud.onReconnection().subscribe((b)=> {
+    const sub2 = this._crud.onReconnection().subscribe((b)=> {
       if(b) this.onReconnect();
     });
-    this.subscriptions.add(sub);
+    this.subscriptions.add(sub2);
     this.documentListener();
   }
 
@@ -100,12 +103,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   getTables() {
     this._crud.getTables(new EditTableRequest(this.schema)).subscribe(
       res => {
-        const result = <ResultSet>res;
-        if (result.error !== undefined) {
-          this._toast.exception(result, 'Could not retrieve list of tables:');
-        }
+        const result = <DbTable[]>res;
         this.tables = [];
-        for(const t of result.tables){
+        for(const t of result){
           this.tables.push( new TableModel(t) );
         }
         this.tables = this.tables.sort( (a,b) => a.name.localeCompare(b.name) );
@@ -123,10 +123,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       }, err => {
         console.log(err);
       });
-  }
-
-  getWritableStores () {
-    return this.stores.filter( (s) => !s.dataReadOnly && !s.schemaReadOnly );
   }
 
   /**
@@ -219,6 +215,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       return;
     }
     const request = new EditTableRequest(this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore);
+    this.creatingTable = true;
     this._crud.createTable(request).subscribe(
       res => {
         const result = <ResultSet>res;
@@ -238,7 +235,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         this._toast.error('Could not generate table');
         console.log(err);
       }
-    );
+    ).add( () => this.creatingTable = false );
   }
 
   renameTable ( table: TableModel ) {
@@ -411,8 +408,12 @@ class TableModel {
   export = false;
   editing = false;
   newName: string;
-  constructor( name:string ) {
-    this.name = name;
-    this.newName = name;
+  modifiable: boolean;
+  tableType: string;
+  constructor( table:DbTable) {
+    this.name = table.tableName;
+    this.newName = table.tableName;
+    this.modifiable = table.modifiable;
+    this.tableType = table.tableType;
   }
 }

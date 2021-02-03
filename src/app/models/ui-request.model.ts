@@ -156,11 +156,13 @@ export class SchemaRequest extends UIRequest {
 export class ColumnRequest extends UIRequest {
   oldColumn: DbColumn;
   newColumn: DbColumn;
-  constructor( tableId: string, oldColumn: DbColumn = null, newColumn: DbColumn = null ) {
+  renameOnly: boolean;
+  constructor( tableId: string, oldColumn: DbColumn = null, newColumn: DbColumn = null, renameOnly = false ) {
     super();
     this.tableId = tableId;
     this.oldColumn = oldColumn;
     this.newColumn = newColumn;
+    this.renameOnly = renameOnly;
   }
 }
 

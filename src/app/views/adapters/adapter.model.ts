@@ -1,19 +1,24 @@
 import {AvailableIndexMethod, ResultException} from '../../components/data-view/models/result-set.model';
 
-export interface Store {
-  storeId: number;
+export interface Adapter {
+  adapterId: number;
   uniqueName: string;
   adapterName;
   adapterSettings: AdapterSetting[];
   currentSettings: Map<string, string>;
-  dataReadOnly: boolean;
-  schemaReadOnly: boolean;
-  persistent: boolean;
   columnPlacements: CatalogColumnPlacement[];
   partitionKeys: number[];
   numPartitions: number;
   partitionType: PartitionType;
+}
+
+export interface Source extends Adapter{
+  dataReadOnly: boolean;
+}
+
+export interface Store extends Adapter{
   availableIndexMethods: AvailableIndexMethod[];
+  persistent: boolean;
 }
 
 export interface AdapterInformation {
@@ -25,11 +30,13 @@ export interface AdapterInformation {
 
 export interface AdapterSetting {
   name: string;
+  description: string;
   defaultValue: string;
   canBeNull: boolean;
   required: boolean;
   modifiable: boolean;
   options: string[];
+  fileNames: string[];
 }
 
 export interface Placements {

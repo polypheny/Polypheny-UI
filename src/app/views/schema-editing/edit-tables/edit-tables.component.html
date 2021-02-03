@@ -29,7 +29,7 @@
             </div>
           </td>
             <td>
-                <div class="input-group">
+                <div class="input-group confirm-group" *ngIf="table.modifiable">
                     <input type="text" class="form-control form-control-sm" placeholder="truncate {{table.name}}"
                            [(ngModel)]="table.truncate" (keyup.enter)="sendRequest('truncate', table)">
                     <div class="input-group-append">
@@ -40,7 +40,7 @@
                 </div>
             </td>
             <td>
-                <div class="input-group">
+                <div class="input-group confirm-group" *ngIf="table.tableType !== 'SOURCE'">
                   <input type="text" class="form-control form-control-sm" placeholder="drop {{table.name}}"
                          [(ngModel)]="table.drop" (keyup.enter)="sendRequest('drop', table)">
                     <div class="input-group-append">
@@ -163,17 +163,17 @@
                       class="caret"></span>
                     </button>
                     <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-                      <ng-container *ngIf="getWritableStores().length > 0">
+                      <ng-container *ngIf="stores && stores.length > 0">
                         <li role="menuitem">
                           <a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = null">auto</a>
                         </li>
                         <li class="dropdown-divider"></li>
-                        <li role="menuitem" *ngFor="let store of getWritableStores()">
+                        <li role="menuitem" *ngFor="let store of stores">
                           <a class="dropdown-item" [routerLink]="[]"
                              (click)="selectedStore = store.uniqueName">{{store.uniqueName}}</a>
                         </li>
                       </ng-container>
-                      <li *ngIf="getWritableStores().length === 0" role="menuitem"><a class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
+                      <li *ngIf="stores == stores.length === 0" role="menuitem"><a class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
                     </ul>
                   </div>
                 </div>
@@ -183,7 +183,7 @@
                   <input type="text" placeholder="table name" class="form-control" style="max-width: 200px;"
                          [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)" (keyup.enter)="createTable()">
                   <div class="input-group-append">
-                    <button class="btn btn-primary" (click)="createTable()">create table</button>
+                    <button class="btn btn-primary" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingTable}" [disabled]="creatingTable" (click)="createTable()">create table</button>
                   </div>
                 </div>
               </td>

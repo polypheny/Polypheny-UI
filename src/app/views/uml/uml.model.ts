@@ -13,6 +13,8 @@ export class DbTable {
   columns: DbColumn[];
   primaryKeyFields: string[];
   uniqueColumns: string[];
+  modifiable: boolean;
+  tableType: string;
 }
 
 export class ForeignKey{

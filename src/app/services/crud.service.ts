@@ -19,7 +19,7 @@ import {
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
-import {Store} from '../views/stores/store.model';
+import {Adapter} from '../views/adapters/adapter.model';
 import {QueryInterface} from '../views/query-interfaces/query-interfaces.model';
 import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
 import {WebSocket} from './webSocket';
@@ -121,10 +121,21 @@ export class CrudService {
   }
 
   /**
-   * get the columns of a table
+   * get the columns of a DataStore
    */
   getColumns ( columnRequest: ColumnRequest ) {
     return this._http.post(`${this.httpUrl}/getColumns`, columnRequest, this.httpOptions);
+  }
+
+  /**
+   * Get the columns of a DataSource
+   */
+  getDataSourceColumns ( request: TableRequest ) {
+    return this._http.post(`${this.httpUrl}/getDataSourceColumns`, request, this.httpOptions);
+  }
+
+  getExportedColumns ( request: TableRequest ) {
+    return this._http.post(`${this.httpUrl}/getExportedColumns`, request, this.httpOptions);
   }
 
   /**
@@ -369,20 +380,28 @@ export class CrudService {
     return this._http.post( `${this.httpUrl}/getAvailableStoresForIndexes`, request, this.httpOptions );
   }
 
-  updateStoreSettings( store: Store ){
-    return this._http.post( `${this.httpUrl}/updateStoreSettings`, store );
+  updateAdapterSettings(adapter: Adapter ){
+    return this._http.post( `${this.httpUrl}/updateAdapterSettings`, adapter );
   }
 
-  getAdapters(){
-    return this._http.get( `${this.httpUrl}/getAdapters` );
+  getSources(){
+    return this._http.get( `${this.httpUrl}/getSources` );
   }
 
-  addStore( store: any ){
-    return this._http.post( `${this.httpUrl}/addStore`, store, this.httpOptions );
+  getAvailableStores(){
+    return this._http.get( `${this.httpUrl}/getAvailableStores` );
   }
 
-  removeStore( storeId: string ){
-    return this._http.post( `${this.httpUrl}/removeStore`, storeId, this.httpOptions );
+  getAvailableSources() {
+    return this._http.get( `${this.httpUrl}/getAvailableSources` );
+  }
+
+  addAdapter(fd: FormData ){
+    return this._http.post( `${this.httpUrl}/addAdapter`, fd );
+  }
+
+  removeAdapter(storeId: string ){
+    return this._http.post( `${this.httpUrl}/removeAdapter`, storeId, this.httpOptions );
   }
 
   getQueryInterfaces () {
