@@ -428,6 +428,9 @@ export class CrudService {
    * Get the http url with which multimedia files can be displayed or downloaded
    */
   getFileUrl ( fileName: string ): string {
+    if( fileName.startsWith('http://') || fileName.startsWith('https://')){
+      return fileName;
+    }
     return `${this.httpUrl}/getFile/${fileName}`;
   }
 

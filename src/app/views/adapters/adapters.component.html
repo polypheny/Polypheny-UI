@@ -110,14 +110,14 @@
 
       <!-- Edit adapter settings -->
       <div class="modal-body" *ngIf="editingAdapter && editingAdapter.adapterSettings">
-        <form [formGroup]="editingAdapterForm" autocomplete="off">
+        <form [formGroup]="editingAdapterForm" autocomplete="off" (ngSubmit)="saveAdapterSettings()">
           <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
             <div class="input-group" *ngIf="!getAdapterSetting(editingAdapter, control.key).options && !getAdapterSetting(editingAdapter, control.key).fileNames">
               <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAdapter, control.key).description" placement="left" delay="200">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
-                     [ngClass]="validate(editingAdapterForm, control.key)" (keyup.enter)="saveAdapterSettings()">
+                     [ngClass]="validate(editingAdapterForm, control.key)">
               <div class="invalid-feedback">required</div>
             </div>
             <div class="form-group" *ngIf="getAdapterSetting(editingAdapter, control.key).options">
@@ -156,7 +156,7 @@
                 <label for="adapterUniqueName" class="input-group-text">Unique Name</label>
               </div>
               <input type="text" class="form-control" id="adapterUniqueName" formControlName="uniqueName"
-                     [ngClass]="validate(availableAdapterUniqueNameForm, 'uniqueName')" (keyup.enter)="deploy()">
+                     [ngClass]="validate(availableAdapterUniqueNameForm, 'uniqueName')">
               <div class="invalid-feedback">{{getFeedback()}}</div>
             </div>
           </div>
@@ -168,7 +168,7 @@
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
               <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
-                     [ngClass]="validate(editingAvailableAdapterForm, control.key)" (keyup.enter)="deploy()">
+                     [ngClass]="validate(editingAvailableAdapterForm, control.key)">
               <div class="invalid-feedback">required</div>
             </div>
             <div class="form-group" *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).options">
