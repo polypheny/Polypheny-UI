@@ -12,6 +12,10 @@
   outline: none;
 }
 
+.toast-header strong.hasGeneratedQuery {
+  cursor: pointer;
+}
+
 .toast-body {
   max-height: 200px;
   overflow: auto;

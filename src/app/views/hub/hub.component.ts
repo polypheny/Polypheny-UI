@@ -202,7 +202,7 @@ export class HubComponent implements OnInit, OnDestroy {
           if(result.error){
             this._toast.warn(result.error);
           }else{
-            this._toast.success(result.message, 'Password changed');
+            this._toast.success(result.message, null, 'Password changed');
             this.changePwSubmitted = false;
             this.changePwForm.reset();
           }
@@ -403,7 +403,7 @@ export class HubComponent implements OnInit, OnDestroy {
               this._toast.warn('Could not upload dataset: ' + result.error);
               this.uploadProgress = 0;
             } else {
-              this._toast.success(result.message, 'uploaded');
+              this._toast.success(result.message, null, 'uploaded');
               this.getDatasets();
               this.resetNewDsForm();
             }

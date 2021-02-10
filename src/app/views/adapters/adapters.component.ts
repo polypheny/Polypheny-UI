@@ -252,11 +252,12 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     this.deploying = true;
     this._crud.addAdapter( fd ).subscribe(
       res => {
-        if(<boolean> res === true){
-          this._toast.success('Deployed "' + deploy.uniqueName + '"');
+        const result = <ResultSet> res;
+        if(!result.error){
+          this._toast.success('Deployed "' + deploy.uniqueName + '"', result.generatedQuery);
           this._router.navigate(['./../'], {relativeTo: this._route});
         } else {
-          this._toast.warn('Could not deploy adapter');
+          this._toast.exception(result, 'Could not deploy adapter');
         }
         this.adapterSettingsModal.hide();
       }, err => {
@@ -273,7 +274,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         res => {
           const result = <ResultSet> res;
           if(!result.error){
-            this._toast.success('Dropped "' + adapter.uniqueName + '"');
+            this._toast.success('Dropped "' + adapter.uniqueName + '"', result.generatedQuery);
             this.getStoresAndSources();
           }else{
             this._toast.exception( result );

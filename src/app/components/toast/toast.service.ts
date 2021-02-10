@@ -29,25 +29,27 @@ export class ToastService {
    * Generate a toast message
    * @param title Title of the message
    * @param message Message
+   * @param generatedQuery Generated query
    * @param delay After how many seconds the message should fade out. The message will be displayed permanently if delay = 0
    * @param type Set the type of the message, e.g. 'bg-success', 'bg-warning', 'bg-danger'
    */
-  private toast(title: string, message: string, delay: number, type: String = '') {
-    const t: Toast = new Toast(title, message, delay, type);
+  private generateToast(title: string, message: string, generatedQuery: string, delay: number, type: String = '') {
+    const t: Toast = new Toast(title, message, generatedQuery, delay, type);
     this.setToast(t);
   }
 
   /**
    * Generate a success toast message
    * @param message Message
+   * @param generatedQuery Generated query that can be copied to the clipboard
    * @param title Title of the message, default: 'success'. If null, it will be set to 'success'
    * @param duration Optional. Set the duration of the toast message. Default: NORMAL
    */
-  success(message: string, title = 'success', duration: ToastDuration = ToastDuration.NORMAL) {
+  success(message: string, generatedQuery: string = null, title = 'success', duration: ToastDuration = ToastDuration.NORMAL) {
     if (!title) {
       title = 'success';
     }
-    this.toast(title, message, duration.valueOf(), 'bg-success');
+    this.generateToast(title, message, generatedQuery, duration.valueOf(), 'bg-success');
   }
 
   /**
@@ -60,7 +62,7 @@ export class ToastService {
     if (!title) {
       title = 'warning';
     }
-    this.toast(title, message, duration.valueOf(), 'bg-warning');
+    this.generateToast(title, message, null, duration.valueOf(), 'bg-warning');
   }
 
   /**
@@ -73,7 +75,7 @@ export class ToastService {
     if (!title) {
       title = 'error';
     }
-    this.toast(title, message, duration.valueOf(), 'bg-danger');
+    this.generateToast(title, message, null, duration.valueOf(), 'bg-danger');
   }
 
   /**
@@ -96,7 +98,7 @@ export class ToastService {
     if (!title) {
       title = 'error';
     }
-    const t: Toast = new Toast(title, msg, duration, 'bg-warning');
+    const t: Toast = new Toast(title, msg, result.generatedQuery, duration, 'bg-warning');
     if (result.exception) {
       t.setException(result.exception);
     }

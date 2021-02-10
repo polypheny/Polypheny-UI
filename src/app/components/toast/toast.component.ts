@@ -4,6 +4,7 @@ import {ToastService} from './toast.service';
 import {Toast} from './toast.model';
 import {ResultException} from '../data-view/models/result-set.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
+import {UtilService} from '../../services/util.service';
 
 @Component({
   selector: 'app-toast',
@@ -16,7 +17,10 @@ export class ToastComponent implements OnInit {
   exception: ResultException;
   @ViewChild('stackTraceModal', {static: false}) public stackTraceModal: ModalDirective;
 
-  constructor(private _toast: ToastService) {
+  constructor(
+    private _toast: ToastService,
+    private _util: UtilService
+  ) {
   }
 
   ngOnInit() {
@@ -49,6 +53,10 @@ export class ToastComponent implements OnInit {
       this.exception = toast.exception;
       this.stackTraceModal.show();
     }
+  }
+
+  copyGeneratedQuery(toast: Toast ) {
+    this._util.clipboard(toast.generatedQuery);
   }
 
 }

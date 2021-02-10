@@ -201,7 +201,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit, OnC
           const result = <ResultSet>res.body;
           if (result.error) {
             this._toast.exception(result, 'Could not insert the data', 'insert error');
-          } else if (result.info.affectedRows === 1) {
+          } else if (result.affectedRows === 1) {
             $('.insert-input').val('');
             this.insertValues.clear();
             this.buildInsertObject();
@@ -253,13 +253,13 @@ export class DataTableComponent extends DataViewComponent implements OnInit, OnC
         } else if( res.type === HttpEventType.Response ) {
           this.uploadProgress = -1;
           const result = <ResultSet>res.body;
-          if (result.info.affectedRows) {
+          if (result.affectedRows) {
             this.getTable();
             let rows = ' rows';
-            if (result.info.affectedRows === 1) {
+            if (result.affectedRows === 1) {
               rows = ' row';
             }
-            this._toast.success('Updated ' + result.info.affectedRows + rows, 'update', ToastDuration.SHORT);
+            this._toast.success('Updated ' + result.affectedRows + rows, result.generatedQuery, 'update', ToastDuration.SHORT);
           } else if (result.error) {
             this._toast.warn('Could not update this row: ' + result.error);
           }
@@ -291,7 +291,8 @@ export class DataTableComponent extends DataViewComponent implements OnInit, OnC
         }
         this.resultSet.header = savedResultHead;
         this.resultSet.data = result.data;
-        this.resultSet.info = result.info;
+        this.resultSet.generatedQuery = result.generatedQuery;
+        this.resultSet.affectedRows = result.affectedRows;
         this.resultSet.highestPage = result.highestPage;
 
         //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
@@ -536,10 +537,8 @@ export class DataTableComponent extends DataViewComponent implements OnInit, OnC
         this.classifiedData = [];
         this.resultSet = <ResultSet>res;
         this.exploreId = this.resultSet.explorerId;
-        if (this.resultSet.info !== undefined) {
-          if (this.resultSet.info.generatedQuery) {
-            this.createdSQL = this.resultSet.info.generatedQuery;
-          }
+        if (this.resultSet.generatedQuery) {
+          this.createdSQL = this.resultSet.generatedQuery;
         }
         this.setPagination();
       }, err => {

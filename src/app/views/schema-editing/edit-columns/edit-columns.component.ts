@@ -235,7 +235,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
           this._toast.exception(result, 'Could not update column:');
           console.log(result);
         }else{
-          this._toast.success('The new column was saved.', 'column saved');
+          this._toast.success('The new column was saved.', result.generatedQuery, 'column saved');
         }
       }, err => {
         this._toast.error('Could not save column due to an error on the server.', null, ToastDuration.INFINITE);
@@ -350,7 +350,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         const result = <ResultSet> res;
         if( !result.error ){
           this.getConstraints();
-          this._toast.success('The primary key was updated.', 'updated primary key');
+          this._toast.success('The primary key was updated.', result.generatedQuery, 'updated primary key');
           this.getColumns();
           this.getPlacementsAndPartitions();
         }else {
@@ -394,7 +394,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         const result = <ResultSet> res;
         if( !result.error ){
           this.getConstraints();
-          this._toast.success('The unique constraint was successfully created', 'added constraint');
+          this._toast.success('The unique constraint was successfully created', result.generatedQuery, 'added constraint');
           this.uniqueConstraintName = '';
           this.getGeneratedNames();
           this.resultSet.header.forEach((v, k) => {
@@ -612,9 +612,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
           this._toast.exception( result );
         } else {
           if( this.placementMethod === 'ADD' ){
-            this._toast.success( 'Added placement on store ' + this.selectedStore.uniqueName, 'Added placement' );
+            this._toast.success( 'Added placement on store ' + this.selectedStore.uniqueName, result.generatedQuery, 'Added placement' );
           } else if( this.placementMethod === 'MODIFY' ){
-            this._toast.success( 'Modified placement on store ' + this.selectedStore.uniqueName, 'Modified placement' );
+            this._toast.success( 'Modified placement on store ' + this.selectedStore.uniqueName, result.generatedQuery, 'Modified placement' );
           }
           this.getPlacementsAndPartitions();
         }
@@ -635,7 +635,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         if( result.error ) {
           this._toast.exception( result );
         } else {
-          this._toast.success( 'Dropped placement on store ' + store, 'Dropped placement' );
+          this._toast.success( 'Dropped placement on store ' + store, result.generatedQuery, 'Dropped placement' );
           this.getPlacementsAndPartitions();
         }
       }, err => {
@@ -678,7 +678,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         const result = <ResultSet> res;
         if( result.error ) {
           this._toast.exception(result);
-          console.log(result.info.generatedQuery);
+          console.log(result.generatedQuery);
         } else {
           this._toast.success('Partitioned table');
           this.getPlacementsAndPartitions();
@@ -727,10 +727,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
           this.partitioningModal.hide();
           this._toast.success('Modified partitions');
           this.getPlacementsAndPartitions();
-          console.log(result.info.generatedQuery);
+          console.log(result.generatedQuery);
         } else {
           this._toast.exception(result);
-          console.log(result.info.generatedQuery);
+          console.log(result.generatedQuery);
         }
       }, err => {
         this._toast.error('Could not modify the partitioning');

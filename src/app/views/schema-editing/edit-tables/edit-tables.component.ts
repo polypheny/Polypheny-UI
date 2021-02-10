@@ -222,7 +222,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         if (result.error) {
           this._toast.exception(result, 'Could not generate table:');
         } else {
-          this._toast.success('Generated table ' + request.table);
+          this._toast.success('Generated table ' + request.table, result.generatedQuery);
           this.newColumns.clear();
           this.counter = 0;
           this.newColumns.set(this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null ));

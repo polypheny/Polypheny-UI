@@ -14,7 +14,8 @@ export class ResultSet {
   tables: string[];
   error: string;
   exception: ResultException;
-  info: Debug;
+  affectedRows: number;
+  generatedQuery: string;
   type: string;//"table" or "view"
   explorerId: number;
   classificationInfo: string;
@@ -22,9 +23,10 @@ export class ResultSet {
   classifiedData: string[][];
   isConvertedToSql: boolean;
 
-  constructor(error: string, generatedQuery = '', affectedRows = 0) {
+  constructor(error: string, generatedQuery = null, affectedRows = 0) {
     this.error = error;
-    this.info = {generatedQuery: generatedQuery, affectedRows: affectedRows};
+    this.generatedQuery = generatedQuery;
+    this.affectedRows = affectedRows;
   }
 }
 
@@ -124,14 +126,6 @@ export class DbColumn {
 export interface PolyType {
   name: string;
   signatures: number;
-}
-
-/**
- * model for infos about the query, e.g. number of affected rows
- */
-export interface Debug {
-  affectedRows: number;
-  generatedQuery: string;
 }
 
 /**

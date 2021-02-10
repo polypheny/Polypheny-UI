@@ -19,6 +19,7 @@ import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.servi
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {WebSocket} from '../../../services/webSocket';
+import {UtilService} from '../../../services/util.service';
 
 @Component({
   selector: 'app-relational-algebra',
@@ -60,7 +61,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     private _RsToRa: RightSidebarToRelationalalgebraService,
     private _leftSidebar: LeftSidebarService,
     private _breadcrumb: BreadcrumbService,
-    private _settings:WebuiSettingsService
+    private _settings:WebuiSettingsService,
+    private _util: UtilService
   ) {
     this.socketOn = false;
     this.webSocket = new WebSocket(_settings);
@@ -581,8 +583,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     }
     // see https://2ality.com/2015/08/es6-map-json.html
     const out = {nodes: [...this.nodes], connections: [...this.connections]};
-    this.copyMessage(JSON.stringify(out));
-    this._toast.success('The plan was exported to JSON and copied to your clipboard', 'exported');
+    this._util.clipboard(JSON.stringify(out));
+    this._toast.success('The plan was exported to JSON and copied to your clipboard', null, 'exported');
   }
 
   /**
@@ -650,25 +652,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       .catch(err => console.log(err));
 
   }
-
-  /**
-   * Copy a string to the clipboard
-   */
-  // from https://stackoverflow.com/questions/49102724/angular-5-copy-to-clipboard
-  copyMessage(msg: string) {
-    const selBox = document.createElement('textarea');
-    selBox.style.position = 'fixed';
-    selBox.style.left = '0';
-    selBox.style.top = '0';
-    selBox.style.opacity = '0';
-    selBox.value = msg;
-    document.body.appendChild(selBox);
-    selBox.focus();
-    selBox.select();
-    document.execCommand('copy');
-    document.body.removeChild(selBox);
-  }
-
 
   /**
    * Calculates tree height of a balanced tree
