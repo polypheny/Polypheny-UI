@@ -13,6 +13,9 @@
   }
   tr td{
     min-width: 100px;
+    span {
+      white-space: pre-wrap;
+    }
   }
   th span {
     //so the tooltip will show event if the mouse is not exactly on the column name

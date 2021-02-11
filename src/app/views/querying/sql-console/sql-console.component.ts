@@ -207,7 +207,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
 
         // array of ResultSets
-        else if (Array.isArray(msg) && (msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('info') || msg[0].hasOwnProperty('error'))) {
+        else if (Array.isArray(msg) && (msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedRows') || msg[0].hasOwnProperty('error'))) {
           this.loading = false;
           this.resultSets = <ResultSet[]>msg;
           this.collapsed = new Array(this.resultSets.length);

@@ -33,4 +33,22 @@ export class UtilService {
     return ((n % m) + m) % m;
   }
 
+  /**
+   * Copy a string to the clipboard
+   */
+  // from https://stackoverflow.com/questions/49102724/angular-5-copy-to-clipboard
+  clipboard(msg: string) {
+    const selBox = document.createElement('textarea');
+    selBox.style.position = 'fixed';
+    selBox.style.left = '0';
+    selBox.style.top = '0';
+    selBox.style.opacity = '0';
+    selBox.value = msg;
+    document.body.appendChild(selBox);
+    selBox.focus();
+    selBox.select();
+    document.execCommand('copy');
+    document.body.removeChild(selBox);
+  }
+
 }
