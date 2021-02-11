@@ -47,7 +47,7 @@
               <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)" style="max-height:200px; max-width: 300px"/>
               <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
               <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
-              <span *ngSwitchDefault>{{displayRowItem(d2, resultSet.header[j])}}</span>
+              <app-expandable-text *ngSwitchDefault [text]="d2"></app-expandable-text>
             </ng-container>
           </td>
           <td *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">

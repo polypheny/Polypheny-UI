@@ -32,6 +32,7 @@ import { DataViewComponent } from './data-view/data-view.component';
 import {PlyrModule} from 'ngx-plyr';
 import { MediaComponent } from './data-view/media/media.component';
 import { DeleteConfirmComponent } from './delete-confirm/delete-confirm.component';
+import { ExpandableTextComponent } from './data-view/expandable-text/expandable-text.component';
 
 //import 'hammerjs';
 
@@ -71,7 +72,8 @@ import { DeleteConfirmComponent } from './delete-confirm/delete-confirm.componen
     DataTableComponent,
     DataCarouselComponent,
     MediaComponent,
-    DeleteConfirmComponent
+    DeleteConfirmComponent,
+    ExpandableTextComponent
   ],
   exports: [
     BreadcrumbComponent,

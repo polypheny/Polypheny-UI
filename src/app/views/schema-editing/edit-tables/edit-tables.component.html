@@ -78,7 +78,7 @@
             <tbody>
                 <tr *ngFor="let col of newColumns | keyvalue; let i=index">
                     <td>
-                        <input type="text" class="form-control form-control-sm" placeholder="column name" [(ngModel)]="col.value.name" #columnName [ngClass]="_crud.getValidationClass(columnName.value)">
+                        <input type="text" class="form-control form-control-sm" placeholder="column name" [(ngModel)]="col.value.name" #columnName [ngClass]="_crud.getValidationClass(columnName.value)" [tabIndex]="i+1">
                     </td>
                     <td>
                         <input type="checkbox" [(ngModel)]="col.value.primary">
@@ -181,7 +181,7 @@
               <td colspan="2">
                 <div class="input-group" style="justify-content: flex-end">
                   <input type="text" placeholder="table name" class="form-control" style="max-width: 200px;"
-                         [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)" (keyup.enter)="createTable()">
+                         [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)" (keyup.enter)="createTable()" [tabIndex]="newColumns.size+1">
                   <div class="input-group-append">
                     <button class="btn btn-primary" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingTable}" [disabled]="creatingTable" (click)="createTable()">create table</button>
                   </div>

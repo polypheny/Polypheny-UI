@@ -24,7 +24,7 @@
       <ng-container *ngFor="let d2 of d1; let j = index">
         <li class="list-group-item" *ngIf="d2 && !_types.isMultimedia(resultSet.header[j].dataType)" [ngSwitch]="resultSet.header[j].dataType">
           <ng-container *ngSwitchDefault>
-            <span class="key">{{resultSet.header[j].name}}:</span><span class="val"> {{d2}}</span>
+            <span class="key">{{resultSet.header[j].name}}: </span><app-expandable-text [text]="d2"></app-expandable-text>
           </ng-container>
         </li>
       </ng-container>
