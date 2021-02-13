@@ -372,6 +372,10 @@ export class CrudService {
     return this._http.post( `${this.httpUrl}/exportTable`, body );
   }
 
+  getTypeSchemas() {
+    return this._http.get( `${this.httpUrl}/getTypeSchemas`, this.httpOptions );
+  }
+
   getStores(){
     return this._http.get( `${this.httpUrl}/getStores` );
   }
