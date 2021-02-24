@@ -74,3 +74,14 @@ table tr td:hover .modify-placement-btn {
   border-radius: 0;
   height: 5px;
 }
+.partition-param-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+.invalid-partition-param {
+  font-size: 80%;
+  color: #f86c6b;
+}
+#partitionParamsTable tr td{
+  vertical-align: middle;
+}

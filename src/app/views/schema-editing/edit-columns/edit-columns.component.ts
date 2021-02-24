@@ -4,8 +4,8 @@ import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
 import {
-  DbColumn,
-  Index, ModifyPartitionRequest,
+  DbColumn, FieldType,
+  Index, ModifyPartitionRequest, PartitionFunctionModel,
   PartitioningRequest,
   PolyType,
   ResultSet,
@@ -70,11 +70,14 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   partitioningRequest: PartitioningRequest = new PartitioningRequest();
   isMergingPartitions = false;
   partitionsToModify: { partitionName: string, selected: boolean }[];
+  partitionFunctionParams: PartitionFunctionModel;
+  fieldTypes: typeof FieldType = FieldType;
 
   subscriptions = new Subscription();
 
   @ViewChild('placementModal', {static: false}) public placementModal: ModalDirective;
   @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
+  @ViewChild('partitionFunctionModal', {static: false}) public partitionFunctionModal: ModalDirective;
 
   constructor(
     private _route: ActivatedRoute,
@@ -665,7 +668,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     return this.dataPlacements.isPartitioned;
   }
 
-  partitionTable () {
+  getPartitionFunctionModel () {
     if( this.partitioningRequest.method === 'NONE' ) {
       this._toast.warn( 'Please select a partitioning method.' );
       return;
@@ -673,7 +676,20 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     const split = this.tableId.split('\.');
     this.partitioningRequest.schemaName = split[0];
     this.partitioningRequest.tableName = split[1];
-    this._crud.partitionTable( this.partitioningRequest ).subscribe(
+    this._crud.getPartitionFunctionModel( this.partitioningRequest ).subscribe(
+      res => {
+        this.partitionFunctionParams = JSON.parse(res as string);
+        this.partitionFunctionModal.show();
+      }, err => {
+        this.partitionFunctionParams = null;
+        this._toast.error('Could not get partitionFunctionParams');
+        console.log(err);
+      }
+    );
+  }
+
+  partitionTable() {
+    this._crud.partitionTable( this.partitionFunctionParams ).subscribe(
       res => {
         const result = <ResultSet> res;
         if( result.error ) {

@@ -357,8 +357,8 @@ export class DataTableComponent extends DataViewComponent implements OnInit, OnC
         s.direction = SortDirection.ASC;
         s.sorting = false;
       }
-      this.getTable();
     }
+    this.getTable();
   }
 
   /**
@@ -609,6 +609,13 @@ export class DataTableComponent extends DataViewComponent implements OnInit, OnC
       out += '\ncardinality: ' + col.cardinality;
     }
     return out;
+  }
+
+  /**
+   * returns true if a columns can be ordered
+   */
+  canOrder( col: DbColumn ) {
+    return !this._types.isMultimedia(col.dataType) && !col.collectionsType;
   }
 
 }

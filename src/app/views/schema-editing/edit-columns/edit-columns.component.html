@@ -429,7 +429,7 @@
           </div>
 
           <div class="form-group">
-            <button class="btn btn-primary btn-sm" (click)="partitionTable()">partition</button>
+            <button class="btn btn-primary btn-sm" (click)="getPartitionFunctionModel()">partition</button>
           </div>
         </div>
       </div>
@@ -506,4 +506,41 @@
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   <!--</form>-->
+</div>
+
+<div bsModal #partitionFunctionModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content" *ngIf="partitionFunctionParams">
+      <div class="modal-header">
+        <h4>{{partitionFunctionParams.title}}</h4>
+      </div>
+      <div class="modal-body">
+        <p>{{partitionFunctionParams.description}}</p>
+        <table class="table table-hover table-striped table-bordered" id="partitionParamsTable">
+          <tr>
+            <th *ngFor="let colName of partitionFunctionParams.columnNames">{{colName}}</th>
+          </tr>
+          <tr *ngFor="let col of partitionFunctionParams.rows">
+            <td *ngFor="let row of col as PartitionFunctionColumn">
+              <div class="partition-param-wrapper">
+                <ng-container [ngSwitch]="row.type">
+                  <span *ngSwitchCase="fieldTypes.LABEL">{{row.value}}</span>
+                  <select *ngSwitchCase="fieldTypes.LIST" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value}">
+                    <option *ngFor="let option of row.options" [value]="option">{{option}}</option>
+                  </select>
+                  <input *ngSwitchCase="fieldTypes.INTEGER" type="number" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value}">
+                  <input *ngSwitchDefault type="text" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value}">
+                </ng-container>
+                <span class="invalid-partition-param" *ngIf="row.mandatory && !row.value">required</span>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary float-left" (click)="partitionFunctionModal.hide()">Close</button>
+        <button type="submit" class="btn btn-primary" (click)="partitionTable()" [disabled]="">Partition</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
 </div>
