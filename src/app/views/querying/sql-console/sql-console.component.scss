@@ -90,6 +90,9 @@ select{
   transition: max-height 0.5s;
   transition-delay: 0.5s;
 }
+#results .card-header .badge{
+  min-width: 1.5em;
+}
 .accordion .card{
   margin-bottom: 0;
 }
