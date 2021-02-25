@@ -76,6 +76,20 @@ select{
 #results .card-body{
   padding-bottom: 0.25rem;
 }
+#results .card-header span{
+  max-height: 1.5em;
+  overflow: hidden;
+  transition: max-height 0.5s;
+}
+#results .card-header.open span{
+  max-height: 6em;
+}
+#results .card-header:hover span{
+  overflow: auto;
+  max-height: 6em;
+  transition: max-height 0.5s;
+  transition-delay: 0.5s;
+}
 .accordion .card{
   margin-bottom: 0;
 }
@@ -94,4 +108,9 @@ select{
 }
 .query-info p:not(:last-child){
   margin-bottom: 0;
+}
+#collapse-btn-wrapper{
+  flex-wrap: nowrap;
+  display: flex;
+  align-items: flex-end;
 }
