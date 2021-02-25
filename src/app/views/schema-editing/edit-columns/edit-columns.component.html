@@ -294,7 +294,7 @@
                   <div class="invalid-feedback">invalid name</div>
                 </div>
                 <div class="form-group" *ngIf="availableStoresForIndexes && availableStoresForIndexes.length > 0">
-                  <label for="storeName">Store</label>
+                  <label for="storeName">Location</label>
                   <select name="storeName" id="storeName" class="form-control form-control-sm" [ngModel]="selectedStoreForIndex" (ngModelChange)="onSelectingIndexStore($event)" [ngModelOptions]="{standalone: true}">
                     <option *ngFor="let store of availableStoresForIndexes" [ngValue]="store">{{store.uniqueName}}</option>
                   </select>
@@ -405,9 +405,9 @@
     </div>
 
     <div class="card" *ngIf="!isPartitioned()">
-      <div class="card-header">Add data partitioning</div>
+      <div class="card-header">Horizontal partitioning</div>
       <div class="card-body">
-        <p>This table is not yet partitioned.</p>
+        <p>This table is not yet horizontally partitioned.</p>
         <div class="form-inline mb-3">
           <div class="form-group">
             <label for="partitionMethod">Method</label>
