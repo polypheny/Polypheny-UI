@@ -269,7 +269,7 @@
         <tr *ngFor="let d1 of constraints.data; let i = index">
           <td *ngFor="let d2 of d1">{{d2}}</td>
           <td class="delete">
-            <i [ngClass]="{ 'cui-trash': i!==confirmConstraint, 'fa fa-warning': i===confirmConstraint }" (click)="dropConstraint(d1[0], d1[1], i)" (mouseleave)="confirmConstraint = -1"></i>
+            <i *ngIf="d1[1] !== 'PRIMARY KEY'" [ngClass]="{ 'cui-trash': i!==confirmConstraint, 'fa fa-warning': i===confirmConstraint }" (click)="dropConstraint(d1[0], d1[1], i)" (mouseleave)="confirmConstraint = -1"></i>
           </td>
         </tr>
       </tbody>
