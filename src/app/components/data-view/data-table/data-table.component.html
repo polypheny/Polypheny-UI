@@ -9,8 +9,8 @@
       <tr>
         <ng-container *ngFor="let h of resultSet.header">
           <th><span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body" [ngClass]="{'pk': h.primary}">{{h.name}}</span>
-            <a *ngIf="config.sort" [routerLink]="" [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}" (click)="sortTable(h.sort)">
-              <i *ngIf="canOrder(h)" [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
+            <a *ngIf="config.sort && canOrder(h)" [routerLink]="" [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}" (click)="sortTable(h.sort)">
+              <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
             </a>
           </th>
         </ng-container>

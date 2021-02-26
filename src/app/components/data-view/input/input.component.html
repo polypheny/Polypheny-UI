@@ -1,22 +1,23 @@
-<div class="input-group" style="align-items: center;">
+<div class="input-group">
 
   <ng-container [ngSwitch]="header.dataType">
 
     <!-- multiple cases: from: https://stackoverflow.com/questions/40176061/two-switch-case-values-in-angular2/40177408#40177408 -->
     <ng-container *ngSwitchCase="_types.numericTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
       <!-- use input type text to prevent problems when having current values such as "12." (dot at the end) -->
-      <input type="text" inputmode="decimal" class="form-control form-control-sm" [value]="value" [disabled]="value === null && header.nullable === true" (keyup)="onNumericValueChange($event.target.value, inputElement, $event)" #inputElement>
+      <input type="text" inputmode="decimal" class="form-control form-control-sm" [value]="value" [disabled]="value === null && header.nullable === true" #inputElement [ngClass]="validate(inputElement)?.cssClass" (keyup)="onValueChange(inputElement.value, $event)">
       <div class="input-group-append" *ngIf="header.nullable">
-        <div class="btn btn-sm" [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}" (click)="onNumericValueChange( triggerNull(value), inputElement )">null</div>
+        <div class="btn btn-sm" [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}" (click)="onValueChange( triggerNull(value), inputElement )">null</div>
       </div>
+      <span class="invalid-feedback" *ngIf="validate(inputElement)?.message">{{validate(inputElement)?.message}}</span>
     </ng-container>
 
     <ng-container *ngSwitchCase="_types.booleanTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
-      <div class="form-check form-check-inline">
+      <div class="form-check form-check-inline switch-wrapper">
           <label class="switch switch-label switch-pill switch-outline-primary-alt switch-sm">
             <input type="checkbox" class="switch-input" [id]="'insertRow'+header.name" [checked]="value === true"
                    [disabled]="value === null && header.nullable === true"
-                   (change)="onValueChange($event.target.checked)">
+                   (change)="onValueChange(checkboxInput.checked)" #checkboxInput>
             <span class="switch-slider"></span>
           </label>
         <label class="form-check-label insertRowLabel"
@@ -54,13 +55,14 @@
     <ng-container *ngSwitchDefault>
       <input type="text" class="form-control form-control-sm" [value]="value" [maxLength]="header.precision || 524288"
              [disabled]="value === null && header.nullable === true"
-             (keyup)="onValueChange($event.target.value, $event)">
+             [ngClass]="validate(defaultInput)?.cssClass" (keyup)="onValueChange(defaultInput.value, $event)" #defaultInput>
       <div class="input-group-append" *ngIf="header.nullable">
         <div class="btn btn-sm"
              [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}"
              (click)="onValueChange( triggerNull(value) )">null
         </div>
       </div>
+      <span class="invalid-feedback" *ngIf="validate(defaultInput)?.message">{{validate(defaultInput)?.message}}</span>
     </ng-container>
 
   </ng-container>
