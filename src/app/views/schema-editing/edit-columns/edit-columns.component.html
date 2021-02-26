@@ -122,7 +122,9 @@
               <span *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
             </td>
             <td>{{col.defaultValue}}</td>
-            <td class="delete"><i (click)="dropColumn(col, i)" (mouseleave)="confirm = -1" [ngClass]="{ 'cui-trash': i!==confirm, 'fa fa-warning': i===confirm }"></i></td>
+            <td class="delete">
+              <app-delete-confirm (delete)="dropColumn(col)"></app-delete-confirm>
+            </td>
           </ng-container>
         </tr>
 
@@ -269,7 +271,7 @@
         <tr *ngFor="let d1 of constraints.data; let i = index">
           <td *ngFor="let d2 of d1">{{d2}}</td>
           <td class="delete">
-            <i [ngClass]="{ 'cui-trash': i!==confirmConstraint, 'fa fa-warning': i===confirmConstraint }" (click)="dropConstraint(d1[0], d1[1], i)" (mouseleave)="confirmConstraint = -1"></i>
+            <app-delete-confirm (delete)="dropConstraint(d1[0], d1[1])"></app-delete-confirm>
           </td>
         </tr>
       </tbody>
@@ -327,7 +329,7 @@
                 <tr *ngFor="let d1 of indexes.data; let i = index">
                     <td *ngFor="let d2 of d1">{{d2}}</td>
                     <td class="delete">
-                        <i *ngIf="d1[4] != 'FUNCTIONAL'" [ngClass]="{ 'cui-trash': i!==confirmIndex, 'fa fa-warning': i===confirmIndex }" (click)="dropIndex(d1[0], i)" (mouseleave)="confirmIndex = -1"></i>
+                      <app-delete-confirm *ngIf="d1[4] != 'FUNCTIONAL'" (delete)="dropIndex(d1[0])"></app-delete-confirm>
                     </td>
                 </tr>
             </tbody>
