@@ -43,7 +43,11 @@
         <ng-container *ngIf="editing !== i">
           <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
             <ng-container [ngSwitch]="resultSet.header[j].dataType" *ngIf="d2">
-              <a *ngSwitchCase="'FILE'" class="download" [href]="getFileLink(d2)" download><span class="cui-cloud-download"></span></a>
+              <ng-container *ngSwitchCase="'FILE'">
+                <a *ngIf="downloadingIthRow !== i" [routerLink]="[]" class="download" (click)="getFile(d2, i)" download><span class="cui-cloud-download"></span></a>
+                <progressbar *ngIf="downloadingIthRow === i && downloadProgress > -1 && downloadProgress !== 0 && downloadProgress !== 100" [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress" type="primary" class="file-progress"></progressbar>
+                <progressbar *ngIf="downloadingIthRow === i && downloadProgress > -1 && (downloadProgress === 100 || downloadProgress === 0)" [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress" [striped]="true" type="primary" class="file-progress"></progressbar>
+              </ng-container>
               <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)" style="max-height:200px; max-width: 300px"/>
               <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
               <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>

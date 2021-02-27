@@ -261,7 +261,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit, OnC
             }
             this._toast.success('Updated ' + result.affectedRows + rows, result.generatedQuery, 'update', ToastDuration.SHORT);
           } else if (result.error) {
-            this._toast.warn('Could not update this row: ' + result.error);
+            this._toast.exception(result, 'Could not update this row');
           }
         }
       }, err => {

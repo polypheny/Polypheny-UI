@@ -438,6 +438,18 @@ export class CrudService {
     return `${this.httpUrl}/getFile/${fileName}`;
   }
 
+  getFile(fileName: string) {
+    const url = this.getFileUrl(fileName);
+
+    //blob as json: https://stackoverflow.com/questions/42898162/how-to-read-content-disposition-headers-from-server-response-angular-2
+    return this._http.get(url, {
+      reportProgress: true,
+      observe: 'events',
+      responseType: 'blob' as 'json',
+      headers: new HttpHeaders({'Content-Type': 'application/octet-stream'})
+    });
+  }
+
   getNameValidator ( required: boolean = false ) {
     if ( required ){
       return [Validators.pattern('^[a-zA-Z_][a-zA-Z0-9_]*$'), Validators.required, Validators.max(100)];

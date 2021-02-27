@@ -13,6 +13,7 @@ import * as Plyr from 'plyr';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {WebSocket} from '../../services/webSocket';
+import {HttpEventType} from '@angular/common/http';
 
 @Component({
   selector: 'app-data-view',
@@ -38,6 +39,8 @@ export class DataViewComponent implements OnInit, OnDestroy {
   filter = new Map<string, string>();
   /** -1 if not uploading, 0 or 100: striped, else: showing progress */
   uploadProgress = -1;
+  downloadProgress = -1;
+  downloadingIthRow = -1;
   confirm = -1;
   editing = -1;//-1 if not editing any row, else the index of that row
   player: Plyr;
@@ -186,6 +189,28 @@ export class DataViewComponent implements OnInit, OnDestroy {
 
   getFileLink ( data: string ) {
     return this._crud.getFileUrl(data);
+  }
+
+  getFile(data: string, index: number){
+    this.downloadingIthRow = index;
+    this.downloadProgress = 0;
+    this._crud.getFile( data ).subscribe(
+      res => {
+        if( res.type && res.type === HttpEventType.DownloadProgress ){
+          this.downloadProgress = Math.round(100 * res.loaded / res.total);
+        } else if( res.type === HttpEventType.Response ) {
+          //see https://stackoverflow.com/questions/51960172/
+          const url= window.URL.createObjectURL(res.body);
+          window.open(url);
+        }
+      }, err => {
+        console.log(err);
+      }
+    ).add(() => {
+      this.downloadingIthRow = -1;
+      this.downloadProgress = -1;
+    });
+
   }
 
 }

@@ -1,12 +1,13 @@
 .input-group{
   align-items: center;
 }
-.invalid-feedback, .valid-feedback{
+.feedback{
   text-align: left;
   position: absolute;
   bottom: -1rem;
   background: #e4e5e6;
   width: auto;
+  white-space: nowrap!important;
 }
 .insertRowLabel{
   width: 4em;
