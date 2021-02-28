@@ -1,11 +1,11 @@
-import {Component, Input, OnInit, OnDestroy, ViewChild} from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild, HostListener} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
 import {
-  DbColumn,
-  Index, ModifyPartitionRequest,
+  DbColumn, FieldType,
+  Index, ModifyPartitionRequest, PartitionFunctionModel,
   PartitioningRequest,
   PolyType,
   ResultSet,
@@ -48,7 +48,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   proposedConstraintName = 'constraintName';
 
   indexes: ResultSet;
-  confirmIndex = -1;
   newIndexCols;
   selectedStoreForIndex: Store;
   newIndexForm: FormGroup;
@@ -70,11 +69,14 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   partitioningRequest: PartitioningRequest = new PartitioningRequest();
   isMergingPartitions = false;
   partitionsToModify: { partitionName: string, selected: boolean }[];
+  partitionFunctionParams: PartitionFunctionModel;
+  fieldTypes: typeof FieldType = FieldType;
 
   subscriptions = new Subscription();
 
   @ViewChild('placementModal', {static: false}) public placementModal: ModalDirective;
   @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
+  @ViewChild('partitionFunctionModal', {static: false}) public partitionFunctionModal: ModalDirective;
 
   constructor(
     private _route: ActivatedRoute,
@@ -105,13 +107,20 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this.getPlacementsAndPartitions();
     this.getPartitionTypes();
     this.getGeneratedNames();
-
-    this.documentListener();
   }
 
   ngOnDestroy() {
     $(document).off('click');
     this.subscriptions.unsubscribe();
+  }
+
+  //see https://medium.com/claritydesignsystem/1b66d45b3e3d
+  @HostListener('window:click', ['$event.target'])
+  onClick(targetElement: string) {
+    const self = this;
+    if( $(targetElement).parents('.editing').length === 0 ){
+      self.editColumn = -1;
+    }
   }
 
   getTableId () {
@@ -216,8 +225,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       this.updateColumn.controls['precision'].value,
       this.updateColumn.controls['scale'].value,
       this.updateColumn.controls['defaultValue'].value,
-      this.updateColumn.controls['dimension'].value,
-      this.updateColumn.controls['cardinality'].value
+      this.updateColumn.controls['dimension'].value || -1,
+      this.updateColumn.controls['cardinality'].value || -1
     );
     if( !this._types.supportsPrecision(newColumn.dataType) && newColumn.precision !== null ){
       newColumn.precision = null;
@@ -287,25 +296,21 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     );
   }
 
-  dropColumn ( col: DbColumn , i ) {
-    if ( this.confirm !== i ){
-      this.confirm = i;
-    } else {
-      this._crud.dropColumn( new ColumnRequest( this.tableId, col ) ).subscribe(
-        res => {
-          this.getColumns();
-          this.getPlacementsAndPartitions();
-          this.confirm = -1;
-          const result = <ResultSet> res;
-          if( result.error ){
-            this._toast.exception(result, 'Could not delete column:', 'server error', ToastDuration.INFINITE);
-          }
-        }, err => {
-          this._toast.error('Could not delete column.', null, ToastDuration.INFINITE);
-          console.log(err);
+  dropColumn ( col: DbColumn ) {
+    this._crud.dropColumn( new ColumnRequest( this.tableId, col ) ).subscribe(
+      res => {
+        this.getColumns();
+        this.getPlacementsAndPartitions();
+        this.confirm = -1;
+        const result = <ResultSet> res;
+        if( result.error ){
+          this._toast.exception(result, 'Could not delete column:', 'server error', ToastDuration.INFINITE);
         }
-      );
-    }
+      }, err => {
+        this._toast.error('Could not delete column.', null, ToastDuration.INFINITE);
+        console.log(err);
+      }
+    );
   }
 
   getConstraints () {
@@ -318,23 +323,19 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     );
   }
 
-  dropConstraint ( constraintName:string, constraintType:string, i:number) {
-    if( this.confirmConstraint !== i ){
-      this.confirmConstraint = i;
-    } else {
-      this._crud.dropConstraint( new ConstraintRequest( this.tableId, new TableConstraint( constraintName, constraintType ) )).subscribe(
-        res => {
-          const result = <ResultSet> res;
-          if( result.error){
-            this._toast.exception(result, null, 'constraint error');
-          }else{
-            this.getConstraints();
-          }
-        }, err => {
-          console.log(err);
+  dropConstraint ( constraintName:string, constraintType:string) {
+    this._crud.dropConstraint( new ConstraintRequest( this.tableId, new TableConstraint( constraintName, constraintType ) )).subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if( result.error){
+          this._toast.exception(result, null, 'constraint error');
+        }else{
+          this.getConstraints();
         }
-      );
-    }
+      }, err => {
+        console.log(err);
+      }
+    );
   }
 
   updatePrimaryKey () {
@@ -408,15 +409,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         console.log(err);
       }
     );
-  }
-
-  documentListener() {
-    const self = this;
-    $(document).on('click', function(e){
-      if( $(e.target).parents('.editing').length === 0 ){
-        self.editColumn = -1;
-      }
-    });
   }
 
   assignDefault ( col: any, isFormGroup: boolean ) {
@@ -665,7 +657,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     return this.dataPlacements.isPartitioned;
   }
 
-  partitionTable () {
+  getPartitionFunctionModel () {
     if( this.partitioningRequest.method === 'NONE' ) {
       this._toast.warn( 'Please select a partitioning method.' );
       return;
@@ -673,7 +665,20 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     const split = this.tableId.split('\.');
     this.partitioningRequest.schemaName = split[0];
     this.partitioningRequest.tableName = split[1];
-    this._crud.partitionTable( this.partitioningRequest ).subscribe(
+    this._crud.getPartitionFunctionModel( this.partitioningRequest ).subscribe(
+      res => {
+        this.partitionFunctionParams = JSON.parse(res as string);
+        this.partitionFunctionModal.show();
+      }, err => {
+        this.partitionFunctionParams = null;
+        this._toast.error('Could not get partitionFunctionParams');
+        console.log(err);
+      }
+    );
+  }
+
+  partitionTable() {
+    this._crud.partitionTable( this.partitionFunctionParams ).subscribe(
       res => {
         const result = <ResultSet> res;
         if( result.error ) {
@@ -760,23 +765,19 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
   }
 
-  dropIndex(index: string, i) {
-    if (this.confirmIndex !== i) {
-      this.confirmIndex = i;
-    } else {
-      this._crud.dropIndex(new Index(this.schema, this.table, index, null, null, null)).subscribe(
-        res => {
-          const result = <ResultSet>res;
-          if (!result.error) {
-            this.getIndexes();
-          }else{
-            this._toast.exception(result, 'Could not drop index:');
-          }
-        }, err => {
-          console.log(err);
+  dropIndex(index: string) {
+    this._crud.dropIndex(new Index(this.schema, this.table, index, null, null, null)).subscribe(
+      res => {
+        const result = <ResultSet>res;
+        if (!result.error) {
+          this.getIndexes();
+        }else{
+          this._toast.exception(result, 'Could not drop index:');
         }
-      );
-    }
+      }, err => {
+        console.log(err);
+      }
+    );
   }
 
   addIndex() {

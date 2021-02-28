@@ -108,6 +108,10 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     }
   }
 
+  collapseAll( collapse: boolean ) {
+    this.collapsed.fill(collapse);
+  }
+
   addToHistory(query: string): void {
     if (this.history.size >= this.MAXHISTORY) {
       let h: SqlHistory = new SqlHistory('');
@@ -232,14 +236,6 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
         }, +this._settings.getSetting('reconnection.timeout'));
       });
     this.subscriptions.add(sub);
-  }
-
-  filter(query) {
-    if (query.length > 50) {
-      return (query.substr(0, 49) + '...');
-    } else {
-      return query;
-    }
   }
 
 }

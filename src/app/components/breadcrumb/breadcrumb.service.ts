@@ -17,7 +17,7 @@ export class BreadcrumbService implements OnInit, OnDestroy {
 
   constructor() {
     if( localStorage.getItem( 'breadcrumb.zoom' ) === null ) {
-      localStorage.setItem( 'breadcrumb.zoom', String(this.MAXCOLS - 2) );
+      localStorage.setItem( 'breadcrumb.zoom', String(this.MAXCOLS - 1) );
     }
     this.zoom = +localStorage.getItem( 'breadcrumb.zoom' );
   }

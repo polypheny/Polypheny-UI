@@ -26,3 +26,16 @@ export enum SortDirection {
      */
     DESC = 'DESC'
 }
+export class InputValidation {
+  cssClass;
+  constructor(
+    public valid: boolean,
+   public message: string = null,
+  ) {
+    if(valid){
+      this.cssClass = 'is-valid';
+    } else {
+      this.cssClass = 'is-invalid';
+    }
+  }
+}

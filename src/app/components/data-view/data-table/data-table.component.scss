@@ -2,7 +2,7 @@
   width: auto;
   min-width: 60%;
   max-width: 100%;
-  margin: 0 auto;
+  margin: 0 auto 0.5rem;
   overflow-x: auto;
   // display: inline-block;
   tr th{
@@ -13,6 +13,7 @@
   }
   tr td{
     min-width: 100px;
+    vertical-align: middle;
     span {
       white-space: pre-wrap;
     }
