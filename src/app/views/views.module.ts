@@ -36,6 +36,7 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import { NgxSliderModule } from '@m0t0r/ngx-slider';
 import { QueryInterfacesComponent } from './query-interfaces/query-interfaces.component';
 import { EditSourceColumnsComponent } from './schema-editing/edit-source-columns/edit-source-columns.component';
+import {ValuePipe} from '../pipes/pipes';
 
 
 @NgModule({
@@ -82,7 +83,8 @@ import { EditSourceColumnsComponent } from './schema-editing/edit-source-columns
     ExploreByExampleComponent,
     AboutComponent,
     QueryInterfacesComponent,
-    EditSourceColumnsComponent
+    EditSourceColumnsComponent,
+    ValuePipe
   ],
     exports: [
         ExploreByExampleComponent
