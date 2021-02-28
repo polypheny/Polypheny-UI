@@ -271,7 +271,7 @@
         <tr *ngFor="let d1 of constraints.data; let i = index">
           <td *ngFor="let d2 of d1">{{d2}}</td>
           <td class="delete">
-            <app-delete-confirm (delete)="dropConstraint(d1[0], d1[1])"></app-delete-confirm>
+            <app-delete-confirm *ngIf="d1[1] !== 'PRIMARY KEY'" (delete)="dropConstraint(d1[0], d1[1])"></app-delete-confirm>
           </td>
         </tr>
       </tbody>
