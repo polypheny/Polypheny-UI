@@ -667,8 +667,12 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this.partitioningRequest.tableName = split[1];
     this._crud.getPartitionFunctionModel( this.partitioningRequest ).subscribe(
       res => {
-        this.partitionFunctionParams = JSON.parse(res as string);
-        this.partitionFunctionModal.show();
+        this.partitionFunctionParams = <PartitionFunctionModel> res;
+        if(this.partitionFunctionParams.error){
+          this._toast.warn(this.partitionFunctionParams.error);
+        } else {
+          this.partitionFunctionModal.show();
+        }
       }, err => {
         this.partitionFunctionParams = null;
         this._toast.error('Could not get partitionFunctionParams');
@@ -677,6 +681,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Horizontally partition a table
+   */
   partitionTable() {
     this._crud.partitionTable( this.partitionFunctionParams ).subscribe(
       res => {
@@ -685,9 +692,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
           this._toast.exception(result);
           console.log(result.generatedQuery);
         } else {
-          this._toast.success('Partitioned table');
+          this._toast.success('Partitioned table', result.generatedQuery);
           this.getPlacementsAndPartitions();
         }
+        this.partitionFunctionModal.hide();
       }, err => {
         this._toast.error(err);
       }

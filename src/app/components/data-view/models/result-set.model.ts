@@ -218,6 +218,8 @@ export class PartitionFunctionModel {
   description: string;
   columnNames: string[];
   rows: PartitionFunctionColumn[][];
+  error: string;
+  generatedQuery: string;
 }
 
 export class PartitionFunctionColumn {
