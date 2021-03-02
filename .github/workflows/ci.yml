@@ -1,4 +1,4 @@
-name: Polypheny-Simple-Client CI
+name: Polypheny-UI CI
 
 on: [ push, pull_request ]
 
