@@ -530,10 +530,10 @@
                   <select *ngSwitchCase="fieldTypes.LIST" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value}">
                     <option *ngFor="let option of row.options" [value]="option">{{option}}</option>
                   </select>
-                  <input *ngSwitchCase="fieldTypes.INTEGER" type="number" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value}">
+                  <input *ngSwitchCase="fieldTypes.INTEGER" type="number" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value && row.value !== 0}">
                   <input *ngSwitchDefault type="text" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value}">
                 </ng-container>
-                <span class="invalid-partition-param" *ngIf="row.mandatory && !row.value">required</span>
+                <span class="invalid-partition-param" *ngIf="row.mandatory && !row.value && row.value !== 0">required</span>
               </div>
             </td>
           </tr>
