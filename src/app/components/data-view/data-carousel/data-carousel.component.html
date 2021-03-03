@@ -1,47 +1,74 @@
 <app-toast></app-toast>
 <div *ngIf="resultSet" id="carousel-wrapper">
   <carousel [noWrap]="true" [interval]="0" [showIndicators]="false" [activeSlide]="currentSlide" [isAnimated]="true">
-    <div id="navigator-wrapper" class="mb-2" *ngIf="resultSet.data && resultSet.data.length > 0">
-      <button class="btn btn-light btn-sm" (click)="changeSlide(-1)"><i class="cui-chevron-left"></i></button>
-      <button class="btn btn-light btn-sm" (click)="changeSlide(1)"><i class="cui-chevron-right"></i></button>
+    <div class="navigator-wrapper mb-2" *ngIf="resultSet.data && resultSet.data.length > 0 && editing !== currentSlide">
+      <button class="btn btn-light btn-sm" [disabled]="loadingPage || (currentSlide === 0 && resultSet.currentPage === 1)" (click)="changeSlide(-1)">
+        <i class="cui-chevron-left"></i>
+      </button>
+      <button class="btn btn-light btn-sm" [disabled]="loadingPage || (currentSlide === resultSet.data.length - 1 && resultSet.currentPage === resultSet.highestPage)" (click)="changeSlide(1)">
+        <i class="cui-chevron-right"></i>
+      </button>
     </div>
-    <div style="text-align:center;">
-      <span class="text-danger" *ngIf="resultSet.data && resultSet.data.length == 0">(no data to show)</span>
+    <div class="navigator-wrapper mb-2" *ngIf="config.update && resultSet.data && resultSet.data.length > 0">
+      <button *ngIf="editing !== currentSlide" class="btn btn-light btn-sm" (click)="triggerEditing(currentSlide)">
+        <i class="fa fa-pencil"></i></button>
+      <button *ngIf="editing === currentSlide" class="btn btn-light btn-sm" (click)="editing = -1">
+        <i class="fa fa-close"></i></button>
+      <button class="btn btn-light btn-sm btn-del" (click)="deleteRow(resultSet.data[currentSlide], currentSlide)" (mouseleave)="confirm = -1">
+        <i [ngClass]="{ 'cui-trash': currentSlide!==confirm, 'fa': currentSlide===confirm, 'fa-warning': currentSlide===confirm}"></i>
+      </button>
+    </div>
+    <div style="text-align:center;" *ngIf="resultSet.data && resultSet.data.length == 0">
+      <span class="text-danger">(no data to show)</span>
     </div>
     <!--<slide *ngFor="let d1 of resultSet.data; let i=index">-->
     <slide *ngFor="let d1 of [resultSet.data[currentSlide]]">
 
+      <div *ngIf="resultSet.data?.length > 0" [ngClass]="{'editing-wrapper': editing === currentSlide}">
+        <!-- load MM types first -->
+        <ng-container *ngFor="let h of resultSet.header; let j = index">
+          <ng-container *ngIf="showFirst(h.dataType)" [ngSwitch]="h.dataType">
+            <ng-container *ngIf="d1 && d1[j] && currentSlide !== editing">
+              <img class="carousel-multimedia" *ngSwitchCase="'IMAGE'" [src]="getFileLink(d1[j])"/>
+              <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d1[j])" [type]="h.dataType" [style]="{'max-height': '80vh'}"></app-media>
+              <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d1[j])" [type]="h.dataType"></app-media>
+            </ng-container>
+            <p *ngIf="currentSlide === editing">
+              <app-input [header]="h" [showLabel]="true" [value]="updateValues.get(h.name)" (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateRow()" [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
+            </p>
+          </ng-container>
+        </ng-container>
 
-      <!-- load MM types first -->
-      <ng-container *ngFor="let d2 of d1; let j = index">
-        <ng-container *ngIf="d2 && _types.isMultimedia(resultSet.header[j].dataType)" [ngSwitch]="resultSet.header[j].dataType">
-          <img class="carousel-multimedia" *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)"/>
-          <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{'max-height': '80vh'}"></app-media>
-          <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType"></app-media>
-          <div style="text-align: center">
-            <ng-container *ngSwitchCase="'FILE'">
-              <p class="mt-3">
-                <span class="key">
-                {{resultSet.header[j].name}}
-              </span>
-                <span class="val">: <a class="download" [href]="getFileLink(d2)" download><span class="cui-cloud-download"></span></a></span>
+        <!-- then load all non-MM data -->
+        <div style="text-align: center"><!--<div class="carousel-caption">-->
+          <ng-container *ngFor="let h of resultSet.header; let j = index">
+            <ng-container *ngIf="!showFirst(h.dataType)">
+              <p *ngIf="d1 && d1[j] && currentSlide !== editing" class="mt-3" [ngSwitch]="h.dataType">
+                <ng-container *ngSwitchCase="'FILE'">
+                  <span class="key">
+                    {{h.name}}
+                  </span>
+                  <span class="val">: <a class="download" [href]="getFileLink(d1[j])" download><span class="cui-cloud-download"></span></a></span>
+                </ng-container>
+                <ng-container *ngSwitchDefault>
+                  <span class="key">{{h.name}}: </span>
+                  <app-expandable-text [text]="d1[j]"></app-expandable-text>
+                </ng-container>
+              </p>
+              <p *ngIf="currentSlide === editing">
+                <app-input [header]="h" [showLabel]="true" [value]="updateValues.get(h.name)" (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateRow()" [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
               </p>
             </ng-container>
-          </div>
-        </ng-container>
-      </ng-container>
+          </ng-container>
+        </div>
 
-      <!-- then load all non-MM data -->
-      <div style="text-align: center"><!--<div class="carousel-caption">-->
-        <ng-container *ngFor="let d2 of d1; let j = index">
-          <p *ngIf="d2 && !_types.isMultimedia(resultSet.header[j].dataType)" [ngSwitch]="resultSet.header[j].dataType" class="mt-3">
-            <ng-container *ngSwitchDefault>
-              <span class="key">{{resultSet.header[j].name}}: </span>
-              <app-expandable-text [text]="d2"></app-expandable-text>
-            </ng-container>
-          </p>
-        </ng-container>
+        <p *ngIf="editing === currentSlide" style="display: flex; justify-content: space-between;">
+          <button class="btn btn-light btn-sm" (click)="editing = -1">Cancel</button>
+          <button class="btn btn-primary btn-sm" (click)="updateRow()">Save</button>
+        </p>
+
       </div>
+
     </slide>
   </carousel>
 </div>

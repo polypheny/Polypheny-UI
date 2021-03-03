@@ -33,14 +33,4 @@ export class DataCardComponent extends DataViewComponent implements OnInit {
     this.setPagination();
   }
 
-  showFirst( dataType: string ){
-    switch (dataType) {
-      case 'IMAGE':
-      case 'VIDEO':
-      case 'SOUND':
-        return true;
-    }
-    return false;
-  }
-
 }

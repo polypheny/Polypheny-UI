@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
 import {DataPresentationType, ResultSet} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
@@ -47,6 +47,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   player: Plyr;
   webSocket: WebSocket;
   subscriptions = new Subscription();
+  resultSetEvent = new EventEmitter<ResultSet>();
 
   constructor(
     public _crud: CrudService,
@@ -112,6 +113,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
           this.config.update = false;
           this.config.delete = false;
         }
+        this.resultSetEvent.emit(this.resultSet);
       }, err => {
         this._toast.error('Could not load the data.');
         console.log(err);
@@ -213,6 +215,19 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   paginate(p: PaginationElement) {
     this.resultSet.currentPage = p.page;
     this.getTable();
+  }
+
+  /**
+   * In the card and carousel view, show mm data first (only image, video and sound columns)
+   */
+  showFirst( dataType: string ){
+    switch (dataType) {
+      case 'IMAGE':
+      case 'VIDEO':
+      case 'SOUND':
+        return true;
+    }
+    return false;
   }
 
   getFileLink ( data: string ) {

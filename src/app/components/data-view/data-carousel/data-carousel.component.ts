@@ -4,9 +4,9 @@ import {ToastService} from '../../toast/toast.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {UtilService} from '../../../services/util.service';
 import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
+import {first} from 'rxjs/operators';
 
 @Component({
   selector: 'app-data-carousel',
@@ -16,9 +16,13 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 export class DataCarouselComponent extends DataViewComponent implements OnInit {
 
   currentSlide = 0;
+  loadingPage = false;
 
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
+    if( this.currentSlide === this.editing ){
+      return;
+    }
     if(event.key === 'ArrowRight'){
       this.changeSlide(1);
     }
@@ -34,8 +38,7 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
     public _router: Router,
     public _types: DbmsTypesService,
     public _settings: WebuiSettingsService,
-    public modalService: BsModalService,
-    public _util: UtilService
+    public modalService: BsModalService
   ) {
     super( _crud, _toast, _route, _router, _types, _settings, modalService );
   }
@@ -47,12 +50,35 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
    * Change the slide
    * @param move +1 to move to the right, -1 to move to the left
    */
-  changeSlide ( move: number ): void {
-    if( !this.resultSet || !this.resultSet.data ) {
+  changeSlide(move: number): void {
+    if (this.loadingPage || !this.resultSet || !this.resultSet.data) {
       return;
-    } else {
-      const n = this.resultSet.data.length;
-      this.currentSlide = this._util.mod( this.currentSlide + move, n );
+    }
+    if (move === 1) {
+      if (this.currentSlide === this.resultSet.data.length - 1 && this.resultSet.currentPage < this.resultSet.highestPage) {
+        this.resultSet.currentPage++;
+        this.loadingPage = true;
+        //subscribe before the getTable call
+        this.resultSetEvent.pipe(first()).subscribe(() => {
+          this.currentSlide = 0;
+          this.loadingPage = false;
+        });
+        this.getTable();
+      } else if (this.currentSlide !== this.resultSet.data.length - 1) {
+        this.currentSlide++;
+      }
+    } else if (move === -1) {
+      if (this.currentSlide === 0 && this.resultSet.currentPage !== 1) {
+        this.resultSet.currentPage--;
+        this.loadingPage = true;
+        this.resultSetEvent.pipe(first()).subscribe(() => {
+          this.currentSlide = this.resultSet.data.length - 1;
+          this.loadingPage = false;
+        });
+        this.getTable();
+      } else if (this.currentSlide !== 0) {
+        this.currentSlide--;
+      }
     }
   }
 
