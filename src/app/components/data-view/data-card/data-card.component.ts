@@ -26,15 +26,21 @@ export class DataCardComponent extends DataViewComponent implements OnInit {
     super( _crud, _toast, _route, _router, _types, _settings, modalService );
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    if (this.config && this.config.create) {
+      this.buildInsertObject();
+    }
+    this.setPagination();
+  }
 
-  listClass( dataType: string ) {
+  showFirst( dataType: string ){
     switch (dataType) {
       case 'IMAGE':
-      case 'SOUND':
       case 'VIDEO':
-        return 'multimedia';
+      case 'SOUND':
+        return true;
     }
+    return false;
   }
 
 }

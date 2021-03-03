@@ -34,12 +34,20 @@
 .card .list-group{
   border: none;
 }
-.card .list-group-item{
-  margin:0
+
+.card .list-group-item {
+  margin: 0;
+
+  .multimedia {
+    padding: 0;
+  }
 }
+
 .card .list-group-item:first-child {
   border-top-right-radius: 0.25rem;
   border-top-left-radius: 0.25rem;
+  //https://stackoverflow.com/questions/11008614
+  overflow: hidden;
 }
 .list-group-item {
   img, video, audio {
@@ -51,6 +59,9 @@
 }
 .multimedia {
   padding: 0;
+}
+progressbar{
+  height: 5px;
 }
 
 //.download
