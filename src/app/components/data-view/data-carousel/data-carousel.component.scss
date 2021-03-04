@@ -33,6 +33,15 @@ span.key {
   max-width: 300px;
   margin: 0 auto;
 }
+#insert-btn{
+  position: absolute;
+  top: 4em;
+  right:2em;
+}
+#insert-wrapper{
+  margin: 0 auto;
+  max-width: 300px;
+}
 
 //.download
 .list-group-item .download{
@@ -46,4 +55,9 @@ span.key {
 }
 .list-group-item .download:hover{
   opacity: 1;
+}
+
+.space-between {
+  display: flex;
+  justify-content: space-between;
 }

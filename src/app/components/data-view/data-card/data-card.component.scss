@@ -10,20 +10,29 @@
   margin-right: 1em;
   position: relative;
 }
-.delete-card {
+.delete-card, .edit-card {
   display: none;
   position: absolute;
-  top: 5px;
-  right: 5px;
   z-index: 2;
   background: white !important;
   color: black;
   box-shadow: none;
 }
+.delete-card:hover, .edit-card:hover {
+  border-color: #505050;
+}
+.delete-card {
+  top: 5px;
+  right: 5px;
+}
+.edit-card {
+  right: 3.5em;
+  top: 5px;
+}
 .delete-card:hover {
   color: #dc3545 !important;
 }
-.card:hover .delete-card {
+.card:hover .delete-card, .card:hover .edit-card {
   display: initial;
 }
 .key{
@@ -76,4 +85,11 @@ progressbar{
 }
 .list-group-item .download:hover{
   opacity: 1;
+}
+
+.toggle-insert{
+  width: 50px;
+  height: 50px;
+  margin-top: 90px;
+  flex: 0;
 }

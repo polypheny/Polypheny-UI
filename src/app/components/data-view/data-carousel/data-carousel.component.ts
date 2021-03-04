@@ -7,6 +7,7 @@ import {BsModalService} from 'ngx-bootstrap/modal';
 import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {first} from 'rxjs/operators';
+import {ResultSet} from '../models/result-set.model';
 
 @Component({
   selector: 'app-data-carousel',
@@ -17,6 +18,7 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
 
   currentSlide = 0;
   loadingPage = false;
+  showInsert = false;
 
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
@@ -80,6 +82,29 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
         this.currentSlide--;
       }
     }
+  }
+
+  insertRow(){
+    super.insertRow().subscribe(
+      res => {
+        if(res){
+          this.showInsert = false;
+        }
+      }
+    );
+    return null;
+  }
+
+  deleteRow(values: string[], i) {
+    super.deleteRow(values, i).subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if(!result.error){
+          this.currentSlide = Math.max(0, this.currentSlide-1);
+        }
+      }
+    );
+    return null;
   }
 
 }

@@ -14,6 +14,8 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 })
 export class DataCardComponent extends DataViewComponent implements OnInit {
 
+  showInsertCard = false;
+
   constructor(
     public _crud: CrudService,
     public _toast: ToastService,

@@ -154,9 +154,11 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     });
     const row = this.mapToObject(rowMap);
     const request = new DeleteRequest(this.resultSet.table, row);
+    const emitResult = new EventEmitter<ResultSet>();
     this._crud.deleteRow(request).subscribe(
       res => {
         const result = <ResultSet>res;
+        emitResult.emit(result);
         if ( result.error ) {
           const result2 = <ResultSet>res;
           this._toast.exception(result2, 'Could not delete this row:');
@@ -166,8 +168,10 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       }, err => {
         this._toast.error('Could not delete this row.');
         console.log(err);
+        emitResult.emit(new ResultSet('Could not delete this row.'));
       }
     );
+    return emitResult;
   }
 
   setPagination() {
@@ -257,6 +261,10 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   triggerEditing(i) {
+    if(this.confirm !== -1){
+      //when double-clicking the delete btn
+      return;
+    }
     if (this.config.update) {
       this.updateValues.clear();
       this.resultSet.data[i].forEach((v, k) => {
@@ -320,6 +328,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     });
     formData.append( 'tableId', String(this.resultSet.table) );
     this.uploadProgress = 100;//show striped progressbar
+    const emitResult = new EventEmitter<ResultSet>();
     this._crud.insertRow(formData).subscribe(
       res => {
         if( res.type && res.type === HttpEventType.UploadProgress ){
@@ -327,6 +336,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         } else if( res.type === HttpEventType.Response ) {
           this.uploadProgress = -1;
           const result = <ResultSet>res.body;
+          emitResult.emit(result);
           if (result.error) {
             this._toast.exception(result, 'Could not insert the data', 'insert error');
           } else if (result.affectedRows === 1) {
@@ -339,8 +349,10 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       }, err => {
         this._toast.error('Could not insert the data.');
         console.log(err);
+        emitResult.emit(new ResultSet('Could not insert the data.'));
       }
     ).add( () => this.uploadProgress = -1 );
+    return emitResult;
   }
 
   buildInsertObject() {

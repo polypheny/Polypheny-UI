@@ -6,6 +6,7 @@
 <div class="card-wrapper" *ngIf="resultSet">
 
   <div class="card" *ngFor="let d1 of resultSet.data; let i = index" (dblclick)="triggerEditing(i)" [ngClass]="{'editing': i===editing}">
+    <a *ngIf="config.update && i !== editing" [routerLink]="[]" class="edit-card btn btn-outline-secondary btn-sm" (click)="triggerEditing(i)"><i class="cui-pencil"></i></a>
     <a *ngIf="config.update && i !== editing" [routerLink]="[]" class="delete-card btn btn-outline-secondary btn-sm" (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"><i [ngClass]="{ 'cui-trash': i!==confirm, 'fa': i===confirm, 'fa-warning': i===confirm}"></i></a>
     <ul class="list-group list-group-flush">
       <!-- load MM types first -->
@@ -55,7 +56,11 @@
     </ul>
   </div>
 
-  <div class="card" *ngIf="config.create">
+  <div *ngIf="config.create && !showInsertCard" (click)="showInsertCard = true">
+    <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
+  </div>
+
+  <div class="card" *ngIf="config.create && showInsertCard">
     <div class="card-header">
       Insert data
     </div>
@@ -67,6 +72,7 @@
       <li class="list-group-item">
         <progressbar *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary"></progressbar>
         <progressbar *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)" [animate]="true" [value]="100" [striped]="true" type="primary"></progressbar>
+        <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-light btn-sm" (click)="showInsertCard = false">cancel</button>
         <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-primary btn-sm float-right" (click)="insertRow()">save</button>
       </li>
     </ul>
