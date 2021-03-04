@@ -22,7 +22,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let col of resultSet.header; let i = index" (dblclick)="editCol(i, col)" [ngClass]="{'editing': i === editColumn}">
+        <tr *ngFor="let col of resultSet.header; let i = index" (dblclick)="editCol(i, col, $event)" [ngClass]="{'editing': i === editColumn}">
           <ng-container *ngIf="i === editColumn" [formGroup]="updateColumn">
             <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
             <td>

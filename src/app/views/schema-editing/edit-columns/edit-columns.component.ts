@@ -143,7 +143,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   isSource() {
     if(!this.resultSet){
-      return true;
+      return false;
     }
     return this.resultSet.type.toLowerCase() === 'view';
   }
@@ -185,7 +185,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     return this._crud.getValidationClass( columnName );
   }
 
-  editCol( i:number, col: DbColumn ) {
+  editCol( i:number, col: DbColumn, e = null ) {
+    if(e.target.id === 'delete'){
+      return;
+    }
     if(this.editColumn !== i) {
       if( col.defaultValue === undefined ){
         col.defaultValue = null;
