@@ -93,17 +93,17 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   initSchema() {
-    this._crud.getSchema(new SchemaRequest('views/graphical-querying/', false, 3, false)).subscribe(
-      res => {
-        const nodeAction = (tree, node, $event) => {
-          if (!node.isActive && node.isLeaf) {
-            this.addCol(node.data);
-            node.setIsActive(true, true);
-          } else if (node.isActive && node.isLeaf) {
-            node.setIsActive(false, true);
-            this.removeCol(node.data.id);
+    this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false)).subscribe(
+        res => {
+          const nodeAction = (tree, node, $event) => {
+            if (!node.isActive && node.isLeaf) {
+              this.addCol(node.data);
+              node.setIsActive(true, true);
+            } else if (node.isActive && node.isLeaf) {
+              node.setIsActive(false, true);
+              this.removeCol(node.data.id);
 
-            //deletes the selection if nothing is choosen
+              //deletes the selection if nothing is choosen
             if (this.selectedColumn['column'].toString() === node.data.id) {
               this.selectedCol([]);
             }
