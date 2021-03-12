@@ -37,6 +37,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
   loading = false;
   saveInHistory = true;
+  showSearch = false;
+  historySearchQuery = "";
   confirmDeletingHistory;
 
   tableConfig: TableConfig = {

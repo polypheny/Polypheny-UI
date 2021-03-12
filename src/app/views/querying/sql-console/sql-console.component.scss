@@ -117,3 +117,10 @@ select{
   display: flex;
   align-items: flex-end;
 }
+
+.search-close{
+  float: right;
+  margin-top: -1.5em;
+  margin-right: 0.5em;
+  cursor: pointer;
+}
