@@ -612,6 +612,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             this._toast.success( 'Modified placement on store ' + this.selectedStore.uniqueName, result.generatedQuery, 'Modified placement' );
           }
           this.getPlacementsAndPartitions();
+          this.getAvailableStoresForIndexes();
         }
         this.selectedStore = null;
       }, err => {
@@ -632,6 +633,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         } else {
           this._toast.success( 'Dropped placement on store ' + store, result.generatedQuery, 'Dropped placement' );
           this.getPlacementsAndPartitions();
+          this.getAvailableStoresForIndexes();
         }
       }, err => {
         this._toast.error( 'Could not drop placement on store ' + store, 'Error' );
