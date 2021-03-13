@@ -9,14 +9,14 @@ export class ValuePipe implements PipeTransform {
 
 @Pipe({ name: 'searchFilter' })
 export class SearchFilterPipe implements PipeTransform {
-  transform(history: Map<string,any>, searchText: string): Map<string,any> {
+  transform(map: Map<string,any>, searchText: string): Map<string,any> {
     if (!searchText) {
-      return history;
+      return map;
     }
     searchText = searchText.toLocaleLowerCase();
-    let filteredHistory = new Map<string, any>();
-    for(let key of Array.from(history.keys()).filter((query: string) => query.toLowerCase().indexOf(searchText) > -1))
-      filteredHistory.set(key,history.get(key));
-    return filteredHistory
+    let filteredMap = new Map<string, any>();
+    for(let key of Array.from(map.keys()).filter((query: string) => query.toLowerCase().indexOf(searchText) > -1))
+      filteredMap.set(key,map.get(key));
+    return filteredMap
   }
 }

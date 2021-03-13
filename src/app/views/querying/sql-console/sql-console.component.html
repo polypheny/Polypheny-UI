@@ -9,15 +9,17 @@
           <li class="list-group-item header">
               History
               <div class="float-right">
-                <button class="btn btn-primary btn-sm" (click)="showSearch=true" 
+                <button class="btn btn-primary btn-sm" (click)="openHistorySearch()" 
                         [hidden]="showSearch">
                         <i class="fa fa-search"></i>
                 </button>
-                <input  type='text'  class='form-control form-control-sm'
+                <input  #historySearchInput type='text'  
+                        class='form-control form-control-sm'
                         [(ngModel)]="historySearchQuery" 
+                        (keydown.esc)="closeHistorySearch()"
                         [hidden]="!showSearch" />
-                <i  class="fa fa-times text-danger search-close" 
-                    (click)="showSearch=false;historySearchQuery=''" 
+                <i  class="fa fa-times text-muted search-close" 
+                    (click)="closeHistorySearch()" 
                     [hidden]="!showSearch"></i>
               </div>
           </li>
