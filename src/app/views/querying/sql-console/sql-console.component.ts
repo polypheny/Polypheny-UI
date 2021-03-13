@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import {CrudService} from '../../../services/crud.service';
