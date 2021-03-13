@@ -1,8 +1,8 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
 import {DataPresentationType, ResultSet} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
-import {ToastService} from '../toast/toast.service';
+import {ToastDuration, ToastService} from '../toast/toast.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
@@ -14,13 +14,14 @@ import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {WebSocket} from '../../services/webSocket';
 import {HttpEventType} from '@angular/common/http';
+import * as $ from 'jquery';
 
 @Component({
   selector: 'app-data-view',
   templateUrl: './data-view.component.html',
   styleUrls: ['./data-view.component.scss']
 })
-export class DataViewComponent implements OnInit, OnDestroy {
+export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
   @Input() resultSet: ResultSet;
   @Input() config: TableConfig;
@@ -46,6 +47,7 @@ export class DataViewComponent implements OnInit, OnDestroy {
   player: Plyr;
   webSocket: WebSocket;
   subscriptions = new Subscription();
+  resultSetEvent = new EventEmitter<ResultSet>();
 
   constructor(
     public _crud: CrudService,
@@ -67,6 +69,25 @@ export class DataViewComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
     this.webSocket.close();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['resultSet']) {
+      this.setPagination();
+      this.buildInsertObject();
+    }
+  }
+
+  documentListener() {
+    const self = this;
+    $(document).on('click', function (e) {
+      if ($(e.target).parents('.editing').length === 0) {
+        //don't close editing row during upload
+        if ( self.uploadProgress < 0 ) {
+          self.editing = -1;
+        }
+      }
+    });
   }
 
   initWebsocket () {
@@ -92,6 +113,7 @@ export class DataViewComponent implements OnInit, OnDestroy {
           this.config.update = false;
           this.config.delete = false;
         }
+        this.resultSetEvent.emit(this.resultSet);
       }, err => {
         this._toast.error('Could not load the data.');
         console.log(err);
@@ -132,9 +154,11 @@ export class DataViewComponent implements OnInit, OnDestroy {
     });
     const row = this.mapToObject(rowMap);
     const request = new DeleteRequest(this.resultSet.table, row);
+    const emitResult = new EventEmitter<ResultSet>();
     this._crud.deleteRow(request).subscribe(
       res => {
         const result = <ResultSet>res;
+        emitResult.emit(result);
         if ( result.error ) {
           const result2 = <ResultSet>res;
           this._toast.exception(result2, 'Could not delete this row:');
@@ -144,11 +168,16 @@ export class DataViewComponent implements OnInit, OnDestroy {
       }, err => {
         this._toast.error('Could not delete this row.');
         console.log(err);
+        emitResult.emit(new ResultSet('Could not delete this row.'));
       }
     );
+    return emitResult;
   }
 
   setPagination() {
+    if(!this.resultSet){
+      return;
+    }
     const activePage = this.resultSet.currentPage;
     const highestPage = this.resultSet.highestPage;
     this.pagination = [];
@@ -187,6 +216,24 @@ export class DataViewComponent implements OnInit, OnDestroy {
     return this.pagination;
   }
 
+  paginate(p: PaginationElement) {
+    this.resultSet.currentPage = p.page;
+    this.getTable();
+  }
+
+  /**
+   * In the card and carousel view, show mm data first (only image, video and sound columns)
+   */
+  showFirst( dataType: string ){
+    switch (dataType) {
+      case 'IMAGE':
+      case 'VIDEO':
+      case 'SOUND':
+        return true;
+    }
+    return false;
+  }
+
   getFileLink ( data: string ) {
     return this._crud.getFileUrl(data);
   }
@@ -211,6 +258,192 @@ export class DataViewComponent implements OnInit, OnDestroy {
       this.downloadProgress = -1;
     });
 
+  }
+
+  triggerEditing(i) {
+    if(this.confirm !== -1){
+      //when double-clicking the delete btn
+      return;
+    }
+    if (this.config.update) {
+      this.updateValues.clear();
+      this.resultSet.data[i].forEach((v, k) => {
+        if (this.resultSet.header[k].dataType === 'bool') {
+          this.updateValues.set(this.resultSet.header[k].name, this.getBoolean(v));
+        }
+          //assign multimedia types: null if the item is NULL, else undefined
+        //null items will be submitted and updated, undefined items will not be part of the UPDATE statement
+        else if ( this._types.isMultimedia( this.resultSet.header[k].dataType )) {
+          if( v === null ){
+            this.updateValues.set(this.resultSet.header[k].name, null);
+          } else {
+            this.updateValues.set(this.resultSet.header[k].name, undefined);
+          }
+        } else {
+          this.updateValues.set(this.resultSet.header[k].name, v);
+        }
+      });
+      this.editing = i;
+    }
+  }
+
+  // see https://stackoverflow.com/questions/52017809/how-to-convert-string-to-boolean-in-typescript-angular-4
+  getBoolean(value: any): Boolean {
+    switch (value) {
+      case true:
+      case 'true':
+      case 't':
+      case 1:
+      case '1':
+      case 'on':
+      case 'yes':
+        return true;
+      case 'null':
+      case 'NULL':
+      case null:
+        return null;
+      default:
+        return false;
+    }
+  }
+
+  inputChange(name: string, e) {
+    this.insertValues.set(name, e);
+    this.insertDirty.set(name, true);
+  }
+
+  insertRow() {
+    const formData = new FormData();
+    this.insertValues.forEach((v, k) => {
+      //only values with dirty state will be submitted. Columns that are not nullable are already set dirty
+      if (this.insertDirty.get(k) === true) {
+        let value;
+        if (isNaN(v)){
+          value = v;
+        } else {
+          value = String(v);
+        }
+        formData.append( k, value );
+      }
+    });
+    formData.append( 'tableId', String(this.resultSet.table) );
+    this.uploadProgress = 100;//show striped progressbar
+    const emitResult = new EventEmitter<ResultSet>();
+    this._crud.insertRow(formData).subscribe(
+      res => {
+        if( res.type && res.type === HttpEventType.UploadProgress ){
+          this.uploadProgress = Math.round(100 * res.loaded / res.total);
+        } else if( res.type === HttpEventType.Response ) {
+          this.uploadProgress = -1;
+          const result = <ResultSet>res.body;
+          emitResult.emit(result);
+          if (result.error) {
+            this._toast.exception(result, 'Could not insert the data', 'insert error');
+          } else if (result.affectedRows === 1) {
+            $('.insert-input').val('');
+            this.insertValues.clear();
+            this.buildInsertObject();
+            this.getTable();
+          }
+        }
+      }, err => {
+        this._toast.error('Could not insert the data.');
+        console.log(err);
+        emitResult.emit(new ResultSet('Could not insert the data.'));
+      }
+    ).add( () => this.uploadProgress = -1 );
+    return emitResult;
+  }
+
+  buildInsertObject() {
+    if (this.config && !this.config.create || !this.resultSet) {
+      return;
+    }
+    this.insertValues.clear();
+    this.insertDirty.clear();
+    if (this.resultSet.header) {
+      this.resultSet.header.forEach((g, idx) => {
+        //set insertDirty
+        if (!g.nullable && g.dataType !== 'serial' && g.defaultValue === undefined) {
+          //set dirty if not nullable, so it will be submitted, except if it has autoincrement (dataType 'serial') or a default value
+          this.insertDirty.set(g.name, true);
+        } else {
+          this.insertDirty.set(g.name, false);
+        }
+        //set insertValues
+        if (g.nullable) {
+          this.insertValues.set(g.name, null);
+        } else {
+          if (this._types.isNumeric((g.dataType))) {
+            this.insertValues.set(g.name, 0);
+          } else if (this._types.isBoolean(g.dataType)) {
+            this.insertValues.set(g.name, false);
+          } else {
+            this.insertValues.set(g.name, '');
+          }
+        }
+      });
+    }
+  }
+
+
+  newUpdateValue(key, val) {
+    this.updateValues.set(key, val);
+  }
+
+  updateRow() {
+    const oldValues = new Map<string, string>();//previous values
+    /*$('.editing').each(function (e) {
+      const oldVal = $(this).attr('data-before');
+      const col = $(this).attr('data-col');
+      if (col !== undefined) {
+        oldValues.set(col, oldVal);
+      }
+    });*/
+    for( let i = 0; i < this.resultSet.header.length; i++ ){
+      oldValues.set( this.resultSet.header[i].name, this.resultSet.data[this.editing][i]);
+      i++;
+    }
+    const formData = new FormData();
+    formData.append( 'tableId', this.resultSet.table);
+    formData.append('oldValues', JSON.stringify(this.mapToObject(oldValues)));
+    for( const [k,v] of this.updateValues ) {
+      if( v === undefined ){
+        //don't add undefined file inputs, but if they are null, they need to be added
+        continue;
+      }
+      if( !(v instanceof File) ){
+        //stringify to distinguish between null and 'null'
+        formData.append( k, JSON.stringify(v) );
+      } else {
+        formData.append( k, v );
+      }
+    }
+    this.uploadProgress = 100;//show striped progressbar
+    //const req = new UpdateRequest(this.resultSet.table, this.mapToObject(this.updateValues), this.mapToObject(oldValues));
+    this._crud.updateRow(formData).subscribe(
+      res => {
+        if( res.type && res.type === HttpEventType.UploadProgress ){
+          this.uploadProgress = Math.round(100 * res.loaded / res.total);
+        } else if( res.type === HttpEventType.Response ) {
+          this.uploadProgress = -1;
+          const result = <ResultSet>res.body;
+          if (result.affectedRows) {
+            this.getTable();
+            let rows = ' rows';
+            if (result.affectedRows === 1) {
+              rows = ' row';
+            }
+            this._toast.success('Updated ' + result.affectedRows + rows, result.generatedQuery, 'update', ToastDuration.SHORT);
+          } else if (result.error) {
+            this._toast.exception(result, 'Could not update this row');
+          }
+        }
+      }, err => {
+        this._toast.error('Could not update the data.');
+        console.log(err);
+      }
+    ).add( () => this.uploadProgress = -1 );
   }
 
 }
