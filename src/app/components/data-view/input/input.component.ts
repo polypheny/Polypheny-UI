@@ -14,6 +14,7 @@ import {DbColumn} from '../models/result-set.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as $ from 'jquery';
 import flatpickr from 'flatpickr';
+import {InputValidation} from '../models/sort-state.model';
 
 @Component({
   selector: 'app-input',
@@ -24,6 +25,7 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
 
   @Input() header: DbColumn;
   @Input() value;
+  @Input() showLabel? = false;
   @Output() valueChange = new EventEmitter();
   @Output() enter = new EventEmitter();
   @ViewChild('inputElement', {static: false}) inputElement: ElementRef;
@@ -62,9 +64,12 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   triggerNull(value) {
-    if( value !== null) return null;
-    else{
-      if( this._types.isNumeric( this.header.dataType )){
+    if( value !== null) {
+      return null;
+    } else{
+      if( this.header.collectionsType) {
+        return '';
+      } else if( this._types.isNumeric( this.header.dataType )){
         return 0;
       } else if ( this._types.isBoolean( this.header.dataType )){
         return false;
@@ -83,19 +88,60 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  onNumericValueChange ( newVal, inputElement, event = null ) {
-    this.onValueChange( newVal, event );
-    this.validate( newVal, inputElement );
+  validate(inputElement): InputValidation {
+    const val = inputElement.value;
+    if(!val){
+      return;
+    }
+    if( this.header.collectionsType ){
+      if (val.startsWith('[') && val.endsWith(']')) {
+        if( !this._types.isNumeric(this.header.dataType) ){
+          //don't make further checks on non-numeric arrays
+          return;
+        }
+        try {
+          const parsed = JSON.parse(val);
+          if(!Array.isArray(parsed)){
+            return new InputValidation(false, 'Non-valid array');
+          } else {
+            if(this.header.cardinality && this.getMaxCardinality(parsed) > this.header.cardinality){
+              return new InputValidation(false, 'Exceeded max cardinality of ' + this.header.cardinality);
+            } else if(this.header.dimension && this.getMaxDimension(parsed) > this.header.dimension){
+              return new InputValidation(false, 'Exceeded max dimension of ' + this.header.dimension);
+            }
+            return new InputValidation(true);
+          }
+        } catch (e) {
+          return new InputValidation(false, 'Non-valid array');
+        }
+      } else {
+        return new InputValidation(false, 'Non-valid array');
+      }
+    } else if ( this._types.isNumeric(this.header.dataType)){
+      if(isNaN(val)){
+        return new InputValidation(false, 'Non-numeric input');
+      }
+    }
   }
 
-  validate(val, inputElement) {
-    if (isNaN(val)) {
-      $(inputElement).addClass('is-invalid').removeClass('is-valid');
-    } else if (!isNaN(val) && val !== null) {
-      $(inputElement).addClass('is-valid').removeClass('is-invalid');
-    } else {
-      $(inputElement).removeClass('is-valid').removeClass('is-invalid');
+  getMaxDimension( arr: number[] ): number {
+    let maxDim = 1;
+    for(const ele of arr) {
+      if( Array.isArray(ele)){
+        maxDim = Math.max( maxDim, this.getMaxDimension(ele) + 1);
+      }
     }
+    return maxDim;
+  }
+
+  getMaxCardinality( arr: number[] ): number {
+    let maxCard = arr.length;
+    for(const ele of arr){
+      if( Array.isArray(ele)){
+        maxCard = Math.max( maxCard, this.getMaxCardinality(ele));
+      }
+    }
+    return maxCard;
   }
 
   initFlatpickr() {

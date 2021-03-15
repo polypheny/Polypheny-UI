@@ -1,7 +1,7 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {Index, ModifyPartitionRequest, PartitioningRequest} from '../components/data-view/models/result-set.model';
+import {Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
   ColumnRequest,
@@ -249,7 +249,11 @@ export class CrudService {
     return this._http.get(`${this.httpUrl}/getPartitionTypes`, this.httpOptions);
   }
 
-  partitionTable ( request: PartitioningRequest ) {
+  getPartitionFunctionModel( request: PartitioningRequest ) {
+    return this._http.post(`${this.httpUrl}/getPartitionFunctionModel`, request, this.httpOptions);
+  }
+
+  partitionTable ( request: PartitionFunctionModel ) {
     return this._http.post(`${this.httpUrl}/partitionTable`, request, this.httpOptions);
   }
 
@@ -436,6 +440,18 @@ export class CrudService {
       return fileName;
     }
     return `${this.httpUrl}/getFile/${fileName}`;
+  }
+
+  getFile(fileName: string) {
+    const url = this.getFileUrl(fileName);
+
+    //blob as json: https://stackoverflow.com/questions/42898162/how-to-read-content-disposition-headers-from-server-response-angular-2
+    return this._http.get(url, {
+      reportProgress: true,
+      observe: 'events',
+      responseType: 'blob' as 'json',
+      headers: new HttpHeaders({'Content-Type': 'application/octet-stream'})
+    });
   }
 
   getNameValidator ( required: boolean = false ) {

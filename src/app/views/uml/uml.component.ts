@@ -28,12 +28,11 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   errorMsg: string;
 
   @ViewChild('myModal', {static: false}) myModal: ModalDirective;
-  sourceTable;
+  sourceTable;//schema.table
   sourceCol;
-  targetTable;
+  targetTable;//schema.table
   targetCol;
-  onUpdate = ['CASCADE', 'RESTRICT', 'SET NULL', 'SET DEFAULT'];
-  onDelete = ['CASCADE', 'RESTRICT', 'SET NULL', 'SET DEFAULT'];
+  fkActions;
   fkForm = this._formBuilder.group({update: 'RESTRICT', delete: 'RESTRICT'});
   constraintName = '';
   proposedConstraintName = 'fk1';
@@ -60,8 +59,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {
     this._dbmsTypes.getFkActions().subscribe(
       types => {
-        this.onUpdate = types;
-        this.onDelete = types;
+        this.fkActions = types;
       }
     );
   }
@@ -136,6 +134,17 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  getUpdateDeleteActions() {
+    if(this.uml && this.targetTable){
+      const tableName = this.targetTable.split('.')[1];
+      const table = this.uml.tables[tableName];
+      if(table?.tableType === 'SOURCE'){
+        return ['NONE'];
+      }
+    }
+    return this.fkActions;
+  }
+
   mapConnections() {
     this.connections = [];
     this.uml.foreignKeys.forEach((v, k) => {
@@ -182,9 +191,20 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
       if (($(e.target).hasClass('pk') || $(e.target).hasClass('unique')) && $(e.target).parents('.uml').attr('tableName') !== self.sourceTable) {
-        self.myModal.show();
         self.targetTable = $(e.target).parents('.uml').attr('tableName');
         self.targetCol = $(e.target).attr('colName');
+        if(self.uml){
+          const tableName = self.targetTable.split('.')[1];
+          const table = self.uml.tables[tableName];
+          if(table?.tableType === 'SOURCE'){
+            self.fkForm.controls['update'].setValue('NONE');
+            self.fkForm.controls['delete'].setValue('NONE');
+          } else {
+            self.fkForm.controls['update'].setValue('RESTRICT');
+            self.fkForm.controls['delete'].setValue('RESTRICT');
+          }
+        }
+        self.myModal.show();
       }
       self.temporalLine = null;
       isDragging = false;
@@ -264,7 +284,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
           this._toast.exception(result, null, null, ToastDuration.INFINITE);
         }
         else if( result.affectedRows === 1 ) {
-          this._toast.success('new foreign key was created');
+          this._toast.success('new foreign key was created', result.generatedQuery);
           // this.getUml();
           // this.connectTables();
           const fkTable = fk.fkTableName.substr(fk.fkTableName.indexOf('.') + 1, fk.fkTableName.length);

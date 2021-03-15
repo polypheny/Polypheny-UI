@@ -2,7 +2,7 @@ import {DbColumn} from '../../components/data-view/models/result-set.model';
 
 export class Uml {
   constructor(
-    public tables: DbTable[],
+    public tables: Map<string, DbTable>,
     public foreignKeys: ForeignKey[]
   ){}
 }

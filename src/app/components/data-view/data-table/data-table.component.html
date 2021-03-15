@@ -9,7 +9,7 @@
       <tr>
         <ng-container *ngFor="let h of resultSet.header">
           <th><span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body" [ngClass]="{'pk': h.primary}">{{h.name}}</span>
-            <a *ngIf="config.sort" [routerLink]="" [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}" (click)="sortTable(h.sort)">
+            <a *ngIf="config.sort && canOrder(h)" [routerLink]="" [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}" (click)="sortTable(h.sort)">
               <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
             </a>
           </th>
@@ -33,7 +33,7 @@
             <app-input class="editing" [header]="resultSet.header[j]" [value]="updateValues.get(resultSet.header[j].name)" (valueChange)="newUpdateValue(resultSet.header[j].name, $event)" (enter)="updateRow()" [attr.data-before]="d2" [attr.data-col]="resultSet.header[j].name"></app-input>
           </td>
           <td *ngIf="config.update || config.delete">
-            <button *ngIf="uploadProgress === -1" class="btn btn-primary" id="editColSave" (click)="updateRow($event)"><i class="fa fa-save"></i></button>
+            <button *ngIf="uploadProgress === -1" class="btn btn-primary" id="editColSave" (click)="updateRow()"><i class="fa fa-save"></i></button>
             <progressbar *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary" class="file-progress"></progressbar>
             <progressbar *ngIf="uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)" [animate]="true" [value]="100" [striped]="true" type="primary" class="file-progress"></progressbar>
             <!--<progressbar *ngIf="uploadProgress > -1" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="uploadProgress === 100 || uploadProgress === 0" type="primary" class="file-progress"></progressbar>-->
@@ -43,7 +43,11 @@
         <ng-container *ngIf="editing !== i">
           <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
             <ng-container [ngSwitch]="resultSet.header[j].dataType" *ngIf="d2">
-              <a *ngSwitchCase="'FILE'" class="download" [href]="getFileLink(d2)" download><span class="cui-cloud-download"></span></a>
+              <ng-container *ngSwitchCase="'FILE'">
+                <a *ngIf="downloadingIthRow !== i" [routerLink]="[]" class="download" (click)="getFile(d2, i)" download><span class="cui-cloud-download"></span></a>
+                <progressbar *ngIf="downloadingIthRow === i && downloadProgress > -1 && downloadProgress !== 0 && downloadProgress !== 100" [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress" type="primary" class="file-progress"></progressbar>
+                <progressbar *ngIf="downloadingIthRow === i && downloadProgress > -1 && (downloadProgress === 100 || downloadProgress === 0)" [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress" [striped]="true" type="primary" class="file-progress"></progressbar>
+              </ng-container>
               <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)" style="max-height:200px; max-width: 300px"/>
               <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
               <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
@@ -100,10 +104,10 @@
 
 <div class="row">
   <div class="col-lg-12">
-    <nav aria-label="Page navigation example" class="float-right" *ngIf="resultSet.highestPage > 1">
+    <nav aria-label="Page navigation" class="float-right" *ngIf="resultSet.highestPage > 1">
       <ul class="pagination">
         <li *ngFor="let p of pagination" class="page-item" [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">
-          <a class="page-link" (click)="paginate(p)" [routerLink]="">{{p.label}}</a>
+          <a class="page-link" (click)="paginate(p)" [routerLink]="[]">{{p.label}}</a>
         </li>
       </ul>
     </nav>

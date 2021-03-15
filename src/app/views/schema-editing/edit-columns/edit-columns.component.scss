@@ -36,6 +36,10 @@ table tr td.pk {
   width: 1em;
   text-align: center;
 }
+td.delete {
+  width: 4em;
+  text-align: center;
+}
 #dbColumnTable tr td {
   vertical-align: middle;
 }
@@ -73,4 +77,15 @@ table tr td:hover .modify-placement-btn {
 .progress-wrapper progressbar{
   border-radius: 0;
   height: 5px;
+}
+.partition-param-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+.invalid-partition-param {
+  font-size: 80%;
+  color: #f86c6b;
+}
+#partitionParamsTable tr td{
+  vertical-align: middle;
 }

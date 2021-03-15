@@ -213,6 +213,33 @@ export class PartitioningRequest {
   ) {}
 }
 
+export class PartitionFunctionModel {
+  title: string;
+  description: string;
+  columnNames: string[];
+  rows: PartitionFunctionColumn[][];
+  error: string;
+  generatedQuery: string;
+}
+
+export class PartitionFunctionColumn {
+  type: FieldType;
+  mandatory: boolean;
+  modifiable: boolean;
+  value: string;
+  options: string[];
+}
+
+/**
+ * What kind of type to render in the UI, e.g. a number input, a select menu etc.
+ */
+export enum FieldType {
+  STRING = 'STRING',
+  INTEGER = 'INTEGER',
+  LIST = 'LIST',
+  LABEL = 'LABEL'
+}
+
 export class ModifyPartitionRequest {
   constructor(
     public schemaName: string,
