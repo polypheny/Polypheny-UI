@@ -88,3 +88,13 @@
 .center i{
   font-size: 50px;
 }
+
+.card-header-adapter {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  p {
+    margin: 0;
+  }
+}

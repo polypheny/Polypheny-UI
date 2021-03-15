@@ -46,8 +46,9 @@
     <div class="col-lg-6 fixed-width" *ngFor="let adapter of adapters">
 
       <div class="card fixed-height">
-        <div class="card-header">
-          {{adapter.uniqueName}}
+        <div class="card-header card-header-adapter">
+          <p>{{adapter.uniqueName}}</p>
+          <span *ngIf="adapter.usesDocker" class="badge badge-primary">Docker</span>
         </div>
         <div class="card-body">
           <img *ngIf="getLogo(adapter.adapterName).startsWith('assets/')" [src]="getLogo(adapter.adapterName)" alt="" class="logo">
