@@ -6,12 +6,28 @@
   </div>
   <div class="col-lg-4 col-md-4 col-sm-12 mb-3">
       <ul class="list-group" id="history">
-          <li class="list-group-item header">
-              History
+          <li id="history-item-head" class="list-group-item header">
+              <div>History</div>
+              <div>
+                <button class="btn btn-primary btn-sm" (click)="openHistorySearch()" 
+                        [hidden]="showSearch">
+                        <i class="fa fa-search"></i>
+                </button>
+                <input  #historySearchInput type='text'  
+                        class='form-control form-control-sm'
+                        [(ngModel)]="historySearchQuery" 
+                        (keydown.esc)="closeHistorySearch()"
+                        [hidden]="!showSearch" />
+                <i  class="fa fa-times text-muted search-close" 
+                    (click)="closeHistorySearch()" 
+                    [hidden]="!showSearch"></i>
+              </div>
           </li>
-          <li class="list-group-item empty" *ngIf="history.size == 0">(empty)</li>
+          <li class="list-group-item empty" 
+              *ngIf="(history | searchFilter:historySearchQuery).size == 0">(empty)</li>
           <li class="list-group-item history-item"
-              *ngFor="let h of history | keyvalue:orderHistory" (click)="applyHistory( h.value.query, false )"
+              *ngFor="let h of (history | searchFilter:historySearchQuery) | keyvalue:orderHistory"
+              (click)="applyHistory( h.value.query, false )"
               (dblclick)="applyHistory( h.value.query, true)">
               <div class="history-time-wrapper">
                 <small class="time">{{h.value.displayTime()}}</small>

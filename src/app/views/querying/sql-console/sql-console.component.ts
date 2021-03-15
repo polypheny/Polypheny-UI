@@ -24,6 +24,7 @@ import {WebSocket} from '../../../services/webSocket';
 export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   @ViewChild('editor', {static: false}) codeEditor;
+  @ViewChild('historySearchInput') historySearchInput;
 
   history: Map<string, SqlHistory> = new Map<string, SqlHistory>();
   readonly MAXHISTORY = 50;//maximum items in history
@@ -37,6 +38,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
   loading = false;
   saveInHistory = true;
+  showSearch = false;
+  historySearchQuery = "";
   confirmDeletingHistory;
 
   tableConfig: TableConfig = {
@@ -149,6 +152,20 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   orderHistory(a: KeyValue<string, SqlHistory>, b: KeyValue<string, SqlHistory>) {
     return a.value.time > b.value.time ? -1 : (b.value.time > a.value.time ? 1 : 0);
   }
+
+  openHistorySearch() {
+    this.showSearch=true;
+    setTimeout(
+      () => this.historySearchInput.nativeElement.focus(),
+      1
+    );
+  }
+
+  closeHistorySearch() {
+    this.showSearch=false;
+    this.historySearchQuery='';
+  }
+
 
   initWebsocket() {
     //function to define behavior when clicking on a page link

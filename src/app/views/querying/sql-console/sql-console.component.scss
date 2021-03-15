@@ -4,6 +4,11 @@
 select{
   width: auto;
 }
+#history-item-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 #history {
   max-height: 240px;
   overflow-x: hidden;
@@ -14,6 +19,7 @@ select{
   }
   .empty {
     color: lighten(#000, 66%);
+    border: none;
   }
   .time{
     //font-size: 0.5em;
@@ -116,4 +122,11 @@ select{
   flex-wrap: nowrap;
   display: flex;
   align-items: flex-end;
+}
+
+.search-close{
+  float: right;
+  margin-top: -1.5em;
+  margin-right: 0.5em;
+  cursor: pointer;
 }
