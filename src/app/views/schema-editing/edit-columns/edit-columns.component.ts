@@ -143,7 +143,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   isSource() {
     if(!this.resultSet){
-      return true;
+      return false;
     }
     return this.resultSet.type.toLowerCase() === 'view';
   }
@@ -185,7 +185,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     return this._crud.getValidationClass( columnName );
   }
 
-  editCol( i:number, col: DbColumn ) {
+  editCol( i:number, col: DbColumn, e = null ) {
+    if(e.target.id === 'delete'){
+      return;
+    }
     if(this.editColumn !== i) {
       if( col.defaultValue === undefined ){
         col.defaultValue = null;
@@ -609,6 +612,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             this._toast.success( 'Modified placement on store ' + this.selectedStore.uniqueName, result.generatedQuery, 'Modified placement' );
           }
           this.getPlacementsAndPartitions();
+          this.getAvailableStoresForIndexes();
         }
         this.selectedStore = null;
       }, err => {
@@ -629,6 +633,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         } else {
           this._toast.success( 'Dropped placement on store ' + store, result.generatedQuery, 'Dropped placement' );
           this.getPlacementsAndPartitions();
+          this.getAvailableStoresForIndexes();
         }
       }, err => {
         this._toast.error( 'Could not drop placement on store ' + store, 'Error' );

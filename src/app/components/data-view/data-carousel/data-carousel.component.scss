@@ -3,7 +3,7 @@ carousel {
   max-width: 1000px;
   min-width: 1000px;
 }
-#navigator-wrapper {
+.navigator-wrapper {
   display: flex;
   justify-content: center;
   button {
@@ -25,6 +25,23 @@ carousel {
 span.key {
   color: #656565;
 }
+//active-hover: https://stackoverflow.com/questions/16715274
+.btn-del:hover, .btn-del:active:hover {
+  color: #dc3545;
+}
+.editing-wrapper{
+  max-width: 300px;
+  margin: 0 auto;
+}
+#insert-btn{
+  position: absolute;
+  top: 4em;
+  right:2em;
+}
+#insert-wrapper{
+  margin: 0 auto;
+  max-width: 300px;
+}
 
 //.download
 .list-group-item .download{
@@ -38,4 +55,9 @@ span.key {
 }
 .list-group-item .download:hover{
   opacity: 1;
+}
+
+.space-between {
+  display: flex;
+  justify-content: space-between;
 }

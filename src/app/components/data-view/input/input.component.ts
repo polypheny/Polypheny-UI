@@ -25,6 +25,7 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
 
   @Input() header: DbColumn;
   @Input() value;
+  @Input() showLabel? = false;
   @Output() valueChange = new EventEmitter();
   @Output() enter = new EventEmitter();
   @ViewChild('inputElement', {static: false}) inputElement: ElementRef;

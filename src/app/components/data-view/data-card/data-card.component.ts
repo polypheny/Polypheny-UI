@@ -14,6 +14,8 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 })
 export class DataCardComponent extends DataViewComponent implements OnInit {
 
+  showInsertCard = false;
+
   constructor(
     public _crud: CrudService,
     public _toast: ToastService,
@@ -26,15 +28,11 @@ export class DataCardComponent extends DataViewComponent implements OnInit {
     super( _crud, _toast, _route, _router, _types, _settings, modalService );
   }
 
-  ngOnInit(): void { }
-
-  listClass( dataType: string ) {
-    switch (dataType) {
-      case 'IMAGE':
-      case 'SOUND':
-      case 'VIDEO':
-        return 'multimedia';
+  ngOnInit(): void {
+    if (this.config && this.config.create) {
+      this.buildInsertObject();
     }
+    this.setPagination();
   }
 
 }
