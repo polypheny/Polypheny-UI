@@ -1,17 +1,12 @@
 <div id="tree-outer-wrapper">
 
   <div class="input-group input-group-sm" id="search-group">
-    <div class="input-group-prepend">
-    <span class="input-group-text">
-      <a [routerLink]="[]" (click)="collapseAll()" id="collapse"><i class="fa fa-compress"></i></a>
+    <div class="input-group-append">
+      <span class="input-group-text">
+        <i class="fa fa-search"></i>
       </span>
     </div>
     <input type="text" class="form-control form-control-sm" placeholder="search" id="search-tree">
-    <div class="input-group-append">
-    <span class="input-group-text">
-        <a [routerLink]="[]" (click)="expandAll()" id="expand"><i class="fa fa-expand"></i></a>
-        </span>
-    </div>
   </div>
 
   <span *ngIf="error">{{error}}</span>
