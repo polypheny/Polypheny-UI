@@ -160,6 +160,10 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         else if ( config.webUiFormType === 'CHECKBOXES' ) {
           initValue = config.value || [];
         }
+        else if ( config.webUiFormType === 'LIST' ) {
+          console.log(gKey);
+          initValue = config.values;
+        }
         else {
           if( config.value === undefined || config.value === null){
             initValue = '';
@@ -220,7 +224,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         }
       }
     }
-    if(!['ConfigBoolean', 'ConfigClazzList', 'ConfigEnumList'].includes(config.configType)){
+    if(!['ConfigBoolean', 'ConfigClazzList', 'ConfigEnumList', 'ConfigList'].includes(config.configType)){
       formValidators.push( Validators.required );//by default, but not for checkboxes / clazzList / enumList
     }
     return formValidators;
@@ -233,6 +237,18 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     }else if(this.submitted && !this.form.controls[key].valid) {
       return {'is-invalid': true };
     }
+  }
+
+  addElement(list,key, template){
+    this.form.controls[key].markAsDirty();
+    const copy = JSON.parse(JSON.stringify(template));
+    copy.key = template.key + list.length;
+    list.push(copy);
+  }
+
+  removeElement(list, key, index ){
+    this.form.controls[key].markAsDirty();
+    list.splice(index,1);
   }
 
   onSubmit(form, e) {
@@ -293,6 +309,9 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     }
   }
 
+  markElement(key: string) {
+    this.form.controls[key].markAsDirty();
+  }
 }
 
 
@@ -312,7 +331,8 @@ export interface JavaUiGroup {
 export interface JavaUiConfig {
   key: String;
   value: any;
-  values: String[];//enumList, clazzList
+  values: String[];//enumList, clazzList, List
+  template: any; //List
   requiresRestart: boolean;
   webUiFormType: String;
   webUiGroup: string;

@@ -27,7 +27,7 @@
 							<ng-container *ngFor="let config of group.value.configs | keyvalue: orderConfigs; let nth = index">
 								<ng-container [ngSwitch]="config.value.webUiFormType">
 									<div class="input-group">
-										<div class="input-group-prepend">
+										<div class="input-group-prepend" [class.input-group-full]=" config.value.webUiFormType === 'LIST'" >
 											<label [for]="config.value.key" class="input-group-text" id="basic-addon1" [tooltip]="config.value.description" placement="left" container="body">{{ config.value.key }}</label>
 											<div class="gradient"></div>
 										</div>
@@ -50,6 +50,30 @@
 													<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control switch-input" [ngClass]="inputValidation(config.value.key)">
 													<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
 												</label>
+											</div>
+
+										</ng-container>
+										<ng-container *ngSwitchCase="'LIST'">
+											<!--<div class="checkbox-wrapper">-->
+											<!--<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
+											<!-- throws warning, but solves problem of assigning value "false" (as string) -->
+											<!--<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
+											<!--</div>-->
+
+											<div class="list-wrapper">
+												<div class="input-group">
+													<div class="list-input-wrapper input-group" *ngFor="let el of config.value.values; let i = index;">
+														<input type="text" class="form-control list-input" [(ngModel)]="el.value" (input)="markElement(config.value.key)" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+														<span class="input-group-btn">
+															<button class="btn btn-secondary" (click)="removeElement(config.value.values, config.value.key, i)" type="button">-</button>
+														</span>
+													</div>
+													<div class="list-add-wrapper input-group">
+														<span class="input-group-btn">
+															<button class="btn btn-secondary" type="button" (click)="addElement(config.value.values, config.value.key, config.value.template)">+</button>
+														</span>
+													</div>
+												</div>
 											</div>
 
 										</ng-container>
