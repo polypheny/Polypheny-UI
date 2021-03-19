@@ -154,7 +154,12 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
     this._crud.updateAdapterSettings( adapter ).subscribe(
       res => {
-        this._toast.success('Updated adapter settings');
+        const result = <ResultSet> res;
+        if(result.error){
+          this._toast.exception(result);
+        } else {
+          this._toast.success('Updated adapter settings');
+        }
         this.adapterSettingsModal.hide();
         this.getStoresAndSources();
       }, err => {
@@ -316,6 +321,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         return 'fa fa-file-image-o';
       case 'MySQL':
         return path + 'mysql.png';
+      case 'QFS':
+        return 'fa fa-folder-open-o';
       default:
         return 'fa fa-database';
     }
