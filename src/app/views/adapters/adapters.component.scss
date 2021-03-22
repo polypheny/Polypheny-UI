@@ -58,8 +58,9 @@
   position: relative;
 }
 .adapters .logo{
-  max-width: 60px;
-  max-height: 60px;
+  object-fit: contain;
+  width: 60px;
+  height: 60px;
   float: right;
   font-size: 50px;
 }

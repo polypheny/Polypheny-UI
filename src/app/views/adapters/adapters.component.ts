@@ -348,6 +348,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         return 'fa fa-file-image-o';
       case 'MySQL':
         return path + 'mysql.png';
+      case 'MongoDB':
+        return path + 'mongodb.png';
       default:
         return 'fa fa-database';
     }
