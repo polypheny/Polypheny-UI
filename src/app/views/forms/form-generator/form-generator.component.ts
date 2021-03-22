@@ -161,7 +161,6 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
           initValue = config.value || [];
         }
         else if ( config.webUiFormType === 'LIST' ) {
-          console.log(gKey);
           initValue = config.values;
         }
         else {

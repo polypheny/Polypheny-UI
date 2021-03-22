@@ -27,7 +27,7 @@ export interface AdapterInformation {
   description: string;
   usesDocker: boolean;
   clazz: string;
-  adapterSettings: AdapterSetting[];
+  adapterSettings: Map<string, AdapterSetting[]>;
 }
 
 export interface AdapterSetting {

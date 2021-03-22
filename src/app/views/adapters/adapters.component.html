@@ -150,6 +150,11 @@
 
       <!-- Form for deploying -->
       <div class="modal-body" *ngIf="editingAvailableAdapter && editingAvailableAdapter.adapterSettings">
+        <ul class="nav nav-tabs nav-tabs-adapter" >
+          <li class="nav-item" *ngFor="let header of settingHeaders">
+            <a class="nav-link" [class.active]="activeHeader === header" (click)="changeSettingsTab($event, header)" href="#">{{header}}</a>
+          </li>
+        </ul>
         <form [formGroup]="availableAdapterUniqueNameForm" (ngSubmit)="deploy()" autocomplete="off">
           <div class="form-group">
             <div class="input-group">

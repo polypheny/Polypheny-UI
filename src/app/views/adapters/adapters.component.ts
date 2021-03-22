@@ -29,12 +29,16 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
   editingAvailableAdapter: AdapterInformation;
   editingAvailableAdapterForm: FormGroup;
+  editingAvailableAdapterForms: Map<string, FormGroup>;
+  activeHeader: string;
   availableAdapterUniqueNameForm: FormGroup;
+  settingHeaders: string[];
 
   fileLabel = 'Choose File';
   deploying = false;
 
   @ViewChild('adapterSettingsModal', {static: false}) public adapterSettingsModal: ModalDirective;
+
 
   constructor(
     private _crud: CrudService,
@@ -167,24 +171,38 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   initDeployModal(adapter: AdapterInformation ){
     this.editingAvailableAdapter = adapter;
     const fc = {};
-    for (const [k, v] of Object.entries(this.editingAvailableAdapter.adapterSettings)) {
-      const validators = [];
-      if (v.required) {
-        validators.push(Validators.required);
-      }
-      let val = v.defaultValue;
-      if( v.fileNames ){
-        fc[v.name] = this._fb.array([]);
-      } else {
-        if (v.options) {
-          val = v.options[0];
-        } else if (v.fileNames) {
-          val = '';
+
+    for( const k of Object.keys(this.editingAvailableAdapter.adapterSettings)) {
+      for (const v of this.editingAvailableAdapter.adapterSettings[k]) {
+        const validators = [];
+        if (v.required) {
+          validators.push(Validators.required);
         }
-        fc[v.name] = new FormControl(val, validators);
+        let val = v.defaultValue;
+        if(!fc.hasOwnProperty(k)){
+          fc[k] = {};
+        }
+        if (v.fileNames) {
+          fc[k][v.name] = this._fb.array([]);
+        } else {
+          if (v.options) {
+            val = v.options[0];
+          } else if (v.fileNames) {
+            val = new FormControl(val, validators);
+          }
+          fc[k][v.name] = new FormControl(val, validators);
+        }
       }
     }
-    this.editingAvailableAdapterForm = new FormGroup( fc );
+    this.settingHeaders = Object.keys(this.editingAvailableAdapter.adapterSettings)
+        .filter(header => header !== 'mode');
+    const forms = new Map;
+    this.settingHeaders.forEach( header => {
+      forms.set(header, new FormGroup(fc[header]));
+    });
+    this.editingAvailableAdapterForms = forms;
+    this.activeHeader = this.settingHeaders[0];
+    this.editingAvailableAdapterForm = this.editingAvailableAdapterForms.get(this.activeHeader);
     this.availableAdapterUniqueNameForm = new FormGroup({
       uniqueName: new FormControl(null, [Validators.required, Validators.pattern( this._crud.getValidationRegex() ), validateUniqueName([...this.stores, ...this.sources])])
     });
@@ -220,6 +238,13 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   getAdapterSetting( adapter, key: string ): AdapterSetting{
+    if( adapter.adapterSettings.hasOwnProperty(this.activeHeader)){
+      let allSettings = [];
+      this.settingHeaders.forEach( header => {
+        allSettings = allSettings.concat(adapter.adapterSettings[header]);
+      });
+      return allSettings.filter((a, i) => a.name === key)[0];
+    }
     return adapter.adapterSettings.filter((a, i) => a.name === key)[0];
   }
 
@@ -232,22 +257,29 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       settings: {}
     };
     const fd: FormData = new FormData();
-    for( const [k,v] of Object.entries( this.editingAvailableAdapterForm.controls )){
-      const setting = this.getAdapterSetting(this.editingAvailableAdapter, k);
-      if (setting.fileNames) {
-        const fileNames = [];
-        const arr = v as FormArray;
-        for(let i = 0; i<arr.length; i++){
-          const file = arr.at(i).value as File;
-          fd.append(file.name, file);
-          fileNames.push(file.name);
+    for ( const [key, value] of this.editingAvailableAdapterForms) {
+      for (const [k, v] of Object.entries(this.editingAvailableAdapterForms.get(key).controls)) {
+        const setting = this.getAdapterSetting(this.editingAvailableAdapter, k);
+        if (setting.fileNames) {
+          const fileNames = [];
+          const arr = v as FormArray;
+          for (let i = 0; i < arr.length; i++) {
+            const file = arr.at(i).value as File;
+            fd.append(file.name, file);
+            fileNames.push(file.name);
+          }
+          setting.fileNames = fileNames;
+        } else {
+          setting.defaultValue = v.value;
         }
-        setting.fileNames = fileNames;
-      } else {
-        setting.defaultValue = v.value;
+        deploy.settings[k] = setting;
       }
-      deploy.settings[k] = setting;
     }
+
+    // we add the selected header to the settings, which is the mode (docker, embedded) for the adapter
+    deploy.settings['mode'] = this.editingAvailableAdapter.adapterSettings['mode'][0];
+    deploy.settings['mode'].defaultValue = this.activeHeader;
+
     fd.append('body', JSON.stringify(deploy));
     this.deploying = true;
     this._crud.addAdapter( fd ).subscribe(
@@ -321,6 +353,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
   }
 
+  changeSettingsTab(e: Event, header: string) {
+    e.preventDefault();
+    this.activeHeader = header;
+    this.editingAvailableAdapterForm = this.editingAvailableAdapterForms.get(this.activeHeader);
+  }
 }
 
 // see https://angular.io/guide/form-validation#custom-validators
