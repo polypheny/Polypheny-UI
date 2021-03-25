@@ -57,6 +57,7 @@
 
           <span *ngIf="adapter.dataReadOnly"><span class="fa fa-eye"></span> read-only</span>
           <span *ngIf="adapter.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
+          <span *ngIf="adapter.usesDocker">{{ adapter.currentSettings['dockerUrl'] }}</span>
 
         </div>
         <div class="card-footer bg-transparent">
@@ -103,7 +104,8 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Settings</h4>
+        <h4 class="modal-title">{{activeMode ? "Settings": "Deployment Mode"}}</h4>
+
         <button type="button" class="close" (click)="adapterSettingsModal.hide()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -150,62 +152,65 @@
 
       <!-- Form for deploying -->
       <div class="modal-body" *ngIf="editingAvailableAdapter && editingAvailableAdapter.adapterSettings">
-        <ul class="nav nav-tabs nav-tabs-adapter" >
-          <li class="nav-item" *ngFor="let header of settingHeaders">
-            <a class="nav-link" [class.active]="activeHeader === header" (click)="changeSettingsTab($event, header)" href="#">{{header}}</a>
-          </li>
-        </ul>
-        <form [formGroup]="availableAdapterUniqueNameForm" (ngSubmit)="deploy()" autocomplete="off">
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <label for="adapterUniqueName" class="input-group-text">Unique Name</label>
-              </div>
-              <input type="text" class="form-control" id="adapterUniqueName" formControlName="uniqueName"
-                     [ngClass]="validate(availableAdapterUniqueNameForm, 'uniqueName')">
-              <div class="invalid-feedback">{{getFeedback()}}</div>
-            </div>
+        <div *ngIf="!activeMode; else options">
+          <div class="">
+            <p *ngFor="let mode of modeSettings" class="btn btn-primary btn-lg mr-1 btn-block" (click)="setMode(mode)">{{mode}}</p>
           </div>
-        </form>
-        <form [formGroup]="editingAvailableAdapterForm" (ngSubmit)="deploy()" autocomplete="off">
-          <div class="form-group" *ngFor="let control of editingAvailableAdapterForm.controls | keyvalue">
-            <div class="input-group" *ngIf="!getAdapterSetting(editingAvailableAdapter, control.key).options && !getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
-              <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
-                <label [for]="control.key" class="input-group-text">{{control.key}}</label>
-              </div>
-              <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
-                     [ngClass]="validate(editingAvailableAdapterForm, control.key)">
-              <div class="invalid-feedback">required</div>
-            </div>
-            <div class="form-group" *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).options">
-              <div class="input-group select-wrapper">
-                <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
-                  <label class="input-group-text" [for]="control.key">{{control.key}}</label>
+        </div>
+
+        <ng-template #options>
+          <form [formGroup]="availableAdapterUniqueNameForm" (ngSubmit)="deploy()" autocomplete="off">
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <label for="adapterUniqueName" class="input-group-text">Unique Name</label>
                 </div>
-                <select [id]="control.key" class="form-control" [formControlName]="control.key" class="form-control">
-                  <option *ngFor="let option of getAdapterSetting(editingAvailableAdapter, control.key).options" [value]="option">{{option}}</option>
-                </select>
+                <input type="text" class="form-control" id="adapterUniqueName" formControlName="uniqueName"
+                       [ngClass]="validate(availableAdapterUniqueNameForm, 'uniqueName')">
+                <div class="invalid-feedback">{{getFeedback()}}</div>
               </div>
             </div>
-            <div class="input-group" *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
-              <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
-                <label [for]="control.key" class="input-group-text">{{control.key}}</label>
-              </div>
-              <label [for]="control.key" class="form-control" style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
-                <input type="file" multiple style="display: none" [id]="control.key" [ngClass]="validate(editingAvailableAdapterForm, control.key)"
-                       (change)="onFileChange($event, editingAvailableAdapterForm, control.key)">
-                {{fileLabel}}
-              </label>
-              <div class="invalid-feedback">required</div>
+          </form>
+          <form [formGroup]="editingAvailableAdapterForm" (ngSubmit)="deploy()" autocomplete="off">
+            <div class="form-group" *ngFor="let control of editingAvailableAdapterForm.controls  | keyvalue">
+                <div class="input-group" *ngIf="!getAdapterSetting(editingAvailableAdapter, control.key).options && !getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
+                    <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
+                        <label [for]="control.key" class="input-group-text">{{control.key}}</label>
+                    </div>
+                    <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
+                           [ngClass]="validate(control.value, control.key)">
+                    <div class="invalid-feedback">required</div>
+                </div>
+                <div class="form-group" *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).options">
+                    <div class="input-group select-wrapper">
+                        <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
+                            <label class="input-group-text" [for]="control.key">{{control.key}}</label>
+                        </div>
+                        <select [id]="control.key" class="form-control" [formControlName]="control.key" class="form-control">
+                            <option *ngFor="let option of getAdapterSetting(editingAvailableAdapter, control.key).options" [value]="option">{{option}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group" *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
+                    <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
+                        <label [for]="control.key" class="input-group-text">{{control.key}}</label>
+                    </div>
+                    <label [for]="control.key" class="form-control" style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
+                        <input type="file" multiple style="display: none" [id]="control.key" [ngClass]="validate(control.value, control.key)"
+                               (change)="onFileChange($event, editingAvailableAdapterForm, control.key)">
+                        {{fileLabel}}
+                    </label>
+                    <div class="invalid-feedback">required</div>
+                </div>
             </div>
-          </div>
         </form>
+        </ng-template>
       </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;" (click)="adapterSettingsModal.hide()">Close</button>
+      <div class="modal-footer" >
+        <button type="button" class="btn btn-secondary" (click)="adapterSettingsModal.hide()">Close</button>
         <button *ngIf="editingAdapter" type="submit" class="btn btn-primary" (click)="saveAdapterSettings()" [disabled]="!editingAdapterForm.valid">Save</button>
-        <button *ngIf="editingAvailableAdapter" type="submit" class="btn btn-primary" (click)="deploy()"
+        <button *ngIf="editingAvailableAdapter && activeMode" type="submit" class="btn btn-primary" (click)="deploy()"
                 [disabled]="!availableAdapterUniqueNameForm.valid || !editingAvailableAdapterForm.valid || deploying"
                 [ngClass]="{'progress-bar-striped progress-bar-animated': deploying}">Deploy</button>
       </div>

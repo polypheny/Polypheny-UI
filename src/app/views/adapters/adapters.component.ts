@@ -29,8 +29,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
   editingAvailableAdapter: AdapterInformation;
   editingAvailableAdapterForm: FormGroup;
-  editingAvailableAdapterForms: Map<string, FormGroup>;
-  activeHeader: string;
+  editingAvailableAdapterForms: Map<String, FormGroup>;
+  activeMode: string;
   availableAdapterUniqueNameForm: FormGroup;
   settingHeaders: string[];
 
@@ -38,6 +38,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   deploying = false;
 
   @ViewChild('adapterSettingsModal', {static: false}) public adapterSettingsModal: ModalDirective;
+  private allSettings: AdapterSetting[];
+  public modeSettings: string[];
 
 
   constructor(
@@ -194,15 +196,24 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         }
       }
     }
-    this.settingHeaders = Object.keys(this.editingAvailableAdapter.adapterSettings)
-        .filter(header => header !== 'mode');
-    const forms = new Map;
-    this.settingHeaders.forEach( header => {
-      forms.set(header, new FormGroup(fc[header]));
+    this.modeSettings = Object.keys(this.editingAvailableAdapter.adapterSettings).filter(name => name !== 'mode' && name !== 'default');
+    this.editingAvailableAdapterForms = new Map<String, FormGroup>();
+    this.modeSettings.forEach( mode => {
+      this.editingAvailableAdapterForms.set(mode, new FormGroup(Object.assign(fc[mode],fc['default'])));
     });
-    this.editingAvailableAdapterForms = forms;
-    this.activeHeader = this.settingHeaders[0];
-    this.editingAvailableAdapterForm = this.editingAvailableAdapterForms.get(this.activeHeader);
+
+    this.activeMode = null;
+    // if we only have one mode we directly set it
+    if(this.modeSettings.length === 0) {
+      this.activeMode = 'default';
+      this.editingAvailableAdapterForm = new FormGroup(fc['default']);
+    }
+    if(this.modeSettings.length === 1){
+      this.activeMode = this.modeSettings[0];
+    }
+
+    this.allSettings = Object.keys(this.editingAvailableAdapter.adapterSettings).map(header => adapter.adapterSettings[header]).reduce( (arr, val) => arr.concat(val));
+
     this.availableAdapterUniqueNameForm = new FormGroup({
       uniqueName: new FormControl(null, [Validators.required, Validators.pattern( this._crud.getValidationRegex() ), validateUniqueName([...this.stores, ...this.sources])])
     });
@@ -238,12 +249,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   getAdapterSetting( adapter, key: string ): AdapterSetting{
-    if( adapter.adapterSettings.hasOwnProperty(this.activeHeader)){
-      let allSettings = [];
-      this.settingHeaders.forEach( header => {
-        allSettings = allSettings.concat(adapter.adapterSettings[header]);
-      });
-      return allSettings.filter((a, i) => a.name === key)[0];
+    if( adapter.adapterSettings.hasOwnProperty('default')){
+      return this.allSettings.filter((a, i) => a.name === key)[0];
     }
     return adapter.adapterSettings.filter((a, i) => a.name === key)[0];
   }
@@ -257,8 +264,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       settings: {}
     };
     const fd: FormData = new FormData();
-    for ( const [key, value] of this.editingAvailableAdapterForms) {
-      for (const [k, v] of Object.entries(this.editingAvailableAdapterForms.get(key).controls)) {
+    for ( const key of Object.keys(this.editingAvailableAdapterForm.controls).filter( k => k !== 'mode')) {
+      for (const [k, v] of Object.entries(this.editingAvailableAdapterForm.controls )) {
         const setting = this.getAdapterSetting(this.editingAvailableAdapter, k);
         if (setting.fileNames) {
           const fileNames = [];
@@ -278,7 +285,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     // we add the selected header to the settings, which is the mode (docker, embedded) for the adapter
     deploy.settings['mode'] = this.editingAvailableAdapter.adapterSettings['mode'][0];
-    deploy.settings['mode'].defaultValue = this.activeHeader;
+    deploy.settings['mode'].defaultValue = this.activeMode;
 
     fd.append('body', JSON.stringify(deploy));
     this.deploying = true;
@@ -319,8 +326,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
   }
 
-  validate( form: FormGroup, key ) {
+  validate( form: AbstractControl, key ) {
     if(form === undefined) { return; }
+    if ( !(form instanceof FormGroup)) {
+      return ;
+    }
     if( form.controls[key].status === 'DISABLED' ) { return; }
     if( form.controls[key].valid ){
       return 'is-valid';
@@ -355,10 +365,17 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
   }
 
-  changeSettingsTab(e: Event, header: string) {
-    e.preventDefault();
-    this.activeHeader = header;
-    this.editingAvailableAdapterForm = this.editingAvailableAdapterForms.get(this.activeHeader);
+
+  deployType():FormGroup {
+    if( this.activeMode ){
+      return this.editingAvailableAdapterForms.get(this.activeMode) as FormGroup;
+    }
+    return null;
+  }
+
+  setMode(mode: string) {
+    this.editingAvailableAdapterForm = this.editingAvailableAdapterForms.get(mode);
+    this.activeMode = mode;
   }
 }
 
