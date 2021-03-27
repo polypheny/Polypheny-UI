@@ -134,3 +134,22 @@
   display: flex;
   justify-content: space-between;
 }
+
+.docker-status {
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  align-items: center;
+
+  &>* {
+    margin: 0;
+  }
+
+  .status {
+    justify-self: center;
+  }
+}
+
+.prepend-status {
+  flex: max-content;
+}

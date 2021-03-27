@@ -314,6 +314,33 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   markElement(key: string) {
     this.form.controls[key].markAsDirty();
   }
+  markElementReset(key: string, value: any) {
+    this.markElement(key);
+    value.dockerRunning = false;
+  }
+
+
+
+  testConnection(e:Event, value, key:string ) {
+    e.preventDefault();
+    value.isTesting = true;
+    this._config.testConnection(value.id).subscribe(async (res) => {
+      value.isTesting = false;
+      if( value.dockerRunning !== res ){
+        value.dockerRunning = res;
+        this.markElement(key);
+        this.onSubmit(this.form.value, null);
+
+        if( res ){
+          this._toast.success('The entered docker instance is correctly configured.', null, 'Docker Reachable');
+        }else {
+          this._toast.error('Failed connecting to the Docker instance. Make sure, that the entered parameters are correct and Docker is reachable.', 'Docker not reachable');
+        }
+
+      }
+
+    });
+  }
 }
 
 
