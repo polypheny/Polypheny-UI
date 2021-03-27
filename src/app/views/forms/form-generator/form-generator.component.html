@@ -27,17 +27,17 @@
 							<ng-container *ngFor="let config of group.value.configs | keyvalue: orderConfigs; let nth = index">
 								<ng-container [ngSwitch]="config.value.webUiFormType">
 									<div class="input-group">
-										<div class="input-group-prepend" [class.input-group-full]=" config.value.webUiFormType === 'LIST'" >
+										<div class="input-group-prepend-list" [class.input-group-full]=" config.value.webUiFormType === 'LIST'" >
 											<label [for]="config.value.key" class="input-group-text" id="basic-addon1" [tooltip]="config.value.description" placement="left" container="body">{{ config.value.key }}</label>
 											<div class="gradient"></div>
 										</div>
 										<ng-container *ngSwitchCase="'TEXT'">
 											<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="text" class="form-control" [ngClass]="inputValidation(config.value.key)">
 										</ng-container>
-										<ng-container *ngSwitchCase="'NUMBER'">
+										<ng-container #numberCase *ngSwitchCase="'NUMBER'">
 											<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="number" class="form-control" [ngClass]="inputValidation(config.value.key)">
 										</ng-container>
-										<ng-container *ngSwitchCase="'BOOLEAN'">
+										<ng-container #booleanCase *ngSwitchCase="'BOOLEAN'">
 											<!--<div class="checkbox-wrapper">-->
 														<!--<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
 														<!-- throws warning, but solves problem of assigning value "false" (as string) -->
@@ -53,29 +53,79 @@
 											</div>
 
 										</ng-container>
-										<ng-container *ngSwitchCase="'LIST'">
-											<!--<div class="checkbox-wrapper">-->
-											<!--<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
-											<!-- throws warning, but solves problem of assigning value "false" (as string) -->
-											<!--<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
-											<!--</div>-->
-
-											<div class="list-wrapper">
+										<ng-container #listCase *ngSwitchCase="'LIST'">
+											<!-- List of ConfigString -->
+											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'TEXT'">
 												<div class="input-group">
-													<div class="list-input-wrapper input-group" *ngFor="let el of config.value.values; let i = index;">
-														<input type="text" class="form-control list-input" [(ngModel)]="el.value" (input)="markElement(config.value.key)" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+													<div class="list-input-wrapper input-group my-1" *ngFor="let el of config.value.values; let i = index;">
+														<input type="text" class="form-control list-input mr-1" [(ngModel)]="el.value" (input)="markElement(config.value.key)" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
 														<span class="input-group-btn">
 															<button class="btn btn-secondary" (click)="removeElement(config.value.values, config.value.key, i)" type="button">-</button>
 														</span>
 													</div>
-													<div class="list-add-wrapper input-group">
+													<div class="list-add-wrapper input-group m-1">
 														<span class="input-group-btn">
 															<button class="btn btn-secondary" type="button" (click)="addElement(config.value.values, config.value.key, config.value.template)">+</button>
 														</span>
 													</div>
 												</div>
 											</div>
+											<!--List of DockerInstance-->
+											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'DOCKER_INSTANCE'">
+												<div class=" input-group instance-wrapper card p-1 my-1 border" *ngFor="let el of config.value.values; let i = index;" [ngClass]="el.dockerRunning ? 'border-success' : 'border-danger'">
+													<div class="instance-collapsed p-2 bg-gray d-none">
+														<div class="info">
+															<span>Alias: {{el.alias}}</span>
+															<span>Host: {{el.url}}</span>
+														</div>
+														<i class="cui-pencil"></i>
+													</div>
+													<div class="instance-expanded">
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text" id="basiaddon1">Host</span>
+															</div>
+															<input type="text" class="form-control list-input" [(ngModel)]="el.url" (input)="markElement(config.value.key)" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+														</div>
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text" id="basiaddon2">Alias</span>
+															</div>
+															<input type="text" class="form-control list-input form-control" [(ngModel)]="el.alias" (input)="markElement(config.value.key)" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+														</div>
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text" id="basiaddon3">Username</span>
+															</div>
+															<input type="text" class="form-control list-input form-control" [(ngModel)]="el.username" (input)="markElement(config.value.key)" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+														</div>
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text" id="basiaddon4">Password</span>
+															</div>
+															<input type="text" class="form-control list-input form-control" [(ngModel)]="el.password" (input)="markElement(config.value.key)" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+														</div>
 
+														<div class="instance-taskbar">
+															<div class="connection-status">
+																<span class="input-group-btn">
+																	<button class="btn btn-secondary" (click)="removeElement(config.value.values, config.value.key, i)" type="button">Test Connection</button>
+																</span>
+															</div>
+															<span class="input-group-btn">
+																<button class="btn btn-secondary" (click)="removeElement(config.value.values, config.value.key, i)" type="button">Delete</button>
+															</span>
+														</div>
+													</div>
+												</div>
+												<div class="input-group my-1">
+													<div class="list-add-wrapper input-group">
+														<span class="input-group-btn">
+															<button class="btn btn-secondary" type="button" (click)="addElement(config.value.values, config.value.key, config.value.template)">New Instance</button>
+														</span>
+													</div>
+												</div>
+											</div>
 										</ng-container>
 
                     <!-- ConfigClazz, ConfigEnum -->

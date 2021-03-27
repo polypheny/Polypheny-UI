@@ -32,6 +32,8 @@ export interface AdapterInformation {
 
 export interface AdapterSetting {
   name: string;
+  nameAlias: string;
+  alias: any;
   description: string;
   defaultValue: string;
   canBeNull: boolean;
@@ -39,6 +41,7 @@ export interface AdapterSetting {
   modifiable: boolean;
   options: string[];
   fileNames: string[];
+  dynamic: boolean;
 }
 
 export interface Placements {

@@ -161,7 +161,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
           initValue = config.value || [];
         }
         else if ( config.webUiFormType === 'LIST' ) {
-          initValue = config.values;
+          initValue = config.values || [];
         }
         else {
           if( config.value === undefined || config.value === null){
@@ -175,6 +175,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
       }
     }
     this.form = new FormGroup(formGroup);
+    console.log(this.formObj.groups);
   }
 
   /** order groups within a page.
@@ -238,10 +239,12 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     }
   }
 
-  addElement(list,key, template){
+  addElement(list, key, template){
     this.form.controls[key].markAsDirty();
     const copy = JSON.parse(JSON.stringify(template));
     copy.key = template.key + list.length;
+    // we can assign the biggest previous id + 1 as id for our new element
+    copy.id = Math.max(...list.map( el => el.id)) + 1;
     list.push(copy);
   }
 

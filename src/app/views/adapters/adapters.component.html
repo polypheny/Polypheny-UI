@@ -124,7 +124,7 @@
               <div class="invalid-feedback">required</div>
             </div>
             <div class="form-group" *ngIf="getAdapterSetting(editingAdapter, control.key).options">
-              <div class="input-group select-wrapper">
+              <div class="input-group select-wrapper" *ngIf="!getAdapterSetting(editingAdapter, control.key).dynamic; else editDynamic">
                 <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAdapter, control.key).description" placement="left" delay="200">
                   <label class="input-group-text" [for]="control.key">{{control.key}}</label>
                 </div>
@@ -133,6 +133,18 @@
                           [value]="option">{{option}}</option>
                 </select>
               </div>
+              <!--dynamic select, which use ids internally-->
+              <ng-template #editDynamic>
+                <div class="input-group select-wrapper">
+                  <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAdapter, control.key).description" placement="left" delay="200">
+                    <label class="input-group-text" [for]="control.key">{{getAdapterSetting(editingAdapter, control.key).nameAlias}}</label>
+                  </div>
+                  <select [id]="control.key" class="form-control" [formControlName]="control.key">
+                    <option *ngFor="let option of getAdapterSetting(editingAdapter, control.key).options"
+                            [value]="option">{{getAdapterSetting(editingAdapter, control.key).alias[option]}}</option>
+                  </select>
+                </div>
+              </ng-template>
             </div>
             <div class="input-group" *ngIf="getAdapterSetting(editingAdapter, control.key).fileNames">
               <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAdapter, control.key).description" placement="left" delay="200">
@@ -182,14 +194,24 @@
                     <div class="invalid-feedback">required</div>
                 </div>
                 <div class="form-group" *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).options">
-                    <div class="input-group select-wrapper">
+                    <div class="input-group select-wrapper" *ngIf="!getAdapterSetting(editingAvailableAdapter, control.key).dynamic; else dynamicSelect">
                         <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
                             <label class="input-group-text" [for]="control.key">{{control.key}}</label>
                         </div>
-                        <select [id]="control.key" class="form-control" [formControlName]="control.key" class="form-control">
+                        <select [id]="control.key" class="form-control" [formControlName]="control.key" class="form-control" >
                             <option *ngFor="let option of getAdapterSetting(editingAvailableAdapter, control.key).options" [value]="option">{{option}}</option>
                         </select>
                     </div>
+                    <ng-template #dynamicSelect>
+                      <div class="input-group select-wrapper select-dynamic" >
+                        <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
+                          <label class="input-group-text" [for]="control.key">{{getAdapterSetting(editingAvailableAdapter, control.key).nameAlias}}</label>
+                        </div>
+                        <select [id]="control.key" class="form-control" [formControlName]="control.key" class="form-control" >
+                          <option *ngFor="let option of getAdapterSetting(editingAvailableAdapter, control.key).options" [value]="option">{{getAdapterSetting(editingAvailableAdapter, control.key).alias[option]}}</option>
+                        </select>
+                      </div>
+                    </ng-template>
                 </div>
                 <div class="input-group" *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
                     <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
