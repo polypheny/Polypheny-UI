@@ -319,9 +319,15 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     value.dockerRunning = false;
   }
 
+  setProtocolAndMarkElement(el: any, e: Event, key: string, value: any) {
+    e.preventDefault();
+    el.protocol = e.target['value'];
+    console.log(el);
+    this.markElementReset(key, value);
+  }
 
 
-  testConnection(e:Event, value, key:string ) {
+  testConnection(e: Event, value, key: string ) {
     e.preventDefault();
     value.isTesting = true;
     this._config.testConnection(value.id).subscribe(async (res) => {
@@ -341,6 +347,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
 
     });
   }
+
 }
 
 

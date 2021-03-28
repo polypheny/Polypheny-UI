@@ -97,7 +97,7 @@
 															<div class="input-group-prepend">
 																<span class="input-group-text" id="basiaddon1">Host</span>
 															</div>
-															<input type="text" class="form-control list-input" [(ngModel)]="el.url" (input)="markElement(config.value.key)" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+															<input type="text" class="form-control list-input" [(ngModel)]="el.url" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
 														</div>
 														<div class="input-group">
 															<div class="input-group-prepend">
@@ -107,15 +107,29 @@
 														</div>
 														<div class="input-group">
 															<div class="input-group-prepend">
-																<span class="input-group-text" id="basiaddon3">Username</span>
+																<span class="input-group-text" id="basiaddon4">Protocol</span>
 															</div>
-															<input type="text" class="form-control list-input form-control" [(ngModel)]="el.username" (input)="markElement(config.value.key)" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+															<select class="custom-select" id="inputGroupSelect01" (change)="setProtocolAndMarkElement(el, $event, config.value.key, config.value.values[i])">
+																<option *ngFor="let protocol of el.protocols" [selected]="protocol === el.protocol">{{protocol}}</option>
+															</select>
 														</div>
 														<div class="input-group">
 															<div class="input-group-prepend">
-																<span class="input-group-text" id="basiaddon4">Password</span>
+																<span class="input-group-text" id="basiaddon5">Port</span>
 															</div>
-															<input type="password" class="form-control list-input form-control" [(ngModel)]="el.password" (input)="markElement(config.value.key)" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+															<input type="text" class="form-control list-input form-control" [(ngModel)]="el.port" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+														</div>
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text" id="basiaddon3">Username</span>
+															</div>
+															<input type="text" class="form-control list-input form-control" [(ngModel)]="el.username" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+														</div>
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text" id="basiaddon6">Password</span>
+															</div>
+															<input type="password" class="form-control list-input form-control" [(ngModel)]="el.password" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
 														</div>
 
 														<div class="instance-taskbar">
