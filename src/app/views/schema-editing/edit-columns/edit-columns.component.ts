@@ -19,6 +19,7 @@ import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../ad
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
 import {Subscription} from 'rxjs';
+import {DbTable, ForeignKey, SvgLine, Uml} from '../../../views/uml/uml.model';
 
 @Component({
   selector: 'app-edit-columns',
@@ -31,6 +32,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   tableId: string;
   table: string;
   schema: string;
+  connections = [];
+  uml: Uml;
 
   resultSet: ResultSet;
   types: PolyType[] = [];
@@ -136,6 +139,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.getIndexes();
         this.getPlacementsAndPartitions();
         this.getAvailableStoresForIndexes();
+        this.getUml();
+        this.clearConnections();
       }
     });
     this.subscriptions.add(sub);
@@ -326,6 +331,41 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     );
   }
 
+  getUml() {
+    if (!this.schema) {
+      this.uml = null;
+      return;
+    }
+    this._crud.getUml(new EditTableRequest(this.schema)).subscribe(
+      res => {
+        
+        const uml: Uml = <Uml>res;
+        this.uml = new Uml(uml.tables, uml.foreignKeys);
+   
+        this.uml.foreignKeys.forEach((v, k) => {
+          if((v.fkTableSchema+"."+v.fkTableName) == this.tableId && !JSON.stringify(this.connections).includes(v.fkName) ){
+
+          this.connections.push({
+            sourcefk: v.fkName,
+            sourceColumn: v.fkColumnName,
+            targetTable:  v.pkTableName,
+            targetColumn: v.pkColumnName,
+            onUpdates: v.update,
+            onDeletes: v.delete,
+          });
+    
+          }
+        });
+      }, err => {
+        console.log(err);
+      }
+    );
+  }
+
+  clearConnections() {
+    this.connections = [];
+  }
+
   dropConstraint ( constraintName:string, constraintType:string) {
     this._crud.dropConstraint( new ConstraintRequest( this.tableId, new TableConstraint( constraintName, constraintType ) )).subscribe(
       res => {
@@ -334,6 +374,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
           this._toast.exception(result, null, 'constraint error');
         }else{
           this.getConstraints();
+          this.clearConnections();
+          this.getUml();
         }
       }, err => {
         console.log(err);
