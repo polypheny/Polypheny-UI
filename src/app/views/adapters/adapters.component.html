@@ -57,7 +57,6 @@
 
           <span *ngIf="adapter.dataReadOnly"><span class="fa fa-eye"></span> read-only</span>
           <span *ngIf="adapter.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
-          <span *ngIf="adapter.usesDocker">{{ adapter.currentSettings['dockerUrl'] }}</span>
 
         </div>
         <div class="card-footer bg-transparent">

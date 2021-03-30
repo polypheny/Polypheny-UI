@@ -45,7 +45,7 @@
 											<!--</div>-->
 
 											<div class="checkbox-wrapper">
-												&nbsp;
+												<br>
 												<label [class]="'switch switch-label switch-pill switch-sm ' + getSwitchColor(nth)">
 													<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control switch-input" [ngClass]="inputValidation(config.value.key)">
 													<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
@@ -115,21 +115,35 @@
 														</div>
 														<div class="input-group">
 															<div class="input-group-prepend">
+																<span class="input-group-text">Insecure Connection (HTTP)</span>
+															</div>
+															<div class="checkbox-wrapper">
+																<br>
+																<label [class]="'switch switch-label switch-pill switch-sm ' + getSwitchColor(nth)">
+																	<input [(ngModel)]="el.usingInsecure" [ngModelOptions]="{standalone: true}"  (change)="setInsecureAndMark(el.usingInsecure, config.value.key, config.value.values[i])" type="checkbox" class="form-control switch-input" [ngClass]="inputValidation(config.value.key)">
+																	<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+																</label>
+															</div>
+														</div>
+														<div class="input-group" *ngIf="el.protocol === 'tcp'">
+															<div class="input-group-prepend">
 																<span class="input-group-text" id="basiaddon5">Port</span>
 															</div>
-															<input type="text" class="form-control list-input form-control" [(ngModel)]="el.port" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+															<input type="number" class="form-control list-input" [(ngModel)]="el.port" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
 														</div>
-														<div class="input-group">
-															<div class="input-group-prepend">
-																<span class="input-group-text" id="basiaddon3">Username</span>
+														<div class="auth" *ngIf="el.protocol === 'ssh'">
+															<div class="input-group">
+																<div class="input-group-prepend">
+																	<span class="input-group-text" id="basiaddon3">Username</span>
+																</div>
+																<input type="text" class="form-control list-input form-control" [(ngModel)]="el.username" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
 															</div>
-															<input type="text" class="form-control list-input form-control" [(ngModel)]="el.username" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
-														</div>
-														<div class="input-group">
-															<div class="input-group-prepend">
-																<span class="input-group-text" id="basiaddon6">Password</span>
+															<div class="input-group">
+																<div class="input-group-prepend">
+																	<span class="input-group-text" id="basiaddon6">Password</span>
+																</div>
+																<input type="password" class="form-control list-input form-control" [(ngModel)]="el.password" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
 															</div>
-															<input type="password" class="form-control list-input form-control" [(ngModel)]="el.password" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
 														</div>
 
 														<div class="instance-taskbar">

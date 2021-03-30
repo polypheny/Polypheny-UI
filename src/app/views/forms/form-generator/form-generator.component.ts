@@ -175,7 +175,6 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
       }
     }
     this.form = new FormGroup(formGroup);
-    console.log(this.formObj.groups);
   }
 
   /** order groups within a page.
@@ -322,7 +321,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   setProtocolAndMarkElement(el: any, e: Event, key: string, value: any) {
     e.preventDefault();
     el.protocol = e.target['value'];
-    console.log(el);
+
     this.markElementReset(key, value);
   }
 
@@ -348,6 +347,12 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     });
   }
 
+  setInsecureAndMark(usingInsecure: boolean, key: string , el: any) {
+    if( usingInsecure ) {
+      el.port = 2375.0;
+    }
+    this.markElementReset(key, el);
+  }
 }
 
 
