@@ -198,8 +198,14 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
     this.modeSettings = Object.keys(this.editingAvailableAdapter.adapterSettings).filter(name => name !== 'mode' && name !== 'default');
     this.editingAvailableAdapterForms = new Map<String, FormGroup>();
+    // we generate a set of settings consisting of the default settings and the deployment specific ones
     this.modeSettings.forEach( mode => {
-      this.editingAvailableAdapterForms.set(mode, new FormGroup(Object.assign(fc[mode],fc['default'])));
+      if ( fc[mode] ){
+        this.editingAvailableAdapterForms.set(mode, new FormGroup(Object.assign(fc[mode],fc['default'])));
+      }else {
+        this.editingAvailableAdapterForms.set(mode, new FormGroup(fc['default']));
+      }
+
     });
 
     this.activeMode = null;

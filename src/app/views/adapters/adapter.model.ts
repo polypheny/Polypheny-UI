@@ -4,7 +4,6 @@ export interface Adapter {
   adapterId: number;
   uniqueName: string;
   adapterName;
-  usesDocker: boolean;
   adapterSettings: AdapterSetting[];
   currentSettings: Map<string, string>;
   columnPlacements: CatalogColumnPlacement[];
@@ -25,7 +24,6 @@ export interface Store extends Adapter{
 export interface AdapterInformation {
   name: string;
   description: string;
-  usesDocker: boolean;
   clazz: string;
   adapterSettings: Map<string, AdapterSetting[]>;
 }

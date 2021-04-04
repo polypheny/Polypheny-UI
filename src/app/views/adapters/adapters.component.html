@@ -48,7 +48,8 @@
       <div class="card fixed-height">
         <div class="card-header card-header-adapter">
           <p>{{adapter.uniqueName}}</p>
-          <span *ngIf="adapter.usesDocker" class="badge badge-primary">Docker</span>
+          <span *ngIf="adapter.currentSettings['mode'] === 'docker'" class="badge badge-primary">Docker</span>
+          <span *ngIf="adapter.currentSettings['mode'] === 'remote'" class="badge badge-secondary">Remote</span>
         </div>
         <div class="card-body">
           <img *ngIf="getLogo(adapter.adapterName).startsWith('assets/')" [src]="getLogo(adapter.adapterName)" alt="" class="logo">
@@ -57,6 +58,7 @@
 
           <span *ngIf="adapter.dataReadOnly"><span class="fa fa-eye"></span> read-only</span>
           <span *ngIf="adapter.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
+          <span *ngIf="adapter.currentSettings.hasOwnProperty('host')&&adapter.currentSettings.hasOwnProperty('port')">{{adapter.currentSettings['host']}}:{{adapter.currentSettings['port']}}</span>
 
         </div>
         <div class="card-footer bg-transparent">
