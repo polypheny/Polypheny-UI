@@ -5,6 +5,7 @@
 	<form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form">
 		<div id="form-generator-main" class="row">
 			<div class="col-md-12">
+				<button *ngIf="form.dirty" type="submit" class="btn btn-light btn-sm float-right save-configs"><i class="fa fa-save"></i></button>
 				<h1 *ngIf="formObj.title">{{formObj.title}}</h1>
 				<p *ngIf="formObj.description">{{formObj.description}}</p>
 			</div>
@@ -14,8 +15,7 @@
 				<div>
 					<div class="form-group card">
 						<div class="card-header">
-              <button *ngIf="form.dirty" type="submit" class="btn btn-light btn-sm float-right save-configs"><i class="fa fa-save"></i></button>
-							<div style="width: 95%;">
+							<div style="width: 100%;">
 								<span>{{group.value.title}}</span>
 								<ng-container *ngIf="group.value.description">
 									<small>{{group.value.description}}</small>
