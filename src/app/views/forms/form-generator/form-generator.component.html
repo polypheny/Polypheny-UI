@@ -5,7 +5,7 @@
 	<form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form">
 		<div id="form-generator-main" class="row">
 			<div class="col-md-12">
-				<button *ngIf="form.dirty" type="submit" class="btn btn-light btn-sm float-right save-configs"><i class="fa fa-save"></i></button>
+				<button *ngIf="form.dirty" type="submit" class="btn btn-circle btn-primary save-configs"><i class="fa fa-save"></i></button>
 				<h1 *ngIf="formObj.title">{{formObj.title}}</h1>
 				<p *ngIf="formObj.description">{{formObj.description}}</p>
 			</div>
