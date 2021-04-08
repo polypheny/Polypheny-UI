@@ -140,7 +140,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.getPlacementsAndPartitions();
         this.getAvailableStoresForIndexes();
         this.getUml();
-        this.clearConnections();
       }
     });
     this.subscriptions.add(sub);
@@ -332,6 +331,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   getUml() {
+    this.connections = [];
     if (!this.schema) {
       this.uml = null;
       return;
@@ -343,7 +343,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.uml = new Uml(uml.tables, uml.foreignKeys);
    
         this.uml.foreignKeys.forEach((v, k) => {
-          if((v.fkTableSchema+"."+v.fkTableName) == this.tableId && !JSON.stringify(this.connections).includes(v.fkName) ){
+          if((v.fkTableSchema+"."+v.fkTableName) == this.tableId){
 
           this.connections.push({
             sourcefk: v.fkName,
@@ -362,9 +362,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     );
   }
 
-  clearConnections() {
-    this.connections = [];
-  }
 
   dropConstraint ( constraintName:string, constraintType:string) {
     this._crud.dropConstraint( new ConstraintRequest( this.tableId, new TableConstraint( constraintName, constraintType ) )).subscribe(
@@ -374,7 +371,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
           this._toast.exception(result, null, 'constraint error');
         }else{
           this.getConstraints();
-          this.clearConnections();
           this.getUml();
         }
       }, err => {

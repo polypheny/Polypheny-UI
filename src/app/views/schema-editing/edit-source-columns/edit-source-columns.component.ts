@@ -41,7 +41,6 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
       this.tableId = params['id'];
       this.fetchCurrentColumns();
       this.getUml();
-      this.clearConnections();
       this.getPlacements();
     });
     this.subscriptions.add(sub);
@@ -177,6 +176,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   }
 
   getUml() {
+    this.connections = [];
     const t = this.tableId.split('\.');
     this.schema = t[0];
     if (!this.schema) {
@@ -209,9 +209,6 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     );
   }
 
-  clearConnections() {
-    this.connections = [];
-  }
-
+  
 
 }
