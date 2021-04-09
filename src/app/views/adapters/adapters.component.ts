@@ -206,14 +206,18 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     this.editingAvailableAdapterForms = new Map<String, FormGroup>();
     // we generate a set of settings consisting of the default settings and the deployment specific ones
     this.modeSettings.forEach( mode => {
+      console.log(mode);
+      console.log(this.editingAvailableAdapterForms);
       if ( fc[mode] ){
         this.editingAvailableAdapterForms.set(mode, new FormGroup(Object.assign(fc[mode],fc['default'])));
-      }else {
+      }else if ( fc['default']) {
         this.editingAvailableAdapterForms.set(mode, new FormGroup(fc['default']));
+      }else {
+        this.editingAvailableAdapterForms.set(mode, this._fb.group([]));
       }
-
     });
 
+    console.log(this.editingAvailableAdapterForms);
     this.activeMode = null;
     // if we only have one mode we directly set it
     if(this.modeSettings.length === 0) {
@@ -222,6 +226,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
     if(this.modeSettings.length === 1){
       this.activeMode = this.modeSettings[0];
+      this.editingAvailableAdapterForm = this.editingAvailableAdapterForms.get(this.activeMode);
     }
 
     this.allSettings = Object.keys(this.editingAvailableAdapter.adapterSettings).map(header => adapter.adapterSettings[header]).reduce( (arr, val) => arr.concat(val));
