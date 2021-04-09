@@ -190,17 +190,22 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         this.uml = new Uml(uml.tables, uml.foreignKeys);
    
         this.uml.foreignKeys.forEach((v, k) => {
-          if((v.fkTableSchema+"."+v.fkTableName) == this.tableId && !JSON.stringify(this.connections).includes(v.fkName) ){
-
-          this.connections.push({
-            sourcefk: v.fkName,
-            sourceColumn: v.fkColumnName,
-            targetTable:  v.pkTableName,
-            targetColumn: v.pkColumnName,
-            onUpdates: v.update,
-            onDeletes: v.delete,
-          });
-    
+          if((v.fkTableSchema+"."+v.fkTableName) == this.tableId){
+          var index = this.connections.findIndex(x => x.sourcefk === v.fkName); 
+            if(index>-1) {  
+              this.connections[index].sourceColumn =  this.connections[index].sourceColumn + ", " + v.fkColumnName;
+              this.connections[index].targetColumn =  this.connections[index].targetColumn + ", " + v.pkColumnName;
+            }
+            else {
+              this.connections.push({
+                sourcefk: v.fkName,
+                sourceColumn: v.fkColumnName,
+                targetTable:  v.pkTableName,
+                targetColumn: v.pkColumnName,
+                onUpdates: v.update,
+                onDeletes: v.delete,
+              });
+            }
           }
         });
       }, err => {
