@@ -276,7 +276,7 @@
         </tr>
       </tbody>
     </table>
-    <div *ngIf="connections && connections.length > 0">
+    <div *ngIf="foreignKeys && foreignKeys.length > 0">
       <h6>Foreign key</h6>
       <table class="table table-hover table-striped" >
         <thead>
@@ -291,15 +291,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let d1 of connections; let i = index">
-            <td>{{d1.sourcefk}}</td>
-            <td>{{d1.sourceColumn}}</td>
-            <td>{{d1.targetTable}}</td>
-            <td>{{d1.targetColumn}}</td>
-            <td>{{d1.onUpdates}}</td>
-            <td>{{d1.onDeletes}}</td>
+          <tr *ngFor="let fk of foreignKeys; let i = index">
+            <td>{{fk.fkName}}</td>
+            <td>{{fk.fkColumnName}}</td>
+            <td>{{fk.pkTableName}}</td>
+            <td>{{fk.pkColumnName}}</td>
+            <td>{{fk.update}}</td>
+            <td>{{fk.delete}}</td>
              <td class="delete">
-              <app-delete-confirm (delete)="dropConstraint(d1.sourcefk, 'FOREIGN KEY')"></app-delete-confirm>
+              <app-delete-confirm (delete)="dropConstraint(fk.fkName, 'FOREIGN KEY')"></app-delete-confirm>
             </td> 
           </tr>
         </tbody>

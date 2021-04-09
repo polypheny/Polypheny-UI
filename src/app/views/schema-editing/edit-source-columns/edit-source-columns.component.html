@@ -81,7 +81,7 @@
       </tr>
       </tbody>
     </table>
-    <table class="table table-hover table-striped" *ngIf="connections && connections.length > 0">
+    <table class="table table-hover table-striped" *ngIf="foreignKeys && foreignKeys.length > 0">
       <thead>
         <tr>
           <th>FK Name</th>
@@ -93,13 +93,13 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let d1 of connections; let i = index">
-          <td>{{d1.sourcefk}}</td>
-          <td>{{d1.sourceColumn}}</td>
-          <td>{{d1.targetTable}}</td>
-          <td>{{d1.targetColumn}}</td>
-          <td>{{d1.onUpdates}}</td>
-          <td>{{d1.onDeletes}}</td>
+        <tr *ngFor="let fk of foreignKeys; let i = index">
+          <td>{{fk.fkName}}</td>
+          <td>{{fk.fkColumnName}}</td>
+          <td>{{fk.pkTableName}}</td>
+          <td>{{fk.pkColumnName}}</td>
+          <td>{{fk.update}}</td>
+          <td>{{fk.delete}}</td>
         </tr>
       </tbody>
     </table>

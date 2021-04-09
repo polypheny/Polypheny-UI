@@ -25,8 +25,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   editingCol: string;
   dataPlacement: Placements;
   subscriptions = new Subscription();
-  connections = [];
-  uml : Uml;
+  foreignKeys: ForeignKey[] = [];
 
   constructor(
     private _crud: CrudService,
@@ -176,36 +175,29 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   }
 
   getUml() {
-    this.connections = [];
+    this.foreignKeys = [];
     const t = this.tableId.split('\.');
     this.schema = t[0];
     if (!this.schema) {
-      this.uml = null;
+      this.foreignKeys = null;
       return;
     }
     this._crud.getUml(new EditTableRequest(this.schema)).subscribe(
       res => {
         
         const uml: Uml = <Uml>res;
-        this.uml = new Uml(uml.tables, uml.foreignKeys);
+        const fks = new Map<string, ForeignKey>();
    
-        this.uml.foreignKeys.forEach((v, k) => {
-          if((v.fkTableSchema+"."+v.fkTableName) == this.tableId){
-          var index = this.connections.findIndex(x => x.sourcefk === v.fkName); 
-            if(index>-1) {  
-              this.connections[index].sourceColumn =  this.connections[index].sourceColumn + ", " + v.fkColumnName;
-              this.connections[index].targetColumn =  this.connections[index].targetColumn + ", " + v.pkColumnName;
+        uml.foreignKeys.forEach((v, k) => {
+          if((v.fkTableSchema+'.'+v.fkTableName) === this.tableId){
+            if(fks.has(v.fkName)){
+              const fk = fks.get(v.fkName);
+              fk.pkColumnName = fk.pkColumnName + ', ' + v.pkColumnName;
+              fk.fkColumnName = fk.fkColumnName + ', ' + v.fkColumnName;
+            } else {
+              fks.set( v.fkName, v );
             }
-            else {
-              this.connections.push({
-                sourcefk: v.fkName,
-                sourceColumn: v.fkColumnName,
-                targetTable:  v.pkTableName,
-                targetColumn: v.pkColumnName,
-                onUpdates: v.update,
-                onDeletes: v.delete,
-              });
-            }
+            this.foreignKeys = [...fks.values()];
           }
         });
       }, err => {

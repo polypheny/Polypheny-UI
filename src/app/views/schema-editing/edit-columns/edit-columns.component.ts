@@ -32,8 +32,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   tableId: string;
   table: string;
   schema: string;
-  connections = [];
-  uml: Uml;
+  foreignKeys: ForeignKey[] = [];
 
   resultSet: ResultSet;
   types: PolyType[] = [];
@@ -331,34 +330,27 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   getUml() {
-    this.connections = [];
+    this.foreignKeys = [];
     if (!this.schema) {
-      this.uml = null;
+      this.foreignKeys = null;
       return;
     }
     this._crud.getUml(new EditTableRequest(this.schema)).subscribe(
       res => {
-        
+
         const uml: Uml = <Uml>res;
-        this.uml = new Uml(uml.tables, uml.foreignKeys);
-   
-        this.uml.foreignKeys.forEach((v, k) => {
-          if((v.fkTableSchema+"."+v.fkTableName) == this.tableId){
-          var index = this.connections.findIndex(x => x.sourcefk === v.fkName); 
-          if(index>-1) {
-            this.connections[index].sourceColumn =  this.connections[index].sourceColumn + ", " + v.fkColumnName;
-            this.connections[index].targetColumn =  this.connections[index].targetColumn + ", " + v.pkColumnName;
-          }
-          else{  
-            this.connections.push({
-              sourcefk: v.fkName,
-              sourceColumn: v.fkColumnName,
-              targetTable:  v.pkTableName,
-              targetColumn: v.pkColumnName,
-              onUpdates: v.update,
-              onDeletes: v.delete,
-            });
+        const fks = new Map<string, ForeignKey>();
+
+        uml.foreignKeys.forEach((v, k) => {
+          if((v.fkTableSchema+'.'+v.fkTableName) === this.tableId){
+            if(fks.has(v.fkName)){
+              const fk = fks.get(v.fkName);
+              fk.pkColumnName = fk.pkColumnName + ', ' + v.pkColumnName;
+              fk.fkColumnName = fk.fkColumnName + ', ' + v.fkColumnName;
+            } else {
+              fks.set( v.fkName, v );
             }
+            this.foreignKeys = [...fks.values()];
           }
         });
       }, err => {
