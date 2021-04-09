@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {Node} from '../relational-algebra.model';
 import {SortDirection, SortState} from '../../../../components/data-view/models/sort-state.model';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
@@ -8,7 +8,7 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
   templateUrl: './node.component.html',
   styleUrls: ['./node.component.scss']
 })
-export class NodeComponent implements OnInit, AfterViewInit {
+export class NodeComponent implements OnInit, AfterViewChecked {
 
   constructor() { }
 
@@ -21,7 +21,7 @@ export class NodeComponent implements OnInit, AfterViewInit {
 
   }
 
-  ngAfterViewInit(){
+  ngAfterViewChecked(){
     this.node.setHeight(this.nodeEle.nativeElement.offsetHeight);
     this.node.setWidth(this.nodeEle.nativeElement.offsetWidth);
     // firefox fix
