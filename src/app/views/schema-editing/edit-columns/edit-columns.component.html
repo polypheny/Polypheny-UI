@@ -293,11 +293,11 @@
         <tbody>
           <tr *ngFor="let fk of foreignKeys; let i = index">
             <td>{{fk.fkName}}</td>
-            <td>{{fk.fkColumnName}}</td>
-            <td>{{fk.pkTableName}}</td>
-            <td>{{fk.pkColumnName}}</td>
-            <td>{{fk.update}}</td>
-            <td>{{fk.delete}}</td>
+            <td>{{fk.sourceColumn}}</td>
+            <td>{{fk.targetTable}}</td>
+            <td>{{fk.targetColumn}}</td>
+            <td>{{fk.onUpdate}}</td>
+            <td>{{fk.onDelete}}</td>
              <td class="delete">
               <app-delete-confirm (delete)="dropConstraint(fk.fkName, 'FOREIGN KEY')"></app-delete-confirm>
             </td> 

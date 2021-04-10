@@ -189,11 +189,11 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         const fks = new Map<string, ForeignKey>();
    
         uml.foreignKeys.forEach((v, k) => {
-          if((v.fkTableSchema+'.'+v.fkTableName) === this.tableId){
+          if((v.sourceSchema+'.'+v.sourceTable) === this.tableId){
             if(fks.has(v.fkName)){
               const fk = fks.get(v.fkName);
-              fk.pkColumnName = fk.pkColumnName + ', ' + v.pkColumnName;
-              fk.fkColumnName = fk.fkColumnName + ', ' + v.fkColumnName;
+              fk.targetColumn = fk.targetColumn + ', ' + v.targetColumn;
+              fk.sourceColumn = fk.sourceColumn + ', ' + v.sourceColumn;
             } else {
               fks.set( v.fkName, v );
             }
