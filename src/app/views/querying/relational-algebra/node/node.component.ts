@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {Node} from '../relational-algebra.model';
 import {SortDirection, SortState} from '../../../../components/data-view/models/sort-state.model';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
@@ -8,7 +8,7 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
   templateUrl: './node.component.html',
   styleUrls: ['./node.component.scss']
 })
-export class NodeComponent implements OnInit, AfterViewInit {
+export class NodeComponent implements OnInit, AfterViewChecked {
 
   constructor() { }
 
@@ -21,26 +21,9 @@ export class NodeComponent implements OnInit, AfterViewInit {
 
   }
 
-  ngAfterViewInit(){
+  ngAfterViewChecked(){
     this.node.setHeight(this.nodeEle.nativeElement.offsetHeight);
     this.node.setWidth(this.nodeEle.nativeElement.offsetWidth);
-    // firefox fix
-    // see https://stackoverflow.com/questions/52760785/angular-menu-doesnt-work-on-ie-and-firefox
-    if( navigator.userAgent.toLowerCase().includes('firefox') ){
-      let counter = 0;
-      const interval = setInterval( () => {
-        const height = this.nodeEle.nativeElement.offsetHeight;
-        const width = this.nodeEle.nativeElement.offsetWidth;
-        if( this.node.getWidth() !== width || this.node.getHeight() !== height ){
-          this.node.setWidth( width );
-          this.node.setHeight( height );
-          clearInterval(interval);
-        } else if( counter > 6 ){
-          clearInterval(interval);
-        }
-        counter++;
-      }, 500);
-    }
   }
 
   addSortColumn(){

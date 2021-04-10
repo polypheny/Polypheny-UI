@@ -33,4 +33,7 @@
   .modal-body, .modal-footer {
     background-color: rgba(255, 255, 255, 0.85);
   }
+  .modal-body {
+    white-space: pre-wrap;
+  }
 }
