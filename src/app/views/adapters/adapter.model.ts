@@ -40,6 +40,7 @@ export interface AdapterSetting {
   options: string[];
   fileNames: string[];
   dynamic: boolean;
+  position: number;
 }
 
 export interface Placements {

@@ -190,8 +190,10 @@
                     <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
                         <label [for]="control.key" class="input-group-text">{{control.key}}</label>
                     </div>
-                    <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
+                    <input type="text" *ngIf="control.key!=='password'" class="form-control" [id]="control.key" [formControlName]="control.key"
                            [ngClass]="validate(control.value, control.key)">
+                  <input type="password" *ngIf="control.key==='password'" class="form-control" [id]="control.key" [formControlName]="control.key"
+                         [ngClass]="validate(control.value, control.key)">
                     <div class="invalid-feedback">required</div>
                 </div>
                 <div class="form-group" *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).options">
