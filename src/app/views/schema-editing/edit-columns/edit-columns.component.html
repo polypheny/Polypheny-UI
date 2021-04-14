@@ -22,7 +22,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let col of resultSet.header; let i = index" (dblclick)="editCol(i, col)" [ngClass]="{'editing': i === editColumn}">
+        <tr *ngFor="let col of resultSet.header; let i = index" (dblclick)="editCol(i, col, $event)" [ngClass]="{'editing': i === editColumn}">
           <ng-container *ngIf="i === editColumn" [formGroup]="updateColumn">
             <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
             <td>
@@ -122,7 +122,9 @@
               <span *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
             </td>
             <td>{{col.defaultValue}}</td>
-            <td class="delete"><i (click)="dropColumn(col, i)" (mouseleave)="confirm = -1" [ngClass]="{ 'cui-trash': i!==confirm, 'fa fa-warning': i===confirm }"></i></td>
+            <td class="delete">
+              <app-delete-confirm (delete)="dropColumn(col)"></app-delete-confirm>
+            </td>
           </ng-container>
         </tr>
 
@@ -269,11 +271,40 @@
         <tr *ngFor="let d1 of constraints.data; let i = index">
           <td *ngFor="let d2 of d1">{{d2}}</td>
           <td class="delete">
-            <i [ngClass]="{ 'cui-trash': i!==confirmConstraint, 'fa fa-warning': i===confirmConstraint }" (click)="dropConstraint(d1[0], d1[1], i)" (mouseleave)="confirmConstraint = -1"></i>
+            <app-delete-confirm *ngIf="d1[1] !== 'PRIMARY KEY'" (delete)="dropConstraint(d1[0], d1[1])"></app-delete-confirm>
           </td>
         </tr>
       </tbody>
     </table>
+    <div *ngIf="foreignKeys && foreignKeys.length > 0">
+      <h6>Foreign key</h6>
+      <table class="table table-hover table-striped" >
+        <thead>
+          <tr>
+            <th>FK Name</th>
+            <th>Column Name</th>
+            <th>Target Table</th>
+            <th>Target Column</th>
+            <th>Update Enforcement</th>
+            <th>Delete Enforcement</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let fk of foreignKeys; let i = index">
+            <td>{{fk.fkName}}</td>
+            <td>{{fk.sourceColumn}}</td>
+            <td>{{fk.targetTable}}</td>
+            <td>{{fk.targetColumn}}</td>
+            <td>{{fk.onUpdate}}</td>
+            <td>{{fk.onDelete}}</td>
+             <td class="delete">
+              <app-delete-confirm (delete)="dropConstraint(fk.fkName, 'FOREIGN KEY')"></app-delete-confirm>
+            </td> 
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
     <div class="col-lg-12">
@@ -294,7 +325,7 @@
                   <div class="invalid-feedback">invalid name</div>
                 </div>
                 <div class="form-group" *ngIf="availableStoresForIndexes && availableStoresForIndexes.length > 0">
-                  <label for="storeName">Store</label>
+                  <label for="storeName">Location</label>
                   <select name="storeName" id="storeName" class="form-control form-control-sm" [ngModel]="selectedStoreForIndex" (ngModelChange)="onSelectingIndexStore($event)" [ngModelOptions]="{standalone: true}">
                     <option *ngFor="let store of availableStoresForIndexes" [ngValue]="store">{{store.uniqueName}}</option>
                   </select>
@@ -327,7 +358,7 @@
                 <tr *ngFor="let d1 of indexes.data; let i = index">
                     <td *ngFor="let d2 of d1">{{d2}}</td>
                     <td class="delete">
-                        <i *ngIf="d1[4] != 'FUNCTIONAL'" [ngClass]="{ 'cui-trash': i!==confirmIndex, 'fa fa-warning': i===confirmIndex }" (click)="dropIndex(d1[0], i)" (mouseleave)="confirmIndex = -1"></i>
+                      <app-delete-confirm *ngIf="d1[4] != 'FUNCTIONAL'" (delete)="dropIndex(d1[0])"></app-delete-confirm>
                     </td>
                 </tr>
             </tbody>
@@ -405,9 +436,9 @@
     </div>
 
     <div class="card" *ngIf="!isPartitioned()">
-      <div class="card-header">Add data partitioning</div>
+      <div class="card-header">Horizontal partitioning</div>
       <div class="card-body">
-        <p>This table is not yet partitioned.</p>
+        <p>This table is not yet horizontally partitioned.</p>
         <div class="form-inline mb-3">
           <div class="form-group">
             <label for="partitionMethod">Method</label>
@@ -429,7 +460,7 @@
           </div>
 
           <div class="form-group">
-            <button class="btn btn-primary btn-sm" (click)="partitionTable()">partition</button>
+            <button class="btn btn-primary btn-sm" (click)="getPartitionFunctionModel()">partition</button>
           </div>
         </div>
       </div>
@@ -506,4 +537,41 @@
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   <!--</form>-->
+</div>
+
+<div bsModal #partitionFunctionModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content" *ngIf="partitionFunctionParams">
+      <div class="modal-header">
+        <h4>{{partitionFunctionParams.title}}</h4>
+      </div>
+      <div class="modal-body">
+        <p>{{partitionFunctionParams.description}}</p>
+        <table class="table table-hover table-striped table-bordered" id="partitionParamsTable">
+          <tr>
+            <th *ngFor="let colName of partitionFunctionParams.columnNames">{{colName}}</th>
+          </tr>
+          <tr *ngFor="let col of partitionFunctionParams.rows">
+            <td *ngFor="let row of col as PartitionFunctionColumn">
+              <div class="partition-param-wrapper">
+                <ng-container [ngSwitch]="row.type">
+                  <span *ngSwitchCase="fieldTypes.LABEL">{{row.value}}</span>
+                  <select *ngSwitchCase="fieldTypes.LIST" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value}">
+                    <option *ngFor="let option of row.options" [value]="option">{{option}}</option>
+                  </select>
+                  <input *ngSwitchCase="fieldTypes.INTEGER" type="number" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value && row.value !== 0}">
+                  <input *ngSwitchDefault type="text" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value}">
+                </ng-container>
+                <span class="invalid-partition-param" *ngIf="row.mandatory && !row.value && row.value !== 0">required</span>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary float-left" (click)="partitionFunctionModal.hide()">Close</button>
+        <button type="submit" class="btn btn-primary" (click)="partitionTable()" [disabled]="">Partition</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
 </div>

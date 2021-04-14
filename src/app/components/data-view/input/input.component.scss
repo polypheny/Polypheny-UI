@@ -1,10 +1,51 @@
+.input-group{
+  align-items: center;
+}
+.feedback{
+  text-align: left;
+  position: absolute;
+  bottom: -1rem;
+  background: #e4e5e6;
+  width: auto;
+  white-space: nowrap!important;
+}
 .insertRowLabel{
   width: 4em;
 }
 .switch {
   margin: 0;
 }
-
+.switch-prepend{
+  display: inline-block;
+  border: none;
+  line-height: 1.2!important;
+  border-right: 1px #e4e7ea solid;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  margin-right: 0.25em;
+}
 input.fPickerInput {
   background-color: white !important;
+}
+.file-label{
+  position: relative;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  //see https://stackoverflow.com/questions/33150835/
+  text-overflow: ellipsis;
+}
+.btn{
+  border-radius: 0 0.2rem 0.2rem 0 !important;
+}
+.switch-wrapper{
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
+  margin: 0;
+  border: 1px #e4e7ea solid;
+  border-radius: 0.3rem;
+}
+.input-group-text{
+  line-height: 1;
 }

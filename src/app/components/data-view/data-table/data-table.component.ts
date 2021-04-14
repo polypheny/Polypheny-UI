@@ -5,7 +5,7 @@ import {ClassifyRequest, Exploration, ExploreTable} from '../../../models/ui-req
 import {PaginationElement} from '../models/pagination-element.model';
 import {DbColumn, ExploreSet, ResultSet} from '../models/result-set.model';
 import {SortDirection, SortState} from '../models/sort-state.model';
-import {ToastDuration, ToastService} from '../../toast/toast.service';
+import {ToastService} from '../../toast/toast.service';
 import {CrudService} from '../../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -13,7 +13,6 @@ import * as dot from 'graphlib-dot';
 import * as dagreD3 from 'dagre-d3';
 import * as d3 from 'd3';
 import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
-import {HttpEventType} from '@angular/common/http';
 import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 
@@ -24,7 +23,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
   styleUrls: ['./data-table.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class DataTableComponent extends DataViewComponent implements OnInit, OnChanges {
+export class DataTableComponent extends DataViewComponent implements OnInit {
   @Input() exploreSet?: ExploreSet;
   @Input() exploreId?: number;
   @ViewChild('decisionTree', {static: false}) public decisionTree: TemplateRef<any>;
@@ -77,200 +76,6 @@ export class DataTableComponent extends DataViewComponent implements OnInit, OnC
     }
 
   }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['resultSet']) {
-      this.setPagination();
-      this.buildInsertObject();
-    }
-  }
-
-  triggerEditing(i) {
-    if (this.config.update) {
-      this.updateValues.clear();
-      this.resultSet.data[i].forEach((v, k) => {
-        if (this.resultSet.header[k].dataType === 'bool') {
-          this.updateValues.set(this.resultSet.header[k].name, this.getBoolean(v));
-        }
-        //assign multimedia types: null if the item is NULL, else undefined
-        //null items will be submitted and updated, undefined items will not be part of the UPDATE statement
-        else if ( this._types.isMultimedia( this.resultSet.header[k].dataType )) {
-          if( v === null ){
-            this.updateValues.set(this.resultSet.header[k].name, null);
-          } else {
-            this.updateValues.set(this.resultSet.header[k].name, undefined);
-          }
-        } else {
-          this.updateValues.set(this.resultSet.header[k].name, v);
-        }
-      });
-      this.editing = i;
-    }
-  }
-
-  // see https://stackoverflow.com/questions/52017809/how-to-convert-string-to-boolean-in-typescript-angular-4
-  getBoolean(value: any): Boolean {
-    switch (value) {
-      case true:
-      case 'true':
-      case 't':
-      case 1:
-      case '1':
-      case 'on':
-      case 'yes':
-        return true;
-      case 'null':
-      case 'NULL':
-      case null:
-        return null;
-      default:
-        return false;
-    }
-  }
-
-  documentListener() {
-    const self = this;
-    $(document).on('click', function (e) {
-      if ($(e.target).parents('.editing').length === 0) {
-        //don't close editing row during upload
-        if ( self.uploadProgress < 0 ) {
-          self.editing = -1;
-        }
-      }
-    });
-  }
-
-  buildInsertObject() {
-    if (this.config && !this.config.create) {
-      return;
-    }
-    this.insertValues.clear();
-    this.insertDirty.clear();
-    if (this.resultSet.header) {
-      this.resultSet.header.forEach((g, idx) => {
-        //set insertDirty
-        if (!g.nullable && g.dataType !== 'serial' && g.defaultValue === undefined) {
-          //set dirty if not nullable, so it will be submitted, except if it has autoincrement (dataType 'serial') or a default value
-          this.insertDirty.set(g.name, true);
-        } else {
-          this.insertDirty.set(g.name, false);
-        }
-        //set insertValues
-        if (g.nullable) {
-          this.insertValues.set(g.name, null);
-        } else {
-          if (this._types.isNumeric((g.dataType))) {
-            this.insertValues.set(g.name, 0);
-          } else if (this._types.isBoolean(g.dataType)) {
-            this.insertValues.set(g.name, false);
-          } else {
-            this.insertValues.set(g.name, '');
-          }
-        }
-      });
-    }
-  }
-
-  inputChange(name: string, e) {
-    this.insertValues.set(name, e);
-    this.insertDirty.set(name, true);
-  }
-
-  insertRow() {
-    const formData = new FormData();
-    this.insertValues.forEach((v, k) => {
-      //only values with dirty state will be submitted. Columns that are not nullable are already set dirty
-      if (this.insertDirty.get(k) === true) {
-        let value;
-        if (isNaN(v)){
-          value = v;
-        } else {
-          value = String(v);
-        }
-        formData.append( k, value );
-      }
-    });
-    formData.append( 'tableId', String(this.resultSet.table) );
-    this.uploadProgress = 100;//show striped progressbar
-    this._crud.insertRow(formData).subscribe(
-      res => {
-        if( res.type && res.type === HttpEventType.UploadProgress ){
-          this.uploadProgress = Math.round(100 * res.loaded / res.total);
-        } else if( res.type === HttpEventType.Response ) {
-          this.uploadProgress = -1;
-          const result = <ResultSet>res.body;
-          if (result.error) {
-            this._toast.exception(result, 'Could not insert the data', 'insert error');
-          } else if (result.affectedRows === 1) {
-            $('.insert-input').val('');
-            this.insertValues.clear();
-            this.buildInsertObject();
-            this.getTable();
-          }
-        }
-      }, err => {
-        this._toast.error('Could not insert the data.');
-        console.log(err);
-      }
-    ).add( () => this.uploadProgress = -1 );
-  }
-
-  newUpdateValue(key, val) {
-    this.updateValues.set(key, val);
-  }
-
-  updateRow(event) {
-    event.stopPropagation();
-    const oldValues = new Map<string, string>();//previous values
-    $('.editing').each(function (e) {
-      const oldVal = $(this).attr('data-before');
-      const col = $(this).attr('data-col');
-      if (col !== undefined) {
-        oldValues.set(col, oldVal);
-      }
-    });
-    const formData = new FormData();
-    formData.append( 'tableId', this.resultSet.table);
-    formData.append('oldValues', JSON.stringify(this.mapToObject(oldValues)));
-    for( const [k,v] of this.updateValues ) {
-      if( v === undefined ){
-        //don't add undefined file inputs, but if they are null, they need to be added
-        continue;
-      }
-      if( !(v instanceof File) ){
-        //stringify to distinguish between null and 'null'
-        formData.append( k, JSON.stringify(v) );
-      } else {
-        formData.append( k, v );
-      }
-    }
-    this.uploadProgress = 100;//show striped progressbar
-    //const req = new UpdateRequest(this.resultSet.table, this.mapToObject(this.updateValues), this.mapToObject(oldValues));
-    this._crud.updateRow(formData).subscribe(
-      res => {
-        if( res.type && res.type === HttpEventType.UploadProgress ){
-          this.uploadProgress = Math.round(100 * res.loaded / res.total);
-        } else if( res.type === HttpEventType.Response ) {
-          this.uploadProgress = -1;
-          const result = <ResultSet>res.body;
-          if (result.affectedRows) {
-            this.getTable();
-            let rows = ' rows';
-            if (result.affectedRows === 1) {
-              rows = ' row';
-            }
-            this._toast.success('Updated ' + result.affectedRows + rows, result.generatedQuery, 'update', ToastDuration.SHORT);
-          } else if (result.error) {
-            this._toast.warn('Could not update this row: ' + result.error);
-          }
-        }
-      }, err => {
-        this._toast.error('Could not update the data.');
-        console.log(err);
-      }
-    ).add( () => this.uploadProgress = -1 );
-  }
-
 
   /**
    * Pagination for Explore-by-Example
@@ -357,8 +162,8 @@ export class DataTableComponent extends DataViewComponent implements OnInit, OnC
         s.direction = SortDirection.ASC;
         s.sorting = false;
       }
-      this.getTable();
     }
+    this.getTable();
   }
 
   /**
@@ -609,6 +414,13 @@ export class DataTableComponent extends DataViewComponent implements OnInit, OnC
       out += '\ncardinality: ' + col.cardinality;
     }
     return out;
+  }
+
+  /**
+   * returns true if a columns can be ordered
+   */
+  canOrder( col: DbColumn ) {
+    return !this._types.isMultimedia(col.dataType) && !col.collectionsType;
   }
 
 }

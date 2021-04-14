@@ -2,7 +2,7 @@ import {DbColumn} from '../../components/data-view/models/result-set.model';
 
 export class Uml {
   constructor(
-    public tables: DbTable[],
+    public tables: Map<string, DbTable>,
     public foreignKeys: ForeignKey[]
   ){}
 }
@@ -19,36 +19,35 @@ export class DbTable {
 
 export class ForeignKey{
   fkName: string;
-  pkName: string;
 
-  pkTableSchema: string;
-  pkTableName: string;
-  pkColumnName: string;
+  targetSchema: string;
+  targetTable: string;
+  targetColumn: string;
 
-  fkTableSchema: string;
-  fkTableName: string;
-  fkColumnName: string;
+  sourceSchema: string;
+  sourceTable: string;
+  sourceColumn: string;
 
-  update: string;
-  delete: string;
+  onUpdate: string;
+  onDelete: string;
 
   constructor( fkName:string, schema:string, fkTable:string, fkCol:string, pkTable:string, pkCol:string){
     this.fkName = fkName;
-    this.pkTableSchema = schema;
-    this.fkTableSchema = schema;
-    this.fkTableName = fkTable;
-    this.fkColumnName = fkCol;
-    this.pkTableName = pkTable;
-    this.pkColumnName = pkCol;
+    this.targetSchema = schema;
+    this.sourceSchema = schema;
+    this.sourceTable = fkTable;
+    this.sourceColumn = fkCol;
+    this.targetTable = pkTable;
+    this.targetColumn = pkCol;
   }
 
-  onUpdate( action: string ){
-    this.update = action;
+  updateAction( action: string ){
+    this.onUpdate = action;
     return this;
   }
 
-  onDelete( action: string ){
-    this.delete = action;
+  deleteAction(action: string ){
+    this.onDelete = action;
     return this;
   }
 

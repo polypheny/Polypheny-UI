@@ -2,6 +2,7 @@ import {EventEmitter, Injectable} from '@angular/core';
 import {CrudService} from './crud.service';
 import {PolyType} from '../components/data-view/models/result-set.model';
 import {ToastService} from '../components/toast/toast.service';
+import {from} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class DbmsTypesService {
   private types = new EventEmitter();
   private _types: PolyType[];
   private foreignKeyActions = new EventEmitter();
+  private fetchedFkActions;
 
   constructor(
     private _crud: CrudService,
@@ -60,6 +62,7 @@ export class DbmsTypesService {
     this._crud.getFkActions().subscribe(
       res => {
         this.foreignKeyActions.next( res );
+        this.fetchedFkActions = res;
       }, err => {
         this._toast.error('Could not retrieve DBMS foreign key actions.');
     }
@@ -70,7 +73,11 @@ export class DbmsTypesService {
    * @return EventEmitter with the available foreign key actions
    */
   getFkActions(){
-    return this.foreignKeyActions;
+    if( this.fetchedFkActions ){
+      return from([this.fetchedFkActions]);
+    } else {
+      return this.foreignKeyActions;
+    }
   }
 
   /**

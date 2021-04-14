@@ -1,13 +1,14 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DbColumn, ResultSet} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
-import {ColumnRequest, TableRequest} from '../../../models/ui-request.model';
+import {EditTableRequest,ColumnRequest, TableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {ToastService} from '../../../components/toast/toast.service';
 import {Placements} from '../../adapters/adapter.model';
 import {Subscription} from 'rxjs';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
+import {DbTable, ForeignKey, SvgLine, Uml} from '../../../views/uml/uml.model';
 
 @Component({
   selector: 'app-edit-source-columns',
@@ -18,11 +19,13 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
   resultSet: ResultSet;
   tableId: string;
+  schema: string;
   exportedColumns: Map<string, ResultSet> = new Map<string, ResultSet>();
   errorMsg: string;
   editingCol: string;
   dataPlacement: Placements;
   subscriptions = new Subscription();
+  foreignKeys: ForeignKey[] = [];
 
   constructor(
     private _crud: CrudService,
@@ -36,6 +39,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     const sub = this._route.params.subscribe((params) => {
       this.tableId = params['id'];
       this.fetchCurrentColumns();
+      this.getUml();
       this.getPlacements();
     });
     this.subscriptions.add(sub);
@@ -169,5 +173,39 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
       }
     );
   }
+
+  getUml() {
+    this.foreignKeys = [];
+    const t = this.tableId.split('\.');
+    this.schema = t[0];
+    if (!this.schema) {
+      this.foreignKeys = null;
+      return;
+    }
+    this._crud.getUml(new EditTableRequest(this.schema)).subscribe(
+      res => {
+        
+        const uml: Uml = <Uml>res;
+        const fks = new Map<string, ForeignKey>();
+   
+        uml.foreignKeys.forEach((v, k) => {
+          if((v.sourceSchema+'.'+v.sourceTable) === this.tableId){
+            if(fks.has(v.fkName)){
+              const fk = fks.get(v.fkName);
+              fk.targetColumn = fk.targetColumn + ', ' + v.targetColumn;
+              fk.sourceColumn = fk.sourceColumn + ', ' + v.sourceColumn;
+            } else {
+              fks.set( v.fkName, v );
+            }
+            this.foreignKeys = [...fks.values()];
+          }
+        });
+      }, err => {
+        console.log(err);
+      }
+    );
+  }
+
+  
 
 }

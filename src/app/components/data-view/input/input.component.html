@@ -1,24 +1,29 @@
-<div class="input-group" style="align-items: center;">
+<div class="input-group">
 
   <ng-container [ngSwitch]="header.dataType">
 
     <!-- multiple cases: from: https://stackoverflow.com/questions/40176061/two-switch-case-values-in-angular2/40177408#40177408 -->
     <ng-container *ngSwitchCase="_types.numericTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
       <!-- use input type text to prevent problems when having current values such as "12." (dot at the end) -->
-      <input type="text" inputmode="decimal" class="form-control form-control-sm" [value]="value" [disabled]="value === null && header.nullable === true" (keyup)="onNumericValueChange($event.target.value, inputElement, $event)" #inputElement>
-      <div class="input-group-append" *ngIf="header.nullable">
-        <div class="btn btn-sm" [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}" (click)="onNumericValueChange( triggerNull(value), inputElement )">null</div>
+      <div class="input-group-prepend" *ngIf="showLabel">
+        <span class="input-group-text">{{header.name}}</span>
       </div>
+      <input type="text" inputmode="decimal" class="form-control form-control-sm" [value]="value" [disabled]="value === null && header.nullable === true" #inputElement [ngClass]="validate(inputElement)?.cssClass" (keyup)="onValueChange(inputElement.value, $event)">
+      <div class="input-group-append" *ngIf="header.nullable">
+        <div class="btn btn-sm" [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}" (click)="onValueChange( triggerNull(value), inputElement )">null</div>
+      </div>
+      <span class="feedback invalid-feedback" *ngIf="validate(inputElement)?.message">{{validate(inputElement)?.message}}</span>
     </ng-container>
 
     <ng-container *ngSwitchCase="_types.booleanTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
-      <div class="form-check form-check-inline">
-          <label class="switch switch-label switch-pill switch-outline-primary-alt switch-sm">
-            <input type="checkbox" class="switch-input" [id]="'insertRow'+header.name" [checked]="value === true"
-                   [disabled]="value === null && header.nullable === true"
-                   (change)="onValueChange($event.target.checked)">
-            <span class="switch-slider"></span>
-          </label>
+      <div class="form-check form-check-inline switch-wrapper">
+        <span class="input-group-text switch-prepend" *ngIf="showLabel">{{header.name}}</span>
+        <label class="switch switch-label switch-pill switch-outline-primary-alt switch-sm" [ngClass]="{'ml-3':!showLabel}">
+          <input type="checkbox" class="switch-input" [id]="'insertRow'+header.name" [checked]="value === true"
+                 [disabled]="value === null && header.nullable === true"
+                 (change)="onValueChange(checkboxInput.checked)" #checkboxInput>
+          <span class="switch-slider"></span>
+        </label>
         <label class="form-check-label insertRowLabel"
                [for]="'insertRow'+header.name">{{ value === null ? 'null' : value }}</label>
         <div class="input-group-append" *ngIf="header.nullable">
@@ -31,6 +36,9 @@
     </ng-container>
 
     <ng-container *ngSwitchCase="_types.dateTimeTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
+      <div class="input-group-prepend" *ngIf="showLabel">
+        <span class="input-group-text">{{header.name}}</span>
+      </div>
       <input type="text" class="form-control form-control-sm fPickerInput" [value]="value"
              [placeholder]="header.dataType.toLowerCase() === 'time' ? 'Select time..': 'Select date..'" #flatpickr>
       <div class="input-group-append" *ngIf="header.nullable">
@@ -41,7 +49,10 @@
     </ng-container>
 
     <ng-container *ngSwitchCase="_types.multimediaTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
-      <label [for]="'customFile'+randomId" class="form-control form-control-sm" style="position: relative; text-align: left; white-space: nowrap">
+      <div class="input-group-prepend" *ngIf="showLabel">
+        <span class="input-group-text">{{header.name}}</span>
+      </div>
+      <label [for]="'customFile'+randomId" class="form-control form-control-sm file-label">
         <!-- see https://stackoverflow.com/questions/49976714/how-to-upload-the-same-file-in-angular4 -->
         <input type="file" style="display: none;" [id]="'customFile'+randomId" (change)="onFileChange($event.target.files)" #fileInput>
         {{inputFileName}}</label>
@@ -52,15 +63,19 @@
     </ng-container>
 
     <ng-container *ngSwitchDefault>
+      <div class="input-group-prepend" *ngIf="showLabel">
+        <span class="input-group-text">{{header.name}}</span>
+      </div>
       <input type="text" class="form-control form-control-sm" [value]="value" [maxLength]="header.precision || 524288"
              [disabled]="value === null && header.nullable === true"
-             (keyup)="onValueChange($event.target.value, $event)">
+             [ngClass]="validate(defaultInput)?.cssClass" (keyup)="onValueChange(defaultInput.value, $event)" #defaultInput>
       <div class="input-group-append" *ngIf="header.nullable">
         <div class="btn btn-sm"
              [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}"
              (click)="onValueChange( triggerNull(value) )">null
         </div>
       </div>
+      <span class="feedback invalid-feedback" *ngIf="validate(defaultInput)?.message">{{validate(defaultInput)?.message}}</span>
     </ng-container>
 
   </ng-container>
