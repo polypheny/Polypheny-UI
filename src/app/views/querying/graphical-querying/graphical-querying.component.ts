@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
@@ -14,6 +14,7 @@ import {Router} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {WebSocket} from '../../../services/webSocket';
+import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-graphical-querying',
@@ -25,10 +26,15 @@ import {WebSocket} from '../../../services/webSocket';
 export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('editorGenerated', {static: false}) editorGenerated;
+  @ViewChild('createViewModal', {static: false}) public createViewModal: TemplateRef<any>;
   generatedSQL;
   resultSet: ResultSet;
   selectedColumn = {};
   loading = false;
+  viewCreated = false;
+  view;
+  viewName;
+  modalRefCreateView: BsModalRef;
   whereCounter = 0;
   orderByCounter = 0;
   andCounter = 0;
@@ -48,7 +54,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     private _leftSidebar: LeftSidebarService,
     private _toast: ToastService,
     private _router: Router,
-    private _settings: WebuiSettingsService
+    private _settings: WebuiSettingsService,
+    public modalService: BsModalService
   ) {
     this.webSocket = new WebSocket(_settings);
     this.initWebSocket();
@@ -369,8 +376,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.selectedCol(filterCols);
 
     filteredInfos = await this.processfilterSet();
-
-    const finalized = sql + filteredInfos;
+    let finalized;
+    if(this.viewCreated){
+      finalized = this.view + sql + filteredInfos;
+    }else {
+      finalized = sql + filteredInfos;
+    }
     this.generatedSQL = finalized;
     this.editorGenerated.setCode(finalized);
   }
@@ -469,6 +480,27 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
       });
     });
+  }
+
+  createView(createViewModal: TemplateRef<any>) {
+    this.viewToggle();
+    if(this.viewCreated){
+      this.modalRefCreateView = this.modalService.show(createViewModal);
+    } else {
+      this.view = '';
+      this.generateSQL();
+    }
+  }
+
+  submitViewName(){
+    this.modalRefCreateView.hide();
+    const code = this.editorGenerated.getCode();
+    this.view = 'CREATE VIEW ' + this.viewName + ' AS \n';
+    this.editorGenerated.setCode(this.view + code);
+  }
+
+  viewToggle(){
+    this.viewCreated = !this.viewCreated;
   }
 
 }

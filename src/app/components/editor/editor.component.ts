@@ -28,7 +28,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   suggestions: string[] = [];
 
   constructor( private _crud: CrudService ) {
-    this._crud.getSchema( new SchemaRequest( '', false, 3 , true) ).subscribe(
+    this._crud.getSchema( new SchemaRequest( '', true, 3 , true) ).subscribe(
       res => {
         const map = this.computeSuggestions( <SidebarNode[]> res );
         map.forEach((v, k) => {

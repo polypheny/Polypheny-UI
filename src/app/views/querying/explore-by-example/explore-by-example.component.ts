@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation, TemplateRef, Output, EventEmitter} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, Output, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
 import {EditTableRequest, QueryExplorationRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
@@ -8,7 +8,7 @@ import {ToastService} from '../../../components/toast/toast.service';
 import {DataTableComponent} from '../../../components/data-view/data-table/data-table.component';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
-import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
+import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {Subscription} from 'rxjs';
 
 @Component({
@@ -78,7 +78,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
   }
 
   initSchema() {
-    this._crud.getSchema(new SchemaRequest('views/graphical-querying/', false, 3, false)).subscribe(
+    this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false)).subscribe(
       res => {
         const nodeAction = (tree, node, $event) => {
           if (!node.isActive && node.isLeaf) {

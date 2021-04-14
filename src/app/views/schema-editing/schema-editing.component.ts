@@ -59,8 +59,8 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   }
 
   public getSchema() {
-    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
-    this._crud.getSchema(new SchemaRequest('/views/schema-editing/', false, 1, true)).subscribe(
+    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, true), this._router);
+    this._crud.getSchema(new SchemaRequest('/views/schema-editing/', true, 1, true)).subscribe(
       res => {
         this.schemas = <SidebarNode[]>res;
       }, err => {
