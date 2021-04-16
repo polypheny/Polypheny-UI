@@ -3,10 +3,20 @@ import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store, AdapterInformation, AdapterSetting, Source, Adapter} from './adapter.model';
 import {ToastService} from '../../components/toast/toast.service';
-import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
 import {ResultSet} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
+import {any} from 'codelyzer/util/function';
 
 @Component({
   selector: 'app-adapters',
@@ -33,6 +43,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   activeMode: string;
   availableAdapterUniqueNameForm: FormGroup;
   settingHeaders: string[];
+
+  usedDockerPorts: Map<Number, Number[]>;
 
   fileLabel = 'Choose File';
   deploying = false;
@@ -126,6 +138,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     this.editingAdapterForm = undefined;
     this.editingAvailableAdapter = undefined;
     this.editingAvailableAdapterForm = undefined;
+    this.activeMode = undefined;
+    this.settingHeaders = undefined;
+    this.editingAvailableAdapterForms = undefined;
     this.fileLabel = 'Choose File';
   }
 
@@ -175,8 +190,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     );
   }
 
-  initDeployModal(adapter: AdapterInformation ){
+  async initDeployModal(adapter: AdapterInformation ){
     this.editingAvailableAdapter = adapter;
+    await this.refreshUsedDockerPorts();
+
     const fc = {};
 
     for( const k of Object.keys(this.editingAvailableAdapter.adapterSettings)) {
@@ -199,9 +216,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
           }
           fc[k][v.name] = new FormControl(val, validators);
         }
-        fc[v.name] = new FormControl(val, validators);
       }
     }
+
     this.modeSettings = Object.keys(this.editingAvailableAdapter.adapterSettings).filter(name => name !== 'mode' && name !== 'default');
     this.editingAvailableAdapterForms = new Map<String, FormGroup>();
     // we generate a set of settings consisting of the default settings and the deployment specific ones
@@ -214,7 +231,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.editingAvailableAdapterForms.set(mode, this._fb.group([]));
       }
     });
-    console.log(this.editingAvailableAdapterForms);
+
+    //when docker is supported we can attach a special validator to the docker FormGroup
+    if( this.editingAvailableAdapterForms.has('docker') ){
+      this.attachUsedPortValidator();
+    }
 
     this.activeMode = null;
     // if we only have one mode we directly set it
@@ -237,6 +258,22 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       uniqueName: new FormControl(null, [Validators.required, Validators.pattern( this._crud.getValidationRegex() ), validateUniqueName([...this.stores, ...this.sources])])
     });
     this.adapterSettingsModal.show();
+  }
+
+  private attachUsedPortValidator() {
+    const dockerValidator: (control: AbstractControl) => (ValidationErrors | null) = (control: AbstractControl) => {
+      const port = Number(control.get('port').value);
+      const instanceId = Number(control.get('instanceId').value);
+
+      if (isNaN(port)) {
+        return {notNumber: 'The declared port is not a number.'};
+      }
+      if (this.usedDockerPorts.get(instanceId).includes(port)) {
+        return {usedPort: 'This port is already used for the specified dockerInstance.'};
+      }
+      return null;
+    };
+    this.editingAvailableAdapterForms.get('docker').setValidators(dockerValidator);
   }
 
   onFileChange(event, form: FormGroup, key) {
@@ -263,6 +300,22 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       if (errors.required) { return 'missing unique name'; }
       else if (errors.pattern) { return 'invalid unique name'; }
       else if (errors.unique) { return 'name is not unique'; }
+    }
+    return '';
+  }
+
+  getGenericFeedback(key: string){
+    let errors = this.editingAvailableAdapterForm.controls[key].errors;
+    if(errors){
+      if (errors.required) { return 'required'; }
+      else if (errors.pattern) { return 'is not correctly formatted'; }
+      else if (errors.unique) { return 'name is not unique'; }
+    }
+
+    errors = this.editingAvailableAdapterForm.errors;
+    if( errors ){
+      if (errors.usedPort) {return errors.usedPort; }
+      else if (errors.notNumber) {return errors.notNumber; }
     }
     return '';
   }
@@ -347,10 +400,16 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
   validate( form: AbstractControl, key ) {
     if(form === undefined) { return; }
+
+    if( form instanceof FormControl ){
+      return this.validateControl(form, key);
+    }
     if ( !(form instanceof FormGroup)) {
       return ;
     }
     if( form.controls[key].status === 'DISABLED' ) { return; }
+
+
     if( form.controls[key].valid ){
       return 'is-valid';
     } else {
@@ -386,6 +445,18 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
   }
 
+  async refreshUsedDockerPorts() {
+    const res = await this._crud.getUsedDockerPorts().toPromise();
+    const ports = new Map<Number, Number[]>();
+    Object.keys(res).forEach( k => {
+      const values:Number[] = res[k].filter( e => e !== null);
+      ports.set(Number(k), values);
+    });
+    this.usedDockerPorts = ports;
+  }
+
+
+
 
   deployType():FormGroup {
     if( this.activeMode ){
@@ -397,6 +468,22 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   setMode(mode: string) {
     this.editingAvailableAdapterForm = this.editingAvailableAdapterForms.get(mode);
     this.activeMode = mode;
+  }
+
+  private validateControl(form: FormControl, key:string) {
+    if( key === 'port' && this.activeMode === 'docker') {
+      if( this.editingAvailableAdapterForm.valid ){
+        return 'is-valid';
+      }else {
+        return 'is-invalid';
+      }
+    }
+
+    if( form.valid ){
+      return 'is-valid';
+    } else {
+      return 'is-invalid';
+    }
   }
 }
 
@@ -410,3 +497,4 @@ function validateUniqueName(adapters: Adapter[]): ValidatorFn {
     return null;
   };
 }
+

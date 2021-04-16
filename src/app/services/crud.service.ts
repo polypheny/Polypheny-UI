@@ -432,6 +432,10 @@ export class CrudService {
     return this._http.post( `${this.httpUrl}/removeQueryInterface`, queryInterfaceId, this.httpOptions );
   }
 
+  getUsedDockerPorts() {
+    return this._http.get(`${this.httpUrl}/usedDockerPorts`);
+  }
+
   /**
    * Get the http url with which multimedia files can be displayed or downloaded
    */
