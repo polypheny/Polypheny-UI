@@ -199,18 +199,20 @@
                         <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
                             <label class="input-group-text" [for]="control.key">{{control.key}}</label>
                         </div>
-                        <select [id]="control.key" class="form-control" [formControlName]="control.key" class="form-control" >
+                        <select [id]="control.key" class="form-control" [ngClass]="validate(control.value, control.key)" [formControlName]="control.key" class="form-control" >
                             <option *ngFor="let option of getAdapterSetting(editingAvailableAdapter, control.key).options" [value]="option">{{option}}</option>
                         </select>
+                        <div class="invalid-feedback">{{ getGenericFeedback(control.key)}}</div>
                     </div>
                     <ng-template #dynamicSelect>
                       <div class="input-group select-wrapper select-dynamic" >
                         <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" placement="left" delay="200">
                           <label class="input-group-text" [for]="control.key">{{getAdapterSetting(editingAvailableAdapter, control.key).nameAlias}}</label>
                         </div>
-                        <select [id]="control.key" class="form-control" [formControlName]="control.key" class="form-control" >
+                        <select [id]="control.key" class="form-control" [ngClass]="validate(control.value, control.key)" [formControlName]="control.key" class="form-control" >
                           <option *ngFor="let option of getAdapterSetting(editingAvailableAdapter, control.key).options" [value]="option">{{getAdapterSetting(editingAvailableAdapter, control.key).alias[option]}}</option>
                         </select>
+                        <div class="invalid-feedback">{{ getGenericFeedback(control.key)}}</div>
                       </div>
                     </ng-template>
                 </div>
@@ -223,7 +225,7 @@
                                (change)="onFileChange($event, editingAvailableAdapterForm, control.key)">
                         {{fileLabel}}
                     </label>
-                    <div class="invalid-feedback">required</div>
+                  <div class="invalid-feedback">{{ getGenericFeedback(control.key)}}</div>
                 </div>
             </div>
         </form>

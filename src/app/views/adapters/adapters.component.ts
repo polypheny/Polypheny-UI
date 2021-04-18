@@ -234,7 +234,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     //when docker is supported we can attach a special validator to the docker FormGroup
     if( this.editingAvailableAdapterForms.has('docker') ){
-      this.attachUsedPortValidator();
+        this.attachUsedPortValidator();
     }
 
     this.activeMode = null;
@@ -268,6 +268,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       if (isNaN(port)) {
         return {notNumber: 'The declared port is not a number.'};
       }
+      if ( !this.usedDockerPorts.has(instanceId) ){
+        return {noDockerRunning: 'There is no docker instance running, please check your configuration.'};
+      }
+
       if (this.usedDockerPorts.get(instanceId).includes(port)) {
         return {usedPort: 'This port is already used for the specified dockerInstance.'};
       }
@@ -305,18 +309,19 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   getGenericFeedback(key: string){
-    let errors = this.editingAvailableAdapterForm.controls[key].errors;
+    let errors = this.editingAvailableAdapterForm.errors;
+    if( errors ){
+      if (errors.usedPort) {return errors.usedPort; }
+      else if (errors.notNumber) {return errors.notNumber; }
+      else if (errors.noDockerRunning){return errors.noDockerRunning; }
+    }
+    errors = this.editingAvailableAdapterForm.controls[key].errors;
     if(errors){
       if (errors.required) { return 'required'; }
       else if (errors.pattern) { return 'is not correctly formatted'; }
       else if (errors.unique) { return 'name is not unique'; }
     }
 
-    errors = this.editingAvailableAdapterForm.errors;
-    if( errors ){
-      if (errors.usedPort) {return errors.usedPort; }
-      else if (errors.notNumber) {return errors.notNumber; }
-    }
     return '';
   }
 
@@ -471,7 +476,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   private validateControl(form: FormControl, key:string) {
-    if( key === 'port' && this.activeMode === 'docker') {
+    if( (key === 'port' || key === 'instanceId') && this.activeMode === 'docker') {
       if( this.editingAvailableAdapterForm.valid ){
         return 'is-valid';
       }else {
