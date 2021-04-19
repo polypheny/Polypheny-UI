@@ -130,7 +130,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   getSchemaType() {
     this._crud.getTypeSchemas().subscribe(
         res => {
-          console.log(res);
           this.schemaType = res[this.schema];
         }, error => {
           console.log(error);
