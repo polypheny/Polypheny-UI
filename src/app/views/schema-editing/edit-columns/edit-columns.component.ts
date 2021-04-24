@@ -19,6 +19,7 @@ import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../ad
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
 import {Subscription} from 'rxjs';
+import {DbTable, ForeignKey, SvgLine, Uml} from '../../../views/uml/uml.model';
 
 @Component({
   selector: 'app-edit-columns',
@@ -31,6 +32,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   tableId: string;
   table: string;
   schema: string;
+  foreignKeys: ForeignKey[] = [];
 
   resultSet: ResultSet;
   types: PolyType[] = [];
@@ -136,6 +138,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.getIndexes();
         this.getPlacementsAndPartitions();
         this.getAvailableStoresForIndexes();
+        this.getUml();
       }
     });
     this.subscriptions.add(sub);
@@ -326,6 +329,37 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     );
   }
 
+  getUml() {
+    this.foreignKeys = [];
+    if (!this.schema) {
+      this.foreignKeys = null;
+      return;
+    }
+    this._crud.getUml(new EditTableRequest(this.schema)).subscribe(
+      res => {
+
+        const uml: Uml = <Uml>res;
+        const fks = new Map<string, ForeignKey>();
+
+        uml.foreignKeys.forEach((v, k) => {
+          if((v.sourceSchema+'.'+v.sourceTable) === this.tableId){
+            if(fks.has(v.fkName)){
+              const fk = fks.get(v.fkName);
+              fk.targetColumn = fk.targetColumn + ', ' + v.targetColumn;
+              fk.sourceColumn = fk.sourceColumn + ', ' + v.sourceColumn;
+            } else {
+              fks.set( v.fkName, v );
+            }
+            this.foreignKeys = [...fks.values()];
+          }
+        });
+      }, err => {
+        console.log(err);
+      }
+    );
+  }
+
+
   dropConstraint ( constraintName:string, constraintType:string) {
     this._crud.dropConstraint( new ConstraintRequest( this.tableId, new TableConstraint( constraintName, constraintType ) )).subscribe(
       res => {
@@ -334,6 +368,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
           this._toast.exception(result, null, 'constraint error');
         }else{
           this.getConstraints();
+          this.getUml();
         }
       }, err => {
         console.log(err);

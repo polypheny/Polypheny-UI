@@ -81,6 +81,28 @@
       </tr>
       </tbody>
     </table>
+    <table class="table table-hover table-striped" *ngIf="foreignKeys && foreignKeys.length > 0">
+      <thead>
+        <tr>
+          <th>FK Name</th>
+          <th>Column Name</th>
+          <th>Target Table</th>
+          <th>Target Column</th>
+          <th>Update Enforcement</th>
+          <th>Delete Enforcement</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let fk of foreignKeys; let i = index">
+          <td>{{fk.fkName}}</td>
+          <td>{{fk.sourceColumn}}</td>
+          <td>{{fk.targetTable}}</td>
+          <td>{{fk.targetColumn}}</td>
+          <td>{{fk.onUpdate}}</td>
+          <td>{{fk.onDelete}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="col-lg-12" *ngIf="dataPlacement">
