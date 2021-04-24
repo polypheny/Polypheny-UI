@@ -36,6 +36,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   editingAdapter: Adapter;
   editingAdapterForm: FormGroup;
   deletingAdapter;
+  deletingInProgress: Adapter[];
 
   editingAvailableAdapter: AdapterInformation;
   editingAvailableAdapterForm: FormGroup;
@@ -63,6 +64,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.deletingInProgress = [];
     this.getStoresAndSources();
     this.fetchAvailableAdapters();
     this.route = this._route.snapshot.paramMap.get('action');
@@ -386,6 +388,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     if( this.deletingAdapter !== adapter ){
       this.deletingAdapter = adapter;
     } else {
+      if( this.deletingInProgress.includes(adapter) ){
+        return;
+      }
+
+      this.deletingInProgress.push(adapter);
       this._crud.removeAdapter( adapter.uniqueName ).subscribe(
         res => {
           const result = <ResultSet> res;
@@ -395,9 +402,13 @@ export class AdaptersComponent implements OnInit, OnDestroy {
           }else{
             this._toast.exception( result );
           }
+          this.deletingInProgress = this.deletingInProgress.filter(el => el !== adapter);
+          this.deletingAdapter = undefined;
         }, err => {
           this._toast.error('Could not remove adapter', 'server error');
           console.log(err);
+          this.deletingInProgress = this.deletingInProgress.filter(el => el !== adapter);
+          this.deletingAdapter = undefined;
         }
       );
     }
@@ -489,6 +500,17 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     } else {
       return 'is-invalid';
     }
+  }
+
+  resetDeletingAdapter(adapter: Adapter) {
+    if(this.deletingAdapter === adapter && this.deletingInProgress.includes(adapter)){
+      return;
+    }
+    this.deletingAdapter = undefined;
+  }
+
+  isDeleting(adapter: Adapter) {
+    return this.deletingInProgress.includes(adapter);
   }
 }
 

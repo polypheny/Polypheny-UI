@@ -59,12 +59,15 @@
 
           <span *ngIf="adapter.dataReadOnly"><span class="fa fa-eye"></span> read-only</span>
           <span *ngIf="adapter.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
-          <span *ngIf="adapter.currentSettings.hasOwnProperty('host') && adapter.currentSettings.hasOwnProperty('port')">{{adapter.currentSettings['host']}}:{{adapter.currentSettings['port']}}</span>
+          <span *ngIf="adapter.currentSettings.hasOwnProperty('host') && adapter.currentSettings.hasOwnProperty('port')">{{adapter.currentSettings['host']}}: {{adapter.currentSettings['port']}}</span>
 
         </div>
         <div class="card-footer bg-transparent">
-          <button class="btn btn-danger" (click)="removeAdapter(adapter)" (mouseleave)="deletingAdapter = undefined">
-            <i class="cui-trash" [ngClass]="{'cui-trash': adapter !== deletingAdapter, 'fa fa-warning': adapter === deletingAdapter}"></i>
+          <button class="btn btn-danger" (click)="removeAdapter(adapter)" (mouseleave)="resetDeletingAdapter(adapter)" [ngClass]="{'disabled': isDeleting(adapter)}">
+            <i class="cui-trash" *ngIf="!isDeleting(adapter)" [ngClass]="{'cui-trash': adapter !== deletingAdapter, 'fa fa-warning': adapter === deletingAdapter}"></i>
+            <div *ngIf="isDeleting(adapter)" class="spinner-border spinner-border-sm" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
           </button>
           <button class="btn btn-primary pull-right" (click)="initAdapterSettingsModal(adapter)">Configure</button>
         </div>
@@ -237,8 +240,12 @@
         <button type="button" class="btn btn-secondary" (click)="adapterSettingsModal.hide()">Close</button>
         <button *ngIf="editingAdapter" type="submit" class="btn btn-primary" (click)="saveAdapterSettings()" [disabled]="!editingAdapterForm.valid">Save</button>
         <button *ngIf="editingAvailableAdapter && activeMode" type="submit" class="btn btn-primary" (click)="deploy()"
-                [disabled]="!availableAdapterUniqueNameForm.valid || !editingAvailableAdapterForm.valid || deploying"
-                [ngClass]="{'progress-bar-striped progress-bar-animated': deploying}">Deploy</button>
+                [disabled]="!availableAdapterUniqueNameForm.valid || !editingAvailableAdapterForm.valid || deploying">
+          <span *ngIf="!deploying">Deploy</span>
+          <span *ngIf="deploying" class="spinner-border spinner-border-sm" role="status">
+            <span class="sr-only">Loading...</span>
+          </span>
+        </button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
