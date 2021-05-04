@@ -283,7 +283,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
    * Rearrange data to an object that can be used for the autocompletion
    */
   getAutocomplete() {
-    this._crud.getSchema(new SchemaRequest('', false, 3, true)).subscribe(
+    this._crud.getSchema(new SchemaRequest('', false, 3, false)).subscribe(
       res => {
         const schemaTree = <SidebarNode[]>res;
         const autocomplete = {schemas: []};

@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, Input, OnInit, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
 import {cloneDeep} from 'lodash';
 import {ClassifyRequest, Exploration, ExploreTable} from '../../../models/ui-request.model';
@@ -12,7 +12,7 @@ import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as dot from 'graphlib-dot';
 import * as dagreD3 from 'dagre-d3';
 import * as d3 from 'd3';
-import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
+import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 
@@ -48,7 +48,6 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
   tableColor = '#FFFFFF';
   exploreDataCounter = 0;
   labled = [];
-
 
   constructor(
     public _crud: CrudService,

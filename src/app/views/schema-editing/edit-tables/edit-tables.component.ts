@@ -89,7 +89,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this.getTables();
     this.getTypeInfo();
     this.getStores();
-    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
+    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, true), this._router);
   }
 
   documentListener() {
@@ -169,7 +169,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           let toastAction = 'Truncated';
           if (request.getAction() === 'drop') {
             toastAction = 'Dropped';
-            this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
+            this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, true), this._router);
           }
           this._toast.success(toastAction + ' table ' + request.table);
           this.getTables();
@@ -240,7 +240,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this.newColumns.set(this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null ));
           this.newTableName = '';
           this.selectedStore = null;
-          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
+          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, true), this._router);
         }
         this.getTables();
       }, err => {
@@ -260,7 +260,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         } else {
           this._toast.success( 'Renamed table ' + table.name + ' to ' + table.newName );
           this.getTables();
-          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
+          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, true), this._router);
         }
       }, err => {
         this._toast.error( 'Could not rename the table ' + table.name );
