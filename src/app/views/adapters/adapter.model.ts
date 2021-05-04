@@ -25,11 +25,13 @@ export interface AdapterInformation {
   name: string;
   description: string;
   clazz: string;
-  adapterSettings: AdapterSetting[];
+  adapterSettings: Map<string, AdapterSetting[]>;
 }
 
 export interface AdapterSetting {
   name: string;
+  nameAlias: string;
+  alias: any;
   description: string;
   defaultValue: string;
   canBeNull: boolean;
@@ -37,6 +39,8 @@ export interface AdapterSetting {
   modifiable: boolean;
   options: string[];
   fileNames: string[];
+  dynamic: boolean;
+  position: number;
 }
 
 export interface Placements {

@@ -24,6 +24,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
   types: PolyType[] = [];
   schema: string;
+  schemaType: string;
   tables: TableModel[] = [];
 
   counter = 0;
@@ -64,6 +65,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this.schema = this._route.snapshot.paramMap.get('id');
     const sub1 = this._route.params.subscribe((params) => {
       this.schema = params['id'];
+      this.getSchemaType();
       this.getTables();
     });
     this.subscriptions.add(sub1);
@@ -123,6 +125,16 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       }, err => {
         console.log(err);
       });
+  }
+
+  getSchemaType() {
+    this._crud.getTypeSchemas().subscribe(
+        res => {
+          this.schemaType = res[this.schema];
+        }, error => {
+          console.log(error);
+        }
+    );
   }
 
   /**

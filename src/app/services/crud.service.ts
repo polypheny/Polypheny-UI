@@ -376,6 +376,10 @@ export class CrudService {
     return this._http.post( `${this.httpUrl}/exportTable`, body );
   }
 
+  getTypeSchemas() {
+    return this._http.get( `${this.httpUrl}/getTypeSchemas`, this.httpOptions );
+  }
+
   getStores(){
     return this._http.get( `${this.httpUrl}/getStores` );
   }
@@ -426,6 +430,10 @@ export class CrudService {
 
   removeQueryInterface( queryInterfaceId: string ){
     return this._http.post( `${this.httpUrl}/removeQueryInterface`, queryInterfaceId, this.httpOptions );
+  }
+
+  getUsedDockerPorts() {
+    return this._http.get(`${this.httpUrl}/usedDockerPorts`);
   }
 
   /**
