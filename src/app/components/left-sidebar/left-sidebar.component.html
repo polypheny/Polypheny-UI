@@ -1,5 +1,11 @@
 <div id="tree-outer-wrapper">
 
+
+  <button *ngIf="needsButton()" class="btn btn-light small w-100" id="schemaText" [routerLink]="'/views/schema-editing/'">Schema editing</button>
+
+  <div *ngIf="needsButton()" class="border-top my-3"></div>
+
+
   <div class="input-group input-group-sm" id="search-group">
     <div class="input-group-prepend">
     <span class="input-group-text">
@@ -14,14 +20,6 @@
     </div>
   </div>
 
-
-  <button class="btn btn-light small" id="schemaText" [routerLink]="'/views/schema-editing/'">Schema</button>
-<!-----
-  <div id="schema">
-    <p class="text-left" id="schemaText" [routerLink]="'/views/schema-editing/'">Schema</p>
-    <button class="btn btn-light" tooltip="schema" ><i class="fa fa-plus-square-o"></i></button>
-  </div>
--->
 
   <span *ngIf="error">{{error}}</span>
   <div id="tree-inner-wrapper">
