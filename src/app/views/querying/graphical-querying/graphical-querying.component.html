@@ -38,7 +38,7 @@
     </div>
     <div></div>
 
-    <button class="btn btn-primary" (click)="createView(createViewModal)">Create View</button>
+
     <app-refinement-options [choosenTables]="selectedColumn" (filteredUserInputChange)="userInput($event)"></app-refinement-options>
 
 
@@ -59,26 +59,3 @@
   </div>
 </div>
 
-
-<ng-template #createViewModal>
-  <div class="modal-content">
-    <div class="modal-header">
-      <h4 class="modal-title pull-left">Create View</h4>
-      <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefCreateView.hide()">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <div class="modal-body" id="modal-body-tree">
-      Please enter the name of your View:
-
-      <form class="form-inline">
-        <div class="form-group mx-sm-3 mb-2">
-          <label for="viewName" class="sr-only">Name of View</label>
-          <input #box type="text" class="form-control-plaintext" id="viewName" placeholder="viewName" (keyup)="this.viewName = box.value">
-        </div>
-        <button type="submit" class="btn btn-primary mb-2" (click)="submitViewName()">submit</button>
-      </form>
-
-    </div>
-  </div>
-</ng-template>

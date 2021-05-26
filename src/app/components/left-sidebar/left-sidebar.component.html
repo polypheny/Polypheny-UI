@@ -14,6 +14,15 @@
     </div>
   </div>
 
+
+  <button class="btn btn-light small" id="schemaText" [routerLink]="'/views/schema-editing/'">Schema</button>
+<!-----
+  <div id="schema">
+    <p class="text-left" id="schemaText" [routerLink]="'/views/schema-editing/'">Schema</p>
+    <button class="btn btn-light" tooltip="schema" ><i class="fa fa-plus-square-o"></i></button>
+  </div>
+-->
+
   <span *ngIf="error">{{error}}</span>
   <div id="tree-inner-wrapper">
 
@@ -42,4 +51,6 @@
     </tree-root>
 
   </div>
+
+
 </div>

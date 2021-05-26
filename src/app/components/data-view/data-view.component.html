@@ -1,25 +1,34 @@
 <span *ngIf="!resultSet && loading">Loading data...</span>
 <div id="mode_wrapper" class="mb-2" *ngIf="resultSet">
-  <button class="btn btn-light" (click)="presentationType = presentationTypes.TABLE"
-          [class.active]="presentationType === presentationTypes.TABLE"
-          tooltip="table" placement="top" delay="200"><i class="fa fa-table"></i></button>
-  <button class="btn btn-light" (click)="presentationType = presentationTypes.CAROUSEL"
-          [class.active]="presentationType === presentationTypes.CAROUSEL"
-          tooltip="carousel" placement="top" delay="200"><i class="fa fa-map-o"></i></button>
-  <button class="btn btn-light" (click)="presentationType = presentationTypes.CARD"
-          [class.active]="presentationType === presentationTypes.CARD"
-          tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
+    <div >
+        <button class="btn btn-light" (click)="presentationType = presentationTypes.TABLE"
+                [class.active]="presentationType === presentationTypes.TABLE"
+                tooltip="table" placement="top" delay="200"><i class="fa fa-table"></i></button>
+        <button class="btn btn-light" (click)="presentationType = presentationTypes.CAROUSEL"
+                [class.active]="presentationType === presentationTypes.CAROUSEL"
+                tooltip="carousel" placement="top" delay="200"><i class="fa fa-map-o"></i></button>
+        <button class="btn btn-light" (click)="presentationType = presentationTypes.CARD"
+                [class.active]="presentationType === presentationTypes.CARD"
+                tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
+    </div>
+    <div class="text-right" id="addView" >
+        <button class="btn btn-light" tooltip="view" placement="top" delay="200">Create View</button>
+    </div>
 </div>
 
-<ng-container [ngSwitch]="presentationType">
-  <ng-container *ngSwitchCase="presentationTypes.TABLE">
-    <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="config" [tableId]="tableId" [loading]="loading"></app-data-table>
-  </ng-container>
-  <ng-container *ngSwitchCase="presentationTypes.CARD">
-    <app-data-card *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-card>
-  </ng-container>
-  <ng-container *ngSwitchCase="presentationTypes.CAROUSEL">
-    <app-data-carousel *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-carousel>
-  </ng-container>
 
+<ng-container [ngSwitch]="presentationType">
+    <ng-container *ngSwitchCase="presentationTypes.TABLE">
+        <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="config" [tableId]="tableId" [loading]="loading"></app-data-table>
+    </ng-container>
+    <ng-container *ngSwitchCase="presentationTypes.CARD">
+        <app-data-card *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-card>
+    </ng-container>
+    <ng-container *ngSwitchCase="presentationTypes.CAROUSEL">
+        <app-data-carousel *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-carousel>
+    </ng-container>
+    <div class="text-right" >
+        <p id="viewText"class="text mt-1 mb-0">Create a View from this Query</p>
+        <button class="btn btn-light" tooltip="create view" ><i class="fa fa-plus-square-o"></i></button>
+    </div>
 </ng-container>

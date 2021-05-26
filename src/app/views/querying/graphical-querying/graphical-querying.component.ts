@@ -31,9 +31,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   resultSet: ResultSet;
   selectedColumn = {};
   loading = false;
-  viewCreated = false;
-  view;
-  viewName;
   modalRefCreateView: BsModalRef;
   whereCounter = 0;
   orderByCounter = 0;
@@ -377,11 +374,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     filteredInfos = await this.processfilterSet();
     let finalized;
-    if(this.viewCreated){
-      finalized = this.view + sql + filteredInfos;
-    }else {
-      finalized = sql + filteredInfos;
-    }
+
+    finalized = sql + filteredInfos;
+
     this.generatedSQL = finalized;
     this.editorGenerated.setCode(finalized);
   }
@@ -482,26 +477,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     });
   }
 
-  createView(createViewModal: TemplateRef<any>) {
-    this.viewToggle();
-    if(this.viewCreated){
-      this.modalRefCreateView = this.modalService.show(createViewModal);
-    } else {
-      this.view = '';
-      this.generateSQL();
-    }
-  }
-
-  submitViewName(){
-    this.modalRefCreateView.hide();
-    const code = this.editorGenerated.getCode();
-    this.view = 'CREATE VIEW ' + this.viewName + ' AS \n';
-    this.editorGenerated.setCode(this.view + code);
-  }
-
-  viewToggle(){
-    this.viewCreated = !this.viewCreated;
-  }
 
 }
 

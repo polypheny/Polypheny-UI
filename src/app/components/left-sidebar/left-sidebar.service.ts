@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, Input} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject} from 'rxjs';
 import {InformationService} from '../../services/information.service';
@@ -6,7 +6,7 @@ import {ConfigService} from '../../services/config.service';
 import * as $ from 'jquery';
 import {CrudService} from '../../services/crud.service';
 import {SchemaRequest} from '../../models/ui-request.model';
-import {SidebarNode, JavaPage} from '../../models/sidebar-node.model';
+import {JavaPage, SidebarNode} from '../../models/sidebar-node.model';
 import {Router} from '@angular/router';
 
 @Injectable({
@@ -15,6 +15,8 @@ import {Router} from '@angular/router';
 
 //docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarService {
+
+  @Input() schemaEdit: boolean;
 
   constructor(
     private _http: HttpClient,
@@ -29,6 +31,8 @@ export class LeftSidebarService {
   //node that should be set inactive:
   private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   private resetSubject = new BehaviorSubject<boolean>(false);
+
+
 
   /**
    * Sort function to sort SidebarNodes alphabetically
@@ -208,8 +212,10 @@ export class LeftSidebarService {
             res => {
               this.error.next(null);
               const schema = <SidebarNode[]> res;
+              this.schemaEdit = false;
               //Schema editing view
-              if( !schemaRequest.views && schemaRequest.depth === 2 ){
+              if( schemaRequest.schemaEdit && schemaRequest.depth === 2 ){
+                this.schemaEdit = true;
                 schema.forEach( (val, key) => {
                   val.routerLink = schemaRequest.routerLinkRoot;
                   val.children.forEach( (v, k) => {
