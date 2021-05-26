@@ -66,7 +66,10 @@
     <div class="col-lg-12 mb-3" [ngClass]="{'accordion': resultSets && resultSets.length > 1}" id="results">
         <div class="card" *ngFor="let resultSet of resultSets; let i = index;">
             <div class="card-header" [ngClass]="{'pointer': resultSets.length > 1, 'open': collapsed[i]}" (click)="collapsed[i] = !collapsed[i]">
-                <span>{{resultSet.generatedQuery}}</span>
+                <div class="text-right" >
+                    <button *ngIf="resultSet.data" class="btn btn-secondary viewButton" (click)="openCreateView(createView, resultSet.generatedQuery)">Create View</button>
+                    <span>{{resultSet.generatedQuery}}</span>
+                </div>
               <span class="badge pull-right" [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
                 <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
                 <ng-container *ngIf="resultSet.error">!</ng-container>
@@ -98,3 +101,31 @@
 </div>
 
 <app-information-manager *ngIf="queryAnalysis" [data]="queryAnalysis" [zoom]="_breadcrumb.getMasonryZoom()" [hidden]="!showingAnalysis"></app-information-manager>
+
+
+<ng-template #createView>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title pull-left">Create View</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefCreateView.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="modal-body-tree">
+            Please enter the name of your View:
+
+            <form class="form-inline">
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="viewName" class="sr-only">Name of View</label>
+                    <input #box type="text" class="form-control-plaintext" id="viewName" placeholder="viewName" (keyup)="this.viewName = box.value">
+                </div>
+                <button type="submit" class="btn btn-primary mb-2" (click)="submitViewName()">submit</button>
+            </form>
+<!--
+            <div class="form-group" style="height: 240px">
+                <app-editor #viewEditor [code]="viewEditorCode" id="sql-view-editor"></app-editor>
+            </div>
+            -->
+        </div>
+    </div>
+</ng-template>

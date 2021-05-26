@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import {CrudService} from '../../../services/crud.service';
@@ -15,6 +15,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
 import {WebSocket} from '../../../services/webSocket';
+import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-sql-console',
@@ -25,6 +26,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   @ViewChild('editor', {static: false}) codeEditor;
   @ViewChild('historySearchInput') historySearchInput;
+  @ViewChild('createView', {static: false}) public createView: TemplateRef<any>;
+  @ViewChild('viewEditor', {static: false}) viewEditor;
 
   history: Map<string, SqlHistory> = new Map<string, SqlHistory>();
   readonly MAXHISTORY = 50;//maximum items in history
@@ -41,6 +44,10 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   showSearch = false;
   historySearchQuery = "";
   confirmDeletingHistory;
+  modalRefCreateView: BsModalRef;
+  viewName;
+  sqlQuery: string;
+  viewEditorCode: string;
 
   tableConfig: TableConfig = {
     create: false,
@@ -57,8 +64,10 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     private _leftSidebar: LeftSidebarService,
     private _breadcrumb: BreadcrumbService,
     private _settings: WebuiSettingsService,
-    public _util: UtilService
+    public _util: UtilService,
+    public modalService: BsModalService
   ) {
+    
     const self = this;
     this.websocket = new WebSocket(_settings);
     // hit alt-enter to execute a query with the current "save in history" option
@@ -186,7 +195,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
             this.queryAnalysis = <InformationPage>res;
             this.showingAnalysis = true;
             this._breadcrumb.setBreadcrumbs([new BreadcrumbItem(node.data.name)]);
-            if( this.queryAnalysis.fullWidth ) this._breadcrumb.hideZoom();
+            if( this.queryAnalysis.fullWidth ) { this._breadcrumb.hideZoom(); }
             node.setIsActive(true);
           }, err => {
             console.log(err);
@@ -253,6 +262,21 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
         }, +this._settings.getSetting('reconnection.timeout'));
       });
     this.subscriptions.add(sub);
+  }
+
+
+  openCreateView(createView: TemplateRef<any>, sqlQuery: string){
+    this.modalRefCreateView = this.modalService.show(createView);
+    this.sqlQuery = sqlQuery;
+    //this.viewEditor.setCode(sqlQuery);
+  }
+
+  submitViewName(){
+    const createView = 'CREATE VIEW ';
+    const createViewAs = ' AS \n';
+    this.viewEditorCode = createView + this.viewName + createViewAs + this.sqlQuery;
+    this.codeEditor.setCode(this.viewEditorCode);
+    this.modalRefCreateView.hide();
   }
 
 }

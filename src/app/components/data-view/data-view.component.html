@@ -11,9 +11,6 @@
                 [class.active]="presentationType === presentationTypes.CARD"
                 tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
     </div>
-    <div class="text-right" id="addView" >
-        <button class="btn btn-light" tooltip="view" placement="top" delay="200">Create View</button>
-    </div>
 </div>
 
 
@@ -27,8 +24,4 @@
     <ng-container *ngSwitchCase="presentationTypes.CAROUSEL">
         <app-data-carousel *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-carousel>
     </ng-container>
-    <div class="text-right" >
-        <p id="viewText"class="text mt-1 mb-0">Create a View from this Query</p>
-        <button class="btn btn-light" tooltip="create view" ><i class="fa fa-plus-square-o"></i></button>
-    </div>
 </ng-container>
