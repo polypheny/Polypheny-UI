@@ -51,7 +51,7 @@
     "ngx-bootstrap": "^5.6.1",
     "ngx-perfect-scrollbar": "^8.0.0",
     "ngx-plyr": "^4.0.0",
-    "node-sass": "^4.14.1",
+    "node-sass": "^6.0.0",
     "npm": "^7.15.1",
     "plyr": "^3.6.3",
     "rxjs": "^6.5.5",
