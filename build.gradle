@@ -40,7 +40,7 @@ dependencies {
 
 node {
   version = '16.2.0'
-  //npmVersion = '6.14.11'
+  //npmVersion = '16.1.0'
   download = true
 }
 
