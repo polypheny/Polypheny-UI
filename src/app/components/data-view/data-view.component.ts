@@ -1,11 +1,11 @@
-import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild} from '@angular/core';
 import {DataPresentationType, ResultSet} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
 import {ToastDuration, ToastService} from '../toast/toast.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../services/dbms-types.service';
-import {BsModalService} from 'ngx-bootstrap/modal';
+import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {DeleteRequest, TableRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
 import {SortState} from './models/sort-state.model';
@@ -27,6 +27,9 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   @Input() config: TableConfig;
   @Input() tableId?: string;
   @Input() loading?: boolean;
+  @ViewChild('createView', {static: false}) public createView: TemplateRef<any>;
+  @ViewChild('viewEditor', {static: false}) viewEditor;
+  @Output() viewEditorCode = new EventEmitter();
 
   presentationType: DataPresentationType = DataPresentationType.TABLE;
   //see https://stackoverflow.com/questions/35835984/how-to-use-a-typescript-enum-value-in-an-angular2-ngswitch-statement
@@ -48,6 +51,9 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   webSocket: WebSocket;
   subscriptions = new Subscription();
   resultSetEvent = new EventEmitter<ResultSet>();
+  modalRefCreateView: BsModalRef;
+  viewName;
+  sqlQuery: string;
 
   constructor(
     public _crud: CrudService,
@@ -444,6 +450,19 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         console.log(err);
       }
     ).add( () => this.uploadProgress = -1 );
+  }
+
+  openCreateView(createView: TemplateRef<any>, sqlQuery: string){
+    this.modalRefCreateView = this.modalService.show(createView);
+    this.sqlQuery = sqlQuery;
+  }
+
+  submitViewName(){
+    const createView = 'CREATE VIEW ';
+    const createViewAs = ' AS \n';
+    this.viewEditorCode.emit(createView + this.viewName + createViewAs );
+
+    this.modalRefCreateView.hide();
   }
 
 }

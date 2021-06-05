@@ -10,6 +10,7 @@ import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {Subscription} from 'rxjs';
+import {TableConfig} from '../../../components/data-view/data-table/table-config';
 
 @Component({
   selector: 'app-explore-by-example',
@@ -50,6 +51,14 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
   exploreId = 0;
   cPage = 1;
 
+  tableConfig: TableConfig = {
+    create: false,
+    update: false,
+    delete: false,
+    sort: false,
+    search: false,
+    exploring: true
+  };
 
   constructor(
     private _crud: CrudService,

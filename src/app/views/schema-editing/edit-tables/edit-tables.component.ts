@@ -155,8 +155,16 @@ export class EditTablesComponent implements OnInit, OnDestroy {
    */
   sendRequest( action, table: TableModel ) {
     let request;
-    if (this.dropTruncateClass( action, table ) === 'btn-danger') {
-      request = new EditTableRequest(this.schema, table.name, action);
+    if (this.dropTruncateClass( action, table ) === 'btn-danger' ) {
+      console.log(table.tableType);
+      if(table.tableType !== 'VIEW'){
+        console.log('not view');
+        request = new EditTableRequest(this.schema, table.name, action);
+      }else{
+        request = new EditTableRequest(this.schema, table.name, action, null, null, 'VIEW');
+        console.log('view');
+      }
+
     } else {
       return;
     }

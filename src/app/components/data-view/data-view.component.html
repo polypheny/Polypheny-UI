@@ -1,15 +1,29 @@
 <span *ngIf="!resultSet && loading">Loading data...</span>
 <div id="mode_wrapper" class="mb-2" *ngIf="resultSet">
-    <div >
-        <button class="btn btn-light" (click)="presentationType = presentationTypes.TABLE"
-                [class.active]="presentationType === presentationTypes.TABLE"
-                tooltip="table" placement="top" delay="200"><i class="fa fa-table"></i></button>
-        <button class="btn btn-light" (click)="presentationType = presentationTypes.CAROUSEL"
-                [class.active]="presentationType === presentationTypes.CAROUSEL"
-                tooltip="carousel" placement="top" delay="200"><i class="fa fa-map-o"></i></button>
-        <button class="btn btn-light" (click)="presentationType = presentationTypes.CARD"
-                [class.active]="presentationType === presentationTypes.CARD"
-                tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
+    <div class="d-flex justify-content-between" >
+        <div>
+            <button *ngIf="resultSet.data" [style.visibility]="'hidden'" >
+            <i class="fa fa-eye" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div >
+            <button class="btn btn-light" (click)="presentationType = presentationTypes.TABLE"
+                    [class.active]="presentationType === presentationTypes.TABLE"
+                    tooltip="table" placement="top" delay="200"><i class="fa fa-table"></i></button>
+            <button class="btn btn-light" (click)="presentationType = presentationTypes.CAROUSEL"
+                    [class.active]="presentationType === presentationTypes.CAROUSEL"
+                    tooltip="carousel" placement="top" delay="200"><i class="fa fa-map-o"></i></button>
+            <button class="btn btn-light" (click)="presentationType = presentationTypes.CARD"
+                    [class.active]="presentationType === presentationTypes.CARD"
+                    tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
+        </div>
+        <div>
+            <button *ngIf="resultSet.data" class="btn btn-light viewButton" tooltip="create view"
+                    (click)="openCreateView(createView, resultSet.generatedQuery)">
+                <i class="fa fa-eye" aria-hidden="true"></i>
+            </button>
+        </div>
+
     </div>
 </div>
 
@@ -25,3 +39,25 @@
         <app-data-carousel *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-carousel>
     </ng-container>
 </ng-container>
+
+
+<ng-template #createView>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title pull-left">Create View</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefCreateView.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="modal-body-tree">
+            Please enter the name of your View:
+            <form class="form-inline">
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="viewName" class="sr-only">Name of View</label>
+                    <input #box type="text" class="form-control-plaintext" id="viewName" placeholder="viewName" (keyup)="this.viewName = box.value">
+                </div>
+                <button type="submit" class="btn btn-primary mb-2" (click)="submitViewName()">submit</button>
+            </form>
+        </div>
+    </div>
+</ng-template>

@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import {CrudService} from '../../../services/crud.service';
@@ -15,7 +15,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
 import {WebSocket} from '../../../services/webSocket';
-import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
+import {BsModalService} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-sql-console',
@@ -26,8 +26,6 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
 
   @ViewChild('editor', {static: false}) codeEditor;
   @ViewChild('historySearchInput') historySearchInput;
-  @ViewChild('createView', {static: false}) public createView: TemplateRef<any>;
-  @ViewChild('viewEditor', {static: false}) viewEditor;
 
   history: Map<string, SqlHistory> = new Map<string, SqlHistory>();
   readonly MAXHISTORY = 50;//maximum items in history
@@ -44,10 +42,6 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   showSearch = false;
   historySearchQuery = "";
   confirmDeletingHistory;
-  modalRefCreateView: BsModalRef;
-  viewName;
-  sqlQuery: string;
-  viewEditorCode: string;
 
   tableConfig: TableConfig = {
     create: false,
@@ -96,6 +90,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     window.onbeforeunload = null;
     window.onkeydown = null;
   }
+
 
   submitQuery() {
     const code = this.codeEditor.getCode();
@@ -264,19 +259,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub);
   }
 
-
-  openCreateView(createView: TemplateRef<any>, sqlQuery: string){
-    this.modalRefCreateView = this.modalService.show(createView);
-    this.sqlQuery = sqlQuery;
-    //this.viewEditor.setCode(sqlQuery);
+  createView(viewEditorCode: string){
+    const code = this.codeEditor.getCode();
+    this.codeEditor.setCode(viewEditorCode + code);
   }
-
-  submitViewName(){
-    const createView = 'CREATE VIEW ';
-    const createViewAs = ' AS \n';
-    this.viewEditorCode = createView + this.viewName + createViewAs + this.sqlQuery;
-    this.codeEditor.setCode(this.viewEditorCode);
-    this.modalRefCreateView.hide();
-  }
-
 }

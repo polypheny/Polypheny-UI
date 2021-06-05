@@ -45,6 +45,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   columns = new Map<string, SidebarNode>();//columnId, columnName
   umlData = new Map<string, Uml>();//schemaName, uml
   joinConditions = new Map<string, JoinCondition>();
+  showCreateView = false;
+  viewEditorCode = '';
 
   constructor(
     private _crud: CrudService,
@@ -477,7 +479,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     });
   }
 
-
+  createView(viewEditorCode: string){
+    this.editorGenerated.setCode(viewEditorCode);
+  }
 }
 
 class JoinCondition {

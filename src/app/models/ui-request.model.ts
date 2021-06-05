@@ -186,13 +186,15 @@ export class EditTableRequest {
   action: string;//truncate / drop
   columns: DbColumn[];
   store: string;
+  tableType: string;
 
-  constructor(schema: string, table: string = null, action: string = null, columns: DbColumn[] = null, store: string = null) {
+  constructor(schema: string, table: string = null, action: string = null, columns: DbColumn[] = null, store: string = null, tableType: string = null) {
     this.schema = schema;
     this.table = table;
     this.action = action;
     this.columns = columns;
     this.store = store;
+    this.tableType = tableType;
   }
 
   getAction() {

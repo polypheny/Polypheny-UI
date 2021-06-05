@@ -1,10 +1,4 @@
-<div id="tree-outer-wrapper">
-
-
-  <button *ngIf="needsButton()" class="btn btn-light small w-100" id="schemaText" [routerLink]="'/views/schema-editing/'">Schema editing</button>
-
-  <div *ngIf="needsButton()" class="border-top my-3"></div>
-
+<div id="tree-outer-wrapper d-flex">
 
   <div class="input-group input-group-sm" id="search-group">
     <div class="input-group-prepend">
@@ -47,8 +41,15 @@
         </div>
       </ng-template>
     </tree-root>
-
   </div>
+
+  <!--
+  <div class="align-self-end">
+    <div *ngIf="needsButton()" class="border-top my-3 "></div>
+
+    <p *ngIf="needsButton()" class="schemaEditing text-center" id="schemaText" [routerLink]="'/views/schema-editing/'">Schema editing</p>
+  </div>
+  -->
 
 
 </div>

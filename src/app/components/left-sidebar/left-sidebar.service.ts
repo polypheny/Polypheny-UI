@@ -17,6 +17,7 @@ import {Router} from '@angular/router';
 export class LeftSidebarService {
 
   @Input() schemaEdit: boolean;
+  router;
 
   constructor(
     private _http: HttpClient,
@@ -156,12 +157,14 @@ export class LeftSidebarService {
         this.error.next(null);
         const schemaTemp = <SidebarNode[]>res;
         const schema = [];
+        this.router = _router;
         for (const s of schemaTemp) {
           schema.push(SidebarNode.fromJson(s));
         }
         //Schema editing view
-        if (!schemaRequest.views && schemaRequest.depth === 2) {
 
+        // !schemaRequest.views && schemaRequest.depth === 2
+        if (this.router.url.startsWith('/views/schema-editing/')) {
           //function to define node behavior
           const nodeBehavior = (tree, node, $event) => {
             if (node.data.routerLink !== '') {
