@@ -116,7 +116,17 @@ export class RefinementOptionsComponent implements OnInit {
         const transmitSet = new FilteredUserInput();
         this._choosenTables['column'].forEach(el => {
             if (this.filteredUserInput.hasOwnProperty(el)) {
-                transmitSet[el] = this.filteredUserInput[el];
+                if (this.statisticSet[el]['columnType'] == 'temporal') {
+                    let {getLabel,getNumber,step} = this.getTemporal(this.statisticSet[el]['temporalType'])
+                    let fel = this.filteredUserInput[el]
+                    
+                    transmitSet[el] = {...fel,
+                                        minMax: fel['minMax'].map(getLabel).map(d => `'${d}'`),
+                                        startMinMax: fel['startMinMax'].map(getLabel).map(d => `'${d}'`)}
+                } else {
+                    transmitSet[el] = this.filteredUserInput[el];
+                }
+                
             }
         });
         this.filteredUserInputChange.emit(transmitSet);
@@ -169,12 +179,25 @@ export class RefinementOptionsComponent implements OnInit {
                 } else {
                     this.statisticSet[key]['type'] = ['range'];
                 }
-                this.statisticSet[key]['options'] = {
-                    floor: el['min'],
-                    ceil: el['max'],
-                    step: 1,
-                    uniqueValues: []
-                };
+                if (el['columnType'] == 'temporal'){
+                    let {getLabel,getNumber,step} = this.getTemporal(el['temporalType'])
+                    el['min'] = getNumber(el['min']);
+                    el['max'] = getNumber(el['max']);
+                    this.statisticSet[key]['options'] = {
+                        floor: el['min'],
+                        ceil: el['max'],
+                        translate: getLabel,
+                        step,
+                        uniqueValues: []
+                    }; 
+                } else {
+                    this.statisticSet[key]['options'] = {
+                        floor: el['min'],
+                        ceil: el['max'],
+                        step: 1,
+                        uniqueValues: []
+                    };
+                }
             }
             if (this.statisticSet[key]['uniqueValues']) {
                 if (this.statisticSet[key]['type']) {
@@ -221,5 +244,26 @@ export class RefinementOptionsComponent implements OnInit {
             }
         });
         return filtered;
+    }
+
+    getTemporal(temporalType: string) {
+        let getNumber,getLabel,step;
+        if(temporalType == 'TIME') {
+            getNumber = (ts:string) => new Date("2020-01-01 " + ts).getTime()/1000
+            getLabel = (time: number,type: any) => new Date(time*1000).toISOString().slice(11,19)
+            step = 1 // 1000ms = 1s
+        } else if(temporalType == 'DATE') {
+            getNumber = (ts:string) => {
+                console.log("date slider,getNumber",ts)
+                return new Date(ts).getTime()/1000
+            }
+            getLabel = (time: number,type: any) =>  time ? new Date(time*1000).toISOString().slice(0,10) : "";
+            step = 86400 // 1000ms * 60s * 60min * 24hrs = 1day
+        } else {
+            getNumber = (ts:string) => new Date(ts).getTime()/1000
+            getLabel = (time: number,type: any) => new Date(time*1000).toISOString().slice(0,19).replace("T"," ")
+            step = 1
+        }
+        return {getLabel,getNumber,step}
     }
 }

@@ -283,6 +283,17 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 }
               }
             }
+            
+            if (k.startsWith('check', 0) && el['columnType'] === 'temporal') {
+              //whereSql.push(this.checkboxNumeric(col, k, el[k]));
+              if (el[k]) {
+                if (checkboxSQLNumerical[col]) {
+                  checkboxSQLNumerical[col].push(`'${k}'`);
+                } else {
+                  checkboxSQLNumerical[col] = [`'${k}'`];
+                }
+              }
+            }
 
           });
         }
