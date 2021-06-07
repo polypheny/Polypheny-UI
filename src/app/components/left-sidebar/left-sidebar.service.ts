@@ -163,12 +163,22 @@ export class LeftSidebarService {
         }
         //Schema editing view
 
+        // this.router.url.startsWith('/views/schema-editing/'
         // !schemaRequest.views && schemaRequest.depth === 2
         if (this.router.url.startsWith('/views/schema-editing/')) {
           //function to define node behavior
           const nodeBehavior = (tree, node, $event) => {
             if (node.data.routerLink !== '') {
-              _router.navigate([node.data.routerLink]);
+              const rLink = [node.data.routerLink];
+              const rname = [node.data.id];
+              if(node.data.children.length === 0){
+                const url = ['/views/schema-editing/'];
+                const fullChildLink = (url.concat(rname));
+                _router.navigate(fullChildLink );
+              } else {
+                const fullLink = rLink.concat(rname);
+                _router.navigate(fullLink );
+              }
               if (node.isCollapsed) {
                 node.expand();
               } else if (!node.isCollapsed && node.isActive === true) {
