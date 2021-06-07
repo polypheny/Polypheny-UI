@@ -149,8 +149,8 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     this.connections = [];
     this.uml.foreignKeys.forEach((v, k) => {
       this.connections.push({
-        source: v.fkTableSchema + '_' + v.fkTableName + '_' + v.fkColumnName,
-        target: v.pkTableSchema + '_' + v.pkTableName + '_' + v.pkColumnName,
+        source: v.sourceSchema + '_' + v.sourceTable + '_' + v.sourceColumn,
+        target: v.targetSchema + '_' + v.targetTable + '_' + v.targetColumn,
       });
     });
   }
@@ -274,7 +274,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
     const fk: ForeignKey = new ForeignKey(this.constraintName, this.schema, this.sourceTable, this.sourceCol, this.targetTable, this.targetCol)
-      .onUpdate(this.fkForm.value.update).onDelete(this.fkForm.value.delete);
+      .updateAction(this.fkForm.value.update).deleteAction(this.fkForm.value.delete);
 
     this._crud.addForeignKey(fk).subscribe(
       res => {
@@ -287,11 +287,11 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
           this._toast.success('new foreign key was created', result.generatedQuery);
           // this.getUml();
           // this.connectTables();
-          const fkTable = fk.fkTableName.substr(fk.fkTableName.indexOf('.') + 1, fk.fkTableName.length);
-          const pkTable = fk.pkTableName.substr(fk.pkTableName.indexOf('.') + 1, fk.pkTableName.length);
+          const fkTable = fk.sourceTable.substr(fk.sourceTable.indexOf('.') + 1, fk.sourceTable.length);
+          const pkTable = fk.targetTable.substr(fk.targetTable.indexOf('.') + 1, fk.targetTable.length);
           this.connections.push({
-            source: fk.fkTableSchema + '_' + fkTable + '_' + fk.fkColumnName,
-            target: fk.pkTableSchema + '_' + pkTable + '_' + fk.pkColumnName
+            source: fk.sourceSchema + '_' + fkTable + '_' + fk.sourceColumn,
+            target: fk.targetSchema + '_' + pkTable + '_' + fk.targetColumn
           });
           this.constraintName = '';
           this.getGeneratedNames();

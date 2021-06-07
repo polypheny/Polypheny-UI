@@ -33,6 +33,11 @@ export class ConfigService {
     return this._http.post(`${this.httpUrl}/updateConfigs`, data, this.httpOptions);
   }
 
+  testConnection(dockerInstanceId:number) {
+    // we only have a connection for the configs but this is a more general request and goes to crud
+    return this._http.get( `${this._settings.getConnection('crud.rest')}/testDockerInstance/${dockerInstanceId}`, this.httpOptions );
+  }
+
 
   //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
   private initWebSocket() {

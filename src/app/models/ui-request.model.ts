@@ -108,6 +108,14 @@ export class StatisticRequest extends UIRequest {
   }
 }
 
+export class SchemaTypeRequest extends UIRequest{
+  constructor() {
+    super();
+    return this;
+  }
+
+}
+
 export class DeleteRequest extends UIRequest {
   constructor ( tableId: string, data: any) {
     super();

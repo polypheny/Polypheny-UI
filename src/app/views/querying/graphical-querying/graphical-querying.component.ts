@@ -472,10 +472,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.joinConditions.clear();
     this.umlData.forEach((uml, key) => {
       uml.foreignKeys.forEach((fk: ForeignKey, key2) => {
-        const fkId = fk.fkTableSchema + '.' + fk.fkTableName + '.' + fk.fkColumnName;
-        const pkId = fk.pkTableSchema + '.' + fk.pkTableName + '.' + fk.pkColumnName;
-        if (this.tables.get(fk.pkTableSchema + '.' + fk.pkTableName) !== undefined &&
-          this.tables.get(fk.fkTableSchema + '.' + fk.fkTableName) !== undefined) {
+        const fkId = fk.sourceSchema + '.' + fk.sourceTable + '.' + fk.sourceColumn;
+        const pkId = fk.targetSchema + '.' + fk.targetTable + '.' + fk.targetColumn;
+        if (this.tables.get(fk.targetSchema + '.' + fk.targetTable) !== undefined &&
+          this.tables.get(fk.sourceSchema + '.' + fk.sourceTable) !== undefined) {
           this.joinConditions.set(fkId + pkId, new JoinCondition(this.wrapInParetheses(fkId) + ' = ' + this.wrapInParetheses(pkId)));
         }
       });
