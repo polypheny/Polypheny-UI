@@ -1,4 +1,4 @@
-<div id="tree-outer-wrapper d-flex">
+<div id="tree-outer-wrapper d-flex" class="schema-editing">
 
   <div class="input-group input-group-sm" id="search-group">
     <div class="input-group-prepend">
@@ -44,9 +44,10 @@
   </div>
 
 
-  <div class="align-self-end">
+  <div class="schema-editing-wrapper">
     <div *ngIf="needsButton()" class="border-top my-3 "></div>
-    <p *ngIf="needsButton()" class="schemaEditing text-center" id="schemaText" [routerLink]="'/views/schema-editing/'">Schema editing</p>
+    <p *ngIf="needsButton()"  class="schema-button node-content-wrapper"  id="schemaText" [routerLink]="'/views/schema-editing/'"><i class="fa fa-pencil" aria-hidden="true"></i>
+      Manage Schema</p>
   </div>
 
 
