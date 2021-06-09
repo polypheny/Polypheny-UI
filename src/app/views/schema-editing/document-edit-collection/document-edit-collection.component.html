@@ -1,0 +1,225 @@
+<app-toast></app-toast>
+<app-edit-source-columns *ngIf="isSource() && tableId && tableId.includes('.')"></app-edit-source-columns>
+<div class="row" *ngIf="!isSource()">
+
+  <div class="col-lg-12">
+
+    <h5 *ngIf="tableId">{{tableId}}</h5>
+    <span *ngIf="!tableId">Please select a table in the left sidebar to edit its columns.</span>
+
+  <div class="col-lg-12" *ngIf="resultSet">
+    <hr>
+    <h5>Constraints</h5>
+    <div class="row">
+      <div class="col-6">
+        <div class="card" style="min-height: 153px">
+          <div class="card-header">
+            <span>Update primary key</span>
+          </div>
+          <div class="card-body">
+            <div class="constraint-columns">
+              <div class="form-check form-check-inline" *ngFor="let c of newPrimaryKey; let j = index">
+                <input type="checkbox" class="form-check-input" [id]="'pkcol'+j" [(ngModel)]="c.primary">
+                <label class="form-check-label" [for]="'pkcol'+j">{{c.name}}</label>
+              </div>
+              <button class="btn btn-sm btn-primary add-constraint" (click)="updatePrimaryKey()">update</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="card" style="min-height: 153px">
+          <div class="card-header">
+            <span>Add unique constraint</span>
+          </div>
+          <div class="card-body">
+            <div class="form-inline mb-2">
+              <div class="form-group">
+                <label for="uniqueName">Constraint name</label>
+                <input id="uniqueName" type="text" class="form-control form-control-sm"
+                       [placeholder]="proposedConstraintName" [(ngModel)]="uniqueConstraintName"
+                       [ngClass]="_crud.getValidationClass(uniqueConstraintName)">
+              </div>
+            </div>
+            <div class="constraint-columns">
+              <div class="form-check form-check-inline" *ngFor="let c of resultSet.header; let j = index">
+                <input type="checkbox" class="form-check-input" [id]="'uqcol'+j" [(ngModel)]="c.unique">
+                <label class="form-check-label" [for]="'uqcol'+j">{{c.name}}</label>
+              </div>
+              <button class="btn btn-sm btn-primary add-constraint" (click)="addUniqueConstraint()">add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <table class="table table-hover table-striped" *ngIf="constraints && constraints.data.length > 0">
+      <thead>
+        <tr>
+          <th *ngFor="let h of constraints.header">{{h.name}}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d1 of constraints.data; let i = index">
+          <td *ngFor="let d2 of d1">{{d2}}</td>
+          <td class="delete">
+            <app-delete-confirm *ngIf="d1[1] !== 'PRIMARY KEY'" (delete)="dropConstraint(d1[0], d1[1])"></app-delete-confirm>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="foreignKeys && foreignKeys.length > 0">
+      <h6>Foreign key</h6>
+      <table class="table table-hover table-striped" >
+        <thead>
+          <tr>
+            <th>FK Name</th>
+            <th>Column Name</th>
+            <th>Target Table</th>
+            <th>Target Column</th>
+            <th>Update Enforcement</th>
+            <th>Delete Enforcement</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let fk of foreignKeys; let i = index">
+            <td>{{fk.fkName}}</td>
+            <td>{{fk.sourceColumn}}</td>
+            <td>{{fk.targetTable}}</td>
+            <td>{{fk.targetColumn}}</td>
+            <td>{{fk.onUpdate}}</td>
+            <td>{{fk.onDelete}}</td>
+             <td class="delete">
+              <app-delete-confirm (delete)="dropConstraint(fk.fkName, 'FOREIGN KEY')"></app-delete-confirm>
+            </td> 
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+    <div class="col-lg-12">
+        <hr>
+        <h5>Indexes</h5>
+        <div class="card">
+            <div class="card-header">
+                <span>Add index</span>
+            </div>
+          <div class="card-body">
+            <form [formGroup]="newIndexForm" (submit)="addIndex()">
+              <div class="form-inline mb-2">
+                <div class="form-group">
+                  <label for="indexName">Name </label>
+                  <input id="indexName" type="text" autocomplete="off" class="form-control form-control-sm"
+                         [placeholder]="proposedIndexName" name="name" required formControlName="name"
+                         [ngClass]="inputValidation('name')">
+                  <div class="invalid-feedback">invalid name</div>
+                </div>
+                <div class="form-group" *ngIf="availableStoresForIndexes && availableStoresForIndexes.length > 0">
+                  <label for="storeName">Location</label>
+                  <select name="storeName" id="storeName" class="form-control form-control-sm" [ngModel]="selectedStoreForIndex" (ngModelChange)="onSelectingIndexStore($event)" [ngModelOptions]="{standalone: true}">
+                    <option *ngFor="let store of availableStoresForIndexes" [ngValue]="store">{{store.uniqueName}}</option>
+                  </select>
+                </div>
+                <div class="form-group" *ngIf="selectedStoreForIndex != null">
+                  <label for="indexMethod">Method</label>
+                  <select id="indexMethod" class="form-control form-control-sm" formControlName="method">
+                    <option *ngFor="let m of selectedStoreForIndex.availableIndexMethods" [value]="m.name">{{m.displayName}}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="constraint-columns">
+                <div class="form-check form-check-inline" *ngFor="let c of newIndexCols | keyvalue; let j=index">
+                  <input type="checkbox" class="form-check-input" [id]="'indexCol'+j" [(ngModel)]="newIndexCols[c.key]" [ngModelOptions]="{standalone: true}">
+                  <label class="form-check-label" [for]="'indexCol'+j">{{c.key}}</label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm" [ngClass]="{'progress-bar-striped progress-bar-animated': addingIndex}" [disabled]="addingIndex || !availableStoresForIndexes || availableStoresForIndexes.length == 0">create</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <table class="table table-hover table-striped" *ngIf="indexes && indexes.data.length > 0">
+            <thead>
+                <tr>
+                    <th *ngFor="let h of indexes.header">{{h.name}}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let d1 of indexes.data; let i = index">
+                    <td *ngFor="let d2 of d1">{{d2}}</td>
+                    <td class="delete">
+                      <app-delete-confirm *ngIf="d1[4] != 'FUNCTIONAL'" (delete)="dropIndex(d1[0])"></app-delete-confirm>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+  <div class="col-lg-12" *ngIf="dataPlacements">
+    <hr>
+    <div class="mb-3" style="position: relative">
+      <h5 style="display: inline">Data placements</h5>
+      <div class="btn-group btn-group-sm" id="placementBtnGroup" *ngIf="getAddableStores() && getAddableStores().length > 0">
+        <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="stores && stores.length>3">
+          <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+            <span *ngIf="!selectedStore">Select store</span>
+            <span *ngIf="selectedStore">{{selectedStore.uniqueName}}</span>
+            <span class="caret"></span>
+          </button>
+          <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+            <ng-container *ngFor="let store of getAddableStores()">
+              <li role="menuitem"><a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = store">{{store.uniqueName}}</a></li>
+            </ng-container>
+            <li *ngIf="getAddableStores().length === 0" role="menuitem"><a class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
+          </ul>
+        </div>
+        <button class="btn btn-primary btn-sm" (click)="initPlacementModal('ADD')">add</button>
+      </div>
+    </div>
+    <table class="table table-hover table-striped">
+      <thead>
+      <tr>
+        <th>Store</th>
+        <th>Adapter</th>
+        <th>Columns</th>
+        <th>Partitions</th><!-- *ngIf="isPartitioned()" -->
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let store of dataPlacements.stores; let i = index">
+        <td>{{store.uniqueName}}</td>
+        <td>{{store.adapterName}}</td>
+        <td>
+          <ng-container *ngFor="let p of store.columnPlacements; let isLast = last">
+            <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{p.columnName}}</span>{{isLast ? '' : ', '}}
+          </ng-container>
+          <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPlacementModal('MODIFY', store, store.columnPlacements)"></span>
+        </td>
+        <td><!-- *ngIf="isPartitioned()" -->
+          <span *ngIf="!store.partitionKeys || store.partitionKeys.length === 0" class="font-italic">none</span>
+          <ng-container *ngFor="let pKey of store.partitionKeys; let isLast = last">
+            <span>{{dataPlacements.partitionNames[pKey]}}</span>{{isLast ? '' : ', '}}
+          </ng-container>
+          <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPartitioningModal( store )"></span>
+        </td>
+        <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
+        <ng-container *ngIf="dataPlacements.stores.length > 1">
+          <td class="delete">
+            <app-delete-confirm (delete)="dropPlacement(store.uniqueName)"></app-delete-confirm>
+          </td>
+        </ng-container>
+        <!-- don't show delete icon if there is only one placement --->
+        <ng-container *ngIf="dataPlacements.stores.length < 2">
+          <td></td>
+        </ng-container>
+      </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+</div>
+

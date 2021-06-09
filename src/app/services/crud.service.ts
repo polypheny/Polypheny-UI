@@ -6,7 +6,7 @@ import {webSocket} from 'rxjs/webSocket';
 import {
   ColumnRequest,
   ConstraintRequest,
-  DeleteRequest,
+  DeleteRequest, EditCollectionRequest,
   EditTableRequest,
   ExploreTable,
   QueryRequest,
@@ -172,6 +172,13 @@ export class CrudService {
    */
   createTable(tableRequest: EditTableRequest) {
     return this._http.post(`${this.httpUrl}/createTable`, tableRequest, this.httpOptions);
+  }
+
+  /**
+   * Create a new collection
+   */
+  createCollection(collectionRequest: EditCollectionRequest) {
+    return this._http.post(`${this.httpUrl}/createCollection`, collectionRequest, this.httpOptions);
   }
 
   getGeneratedNames() {

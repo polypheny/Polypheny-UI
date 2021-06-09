@@ -1,6 +1,6 @@
 <app-toast></app-toast>
-<ng-container *ngIf="schema && tables">
-    <h5>Tables in <i>{{schema}}</i> [{{schemaType}}]</h5>
+<ng-container *ngIf="database && tables">
+    <h5>Collections in <i>{{database}}</i> [{{schemaType}}]</h5>
     <p>Type the name of a table into the text-fields to perform these actions.</p>
 </ng-container>
 
@@ -8,7 +8,7 @@
     <thead>
         <tr>
             <th>Export</th>
-            <th>Table</th>
+            <th>Collection</th>
             <th>Truncate</th>
             <th>Drop</th>
         </tr>
@@ -60,102 +60,18 @@
 <div class="row">
     <br><br>
     <div class="col-lg-12">
-        <h5>Create new table</h5>
-        <p>Columns without column_name will be ignored.</p>
+        <h5>Create new Collection</h5>
         <table class="table table-hover table-striped">
             <thead>
                 <tr>
-                   <th>Name</th>
-                    <th>Primary</th>
-                    <th>Nullable</th>
-                    <th>Type</th>
-                    <th>Collection</th>
-                    <th>Parameters</th>
-                    <th>Default</th>
+                    <th>Name</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let col of newColumns | keyvalue; let i=index">
-                    <td>
-                        <input type="text" class="form-control form-control-sm" placeholder="column name" [(ngModel)]="col.value.name" #columnName [ngClass]="_crud.getValidationClass(columnName.value)" [tabIndex]="i+1">
-                    </td>
-                    <td>
-                        <input type="checkbox" [(ngModel)]="col.value.primary">
-                    </td>
-                    <td>
-                        <input type="checkbox" [(ngModel)]="col.value.nullable">
-                    </td>
-                    <td>
-                        <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.dataType">
-                            <option *ngFor="let t of types" [ngValue]="t.name">{{t.name}}</option>
-                        </select>
-                    </td>
-                    <td>
-                      <select name="collection_type" id="collection_type" class="form-control form-control-sm editing" [(ngModel)]="col.value.collectionsType">
-                        <option value="">none</option>
-                        <option value="ARRAY">ARRAY</option>
-                      </select>
-                    </td>
-                    <td class="data-type-parameters">
-                      <!-- precision -->
-                      <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsPrecision(col.value.dataType)">
-                        <div class="input-group-prepend">
-                          <label [for]="'precision'+i" class="input-group-text">{{_types.precisionPlaceholder(col.value.dataType)}}</label>
-                        </div>
-                        <input [id]="'precision'+i" type="number" class="form-control form-control-sm" [placeholder]="_types.precisionPlaceholder(col.value.dataType)" [(ngModel)]="col.value.precision">
-                      </div>
-                      <!-- scale -->
-                      <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsScale(col.value.dataType)">
-                        <div class="input-group-prepend">
-                          <label [for]="'scale'+i" class="input-group-text">scale</label>
-                        </div>
-                        <input [id]="'scale'+i" type="number" class="form-control form-control-sm" placeholder="scale" [(ngModel)]="col.value.scale">
-                      </div>
-                      <!-- dimension -->
-                      <div class="input-group input-group-sm mt-1" *ngIf="col.value.collectionsType === 'ARRAY'">
-                        <div class="input-group-prepend">
-                          <label [for]="'dim'+i" class="input-group-text">dimension</label>
-                        </div>
-                        <input [id]="'dim'+i" type="number" placeholder="dimension" class="form-control form-control-sm" [(ngModel)]="col.value.dimension">
-                      </div>
-                      <!-- cardinality -->
-                      <div class="input-group input-group-sm mt-1" *ngIf="col.value.collectionsType === 'ARRAY'">
-                        <div class="input-group-prepend">
-                          <label [for]="'card'+i" class="input-group-text">cardinality</label>
-                        </div>
-                        <input [id]="'card'+i" type="number" placeholder="dimension" class="form-control form-control-sm" [(ngModel)]="col.value.cardinality">
-                      </div>
-                    </td>
-                    <td>
-                        <div class="input-group">
-                            <ng-container [ngSwitch]="col.value.dataType" *ngIf="col.value.dataType">
-                                <input *ngSwitchCase="_types.numericTypes().includes(col.value.dataType.toLowerCase()) && col.value.collectionsType !== 'ARRAY' ? col.value.dataType : ''" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
-                                <ng-container *ngSwitchCase="_types.booleanTypes().includes(col.value.dataType.toLowerCase()) ? col.value.dataType : ''">
-                                    <div class="form-check form-check-inline">
-                                        <label *ngIf="col.value.defaultValue === null" class="form-check-label disabled" [for]="'default'+col.value.name">null&nbsp;</label>
-                                        <label *ngIf="col.value.defaultValue === true" class="form-check-label" [for]="'default'+col.value.name">true&nbsp;</label>
-                                        <label *ngIf="col.value.defaultValue === false" class="form-check-label" [for]="'default'+col.value.name">false&nbsp;</label>
-                                        <input type="checkbox" class="form-check-input" [(ngModel)]="col.value.defaultValue" [id]="'default'+col.value.name" [disabled]="col.value.defaultValue === null">
-                                    </div>
-                                </ng-container>
-                                <input *ngSwitchDefault type="text" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
-                            </ng-container>
-                            <div class="input-group-append">
-                                <button class="btn btn-sm" [ngClass]="{'btn-primary': col.value.defaultValue ===null, 'btn-light': col.value.defaultValue !== null}" (click)="triggerDefaultNull( col.value )">null</button>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <i class="cui-trash del" (click)="removeNewColumn(col.key)"></i>
-                    </td>
-                </tr>
             <tr>
-              <td colspan="5">
-                <button class="btn btn-light" (click)="addNewColumn()">add column</button>
-              </td>
               <td>
-                <div class="btn-group float-right">
+                <div class="btn-group">
                   <div class="btn-group" dropdown placement="top right" [dropup]="true">
                     <button dropdownToggle type="button" class="btn btn-light dropdown-toggle">
                       <span *ngIf="!selectedStore">Select store</span><span
@@ -180,10 +96,10 @@
               </td>
               <td colspan="2">
                 <div class="input-group" style="justify-content: flex-end">
-                  <input type="text" placeholder="table name" class="form-control" style="max-width: 200px;"
-                         [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)" (keyup.enter)="createTable()" [tabIndex]="newColumns.size+1">
+                  <input type="text" placeholder="collection name" class="form-control" style="max-width: 200px;"
+                         [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)" (keyup.enter)="createCollection()" [tabIndex]="newColumns.size+1">
                   <div class="input-group-append">
-                    <button class="btn btn-primary" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingTable}" [disabled]="creatingTable" (click)="createTable()" [tabIndex]="newColumns.size+2">create table</button>
+                    <button class="btn btn-primary" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingTable}" [disabled]="creatingTable" (click)="createCollection()" [tabIndex]="newColumns.size+2">create collection</button>
                   </div>
                 </div>
               </td>

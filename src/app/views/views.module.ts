@@ -37,6 +37,8 @@ import { NgxSliderModule } from '@m0t0r/ngx-slider';
 import { QueryInterfacesComponent } from './query-interfaces/query-interfaces.component';
 import { EditSourceColumnsComponent } from './schema-editing/edit-source-columns/edit-source-columns.component';
 import {SearchFilterPipe, ValuePipe} from '../pipes/pipes';
+import {DocumentEditCollectionsComponent} from './schema-editing/document-edit-collections/document-edit-collections.component';
+import {DocumentEditCollectionComponent} from './schema-editing/document-edit-collection/document-edit-collection.component';
 
 
 @NgModule({
@@ -73,6 +75,8 @@ import {SearchFilterPipe, ValuePipe} from '../pipes/pipes';
     UmlComponent,
     SchemaEditingComponent,
     EditTablesComponent,
+    DocumentEditCollectionsComponent,
+    DocumentEditCollectionComponent,
     MonitoringComponent,
     RelationalAlgebraComponent,
     QueryingComponent,

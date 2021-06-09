@@ -199,6 +199,20 @@ export class EditTableRequest {
   }
 }
 
+export class EditCollectionRequest {
+  database: string;
+  collection: string;
+  action: string;
+  store: string;
+
+  constructor(database: string, collection: string = null, action: string = null, store: string = null) {
+    this.database = database;
+    this.collection = collection;
+    this.action = action;
+    this.store = store;
+  }
+}
+
 /**
  * Request to drop or create a constraint of a table
  */

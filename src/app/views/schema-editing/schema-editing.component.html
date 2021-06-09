@@ -1,6 +1,8 @@
 <app-toast></app-toast>
-<app-edit-columns *ngIf="routeParam && routeParam.includes('.')"></app-edit-columns>
-<app-edit-tables *ngIf="routeParam && !routeParam.includes('.')"></app-edit-tables>
+<app-edit-columns *ngIf="routeParam && routeParam.includes('.') && schemaType == 'relational'"></app-edit-columns>
+<app-edit-tables *ngIf="routeParam && !routeParam.includes('.') && schemaType == 'relational'"></app-edit-tables>
+<app-document-edit-collections *ngIf="routeParam && !routeParam.includes('.') && schemaType == 'document'"></app-document-edit-collections>
+<app-document-edit-collection *ngIf="routeParam && routeParam.includes('.') && schemaType == 'document'"></app-document-edit-collection>
 <ng-container *ngIf="!routeParam">
     <h1>Schema editing</h1>
     <p>Select an item from the left sidebar to edit or create tables or columns.</p>
