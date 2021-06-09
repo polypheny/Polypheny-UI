@@ -34,7 +34,6 @@
     "core-js": "^2.6.11",
     "d3": "^5.16.0",
     "dagre-d3": "^0.6.4",
-    "fibers": "^5.0.0",
     "flag-icon-css": "^3.5.0",
     "flatpickr": "^4.6.3",
     "font-awesome": "^4.7.0",
@@ -51,10 +50,10 @@
     "ngx-bootstrap": "^5.6.1",
     "ngx-perfect-scrollbar": "^8.0.0",
     "ngx-plyr": "^4.0.0",
-    "node-sass": "^4.14.1",
     "plyr": "^3.6.3",
     "rxjs": "^6.5.5",
     "rxjs-compat": "^6.5.5",
+    "sass": "^1.26.3",
     "simple-line-icons": "^2.4.1",
     "socket.io-client": "^2.3.0",
     "ts-helpers": "^1.1.2",
@@ -91,7 +90,7 @@
     "webpack": "^4.43.0"
   },
   "engines": {
-    "node": ">= 10.16",
+    "node": ">= 16.3.0",
     "npm": ">= 5.6.0"
   }
 }
