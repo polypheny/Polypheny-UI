@@ -33,7 +33,6 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
               node.data.action(tree, node, $event);
             }
             if (node.data.routerLink && node.data.allowRouting) {
-              console.log('left.sidebar.component');
               _router.navigate([node.data.routerLink]);
             }
             if (node.data.isAutoExpand()) {
@@ -126,7 +125,6 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
   }
 
   needsButton() {
-    console.log(this.router.url.startsWith('/views/schema-editing/'));
     return this.router.url.startsWith('/views/schema-editing/');
   }
 }

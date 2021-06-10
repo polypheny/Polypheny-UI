@@ -6,7 +6,7 @@
             <i class="fa fa-eye" aria-hidden="true"></i>
             </button>
         </div>
-        <div >
+        <div *ngIf="!config.exploring">
             <button class="btn btn-light" (click)="presentationType = presentationTypes.TABLE"
                     [class.active]="presentationType === presentationTypes.TABLE"
                     tooltip="table" placement="top" delay="200"><i class="fa fa-table"></i></button>
@@ -18,7 +18,7 @@
                     tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
         </div>
         <div>
-            <button *ngIf="resultSet.data" class="btn btn-light viewButton" tooltip="create view"
+            <button *ngIf="resultSet.data && (exploringShowView || !(config.exploring)) " class="btn btn-light viewButton" tooltip="create view"
                     (click)="openCreateView(createView, resultSet.generatedQuery)">
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </button>
@@ -30,8 +30,13 @@
 
 <ng-container [ngSwitch]="presentationType">
     <ng-container *ngSwitchCase="presentationTypes.TABLE">
-        <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="config" [tableId]="tableId" [loading]="loading"></app-data-table>
-    </ng-container>
+        <div *ngIf="!(config.exploring)">
+            <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="config" [tableId]="tableId" [loading]="loading" (showViewExploring)="addItem($event)"  ></app-data-table>
+        </div>
+        <div *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' ">
+        <app-data-table [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: true}" [loading]="loading" [tutorialMode]="tutorialMode" [exploreId]="exploreId" (showViewExploring)="addItem($event)"></app-data-table>
+        </div>
+         </ng-container>
     <ng-container *ngSwitchCase="presentationTypes.CARD">
         <app-data-card *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-card>
     </ng-container>

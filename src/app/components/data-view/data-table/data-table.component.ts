@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
 import {cloneDeep} from 'lodash';
 import {ClassifyRequest, Exploration, ExploreTable} from '../../../models/ui-request.model';
@@ -48,6 +48,8 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
   tableColor = '#FFFFFF';
   exploreDataCounter = 0;
   labled = [];
+
+  @Output() showViewExploring = new EventEmitter();
 
   constructor(
     public _crud: CrudService,
@@ -345,6 +347,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
           this.createdSQL = this.resultSet.generatedQuery;
         }
         this.setPagination();
+        this.showViewExploring.emit(true);
       }, err => {
         this._toast.error(('Error showing final Result'));
         console.log(err);

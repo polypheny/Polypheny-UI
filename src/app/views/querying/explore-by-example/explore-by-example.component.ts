@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnDestroy, OnInit, Output, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
-import {EditTableRequest, QueryExplorationRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {EditTableRequest, QueryExplorationRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ResultSet} from '../../../components/data-view/models/result-set.model';
@@ -11,6 +11,8 @@ import {ForeignKey, Uml} from '../../uml/uml.model';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {Subscription} from 'rxjs';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
+import {WebSocket} from '../../../services/webSocket';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
 
 @Component({
   selector: 'app-explore-by-example',
@@ -27,6 +29,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
 
 
   @ViewChild('editGenerated', {static: false}) editGenerated;
+  websocket: WebSocket;
   loading = false;
   resultSet: ResultSet;
   showResultTable: boolean;
@@ -50,6 +53,8 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
   tableModeImage = 'assets/img/explore/tutorialModeTable.PNG';
   exploreId = 0;
   cPage = 1;
+  showView = false;
+  viewCode = '';
 
   tableConfig: TableConfig = {
     create: false,
@@ -64,7 +69,9 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     private _crud: CrudService,
     private _leftSidebar: LeftSidebarService,
     private _toast: ToastService,
+    private _settings: WebuiSettingsService,
     private modalService: BsModalService) {
+    this.websocket = new WebSocket(_settings);
   }
 
 
@@ -84,6 +91,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._leftSidebar.close();
     this.subscriptions.unsubscribe();
+    this.websocket.close();
   }
 
   initSchema() {
@@ -266,6 +274,23 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
       }
     );
   }
+
+  createView(viewCode: string){
+    this.showView = true;
+    this.viewCode = viewCode;
+    this.executeQuery(viewCode);
+  }
+
+  executeQuery(viewCode: string) {
+    console.log('inside execute');
+    const code = viewCode;
+    if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, true))) {
+      this.loading = false;
+      this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
+    }
+  }
+
+
 
 }
 

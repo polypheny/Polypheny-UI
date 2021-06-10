@@ -30,6 +30,8 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('createView', {static: false}) public createView: TemplateRef<any>;
   @ViewChild('viewEditor', {static: false}) viewEditor;
   @Output() viewEditorCode = new EventEmitter();
+  @Input() exploreId?: number;
+  @Input() tutorialMode: boolean;
 
   presentationType: DataPresentationType = DataPresentationType.TABLE;
   //see https://stackoverflow.com/questions/35835984/how-to-use-a-typescript-enum-value-in-an-angular2-ngswitch-statement
@@ -54,6 +56,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   modalRefCreateView: BsModalRef;
   viewName;
   sqlQuery: string;
+  exploringShowView = false;
 
   constructor(
     public _crud: CrudService,
@@ -460,9 +463,19 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   submitViewName(){
     const createView = 'CREATE VIEW ';
     const createViewAs = ' AS \n';
-    this.viewEditorCode.emit(createView + this.viewName + createViewAs );
+    if(this.exploringShowView){
+      this.viewEditorCode.emit(createView + this.viewName + createViewAs + this.sqlQuery );
+      console.log('inside exproingshowview' + this.exploringShowView);
+    }else{
+      this.viewEditorCode.emit(createView + this.viewName + createViewAs );
+      console.log('inside other');
+    }
 
     this.modalRefCreateView.hide();
+  }
+
+  addItem(eShowView){
+    this.exploringShowView = eShowView;
   }
 
 }

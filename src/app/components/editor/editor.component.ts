@@ -84,7 +84,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   }
 
   setCode ( code: string ) {
-    if( this.codeEditor) this.codeEditor.setValue( code, 1 );
+    if( this.codeEditor) {this.codeEditor.setValue( code, 1 );}
   }
 
   // from: https://stackoverflow.com/questions/30041816/ace-editor-autocomplete-custom-strings
