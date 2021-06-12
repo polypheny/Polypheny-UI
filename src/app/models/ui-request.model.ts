@@ -36,10 +36,12 @@ export class QueryRequest extends UIRequest {
   requestType = 'QueryRequest';
   query: string;
   analyze: boolean;
-  constructor ( query: string, analyze: boolean ) {
+  language: string;
+  constructor ( query: string, analyze: boolean, lang: string ) {
     super();
     this.query = query;
     this.analyze = analyze;
+    this.language = lang;
     return this;
   }
 }

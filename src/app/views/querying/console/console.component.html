@@ -50,7 +50,8 @@
       <input type="checkbox" class="custom-control-input" id="checkbox2" [(ngModel)]="saveInHistory">
       <label class="custom-control-label" for="checkbox2">save in history</label>
     </div>
-    <button *ngIf="!loading" type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
+    <button *ngIf="!loading" type="submit" class="btn btn-primary pull-right" (click)="submitQuery('sql')">Execute</button>
+    <button *ngIf="!loading" type="submit" class="btn btn-primary pull-right mr-1" (click)="submitQuery('mql')">Execute Mongo Query</button>
     <button *ngIf="loading" type="submit" class="btn btn-primary progress-bar-striped progress-bar-animated pull-right" disabled>Loading</button>
   </div>
 </div>

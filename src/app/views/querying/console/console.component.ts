@@ -17,11 +17,11 @@ import {UtilService} from '../../../services/util.service';
 import {WebSocket} from '../../../services/webSocket';
 
 @Component({
-  selector: 'app-sql-console',
-  templateUrl: './sql-console.component.html',
-  styleUrls: ['./sql-console.component.scss']
+  selector: 'app-console',
+  templateUrl: './console.component.html',
+  styleUrls: ['./console.component.scss']
 })
-export class SqlConsoleComponent implements OnInit, OnDestroy {
+export class ConsoleComponent implements OnInit, OnDestroy {
 
   @ViewChild('editor', {static: false}) codeEditor;
   @ViewChild('historySearchInput') historySearchInput;
@@ -68,7 +68,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
         if( e.shiftKey ) {
           self.saveInHistory = false;
         }
-        self.submitQuery();
+        self.submitQuery('sql');
       }
     };
     this.initWebsocket();
@@ -88,7 +88,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     window.onkeydown = null;
   }
 
-  submitQuery() {
+  submitQuery(lang: string) {
     const code = this.codeEditor.getCode();
     if( !code ) {
       return;
@@ -105,7 +105,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     this.queryAnalysis = null;
 
     this.loading = true;
-    if(!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery))){
+    if(!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, lang))){
       this.loading = false;
       this.resultSets = [new ResultSet('Could not establish a connection with the server.', code)];
     }
@@ -134,7 +134,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   applyHistory(query: string, run: boolean) {
     this.codeEditor.setCode(query);
     if (run) {
-      this.submitQuery();
+      this.submitQuery('sql');
     }
   }
 
@@ -170,7 +170,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   initWebsocket() {
     //function to define behavior when clicking on a page link
     const nodeBehavior = (tree, node, $event) => {
-      if (node.data.id === 'sql-console') {
+      if (node.data.id === 'console') {
         //this.queryAnalysis = null;
         this.showingAnalysis = false;
         this._breadcrumb.hide();
@@ -217,7 +217,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
             });
           }
 
-          sidebarNodes.unshift(new SidebarNode('sql-console', 'sql-console', 'fa fa-keyboard-o').setAction(nodeBehavior));
+          sidebarNodes.unshift(new SidebarNode('console', 'console', 'fa fa-keyboard-o').setAction(nodeBehavior));
           this._leftSidebar.setNodes(sidebarNodes);
           if (sidebarNodes.length > 0) {
             this._leftSidebar.open();

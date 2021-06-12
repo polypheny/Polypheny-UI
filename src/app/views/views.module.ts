@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { ViewsRoutingModule } from './views-routing.module';
 import {TableViewComponent} from './table-view/table-view.component';
-import {SqlConsoleComponent} from './querying/sql-console/sql-console.component';
+import {ConsoleComponent} from './querying/console/console.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ComponentsModule} from '../components/components.module';
 import {EditColumnsComponent} from './schema-editing/edit-columns/edit-columns.component';
@@ -70,7 +70,7 @@ import {DocumentEditCollectionComponent} from './schema-editing/document-edit-co
     EditColumnsComponent,
     FormGeneratorComponent,
     GraphicalQueryingComponent,
-    SqlConsoleComponent,
+    ConsoleComponent,
     TableViewComponent,
     UmlComponent,
     SchemaEditingComponent,
