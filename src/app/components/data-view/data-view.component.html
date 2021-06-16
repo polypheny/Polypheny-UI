@@ -1,12 +1,12 @@
 <span *ngIf="!resultSet && loading">Loading data...</span>
 <div id="mode_wrapper" class="mb-2" *ngIf="resultSet">
-    <div class="d-flex justify-content-between" >
+    <div class="d-flex justify-content-between">
         <div>
-            <button *ngIf="resultSet.data" [style.visibility]="'hidden'" >
-            <i class="fa fa-eye" aria-hidden="true"></i>
+            <button *ngIf="resultSet.data" [style.visibility]="'hidden'">
+                <i class="fa fa-eye" aria-hidden="true"></i>
             </button>
         </div>
-        <div *ngIf="!config.exploring">
+        <div>
             <button class="btn btn-light" (click)="presentationType = presentationTypes.TABLE"
                     [class.active]="presentationType === presentationTypes.TABLE"
                     tooltip="table" placement="top" delay="200"><i class="fa fa-table"></i></button>
@@ -18,8 +18,8 @@
                     tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
         </div>
         <div>
-            <button *ngIf="resultSet.data && (exploringShowView || !(config.exploring)) " class="btn btn-light viewButton" tooltip="create view"
-                    (click)="openCreateView(createView, resultSet.generatedQuery)">
+            <button *ngIf="resultSet.data" class="btn btn-light viewButton" tooltip="create view"
+                    (click)="openCreateView(createViewExample, resultSet.generatedQuery)">
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </button>
         </div>
@@ -30,13 +30,8 @@
 
 <ng-container [ngSwitch]="presentationType">
     <ng-container *ngSwitchCase="presentationTypes.TABLE">
-        <div *ngIf="!(config.exploring)">
-            <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="config" [tableId]="tableId" [loading]="loading" (showViewExploring)="addItem($event)"  ></app-data-table>
-        </div>
-        <div *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' ">
-        <app-data-table [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: true}" [loading]="loading" [tutorialMode]="tutorialMode" [exploreId]="exploreId" (showViewExploring)="addItem($event)"></app-data-table>
-        </div>
-         </ng-container>
+        <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="config" [tableId]="tableId" [loading]="loading" (showViewExploring)="addItem($event)"></app-data-table>
+    </ng-container>
     <ng-container *ngSwitchCase="presentationTypes.CARD">
         <app-data-card *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-card>
     </ng-container>
@@ -46,7 +41,7 @@
 </ng-container>
 
 
-<ng-template #createView>
+<ng-template #createViewExample>
     <div class="modal-content">
         <div class="modal-header">
             <h4 class="modal-title pull-left">Create View</h4>
@@ -55,14 +50,14 @@
             </button>
         </div>
         <div class="modal-body" id="modal-body-tree">
-            Please enter the name of your View:
-            <form class="form-inline">
-                <div class="form-group mx-sm-3 mb-2">
-                    <label for="viewName" class="sr-only">Name of View</label>
-                    <input #box type="text" class="form-control-plaintext" id="viewName" placeholder="viewName" (keyup)="this.viewName = box.value">
+
+            <div class="form-group">
+                <label for="viewName" class="mb-2"> Please enter the name of your View:</label>
+                <div class="d-flex justify-content-between">
+                    <input #box type="text" class="form-control " id="viewName" placeholder=" viewName" (keyup)="this.viewName = box.value">
+                    <button type="submit" class="btn btn-primary ml-2" (click)="submitViewName()">submit</button>
                 </div>
-                <button type="submit" class="btn btn-primary mb-2" (click)="submitViewName()">submit</button>
-            </form>
+            </div>
         </div>
     </div>
 </ng-template>

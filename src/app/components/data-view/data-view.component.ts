@@ -54,7 +54,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   subscriptions = new Subscription();
   resultSetEvent = new EventEmitter<ResultSet>();
   modalRefCreateView: BsModalRef;
-  viewName;
+  viewName = 'viewname';
   sqlQuery: string;
   exploringShowView = false;
 
@@ -461,13 +461,14 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   submitViewName(){
-    const createView = 'CREATE VIEW ';
-    const createViewAs = ' AS \n';
+    const createView = 'CREATE VIEW';
+    const createViewAs = 'AS \n';
     if(this.exploringShowView){
       this.viewEditorCode.emit(createView + this.viewName + createViewAs + this.sqlQuery );
       console.log('inside exproingshowview' + this.exploringShowView);
-    }else{
-      this.viewEditorCode.emit(createView + this.viewName + createViewAs );
+    } else{
+      const viewData = [createView, this.viewName, createViewAs];
+      this.viewEditorCode.emit( viewData );
       console.log('inside other');
     }
 

@@ -26,9 +26,13 @@ export class TableRequest extends UIRequest {
 export class RelAlgRequest extends UIRequest {
   requestType = 'RelAlgRequest';
   topNode: Node;
-  constructor( node: Node ) {
+  createView: boolean;
+  viewName: string;
+  constructor( node: Node, createView?: boolean, viewName?: string ) {
     super();
     this.topNode = node;
+    this.createView = createView || false;
+    this.viewName = viewName || 'viewName';
   }
 }
 

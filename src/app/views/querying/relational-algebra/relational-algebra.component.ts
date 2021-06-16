@@ -283,7 +283,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
    * Rearrange data to an object that can be used for the autocompletion
    */
   getAutocomplete() {
-    this._crud.getSchema(new SchemaRequest('', false, 3, false)).subscribe(
+    this._crud.getSchema(new SchemaRequest('', false, 3, true)).subscribe(
       res => {
         const schemaTree = <SidebarNode[]>res;
         const autocomplete = {schemas: []};
@@ -480,6 +480,14 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       this.resultSet = new ResultSet('Could not establish a connection with the server.');
     }
   }
+
+  createView(viewName: string[]){
+    const tree = this.getTree();
+    const createView = true;
+    console.log('testing relAlg');
+    this._crud.executeRelAlg(this.webSocket, tree, createView, viewName[1]);
+  }
+
 
   /**
    * Get the topmost node to be able to iterate the tree

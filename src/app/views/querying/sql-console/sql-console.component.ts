@@ -259,8 +259,9 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub);
   }
 
-  createView(viewEditorCode: string){
+  createView(viewEditorCode: string[]){
+    console.log('testing sqlconsole');
     const code = this.codeEditor.getCode();
-    this.codeEditor.setCode(viewEditorCode + code);
+    this.codeEditor.setCode(viewEditorCode.join(' ') + code);
   }
 }
