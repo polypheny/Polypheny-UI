@@ -463,15 +463,8 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   submitViewName(){
     const createView = 'CREATE VIEW';
     const createViewAs = 'AS \n';
-    if(this.exploringShowView){
-      this.viewEditorCode.emit(createView + this.viewName + createViewAs + this.sqlQuery );
-      console.log('inside exproingshowview' + this.exploringShowView);
-    } else{
-      const viewData = [createView, this.viewName, createViewAs];
-      this.viewEditorCode.emit( viewData );
-      console.log('inside other');
-    }
-
+    const viewData = [createView, this.viewName, createViewAs];
+    this.viewEditorCode.emit( viewData );
     this.modalRefCreateView.hide();
   }
 

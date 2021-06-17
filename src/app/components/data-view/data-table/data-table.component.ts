@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
 import {cloneDeep} from 'lodash';
-import {ClassifyRequest, Exploration, ExploreTable} from '../../../models/ui-request.model';
+import {ClassifyRequest, Exploration, ExploreTable, QueryRequest} from '../../../models/ui-request.model';
 import {PaginationElement} from '../models/pagination-element.model';
 import {DbColumn, ExploreSet, ResultSet} from '../models/result-set.model';
 import {SortDirection, SortState} from '../models/sort-state.model';
@@ -15,6 +15,7 @@ import * as d3 from 'd3';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
+import {WebSocket} from '../../../services/webSocket';
 
 
 @Component({
@@ -24,6 +25,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
   encapsulation: ViewEncapsulation.None
 })
 export class DataTableComponent extends DataViewComponent implements OnInit {
+  websocket: WebSocket;
   @Input() exploreSet?: ExploreSet;
   @Input() exploreId?: number;
   @ViewChild('decisionTree', {static: false}) public decisionTree: TemplateRef<any>;
@@ -42,6 +44,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
   finalresult = false;
   initalClassifiation = true;
   cPage = 1;
+  viewName = 'viewName';
 
   columns = [];
   userInput = {};
@@ -58,9 +61,10 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     public _router: Router,
     public _types: DbmsTypesService,
     public _settings: WebuiSettingsService,
-    public modalService: BsModalService
+    public modalService: BsModalService,
   ) {
     super( _crud, _toast, _route, _router, _types, _settings, modalService );
+    this.websocket = new WebSocket(_settings);
   }
 
 
@@ -424,5 +428,25 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
   canOrder( col: DbColumn ) {
     return !this._types.isMultimedia(col.dataType) && !col.collectionsType;
   }
+
+
+  createViewButton(createViewExample){
+    this.modalRefCreateView = this.modalService.show(createViewExample);
+
+  }
+
+  executeViewExample(createdSQL){
+    this.createdSQL = 'CREATE VIEW ' + this.viewName + ' AS\n' + createdSQL;
+    const code = this.createdSQL;
+    if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, true))) {
+      this.loading = false;
+      this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
+    }else{
+      this._toast.success('View ' + this.viewName + ' was created successfully.');
+    }
+
+    this.modalRefCreateView.hide();
+  }
+
 
 }

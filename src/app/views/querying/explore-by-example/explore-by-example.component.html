@@ -40,8 +40,6 @@
 <div class="row" *ngIf="resultSet">
     <div class="col-lg-12" style="padding-bottom: 1em;">
         <h5>Query Result</h5>
-        <app-data-view [resultSet]="resultSet" [config]="tableConfig" [loading]="loading" [tutorialMode]="tutorialMode" [exploreId]="exploreId" (viewEditorCode)="createView($event)"></app-data-view>
-        <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="showView">Created View with: {{viewCode}}</p>
-        <!--<app-data-table [resultSet]="resultSet" [config]="tableConfig" [loading]="loading" [tutorialMode]="tutorialMode" [exploreId]="exploreId"  ></app-data-table>-->
+        <app-data-table [resultSet]="resultSet" [config]="tableConfig" [loading]="loading" [tutorialMode]="tutorialMode" [exploreId]="exploreId"  ></app-data-table>
     </div>
 </div>

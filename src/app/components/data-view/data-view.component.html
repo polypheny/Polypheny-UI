@@ -18,8 +18,8 @@
                     tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
         </div>
         <div>
-            <button *ngIf="resultSet.data" class="btn btn-light viewButton" tooltip="create view"
-                    (click)="openCreateView(createViewExample, resultSet.generatedQuery)">
+            <button *ngIf="resultSet.data && !(_router.url.startsWith('/views/data-table/'))" class="btn btn-light viewButton" tooltip="create view"
+                    (click)="openCreateView(createView, resultSet.generatedQuery)">
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </button>
         </div>
@@ -41,7 +41,7 @@
 </ng-container>
 
 
-<ng-template #createViewExample>
+<ng-template #createView>
     <div class="modal-content">
         <div class="modal-header">
             <h4 class="modal-title pull-left">Create View</h4>
@@ -54,7 +54,7 @@
             <div class="form-group">
                 <label for="viewName" class="mb-2"> Please enter the name of your View:</label>
                 <div class="d-flex justify-content-between">
-                    <input #box type="text" class="form-control " id="viewName" placeholder=" viewName" (keyup)="this.viewName = box.value">
+                    <input #box type="text" class="form-control " id="viewName" placeholder="viewName" (keyup)="this.viewName = box.value">
                     <button type="submit" class="btn btn-primary ml-2" (click)="submitViewName()">submit</button>
                 </div>
             </div>

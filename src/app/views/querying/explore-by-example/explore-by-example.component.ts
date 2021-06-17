@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnDestroy, OnInit, Output, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
-import {EditTableRequest, QueryExplorationRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {EditTableRequest, QueryExplorationRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ResultSet} from '../../../components/data-view/models/result-set.model';
@@ -274,23 +274,6 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
       }
     );
   }
-
-  createView(viewCode: string){
-    this.showView = true;
-    this.viewCode = viewCode;
-    this.executeQuery(viewCode);
-  }
-
-  executeQuery(viewCode: string) {
-    console.log('inside execute');
-    const code = viewCode;
-    if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, true))) {
-      this.loading = false;
-      this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
-    }
-  }
-
-
 
 }
 

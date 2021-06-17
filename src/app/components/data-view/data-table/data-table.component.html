@@ -3,190 +3,219 @@
 <div class="text-danger mb-3" *ngIf="resultSet.error && !resultSet.header">{{resultSet.error}}</div>
 
 <div class="row" *ngIf="resultSet.header">
-  <div class="col-lg-12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': config.exploring }">
-    <table class="table table-hover table-sm table-bordered" [ngClass]="{'loading': loading, 'table-striped': !config.exploring || exploreSet}" id="data-table" [attr.data-table]="resultSet.table">
-      <thead>
-      <tr>
-        <ng-container *ngFor="let h of resultSet.header">
-          <th><span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body" [ngClass]="{'pk': h.primary}">{{h.name}}</span>
-            <a *ngIf="config.sort && canOrder(h)" [routerLink]="" [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}" (click)="sortTable(h.sort)">
-              <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
-            </a>
-          </th>
-        </ng-container>
-        <th class="delete" *ngIf="config.delete">
-          <!--<i class="cui-trash"></i>-->
-        </th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngIf="config.search">
-        <td *ngFor="let h of resultSet.header">
-          <input *ngIf="_types.isNumeric(h.dataType) && !h.collectionsType" type="number" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter1.value, h)" #filter1>
-          <input *ngIf="( ! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType) ) || h.collectionsType" type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter2.value, h)" #filter2 [ngClass]="isValidFilter(filter2.value,h)">
-        </td>
-        <td *ngIf="config.update || config.delete"></td>
-      </tr>
-      <tr *ngFor="let d1 of resultSet.data; let i = index" [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
-        <ng-container *ngIf="editing === i">
-          <td *ngFor="let d2 of d1; let j = index">
-            <app-input class="editing" [header]="resultSet.header[j]" [value]="updateValues.get(resultSet.header[j].name)" (valueChange)="newUpdateValue(resultSet.header[j].name, $event)" (enter)="updateRow()" [attr.data-before]="d2" [attr.data-col]="resultSet.header[j].name"></app-input>
-          </td>
-          <td *ngIf="config.update || config.delete">
-            <button *ngIf="uploadProgress === -1" class="btn btn-primary" id="editColSave" (click)="updateRow()"><i class="fa fa-save"></i></button>
-            <progressbar *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary" class="file-progress"></progressbar>
-            <progressbar *ngIf="uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)" [animate]="true" [value]="100" [striped]="true" type="primary" class="file-progress"></progressbar>
-            <!--<progressbar *ngIf="uploadProgress > -1" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="uploadProgress === 100 || uploadProgress === 0" type="primary" class="file-progress"></progressbar>-->
-          </td>
-        </ng-container>
-        <!-- table which shows resultSet  -->
-        <ng-container *ngIf="editing !== i">
-          <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
-            <ng-container [ngSwitch]="resultSet.header[j].dataType" *ngIf="d2">
-              <ng-container *ngSwitchCase="'FILE'">
-                <a *ngIf="downloadingIthRow !== i" [routerLink]="[]" class="download" (click)="getFile(d2, i)" download><span class="cui-cloud-download"></span></a>
-                <progressbar *ngIf="downloadingIthRow === i && downloadProgress > -1 && downloadProgress !== 0 && downloadProgress !== 100" [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress" type="primary" class="file-progress"></progressbar>
-                <progressbar *ngIf="downloadingIthRow === i && downloadProgress > -1 && (downloadProgress === 100 || downloadProgress === 0)" [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress" [striped]="true" type="primary" class="file-progress"></progressbar>
-              </ng-container>
-              <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)" style="max-height:200px; max-width: 300px"/>
-              <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
-              <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
-              <app-expandable-text *ngSwitchDefault [text]="d2"></app-expandable-text>
-            </ng-container>
-          </td>
-          <td *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">
-            <div class="btn-group btn-group-toggle" data-toggle="buttons">
-              <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'true'}">
-                <input type="radio" class="form-control" name="choose" value="true" id="true" autocomplete="off"
-                       (click)="this.userInput[d1] = 'true'"> true
-              </label>
-              <label class="btn btn-secondary active"
-                     [ngClass]="{'active' : userInput[d1] === '?' || userInput[d1] === undefined }">
-                <input type="radio" class="form-control" name="choose" value="?" id="ignored" autocomplete="off" checked
-                       (click)="this.userInput[d1] = '?'"> N/A
-              </label>
-              <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'false'}">
-                <input type="radio" class="form-control" name="choose" value="false" id="false" autocomplete="off"
-                       (click)="this.userInput[d1] = 'false'; exploreData()"> false
-              </label>
-            </div>
-          </td>
-          <td class="delete" *ngIf="config.update || config.delete">
-            <i *ngIf="config.delete" [ngClass]="{ 'cui-trash': i!==confirm, 'fa fa-warning': i===confirm }"
-               (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"></i>
-          </td>
-        </ng-container>
-      </tr>
-      <tr *ngIf="!resultSet.data || resultSet.data.length === 0">
-        <td *ngIf="!resultSet.error" [attr.colspan]="resultSet.header.length+1" style="text-align: center"
-            class="text-danger">(no data to show)
-        </td>
-        <td *ngIf="resultSet.error" [attr.colspan]="resultSet.header.length+1" style="text-align: center"
-            class="text-danger">error while filtering table
-        </td>
-      </tr>
-      <tr *ngIf="config.create" id="insertRow">
-        <td *ngFor="let h of resultSet.header">
-          <app-input [header]="h" [value]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"
-                     (enter)="insertRow()"></app-input>
-        </td>
-        <td *ngIf="config.update || config.delete">
-          <button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()" *ngIf="uploadProgress === -1 || editing !== -1">+</button>
-          <progressbar *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 0 && uploadProgress !== 100" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary" class="file-progress"></progressbar>
-          <progressbar *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)" [animate]="true" [value]="100" [striped]="true" type="primary" class="file-progress"></progressbar>
-          <!--<progressbar *ngIf="editing === -1 && uploadProgress > -1" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="uploadProgress === 100 || uploadProgress === 0" type="primary" class="file-progress"></progressbar>-->
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+    <div class="col-lg-12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': config.exploring }">
+        <table class="table table-hover table-sm table-bordered" [ngClass]="{'loading': loading, 'table-striped': !config.exploring || exploreSet}" id="data-table" [attr.data-table]="resultSet.table">
+            <thead>
+            <tr>
+                <ng-container *ngFor="let h of resultSet.header">
+                    <th><span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body" [ngClass]="{'pk': h.primary}">{{h.name}}</span>
+                        <a *ngIf="config.sort && canOrder(h)" [routerLink]="" [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}" (click)="sortTable(h.sort)">
+                            <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
+                        </a>
+                    </th>
+                </ng-container>
+                <th class="delete" *ngIf="config.delete">
+                    <!--<i class="cui-trash"></i>-->
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngIf="config.search">
+                <td *ngFor="let h of resultSet.header">
+                    <input *ngIf="_types.isNumeric(h.dataType) && !h.collectionsType" type="number" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter1.value, h)" #filter1>
+                    <input *ngIf="( ! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType) ) || h.collectionsType" type="text" class="form-control form-control-sm table-filter" placeholder="search" [attr.data-col]="h.name" [value]="h.filter" (keyup)="filterTable($event, filter2.value, h)" #filter2 [ngClass]="isValidFilter(filter2.value,h)">
+                </td>
+                <td *ngIf="config.update || config.delete"></td>
+            </tr>
+            <tr *ngFor="let d1 of resultSet.data; let i = index" [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
+                <ng-container *ngIf="editing === i">
+                    <td *ngFor="let d2 of d1; let j = index">
+                        <app-input class="editing" [header]="resultSet.header[j]" [value]="updateValues.get(resultSet.header[j].name)" (valueChange)="newUpdateValue(resultSet.header[j].name, $event)" (enter)="updateRow()" [attr.data-before]="d2" [attr.data-col]="resultSet.header[j].name"></app-input>
+                    </td>
+                    <td *ngIf="config.update || config.delete">
+                        <button *ngIf="uploadProgress === -1" class="btn btn-primary" id="editColSave" (click)="updateRow()"><i class="fa fa-save"></i></button>
+                        <progressbar *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary" class="file-progress"></progressbar>
+                        <progressbar *ngIf="uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)" [animate]="true" [value]="100" [striped]="true" type="primary" class="file-progress"></progressbar>
+                        <!--<progressbar *ngIf="uploadProgress > -1" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="uploadProgress === 100 || uploadProgress === 0" type="primary" class="file-progress"></progressbar>-->
+                    </td>
+                </ng-container>
+                <!-- table which shows resultSet  -->
+                <ng-container *ngIf="editing !== i">
+                    <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
+                        <ng-container [ngSwitch]="resultSet.header[j].dataType" *ngIf="d2">
+                            <ng-container *ngSwitchCase="'FILE'">
+                                <a *ngIf="downloadingIthRow !== i" [routerLink]="[]" class="download" (click)="getFile(d2, i)" download><span class="cui-cloud-download"></span></a>
+                                <progressbar *ngIf="downloadingIthRow === i && downloadProgress > -1 && downloadProgress !== 0 && downloadProgress !== 100" [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress" type="primary" class="file-progress"></progressbar>
+                                <progressbar *ngIf="downloadingIthRow === i && downloadProgress > -1 && (downloadProgress === 100 || downloadProgress === 0)" [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress" [striped]="true" type="primary" class="file-progress"></progressbar>
+                            </ng-container>
+                            <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)" style="max-height:200px; max-width: 300px"/>
+                            <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
+                            <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
+                            <app-expandable-text *ngSwitchDefault [text]="d2"></app-expandable-text>
+                        </ng-container>
+                    </td>
+                    <td *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'true'}">
+                                <input type="radio" class="form-control" name="choose" value="true" id="true" autocomplete="off"
+                                       (click)="this.userInput[d1] = 'true'"> true
+                            </label>
+                            <label class="btn btn-secondary active"
+                                   [ngClass]="{'active' : userInput[d1] === '?' || userInput[d1] === undefined }">
+                                <input type="radio" class="form-control" name="choose" value="?" id="ignored" autocomplete="off" checked
+                                       (click)="this.userInput[d1] = '?'"> N/A
+                            </label>
+                            <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'false'}">
+                                <input type="radio" class="form-control" name="choose" value="false" id="false" autocomplete="off"
+                                       (click)="this.userInput[d1] = 'false'; exploreData()"> false
+                            </label>
+                        </div>
+                    </td>
+                    <td class="delete" *ngIf="config.update || config.delete">
+                        <i *ngIf="config.delete" [ngClass]="{ 'cui-trash': i!==confirm, 'fa fa-warning': i===confirm }"
+                           (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"></i>
+                    </td>
+                </ng-container>
+            </tr>
+            <tr *ngIf="!resultSet.data || resultSet.data.length === 0">
+                <td *ngIf="!resultSet.error" [attr.colspan]="resultSet.header.length+1" style="text-align: center"
+                    class="text-danger">(no data to show)
+                </td>
+                <td *ngIf="resultSet.error" [attr.colspan]="resultSet.header.length+1" style="text-align: center"
+                    class="text-danger">error while filtering table
+                </td>
+            </tr>
+            <tr *ngIf="config.create" id="insertRow">
+                <td *ngFor="let h of resultSet.header">
+                    <app-input [header]="h" [value]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"
+                               (enter)="insertRow()"></app-input>
+                </td>
+                <td *ngIf="config.update || config.delete">
+                    <button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()" *ngIf="uploadProgress === -1 || editing !== -1">+</button>
+                    <progressbar *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 0 && uploadProgress !== 100" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary" class="file-progress"></progressbar>
+                    <progressbar *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)" [animate]="true" [value]="100" [striped]="true" type="primary" class="file-progress"></progressbar>
+                    <!--<progressbar *ngIf="editing === -1 && uploadProgress > -1" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="uploadProgress === 100 || uploadProgress === 0" type="primary" class="file-progress"></progressbar>-->
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <div class="row">
-  <div class="col-lg-12">
-    <nav aria-label="Page navigation" class="float-right" *ngIf="resultSet.highestPage > 1">
-      <ul class="pagination">
-        <li *ngFor="let p of pagination" class="page-item" [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">
-          <a class="page-link" (click)="paginate(p)" [routerLink]="[]">{{p.label}}</a>
-        </li>
-      </ul>
-    </nav>
-    <button id="resetClassification" class="btn btn-primary" type="button"
-            *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' "
-            (click)="resetExporationData()">Reset
-    </button>
-    <button id="startClassification" class="btn btn-primary" type="button"
-            *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && ((this.initalClassifiation && this.getSelected() > 7 ) || (!this.initalClassifiation))"
-            (click)="startClassification()">Start Classification
-    </button>
-    <button id="showDecisionTree" type="button" class="btn btn-primary"
-            *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring "
-            (click)="openDecisionTree(decisionTree)">Show Decision Tree
-    </button>
-    <button id="showSQL" type="button" class="btn btn-primary"
-            *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && this.resultSet.isConvertedToSql"
-            (click)="openSQL(sql)">Show SQL Statement
-    </button>
-    <button id="sendClassification" type="button" class="btn btn-primary"
-            *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined "
-            (click)="sendChosenCols()">Execute
-    </button>
-  </div>
+    <div class="col-lg-12">
+        <nav aria-label="Page navigation" class="float-right" *ngIf="resultSet.highestPage > 1">
+            <ul class="pagination">
+                <li *ngFor="let p of pagination" class="page-item" [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">
+                    <a class="page-link" (click)="paginate(p)" [routerLink]="[]">{{p.label}}</a>
+                </li>
+            </ul>
+        </nav>
+        <button id="resetClassification" class="btn btn-primary" type="button"
+                *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' "
+                (click)="resetExporationData()">Reset
+        </button>
+        <button id="startClassification" class="btn btn-primary" type="button"
+                *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && ((this.initalClassifiation && this.getSelected() > 7 ) || (!this.initalClassifiation))"
+                (click)="startClassification()">Start Classification
+        </button>
+        <button id="showDecisionTree" type="button" class="btn btn-primary"
+                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring "
+                (click)="openDecisionTree(decisionTree)">Show Decision Tree
+        </button>
+        <button id="showSQL" type="button" class="btn btn-primary"
+                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && this.resultSet.isConvertedToSql"
+                (click)="openSQL(sql)">Show SQL Statement
+        </button>
+        <button id="sendClassification" type="button" class="btn btn-primary"
+                *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined "
+                (click)="sendChosenCols()">Execute
+        </button>
+
+        <button id="createView" type="button" class="btn btn-primary" tooltip="create view"
+                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && this.resultSet.isConvertedToSql"
+                (click)="createViewButton(createViewExample)"> Create View
+        </button>
+    </div>
 </div>
 
 
 <ng-template #decisionTree>
-  <div class="modal-content">
-    <div class="modal-header">
-      <h4 class="modal-title pull-left">Decision Tree</h4>
-      <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefDecision.hide()">
-        <span aria-hidden="true">&times;</span>
-      </button>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title pull-left">Decision Tree</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefDecision.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="modal-body-tree">
+            The decision tree shows how the data has been classified.
+        </div>
     </div>
-    <div class="modal-body" id="modal-body-tree">
-      The decision tree shows how the data has been classified.
-    </div>
-  </div>
 </ng-template>
 
 <ng-template #sql>
-  <div class="modal-content">
-    <div class="modal-header">
-      <h4 class="modal-title pull-left">SQL Statement</h4>
-      <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
-        <span aria-hidden="true">&times;</span>
-      </button>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title pull-left">SQL Statement</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="modal-body-SQL">
+            <div id="example-wrapper" style="height: 150px">
+                <app-editor #editorGenerated [code]="createdSQL"></app-editor>
+            </div>
+        </div>
     </div>
-    <div class="modal-body" id="modal-body-SQL">
-      <div id="example-wrapper" style="height: 150px">
-        <app-editor #editorGenerated [code]="createdSQL"></app-editor>
-      </div>
-    </div>
-  </div>
 </ng-template>
 
 <ng-template #tutorial>
-  <div class="modal-content">
-    <div class="modal-header">
-      <h4 class="modal-title pull-left">Check Classification</h4>
-      <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefTutorial.hide()">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <div class="modal-body" id="modal-body-tutorial">
-      Now a classifier has been created, if it is not as wished it can be changed by changing "true" and "false".
-      Otherwise the final dataset can be created with "Execute".
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title pull-left">Check Classification</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefTutorial.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="modal-body-tutorial">
+            Now a classifier has been created, if it is not as wished it can be changed by changing "true" and "false".
+            Otherwise the final dataset can be created with "Execute".
 
 
+        </div>
     </div>
-  </div>
 </ng-template>
 
 
 <div class="hidden-layer">
-  <div class="scaling-svg-container">
-    <svg id="tree" xmlns="http://www.w3.org/2000/svg" class="scaling-svg" viewBox="auto">
-      <g/>
-    </svg>
-  </div>
+    <div class="scaling-svg-container">
+        <svg id="tree" xmlns="http://www.w3.org/2000/svg" class="scaling-svg" viewBox="auto">
+            <g/>
+        </svg>
+    </div>
 </div>
+
+
+
+<ng-template #createViewExample>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title pull-left">Create View</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefCreateView.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="modal-body-view">
+            <p>After you entered the name of your View, it will be generated.</p>
+            <div class="form-group">
+                <label for="viewName" class="mb-2"> Please enter the name of your View:</label>
+                <div class="d-flex justify-content-between">
+                    <input #box type="text" class="form-control " id="viewName" placeholder="viewName" (keyup)="this.viewName = box.value">
+                    <button type="submit" class="btn btn-primary ml-2" (click)="executeViewExample(createdSQL)">Execute</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</ng-template>
