@@ -52,6 +52,7 @@
     </div>
     <button *ngIf="!loading" type="submit" class="btn btn-primary pull-right" (click)="submitQuery('sql')">Execute</button>
     <button *ngIf="!loading" type="submit" class="btn btn-primary pull-right mr-1" (click)="submitQuery('mql')">Execute Mongo Query</button>
+      <button *ngIf="!loading" type="submit" class="btn btn-primary pull-right mr-1" (click)="formatQuery()">Format</button>
     <button *ngIf="loading" type="submit" class="btn btn-primary progress-bar-striped progress-bar-animated pull-right" disabled>Loading</button>
   </div>
 </div>

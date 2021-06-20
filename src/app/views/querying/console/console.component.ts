@@ -255,4 +255,82 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub);
   }
 
+  formatQuery() {
+    let code = this.codeEditor.getCode();
+    if( !code ) {
+      return;
+    }
+    
+    const splitters = ['aggregate(', 'find('];
+    let before = '';
+    let after = '';
+    let cont = false;
+    for (const splitter of splitters) {
+      if( code.includes(splitter)){
+        cont = true;
+        const splits = code.split(splitter);
+        code = splits[1];
+        before = splits[0] + splitter;
+        break;
+      }
+    }
+    if ( !cont ){
+      return;
+    }
+    if ( code.charAt(code.length - 1) === ')'){
+      code = code.substring(0, code.length - 1);
+      after = ')';
+    }
+
+    console.log(code);
+    this.codeEditor.setCode(before + this.trySplit(code) + after);
+  }
+
+  parse( code:string ){
+    return JSON.stringify(JSON.parse(code), null, 4);
+  }
+
+  private trySplit(code: string) {
+    let open = 0;
+    let lastStart = 0;
+    const intervals:Pair[] = [];
+    for ( let i = 0; i < code.length; i++ ){
+      const now = code.charAt(i);
+      if ( now === '{'){
+        open++;
+      }else if ( now === '}'){
+        open--;
+      }else if ( now === ',' && open === 0){
+        // between
+        intervals.push(new Pair( lastStart,i - 1 ));
+        lastStart = i + 1;
+      }
+      if ( i === code.length - 1 && now === '}' && open === 0 ){
+        // end of doc
+        intervals.push(new Pair( lastStart, i ));
+      }
+    }
+    const parsed:string[] = [];
+
+    console.log(intervals);
+
+    intervals.forEach(interval => {
+      parsed.push(this.parse(code.substring(interval.left, interval.right + 1)));
+    });
+    
+    return parsed.join(',\n');
+  }
+
+
+}
+
+class Pair{
+  left: number;
+  right: number;
+
+
+  constructor(left: number, right: number) {
+    this.left = left;
+    this.right = right;
+  }
 }
