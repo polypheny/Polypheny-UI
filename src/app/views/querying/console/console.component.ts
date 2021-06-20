@@ -37,6 +37,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   websocket: WebSocket;
   private subscriptions = new Subscription();
   loading = false;
+  lang = 'mql';
   saveInHistory = true;
   showSearch = false;
   historySearchQuery = "";
@@ -68,7 +69,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         if( e.shiftKey ) {
           self.saveInHistory = false;
         }
-        self.submitQuery('sql');
+        self.submitQuery();
       }
     };
     this.initWebsocket();
@@ -88,7 +89,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     window.onkeydown = null;
   }
 
-  submitQuery(lang: string) {
+  submitQuery() {
     const code = this.codeEditor.getCode();
     if( !code ) {
       return;
@@ -105,7 +106,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     this.queryAnalysis = null;
 
     this.loading = true;
-    if(!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, lang))){
+    if(!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.lang))){
       this.loading = false;
       this.resultSets = [new ResultSet('Could not establish a connection with the server.', code)];
     }
@@ -134,7 +135,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   applyHistory(query: string, run: boolean) {
     this.codeEditor.setCode(query);
     if (run) {
-      this.submitQuery('sql');
+      this.submitQuery();
     }
   }
 
@@ -282,7 +283,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
       after = ')';
     }
 
-    console.log(code);
     this.codeEditor.setCode(before + this.trySplit(code) + after);
   }
 
@@ -311,8 +311,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
       }
     }
     const parsed:string[] = [];
-
-    console.log(intervals);
 
     intervals.forEach(interval => {
       parsed.push(this.parse(code.substring(interval.left, interval.right + 1)));
