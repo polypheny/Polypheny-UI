@@ -484,7 +484,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   createView(viewName: string[]){
     const tree = this.getTree();
     const createView = true;
-    console.log('testing relAlg');
     this._crud.executeRelAlg(this.webSocket, tree, createView, viewName[1]);
   }
 
