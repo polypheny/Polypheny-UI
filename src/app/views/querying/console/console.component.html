@@ -52,7 +52,7 @@
     </div>
       <div *ngIf="!loading" class="pull-right">
           <button type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
-          <select class="form-control btn pull-right mr-1 border bg-white" [value]="lang">
+          <select class="form-control btn pull-right mr-1 border bg-white" [(ngModel)]="lang">
               <option>auto</option>
               <option>sql</option>
               <option>mql</option>
