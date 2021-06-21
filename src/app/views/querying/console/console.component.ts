@@ -287,33 +287,43 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   }
 
   parse( code:string ){
+    console.log(code);
     return JSON.stringify(JSON.parse(code), null, 4);
   }
 
   private trySplit(code: string) {
     let open = 0;
+    let openSquare = 0;
     let lastStart = 0;
     const intervals:Pair[] = [];
     for ( let i = 0; i < code.length; i++ ){
       const now = code.charAt(i);
       if ( now === '{'){
         open++;
-      }else if ( now === '}'){
+      }else if ( now === '}') {
         open--;
-      }else if ( now === ',' && open === 0){
+      }else if ( now === '[') {
+        openSquare++;
+      }else if ( now === ']'){
+        openSquare--;
+      }else if ( now === ',' && open === 0 && openSquare === 0){
         // between
         intervals.push(new Pair( lastStart,i - 1 ));
         lastStart = i + 1;
       }
-      if ( i === code.length - 1 && now === '}' && open === 0 ){
-        // end of doc
+      if ( i === code.length - 1 && (( now === '}' && open === 0 ) || (now === ']' && openSquare === 0 ))) {
+        // end of doc or array
         intervals.push(new Pair( lastStart, i ));
       }
     }
     const parsed:string[] = [];
 
     intervals.forEach(interval => {
-      parsed.push(this.parse(code.substring(interval.left, interval.right + 1)));
+      try {
+        parsed.push(this.parse(code.substring(interval.left, interval.right + 1)));
+      }catch(e){
+        __t
+      }
     });
     
     return parsed.join(',\n');
