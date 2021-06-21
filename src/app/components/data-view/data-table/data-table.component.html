@@ -207,12 +207,11 @@
             </button>
         </div>
         <div class="modal-body" id="modal-body-view">
-            <p>After you entered the name of your View, it will be generated.</p>
             <div class="form-group">
-                <label for="viewName" class="mb-2"> Please enter the name of your View:</label>
+                <label for="viewName" class="mb-2">Please enter a name for the view:</label>
                 <div class="d-flex justify-content-between">
                     <input #box type="text" class="form-control " id="viewName" placeholder="viewName" (keyup)="this.viewName = box.value">
-                    <button type="submit" class="btn btn-primary ml-2" (click)="executeViewExample(createdSQL)">Execute</button>
+                    <button type="submit" class="btn btn-success ml-2" (click)="executeViewExample(createdSQL)">create</button>
                 </div>
             </div>
 

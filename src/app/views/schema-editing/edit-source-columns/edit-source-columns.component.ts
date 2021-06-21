@@ -165,7 +165,6 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         res => {
           const tables = <UnderlyingTables> res;
           this.underlyingTables = tables.underlyingTable;
-          console.log(this.underlyingTables);
         }, err => {
           this._toast.error('Could not load underlying Tables of View');
           console.log(err);

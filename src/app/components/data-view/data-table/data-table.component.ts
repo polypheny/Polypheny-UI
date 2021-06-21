@@ -65,6 +65,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
   ) {
     super( _crud, _toast, _route, _router, _types, _settings, modalService );
     this.websocket = new WebSocket(_settings);
+    this.initWebsocket();
   }
 
 
@@ -441,10 +442,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, true))) {
       this.loading = false;
       this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
-    }else{
-      this._toast.success('View ' + this.viewName + ' was created successfully.');
     }
-
     this.modalRefCreateView.hide();
   }
 
