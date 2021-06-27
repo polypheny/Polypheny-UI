@@ -128,5 +128,7 @@ select{
   float: right;
   margin-top: -1.5em;
   margin-right: 0.5em;
+  z-index: 1;
+  position: relative;
   cursor: pointer;
 }

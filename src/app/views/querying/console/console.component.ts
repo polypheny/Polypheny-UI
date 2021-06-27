@@ -282,8 +282,11 @@ export class ConsoleComponent implements OnInit, OnDestroy {
       code = code.substring(0, code.length - 1);
       after = ')';
     }
-
-    this.codeEditor.setCode(before + this.trySplit(code) + after);
+    try {
+      this.codeEditor.setCode(before + this.trySplit(code) + after);
+    }catch(e){
+      console.log(e); // todo dl show via toast
+    }
   }
 
   parse( code:string ){
@@ -319,11 +322,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     const parsed:string[] = [];
 
     intervals.forEach(interval => {
-      try {
-        parsed.push(this.parse(code.substring(interval.left, interval.right + 1)));
-      }catch(e){
-        __t
-      }
+      parsed.push(this.parse(code.substring(interval.left, interval.right + 1)));
     });
     
     return parsed.join(',\n');
