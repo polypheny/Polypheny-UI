@@ -6,7 +6,7 @@ import {ToastDuration, ToastService} from '../toast/toast.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {DeleteRequest, TableRequest} from '../../models/ui-request.model';
+import {DeleteRequest, EditTableRequest, QueryRequest, TableRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
 import {SortState} from './models/sort-state.model';
 import * as Plyr from 'plyr';
@@ -15,6 +15,8 @@ import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {WebSocket} from '../../services/webSocket';
 import {HttpEventType} from '@angular/common/http';
 import * as $ from 'jquery';
+import {DbTable} from '../../views/uml/uml.model';
+import {TableModel} from '../../views/schema-editing/edit-tables/edit-tables.component';
 
 @Component({
   selector: 'app-data-view',
@@ -30,6 +32,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('createView', {static: false}) public createView: TemplateRef<any>;
   @ViewChild('viewEditor', {static: false}) viewEditor;
   @Output() viewEditorCode = new EventEmitter();
+  @Output() executeView = new EventEmitter();
   @Input() exploreId?: number;
   @Input() tutorialMode: boolean;
 
@@ -57,15 +60,19 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   viewName = 'viewname';
   sqlQuery: string;
   exploringShowView = false;
+  creatingView = false;
+  newViewName = '';
+  tables: TableModel[] = [];
+  gotTables = false;
 
   constructor(
-    public _crud: CrudService,
-    public _toast: ToastService,
-    public _route: ActivatedRoute,
-    public _router: Router,
-    public _types: DbmsTypesService,
-    public _settings: WebuiSettingsService,
-    public modalService: BsModalService
+      public _crud: CrudService,
+      public _toast: ToastService,
+      public _route: ActivatedRoute,
+      public _router: Router,
+      public _types: DbmsTypesService,
+      public _settings: WebuiSettingsService,
+      public modalService: BsModalService
   ) {
     this.webSocket = new WebSocket(_settings);
     this.initWebsocket();
@@ -92,41 +99,44 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     $(document).on('click', function (e) {
       if ($(e.target).parents('.editing').length === 0) {
         //don't close editing row during upload
-        if ( self.uploadProgress < 0 ) {
+        if (self.uploadProgress < 0) {
           self.editing = -1;
         }
       }
     });
   }
 
-  initWebsocket () {
+  initWebsocket() {
     const sub = this.webSocket.onMessage().subscribe(
-      res => {
-        //this.resultSet = <ResultSet> res;
-        const result = <ResultSet>res;
-        this.resultSet.data = result.data;
-        this.resultSet.highestPage = result.highestPage;
-        this.resultSet.error = result.error;
-        //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
-        if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
-          this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
+        res => {
+          this.resultSet = <ResultSet>res;
+          /**const result = <ResultSet>res;
+           this.resultSet.data = result.data;
+           this.resultSet.highestPage = result.highestPage;
+           this.resultSet.error = result.error;
+           this.resultSet.type = result.type;
+           this.tableId = result.table;
+           */
+          //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
+          if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
+            this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
+          }
+          this.setPagination();
+          this.editing = -1;
+          if (this.resultSet.type === 'TABLE') {
+            this.config.create = true;
+            this.config.update = true;
+            this.config.delete = true;
+          } else {
+            this.config.create = false;
+            this.config.update = false;
+            this.config.delete = false;
+          }
+          this.resultSetEvent.emit(this.resultSet);
+        }, err => {
+          this._toast.error('Could not load the data.');
+          console.log(err);
         }
-        this.setPagination();
-        this.editing = -1;
-        if (this.resultSet.type === 'TABLE') {
-          this.config.create = true;
-          this.config.update = true;
-          this.config.delete = true;
-        } else {
-          this.config.create = false;
-          this.config.update = false;
-          this.config.delete = false;
-        }
-        this.resultSetEvent.emit(this.resultSet);
-      }, err => {
-        this._toast.error('Could not load the data.');
-        console.log(err);
-      }
     );
     this.subscriptions.add(sub);
   }
@@ -147,7 +157,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       sortState[h.name] = h.sort;
     });
     const request = new TableRequest(this.tableId, this.resultSet.currentPage, filterObj, sortState);
-    if(!this._crud.getTable( this.webSocket, request )) {
+    if (!this._crud.getTable(this.webSocket, request)) {
       this.resultSet = new ResultSet('Could not establish a connection with the server.');
     }
   }
@@ -165,26 +175,26 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     const request = new DeleteRequest(this.resultSet.table, row);
     const emitResult = new EventEmitter<ResultSet>();
     this._crud.deleteRow(request).subscribe(
-      res => {
-        const result = <ResultSet>res;
-        emitResult.emit(result);
-        if ( result.error ) {
-          const result2 = <ResultSet>res;
-          this._toast.exception(result2, 'Could not delete this row:');
-        } else {
-          this.getTable();
+        res => {
+          const result = <ResultSet>res;
+          emitResult.emit(result);
+          if (result.error) {
+            const result2 = <ResultSet>res;
+            this._toast.exception(result2, 'Could not delete this row:');
+          } else {
+            this.getTable();
+          }
+        }, err => {
+          this._toast.error('Could not delete this row.');
+          console.log(err);
+          emitResult.emit(new ResultSet('Could not delete this row.'));
         }
-      }, err => {
-        this._toast.error('Could not delete this row.');
-        console.log(err);
-        emitResult.emit(new ResultSet('Could not delete this row.'));
-      }
     );
     return emitResult;
   }
 
   setPagination() {
-    if(!this.resultSet){
+    if (!this.resultSet) {
       return;
     }
     const activePage = this.resultSet.currentPage;
@@ -233,7 +243,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   /**
    * In the card and carousel view, show mm data first (only image, video and sound columns)
    */
-  showFirst( dataType: string ){
+  showFirst(dataType: string) {
     switch (dataType) {
       case 'IMAGE':
       case 'VIDEO':
@@ -243,25 +253,25 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     return false;
   }
 
-  getFileLink ( data: string ) {
+  getFileLink(data: string) {
     return this._crud.getFileUrl(data);
   }
 
-  getFile(data: string, index: number){
+  getFile(data: string, index: number) {
     this.downloadingIthRow = index;
     this.downloadProgress = 0;
-    this._crud.getFile( data ).subscribe(
-      res => {
-        if( res.type && res.type === HttpEventType.DownloadProgress ){
-          this.downloadProgress = Math.round(100 * res.loaded / res.total);
-        } else if( res.type === HttpEventType.Response ) {
-          //see https://stackoverflow.com/questions/51960172/
-          const url= window.URL.createObjectURL(res.body);
-          window.open(url);
+    this._crud.getFile(data).subscribe(
+        res => {
+          if (res.type && res.type === HttpEventType.DownloadProgress) {
+            this.downloadProgress = Math.round(100 * res.loaded / res.total);
+          } else if (res.type === HttpEventType.Response) {
+            //see https://stackoverflow.com/questions/51960172/
+            const url = window.URL.createObjectURL(res.body);
+            window.open(url);
+          }
+        }, err => {
+          console.log(err);
         }
-      }, err => {
-        console.log(err);
-      }
     ).add(() => {
       this.downloadingIthRow = -1;
       this.downloadProgress = -1;
@@ -270,7 +280,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   triggerEditing(i) {
-    if(this.confirm !== -1){
+    if (this.confirm !== -1) {
       //when double-clicking the delete btn
       return;
     }
@@ -280,10 +290,10 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         if (this.resultSet.header[k].dataType === 'bool') {
           this.updateValues.set(this.resultSet.header[k].name, this.getBoolean(v));
         }
-          //assign multimedia types: null if the item is NULL, else undefined
+            //assign multimedia types: null if the item is NULL, else undefined
         //null items will be submitted and updated, undefined items will not be part of the UPDATE statement
-        else if ( this._types.isMultimedia( this.resultSet.header[k].dataType )) {
-          if( v === null ){
+        else if (this._types.isMultimedia(this.resultSet.header[k].dataType)) {
+          if (v === null) {
             this.updateValues.set(this.resultSet.header[k].name, null);
           } else {
             this.updateValues.set(this.resultSet.header[k].name, undefined);
@@ -327,40 +337,40 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       //only values with dirty state will be submitted. Columns that are not nullable are already set dirty
       if (this.insertDirty.get(k) === true) {
         let value;
-        if (isNaN(v)){
+        if (isNaN(v)) {
           value = v;
         } else {
           value = String(v);
         }
-        formData.append( k, value );
+        formData.append(k, value);
       }
     });
-    formData.append( 'tableId', String(this.resultSet.table) );
+    formData.append('tableId', String(this.resultSet.table));
     this.uploadProgress = 100;//show striped progressbar
     const emitResult = new EventEmitter<ResultSet>();
     this._crud.insertRow(formData).subscribe(
-      res => {
-        if( res.type && res.type === HttpEventType.UploadProgress ){
-          this.uploadProgress = Math.round(100 * res.loaded / res.total);
-        } else if( res.type === HttpEventType.Response ) {
-          this.uploadProgress = -1;
-          const result = <ResultSet>res.body;
-          emitResult.emit(result);
-          if (result.error) {
-            this._toast.exception(result, 'Could not insert the data', 'insert error');
-          } else if (result.affectedRows === 1) {
-            $('.insert-input').val('');
-            this.insertValues.clear();
-            this.buildInsertObject();
-            this.getTable();
+        res => {
+          if (res.type && res.type === HttpEventType.UploadProgress) {
+            this.uploadProgress = Math.round(100 * res.loaded / res.total);
+          } else if (res.type === HttpEventType.Response) {
+            this.uploadProgress = -1;
+            const result = <ResultSet>res.body;
+            emitResult.emit(result);
+            if (result.error) {
+              this._toast.exception(result, 'Could not insert the data', 'insert error');
+            } else if (result.affectedRows === 1) {
+              $('.insert-input').val('');
+              this.insertValues.clear();
+              this.buildInsertObject();
+              this.getTable();
+            }
           }
+        }, err => {
+          this._toast.error('Could not insert the data.');
+          console.log(err);
+          emitResult.emit(new ResultSet('Could not insert the data.'));
         }
-      }, err => {
-        this._toast.error('Could not insert the data.');
-        console.log(err);
-        emitResult.emit(new ResultSet('Could not insert the data.'));
-      }
-    ).add( () => this.uploadProgress = -1 );
+    ).add(() => this.uploadProgress = -1);
     return emitResult;
   }
 
@@ -409,67 +419,134 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         oldValues.set(col, oldVal);
       }
     });*/
-    for( let i = 0; i < this.resultSet.header.length; i++ ){
-      oldValues.set( this.resultSet.header[i].name, this.resultSet.data[this.editing][i]);
+    for (let i = 0; i < this.resultSet.header.length; i++) {
+      oldValues.set(this.resultSet.header[i].name, this.resultSet.data[this.editing][i]);
       i++;
     }
     const formData = new FormData();
-    formData.append( 'tableId', this.resultSet.table);
+    formData.append('tableId', this.resultSet.table);
     formData.append('oldValues', JSON.stringify(this.mapToObject(oldValues)));
-    for( const [k,v] of this.updateValues ) {
-      if( v === undefined ){
+    for (const [k, v] of this.updateValues) {
+      if (v === undefined) {
         //don't add undefined file inputs, but if they are null, they need to be added
         continue;
       }
-      if( !(v instanceof File) ){
+      if (!(v instanceof File)) {
         //stringify to distinguish between null and 'null'
-        formData.append( k, JSON.stringify(v) );
+        formData.append(k, JSON.stringify(v));
       } else {
-        formData.append( k, v );
+        formData.append(k, v);
       }
     }
     this.uploadProgress = 100;//show striped progressbar
     //const req = new UpdateRequest(this.resultSet.table, this.mapToObject(this.updateValues), this.mapToObject(oldValues));
     this._crud.updateRow(formData).subscribe(
-      res => {
-        if( res.type && res.type === HttpEventType.UploadProgress ){
-          this.uploadProgress = Math.round(100 * res.loaded / res.total);
-        } else if( res.type === HttpEventType.Response ) {
-          this.uploadProgress = -1;
-          const result = <ResultSet>res.body;
-          if (result.affectedRows) {
-            this.getTable();
-            let rows = ' rows';
-            if (result.affectedRows === 1) {
-              rows = ' row';
+        res => {
+          if (res.type && res.type === HttpEventType.UploadProgress) {
+            this.uploadProgress = Math.round(100 * res.loaded / res.total);
+          } else if (res.type === HttpEventType.Response) {
+            this.uploadProgress = -1;
+            const result = <ResultSet>res.body;
+            if (result.affectedRows) {
+              this.getTable();
+              let rows = ' rows';
+              if (result.affectedRows === 1) {
+                rows = ' row';
+              }
+              this._toast.success('Updated ' + result.affectedRows + rows, result.generatedQuery, 'update', ToastDuration.SHORT);
+            } else if (result.error) {
+              this._toast.exception(result, 'Could not update this row');
             }
-            this._toast.success('Updated ' + result.affectedRows + rows, result.generatedQuery, 'update', ToastDuration.SHORT);
-          } else if (result.error) {
-            this._toast.exception(result, 'Could not update this row');
           }
+        }, err => {
+          this._toast.error('Could not update the data.');
+          console.log(err);
         }
-      }, err => {
-        this._toast.error('Could not update the data.');
-        console.log(err);
-      }
-    ).add( () => this.uploadProgress = -1 );
+    ).add(() => this.uploadProgress = -1);
   }
 
-  openCreateView(createView: TemplateRef<any>, sqlQuery: string){
+  openCreateView(createView: TemplateRef<any>, sqlQuery: string) {
+    this.getAllTables();
     this.modalRefCreateView = this.modalService.show(createView);
-    this.sqlQuery = sqlQuery;
+    this.sqlQuery = '\n' + sqlQuery;
   }
 
-  submitViewName(){
-    const createView = 'CREATE VIEW';
-    const createViewAs = 'AS \n';
-    const viewData = [createView, this.viewName, createViewAs];
-    this.viewEditorCode.emit( viewData );
-    this.modalRefCreateView.hide();
+  createViewCode() {
+    if(this.checkIfPossible()){
+      const viewData = ['CREATE VIEW', this.newViewName, 'AS \n'];
+      this.viewEditorCode.emit(viewData);
+      this.modalRefCreateView.hide();
+      this.gotTables = false;
+    }
   }
 
-  addItem(eShowView){
+  submitCreateView() {
+    if(this.checkIfPossible()){
+      const viewData = ['CREATE VIEW', this.newViewName, 'AS', this.sqlQuery];
+      this.executeView.emit(viewData);
+      this.modalRefCreateView.hide();
+      this.gotTables = false;
+    }
+  }
+
+  checkIfPossible(){
+    if (this.newViewName === '') {
+      this._toast.warn('Please provide a name for the new view. The new view was not created.', 'missing view name', ToastDuration.INFINITE);
+      return false;
+    }
+    if (!this._crud.nameIsValid(this.newViewName)) {
+      this._toast.warn('Please provide a valid name for the new view. The new view was not created.', 'invalid view name', ToastDuration.INFINITE);
+      return false;
+    }
+    if (this.tables.filter((t) => t.name === this.newViewName).length > 0) {
+      this._toast.warn('A table or view with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
+      return false;
+    }
+    return true;
+  }
+
+  createTableValidation(name: string) {
+    const regex = this._crud.getValidationRegex();
+    if (name === '') {
+      return '';
+    } else if (regex.test(name) && name.length <= 100 && this.tables.filter((t) => t.name === name).length === 0) {
+      return 'is-valid';
+    } else {
+      return 'is-invalid';
+    }
+  }
+
+  getAllTables() {
+    //not possible to use public.table therefore schema always null
+    if(!this.gotTables) {
+      this._crud.getTables(new EditTableRequest(null)).subscribe(
+          res => {
+            const result = <DbTable[]>res;
+            this.tables = [];
+            for (const t of result) {
+              this.tables.push(new TableModel(t));
+            }
+            this.tables = this.tables.sort((a, b) => a.name.localeCompare(b.name));
+          }, err => {
+            this._toast.error('could not retrieve list of tables');
+            console.log(err);
+          }
+      );
+      this.gotTables = true;
+    }
+  }
+
+  executeCreateView(code: string){
+    this.loading = true;
+    if(!this._crud.anyQuery(this.webSocket, new QueryRequest(code, true))){
+      this.loading = false;
+      this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
+    }
+  }
+
+  addItem(eShowView) {
     this.exploringShowView = eShowView;
   }
 
 }
+

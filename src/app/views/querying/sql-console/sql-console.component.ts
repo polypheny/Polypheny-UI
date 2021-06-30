@@ -260,8 +260,13 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
   }
 
   createView(viewEditorCode: string[]){
-    console.log('testing sqlconsole');
     const code = this.codeEditor.getCode();
     this.codeEditor.setCode(viewEditorCode.join(' ') + code);
   }
+
+  executeView(viewEditorCode: string[]){
+    this.codeEditor.setCode(viewEditorCode.join(' ') );
+    this.submitQuery();
+  }
+
 }

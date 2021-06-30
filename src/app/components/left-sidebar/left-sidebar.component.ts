@@ -75,6 +75,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
     this._sidebar.getNodes().subscribe(
       nodes => {
+        console.log(nodes)
         this.nodes = nodes;
         if (nodes.length === 0) {
           this.treeComponent.treeModel.activeNodeIds = {};

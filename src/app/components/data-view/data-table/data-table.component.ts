@@ -1,11 +1,11 @@
 import {Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
 import {cloneDeep} from 'lodash';
-import {ClassifyRequest, Exploration, ExploreTable, QueryRequest} from '../../../models/ui-request.model';
+import {ClassifyRequest, Exploration, ExploreTable} from '../../../models/ui-request.model';
 import {PaginationElement} from '../models/pagination-element.model';
 import {DbColumn, ExploreSet, ResultSet} from '../models/result-set.model';
 import {SortDirection, SortState} from '../models/sort-state.model';
-import {ToastService} from '../../toast/toast.service';
+import {ToastDuration, ToastService} from '../../toast/toast.service';
 import {CrudService} from '../../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -15,7 +15,6 @@ import * as d3 from 'd3';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {WebSocket} from '../../../services/webSocket';
 
 
 @Component({
@@ -25,7 +24,6 @@ import {WebSocket} from '../../../services/webSocket';
   encapsulation: ViewEncapsulation.None
 })
 export class DataTableComponent extends DataViewComponent implements OnInit {
-  websocket: WebSocket;
   @Input() exploreSet?: ExploreSet;
   @Input() exploreId?: number;
   @ViewChild('decisionTree', {static: false}) public decisionTree: TemplateRef<any>;
@@ -64,7 +62,6 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     public modalService: BsModalService,
   ) {
     super( _crud, _toast, _route, _router, _types, _settings, modalService );
-    this.websocket = new WebSocket(_settings);
     this.initWebsocket();
   }
 
@@ -433,17 +430,31 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
 
   createViewButton(createViewExample){
     this.modalRefCreateView = this.modalService.show(createViewExample);
+    this.getAllTables();
 
   }
 
   executeViewExample(createdSQL){
-    this.createdSQL = 'CREATE VIEW ' + this.viewName + ' AS\n' + createdSQL;
-    const code = this.createdSQL;
-    if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, true))) {
-      this.loading = false;
-      this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
+    if (this.newViewName === '') {
+      this._toast.warn('Please provide a name for the new view. The new view was not created.', 'missing view name', ToastDuration.INFINITE);
+      return;
     }
+    if (!this._crud.nameIsValid(this.newViewName)) {
+      this._toast.warn('Please provide a valid name for the new view. The new view was not created.', 'invalid view name', ToastDuration.INFINITE);
+      return;
+    }
+
+    if (this.tables.filter((t) => t.name === this.newViewName).length > 0) {
+      this._toast.warn('A table or view with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
+      return;
+    }
+
+    this.createdSQL = 'CREATE VIEW ' + this.newViewName + ' AS\n' + createdSQL;
+    const code = this.createdSQL;
+    this.executeCreateView(code);
+
     this.modalRefCreateView.hide();
+    this.gotTables = false;
   }
 
 

@@ -2,7 +2,7 @@
 <div id="mode_wrapper" class="mb-2" *ngIf="resultSet">
     <div class="d-flex justify-content-between">
         <div>
-            <button *ngIf="resultSet.data" [style.visibility]="'hidden'">
+            <button *ngIf="resultSet.data && !(_router.url.startsWith('/views/data-table/'))" [style.visibility]="'hidden'">
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </button>
         </div>
@@ -54,8 +54,14 @@
             <div class="form-group">
                 <label for="viewName" class="mb-2">Please enter a name for the view:</label>
                 <div class="d-flex justify-content-between">
-                    <input #box type="text" class="form-control " id="viewName" placeholder="viewName" (keyup)="this.viewName = box.value">
-                    <button type="submit" class="btn btn-success ml-2" (click)="submitViewName()">create</button>
+
+                    <input type="text" id="viewName" placeholder="view name" class="form-control" style="max-width: 200px;"
+                           [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" (keyup.enter)="createViewCode()" >
+                    <button class="btn btn-primary ml-2" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingView}"
+                            (click)="createViewCode()" >show</button>
+                    <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-primary ml-2" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingView}"
+                            (click)="submitCreateView()" >execute</button>
+
                 </div>
             </div>
         </div>

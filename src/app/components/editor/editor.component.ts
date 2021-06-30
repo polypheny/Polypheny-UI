@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import * as ace from 'ace-builds'; // ace module ..
 import 'ace-builds/src-noconflict/mode-sql';
+import 'ace-builds/src-noconflict/mode-pgsql';
 import 'ace-builds/src-noconflict/mode-java';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -22,7 +23,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   private codeEditor: ace.Ace.Editor;
   @Input() readonly ? = false;
   @Input() theme ? = 'tomorrow';
-  @Input() lang ? = 'sql';
+  @Input() lang ? = 'pgsql';
   @Input() code ?;
 
   suggestions: string[] = [];

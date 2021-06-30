@@ -421,7 +421,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
 }
 
-class TableModel {
+export class TableModel {
   name:string;
   truncate = '';
   drop = '';
