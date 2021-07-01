@@ -1,6 +1,6 @@
 <app-toast></app-toast>
 <div *ngIf="resultSet" id="carousel-wrapper">
-  <button *ngIf="!showInsert && resultSet.type != 'VIEW'" (click)="showInsert = true" class="btn btn-primary btn-circle" id="insert-btn"><i class="fa fa-plus"></i></button>
+  <button *ngIf="!showInsert && config.update" (click)="showInsert = true" class="btn btn-primary btn-circle" id="insert-btn"><i class="fa fa-plus"></i></button>
   <carousel [noWrap]="true" [interval]="0" [showIndicators]="false" [activeSlide]="currentSlide" [isAnimated]="true">
     <div class="navigator-wrapper mb-2" *ngIf="resultSet.data && resultSet.data.length > 0 && editing !== currentSlide && !showInsert">
       <button class="btn btn-light btn-sm" [disabled]="loadingPage || (currentSlide === 0 && resultSet.currentPage === 1)" (click)="changeSlide(-1)">

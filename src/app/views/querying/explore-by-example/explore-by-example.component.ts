@@ -267,7 +267,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         if (!this.classificationPossible) {
           this._toast.warn('Not enough Data to use the classification. All available data is already within the initial table.');
         }
-        this._toast.success('Initial table successfully loaded.');
+        //this._toast.success('Initial table successfully loaded.');
       }, err => {
         this._toast.error('Creation of initial table failed.');
         this.loading = false;

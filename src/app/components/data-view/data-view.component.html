@@ -57,9 +57,9 @@
 
                     <input type="text" id="viewName" placeholder="view name" class="form-control" style="max-width: 200px;"
                            [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" (keyup.enter)="createViewCode()" >
-                    <button class="btn btn-primary ml-2" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingView}"
+                    <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary ml-2" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingView}"
                             (click)="createViewCode()" >show</button>
-                    <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-primary ml-2" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingView}"
+                    <button class="btn btn-primary ml-2" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingView}"
                             (click)="submitCreateView()" >execute</button>
 
                 </div>

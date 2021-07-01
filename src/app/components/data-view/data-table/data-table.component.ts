@@ -248,7 +248,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     this.prepareClassifiedData();
     this._crud.exploreUserInput(new Exploration(this.exploreId, this.resultSet.header, this.classifiedData)).subscribe(
       res => {
-        this._toast.success('Classification successful');
+        //this._toast.success('Classification successful');
         this.initalClassifiation = false;
         this.finalresult = false;
         if (this.tutorialMode) {
@@ -339,7 +339,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
   sendChosenCols() {
     this._crud.classifyData(new ClassifyRequest(this.exploreId, this.resultSet.header, this.classifiedData, this.cPage)).subscribe(
       res => {
-        this._toast.success('Final Result');
+        //this._toast.success('Final Result');
         this.finalresult = true;
         this.userInput = {};
         this.classifiedData = [];
