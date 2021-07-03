@@ -89,6 +89,11 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['resultSet']) {
+
+      //fix for carousel View, if no currentPage is set, set it to 1
+      if(this.resultSet.currentPage === 0 ){
+        this.resultSet.currentPage = 1;
+      }
       this.setPagination();
       this.buildInsertObject();
     }
@@ -117,6 +122,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
            this.resultSet.type = result.type;
            this.tableId = result.table;
            */
+
           //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
           if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
             this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
