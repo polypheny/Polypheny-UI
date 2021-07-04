@@ -141,7 +141,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
                   res => {
                     this.queryAnalysis = <InformationPage>res;
                     this.showingAnalysis = true;
-                    this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Query analysis')]);
+                    this._breadcrumb.setBreadcrumbs([new BreadcrumbItem(node.data.name)]);
                     node.setIsActive(true);
                   }, err => {
                     console.log(err);

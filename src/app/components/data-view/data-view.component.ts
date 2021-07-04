@@ -90,13 +90,15 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['resultSet']) {
 
-      //fix for carousel View, if no currentPage is set, set it to 1
+      //fix for carousel View, if no currentPage and no highestPage is set, set it to 1
       if(this.resultSet !== null){
         if(this.resultSet.currentPage === 0 ){
           this.resultSet.currentPage = 1;
         }
+        if(this.resultSet.highestPage === 0){
+          this.resultSet.highestPage = 1;
+        }
       }
-
       this.setPagination();
       this.buildInsertObject();
     }

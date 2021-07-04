@@ -121,7 +121,7 @@
                 (click)="startClassification()">Start Classification
         </button>
         <button id="showDecisionTree" type="button" class="btn btn-primary"
-                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring "
+                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && resultSet.data"
                 (click)="openDecisionTree(decisionTree)">Show Decision Tree
         </button>
         <button id="showSQL" type="button" class="btn btn-primary"
