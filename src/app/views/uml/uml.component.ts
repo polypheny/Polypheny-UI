@@ -76,7 +76,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     );
     this.subscriptions.add(sub);
-    this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', false, 1, true), this._router);
+    this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', true, 1, true), this._router);
   }
 
   ngAfterViewInit() {

@@ -3,19 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {
-  ColumnRequest,
-  ConstraintRequest,
-  DeleteRequest,
-  EditTableRequest,
-  ExploreTable,
-  QueryRequest,
-  RelAlgRequest,
-  Schema,
-  SchemaRequest,
-  StatisticRequest,
-  TableRequest
-} from '../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, DeleteRequest, EditTableRequest, ExploreTable, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
@@ -235,6 +223,11 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/getPlacements`, index, this.httpOptions);
   }
 
+  getUnderlyingTable( request: TableRequest ) {
+    return this._http.post(`${this.httpUrl}/getUnderlyingTable`, request, this.httpOptions);
+  }
+
+
   /**
    * Add or drop a placement
    */
@@ -325,10 +318,16 @@ export class CrudService {
   /**
    * Execute a relational algebra
    */
-  executeRelAlg ( socket: WebSocket, relAlg: Node ): boolean {
-    const request = new RelAlgRequest( relAlg );
+  executeRelAlg ( socket: WebSocket, relAlg: Node, createView?: boolean, viewName?: string): boolean {
+    let request;
+    if(createView){
+      request = new RelAlgRequest( relAlg, createView, viewName);
+    }else{
+      request = new RelAlgRequest( relAlg );
+    }
     return socket.sendMessage( request );
   }
+
 
   renameTable ( table: Index ) {
     return this._http.post(`${this.httpUrl}/renameTable`, table, this.httpOptions);

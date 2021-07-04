@@ -26,9 +26,13 @@ export class TableRequest extends UIRequest {
 export class RelAlgRequest extends UIRequest {
   requestType = 'RelAlgRequest';
   topNode: Node;
-  constructor( node: Node ) {
+  createView: boolean;
+  viewName: string;
+  constructor( node: Node, createView?: boolean, viewName?: string ) {
     super();
     this.topNode = node;
+    this.createView = createView || false;
+    this.viewName = viewName || 'viewName';
   }
 }
 
@@ -151,13 +155,14 @@ export class SchemaRequest extends UIRequest {
    * if show table is false, "table" will not be shown in left sidebar
    */
   showTable: boolean;
-
-  constructor( routerLinkRoot: string, views: boolean, depth: number, showTable: boolean ) {
+  schemaEdit: boolean;
+  constructor( routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean ) {
     super();
     this.routerLinkRoot = routerLinkRoot;
     this.views = views;
     this.depth = depth;
     this.showTable = showTable;
+    this.schemaEdit = schemaEdit || false;
   }
 }
 
@@ -185,13 +190,15 @@ export class EditTableRequest {
   action: string;//truncate / drop
   columns: DbColumn[];
   store: string;
+  tableType: string;
 
-  constructor(schema: string, table: string = null, action: string = null, columns: DbColumn[] = null, store: string = null) {
+  constructor(schema: string, table: string = null, action: string = null, columns: DbColumn[] = null, store: string = null, tableType: string = null) {
     this.schema = schema;
     this.table = table;
     this.action = action;
     this.columns = columns;
     this.store = store;
+    this.tableType = tableType;
   }
 
   getAction() {

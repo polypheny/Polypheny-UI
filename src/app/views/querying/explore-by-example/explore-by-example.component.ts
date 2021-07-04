@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation, TemplateRef, Output, EventEmitter} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, Output, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
 import {EditTableRequest, QueryExplorationRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
@@ -8,8 +8,11 @@ import {ToastService} from '../../../components/toast/toast.service';
 import {DataTableComponent} from '../../../components/data-view/data-table/data-table.component';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
-import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
+import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {Subscription} from 'rxjs';
+import {TableConfig} from '../../../components/data-view/data-table/table-config';
+import {WebSocket} from '../../../services/webSocket';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
 
 @Component({
   selector: 'app-explore-by-example',
@@ -26,6 +29,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
 
 
   @ViewChild('editGenerated', {static: false}) editGenerated;
+  websocket: WebSocket;
   loading = false;
   resultSet: ResultSet;
   showResultTable: boolean;
@@ -49,13 +53,25 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
   tableModeImage = 'assets/img/explore/tutorialModeTable.PNG';
   exploreId = 0;
   cPage = 1;
+  showView = false;
+  viewCode = '';
 
+  tableConfig: TableConfig = {
+    create: false,
+    update: false,
+    delete: false,
+    sort: false,
+    search: false,
+    exploring: true
+  };
 
   constructor(
     private _crud: CrudService,
     private _leftSidebar: LeftSidebarService,
     private _toast: ToastService,
+    private _settings: WebuiSettingsService,
     private modalService: BsModalService) {
+    this.websocket = new WebSocket(_settings);
   }
 
 
@@ -75,10 +91,11 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._leftSidebar.close();
     this.subscriptions.unsubscribe();
+    this.websocket.close();
   }
 
   initSchema() {
-    this._crud.getSchema(new SchemaRequest('views/graphical-querying/', false, 3, false)).subscribe(
+    this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false)).subscribe(
       res => {
         const nodeAction = (tree, node, $event) => {
           if (!node.isActive && node.isLeaf) {
@@ -250,7 +267,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         if (!this.classificationPossible) {
           this._toast.warn('Not enough Data to use the classification. All available data is already within the initial table.');
         }
-        this._toast.success('Initial table successfully loaded.');
+        //this._toast.success('Initial table successfully loaded.');
       }, err => {
         this._toast.error('Creation of initial table failed.');
         this.loading = false;

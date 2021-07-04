@@ -48,7 +48,15 @@ export interface Placements {
   exception: ResultException;
   isPartitioned: boolean;
   partitionNames: string[];
+  tableType: string;
 }
+
+export interface UnderlyingTables {
+  exception: ResultException;
+  underlyingTable: {} ;
+}
+
+
 
 export interface CatalogColumnPlacement {
   columnName: string;

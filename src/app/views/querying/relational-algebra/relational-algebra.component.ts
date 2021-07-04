@@ -141,7 +141,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
                   res => {
                     this.queryAnalysis = <InformationPage>res;
                     this.showingAnalysis = true;
-                    this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Query analysis')]);
+                    this._breadcrumb.setBreadcrumbs([new BreadcrumbItem(node.data.name)]);
                     node.setIsActive(true);
                   }, err => {
                     console.log(err);
@@ -175,13 +175,17 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     const node = new Node(id, e.element.data.name, x, y).setRelAlgSymbol(e.element.data.relAlgSymbol).setIcon(e.element.data.icon);
     if (e.element.data.name === 'TableScan') {
       const ac = [];
+      const acType = [];
       if (this.autocomplete) {
         this.autocomplete.schemas.forEach((v1, i1) => {
           this.autocomplete[v1].tables.forEach((v2, i2) => {
-            ac.push(v1 + '.' + v2);
+            ac.push(v1 + '.' + v2[0]);
+            acType.push(v2[1]);
           });
         });
         node.setAutocomplete(ac);
+        node.setTypeList(acType);
+        node.allName(ac);
       }
     }
     this.nodes.set(id, node);
@@ -283,7 +287,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
    * Rearrange data to an object that can be used for the autocompletion
    */
   getAutocomplete() {
-    this._crud.getSchema(new SchemaRequest('', false, 3, true)).subscribe(
+    this._crud.getSchema(new SchemaRequest('', true, 3, true)).subscribe(
       res => {
         const schemaTree = <SidebarNode[]>res;
         const autocomplete = {schemas: []};
@@ -291,7 +295,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
           autocomplete.schemas.push(schema.name);
           autocomplete[schema.name] = {tables: []};
           for (const table of schema.children[0].children) {
-            autocomplete[schema.name].tables.push(table.name);
+            autocomplete[schema.name].tables.push([table.name, table.tableType]);
             autocomplete[schema.name][table.name] = {columns: []};
             for (const col of table.children) {
               autocomplete[schema.name][table.name].columns.push(col.name);
@@ -356,12 +360,12 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
           .filter((v) => getNode().getAcSchema().has(v))
           .forEach((v1, i1) => {
             this.autocomplete[v1].tables
-              .filter((v) => getNode().getAcTable().has(v))
+              .filter((v) => getNode().getAcTable().has(v[0]))
               .forEach((v2, i2) => {
-                ac.push(v1 + '.' + v2);
-                this.autocomplete[v1][v2].columns.forEach((v3, i3) => {
+                ac.push(v1 + '.' + v2[0]);
+                this.autocomplete[v1][v2[0]].columns.forEach((v3, i3) => {
                   cols.add(v3);
-                  tableCols.add(v2 + '.' + v3);
+                  tableCols.add(v2[0] + '.' + v3);
                 });
               });
           });
@@ -480,6 +484,13 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       this.resultSet = new ResultSet('Could not establish a connection with the server.');
     }
   }
+
+  createView(viewName: string[]){
+    const tree = this.getTree();
+    const createView = true;
+    this._crud.executeRelAlg(this.webSocket, tree, createView, viewName[1]);
+  }
+
 
   /**
    * Get the topmost node to be able to iterate the tree
