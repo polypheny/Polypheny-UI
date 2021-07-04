@@ -62,7 +62,7 @@
 </div>
 
 
-<div class="card " *ngIf="resultSet" id="result-relational">
+<div class="card " *ngIf="resultSet && !showingAnalysis " id="result-relational">
 
   <div class="card-header ">
     <span>{{resultSet.generatedQuery}}</span>
