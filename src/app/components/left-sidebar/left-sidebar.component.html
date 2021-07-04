@@ -21,7 +21,7 @@
     <tree-root [nodes]="nodes" [options]="options" #tree>
       <ng-template #treeNodeWrapperTemplate let-node let-index="index">
         <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
-          <tree-node-expander [node]="node"></tree-node-expander>
+         <tree-node-expander *ngIf="node.data.children.length > 0" [node]="node"></tree-node-expander>
           <div class="node-content-wrapper"
                [class.node-content-wrapper-active]="node.isActive"
                [class.node-content-wrapper-focused]="false"
