@@ -1,5 +1,6 @@
 <app-toast></app-toast>
-<div *ngIf="!resultSet.data && !resultSet.error">data-table: nothing to show.</div>
+<div *ngIf="!resultSet.data && !resultSet.error && creatingView">Successfully created View {{this.newViewName }}.</div>
+<div *ngIf="!resultSet.data && !resultSet.error && !creatingView">data-table: nothing to show. </div>
 <div class="text-danger mb-3" *ngIf="resultSet.error && !resultSet.header">{{resultSet.error}}</div>
 
 <div class="row" *ngIf="resultSet.header">
@@ -212,7 +213,7 @@
                 <div class="d-flex justify-content-between">
                     <input type="text" class="form-control " id="viewName" placeholder="view name"
                            [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" (keyup.enter)="executeViewExample(createdSQL)" >
-                    <button type="submit" class="btn btn-primary ml-2" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingView}" (click)="executeViewExample(createdSQL)">execute</button>
+                    <button type="submit" class="btn btn-primary ml-2" [disabled]="!creatingView ? 'disabled': null" (click)="executeViewExample(createdSQL)">execute</button>
                 </div>
             </div>
 

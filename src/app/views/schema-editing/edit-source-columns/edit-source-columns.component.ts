@@ -23,7 +23,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   exportedColumns: Map<string, ResultSet> = new Map<string, ResultSet>();
   errorMsg: string;
   editingCol: string;
-  dataPlacement: Placements;
+  dataPlacement: Placements = null;
   subscriptions = new Subscription();
   foreignKeys: ForeignKey[] = [];
   underlyingTables: {};

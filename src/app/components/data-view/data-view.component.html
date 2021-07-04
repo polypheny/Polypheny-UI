@@ -30,7 +30,7 @@
 
 <ng-container [ngSwitch]="presentationType">
     <ng-container *ngSwitchCase="presentationTypes.TABLE">
-        <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="config" [tableId]="tableId" [loading]="loading" (showViewExploring)="addItem($event)"></app-data-table>
+        <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="config" [tableId]="tableId" [loading]="loading" ></app-data-table>
     </ng-container>
     <ng-container *ngSwitchCase="presentationTypes.CARD">
         <app-data-card *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-card>
@@ -57,10 +57,10 @@
 
                     <input type="text" id="viewName" placeholder="view name" class="form-control" style="max-width: 200px;"
                            [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" (keyup.enter)="createViewCode()" >
-                    <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary ml-2" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingView}"
-                            (click)="createViewCode()" >show</button>
-                    <button class="btn btn-primary ml-2" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingView}"
-                            (click)="submitCreateView()" >execute</button>
+                    <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary ml-2"
+                            [disabled]="!creatingView ? 'disabled': null"  (click)="createViewCode()" >show</button>
+                    <button class="btn btn-primary ml-2"
+                             [disabled]="!creatingView ? 'disabled': null" (click)="submitCreateView()" >execute</button>
 
                 </div>
             </div>

@@ -91,9 +91,12 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     if (changes['resultSet']) {
 
       //fix for carousel View, if no currentPage is set, set it to 1
-      if(this.resultSet.currentPage === 0 ){
-        this.resultSet.currentPage = 1;
+      if(this.resultSet !== null){
+        if(this.resultSet.currentPage === 0 ){
+          this.resultSet.currentPage = 1;
+        }
       }
+
       this.setPagination();
       this.buildInsertObject();
     }
@@ -516,8 +519,10 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     if (name === '') {
       return '';
     } else if (regex.test(name) && name.length <= 100 && this.tables.filter((t) => t.name === name).length === 0) {
+      this.creatingView = true;
       return 'is-valid';
     } else {
+      this.creatingView = false;
       return 'is-invalid';
     }
   }
