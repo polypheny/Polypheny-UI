@@ -24,6 +24,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
   types: PolyType[] = [];
   schema: string;
+  schemaType: string;
   tables: TableModel[] = [];
 
   counter = 0;
@@ -64,6 +65,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this.schema = this._route.snapshot.paramMap.get('id');
     const sub1 = this._route.params.subscribe((params) => {
       this.schema = params['id'];
+      this.getSchemaType();
       this.getTables();
     });
     this.subscriptions.add(sub1);
@@ -87,7 +89,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this.getTables();
     this.getTypeInfo();
     this.getStores();
-    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
+    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
   }
 
   documentListener() {
@@ -125,6 +127,16 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       });
   }
 
+  getSchemaType() {
+    this._crud.getTypeSchemas().subscribe(
+        res => {
+          this.schemaType = res[this.schema];
+        }, error => {
+          console.log(error);
+        }
+    );
+  }
+
   /**
    * get the right class for the 'drop' and 'truncate' buttons
    * enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
@@ -143,8 +155,16 @@ export class EditTablesComponent implements OnInit, OnDestroy {
    */
   sendRequest( action, table: TableModel ) {
     let request;
-    if (this.dropTruncateClass( action, table ) === 'btn-danger') {
-      request = new EditTableRequest(this.schema, table.name, action);
+    let type: string;
+    if (this.dropTruncateClass( action, table ) === 'btn-danger' ) {
+      if(table.tableType !== 'VIEW'){
+        request = new EditTableRequest(this.schema, table.name, action);
+        type = ' the Table ';
+      }else{
+        request = new EditTableRequest(this.schema, table.name, action, null, null, 'VIEW');
+        type = ' the View ';
+      }
+
     } else {
       return;
     }
@@ -152,18 +172,18 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       res => {
         const result = <ResultSet>res;
         if (result.error) {
-          this._toast.exception(result, 'Could not ' + action + ' the table ' + table + ':');
+          this._toast.exception(result, 'Could not ' + action + type + table + ':');
         } else {
           let toastAction = 'Truncated';
           if (request.getAction() === 'drop') {
             toastAction = 'Dropped';
-            this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
+            this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
           }
-          this._toast.success(toastAction + ' table ' + request.table);
+          this._toast.success(toastAction + type + request.table);
           this.getTables();
         }
       }, err => {
-        this._toast.error('Could not ' + action + ' the table ' + table + ' due to an unknown error');
+        this._toast.error('Could not ' + action + type + table + ' due to an unknown error');
         console.log(err);
       }
     );
@@ -188,8 +208,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     //delete columns with no column name
     let hasPk = false;
     this.newColumns.forEach((v, k) => {
-      if( !this._types.supportsPrecision(v.dataType) && v.precision !== null ) v.precision = null;
-      if( !this._types.supportsScale(v.dataType) && v.scale !== null ) v.scale = null;
+      if( !this._types.supportsPrecision(v.dataType) && v.precision !== null ) { v.precision = null; }
+      if( !this._types.supportsScale(v.dataType) && v.scale !== null ) { v.scale = null; }
       //clear cardinality and dimension if it is not an array
       if( v.collectionsType !== 'ARRAY' ) {
         v.cardinality = null;
@@ -228,7 +248,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this.newColumns.set(this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null ));
           this.newTableName = '';
           this.selectedStore = null;
-          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
+          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
         }
         this.getTables();
       }, err => {
@@ -240,18 +260,24 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
   renameTable ( table: TableModel ) {
     const t = new Index( this.schema, table.name, table.newName, null, null, null );
+    let type;
+    if(table.tableType === 'VIEW'){
+      type = ' View ';
+    }else{
+      type = ' Table ';
+    }
     this._crud.renameTable( t ).subscribe(
       res => {
         const r = <ResultSet> res;
         if( r.exception ) {
           this._toast.exception( r );
         } else {
-          this._toast.success( 'Renamed table ' + table.name + ' to ' + table.newName );
+          this._toast.success( 'Renamed' +  type + table.name + ' to ' + table.newName );
           this.getTables();
-          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
+          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
         }
       }, err => {
-        this._toast.error( 'Could not rename the table ' + table.name );
+        this._toast.error( 'Could not rename the' + type + table.name );
         console.log(err);
       }
     );
@@ -401,7 +427,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
 }
 
-class TableModel {
+export class TableModel {
   name:string;
   truncate = '';
   drop = '';

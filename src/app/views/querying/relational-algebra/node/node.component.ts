@@ -1,4 +1,4 @@
-import {AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {Node} from '../relational-algebra.model';
 import {SortDirection, SortState} from '../../../../components/data-view/models/sort-state.model';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
@@ -9,6 +9,7 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
   styleUrls: ['./node.component.scss']
 })
 export class NodeComponent implements OnInit, AfterViewChecked {
+  isView = false;
 
   constructor() { }
 
@@ -74,6 +75,12 @@ export class NodeComponent implements OnInit, AfterViewChecked {
   }
 
   autocompleteChange(){
+    if(this.node.initialNames.includes(this.node.tableName)){
+      const index = this.node.initialNames.indexOf(this.node.tableName);
+      this.node.setTableType(this.node.tableTypes[index]);
+      this.isView = this.node.tableTypes[index] === 'VIEW';
+
+    }
     this.autocompleteChanged.emit();
   }
 

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
@@ -14,6 +14,7 @@ import {Router} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {WebSocket} from '../../../services/webSocket';
+import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-graphical-querying',
@@ -25,10 +26,12 @@ import {WebSocket} from '../../../services/webSocket';
 export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('editorGenerated', {static: false}) editorGenerated;
+  @ViewChild('createViewModal', {static: false}) public createViewModal: TemplateRef<any>;
   generatedSQL;
   resultSet: ResultSet;
   selectedColumn = {};
   loading = false;
+  modalRefCreateView: BsModalRef;
   whereCounter = 0;
   orderByCounter = 0;
   andCounter = 0;
@@ -42,13 +45,16 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   columns = new Map<string, SidebarNode>();//columnId, columnName
   umlData = new Map<string, Uml>();//schemaName, uml
   joinConditions = new Map<string, JoinCondition>();
+  showCreateView = false;
+  viewEditorCode = '';
 
   constructor(
     private _crud: CrudService,
     private _leftSidebar: LeftSidebarService,
     private _toast: ToastService,
     private _router: Router,
-    private _settings: WebuiSettingsService
+    private _settings: WebuiSettingsService,
+    public modalService: BsModalService
   ) {
     this.webSocket = new WebSocket(_settings);
     this.initWebSocket();
@@ -93,17 +99,17 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   initSchema() {
-    this._crud.getSchema(new SchemaRequest('views/graphical-querying/', false, 3, false)).subscribe(
-      res => {
-        const nodeAction = (tree, node, $event) => {
-          if (!node.isActive && node.isLeaf) {
-            this.addCol(node.data);
-            node.setIsActive(true, true);
-          } else if (node.isActive && node.isLeaf) {
-            node.setIsActive(false, true);
-            this.removeCol(node.data.id);
+    this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false)).subscribe(
+        res => {
+          const nodeAction = (tree, node, $event) => {
+            if (!node.isActive && node.isLeaf) {
+              this.addCol(node.data);
+              node.setIsActive(true, true);
+            } else if (node.isActive && node.isLeaf) {
+              node.setIsActive(false, true);
+              this.removeCol(node.data.id);
 
-            //deletes the selection if nothing is choosen
+              //deletes the selection if nothing is choosen
             if (this.selectedColumn['column'].toString() === node.data.id) {
               this.selectedCol([]);
             }
@@ -283,6 +289,17 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 }
               }
             }
+            
+            if (k.startsWith('check', 0) && el['columnType'] === 'temporal') {
+              //whereSql.push(this.checkboxNumeric(col, k, el[k]));
+              if (el[k]) {
+                if (checkboxSQLNumerical[col]) {
+                  checkboxSQLNumerical[col].push(`'${k}'`);
+                } else {
+                  checkboxSQLNumerical[col] = [`'${k}'`];
+                }
+              }
+            }
 
           });
         }
@@ -369,8 +386,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.selectedCol(filterCols);
 
     filteredInfos = await this.processfilterSet();
+    let finalized;
 
-    const finalized = sql + filteredInfos;
+    finalized = sql + filteredInfos;
+
     this.generatedSQL = finalized;
     this.editorGenerated.setCode(finalized);
   }
@@ -469,6 +488,15 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
       });
     });
+  }
+
+  createView(viewEditorCode: string[]){
+    this.editorGenerated.setCode(viewEditorCode.join(' ') + this.editorGenerated.getCode());
+  }
+
+  executeView(viewEditorCode: string[]){
+    this.editorGenerated.setCode(viewEditorCode.join(' '));
+    this.executeQuery();
   }
 
 }

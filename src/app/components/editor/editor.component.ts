@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import * as ace from 'ace-builds'; // ace module ..
 import 'ace-builds/src-noconflict/mode-sql';
+import 'ace-builds/src-noconflict/mode-pgsql';
 import 'ace-builds/src-noconflict/mode-java';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -22,13 +23,13 @@ export class EditorComponent implements OnInit, AfterViewInit {
   private codeEditor: ace.Ace.Editor;
   @Input() readonly ? = false;
   @Input() theme ? = 'tomorrow';
-  @Input() lang ? = 'sql';
+  @Input() lang ? = 'pgsql';
   @Input() code ?;
 
   suggestions: string[] = [];
 
   constructor( private _crud: CrudService ) {
-    this._crud.getSchema( new SchemaRequest( '', false, 3 , true) ).subscribe(
+    this._crud.getSchema( new SchemaRequest( '', true, 3 , true) ).subscribe(
       res => {
         const map = this.computeSuggestions( <SidebarNode[]> res );
         map.forEach((v, k) => {
@@ -84,7 +85,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   }
 
   setCode ( code: string ) {
-    if( this.codeEditor) this.codeEditor.setValue( code, 1 );
+    if( this.codeEditor) {this.codeEditor.setValue( code, 1 );}
   }
 
   // from: https://stackoverflow.com/questions/30041816/ace-editor-autocomplete-custom-strings

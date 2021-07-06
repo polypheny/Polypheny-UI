@@ -1,14 +1,14 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DbColumn, ResultSet} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
-import {EditTableRequest,ColumnRequest, TableRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, EditTableRequest, TableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {ToastService} from '../../../components/toast/toast.service';
-import {Placements} from '../../adapters/adapter.model';
+import {Placements, UnderlyingTables} from '../../adapters/adapter.model';
 import {Subscription} from 'rxjs';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {DbTable, ForeignKey, SvgLine, Uml} from '../../../views/uml/uml.model';
+import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 
 @Component({
   selector: 'app-edit-source-columns',
@@ -23,9 +23,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   exportedColumns: Map<string, ResultSet> = new Map<string, ResultSet>();
   errorMsg: string;
   editingCol: string;
-  dataPlacement: Placements;
+  dataPlacement: Placements = null;
   subscriptions = new Subscription();
   foreignKeys: ForeignKey[] = [];
+  underlyingTables: {};
 
   constructor(
     private _crud: CrudService,
@@ -159,6 +160,19 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     );
   }
 
+  getUnderlyingTables(){
+    this._crud.getUnderlyingTable( new TableRequest(this.tableId, null, null, null) ).subscribe(
+        res => {
+          const tables = <UnderlyingTables> res;
+          this.underlyingTables = tables.underlyingTable;
+        }, err => {
+          this._toast.error('Could not load underlying Tables of View');
+          console.log(err);
+        }
+    );
+  }
+
+
   getPlacements () {
     if(!this.tableId || !this.tableId.includes('.')){
       return;
@@ -167,6 +181,9 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     this._crud.getDataPlacements( t[0], t[1] ).subscribe(
       res => {
         this.dataPlacement = <Placements> res;
+        if(this.dataPlacement.tableType === 'VIEW'){
+          this.getUnderlyingTables();
+        }
       }, err => {
         this._toast.error('Could not load data placements');
         console.log(err);

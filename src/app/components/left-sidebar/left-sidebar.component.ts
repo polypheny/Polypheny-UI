@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
-import {KEYS, TREE_ACTIONS, TreeComponent, TreeModel, TreeNode} from 'angular-tree-component';
+import {TreeComponent, TreeModel} from 'angular-tree-component';
 import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
 
@@ -17,11 +17,13 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
   nodes = [];
   options;
   error;
+  router;
 
   constructor(
     _router: Router,
     private _sidebar: LeftSidebarService,
   ) {
+    this.router = _router;
     //this.nodes = nodes;
     this.options = {
       actionMapping: {
@@ -122,4 +124,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
     this.treeComponent.treeModel.activeNodeIds = {};
   }
 
+  needsButton() {
+    return this.router.url.startsWith('/views/schema-editing/');
+  }
 }

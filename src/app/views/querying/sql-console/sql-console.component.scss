@@ -70,6 +70,7 @@ select{
 
 .result-wrapper {
   padding-bottom: 1rem;
+  padding-right: 0;
 }
 
 #results .card-header {
@@ -129,4 +130,8 @@ select{
   margin-top: -1.5em;
   margin-right: 0.5em;
   cursor: pointer;
+}
+
+.viewButton{
+  margin-right: 0.5em;
 }
