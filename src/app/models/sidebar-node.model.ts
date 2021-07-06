@@ -1,6 +1,7 @@
 export class SidebarNode {
   id: any;// of the form "schema.table.column"
   name: string;
+  tableType: string;
   icon: string;
   relAlgSymbol: string;
   routerLink: any;

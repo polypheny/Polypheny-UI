@@ -7,7 +7,8 @@
   <ng-container [ngSwitch]="node.type">
     <li class="param list-group-item" *ngSwitchCase="'TableScan'">
       <div class="param-wrapper">
-        <label for="{{node.id}}tableName">Table</label>
+        <label *ngIf="!isView" for="{{node.id}}tableName">Table</label>
+        <label *ngIf="isView" for="{{node.id}}tableName">View</label>
         <ng-autocomplete
           id="{{node.id}}tableName"
           [data]="node.autocomplete"
@@ -16,6 +17,7 @@
           placeHolder="schema.table"
           [searchKeyword]="node.tableName"
           [itemTemplate]="itemTemplate"
+          (click)="autocompleteChange()"
           [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
       </div>
     </li>

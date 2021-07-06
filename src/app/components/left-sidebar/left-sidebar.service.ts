@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, Input} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject} from 'rxjs';
 import {InformationService} from '../../services/information.service';
@@ -6,7 +6,7 @@ import {ConfigService} from '../../services/config.service';
 import * as $ from 'jquery';
 import {CrudService} from '../../services/crud.service';
 import {SchemaRequest} from '../../models/ui-request.model';
-import {SidebarNode, JavaPage} from '../../models/sidebar-node.model';
+import {JavaPage, SidebarNode} from '../../models/sidebar-node.model';
 import {Router} from '@angular/router';
 
 @Injectable({
@@ -15,6 +15,9 @@ import {Router} from '@angular/router';
 
 //docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarService {
+
+  @Input() schemaEdit: boolean;
+  router;
 
   constructor(
     private _http: HttpClient,
@@ -29,6 +32,8 @@ export class LeftSidebarService {
   //node that should be set inactive:
   private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   private resetSubject = new BehaviorSubject<boolean>(false);
+
+
 
   /**
    * Sort function to sort SidebarNodes alphabetically
@@ -152,16 +157,28 @@ export class LeftSidebarService {
         this.error.next(null);
         const schemaTemp = <SidebarNode[]>res;
         const schema = [];
+        this.router = _router;
         for (const s of schemaTemp) {
           schema.push(SidebarNode.fromJson(s));
         }
         //Schema editing view
-        if (!schemaRequest.views && schemaRequest.depth === 2) {
 
+        // this.router.url.startsWith('/views/schema-editing/'
+        // !schemaRequest.views && schemaRequest.depth === 2
+        if (this.router.url.startsWith('/views/schema-editing/')) {
           //function to define node behavior
           const nodeBehavior = (tree, node, $event) => {
             if (node.data.routerLink !== '') {
-              _router.navigate([node.data.routerLink]);
+              const rLink = [node.data.routerLink];
+              const rname = [node.data.id];
+              if(node.data.children.length === 0){
+                const url = ['/views/schema-editing/'];
+                const fullChildLink = (url.concat(rname));
+                _router.navigate(fullChildLink );
+              } else {
+                const fullLink = rLink.concat(rname);
+                _router.navigate(fullLink );
+              }
               if (node.isCollapsed) {
                 node.expand();
               } else if (!node.isCollapsed && node.isActive === true) {
@@ -208,8 +225,10 @@ export class LeftSidebarService {
             res => {
               this.error.next(null);
               const schema = <SidebarNode[]> res;
+              this.schemaEdit = false;
               //Schema editing view
-              if( !schemaRequest.views && schemaRequest.depth === 2 ){
+              if( schemaRequest.schemaEdit && schemaRequest.depth === 2 ){
+                this.schemaEdit = true;
                 schema.forEach( (val, key) => {
                   val.routerLink = schemaRequest.routerLinkRoot;
                   val.children.forEach( (v, k) => {

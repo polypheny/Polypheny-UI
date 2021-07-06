@@ -1,4 +1,4 @@
-<div id="tree-outer-wrapper">
+<div id="tree-outer-wrapper d-flex" class="schema-editing">
 
   <div class="input-group input-group-sm" id="search-group">
     <div class="input-group-prepend">
@@ -14,13 +14,14 @@
     </div>
   </div>
 
+
   <span *ngIf="error">{{error}}</span>
   <div id="tree-inner-wrapper">
 
     <tree-root [nodes]="nodes" [options]="options" #tree>
       <ng-template #treeNodeWrapperTemplate let-node let-index="index">
         <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
-          <tree-node-expander [node]="node"></tree-node-expander>
+         <tree-node-expander *ngIf="node.data.children.length > 0" [node]="node"></tree-node-expander>
           <div class="node-content-wrapper"
                [class.node-content-wrapper-active]="node.isActive"
                [class.node-content-wrapper-focused]="false"
@@ -40,6 +41,15 @@
         </div>
       </ng-template>
     </tree-root>
-
   </div>
+
+
+  <div class="schema-editing-wrapper">
+    <div *ngIf="needsButton()" class="border-top my-3 "></div>
+    <p *ngIf="needsButton()"  class="schema-button node-content-wrapper"  id="schemaText" [routerLink]="'/views/schema-editing/'"><i class="fa fa-pencil" aria-hidden="true"></i>
+      Manage Schema</p>
+  </div>
+
+
+
 </div>

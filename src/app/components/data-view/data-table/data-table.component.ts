@@ -1,18 +1,18 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
 import {cloneDeep} from 'lodash';
 import {ClassifyRequest, Exploration, ExploreTable} from '../../../models/ui-request.model';
 import {PaginationElement} from '../models/pagination-element.model';
 import {DbColumn, ExploreSet, ResultSet} from '../models/result-set.model';
 import {SortDirection, SortState} from '../models/sort-state.model';
-import {ToastService} from '../../toast/toast.service';
+import {ToastDuration, ToastService} from '../../toast/toast.service';
 import {CrudService} from '../../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as dot from 'graphlib-dot';
 import * as dagreD3 from 'dagre-d3';
 import * as d3 from 'd3';
-import {BsModalService, BsModalRef} from 'ngx-bootstrap/modal';
+import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 
@@ -42,6 +42,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
   finalresult = false;
   initalClassifiation = true;
   cPage = 1;
+  viewName = 'viewName';
 
   columns = [];
   userInput = {};
@@ -49,6 +50,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
   exploreDataCounter = 0;
   labled = [];
 
+  @Output() showViewExploring = new EventEmitter();
 
   constructor(
     public _crud: CrudService,
@@ -57,9 +59,10 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     public _router: Router,
     public _types: DbmsTypesService,
     public _settings: WebuiSettingsService,
-    public modalService: BsModalService
+    public modalService: BsModalService,
   ) {
     super( _crud, _toast, _route, _router, _types, _settings, modalService );
+    this.initWebsocket();
   }
 
 
@@ -245,7 +248,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     this.prepareClassifiedData();
     this._crud.exploreUserInput(new Exploration(this.exploreId, this.resultSet.header, this.classifiedData)).subscribe(
       res => {
-        this._toast.success('Classification successful');
+        //this._toast.success('Classification successful');
         this.initalClassifiation = false;
         this.finalresult = false;
         if (this.tutorialMode) {
@@ -336,7 +339,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
   sendChosenCols() {
     this._crud.classifyData(new ClassifyRequest(this.exploreId, this.resultSet.header, this.classifiedData, this.cPage)).subscribe(
       res => {
-        this._toast.success('Final Result');
+        //this._toast.success('Final Result');
         this.finalresult = true;
         this.userInput = {};
         this.classifiedData = [];
@@ -346,6 +349,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
           this.createdSQL = this.resultSet.generatedQuery;
         }
         this.setPagination();
+        this.showViewExploring.emit(true);
       }, err => {
         this._toast.error(('Error showing final Result'));
         console.log(err);
@@ -422,5 +426,36 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
   canOrder( col: DbColumn ) {
     return !this._types.isMultimedia(col.dataType) && !col.collectionsType;
   }
+
+
+  createViewButton(createViewExample){
+    this.modalRefCreateView = this.modalService.show(createViewExample);
+    this.getAllTables();
+
+  }
+
+  executeViewExample(createdSQL){
+    if (this.newViewName === '') {
+      this._toast.warn('Please provide a name for the new view. The new view was not created.', 'missing view name', ToastDuration.INFINITE);
+      return;
+    }
+    if (!this._crud.nameIsValid(this.newViewName)) {
+      this._toast.warn('Please provide a valid name for the new view. The new view was not created.', 'invalid view name', ToastDuration.INFINITE);
+      return;
+    }
+
+    if (this.tables.filter((t) => t.name === this.newViewName).length > 0) {
+      this._toast.warn('A table or view with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
+      return;
+    }
+
+    this.createdSQL = 'CREATE VIEW ' + this.newViewName + ' AS\n' + createdSQL;
+    const code = this.createdSQL;
+    this.executeCreateView(code);
+
+    this.modalRefCreateView.hide();
+    this.gotTables = false;
+  }
+
 
 }
