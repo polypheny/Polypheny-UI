@@ -1,9 +1,12 @@
 name: Polypheny-UI Publish
 
-on: [ push ]
+on:
+  push:
+#    branches:
+#      - master
 
 jobs:
-  artifactoryUpload:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -14,7 +17,7 @@ jobs:
           java-version: 8
       - name: Build with Gradle
         run: ./gradlew --no-daemon build generatePom
-      - name: Publish to Nexus
+      - name: Publish JAR to DBIS Nexus
         uses: sonatype-nexus-community/nexus-repo-github-action@master
         with:
           serverUrl: https://dbis-nexus.dmi.unibas.ch/
@@ -25,4 +28,14 @@ jobs:
           coordinates: groupId=org.polypheny artifactId=polypheny-ui version=1.0-SNAPSHOT
           assets: extension=jar
           filename: ./build/libs/polypheny-ui-1.0-SNAPSHOT.jar
-          
+      - name: Publish POM to DBIS Nexus
+        uses: sonatype-nexus-community/nexus-repo-github-action@master
+        with:
+          serverUrl: https://dbis-nexus.dmi.unibas.ch/
+          username: ${{ secrets.NEXUS_USERNAME }}
+          password: ${{ secrets.NEXUS_password }}
+          format: maven2
+          repository: maven-snapshots
+          coordinates: groupId=org.polypheny artifactId=polypheny-ui version=1.0-SNAPSHOT
+          assets: extension=pm
+          filename: ./build/publications/polypheny-ui/pom-default.xml
