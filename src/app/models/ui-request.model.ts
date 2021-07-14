@@ -198,7 +198,7 @@ export class EditTableRequest {
     this.action = action;
     this.columns = columns;
     this.store = store;
-    this.tableType = tableType;
+    this.tableType = tableType || 'TABLE';
   }
 
   getAction() {
