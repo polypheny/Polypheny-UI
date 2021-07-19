@@ -30,7 +30,7 @@
 
 <ng-container [ngSwitch]="presentationType">
     <ng-container *ngSwitchCase="presentationTypes.TABLE">
-        <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="config" [tableId]="tableId" [loading]="loading" ></app-data-table>
+        <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="config" [tableId]="tableId" [loading]="loading"></app-data-table>
     </ng-container>
     <ng-container *ngSwitchCase="presentationTypes.CARD">
         <app-data-card *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-card>
@@ -44,26 +44,70 @@
 <ng-template #createView>
     <div class="modal-content">
         <div class="modal-header">
-            <h4 class="modal-title pull-left">Create View</h4>
+            <ul class="nav nav-underline">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" (click)="viewOptions ='view'">View</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" (click)="viewOptions = 'materialized-view'">Materialized View</a>
+                </li>
+            </ul>
             <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefCreateView.hide()">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        <div class="modal-body" id="modal-body-tree">
+        <div class="tab-content">
+            <div class="modal-body" id="modal-body-tree">
+                <div class="tab-pane active" id="view-tab" *ngIf="viewOptions==='view'">
 
-            <div class="form-group">
-                <label for="viewName" class="mb-2">Please enter a name for the view:</label>
-                <div class="d-flex justify-content-between">
 
-                    <input type="text" id="viewName" placeholder="view name" class="form-control" style="max-width: 200px;"
-                           [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" (keyup.enter)="createViewCode()" >
+                    <div class="form-group">
+                        <label for="viewName" class="mb-2">Please enter a name for the view:</label>
+                        <div class="d-flex justify-content-between">
+
+                            <input type="text" id="viewName" placeholder="view name" class="form-control" style="max-width: 200px;"
+                                   [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" (keyup.enter)="createViewCode()">
+                            <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary ml-2"
+                                    [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode()">show
+                            </button>
+                            <button class="btn btn-primary ml-2"
+                                    [disabled]="!creatingView ? 'disabled': null" (click)="submitCreateView()">execute
+                            </button>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="tab-pane" id="materialized-view-tab" *ngIf="viewOptions==='materialized-view'">
+
+
+                    <div class="form-group">
+                        <label for="viewName" class="mb-2">Please enter a name for the materialized view:</label>
+                        <div class="d-flex justify-content-between">
+
+                            <input type="text" id="materializedViewName" placeholder="view name" class="form-control" style="max-width: 200px;"
+                                   [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" (keyup.enter)="createViewCode()">
+
+
+                        </div>
+                    </div>
+
+                    <select class="custom-select">
+                        <option value="update">UPDATE</option>
+                        <option value="interval">INTERVAL</option>
+                    </select>
+
+
                     <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary ml-2"
-                            [disabled]="!creatingView ? 'disabled': null"  (click)="createViewCode()" >show</button>
+                            [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode()">show
+                    </button>
                     <button class="btn btn-primary ml-2"
-                             [disabled]="!creatingView ? 'disabled': null" (click)="submitCreateView()" >execute</button>
+                            [disabled]="!creatingView ? 'disabled': null" (click)="submitCreateView()">execute
+                    </button>
 
                 </div>
             </div>
         </div>
+
     </div>
 </ng-template>

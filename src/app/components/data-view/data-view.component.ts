@@ -64,6 +64,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   newViewName = '';
   tables: TableModel[] = [];
   gotTables = false;
+  viewOptions = 'view';
 
   constructor(
       public _crud: CrudService,
@@ -477,9 +478,11 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   openCreateView(createView: TemplateRef<any>, sqlQuery: string) {
+    this.viewOptions='view';
     this.getAllTables();
     this.modalRefCreateView = this.modalService.show(createView);
     this.sqlQuery = '\n' + sqlQuery;
+
   }
 
   createViewCode() {
