@@ -65,6 +65,15 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   tables: TableModel[] = [];
   gotTables = false;
   viewOptions = 'view';
+  freshnessOptions:Array<string> = [
+    'UPDATE', 'INTERVAL'
+  ];
+  freshnessSelected = 'INTERVAL';
+  timeUnites:Array<string>=[
+      'milliseconds', 'seconds', 'minutes', 'hours', 'days'
+  ];
+  timeUniteSelected = 'minutes';
+  intervalSelected = 10;
 
   constructor(
       public _crud: CrudService,
@@ -485,21 +494,38 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
   }
 
-  createViewCode() {
+
+
+  createViewCode(isView: boolean) {
     if(this.checkIfPossible()){
-      const viewData = ['CREATE VIEW', this.newViewName, 'AS \n'];
-      this.viewEditorCode.emit(viewData);
-      this.modalRefCreateView.hide();
-      this.gotTables = false;
+      if(!isView){
+        const viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nFRESHNESS', this.freshnessSelected, this.intervalSelected, this.timeUniteSelected]];
+        this.viewEditorCode.emit(viewData);
+        this.modalRefCreateView.hide();
+        this.gotTables = false;
+      }else{
+        const viewData = ['CREATE VIEW', this.newViewName, 'AS \n'];
+        this.viewEditorCode.emit(viewData);
+        this.modalRefCreateView.hide();
+        this.gotTables = false;
+      }
+
     }
   }
 
-  submitCreateView() {
+  submitCreateView(isView: boolean) {
     if(this.checkIfPossible()){
-      const viewData = ['CREATE VIEW', this.newViewName, 'AS', this.sqlQuery];
-      this.executeView.emit(viewData);
-      this.modalRefCreateView.hide();
-      this.gotTables = false;
+      if(!isView){
+        const viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nFRESHNESS', this.freshnessSelected, this.intervalSelected, this.timeUniteSelected];
+        this.executeView.emit(viewData);
+        this.modalRefCreateView.hide();
+        this.gotTables = false;
+      }else{
+        const viewData = ['CREATE VIEW', this.newViewName, 'AS', this.sqlQuery];
+        this.executeView.emit(viewData);
+        this.modalRefCreateView.hide();
+        this.gotTables = false;
+      }
     }
   }
 

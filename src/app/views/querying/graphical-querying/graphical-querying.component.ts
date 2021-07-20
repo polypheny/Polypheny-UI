@@ -490,8 +490,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     });
   }
 
-  createView(viewEditorCode: string[]){
-    this.editorGenerated.setCode(viewEditorCode.join(' ') + this.editorGenerated.getCode());
+  createView(viewEditorCode: string[][]){
+    this.editorGenerated.setCode(viewEditorCode[0].join(' ') + this.editorGenerated.getCode() + viewEditorCode[1].join(' '));
   }
 
   executeView(viewEditorCode: string[]){
