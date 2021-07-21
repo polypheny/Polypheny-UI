@@ -182,6 +182,7 @@
                 <div class="input-group" style="justify-content: flex-end">
                   <input type="text" placeholder="table name" class="form-control" style="max-width: 200px;"
                          [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)" (keyup.enter)="createTable()" [tabIndex]="newColumns.size+1">
+
                   <div class="input-group-append">
                     <button class="btn btn-primary" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingTable}" [disabled]="creatingTable" (click)="createTable()" [tabIndex]="newColumns.size+2">create table</button>
                   </div>

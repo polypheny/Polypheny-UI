@@ -242,6 +242,11 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/getPlacements`, index, this.httpOptions);
   }
 
+  getUnderlyingTable( request: TableRequest ) {
+    return this._http.post(`${this.httpUrl}/getUnderlyingTable`, request, this.httpOptions);
+  }
+
+
   /**
    * Add or drop a placement
    */
@@ -332,10 +337,16 @@ export class CrudService {
   /**
    * Execute a relational algebra
    */
-  executeRelAlg ( socket: WebSocket, relAlg: Node ): boolean {
-    const request = new RelAlgRequest( relAlg );
+  executeRelAlg ( socket: WebSocket, relAlg: Node, createView?: boolean, viewName?: string): boolean {
+    let request;
+    if(createView){
+      request = new RelAlgRequest( relAlg, createView, viewName);
+    }else{
+      request = new RelAlgRequest( relAlg );
+    }
     return socket.sendMessage( request );
   }
+
 
   renameTable ( table: Index ) {
     return this._http.post(`${this.httpUrl}/renameTable`, table, this.httpOptions);

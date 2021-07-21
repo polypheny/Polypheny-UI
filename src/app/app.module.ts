@@ -38,6 +38,7 @@ import {ViewsModule} from './views/views.module';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { PopoverModule } from 'ngx-bootstrap/popover';
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { JsonTextComponent } from './data-view/json-text/json-text.component';
 
 @NgModule({
   imports:[
@@ -70,7 +71,8 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     DefaultLayoutComponent,
     P404Component,
     P500Component,
-    LoginComponent
+    LoginComponent,
+    JsonTextComponent
   ],
   providers: [{
     provide: LocationStrategy,

@@ -15,6 +15,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
 import {WebSocket} from '../../../services/webSocket';
+import {BsModalService} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-console',
@@ -58,8 +59,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private _leftSidebar: LeftSidebarService,
     private _breadcrumb: BreadcrumbService,
     private _settings: WebuiSettingsService,
-    public _util: UtilService
+    public _util: UtilService,
+    public modalService: BsModalService
   ) {
+
     const self = this;
     this.websocket = new WebSocket(_settings);
     // hit alt-enter to execute a query with the current "save in history" option
@@ -88,6 +91,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     window.onbeforeunload = null;
     window.onkeydown = null;
   }
+
 
   submitQuery() {
     const code = this.codeEditor.getCode();
@@ -187,7 +191,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             this.queryAnalysis = <InformationPage>res;
             this.showingAnalysis = true;
             this._breadcrumb.setBreadcrumbs([new BreadcrumbItem(node.data.name)]);
-            if( this.queryAnalysis.fullWidth ) this._breadcrumb.hideZoom();
+            if( this.queryAnalysis.fullWidth ) { this._breadcrumb.hideZoom(); }
             node.setIsActive(true);
           }, err => {
             console.log(err);
@@ -256,12 +260,22 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub);
   }
 
+  createView(viewEditorCode: string[]){
+    const code = this.codeEditor.getCode();
+    this.codeEditor.setCode(viewEditorCode.join(' ') + code);
+  }
+
+  executeView(viewEditorCode: string[]){
+    this.codeEditor.setCode(viewEditorCode.join(' ') );
+    this.submitQuery();
+  }
+
   formatQuery() {
     let code = this.codeEditor.getCode();
     if( !code ) {
       return;
     }
-    
+
     const splitters = ['aggregate(', 'find('];
     let before = '';
     let after = '';
@@ -324,7 +338,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     intervals.forEach(interval => {
       parsed.push(this.parse(code.substring(interval.left, interval.right + 1)));
     });
-    
+
     return parsed.join(',\n');
   }
 

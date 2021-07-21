@@ -470,7 +470,7 @@ export class HubComponent implements OnInit, OnDestroy {
     if( dataset.endsWith('.zip')) {
       dataset = dataset.substr(0,dataset.length-4);
     }
-    this._crud.getSchema(new SchemaRequest('', false, 1, true)).subscribe(
+    this._crud.getSchema(new SchemaRequest('', false, 1, false)).subscribe(
       res => {
         this.schemas = <SidebarNode[]> res;
       }, err => {

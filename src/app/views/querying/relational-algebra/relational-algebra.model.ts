@@ -90,6 +90,7 @@ export class Node {
   //parameters:
   //TableScan
   tableName: string;
+  tableType: String;
 
   //Join
   join = 'INNER';
@@ -117,6 +118,10 @@ export class Node {
   //union, minus, intersect
   all = false;
 
+  //additional information needed for Views
+  tableTypes: String[];
+  initialNames: String[];
+
   constructor(
     public id: string,
     public type: LogicalOperator,
@@ -140,8 +145,8 @@ export class Node {
       }
     }
     //make sure, it is in the working area
-    if( n.left > width ) n.left = width - 260;
-    if( n.top > height ) n.top = height - 100;
+    if( n.left > width ) { n.left = width - 260; }
+    if( n.top > height ) { n.top = height - 100; }
 
     return n;
   }
@@ -221,5 +226,18 @@ export class Node {
   setRelAlgSymbol(symbol: string) {
     this.relAlgSymbol = symbol;
     return this;
+  }
+
+  setTableType(type: String){
+    this.tableType = type;
+  }
+
+  setTypeList(ac: String[]) {
+    this.tableTypes = ac;
+  }
+
+  allName(ac: String[]) {
+    this.initialNames = ac;
+
   }
 }
