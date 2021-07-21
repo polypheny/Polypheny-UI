@@ -275,29 +275,15 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     if( !code ) {
       return;
     }
-
-    const splitters = ['aggregate(', 'find('];
     let before = '';
-    let after = '';
-    let cont = false;
-    for (const splitter of splitters) {
-      if( code.includes(splitter)){
-        cont = true;
-        const splits = code.split(splitter);
-        code = splits[1];
-        before = splits[0] + splitter;
-        break;
-      }
-    }
-    if ( !cont ){
-      return;
-    }
-    if ( code.charAt(code.length - 1) === ')'){
-      code = code.substring(0, code.length - 1);
-      after = ')';
-    }
+    const after = ')';
+
+    const splits = code.split('(');
+    before = splits.shift() + '(';
+    const json = this.parse(splits.join('(').slice(0, -1));
+
     try {
-      this.codeEditor.setCode(before + this.trySplit(code) + after);
+      this.codeEditor.setCode(before + json + after);
     }catch(e){
       console.log(e); // todo dl show via toast
     }
@@ -308,50 +294,5 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     return JSON.stringify(JSON.parse(code), null, 4);
   }
 
-  private trySplit(code: string) {
-    let open = 0;
-    let openSquare = 0;
-    let lastStart = 0;
-    const intervals:Pair[] = [];
-    for ( let i = 0; i < code.length; i++ ){
-      const now = code.charAt(i);
-      if ( now === '{'){
-        open++;
-      }else if ( now === '}') {
-        open--;
-      }else if ( now === '[') {
-        openSquare++;
-      }else if ( now === ']'){
-        openSquare--;
-      }else if ( now === ',' && open === 0 && openSquare === 0){
-        // between
-        intervals.push(new Pair( lastStart,i - 1 ));
-        lastStart = i + 1;
-      }
-      if ( i === code.length - 1 && (( now === '}' && open === 0 ) || (now === ']' && openSquare === 0 ))) {
-        // end of doc or array
-        intervals.push(new Pair( lastStart, i ));
-      }
-    }
-    const parsed:string[] = [];
 
-    intervals.forEach(interval => {
-      parsed.push(this.parse(code.substring(interval.left, interval.right + 1)));
-    });
-
-    return parsed.join(',\n');
-  }
-
-
-}
-
-class Pair{
-  left: number;
-  right: number;
-
-
-  constructor(left: number, right: number) {
-    this.left = left;
-    this.right = right;
-  }
 }
