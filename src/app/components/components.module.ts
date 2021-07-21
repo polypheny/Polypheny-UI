@@ -33,6 +33,8 @@ import {PlyrModule} from 'ngx-plyr';
 import { MediaComponent } from './data-view/media/media.component';
 import { DeleteConfirmComponent } from './delete-confirm/delete-confirm.component';
 import { ExpandableTextComponent } from './data-view/expandable-text/expandable-text.component';
+import { JsonTextComponent } from './data-view/json-text/json-text.component';
+import {NgxJsonViewerModule} from 'ngx-json-viewer';
 
 //import 'hammerjs';
 
@@ -54,7 +56,7 @@ import { ExpandableTextComponent } from './data-view/expandable-text/expandable-
     ExplainVisualizerModule,
     ModalModule.forRoot(),
     CarouselModule,
-    PlyrModule
+    PlyrModule, NgxJsonViewerModule
   ],
   declarations: [
     BreadcrumbComponent,
@@ -73,7 +75,8 @@ import { ExpandableTextComponent } from './data-view/expandable-text/expandable-
     DataCarouselComponent,
     MediaComponent,
     DeleteConfirmComponent,
-    ExpandableTextComponent
+    ExpandableTextComponent,
+    JsonTextComponent
   ],
   exports: [
     BreadcrumbComponent,

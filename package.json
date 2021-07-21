@@ -48,6 +48,7 @@
     "mutationobserver-shim": "^0.3.7",
     "ng2-charts": "^2.3.2",
     "ngx-bootstrap": "^5.6.1",
+    "ngx-json-viewer": "^3.0.2",
     "ngx-perfect-scrollbar": "^8.0.0",
     "ngx-plyr": "^4.0.0",
     "plyr": "^3.6.3",
