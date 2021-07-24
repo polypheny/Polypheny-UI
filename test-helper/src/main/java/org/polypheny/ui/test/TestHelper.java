@@ -43,6 +43,8 @@ public class TestHelper {
                 statement.executeUpdate( "DROP TABLE IF EXISTS \"test\"" );
                 statement.executeUpdate( "CREATE TABLE \"test\"( \"id\" INTEGER NOT NULL, \"foo\" VARCHAR(20), PRIMARY KEY (\"id\") )" );
                 statement.executeUpdate( "INSERT INTO \"test\" VALUES (1, 'polypheny')" );
+                statement.executeUpdate( "create Table testing(p_id BIGINT NOT NULL,IntData BIGINT,DM VARCHAR(255), BooleanData BOOLEAN,DecimalData DECIMAL,DoubleData Double,DateData Date, PRIMARY KEY(p_id))" );
+
                 connection.commit();
             }
         }
