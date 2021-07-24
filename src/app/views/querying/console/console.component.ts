@@ -16,6 +16,7 @@ import {Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
 import {WebSocket} from '../../../services/webSocket';
 import {BsModalService} from 'ngx-bootstrap/modal';
+import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 
 @Component({
   selector: 'app-console',
@@ -60,7 +61,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private _breadcrumb: BreadcrumbService,
     private _settings: WebuiSettingsService,
     public _util: UtilService,
-    public modalService: BsModalService
+    public modalService: BsModalService,
+    public _toast: ToastService
   ) {
 
     const self = this;
@@ -278,14 +280,32 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     let before = '';
     const after = ')';
 
+    // here we replace the Json incompatible types with placeholders
+    const temp = code.match(/NumberDecimal\([^)]*\)/g);
+
+    if ( temp !== null ){
+        for (let i=0; i < temp.length; i++ ){
+            code = code.replace( temp[i], '"___'+i+'"' );
+        }
+    }
+
+
     const splits = code.split('(');
     before = splits.shift() + '(';
-    const json = this.parse(splits.join('(').slice(0, -1));
 
     try {
+      let json = this.parse(splits.join('(').slice(0, -1));
+      // we have to translate them back
+        if ( temp !== null ){
+            for (let i=0; i < temp.length; i++ ){
+                json = json.replace( '"___'+i+'"', temp[i]  );
+            }
+        }
+
       this.codeEditor.setCode(before + json + after);
     }catch(e){
-      console.log(e); // todo dl show via toast
+      this._toast.warn(e);
+      //console.log(e); // todo dl show via toast
     }
   }
 
@@ -293,6 +313,4 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     console.log(code);
     return JSON.stringify(JSON.parse(code), null, 4);
   }
-
-
 }
