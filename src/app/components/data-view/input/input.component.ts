@@ -16,6 +16,12 @@ import * as $ from 'jquery';
 import flatpickr from 'flatpickr';
 import {InputValidation} from '../models/sort-state.model';
 
+function getObjectId() {
+  // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
+  const s = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  return Array.apply(null, Array(24)).map(() => s.charAt(Math.floor(Math.random() * s.length))).join('');
+}
+
 @Component({
   selector: 'app-input',
   templateUrl: './input.component.html',
@@ -42,6 +48,11 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnInit() {
+    if ( this.header.name === '_id') {
+      console.log(this.header.precision);
+      this.value = getObjectId();
+      this.valueChange.emit( this.value );
+    }
   }
 
   ngAfterViewInit() {
@@ -94,33 +105,47 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
       return;
     }
     if( this.header.collectionsType ){
-      if (val.startsWith('[') && val.endsWith(']')) {
-        if( !this._types.isNumeric(this.header.dataType) ){
-          //don't make further checks on non-numeric arrays
-          return;
-        }
-        try {
-          const parsed = JSON.parse(val);
-          if(!Array.isArray(parsed)){
-            return new InputValidation(false, 'Non-valid array');
-          } else {
-            if(this.header.cardinality && this.getMaxCardinality(parsed) > this.header.cardinality){
-              return new InputValidation(false, 'Exceeded max cardinality of ' + this.header.cardinality);
-            } else if(this.header.dimension && this.getMaxDimension(parsed) > this.header.dimension){
-              return new InputValidation(false, 'Exceeded max dimension of ' + this.header.dimension);
-            }
-            return new InputValidation(true);
-          }
-        } catch (e) {
-          return new InputValidation(false, 'Non-valid array');
-        }
-      } else {
-        return new InputValidation(false, 'Non-valid array');
-      }
+      return this.validateArray(val);
     } else if ( this._types.isNumeric(this.header.dataType)){
       if(isNaN(val)){
         return new InputValidation(false, 'Non-numeric input');
       }
+    } else if ( this.header.dataType.toLowerCase() === 'json') {
+      let doc = val.replace(/NumberDecimal\("[0-9.]*"\)/g, '0');
+      doc = doc.replace(/[0-9a-zA-Z.]+[*\/+-]+[0-9a-zA-Z.]+/g, '0');
+      try {
+        doc = JSON.parse(doc);
+      } catch ( Exception ){
+        return new InputValidation(false, 'Non-valid document');
+      }
+      return new InputValidation(true);
+
+    }
+  }
+
+  private validateArray(val) {
+    if (val.startsWith('[') && val.endsWith(']')) {
+      if (!this._types.isNumeric(this.header.dataType)) {
+        //don't make further checks on non-numeric arrays
+        return;
+      }
+      try {
+        const parsed = JSON.parse(val);
+        if (!Array.isArray(parsed)) {
+          return new InputValidation(false, 'Non-valid array');
+        } else {
+          if (this.header.cardinality && this.getMaxCardinality(parsed) > this.header.cardinality) {
+            return new InputValidation(false, 'Exceeded max cardinality of ' + this.header.cardinality);
+          } else if (this.header.dimension && this.getMaxDimension(parsed) > this.header.dimension) {
+            return new InputValidation(false, 'Exceeded max dimension of ' + this.header.dimension);
+          }
+          return new InputValidation(true);
+        }
+      } catch (e) {
+        return new InputValidation(false, 'Non-valid array');
+      }
+    } else {
+      return new InputValidation(false, 'Non-valid array');
     }
   }
 
