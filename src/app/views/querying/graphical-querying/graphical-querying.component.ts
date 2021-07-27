@@ -427,7 +427,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   executeQuery() {
     this.loading = true;
     const code = this.editorGenerated.getCode();
-    if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, true, 'sql'))) {
+    if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, true, 'sql', null))) {
       this.loading = false;
       this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
     }

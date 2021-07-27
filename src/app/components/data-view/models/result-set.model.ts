@@ -30,6 +30,14 @@ export class ResultSet {
   }
 }
 
+export class InfoSet extends ResultSet{
+
+
+  constructor(error: string, generatedQuery: any, affectedRows: number) {
+    super(error, generatedQuery, affectedRows);
+  }
+}
+
 /**
  * model with classified data coming form server
  */

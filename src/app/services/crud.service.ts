@@ -454,6 +454,10 @@ export class CrudService {
     return this._http.get(`${this.httpUrl}/usedDockerPorts`);
   }
 
+  getDocumentDatabases() {
+    return this._http.get(`${this.httpUrl}/getDocumentDatabases`);
+  }
+
   /**
    * Get the http url with which multimedia files can be displayed or downloaded
    */
