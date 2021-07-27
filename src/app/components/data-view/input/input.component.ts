@@ -18,8 +18,8 @@ import {InputValidation} from '../models/sort-state.model';
 
 function getObjectId() {
   // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
-  const s = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  return Array.apply(null, Array(24)).map(() => s.charAt(Math.floor(Math.random() * s.length))).join('');
+  const s = 'abcdef0123456789';
+  return 'ObjectId('+ Array.apply(null, Array(24)).map(() => s.charAt(Math.floor(Math.random() * s.length))).join('') + ')';
 }
 
 @Component({
@@ -49,7 +49,6 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
 
   ngOnInit() {
     if ( this.header.name === '_id') {
-      console.log(this.header.precision);
       this.value = getObjectId();
       this.valueChange.emit( this.value );
     }
