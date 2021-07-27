@@ -16,7 +16,7 @@ import {Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
 import {WebSocket} from '../../../services/webSocket';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
+import {ToastService} from '../../../components/toast/toast.service';
 
 @Component({
   selector: 'app-console',
@@ -311,6 +311,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
   parse( code:string ){
     console.log(code);
-    return JSON.stringify(JSON.parse(code), null, 4);
+    const formatted = JSON.stringify(JSON.parse('[' + code + ']'), null, 4);
+    return formatted.substring(1, formatted.length - 1);
   }
 }
