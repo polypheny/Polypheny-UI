@@ -117,8 +117,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         }
         if (this.lang === 'mql') {
             if (code.match('use [a-zA-Z][a-zA-Z0-1]*')) {
+                console.log(this.defaultDocumentDB);
                 this.setDefaultDB(code.replace('use ', ''));
-                return;
             }
             if (code.match('show db')) {
                 this._crud.getDocumentDatabases().subscribe(res => {
@@ -350,21 +350,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     private setDefaultDB(name: string) {
         name = name.trim();
-
-        this._crud.getDocumentDatabases().subscribe(res => {
-            this.documentDBs = [];
-            for (const entry of (<ResultSet>res).data) {
-                this.documentDBs.push(entry[0]);
-            }
-
-            if (this.documentDBs.includes(name)) {
-                this.defaultDocumentDB = name;
-                localStorage.setItem('document-db', name);
-            } else {
-                this._toast.error('This database does not exist');
-            }
-            this.loading = false;
-        });
+        this.defaultDocumentDB = name;
+        localStorage.setItem('document-db', name);
     }
 
     toggleCollapsed(i: number) {
