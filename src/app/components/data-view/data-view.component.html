@@ -82,7 +82,7 @@
 
 
                     <div class="form-group">
-                        <label for="materializedViewName" class="mb-2">Please enter a name for the materialized view:</label>
+                        <label for="materializedViewName" class="mb-2">Name:</label>
                         <div class="d-flex justify-content-between">
 
                             <input type="text" id="materializedViewName" placeholder="view name" class="form-control"
@@ -90,8 +90,17 @@
                         </div>
                     </div>
 
+
                     <div class="form-group">
-                        <label for="freshnessSelection"> Please select freshness type:</label>
+                        <label for="storeSelection">Store:</label>
+                        <select class="custom-select mb-2" id="storeSelection" [(ngModel)]=" storeSelected">
+                            <option *ngFor="let storeOption of storeOptions" [ngValue]="storeOption">{{storeOption}}</option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="freshnessSelection">Freshness Type:</label>
                         <select class="custom-select mb-2" id="freshnessSelection" [(ngModel)]=" freshnessSelected">
                             <option *ngFor="let freshnessOption of freshnessOptions" [ngValue]="freshnessOption">{{freshnessOption}}</option>
                         </select>
@@ -113,6 +122,9 @@
                                 <label for="freshnessUpdate" class="mb-2">Select update Interval:</label>
                                 <input type="text" id="freshnessUpdate" placeholder="number" class="form-control mb-2" [(ngModel)]="intervalSelected">
                             </div>
+                        </div>
+                        <div *ngIf="freshnessSelected === 'MANUAL'">
+
                         </div>
                     </div>
 

@@ -17,6 +17,7 @@ import {HttpEventType} from '@angular/common/http';
 import * as $ from 'jquery';
 import {DbTable} from '../../views/uml/uml.model';
 import {TableModel} from '../../views/schema-editing/edit-tables/edit-tables.component';
+import {Store} from '../../views/adapters/adapter.model';
 
 @Component({
   selector: 'app-data-view',
@@ -66,7 +67,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   gotTables = false;
   viewOptions = 'view';
   freshnessOptions:Array<string> = [
-    'UPDATE', 'INTERVAL'
+    'UPDATE', 'INTERVAL', 'MANUAL'
   ];
   freshnessSelected = 'INTERVAL';
   timeUnites:Array<string>=[
@@ -74,6 +75,11 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   ];
   timeUniteSelected = 'minutes';
   intervalSelected = 10;
+  stores: Store[];
+  storeOptions:Array<String>;
+  storeSelected:String;
+
+
 
   constructor(
       public _crud: CrudService,
@@ -86,6 +92,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   ) {
     this.webSocket = new WebSocket(_settings);
     this.initWebsocket();
+
   }
 
   ngOnInit(): void {
@@ -487,6 +494,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   openCreateView(createView: TemplateRef<any>, sqlQuery: string) {
+    this.getStores();
     this.viewOptions='view';
     this.getAllTables();
     this.modalRefCreateView = this.modalService.show(createView);
@@ -577,6 +585,20 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       this.gotTables = true;
     }
   }
+
+  getStores() {
+    this._crud.getStores().subscribe(
+        res => {
+          this.stores = <Store[]>res;
+          console.log('testing inside getStore');
+          this.storeOptions= this.stores.map(s => s.uniqueName);
+          this.storeSelected = this.stores[0]['uniqueName'];
+          
+        }, err => {
+          console.log(err);
+        });
+  }
+
 
   executeCreateView(code: string){
     this.loading = true;
