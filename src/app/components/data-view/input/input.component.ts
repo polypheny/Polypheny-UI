@@ -110,16 +110,23 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
         return new InputValidation(false, 'Non-numeric input');
       }
     } else if ( this.header.dataType.toLowerCase() === 'json') {
-      let doc = val.replace(/NumberDecimal\("[0-9.]*"\)/g, '0');
-      doc = doc.replace(/[0-9a-zA-Z.]+[*\/+-]+[0-9a-zA-Z.]+/g, '0');
-      try {
-        doc = JSON.parse(doc);
-      } catch ( Exception ){
-        return new InputValidation(false, 'Non-valid document');
-      }
-      return new InputValidation(true);
+      return InputComponent.validateJSON(val);
 
     }
+  }
+
+  private static validateJSON(val) {
+    let doc = val.replace(/NumberDecimal\("[0-9.]*"\)/g, '0');
+    doc = doc.replace(/[0-9a-zA-Z.]+[*\/+-]+[0-9a-zA-Z.]+/g, '0');
+    if (doc === '') {
+      return new InputValidation(false, 'Non-valid document');
+    }
+    try {
+      doc = JSON.parse(doc);
+    } catch (Exception) {
+      return new InputValidation(false, 'Non-valid document');
+    }
+    return new InputValidation(true);
   }
 
   private validateArray(val) {

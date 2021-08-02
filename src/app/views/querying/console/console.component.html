@@ -57,7 +57,7 @@
               <option>sql</option>
               <option>mql</option>
           </select>
-          <button *ngIf="lang === 'mql'" type="submit" class="btn btn-primary pull-right mr-4" (click)="formatQuery()">Format</button>
+          <button *ngIf="lang === 'mql'" type="submit" class="btn btn-primary pull-right mr-4" (click)="formatQuery()"><i class="cui-code"></i></button>
           <p *ngIf="lang === 'mql'" class="document-db-info"><i>Database: {{defaultDocumentDB}}</i></p>
       </div>
     <button *ngIf="loading" type="submit" class="btn btn-primary progress-bar-striped progress-bar-animated pull-right" disabled>Loading</button>

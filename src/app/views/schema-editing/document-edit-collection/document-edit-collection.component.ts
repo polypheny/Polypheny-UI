@@ -189,6 +189,9 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
   }
 
   editCol( i:number, col: DbColumn, e = null ) {
+    if ( col.name === '_id' || col.name === '_data'){
+      return;
+    }
     if(e.target.id === 'delete'){
       return;
     }
@@ -925,4 +928,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     return _.capitalize(name);
   }
 
+  filterData(header: DbColumn[]) {
+    return header.filter( h => h.name !== '_data');
+  }
 }

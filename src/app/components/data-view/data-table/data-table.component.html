@@ -10,7 +10,7 @@
             <tr>
                 <ng-container *ngFor="let h of resultSet.header">
                     <th><span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body" [ngClass]="{'pk': h.primary}">{{h.name !== '_data' ? h.name : ''}}</span>
-                        <a *ngIf="config.sort && canOrder(h)" [routerLink]="" [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}" (click)="sortTable(h.sort)">
+                        <a *ngIf="config.sort && canOrder(h) && h.name !== '_data'" [routerLink]="" [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}" (click)="sortTable(h.sort)">
                             <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
                         </a>
                     </th>
@@ -53,6 +53,7 @@
                             <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
                             <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
                             <app-json-text *ngSwitchCase="'JSON'" [text]="d2"  ></app-json-text>
+                            <app-json-text *ngSwitchCase="'ANY'" [text]="d2"  ></app-json-text>
                             <app-expandable-text *ngSwitchDefault [text]="d2"></app-expandable-text>
                         </ng-container>
                     </td>

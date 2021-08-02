@@ -39,10 +39,13 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     this.getRouteParam();
     this.getSchema();
     this.initForms();
+    this._route.params.subscribe((ev) => {
+      this.getSchemaType();
+    });
+
     const sub = this._crud.onReconnection().subscribe(
       b => {
         this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2,false, true), this._router);
-        this.getSchemaType();
       }
     );
     this.subscriptions.add(sub);
@@ -72,6 +75,8 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   }
 
   getSchemaType() {
+    console.log('in');
+    console.log(this.routeParam);
     if ( !this.routeParam ) {
       return;
     }
@@ -79,6 +84,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     this._crud.getTypeSchemas().subscribe(
         res => {
           this.schemaType = res[schema];
+          console.log('received');
         }, error => {
           console.log(error);
         }
