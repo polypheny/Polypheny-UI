@@ -1,8 +1,15 @@
 <div class="row" [hidden]="showingAnalysis">
   <div class="col-lg-8 col-md-8 col-sm-12">
-      <div class="form-group" style="height: 240px">
+      <ul class="list-group grey-border" id="console">
+          <li id="console-item-head" *ngIf="lang === 'mql'" class="list-group-item header grey-bg">
+              <span  class="document-db-info"><i>Database: {{defaultDocumentDB}}</i></span>
+              <button  type="submit" class="btn btn-primary btn-sm pull-right" (click)="clearConsole()"><i class="cui-trash"></i></button>
+              <button type="submit" class="btn btn-primary btn-sm pull-right mr-1" (click)="formatQuery()"><i class="cui-clear-all"></i></button>
+          </li>
+      <div class="form-group" [ngClass]="lang == 'mql' ? 'mql-console': 'sql-console'">
           <app-editor #editor id="sql-editor"></app-editor>
       </div>
+      </ul>
   </div>
   <div class="col-lg-4 col-md-4 col-sm-12 mb-3">
       <ul class="list-group" id="history">
@@ -53,12 +60,9 @@
       <div *ngIf="!loading" class="pull-right">
           <button type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
           <select class="form-control btn pull-right mr-1 border bg-white" [(ngModel)]="lang">
-              <option>auto</option>
               <option>sql</option>
               <option>mql</option>
           </select>
-          <button *ngIf="lang === 'mql'" type="submit" class="btn btn-primary pull-right mr-4" (click)="formatQuery()"><i class="cui-code"></i></button>
-          <p *ngIf="lang === 'mql'" class="document-db-info"><i>Database: {{defaultDocumentDB}}</i></p>
       </div>
     <button *ngIf="loading" type="submit" class="btn btn-primary progress-bar-striped progress-bar-animated pull-right" disabled>Loading</button>
   </div>

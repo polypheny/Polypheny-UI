@@ -359,4 +359,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             this.collapsed[i] = !this.collapsed[i];
         }
     }
+
+    clearConsole() {
+        this.codeEditor.setCode('');
+    }
 }
