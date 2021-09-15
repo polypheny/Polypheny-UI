@@ -32,6 +32,7 @@ export class LeftSidebarService {
   //node that should be set inactive:
   private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   private resetSubject = new BehaviorSubject<boolean>(false);
+  schemaType: string;
 
 
 
@@ -208,6 +209,16 @@ export class LeftSidebarService {
         //Uml view
         else if (schemaRequest.depth === 1) {
           schema.forEach((val, key) => {
+
+              if( val.cssClass === undefined){
+                  val.cssClass = 'node-disabled';
+              }else {
+                  val.cssClass += ' node-disabled';
+              }
+              val.setAction((tree, node, $event) => {
+                this.schemaType = node.data.schemaType;
+              });
+
             val.routerLink = schemaRequest.routerLinkRoot + val.id;
           });
         }
