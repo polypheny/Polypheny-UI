@@ -91,12 +91,6 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
       name: new FormControl('', this._crud.getNameValidator() ),
       method: new FormControl('')
     });
-    this._types.getTypes().subscribe(
-      type => {
-        this.types = type;
-        this.createColumn.dataType = type[0].name;
-      }
-    );
   }
 
   ngOnInit() {
@@ -263,6 +257,8 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
   }
 
   addColumn() {
+    this.createColumn.dataType = 'VARCHAR';
+    this.createColumn.precision = 3000;
     if( this.createColumn.name === ''){
       this._toast.warn('Please provide a name for the new column.', 'missing column name');
       return;
