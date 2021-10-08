@@ -33,7 +33,7 @@
             <ng-container *ngIf="showFirst(h.dataType)" [ngSwitch]="h.dataType">
               <ng-container *ngIf="d1 && d1[j] && currentSlide !== editing">
                 <img class="carousel-multimedia" *ngSwitchCase="'IMAGE'" [src]="getFileLink(d1[j])"/>
-                <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d1[j])" [type]="h.dataType" [style]="{'max-height': '80vh'}"></app-media>
+                <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d1[j])" [type]="h.dataType" id="video"></app-media>
                 <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d1[j])" [type]="h.dataType"></app-media>
               </ng-container>
               <p *ngIf="currentSlide === editing">
