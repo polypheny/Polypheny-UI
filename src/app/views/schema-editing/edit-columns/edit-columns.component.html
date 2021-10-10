@@ -86,7 +86,7 @@
                     </td>
                     <td>
                         <!--<input type="text" [(ngModel)]="col.defaultValue" class="form-control form-control-sm" id="defaultValue" [attr.data-before]="col.defaultValue">-->
-                        <div class="input-group">
+                        <div class="input-group" >
                             <input type="hidden" formControlName="oldName">
                             <ng-container [ngSwitch]="updateColumn.controls['dataType'].value.toLowerCase()">
                                 <input *ngSwitchCase="_types.numericTypes().includes( updateColumn.controls['dataType'].value.toLowerCase() ) && updateColumn.controls['collectionsType'].value !== 'ARRAY' ? updateColumn.controls['dataType'].value.toLowerCase() : ''" type="number" inputmode="decimal" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue" [ngClass]="validate(updateColumn.controls['defaultValue'].value)">
@@ -109,7 +109,8 @@
                         <button class="btn btn-primary" (click)="saveCol()"><i class="fa fa-save editColSave"></i></button>
                     </td>
                 </ng-container>
-                <ng-container *ngIf="i !== editColumn">
+
+                <ng-container *ngIf="i !== editColumn ">
                     <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
                     <td>{{col.name}}</td>
                     <td>
@@ -130,7 +131,7 @@
                 </ng-container>
             </tr>
 
-            <tr>
+            <tr *ngIf="!isMaterialized()">
                 <td class="pk"></td>
                 <td>
                     <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name" [(ngModel)]="createColumn.name" [ngClass]="columnValidation(createColumn.name)">
@@ -217,7 +218,7 @@
 
     </div>
 
-    <div class="col-lg-12" *ngIf="resultSet">
+    <div class="col-lg-12" *ngIf="resultSet && !isMaterialized()">
         <hr>
         <h5>Constraints</h5>
         <div class="row">
@@ -280,7 +281,7 @@
         </table>
     </div>
 
-    <div class="col-lg-12" *ngIf="resultSet && foreignKeys && foreignKeys.length > 0">
+    <div class="col-lg-12" *ngIf="resultSet && foreignKeys && foreignKeys.length > 0 && !isMaterialized()">
         <hr>
         <h5>Foreign key</h5>
         <table class="table table-hover table-striped">
@@ -309,6 +310,12 @@
             </tr>
             </tbody>
         </table>
+    </div>
+
+    <div class="col-lg-12" *ngIf="resultSet && isMaterialized()">
+        <hr>
+        <h5>Update Materialized View</h5>
+        <button type="submit" class="btn btn-primary btn-sm" (click)="updateMaterialized()">Update Materialized</button>
     </div>
 
     <div class="col-lg-12">
@@ -439,7 +446,7 @@
             </button>
         </div>
 
-        <div class="card" *ngIf="!isPartitioned()">
+        <div class="card" *ngIf="!isPartitioned() && !isMaterialized()">
             <div class="card-header">Horizontal partitioning</div>
             <div class="card-body">
                 <p>This table is not yet horizontally partitioned.</p>

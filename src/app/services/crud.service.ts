@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DeleteRequest, EditTableRequest, ExploreTable, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, DeleteRequest, EditTableRequest, ExploreTable, MaterializedRequest, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
@@ -131,6 +131,10 @@ export class CrudService {
    */
   updateColumn ( columnRequest: ColumnRequest ) {
     return this._http.post(`${this.httpUrl}/updateColumn`, columnRequest, this.httpOptions);
+  }
+
+  updateMaterialized(materializedRequest: MaterializedRequest){
+    return this._http.post(`${this.httpUrl}/updateMaterialized`, materializedRequest, this.httpOptions);
   }
 
   addColumn ( columnRequest: ColumnRequest ) {

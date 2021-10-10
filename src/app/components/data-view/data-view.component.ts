@@ -507,7 +507,14 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   createViewCode(isView: boolean) {
     if(this.checkIfPossible()){
       if(!isView){
-        const viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nFRESHNESS', this.freshnessSelected, this.intervalSelected, this.timeUniteSelected]];
+        let viewData;
+        if(this.freshnessSelected === 'MANUAL'){
+          viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nFRESHNESS', this.freshnessSelected]];
+        }else if (this.freshnessSelected === 'UPDATE'){
+          viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nFRESHNESS', this.freshnessSelected, this.intervalSelected]];
+        }else {
+          viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nFRESHNESS', this.freshnessSelected, this.intervalSelected, this.timeUniteSelected]];
+        }
         this.viewEditorCode.emit(viewData);
         this.modalRefCreateView.hide();
         this.gotTables = false;
@@ -524,7 +531,14 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   submitCreateView(isView: boolean) {
     if(this.checkIfPossible()){
       if(!isView){
-        const viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nFRESHNESS', this.freshnessSelected, this.intervalSelected, this.timeUniteSelected];
+        let viewData;
+        if(this.freshnessSelected === 'MANUAL'){
+          viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nFRESHNESS', this.freshnessSelected];
+        }else if (this.freshnessSelected === 'UPDATE'){
+          viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nFRESHNESS', this.freshnessSelected, this.intervalSelected];
+        }else {
+          viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nFRESHNESS', this.freshnessSelected, this.intervalSelected, this.timeUniteSelected];
+        }
         this.executeView.emit(viewData);
         this.modalRefCreateView.hide();
         this.gotTables = false;

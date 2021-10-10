@@ -1,25 +1,18 @@
-import {Component, OnInit, OnDestroy, ViewChild, HostListener} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
-import {
-  DbColumn, FieldType,
-  Index, ModifyPartitionRequest, PartitionFunctionModel,
-  PartitioningRequest,
-  PolyType,
-  ResultSet,
-  TableConstraint
-} from '../../../components/data-view/models/result-set.model';
+import {DbColumn, FieldType, Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, ResultSet, TableConstraint} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
 import {Subscription} from 'rxjs';
-import {DbTable, ForeignKey, SvgLine, Uml} from '../../../views/uml/uml.model';
+import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 
 @Component({
   selector: 'app-edit-columns',
@@ -151,6 +144,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     return this.resultSet.type.toLowerCase() === 'view';
   }
 
+  isMaterialized() {
+    if(!this.resultSet){
+      return false;
+    }
+    return this.resultSet.type.toLowerCase() === 'materialized';
+  }
+
   getColumns () {
     this._crud.getColumns( new ColumnRequest( this.tableId )).subscribe(
       res => {
@@ -210,6 +210,24 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       });
       this.editColumn = i;
     }
+  }
+
+  updateMaterialized(){
+    const req = new MaterializedRequest(this.tableId);
+    this._crud.updateMaterialized(req).subscribe(
+        res => {
+          const result = <ResultSet> res;
+          if( result.error ){
+            this._toast.exception(result, 'Could not update materialized view:');
+            console.log(result);
+          }else{
+            this._toast.success('Materialized view was updated', result.generatedQuery, 'Updated');
+          }
+        }, err => {
+          this._toast.error('Could not update materialized view due to an error on the server.', null, ToastDuration.INFINITE);
+          console.log(err);
+        }
+    );
   }
 
   saveCol() {

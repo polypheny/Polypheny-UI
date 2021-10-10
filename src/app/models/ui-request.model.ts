@@ -170,14 +170,24 @@ export class ColumnRequest extends UIRequest {
   oldColumn: DbColumn;
   newColumn: DbColumn;
   renameOnly: boolean;
-  constructor( tableId: string, oldColumn: DbColumn = null, newColumn: DbColumn = null, renameOnly = false ) {
+  tableType: string;
+  constructor( tableId: string, oldColumn: DbColumn = null, newColumn: DbColumn = null, renameOnly = false, tableType:string = 'table' ) {
     super();
     this.tableId = tableId;
     this.oldColumn = oldColumn;
     this.newColumn = newColumn;
     this.renameOnly = renameOnly;
+    this.tableType = tableType;
   }
 }
+
+export class MaterializedRequest extends UIRequest{
+  constructor(tableId: string) {
+    super();
+    this.tableId = tableId;
+  }
+}
+
 
 /**
  * Edit or create a Table
