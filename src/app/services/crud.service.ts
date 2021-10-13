@@ -322,10 +322,14 @@ export class CrudService {
   /**
    * Execute a relational algebra
    */
-  executeRelAlg ( socket: WebSocket, relAlg: Node, createView?: boolean, viewName?: string): boolean {
+  executeRelAlg ( socket: WebSocket, relAlg: Node, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?: string, timeUnit?): boolean {
     let request;
     if(createView){
-      request = new RelAlgRequest( relAlg, createView, viewName);
+      if(tableType === 'CREATE MATERIALIZED VIEW'){
+        request = new RelAlgRequest( relAlg, createView, 'materialized',viewName, store, freshness, interval, timeUnit);
+      }else{
+        request = new RelAlgRequest( relAlg, createView, 'view',  viewName);
+      }
     }else{
       request = new RelAlgRequest( relAlg );
     }

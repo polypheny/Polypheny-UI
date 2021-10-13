@@ -27,12 +27,22 @@ export class RelAlgRequest extends UIRequest {
   requestType = 'RelAlgRequest';
   topNode: Node;
   createView: boolean;
+  tableType; string;
   viewName: string;
-  constructor( node: Node, createView?: boolean, viewName?: string ) {
+  store: string;
+  freshness: string;
+  interval;
+  timeUnit: string;
+  constructor( node: Node, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?, timeUnit?: string ) {
     super();
     this.topNode = node;
     this.createView = createView || false;
+    this.tableType = tableType || 'table';
     this.viewName = viewName || 'viewName';
+    this.store = store || null;
+    this.freshness = freshness || null;
+    this.interval = interval || null;
+    this.timeUnit = timeUnit || null;
   }
 }
 

@@ -485,11 +485,41 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  createView(viewName: string[]){
+  createView(viewInformation: string[]){
+
     const tree = this.getTree();
     const createView = true;
-    this._crud.executeRelAlg(this.webSocket, tree, createView, viewName[1]);
+    const tableType = viewInformation[0];
+    const viewName = viewInformation[1];
+    let store;
+    if (5 in viewInformation){
+      store = viewInformation[5];
+
+    }else{
+      store = null;
+    }
+    let freshness;
+    if (7 in viewInformation){
+      freshness = viewInformation[7];
+    }else{
+      freshness = null;
+    }
+    let interval;
+    if (8 in viewInformation){
+      interval = viewInformation[8];
+    }else{
+      interval = null;
+    }
+    let timeUnit;
+    if (9 in viewInformation){
+      timeUnit = viewInformation[9];
+    }else{
+      timeUnit = null;
+    }
+
+    this._crud.executeRelAlg(this.webSocket, tree, createView, tableType, viewName, store, freshness, interval, timeUnit);
   }
+
 
 
   /**
