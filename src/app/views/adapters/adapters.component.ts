@@ -456,6 +456,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         return 'fa fa-folder-open-o';
       case 'MongoDB':
         return path + 'mongodb.png';
+      case 'Ethereum':
+        return path + 'ethereum.png';
       default:
         return 'fa fa-database';
     }
