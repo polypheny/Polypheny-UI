@@ -509,11 +509,11 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       if(!isView){
         let viewData;
         if(this.freshnessSelected === 'MANUAL'){
-          viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nFRESHNESS', this.freshnessSelected]];
+          viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nON STORE',this.storeSelected,'\nFRESHNESS', this.freshnessSelected]];
         }else if (this.freshnessSelected === 'UPDATE'){
-          viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nFRESHNESS', this.freshnessSelected, this.intervalSelected]];
+          viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nON STORE',this.storeSelected,'\nFRESHNESS', this.freshnessSelected, this.intervalSelected]];
         }else {
-          viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nFRESHNESS', this.freshnessSelected, this.intervalSelected, this.timeUniteSelected]];
+          viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nON STORE',this.storeSelected,'\nFRESHNESS', this.freshnessSelected, this.intervalSelected, this.timeUniteSelected]];
         }
         this.viewEditorCode.emit(viewData);
         this.modalRefCreateView.hide();
@@ -533,11 +533,11 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       if(!isView){
         let viewData;
         if(this.freshnessSelected === 'MANUAL'){
-          viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nFRESHNESS', this.freshnessSelected];
+          viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nON STORE', this.storeSelected,'\nFRESHNESS', this.freshnessSelected];
         }else if (this.freshnessSelected === 'UPDATE'){
-          viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nFRESHNESS', this.freshnessSelected, this.intervalSelected];
+          viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nON STORE', this.storeSelected,'\nFRESHNESS', this.freshnessSelected, this.intervalSelected];
         }else {
-          viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nFRESHNESS', this.freshnessSelected, this.intervalSelected, this.timeUniteSelected];
+          viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nON STORE', this.storeSelected,'\nFRESHNESS', this.freshnessSelected, this.intervalSelected, this.timeUniteSelected];
         }
         this.executeView.emit(viewData);
         this.modalRefCreateView.hide();
@@ -604,7 +604,6 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     this._crud.getStores().subscribe(
         res => {
           this.stores = <Store[]>res;
-          console.log('testing inside getStore');
           this.storeOptions= this.stores.map(s => s.uniqueName);
           this.storeSelected = this.stores[0]['uniqueName'];
           

@@ -129,7 +129,7 @@
                     </div>
 
 
-                    <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary ml-2"
+                    <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary"
                             [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(false)" (keyup.enter)="createViewCode(false)">show
                     </button>
                     <button class="btn btn-primary ml-2"
