@@ -1,4 +1,4 @@
-<div class="row" [hidden]="showingAnalysis">
+<div class="row" [hidden]="showingAnalysis" (keydown.control.shift)="toggleCache(false)" (keyup.control.shift)="revertCache()" (keyup.shift.control)="revertCache()" (keyup.control.shift.enter)="submitQuery()">
   <div class="col-lg-8 col-md-8 col-sm-12">
       <ul class="list-group grey-border" id="console">
           <li id="console-item-head" *ngIf="lang === 'mql'" class="list-group-item header grey-bg">
@@ -53,6 +53,10 @@
       <input type="checkbox" class="custom-control-input" id="checkbox1" [(ngModel)]="analyzeQuery">
       <label class="custom-control-label" for="checkbox1">analyze query</label>
     </div>
+      <div class="custom-control custom-checkbox custom-control-inline">
+          <input type="checkbox" class="custom-control-input" id="checkbox3" [(ngModel)]="useCache">
+          <label class="custom-control-label" for="checkbox2">cache query</label>
+      </div>
     <div class="custom-control custom-checkbox custom-control-inline">
       <input type="checkbox" class="custom-control-input" id="checkbox2" [(ngModel)]="saveInHistory">
       <label class="custom-control-label" for="checkbox2">save in history</label>

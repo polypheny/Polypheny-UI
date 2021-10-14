@@ -551,7 +551,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
   executeCreateView(code: string){
     this.loading = true;
-    if(!this._crud.anyQuery(this.webSocket, new QueryRequest(code, true, 'sql', null))){
+    if(!this._crud.anyQuery(this.webSocket, new QueryRequest(code, true, true, 'sql', null))){
       this.loading = false;
       this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
     }

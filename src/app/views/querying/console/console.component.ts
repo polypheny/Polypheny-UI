@@ -35,11 +35,13 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     collapsed: boolean[];
     queryAnalysis: InformationPage;
     analyzeQuery = true;
+    useCache = true;
+    private originalCache: boolean = null;
     showingAnalysis = false;
     websocket: WebSocket;
     private subscriptions = new Subscription();
     loading = false;
-    lang = 'mql';
+    lang = 'sql';
     saveInHistory = true;
     showSearch = false;
     historySearchQuery = '';
@@ -143,7 +145,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.queryAnalysis = null;
 
         this.loading = true;
-        if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.lang, this.defaultDocumentDB))) {
+        if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.lang, this.defaultDocumentDB))) {
             this.loading = false;
             this.resultSets = [new ResultSet('Could not establish a connection with the server.', code)];
         }
@@ -362,5 +364,18 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     clearConsole() {
         this.codeEditor.setCode('');
+    }
+
+    toggleCache(b: boolean) {
+        if(this.originalCache === null) {
+            this.originalCache = this.useCache;
+        }
+        this.useCache = b;
+    }
+
+    revertCache() {
+        console.log('revert');
+        this.useCache = this.originalCache;
+        this.originalCache = null;
     }
 }

@@ -42,10 +42,12 @@ export class QueryRequest extends UIRequest {
   analyze: boolean;
   language: string;
   database: string;
-  constructor ( query: string, analyze: boolean, lang: string, database: string ) {
+  cache: boolean;
+  constructor ( query: string, analyze: boolean, cache: boolean, lang: string, database: string ) {
     super();
     this.query = query;
     this.analyze = analyze;
+    this.cache = cache;
     this.language = lang;
     this.database = database;
     return this;
