@@ -23,11 +23,12 @@
             </thead>
             <tbody>
             <tr *ngFor="let col of resultSet.header; let i = index" (dblclick)="editCol(i, col, $event)" [ngClass]="{'editing': i === editColumn}">
-                <ng-container *ngIf="i === editColumn" [formGroup]="updateColumn">
+                <ng-container *ngIf="i === editColumn && !isMaterialized()" [formGroup]="updateColumn">
                     <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
                     <td>
                         <input type="text" class="form-control form-control-sm" formControlName="name" [attr.data-before]="col.name" id="colName" #editColName [ngClass]="columnValidation(editColName.value, col.name)">
                     </td>
+
                     <td>
                         <input type="checkbox" class="" formControlName="nullable" id="nullable" [attr.data-before]="col.nullable" (change)="changeNullable()">
                     </td>
@@ -105,10 +106,36 @@
                             </div>
                         </div>
                     </td>
+
                     <td>
                         <button class="btn btn-primary" (click)="saveCol()"><i class="fa fa-save editColSave"></i></button>
                     </td>
                 </ng-container>
+
+                <ng-container *ngIf="i === editColumn && isMaterialized()">
+                    <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
+                    <td>
+                    <div class="form-group">
+                    <input type="text" class="form-control mb-0" placeholder="name" [value]="col.name" [attr.data-before]="col.name" #editColName [ngClass]="columnValidation(editColName.value, col.name)">
+                    </div>
+                    </td>
+                    <td>
+                        <i class="fa fa-check" *ngIf="col.nullable"></i>
+                    </td>
+                    <td>{{col.dataType}}</td>
+                    <td>{{col.collectionsType}}</td>
+                    <td>
+                        <span *ngIf="col.precision">{{_types.precisionPlaceholder( col.dataType )}}: {{col.precision}}</span>
+                        <span *ngIf="col.scale">scale: {{col.scale}}</span>
+                        <span *ngIf="col.dimension">dimension: {{col.dimension}}</span>
+                        <span *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
+                    </td>
+                    <td>{{col.defaultValue}}</td>
+                    <td>
+                        <button class="btn btn-primary" (click)="updateMaterializedColumn( col, editColName.value)"><i class="fa fa-save editColSave"></i></button>
+                    </td>
+                </ng-container>
+
 
                 <ng-container *ngIf="i !== editColumn ">
                     <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
@@ -125,7 +152,7 @@
                         <span *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
                     </td>
                     <td>{{col.defaultValue}}</td>
-                    <td class="delete">
+                    <td class="delete" >
                         <app-delete-confirm (delete)="dropColumn(col)"></app-delete-confirm>
                     </td>
                 </ng-container>
@@ -315,6 +342,27 @@
     <div class="col-lg-12" *ngIf="resultSet && isMaterialized()">
         <hr>
         <h5>Update Materialized View</h5>
+        <table class="table table-hover table-striped">
+            <thead>
+            <tr>
+                <th>Criteria Type</th>
+                <th>Last Update</th>
+                <th>Interval</th>
+                <th>Time Unit</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{materializedInfo[0]}}</td>
+                <td>{{materializedInfo[1]}}</td>
+                <td>{{materializedInfo[2]}}</td>
+                <td>{{materializedInfo[3]}}</td>
+            </tr>
+            </tbody>
+        </table>
+
+
+
         <button type="submit" class="btn btn-primary btn-sm" (click)="updateMaterialized()">Update Materialized</button>
     </div>
 

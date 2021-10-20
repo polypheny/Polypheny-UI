@@ -137,6 +137,10 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/updateMaterialized`, materializedRequest, this.httpOptions);
   }
 
+  getMaterializedInfo(materializedRequest: EditTableRequest){
+    return this._http.post(`${this.httpUrl}/getMaterializedInfo`, materializedRequest, this.httpOptions);
+  }
+
   addColumn ( columnRequest: ColumnRequest ) {
     return this._http.post(`${this.httpUrl}/addColumn`, columnRequest, this.httpOptions);
   }
