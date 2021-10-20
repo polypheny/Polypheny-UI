@@ -9,7 +9,7 @@
             <thead>
             <tr>
                 <ng-container *ngFor="let h of resultSet.header">
-                    <th><span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body" [ngClass]="{'pk': h.primary}">{{h.name !== '_data' ? h.name : ''}}</span>
+                    <th><span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body" [ngClass]="{'pk': h.primary}">{{ h.name }}</span>
                         <a *ngIf="config.sort && canOrder(h) && h.name !== '_data'" [routerLink]="" [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}" (click)="sortTable(h.sort)">
                             <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
                         </a>

@@ -17,6 +17,7 @@ export class ResultSet {
   affectedRows: number;
   generatedQuery: string;
   type: string;//"table" or "view"
+  schemaType: string;//"relational" or "document"
   explorerId: number;
   classificationInfo: string;
   includesClassificationInfo: boolean;

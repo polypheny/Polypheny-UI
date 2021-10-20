@@ -15,6 +15,7 @@ import * as d3 from 'd3';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
+import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 
 
 @Component({
@@ -59,9 +60,10 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     public _router: Router,
     public _types: DbmsTypesService,
     public _settings: WebuiSettingsService,
+    public _sidebar: LeftSidebarService,
     public modalService: BsModalService,
   ) {
-    super( _crud, _toast, _route, _router, _types, _settings, modalService );
+    super( _crud, _toast, _route, _router, _types, _settings, _sidebar, modalService );
     this.initWebsocket();
   }
 

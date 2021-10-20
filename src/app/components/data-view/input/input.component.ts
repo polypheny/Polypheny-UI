@@ -49,8 +49,13 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
 
   ngOnInit() {
     if ( this.header.name === '_id') {
-      this.value = getObjectId();
-      this.valueChange.emit( this.value );
+      // defer this to next JavaScript cycle so it is rendered correctly
+      setTimeout(() => {
+        if( this.value === '' ) {
+          this.value = getObjectId();
+          this.valueChange.emit( this.value );
+        }
+      });
     }
   }
 

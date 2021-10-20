@@ -35,6 +35,7 @@ import { DeleteConfirmComponent } from './delete-confirm/delete-confirm.componen
 import { ExpandableTextComponent } from './data-view/expandable-text/expandable-text.component';
 import { JsonTextComponent } from './data-view/json-text/json-text.component';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
+import {JsonEditorComponent} from './json/json-editor.component';
 
 //import 'hammerjs';
 
@@ -69,6 +70,7 @@ import {NgxJsonViewerModule} from 'ngx-json-viewer';
     RenderItemComponent,
     InputComponent,
     EditorComponent,
+    JsonEditorComponent,
     DataViewComponent,
     DataCardComponent,
     DataTableComponent,
@@ -91,6 +93,7 @@ import {NgxJsonViewerModule} from 'ngx-json-viewer';
     ToastComponent,
     InformationManagerComponent,
     InputComponent,
+    JsonEditorComponent,
     EditorComponent,
     DeleteConfirmComponent
   ]

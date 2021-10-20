@@ -1,0 +1,10 @@
+<div id="editor-wrapper">
+    <div class="input-group mb-1" *ngFor="let el of data; let i=index;">
+        <input type="text" [(ngModel)]="el.key" (change)="changeHappened()" aria-label="First name" class="form-control json-editor-key">
+        <input type="text" [(ngModel)]="el.value" (change)="changeHappened()" aria-label="Last name" class="form-control json-editor-val">
+        <button class="btn" type="button" (click)="removeColumn(i)"><i class="cui-trash"></i></button>
+    </div>
+    <div class="input-group justify-content-end">
+        <button class="btn btn-primary" type="button" (click)="addColumn()">+</button>
+    </div>
+</div>

@@ -84,6 +84,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     this._crud.getTypeSchemas().subscribe(
         res => {
           this.schemaType = res[schema];
+          this._leftSidebar.schemaType = res[schema];
           console.log('received');
         }, error => {
           console.log(error);
