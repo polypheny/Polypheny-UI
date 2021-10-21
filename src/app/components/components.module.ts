@@ -36,6 +36,7 @@ import { ExpandableTextComponent } from './data-view/expandable-text/expandable-
 import { JsonTextComponent } from './data-view/json-text/json-text.component';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {JsonEditorComponent} from './json/json-editor.component';
+import {JsonElemComponent} from './json/json-elem/json-elem.component';
 
 //import 'hammerjs';
 
@@ -59,27 +60,28 @@ import {JsonEditorComponent} from './json/json-editor.component';
     CarouselModule,
     PlyrModule, NgxJsonViewerModule
   ],
-  declarations: [
-    BreadcrumbComponent,
-    DynamicFormsComponent,
-    GraphComponent,
-    LeftSidebarComponent,
-    RightSidebarComponent,
-    ToastComponent,
-    InformationManagerComponent,
-    RenderItemComponent,
-    InputComponent,
-    EditorComponent,
-    JsonEditorComponent,
-    DataViewComponent,
-    DataCardComponent,
-    DataTableComponent,
-    DataCarouselComponent,
-    MediaComponent,
-    DeleteConfirmComponent,
-    ExpandableTextComponent,
-    JsonTextComponent
-  ],
+    declarations: [
+        BreadcrumbComponent,
+        DynamicFormsComponent,
+        GraphComponent,
+        LeftSidebarComponent,
+        RightSidebarComponent,
+        ToastComponent,
+        InformationManagerComponent,
+        RenderItemComponent,
+        InputComponent,
+        EditorComponent,
+        JsonEditorComponent,
+        DataViewComponent,
+        DataCardComponent,
+        DataTableComponent,
+        DataCarouselComponent,
+        MediaComponent,
+        DeleteConfirmComponent,
+        ExpandableTextComponent,
+        JsonTextComponent,
+        JsonElemComponent
+    ],
   exports: [
     BreadcrumbComponent,
     DataViewComponent,

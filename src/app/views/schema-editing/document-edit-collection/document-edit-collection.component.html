@@ -87,7 +87,7 @@
       <tr>
         <th>Store</th>
         <th>Adapter</th>
-        <th>Columns</th>
+        <th>Fields</th>
         <th>Partitions</th><!-- *ngIf="isPartitioned()" -->
         <th></th>
       </tr>
@@ -127,3 +127,109 @@
 
 </div>
 
+
+<div *ngIf="!isSource()" bsModal #placementModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="clearPlacementModal()">
+  <form [formGroup]="columnPlacement" *ngIf="columnPlacement">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Column placements</h4>
+          <button type="button" class="close" (click)="placementModal.hide()" aria-label="Close" [disabled]="isAddingPlacement">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" *ngIf="columnPlacement && selectedStore">
+          Store: {{selectedStore.uniqueName}}
+          <p>Select the columns that you want to be part of the placement.</p>
+          <div class="form-group">
+            <a [routerLink]="[]" class="text-muted" (click)="selectAllColumns(true)">select all</a> - <a [routerLink]="[]" class="text-muted" (click)="selectAllColumns(false)">deselect all</a>
+          </div>
+          <div class="form-group">
+            <div *ngFor="let col of getColumnArray()" class="form-check form-check-inline">
+              <input type="checkbox" class="form-check-input" [id]="'colPlacement'+col" [formControlName]="col">
+              <label [for]="'colPlacement'+col" class="form-check-label">{{col}}</label>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer" style="position: relative">
+          <div class="progress-wrapper" *ngIf="isAddingPlacement">
+            <progressbar type="info" [value]="0" [max]="100" class="progress progress-bar progress-bar-striped progress-bar-animated"></progressbar>
+          </div>
+          <button type="button" class="btn btn-secondary float-left" (click)="placementModal.hide()" [disabled]="isAddingPlacement">Close</button>
+          <button type="submit" class="btn btn-primary" (click)="addPlacement()" [disabled]="isAddingPlacement">{{titleCase( placementMethod )}} placement</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </form>
+</div>
+
+<div *ngIf="!isSource()" bsModal #partitioningModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="clearPartitioningModal()">
+  <!--<form [formGroup]="columnPlacement" *ngIf="columnPlacement">-->
+  <div class="modal-dialog" role="document">
+    <div class="modal-content" *ngIf="selectedStore && partitionsToModify">
+      <div class="modal-header">
+        <h4 class="modal-title">Modify partitions</h4>
+        <button type="button" class="close" (click)="partitioningModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Store: {{selectedStore.uniqueName}}
+        <p>Select the partitions that you want to be part of the new partitioning.</p>
+        <div class="form-group">
+          <a [routerLink]="[]" class="text-muted" (click)="selectAllPartitions(true)">select all</a> - <a [routerLink]="[]" class="text-muted" (click)="selectAllPartitions(false)">deselect all</a>
+        </div>
+        <div class="form-group mb-0">
+          <div class="form-check form-check-inline" *ngFor="let p of partitionsToModify | keyvalue">
+            <input type="checkbox" class="form-check-input" [id]="'partitionKey'+p.key" [(ngModel)]="partitionsToModify[p.key].selected">
+            <label [for]="'partitionKey'+p.key" class="form-check-label">{{partitionsToModify[p.key].partitionName}}</label>
+          </div>
+        </div>
+        <span class="text-danger" *ngIf="!validatePartitionModification()">Please select at least one partition</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary float-left" (click)="partitioningModal.hide()">Close</button>
+        <button type="submit" class="btn btn-primary" (click)="modifyPartitioning()" [disabled]="!validatePartitionModification()">Modify</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+  <!--</form>-->
+</div>
+
+<div bsModal #partitionFunctionModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content" *ngIf="partitionFunctionParams">
+      <div class="modal-header">
+        <h4>{{partitionFunctionParams.title}}</h4>
+      </div>
+      <div class="modal-body">
+        <p>{{partitionFunctionParams.description}}</p>
+        <table class="table table-hover table-striped table-bordered" id="partitionParamsTable">
+          <tr>
+            <th *ngFor="let colName of partitionFunctionParams.columnNames">{{colName}}</th>
+          </tr>
+          <tr *ngFor="let col of partitionFunctionParams.rows">
+            <td *ngFor="let row of col as PartitionFunctionColumn">
+              <div class="partition-param-wrapper">
+                <ng-container [ngSwitch]="row.type">
+                  <span *ngSwitchCase="fieldTypes.LABEL">{{row.value}}</span>
+                  <select *ngSwitchCase="fieldTypes.LIST" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value}">
+                    <option *ngFor="let option of row.options" [value]="option">{{option}}</option>
+                  </select>
+                  <input *ngSwitchCase="fieldTypes.INTEGER" type="number" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value && row.value !== 0}">
+                  <input *ngSwitchDefault type="text" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value}">
+                </ng-container>
+                <span class="invalid-partition-param" *ngIf="row.mandatory && !row.value && row.value !== 0">required</span>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary float-left" (click)="partitionFunctionModal.hide()">Close</button>
+        <button type="submit" class="btn btn-primary" (click)="partitionTable()" [disabled]="">Partition</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>

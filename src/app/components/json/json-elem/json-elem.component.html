@@ -1,0 +1,39 @@
+<ng-container>
+    <div class="input-group mb-1">
+        <div *ngFor="let x of fakeArray(indent)" class="input-group-text px-2 bg-white border-0" ></div>
+        <!--<div class="input-group-text px-1" type="button" (click)="removeColumn(asString(index))"><i class="cui-grid"></i></div>-->
+
+        <div >
+            <button class="btn btn-sm" (click)="setMenuShow(true)" type="button"><i class="cui-window-maximize"></i></button>
+            <ul *ngIf="show" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false)">
+                <li><div class="dropdown-item" (click)="removeColumn(asString(index))"><i class="cui-trash"></i>Remove</div></li>
+                <li *ngIf="!isValue()"><div class="dropdown-item" (click)="addInitialColumn(asString(index), 0)"><i class="cui-plus"></i>Add Key-Value</div></li>
+                <li *ngIf="!isValue()"><div class="dropdown-item" (click)="addInitialColumn(asString(index), 1)"><i class="cui-plus"></i>Add Key-Object</div></li>
+                <li><hr class="dropdown-divider"></li>
+                <li *ngIf="index !== 0"><div class="dropdown-item" (click)="upColumn(asString(index))"><i class="cui-chevron-top"></i>Move Up</div></li>
+                <li *ngIf="index !== length - 1"><div class="dropdown-item" (click)="downColumn(asString(index))"><i class="cui-chevron-bottom"></i>Move Down</div></li>
+            </ul>
+        </div>
+
+        <input type="text" [(ngModel)]="el.key" (change)="changeHappened()" aria-label="First name" class="form-control json-editor-key" placeholder="key">
+        <span class="input-group-text bg-white border-0 px-1">:</span>
+        <input *ngIf="!isObject(el.value)" type="text" [(ngModel)]="el.value" (change)="changeHappened()" aria-label="Last name" class="form-control json-editor-val" placeholder="value">
+        <div *ngIf="isObject(el.value)" class="input-group-text px-2 bg-white border-0 w-50" ></div>
+    </div>
+    <ng-container *ngIf="isObject(el.value)">
+        <app-json-elem class="mt-1"
+                       *ngFor="let el2 of el.value; let i=index"
+                       [el]="el2"
+                       [type]="getType(el2)"
+                       [length]="el.value.length"
+                       [indent]="indent + 1"
+                       [index]="i"
+                       (up)="upColumn(index + '_' + i)"
+                       (down)="downColumn(index + '_' + i)"
+                       (add)="addColumn($event)"
+                       (remove)="removeColumn(index + '_' + i)"
+                       (changed)="changeHappened()">
+        </app-json-elem>
+    </ng-container>
+</ng-container>
+

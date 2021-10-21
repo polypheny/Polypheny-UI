@@ -1,10 +1,21 @@
 <div id="editor-wrapper">
-    <div class="input-group mb-1" *ngFor="let el of data; let i=index;">
-        <input type="text" [(ngModel)]="el.key" (change)="changeHappened()" aria-label="First name" class="form-control json-editor-key">
-        <input type="text" [(ngModel)]="el.value" (change)="changeHappened()" aria-label="Last name" class="form-control json-editor-val">
-        <button class="btn" type="button" (click)="removeColumn(i)"><i class="cui-trash"></i></button>
+    <div *ngFor="let el of data; let i=index;">
+        <app-json-elem [el]="el" [index]="i" [length]="data.length" [indent]="0"
+                       [type]="getType(el)"
+                       (changed)="changeHappened()"
+                       (remove)="removeColumn($event)"
+                       (up)="changeOrder($event, -1)"
+                       (down)="changeOrder($event, 1)"
+                       (add)="addColumn($event)"></app-json-elem>
     </div>
-    <div class="input-group justify-content-end">
-        <button class="btn btn-primary" type="button" (click)="addColumn()">+</button>
+
+    <div  class="input-group justify-content-center mt-2">
+        <button class="btn btn-sm btn-outline-primary" (click)="setMenuShow(true)"  type="button"><i class="cui-plus"></i></button>
+        <ul *ngIf="show" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false)">
+            <li><div class="dropdown-item" (click)="addMainColumn(0)"><i class="cui-plus"></i>Add Key-Value</div></li>
+            <li><div class="dropdown-item" (click)="addMainColumn(1)"><i class="cui-plus"></i>Add Key-Object</div></li>
+        </ul>
     </div>
+
 </div>
+
