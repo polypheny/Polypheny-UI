@@ -59,7 +59,8 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     private _breadcrumb: BreadcrumbService,
     private _settings: WebuiSettingsService,
     public _util: UtilService,
-    public modalService: BsModalService
+    public modalService: BsModalService,
+    
   ) {
     
     const self = this;
@@ -67,19 +68,27 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     // hit alt-enter to execute a query with the current "save in history" option
     // hit alt-shift-enter to execute a query in "incognito" mode, no matter of the current "save in history" option
     window.onkeydown = function (e) {
-      if( e.key === 'Enter' && e.altKey ){
+      if( e.key === 'Enter' && e.altKey ){ 
         if( e.shiftKey ) {
           self.saveInHistory = false;
         }
         self.submitQuery();
       }
     };
+    // @ts-ignore
+    if (window.Cypress) {
+    (<any>window).executeQuery = (query: string) => {
+      this.codeEditor.setCode(query);
+      this.submitQuery()
+    }
+  };
+
     this.initWebsocket();
-  }
+}
 
   ngOnInit() {
     SqlHistory.fromJson(localStorage.getItem('sql-history'), this.history);
-    this._breadcrumb.hide();
+    this._breadcrumb.hide();   
   }
 
   ngOnDestroy() {
@@ -90,7 +99,7 @@ export class SqlConsoleComponent implements OnInit, OnDestroy {
     window.onbeforeunload = null;
     window.onkeydown = null;
   }
-
+ 
 
   submitQuery() {
     const code = this.codeEditor.getCode();
