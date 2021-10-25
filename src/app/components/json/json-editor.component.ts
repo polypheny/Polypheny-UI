@@ -7,6 +7,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import {isNumeric} from 'rxjs/internal-compatibility';
+import {JsonElemComponent} from './json-elem/json-elem.component';
 
 export class Pair {
     static idBuilder = 0;
@@ -59,6 +60,8 @@ export class JsonEditorComponent implements OnInit  {
     @Input() json: {};
     @Output() valueChange = new EventEmitter();
     show = false;
+    private debounce: number;
+    private debounceDelay = 200;
 
 
     private static tryParse(value: string | number | {}) {
@@ -142,7 +145,6 @@ export class JsonEditorComponent implements OnInit  {
     }
 
     executeAdd(arr:Pair[], type: Type) {
-        console.log(arr);
         if( type === 0 ){
             arr.push(new Pair('', ''));
         }else {
@@ -212,8 +214,20 @@ export class JsonEditorComponent implements OnInit  {
         this.changeHappened();
     }
 
-    setMenuShow(b: boolean) {
-        this.show = b;
+    setMenuShow(doShow: boolean) {
+        if(!doShow){
+            this.debounce = setTimeout(() => {
+                this.show = false;
+            }, this.debounceDelay);
+        }else {
+            this.show = true;
+        }
+    }
+
+    menuEnter() {
+        if( this.show ){
+            clearTimeout(this.debounce);
+        }
     }
 }
 

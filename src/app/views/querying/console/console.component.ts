@@ -81,6 +81,15 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 self.submitQuery();
             }
         };
+
+        // @ts-ignore
+        if (window.Cypress) {
+            (<any>window).executeQuery = (query: string) => {
+                this.codeEditor.setCode(query);
+                this.submitQuery();
+            };
+        }
+
         this.initWebsocket();
     }
 

@@ -75,8 +75,6 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   }
 
   getSchemaType() {
-    console.log('in');
-    console.log(this.routeParam);
     if ( !this.routeParam ) {
       return;
     }

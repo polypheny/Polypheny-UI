@@ -8,6 +8,7 @@ import {Info, Pair, Type} from '../json-editor.component';
 })
 
 export class JsonElemComponent  {
+    static debounceDelay = 200;
 
     @Input() el: Pair;
     @Input() index: number;
@@ -22,6 +23,7 @@ export class JsonElemComponent  {
     @Output() add = new EventEmitter();
     @Output() up = new EventEmitter();
     @Output() down = new EventEmitter();
+    private debounce: number;
 
     fakeArray(length: number): Array<any> {
         if (length >= 0) {
@@ -55,7 +57,19 @@ export class JsonElemComponent  {
     }
 
     setMenuShow(doShow: boolean) {
-        this.show = doShow;
+        if(!doShow){
+            this.debounce = setTimeout(() => {
+                this.show = false;
+            }, JsonElemComponent.debounceDelay);
+        }else {
+            this.show = true;
+        }
+    }
+
+    menuEnter() {
+        if( this.show ){
+            clearTimeout(this.debounce);
+        }
     }
 
     isObject(value: string | number | {} | Pair[]) {

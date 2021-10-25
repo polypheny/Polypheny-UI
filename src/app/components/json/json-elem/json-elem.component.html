@@ -3,13 +3,13 @@
         <div *ngFor="let x of fakeArray(indent)" class="input-group-text px-2 bg-white border-0" ></div>
         <!--<div class="input-group-text px-1" type="button" (click)="removeColumn(asString(index))"><i class="cui-grid"></i></div>-->
 
-        <div >
-            <button class="btn btn-sm" (click)="setMenuShow(true)" type="button"><i class="cui-window-maximize"></i></button>
+        <div (mouseleave)="setMenuShow(false)" (mouseenter)="menuEnter()">
+            <button [disabled]="length === 1" class="btn" [class]="length === 1 ? 'opaque' : ''" (click)="setMenuShow(true)" type="button"><i class="cui-window-maximize"></i></button>
             <ul *ngIf="show" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false)">
                 <li><div class="dropdown-item" (click)="removeColumn(asString(index))"><i class="cui-trash"></i>Remove</div></li>
                 <li *ngIf="!isValue()"><div class="dropdown-item" (click)="addInitialColumn(asString(index), 0)"><i class="cui-plus"></i>Add Key-Value</div></li>
                 <li *ngIf="!isValue()"><div class="dropdown-item" (click)="addInitialColumn(asString(index), 1)"><i class="cui-plus"></i>Add Key-Object</div></li>
-                <li><hr class="dropdown-divider"></li>
+                <li *ngIf="index !== 0 && index !== length - 1"><hr class="dropdown-divider"></li>
                 <li *ngIf="index !== 0"><div class="dropdown-item" (click)="upColumn(asString(index))"><i class="cui-chevron-top"></i>Move Up</div></li>
                 <li *ngIf="index !== length - 1"><div class="dropdown-item" (click)="downColumn(asString(index))"><i class="cui-chevron-bottom"></i>Move Down</div></li>
             </ul>
