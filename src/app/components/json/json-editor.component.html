@@ -1,14 +1,14 @@
 <div id="editor-wrapper">
-    <div *ngFor="let el of data; let i=index;">
+    <div class="invalid-feedback text-right" [class]="showError ? 'show-error':''">{{dupblKeyError}}</div>
+    <form #formType="ngForm" *ngFor="let el of data; let i=index;">
         <app-json-elem [el]="el" [index]="i" [length]="data.length" [indent]="0"
                        [type]="getType(el)"
                        (changed)="changeHappened()"
                        (remove)="removeColumn($event)"
                        (up)="changeOrder($event, -1)"
                        (down)="changeOrder($event, 1)"
-                       (add)="addColumn($event)"></app-json-elem>
-    </div>
-
+                       (add)="addColumn($event)" (validChanged)="validChanged()"></app-json-elem>
+    </form>
     <div  class="input-group justify-content-center mt-3">
         <div (mouseleave)="setMenuShow(false)" (mouseenter)="menuEnter()">
             <button class="btn btn-sm btn-outline-primary" (click)="setMenuShow(true)"  type="button"><i class="cui-plus"></i></button>
@@ -18,6 +18,5 @@
             </ul>
         </div>
     </div>
-
 </div>
 

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CrudService} from '../../../services/crud.service';
 import {ToastService} from '../../toast/toast.service';
@@ -16,6 +16,7 @@ import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 export class DataCardComponent extends DataViewComponent implements OnInit {
 
   showInsertCard = false;
+  jsonValid = false;
 
   constructor(
     public _crud: CrudService,
@@ -37,4 +38,7 @@ export class DataCardComponent extends DataViewComponent implements OnInit {
     this.setPagination();
   }
 
+  setJsonValid($event: any) {
+    this.jsonValid = $event;
+  }
 }

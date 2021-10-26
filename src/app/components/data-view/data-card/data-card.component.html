@@ -46,7 +46,7 @@
           </ng-container>
           <ng-container *ngIf="i === editing">
             <app-input *ngIf="this.schemaType === 'relational' || h.name === '_id'" [header]="h" [showLabel]="h.name !== '_data' " [value]="updateValues.get(h.name)" (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateRow()" [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
-            <app-json-editor *ngIf="this.schemaType === 'document' && h.name !== '_id'" [json]="updateValues.get(h.name)" (valueChange)="newUpdateValue(h.name, $event)"></app-json-editor>
+            <app-json-editor (validChange)="setJsonValid($event)" *ngIf="this.schemaType === 'document' && h.name !== '_id'" [json]="updateValues.get(h.name)" (valueChange)="newUpdateValue(h.name, $event)"></app-json-editor>
           </ng-container>
         </li>
       </ng-container>
@@ -55,7 +55,7 @@
         <progressbar *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary"></progressbar>
         <progressbar *ngIf="uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)" [animate]="true" [value]="100" [striped]="true" type="primary"></progressbar>
         <button *ngIf="uploadProgress === -1" class="btn btn-light btn-sm" (click)="editing = -1">cancel</button>
-        <button *ngIf="uploadProgress === -1" class="btn btn-primary btn-sm" (click)="updateRow()">save</button>
+        <button *ngIf="uploadProgress === -1" class="btn btn-primary btn-sm" (click)="updateRow()" [disabled]="this.schemaType === 'document' && !jsonValid">save</button>
       </li>
 
     </ul>
@@ -73,13 +73,13 @@
       <li  class="list-group-item" *ngFor="let h of resultSet.header">
         <app-input *ngIf="schemaType === 'relational' || h.name === '_id'" [header]="h" [showLabel]="true" [value]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"
                    (enter)="insertRow()"></app-input>
-        <app-json-editor *ngIf="this.schemaType === 'document' && h.name !== '_id'" [empty]="true" [json]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"></app-json-editor>
+        <app-json-editor #jsonEditor *ngIf="this.schemaType === 'document' && h.name !== '_id'" [empty]="true" [json]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"></app-json-editor>
       </li>
       <li class="list-group-item">
         <progressbar *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary"></progressbar>
         <progressbar *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)" [animate]="true" [value]="100" [striped]="true" type="primary"></progressbar>
         <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-light btn-sm" (click)="showInsertCard = false">cancel</button>
-        <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-primary btn-sm float-right" (click)="insertRow()">save</button>
+        <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-primary btn-sm float-right" [disabled]="this.schemaType === 'document' && !jsonValid" (click)="insertRow()">save</button>
       </li>
     </ul>
   </div>

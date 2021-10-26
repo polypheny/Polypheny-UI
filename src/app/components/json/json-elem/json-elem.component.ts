@@ -1,13 +1,24 @@
-import {Component, EventEmitter, Input, Output,} from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    QueryList,
+    ViewChild,
+    ViewChildren,
+} from '@angular/core';
 import {Info, Pair, Type} from '../json-editor.component';
 
 @Component({
     selector: 'app-json-elem',
     templateUrl: './json-elem.component.html',
-    styleUrls: ['./json-elem.component.scss']
+    styleUrls: ['./json-elem.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class JsonElemComponent  {
+export class JsonElemComponent implements OnInit   {
     static debounceDelay = 200;
 
     @Input() el: Pair;
@@ -23,7 +34,15 @@ export class JsonElemComponent  {
     @Output() add = new EventEmitter();
     @Output() up = new EventEmitter();
     @Output() down = new EventEmitter();
-    private debounce: number;
+    private debounce: any;
+    valid = false;
+    @Output() validChanged = new EventEmitter;
+    errorMessage: string;
+    dupblKeyError = 'This document has duplicate keys.';
+
+    ngOnInit(): void {
+        this.inputChanged();
+    }
 
     fakeArray(length: number): Array<any> {
         if (length >= 0) {
@@ -56,7 +75,11 @@ export class JsonElemComponent  {
         this.changed.emit();
     }
 
-    setMenuShow(doShow: boolean) {
+    setMenuShow(doShow: boolean, instant = false) {
+        if ( instant ) {
+            this.show = doShow;
+            return;
+        }
         if(!doShow){
             this.debounce = setTimeout(() => {
                 this.show = false;
@@ -89,6 +112,7 @@ export class JsonElemComponent  {
     }
 
     addInitialColumn(index: string, type: Type) {
+        this.show = false;
         this.add.emit(new Info(index, type));
     }
 
@@ -101,6 +125,27 @@ export class JsonElemComponent  {
             }
         }
         return Type.Value;
+    }
+
+    isSelfValid() {
+        const temp = this.el.key.trim() !== '';
+        if( temp ) {
+            this.errorMessage = '';
+        }
+        return temp;
+    }
+
+    inputChanged() {
+        this.valid = this.isSelfValid();
+
+        if( !this.isValue() ) {
+            const temp = this.el.value instanceof Array && new Set(this.el.value.map( e => e.key )).size === this.el.value.length;
+            if ( !temp ){
+                this.errorMessage = this.dupblKeyError;
+            }
+            this.valid &&= temp && this.el.value instanceof Array && this.el.value.reduce<boolean>((c, next) => c && next.isValid(), true);
+        }
+        this.validChanged.emit();
     }
 }
 

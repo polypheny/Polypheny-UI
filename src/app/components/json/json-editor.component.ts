@@ -1,30 +1,38 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     EventEmitter,
     Input,
     OnChanges, OnInit,
-    Output,
-    SimpleChanges,
+    Output, QueryList,
+    SimpleChanges, ViewChild, ViewChildren,
 } from '@angular/core';
 import {isNumeric} from 'rxjs/internal-compatibility';
-import {JsonElemComponent} from './json-elem/json-elem.component';
 
 export class Pair {
-    static idBuilder = 0;
-    private id: number;
-    key: string;
-    value: string | number | {} | Pair[];
 
     constructor(key: string, value: string | number | { } | Pair[]) {
         this.id = Pair.getAndIncrementId();
         this.key = key;
         this.value = value;
     }
+    static idBuilder = 0;
+    private id: number;
+    key: string;
+    value: string | number | {} | Pair[];
 
     static getAndIncrementId() {
         const id = Pair.idBuilder;
         Pair.idBuilder++;
         return id;
+    }
+    
+    isValid() {
+        let temp = this.key.trim() !== '';
+        if( this.value instanceof Array && this.value[0] instanceof Pair ) {
+            temp &&= new Set(this.value.map( e => e.key )).size === this.value.length && this.value.reduce<boolean>( (c, next) => c && next.isValid(), true);
+        }
+        return temp;
     }
 }
 
@@ -48,9 +56,9 @@ export enum Type {
     styleUrls: ['./json-editor.component.scss']
 })
 
-//ace editor: see: https://medium.com/@ofir3322/create-an-online-ide-with-angular-6-nodejs-part-1-163a939a7929
-
 export class JsonEditorComponent implements OnInit  {
+    @Output() valid: boolean;
+    dupblKeyError = 'Document has duplicate key.';
 
     constructor() {
         this.data = [];
@@ -59,9 +67,11 @@ export class JsonEditorComponent implements OnInit  {
     @Input() empty: boolean;
     @Input() json: {};
     @Output() valueChange = new EventEmitter();
+    @Output() validChange = new EventEmitter();
     show = false;
-    private debounce: number;
+    private debounce: any;
     private debounceDelay = 200;
+    showError: boolean;
 
 
     private static tryParse(value: string | number | {}) {
@@ -78,7 +88,7 @@ export class JsonEditorComponent implements OnInit  {
             for (const [key, value] of Object.entries(data) ){
                 let val = value;
                 if ( value instanceof Object ){
-                    val = JSON.stringify(value);
+                    val = this.getPair(value);
                 }
 
                 temp.push(new Pair(key, val));
@@ -107,6 +117,7 @@ export class JsonEditorComponent implements OnInit  {
     changeHappened() {
         const json = this.generateJson(this.data);
         this.valueChange.emit(JSON.stringify(json));
+        this.validChanged();
     }
 
     private generateJson(raw: any) {
@@ -214,7 +225,11 @@ export class JsonEditorComponent implements OnInit  {
         this.changeHappened();
     }
 
-    setMenuShow(doShow: boolean) {
+    setMenuShow(doShow: boolean, instant= false) {
+        if ( instant ) {
+            this.show = doShow;
+            return;
+        }
         if(!doShow){
             this.debounce = setTimeout(() => {
                 this.show = false;
@@ -229,6 +244,17 @@ export class JsonEditorComponent implements OnInit  {
             clearTimeout(this.debounce);
         }
     }
+
+    isValid() {
+        return this.data.reduce<boolean>((c, next) => c && next.isValid(), true);
+    }
+    validChanged() {
+        const hasDuplicates = new Set(this.data.map( e => e.key )).size === this.data.length;
+        this.valid = this.data.reduce<boolean>((c, next) => c && next.isValid(), true) && hasDuplicates;
+        this.showError = !hasDuplicates;
+        this.validChange.emit(this.valid);
+    }
+
 }
 
 
