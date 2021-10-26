@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CrudService} from '../../../services/crud.service';
 import {ToastService} from '../../toast/toast.service';
@@ -11,7 +11,8 @@ import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 @Component({
   selector: 'app-data-card',
   templateUrl: './data-card.component.html',
-  styleUrls: ['./data-card.component.scss']
+  styleUrls: ['./data-card.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataCardComponent extends DataViewComponent implements OnInit {
 

@@ -4,7 +4,6 @@
 </div>
 
 <div class="card-wrapper" *ngIf="resultSet">
-
   <div class="card" *ngFor="let d1 of resultSet.data; let i = index" (dblclick)="triggerEditing(i)" [ngClass]="{'editing': i===editing}">
     <a *ngIf="config.update && i !== editing" [routerLink]="[]" class="edit-card btn btn-outline-secondary btn-sm" (click)="triggerEditing(i)"><i class="cui-pencil"></i></a>
     <a *ngIf="config.update && i !== editing" [routerLink]="[]" class="delete-card btn btn-outline-secondary btn-sm" (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"><i [ngClass]="{ 'cui-trash': i!==confirm, 'fa': i===confirm, 'fa-warning': i===confirm}"></i></a>
@@ -73,7 +72,7 @@
       <li  class="list-group-item" *ngFor="let h of resultSet.header">
         <app-input *ngIf="schemaType === 'relational' || h.name === '_id'" [header]="h" [showLabel]="true" [value]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"
                    (enter)="insertRow()"></app-input>
-        <app-json-editor #jsonEditor *ngIf="this.schemaType === 'document' && h.name !== '_id'" [empty]="true" [json]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"></app-json-editor>
+        <app-json-editor (validChange)="setJsonValid($event)" *ngIf="this.schemaType === 'document' && h.name !== '_id'" [empty]="true" [json]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"></app-json-editor>
       </li>
       <li class="list-group-item">
         <progressbar *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary"></progressbar>

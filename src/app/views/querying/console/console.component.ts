@@ -128,7 +128,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         }
         if (this.lang === 'mql') {
             if (code.match('use [a-zA-Z][a-zA-Z0-1]*')) {
-                console.log(this.defaultDocumentDB);
                 this.setDefaultDB(code.replace('use ', ''));
             }
             if (code.match('show db')) {
