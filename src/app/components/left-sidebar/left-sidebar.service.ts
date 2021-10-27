@@ -114,7 +114,6 @@ export class LeftSidebarService {
   }
 
   setNodes(n: SidebarNode[]) {
-    console.log(n);
     n = [].concat(n); // convert to array if it is not an array
     this.nodes.next(n);
     this.error.next(null);
@@ -156,8 +155,6 @@ export class LeftSidebarService {
   setSchema(schemaRequest: SchemaRequest, _router: Router) {
     this._crud.getSchema(schemaRequest).subscribe(
       res => {
-        console.log("hihi");
-        console.log(res);
         this.error.next(null);
         const schemaTemp = <SidebarNode[]>res;
         const schema = [];
@@ -165,7 +162,6 @@ export class LeftSidebarService {
         for (const s of schemaTemp) {
           schema.push(SidebarNode.fromJson(s));
         }
-        console.log(schema)
         //Schema editing view
 
         // this.router.url.startsWith('/views/schema-editing/'
