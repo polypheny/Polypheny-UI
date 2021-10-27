@@ -53,6 +53,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   socketOn: boolean;
 
   private lastNode = null;
+  private cache = true;
 
   constructor(
     private _crud: CrudService,
@@ -468,10 +469,17 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
+  clickRun(event) {
+    this.cache = !(event.shiftKey && event.altKey);
+    this.runPlan();
+    this.cache = true;
+  }
+
   /**
    * Get the tree and perform a REST request to execute it
    */
   runPlan() {
+    console.log(this.cache);
     $('#run i').removeClass().addClass('fa fa-hourglass-half');
     const tree = this.getTree();
     if (tree === undefined) {
@@ -479,7 +487,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       this._toast.warn( 'Please provide a plan to be executed.', 'no plan' );
       return;
     }
-    if(!this._crud.executeRelAlg( this.webSocket, tree )){
+    if(!this._crud.executeRelAlg( this.webSocket, tree, this.cache )){
       $('#run i').removeClass().addClass('fa fa-play');
       this.resultSet = new ResultSet('Could not establish a connection with the server.');
     }
@@ -488,7 +496,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   createView(viewName: string[]){
     const tree = this.getTree();
     const createView = true;
-    this._crud.executeRelAlg(this.webSocket, tree, createView, viewName[1]);
+    this._crud.executeRelAlg(this.webSocket, tree, this.cache, createView, viewName[1]);
   }
 
 
@@ -774,5 +782,9 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     this.setAutocomplete();
   }
 
+
+  toggleCache(b: boolean) {
+    this.cache = b;
+  }
 
 }

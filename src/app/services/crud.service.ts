@@ -337,12 +337,12 @@ export class CrudService {
   /**
    * Execute a relational algebra
    */
-  executeRelAlg ( socket: WebSocket, relAlg: Node, createView?: boolean, viewName?: string): boolean {
+  executeRelAlg ( socket: WebSocket, relAlg: Node, cache: boolean, createView?: boolean, viewName?: string): boolean {
     let request;
     if(createView){
-      request = new RelAlgRequest( relAlg, createView, viewName);
+      request = new RelAlgRequest( relAlg, cache, createView, viewName);
     }else{
-      request = new RelAlgRequest( relAlg );
+      request = new RelAlgRequest( relAlg, cache );
     }
     return socket.sendMessage( request );
   }

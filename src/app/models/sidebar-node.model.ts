@@ -30,6 +30,7 @@ export class SidebarNode {
    * @param settings Settings that should be applied to all generated SidebarNodes
    */
   static fromJson(obj, settings = {}) {
+    console.log(obj)
     const sidebarNode = new SidebarNode(obj.id, obj.name);
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
@@ -50,6 +51,7 @@ export class SidebarNode {
         }
       }
     }
+    console.log(sidebarNode)
     return sidebarNode;
   }
 

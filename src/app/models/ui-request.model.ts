@@ -28,9 +28,11 @@ export class RelAlgRequest extends UIRequest {
   topNode: Node;
   createView: boolean;
   viewName: string;
-  constructor( node: Node, createView?: boolean, viewName?: string ) {
+  useCache: boolean;
+  constructor( node: Node, cache: boolean, createView?: boolean, viewName?: string ) {
     super();
     this.topNode = node;
+    this.useCache = cache;
     this.createView = createView || false;
     this.viewName = viewName || 'viewName';
   }

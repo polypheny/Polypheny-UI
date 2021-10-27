@@ -68,19 +68,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         public modalService: BsModalService,
         public _toast: ToastService
     ) {
-
-        const self = this;
+        
         this.websocket = new WebSocket(_settings);
-        // hit alt-enter to execute a query with the current "save in history" option
-        // hit alt-shift-enter to execute a query in "incognito" mode, no matter of the current "save in history" option
-        window.onkeydown = function (e) {
-            if (e.key === 'Enter' && e.altKey) {
-                if (e.shiftKey) {
-                    self.saveInHistory = false;
-                }
-                self.submitQuery();
-            }
-        };
 
         // @ts-ignore
         if (window.Cypress) {

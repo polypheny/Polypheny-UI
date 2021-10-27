@@ -114,6 +114,7 @@ export class LeftSidebarService {
   }
 
   setNodes(n: SidebarNode[]) {
+    console.log(n);
     n = [].concat(n); // convert to array if it is not an array
     this.nodes.next(n);
     this.error.next(null);
@@ -155,6 +156,8 @@ export class LeftSidebarService {
   setSchema(schemaRequest: SchemaRequest, _router: Router) {
     this._crud.getSchema(schemaRequest).subscribe(
       res => {
+        console.log("hihi");
+        console.log(res);
         this.error.next(null);
         const schemaTemp = <SidebarNode[]>res;
         const schema = [];
@@ -162,6 +165,7 @@ export class LeftSidebarService {
         for (const s of schemaTemp) {
           schema.push(SidebarNode.fromJson(s));
         }
+        console.log(schema)
         //Schema editing view
 
         // this.router.url.startsWith('/views/schema-editing/'
@@ -210,14 +214,13 @@ export class LeftSidebarService {
         else if (schemaRequest.depth === 1) {
           schema.forEach((val, key) => {
 
+            if( (val as SidebarNode).schemaType === 'document'){
               if( val.cssClass === undefined){
-                  val.cssClass = 'node-disabled';
+                val.cssClass = 'node-disabled';
               }else {
-                  val.cssClass += ' node-disabled';
+                val.cssClass += ' node-disabled';
               }
-              val.setAction((tree, node, $event) => {
-                this.schemaType = node.data.schemaType;
-              });
+            }
 
             val.routerLink = schemaRequest.routerLinkRoot + val.id;
           });
