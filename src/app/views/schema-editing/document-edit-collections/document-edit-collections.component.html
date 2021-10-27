@@ -1,7 +1,7 @@
 <app-toast></app-toast>
 <ng-container *ngIf="database && tables">
     <h5>Collections in <i>{{database}}</i> [{{schemaType}}]</h5>
-    <p>Type the name of a table into the text-fields to perform these actions.</p>
+    <p>Type the name of a collection into the text-fields to perform these actions.</p>
 </ng-container>
 
 <table class="table table-hover table-striped" *ngIf="tables">
@@ -120,7 +120,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <p>Keep in mind that exporting a whole table can lead to a large dataset. If you want to proceed, specify the name the exported dataset should have and click on the export button.</p>
+          <p>Keep in mind that exporting a whole collection can lead to a large dataset. If you want to proceed, specify the name the exported dataset should have and click on the export button.</p>
           <div class="form-group">
             <div class="input-group">
               <div class="input-group-prepend"><label for="exportName" class="input-group-text">Name</label></div>

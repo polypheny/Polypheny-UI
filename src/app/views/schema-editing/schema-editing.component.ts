@@ -83,7 +83,6 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         res => {
           this.schemaType = res[schema];
           this._leftSidebar.schemaType = res[schema];
-          console.log('received');
         }, error => {
           console.log(error);
         }

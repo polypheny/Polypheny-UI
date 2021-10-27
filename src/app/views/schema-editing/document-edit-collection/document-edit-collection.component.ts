@@ -159,7 +159,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         // deep copy: from: https://stackoverflow.com/questions/35504310/deep-copy-an-array-in-angular-2-typescript
         this.newPrimaryKey = this.resultSet.header.map( x => Object.assign({}, x));
       }, err => {
-        this._toast.error('Could not load columns of the table.', null, ToastDuration.INFINITE);
+        this._toast.error('Could not load fields of the collection.', null, ToastDuration.INFINITE);
         console.log(err);
       }
     );
@@ -215,7 +215,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
       return;
     }
     if( this.resultSet.header.filter( (h) => h.name === this.updateColumn.controls['name'].value && h.name !== this.updateColumn.controls['oldName'].value ).length > 0){
-      this._toast.warn( 'This column name already exists', 'invalid column name' );
+      this._toast.warn( 'This field name already exists', 'invalid field name' );
       return;
     }
     const oldColumn = this.oldColumns.get( this.updateColumn.controls['oldName'].value );
@@ -247,10 +247,10 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
           this._toast.exception(result, 'Could not update column:');
           console.log(result);
         }else{
-          this._toast.success('The new column was saved.', result.generatedQuery, 'column saved');
+          this._toast.success('The new field was saved.', result.generatedQuery, 'column saved');
         }
       }, err => {
-        this._toast.error('Could not save column due to an error on the server.', null, ToastDuration.INFINITE);
+        this._toast.error('Could not save field due to an error on the server.', null, ToastDuration.INFINITE);
         console.log(err);
       }
     );
@@ -260,15 +260,15 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     this.createColumn.dataType = 'VARCHAR';
     this.createColumn.precision = 3000;
     if( this.createColumn.name === ''){
-      this._toast.warn('Please provide a name for the new column.', 'missing column name');
+      this._toast.warn('Please provide a name for the new field.', 'missing field name');
       return;
     }
     if( ! this._crud.nameIsValid( this.createColumn.name ) ){
-      this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
+      this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid field name');
       return;
     }
     if( this.resultSet.header.filter( (h) => h.name === this.createColumn.name ).length > 0 ) {
-      this._toast.warn( 'There already exists a column with this name', 'invalid column name' );
+      this._toast.warn( 'There already exists a field with this name', 'invalid field name' );
       return;
     }
     if( !this._types.supportsPrecision(this.createColumn.dataType) && this.createColumn.precision !== null ){
@@ -309,10 +309,10 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         this.confirm = -1;
         const result = <ResultSet> res;
         if( result.error ){
-          this._toast.exception(result, 'Could not delete column:', 'server error', ToastDuration.INFINITE);
+          this._toast.exception(result, 'Could not delete field:', 'server error', ToastDuration.INFINITE);
         }
       }, err => {
-        this._toast.error('Could not delete column.', null, ToastDuration.INFINITE);
+        this._toast.error('Could not delete field.', null, ToastDuration.INFINITE);
         console.log(err);
       }
     );
@@ -423,7 +423,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
       }
     });
     if( counter === 0 ) {
-      this._toast.warn('Please select at least one column that should be part of the unique constraint.', 'unique constraint');
+      this._toast.warn('Please select at least one field that should be part of the unique constraint.', 'unique constraint');
       return;
     }
     const constraintRequest = new ConstraintRequest( this.tableId, constraint );

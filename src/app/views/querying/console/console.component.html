@@ -1,4 +1,4 @@
-<div class="row" [hidden]="showingAnalysis" (keydown.control.shift)="toggleCache(false)" (keyup.control.shift)="revertCache()" (keyup.shift.control)="revertCache()" (keyup.control.shift.enter)="submitQuery()">
+<div class="row" [hidden]="showingAnalysis" (keydown.alt.shift)="toggleCache(false)" (keyup.alt.shift)="revertCache()" (keyup.shift.alt)="revertCache()" (keyup.control.shift.enter)="submitQuery()">
   <div class="col-lg-8 col-md-8 col-sm-12">
       <ul class="list-group grey-border" id="console">
           <li id="console-item-head" *ngIf="lang === 'mql'" class="list-group-item header grey-bg">
@@ -34,9 +34,10 @@
               *ngIf="(history | searchFilter:historySearchQuery).size == 0">(empty)</li>
           <li class="list-group-item history-item"
               *ngFor="let h of (history | searchFilter:historySearchQuery) | keyvalue:orderHistory"
-              (click)="applyHistory( h.value.query, false )"
-              (dblclick)="applyHistory( h.value.query, true)">
+              (click)="applyHistory( h.value.query, h.value.lang, false )"
+              (dblclick)="applyHistory( h.value.query, h.value.lang, true)">
               <div class="history-time-wrapper">
+                <small class="time" style="text-transform: uppercase;">{{h.value.lang}}</small>
                 <small class="time">{{h.value.displayTime()}}</small>
                 <small class="time">{{h.value.fromNow()}}</small>
               </div>
@@ -64,8 +65,8 @@
       <div *ngIf="!loading" class="pull-right">
           <button type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
           <select class="form-control btn pull-right mr-1 border bg-white" [(ngModel)]="lang">
-              <option>sql</option>
-              <option>mql</option>
+              <option value="sql">SQL</option>
+              <option value="mql">MQL</option>
           </select>
       </div>
     <button *ngIf="loading" type="submit" class="btn btn-primary progress-bar-striped progress-bar-animated pull-right" disabled>Loading</button>

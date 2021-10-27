@@ -183,16 +183,16 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 
   createCollection() {
     if (this.newTableName === '') {
-      this._toast.warn('Please provide a name for the new table. The new table was not created.', 'missing table name', ToastDuration.INFINITE);
+      this._toast.warn('Please provide a name for the new collection. The new collection was not created.', 'missing table name', ToastDuration.INFINITE);
       return;
     }
     if (!this._crud.nameIsValid(this.newTableName)) {
-      this._toast.warn('Please provide a valid name for the new table. The new table was not created.', 'invalid table name', ToastDuration.INFINITE);
+      this._toast.warn('Please provide a valid name for the new collection. The new collection was not created.', 'invalid table name', ToastDuration.INFINITE);
       return;
     }
     if( this.tables.filter((t) => t.name === this.newTableName ).length > 0 ){
       //if (this.tables.indexOf(this.newTableName) !== -1) {
-      this._toast.warn('A table with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
+      this._toast.warn('A collection with this name already exists. Please choose another name.', 'invalid collection name', ToastDuration.INFINITE);
       return;
     }
     const request = new EditCollectionRequest(this.database, this.newTableName, 'create', this.selectedStore);
@@ -201,91 +201,21 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         res => {
           const result = <ResultSet>res;
           if (result.error) {
-            this._toast.exception(result, 'Could not generate table:');
+            this._toast.exception(result, 'Could not generate collection:');
           } else {
-            this._toast.success('Generated table ' + request.collection, result.generatedQuery);
+            this._toast.success('Generated collection ' + request.collection, result.generatedQuery);
             this.newColumns.clear();
             this.counter = 0;
             this.newColumns.set(this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null ));
             this.newTableName = '';
             this.selectedStore = null;
-            this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
+            this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
           }
           this.getTables();
         }, err => {
-          this._toast.error('Could not generate table');
+          this._toast.error('Could not generate collection');
           console.log(err);
         }
-    ).add( () => this.creatingTable = false );
-  }
-
-
-  createTable() {
-    if (this.newTableName === '') {
-      this._toast.warn('Please provide a name for the new table. The new table was not created.', 'missing table name', ToastDuration.INFINITE);
-      return;
-    }
-    if (!this._crud.nameIsValid(this.newTableName)) {
-      this._toast.warn('Please provide a valid name for the new table. The new table was not created.', 'invalid table name', ToastDuration.INFINITE);
-      return;
-    }
-    if( this.tables.filter((t) => t.name === this.newTableName ).length > 0 ){
-    //if (this.tables.indexOf(this.newTableName) !== -1) {
-      this._toast.warn('A table with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
-      return;
-    }
-    let valid = true;
-    //clear precision/scale for types where it is not applicable
-    //delete columns with no column name
-    let hasPk = false;
-    this.newColumns.forEach((v, k) => {
-      if( !this._types.supportsPrecision(v.dataType) && v.precision !== null ) v.precision = null;
-      if( !this._types.supportsScale(v.dataType) && v.scale !== null ) v.scale = null;
-      //clear cardinality and dimension if it is not an array
-      if( v.collectionsType !== 'ARRAY' ) {
-        v.cardinality = null;
-        v.dimension = null;
-      }
-      if (v.name === '') {
-        this.newColumns.delete(k);
-      }
-      if (!this._crud.nameIsValid(v.name)) {
-        valid = false;
-        return;
-      }
-      if(v.primary) {
-        hasPk = true;
-      }
-    });
-    if( !hasPk ){
-      this._toast.warn( 'Please specify a primary key. The new table was not created.', 'missing primary key', ToastDuration.INFINITE );
-      return;
-    }
-    if (!valid) {
-      this._toast.warn('Please make sure all column names are valid. The new table was not created.', 'invalid column name', ToastDuration.INFINITE);
-      return;
-    }
-    const request = new EditTableRequest(this.database, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore);
-    this.creatingTable = true;
-    this._crud.createTable(request).subscribe(
-      res => {
-        const result = <ResultSet>res;
-        if (result.error) {
-          this._toast.exception(result, 'Could not generate table:');
-        } else {
-          this._toast.success('Generated table ' + request.table, result.generatedQuery);
-          this.newColumns.clear();
-          this.counter = 0;
-          this.newColumns.set(this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null ));
-          this.newTableName = '';
-          this.selectedStore = null;
-          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
-        }
-        this.getTables();
-      }, err => {
-        this._toast.error('Could not generate table');
-        console.log(err);
-      }
     ).add( () => this.creatingTable = false );
   }
 
@@ -302,7 +232,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
           this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', false, 2, true), this._router);
         }
       }, err => {
-        this._toast.error( 'Could not rename the table ' + table.name );
+        this._toast.error( 'Could not rename the collection ' + table.name );
         console.log(err);
       }
     );
@@ -371,10 +301,10 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
           if (result.error) {
             this._toast.exception(result);
           } else {
-            this._toast.success('Exported table to Polypheny-Hub');
+            this._toast.success('Exported collection to Polypheny-Hub');
           }
         }, err => {
-          this._toast.error('Could not export table');
+          this._toast.error('Could not export collection');
           console.log(err);
         }
         //"finally block"

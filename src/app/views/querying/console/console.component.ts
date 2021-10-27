@@ -124,11 +124,13 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             return;
         }
         if (this.saveInHistory) {
-            this.addToHistory(code);
+            this.addToHistory(code, this.lang);
         }
         if (this.lang === 'mql') {
-            if (code.match('use [a-zA-Z][a-zA-Z0-1]*')) {
-                this.setDefaultDB(code.replace('use ', ''));
+            const match = code.match('use [a-zA-Z][a-zA-Z0-1]*');
+            if (match.length >= 0) {
+                const database = match[match.length-1].replace('use ', '');
+                this.setDefaultDB(database);
             }
             if (code.match('show db')) {
                 this._crud.getDocumentDatabases().subscribe(res => {
@@ -163,7 +165,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.collapsed.fill(collapse);
     }
 
-    addToHistory(query: string): void {
+    addToHistory(query: string, lang: string): void {
         if (this.history.size >= this.MAXHISTORY) {
             let h: SqlHistory = new SqlHistory('');
             this.history.forEach((val, key) => {
@@ -173,13 +175,14 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             });
             this.history.delete(h.query);
         }
-        const newHistory = new SqlHistory(query);
+        const newHistory = new SqlHistory(query, null, lang);
         this.history.set(newHistory.query, newHistory);
 
         localStorage.setItem('sql-history', JSON.stringify(Array.from(this.history.values())));
     }
 
-    applyHistory(query: string, run: boolean) {
+    applyHistory(query: string, lang: string, run: boolean) {
+        this.lang = lang;
         this.codeEditor.setCode(query);
         if (run) {
             this.submitQuery();

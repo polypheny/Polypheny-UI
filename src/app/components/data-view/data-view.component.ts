@@ -102,7 +102,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['resultSet']) {
+    if (changes.hasOwnProperty('resultSet')) {
       this.schemaType = this.resultSet.schemaType;
       if(this.schemaType === 'document') {
         this.presentationType = DataPresentationType.CARD;
