@@ -2,10 +2,10 @@ import {
     ChangeDetectionStrategy,
     Component,
     EventEmitter,
-    Input,
+    Input, OnChanges,
     OnInit,
     Output,
-    QueryList,
+    QueryList, SimpleChanges,
     ViewChild,
     ViewChildren,
 } from '@angular/core';
@@ -18,7 +18,7 @@ import {Info, Pair, Type} from '../json-editor.component';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class JsonElemComponent implements OnInit   {
+export class JsonElemComponent implements OnInit, OnChanges   {
     static debounceDelay = 200;
 
     @Input() el: Pair;
@@ -27,6 +27,7 @@ export class JsonElemComponent implements OnInit   {
     @Input() indent: number;
     show = false;
     @Input() type: Type;
+    keys = [];
 
 
     @Output() changed = new EventEmitter();
@@ -34,13 +35,21 @@ export class JsonElemComponent implements OnInit   {
     @Output() add = new EventEmitter();
     @Output() up = new EventEmitter();
     @Output() down = new EventEmitter();
+    @Output() inputChange = new EventEmitter;
     private debounce: any;
     valid = false;
     @Output() validChanged = new EventEmitter;
-    errorMessage: string;
-    dupblKeyError = 'This document has duplicate keys.';
+    @Input() errorMessage: string;
+    @Input() isDuplicate: boolean;
+    dupKeyError = 'Only unique keys allowed.';
+    childDupStatus = [];
+
+    ngOnChanges(changes: SimpleChanges) {
+        console.log(changes);
+    }
 
     ngOnInit(): void {
+        this.updateChildren();
         this.inputChanged();
     }
 
@@ -72,6 +81,7 @@ export class JsonElemComponent implements OnInit   {
 
 
     changeHappened() {
+        this.updateChildren();
         this.changed.emit();
     }
 
@@ -141,11 +151,63 @@ export class JsonElemComponent implements OnInit   {
         if( !this.isValue() ) {
             const temp = this.el.value instanceof Array && new Set(this.el.value.map( e => e.key )).size === this.el.value.length;
             if ( !temp ){
-                this.errorMessage = this.dupblKeyError;
+                this.errorMessage = this.dupKeyError;
             }
             this.valid &&= temp && this.el.value instanceof Array && this.el.value.reduce<boolean>((c, next) => c && next.isValid(), true);
         }
         this.validChanged.emit();
+    }
+
+    showValid() {
+        if( !this.isSelfValid() ){
+            return false;
+        }
+        if( !this.isValue() ){
+            const temp = this.el.value instanceof Array && new Set(this.el.value.map( e => e.key )).size === this.el.value.length;
+            if ( !temp ){
+                this.errorMessage = this.dupKeyError;
+            }
+            return temp;
+        }
+        return true;
+    }
+
+    updateChildren() {
+        if( this.isValue()) {
+            return;
+        }
+        const keys = (this.el.value as Pair[]).map(e => e.key);
+        console.log(keys);
+        const temp = [];
+        const copy = keys;
+
+        const status = [];
+
+        let count = 0;
+        for (const key of keys) {
+            if( temp.includes(key)) {
+                status.push(true);
+            }else {
+                copy.splice(count);
+                temp.push(key);
+                status.push(copy.includes(key));
+            }
+            console.log(copy);
+            console.log(temp);
+            console.log(status);
+            count++;
+        }
+        
+        this.childDupStatus = status;
+        console.log(this.childDupStatus);
+
+    }
+
+    getIsDuplicate(i: number) {
+        const keys = (this.el.value as Pair[]).map( k => k.key );
+        const name = keys[i];
+        keys.splice(i);
+        return keys.includes(name);
     }
 }
 

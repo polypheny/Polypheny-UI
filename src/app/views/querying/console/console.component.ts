@@ -128,7 +128,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         }
         if (this.lang === 'mql') {
             const match = code.match('use [a-zA-Z][a-zA-Z0-1]*');
-            if (match.length >= 0) {
+            if (match !== null && match.length >= 0) {
                 const database = match[match.length-1].replace('use ', '');
                 this.setDefaultDB(database);
             }

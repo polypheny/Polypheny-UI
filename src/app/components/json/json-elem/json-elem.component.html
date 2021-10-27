@@ -14,10 +14,10 @@
                 <li *ngIf="index !== length - 1"><div class="dropdown-item" (click)="downColumn(asString(index))"><i class="cui-chevron-bottom"></i>Move Down</div></li>
             </ul>
         </div>
-        <input type="text" [(ngModel)]="el.key" (change)="changeHappened()" (ngModelChange)="inputChanged()" [class]="valid ? '' : ' is-invalid'"  aria-label="First name" class="form-control json-editor-key" placeholder="key">
+        <input type="text" [(ngModel)]="el.key" (change)="changeHappened()" (ngModelChange)="inputChanged()" [class]="isSelfValid() && !isDuplicate ? '' : ' is-invalid'"  aria-label="First name" class="form-control json-editor-key" placeholder="key">
         <span *ngIf="!isObject(el.value)" class="input-group-text bg-white border-0 px-1">:</span>
         <input *ngIf="!isObject(el.value)" type="text" [(ngModel)]="el.value" (change)="changeHappened()" aria-label="Last name" class="form-control json-editor-val" placeholder="value">
-        <div class="invalid-feedback text-right">{{ errorMessage }}</div>
+        <div class="invalid-feedback text-right">{{ isDuplicate ? dupKeyError : '' }}</div>
     </div>
     <ng-container *ngIf="isObject(el.value)">
         <app-json-elem class="mt-1"
@@ -27,12 +27,13 @@
                        [length]="el.value.length"
                        [indent]="indent + 1"
                        [index]="i"
+                       [isDuplicate]="getIsDuplicate(i)"
                        (up)="upColumn(index + '_' + i)"
                        (down)="downColumn(index + '_' + i)"
                        (add)="addColumn($event)"
                        (remove)="removeColumn(index + '_' + i)"
                        (changed)="changeHappened()"
-                       (validChanged)="inputChanged()">
+                       (validChanged)="inputChanged()" (inputChange)="updateChildren()">
         </app-json-elem>
     </ng-container>
 </ng-container>

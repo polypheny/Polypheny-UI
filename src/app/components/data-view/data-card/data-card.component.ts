@@ -11,8 +11,7 @@ import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 @Component({
   selector: 'app-data-card',
   templateUrl: './data-card.component.html',
-  styleUrls: ['./data-card.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./data-card.component.scss']
 })
 export class DataCardComponent extends DataViewComponent implements OnInit {
 

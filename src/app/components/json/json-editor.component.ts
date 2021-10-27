@@ -255,6 +255,13 @@ export class JsonEditorComponent implements OnInit  {
         this.validChange.emit(this.valid);
     }
 
+    getIsDuplicate(i: number) {
+        const keys = this.data.map( k => k.key );
+        const name = keys[i];
+        keys.splice(i);
+        return keys.includes(name);
+    }
+
 }
 
 
