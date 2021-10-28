@@ -51,5 +51,6 @@ Thumbs.db
 /build/
 /test-helper/build/
 
-#cypress
+# cypress
 *.mp4
+/cypress/screenshots/
