@@ -41,4 +41,9 @@ export class DataCardComponent extends DataViewComponent implements OnInit {
   setJsonValid($event: any) {
     this.jsonValid = $event;
   }
+
+  showInsert() {
+    this.editing = null;
+    this.showInsertCard = true;
+  }
 }
