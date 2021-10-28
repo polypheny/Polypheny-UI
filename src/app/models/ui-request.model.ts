@@ -28,9 +28,11 @@ export class RelAlgRequest extends UIRequest {
   topNode: Node;
   createView: boolean;
   viewName: string;
-  constructor( node: Node, createView?: boolean, viewName?: string ) {
+  useCache: boolean;
+  constructor( node: Node, cache: boolean, createView?: boolean, viewName?: string ) {
     super();
     this.topNode = node;
+    this.useCache = cache;
     this.createView = createView || false;
     this.viewName = viewName || 'viewName';
   }
@@ -40,10 +42,16 @@ export class QueryRequest extends UIRequest {
   requestType = 'QueryRequest';
   query: string;
   analyze: boolean;
-  constructor ( query: string, analyze: boolean ) {
+  language: string;
+  database: string;
+  cache: boolean;
+  constructor ( query: string, analyze: boolean, cache: boolean, lang: string, database: string ) {
     super();
     this.query = query;
     this.analyze = analyze;
+    this.cache = cache;
+    this.language = lang;
+    this.database = database;
     return this;
   }
 }
@@ -203,6 +211,20 @@ export class EditTableRequest {
 
   getAction() {
     return this.action;
+  }
+}
+
+export class EditCollectionRequest {
+  database: string;
+  collection: string;
+  action: string;
+  store: string;
+
+  constructor(database: string, collection: string = null, action: string = null, store: string = null) {
+    this.database = database;
+    this.collection = collection;
+    this.action = action;
+    this.store = store;
   }
 }
 

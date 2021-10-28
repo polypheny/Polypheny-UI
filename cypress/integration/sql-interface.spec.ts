@@ -4,7 +4,7 @@ describe("SQL Interface Test", () => {
   it("Executing Wrong Query Test", () => {
 
     cy.intercept("POST", "getSchemaTree").as("schematree")
-    cy.visit("http://localhost:4200/#/views/querying/sql-console");
+    cy.visit("http://localhost:4200/#/views/querying/console");
     cy.wait("@schematree");
 
     cy.window().invoke("executeQuery", "Select * from em");

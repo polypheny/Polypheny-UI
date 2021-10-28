@@ -129,9 +129,35 @@ select{
   float: right;
   margin-top: -1.5em;
   margin-right: 0.5em;
+  z-index: 1;
+  position: relative;
   cursor: pointer;
 }
 
 .viewButton{
   margin-right: 0.5em;
+}
+
+.document-db-info {
+  text-align: right;
+}
+
+.grey-bg {
+  background-color: #f0f3f5;
+  border: none;
+  border-bottom: 1px white solid;
+}
+
+.grey-border {
+  border:1px rgba(0,0,0,.125) solid;
+}
+
+.mql-console {
+  height: 185.617px;
+  margin: 1px;
+}
+
+.sql-console {
+  height: 240px;
+  margin-bottom: 0;
 }

@@ -46,6 +46,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   offsetConnLeft1 = 21;
   offsetConnLeft2 = -5;
   offsetConnTop = 20;
+  schemaType: string;
 
 
   constructor(
@@ -68,6 +69,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     this.schema = this._route.snapshot.paramMap.get('id');
     this._route.params.subscribe(params => {
       this.schema = params['id'];
+      this.schemaType = this._leftSidebar.schemaType;
       this.getUml();
     });
     const sub = this._crud.onReconnection().subscribe(

@@ -40,8 +40,8 @@ export const navItems: NavData[] = [
     }*/
   },
   {
-    name: 'SQL console',
-    url: '/sql-console',
+    name: 'Console',
+    url: '/console',
     icon: 'icon-note'
   },
   {

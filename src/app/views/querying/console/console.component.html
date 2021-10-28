@@ -1,8 +1,15 @@
-<div class="row" [hidden]="showingAnalysis">
+<div class="row" [hidden]="showingAnalysis" (keydown.alt.shift)="toggleCache(false)" (keyup.alt.shift)="revertCache()" (keyup.shift.alt)="revertCache()" (keydown.alt.shift.enter)="submitQuery()" (keydown.alt.enter)="submitQuery()">
   <div class="col-lg-8 col-md-8 col-sm-12">
-      <div class="form-group" style="height: 240px">
+      <ul class="list-group grey-border" id="console">
+          <li id="console-item-head" *ngIf="lang === 'mql'" class="list-group-item header grey-bg">
+              <span  class="document-db-info"><i>Database: {{defaultDocumentDB}}</i></span>
+              <button  type="submit" class="btn btn-primary btn-sm pull-right" (click)="clearConsole()"><i class="cui-trash"></i></button>
+              <button type="submit" class="btn btn-primary btn-sm pull-right mr-1" (click)="formatQuery()"><i class="cui-clear-all"></i></button>
+          </li>
+      <div class="form-group" [ngClass]="lang == 'mql' ? 'mql-console': 'sql-console'">
           <app-editor #editor id="sql-editor"></app-editor>
       </div>
+      </ul>
   </div>
   <div class="col-lg-4 col-md-4 col-sm-12 mb-3">
       <ul class="list-group" id="history">
@@ -27,9 +34,10 @@
               *ngIf="(history | searchFilter:historySearchQuery).size == 0">(empty)</li>
           <li class="list-group-item history-item"
               *ngFor="let h of (history | searchFilter:historySearchQuery) | keyvalue:orderHistory"
-              (click)="applyHistory( h.value.query, false )"
-              (dblclick)="applyHistory( h.value.query, true)">
+              (click)="applyHistory( h.value.query, h.value.lang, false )"
+              (dblclick)="applyHistory( h.value.query, h.value.lang, true)">
               <div class="history-time-wrapper">
+                <small class="time" style="text-transform: uppercase;">{{h.value.lang}}</small>
                 <small class="time">{{h.value.displayTime()}}</small>
                 <small class="time">{{h.value.fromNow()}}</small>
               </div>
@@ -46,11 +54,21 @@
       <input type="checkbox" class="custom-control-input" id="checkbox1" [(ngModel)]="analyzeQuery">
       <label class="custom-control-label" for="checkbox1">analyze query</label>
     </div>
+      <div class="custom-control custom-checkbox custom-control-inline">
+          <input type="checkbox" class="custom-control-input" id="checkbox3" [(ngModel)]="useCache">
+          <label class="custom-control-label" for="checkbox3">use cache</label>
+      </div>
     <div class="custom-control custom-checkbox custom-control-inline">
       <input type="checkbox" class="custom-control-input" id="checkbox2" [(ngModel)]="saveInHistory">
       <label class="custom-control-label" for="checkbox2">save in history</label>
     </div>
-    <button *ngIf="!loading" type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
+      <div *ngIf="!loading" class="pull-right">
+          <button type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
+          <select class="form-control btn pull-right mr-1 border bg-white" [(ngModel)]="lang">
+              <option value="sql">SQL</option>
+              <option value="mql">MQL</option>
+          </select>
+      </div>
     <button *ngIf="loading" type="submit" class="btn btn-primary progress-bar-striped progress-bar-animated pull-right" disabled>Loading</button>
   </div>
 </div>
@@ -65,7 +83,7 @@
     </div>
     <div class="col-lg-12 mb-3" [ngClass]="{'accordion': resultSets && resultSets.length > 1}" id="results">
         <div class="card" *ngFor="let resultSet of resultSets; let i = index;">
-            <div class="card-header" [ngClass]="{'pointer': resultSets.length > 1, 'open': collapsed[i]}" (click)="collapsed[i] = !collapsed[i]">
+            <div class="card-header" [ngClass]="{'pointer': resultSets.length > 1, 'open': collapsed !== undefined && collapsed[i]}" (click)="toggleCollapsed(i)">
                 <span>{{resultSet.generatedQuery}}</span>
                 <span class="badge pull-right" [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
                 <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
@@ -74,7 +92,7 @@
             </div>
 
             <div [id]="'collapse'+i" class="collapse show" data-parent="#accordion">
-                <div class="card-body" [collapse]="!collapsed[i] && resultSets.length !== 1">
+                <div class="card-body" [collapse]="collapsed !== undefined && !collapsed[i] && resultSets.length !== 1">
                     <div class="text-danger" *ngIf="resultSet && resultSet.error">
                         <strong>Error:</strong>
                         <p class="mb-3">{{resultSet.error}}</p>

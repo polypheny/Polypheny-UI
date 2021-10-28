@@ -1,4 +1,15 @@
-import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {DataPresentationType, ResultSet} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
@@ -17,6 +28,7 @@ import {HttpEventType} from '@angular/common/http';
 import * as $ from 'jquery';
 import {DbTable} from '../../views/uml/uml.model';
 import {TableModel} from '../../views/schema-editing/edit-tables/edit-tables.component';
+import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
 
 @Component({
   selector: 'app-data-view',
@@ -64,6 +76,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   newViewName = '';
   tables: TableModel[] = [];
   gotTables = false;
+  schemaType: string;
 
   constructor(
       public _crud: CrudService,
@@ -72,6 +85,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       public _router: Router,
       public _types: DbmsTypesService,
       public _settings: WebuiSettingsService,
+      public _sidebar: LeftSidebarService,
       public modalService: BsModalService
   ) {
     this.webSocket = new WebSocket(_settings);
@@ -88,8 +102,13 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['resultSet']) {
-
+    if (changes.hasOwnProperty('resultSet')) {
+      this.schemaType = this.resultSet.schemaType;
+      if(this.schemaType === 'document') {
+        this.presentationType = DataPresentationType.CARD;
+      }else{
+        this.presentationType = DataPresentationType.TABLE;
+      }
       //fix for carousel View, if no currentPage and no highestPage is set, set it to 1
       if(this.resultSet !== null){
         if(this.resultSet.currentPage === 0 ){
@@ -551,7 +570,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
   executeCreateView(code: string){
     this.loading = true;
-    if(!this._crud.anyQuery(this.webSocket, new QueryRequest(code, true))){
+    if(!this._crud.anyQuery(this.webSocket, new QueryRequest(code, true, true, 'sql', null))){
       this.loading = false;
       this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
     }
