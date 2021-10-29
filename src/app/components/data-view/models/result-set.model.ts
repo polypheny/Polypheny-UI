@@ -17,6 +17,7 @@ export class ResultSet {
   affectedRows: number;
   generatedQuery: string;
   type: string;//"table" or "view"
+  schemaType: string;//"relational" or "document"
   explorerId: number;
   classificationInfo: string;
   includesClassificationInfo: boolean;
@@ -27,6 +28,14 @@ export class ResultSet {
     this.error = error;
     this.generatedQuery = generatedQuery;
     this.affectedRows = affectedRows;
+  }
+}
+
+export class InfoSet extends ResultSet{
+
+
+  constructor(error: string, generatedQuery: any, affectedRows: number) {
+    super(error, generatedQuery, affectedRows);
   }
 }
 

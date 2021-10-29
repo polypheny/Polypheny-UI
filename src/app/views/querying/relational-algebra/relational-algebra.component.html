@@ -7,8 +7,7 @@
                              [hidden]="!showingAnalysis"></app-information-manager>
   </div>
 
-  <div class="col-12" id="drop" cdkDropList cdkDropListSortingDisabled #dropArea (treeDrop)="treeDrop($event)"
-       [hidden]="showingAnalysis">
+  <div class="col-12" id="drop" cdkDropList cdkDropListSortingDisabled #dropArea (treeDrop)="treeDrop($event)" [hidden]="showingAnalysis">
     <ng-container *ngFor="let n of nodes | keyvalue; trackBy: trackNode">
       <app-node [node]="n.value"
                 (autocompleteChanged)="setAutocomplete()"
@@ -36,7 +35,7 @@
       </app-node>
     </ng-container>
 
-    <div class="btn-circle btn btn-primary" id="run" (click)="runPlan()"><i class="fa fa-play"></i></div>
+    <div class="btn-circle btn btn-primary" id="run" (click)="clickRun($event)"><i class="fa fa-play"></i></div>
     <div id="menu-top-left">
       <div class="btn-group">
         <a [routerLink]="[]" class="btn btn-light btn-sm" (click)="exportTree()">export</a>

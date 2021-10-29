@@ -3,7 +3,19 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DeleteRequest, EditTableRequest, ExploreTable, MaterializedRequest, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
+import {
+  ColumnRequest,
+  ConstraintRequest,
+  DeleteRequest, EditCollectionRequest,
+  EditTableRequest,
+  ExploreTable,
+  QueryRequest,
+  RelAlgRequest,
+  Schema,
+  SchemaRequest,
+  StatisticRequest, MaterializedRequest,
+  TableRequest
+} from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
@@ -170,6 +182,13 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/createTable`, tableRequest, this.httpOptions);
   }
 
+  /**
+   * Create a new collection
+   */
+  createCollection(collectionRequest: EditCollectionRequest) {
+    return this._http.post(`${this.httpUrl}/createCollection`, collectionRequest, this.httpOptions);
+  }
+
   getGeneratedNames() {
     return this._http.get(`${this.httpUrl}/getGeneratedNames`, this.httpOptions);
   }
@@ -326,16 +345,16 @@ export class CrudService {
   /**
    * Execute a relational algebra
    */
-  executeRelAlg ( socket: WebSocket, relAlg: Node, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?: string, timeUnit?): boolean {
+  executeRelAlg ( socket: WebSocket, relAlg: Node, cache: boolean, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?: string, timeUnit?): boolean {
     let request;
     if(createView){
       if(tableType === 'CREATE MATERIALIZED VIEW'){
-        request = new RelAlgRequest( relAlg, createView, 'materialized',viewName, store, freshness, interval, timeUnit);
+        request = new RelAlgRequest( relAlg, cache, createView, 'materialized',viewName, store, freshness, interval, timeUnit);
       }else{
-        request = new RelAlgRequest( relAlg, createView, 'view',  viewName);
+        request = new RelAlgRequest( relAlg, cache, createView, 'view',  viewName);
       }
     }else{
-      request = new RelAlgRequest( relAlg );
+      request = new RelAlgRequest( relAlg, cache );
     }
     return socket.sendMessage( request );
   }
@@ -445,6 +464,10 @@ export class CrudService {
 
   getUsedDockerPorts() {
     return this._http.get(`${this.httpUrl}/usedDockerPorts`);
+  }
+
+  getDocumentDatabases() {
+    return this._http.get(`${this.httpUrl}/getDocumentDatabases`);
   }
 
   /**

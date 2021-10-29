@@ -3,7 +3,8 @@
   <div class="col-lg-12">
     <h5 *ngIf="schema">{{schema}}</h5>
     <p *ngIf="uml">Drag a connection from a column to a <span class="badge" id="badge-pk">primary key</span> or <span class="badge" id="badge-unique">unique column</span> to create a new foreign key.</p>
-    <span *ngIf="!schema">Please select a schema in the left sidebar.</span>
+    <span *ngIf="!schema">Please select a schema in the left sidebar. Document schemas and tables originating from a data source are not support.</span>
+    <span *ngIf="schemaType === 'document'"><i>Document schemas do not support the UML builder.</i></span>
   </div>
   <div id="drag-container" class="col-lg-12" *ngIf="uml">
     <div class="card uml" *ngFor="let table of uml.tables | value" [id]="table.schema+'_'+table.tableName" [attr.tableName]="table.schema+'.'+table.tableName" cdkDragBoundary="#drag-container" cdkDrag (cdkDragEnded)="updateZIndex($event)" (cdkDragStarted)="onDragging($event)">

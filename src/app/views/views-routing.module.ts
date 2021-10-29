@@ -47,7 +47,7 @@ const routes: Routes = [
   },
   {
     path: 'querying',
-    redirectTo: 'querying/sql-console',
+    redirectTo: 'querying/console',
     pathMatch: 'full'
   },
   {

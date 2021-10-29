@@ -50,3 +50,7 @@ Thumbs.db
 # build
 /build/
 /test-helper/build/
+
+# cypress
+*.mp4
+/cypress/screenshots/

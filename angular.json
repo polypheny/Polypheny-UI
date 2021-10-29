@@ -11,6 +11,15 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "allowedCommonJsDependencies": [
+              "lodash",
+              "jquery",
+              "jquery-ui",
+              "highlightjs",
+              "chart.js",
+              "graphlib-dot",
+              "dagre-d3"
+            ],
             "aot": true,
             "outputPath": "dist",
             "index": "src/index.html",

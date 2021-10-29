@@ -24,6 +24,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   dropSubmitted = false;
   createSchemaFeedback = 'Schema name is invalid';
   private subscriptions = new Subscription();
+  schemaType: any;
 
   constructor(
     private _route: ActivatedRoute,
@@ -38,6 +39,10 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     this.getRouteParam();
     this.getSchema();
     this.initForms();
+    this._route.params.subscribe((ev) => {
+      this.getSchemaType();
+    });
+
     const sub = this._crud.onReconnection().subscribe(
       b => {
         this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2,false, true), this._router);
@@ -66,6 +71,21 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
       }, err => {
         console.log(err);
       }
+    );
+  }
+
+  getSchemaType() {
+    if ( !this.routeParam ) {
+      return;
+    }
+    const schema = this.routeParam.split('.')[0];
+    this._crud.getTypeSchemas().subscribe(
+        res => {
+          this.schemaType = res[schema];
+          this._leftSidebar.schemaType = res[schema];
+        }, error => {
+          console.log(error);
+        }
     );
   }
 

@@ -11,6 +11,7 @@ export class SidebarNode {
   allowDrag = false;
   children: SidebarNode[] = [];
   isSeparator = false;
+  schemaType: string;
   action: (tree, node, $event) => any = null;
   private autoExpand = true;
   private autoActive = true;
