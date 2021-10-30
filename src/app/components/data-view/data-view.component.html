@@ -66,12 +66,12 @@
                         <div class="d-flex justify-content-between">
 
                             <input type="text" id="viewName" placeholder="view name" class="form-control" style="max-width: 200px;"
-                                   [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" (keyup.enter)="createViewCode(true)">
+                                   [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" (keyup.enter)="createViewCode(true, false)">
                             <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary ml-2"
-                                    [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(true)">show
+                                    [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(true, false)">show
                             </button>
                             <button class="btn btn-primary ml-2"
-                                    [disabled]="!creatingView ? 'disabled': null" (click)="submitCreateView(true)">execute
+                                    [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(true, true)">execute
                             </button>
 
                         </div>
@@ -130,10 +130,10 @@
 
 
                     <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary"
-                            [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(false)" (keyup.enter)="createViewCode(false)">show
+                            [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(false, false)" (keyup.enter)="createViewCode(false, false)">show
                     </button>
                     <button class="btn btn-primary ml-2"
-                            [disabled]="!creatingView ? 'disabled': null" (click)="submitCreateView(false)">execute
+                            [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(false, true)">execute
                     </button>
 
                 </div>

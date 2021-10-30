@@ -20,6 +20,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {WebSocket} from '../../../services/webSocket';
 import {UtilService} from '../../../services/util.service';
+import {ViewInformation} from '../../../components/data-view/data-view.component';
 
 @Component({
   selector: 'app-relational-algebra',
@@ -493,39 +494,20 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  createView(viewInformation: string[]){
+  createView(info: ViewInformation){
 
-    const tree = this.getTree();
-    const createView = true;
-    const tableType = viewInformation[0];
-    const viewName = viewInformation[1];
-    let store;
-    if (5 in viewInformation){
-      store = viewInformation[5];
 
-    }else{
-      store = null;
-    }
-    let freshness;
-    if (7 in viewInformation){
-      freshness = viewInformation[7];
-    }else{
-      freshness = null;
-    }
-    let interval;
-    if (8 in viewInformation){
-      interval = viewInformation[8];
-    }else{
-      interval = null;
-    }
-    let timeUnit;
-    if (9 in viewInformation){
-      timeUnit = viewInformation[9];
-    }else{
-      timeUnit = null;
-    }
-
-    this._crud.executeRelAlg(this.webSocket, tree, this.cache,  createView, tableType, viewName[1], store, freshness, interval, timeUnit);
+    this._crud.executeRelAlg(
+        this.webSocket,
+        this.getTree(),
+        this.cache,
+        true,
+        info.tableType,
+        info.newViewName,
+        info.stores,
+        info.freshness,
+        info.interval as unknown as string,
+        info.timeUnit);
   }
 
 

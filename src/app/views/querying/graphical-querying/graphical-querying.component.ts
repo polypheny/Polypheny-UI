@@ -15,6 +15,7 @@ import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {WebSocket} from '../../../services/webSocket';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
+import {ViewInformation} from '../../../components/data-view/data-view.component';
 
 @Component({
   selector: 'app-graphical-querying',
@@ -490,12 +491,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     });
   }
 
-  createView(viewEditorCode: string[][]){
-    this.editorGenerated.setCode(viewEditorCode[0].join(' ') + this.editorGenerated.getCode() + viewEditorCode[1].join(' '));
+  createView(info: ViewInformation){
+    this.editorGenerated.setCode(info.fullQuery);
   }
 
-  executeView(viewEditorCode: string[]){
-    this.editorGenerated.setCode(viewEditorCode.join(' '));
+  executeView(info: ViewInformation){
+    this.editorGenerated.setCode(info.fullQuery);
     this.executeQuery();
   }
 

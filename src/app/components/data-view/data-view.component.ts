@@ -1,15 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges,
-  TemplateRef,
-  ViewChild
-} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild} from '@angular/core';
 import {DataPresentationType, ResultSet} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
@@ -30,6 +19,24 @@ import {DbTable} from '../../views/uml/uml.model';
 import {TableModel} from '../../views/schema-editing/edit-tables/edit-tables.component';
 import {Store} from '../../views/adapters/adapter.model';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
+
+export class ViewInformation {
+  freshness: string;
+  fullQuery: string;
+  tableType: string;
+  newViewName: string;
+  initialQuery: string;
+  stores: string;
+  interval: number;
+  timeUnit: string;
+
+
+  constructor(tableType: string, newViewName: string) {
+    this.tableType = tableType;
+    this.newViewName = newViewName;
+  }
+
+}
 
 @Component({
   selector: 'app-data-view',
@@ -90,7 +97,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   intervalSelected = 10;
   stores: Store[];
   storeOptions:Array<String>;
-  storeSelected:String;
+  storeSelected: string;
 
 
 
@@ -517,58 +524,56 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     this.viewOptions='view';
     this.getAllTables();
     this.modalRefCreateView = this.modalService.show(createView);
-    this.sqlQuery = '\n' + sqlQuery;
+    this.sqlQuery = sqlQuery;
 
   }
 
 
 
-  createViewCode(isView: boolean) {
+  createViewCode(isView: boolean, doExecute: boolean) {
     if(this.checkIfPossible()){
+      const info = new ViewInformation(isView ? 'MATERIALIZED' : 'VIEW', this.newViewName);
+
+      let viewData;
       if(!isView){
-        let viewData;
-        if(this.freshnessSelected === 'MANUAL'){
-          viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nON STORE',this.storeSelected,'\nFRESHNESS', this.freshnessSelected]];
-        }else if (this.freshnessSelected === 'UPDATE'){
-          viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nON STORE',this.storeSelected,'\nFRESHNESS', this.freshnessSelected, this.intervalSelected]];
-        }else {
-          viewData = [['CREATE MATERIALIZED VIEW', this.newViewName, 'AS \n'],['\nON STORE',this.storeSelected,'\nFRESHNESS', this.freshnessSelected, this.intervalSelected, this.timeUniteSelected]];
+        viewData = `CREATE MATERIALIZED VIEW ${this.newViewName} AS\n${this.sqlQuery}\nON STORE ${this.storeSelected}\nFRESHNESS ${this.freshnessSelected}`;
+
+        info.initialQuery = this.sqlQuery;
+        info.stores = this.storeSelected;
+        info.freshness = this.freshnessSelected;
+        info.tableType = 'MATERIALIZED';
+
+        if (this.freshnessSelected === 'UPDATE'){
+          viewData +=` ${this.intervalSelected}`;
+          info.interval = this.intervalSelected;
+
+        }else if (this.freshnessSelected === 'INTERVAL') {
+          viewData += ` ${this.intervalSelected} ${this.timeUniteSelected}`;
+          info.interval = this.intervalSelected;
+          info.timeUnit = this.timeUniteSelected;
+
         }
-        this.viewEditorCode.emit(viewData);
-        this.modalRefCreateView.hide();
-        this.gotTables = false;
       }else{
-        const viewData = ['CREATE VIEW', this.newViewName, 'AS \n'];
-        this.viewEditorCode.emit(viewData);
-        this.modalRefCreateView.hide();
-        this.gotTables = false;
+        viewData = `CREATE VIEW ${this.newViewName} AS\n${this.sqlQuery} `;
+        info.initialQuery = this.sqlQuery;
+        info.tableType = 'VIEW';
+
       }
+
+      info.fullQuery = viewData;
+
+      if( doExecute ){
+        this.executeView.emit(info);
+      }else {
+        this.viewEditorCode.emit(info);
+      }
+
+      this.modalRefCreateView.hide();
+      this.gotTables = false;
 
     }
   }
 
-  submitCreateView(isView: boolean) {
-    if(this.checkIfPossible()){
-      if(!isView){
-        let viewData;
-        if(this.freshnessSelected === 'MANUAL'){
-          viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nON STORE', this.storeSelected,'\nFRESHNESS', this.freshnessSelected];
-        }else if (this.freshnessSelected === 'UPDATE'){
-          viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nON STORE', this.storeSelected,'\nFRESHNESS', this.freshnessSelected, this.intervalSelected];
-        }else {
-          viewData = ['CREATE MATERIALIZED VIEW', this.newViewName, 'AS', this.sqlQuery, '\nON STORE', this.storeSelected,'\nFRESHNESS', this.freshnessSelected, this.intervalSelected, this.timeUniteSelected];
-        }
-        this.executeView.emit(viewData);
-        this.modalRefCreateView.hide();
-        this.gotTables = false;
-      }else{
-        const viewData = ['CREATE VIEW', this.newViewName, 'AS', this.sqlQuery];
-        this.executeView.emit(viewData);
-        this.modalRefCreateView.hide();
-        this.gotTables = false;
-      }
-    }
-  }
 
   checkIfPossible(){
     if (this.newViewName === '') {
