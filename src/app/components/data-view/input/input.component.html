@@ -72,7 +72,7 @@
       <div class="input-group-append" *ngIf="header.nullable">
         <div class="btn btn-sm"
              [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}"
-             (click)="onValueChange( triggerNull(value) )">null
+             (click)="onValueChange( triggerNull(value) )">
         </div>
       </div>
       <span class="feedback invalid-feedback" *ngIf="validate(defaultInput)?.message">{{validate(defaultInput)?.message}}</span>

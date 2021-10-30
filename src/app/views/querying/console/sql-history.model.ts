@@ -1,11 +1,14 @@
 import * as moment from 'moment';
 
+
 export class SqlHistory {
     query: string;
     time: Date;
+    lang: string;
 
-    constructor ( query: string, time = null ) {
+    constructor ( query: string, time = null, lang = 'sql' ) {
         this.query = query;
+        this.lang = lang;
         if( time === null) {
             this.time = new Date();
         } else {
@@ -14,12 +17,14 @@ export class SqlHistory {
     }
 
     static fromJson ( json: string, map: Map<string, SqlHistory> ): void {
-        if( json === null ) return;
+        if( json === null ) {
+            return;
+        }
         const obj = JSON.parse( json );
 
         for ( const key in obj ) {
             if( obj.hasOwnProperty(key) ){
-                map.set( obj[key].query, new SqlHistory( obj[key].query, obj[key].time) );
+                map.set( obj[key].query, new SqlHistory( obj[key].query, obj[key].time, obj[key].lang) );
             }
         }
     }

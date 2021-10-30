@@ -38,6 +38,7 @@ import {ViewsModule} from './views/views.module';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { PopoverModule } from 'ngx-bootstrap/popover';
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { NgxJsonViewerModule } from 'ngx-json-viewer';
 
 @NgModule({
   imports:[
@@ -63,14 +64,15 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     HttpClientModule,
     ViewsModule,
     PopoverModule.forRoot(),
-    ModalModule.forRoot()
+    ModalModule.forRoot(),
+    NgxJsonViewerModule
   ],
   declarations: [
     AppComponent,
     DefaultLayoutComponent,
     P404Component,
     P500Component,
-    LoginComponent
+    LoginComponent,
   ],
   providers: [{
     provide: LocationStrategy,
