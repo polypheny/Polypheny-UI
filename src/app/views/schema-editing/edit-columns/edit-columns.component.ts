@@ -985,4 +985,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     return _.capitalize(name);
   }
 
+  getOrNull(array: [], index: number) {
+    if( array !== null && array !== undefined ){
+      return array[index];
+    }else{
+      return '';
+    }
+  }
 }

@@ -78,7 +78,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   resultSetEvent = new EventEmitter<ResultSet>();
   modalRefCreateView: BsModalRef;
   viewName = 'viewname';
-  sqlQuery: string;
+  query: string;
   exploringShowView = false;
   creatingView = false;
   newViewName = '';
@@ -524,7 +524,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     this.viewOptions='view';
     this.getAllTables();
     this.modalRefCreateView = this.modalService.show(createView);
-    this.sqlQuery = sqlQuery;
+    this.query = sqlQuery;
 
   }
 
@@ -533,34 +533,25 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   createViewCode(isView: boolean, doExecute: boolean) {
     if(this.checkIfPossible()){
       const info = new ViewInformation(isView ? 'MATERIALIZED' : 'VIEW', this.newViewName);
+      info.initialQuery = this.query;
+      let fullQuery;
 
-      let viewData;
       if(!isView){
-        viewData = `CREATE MATERIALIZED VIEW ${this.newViewName} AS\n${this.sqlQuery}\nON STORE ${this.storeSelected}\nFRESHNESS ${this.freshnessSelected}`;
+        if ( this.resultSet.schemaType === 'document'){
+          this._toast.error('Materialized views are not jet supported for document queries.');
+          return;
+        }
 
-        info.initialQuery = this.sqlQuery;
-        info.stores = this.storeSelected;
-        info.freshness = this.freshnessSelected;
+        fullQuery = this.getMaterializedViewQuery(info);
         info.tableType = 'MATERIALIZED';
 
-        if (this.freshnessSelected === 'UPDATE'){
-          viewData +=` ${this.intervalSelected}`;
-          info.interval = this.intervalSelected;
-
-        }else if (this.freshnessSelected === 'INTERVAL') {
-          viewData += ` ${this.intervalSelected} ${this.timeUniteSelected}`;
-          info.interval = this.intervalSelected;
-          info.timeUnit = this.timeUniteSelected;
-
-        }
       }else{
-        viewData = `CREATE VIEW ${this.newViewName} AS\n${this.sqlQuery} `;
-        info.initialQuery = this.sqlQuery;
+        fullQuery = this.getViewQuery();
         info.tableType = 'VIEW';
 
       }
 
-      info.fullQuery = viewData;
+      info.fullQuery = fullQuery;
 
       if( doExecute ){
         this.executeView.emit(info);
@@ -574,6 +565,70 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+
+  private getViewQuery() {
+    if( this.resultSet.schemaType === 'document'){
+      let source;
+      let pipeline;
+
+      const temp = this.query.trim().split('.');
+      if( temp[0] === 'db') {
+        temp.shift(); // remove db
+      }
+      source = temp[0];
+      if( temp[0].includes('getCollection(')){
+        source = source
+        .replace('getCollection(', '')
+        .replace(')', '');
+      }
+      temp.shift(); // remove collection
+      temp[0] = temp[0].replace('aggregate(', '').replace('find(', '');
+      temp[temp.length-1] = temp[temp.length-1].slice(0, -1); // remove last bracket
+      
+      if( this.query.includes('.aggregate(')){
+
+        pipeline = temp.join('.');
+      }else if ( this.query.includes('.find(')){
+        const json = JSON.parse('[' + temp.join('.') + ']');
+
+        pipeline = '[';
+        if( json.length > 0 ){
+          pipeline += `{ "$match": ${JSON.stringify(json[0])} }`;
+        }
+        if ( json.length > 1 ) {
+          pipeline += `, { "$project": ${JSON.stringify(json[1])} }`;
+        }
+        pipeline += ']';
+      }else {
+        this._toast.error('This query cannot be used to create a view.');
+        return;
+      }
+
+      return `db.createView(\n\t"${this.newViewName}",\n\t"${source.replace('"', '')}",\n\t${pipeline}\n)`;
+    }else {
+      return `CREATE VIEW ${this.newViewName} AS\n${this.query} `;
+    }
+  }
+
+  private getMaterializedViewQuery( info: ViewInformation) {
+    let query = `CREATE MATERIALIZED VIEW ${this.newViewName} AS\n${this.query}\nON STORE ${this.storeSelected}\nFRESHNESS ${this.freshnessSelected}`;
+
+
+    info.stores = this.storeSelected;
+    info.freshness = this.freshnessSelected;
+
+    if (this.freshnessSelected === 'UPDATE') {
+      query += ` ${this.intervalSelected}`;
+      info.interval = this.intervalSelected;
+
+    } else if (this.freshnessSelected === 'INTERVAL') {
+      query += ` ${this.intervalSelected} ${this.timeUniteSelected}`;
+      info.interval = this.intervalSelected;
+      info.timeUnit = this.timeUniteSelected;
+
+    }
+    return query;
+  }
 
   checkIfPossible(){
     if (this.newViewName === '') {
@@ -649,5 +704,11 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     this.exploringShowView = eShowView;
   }
 
+  isDMLResult() {
+    return this.resultSet
+        && this.resultSet.affectedRows === 1
+        && this.resultSet.header[0].dataType === 'BIGINT'
+        && this.resultSet.header[0].name === 'ROWCOUNT';
+  }
 }
 

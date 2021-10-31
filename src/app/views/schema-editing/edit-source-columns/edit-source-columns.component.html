@@ -14,7 +14,7 @@
         <th>Type</th>
         <th>Collection</th>
         <th>Parameters</th>
-        <th *ngIf="dataPlacement.tableType != 'VIEW'">Default</th>
+        <th *ngIf="dataPlacement && dataPlacement.tableType != 'VIEW'">Default</th>
         <th class="small-col"></th>
       </tr>
       </thead>
