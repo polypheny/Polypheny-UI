@@ -19,6 +19,7 @@ import {DbTable} from '../../views/uml/uml.model';
 import {TableModel} from '../../views/schema-editing/edit-tables/edit-tables.component';
 import {Store} from '../../views/adapters/adapter.model';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
+import {FormGroup} from '@angular/forms';
 
 export class ViewInformation {
   freshness: string;
@@ -38,12 +39,33 @@ export class ViewInformation {
 
 }
 
+enum ViewType {
+  VIEW = 'VIEW',
+  MATERIALIZED = 'MATERIALIZED'
+}
+
 @Component({
   selector: 'app-data-view',
   templateUrl: './data-view.component.html',
   styleUrls: ['./data-view.component.scss']
 })
 export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
+
+
+  constructor(
+      public _crud: CrudService,
+      public _toast: ToastService,
+      public _route: ActivatedRoute,
+      public _router: Router,
+      public _types: DbmsTypesService,
+      public _settings: WebuiSettingsService,
+      public _sidebar: LeftSidebarService,
+      public modalService: BsModalService
+  ) {
+    this.webSocket = new WebSocket(_settings);
+    this.initWebsocket();
+
+  }
 
   @Input() resultSet: ResultSet;
   @Input() config: TableConfig;
@@ -56,6 +78,8 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   @Input() exploreId?: number;
   @Input() tutorialMode: boolean;
 
+
+  ViewType = ViewType;
   presentationType: DataPresentationType = DataPresentationType.TABLE;
   //see https://stackoverflow.com/questions/35835984/how-to-use-a-typescript-enum-value-in-an-angular2-ngswitch-statement
   presentationTypes: typeof DataPresentationType = DataPresentationType;
@@ -98,23 +122,10 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   stores: Store[];
   storeOptions:Array<String>;
   storeSelected: string;
+  chooseNameForView: FormGroup;
 
-
-
-  constructor(
-      public _crud: CrudService,
-      public _toast: ToastService,
-      public _route: ActivatedRoute,
-      public _router: Router,
-      public _types: DbmsTypesService,
-      public _settings: WebuiSettingsService,
-      public _sidebar: LeftSidebarService,
-      public modalService: BsModalService
-  ) {
-    this.webSocket = new WebSocket(_settings);
-    this.initWebsocket();
-
-  }
+  // see https://stackoverflow.com/questions/52017809/how-to-convert-string-to-boolean-in-typescript-angular-4
+  showView: ViewType;
 
   ngOnInit(): void {
     //ngOnInit is overwritten by subclasses
@@ -359,8 +370,6 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       this.editing = i;
     }
   }
-
-  // see https://stackoverflow.com/questions/52017809/how-to-convert-string-to-boolean-in-typescript-angular-4
   getBoolean(value: any): Boolean {
     switch (value) {
       case true:
@@ -521,6 +530,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
   openCreateView(createView: TemplateRef<any>, sqlQuery: string) {
     this.getStores();
+    this.showView = null;
     this.viewOptions='view';
     this.getAllTables();
     this.modalRefCreateView = this.modalService.show(createView);
@@ -710,5 +720,6 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         && this.resultSet.header[0].dataType === 'BIGINT'
         && this.resultSet.header[0].name === 'ROWCOUNT';
   }
+  
 }
 
