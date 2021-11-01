@@ -46,7 +46,7 @@
         <div class="modal-header">
             <h4 *ngIf="showView === null" >Type</h4>
             <h4 *ngIf="showView != null" style="text-transform: capitalize;">
-                {{ 'Options ' + showView === ViewType.VIEW ? 'View' : 'Materialized View' }}
+                {{ showView === ViewType.VIEW ? 'View' : 'Materialized View' }}
             </h4>
             <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefCreateView.hide()">
                 <span aria-hidden="true">&times;</span>
@@ -70,7 +70,7 @@
                     <div class="form-group">
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <label for="viewName" class="input-group-text">View Name</label>
+                                <label for="viewName" class="input-group-text">Name</label>
                             </div>
                             <input type="text" id="viewName" placeholder="view name" class="form-control" style="max-width: 200px;"
                                    [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" (keyup.enter)="createViewCode(true, false)">
@@ -163,18 +163,18 @@
         <div class="modal-footer" *ngIf="showView !== null">
             <div *ngIf="showView === ViewType.VIEW">
                 <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary ml-2"
-                        [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(true, false)">show
+                        [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(true, false)">Show
                 </button>
                 <button class="btn btn-primary ml-2"
-                        [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(true, true)">execute
+                        [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(true, true)">Execute
                 </button>
             </div>
             <div *ngIf="showView === ViewType.MATERIALIZED">
                 <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary"
-                        [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(false, false)" (keyup.enter)="createViewCode(false, false)">show
+                        [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(false, false)" (keyup.enter)="createViewCode(false, false)">Show
                 </button>
                 <button class="btn btn-primary ml-2"
-                        [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(false, true)">execute
+                        [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(false, true)">Execute
                 </button>
             </div>
         </div>
