@@ -18,7 +18,7 @@
                     tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
         </div>
         <div>
-            <button *ngIf="resultSet.data && !(_router.url.startsWith('/views/data-table/')) && !isDMLResult()" class="btn btn-light viewButton" tooltip="create view"
+            <button *ngIf="resultSet.data && !(_router.url.startsWith('/views/data-table/')) && !isDMLResult() && resultSet.languageType !== 'cql'" class="btn btn-light viewButton" tooltip="create view"
                     (click)="openCreateView(createView, resultSet.generatedQuery)">
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </button>
