@@ -616,11 +616,17 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
       return `db.createView(\n\t"${this.newViewName}",\n\t"${source.replace('"', '')}",\n\t${pipeline}\n)`;
     }else {
+      if(this.query.startsWith('\n')){
+        this.query = this.query.replace('\n', '');
+      }
       return `CREATE VIEW ${this.newViewName} AS\n${this.query} `;
     }
   }
 
   private getMaterializedViewQuery( info: ViewInformation) {
+    if(this.query.startsWith('\n')){
+      this.query = this.query.replace('\n', '');
+    }
     let query = `CREATE MATERIALIZED VIEW ${this.newViewName} AS\n${this.query}\nON STORE ${this.storeSelected}\nFRESHNESS ${this.freshnessSelected}`;
 
 
