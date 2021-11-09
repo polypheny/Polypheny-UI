@@ -726,6 +726,10 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         && this.resultSet.header[0].dataType === 'BIGINT'
         && this.resultSet.header[0].name === 'ROWCOUNT';
   }
-  
+
+  checkModelAndLanguage() {
+    return (this.resultSet.schemaType === 'document' && this.resultSet.languageType === 'mql') ||
+        (this.resultSet.schemaType === 'relational' && this.resultSet.languageType === 'sql');
+  }
 }
 
