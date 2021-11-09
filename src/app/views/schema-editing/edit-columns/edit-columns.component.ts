@@ -1,25 +1,18 @@
-import {Component, OnInit, OnDestroy, ViewChild, HostListener} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
-import {
-  DbColumn, FieldType,
-  Index, ModifyPartitionRequest, PartitionFunctionModel,
-  PartitioningRequest,
-  PolyType,
-  ResultSet,
-  TableConstraint
-} from '../../../components/data-view/models/result-set.model';
+import {DbColumn, FieldType, Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, ResultSet, TableConstraint} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {ColumnRequest, ConstraintRequest, EditTableRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../adapters/adapter.model';
+import {CatalogColumnPlacement, MaterializedInfos, Placements, PlacementType, Store} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
 import {Subscription} from 'rxjs';
-import {DbTable, ForeignKey, SvgLine, Uml} from '../../../views/uml/uml.model';
+import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 
 @Component({
   selector: 'app-edit-columns',
@@ -56,6 +49,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   indexSubmitted = false;
   proposedIndexName = 'indexName';
   addingIndex = false;
+
+  materializedInfo: [];
 
   //data placement handling
   stores: Store[];
@@ -151,6 +146,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     return this.resultSet.type.toLowerCase() === 'view';
   }
 
+  isMaterialized() {
+    if(!this.resultSet){
+      return false;
+    }
+    return this.resultSet.type.toLowerCase() === 'materialized';
+  }
+
   getColumns () {
     this._crud.getColumns( new ColumnRequest( this.tableId )).subscribe(
       res => {
@@ -211,6 +213,59 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       this.editColumn = i;
     }
   }
+
+  getMaterializedInfo(){
+    this._crud.getMaterializedInfo(new EditTableRequest(this.schema, this.table)).subscribe(
+        res => {
+          const mat = <MaterializedInfos> res;
+          this.materializedInfo = mat.materializedInfo;
+        }, err => {
+          console.log(err);
+        }
+    );
+  }
+
+  updateMaterialized(){
+    const req = new MaterializedRequest(this.tableId);
+    this._crud.updateMaterialized(req).subscribe(
+        res => {
+          const result = <ResultSet> res;
+          this.getMaterializedInfo();
+          if( result.error ){
+            this._toast.exception(result, 'Could not update materialized view:');
+          }else{
+            this._toast.success('Materialized view was updated', result.generatedQuery, 'Updated');
+          }
+        }, err => {
+          this._toast.error('Could not update materialized view due to an error on the server.', null, ToastDuration.INFINITE);
+          console.log(err);
+        }
+    );
+  }
+
+
+  updateMaterializedColumn(oldCol: DbColumn, newName){
+    const newCol = Object.assign({}, oldCol);
+    newCol.name = newName;
+    const req = new ColumnRequest( this.tableId, oldCol,  newCol, true, 'MATERIALIZED' );
+
+    this._crud.updateColumn( req ).subscribe(
+        res => {
+          const result = <ResultSet> res;
+          this.editColumn = -1;
+          this.getColumns();
+          if( result.error ){
+            this._toast.exception(result, 'Could not update column:');
+          }else{
+            this._toast.success('The column was renamed.', result.generatedQuery, 'column saved');
+          }
+        }, err => {
+          this._toast.error('Could not save column due to an error on the server.', null, ToastDuration.INFINITE);
+          console.log(err);
+        }
+    );
+  }
+
 
   saveCol() {
     if( ! this._crud.nameIsValid( this.updateColumn.controls['name'].value ) ){
@@ -585,6 +640,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         for(const s of this.dataPlacements.stores){
           s.columnPlacements.sort((a,b) => a.columnId - b.columnId);
         }
+
+        if(this.isMaterialized()){
+          this.getMaterializedInfo();
+        }
+
         this.getIndexes();
         this.initNewIndexValues();
         if( this.dataPlacements.exception ){
@@ -925,4 +985,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     return _.capitalize(name);
   }
 
+  getOrNull(array: [], index: number) {
+    if( array !== null && array !== undefined ){
+      return array[index];
+    }else{
+      return '';
+    }
+  }
 }

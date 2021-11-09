@@ -3,19 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {
-  ColumnRequest,
-  ConstraintRequest,
-  DeleteRequest, EditCollectionRequest,
-  EditTableRequest,
-  ExploreTable,
-  QueryRequest,
-  RelAlgRequest,
-  Schema,
-  SchemaRequest,
-  StatisticRequest,
-  TableRequest
-} from '../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, ExploreTable, MaterializedRequest, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
@@ -143,6 +131,14 @@ export class CrudService {
    */
   updateColumn ( columnRequest: ColumnRequest ) {
     return this._http.post(`${this.httpUrl}/updateColumn`, columnRequest, this.httpOptions);
+  }
+
+  updateMaterialized(materializedRequest: MaterializedRequest){
+    return this._http.post(`${this.httpUrl}/updateMaterialized`, materializedRequest, this.httpOptions);
+  }
+
+  getMaterializedInfo(materializedRequest: EditTableRequest){
+    return this._http.post(`${this.httpUrl}/getMaterializedInfo`, materializedRequest, this.httpOptions);
   }
 
   addColumn ( columnRequest: ColumnRequest ) {
@@ -337,10 +333,14 @@ export class CrudService {
   /**
    * Execute a relational algebra
    */
-  executeRelAlg ( socket: WebSocket, relAlg: Node, cache: boolean, createView?: boolean, viewName?: string): boolean {
+  executeRelAlg ( socket: WebSocket, relAlg: Node, cache: boolean, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?: string, timeUnit?): boolean {
     let request;
     if(createView){
-      request = new RelAlgRequest( relAlg, cache, createView, viewName);
+      if(tableType === 'MATERIALIZED'){
+        request = new RelAlgRequest( relAlg, cache, createView, 'materialized',viewName, store, freshness, interval, timeUnit);
+      }else{
+        request = new RelAlgRequest( relAlg, cache, createView, 'view',  viewName);
+      }
     }else{
       request = new RelAlgRequest( relAlg, cache );
     }

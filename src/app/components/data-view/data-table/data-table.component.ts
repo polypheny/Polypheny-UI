@@ -433,6 +433,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
   createViewButton(createViewExample){
     this.modalRefCreateView = this.modalService.show(createViewExample);
     this.getAllTables();
+    this.getStores();
 
   }
 
@@ -459,5 +460,25 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     this.gotTables = false;
   }
 
+
+  submitCreateViewExample(createdSQL){
+
+    let viewData;
+    if(this.freshnessSelected === 'MANUAL'){
+      viewData = 'CREATE MATERIALIZED VIEW ' + this.newViewName + ' AS ' + createdSQL + '\nON STORE ' + this.storeSelected + '\nFRESHNESS ' + this.freshnessSelected;
+    }else if (this.freshnessSelected === 'UPDATE'){
+      viewData = 'CREATE MATERIALIZED VIEW ' + this.newViewName + ' AS ' + createdSQL + '\nON STORE ' + this.storeSelected + '\nFRESHNESS ' + this.freshnessSelected + ' ' + this.intervalSelected;
+    }else {
+      viewData = 'CREATE MATERIALIZED VIEW ' + this.newViewName + ' AS ' + createdSQL + '\nON STORE ' + this.storeSelected + '\nFRESHNESS ' + this.freshnessSelected + ' ' +  this.intervalSelected + ' ' + this.timeUniteSelected;
+    }
+
+
+    console.log(viewData);
+    this.executeCreateView(viewData);
+
+    this.modalRefCreateView.hide();
+    this.gotTables = false;
+
+  }
 
 }

@@ -27,14 +27,24 @@ export class RelAlgRequest extends UIRequest {
   requestType = 'RelAlgRequest';
   topNode: Node;
   createView: boolean;
+  tableType; string;
   viewName: string;
+  store: string;
+  freshness: string;
+  interval;
+  timeUnit: string;
   useCache: boolean;
-  constructor( node: Node, cache: boolean, createView?: boolean, viewName?: string ) {
+  constructor( node: Node, cache: boolean, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?, timeUnit?: string ) {
     super();
     this.topNode = node;
     this.useCache = cache;
     this.createView = createView || false;
+    this.tableType = tableType || 'table';
     this.viewName = viewName || 'viewName';
+    this.store = store || null;
+    this.freshness = freshness || null;
+    this.interval = interval || null;
+    this.timeUnit = timeUnit || null;
   }
 }
 
@@ -178,14 +188,24 @@ export class ColumnRequest extends UIRequest {
   oldColumn: DbColumn;
   newColumn: DbColumn;
   renameOnly: boolean;
-  constructor( tableId: string, oldColumn: DbColumn = null, newColumn: DbColumn = null, renameOnly = false ) {
+  tableType: string;
+  constructor( tableId: string, oldColumn: DbColumn = null, newColumn: DbColumn = null, renameOnly = false, tableType:string = 'table' ) {
     super();
     this.tableId = tableId;
     this.oldColumn = oldColumn;
     this.newColumn = newColumn;
     this.renameOnly = renameOnly;
+    this.tableType = tableType;
   }
 }
+
+export class MaterializedRequest extends UIRequest{
+  constructor(tableId: string) {
+    super();
+    this.tableId = tableId;
+  }
+}
+
 
 /**
  * Edit or create a Table
@@ -206,7 +226,7 @@ export class EditTableRequest {
     this.action = action;
     this.columns = columns;
     this.store = store;
-    this.tableType = tableType;
+    this.tableType = tableType || 'TABLE';
   }
 
   getAction() {

@@ -182,5 +182,8 @@
     "@schematics/angular:class": {
       "skipTests": true
     }
+  },
+  "cli": {
+    "analytics": "c9aecf11-4a90-4872-af81-26ab5b9af745"
   }
 }

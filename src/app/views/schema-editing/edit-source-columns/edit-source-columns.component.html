@@ -14,7 +14,7 @@
         <th>Type</th>
         <th>Collection</th>
         <th>Parameters</th>
-        <th *ngIf="dataPlacement.tableType != 'VIEW'">Default</th>
+        <th *ngIf="dataPlacement && dataPlacement.tableType != 'VIEW'">Default</th>
         <th class="small-col"></th>
       </tr>
       </thead>
@@ -23,11 +23,11 @@
         <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
         <td>
           <span *ngIf="editingCol !== col.physicalName">{{col.name}}</span>
-          <i *ngIf="editingCol !== col.physicalName && dataPlacement.tableType != 'VIEW'" class="cui-pencil rename ml-2" (click)="editingCol = col.physicalName"></i>
+          <i *ngIf="editingCol !== col.physicalName" class="cui-pencil rename ml-2" (click)="editingCol = col.physicalName"></i>
           <div class="input-group input-group-sm" *ngIf="editingCol === col.physicalName" style="max-width: 200px">
-            <input type="text" class="form-control form-control-sm" [placeholder]="col.name" autofocus (keyup.enter)="renameCol(col, columnNameInput.value)" #columnNameInput>
+            <input type="text" class="form-control form-control-sm" [placeholder]="col.name" autofocus (keyup.enter)="renameCol(col, columnNameInput.value, dataPlacement.tableType)" #columnNameInput>
             <div class="input-group-append">
-              <button class="btn btn-primary btn-sm input-group" (click)="renameCol(col, columnNameInput.value)">rename</button>
+              <button class="btn btn-primary btn-sm input-group" (click)="renameCol(col, columnNameInput.value, dataPlacement.tableType)">rename</button>
             </div>
           </div>
         </td>

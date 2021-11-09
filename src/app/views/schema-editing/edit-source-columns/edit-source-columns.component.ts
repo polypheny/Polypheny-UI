@@ -120,10 +120,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     );
   }
 
-  renameCol ( oldCol: DbColumn, newName ) {
+  renameCol ( oldCol: DbColumn, newName, tabletype ) {
     const newCol = Object.assign({}, oldCol);
     newCol.name = newName;
-    const request = new ColumnRequest( this.tableId, oldCol, newCol, true );
+    const request = new ColumnRequest( this.tableId, oldCol, newCol, true, tabletype );
     this._crud.updateColumn( request ).subscribe(
       res => {
         const result = <ResultSet> res;

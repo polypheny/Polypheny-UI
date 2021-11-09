@@ -17,6 +17,7 @@ import {UtilService} from '../../../services/util.service';
 import {WebSocket} from '../../../services/webSocket';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToastService} from '../../../components/toast/toast.service';
+import {ViewInformation} from '../../../components/data-view/data-view.component';
 
 @Component({
     selector: 'app-console',
@@ -297,13 +298,12 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.subscriptions.add(sub);
     }
 
-    createView(viewEditorCode: string[]) {
-        const code = this.codeEditor.getCode();
-        this.codeEditor.setCode(viewEditorCode.join(' ') + code);
+    createView(info: ViewInformation) {
+        this.codeEditor.setCode(info.fullQuery);
     }
 
-    executeView(viewEditorCode: string[]) {
-        this.codeEditor.setCode(viewEditorCode.join(' '));
+    executeView(info: ViewInformation) {
+        this.codeEditor.setCode(info.fullQuery);
         this.submitQuery();
     }
 

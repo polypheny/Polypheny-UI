@@ -37,6 +37,10 @@
                 <span *ngIf="h.name !== '_data'" class="key">{{ h.name }} </span>
                 <app-json-text  [text]="d1[j]"  ></app-json-text>
               </ng-container>
+              <ng-container *ngSwitchCase="'ANY'">
+                <span *ngIf="h.name !== '_data'" class="key">{{ h.name }} </span>
+                <app-json-text  [text]="d1[j]"  ></app-json-text>
+              </ng-container>
               <ng-container *ngSwitchDefault>
                 <span class="key">{{h.name}}: </span>
                 <app-expandable-text [text]="d1[j]"></app-expandable-text>

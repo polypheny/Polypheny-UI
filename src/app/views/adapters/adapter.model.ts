@@ -56,6 +56,10 @@ export interface UnderlyingTables {
   underlyingTable: {} ;
 }
 
+export interface MaterializedInfos {
+  exception: ResultException;
+  materializedInfo: [] ;
+}
 
 
 export interface CatalogColumnPlacement {

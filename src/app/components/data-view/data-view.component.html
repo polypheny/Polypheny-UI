@@ -18,7 +18,7 @@
                     tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
         </div>
         <div>
-            <button *ngIf="resultSet.data && !(_router.url.startsWith('/views/data-table/')) && resultSet.languageType !== 'cql'" class="btn btn-light viewButton" tooltip="create view"
+            <button *ngIf="resultSet.data && !(_router.url.startsWith('/views/data-table/')) && !isDMLResult() && resultSet.languageType !== 'cql' && checkModelAndLanguage()" class="btn btn-light viewButton" tooltip="create view"
                     (click)="openCreateView(createView, resultSet.generatedQuery)">
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </button>
@@ -30,7 +30,7 @@
 
 <ng-container [ngSwitch]="presentationType">
     <ng-container *ngSwitchCase="presentationTypes.TABLE">
-        <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="config" [tableId]="tableId" [loading]="loading" ></app-data-table>
+        <app-data-table *ngIf="resultSet" [resultSet]="resultSet" [config]="config" [tableId]="tableId" [loading]="loading"></app-data-table>
     </ng-container>
     <ng-container *ngSwitchCase="presentationTypes.CARD">
         <app-data-card *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-card>
@@ -44,26 +44,140 @@
 <ng-template #createView>
     <div class="modal-content">
         <div class="modal-header">
-            <h4 class="modal-title pull-left">Create View</h4>
+            <h4 *ngIf="showView === null" >Type</h4>
+            <h4 *ngIf="showView != null" style="text-transform: capitalize;">
+                {{ showView === ViewType.VIEW ? 'View' : 'Materialized View' }}
+            </h4>
             <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefCreateView.hide()">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        <div class="modal-body" id="modal-body-tree">
 
-            <div class="form-group">
-                <label for="viewName" class="mb-2">Please enter a name for the view:</label>
-                <div class="d-flex justify-content-between">
+        <div class="tab" >
+            <div class="modal-body" id="modal-body-tree">
 
-                    <input type="text" id="viewName" placeholder="view name" class="form-control" style="max-width: 200px;"
-                           [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" (keyup.enter)="createViewCode()" >
-                    <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary ml-2"
-                            [disabled]="!creatingView ? 'disabled': null"  (click)="createViewCode()" >show</button>
-                    <button class="btn btn-primary ml-2"
-                             [disabled]="!creatingView ? 'disabled': null" (click)="submitCreateView()" >execute</button>
+                <div class="initial" *ngIf="showView === null">
+                    <button class="btn btn-primary btn-lg mr-1 btn-block" (click)="showView = ViewType.VIEW">
+                        View
+                    </button>
+                    <button class="btn btn-primary btn-lg mr-1 btn-block" *ngIf="resultSet.schemaType !== 'document'" (click)="showView = ViewType.MATERIALIZED">
+                        Materialized View
+                    </button>
+                </div>
+
+                <div class="tab-pane active" id="view-tab" *ngIf="showView === ViewType.VIEW">
+
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label for="viewName" class="input-group-text">Name</label>
+                            </div>
+                            <input type="text" id="viewName" placeholder="view name" class="form-control" style="max-width: 200px;"
+                                   [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" (keyup.enter)="createViewCode(true, false)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="materialized-view-tab" *ngIf="showView === ViewType.MATERIALIZED">
+
+
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label for="materializedViewName" class="input-group-text">Name</label>
+                            </div>
+                            <input type="text" id="materializedViewName" placeholder="view name" class="form-control"
+                                   [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)" >
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label for="storeSelection" class="input-group-text">Store</label>
+                            </div>
+                            <select class="custom-select" id="storeSelection" [(ngModel)]=" storeSelected">
+                                <option *ngFor="let storeOption of storeOptions" [ngValue]="storeOption">{{storeOption}}</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label for="freshnessSelection" class="input-group-text">Freshness Type</label>
+                            </div>
+                            <select class="custom-select" id="freshnessSelection" [(ngModel)]=" freshnessSelected">
+                                <option *ngFor="let freshnessOption of freshnessOptions" [ngValue]="freshnessOption">{{freshnessOption}}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div *ngIf="freshnessSelected === 'INTERVAL'">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label for="freshnessInterval" class="input-group-text">Update Interval</label>
+                                    </div>
+                                    <input type="text" id="freshnessInterval" placeholder="number" class="form-control" [(ngModel)]="intervalSelected">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label for="freshnessInterval" class="input-group-text">Time Unit</label>
+                                    </div>
+                                    <select class="custom-select" [(ngModel)]="timeUniteSelected">
+                                        <option *ngFor="let timeUnit of timeUnites" [ngValue]="timeUnit">{{timeUnit}}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div *ngIf="freshnessSelected === 'UPDATE'">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label for="freshnessUpdate" class="input-group-text">Update Interval</label>
+                                    </div>
+                                    <input type="text" id="freshnessUpdate" placeholder="number" class="form-control" [(ngModel)]="intervalSelected">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div *ngIf="freshnessSelected === 'MANUAL'"></div>
+                    </div>
 
                 </div>
+
+
+
             </div>
         </div>
+
+        <div class="modal-footer" *ngIf="showView !== null">
+            <div *ngIf="showView === ViewType.VIEW">
+                <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary ml-2"
+                        [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(true, false)">Show
+                </button>
+                <button class="btn btn-primary ml-2"
+                        [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(true, true)">Execute
+                </button>
+            </div>
+            <div *ngIf="showView === ViewType.MATERIALIZED">
+                <button *ngIf="!(_router.url.startsWith('/views/querying/relational-algebra'))" class="btn btn-secondary"
+                        [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(false, false)" (keyup.enter)="createViewCode(false, false)">Show
+                </button>
+                <button class="btn btn-primary ml-2"
+                        [disabled]="!creatingView ? 'disabled': null" (click)="createViewCode(false, true)">Execute
+                </button>
+            </div>
+        </div>
+
     </div>
 </ng-template>

@@ -1,15 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges,
-  TemplateRef,
-  ViewChild
-} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild} from '@angular/core';
 import {DataPresentationType, ResultSet} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
@@ -28,7 +17,32 @@ import {HttpEventType} from '@angular/common/http';
 import * as $ from 'jquery';
 import {DbTable} from '../../views/uml/uml.model';
 import {TableModel} from '../../views/schema-editing/edit-tables/edit-tables.component';
+import {Store} from '../../views/adapters/adapter.model';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
+import {FormGroup} from '@angular/forms';
+
+export class ViewInformation {
+  freshness: string;
+  fullQuery: string;
+  tableType: string;
+  newViewName: string;
+  initialQuery: string;
+  stores: string;
+  interval: number;
+  timeUnit: string;
+
+
+  constructor(tableType: string, newViewName: string) {
+    this.tableType = tableType;
+    this.newViewName = newViewName;
+  }
+
+}
+
+enum ViewType {
+  VIEW = 'VIEW',
+  MATERIALIZED = 'MATERIALIZED'
+}
 
 @Component({
   selector: 'app-data-view',
@@ -36,6 +50,22 @@ import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
   styleUrls: ['./data-view.component.scss']
 })
 export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
+
+
+  constructor(
+      public _crud: CrudService,
+      public _toast: ToastService,
+      public _route: ActivatedRoute,
+      public _router: Router,
+      public _types: DbmsTypesService,
+      public _settings: WebuiSettingsService,
+      public _sidebar: LeftSidebarService,
+      public modalService: BsModalService
+  ) {
+    this.webSocket = new WebSocket(_settings);
+    this.initWebsocket();
+
+  }
 
   @Input() resultSet: ResultSet;
   @Input() config: TableConfig;
@@ -48,6 +78,8 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   @Input() exploreId?: number;
   @Input() tutorialMode: boolean;
 
+
+  ViewType = ViewType;
   presentationType: DataPresentationType = DataPresentationType.TABLE;
   //see https://stackoverflow.com/questions/35835984/how-to-use-a-typescript-enum-value-in-an-angular2-ngswitch-statement
   presentationTypes: typeof DataPresentationType = DataPresentationType;
@@ -70,27 +102,30 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   resultSetEvent = new EventEmitter<ResultSet>();
   modalRefCreateView: BsModalRef;
   viewName = 'viewname';
-  sqlQuery: string;
+  query: string;
   exploringShowView = false;
   creatingView = false;
   newViewName = '';
   tables: TableModel[] = [];
   gotTables = false;
   schemaType: string;
+  viewOptions = 'view';
+  freshnessOptions:Array<string> = [
+    'UPDATE', 'INTERVAL', 'MANUAL'
+  ];
+  freshnessSelected = 'INTERVAL';
+  timeUnites:Array<string>=[
+      'milliseconds', 'seconds', 'minutes', 'hours', 'days'
+  ];
+  timeUniteSelected = 'minutes';
+  intervalSelected = 10;
+  stores: Store[];
+  storeOptions:Array<String>;
+  storeSelected: string;
+  chooseNameForView: FormGroup;
 
-  constructor(
-      public _crud: CrudService,
-      public _toast: ToastService,
-      public _route: ActivatedRoute,
-      public _router: Router,
-      public _types: DbmsTypesService,
-      public _settings: WebuiSettingsService,
-      public _sidebar: LeftSidebarService,
-      public modalService: BsModalService
-  ) {
-    this.webSocket = new WebSocket(_settings);
-    this.initWebsocket();
-  }
+  // see https://stackoverflow.com/questions/52017809/how-to-convert-string-to-boolean-in-typescript-angular-4
+  showView: ViewType;
 
   ngOnInit(): void {
     //ngOnInit is overwritten by subclasses
@@ -335,8 +370,6 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       this.editing = i;
     }
   }
-
-  // see https://stackoverflow.com/questions/52017809/how-to-convert-string-to-boolean-in-typescript-angular-4
   getBoolean(value: any): Boolean {
     switch (value) {
       case true:
@@ -496,27 +529,121 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   openCreateView(createView: TemplateRef<any>, sqlQuery: string) {
+    this.getStores();
+    this.showView = null;
+    this.viewOptions='view';
     this.getAllTables();
     this.modalRefCreateView = this.modalService.show(createView);
-    this.sqlQuery = '\n' + sqlQuery;
+    this.query = sqlQuery;
+
   }
 
-  createViewCode() {
+
+
+  createViewCode(isView: boolean, doExecute: boolean) {
     if(this.checkIfPossible()){
-      const viewData = ['CREATE VIEW', this.newViewName, 'AS \n'];
-      this.viewEditorCode.emit(viewData);
+      const info = new ViewInformation(isView ? 'MATERIALIZED' : 'VIEW', this.newViewName);
+      info.initialQuery = this.query;
+      let fullQuery;
+
+      if(!isView){
+        if ( this.resultSet.schemaType === 'document'){
+          this._toast.error('Materialized views are not jet supported for document queries.');
+          return;
+        }
+
+        fullQuery = this.getMaterializedViewQuery(info);
+        info.tableType = 'MATERIALIZED';
+
+      }else{
+        fullQuery = this.getViewQuery();
+        info.tableType = 'VIEW';
+
+      }
+
+      info.fullQuery = fullQuery;
+
+      if( doExecute ){
+        this.executeView.emit(info);
+      }else {
+        this.viewEditorCode.emit(info);
+      }
+
       this.modalRefCreateView.hide();
       this.gotTables = false;
+
     }
   }
 
-  submitCreateView() {
-    if(this.checkIfPossible()){
-      const viewData = ['CREATE VIEW', this.newViewName, 'AS', this.sqlQuery];
-      this.executeView.emit(viewData);
-      this.modalRefCreateView.hide();
-      this.gotTables = false;
+
+  private getViewQuery() {
+    if( this.resultSet.schemaType === 'document'){
+      let source;
+      let pipeline;
+
+      const temp = this.query.trim().split('.');
+      if( temp[0] === 'db') {
+        temp.shift(); // remove db
+      }
+      source = temp[0];
+      if( temp[0].includes('getCollection(')){
+        source = source
+        .replace('getCollection(', '')
+        .replace(')', '');
+      }
+      temp.shift(); // remove collection
+      temp[0] = temp[0].replace('aggregate(', '').replace('find(', '');
+      temp[temp.length-1] = temp[temp.length-1].slice(0, -1); // remove last bracket
+      
+      if( this.query.includes('.aggregate(')){
+
+        pipeline = temp.join('.');
+      }else if ( this.query.includes('.find(')){
+        const json = JSON.parse('[' + temp.join('.') + ']');
+
+        pipeline = '[';
+        if( json.length > 0 ){
+          pipeline += `{ "$match": ${JSON.stringify(json[0])} }`;
+        }
+        if ( json.length > 1 ) {
+          pipeline += `, { "$project": ${JSON.stringify(json[1])} }`;
+        }
+        pipeline += ']';
+      }else {
+        this._toast.error('This query cannot be used to create a view.');
+        return;
+      }
+
+      return `db.createView(\n\t"${this.newViewName}",\n\t"${source.replace('"', '')}",\n\t${pipeline}\n)`;
+    }else {
+      if(this.query.startsWith('\n')){
+        this.query = this.query.replace('\n', '');
+      }
+      return `CREATE VIEW ${this.newViewName} AS\n${this.query} `;
     }
+  }
+
+  private getMaterializedViewQuery( info: ViewInformation) {
+    if(this.query.startsWith('\n')){
+      this.query = this.query.replace('\n', '');
+    }
+    let query = `CREATE MATERIALIZED VIEW ${this.newViewName} AS\n${this.query}\nON STORE ${this.storeSelected}\nFRESHNESS ${this.freshnessSelected}`;
+
+
+    info.stores = this.storeSelected;
+    info.freshness = this.freshnessSelected;
+
+    if (this.freshnessSelected === 'UPDATE') {
+      query += ` ${this.intervalSelected}`;
+      info.interval = this.intervalSelected;
+
+    } else if (this.freshnessSelected === 'INTERVAL') {
+      query += ` ${this.intervalSelected} ${this.timeUniteSelected}`;
+      info.interval = this.intervalSelected;
+      info.timeUnit = this.timeUniteSelected;
+
+    }
+    return query;
   }
 
   checkIfPossible(){
@@ -568,6 +695,19 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  getStores() {
+    this._crud.getStores().subscribe(
+        res => {
+          this.stores = <Store[]>res;
+          this.storeOptions= this.stores.map(s => s.uniqueName);
+          this.storeSelected = this.stores[0]['uniqueName'];
+
+        }, err => {
+          console.log(err);
+        });
+  }
+
+
   executeCreateView(code: string){
     this.loading = true;
     if(!this._crud.anyQuery(this.webSocket, new QueryRequest(code, true, true, 'sql', null))){
@@ -580,5 +720,16 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     this.exploringShowView = eShowView;
   }
 
+  isDMLResult() {
+    return this.resultSet
+        && this.resultSet.affectedRows === 1
+        && this.resultSet.header[0].dataType === 'BIGINT'
+        && this.resultSet.header[0].name === 'ROWCOUNT';
+  }
+
+  checkModelAndLanguage() {
+    return (this.resultSet.schemaType === 'document' && this.resultSet.languageType === 'mql') ||
+        (this.resultSet.schemaType === 'relational' && this.resultSet.languageType === 'sql');
+  }
 }
 
