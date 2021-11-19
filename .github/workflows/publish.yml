@@ -22,8 +22,8 @@ jobs:
         uses: sonatype-nexus-community/nexus-repo-github-action@master
         with:
           serverUrl: https://dbis-nexus.dmi.unibas.ch/
-          username: ${{ secrets.NEXUS_USERNAME }}
-          password: ${{ secrets.NEXUS_password }}
+          username: ${{ secrets.DBIS_NEXUS_USERNAME }}
+          password: ${{ secrets.DBIS_NEXUS_PASSWORD }}
           format: maven2
           repository: maven-snapshots
           coordinates: groupId=org.polypheny artifactId=polypheny-ui version=1.0-SNAPSHOT
