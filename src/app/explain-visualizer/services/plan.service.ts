@@ -115,7 +115,6 @@ export class PlanService {
 
     this.findOutlierNodes(plan.content.Plan);
 
-    localStorage.setItem(plan.id, JSON.stringify(plan));
   }
 
   deletePlan(plan: IPlan) {
