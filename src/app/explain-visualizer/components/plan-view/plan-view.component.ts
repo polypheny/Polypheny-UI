@@ -2,14 +2,13 @@ import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {IPlan} from '../../models/iplan';
 import {HighlightType, ViewMode} from '../../models/enums';
 import {PlanService} from '../../services/plan.service';
-import { OnDestroy } from '@angular/core';
 
 @Component({
   selector: 'app-plan-view',
   templateUrl: './plan-view.component.html',
   styleUrls: ['./plan-view.component.scss'],
 })
-export class PlanViewComponent implements OnInit, OnDestroy {
+export class PlanViewComponent implements OnInit {
 
   id: string;
   plan: IPlan;
@@ -60,10 +59,6 @@ export class PlanViewComponent implements OnInit, OnDestroy {
 
   analyzePlan() {
     this._planService.analyzePlan(this.plan);
-  }
-
-  ngOnDestroy(): void {
-    this._planService.deletePlan(this.plan);
   }
 
 }
