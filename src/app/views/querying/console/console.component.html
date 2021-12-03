@@ -1,5 +1,5 @@
 <div class="row" [hidden]="showingAnalysis" (keydown.alt.shift)="toggleCache(false)" (keyup.alt.shift)="revertCache()" (keyup.shift.alt)="revertCache()" (keydown.alt.shift.enter)="submitQuery()" (keydown.alt.enter)="submitQuery()">
-  <div class="col-lg-8 col-md-8 col-sm-12">
+  <div class="col-lg-8 col-md-8 col-sm-12 mb-3">
       <ul class="list-group grey-border" id="console">
           <li id="console-item-head" *ngIf="lang === 'mql'" class="list-group-item header grey-bg">
               <span  class="document-db-info"><i>Database: {{defaultDocumentDB}}</i></span>
@@ -48,6 +48,7 @@
           </li>
       </ul>
   </div>
+
 
   <div class="col-lg-8 mb-3" [hidden]="showingAnalysis">
     <div class="custom-control custom-checkbox custom-control-inline">
