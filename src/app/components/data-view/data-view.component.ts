@@ -127,6 +127,10 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   // see https://stackoverflow.com/questions/52017809/how-to-convert-string-to-boolean-in-typescript-angular-4
   showView: ViewType;
 
+  removeNull(dataType: string) {
+    return dataType.replace(' NOT NULL', '');
+  }
+
   ngOnInit(): void {
     //ngOnInit is overwritten by subclasses
   }

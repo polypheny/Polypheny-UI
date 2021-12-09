@@ -43,7 +43,7 @@
                 <!-- table which shows resultSet  -->
                 <ng-container *ngIf="editing !== i">
                     <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
-                        <ng-container [ngSwitch]="resultSet.header[j].dataType" *ngIf="d2">
+                        <ng-container [ngSwitch]="removeNull(resultSet.header[j].dataType)" *ngIf="d2">
                             <ng-container *ngSwitchCase="'FILE'">
                                 <a *ngIf="downloadingIthRow !== i" [routerLink]="[]" class="download" (click)="getFile(d2, i)" download><span class="cui-cloud-download"></span></a>
                                 <progressbar *ngIf="downloadingIthRow === i && downloadProgress > -1 && downloadProgress !== 0 && downloadProgress !== 100" [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress" type="primary" class="file-progress"></progressbar>

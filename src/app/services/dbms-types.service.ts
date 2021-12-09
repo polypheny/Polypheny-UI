@@ -9,6 +9,14 @@ import {from} from 'rxjs';
 })
 export class DbmsTypesService {
 
+  constructor(
+    private _crud: CrudService,
+    private _toast: ToastService
+  ) {
+    this.fetchTypes();
+    this.fetchFkActions();
+  }
+
   private numericArray = ['int2','int4','int8','integer','bigint','smallint','float','float4','float8','double'];
   private booleanArray = ['bool', 'boolean'];
   private dateTimeArray = ['date', 'time', 'timestamp'];
@@ -17,13 +25,9 @@ export class DbmsTypesService {
   private _types: PolyType[];
   private foreignKeyActions = new EventEmitter();
   private fetchedFkActions;
-
-  constructor(
-    private _crud: CrudService,
-    private _toast: ToastService
-  ) {
-    this.fetchTypes();
-    this.fetchFkActions();
+  
+  private static removeNull(input:string ) {
+    return input.replace(' NOT NULL', '');
   }
 
   /**
@@ -121,7 +125,7 @@ export class DbmsTypesService {
    * @return if the dbms type is numeric
    */
   isNumeric(type: string) {
-    return this.numericArray.includes(type.toLowerCase());
+    return this.numericArray.includes(DbmsTypesService.removeNull(type).toLowerCase());
   }
 
   /**
@@ -129,7 +133,7 @@ export class DbmsTypesService {
    * @return if the dbms type is of boolean type
    */
   isBoolean(type: string) {
-    return this.booleanArray.includes(type.toLowerCase());
+    return this.booleanArray.includes(DbmsTypesService.removeNull(type).toLowerCase());
   }
 
   /**
@@ -137,7 +141,7 @@ export class DbmsTypesService {
    * @return if the dbms type is of date / time / timestamp type
    */
   isDateTime(type: string) {
-    return this.dateTimeArray.includes(type.toLowerCase());
+    return this.dateTimeArray.includes(DbmsTypesService.removeNull(type).toLowerCase());
   }
 
   /**
@@ -145,7 +149,7 @@ export class DbmsTypesService {
    * @return Return true if the type is of the multimedia family
    */
   isMultimedia(type: string) {
-    return this.multimediaArray.includes(type.toLowerCase());
+    return this.multimediaArray.includes(DbmsTypesService.removeNull(type).toLowerCase());
   }
 
   /**
@@ -170,7 +174,7 @@ export class DbmsTypesService {
    * Check if the labels and placeholders for the precision value should be displayed as "length" or as "precision"
    */
   precisionPlaceholder(type:string):string {
-    switch (type.toLowerCase()) {
+    switch (DbmsTypesService.removeNull(type).toLowerCase()) {
       case 'varchar':
         return 'length';
       default:
