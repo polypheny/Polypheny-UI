@@ -28,7 +28,7 @@
       <ng-container *ngFor="let h of resultSet.header; let j = index">
         <li *ngIf="(d1[j] || i === editing) && !showFirst(h.dataType)" class="list-group-item">
           <ng-container *ngIf="i !== editing">
-            <ng-container [ngSwitch]="h.dataType">
+            <ng-container [ngSwitch]="removeNull(h.dataType)">
               <ng-container *ngSwitchCase="'FILE'">
                 <span class="key">{{h.name}}:</span>
                 <a class="download val" [href]="getFileLink(d1[j])" download><span class="cui-cloud-download"></span></a>

@@ -46,7 +46,7 @@
           <div style="text-align: center">
             <ng-container *ngFor="let h of resultSet.header; let j = index">
               <ng-container *ngIf="!showFirst(h.dataType)">
-                <p *ngIf="d1 && d1[j] && currentSlide !== editing" class="mt-3" [ngSwitch]="h.dataType">
+                <p *ngIf="d1 && d1[j] && currentSlide !== editing" class="mt-3" [ngSwitch]="removeNull(h.dataType)">
                   <ng-container *ngSwitchCase="'FILE'">
                     <span class="key">
                       {{h.name}}
