@@ -371,6 +371,7 @@ export interface JavaUiGroup {
 }
 export interface JavaUiConfig {
   key: String;
+  oldValue: any;
   value: any;
   values: String[];//enumList, clazzList, List
   template: any; //List

@@ -23,7 +23,7 @@
 							</div>
 						</div>
 						<!--<p>{{group.value.description}}</p>-->
-						<div class="card-body">
+						<div class="card-body" >
 							<ng-container *ngFor="let config of group.value.configs | keyvalue: orderConfigs; let nth = index">
 								<ng-container [ngSwitch]="config.value.webUiFormType">
 									<div class="input-group">
@@ -35,8 +35,13 @@
 											<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="text" class="form-control" [ngClass]="inputValidation(config.value.key)">
 										</ng-container>
 										<ng-container #numberCase *ngSwitchCase="'NUMBER'">
-											<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="number" class="form-control" [ngClass]="inputValidation(config.value.key)">
+											<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="number" class="form-control" [ngClass]="inputValidation(config.value.key)" aria-describedby="help">
+											<small id="help" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-muted restart-info" >
+												value until restart: {{config.value.oldValue}}
+											</small>
+
 										</ng-container>
+
 										<ng-container #booleanCase *ngSwitchCase="'BOOLEAN'">
 											<!--<div class="checkbox-wrapper">-->
 														<!--<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
