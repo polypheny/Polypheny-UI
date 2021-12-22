@@ -116,13 +116,13 @@ export class RefinementOptionsComponent implements OnInit {
         const transmitSet = new FilteredUserInput();
         this._choosenTables['column'].forEach(el => {
             if (this.filteredUserInput.hasOwnProperty(el)) {
-                if (this.statisticSet[el]['columnType'] == 'temporal') {
-                    let {getLabel,getNumber,step} = this.getTemporal(this.statisticSet[el]['temporalType'])
-                    let fel = this.filteredUserInput[el]
+                if (this.statisticSet[el]['columnType'] === 'temporal') {
+                    const {getLabel,getNumber,step} = this.getTemporal(this.statisticSet[el]['temporalType']);
+                    const fel = this.filteredUserInput[el];
                     
                     transmitSet[el] = {...fel,
                                         minMax: fel['minMax'].map(getLabel).map(d => `'${d}'`),
-                                        startMinMax: fel['startMinMax'].map(getLabel).map(d => `'${d}'`)}
+                                        startMinMax: fel['startMinMax'].map(getLabel).map(d => `'${d}'`)};
                 } else {
                     transmitSet[el] = this.filteredUserInput[el];
                 }
@@ -179,7 +179,7 @@ export class RefinementOptionsComponent implements OnInit {
                 } else {
                     this.statisticSet[key]['type'] = ['range'];
                 }
-                if (el['columnType'] == 'temporal'){
+                if (el['columnType'] === 'temporal'){
                     let {getLabel,getNumber,step} = this.getTemporal(el['temporalType'])
                     el['min'] = getNumber(el['min']);
                     el['max'] = getNumber(el['max']);

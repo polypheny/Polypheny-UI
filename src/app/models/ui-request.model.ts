@@ -27,6 +27,7 @@ export class RelAlgRequest extends UIRequest {
   requestType = 'RelAlgRequest';
   topNode: Node;
   createView: boolean;
+  analyze: boolean;
   tableType; string;
   viewName: string;
   store: string;
@@ -34,10 +35,12 @@ export class RelAlgRequest extends UIRequest {
   interval;
   timeUnit: string;
   useCache: boolean;
-  constructor( node: Node, cache: boolean, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?, timeUnit?: string ) {
+
+  constructor( node: Node, cache: boolean, analyzeQuery: boolean, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?, timeUnit?: string ) {
     super();
     this.topNode = node;
     this.useCache = cache;
+    this.analyze = analyzeQuery;
     this.createView = createView || false;
     this.tableType = tableType || 'table';
     this.viewName = viewName || 'viewName';
