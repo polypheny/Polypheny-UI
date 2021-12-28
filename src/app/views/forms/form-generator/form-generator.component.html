@@ -33,10 +33,13 @@
 										</div>
 										<ng-container *ngSwitchCase="'TEXT'">
 											<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="text" class="form-control" [ngClass]="inputValidation(config.value.key)">
+											<small id="help-text" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
+												value until restart: {{config.value.oldValue}}
+											</small>
 										</ng-container>
 										<ng-container #numberCase *ngSwitchCase="'NUMBER'">
 											<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="number" class="form-control" [ngClass]="inputValidation(config.value.key)" aria-describedby="help">
-											<small id="help" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-muted restart-info" >
+											<small id="help-number" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info " >
 												value until restart: {{config.value.oldValue}}
 											</small>
 
@@ -51,11 +54,14 @@
 
 											<div class="checkbox-wrapper">
 												<br>
-												<label [class]="'switch switch-label switch-pill switch-sm ' + getSwitchColor(nth)">
+												<label [class]="'switch switch-label switch-pill switch-sm switch-primary'">
 													<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control switch-input" [ngClass]="inputValidation(config.value.key)">
 													<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
 												</label>
 											</div>
+											<small id="help-checkbox" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
+												value until restart: {{config.value.oldValue}}
+											</small>
 
 										</ng-container>
 										<ng-container #listCase *ngSwitchCase="'LIST'">
@@ -124,7 +130,7 @@
 															</div>
 															<div class="checkbox-wrapper">
 																<br>
-																<label [class]="'switch switch-label switch-pill switch-sm ' + getSwitchColor(nth)">
+																<label [class]="'switch switch-label switch-pill switch-sm switch-primary'">
 																	<input [(ngModel)]="el.usingInsecure" [ngModelOptions]="{standalone: true}"  (change)="setInsecureAndMark(el.usingInsecure, config.value.key, config.value.values[i])" type="checkbox" class="form-control switch-input" [ngClass]="inputValidation(config.value.key)">
 																	<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
 																</label>
@@ -174,6 +180,9 @@
                       <select [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" class="form-control" [ngClass]="inputValidation(config.value.key)">
                         <option *ngFor="let c of config.value.values" [value]="c">{{classOrEnumName(c)}}</option>
                       </select>
+						<small id="help-enum" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
+							value until restart: {{config.value.oldValue}}
+						</small>
                     </ng-container>
 
                     <!-- ConfigClazzList, ConfigEnumList -->
@@ -182,6 +191,9 @@
                         <div *ngFor="let c of config.value.values">
                           <label><input type="checkbox" [checked]="config.value.value.includes(c)" style="margin-right:0.5em" #cb (change)="handleClassList(config.value.key, c, cb.checked)">{{classOrEnumName(c)}}</label>
                         </div>
+						  <small id="help-checkboxes" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
+							  value until restart: {{config.value.oldValue}}
+						  </small>
                       </div>
                     </ng-container>
 
@@ -193,9 +205,7 @@
 												invalid email
 											</div>
 										</div>
-										<div class="valid-feedback" *ngIf="submitted && form.controls[config.value.key].valid && form.controls[config.value.key].dirty">
-											valid
-										</div>
+										<div class="valid-feedback" *ngIf="submitted && form.controls[config.value.key].valid && form.controls[config.value.key].dirty"></div>
 									</div>
 								</ng-container>
 
