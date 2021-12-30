@@ -26,7 +26,6 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   pageNotFound = false;
   pageList;//wenn man nicht auf einer gewissen Seite ist und alle Pages als links aufgelisted werden sollen.
   serverError;//wenn der Server nicht antwortet
-  switchColors = ['switch-primary', 'switch-success', 'switch-warning', 'switch-danger'];
   private subscriptions = new Subscription();
 
   constructor(
@@ -283,13 +282,11 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     }
   }
 
-  getSwitchColor (key: number) {
-    return this.switchColors[key%4];
-  }
-
   classOrEnumName( s: string ){
     if(s.includes('$')) {
       return s.split('$')[1];
+    } else if (s.includes('.')) {
+      return s.split('.')[s.split('.').length -1];
     } else {
       return s;
     }
