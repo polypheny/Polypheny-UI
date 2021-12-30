@@ -215,7 +215,7 @@
           </ng-container>
           <span *ngIf="!hubMeta">This dataset can be downloaded, but not imported.</span>
           <input type="hidden" [value]="downloadPath" formControlName="url">
-          <p class="text-danger mb-0" *ngIf="importDsFormSubmitted && !importDsForm.valid">Please select a schema and store before importing into Polypheny.</p>
+          <p class="text-danger mb-0" *ngIf="(importDsFormSubmitted || errorSubmitted) && !importDsForm.valid">Please select a schema and store before importing into Polypheny.</p>
         </div>
         <div class="modal-footer" style="justify-content: space-between">
           <div>

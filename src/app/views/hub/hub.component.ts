@@ -58,6 +58,7 @@ export class HubComponent implements OnInit, OnDestroy {
     dataset: new FormControl( null, [Validators.required, Validators.pattern(/\.zip$/)] ) // , requiredFileType('zip')
   });
   newDsFormSubmitted = false;
+  errorSubmitted = false;
   fileToUpload;
   uploadProgress = 0;
 
@@ -497,6 +498,7 @@ export class HubComponent implements OnInit, OnDestroy {
     this.importDsFormSubmitted = true;
     this.importProgress = 0;
     if(this.importDsForm.valid){
+      this.errorSubmitted = false;
       //get import status: see initWebsocket()
       this._crud.importDataset(
         this.hubMeta.tables,
@@ -519,6 +521,10 @@ export class HubComponent implements OnInit, OnDestroy {
           console.log(err);
         }
       ).add(()=> this.importProgress = -1 );
+    }else {
+      this.importDsFormSubmitted = false;
+      this.importProgress = -1;
+      this.errorSubmitted = true;
     }
   }
 
@@ -537,7 +543,6 @@ export class HubComponent implements OnInit, OnDestroy {
       });
     this.subscriptions.add(sub);
   }
-
 }
 enum LoginStatus {
   LOGGED_OUT = 0,
