@@ -14,6 +14,7 @@ export class DefaultLayoutComponent implements OnDestroy {
   public sidebarMinimized = true;
   private changes: MutationObserver;
   public element: HTMLElement;
+  private enabledPlugins: string[] = undefined;
   constructor(
     public _sidebar: LeftSidebarService,
     public _information: InformationService,
@@ -36,5 +37,10 @@ export class DefaultLayoutComponent implements OnDestroy {
 
   getConnectionClass () {
     return this._information.connected ? 'connected' : 'disconnected';
+  }
+
+  exploreByExampleEnabled() {
+    return this._information.getEnabledPlugins().includes('Explore-By-Example');
+
   }
 }
