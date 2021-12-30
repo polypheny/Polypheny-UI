@@ -50,6 +50,7 @@ enum ViewType {
   styleUrls: ['./data-view.component.scss']
 })
 export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
+  protected focusId: string;
 
 
   constructor(
@@ -178,13 +179,6 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     const sub = this.webSocket.onMessage().subscribe(
         res => {
           this.resultSet = <ResultSet>res;
-          /**const result = <ResultSet>res;
-           this.resultSet.data = result.data;
-           this.resultSet.highestPage = result.highestPage;
-           this.resultSet.error = result.error;
-           this.resultSet.type = result.type;
-           this.tableId = result.table;
-           */
 
           //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
           if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
@@ -202,6 +196,17 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
             this.config.delete = false;
           }
           this.resultSetEvent.emit(this.resultSet);
+          // if we had a focus set we render it in the next DOM update
+          if( this.focusId != null ) {
+            setTimeout(_ => {
+              const focus = document.getElementById( this.focusId );
+              if( focus != null ){
+                focus.focus();
+              }
+              this.focusId = null;
+            });
+          }
+
         }, err => {
           this._toast.error('Could not load the data.');
           console.log(err);
