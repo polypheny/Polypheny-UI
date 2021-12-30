@@ -143,6 +143,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     } else {
       this.filter.set(col.name, filterVal);
     }
+    this.focusId = 'search-' + col.name;
     this.getTable();
   }
 

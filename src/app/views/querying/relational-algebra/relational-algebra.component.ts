@@ -53,6 +53,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   draggingNodeY: number;
   socketOn: boolean;
 
+  analyzeQuery = true;
+
   private lastNode = null;
   private cache = true;
 
@@ -488,7 +490,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       this._toast.warn( 'Please provide a plan to be executed.', 'no plan' );
       return;
     }
-    if(!this._crud.executeRelAlg( this.webSocket, tree, this.cache )){
+    if(!this._crud.executeRelAlg( this.webSocket, tree, this.cache, this.analyzeQuery )){
       $('#run i').removeClass().addClass('fa fa-play');
       this.resultSet = new ResultSet('Could not establish a connection with the server.');
     }
@@ -501,6 +503,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         this.webSocket,
         this.getTree(),
         this.cache,
+        this.analyzeQuery,
         true,
         info.tableType,
         info.newViewName,
@@ -723,7 +726,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     let leftPadding = 0;
     let upperPadding = 0;
     let ind = 0;
-    let edge = Math.ceil(Math.sqrt(this.counter));
+    const edge = Math.ceil(Math.sqrt(this.counter));
     for (let i = 0; i < edge; i++) {
       upperPadding = i * 250;
       for (let j = 0; j < edge; j++) {
@@ -748,7 +751,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       this.socketOn = false;
     } else {
       const sub = this._webSocketService.listen('my_message').subscribe((data) => {
-        if (data.toString() == 'delete') {
+        if (data.toString() === 'delete') {
           this.deleteAll();
         }
         if (data.toString().startsWith('{')) {

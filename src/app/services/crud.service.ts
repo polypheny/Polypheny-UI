@@ -333,16 +333,16 @@ export class CrudService {
   /**
    * Execute a relational algebra
    */
-  executeRelAlg ( socket: WebSocket, relAlg: Node, cache: boolean, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?: string, timeUnit?): boolean {
+  executeRelAlg ( socket: WebSocket, relAlg: Node, cache: boolean, analyzeQuery, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?: string, timeUnit?: string) {
     let request;
     if(createView){
       if(tableType === 'MATERIALIZED'){
-        request = new RelAlgRequest( relAlg, cache, createView, 'materialized',viewName, store, freshness, interval, timeUnit);
+        request = new RelAlgRequest( relAlg, cache, analyzeQuery, createView, 'materialized',viewName, store, freshness, interval, timeUnit);
       }else{
-        request = new RelAlgRequest( relAlg, cache, createView, 'view',  viewName);
+        request = new RelAlgRequest( relAlg, cache, analyzeQuery, createView, 'view',  viewName);
       }
     }else{
-      request = new RelAlgRequest( relAlg, cache );
+      request = new RelAlgRequest( relAlg, cache, analyzeQuery );
     }
     return socket.sendMessage( request );
   }

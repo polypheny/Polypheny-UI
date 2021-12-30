@@ -41,6 +41,10 @@
         <a [routerLink]="[]" class="btn btn-light btn-sm" (click)="exportTree()">export</a>
         <a [routerLink]="[]" class="btn btn-light btn-sm" (click)="importTree()">import</a>
       </div>
+      <!--><div class="analyze-query">
+        <input type="checkbox" class="analyze-query-input mr-1" id="analyzeQuery" [checked]="analyzeQuery" (change)="analyzeQuery = !analyzeQuery">
+        <label class="analyze-query-label" for="analyzeQuery" >analyze query</label>
+      </div>-->
     </div>
 
     <svg width="100%" height="100%">
