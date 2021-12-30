@@ -53,7 +53,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   draggingNodeY: number;
   socketOn: boolean;
 
-  analyzeQuery = false;
+  analyzeQuery = true;
 
   private lastNode = null;
   private cache = true;
