@@ -14,7 +14,6 @@ export class DefaultLayoutComponent implements OnDestroy {
   public sidebarMinimized = true;
   private changes: MutationObserver;
   public element: HTMLElement;
-  private enabledPlugins: string[] = undefined;
   constructor(
     public _sidebar: LeftSidebarService,
     public _information: InformationService,

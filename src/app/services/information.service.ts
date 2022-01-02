@@ -9,43 +9,52 @@ import {InformationObject} from '../models/information-page.model';
 })
 export class InformationService {
     private enabledPlugins: [string] = null;
+    private enabledRequestFired:number = null;
 
-  constructor( private _http:HttpClient, private _settings:WebuiSettingsService ) {
-    this.initWebSocket();
-  }
+    constructor(private _http: HttpClient, private _settings: WebuiSettingsService) {
+        this.initWebSocket();
+    }
 
-  public connected = false;
-  private reconnected = new EventEmitter<boolean>();
-  private socket;
-  httpUrl = this._settings.getConnection('information.rest');
-  httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
+    public connected = false;
+    private reconnected = new EventEmitter<boolean>();
+    private socket;
+    httpUrl = this._settings.getConnection('information.rest');
+    httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
+    private REQUEST_DELAY: number = 1000*20;
 
-  getPage(pageId: string) {
-    return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
-  }
+    getPage(pageId: string) {
+        return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
+    }
 
-  getPageList() {
-    return this._http.get(`${this.httpUrl}/getPageList`, this.httpOptions);
-  }
+    getPageList() {
+        return this._http.get(`${this.httpUrl}/getPageList`, this.httpOptions);
+    }
 
-  refreshPage(id: string) {
-    return this._http.post(`${this.httpUrl}/refreshPage`, id, this.httpOptions);
-  }
+    refreshPage(id: string) {
+        return this._http.post(`${this.httpUrl}/refreshPage`, id, this.httpOptions);
+    }
 
-  refreshGroup(id: string) {
-    return this._http.post(`${this.httpUrl}/refreshGroup`, id, this.httpOptions);
-  }
+    refreshGroup(id: string) {
+        return this._http.post(`${this.httpUrl}/refreshGroup`, id, this.httpOptions);
+    }
 
-  executeAction(i: InformationObject) {
-    return this._http.post(`${this.httpUrl}/executeAction`, JSON.stringify(i), this.httpOptions);
-  }
+    executeAction(i: InformationObject) {
+        return this._http.post(`${this.httpUrl}/executeAction`, JSON.stringify(i), this.httpOptions);
+    }
 
     getEnabledPlugins(): string[] {
-        if( this.enabledPlugins == null ) {
-            this._http.get(`${this.httpUrl}/getEnabledPlugins`, this.httpOptions)
-                .subscribe(res => {
-                    this.enabledPlugins = <[string]>res;
-                });
+        if( this.enabledRequestFired === null ){
+            this.enabledRequestFired = Date.now() - (this.REQUEST_DELAY + 100);
+        }
+        if (this.enabledPlugins === null) {
+            const today = Date.now();
+            if ( (this.enabledRequestFired + this.REQUEST_DELAY) < today ) {
+                this.enabledRequestFired = today;
+                this._http.get(`${this.httpUrl}/getEnabledPlugins`, this.httpOptions)
+                    .subscribe(res => {
+                        this.enabledPlugins = <[string]>res;
+                    });
+            }
             return [];
         }
         return this.enabledPlugins;
@@ -80,20 +89,20 @@ export class InformationService {
         );
     }
 
-  socketSend(msg: string) {
-    this.socket.next(msg);
-  }
+    socketSend(msg: string) {
+        this.socket.next(msg);
+    }
 
-  onSocketEvent () {
-    return this.socket;
-  }
+    onSocketEvent() {
+        return this.socket;
+    }
 
-  closeSocket() {
-    this.socket.complete();
-  }
+    closeSocket() {
+        this.socket.complete();
+    }
 
-  onReconnection(){
-    return this.reconnected;
-  }
+    onReconnection() {
+        return this.reconnected;
+    }
 
 }
