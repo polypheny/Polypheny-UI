@@ -5,82 +5,104 @@ import {WebuiSettingsService} from './webui-settings.service';
 import {InformationObject} from '../models/information-page.model';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class InformationService {
+    private enabledPlugins: [string] = null;
+    private enabledRequestFired:number = null;
 
-  constructor( private _http:HttpClient, private _settings:WebuiSettingsService ) {
-    this.initWebSocket();
-  }
+    constructor(private _http: HttpClient, private _settings: WebuiSettingsService) {
+        this.initWebSocket();
+    }
 
-  public connected = false;
-  private reconnected = new EventEmitter<boolean>();
-  private socket;
-  httpUrl = this._settings.getConnection('information.rest');
-  httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
+    public connected = false;
+    private reconnected = new EventEmitter<boolean>();
+    private socket;
+    httpUrl = this._settings.getConnection('information.rest');
+    httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
+    private REQUEST_DELAY: number = 1000*20;
 
-  getPage(pageId: string) {
-    return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
-  }
+    getPage(pageId: string) {
+        return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
+    }
 
-  getPageList() {
-    return this._http.get(`${this.httpUrl}/getPageList`, this.httpOptions);
-  }
+    getPageList() {
+        return this._http.get(`${this.httpUrl}/getPageList`, this.httpOptions);
+    }
 
-  refreshPage(id: string) {
-    return this._http.post(`${this.httpUrl}/refreshPage`, id, this.httpOptions);
-  }
+    refreshPage(id: string) {
+        return this._http.post(`${this.httpUrl}/refreshPage`, id, this.httpOptions);
+    }
 
-  refreshGroup(id: string) {
-    return this._http.post(`${this.httpUrl}/refreshGroup`, id, this.httpOptions);
-  }
+    refreshGroup(id: string) {
+        return this._http.post(`${this.httpUrl}/refreshGroup`, id, this.httpOptions);
+    }
 
-  executeAction(i: InformationObject) {
-    return this._http.post(`${this.httpUrl}/executeAction`, JSON.stringify(i), this.httpOptions);
-  }
+    executeAction(i: InformationObject) {
+        return this._http.post(`${this.httpUrl}/executeAction`, JSON.stringify(i), this.httpOptions);
+    }
 
-  //websocket:
-  //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
-  //openObserver:
-  //https://rxjs-dev.firebaseapp.com/api/webSocket/WebSocketSubjectConfig
-  //it's not possible to suppress the websocket exception during the reconnect:
-  //https://stackoverflow.com/questions/31978298/suppress-websocket-connection-to-xyz-failed
-  private initWebSocket() {
-    this.socket = webSocket({
-      url: this._settings.getConnection('information.socket'),
-      openObserver: {
-        next: (n) => {
-          this.reconnected.emit(true);
-          this.connected = true;
+    getEnabledPlugins(): string[] {
+        if( this.enabledRequestFired === null ){
+            this.enabledRequestFired = Date.now() - (this.REQUEST_DELAY + 100);
         }
-      }
-    });
-    this.socket.subscribe(
-      msg => {},
-      err => {
-        //this.reconnected.emit(false);
-        this.connected = false;
-        setTimeout(() => {
-          this.initWebSocket();
-        }, +this._settings.getSetting('reconnection.timeout'));
-      }
-    );
-  }
+        if (this.enabledPlugins === null) {
+            const today = Date.now();
+            if ( (this.enabledRequestFired + this.REQUEST_DELAY) < today ) {
+                this.enabledRequestFired = today;
+                this._http.get(`${this.httpUrl}/getEnabledPlugins`, this.httpOptions)
+                    .subscribe(res => {
+                        this.enabledPlugins = <[string]>res;
+                    });
+            }
+            return [];
+        }
+        return this.enabledPlugins;
+    }
 
-  socketSend(msg: string) {
-    this.socket.next(msg);
-  }
+    //websocket:
+    //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
+    //openObserver:
+    //https://rxjs-dev.firebaseapp.com/api/webSocket/WebSocketSubjectConfig
+    //it's not possible to suppress the websocket exception during the reconnect:
+    //https://stackoverflow.com/questions/31978298/suppress-websocket-connection-to-xyz-failed
+    private initWebSocket() {
+        this.socket = webSocket({
+            url: this._settings.getConnection('information.socket'),
+            openObserver: {
+                next: (n) => {
+                    this.reconnected.emit(true);
+                    this.connected = true;
+                }
+            }
+        });
+        this.socket.subscribe(
+            msg => {
+            },
+            err => {
+                //this.reconnected.emit(false);
+                this.connected = false;
+                setTimeout(() => {
+                    this.initWebSocket();
+                }, +this._settings.getSetting('reconnection.timeout'));
+            }
+        );
+    }
 
-  onSocketEvent () {
-    return this.socket;
-  }
+    socketSend(msg: string) {
+        this.socket.next(msg);
+    }
 
-  closeSocket() {
-    this.socket.complete();
-  }
+    onSocketEvent() {
+        return this.socket;
+    }
 
-  onReconnection(){
-    return this.reconnected;
-  }
+    closeSocket() {
+        this.socket.complete();
+    }
+
+    onReconnection() {
+        return this.reconnected;
+    }
 
 }

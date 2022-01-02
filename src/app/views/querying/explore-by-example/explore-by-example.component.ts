@@ -13,6 +13,7 @@ import {Subscription} from 'rxjs';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import {WebSocket} from '../../../services/webSocket';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
+import {InformationService} from '../../../services/information.service';
 
 @Component({
   selector: 'app-explore-by-example',
@@ -70,6 +71,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     private _leftSidebar: LeftSidebarService,
     private _toast: ToastService,
     private _settings: WebuiSettingsService,
+    private _information: InformationService,
     private modalService: BsModalService) {
     this.websocket = new WebSocket(_settings);
   }
@@ -275,6 +277,9 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     );
   }
 
+  exploreByExampleEnabled(): boolean {
+      return this._information.getEnabledPlugins().includes('Explore-By-Example');
+  }
 }
 
 class JoinCondition {

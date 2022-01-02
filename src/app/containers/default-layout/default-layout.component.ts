@@ -37,4 +37,9 @@ export class DefaultLayoutComponent implements OnDestroy {
   getConnectionClass () {
     return this._information.connected ? 'connected' : 'disconnected';
   }
+
+  exploreByExampleEnabled() {
+    return this._information.getEnabledPlugins().includes('Explore-By-Example');
+
+  }
 }
