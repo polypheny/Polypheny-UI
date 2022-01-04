@@ -78,6 +78,42 @@ export class StatisticSet {
   }
 }
 
+export class StatisticTableSet {
+  table: null;
+  calls: TableCallSet;
+  numberOfRows: null;
+  alphabeticColumn: StatisticColumnSet;
+  numericalColumn: StatisticColumnSet;
+  temporalColumn: StatisticColumnSet;
+
+  constructor() {
+  }
+}
+
+export class TableCallSet {
+  numberOfSelects: number;
+  numberOfInserts: number;
+  numberOfDeletes: number;
+  numberOfUpdates: number;
+
+  constructor() {
+  }
+}
+
+
+export class StatisticColumnSet {
+
+  [column: string]: {
+    column: null,
+    min: null,
+    max: null,
+    uniqueValues: null,
+    isFull: null,
+  }
+  constructor() {
+  }
+}
+
 /**
  * model for filtered options coming from user input
  */
@@ -114,7 +150,7 @@ export class DbColumn {
   as: string;
 
   constructor(
-    name: string, primary: boolean = null, nullable: boolean = null, type: string = null, collectionsType: string = null, precision: number = null, scale: number, defaultValue: string = null, dimension: number = -1, cardinality: number = -1, as = null) {
+      name: string, primary: boolean = null, nullable: boolean = null, type: string = null, collectionsType: string = null, precision: number = null, scale: number, defaultValue: string = null, dimension: number = -1, cardinality: number = -1, as = null) {
     this.name = name;
     this.primary = primary;
     this.nullable = nullable;
@@ -168,12 +204,12 @@ export class TableConstraint {
  */
 export class Index {
   constructor(
-    private schema: string,
-    private table: string,
-    private name: string,
-    private storeUniqueName: string,
-    private method: string,
-    private columns: string[]
+      private schema: string,
+      private table: string,
+      private name: string,
+      private storeUniqueName: string,
+      private method: string,
+      private columns: string[]
   ) {
   }
 }
@@ -215,12 +251,13 @@ export interface StackTrace {
 
 export class PartitioningRequest {
   constructor(
-    public schemaName: string = '',
-    public tableName: string = '',
-    public method: string = 'NONE',//enum in Java
-    public numPartitions: number = 2,
-    public column = ''
-  ) {}
+      public schemaName: string = '',
+      public tableName: string = '',
+      public method: string = 'NONE',//enum in Java
+      public numPartitions: number = 2,
+      public column = ''
+  ) {
+  }
 }
 
 export class PartitionFunctionModel {
@@ -252,11 +289,12 @@ export enum FieldType {
 
 export class ModifyPartitionRequest {
   constructor(
-    public schemaName: string,
-    public tableName: string,
-    public partitions: string[],
-    public storeUniqueName: string
-  ) {}
+      public schemaName: string,
+      public tableName: string,
+      public partitions: string[],
+      public storeUniqueName: string
+  ) {
+  }
 }
 
 /**

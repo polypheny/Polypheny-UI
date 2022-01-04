@@ -86,10 +86,17 @@ export class CrudService {
   }
 
   /**
-   * Request all aviable statistic from the server
+   * Request all available statistic from the server
    */
-  allStatistics ( statistics: StatisticRequest) {
-    return this._http.post(`${this.httpUrl}/allStatistics`,statistics,  this.httpOptions);
+  allStatistics ( statistics: StatisticRequest ) {
+    return this._http.post(`${this.httpUrl}/allStatistics`, statistics,  this.httpOptions);
+  }
+
+  /**
+   * Request all available table statistics from the server
+   */
+  getTableStatistics( statistics: StatisticRequest ){
+    return this._http.post(`${this.httpUrl}/getTableStatistics`, statistics, this.httpOptions );
   }
 
   /**
