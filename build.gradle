@@ -79,6 +79,12 @@ publishing {
 task generatePom(group: 'publishing', dependsOn: "generatePomFileFor${project.name.capitalize()}Publication")
 
 
+task licenseReport(type: NpxTask) {
+  command = 'license-checker'
+  args = ['--json']
+}
+
+
 //clean.dependsOn(npm_cache_clean)
 
 clean {
