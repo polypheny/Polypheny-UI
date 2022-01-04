@@ -54,3 +54,5 @@ Thumbs.db
 # cypress
 *.mp4
 /cypress/screenshots/
+
+/uiLicenseReport.json
