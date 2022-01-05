@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div class="card">
+    <div class="card-header">DML</div>
+    <div class="card-body">
+        <button type="button" class="btn btn-primary" (click)="show()" >Get DML Information</button>
+
+
+        <div *ngIf="showDml">
+            <app-graph [data]="test" [labels]="labels" [chartType]="line" [min]="min" [max]="max"></app-graph>
+        </div>
+
+
+    </div>
+
+</div>
+
+<div class="card">
+    <div class="card-header">Query</div>
+    <div class="card-body">
+        <button type="button" class="btn btn-primary"  (click)="getQueryInformation()">Get Query Information</button>
+    </div>
+
+</div>
+
+
+</body>
+</html>

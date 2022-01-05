@@ -134,6 +134,13 @@ export class StatisticRequest extends UIRequest {
   }
 }
 
+export class MonitoringRequest extends UIRequest{
+  constructor() {
+    super();
+    return this;
+  }
+}
+
 export class SchemaTypeRequest extends UIRequest{
   constructor() {
     super();

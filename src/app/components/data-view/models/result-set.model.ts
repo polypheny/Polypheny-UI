@@ -121,7 +121,13 @@ export class FilteredUserInput {
   [column: string]: {}
 }
 
+export class DashboardData {
+  labels: string;
+  data: number;
 
+  constructor() {
+  }
+}
 /**
  * Model for a column of a table
  */

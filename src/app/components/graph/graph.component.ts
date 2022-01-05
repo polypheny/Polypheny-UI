@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {CustomTooltips} from '@coreui/coreui-plugin-chartjs-custom-tooltips';
-import {getStyle, hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities';
+import {hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities';
 
 @Component({
   selector: 'app-graph',
@@ -112,6 +112,7 @@ export class GraphComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
+    console.log('in on init graph');
   }
 
   /**
@@ -120,14 +121,21 @@ export class GraphComponent implements OnInit, OnChanges {
    * other variables depend on it
    */
   ngOnChanges(changes: SimpleChanges) {
+    console.log('in changes graph');
     if( changes['chartType'] ) {
       this.setChartType( changes['chartType'].currentValue );
     }
     if( changes['data'] ) {
       this._data = this.mapData( changes['data'].currentValue );
+      console.log('data');
+      console.log(this.data);
+      console.log(this._data);
     }
     if( changes['labels'] ) {
       this._labels = this.mapLabel( changes['labels'].currentValue );
+      console.log('labels');
+      console.log(this.labels);
+      console.log(this._labels);
     }
     if( changes['min'] ) {
       this._min = changes['min'].currentValue;

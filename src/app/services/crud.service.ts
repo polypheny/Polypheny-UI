@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, ExploreTable, MaterializedRequest, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, ExploreTable, MaterializedRequest, MonitoringRequest, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
@@ -97,6 +97,13 @@ export class CrudService {
    */
   getTableStatistics( statistics: StatisticRequest ){
     return this._http.post(`${this.httpUrl}/getTableStatistics`, statistics, this.httpOptions );
+  }
+
+  /**
+   * Request all available dml information from the monitoring (server)
+   */
+  getDmlInformation(monitoringRequest: MonitoringRequest){
+    return this._http.post( `${this.httpUrl}/getDmlInformation`, monitoringRequest, this.httpOptions );
   }
 
   /**
