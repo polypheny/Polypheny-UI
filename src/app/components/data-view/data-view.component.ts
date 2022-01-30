@@ -144,7 +144,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.hasOwnProperty('resultSet')) {
       this.schemaType = this.resultSet.schemaType;
-      if(this.schemaType === 'document') {
+      if(this.schemaType.toLowerCase() === 'document') {
         this.presentationType = DataPresentationType.CARD;
       }else{
         this.presentationType = DataPresentationType.TABLE;
@@ -556,7 +556,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       let fullQuery;
 
       if(!isView){
-        if ( this.resultSet.schemaType === 'document'){
+        if ( this.resultSet.schemaType.toLowerCase() === 'document'){
           this._toast.error('Materialized views are not jet supported for document queries.');
           return;
         }
@@ -586,7 +586,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
 
   private getViewQuery() {
-    if( this.resultSet.schemaType === 'document'){
+    if( this.resultSet.schemaType.toLowerCase() === 'document'){
       let source;
       let pipeline;
 
@@ -737,8 +737,8 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   checkModelAndLanguage() {
-    return (this.resultSet.schemaType === 'document' && this.resultSet.languageType === 'mql') ||
-        (this.resultSet.schemaType === 'relational' && this.resultSet.languageType === 'sql');
+    return (this.resultSet.schemaType.toLowerCase() === 'document' && this.resultSet.languageType === 'mql') ||
+        (this.resultSet.schemaType.toLowerCase() === 'relational' && this.resultSet.languageType === 'sql');
   }
 }
 

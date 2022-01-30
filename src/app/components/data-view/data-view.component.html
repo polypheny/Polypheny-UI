@@ -60,7 +60,7 @@
                     <button class="btn btn-primary btn-lg mr-1 btn-block" (click)="showView = ViewType.VIEW">
                         View
                     </button>
-                    <button class="btn btn-primary btn-lg mr-1 btn-block" *ngIf="resultSet.schemaType !== 'document'" (click)="showView = ViewType.MATERIALIZED">
+                    <button class="btn btn-primary btn-lg mr-1 btn-block" *ngIf="resultSet.schemaType.toLowerCase() !== 'document'" (click)="showView = ViewType.MATERIALIZED">
                         Materialized View
                     </button>
                 </div>

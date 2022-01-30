@@ -210,7 +210,7 @@ export class LeftSidebarService {
         else if (schemaRequest.depth === 1) {
           schema.forEach((val, key) => {
 
-            if( (val as SidebarNode).schemaType === 'document'){
+            if( (val as SidebarNode).schemaType.toLowerCase() === 'document'){
               if( val.cssClass === undefined){
                 val.cssClass = 'node-disabled';
               }else {
