@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {DbColumn, ResultSet} from '../../../components/data-view/models/result-set.model';
+import {DbColumn, ResultSet, StatisticColumnSet, StatisticTableSet} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
-import {ColumnRequest, EditTableRequest, TableRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, EditTableRequest, StatisticRequest, TableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {ToastService} from '../../../components/toast/toast.service';
@@ -28,6 +28,11 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   foreignKeys: ForeignKey[] = [];
   underlyingTables: {};
 
+  statisticSet: StatisticTableSet;
+  alphabeticStatisticSet: StatisticColumnSet;
+  numericalStatisticSet: StatisticColumnSet;
+  temporalStatisticSet: StatisticColumnSet;
+
   constructor(
     private _crud: CrudService,
     private _route: ActivatedRoute,
@@ -47,6 +52,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     this.fetchCurrentColumns();
     this.fetchExportedColumns();
     this.getPlacements();
+    this.getTableStatistics(this.tableId);
     const self = this;
     $(document).on('click', function(e){
       if( $(e.target).hasClass('rename') || $(e.target).hasClass('add-col') ) {
@@ -223,6 +229,16 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     );
   }
 
+  getTableStatistics(tableId: string){
+    this._crud.getTableStatistics(new StatisticRequest(tableId)).subscribe(
+        res =>{
+          this.statisticSet = <StatisticTableSet>res;
+          this.alphabeticStatisticSet = this.statisticSet.alphabeticColumn;
+          this.numericalStatisticSet = this.statisticSet.numericalColumn;
+          this.temporalStatisticSet = this.statisticSet.temporalColumn;
+        }
+    );
+  }
   
 
 }

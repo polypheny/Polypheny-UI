@@ -1,158 +1,275 @@
 <div class="row">
 
-  <div class="col-lg-12">
-    <h5>{{tableId}}</h5>
-  </div>
+    <div class="col-lg-12">
+        <h5>{{tableId}}</h5>
+    </div>
 
-  <div class="col-lg-12">
-    <table class="table table-hover table-striped" id="sourceTable" *ngIf="resultSet">
-      <thead>
-      <tr>
-        <th class="small-col">PK</th>
-        <th>Name</th>
-        <th>Nullable</th>
-        <th>Type</th>
-        <th>Collection</th>
-        <th>Parameters</th>
-        <th *ngIf="dataPlacement && dataPlacement.tableType != 'VIEW'">Default</th>
-        <th class="small-col"></th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let col of resultSet.header; let i = index" [ngClass]="{'editing': editingCol === col.physicalName}">
-        <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
-        <td>
-          <span *ngIf="editingCol !== col.physicalName">{{col.name}}</span>
-          <i *ngIf="editingCol !== col.physicalName" class="cui-pencil rename ml-2" (click)="editingCol = col.physicalName"></i>
-          <div class="input-group input-group-sm" *ngIf="editingCol === col.physicalName" style="max-width: 200px">
-            <input type="text" class="form-control form-control-sm" [placeholder]="col.name" autofocus (keyup.enter)="renameCol(col, columnNameInput.value, dataPlacement.tableType)" #columnNameInput>
-            <div class="input-group-append">
-              <button class="btn btn-primary btn-sm input-group" (click)="renameCol(col, columnNameInput.value, dataPlacement.tableType)">rename</button>
+    <div class="col-lg-12">
+        <table class="table table-hover table-striped" id="sourceTable" *ngIf="resultSet">
+            <thead>
+            <tr>
+                <th class="small-col">PK</th>
+                <th>Name</th>
+                <th>Nullable</th>
+                <th>Type</th>
+                <th>Collection</th>
+                <th>Parameters</th>
+                <th *ngIf="dataPlacement && dataPlacement.tableType != 'VIEW'">Default</th>
+                <th class="small-col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let col of resultSet.header; let i = index" [ngClass]="{'editing': editingCol === col.physicalName}">
+                <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
+                <td>
+                    <span *ngIf="editingCol !== col.physicalName">{{col.name}}</span>
+                    <i *ngIf="editingCol !== col.physicalName" class="cui-pencil rename ml-2" (click)="editingCol = col.physicalName"></i>
+                    <div class="input-group input-group-sm" *ngIf="editingCol === col.physicalName" style="max-width: 200px">
+                        <input type="text" class="form-control form-control-sm" [placeholder]="col.name" autofocus (keyup.enter)="renameCol(col, columnNameInput.value, dataPlacement.tableType)" #columnNameInput>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary btn-sm input-group" (click)="renameCol(col, columnNameInput.value, dataPlacement.tableType)">rename</button>
+                        </div>
+                    </div>
+                </td>
+                <td><i class="fa fa-check" *ngIf="col.nullable"></i></td>
+                <td>{{col.dataType}}</td>
+                <td>{{col.collectionsType}}</td>
+                <td>
+                    <span class="parameter" *ngIf="col.precision">{{_types.precisionPlaceholder( col.dataType )}}: {{col.precision}}</span>
+                    <span class="parameter" *ngIf="col.scale">scale: {{col.scale}}</span>
+                    <span class="parameter" *ngIf="col.dimension">dimension: {{col.dimension}}</span>
+                    <span class="parameter" *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
+                </td>
+                <td *ngIf="dataPlacement.tableType != 'VIEW'">{{col.defaultValue}}</td>
+                <th class="small-col">
+                    <app-delete-confirm *ngIf="(dataPlacement.tableType != 'VIEW')" (delete)="dropColumn(col)"></app-delete-confirm>
+                </th>
+            </tr>
+            <tr *ngFor="let col of getAddableColumns()" class="hidden-col" [ngClass]="{'editing': editingCol === col.physicalName}">
+                <ng-container *ngIf="editingCol !== col.physicalName">
+                    <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
+                    <td>{{col.name}}</td>
+                    <td><i class="fa fa-check" *ngIf="col.nullable"></i></td>
+                    <td>{{col.dataType}}</td>
+                    <td>{{col.collectionsType}}</td>
+                    <td>
+                        <span class="parameter" *ngIf="col.precision">{{_types.precisionPlaceholder( col.dataType )}}: {{col.precision}}</span>
+                        <span class="parameter" *ngIf="col.scale">scale: {{col.scale}}</span>
+                        <span class="parameter" *ngIf="col.dimension">dimension: {{col.dimension}}</span>
+                        <span class="parameter" *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
+                    </td>
+                    <td>{{col.defaultValue}}</td>
+                    <th class="small-col"><i class="fa fa-eye add-col" (click)="editingCol = col.physicalName"></i></th>
+                </ng-container>
+                <ng-container *ngIf="editingCol === col.physicalName">
+                    <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm" style="max-width: 250px" [value]="col.name" placeholder="name" #newName (keyup.enter)="addColumn(col, newName.value, newDefault.value)">
+                    </td>
+                    <td><i class="fa fa-check" *ngIf="col.nullable"></i></td>
+                    <td>{{col.dataType}}</td>
+                    <td>{{col.collectionsType}}</td>
+                    <td>
+                        <span class="parameter" *ngIf="col.precision">{{_types.precisionPlaceholder( col.dataType )}}: {{col.precision}}</span>
+                        <span class="parameter" *ngIf="col.scale">scale: {{col.scale}}</span>
+                        <span class="parameter" *ngIf="col.dimension">dimension: {{col.dimension}}</span>
+                        <span class="parameter" *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
+                    </td>
+                    <td *ngIf="dataPlacement.tableType != 'VIEW'">
+                        <input type="text" class="form-control form-control-sm" placeholder="default value" style="max-width: 250px" #newDefault (keyup.enter)="addColumn(col, newName.value, newDefault.value)">
+                    </td>
+                    <th class="small-col"><i class="fa fa-save add-col btn btn-primary btn-sm" (click)="addColumn(col, newName.value, newDefault.value)"></i></th>
+                </ng-container>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-lg-12" *ngIf="foreignKeys && foreignKeys.length > 0">
+        <hr>
+        <h5>Foreign key</h5>
+        <table class="table table-hover table-striped">
+
+            <thead>
+            <tr>
+                <th>FK Name</th>
+                <th>Column Name</th>
+                <th>Target Table</th>
+                <th>Target Column</th>
+                <th>Update Enforcement</th>
+                <th>Delete Enforcement</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let fk of foreignKeys; let i = index">
+                <td>{{fk.fkName}}</td>
+                <td>{{fk.sourceColumn}}</td>
+                <td>{{fk.targetTable}}</td>
+                <td>{{fk.targetColumn}}</td>
+                <td>{{fk.onUpdate}}</td>
+                <td>{{fk.onDelete}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-lg-12" *ngIf="dataPlacement && dataPlacement.tableType != 'VIEW'">
+        <hr>
+        <h5>Source</h5>
+
+        <table class="table table-hover table-striped mt-3" *ngIf="resultSet">
+            <thead>
+            <tr>
+                <th>Unique name</th>
+                <th>Adapter</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let store of dataPlacement.stores">
+                <td>{{store.uniqueName}}</td>
+                <td>{{store.adapterName}}</td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+
+    <div class="col-lg-12" *ngIf="dataPlacement && dataPlacement.tableType == 'VIEW'">
+        <hr>
+        <h5>Underlying Tables</h5>
+
+        <table class="table table-hover table-striped mt-3" *ngIf="resultSet">
+            <thead>
+            <tr>
+                <th>Table</th>
+                <th>Columns</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let table of underlyingTables | keyvalue">
+                <td>{{table.key}}</td>
+                <td>{{table.value.join( ", " )}}</td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="col-lg-12" *ngIf="statisticSet != null">
+        <hr>
+        <h5>Statistics</h5>
+        <hr>
+
+        <h5>Table Statistics</h5>
+        <table class="table table-hover table-striped">
+            <thead>
+            <tr>
+                <th>Number of Rows</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{this.statisticSet.numberOfRows}}</td>
+                <th></th>
+            </tr>
+            </tbody>
+        </table>
+
+        <table class="table table-hover table-striped">
+            <thead>
+            <tr>
+                <th># of SELECT</th>
+                <th># of INSERT</th>
+                <th># of DELETE</th>
+                <th># of UPDATE</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{this.statisticSet.calls.numberOfSelects}}</td>
+                <td>{{this.statisticSet.calls.numberOfInserts}}</td>
+                <td>{{this.statisticSet.calls.numberOfDeletes}}</td>
+                <td>{{this.statisticSet.calls.numberOfUpdates}}</td>
+                <th></th>
+            </tr>
+            </tbody>
+        </table>
+
+        <hr>
+        <h5>Column Statistics</h5>
+        <p>Only columns with statistics are shown.</p>
+
+        <div *ngFor="let obj of this.alphabeticStatisticSet | keyvalue">
+            <div *ngIf="!obj.value.isFull">
+                <h5>{{obj.value.column}}</h5>
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th *ngIf="!obj.value.isFull">Unique Values</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td *ngIf="!obj.value.isFull">{{obj.value.uniqueValues}}</td>
+                        <th></th>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-          </div>
-        </td>
-        <td><i class="fa fa-check" *ngIf="col.nullable"></i></td>
-        <td>{{col.dataType}}</td>
-        <td>{{col.collectionsType}}</td>
-        <td>
-          <span class="parameter" *ngIf="col.precision">{{_types.precisionPlaceholder(col.dataType)}}: {{col.precision}}</span>
-          <span class="parameter" *ngIf="col.scale">scale: {{col.scale}}</span>
-          <span class="parameter" *ngIf="col.dimension">dimension: {{col.dimension}}</span>
-          <span class="parameter" *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
-        </td>
-        <td *ngIf="dataPlacement.tableType != 'VIEW'">{{col.defaultValue}}</td>
-        <th class="small-col"><app-delete-confirm *ngIf="(dataPlacement.tableType != 'VIEW')" (delete)="dropColumn(col)"></app-delete-confirm></th>
-      </tr>
-      <tr *ngFor="let col of getAddableColumns()" class="hidden-col" [ngClass]="{'editing': editingCol === col.physicalName}">
-        <ng-container *ngIf="editingCol !== col.physicalName">
-          <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
-          <td>{{col.name}}</td>
-          <td><i class="fa fa-check" *ngIf="col.nullable"></i></td>
-          <td>{{col.dataType}}</td>
-          <td>{{col.collectionsType}}</td>
-          <td>
-            <span class="parameter" *ngIf="col.precision">{{_types.precisionPlaceholder(col.dataType)}}: {{col.precision}}</span>
-            <span class="parameter" *ngIf="col.scale">scale: {{col.scale}}</span>
-            <span class="parameter" *ngIf="col.dimension">dimension: {{col.dimension}}</span>
-            <span class="parameter" *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
-          </td>
-          <td>{{col.defaultValue}}</td>
-          <th class="small-col"><i class="fa fa-eye add-col" (click)="editingCol = col.physicalName"></i></th>
-        </ng-container>
-        <ng-container *ngIf="editingCol === col.physicalName">
-          <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
-          <td>
-            <input type="text" class="form-control form-control-sm" style="max-width: 250px" [value]="col.name" placeholder="name" #newName (keyup.enter)="addColumn(col, newName.value, newDefault.value)">
-          </td>
-          <td><i class="fa fa-check" *ngIf="col.nullable"></i></td>
-          <td>{{col.dataType}}</td>
-          <td>{{col.collectionsType}}</td>
-          <td>
-            <span class="parameter" *ngIf="col.precision">{{_types.precisionPlaceholder(col.dataType)}}: {{col.precision}}</span>
-            <span class="parameter" *ngIf="col.scale">scale: {{col.scale}}</span>
-            <span class="parameter" *ngIf="col.dimension">dimension: {{col.dimension}}</span>
-            <span class="parameter" *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
-          </td>
-          <td *ngIf="dataPlacement.tableType != 'VIEW'">
-            <input type="text" class="form-control form-control-sm" placeholder="default value" style="max-width: 250px" #newDefault (keyup.enter)="addColumn(col, newName.value, newDefault.value)">
-          </td>
-          <th class="small-col"><i class="fa fa-save add-col btn btn-primary btn-sm" (click)="addColumn(col, newName.value, newDefault.value)"></i></th>
-        </ng-container>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+        </div>
 
-  <div class="col-lg-12" *ngIf="foreignKeys && foreignKeys.length > 0">
-    <hr>
-    <h5>Foreign key</h5>
-    <table class="table table-hover table-striped" >
+        <div *ngFor="let obj of this.numericalStatisticSet | keyvalue">
+            <h5>{{obj.value.column}}</h5>
+            <table class="table table-hover table-striped">
+                <thead>
+                <tr>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th *ngIf="!obj.value.isFull">Unique Values</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{obj.value.min}}</td>
+                    <td>{{obj.value.max}}</td>
+                    <td *ngIf="!obj.value.isFull">{{obj.value.uniqueValues}}</td>
+                    <th></th>
+                </tr>
+                </tbody>
+            </table>
 
-      <thead>
-      <tr>
-        <th>FK Name</th>
-        <th>Column Name</th>
-        <th>Target Table</th>
-        <th>Target Column</th>
-        <th>Update Enforcement</th>
-        <th>Delete Enforcement</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let fk of foreignKeys; let i = index">
-        <td>{{fk.fkName}}</td>
-        <td>{{fk.sourceColumn}}</td>
-        <td>{{fk.targetTable}}</td>
-        <td>{{fk.targetColumn}}</td>
-        <td>{{fk.onUpdate}}</td>
-        <td>{{fk.onDelete}}</td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+        </div>
 
-  <div class="col-lg-12" *ngIf="dataPlacement && dataPlacement.tableType != 'VIEW'">
-    <hr>
-    <h5>Source</h5>
+        <div *ngFor="let obj of this.temporalStatisticSet| keyvalue">
+            <h5>{{obj.value.column}}</h5>
+            <table class="table table-hover table-striped">
+                <thead>
+                <tr>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th *ngIf="!obj.value.isFull">Unique Values</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{obj.value.min}}</td>
+                    <td>{{obj.value.max}}</td>
+                    <td *ngIf="!obj.value.isFull">{{obj.value.uniqueValues}}</td>
+                    <th></th>
+                </tr>
+                </tbody>
+            </table>
 
-    <table class="table table-hover table-striped mt-3" *ngIf="resultSet">
-      <thead>
-      <tr>
-        <th>Unique name</th>
-        <th>Adapter</th>
-      </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let store of dataPlacement.stores">
-          <td>{{store.uniqueName}}</td>
-          <td>{{store.adapterName}}</td>
-        </tr>
-      </tbody>
-    </table>
-
-  </div>
+        </div>
 
 
-  <div class="col-lg-12" *ngIf="dataPlacement && dataPlacement.tableType == 'VIEW'">
-    <hr>
-    <h5>Underlying Tables</h5>
-
-    <table class="table table-hover table-striped mt-3" *ngIf="resultSet">
-      <thead>
-      <tr>
-        <th>Table</th>
-        <th>Columns</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let table of underlyingTables | keyvalue">
-        <td>{{table.key}}</td>
-        <td>{{table.value.join(", ")}}</td>
-      </tr>
-      </tbody>
-    </table>
-
-  </div>
+    </div>
 
 
 </div>
