@@ -109,7 +109,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
             this.pageNotFound = false;
             this.data = <InformationPage>res;
             this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Monitoring', '/views/monitoring/'), new BreadcrumbItem(this.data.name.toString())]);
-            if(this.data.fullWidth) this._breadcrumb.hideZoom();
+            if(this.data.fullWidth) { this._breadcrumb.hideZoom(); }
             this.serverError = null;
           }
         }, err => {

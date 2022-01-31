@@ -20,19 +20,9 @@
     <li class="nav-item px-3">
       <a class="nav-link" href="https://valor-software.com/ngx-bootstrap/#/documentation" target="_blank">Ang Btrap</a>
     </li>-->
-    <li class="nav-item px-3"  dropdown triggers="mouseover" placement="bottom left" #dropdown="bs-dropdown" (mouseleave)="dropdown.hide()">
-      <a class="nav-link dropdown-toggle py-2 px-3" dropdownToggle [routerLink]="['/views/monitoring']">
+    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/views/monitoring']" routerLinkActive="active">
       <i class="fa fa-area-chart"></i><span class="d-md-down-none">Monitoring</span>
-    </a>
-      <div class="dropdown-menu dropdown-menu-left text-center" *dropdownMenu style="margin-top: -1px;">
-        <a class="dropdown-item" [routerLink]="['/views/monitoring']" routerLinkActive="active">
-          <i class="icon-pencil"></i><span class="d-md-down-none">Monitoring</span>
-        </a>
-        <a class="dropdown-item" [routerLink]="['/views/dashboard']" routerLinkActive="active">
-          <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Dashboard</span>
-        </a>
-      </div>
-    </li>
+    </a></li>
     <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/views/config']" routerLinkActive="active"><!--tooltip="Dynamic Form" placement="bottom"-->
       <i class="icon-settings"></i><span class="d-md-down-none">Config</span>
     </a></li>

@@ -1,34 +1,123 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<app-toast></app-toast>
 
-<div class="card">
-    <div class="card-header">DML</div>
-    <div class="card-body">
-        <button type="button" class="btn btn-primary" (click)="show()" >Get DML Information</button>
+<div class="col-lg-12">
+    <h5>Polypheny Status</h5>
 
+    <div class="card" *ngIf="dashboardInformation !=null && diagram.length > 0">
+        <div class="card-header">DML</div>
+        <div class="card-body">
 
-        <div *ngIf="showDml">
-            <app-graph [data]="test" [labels]="labels" [chartType]="line" [min]="min" [max]="max"></app-graph>
+            <app-graph [data]="diagram" [labels]="labels" [chartType]="line" [min]="min" [max]="max"></app-graph>
+
+        </div>
+    </div>
+
+    <div class="row" *ngIf="dashboardSet">
+        <div class="col-6">
+            <div class="card" style="min-height: 153px">
+                <div class="card-header">
+                    <span>General Information</span>
+                </div>
+                <div class="card-body">
+                    <h5>Database Information</h5>
+                    <table class="table table-hover table-striped">
+
+                        <thead>
+                        <tr>
+                            <th>Database Id</th>
+                            <th>Database Name</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let obj of this.dashboardSet.availableDatabases | keyvalue">
+                            <td>{{obj.key}}</td>
+                            <td>{{obj.value}}</td>
+                            <th></th>
+                        </tr>
+                        </tbody>
+
+                    </table>
+
+                    <h5>Adapter Information</h5>
+                    <table class="table table-hover table-striped">
+
+                        <thead>
+                        <tr>
+                            <th>Adapter Name</th>
+                            <th>Adapter Type</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let obj of this.dashboardSet.availableAdapter | keyvalue">
+                            <td>{{obj.key}}</td>
+                            <td>{{obj.value}}</td>
+                            <th></th>
+                        </tr>
+                        </tbody>
+
+                    </table>
+
+                    <h5>Schema Information</h5>
+                    <table class="table table-hover table-striped">
+
+                        <thead>
+                        <tr>
+                            <th>Schema Id</th>
+                            <th>Schema Name</th>
+                            <th>Schema Type</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let obj of this.dashboardSet.availableSchemas | keyvalue">
+                            <td>{{obj.key}}</td>
+                            <td>{{obj.value.left}}</td>
+                            <td>{{obj.value.right}}</td>
+                            <th></th>
+                        </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+            </div>
         </div>
 
+        <div class="col-6">
+            <div class="card" style="min-height: 153px">
+                <div class="card-header">
+                    <span>Workload Information</span>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover table-striped">
+
+                        <thead>
+                        <tr>
+                            <th>Commits</th>
+                            <th>Rollbacks</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>{{this.dashboardSet.numberOfCommits}}</td>
+                            <td>{{this.dashboardSet.numberOfRollbacks}}</td>
+                            <th></th>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
 
     </div>
-
-</div>
-
-<div class="card">
-    <div class="card-header">Query</div>
-    <div class="card-body">
-        <button type="button" class="btn btn-primary"  (click)="getQueryInformation()">Get Query Information</button>
-    </div>
-
 </div>
 
 
-</body>
-</html>
+
+
+
+

@@ -100,10 +100,17 @@ export class CrudService {
   }
 
   /**
+   * Request all dashboard information from the server
+   */
+  getDashboardInformation( statistics: StatisticRequest ){
+    return this._http.post(`${this.httpUrl}/getDashboardInformation`, statistics, this.httpOptions );
+  }
+
+  /**
    * Request all available dml information from the monitoring (server)
    */
-  getDmlInformation(monitoringRequest: MonitoringRequest){
-    return this._http.post( `${this.httpUrl}/getDmlInformation`, monitoringRequest, this.httpOptions );
+  getDashboardDiagram(monitoringRequest: MonitoringRequest){
+    return this._http.post( `${this.httpUrl}/getDashboardDiagram`, monitoringRequest, this.httpOptions );
   }
 
   /**

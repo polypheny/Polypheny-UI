@@ -32,7 +32,7 @@ export class ResultSet {
   }
 }
 
-export class InfoSet extends ResultSet{
+export class InfoSet extends ResultSet {
 
 
   constructor(error: string, generatedQuery: any, affectedRows: number) {
@@ -58,6 +58,17 @@ export class SelectedColSet {
   [column: string]: {
     selected: string
   }
+}
+
+export class DashboardSet {
+
+  availableAdapter: {};
+  availableDatabases: {} ;
+  availableSchemas: {};
+  catalogPersistent: boolean;
+  numberOfCommits: number;
+  numberOfRollbacks: number;
+
 }
 
 /**
@@ -110,6 +121,7 @@ export class StatisticColumnSet {
     uniqueValues: null,
     isFull: null,
   }
+
   constructor() {
   }
 }
@@ -122,12 +134,12 @@ export class FilteredUserInput {
 }
 
 export class DashboardData {
-  labels: string;
-  data: number;
+  column: {};
 
   constructor() {
   }
 }
+
 /**
  * Model for a column of a table
  */

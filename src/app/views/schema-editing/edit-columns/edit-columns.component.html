@@ -567,7 +567,6 @@
 
 
                 <h5>Column Statistics</h5>
-                <p>Only columns with statistics are shown.</p>
                 <div *ngFor="let obj of this.alphabeticStatisticSet | keyvalue" >
                     <div *ngIf="!obj.value.isFull">
                         <h5>{{obj.value.column}}</h5>
