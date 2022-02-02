@@ -25,7 +25,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   xLabel: string;
   yLabel: string;
   maintainAspectRatio = false;
-
+  digramInterval: number;
 
   constructor(
       public _crud: CrudService
@@ -33,19 +33,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.getDmlInformation();
+    this.getDiagram(this._crud);
     this.getDashboardInformation();
+    this.digramInterval = setInterval(this.getDiagram, 10000, this._crud);
   }
 
   ngOnDestroy() {
-
+  clearInterval(this.digramInterval);
   }
 
-  getDmlInformation() {
+  getDiagram(crud: CrudService) {
     this.dataWorkload = [];
     this.dataDql = [];
     this.labels = [];
-    this._crud.getDashboardDiagram(new MonitoringRequest()).subscribe(
+    crud.getDashboardDiagram(new MonitoringRequest()).subscribe(
         res => {
           this.dashboardInformation = <DashboardData>res;
 
@@ -56,8 +57,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.dataWorkload.push(value.right);
                 this.dataDql.push(value.left);
 
-                this.updateMinMax(value.right);
-                this.updateMinMax(value.left);
+
+                //find min and max between Workload and Query Information
+                if (this.min > value.right) {
+                  this.min = value.right;
+                }
+                if (this.max < value.right) {
+                  this.max = value.right;
+                }
+                if (this.min > value.left) {
+                  this.min = value.left;
+                }
+                if (this.max < value.left) {
+                  this.max = value.left;
+                }
               }
           );
         }
@@ -77,16 +90,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.xLabel = 'Time';
     this.yLabel = 'Number of Statements';
 
-  }
-
-
-  private updateMinMax(value: number) {
-    if (this.min > value) {
-      this.min = value;
-    }
-    if (this.max < value) {
-      this.max = value;
-    }
   }
 
   getDashboardInformation() {
