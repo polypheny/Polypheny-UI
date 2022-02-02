@@ -7,12 +7,12 @@ import {DashboardData, DashboardSet} from '../../components/data-view/models/res
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.scss']
 })
 
 
 export class DashboardComponent implements OnInit, OnDestroy {
-  dataDml = [];
+  dataWorkload = [];
   dataDql = [];
   labels = [];
   line = 'line';
@@ -22,6 +22,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   dashboardSet: DashboardSet;
   dashboardInformation: DashboardData;
+  xLabel: string;
+  yLabel: string;
+  maintainAspectRatio = false;
 
 
   constructor(
@@ -39,7 +42,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getDmlInformation() {
-    this.dataDml = [];
+    this.dataWorkload = [];
     this.dataDql = [];
     this.labels = [];
     this._crud.getDashboardDiagram(new MonitoringRequest()).subscribe(
@@ -50,26 +53,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
               ([key, value]) => {
                 this.labels.push(key);
 
-                this.dataDml.push(value.right);
+                this.dataWorkload.push(value.right);
                 this.dataDql.push(value.left);
 
                 this.updateMinMax(value.right);
                 this.updateMinMax(value.left);
               }
           );
-
-          this.diagram = [{
-            label: 'DML Information',
-            borderColor: 'rgb(255, 99, 132)',
-            data: this.dataDml
-          },
-            {
-              label: 'DQL Information',
-              borderColor: 'rgb(18,105,199)',
-              data: this.dataDql
-            }];
         }
     );
+
+    this.diagram = [{
+      label: 'Workload Information',
+      borderColor: 'rgb(255, 99, 132)',
+      data: this.dataWorkload,
+    },
+      {
+        label: 'Query Information',
+        borderColor: 'rgb(18,105,199)',
+        data: this.dataDql
+      }];
+
+    this.xLabel = 'Time';
+    this.yLabel = 'Number of Statements';
 
   }
 

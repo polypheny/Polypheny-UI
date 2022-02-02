@@ -7,7 +7,7 @@
         <div class="card-header">DML</div>
         <div class="card-body">
 
-            <app-graph [data]="diagram" [labels]="labels" [chartType]="line" [min]="min" [max]="max"></app-graph>
+            <app-graph [data]="diagram" [labels]="labels" [chartType]="line" [min]="min" [maintainAspectRatio]="false" [max]="max" [xLabel]="xLabel" [yLabel]="yLabel" class="dashboard-diagram"></app-graph>
 
         </div>
     </div>
@@ -19,26 +19,6 @@
                     <span>General Information</span>
                 </div>
                 <div class="card-body">
-                    <h5>Database Information</h5>
-                    <table class="table table-hover table-striped">
-
-                        <thead>
-                        <tr>
-                            <th>Database Id</th>
-                            <th>Database Name</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr *ngFor="let obj of this.dashboardSet.availableDatabases | keyvalue">
-                            <td>{{obj.key}}</td>
-                            <td>{{obj.value}}</td>
-                            <th></th>
-                        </tr>
-                        </tbody>
-
-                    </table>
-
                     <h5>Adapter Information</h5>
                     <table class="table table-hover table-striped">
 
@@ -97,6 +77,8 @@
                         <tr>
                             <th>Commits</th>
                             <th>Rollbacks</th>
+                            <th># of Workload</th>
+                            <th># of Queries</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -104,6 +86,8 @@
                         <tr>
                             <td>{{this.dashboardSet.numberOfCommits}}</td>
                             <td>{{this.dashboardSet.numberOfRollbacks}}</td>
+                            <td>{{this.dashboardSet.numberOfWorkloads}}</td>
+                            <td>{{this.dashboardSet.numberOfQueries}}</td>
                             <th></th>
                         </tr>
                         </tbody>

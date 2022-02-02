@@ -737,8 +737,8 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   checkModelAndLanguage() {
-    return (this.resultSet.schemaType.toLowerCase() === 'document' && this.resultSet.languageType === 'mql') ||
-        (this.resultSet.schemaType.toLowerCase() === 'relational' && this.resultSet.languageType === 'sql');
+    return (this.resultSet.schemaType.toLowerCase() === 'document' && this.resultSet.language.toLowerCase() === 'mql') ||
+        (this.resultSet.schemaType.toLowerCase() === 'relational' && this.resultSet.language.toLowerCase() === 'sql');
   }
 }
 

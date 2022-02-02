@@ -18,7 +18,7 @@ export class ResultSet {
   generatedQuery: string;
   type: string;//"table" or "view"
   schemaType: string;//"relational" or "document"
-  languageType: string; //sql,mql,cql
+  language: string; //sql,mql,cql
   explorerId: number;
   classificationInfo: string;
   includesClassificationInfo: boolean;
@@ -63,11 +63,12 @@ export class SelectedColSet {
 export class DashboardSet {
 
   availableAdapter: {};
-  availableDatabases: {} ;
   availableSchemas: {};
   catalogPersistent: boolean;
   numberOfCommits: number;
   numberOfRollbacks: number;
+  numberOfQueries: number;
+  numberOfWorkloads: number;
 
 }
 
