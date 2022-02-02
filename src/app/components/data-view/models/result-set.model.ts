@@ -97,6 +97,7 @@ export class StatisticTableSet {
   alphabeticColumn: StatisticColumnSet;
   numericalColumn: StatisticColumnSet;
   temporalColumn: StatisticColumnSet;
+  tableType: string;
 
   constructor() {
   }

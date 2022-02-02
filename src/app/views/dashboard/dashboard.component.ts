@@ -2,6 +2,7 @@ import {Component, OnDestroy, OnInit,} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {MonitoringRequest, StatisticRequest} from '../../models/ui-request.model';
 import {DashboardData, DashboardSet} from '../../components/data-view/models/result-set.model';
+import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 
 
 @Component({
@@ -28,7 +29,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   digramInterval: number;
 
   constructor(
-      public _crud: CrudService
+      public _crud: CrudService,
+      private _breadcrumb:BreadcrumbService
   ) {
   }
 
@@ -77,12 +79,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     );
 
     this.diagram = [{
-      label: 'Workload Information',
+      label: 'DML',
       borderColor: 'rgb(255, 99, 132)',
       data: this.dataWorkload,
     },
       {
-        label: 'Query Information',
+        label: 'DQL',
         borderColor: 'rgb(18,105,199)',
         data: this.dataDql
       }];

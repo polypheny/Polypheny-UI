@@ -20,7 +20,7 @@
                     </tbody>
                 </table>
 
-                <table class="table table-hover table-striped">
+                <table class="table table-hover table-striped" *ngIf="this.statisticSet.tableType != 'MATERIALIZED_VIEW'">
                     <thead>
                     <tr>
                         <th># of SELECT</th>
@@ -43,6 +43,7 @@
 
 
                 <h5>Column Statistics</h5>
+                <hr>
                 <div *ngFor="let obj of this.alphabeticStatisticSet | keyvalue">
                     <div *ngIf="!obj.value.isFull">
                         <h5>{{obj.value.column}}</h5>

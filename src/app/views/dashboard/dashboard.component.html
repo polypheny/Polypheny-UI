@@ -1,10 +1,9 @@
 <app-toast></app-toast>
 
-<div class="col-lg-12">
-    <h5>Polypheny Status</h5>
+<div class="col-lg-12" style="padding-left: 0px;padding-right: 0px;">
 
     <div class="card" *ngIf="dashboardInformation !=null && diagram.length > 0">
-        <div class="card-header">DML</div>
+        <div class="card-header">Workload</div>
         <div class="card-body">
 
             <app-graph [data]="diagram" [labels]="labels" [chartType]="line" [min]="min" [maintainAspectRatio]="false" [max]="max" [xLabel]="xLabel" [yLabel]="yLabel" class="dashboard-diagram"></app-graph>
@@ -77,8 +76,8 @@
                         <tr>
                             <th>Commits</th>
                             <th>Rollbacks</th>
-                            <th># of Workload</th>
-                            <th># of Queries</th>
+                            <th># of DML</th>
+                            <th># of DQL</th>
                             <th></th>
                         </tr>
                         </thead>
