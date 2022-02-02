@@ -8,6 +8,8 @@ import {SidebarNode} from '../../models/sidebar-node.model';
 import {ResultSet} from '../../components/data-view/models/result-set.model';
 import {ToastService} from '../../components/toast/toast.service';
 import {Subscription} from 'rxjs';
+import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
+import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 
 @Component({
   selector: 'app-schema-editing',
@@ -30,19 +32,20 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     private _route: ActivatedRoute,
     private _router: Router,
     private _leftSidebar: LeftSidebarService,
+    private _breadcrumb:BreadcrumbService,
     private _crud: CrudService,
     private _toast: ToastService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
-
     this.getRouteParam();
     this.getSchema();
     this.initForms();
     this._route.params.subscribe((ev) => {
       this.getSchemaType();
     });
-
+    this.setBreadCrumb();
     const sub = this._crud.onReconnection().subscribe(
       b => {
         this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2,false, true), this._router);
@@ -51,9 +54,24 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub);
   }
 
+  setBreadCrumb() {
+    const url = this._router.url.replace('/views/schema-editing/', '');
+    if(url.length <= 0){
+      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing')]);
+    }else if(url.includes('statistics-column')) {
+      const colName = url.replace('/statistics-column', '').split('.')[url.replace('/statistics-column', '').split('.').length -1];
+      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(colName, this._router.url.replace('/statistics-column', '')), new BreadcrumbItem('statistics')]);
+    }else if(!url.includes('.')){
+      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(url)]);
+    }else{
+      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(url.split('.')[url.split('.').length - 1])]);
+    }
+  }
+
   ngOnDestroy() {
     this._leftSidebar.close();
     this.subscriptions.unsubscribe();
+    this._breadcrumb.hide();
   }
 
   getRouteParam() {
@@ -191,4 +209,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     }
   }
 
+  isStatistic() {
+    return this._router.url.includes('statistics');
+  }
 }

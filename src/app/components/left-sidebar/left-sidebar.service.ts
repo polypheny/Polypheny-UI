@@ -8,6 +8,8 @@ import {CrudService} from '../../services/crud.service';
 import {SchemaRequest} from '../../models/ui-request.model';
 import {JavaPage, SidebarNode} from '../../models/sidebar-node.model';
 import {Router} from '@angular/router';
+import {BreadcrumbItem} from '../breadcrumb/breadcrumb-item';
+import {BreadcrumbService} from '../breadcrumb/breadcrumb.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +25,8 @@ export class LeftSidebarService {
     private _http: HttpClient,
     private _informationService: InformationService,
     private _configService: ConfigService,
-    private _crud: CrudService
+    private _crud: CrudService,
+    private _breadcrumb:BreadcrumbService
   ) {
   }
 
@@ -175,9 +178,11 @@ export class LeftSidebarService {
               if(node.data.children.length === 0){
                 const url = ['/views/schema-editing/'];
                 const fullChildLink = (url.concat(rname));
+               this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(((node.data.id).split('.'))[0], node.data.routerLink ), new BreadcrumbItem(node.data.name)], node.data.id);
                 _router.navigate(fullChildLink );
               } else {
                 const fullLink = rLink.concat(rname);
+                this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(node.data.name)]);
                 _router.navigate(fullLink );
               }
               if (node.isCollapsed) {

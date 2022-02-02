@@ -104,6 +104,13 @@ const routes: Routes = [
     }
   },
   {
+    path: 'schema-editing/:id/statistics-column',
+    component: SchemaEditingComponent,
+    data: {
+      title: 'Statistics'
+    }
+  },
+  {
     path: 'config',
     component: FormGeneratorComponent,
     data: {

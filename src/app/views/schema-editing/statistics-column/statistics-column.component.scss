@@ -1,0 +1,28 @@
+.small-col {
+  width: 1em;
+  text-align: center;
+}
+
+.hidden-col, .hidden-col:hover {
+  color: gray;
+}
+
+.add-col {
+  cursor: pointer;
+}
+
+.rename {
+  cursor: pointer;
+}
+
+#sourceTable .parameter {
+  display: flex;
+}
+
+app-delete-confirm, .rename {
+  visibility: hidden;
+}
+
+tr:hover app-delete-confirm, tr:hover .rename {
+  visibility: visible;
+}

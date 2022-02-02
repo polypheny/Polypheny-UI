@@ -6,7 +6,7 @@ import {CrudService} from '../../../services/crud.service';
 import {DbColumn, FieldType, Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, ResultSet, StatisticColumnSet, StatisticTableSet, TableConstraint} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest, StatisticRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {CatalogColumnPlacement, MaterializedInfos, Placements, PlacementType, Store} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -139,7 +139,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.getPlacementsAndPartitions();
         this.getAvailableStoresForIndexes();
         this.getUml();
-        this.getTableStatistics(this.tableId);
       }
     });
     this.subscriptions.add(sub);
@@ -995,17 +994,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }else{
       return '';
     }
-  }
-
-  getTableStatistics(tableId: string){
-    this._crud.getTableStatistics(new StatisticRequest(tableId)).subscribe(
-        res =>{
-          this.statisticSet = <StatisticTableSet>res;
-          this.alphabeticStatisticSet = this.statisticSet.alphabeticColumn;
-          this.numericalStatisticSet = this.statisticSet.numericalColumn;
-          this.temporalStatisticSet = this.statisticSet.temporalColumn;
-        }
-    );
   }
 
 }
