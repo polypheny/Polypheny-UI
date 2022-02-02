@@ -44,8 +44,8 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     this.initForms();
     this._route.params.subscribe((ev) => {
       this.getSchemaType();
+      this.setBreadCrumb();
     });
-    this.setBreadCrumb();
     const sub = this._crud.onReconnection().subscribe(
       b => {
         this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2,false, true), this._router);
