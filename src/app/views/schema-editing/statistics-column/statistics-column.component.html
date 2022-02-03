@@ -2,7 +2,7 @@
 
     <div class="col-lg-12">
         <div class="card" *ngIf="statisticSet != null">
-            <div class="card-header">Statistics of {{tableId}}</div>
+            <div class="card-header">Entity statistics of {{tableId}}</div>
             <div class="card-body">
                 <h5>Table Statistics</h5>
                 <table class="table table-hover table-striped">
@@ -40,10 +40,14 @@
                     </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
 
-
-                <h5>Column Statistics</h5>
-                <hr>
+    <div class="col-lg-12">
+        <div class="card" *ngIf="statisticSet != null">
+            <div class="card-header">Column statistics of {{tableId}}</div>
+            <div class="card-body">
                 <div *ngFor="let obj of this.alphabeticStatisticSet | keyvalue">
                     <div *ngIf="!obj.value.isFull">
                         <h5>{{obj.value.column}}</h5>
