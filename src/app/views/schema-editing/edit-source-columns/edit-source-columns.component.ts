@@ -223,6 +223,4 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     );
   }
 
-  
-
 }

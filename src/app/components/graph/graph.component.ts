@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {CustomTooltips} from '@coreui/coreui-plugin-chartjs-custom-tooltips';
-import {getStyle, hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities';
+import {hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities';
 
 @Component({
   selector: 'app-graph',
@@ -26,6 +26,14 @@ export class GraphComponent implements OnInit, OnChanges {
   _max: number;
   @Input() max: number;
 
+  _xLabel: string;
+  @Input() xLabel: string;
+
+  _yLabel: string;
+  @Input() yLabel: string;
+
+  @Input() maintainAspectRatio = true;
+
   options: any = {
     animation: false,
     responsive: true,
@@ -44,13 +52,22 @@ export class GraphComponent implements OnInit, OnChanges {
     },
     scales: {
       yAxes: [{
+        scaleLabel: {
+          display: false,
+          labelString: ''
+        },
         ticks: {
           //values are set by updateOptions()
           //suggestedMin: 0,
           //suggestedMax: 0
         }
       }],
-      xAxes: [{}]
+      xAxes: [{
+        scaleLabel: {
+          display: false,
+          labelString: ''
+        }
+      }]
     }
   };
 
@@ -70,15 +87,15 @@ export class GraphComponent implements OnInit, OnChanges {
 
   doughnutPolarColors = [{
     backgroundColor: [
-      hexToRgba( this.getColor(0), 60),
-      hexToRgba( this.getColor(1), 60),
-      hexToRgba( this.getColor(2), 60),
-      hexToRgba( this.getColor(3), 60),
-      hexToRgba( this.getColor(4), 60),
-      hexToRgba( this.getColor(5), 60),
-      hexToRgba( this.getColor(6), 60),
-      hexToRgba( this.getColor(7), 60),
-      hexToRgba( this.getColor(8), 60),
+      hexToRgba(this.getColor(0), 60),
+      hexToRgba(this.getColor(1), 60),
+      hexToRgba(this.getColor(2), 60),
+      hexToRgba(this.getColor(3), 60),
+      hexToRgba(this.getColor(4), 60),
+      hexToRgba(this.getColor(5), 60),
+      hexToRgba(this.getColor(6), 60),
+      hexToRgba(this.getColor(7), 60),
+      hexToRgba(this.getColor(8), 60),
     ],
     borderColor: [
       this.getColor(0),
@@ -95,15 +112,15 @@ export class GraphComponent implements OnInit, OnChanges {
   }];
 
   barColors = [
-    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(0), 60 ) },
-    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(1), 60 ) },
-    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(2), 60 ) },
-    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(3), 60 ) },
-    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(4), 60 ) },
-    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(5), 60 ) },
-    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(6), 60 ) },
-    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(7), 60 ) },
-    { borderWidth: 1, backgroundColor: hexToRgba( this.getColor(8), 60 ) },
+    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(0), 60)},
+    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(1), 60)},
+    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(2), 60)},
+    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(3), 60)},
+    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(4), 60)},
+    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(5), 60)},
+    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(6), 60)},
+    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(7), 60)},
+    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(8), 60)},
   ];
 
   legend = true;
@@ -120,22 +137,33 @@ export class GraphComponent implements OnInit, OnChanges {
    * other variables depend on it
    */
   ngOnChanges(changes: SimpleChanges) {
-    if( changes['chartType'] ) {
-      this.setChartType( changes['chartType'].currentValue );
+    if (changes['chartType']) {
+      this.setChartType(changes['chartType'].currentValue);
     }
-    if( changes['data'] ) {
-      this._data = this.mapData( changes['data'].currentValue );
+    if (changes['data']) {
+      this._data = this.mapData(changes['data'].currentValue);
     }
-    if( changes['labels'] ) {
-      this._labels = this.mapLabel( changes['labels'].currentValue );
+    if (changes['labels']) {
+      this._labels = this.mapLabel(changes['labels'].currentValue);
     }
-    if( changes['min'] ) {
+    if (changes['min']) {
       this._min = changes['min'].currentValue;
       this.updateOptions();
     }
-    if( changes['max'] ) {
+    if (changes['max']) {
       this._max = changes['max'].currentValue;
       this.updateOptions();
+    }
+    if (changes['xLabel']) {
+      this._xLabel = changes['xLabel'].currentValue;
+      this.updateOptions();
+    }
+    if (changes['yLabel']) {
+      this._yLabel = changes['yLabel'].currentValue;
+      this.updateOptions();
+    }
+    if(changes['maintainAspectRatio']){
+      this.options.maintainAspectRatio = changes['maintainAspectRatio'].currentValue;
     }
   }
 
@@ -144,9 +172,9 @@ export class GraphComponent implements OnInit, OnChanges {
     if (chartType === 'polararea') {
       chartType = 'polarArea';
     }
-    if (chartType === 'doughnut' || chartType === 'polarArea'){
+    if (chartType === 'doughnut' || chartType === 'polarArea') {
       this.colors = this.doughnutPolarColors;
-    } else if (chartType === 'bar'){
+    } else if (chartType === 'bar') {
       this.colors = this.barColors;
     } else {
       this.colors = undefined;
@@ -177,12 +205,24 @@ export class GraphComponent implements OnInit, OnChanges {
 
   updateOptions() {
     if (['line', 'bar'].includes(this._chartType)) {
-      if(this._min) this.options.scales.yAxes[0].ticks.suggestedMin = this._min;
-      if(this._max) this.options.scales.yAxes[0].ticks.suggestedMax = this._max;
+      if (this._min) {
+        this.options.scales.yAxes[0].ticks.suggestedMin = this._min;
+      }
+      if (this._max) {
+        this.options.scales.yAxes[0].ticks.suggestedMax = this._max;
+      }
+    }
+    if (this._xLabel) {
+      this.options.scales.xAxes[0].scaleLabel.display = true;
+      this.options.scales.xAxes[0].scaleLabel.labelString = this._xLabel;
+    }
+    if (this._yLabel) {
+      this.options.scales.yAxes[0].scaleLabel.display = true;
+      this.options.scales.yAxes[0].scaleLabel.labelString = this._yLabel;
     }
   }
 
-  getColor ( i: number ) {
+  getColor(i: number) {
     return this.colorList[i];
   }
 

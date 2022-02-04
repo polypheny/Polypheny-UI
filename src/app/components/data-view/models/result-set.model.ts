@@ -18,7 +18,7 @@ export class ResultSet {
   generatedQuery: string;
   type: string;//"table" or "view"
   schemaType: string;//"relational" or "document"
-  languageType: string; //sql,mql,cql
+  language: string; //sql,mql,cql
   explorerId: number;
   classificationInfo: string;
   includesClassificationInfo: boolean;
@@ -32,7 +32,7 @@ export class ResultSet {
   }
 }
 
-export class InfoSet extends ResultSet{
+export class InfoSet extends ResultSet {
 
 
   constructor(error: string, generatedQuery: any, affectedRows: number) {
@@ -60,6 +60,18 @@ export class SelectedColSet {
   }
 }
 
+export class DashboardSet {
+
+  availableAdapter: {};
+  availableSchemas: {};
+  catalogPersistent: boolean;
+  numberOfCommits: number;
+  numberOfRollbacks: number;
+  numberOfQueries: number;
+  numberOfWorkloads: number;
+
+}
+
 /**
  * model for statistics coming from the server
  */
@@ -78,6 +90,44 @@ export class StatisticSet {
   }
 }
 
+export class StatisticTableSet {
+  table: null;
+  calls: TableCallSet;
+  numberOfRows: null;
+  alphabeticColumn: StatisticColumnSet;
+  numericalColumn: StatisticColumnSet;
+  temporalColumn: StatisticColumnSet;
+  tableType: string;
+
+  constructor() {
+  }
+}
+
+export class TableCallSet {
+  numberOfSelects: number;
+  numberOfInserts: number;
+  numberOfDeletes: number;
+  numberOfUpdates: number;
+
+  constructor() {
+  }
+}
+
+
+export class StatisticColumnSet {
+
+  [column: string]: {
+    column: null,
+    min: null,
+    max: null,
+    uniqueValues: null,
+    isFull: null,
+  }
+
+  constructor() {
+  }
+}
+
 /**
  * model for filtered options coming from user input
  */
@@ -85,6 +135,12 @@ export class FilteredUserInput {
   [column: string]: {}
 }
 
+export class DashboardData {
+  column: {};
+
+  constructor() {
+  }
+}
 
 /**
  * Model for a column of a table
@@ -114,7 +170,7 @@ export class DbColumn {
   as: string;
 
   constructor(
-    name: string, primary: boolean = null, nullable: boolean = null, type: string = null, collectionsType: string = null, precision: number = null, scale: number, defaultValue: string = null, dimension: number = -1, cardinality: number = -1, as = null) {
+      name: string, primary: boolean = null, nullable: boolean = null, type: string = null, collectionsType: string = null, precision: number = null, scale: number, defaultValue: string = null, dimension: number = -1, cardinality: number = -1, as = null) {
     this.name = name;
     this.primary = primary;
     this.nullable = nullable;
@@ -168,12 +224,12 @@ export class TableConstraint {
  */
 export class Index {
   constructor(
-    private schema: string,
-    private table: string,
-    private name: string,
-    private storeUniqueName: string,
-    private method: string,
-    private columns: string[]
+      private schema: string,
+      private table: string,
+      private name: string,
+      private storeUniqueName: string,
+      private method: string,
+      private columns: string[]
   ) {
   }
 }
@@ -215,12 +271,13 @@ export interface StackTrace {
 
 export class PartitioningRequest {
   constructor(
-    public schemaName: string = '',
-    public tableName: string = '',
-    public method: string = 'NONE',//enum in Java
-    public numPartitions: number = 2,
-    public column = ''
-  ) {}
+      public schemaName: string = '',
+      public tableName: string = '',
+      public method: string = 'NONE',//enum in Java
+      public numPartitions: number = 2,
+      public column = ''
+  ) {
+  }
 }
 
 export class PartitionFunctionModel {
@@ -252,11 +309,12 @@ export enum FieldType {
 
 export class ModifyPartitionRequest {
   constructor(
-    public schemaName: string,
-    public tableName: string,
-    public partitions: string[],
-    public storeUniqueName: string
-  ) {}
+      public schemaName: string,
+      public tableName: string,
+      public partitions: string[],
+      public storeUniqueName: string
+  ) {
+  }
 }
 
 /**

@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, ExploreTable, MaterializedRequest, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, ExploreTable, MaterializedRequest, MonitoringRequest, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
@@ -86,10 +86,31 @@ export class CrudService {
   }
 
   /**
-   * Request all aviable statistic from the server
+   * Request all available statistic from the server
    */
-  allStatistics ( statistics: StatisticRequest) {
-    return this._http.post(`${this.httpUrl}/allStatistics`,statistics,  this.httpOptions);
+  allStatistics ( statistics: StatisticRequest ) {
+    return this._http.post(`${this.httpUrl}/allStatistics`, statistics,  this.httpOptions);
+  }
+
+  /**
+   * Request all available table statistics from the server
+   */
+  getTableStatistics( statistics: StatisticRequest ){
+    return this._http.post(`${this.httpUrl}/getTableStatistics`, statistics, this.httpOptions );
+  }
+
+  /**
+   * Request all dashboard information from the server
+   */
+  getDashboardInformation( statistics: StatisticRequest ){
+    return this._http.post(`${this.httpUrl}/getDashboardInformation`, statistics, this.httpOptions );
+  }
+
+  /**
+   * Request all available dml information from the monitoring (server)
+   */
+  getDashboardDiagram(monitoringRequest: MonitoringRequest){
+    return this._http.post( `${this.httpUrl}/getDashboardDiagram`, monitoringRequest, this.httpOptions );
   }
 
   /**

@@ -4,7 +4,7 @@
 
     <div class="col-lg-12">
 
-       <h5 *ngIf="tableId && isMaterialized()">Materialized View: {{tableId}}</h5>
+        <h5 *ngIf="tableId && isMaterialized()">Materialized View: {{tableId}}</h5>
         <h5 *ngIf="tableId && !isMaterialized()">{{tableId}}</h5>
         <span *ngIf="!tableId">Please select a table in the left sidebar to edit its columns.</span>
 
@@ -88,7 +88,7 @@
                     </td>
                     <td>
                         <!--<input type="text" [(ngModel)]="col.defaultValue" class="form-control form-control-sm" id="defaultValue" [attr.data-before]="col.defaultValue">-->
-                        <div class="input-group" >
+                        <div class="input-group">
                             <input type="hidden" formControlName="oldName">
                             <ng-container [ngSwitch]="updateColumn.controls['dataType'].value.toLowerCase()">
                                 <input *ngSwitchCase="_types.numericTypes().includes( updateColumn.controls['dataType'].value.toLowerCase() ) && updateColumn.controls['collectionsType'].value !== 'ARRAY' ? updateColumn.controls['dataType'].value.toLowerCase() : ''" type="number" inputmode="decimal" placeholder="default value" class="form-control form-control-sm" formControlName="defaultValue" [ngClass]="validate(updateColumn.controls['defaultValue'].value)">
@@ -116,9 +116,9 @@
                 <ng-container *ngIf="i === editColumn && isMaterialized()">
                     <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
                     <td>
-                    <div class="form-group">
-                    <input type="text" class="form-control mb-0" placeholder="name" [value]="col.name" [attr.data-before]="col.name" #editColName [ngClass]="columnValidation(editColName.value, col.name)">
-                    </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control mb-0" placeholder="name" [value]="col.name" [attr.data-before]="col.name" #editColName [ngClass]="columnValidation(editColName.value, col.name)">
+                        </div>
                     </td>
                     <td>
                         <i class="fa fa-check" *ngIf="col.nullable"></i>
@@ -153,7 +153,7 @@
                         <span *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
                     </td>
                     <td>{{col.defaultValue}}</td>
-                    <td class="delete" >
+                    <td class="delete">
                         <app-delete-confirm (delete)="dropColumn(col)"></app-delete-confirm>
                     </td>
                 </ng-container>
@@ -354,14 +354,13 @@
             </thead>
             <tbody>
             <tr>
-                <td>{{getOrNull(materializedInfo, 0)}}</td>
-                <td>{{getOrNull(materializedInfo, 1)}}</td>
-                <td>{{getOrNull(materializedInfo, 2)}}</td>
-                <td>{{getOrNull(materializedInfo, 3)}}</td>
+                <td>{{getOrNull( materializedInfo, 0 )}}</td>
+                <td>{{getOrNull( materializedInfo, 1 )}}</td>
+                <td>{{getOrNull( materializedInfo, 2 )}}</td>
+                <td>{{getOrNull( materializedInfo, 3 )}}</td>
             </tr>
             </tbody>
         </table>
-
 
 
         <button type="submit" class="btn btn-primary btn-sm" (click)="updateMaterialized()">Update Materialized</button>

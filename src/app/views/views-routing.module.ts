@@ -1,10 +1,11 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
 import {UmlComponent} from './uml/uml.component';
 import {FormGeneratorComponent} from './forms/form-generator/form-generator.component';
 import {TableViewComponent} from './table-view/table-view.component';
 import {SchemaEditingComponent} from './schema-editing/schema-editing.component';
 import {MonitoringComponent} from './monitoring/monitoring.component';
+import {DashboardComponent} from './dashboard/dashboard.component';
 import {QueryingComponent} from './querying/querying.component';
 import {AdaptersComponent} from './adapters/adapters.component';
 import {HubComponent} from './hub/hub.component';
@@ -31,6 +32,20 @@ const routes: Routes = [
     component: MonitoringComponent,
     data: {
       title: 'Monitoring'
+    }
+  },
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    data:{
+      title: 'Dashboard'
+    }
+  },
+  {
+    path: 'dashboard/:id',
+    component: DashboardComponent,
+    data:{
+      title: 'Dashboard'
     }
   },
   {
@@ -86,6 +101,13 @@ const routes: Routes = [
     component: SchemaEditingComponent,
     data: {
       title: 'Schema Editing'
+    }
+  },
+  {
+    path: 'schema-editing/:id/statistics-column',
+    component: SchemaEditingComponent,
+    data: {
+      title: 'Statistics'
     }
   },
   {

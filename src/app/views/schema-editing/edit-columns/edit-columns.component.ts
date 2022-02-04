@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
-import {DbColumn, FieldType, Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, ResultSet, TableConstraint} from '../../../components/data-view/models/result-set.model';
+import {DbColumn, FieldType, Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, ResultSet, StatisticColumnSet, StatisticTableSet, TableConstraint} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest} from '../../../models/ui-request.model';
@@ -70,6 +70,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   fieldTypes: typeof FieldType = FieldType;
 
   subscriptions = new Subscription();
+
+  statisticSet: StatisticTableSet;
+  alphabeticStatisticSet: StatisticColumnSet;
+  numericalStatisticSet: StatisticColumnSet;
+  temporalStatisticSet: StatisticColumnSet;
 
   @ViewChild('placementModal', {static: false}) public placementModal: ModalDirective;
   @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
@@ -928,11 +933,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this._crud.getGeneratedNames().subscribe(
       res => {
         const names = <ResultSet>res;
-        if (!names.error) {
+        if (names != null && !names.error) {
           this.proposedConstraintName = names.data[0][0];
           this.proposedIndexName = names.data[0][2];
-        } else {
-          console.log(names.error);
         }
       }, err => {
         console.log(err);
@@ -955,7 +958,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   onTypeChange2( col: DbColumn ){
-    if( col.defaultValue !== null ) this.assignDefault( col, false );
+    if( col.defaultValue !== null ) { this.assignDefault( col, false ); }
     col.precision = null;
     col.scale = null;
   }
@@ -992,4 +995,5 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       return '';
     }
   }
+
 }

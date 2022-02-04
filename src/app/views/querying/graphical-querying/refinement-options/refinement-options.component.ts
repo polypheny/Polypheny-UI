@@ -63,7 +63,6 @@ export class RefinementOptionsComponent implements OnInit {
      * get filter statistics form data sets
      */
     getStatistic() {
-        console.log('getStatistics');
         this._crud.allStatistics(new StatisticRequest()).subscribe(
                 res => {
                     this.prepareStatisticSet(<StatisticSet>res);

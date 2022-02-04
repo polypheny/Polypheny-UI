@@ -127,7 +127,15 @@ export class ExploreTable extends UIRequest{
 
 
 export class StatisticRequest extends UIRequest {
-  constructor (){
+  constructor (tableId?: string ){
+    super();
+    this.tableId = tableId || null;
+    return this;
+  }
+}
+
+export class MonitoringRequest extends UIRequest{
+  constructor() {
     super();
     return this;
   }
