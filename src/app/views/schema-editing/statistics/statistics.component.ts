@@ -8,11 +8,11 @@ import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.
 import {ToastService} from '../../../components/toast/toast.service';
 
 @Component({
-  selector: 'app-statistics-column',
-  templateUrl: './statistics-column.component.html',
-  styleUrls: ['./statistics-column.component.scss']
+  selector: 'app-statistics',
+  templateUrl: './statistics.component.html',
+  styleUrls: ['./statistics.component.scss']
 })
-export class StatisticsColumnComponent implements OnInit, OnDestroy {
+export class StatisticsComponent implements OnInit, OnDestroy {
 
 
   subscriptions = new Subscription();

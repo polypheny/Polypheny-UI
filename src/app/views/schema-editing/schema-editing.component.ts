@@ -58,9 +58,12 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     const url = this._router.url.replace('/views/schema-editing/', '');
     if(url.length <= 0){
       this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing')]);
-    }else if(url.includes('statistics-column')) {
-      const colName = url.replace('/statistics-column', '').split('.')[url.replace('/statistics-column', '').split('.').length -1];
-      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(colName, this._router.url.replace('/statistics-column', '')), new BreadcrumbItem('statistics')]);
+    }else if(url.includes('statistics')) {
+      const colName = url.replace('/statistics', '').split('.')[url.replace('/statistics', '').split('.').length -1];
+      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(colName, this._router.url.replace('/statistics', '')), new BreadcrumbItem('statistics')]);
+    }else if(url.includes('policy')) {
+      const colName = url.replace('/policy', '').split('.')[url.replace('/policy', '').split('.').length -1];
+      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(colName, this._router.url.replace('/policy', '')), new BreadcrumbItem('policy')]);
     }else if(!url.includes('.')){
       this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(url)]);
     }else{
@@ -211,5 +214,8 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
   isStatistic() {
     return this._router.url.includes('statistics');
+  }
+  isPolicy() {
+    return this._router.url.includes('policy');
   }
 }

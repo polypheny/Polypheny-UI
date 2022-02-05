@@ -104,12 +104,20 @@ const routes: Routes = [
     }
   },
   {
-    path: 'schema-editing/:id/statistics-column',
+    path: 'schema-editing/:id/statistics',
     component: SchemaEditingComponent,
     data: {
       title: 'Statistics'
     }
   },
+  {
+    path: 'schema-editing/:id/policy',
+    component: SchemaEditingComponent,
+    data: {
+      title: 'Policies'
+    }
+  },
+
   {
     path: 'config',
     component: FormGeneratorComponent,

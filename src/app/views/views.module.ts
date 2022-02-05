@@ -40,7 +40,8 @@ import {EditSourceColumnsComponent} from './schema-editing/edit-source-columns/e
 import {SearchFilterPipe, ValuePipe} from '../pipes/pipes';
 import {DocumentEditCollectionsComponent} from './schema-editing/document-edit-collections/document-edit-collections.component';
 import {DocumentEditCollectionComponent} from './schema-editing/document-edit-collection/document-edit-collection.component';
-import {StatisticsColumnComponent} from './schema-editing/statistics-column/statistics-column.component';
+import {StatisticsComponent} from './schema-editing/statistics/statistics.component';
+import {PolicyComponent} from './schema-editing/policy/policy.component';
 
 
 @NgModule({
@@ -91,7 +92,8 @@ import {StatisticsColumnComponent} from './schema-editing/statistics-column/stat
     AboutComponent,
     QueryInterfacesComponent,
     EditSourceColumnsComponent,
-    StatisticsColumnComponent,
+    StatisticsComponent,
+    PolicyComponent,
     ValuePipe,
     SearchFilterPipe
   ],

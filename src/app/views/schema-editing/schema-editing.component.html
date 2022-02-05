@@ -1,9 +1,10 @@
 <app-toast></app-toast>
-<app-statistics-column  *ngIf="routeParam && isStatistic()"></app-statistics-column>
-<app-edit-columns *ngIf="routeParam && routeParam.includes('.') && schemaType != null && schemaType.toLowerCase() == 'relational' && !isStatistic()"></app-edit-columns>
-<app-edit-tables *ngIf="routeParam && !routeParam.includes('.') && schemaType != null && schemaType.toLowerCase() == 'relational'  && !isStatistic()"></app-edit-tables>
-<app-document-edit-collections *ngIf="routeParam && !routeParam.includes('.') &&  schemaType !=null && schemaType.toLowerCase() == 'document' && !isStatistic()"></app-document-edit-collections>
-<app-document-edit-collection *ngIf="routeParam && routeParam.includes('.') && schemaType !=null && schemaType.toLowerCase() == 'document'  && !isStatistic()"></app-document-edit-collection>
+<app-statistics  *ngIf="routeParam && isStatistic()"></app-statistics>
+<app-policy  *ngIf="routeParam && isPolicy()"></app-policy>
+<app-edit-columns *ngIf="routeParam && routeParam.includes('.') && schemaType != null && schemaType.toLowerCase() == 'relational' && !isStatistic() && !isPolicy()"></app-edit-columns>
+<app-edit-tables *ngIf="routeParam && !routeParam.includes('.') && schemaType != null && schemaType.toLowerCase() == 'relational'  && !isStatistic() && !isPolicy()"></app-edit-tables>
+<app-document-edit-collections *ngIf="routeParam && !routeParam.includes('.') &&  schemaType !=null && schemaType.toLowerCase() == 'document' && !isStatistic() && !isPolicy()"></app-document-edit-collections>
+<app-document-edit-collection *ngIf="routeParam && routeParam.includes('.') && schemaType !=null && schemaType.toLowerCase() == 'document'  && !isStatistic() && !isPolicy()"></app-document-edit-collection>
 <ng-container *ngIf="!routeParam">
     <h1>Schema editing</h1>
     <p>Select an item from the left sidebar to edit its entities.</p>
