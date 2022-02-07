@@ -45,7 +45,6 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
         res => {
 
           this.statisticSet = <StatisticTableSet>res;
-          console.log(this.statisticSet);
           this.alphabeticStatisticSet = this.statisticSet.alphabeticColumn;
           this.numericalStatisticSet = this.statisticSet.numericalColumn;
           this.temporalStatisticSet = this.statisticSet.temporalColumn;
