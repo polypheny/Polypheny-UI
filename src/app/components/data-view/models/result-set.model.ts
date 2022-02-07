@@ -121,7 +121,7 @@ export class StatisticColumnSet {
     min: null,
     max: null,
     uniqueValues: null,
-    isFull: null,
+    full: null,
   }
 
   constructor() {
