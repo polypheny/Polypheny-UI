@@ -74,7 +74,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this.getStores();
     this.initSocket();
     const sub2 = this._crud.onReconnection().subscribe((b)=> {
-      if(b) this.onReconnect();
+      if(b) {
+        this.onReconnect(); }
     });
     this.subscriptions.add(sub2);
     this.documentListener();
@@ -95,7 +96,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   documentListener() {
     const self = this;
     $(document).on('click', function(e){
-      if( $(e.target).hasClass('edit-table-name') ) return;
+      if( $(e.target).hasClass('edit-table-name') ) {
+        return;
+      }
       if( $(e.target).parents('.editing').length === 0 ){
         self.tables.forEach((t) => t.editing = false );
       }

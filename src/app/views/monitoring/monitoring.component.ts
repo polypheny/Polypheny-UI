@@ -93,7 +93,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
       this._information.getPageList().subscribe(
         res => {
           this.pageList = <InformationPage[]>res;
-          this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Dashboard')]);
+          this._breadcrumb.setDashboardBreadcrumbs([new BreadcrumbItem('Dashboard')]);
           this.serverError = null;
         }, err => {
           this.serverError = err;
@@ -104,7 +104,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
         res => {
           if (res == null) {
             this.onPageNotFound();
-            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Dashboard')]);
+            this._breadcrumb.setDashboardBreadcrumbs([new BreadcrumbItem('Dashboard')]);
 
           } else {
             this.pageNotFound = false;

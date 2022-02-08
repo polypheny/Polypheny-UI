@@ -43,7 +43,6 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
   getTableStatistics(tableId: string) {
     this._crud.getTableStatistics(new StatisticRequest(tableId)).subscribe(
         res => {
-
           this.statisticSet = <StatisticTableSet>res;
           this.alphabeticStatisticSet = this.statisticSet.alphabeticColumn;
           this.numericalStatisticSet = this.statisticSet.numericalColumn;
