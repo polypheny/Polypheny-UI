@@ -75,7 +75,7 @@
                         <span class="parameter" *ngIf="col.dimension">dimension: {{col.dimension}}</span>
                         <span class="parameter" *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
                     </td>
-                    <td [hidden]="dataPlacement != null && dataPlacement.tableType != 'VIEW'" >
+                    <td *ngIf="dataPlacement != null && dataPlacement.tableType != 'VIEW'" >
                         <input type="text" class="form-control form-control-sm" placeholder="default value" style="max-width: 250px" #newDefault (keyup.enter)="addColumn(col, newName.value, newDefault.value)">
                     </td>
                     <th class="small-col"><i class="fa fa-save add-col btn btn-primary btn-sm" (click)="addColumn(col, newName.value, newDefault.value)"></i></th>
