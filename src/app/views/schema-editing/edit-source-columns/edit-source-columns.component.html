@@ -42,7 +42,7 @@
                 </td>
                 <td *ngIf="dataPlacement != null && dataPlacement.tableType != 'VIEW'">{{col.defaultValue}}</td>
                 <th class="small-col">
-                    <app-delete-confirm *ngIf="(dataPlacement.tableType != 'VIEW')" (delete)="dropColumn(col)"></app-delete-confirm>
+                    <app-delete-confirm *ngIf="(dataPlacement != null && dataPlacement.tableType != 'VIEW')" (delete)="dropColumn(col)"></app-delete-confirm>
                 </th>
             </tr>
             <tr *ngFor="let col of getAddableColumns()" class="hidden-col" [ngClass]="{'editing': editingCol === col.physicalName}">
