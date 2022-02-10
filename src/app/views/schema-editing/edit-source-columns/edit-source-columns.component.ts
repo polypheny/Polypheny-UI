@@ -121,6 +121,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   }
 
   renameCol ( oldCol: DbColumn, newName, tabletype ) {
+    if( newName.trim() === ''){
+      this._toast.error('Name can not be empty.');
+      return;
+    }
     const newCol = Object.assign({}, oldCol);
     newCol.name = newName;
     const request = new ColumnRequest( this.tableId, oldCol, newCol, true, tabletype );
@@ -223,4 +227,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     );
   }
 
+  validTableName(name: string):boolean {
+    if( name.trim() === '' ){
+      return false;
+    }
+    return true;
+  }
 }
