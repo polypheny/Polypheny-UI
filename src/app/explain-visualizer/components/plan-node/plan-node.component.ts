@@ -69,6 +69,8 @@ export class PlanNodeComponent implements OnInit, DoCheck {
     this.calculateDuration();
     this.calculateTags();
 
+    console.log(this.node);
+
     this.plannerRowEstimateDirection = this.node[this._planService.PLANNER_ESIMATE_DIRECTION];
     this.plannerRowEstimateValue = _.round(this.node[this._planService.PLANNER_ESTIMATE_FACTOR], 1);
   }
@@ -250,4 +252,7 @@ export class PlanNodeComponent implements OnInit, DoCheck {
     return true;
   }
 
+  getDataModelClass():string {
+      return  'plan-node-' + this.node[this._planService.MODEL].toLowerCase();
+  }
 }
