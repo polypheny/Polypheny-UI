@@ -1,5 +1,47 @@
 <div class="row">
 
-<h5>HALLO DAS IST EIN TEST</h5>
+
+    <div class="col-lg-12">
+        <div class="card" >
+            <div class="card-header">Policies</div>
+            <div class="card-body">
+                <div class="input-group" *ngFor="let selectedPolicy of policySet | keyvalue">
+                    <p>This Policy is for: {{selectedPolicy.value.target}} </p>
+                    <p>{{selectedPolicy.value.description}}</p>
+                    <div class="input-group" *ngIf="selectedPolicy.value.clauseType == 'BOOLEAN'">
+                        <span class="input-group-text switch-prepend" tooltip="If persistency is switched on, Polypheny only adds tables to persistent stores.">{{selectedPolicy.value.name}}</span>
+                        <label class="switch switch-label switch-pill switch-outline-primary-alt switch-sm">
+                            <input type="checkbox" class="switch-input" [id]="'default' + selectedPolicy.value.name"
+                                   [checked]="selectedPolicy.value.clause.value == true"
+                                   (change)="setBooleanPolicies(checkboxInput.checked, selectedPolicy.value.clause.value, selectedPolicy.value.target, selectedPolicy.value.clause.id)" #checkboxInput>
+                            <span class="switch-slider"></span>
+                        </label>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12">
+        <div class="card" >
+            <div class="card-header">Add Policy</div>
+            <div class="card-body">
+                <div class="input-group" *ngFor="let policyToChoose of policySetToChoose | keyvalue">
+                    <p>This Policy is for: {{policyToChoose.value.target.toLowerCase()}}</p>
+                    <div class="input-group" *ngIf="policyToChoose.value.clauseType == 'BOOLEAN'">
+                        <span class="input-group-text switch-prepend" tooltip="If persistency is switched on, Polypheny only adds tables to persistent stores.">{{policyToChoose.value.name}}</span>
+                        <label class="switch switch-label switch-pill switch-outline-primary-alt switch-sm" >
+                            <input type="checkbox" class="switch-input" [id]="'default' + policyToChoose.value.name"
+                                   [checked]="policyToChoose.value.clause.value == true"
+                                   (change)="setBooleanPolicies(checkboxInput.checked, policyToChoose.value.clause.value, policyToChoose.value.target, policyToChoose.value.clause.id)" #checkboxInput>
+                            <span class="switch-slider"></span>
+                        </label>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>

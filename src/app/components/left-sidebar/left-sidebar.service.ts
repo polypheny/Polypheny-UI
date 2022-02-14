@@ -182,7 +182,7 @@ export class LeftSidebarService {
                 _router.navigate(fullChildLink );
               } else {
                 const fullLink = rLink.concat(rname);
-                this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(node.data.name)]);
+                this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(node.data.name)], node.data.name);
                 _router.navigate(fullLink );
               }
               if (node.isCollapsed) {

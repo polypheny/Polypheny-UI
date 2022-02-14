@@ -57,7 +57,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   setBreadCrumb() {
     const url = this._router.url.replace('/views/schema-editing/', '');
     if(url.length <= 0){
-      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing')]);
+      this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema Editing')], 'polypheny');
     }else if(url.includes('statistics')) {
       const colName = url.replace('/statistics', '').split('.')[url.replace('/statistics', '').split('.').length -1];
       this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(colName, this._router.url.replace('/statistics', '')), new BreadcrumbItem('statistics')]);

@@ -60,6 +60,32 @@ export class SelectedColSet {
   }
 }
 
+export class PolicySet {
+
+  [column: string]: {
+    name: string;
+    target: string;
+    clauseType: string;
+    description: string;
+    clause: BooleanClauseSet;
+  }
+  constructor() {
+  }
+}
+
+export class BooleanClauseSet {
+
+  clauseName: string;
+  clauseType: string;
+  falseCategory: string;
+  trueCategory: string;
+  id: number;
+  isDefault: boolean;
+  value: boolean;
+  constructor() {
+  }
+}
+
 export class DashboardSet {
 
   availableAdapter: {};

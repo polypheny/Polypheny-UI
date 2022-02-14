@@ -134,6 +134,33 @@ export class StatisticRequest extends UIRequest {
   }
 }
 
+export class PolicyRequest extends UIRequest {
+  constructor (tableId?: string ){
+    super();
+    this.tableId = tableId || null;
+    return this;
+  }
+}
+
+export class PolicyChangedRequest{
+  requestType: string;
+  clauseId: number;
+  targetName: string;
+}
+
+export class PolicyBooleanChangeRequest extends PolicyChangedRequest {
+  booleanValue: boolean;
+
+  constructor (clauseId: number, targetName:string, value: boolean ){
+    super();
+    this.clauseId = clauseId;
+    this.targetName = targetName;
+    this.booleanValue = value;
+    this.requestType = 'BooleanChangeRequest';
+    return this;
+  }
+}
+
 export class MonitoringRequest extends UIRequest{
   constructor() {
     super();
