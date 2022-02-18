@@ -46,6 +46,7 @@ export class PolicyComponent implements OnInit, OnDestroy {
           console.log(this.policySet);
           console.log(res);
         }, err => {
+          this.policySet = null;
           this._toast.warn('There is an issue with the default policies.');
 
         }
@@ -56,7 +57,10 @@ export class PolicyComponent implements OnInit, OnDestroy {
     this._crud.getAllPossiblePolicies(new  PolicyRequest(tableId)).subscribe(
         res =>{
           console.log('get all possible policies');
+          console.log(res);
           this.policySetToChoose = <PolicySet>res;
+
+
         }, err =>{
           this._toast.warn('Not possible to show all possible policies.');
         }
@@ -78,4 +82,16 @@ export class PolicyComponent implements OnInit, OnDestroy {
   }
 
 
+  saveBooleanPoliciesBeforeSaving(checked: boolean, oldValue: boolean, target: string, id: number) {
+
+  }
+
+
+  booleanPolicySwitch() {
+    return true;
+  }
+
+  addPolicy() {
+
+  }
 }
