@@ -143,8 +143,8 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/getDataSourceColumns`, request, this.httpOptions);
   }
 
-  getExportedColumns ( request: TableRequest ) {
-    return this._http.post(`${this.httpUrl}/getExportedColumns`, request, this.httpOptions);
+  getAvailableSourceColumns ( request: TableRequest ) {
+    return this._http.post(`${this.httpUrl}/getAvailableSourceColumns`, request, this.httpOptions);
   }
 
   /**

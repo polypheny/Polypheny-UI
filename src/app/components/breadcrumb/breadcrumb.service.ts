@@ -12,7 +12,7 @@ export class BreadcrumbService implements OnInit, OnDestroy {
   MAXCOLS = 10;
   zoom: number;
   _showZoom = true;
-  tableId: string;
+  tableId = 'notShow';
 
   routerId;
 
@@ -72,6 +72,11 @@ export class BreadcrumbService implements OnInit, OnDestroy {
   public setBreadcrumbs( breadcrumbs: BreadcrumbItem[] ) {
     this.breadcrumbs.next( breadcrumbs );
     this.showZoom();
+  }
+
+  public setDashboardBreadcrumbs( breadcrumbs: BreadcrumbItem[] ) {
+    this.breadcrumbs.next( breadcrumbs );
+    this.hideZoom();
   }
 
   public setBreadcrumbsSchema( breadcrumbs: BreadcrumbItem[], tableId: string) {
