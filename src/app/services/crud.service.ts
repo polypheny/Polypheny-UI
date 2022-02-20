@@ -121,6 +121,13 @@ export class CrudService {
   }
 
   /**
+   * Request default policies from the server
+   */
+  addPolicy( policiesChanges: PolicyBooleanChangeRequest ){
+    return this._http.post(`${this.httpUrl}/addPolicy`, policiesChanges, this.httpOptions );
+  }
+
+  /**
    * Request all dashboard information from the server
    */
   getDashboardInformation( statistics: StatisticRequest ){

@@ -88,10 +88,21 @@ export class PolicyComponent implements OnInit, OnDestroy {
 
 
   booleanPolicySwitch() {
+
     return true;
   }
 
-  addPolicy() {
+  addPolicy(oldValue: boolean, target: string, id: number) {
 
+    this._crud.addPolicy(new PolicyBooleanChangeRequest(id, target, !oldValue)).subscribe(
+        res => {
+          this._toast.success('Policy successfully added.');
+        },
+        err => {
+          this._toast.warn('Not possible to add this policy, already existing settings go against it.');
+        }
+    );
+    this.getPolicies(this.tableId);
+    this.getAllPossiblePolicies(this.tableId);
   }
 }
