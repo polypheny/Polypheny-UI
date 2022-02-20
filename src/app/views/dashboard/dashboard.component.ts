@@ -29,6 +29,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   digramInterval: number;
   informationInterval: number;
 
+  infoCounter: number;
+  diagramCounter: number;
+
+
   constructor(
       public _crud: CrudService,
       private _breadcrumb: BreadcrumbService
@@ -36,6 +40,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.infoCounter = 0;
+    this.diagramCounter = 0;
+
     this.getDiagram();
     this.getDashboardInformation();
     this.checkIfInformationAvailable();
@@ -49,10 +56,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private checkIfInformationAvailable() {
     if (this.dashboardInformation == null) {
-      this.digramInterval = setInterval(this.getDiagram.bind(this), 5000);
+      this.digramInterval = setInterval(this.getDiagram.bind(this), 1000);
     }
     if (this.dashboardSet == null) {
-      this.informationInterval = setInterval(this.getDashboardInformation.bind(this), 5000);
+      this.informationInterval = setInterval(this.getDashboardInformation.bind(this), 1000);
     }
   }
 
@@ -65,9 +72,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         res => {
           this.dashboardInformation = <DashboardData>res;
 
-          if (this.dashboardInformation != null) {
+          if (this.dashboardInformation != null || this.diagramCounter > 120) {
             clearInterval(this.digramInterval);
-
             Object.entries(this.dashboardInformation).forEach(
                 ([key, value]) => {
                   this.labels.push(key);
@@ -91,6 +97,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
             );
           }
+          this.diagramCounter++;
         }
 
     );
@@ -115,9 +122,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this._crud.getDashboardInformation(new StatisticRequest()).subscribe(
         res => {
           this.dashboardSet = <DashboardSet>res;
-          if(this.dashboardSet != null){
+          if(this.dashboardSet != null || this.infoCounter > 120){
             clearInterval(this.informationInterval);
           }
+          this.infoCounter++;
         }
     );
   }
