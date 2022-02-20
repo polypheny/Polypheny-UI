@@ -2,63 +2,92 @@
 
 <div class="col-lg-12" style="padding-left: 0px;padding-right: 0px;">
 
-    <div class="card" *ngIf="dashboardInformation !=null && diagram.length > 0">
+    <div class="card">
         <div class="card-header">Workload</div>
         <div class="card-body">
 
-            <app-graph [data]="diagram" [labels]="labels" [chartType]="line" [min]="min" [maintainAspectRatio]="false" [max]="max" [xLabel]="xLabel" [yLabel]="yLabel" class="dashboard-diagram"></app-graph>
+            <div *ngIf="dashboardInformation != null && diagram.length > 0">
+                <app-graph [data]="diagram" [labels]="labels" [chartType]="line" [min]="min" [maintainAspectRatio]="false" [max]="max" [xLabel]="xLabel" [yLabel]="yLabel" class="dashboard-diagram"></app-graph>
+            </div>
+
+            <div *ngIf="dashboardInformation == null && this.infoCounter > 120">
+                <p>Unfortunately, it is not possible to display the dashboard diagram.</p>
+            </div>
+
+
+            <div class="d-flex justify-content-center" *ngIf="dashboardInformation == null && this.infoCounter <= 120">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
 
         </div>
     </div>
 
-    <div class="row" *ngIf="dashboardSet != null">
+    <div class="row">
         <div class="col-6">
             <div class="card" style="min-height: 153px">
                 <div class="card-header">
                     <span>General Information</span>
                 </div>
                 <div class="card-body">
-                    <h5>Adapter Information</h5>
-                    <table class="table table-hover table-striped">
 
-                        <thead>
-                        <tr>
-                            <th>Adapter Name</th>
-                            <th>Adapter Type</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr *ngFor="let obj of this.dashboardSet.availableAdapter | keyvalue">
-                            <td>{{obj.key}}</td>
-                            <td>{{obj.value}}</td>
-                            <th></th>
-                        </tr>
-                        </tbody>
+                    <div *ngIf="dashboardSet != null">
+                        <h5>Adapter Information</h5>
+                        <table class="table table-hover table-striped">
 
-                    </table>
+                            <thead>
+                            <tr>
+                                <th>Adapter Name</th>
+                                <th>Adapter Type</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr *ngFor="let obj of this.dashboardSet.availableAdapter | keyvalue">
+                                <td>{{obj.key}}</td>
+                                <td>{{obj.value}}</td>
+                                <th></th>
+                            </tr>
+                            </tbody>
 
-                    <h5>Schema Information</h5>
-                    <table class="table table-hover table-striped">
+                        </table>
 
-                        <thead>
-                        <tr>
-                            <th>Schema Id</th>
-                            <th>Schema Name</th>
-                            <th>Schema Type</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr *ngFor="let obj of this.dashboardSet.availableSchemas | keyvalue">
-                            <td>{{obj.key}}</td>
-                            <td>{{obj.value.left}}</td>
-                            <td>{{obj.value.right}}</td>
-                            <th></th>
-                        </tr>
-                        </tbody>
+                        <h5>Schema Information</h5>
+                        <table class="table table-hover table-striped">
 
-                    </table>
+                            <thead>
+                            <tr>
+                                <th>Schema Id</th>
+                                <th>Schema Name</th>
+                                <th>Schema Type</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr *ngFor="let obj of this.dashboardSet.availableSchemas | keyvalue">
+                                <td>{{obj.key}}</td>
+                                <td>{{obj.value.left}}</td>
+                                <td>{{obj.value.right}}</td>
+                                <th></th>
+                            </tr>
+                            </tbody>
+
+                        </table>
+
+
+                    </div>
+
+                    <div *ngIf="dashboardSet == null && this.infoCounter > 120">
+                        <p>Unfortunately, it is not possible to display the general information.</p>
+                    </div>
+
+
+                    <div class="d-flex justify-content-center" *ngIf="dashboardSet == null && this.infoCounter <= 120">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -70,28 +99,42 @@
                     <span>Workload Information</span>
                 </div>
                 <div class="card-body">
-                    <table class="table table-hover table-striped">
 
-                        <thead>
-                        <tr>
-                            <th>Commits</th>
-                            <th>Rollbacks</th>
-                            <th># of DML</th>
-                            <th># of DQL</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>{{this.dashboardSet.numberOfCommits}}</td>
-                            <td>{{this.dashboardSet.numberOfRollbacks}}</td>
-                            <td>{{this.dashboardSet.numberOfWorkloads}}</td>
-                            <td>{{this.dashboardSet.numberOfQueries}}</td>
-                            <th></th>
-                        </tr>
-                        </tbody>
+                    <div *ngIf="dashboardSet != null">
+                        <table class="table table-hover table-striped">
 
-                    </table>
+                            <thead>
+                            <tr>
+                                <th>Commits</th>
+                                <th>Rollbacks</th>
+                                <th># of DML</th>
+                                <th># of DQL</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>{{this.dashboardSet.numberOfCommits}}</td>
+                                <td>{{this.dashboardSet.numberOfRollbacks}}</td>
+                                <td>{{this.dashboardSet.numberOfWorkloads}}</td>
+                                <td>{{this.dashboardSet.numberOfQueries}}</td>
+                                <th></th>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div *ngIf="dashboardSet == null && this.infoCounter > 120">
+                        <p>Unfortunately, it is not possible to display the workload information.</p>
+                    </div>
+
+                    <div class="d-flex justify-content-center" *ngIf="dashboardSet == null && this.infoCounter <= 120">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
         </div>
