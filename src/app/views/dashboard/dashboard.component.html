@@ -11,7 +11,7 @@
             </div>
 
             <div *ngIf="dashboardInformation == null && this.infoCounter > 120">
-                <p>Unfortunately, it is not possible to display the dashboard diagram.</p>
+                <p>There is not yet enough information to display the workload graph.</p>
             </div>
 
 
@@ -79,7 +79,7 @@
                     </div>
 
                     <div *ngIf="dashboardSet == null && this.infoCounter > 120">
-                        <p>Unfortunately, it is not possible to display the general information.</p>
+                        <p>There is not yet enough information to display the adapter information.</p>
                     </div>
 
 
@@ -125,7 +125,7 @@
                     </div>
 
                     <div *ngIf="dashboardSet == null && this.infoCounter > 120">
-                        <p>Unfortunately, it is not possible to display the workload information.</p>
+                        <p>There is not yet enough information to display the workload information.</p>
                     </div>
 
                     <div class="d-flex justify-content-center" *ngIf="dashboardSet == null && this.infoCounter <= 120">
