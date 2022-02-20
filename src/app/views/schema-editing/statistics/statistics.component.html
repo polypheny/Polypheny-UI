@@ -49,18 +49,18 @@
             <div class="card-header">Column statistics of {{tableId}}</div>
             <div class="card-body">
                 <div *ngFor="let obj of this.alphabeticStatisticSet | keyvalue">
-                    <div *ngIf="!obj.value.isFull">
+                    <div *ngIf="!obj.value.full">
                         <h5>{{obj.value.column}}</h5>
                         <table class="table table-hover table-striped">
                             <thead>
                             <tr>
-                                <th *ngIf="!obj.value.isFull">Unique Values</th>
+                                <th *ngIf="!obj.value.full">Unique Values</th>
                                 <th></th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr>
-                                <td *ngIf="!obj.value.isFull">{{obj.value.uniqueValues}}</td>
+                                <td *ngIf="!obj.value.full">{{obj.value.uniqueValues}}</td>
                                 <th></th>
                             </tr>
                             </tbody>
@@ -75,7 +75,7 @@
                         <tr>
                             <th>Min</th>
                             <th>Max</th>
-                            <th *ngIf="!obj.value.isFull">Unique Values</th>
+                            <th *ngIf="!obj.value.full">Unique Values</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -83,7 +83,7 @@
                         <tr>
                             <td>{{obj.value.min}}</td>
                             <td>{{obj.value.max}}</td>
-                            <td *ngIf="!obj.value.isFull">{{obj.value.uniqueValues}}</td>
+                            <td *ngIf="!obj.value.full">{{obj.value.uniqueValues}}</td>
                             <th></th>
                         </tr>
                         </tbody>
@@ -98,7 +98,7 @@
                         <tr>
                             <th>Min</th>
                             <th>Max</th>
-                            <th *ngIf="!obj.value.isFull">Unique Values</th>
+                            <th *ngIf="!obj.value.full">Unique Values</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -106,7 +106,7 @@
                         <tr>
                             <td>{{obj.value.min}}</td>
                             <td>{{obj.value.max}}</td>
-                            <td *ngIf="!obj.value.isFull">{{obj.value.uniqueValues}}</td>
+                            <td *ngIf="!obj.value.full">{{obj.value.uniqueValues}}</td>
                             <th></th>
                         </tr>
                         </tbody>

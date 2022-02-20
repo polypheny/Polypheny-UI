@@ -155,7 +155,7 @@
               <div class="input-group-prepend" [tooltip]="getAdapterSetting(editingAdapter, control.key).description" placement="left" delay="200">
                 <label [for]="control.key" class="input-group-text">{{control.key}}</label>
               </div>
-              <input *ngIf="!getAdapterSetting(editingAdapter, control.key).modifiable" type="text" class="form-control" disabled [value]="getAdapterSetting(editingAdapter, control.key).fileNames.join(', ')">
+              <input *ngIf="!getAdapterSetting(editingAdapter, control.key).modifiable" type="text" class="form-control" disabled [value]="editingAdapter.currentSettings['directory']">
               <label [for]="control.key" *ngIf="getAdapterSetting(editingAdapter, control.key).modifiable" class="form-control" style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
                 <input type="file" multiple style="display: none" [id]="control.key" [ngClass]="validate(editingAdapterForm, control.key)"
                        (change)="onFileChange($event, editingAdapterForm, control.key)">
