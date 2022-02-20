@@ -27,55 +27,79 @@ export class DashboardComponent implements OnInit, OnDestroy {
   yLabel: string;
   maintainAspectRatio = false;
   digramInterval: number;
+  informationInterval: number;
+
+  infoCounter: number;
+  diagramCounter: number;
+
 
   constructor(
       public _crud: CrudService,
-      private _breadcrumb:BreadcrumbService
+      private _breadcrumb: BreadcrumbService
   ) {
   }
 
   ngOnInit() {
-    this.getDiagram(this._crud);
+    this.infoCounter = 0;
+    this.diagramCounter = 0;
+
+    this.getDiagram();
     this.getDashboardInformation();
-    this.digramInterval = setInterval(this.getDiagram, 10000, this._crud);
+    this.checkIfInformationAvailable();
   }
 
   ngOnDestroy() {
-  clearInterval(this.digramInterval);
+    clearInterval(this.digramInterval);
+    clearInterval(this.informationInterval);
   }
 
-  getDiagram(crud: CrudService) {
+
+  private checkIfInformationAvailable() {
+    if (this.dashboardInformation == null) {
+      this.digramInterval = setInterval(this.getDiagram.bind(this), 1000);
+    }
+    if (this.dashboardSet == null) {
+      this.informationInterval = setInterval(this.getDashboardInformation.bind(this), 1000);
+    }
+  }
+
+
+  getDiagram() {
     this.dataWorkload = [];
     this.dataDql = [];
     this.labels = [];
-    crud.getDashboardDiagram(new MonitoringRequest()).subscribe(
+    this._crud.getDashboardDiagram(new MonitoringRequest()).subscribe(
         res => {
           this.dashboardInformation = <DashboardData>res;
 
-          Object.entries(this.dashboardInformation).forEach(
-              ([key, value]) => {
-                this.labels.push(key);
+          if (this.dashboardInformation != null || this.diagramCounter > 120) {
+            clearInterval(this.digramInterval);
+            Object.entries(this.dashboardInformation).forEach(
+                ([key, value]) => {
+                  this.labels.push(key);
 
-                this.dataWorkload.push(value.right);
-                this.dataDql.push(value.left);
+                  this.dataWorkload.push(value.right);
+                  this.dataDql.push(value.left);
 
-
-                //find min and max between Workload and Query Information
-                if (this.min > value.right) {
-                  this.min = value.right;
+                  //find min and max between Workload and Query Information
+                  if (this.min > value.right) {
+                    this.min = value.right;
+                  }
+                  if (this.max < value.right) {
+                    this.max = value.right;
+                  }
+                  if (this.min > value.left) {
+                    this.min = value.left;
+                  }
+                  if (this.max < value.left) {
+                    this.max = value.left;
+                  }
                 }
-                if (this.max < value.right) {
-                  this.max = value.right;
-                }
-                if (this.min > value.left) {
-                  this.min = value.left;
-                }
-                if (this.max < value.left) {
-                  this.max = value.left;
-                }
-              }
-          );
+            );
+          }
+          this.diagramCounter++;
         }
+
     );
 
     this.diagram = [{
@@ -98,6 +122,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this._crud.getDashboardInformation(new StatisticRequest()).subscribe(
         res => {
           this.dashboardSet = <DashboardSet>res;
+          if(this.dashboardSet != null || this.infoCounter > 120){
+            clearInterval(this.informationInterval);
+          }
+          this.infoCounter++;
         }
     );
   }
