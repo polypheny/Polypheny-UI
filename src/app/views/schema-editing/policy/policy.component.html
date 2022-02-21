@@ -18,6 +18,7 @@
                                 <span class="switch-slider"></span>
                             </label>
                         </div>
+                        <button class="btn-primary" (click)="deletePolicy(selectedPolicy.value.clause.value, selectedPolicy.value.target, selectedPolicy.value.clause.id, selectedPolicy.value.targetId)">Delete Policy</button>
                     </div>
                 </div>
             </div>
@@ -40,7 +41,7 @@
                             <span class="switch-slider"></span>
                         </label>
                     </div>
-                    <button class="btn-primary" (click)="addPolicy(policyToChoose.value.clause.value, policyToChoose.value.target, policyToChoose.value.clause.id)">Add Policy</button>
+                    <button class="btn-primary" (click)="addPolicy(policyToChoose.value.clause.value, policyToChoose.value.target, policyToChoose.value.clause.id, policyToChoose.value.targetId)">Add Policy</button>
                 </div>
             </div>
         </div>

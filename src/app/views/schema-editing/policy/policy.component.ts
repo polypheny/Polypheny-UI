@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToastService} from '../../../components/toast/toast.service';
-import {PolicyBooleanChangeRequest, PolicyRequest} from '../../../models/ui-request.model';
+import {PolicyBooleanChangeRequest, PolicyChangeRequest, PolicyRequest} from '../../../models/ui-request.model';
 import {PolicySet} from '../../../components/data-view/models/result-set.model';
 
 @Component({
@@ -54,7 +54,7 @@ export class PolicyComponent implements OnInit, OnDestroy {
   }
 
   getAllPossiblePolicies(tableId: string){
-    this._crud.getAllPossiblePolicies(new  PolicyRequest(tableId)).subscribe(
+    this._crud.getAllPossiblePolicies(new PolicyRequest(tableId)).subscribe(
         res =>{
           console.log('get all possible policies');
           console.log(res);
@@ -92,9 +92,9 @@ export class PolicyComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  addPolicy(oldValue: boolean, target: string, id: number) {
+  addPolicy(oldValue: boolean, target: string, id: number, targetId: number) {
 
-    this._crud.addPolicy(new PolicyBooleanChangeRequest(id, target, !oldValue)).subscribe(
+    this._crud.addPolicy(new PolicyBooleanChangeRequest(id, target, !oldValue, targetId)).subscribe(
         res => {
           this._toast.success('Policy successfully added.');
         },
@@ -104,5 +104,20 @@ export class PolicyComponent implements OnInit, OnDestroy {
     );
     this.getPolicies(this.tableId);
     this.getAllPossiblePolicies(this.tableId);
+  }
+
+  deletePolicy(value: boolean, target: string, id: number, targetId: number) {
+    this._crud.deletePolicy(new PolicyChangeRequest('deleteRequest', id, target, targetId)).subscribe(
+        res => {
+          this._toast.success('Policy successfully added.');
+        },
+        err => {
+          this._toast.warn('Not possible to add this policy, already existing settings go against it.');
+        }
+    );
+    this.getPolicies(this.tableId);
+    this.getAllPossiblePolicies(this.tableId);
+
+    
   }
 }

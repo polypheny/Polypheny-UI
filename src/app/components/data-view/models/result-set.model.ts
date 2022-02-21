@@ -65,6 +65,7 @@ export class PolicySet {
   [column: string]: {
     name: string;
     target: string;
+    targetId: number;
     clauseType: string;
     description: string;
     clause: BooleanClauseSet;
