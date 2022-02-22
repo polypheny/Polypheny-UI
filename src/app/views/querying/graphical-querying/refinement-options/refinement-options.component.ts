@@ -37,7 +37,6 @@ export class RefinementOptionsComponent implements OnInit {
     set choosenTables(choosenTables: {}) {
         const oldChoosen = this._choosenTables;
         this._choosenTables = choosenTables;
-
         if (choosenTables && ((oldChoosen === null) || JSON.stringify(oldChoosen['column']) !== JSON.stringify(choosenTables['column']))) {
             this.resetHeader(choosenTables);
         }

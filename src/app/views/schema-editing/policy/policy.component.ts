@@ -5,7 +5,7 @@ import {Subscription} from 'rxjs';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToastService} from '../../../components/toast/toast.service';
 import {PolicyBooleanChangeRequest, PolicyChangeRequest, PolicyRequest} from '../../../models/ui-request.model';
-import {PolicySet} from '../../../components/data-view/models/result-set.model';
+import {Policies, PolicySet} from '../../../components/data-view/models/result-set.model';
 
 @Component({
   selector: 'app-policy',
@@ -42,9 +42,11 @@ export class PolicyComponent implements OnInit, OnDestroy {
   getPolicies(tableId: string) {
     this._crud.getPolicies(new PolicyRequest(tableId)).subscribe(
         res => {
-          this.policySet = <PolicySet>res;
-          console.log(this.policySet);
-          console.log(res);
+           const policies = <Policies>res;
+           this.policySet = policies.policies;
+           if(policies.policies === null){
+             this._toast.warn(policies.errormessage);
+           }
         }, err => {
           this.policySet = null;
           this._toast.warn('There is an issue with the default policies.');
@@ -56,11 +58,11 @@ export class PolicyComponent implements OnInit, OnDestroy {
   getAllPossiblePolicies(tableId: string){
     this._crud.getAllPossiblePolicies(new PolicyRequest(tableId)).subscribe(
         res =>{
-          console.log('get all possible policies');
-          console.log(res);
-          this.policySetToChoose = <PolicySet>res;
-
-
+          const policies = <Policies>res;
+          this.policySetToChoose = policies.policies;
+          if(policies.policies === null){
+            this._toast.warn(policies.errormessage);
+          }
         }, err =>{
           this._toast.warn('Not possible to show all possible policies.');
         }
@@ -94,30 +96,28 @@ export class PolicyComponent implements OnInit, OnDestroy {
 
   addPolicy(oldValue: boolean, target: string, id: number, targetId: number) {
 
+    console.log(target);
     this._crud.addPolicy(new PolicyBooleanChangeRequest(id, target, !oldValue, targetId)).subscribe(
         res => {
-          this._toast.success('Policy successfully added.');
+          this.getPolicies(this.tableId);
+          this.getAllPossiblePolicies(this.tableId);
         },
         err => {
           this._toast.warn('Not possible to add this policy, already existing settings go against it.');
         }
     );
-    this.getPolicies(this.tableId);
-    this.getAllPossiblePolicies(this.tableId);
   }
 
   deletePolicy(value: boolean, target: string, id: number, targetId: number) {
     this._crud.deletePolicy(new PolicyChangeRequest('deleteRequest', id, target, targetId)).subscribe(
         res => {
-          this._toast.success('Policy successfully added.');
+          this.getPolicies(this.tableId);
+          this.getAllPossiblePolicies(this.tableId);
         },
         err => {
-          this._toast.warn('Not possible to add this policy, already existing settings go against it.');
+          this._toast.warn('Not possible to delete this Policy.');
         }
     );
-    this.getPolicies(this.tableId);
-    this.getAllPossiblePolicies(this.tableId);
 
-    
   }
 }

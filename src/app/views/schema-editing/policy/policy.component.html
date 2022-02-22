@@ -1,9 +1,62 @@
 <div class="row">
 
+    <div class="col-lg-12">
+        <div class="accordion" id="accordion">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Collapsible Group Item #1
+                        </button>
+                    </h5>
+                </div>
 
+                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        Sed feugiat egestas nisl sed faucibus. Fusce nisi metus, accumsan eget ullamcorper eget, iaculis id augue. Vivamus porta elit id nulla varius, in sodales massa bibendum. Nullam condimentum pellentesque est, vel lacinia ipsum efficitur sed. Morbi porttitor porta commodo. Sed feugiat egestas nisl sed faucibus. Fusce nisi metus, accumsan eget ullamcorper eget, iaculis id augue. Vivamus porta elit id nulla varius, in sodales massa bibendum. Nullam condimentum pellentesque est, vel lacinia ipsum efficitur sed. Morbi porttitor porta commodo.
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingTwo">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Collapsible Group Item #2
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                    <div class="card-body">
+                        Sed feugiat egestas nisl sed faucibus. Fusce nisi metus, accumsan eget ullamcorper eget, iaculis id augue. Vivamus porta elit id nulla varius, in sodales massa bibendum. Nullam condimentum pellentesque est, vel lacinia ipsum efficitur sed. Morbi porttitor porta commodo. Sed feugiat egestas nisl sed faucibus. Fusce nisi metus, accumsan eget ullamcorper eget, iaculis id augue. Vivamus porta elit id nulla varius, in sodales massa bibendum. Nullam condimentum pellentesque est, vel lacinia ipsum efficitur sed. Morbi porttitor porta commodo.
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingThree">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Collapsible Group Item #3
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                    <div class="card-body">
+                        Sed feugiat egestas nisl sed faucibus. Fusce nisi metus, accumsan eget ullamcorper eget, iaculis id augue. Vivamus porta elit id nulla varius, in sodales massa bibendum. Nullam condimentum pellentesque est, vel lacinia ipsum efficitur sed. Morbi porttitor porta commodo. Sed feugiat egestas nisl sed faucibus. Fusce nisi metus, accumsan eget ullamcorper eget, iaculis id augue. Vivamus porta elit id nulla varius, in sodales massa bibendum. Nullam condimentum pellentesque est, vel lacinia ipsum efficitur sed. Morbi porttitor porta commodo.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+<!--
     <div class="col-lg-12">
         <div class="card" *ngIf="policySet != null">
-            <div class="card-header">Policies</div>
+            <div class="card-header">Active Policies</div>
             <div class="card-body">
                 <div *ngFor="let selectedPolicy of policySet | keyvalue">
                     <div class="input-group">
@@ -18,20 +71,22 @@
                                 <span class="switch-slider"></span>
                             </label>
                         </div>
-                        <button class="btn-primary" (click)="deletePolicy(selectedPolicy.value.clause.value, selectedPolicy.value.target, selectedPolicy.value.clause.id, selectedPolicy.value.targetId)">Delete Policy</button>
+                        <button class="btn btn-primary" (click)="deletePolicy(selectedPolicy.value.clause.value, selectedPolicy.value.target, selectedPolicy.value.clause.id, selectedPolicy.value.targetId)">Delete Policy</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-12">
+    <div class="col-lg-12" *ngIf="policySetToChoose">
         <div class="card">
             <div class="card-header">Add Policy</div>
+
             <div class="card-body">
                 <div class="input-group" *ngFor="let policyToChoose of policySetToChoose | keyvalue">
                     <p>This Policy is for: {{policyToChoose.value.target.toLowerCase()}} <br>
                         {{policyToChoose.value.description}}</p>
+
                     <div class="input-group" *ngIf="policyToChoose.value.clauseType == 'BOOLEAN'">
                         <span class="input-group-text switch-prepend" tooltip="If persistency is switched on, Polypheny only adds tables to persistent stores.">{{policyToChoose.value.name}}</span>
                         <label class="switch switch-label switch-pill switch-outline-primary-alt switch-sm">
@@ -40,11 +95,13 @@
                                    (change)="saveBooleanPoliciesBeforeSaving(checkboxInput.checked, policyToChoose.value.clause.value, policyToChoose.value.target, policyToChoose.value.clause.id)" #checkboxInput>
                             <span class="switch-slider"></span>
                         </label>
+
                     </div>
-                    <button class="btn-primary" (click)="addPolicy(policyToChoose.value.clause.value, policyToChoose.value.target, policyToChoose.value.clause.id, policyToChoose.value.targetId)">Add Policy</button>
+                    <button class="btn btn-primary" (click)="addPolicy(policyToChoose.value.clause.value, policyToChoose.value.target, policyToChoose.value.clause.id, policyToChoose.value.targetId)">Add Policy</button>
                 </div>
             </div>
+
         </div>
     </div>
-
+-->
 </div>

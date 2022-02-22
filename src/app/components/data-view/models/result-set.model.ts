@@ -60,6 +60,14 @@ export class SelectedColSet {
   }
 }
 
+export class Policies{
+
+  errormessage: string;
+  policies: PolicySet;
+
+}
+
+
 export class PolicySet {
 
   [column: string]: {
