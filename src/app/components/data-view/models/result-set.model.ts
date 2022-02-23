@@ -67,6 +67,24 @@ export class Policies{
 
 }
 
+export class Policy{
+  name: string;
+  target: string;
+  targetId: number;
+  clauseType: string;
+  description: string;
+  clause: BooleanClauseSet;
+
+  constructor(name: string, target: string, targetId: number, clauseType: string, description: string, clause: BooleanClauseSet) {
+    this.name = name;
+    this.target = target;
+    this.targetId = targetId;
+    this.clauseType = clauseType;
+    this.description = description;
+    this.clause = clause;
+  }
+}
+
 
 export class PolicySet {
 
@@ -91,7 +109,15 @@ export class BooleanClauseSet {
   id: number;
   isDefault: boolean;
   value: boolean;
-  constructor() {
+
+  constructor(clauseName: string, clauseType: string, falseCategory: string, trueCategory: string, id: number, isDefault: boolean, value: boolean) {
+    this.clauseName = clauseName;
+    this.clauseType = clauseType;
+    this.falseCategory = falseCategory;
+    this.trueCategory = trueCategory;
+    this.id = id;
+    this.isDefault = isDefault;
+    this.value = value;
   }
 }
 

@@ -149,13 +149,13 @@ export class PolicyRequest extends UIRequest {
 
 export class PolicyChangeRequest {
   requestType: string;
-  clauseId: number;
+  clauseName: string;
   targetName: string;
   targetId: number;
 
-  constructor(requestType, clauseId, targetName, targetId) {
+  constructor(requestType, clauseName, targetName, targetId) {
     this.requestType = requestType;
-    this.clauseId = clauseId;
+    this.clauseName = clauseName;
     this.targetName = targetName;
     this.targetId = targetId;
   }
@@ -165,8 +165,8 @@ export class PolicyChangeRequest {
 export class PolicyBooleanChangeRequest extends PolicyChangeRequest {
   booleanValue: boolean;
 
-  constructor(clauseId: number, targetName: string, value: boolean, targetId?: number) {
-    super('BooleanChangeRequest', clauseId, targetName, targetId || null);
+  constructor(clauseName: string, targetName: string, value: boolean, targetId?: number) {
+    super('BooleanChangeRequest', clauseName, targetName, targetId || null);
     this.booleanValue = value;
     return this;
   }

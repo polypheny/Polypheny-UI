@@ -5,7 +5,7 @@ import {Subscription} from 'rxjs';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToastService} from '../../../components/toast/toast.service';
 import {PolicyBooleanChangeRequest, PolicyChangeRequest, PolicyRequest} from '../../../models/ui-request.model';
-import {Policies, PolicySet} from '../../../components/data-view/models/result-set.model';
+import {Policies, Policy, PolicySet} from '../../../components/data-view/models/result-set.model';
 
 @Component({
   selector: 'app-policy',
@@ -19,6 +19,8 @@ export class PolicyComponent implements OnInit, OnDestroy {
   tableId: string;
   policySet: PolicySet;
   policySetToChoose: PolicySet;
+  addPoliciesKind = 'Addition';
+  activePoliciesKind = 'Active';
 
   constructor(
       private _crud: CrudService,
@@ -39,14 +41,16 @@ export class PolicyComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+
   getPolicies(tableId: string) {
     this._crud.getPolicies(new PolicyRequest(tableId)).subscribe(
         res => {
-           const policies = <Policies>res;
-           this.policySet = policies.policies;
-           if(policies.policies === null){
-             this._toast.warn(policies.errormessage);
-           }
+          const policies = <Policies>res;
+          this.policySet = policies.policies;
+
+          if (policies.policies === null) {
+            this._toast.warn(policies.errormessage);
+          }
         }, err => {
           this.policySet = null;
           this._toast.warn('There is an issue with the default policies.');
@@ -55,24 +59,25 @@ export class PolicyComponent implements OnInit, OnDestroy {
     );
   }
 
-  getAllPossiblePolicies(tableId: string){
+  getAllPossiblePolicies(tableId: string) {
     this._crud.getAllPossiblePolicies(new PolicyRequest(tableId)).subscribe(
-        res =>{
+        res => {
           const policies = <Policies>res;
           this.policySetToChoose = policies.policies;
-          if(policies.policies === null){
+
+          if (policies.policies === null) {
             this._toast.warn(policies.errormessage);
           }
-        }, err =>{
+        }, err => {
           this._toast.warn('Not possible to show all possible policies.');
         }
     );
   }
 
 
-  setBooleanPolicies(checked: boolean, oldValue: boolean, target: string, id: number) {
+  setBooleanPolicies(policy: Policy) {
 
-    this._crud.setPolicies(new PolicyBooleanChangeRequest(id, target, !oldValue)).subscribe(
+    this._crud.setPolicies(new PolicyBooleanChangeRequest(policy.clause.clauseName, policy.target, !policy.clause.value)).subscribe(
         res => {
           this._toast.success('Policy successfully changed.');
         },
@@ -84,20 +89,12 @@ export class PolicyComponent implements OnInit, OnDestroy {
   }
 
 
-  saveBooleanPoliciesBeforeSaving(checked: boolean, oldValue: boolean, target: string, id: number) {
-
-  }
 
 
-  booleanPolicySwitch() {
 
-    return true;
-  }
+  addPolicy(policy: Policy) {
 
-  addPolicy(oldValue: boolean, target: string, id: number, targetId: number) {
-
-    console.log(target);
-    this._crud.addPolicy(new PolicyBooleanChangeRequest(id, target, !oldValue, targetId)).subscribe(
+    this._crud.addPolicy(new PolicyBooleanChangeRequest(policy.clause.clauseName, policy.target, policy.clause.value, policy.targetId)).subscribe(
         res => {
           this.getPolicies(this.tableId);
           this.getAllPossiblePolicies(this.tableId);
@@ -108,8 +105,9 @@ export class PolicyComponent implements OnInit, OnDestroy {
     );
   }
 
-  deletePolicy(value: boolean, target: string, id: number, targetId: number) {
-    this._crud.deletePolicy(new PolicyChangeRequest('deleteRequest', id, target, targetId)).subscribe(
+  deletePolicy(policy: Policy) {
+
+    this._crud.deletePolicy(new PolicyChangeRequest('deleteRequest', policy.clause.clauseName, policy.target, policy.targetId)).subscribe(
         res => {
           this.getPolicies(this.tableId);
           this.getAllPossiblePolicies(this.tableId);

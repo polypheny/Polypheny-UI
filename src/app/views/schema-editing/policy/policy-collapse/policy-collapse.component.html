@@ -1,0 +1,66 @@
+<div class="row">
+    <div class="col-lg-12">
+        <div class="accordion" id="accordion">
+            <div class="card" >
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" type="button" data-target="#collapseOne"  (click)="toggleShowInformation()">
+                            {{getTitle()}}
+                        </button>
+                    </h5>
+                </div>
+
+                <div id="collapseOne" [ngClass]="showInformation ? 'collapse show': 'collapse'"  data-parent="#accordion">
+                    <div class="card-body" *ngFor="let policy of policyInfo | keyvalue">
+                        <div class="input-group">
+                            <div class="input-group-prepend" *ngIf="policy.value.clauseType == 'BOOLEAN'">
+                                <span class="input-group-text" tooltip="{{policy.value.description}}" placement="right">{{policy.value.name}}</span>
+                                <label class="switch switch-pill switch-primary">
+                                    <input type="checkbox" class="switch-input" [checked]="policy.value.clause.value"  (change)="setBooleanPolicies(policy.value)">
+                                    <span class="switch-slider"></span>
+                                </label>
+                            </div>
+                            <button class="btn btn-primary" (click)="changePolicy(policy.value)">{{getButtonName()}}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--
+<div class="row">
+    <div class="col-lg-12">
+        <div class="accordion" id="accordion">
+            <div class="card" >
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" type="button" data-target="#collapseOne"  (click)="toggleShowInformation()">
+                            {{getTitle()}}
+                        </button>
+                    </h5>
+                </div>
+
+                <div id="collapseOne" [ngClass]="showInformation ? 'collapse show': 'collapse'"  data-parent="#accordion">
+                    <div class="card-body" *ngFor="let policy of policyInfo | keyvalue">
+                        <div class="input-group-append">
+                            <div class="input-group" *ngIf="policy.value.clauseType == 'BOOLEAN'">
+                                <span class="input-group-text switch-prepend mb-3" tooltip="{{policy.value.description}}" placement="right">{{policy.value.name}}</span>
+                                <label class="switch switch-label switch-pill switch-outline-primary-alt switch-sm">
+                                    <input type="checkbox" class="switch-input" [id]="'default' + policy.value.name"
+
+                                           (change)="setBooleanPolicies(policy.value)" #checkboxInput>
+                                    <span class="switch-slider"> </span>
+                                </label>
+                            </div>
+                            <button class="btn btn-primary" (click)="changePolicy(policy.value)">{{getButtonName()}}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+-->

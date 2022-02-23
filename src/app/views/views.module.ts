@@ -42,6 +42,7 @@ import {DocumentEditCollectionsComponent} from './schema-editing/document-edit-c
 import {DocumentEditCollectionComponent} from './schema-editing/document-edit-collection/document-edit-collection.component';
 import {StatisticsComponent} from './schema-editing/statistics/statistics.component';
 import {PolicyComponent} from './schema-editing/policy/policy.component';
+import {PolicyCollapseComponent} from './schema-editing/policy/policy-collapse/policy-collapse.component';
 
 
 @NgModule({
@@ -94,6 +95,7 @@ import {PolicyComponent} from './schema-editing/policy/policy.component';
     EditSourceColumnsComponent,
     StatisticsComponent,
     PolicyComponent,
+    PolicyCollapseComponent,
     ValuePipe,
     SearchFilterPipe
   ],
