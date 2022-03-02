@@ -139,7 +139,7 @@ export class StatisticRequest extends UIRequest {
   }
 }
 
-export class PolicyRequest extends UIRequest {
+export class ClauseRequest extends UIRequest {
   constructor(tableId?: string) {
     super();
     this.tableId = tableId || null;
@@ -147,7 +147,7 @@ export class PolicyRequest extends UIRequest {
   }
 }
 
-export class PolicyChangeRequest {
+export class ClauseChangeRequest {
   requestType: string;
   clauseName: string;
   targetName: string;
@@ -162,7 +162,7 @@ export class PolicyChangeRequest {
 
 }
 
-export class PolicyBooleanChangeRequest extends PolicyChangeRequest {
+export class ClauseBooleanChangeRequest extends ClauseChangeRequest {
   booleanValue: boolean;
 
   constructor(clauseName: string, targetName: string, value: boolean, targetId?: number) {

@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit,} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {MonitoringRequest, StatisticRequest} from '../../models/ui-request.model';
-import {DashboardData, DashboardSet} from '../../components/data-view/models/result-set.model';
+import {DashboardData, DashboardSet, WorkloadInfo, WorkloadSet} from '../../components/data-view/models/result-set.model';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 
 
@@ -20,6 +20,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   min = 0;
   max = 0;
   diagram = [];
+
+  diagramWorkload = [];
+  dataJoin = [];
+  dataAggregate = [];
+  dataSort = [];
+  dataFilter = [];
+  labelsWorkload = [];
+  workloadSet: WorkloadSet;
+
+  diagramExecutionTime = [];
+  executionTime = [];
 
   dashboardSet: DashboardSet;
   dashboardInformation: DashboardData;
@@ -129,4 +140,68 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     );
   }
+
+  getWorkloadInformation(){
+    this.diagramWorkload = [];
+    this.dataJoin = [];
+    this.dataAggregate = [];
+    this.dataSort = [];
+    this.dataFilter = [];
+
+    this.diagramExecutionTime = [];
+    this.executionTime = [];
+
+    this._crud.getWorkloadInformation().subscribe(
+        res =>{
+          this.workloadSet = <WorkloadSet>res;
+
+          Object.entries(this.workloadSet).forEach(
+              ([key, value]) =>{
+                this.labelsWorkload.push(key);
+                this.dataAggregate.push((<WorkloadInfo>value).aggregateInformation.overAllCount);
+                this.dataJoin.push((<WorkloadInfo>value).joinInformation.joinCount);
+                this.dataSort.push((<WorkloadInfo>value).sortCount);
+                this.dataFilter.push((<WorkloadInfo>value).filterCount);
+
+                this.executionTime.push((<WorkloadInfo>value).executionTime);
+
+              }
+          );
+
+
+        }
+    );
+
+
+    this.diagramWorkload = [{
+      label: 'Join',
+      borderColor: 'rgb(255, 99, 132)',
+      data: this.dataJoin
+    },
+      {
+        label: 'Aggregate',
+        borderColor: 'rgb(81,199,18)',
+        data: this.dataAggregate
+      }/*,
+      {
+        label: 'Filter',
+        borderColor: 'rgb(232,197,17)',
+        data: this.dataFilter
+      },
+      {
+        label: 'Sort',
+        borderColor: 'rgb(18,105,199)',
+        data: this.dataSort
+      }*/];
+
+    this.diagramExecutionTime = [{
+      label: 'average execution time for query',
+      borderColor: 'rgb(140,69,197)',
+      data: this.executionTime
+    }];
+
+
+  }
+
+
 }

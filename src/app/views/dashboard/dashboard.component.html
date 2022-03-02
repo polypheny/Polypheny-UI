@@ -124,6 +124,8 @@
                         </table>
                     </div>
 
+                    <button class="btn btn-primary" (click)="getWorkloadInformation()">get Info</button>
+
                     <div *ngIf="dashboardSet == null && this.infoCounter > 120">
                         <p>There is not yet enough information to display the workload information.</p>
                     </div>
@@ -134,6 +136,26 @@
                         </div>
                     </div>
 
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card" style="min-height: 153px">
+                <div class="card-header">
+                    <span>Workload Information Diagram</span>
+                </div>
+                <div class="card-body">
+
+                    <button class="btn btn-primary" (click)="getWorkloadInformation()">get Info</button>
+                    <div *ngIf="workloadSet != null">
+                        <app-graph [data]="diagramWorkload" [labels]="labelsWorkload" [chartType]="'bar'" [maintainAspectRatio]="false" [xLabel]="xLabel" [yLabel]="yLabel" class="dashboard-diagram"></app-graph>
+                    </div>
+
+                    <div *ngIf="workloadSet != null">
+                        <app-graph [data]="diagramExecutionTime" [labels]="labelsWorkload" [chartType]="'line'" [maintainAspectRatio]="false" [xLabel]="xLabel" [yLabel]="'average execution Time'" class="dashboard-diagram"></app-graph>
+                    </div>
 
                 </div>
             </div>

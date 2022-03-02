@@ -60,14 +60,14 @@ export class SelectedColSet {
   }
 }
 
-export class Policies{
+export class Clauses {
 
   errormessage: string;
   policies: PolicySet;
 
 }
 
-export class Policy{
+export class Policy {
   name: string;
   target: string;
   targetId: number;
@@ -96,6 +96,7 @@ export class PolicySet {
     description: string;
     clause: BooleanClauseSet;
   }
+
   constructor() {
   }
 }
@@ -131,6 +132,41 @@ export class DashboardSet {
   numberOfQueries: number;
   numberOfWorkloads: number;
 
+}
+
+export class WorkloadSet {
+  time: string;
+  info: WorkloadInfo;
+}
+
+export class WorkloadInfo {
+  executionTime: number;
+  aggregateInformation: AggregateInformation;
+  filterCount: number;
+  joinInformation: JoinInformation;
+  projectCount: number;
+  sortCount: number;
+  tableScanInformation: TableScanInformation;
+
+}
+
+export class AggregateInformation {
+  avgCount: number;
+  countCount: number;
+  maxCount: number;
+  minCount: number;
+  overAllCount: number;
+  sumCount: number;
+}
+
+export class JoinInformation {
+  joinCount: number;
+  jointTableIds: Map<number, number>;
+}
+
+export class TableScanInformation {
+  entityIds: [];
+  tableScanCount: number;
 }
 
 /**

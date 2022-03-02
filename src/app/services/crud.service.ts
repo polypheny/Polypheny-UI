@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, ExploreTable, MaterializedRequest, MonitoringRequest, PolicyBooleanChangeRequest, PolicyChangeRequest, PolicyRequest, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
+import {ClauseBooleanChangeRequest, ClauseChangeRequest, ClauseRequest, ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, ExploreTable, MaterializedRequest, MonitoringRequest, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
@@ -102,37 +102,41 @@ export class CrudService {
   /**
    * Request default policies from the server
    */
-  getPolicies(policies: PolicyRequest ){
-    return this._http.post(`${this.httpUrl}/getPolicies`, policies, this.httpOptions );
+  getClauses(policies: ClauseRequest ){
+    return this._http.post(`${this.httpUrl}/getClauses`, policies, this.httpOptions );
   }
 
   /**
    * Request all possible policies to select from.
    */
-  getAllPossiblePolicies(policies: PolicyRequest ){
-    return this._http.post(`${this.httpUrl}/getAllPossiblePolicies`, policies, this.httpOptions );
+  getAllPossibleClauses(policies: ClauseRequest ){
+    return this._http.post(`${this.httpUrl}/getAllPossibleClauses`, policies, this.httpOptions );
+  }
+
+  getWorkloadInformation(){
+    return this._http.post(`${this.httpUrl}/getWorkloadInformation`, this.httpOptions );
   }
 
   /**
    * Request default policies from the server
    */
-  setPolicies( policiesChanges: PolicyBooleanChangeRequest ){
-    return this._http.post(`${this.httpUrl}/setPolicies`, policiesChanges, this.httpOptions );
+  setClauses(policiesChanges: ClauseBooleanChangeRequest ){
+    return this._http.post(`${this.httpUrl}/setClauses`, policiesChanges, this.httpOptions );
   }
 
   /**
    * Request default policies from the server
    */
-  addPolicy( policiesChanges: PolicyBooleanChangeRequest ){
-    return this._http.post(`${this.httpUrl}/addPolicy`, policiesChanges, this.httpOptions );
+  addClause(policiesChanges: ClauseBooleanChangeRequest ){
+    return this._http.post(`${this.httpUrl}/addClause`, policiesChanges, this.httpOptions );
   }
 
 
   /**
    * Request default policies from the server
    */
-  deletePolicy( policiesChanges: PolicyChangeRequest ){
-    return this._http.post(`${this.httpUrl}/deletePolicy`, policiesChanges, this.httpOptions );
+  deleteClause(policiesChanges: ClauseChangeRequest ){
+    return this._http.post(`${this.httpUrl}/deleteClause`, policiesChanges, this.httpOptions );
   }
 
   /**

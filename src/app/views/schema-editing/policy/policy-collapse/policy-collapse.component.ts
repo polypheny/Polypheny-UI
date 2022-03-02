@@ -49,9 +49,9 @@ export class PolicyCollapseComponent implements OnInit, OnDestroy {
 
   getTitle() {
     if(this.kind === 'Addition' ){
-      return 'Add Policy';
+      return 'Add Clause';
     }else if (this.kind === 'Active'){
-      return 'Active Policies';
+      return 'Active Clauses';
     }
   }
 
@@ -61,9 +61,9 @@ export class PolicyCollapseComponent implements OnInit, OnDestroy {
 
   getButtonName() {
     if(this.kind === 'Addition' ){
-      return 'Add Policy';
+      return 'Add Clause';
     }else if (this.kind === 'Active'){
-      return 'Delete Policy';
+      return 'Delete Clause';
     }
   }
 
