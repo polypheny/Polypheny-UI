@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {Policy, PolicySet} from '../../../../components/data-view/models/result-set.model';
+import {Policy} from '../../../../components/data-view/models/result-set.model';
 
 @Component({
   selector: 'app-policy-collapse',
@@ -11,14 +11,12 @@ export class PolicyCollapseComponent implements OnInit, OnDestroy {
   showInformation:boolean;
   booleanValue:boolean;
   @Input()
-  policyInfo: PolicySet;
-  @Input()
   kind: string;
   @Output()
   policyChange = new EventEmitter<Policy>();
   @Output()
   changeBoolValue = new EventEmitter<Policy>();
-
+  sorted: Map<string, any>;
 
   constructor() {
   }
@@ -38,14 +36,9 @@ export class PolicyCollapseComponent implements OnInit, OnDestroy {
     this.showInformation = !this.showInformation;
   }
 
-
-
-
   setBooleanPolicies(policy: Policy) {
     this.changeBoolValue.emit(policy);
   }
-
-
 
   getTitle() {
     if(this.kind === 'Addition' ){
@@ -55,8 +48,8 @@ export class PolicyCollapseComponent implements OnInit, OnDestroy {
     }
   }
 
-  changePolicy(policy: Policy) {
-    this.policyChange.emit(policy);
+  changePolicy(policy) {
+    this.policyChange.emit(<Policy>policy);
   }
 
   getButtonName() {
@@ -67,4 +60,21 @@ export class PolicyCollapseComponent implements OnInit, OnDestroy {
     }
   }
 
+  @Input()
+  set policyInfo(policyInfo: Policy[]){
+    this.sorted = new Map<string, any>();
+    if(policyInfo != null){
+      for (const policy of policyInfo) {
+        if( !this.sorted.has(policy.clause.category)){
+          this.sorted.set(policy.clause.category, [policy]);
+        }else{
+          this.sorted.get(policy.clause.category).push(policy);
+        }
+      }
+    }
+  }
+
+  getPolicies(value) {
+    return <Policy[]> value;
+  }
 }

@@ -17,8 +17,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   dataDql = [];
   labels = [];
   line = 'line';
-  min = 0;
-  max = 0;
   diagram = [];
 
   diagramWorkload = [];
@@ -91,20 +89,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
                   this.dataWorkload.push(value.right);
                   this.dataDql.push(value.left);
-
-                  //find min and max between Workload and Query Information
-                  if (this.min > value.right) {
-                    this.min = value.right;
-                  }
-                  if (this.max < value.right) {
-                    this.max = value.right;
-                  }
-                  if (this.min > value.left) {
-                    this.min = value.left;
-                  }
-                  if (this.max < value.left) {
-                    this.max = value.left;
-                  }
                 }
             );
           }
@@ -182,7 +166,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         label: 'Aggregate',
         borderColor: 'rgb(81,199,18)',
         data: this.dataAggregate
-      }/*,
+      },
       {
         label: 'Filter',
         borderColor: 'rgb(232,197,17)',
@@ -192,7 +176,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         label: 'Sort',
         borderColor: 'rgb(18,105,199)',
         data: this.dataSort
-      }*/];
+      }];
 
     this.diagramExecutionTime = [{
       label: 'average execution time for query',

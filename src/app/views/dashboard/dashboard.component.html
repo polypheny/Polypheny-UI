@@ -7,7 +7,7 @@
         <div class="card-body">
 
             <div *ngIf="dashboardInformation != null && diagram.length > 0">
-                <app-graph [data]="diagram" [labels]="labels" [chartType]="line" [min]="min" [maintainAspectRatio]="false" [max]="max" [xLabel]="xLabel" [yLabel]="yLabel" class="dashboard-diagram"></app-graph>
+                <app-graph [data]="diagram" [labels]="labels" [chartType]="line" [maintainAspectRatio]="false" [xLabel]="xLabel" [yLabel]="yLabel" class="dashboard-diagram"></app-graph>
             </div>
 
             <div *ngIf="dashboardInformation == null && this.infoCounter > 120">

@@ -63,7 +63,7 @@ export class SelectedColSet {
 export class Clauses {
 
   errormessage: string;
-  policies: PolicySet;
+  policies: Policy[];
 
 }
 
@@ -86,25 +86,23 @@ export class Policy {
 }
 
 
+
+/*
 export class PolicySet {
 
-  [column: string]: {
-    name: string;
-    target: string;
-    targetId: number;
-    clauseType: string;
-    description: string;
-    clause: BooleanClauseSet;
-  }
+  policies: PolicyUI[];
 
   constructor() {
   }
 }
 
+ */
+
 export class BooleanClauseSet {
 
   clauseName: string;
   clauseType: string;
+  category: string;
   falseCategory: string;
   trueCategory: string;
   id: number;

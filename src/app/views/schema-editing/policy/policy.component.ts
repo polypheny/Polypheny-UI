@@ -5,7 +5,7 @@ import {Subscription} from 'rxjs';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToastService} from '../../../components/toast/toast.service';
 import {ClauseBooleanChangeRequest, ClauseChangeRequest, ClauseRequest} from '../../../models/ui-request.model';
-import {Clauses, Policy, PolicySet} from '../../../components/data-view/models/result-set.model';
+import {Clauses, Policy} from '../../../components/data-view/models/result-set.model';
 
 @Component({
   selector: 'app-policy',
@@ -17,8 +17,8 @@ export class PolicyComponent implements OnInit, OnDestroy {
 
   subscriptions = new Subscription();
   tableId: string;
-  policySet: PolicySet;
-  policySetToChoose: PolicySet;
+  policySet: Policy[];
+  policySetToChoose: Policy[];
   addPoliciesKind = 'Addition';
   activePoliciesKind = 'Active';
 
@@ -46,10 +46,8 @@ export class PolicyComponent implements OnInit, OnDestroy {
     this._crud.getClauses(new ClauseRequest(tableId)).subscribe(
         res => {
           const policies = <Clauses>res;
-          console.log(policies);
           this.policySet = policies.policies;
-
-          if (policies.policies === null) {
+          if (this.policySet === null) {
             this._toast.warn(policies.errormessage);
           }
         }, err => {
@@ -64,10 +62,8 @@ export class PolicyComponent implements OnInit, OnDestroy {
     this._crud.getAllPossibleClauses(new ClauseRequest(tableId)).subscribe(
         res => {
           const policies = <Clauses>res;
-          console.log(policies);
           this.policySetToChoose = policies.policies;
-
-          if (policies.policies === null) {
+          if (this.policySetToChoose === null) {
             this._toast.warn(policies.errormessage);
           }
         }, err => {
@@ -78,47 +74,53 @@ export class PolicyComponent implements OnInit, OnDestroy {
 
 
   setBooleanPolicies(policy: Policy) {
-
     this._crud.setClauses(new ClauseBooleanChangeRequest(policy.clause.clauseName, policy.target, !policy.clause.value)).subscribe(
         res => {
-          this._toast.success('Policy successfully changed.');
+          if (res !== null) {
+            const clause = <Clauses>res;
+            this._toast.warn(clause.errormessage);
+          }else{
+            this._toast.success('Policy successfully changed.');
+          }
         },
         err => {
-          this._toast.warn('Not possible to change this policy, already existing settings go against it.');
+          this._toast.warn('Error while changing clause.');
         }
     );
     this.getClauses(this.tableId);
   }
 
-
-
-
-
   addPolicy(policy: Policy) {
-
-    console.log(policy.clause.clauseName);
     this._crud.addClause(new ClauseBooleanChangeRequest(policy.clause.clauseName, policy.target, policy.clause.value, policy.targetId)).subscribe(
         res => {
-          this.getClauses(this.tableId);
-          this.getAllPossiblePolicies(this.tableId);
+          if (res !== null) {
+            const clause = <Clauses>res;
+            this._toast.warn(clause.errormessage);
+          }
         },
         err => {
           this._toast.warn('Not possible to add this policy, already existing settings go against it.');
         }
     );
+    this.getClauses(this.tableId);
+    this.getAllPossiblePolicies(this.tableId);
   }
 
   deletePolicy(policy: Policy) {
-
     this._crud.deleteClause(new ClauseChangeRequest('deleteRequest', policy.clause.clauseName, policy.target, policy.targetId)).subscribe(
         res => {
-          this.getClauses(this.tableId);
-          this.getAllPossiblePolicies(this.tableId);
+
+          if (res !== null) {
+            const clause = <Clauses>res;
+            this._toast.warn(clause.errormessage);
+          }
         },
         err => {
           this._toast.warn('Not possible to delete this Policy.');
         }
     );
-
+    this.getClauses(this.tableId);
+    this.getAllPossiblePolicies(this.tableId);
   }
+
 }
