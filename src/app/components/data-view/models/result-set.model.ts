@@ -67,6 +67,17 @@ export class Clauses {
 
 }
 
+export class StatisticPolypheny{
+  storeInformation: Map<string, StoreInformation>;
+}
+
+export class StoreInformation{
+  storeId: number;
+  storeName: string;
+  persistent: boolean;
+  deployMode: string;
+}
+
 export class Policy {
   name: string;
   target: string;
@@ -84,19 +95,6 @@ export class Policy {
     this.clause = clause;
   }
 }
-
-
-
-/*
-export class PolicySet {
-
-  policies: PolicyUI[];
-
-  constructor() {
-  }
-}
-
- */
 
 export class BooleanClauseSet {
 

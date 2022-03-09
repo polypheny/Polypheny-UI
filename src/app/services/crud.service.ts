@@ -117,6 +117,10 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/getWorkloadInformation`, this.httpOptions );
   }
 
+  getStatisticPolypheny(){
+    return this._http.post(`${this.httpUrl}/getStatisticPolypheny`, this.httpOptions );
+  }
+
   /**
    * Request default policies from the server
    */

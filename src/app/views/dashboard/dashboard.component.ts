@@ -37,9 +37,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   maintainAspectRatio = false;
   digramInterval: number;
   informationInterval: number;
+  workloadSetInterval: number;
 
   infoCounter: number;
   diagramCounter: number;
+  workloadSetCounter: number;
 
 
   constructor(
@@ -55,6 +57,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.getDiagram();
     this.getDashboardInformation();
     this.checkIfInformationAvailable();
+    this.getWorkloadInformation();
   }
 
   ngOnDestroy() {
@@ -69,6 +72,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     if (this.dashboardSet == null) {
       this.informationInterval = setInterval(this.getDashboardInformation.bind(this), 1000);
+    }
+    if (this.workloadSet == null) {
+      this.workloadSetInterval = setInterval(this.getDashboardInformation.bind(this), 1000);
     }
   }
 
@@ -139,20 +145,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
         res =>{
           this.workloadSet = <WorkloadSet>res;
 
-          Object.entries(this.workloadSet).forEach(
-              ([key, value]) =>{
-                this.labelsWorkload.push(key);
-                this.dataAggregate.push((<WorkloadInfo>value).aggregateInformation.overAllCount);
-                this.dataJoin.push((<WorkloadInfo>value).joinInformation.joinCount);
-                this.dataSort.push((<WorkloadInfo>value).sortCount);
-                this.dataFilter.push((<WorkloadInfo>value).filterCount);
+          if(this.workloadSet != null || this.workloadSetCounter > 120){
+            clearInterval(this.workloadSetInterval);
+            Object.entries(this.workloadSet).forEach(
+                ([key, value]) =>{
+                  this.labelsWorkload.push(key);
+                  this.dataAggregate.push((<WorkloadInfo>value).aggregateInformation.overAllCount);
+                  this.dataJoin.push((<WorkloadInfo>value).joinInformation.joinCount);
+                  this.dataSort.push((<WorkloadInfo>value).sortCount);
+                  this.dataFilter.push((<WorkloadInfo>value).filterCount);
 
-                this.executionTime.push((<WorkloadInfo>value).executionTime);
+                  this.executionTime.push((<WorkloadInfo>value).executionTime);
 
-              }
-          );
-
-
+                }
+            );
+            this.workloadSetCounter++;
+          }
         }
     );
 
@@ -164,7 +172,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
       {
         label: 'Aggregate',
-        borderColor: 'rgb(81,199,18)',
+        borderColor: 'rgb(18,105,199)',
         data: this.dataAggregate
       },
       {
@@ -174,13 +182,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       },
       {
         label: 'Sort',
-        borderColor: 'rgb(18,105,199)',
+        borderColor: 'rgb(42,46,51)',
         data: this.dataSort
       }];
 
     this.diagramExecutionTime = [{
       label: 'average execution time for query',
-      borderColor: 'rgb(140,69,197)',
+      borderColor: 'rgb(255, 99, 132)',
       data: this.executionTime
     }];
 
