@@ -116,12 +116,19 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         if (this.saveInHistory) {
             this.addToHistory(code, this.lang);
         }
-        if (this.lang === 'mql') {
-            const match = code.match('use [a-zA-Z][a-zA-Z0-1]*');
+        if (this.usesAdvancedConsole(this.lang)) { // maybe adjust
+            const match = code.toLowerCase().match('use [a-zA-Z][a-zA-Z0-1]*');
+            console.log(match)
             if (match !== null && match.length >= 0) {
                 const database = match[match.length-1].replace('use ', '');
                 this.setDefaultDB(database);
             }
+            const matchGraph = code.toLowerCase().match('use graph [a-zA-Z][a-zA-Z0-1]*');
+            if (matchGraph !== null && matchGraph.length >= 0) {
+                const database = matchGraph[matchGraph.length-1].replace('use ', '');
+                this.setDefaultDB(database);
+            }
+
             if (code.match('show db')) {
                 this._crud.getDocumentDatabases().subscribe(res => {
                     this.documentDBs = [];
@@ -377,5 +384,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         console.log('revert');
         this.useCache = this.originalCache;
         this.originalCache = null;
+    }
+
+    usesAdvancedConsole(lang: string) {
+        return lang === 'mql' || lang === 'cypher';
     }
 }

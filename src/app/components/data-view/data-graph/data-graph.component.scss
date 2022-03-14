@@ -1,0 +1,146 @@
+.wrapper {
+  display: grid;
+  grid-template-rows: max-content 1fr max-content;
+  height: 100vh;
+}
+
+#chart-area {
+  overflow: hidden;
+  //max-width: 800px;
+  //max-height: 500px;
+  height: auto;
+  margin: auto;
+}
+
+
+svg {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  width: 100%;
+  height: auto;
+  position: relative;
+}
+
+.links line {
+  stroke: #999;
+}
+.links path {
+  stroke: #999;
+}
+
+.nodes > circle {
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+path {
+  stroke: grey;
+}
+
+.link > path {
+  fill:none;
+  stroke:grey;
+  stroke-width:1px;
+}
+
+
+.header {
+  padding: 0 0.4rem;
+  height: 5rem;
+  width: 100%;
+  border: 3px solid black;
+  left: 0;
+  top: 0;
+  display: inline-block;
+
+  .type {
+    background-color: blue;
+    border-radius: 16px;
+    display: inline-block;
+    border: solid 1px black;
+    color: black;
+    padding: 0.4rem;
+    cursor: pointer;
+
+    &:hover {
+      font-weight: bold;
+    }
+  }
+}
+
+
+.properties {
+  padding: 0 0.4rem;
+  height: 5rem;
+  width: 100%;
+  border: 3px solid black;
+  display: none;
+
+  .type {
+    background-color: blue;
+    border-radius: 16px;
+    color: white;
+    padding: 0.4rem;
+  }
+}
+
+
+.properties {
+  h4 {
+    display: inline-block;
+  }
+}
+
+.overlay {
+  z-index: 10;
+}
+
+
+.el-select {
+  cursor: pointer;
+  pointer-events: none;
+  font-family:  Arial, Helvetica, sans-serif;
+
+
+  &:hover{
+    font-weight: bold;
+  }
+}
+
+.el-back {
+  transform: translateY(-33px);
+}
+
+.el-cross {
+  transform: translate( -27px, 15px);
+}
+
+.overlay {
+  cursor: pointer;
+}
+
+.aid {
+  cursor: pointer;
+}
+
+.container {
+  height: auto;
+  margin: 0;
+  width: 100%;
+  padding: 0;
+}
+
+.linklabel {
+  cursor: pointer;
+
+  &:hover {
+    font-weight: bold;
+  }
+}
+
+.overlay{
+  path{
+    stroke: transparent;
+  }
+}

@@ -1,4 +1,15 @@
-import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {DataPresentationType, ResultSet} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
@@ -142,10 +153,14 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log(changes);
+
     if (changes.hasOwnProperty('resultSet')) {
-      this.schemaType = this.resultSet.schemaType;
+      this.schemaType = this.resultSet.namespaceType;
       if(this.schemaType.toLowerCase() === 'document') {
         this.presentationType = DataPresentationType.CARD;
+      } else if ( this.schemaType.toLowerCase() === 'graph' && this.containsGraphObject(this.resultSet)){
+        this.presentationType = DataPresentationType.GRAPH;
       }else{
         this.presentationType = DataPresentationType.TABLE;
       }
@@ -161,6 +176,15 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       this.setPagination();
       this.buildInsertObject();
     }
+  }
+
+  deactivateGraphButton( resultSet: ResultSet) {
+    return resultSet.namespaceType.toLowerCase() !== 'graph' || !this.containsGraphObject(resultSet);
+  }
+
+  containsGraphObject(resultSet: ResultSet) {
+    const includes = resultSet.header.map(d => d.dataType.toLowerCase().includes('graph') || d.dataType.toLowerCase().includes('edge') || d.dataType.toLowerCase().includes('edge'));
+    return includes.includes(true);
   }
 
   documentListener() {
@@ -556,7 +580,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       let fullQuery;
 
       if(!isView){
-        if ( this.resultSet.schemaType.toLowerCase() === 'document'){
+        if ( this.resultSet.namespaceType.toLowerCase() === 'document'){
           this._toast.error('Materialized views are not jet supported for document queries.');
           return;
         }
@@ -586,7 +610,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
 
   private getViewQuery() {
-    if( this.resultSet.schemaType.toLowerCase() === 'document'){
+    if( this.resultSet.namespaceType.toLowerCase() === 'document'){
       let source;
       let pipeline;
 
@@ -603,7 +627,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       temp.shift(); // remove collection
       temp[0] = temp[0].replace('aggregate(', '').replace('find(', '');
       temp[temp.length-1] = temp[temp.length-1].slice(0, -1); // remove last bracket
-      
+
       if( this.query.includes('.aggregate(')){
 
         pipeline = temp.join('.');
@@ -737,8 +761,8 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   checkModelAndLanguage() {
-    return (this.resultSet.schemaType.toLowerCase() === 'document' && this.resultSet.language.toLowerCase() === 'mql') ||
-        (this.resultSet.schemaType.toLowerCase() === 'relational' && this.resultSet.language.toLowerCase() === 'sql');
+    return (this.resultSet.namespaceType.toLowerCase() === 'document' && this.resultSet.language.toLowerCase() === 'mql') ||
+        (this.resultSet.namespaceType.toLowerCase() === 'relational' && this.resultSet.language.toLowerCase() === 'sql');
   }
 }
 

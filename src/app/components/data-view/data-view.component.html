@@ -7,15 +7,18 @@
             </button>
         </div>
         <div>
-            <button class="btn btn-light" (click)="presentationType = presentationTypes.TABLE"
+            <button class="btn btn-light mx-1" (click)="presentationType = presentationTypes.TABLE"
                     [class.active]="presentationType === presentationTypes.TABLE"
                     tooltip="table" placement="top" delay="200"><i class="fa fa-table"></i></button>
-            <button class="btn btn-light" (click)="presentationType = presentationTypes.CAROUSEL"
+            <button class="btn btn-light mx-1" (click)="presentationType = presentationTypes.CAROUSEL"
                     [class.active]="presentationType === presentationTypes.CAROUSEL"
                     tooltip="carousel" placement="top" delay="200"><i class="fa fa-map-o"></i></button>
-            <button class="btn btn-light" (click)="presentationType = presentationTypes.CARD"
+            <button class="btn btn-light mx-1" (click)="presentationType = presentationTypes.CARD"
                     [class.active]="presentationType === presentationTypes.CARD"
                     tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
+            <button class="btn btn-light mx-1" [disabled]="!resultSet || deactivateGraphButton(resultSet)" (click)="presentationType = presentationTypes.GRAPH"
+                    [class.active]="presentationType === presentationTypes.GRAPH"
+                    tooltip="graph" placement="top" delay="200"><i class="fa fa-code-fork"></i></button>
         </div>
         <div>
             <button  *ngIf="resultSet.data && !(_router.url.startsWith('/views/data-table/')) && !isDMLResult() && resultSet.language !== 'cql' && checkModelAndLanguage()" class="btn btn-light viewButton" tooltip="create view"
@@ -37,6 +40,9 @@
     </ng-container>
     <ng-container *ngSwitchCase="presentationTypes.CAROUSEL">
         <app-data-carousel *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-carousel>
+    </ng-container>
+    <ng-container *ngSwitchCase="presentationTypes.GRAPH">
+        <app-data-graph *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId" [config]="config"></app-data-graph>
     </ng-container>
 </ng-container>
 
@@ -60,7 +66,7 @@
                     <button class="btn btn-primary btn-lg mr-1 btn-block" (click)="showView = ViewType.VIEW">
                         View
                     </button>
-                    <button class="btn btn-primary btn-lg mr-1 btn-block" *ngIf="resultSet.schemaType.toLowerCase() !== 'document'" (click)="showView = ViewType.MATERIALIZED">
+                    <button class="btn btn-primary btn-lg mr-1 btn-block" *ngIf="resultSet.namespaceType.toLowerCase() !== 'document'" (click)="showView = ViewType.MATERIALIZED">
                         Materialized View
                     </button>
                 </div>
