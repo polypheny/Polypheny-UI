@@ -123,4 +123,14 @@ export class PolicyComponent implements OnInit, OnDestroy {
     this.getAllPossiblePolicies(this.tableId);
   }
 
+  selfAdaptSystem() {
+    this._crud.selfAdaptSystem().subscribe(
+        res =>{
+          this._toast.warn('looks good');
+        },
+        err=>{
+          this._toast.warn('looks bad');
+        }
+    );
+  }
 }

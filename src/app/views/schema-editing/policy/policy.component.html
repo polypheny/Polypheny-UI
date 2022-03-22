@@ -1,3 +1,10 @@
+<div>
+    <button class="btn btn-primary" (click)="selfAdaptSystem()">
+        Self Adapt The System
+    </button>
+</div>
+
+
 <app-policy-collapse [policyInfo]="policySet" [kind]="activePoliciesKind" (policyChange)="deletePolicy($event)"  (changeBoolValue)="setBooleanPolicies($event)">   </app-policy-collapse>
 
 <app-policy-collapse [policyInfo]="policySetToChoose" [kind]="addPoliciesKind"  (policyChange)="addPolicy($event)" (changeBoolValue)="setBooleanPolicies($event)" >   </app-policy-collapse>

@@ -136,6 +136,10 @@ export class CrudService {
   }
 
 
+  selfAdaptSystem(){
+    return this._http.post(`${this.httpUrl}/selfAdaptSystem`, this.httpOptions );
+  }
+
   /**
    * Request default policies from the server
    */
