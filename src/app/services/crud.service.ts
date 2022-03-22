@@ -3,7 +3,23 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, ExploreTable, MaterializedRequest, MonitoringRequest, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
+import {
+  ColumnRequest,
+  ConstraintRequest,
+  DeleteRequest,
+  EditCollectionRequest,
+  EditTableRequest,
+  ExploreTable,
+  GraphRequest,
+  MaterializedRequest,
+  MonitoringRequest,
+  QueryRequest,
+  RelAlgRequest,
+  Schema,
+  SchemaRequest,
+  StatisticRequest,
+  TableRequest
+} from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
@@ -43,6 +59,10 @@ export class CrudService {
 
   getSchema ( request: SchemaRequest ) {
     return this._http.post(`${this.httpUrl}/getSchemaTree`, request, this.httpOptions);
+  }
+
+  getGraph ( socket: WebSocket, data: GraphRequest ): boolean {
+    return socket.sendMessage(data);
   }
 
   insertRow (formData: FormData ) {

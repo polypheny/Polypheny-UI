@@ -8,19 +8,24 @@ import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 import * as d3 from 'd3';
+import {ResultSet} from '../models/result-set.model';
+import {GraphRequest} from '../../../models/ui-request.model';
+import {WebSocket} from '../../../services/webSocket';
+import {Subscription} from 'rxjs';
 
 class Graph {
     nodes: any[];
-    edges:any[];
-    
-    constructor(data: string[][]) {
-        const parsed = JSON.parse(data[0][0]);
-        console.log(parsed);
-        this.nodes = Object.values(parsed['nodes']);
-        this.edges = Object.values(parsed['edges']);
-    }
+    edges: any[];
 
+    constructor(data) {
+        console.log(data);
+        //const parsed = JSON.parse(data);
+        //console.log(parsed);
+        this.nodes = Object.values(data['nodes']);
+        this.edges = Object.values(data['edges']);
+    }
 }
+
 
 @Component({
     selector: 'app-data-graph',
@@ -31,6 +36,8 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
     showInsertCard = false;
     jsonValid = false;
+    public graphLoading = false;
+    private initialIds: Set<string>;
 
     constructor(
         public _crud: CrudService,
@@ -43,9 +50,18 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         public modalService: BsModalService
     ) {
         super(_crud, _toast, _route, _router, _types, _settings, _sidebar, modalService);
+        this.subscriptions = new Subscription();
+        this.webSocket = new WebSocket(_settings);
+        this.initWebsocket();
     }
 
     ngOnInit(): void {
+        this.graphLoading = true;
+        this.getGraph(this.resultSet);
+    }
+
+
+    private renderGraph(graph: Graph) {
         //const graph = new Graph( this.resultSet.data );
 
         //console.log( graph );
@@ -66,19 +82,18 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             ]
         };*/
         const size = 25;
-        const data = this.resultSet.data;
-
-
-        const graph = new Graph(data);
+        //const data = this.resultSet.data;
 
         let hidden = [];
-        const jsonize = (obj) => {
-            let json = '';
-            for (const key in obj) {
-                json += ` <strong>${key}:</strong> ${JSON.stringify(obj[key]).replace('"', '')}`;
+
+        for (const n of graph.nodes) {
+            if (!this.initialIds.has(n.id)) {
+                hidden.push(n.id);
             }
-            return json;
-        };
+        }
+
+        //const graph = this.getGraph(this.resultSet);
+
 
         const width = 600;
         const height = 325;
@@ -174,7 +189,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .append('g')
                 .attr('class', 'link')
                 .append('path')
-                .style( 'stroke', 'grey')
+                .style('stroke', 'grey')
                 //.attr("stroke-width", d => Math.sqrt(d.value))
                 .attr('class', function (d) {
                     return 'link ' + d.type;
@@ -208,7 +223,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 newOverlay.exit().remove();
             }
 
-            newSelectionHelp = els.append('g').attr('class', 'aid').append('circle').attr('r', size + 4 ).attr('fill', 'transparent');
+            newSelectionHelp = els.append('g').attr('class', 'aid').append('circle').attr('r', size + 4).attr('fill', 'transparent');
 
             newOverlay = els.append('g').attr('class', 'overlay').attr('display', 'none');
 
@@ -287,7 +302,6 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             newOverlay.selectAll();
 
 
-
             // Add circles for every node in the dataset
             newNode = els
                 .append('circle')
@@ -327,7 +341,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             // hover
             newNode.append('title')
                 .text(function (d) {
-                    if( d.properties.hasOwnProperty('title')){
+                    if (d.properties.hasOwnProperty('title')) {
                         return d.properties['title'].substring(0, 6);
                     }
                     return '';
@@ -339,7 +353,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .attr('dy', 5)
                 .attr('text-anchor', 'middle')
                 .text(function (d) {
-                    if( d.properties.hasOwnProperty('title')){
+                    if (d.properties.hasOwnProperty('title')) {
                         return d.properties['title'];
                     }
                     return '';
@@ -363,9 +377,9 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                     return '#linkId_' + i;
                 })
                 .text(function (d) {
-                    if( d.labels.length === 0){
+                    if (d.labels.length === 0) {
                         return '';
-                    }else {
+                    } else {
                         return d.labels[0].toUpperCase();
                     }
 
@@ -450,6 +464,58 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         const reset = () => {
             hidden = [];
         };
+    }
+
+    initWebsocket() {
+        const sub = this.webSocket.onMessage().subscribe(
+            res => {
+                //const response = <ResultSet>res;
+                const unparsedGraph: string = <string>res;
+                this.graphLoading = false;
+                this.renderGraph(new Graph(unparsedGraph));
+
+            }, err => {
+                this._toast.error('Could not load the data.');
+                console.log(err);
+            }
+        );
+        this.subscriptions.add(sub);
+    }
+
+    getGraph(resultSet: ResultSet) {
+        const nodeIds: Set<string> = new Set();
+        const edgeIds: Set<string> = new Set();
+
+        let i = -1;
+        for (const dbColumn of resultSet.header) {
+            i++;
+            if (!dbColumn.dataType.toLowerCase().includes('node') && !dbColumn.dataType.toLowerCase().includes('edge')) {
+                continue;
+            }
+
+            if (dbColumn.dataType.toLowerCase().includes('node')) {
+                resultSet.data.forEach(d => {
+                    nodeIds.add(JSON.parse(d[i])['id']);
+                });
+            }
+
+            if (dbColumn.dataType.toLowerCase().includes('edge')) {
+                resultSet.data.forEach(d => {
+                    edgeIds.add(JSON.parse(d[i])['id']);
+                });
+            }
+            // todo handle paths
+
+            this.initialIds = nodeIds;
+        }
+
+        console.log(resultSet);
+        console.log(resultSet.namespaceName);
+        if (!this._crud.getGraph(this.webSocket, new GraphRequest(resultSet.namespaceName, nodeIds, edgeIds))) {
+            //this._toast.error('Could not retrieve the graphical representation of the graph.');
+        } else {
+            this.graphLoading = true;
+        }
     }
 
     setJsonValid($event: any) {

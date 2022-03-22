@@ -2,7 +2,7 @@
 <div id="mode_wrapper" class="mb-2" *ngIf="resultSet">
     <div class="d-flex justify-content-between">
         <div>
-            <button *ngIf="resultSet.data && !(_router.url.startsWith('/views/data-table/'))" [style.visibility]="'hidden'">
+            <button *ngIf="showCreateView()" class="btn btn-light viewButton" tooltip="create view" [style.display]="'none'" >
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </button>
         </div>
@@ -21,7 +21,7 @@
                     tooltip="graph" placement="top" delay="200"><i class="fa fa-code-fork"></i></button>
         </div>
         <div>
-            <button  *ngIf="resultSet.data && !(_router.url.startsWith('/views/data-table/')) && !isDMLResult() && resultSet.language !== 'cql' && checkModelAndLanguage()" class="btn btn-light viewButton" tooltip="create view"
+            <button  *ngIf="showCreateView()" class="btn btn-light viewButton" tooltip="create view"
                     (click)="openCreateView(createView, resultSet.generatedQuery)">
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </button>

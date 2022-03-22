@@ -183,7 +183,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   containsGraphObject(resultSet: ResultSet) {
-    const includes = resultSet.header.map(d => d.dataType.toLowerCase().includes('graph') || d.dataType.toLowerCase().includes('edge') || d.dataType.toLowerCase().includes('edge'));
+    const includes = resultSet.header.map(d => d.dataType.toLowerCase().includes('graph') || d.dataType.toLowerCase().includes('node'));
     return includes.includes(true);
   }
 
@@ -763,6 +763,14 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   checkModelAndLanguage() {
     return (this.resultSet.namespaceType.toLowerCase() === 'document' && this.resultSet.language.toLowerCase() === 'mql') ||
         (this.resultSet.namespaceType.toLowerCase() === 'relational' && this.resultSet.language.toLowerCase() === 'sql');
+  }
+
+  showCreateView() {
+    return this.resultSet.data
+        && !(this._router.url.startsWith('/views/data-table/'))
+        && !this.isDMLResult()
+        && this.resultSet.language !== 'cql'
+        && this.checkModelAndLanguage();
   }
 }
 

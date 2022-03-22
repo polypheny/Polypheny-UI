@@ -4,8 +4,9 @@
 </div>
 
 <div class="card-wrapper">
-    <div class="wrapper">
+    <div class="wrapper d-flex justify-content-center">
         <div id="chart-area"></div>
+        <div class="spinner-border text-primary graph-loader" *ngIf="graphLoading"></div>
     </div>
 
     <div *ngIf="config.create && !showInsertCard" (click)="showInsert()">
