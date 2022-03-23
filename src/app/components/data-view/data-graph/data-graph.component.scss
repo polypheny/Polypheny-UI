@@ -39,6 +39,25 @@ path {
   stroke: grey;
 }
 
+path.link{
+  stroke-width: 1px;
+}
+
+.graph-properties{
+  width: 200px;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: #f0f3f5;
+  transition: width 2s;
+}
+
+.graph-wrapper{
+  position: relative;
+  flex-direction: column
+}
+
 .link > path {
   fill: none;
   stroke: grey;

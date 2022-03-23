@@ -26,6 +26,17 @@ class Graph {
     }
 }
 
+class Detail{
+    constructor(d) {
+        this.id = d.id;
+        this.properties = d.properties;
+        this.labels = d.labels;
+    }
+
+    id:string;
+    properties:{};
+    labels:string[];
+}
 
 @Component({
     selector: 'app-data-graph',
@@ -38,6 +49,11 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
     jsonValid = false;
     public graphLoading = false;
     private initialIds: Set<string>;
+    showProperties = false;
+    detail: Detail;
+    private height: number;
+    private width: number;
+    private zoom: any;
 
     constructor(
         public _crud: CrudService,
@@ -62,25 +78,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
 
     private renderGraph(graph: Graph) {
-        //const graph = new Graph( this.resultSet.data );
 
-        //console.log( graph );
-
-
-        /*const data = {
-            'nodes': [
-                {"id": 1, "group": 1, "label": "human", "properties": {"name": "test1", "size": 3}},
-                {"id": 2, "name": "test2", "group": 1, "label": "human", "properties": {"title": "test2", "size": 123}},
-                {"id": 3, "name": "test3", "group": 1, "label": "human", "properties": {"name": "test3", "size": 1, "volume": [3,41,3]}},
-                {"id": 4, "name": "test4", "group": 2, "label": "animal", "properties": {"name": "test4", "size": 4, "obj": {"hi": 3}}},
-                {"id": 5, "name": "test5", "group": 2, "label": "animal", "properties": {"name": "test5", "size": 234}},
-            ],
-            "edges": [
-                {"leftId": 1, "right": 2, "labels": ["friend"], "value": 2, "properties": {"id": 3, "name": "tester"}},
-                {"leftId": 2, "right": 3, "labels": ["friend"], "value": 2, "properties": {"id": 4, "name": "frank"}},
-                {"leftId": 4, "right": 5,"labels": ["enemy"], "value": 2, "properties": {"id": 5, "name": "t"}},
-            ]
-        };*/
         const size = 25;
         //const data = this.resultSet.data;
 
@@ -93,17 +91,33 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         }
 
         //const graph = this.getGraph(this.resultSet);
+        
+        const zoom = d3.zoom()
+            .scaleExtent([0.25, 10])
+            .on('zoom', handleZoom);
 
-
+        this.zoom = zoom;
+        
         const width = 600;
+        this.width = width;
         const height = 325;
+        this.height = height;
+
         const svg = d3
             .select('#chart-area')
             .append('svg')
             .attr('width', width)
             .attr('height', height)
-            .attr('viewBox', `0 0 ${width} ${height}`);
-
+            .attr('viewBox', `0 0 ${width} ${height}`)
+            /*.call(d3.zoom().on('zoom', function () {
+                svg.attr('transform', d3.event.transform);
+            }));*/
+            .call( zoom );
+            
+        function handleZoom() {
+            svg.attr('transform', d3.event.transform);
+        }
+        
         const color = d3.scaleOrdinal(d3.schemeCategory10);
 
 // Add "forces" to the simulation here
@@ -114,10 +128,8 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             .force('link', d3.forceLink().id(d => d.id).distance(120));
 
         const action = (d) => {
-            /*$('.properties').show();
-            $('.properties .type').css('background-color', color(d.group));
-            $('.properties .type').text(d.label);
-            $('.properties .data').html(jsonize(d.properties));*/
+            this.detail = new Detail(d);
+            this.showProperties = true;
         };
 
 // Change the value of alpha, so things move around when we drag a node
@@ -172,7 +184,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
             // Add lines for every link in the dataset
             newLinks = svg
-                .style('border', '1px solid black')
+                //.style('border', '1px solid black')
                 .append('g')
                 .attr('class', 'links')
                 .selectAll('path')
@@ -464,6 +476,12 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         const reset = () => {
             hidden = [];
         };
+    }
+
+    center() {
+        d3.select('svg')
+            .transition()
+            .call(this.zoom.translateTo, 0.5 * this.width, 0.5 * this.height);
     }
 
     initWebsocket() {

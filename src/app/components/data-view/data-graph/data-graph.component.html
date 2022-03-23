@@ -4,8 +4,25 @@
 </div>
 
 <div class="card-wrapper">
-    <div class="wrapper d-flex justify-content-center">
+    <div class="wrapper d-flex justify-content-center graph-wrapper">
         <div id="chart-area"></div>
+        <div *ngIf="showProperties" class="graph-properties">
+            <div class="card text-center h-100">
+                <div class="card-header">
+                    {{detail.id}}
+                </div>
+                <div class="card-body">
+                    <span *ngFor="let label of detail.labels" class="badge badge-pill badge-primary">{{label}}</span>
+                    <div class="my-2"></div>
+                    <div *ngFor="let entry of detail.properties | keyvalue">
+                        <p><strong>{{entry.key}}: </strong>{{entry.value}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="graph-bottom d-flex justify-content-center">
+            <button class="btn" (click)="center()">RESET</button>
+        </div>
         <div class="spinner-border text-primary graph-loader" *ngIf="graphLoading"></div>
     </div>
 
