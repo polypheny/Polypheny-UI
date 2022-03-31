@@ -29,10 +29,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   maintainAspectRatio = false;
   digramInterval: number;
   informationInterval: number;
-
   infoCounter: number;
   diagramCounter: number;
-
+  selectInterval = "all";
+  selectIntervalDisplay = "All";
 
   constructor(
       public _crud: CrudService,
@@ -69,7 +69,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.dataWorkload = [];
     this.dataDql = [];
     this.labels = [];
-    this._crud.getDashboardDiagram(new MonitoringRequest()).subscribe(
+    this.min = 0;
+    this.max = 0;
+    this._crud.getDashboardDiagram(new MonitoringRequest(),this.selectInterval).subscribe(
         res => {
           this.dashboardInformation = <DashboardData>res;
 
@@ -129,5 +131,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.infoCounter++;
         }
     );
+  }
+
+  public setSelectInterval(interval:string){
+    this.selectInterval = interval;
+    if( interval == "all" ){
+      this.selectIntervalDisplay = "All";
+    }else if( interval == "60" ){
+      this.selectIntervalDisplay = "1 hour";
+    }else if( interval == "30" ){
+      this.selectIntervalDisplay = "30 minutes";
+    }else if( interval == "15" ){
+      this.selectIntervalDisplay = "15 minutes";
+    }else if( interval == "5" ){
+      this.selectIntervalDisplay = "5 minutes";
+    }
+    this.getDiagram();
   }
 }
