@@ -79,7 +79,11 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
     private renderGraph(graph: Graph) {
 
-        const size = 25;
+        const size = 20;
+        const overlaySize = 30;
+        const overlayStroke = 3;
+        const textSize = 13;
+        const linkSize = 9;
         //const data = this.resultSet.data;
 
         let hidden = [];
@@ -103,12 +107,17 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         const height = 325;
         this.height = height;
 
+
         const svg = d3
             .select('#chart-area')
+            .append('div')
+            .attr('class', 'svg-responsive')
             .append('svg')
-            .attr('width', width)
-            .attr('height', height)
+            .attr('preserveAspectRatio', 'xMinYMin meet')
+            //.attr('width', width)
+            //.attr('height', height)
             .attr('viewBox', `0 0 ${width} ${height}`)
+            .attr('class','svg-content-responsive')
             /*.call(d3.zoom().on('zoom', function () {
                 svg.attr('transform', d3.event.transform);
             }));*/
@@ -120,7 +129,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         
         const color = d3.scaleOrdinal(d3.schemeCategory10);
 
-// Add "forces" to the simulation here
+        // Add "forces" to the simulation here
         const simulation = d3.forceSimulation()
             .force('center', d3.forceCenter(width / 2, height / 2))
             .force('charge', d3.forceManyBody().strength(-50))
@@ -132,7 +141,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             this.showProperties = true;
         };
 
-// Change the value of alpha, so things move around when we drag a node
+        // Change the value of alpha, so things move around when we drag a node
         const onDragStart = d => {
             action(d);
             if (!d3.event.active) {
@@ -142,13 +151,13 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             d.fy = d.y;
         };
 
-// Fix the position of the node that we are looking at
+        // Fix the position of the node that we are looking at
         const onDrag = d => {
             d.fx = d3.event.x;
             d.fy = d3.event.y;
         };
 
-// Let the node do what it wants again once we've looked at it
+        // Let the node do what it wants again once we've looked at it
         const onDragEnd = d => {
             if (!d3.event.active) {
                 simulation.alphaTarget(0);
@@ -196,6 +205,33 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
             newLinks.remove().exit();
 
+
+            newLinktext = svg.selectAll('g.linklabelholder').data(graph.edges.filter((d) => !hidden.includes(d.source) && !hidden.includes(d.target)));
+
+            newLinktext.enter().append('svg:g').attr('class', 'linklabelholder')
+                .append('text')
+                .attr('class', 'linklabel')
+                .style('font-size', linkSize + 'px')
+                .attr('x', '40')
+                .attr('y', '0')
+                .attr('dy', '-5')
+                .attr('text-anchor', 'start')
+                .style('fill', '#000')
+                .append('textPath')
+                .on('click', action)
+                .attr('xlink:href', function (d, i) {
+                    return '#linkId_' + i;
+                })
+                .text(function (d) {
+                    if (d.labels.length === 0) {
+                        return '';
+                    } else {
+                        return d.labels[0].toUpperCase();
+                    }
+
+                });
+
+
             link = newLinks
                 .enter()
                 .append('g')
@@ -228,19 +264,19 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             els.exit().remove();
 
             const arc = d3.arc()
-                .innerRadius(size + 3)
-                .outerRadius(size + 20);
+                .innerRadius(size + overlayStroke)
+                .outerRadius(size + overlayStroke + overlaySize);
 
             if (newOverlay !== undefined) {
                 newOverlay.exit().remove();
             }
 
-            newSelectionHelp = els.append('g').attr('class', 'aid').append('circle').attr('r', size + 4).attr('fill', 'transparent');
+            newSelectionHelp = els.append('g').attr('class', 'aid').append('circle').attr('r', size + overlayStroke + overlaySize).attr('fill', 'transparent').attr('display', 'none');
 
             newOverlay = els.append('g').attr('class', 'overlay').attr('display', 'none');
 
             t = newOverlay.append('path').attr('fill', 'grey')
-                .attr('stroke-width', 1)
+                .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
                 .attr('d', arc({startAngle: -(Math.PI / 3), endAngle: (Math.PI / 3)}))
                 .on('mouseover', function (d) {
@@ -263,7 +299,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 });
 
             right = newOverlay.append('path').attr('fill', 'grey')
-                .attr('stroke-width', 1)
+                .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
                 .attr('d', arc({startAngle: (Math.PI / 3), endAngle: Math.PI}))
                 .on('mouseover', function (d) {
@@ -277,7 +313,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 });
 
             left = newOverlay.append('path').attr('fill', 'grey')
-                .attr('stroke-width', 1)
+                .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
                 .attr('d', arc({startAngle: -Math.PI, endAngle: -(Math.PI / 3)}))
                 .on('mouseover', function (d) {
@@ -294,7 +330,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             newOverlay.append('text').attr('text-anchor', 'middle')
                 .attr('dominant-baseline', 'central')
                 .attr('font-family', 'FontAwesome')
-                .attr('font-size', '20px')
+                .attr('font-size', textSize + 'px')
                 .attr('fill', 'white')
                 .attr('class', 'el-select el-back')
                 .text(function (d) {
@@ -304,7 +340,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             newOverlay.append('text').attr('text-anchor', 'middle')
                 .attr('dominant-baseline', 'central')
                 .attr('font-family', 'FontAwesome')
-                .attr('font-size', '20px')
+                .attr('font-size', textSize + 'px')
                 .attr('fill', 'white')
                 .attr('class', 'el-select el-cross')
                 .text(function (d) {
@@ -333,9 +369,11 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
             els.on('mouseover', function (d) {
                 d3.select(this).select('.overlay').transition().attr('display', 'inherit');
+                d3.select(this).select('.aid').attr('display', 'inherit').select('circle').attr('display', 'inherit');
             })
                 .on('mouseout', function (d) {
                     d3.select(this).select('.overlay').transition().duration(200).attr('display', 'none');
+                    d3.select(this).select('.aid').attr( 'display', 'none');
                 });
 
 
@@ -346,15 +384,16 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .enter()
                 .append('text')
                 .attr('pointer-events', 'none');
-            //the rest of your code
 
             newText.exit().remove();
 
             // hover
             newNode.append('title')
                 .text(function (d) {
-                    if (d.properties.hasOwnProperty('title')) {
-                        return d.properties['title'].substring(0, 6);
+                    for (const key of Object.keys(d.properties)) {
+                        if( key !== '_id'){
+                            return d.properties[key].substring(0, 6);
+                        }
                     }
                     return '';
                 });
@@ -372,30 +411,6 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 });
 
 
-            newLinktext = svg.selectAll('g.linklabelholder').data(graph.edges.filter((d) => !hidden.includes(d.source) && !hidden.includes(d.target)));
-
-            newLinktext.enter().append('svg:g').attr('class', 'linklabelholder')
-                .append('text')
-                .attr('class', 'linklabel')
-                .style('font-size', '13px')
-                .attr('x', '40')
-                .attr('y', '0')
-                .attr('dy', '-5')
-                .attr('text-anchor', 'start')
-                .style('fill', '#000')
-                .append('textPath')
-                .on('click', action)
-                .attr('xlink:href', function (d, i) {
-                    return '#linkId_' + i;
-                })
-                .text(function (d) {
-                    if (d.labels.length === 0) {
-                        return '';
-                    } else {
-                        return d.labels[0].toUpperCase();
-                    }
-
-                });
 
             svg.exit().remove();
 

@@ -10,6 +10,7 @@
   //max-height: 500px;
   height: auto;
   margin: auto;
+  font-size: 11px;
 }
 
 
@@ -168,4 +169,21 @@ path.link{
 .graph-loader {
   position: absolute;
   top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%; /* aspect ratio */
+  vertical-align: top;
+  overflow: hidden;
+}
+.svg-content-responsive {
+  display: inline-block;
+  position: absolute;
+  top: 10px;
+  left: 0;
 }

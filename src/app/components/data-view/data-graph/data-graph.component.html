@@ -23,7 +23,9 @@
         <div class="graph-bottom d-flex justify-content-center">
             <button class="btn" (click)="center()">RESET</button>
         </div>
-        <div class="spinner-border text-primary graph-loader" *ngIf="graphLoading"></div>
+        <div class="graph-loader" *ngIf="graphLoading">
+            <div class="spinner-border text-primary" ></div>
+        </div>
     </div>
 
     <div *ngIf="config.create && !showInsertCard" (click)="showInsert()">
