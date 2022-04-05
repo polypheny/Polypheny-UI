@@ -392,7 +392,8 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .text(function (d) {
                     for (const key of Object.keys(d.properties)) {
                         if( key !== '_id'){
-                            return d.properties[key].substring(0, 6);
+                            const prop = d.properties[key];
+                            return prop.toString().substring(0, 6);
                         }
                     }
                     return '';
