@@ -26,16 +26,16 @@ class Graph {
     }
 }
 
-class Detail{
+class Detail {
     constructor(d) {
         this.id = d.id;
         this.properties = d.properties;
         this.labels = d.labels;
     }
 
-    id:string;
-    properties:{};
-    labels:string[];
+    id: string;
+    properties: {};
+    labels: string[];
 }
 
 @Component({
@@ -95,13 +95,8 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         }
 
         //const graph = this.getGraph(this.resultSet);
-        
-        const zoom = d3.zoom()
-            .scaleExtent([0.25, 10])
-            .on('zoom', handleZoom);
 
-        this.zoom = zoom;
-        
+
         const width = 600;
         this.width = width;
         const height = 325;
@@ -114,27 +109,33 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             .attr('class', 'svg-responsive')
             .append('svg')
             .attr('preserveAspectRatio', 'xMinYMin meet')
-            //.attr('width', width)
-            //.attr('height', height)
             .attr('viewBox', `0 0 ${width} ${height}`)
-            .attr('class','svg-content-responsive')
-            /*.call(d3.zoom().on('zoom', function () {
-                svg.attr('transform', d3.event.transform);
-            }));*/
-            .call( zoom );
-            
-        function handleZoom() {
-            svg.attr('transform', d3.event.transform);
+            .attr('class', 'svg-content-responsive');
+
+        const g = svg.append('g');
+
+        this.zoom = d3.zoom()
+            .on('zoom', zoom_actions);
+
+        this.zoom(svg);
+
+        function zoom_actions() {
+            g.attr('transform', d3.event.transform);
         }
-        
+
+
         const color = d3.scaleOrdinal(d3.schemeCategory10);
 
         // Add "forces" to the simulation here
         const simulation = d3.forceSimulation()
             .force('center', d3.forceCenter(width / 2, height / 2))
-            .force('charge', d3.forceManyBody().strength(-50))
-            .force('collide', d3.forceCollide(10).strength(0.9))
+            .force('charge', d3.forceManyBody().strength(-25))
+            .force('collide', d3.forceCollide(10).strength(0.9).radius(30))
             .force('link', d3.forceLink().id(d => d.id).distance(120));
+
+
+        // disable charge after initial setup
+        setInterval(()=> simulation.force('charge', null),1500);
 
         const action = (d) => {
             this.detail = new Detail(d);
@@ -173,10 +174,10 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
         function restart() {
 
-            svg.exit().remove();
+            g.exit().remove();
 
             // build the arrow.
-            svg.append('svg:defs').selectAll('marker')
+            g.append('svg:defs').selectAll('marker')
                 .data(['end'])      // Different link/path types can be defined here
                 .enter().append('svg:marker')    // This section adds in the arrows
                 .attr('id', String)
@@ -192,7 +193,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
 
             // Add lines for every link in the dataset
-            newLinks = svg
+            newLinks = g
                 //.style('border', '1px solid black')
                 .append('g')
                 .attr('class', 'links')
@@ -206,7 +207,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             newLinks.remove().exit();
 
 
-            newLinktext = svg.selectAll('g.linklabelholder').data(graph.edges.filter((d) => !hidden.includes(d.source) && !hidden.includes(d.target)));
+            newLinktext = g.selectAll('g.linklabelholder').data(graph.edges.filter((d) => !hidden.includes(d.source) && !hidden.includes(d.target)));
 
             newLinktext.enter().append('svg:g').attr('class', 'linklabelholder')
                 .append('text')
@@ -222,6 +223,13 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .attr('xlink:href', function (d, i) {
                     return '#linkId_' + i;
                 })
+                .attr('cursor', 'pointer')
+                .on('mouseover', function (d) {
+                    d3.select(this).attr('fill', 'blue').attr('font-weight', 'bold');
+                })
+                .on('mouseout', function (d) {
+                    d3.select(this).attr('fill', '#000').attr('font-weight', 'normal');
+                })
                 .text(function (d) {
                     if (d.labels.length === 0) {
                         return '';
@@ -230,7 +238,6 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                     }
 
                 });
-
 
             link = newLinks
                 .enter()
@@ -248,7 +255,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .attr('marker-end', 'url(#end)');
 
 
-            preNode = svg
+            preNode = g
                 .append('g')
                 .attr('class', 'nodes')
                 .selectAll('circle')
@@ -373,11 +380,11 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             })
                 .on('mouseout', function (d) {
                     d3.select(this).select('.overlay').transition().duration(200).attr('display', 'none');
-                    d3.select(this).select('.aid').attr( 'display', 'none');
+                    d3.select(this).select('.aid').attr('display', 'none');
                 });
 
 
-            newText = svg.selectAll('.name')
+            newText = g.selectAll('.name')
                 .append('g')
                 .attr('class', 'node-label')
                 .data(graph.nodes.filter((d) => !hidden.includes(d.id)))
@@ -391,7 +398,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             newNode.append('title')
                 .text(function (d) {
                     for (const key of Object.keys(d.properties)) {
-                        if( key !== '_id'){
+                        if (key !== '_id') {
                             const prop = d.properties[key];
                             return prop.toString().substring(0, 6);
                         }
@@ -412,8 +419,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 });
 
 
-
-            svg.exit().remove();
+            g.exit().remove();
 
         }
 
@@ -462,7 +468,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
 //	general update pattern for updating the graph
         function update() {
-            svg.selectAll('*').remove();
+            g.selectAll('*').remove();
             restart();
             node = newNode;
             links = newLinks;
@@ -495,9 +501,9 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
     }
 
     center() {
-        d3.select('svg')
+        d3.select('svg').select('g')
             .transition()
-            .call(this.zoom.translateTo, 0.5 * this.width, 0.5 * this.height);
+            .call( this.zoom.translateTo, d3.zoomIdentity);
     }
 
     initWebsocket() {
