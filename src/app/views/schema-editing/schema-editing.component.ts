@@ -10,6 +10,7 @@ import {ToastService} from '../../components/toast/toast.service';
 import {Subscription} from 'rxjs';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
+import {Store} from '../adapters/adapter.model';
 
 @Component({
   selector: 'app-schema-editing',
@@ -27,6 +28,8 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   createSchemaFeedback = 'Schema name is invalid';
   private subscriptions = new Subscription();
   schemaType: any;
+  stores: Store[];
+  graphStore: string;
 
   constructor(
     private _route: ActivatedRoute,
@@ -42,6 +45,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     this.getRouteParam();
     this.getSchema();
     this.initForms();
+    this.getStores();
     this._route.params.subscribe((ev) => {
       this.getSchemaType();
       this.setBreadCrumb();
@@ -110,7 +114,8 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   initForms() {
     this.createForm = new FormGroup({
       name: new FormControl('', this._crud.getNameValidator(true)),
-      type: new FormControl('relational', Validators.required)
+      type: new FormControl('relational', Validators.required),
+      stores: new FormControl('hsqldb'),
     });
     this.dropForm = new FormGroup({
       name: new FormControl('', Validators.required),
@@ -136,7 +141,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     if (this.createForm.valid && this.createSchemaValidation(this.createForm.controls['name'].value) === 'is-valid') {
       const val = this.createForm.value;
       this.createSubmitted = true;
-      this._crud.createOrDropSchema(new Schema(val.name, val.type).setCreate(true)).subscribe(
+      this._crud.createOrDropSchema(new Schema(val.name, val.type, this.graphStore).setCreate(true)).subscribe(
         res => {
           const result = <ResultSet>res;
           if (result.error) {
@@ -159,7 +164,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     if (this.dropForm.valid && this.getValidationClass(this.dropForm.controls['name'].value) === 'is-valid') {
       const val = this.dropForm.value;
       this.dropSubmitted = true;
-      this._crud.createOrDropSchema(new Schema(val.name, val.type).setDrop(true).setCascade(val.cascade)).subscribe(
+      this._crud.createOrDropSchema(new Schema(val.name, val.type, this.graphStore).setDrop(true).setCascade(val.cascade)).subscribe(
         res => {
           const result = <ResultSet>res;
           if (result.error) {
@@ -207,6 +212,15 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     } else {
       return 'is-invalid';
     }
+  }
+
+  getStores() {
+    this._crud.getStores().subscribe(
+        res => {
+          this.stores = <Store[]>res;
+        }, err => {
+          console.log(err);
+        });
   }
 
   isStatistic() {

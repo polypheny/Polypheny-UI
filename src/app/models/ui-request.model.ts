@@ -287,6 +287,7 @@ export class ConstraintRequest {
 export class Schema {
   private name: string;
   private type: string;//todo enum
+  private store: string;
 
   // fields for creation
   create = false;
@@ -298,9 +299,10 @@ export class Schema {
   ifExists = true;
   cascade = false;
 
-  constructor( name: string, type: string ) {
+  constructor( name: string, type: string, store: string ) {
     this.name = name;
     this.type = type;
+    this.store = store;
   }
   setCreate( create: boolean ){
     this.create = create;

@@ -13,16 +13,31 @@ import {GraphRequest} from '../../../models/ui-request.model';
 import {WebSocket} from '../../../services/webSocket';
 import {Subscription} from 'rxjs';
 
+class Edge{
+    id:string;
+    labels:string[];
+    properties:any[];
+    source:string;
+    target:string;
+}
+
+class Node{
+    id:string;
+    labels:string[];
+    properties:any[];
+}
+
+
 class Graph {
-    nodes: any[];
-    edges: any[];
+    nodes: Node[];
+    edges: Edge[];
 
     constructor(data) {
         console.log(data);
         //const parsed = JSON.parse(data);
         //console.log(parsed);
-        this.nodes = Object.values(data['nodes']);
-        this.edges = Object.values(data['edges']);
+        this.nodes = <Node[]>Object.values(data['nodes']);
+        this.edges = <Edge[]> Object.values(data['edges']);
     }
 }
 
@@ -44,16 +59,7 @@ class Detail {
     styleUrls: ['./data-graph.component.scss']
 })
 export class DataGraphComponent extends DataViewComponent implements OnInit {
-
-    showInsertCard = false;
-    jsonValid = false;
-    public graphLoading = false;
-    private initialIds: Set<string>;
-    showProperties = false;
-    detail: Detail;
-    private height: number;
-    private width: number;
-    private zoom: any;
+    private hidden: string[];
 
     constructor(
         public _crud: CrudService,
@@ -71,6 +77,42 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         this.initWebsocket();
     }
 
+    showInsertCard = false;
+    jsonValid = false;
+    public graphLoading = false;
+    private initialIds: Set<string>;
+    showProperties = false;
+    detail: Detail;
+    private height: number;
+    private width: number;
+    private zoom: any;
+    private subElement: any;
+    private labels:string[];
+    private ratio:number;
+    private color: any;
+    private isPath: boolean;
+    private initialEdgeIds: string[];
+    private afterInit = false;
+
+    private static filterEdges(hidden: any[], d: Edge, p: any) {
+        //console.log(hidden);
+
+        const source = !p.afterInit ? d.source : d.source['id'];
+        const target = !p.afterInit ? d.target : d.target['id'];
+
+        const connectionsIncluded = !hidden.includes(source) && !hidden.includes(target);
+        if (connectionsIncluded) {
+            if (p.isPath) {
+                if (p.initialEdgeIds.includes(d.id)) {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
     ngOnInit(): void {
         this.graphLoading = true;
         this.getGraph(this.resultSet);
@@ -86,13 +128,14 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         const linkSize = 9;
         //const data = this.resultSet.data;
 
-        let hidden = [];
+        this.hidden = [];
 
         for (const n of graph.nodes) {
             if (!this.initialIds.has(n.id)) {
-                hidden.push(n.id);
+                this.hidden.push(n.id);
             }
         }
+
 
         //const graph = this.getGraph(this.resultSet);
 
@@ -112,30 +155,29 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             .attr('viewBox', `0 0 ${width} ${height}`)
             .attr('class', 'svg-content-responsive');
 
+
         const g = svg.append('g');
+
+        const zoom_actions = () => {
+            g.attr('transform', d3.event.transform);
+        };
 
         this.zoom = d3.zoom()
             .on('zoom', zoom_actions);
 
         this.zoom(svg);
 
-        function zoom_actions() {
-            g.attr('transform', d3.event.transform);
-        }
-
-
-        const color = d3.scaleOrdinal(d3.schemeCategory10);
 
         // Add "forces" to the simulation here
         const simulation = d3.forceSimulation()
-            .force('center', d3.forceCenter(width / 2, height / 2))
-            .force('charge', d3.forceManyBody().strength(-25))
-            .force('collide', d3.forceCollide(10).strength(0.9).radius(30))
-            .force('link', d3.forceLink().id(d => d.id).distance(120));
+            .force('center', d3.forceCenter(width/2 , height/2 ))
+            .force('charge', d3.forceManyBody().strength(-this.initialIds.size))
+            .force('collide', d3.forceCollide(100).strength(0.9).radius(40))
+            .force('link', d3.forceLink().id(d => d.id).distance(160));
 
 
         // disable charge after initial setup
-        setInterval(()=> simulation.force('charge', null),1500);
+        setInterval(() => simulation.force('charge', null), 1500);
 
         const action = (d) => {
             this.detail = new Detail(d);
@@ -172,7 +214,12 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             newText, text, els, linktext, newLinktext, preNode;
 
 
-        function restart() {
+        function restart(p: any) {
+
+            p.afterInit;
+
+            let hidden = p.hidden;
+            console.log(hidden);
 
             g.exit().remove();
 
@@ -200,20 +247,20 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .selectAll('path')
                 // hidde edges to hidden nodes
                 .data(graph.edges.filter((d) => {
-                    return !hidden.includes(d.source) && !hidden.includes(d.target);
+                    return DataGraphComponent.filterEdges(hidden, d, p);
                 }));
 
 
             newLinks.remove().exit();
 
 
-            newLinktext = g.selectAll('g.linklabelholder').data(graph.edges.filter((d) => !hidden.includes(d.source) && !hidden.includes(d.target)));
+            newLinktext = g.selectAll('g.linklabelholder').data(graph.edges.filter((d) => DataGraphComponent.filterEdges(hidden, d, p)));
 
             newLinktext.enter().append('svg:g').attr('class', 'linklabelholder')
                 .append('text')
                 .attr('class', 'linklabel')
                 .style('font-size', linkSize + 'px')
-                .attr('x', '40')
+                .attr('x', '50')
                 .attr('y', '0')
                 .attr('dy', '-5')
                 .attr('text-anchor', 'start')
@@ -225,10 +272,10 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 })
                 .attr('cursor', 'pointer')
                 .on('mouseover', function (d) {
-                    d3.select(this).attr('fill', 'blue').attr('font-weight', 'bold');
+                    d3.select(this).attr('fill', 'grey');
                 })
                 .on('mouseout', function (d) {
-                    d3.select(this).attr('fill', '#000').attr('font-weight', 'normal');
+                    d3.select(this).attr('fill', '#000');
                 })
                 .text(function (d) {
                     if (d.labels.length === 0) {
@@ -254,6 +301,9 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 })
                 .attr('marker-end', 'url(#end)');
 
+            link.exit().remove();
+            newLinktext.exit().remove();
+
 
             preNode = g
                 .append('g')
@@ -274,18 +324,52 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .innerRadius(size + overlayStroke)
                 .outerRadius(size + overlayStroke + overlaySize);
 
+            newText = g.selectAll('.name')
+                .append('g')
+                .attr('class', 'node-label')
+                .data(graph.nodes.filter(d => !hidden.includes(d.id)))
+                .enter()
+                .append('text')
+                .attr('pointer-events', 'none');
+
+            newText.exit().remove();
+
+            newText.style('fill', 'black')
+                .attr('width', '10')
+                .attr('height', '10')
+                .attr('dy', 5)
+                .attr('text-anchor', 'middle')
+                .text(d => {
+                    for (const key of Object.keys(d.properties)) {
+                        if (key !== '_id') {
+                            const prop = d.properties[key];
+                            return prop.toString().substring(0, 6);
+                        }
+                    }
+                    return '';
+                });
+
+            newText.exit().remove();
+
             if (newOverlay !== undefined) {
                 newOverlay.exit().remove();
             }
+
 
             newSelectionHelp = els.append('g').attr('class', 'aid').append('circle').attr('r', size + overlayStroke + overlaySize).attr('fill', 'transparent').attr('display', 'none');
 
             newOverlay = els.append('g').attr('class', 'overlay').attr('display', 'none');
 
-            t = newOverlay.append('path').attr('fill', 'grey')
+            t = newOverlay.append('path').attr('fill', 'transparent')
+                .attr('stroke-width', overlayStroke)
+                .attr('stroke', 'transparent')
+                .attr('d', arc({startAngle: -(Math.PI / 3), endAngle: (Math.PI / 3)}));
+
+            right = newOverlay.append('path').attr('fill', 'grey')
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
-                .attr('d', arc({startAngle: -(Math.PI / 3), endAngle: (Math.PI / 3)}))
+                .style( 'cursor', 'pointer')
+                .attr('d', arc({startAngle: 0, endAngle: Math.PI}))
                 .on('mouseover', function (d) {
                     d3.select(this).attr('fill', 'darkgray');
                 })
@@ -293,7 +377,6 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                     d3.select(this).attr('fill', 'grey');
                 })
                 .on('click', function (d) {
-
                     graph.edges.filter(function (e) {
                         return d.id === e.source || d.id === e.target; //connected nodes
                     }).forEach((e) => {
@@ -302,27 +385,14 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                             hidden = hidden.filter((i) => i !== id);
                         }
                     });
-                    update();
-                });
-
-            right = newOverlay.append('path').attr('fill', 'grey')
-                .attr('stroke-width', overlayStroke)
-                .attr('stroke', 'white')
-                .attr('d', arc({startAngle: (Math.PI / 3), endAngle: Math.PI}))
-                .on('mouseover', function (d) {
-                    d3.select(this).attr('fill', 'darkgray');
-                })
-                .on('mouseout', function (d) {
-                    d3.select(this).attr('fill', 'grey');
-                })
-                .on('click', function (d) {
-                    console.log('right');
+                    update(p);
                 });
 
             left = newOverlay.append('path').attr('fill', 'grey')
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
-                .attr('d', arc({startAngle: -Math.PI, endAngle: -(Math.PI / 3)}))
+                .style( 'cursor', 'pointer')
+                .attr('d', arc({startAngle: -Math.PI, endAngle: 0}))
                 .on('mouseover', function (d) {
                     d3.select(this).attr('fill', 'darkgray');
                 })
@@ -331,7 +401,8 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 })
                 .on('click', function (d) {
                     hidden.push(d.id);
-                    update();
+                    console.log(hidden);
+                    update(p);
                 });
 
             newOverlay.append('text').attr('text-anchor', 'middle')
@@ -339,29 +410,51 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .attr('font-family', 'FontAwesome')
                 .attr('font-size', textSize + 'px')
                 .attr('fill', 'white')
-                .attr('class', 'el-select el-back')
+                .attr('class', 'el-select el-back fa')
+                .style('transform', 'translateX(-35px)')
+                .style('pointer-events', 'none')
                 .text(function (d) {
-                    return 'b';
+                    return '\uf070';
                 });
 
             newOverlay.append('text').attr('text-anchor', 'middle')
                 .attr('dominant-baseline', 'central')
-                .attr('font-family', 'FontAwesome')
+                .attr('font-family', 'CoreUI-Icons-Free')
                 .attr('font-size', textSize + 'px')
                 .attr('fill', 'white')
                 .attr('class', 'el-select el-cross')
+                .style('transform', 'translateX(35px)')
+                .style('pointer-events', 'none')
                 .text(function (d) {
-                    return 'x';
+                    return '\uebd8';
                 });
 
             newOverlay.selectAll();
+
+            p.labels = new Set();
+
+            for (const e of graph.edges) {
+                e.labels.forEach( l => p.labels.add(l));
+            }
+            for (const n of graph.nodes) {
+                n.labels.forEach( l => p.labels.add(l));
+            }
+            
+            p.labels = Array.from(p.labels);
+            p.color = d3.interpolateSinebow;
+            p.ratio = 1/p.labels.length;
+
+
 
 
             // Add circles for every node in the dataset
             newNode = els
                 .append('circle')
                 .attr('r', size)
-                .attr('fill', d => color(d.group))
+                .attr('fill', d => {
+                    const i = p.labels.indexOf(d.labels[0]);
+                    return p.color(p.ratio*i);
+                })
                 .on('click', action)
                 .attr('cursor', 'pointer')
                 .call(
@@ -381,41 +474,6 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .on('mouseout', function (d) {
                     d3.select(this).select('.overlay').transition().duration(200).attr('display', 'none');
                     d3.select(this).select('.aid').attr('display', 'none');
-                });
-
-
-            newText = g.selectAll('.name')
-                .append('g')
-                .attr('class', 'node-label')
-                .data(graph.nodes.filter((d) => !hidden.includes(d.id)))
-                .enter()
-                .append('text')
-                .attr('pointer-events', 'none');
-
-            newText.exit().remove();
-
-            // hover
-            newNode.append('title')
-                .text(function (d) {
-                    for (const key of Object.keys(d.properties)) {
-                        if (key !== '_id') {
-                            const prop = d.properties[key];
-                            return prop.toString().substring(0, 6);
-                        }
-                    }
-                    return '';
-                });
-
-            newText.style('fill', '#0000ff')
-                .attr('width', '10')
-                .attr('height', '10')
-                .attr('dy', 5)
-                .attr('text-anchor', 'middle')
-                .text(function (d) {
-                    if (d.properties.hasOwnProperty('title')) {
-                        return d.properties['title'];
-                    }
-                    return '';
                 });
 
 
@@ -455,7 +513,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 });
         };
 
-        restart();
+        restart(this);
 
 
         node = newNode;
@@ -467,9 +525,9 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
 
 //	general update pattern for updating the graph
-        function update() {
+        function update(p: any) {
             g.selectAll('*').remove();
-            restart();
+            restart(p);
             node = newNode;
             links = newLinks;
             overlay = newOverlay;
@@ -496,14 +554,15 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         }
 
         const reset = () => {
-            hidden = [];
+            this.hidden = [];
         };
+        this.afterInit = true;
     }
 
     center() {
-        d3.select('svg').select('g')
-            .transition()
-            .call( this.zoom.translateTo, d3.zoomIdentity);
+        d3.select('svg')
+            .transition().duration(500)
+            .call(this.zoom.transform, d3.zoomIdentity);
     }
 
     initWebsocket() {
@@ -544,13 +603,25 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                     edgeIds.add(JSON.parse(d[i])['id']);
                 });
             }
-            // todo handle paths
+
+            if(dbColumn.dataType.toLowerCase().includes('path')){
+                this.isPath = true;
+                resultSet.data.forEach( d => {
+                    for (const el of JSON.parse(d[i]).path) {
+                        if( el.type === 'NODE'){
+                            nodeIds.add(el.id);
+                        }
+                        if( el.type === 'EDGE'){
+                            edgeIds.add(el.id);
+                        }
+                    }
+                });
+            }
 
             this.initialIds = nodeIds;
+            this.initialEdgeIds = Array.from(edgeIds);
         }
 
-        console.log(resultSet);
-        console.log(resultSet.namespaceName);
         if (!this._crud.getGraph(this.webSocket, new GraphRequest(resultSet.namespaceName, nodeIds, edgeIds))) {
             //this._toast.error('Could not retrieve the graphical representation of the graph.');
         } else {
@@ -565,5 +636,10 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
     showInsert() {
         this.editing = null;
         this.showInsertCard = true;
+    }
+
+    getLabelColor(label: string):string {
+        const i = this.labels.indexOf(label);
+        return this.color(this.ratio*i);
     }
 }

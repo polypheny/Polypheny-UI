@@ -1,3 +1,5 @@
+@import "~font-awesome/css/font-awesome.css";
+
 .wrapper {
   display: grid;
   grid-template-rows: max-content 1fr max-content;
@@ -186,4 +188,14 @@ path.link{
   position: absolute;
   top: 10px;
   left: 0;
+}
+
+.graph-bottom{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.el-back {
+ transform: translate(-30px, 18px);
 }
