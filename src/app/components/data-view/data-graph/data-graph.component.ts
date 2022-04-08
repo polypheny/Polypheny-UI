@@ -216,7 +216,6 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
         function restart(p: any) {
 
-            p.afterInit;
 
             let hidden = p.hidden;
             console.log(hidden);
