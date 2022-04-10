@@ -60,6 +60,8 @@ class Detail {
 })
 export class DataGraphComponent extends DataViewComponent implements OnInit {
     private hidden: string[];
+    private update: () => void;
+    private graph: Graph;
 
     constructor(
         public _crud: CrudService,
@@ -127,6 +129,8 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         const textSize = 13;
         const linkSize = 9;
         //const data = this.resultSet.data;
+
+        this.graph = graph;
 
         this.hidden = [];
 
@@ -214,7 +218,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             newText, text, els, linktext, newLinktext, preNode;
 
 
-        function restart(p: any) {
+        const restart = (p: any) => {
 
 
             let hidden = p.hidden;
@@ -375,16 +379,20 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .on('mouseout', function (d) {
                     d3.select(this).attr('fill', 'grey');
                 })
-                .on('click', function (d) {
+                .on('click', (d) => {
                     graph.edges.filter(function (e) {
-                        return d.id === e.source || d.id === e.target; //connected nodes
+                        return d.id === e.source['id'] || d.id === e.target['id']; //connected nodes
                     }).forEach((e) => {
-                        const id = e.source !== d.id ? e.source : e.target;
-                        if (hidden.indexOf(id) !== -1) {
-                            hidden = hidden.filter((i) => i !== id);
+                        if (this.hidden.indexOf(e.id) !== -1) {
+                            this.hidden = this.hidden.filter((i) => i !== e.id);
+                        }
+                        const id = e.source['id'] !== d.id ? e.source['id'] : e.target['id'];
+                        if (this.hidden.indexOf(id) !== -1) {
+                            this.hidden = this.hidden.filter((i) => i !== id);
                         }
                     });
-                    update(p);
+
+                    this.update();
                 });
 
             left = newOverlay.append('path').attr('fill', 'grey')
@@ -398,10 +406,9 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .on('mouseout', function (d) {
                     d3.select(this).attr('fill', 'grey');
                 })
-                .on('click', function (d) {
+                .on('click',  (d) => {
                     hidden.push(d.id);
-                    console.log(hidden);
-                    update(p);
+                    this.update();
                 });
 
             newOverlay.append('text').attr('text-anchor', 'middle')
@@ -478,7 +485,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
             g.exit().remove();
 
-        }
+        };
 
         // Dynamically update the position of the nodes/links as time passes
         const onTick = () => {
@@ -524,9 +531,9 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
 
 //	general update pattern for updating the graph
-        function update(p: any) {
+        this.update = () => {
             g.selectAll('*').remove();
-            restart(p);
+            restart(this);
             node = newNode;
             links = newLinks;
             overlay = newOverlay;
@@ -535,7 +542,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             selectionHelp = newSelectionHelp;
             activate();
 
-        }
+        };
 
 
         function activate() {
@@ -640,5 +647,16 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
     getLabelColor(label: string):string {
         const i = this.labels.indexOf(label);
         return this.color(this.ratio*i);
+    }
+
+    reset() {
+        this.hidden = [];
+
+        for (const n of this.graph.nodes) {
+            if (!this.initialIds.has(n.id)) {
+                this.hidden.push(n.id);
+            }
+        }
+        this.update();
     }
 }
