@@ -107,8 +107,8 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
   }
 
   hideExpandandCollapse() {
-    var routes: String[] = ["/views/monitoring","/views/config","/views/uml","/views/querying/console","/views/querying/relational-algebra"];
-    var check: Boolean[] = [];
+    const routes: String[] = ["/views/monitoring","/views/config","/views/uml","/views/querying/console","/views/querying/relational-algebra"];
+    const check: Boolean[] = [];
     check.push(this.checkRoute(routes[0]));
     check.push(this.checkRoute(routes[1]));
     check.push(this.checkRoute(routes[2]));
