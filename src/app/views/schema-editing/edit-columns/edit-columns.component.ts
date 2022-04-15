@@ -12,7 +12,7 @@ import {CatalogColumnPlacement, MaterializedInfos, Placements, PlacementType, St
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
 import {Subscription} from 'rxjs';
-import {ForeignKey, Uml} from '../../../views/uml/uml.model';
+import {ForeignKey, Uml} from '../../uml/api/uml.model';
 
 @Component({
   selector: 'app-edit-columns',

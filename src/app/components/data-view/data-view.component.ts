@@ -15,7 +15,7 @@ import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {WebSocket} from '../../services/webSocket';
 import {HttpEventType} from '@angular/common/http';
 import * as $ from 'jquery';
-import {DbTable} from '../../views/uml/uml.model';
+import {DbTable} from '../../views/uml/api/uml.model';
 import {TableModel} from '../../views/schema-editing/edit-tables/edit-tables.component';
 import {Store} from '../../views/adapters/adapter.model';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';

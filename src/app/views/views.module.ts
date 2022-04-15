@@ -8,7 +8,6 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ComponentsModule} from '../components/components.module';
 import {EditColumnsComponent} from './schema-editing/edit-columns/edit-columns.component';
 import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
-import {UmlComponent} from './uml/uml.component';
 import {GraphicalQueryingComponent} from './querying/graphical-querying/graphical-querying.component';
 import {TreeModule} from 'angular-tree-component';
 import {FormGeneratorComponent} from './forms/form-generator/form-generator.component';
@@ -66,7 +65,7 @@ import {StatisticsColumnComponent} from './schema-editing/statistics-column/stat
     AutocompleteLibModule,
     ProgressbarModule,
     PopoverModule,
-    NgxSliderModule
+    NgxSliderModule,
   ],
   declarations: [
     EditColumnsComponent,
@@ -74,7 +73,6 @@ import {StatisticsColumnComponent} from './schema-editing/statistics-column/stat
     GraphicalQueryingComponent,
     ConsoleComponent,
     TableViewComponent,
-    UmlComponent,
     SchemaEditingComponent,
     EditTablesComponent,
     DocumentEditCollectionsComponent,
@@ -93,10 +91,11 @@ import {StatisticsColumnComponent} from './schema-editing/statistics-column/stat
     EditSourceColumnsComponent,
     StatisticsColumnComponent,
     ValuePipe,
-    SearchFilterPipe
+    SearchFilterPipe,
   ],
   exports: [
-    ExploreByExampleComponent
+    ExploreByExampleComponent,
+    ValuePipe
   ]
 })
 export class ViewsModule {

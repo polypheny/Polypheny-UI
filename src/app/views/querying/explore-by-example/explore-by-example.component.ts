@@ -7,7 +7,7 @@ import {ResultSet} from '../../../components/data-view/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {DataTableComponent} from '../../../components/data-view/data-table/data-table.component';
 import {SidebarNode} from '../../../models/sidebar-node.model';
-import {ForeignKey, Uml} from '../../uml/uml.model';
+import {ForeignKey, Uml} from '../../uml/api/uml.model';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {Subscription} from 'rxjs';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';

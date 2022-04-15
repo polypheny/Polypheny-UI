@@ -1,14 +1,14 @@
 import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
 import {ActivatedRoute, Router} from '@angular/router';
-import {CrudService} from '../../services/crud.service';
-import {EditTableRequest, SchemaRequest} from '../../models/ui-request.model';
-import {DbTable, ForeignKey, SvgLine, Uml} from './uml.model';
-import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
+import {CrudService} from '../../../services/crud.service';
+import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {DbTable, ForeignKey, SvgLine, Uml} from '../api/uml.model';
+import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {FormBuilder} from '@angular/forms';
-import {ToastDuration, ToastService} from '../../components/toast/toast.service';
-import {DbColumn, ResultSet} from '../../components/data-view/models/result-set.model';
-import {DbmsTypesService} from '../../services/dbms-types.service';
+import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
+import {DbColumn, ResultSet} from '../../../components/data-view/models/result-set.model';
+import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 

@@ -4,7 +4,7 @@ import {WebuiSettingsService} from './webui-settings.service';
 import {Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, ExploreTable, MaterializedRequest, MonitoringRequest, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
-import {ForeignKey} from '../views/uml/uml.model';
+import {ForeignKey} from '../views/uml/api/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
 import {Adapter} from '../views/adapters/adapter.model';
