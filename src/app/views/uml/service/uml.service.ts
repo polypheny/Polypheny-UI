@@ -57,7 +57,6 @@ export class UmlService {
         this.uml$.next(<Uml>res);
         //this.mapConnections();//handled in component ngOnChanges
       }, err => {
-        console.warn('FAilED HTTP');
         this.errorMessage$.next('Could not connect with the server.');
       }
     );
