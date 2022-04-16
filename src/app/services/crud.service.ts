@@ -501,6 +501,9 @@ export class CrudService {
     });
   }
 
+  /**
+   * @deprecated use utils/validation.ts instead
+  */
   getNameValidator ( required: boolean = false ) {
     if ( required ){
       return [Validators.pattern('^[a-zA-Z_][a-zA-Z0-9_]*$'), Validators.required, Validators.max(100)];
@@ -509,20 +512,32 @@ export class CrudService {
     }
   }
 
+  /**
+   * @deprecated use utils/validation.ts instead
+  */
   invalidNameMessage ( type: string = '' ) {
     type = type + ' ';
     return `Please provide a valid ${type}name`;
   }
 
+  /**
+   * @deprecated use utils/validation.ts instead
+  */
   getValidationRegex(){
     return new RegExp( '^[a-zA-Z_][a-zA-Z0-9_]*$' );
   }
 
+  /**
+   * @deprecated use utils/validation.ts instead
+  */
   nameIsValid( name: string ) {
     const regex = this.getValidationRegex();
     return regex.test( name ) && name.length <= 100;
   }
 
+  /**
+   * @deprecated use utils/validation.ts instead
+  */
   getValidationClass( name: string ){
     const regex = this.getValidationRegex();
     if( name === '' ){
