@@ -31,7 +31,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   informationInterval: number;
   infoCounter: number;
   diagramCounter: number;
-  selectInterval = "all";
   selectIntervalDisplay = "All";
 
   constructor(
@@ -44,7 +43,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.infoCounter = 0;
     this.diagramCounter = 0;
 
-    this.getDiagram();
+    this.getDiagram("all");
     this.getDashboardInformation();
     this.checkIfInformationAvailable();
   }
@@ -65,13 +64,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
 
-  getDiagram() {
+  getDiagram(interval: string) {
     this.dataWorkload = [];
     this.dataDql = [];
     this.labels = [];
     this.min = 0;
     this.max = 0;
-    this._crud.getDashboardDiagram(new MonitoringRequest(),this.selectInterval).subscribe(
+    this._crud.getDashboardDiagram(new MonitoringRequest(interval)).subscribe(
         res => {
           this.dashboardInformation = <DashboardData>res;
 
@@ -133,8 +132,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     );
   }
 
-  public setSelectInterval(interval:string){
-    this.selectInterval = interval;
+  public setSelectInterval(interval: string){
     if( interval == "all" ){
       this.selectIntervalDisplay = "All";
     }else if( interval == "60" ){
@@ -146,6 +144,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }else if( interval == "5" ){
       this.selectIntervalDisplay = "5 minutes";
     }
-    this.getDiagram();
+    this.getDiagram(interval);
   }
 }

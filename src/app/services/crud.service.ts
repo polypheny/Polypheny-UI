@@ -136,8 +136,8 @@ export class CrudService {
   /**
    * Request all available dml information from the monitoring (server)
    */
-  getDashboardDiagram(monitoringRequest: MonitoringRequest, timeInterval:string){
-    return this._http.post( `${this.httpUrl}/getDashboardDiagram/Interval=` + timeInterval, monitoringRequest, this.httpOptions );
+  getDashboardDiagram(monitoringRequest: MonitoringRequest){
+    return this._http.post( `${this.httpUrl}/getDashboardDiagram`, monitoringRequest, this.httpOptions );
   }
 
   /**
