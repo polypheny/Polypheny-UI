@@ -81,13 +81,14 @@ export class PolicyComponent implements OnInit, OnDestroy {
             this._toast.warn(clause.errormessage);
           }else{
             this._toast.success('Policy successfully changed.');
+            this.getClauses(this.tableId);
           }
         },
         err => {
           this._toast.warn('Error while changing clause.');
         }
     );
-    this.getClauses(this.tableId);
+
   }
 
   addPolicy(policy: Policy) {
@@ -95,15 +96,16 @@ export class PolicyComponent implements OnInit, OnDestroy {
         res => {
           if (res !== null) {
             const clause = <Clauses>res;
-            this._toast.warn(clause.errormessage);
+            this._toast.warn('addPolicy' + clause.errormessage);
           }
+          this.getClauses(this.tableId);
+          this.getAllPossiblePolicies(this.tableId);
         },
         err => {
           this._toast.warn('Not possible to add this policy, already existing settings go against it.');
         }
     );
-    this.getClauses(this.tableId);
-    this.getAllPossiblePolicies(this.tableId);
+
   }
 
   deletePolicy(policy: Policy) {
@@ -114,22 +116,23 @@ export class PolicyComponent implements OnInit, OnDestroy {
             const clause = <Clauses>res;
             this._toast.warn(clause.errormessage);
           }
+          this.getClauses(this.tableId);
+          this.getAllPossiblePolicies(this.tableId);
         },
         err => {
           this._toast.warn('Not possible to delete this Policy.');
         }
     );
-    this.getClauses(this.tableId);
-    this.getAllPossiblePolicies(this.tableId);
+
   }
 
   selfAdaptSystem() {
     this._crud.selfAdaptSystem().subscribe(
         res =>{
-          this._toast.warn('looks good');
+          this._toast.warn('System has been adapted.');
         },
         err=>{
-          this._toast.warn('looks bad');
+          this._toast.warn('There was an issue while adapting the system.');
         }
     );
   }

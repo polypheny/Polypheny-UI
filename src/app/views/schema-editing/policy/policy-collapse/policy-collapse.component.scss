@@ -1,0 +1,15 @@
+.checkbox-wrapper{
+  position: relative;
+  padding-bottom: 0 !important;
+  display: block;
+  //height: 94%;
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  padding-top: 0.4rem;
+  //border: 1px solid #e4e7ea;
+  //line-height: 2.4em;//for .switch
+
+  .switch{
+    margin: 0;
+  }
+}

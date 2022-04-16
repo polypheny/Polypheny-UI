@@ -187,7 +187,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }];
 
     this.diagramExecutionTime = [{
-      label: 'average execution time for query',
+      label: 'Average Query Execution',
       borderColor: 'rgb(255, 99, 132)',
       data: this.executionTime
     }];
