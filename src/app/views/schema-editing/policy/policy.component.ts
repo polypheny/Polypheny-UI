@@ -5,7 +5,7 @@ import {Subscription} from 'rxjs';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToastService} from '../../../components/toast/toast.service';
 import {ClauseBooleanChangeRequest, ClauseChangeRequest, ClauseRequest} from '../../../models/ui-request.model';
-import {Clauses, Policy} from '../../../components/data-view/models/result-set.model';
+import {Clauses, Policy, StatisticPolypheny, StoreInformation} from '../../../components/data-view/models/result-set.model';
 
 @Component({
   selector: 'app-policy',
@@ -21,6 +21,7 @@ export class PolicyComponent implements OnInit, OnDestroy {
   policySetToChoose: Policy[];
   addPoliciesKind = 'Addition';
   activePoliciesKind = 'Active';
+  storeInfo: Map<string, StoreInformation>;
 
   constructor(
       private _crud: CrudService,
@@ -33,6 +34,7 @@ export class PolicyComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.tableId = this._route.snapshot.paramMap.get('id');
+    this.getStatisticPolypheny();
     this.getClauses(this.tableId);
     this.getAllPossiblePolicies(this.tableId);
   }
@@ -79,6 +81,7 @@ export class PolicyComponent implements OnInit, OnDestroy {
           if (res !== null) {
             const clause = <Clauses>res;
             this._toast.warn(clause.errormessage);
+            this.getClauses(this.tableId);
           }else{
             this._toast.success('Policy successfully changed.');
             this.getClauses(this.tableId);
@@ -135,5 +138,17 @@ export class PolicyComponent implements OnInit, OnDestroy {
           this._toast.warn('There was an issue while adapting the system.');
         }
     );
+  }
+
+  getStatisticPolypheny(){
+    this._crud.getStatisticPolypheny().subscribe(
+        res => {
+          const statisticPolypheny = <StatisticPolypheny>res;
+          this.storeInfo = statisticPolypheny.storeInformation;
+        },err=>{
+          this._toast.warn('There was an issue while retrieving store information.');
+        }
+    );
+
   }
 }

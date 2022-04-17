@@ -6,7 +6,7 @@
 
 <div class="row">
 
-    <app-policy-collapse class="col-6" *ngIf="policySet!=null" [policyInfo]="policySet" [kind]="activePoliciesKind" (policyChange)="deletePolicy($event)"  (changeBoolValue)="setBooleanPolicies($event)">   </app-policy-collapse>
+    <app-policy-collapse class="col-6" *ngIf="policySet!=null" [policyInfo]="policySet" [kind]="activePoliciesKind" [storeInfo]="storeInfo" (policyChange)="deletePolicy($event)"  (changeBoolValue)="setBooleanPolicies($event)">   </app-policy-collapse>
 
-    <app-policy-collapse class="col-6" *ngIf="policySetToChoose !=null" [policyInfo]="policySetToChoose" [kind]="addPoliciesKind"  (policyChange)="addPolicy($event)" (changeBoolValue)="setBooleanPolicies($event)" >   </app-policy-collapse>
+    <app-policy-collapse class="col-6" *ngIf="policySetToChoose !=null" [policyInfo]="policySetToChoose" [kind]="addPoliciesKind" [storeInfo]="storeInfo" (policyChange)="addPolicy($event)" (changeBoolValue)="setBooleanPolicies($event)" >   </app-policy-collapse>
 </div>

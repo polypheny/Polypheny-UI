@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {Policy, StatisticPolypheny} from '../../../../components/data-view/models/result-set.model';
+import {Policy} from '../../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../../services/crud.service';
 import {ToastService} from '../../../../components/toast/toast.service';
 
@@ -19,6 +19,7 @@ export class PolicyCollapseComponent implements OnInit, OnDestroy {
   @Output()
   changeBoolValue = new EventEmitter<Policy>();
   sorted: Map<string, any>;
+  @Input()
   storeInfo: Map<string, any>;
 
   constructor(
@@ -76,9 +77,6 @@ export class PolicyCollapseComponent implements OnInit, OnDestroy {
         }else{
           this.sorted.get(policy.clause.category).push(policy);
         }
-        if(policy.clause.category === 'STORE'){
-          this.getStatisticPolypheny();
-        }
       }
     }
   }
@@ -87,15 +85,4 @@ export class PolicyCollapseComponent implements OnInit, OnDestroy {
     return <Policy[]> value;
   }
 
-  getStatisticPolypheny(){
-    this._crud.getStatisticPolypheny().subscribe(
-        res => {
-          const statisticPolypheny = <StatisticPolypheny>res;
-          this.storeInfo = statisticPolypheny.storeInformation;
-        }, err =>{
-          this._toast.warn('Error while retrieving polypheny statistics.');
-        }
-    );
-
-  }
 }
