@@ -76,7 +76,7 @@ export class PolicyComponent implements OnInit, OnDestroy {
 
 
   setBooleanPolicies(policy: Policy) {
-    this._crud.setClauses(new ClauseBooleanChangeRequest(policy.clause.clauseName, policy.target, !policy.clause.value)).subscribe(
+    this._crud.setClauses(new ClauseBooleanChangeRequest(policy.clause.clauseName, policy.target, !policy.clause.value, policy.targetId)).subscribe(
         res => {
           if (res !== null) {
             const clause = <Clauses>res;
@@ -132,7 +132,7 @@ export class PolicyComponent implements OnInit, OnDestroy {
   selfAdaptSystem() {
     this._crud.selfAdaptSystem().subscribe(
         res =>{
-          this._toast.warn('System has been adapted.');
+          this._toast.success('System has been adapted.');
         },
         err=>{
           this._toast.warn('There was an issue while adapting the system.');
@@ -145,8 +145,6 @@ export class PolicyComponent implements OnInit, OnDestroy {
         res => {
           const statisticPolypheny = <StatisticPolypheny>res;
           this.storeInfo = statisticPolypheny.storeInformation;
-        },err=>{
-          this._toast.warn('There was an issue while retrieving store information.');
         }
     );
 
