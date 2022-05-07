@@ -91,12 +91,6 @@ export class UmlComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy
           this.addForeignKeyResult[1]
         );
       }
-      if(changes.proposedConstraintName?.currentValue){
-        //console.log('uml-component proposedConstraintName', changes.proposedConstraintName?.currentValue);
-      }
-      if(changes.schemaType?.currentValue){
-        //console.log('schema-type', changes.schemaType?.currentValue);
-      }
   }
 
   ngOnDestroy() {

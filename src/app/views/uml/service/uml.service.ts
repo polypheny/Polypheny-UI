@@ -16,8 +16,7 @@ export class UmlService {
   uml$ = new Subject<Uml>();
   addForeignKeyResult$ = new Subject<[ForeignKey, ResultSet]>();
   fkActions$ = this._dbmsTypes.getFkActions().pipe(
-    shareReplay(),
-    tap(() => console.log('getting fkActions'))
+    shareReplay()
   );
 
   errorMessage$ = new BehaviorSubject(null);
@@ -34,7 +33,6 @@ export class UmlService {
       }
     }),
     map(names => names.data[0][1]),
-    tap(n => console.log('cName pipe', n))
   );
 
   constructor(
@@ -49,8 +47,8 @@ export class UmlService {
       this._leftSidebar.reset();
       return;
     }
-    this._crud.getUml(new EditTableRequest(schema)).
-    pipe(take(1))
+    this._crud.getUml(new EditTableRequest(schema))
+    .pipe(take(1))
     .subscribe(
       res => {
         this.errorMessage$.next(null);
@@ -73,7 +71,6 @@ export class UmlService {
       }),
       take(1)
     ).subscribe(res => {
-      console.log('added foreign key');
       this.addForeignKeyResult$.next([fk, res])
     });
   }

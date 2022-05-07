@@ -31,15 +31,17 @@ export class UmlContainerComponent implements OnInit, OnDestroy {
   schema: string;
   schema$ = this._route.params.pipe(
     map(params => params['id']),
-    tap(schema => this.schema = schema)
+    tap(schema => {
+      this.schema = schema;
+      this._uml.getUml(schema);
+    })
   );
 
   schemaType$ = combineLatest([
     this.schema$.pipe(map(schema => schema?.split('.')[0])),
     //getTypeSchemas is only called once
-    this._crud.getTypeSchemas().pipe(tap(() => console.log('fetching typeSchemas')))
+    this._crud.getTypeSchemas()
   ]).pipe(
-    tap(([schema, schemaTypes]) => console.log(`${schema}: ${schemaTypes[schema]}`)),
     filter(([schema, schemaTypes]) => !!schema),
     map(([schema, schemaTypes]) => schemaTypes[schema])
   );
@@ -54,18 +56,12 @@ export class UmlContainerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscriptions.add(
-      this.schema$.pipe(
-        tap(schema => this._uml.getUml(schema))
-      ).subscribe()
-    );
-    this.subscriptions.add(
       this._crud.onReconnection().pipe(
         filter(r => !!r),
         tap(() => this._leftSidebar.setSchema(
           new SchemaRequest('/views/uml/', false, 1, true), this._router)
-          )
-      )
-      .subscribe()
+        )
+      ).subscribe()
     );
     this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', true, 1, true), this._router);
   }
