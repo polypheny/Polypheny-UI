@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UmlComponent } from './uml.component';
+import { UmlComponent } from '../uml.component';
 
 describe('UmlComponent', () => {
   let component: UmlComponent;

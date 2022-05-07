@@ -9,7 +9,7 @@ import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.
 import {ToastService} from '../../../components/toast/toast.service';
 import {EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
-import {ForeignKey, Uml} from '../../uml/uml.model';
+import {ForeignKey, Uml} from '../../uml/api/uml.model';
 import {Router} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';

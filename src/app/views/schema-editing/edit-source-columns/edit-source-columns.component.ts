@@ -8,7 +8,7 @@ import {ToastService} from '../../../components/toast/toast.service';
 import {Placements, UnderlyingTables} from '../../adapters/adapter.model';
 import {Subscription} from 'rxjs';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {ForeignKey, Uml} from '../../../views/uml/uml.model';
+import {ForeignKey, Uml} from '../../uml/api/uml.model';
 
 @Component({
   selector: 'app-edit-source-columns',

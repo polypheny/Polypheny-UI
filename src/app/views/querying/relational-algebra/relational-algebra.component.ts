@@ -7,7 +7,7 @@ import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
-import {SvgLine} from '../../uml/uml.model';
+import {SvgLine} from '../../uml/api/uml.model';
 import {SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {WebSocketService} from '../../../services/web-socket.service';

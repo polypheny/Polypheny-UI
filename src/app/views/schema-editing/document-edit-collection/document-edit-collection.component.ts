@@ -19,7 +19,7 @@ import {CatalogColumnPlacement, Placements, PlacementType, Store} from '../../ad
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
 import {Subscription} from 'rxjs';
-import {DbTable, ForeignKey, SvgLine, Uml} from '../../../views/uml/uml.model';
+import {DbTable, ForeignKey, SvgLine, Uml} from '../../uml/api/uml.model';
 
 @Component({
   selector: 'app-document-edit-collection',

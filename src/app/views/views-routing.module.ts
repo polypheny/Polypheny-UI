@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {UmlComponent} from './uml/uml.component';
+import {UmlComponent} from './uml/component/uml.component';
 import {FormGeneratorComponent} from './forms/form-generator/form-generator.component';
 import {TableViewComponent} from './table-view/table-view.component';
 import {SchemaEditingComponent} from './schema-editing/schema-editing.component';
@@ -50,6 +50,10 @@ const routes: Routes = [
   },
   {
     path: 'uml',
+    loadChildren: () => import('./uml').then(m => m.UmlModule)
+  },
+  /*{
+    path: 'uml',
     redirectTo: 'uml/',
     pathMatch: 'full'
   },
@@ -59,7 +63,7 @@ const routes: Routes = [
     data: {
       title: 'UML'
     }
-  },
+  },*/
   {
     path: 'querying',
     redirectTo: 'querying/console',

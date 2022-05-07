@@ -13,7 +13,7 @@ import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {UtilService} from '../../../services/util.service';
 import * as $ from 'jquery';
-import {DbTable} from '../../uml/uml.model';
+import {DbTable} from '../../uml/api/uml.model';
 
 @Component({
   selector: 'app-edit-tables',
