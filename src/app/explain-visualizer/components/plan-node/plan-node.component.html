@@ -4,9 +4,8 @@
     <div class="plan-node"
          [class.expanded]="showDetails"
          [class.compact]="viewOptions.viewMode === viewModes.COMPACT"
-         [class.dot]="viewOptions.viewMode === viewModes.DOT"
-         [class]="getDataModelClass()">
-
+         [class.dot]="viewOptions.viewMode === viewModes.DOT">
+      <i class="model-mark">{{getDataModelShort()}}</i>
       <header (click)="showDetails = !showDetails" tooltip="view node details">
         <h4>{{getNodeName()}}</h4>
         <!--<span *ngIf="viewOptions.viewMode === viewModes.FULL || showDetails">

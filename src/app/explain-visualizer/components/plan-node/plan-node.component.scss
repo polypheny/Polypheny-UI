@@ -260,10 +260,10 @@ ul li .plan-node:hover+ul ul::before {
 	background-color: #f7f7f7
 }
 
-.plan-node-document {
-	background-color: #bcffbc;
-}
-
-.plan-node-graph {
-	background-color: #44b0d0;
+.model-mark{
+	font-style: normal;
+	font-weight: bold;
+	position: absolute;
+	right: 5px;
+	top: 0;
 }

@@ -156,6 +156,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     console.log(changes);
 
     if (changes.hasOwnProperty('resultSet')) {
+      console.log(this.resultSet);
       this.schemaType = this.resultSet.namespaceType;
       if(this.schemaType.toLowerCase() === 'document') {
         this.presentationType = DataPresentationType.CARD;
