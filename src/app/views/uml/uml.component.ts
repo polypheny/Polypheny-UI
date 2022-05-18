@@ -26,6 +26,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   connections = [];
   zIndex = 2;
   errorMsg: string;
+  types: {};
 
   @ViewChild('myModal', {static: false}) myModal: ModalDirective;
   sourceTable;//schema.table
@@ -46,7 +47,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
   offsetConnLeft1 = 21;
   offsetConnLeft2 = -5;
   offsetConnTop = 20;
-  schemaType: string;
+  schemaType = "";
 
 
   constructor(
@@ -67,9 +68,15 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     this.schema = this._route.snapshot.paramMap.get('id');
+     this._crud.getTypeSchemas().subscribe(res => {
+       this.types = res;
+    });
     this._route.params.subscribe(params => {
       this.schema = params['id'];
-      this.schemaType = this._leftSidebar.schemaType;
+      console.log(this.types);
+      if( this.types && this.types.hasOwnProperty(this.schema) ){
+          this.schemaType = this.types[this.schema];
+      }
       this.getUml();
     });
     const sub = this._crud.onReconnection().subscribe(

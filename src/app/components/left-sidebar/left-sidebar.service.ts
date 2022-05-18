@@ -213,9 +213,9 @@ export class LeftSidebarService {
         }
         //Uml view
         else if (schemaRequest.depth === 1) {
-          schema.forEach((val, key) => {
 
-            if( (val as SidebarNode).schemaType.toLowerCase() === 'document'){
+          schema.forEach((val, key) => {
+            if( (val as SidebarNode).namespaceType.toLowerCase() === 'document' || (val as SidebarNode).namespaceType.toLowerCase() === 'graph'){
               if( val.cssClass === undefined){
                 val.cssClass = 'node-disabled';
               }else {

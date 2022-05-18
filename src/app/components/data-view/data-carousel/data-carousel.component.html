@@ -55,7 +55,13 @@
                   </ng-container>
                   <ng-container *ngSwitchCase="'JSON'">
                     <div class="json-carousel" >
-                      <span *ngIf="h.name !== '_data'" class="key">{{ h.name }} </span>
+                      <span *ngIf="h.name !== 'd'" class="key">{{ h.name }} </span>
+                      <app-json-text  [text]="d1[j]"  ></app-json-text>
+                    </div>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'DOCUMENT'">
+                    <div class="json-carousel" >
+                      <span *ngIf="h.name !== 'd'" class="key">{{ h.name }} </span>
                       <app-json-text  [text]="d1[j]"  ></app-json-text>
                     </div>
                   </ng-container>
