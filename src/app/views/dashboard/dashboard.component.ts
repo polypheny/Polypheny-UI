@@ -16,6 +16,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   dataWorkload = [];
   dataDql = [];
   labels = [];
+  colorList = [];
   line = 'line';
   min = 0;
   max = 0;

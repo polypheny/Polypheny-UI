@@ -7,6 +7,7 @@ import {hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities';
   templateUrl: './graph.component.html',
   styleUrls: ['./graph.component.scss']
 })
+
 export class GraphComponent implements OnInit, OnChanges {
 
   _chartType: string;
@@ -17,6 +18,9 @@ export class GraphComponent implements OnInit, OnChanges {
 
   _labels;
   @Input() labels: Array<string>;
+
+  _colorList;
+  @Input() colorList: Array<string>;
 
   //@Input() config?:any;
 
@@ -33,6 +37,7 @@ export class GraphComponent implements OnInit, OnChanges {
   @Input() yLabel: string;
 
   @Input() maintainAspectRatio = true;
+  
 
   options: any = {
     animation: false,
@@ -73,55 +78,13 @@ export class GraphComponent implements OnInit, OnChanges {
 
   colors;//will be assigned in function
 
-  colorList = [
-    '#f86c6b',
-    '#20a8d8',
-    '#ffc107',
-    '#21576A',
-    '#814848',
-    '#88bb9a',
-    '#3a7c96',
-    '#914661',
-    '#bfa0ab',
-  ];
-
   doughnutPolarColors = [{
-    backgroundColor: [
-      hexToRgba(this.getColor(0), 60),
-      hexToRgba(this.getColor(1), 60),
-      hexToRgba(this.getColor(2), 60),
-      hexToRgba(this.getColor(3), 60),
-      hexToRgba(this.getColor(4), 60),
-      hexToRgba(this.getColor(5), 60),
-      hexToRgba(this.getColor(6), 60),
-      hexToRgba(this.getColor(7), 60),
-      hexToRgba(this.getColor(8), 60),
-    ],
-    borderColor: [
-      this.getColor(0),
-      this.getColor(1),
-      this.getColor(2),
-      this.getColor(3),
-      this.getColor(4),
-      this.getColor(5),
-      this.getColor(6),
-      this.getColor(7),
-      this.getColor(8),
-    ],
+    backgroundColor: [],
+    borderColor: [],
     borderWidth: 1
   }];
 
-  barColors = [
-    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(0), 60)},
-    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(1), 60)},
-    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(2), 60)},
-    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(3), 60)},
-    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(4), 60)},
-    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(5), 60)},
-    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(6), 60)},
-    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(7), 60)},
-    {borderWidth: 1, backgroundColor: hexToRgba(this.getColor(8), 60)},
-  ];
+  barColors = [];
 
   legend = true;
 
@@ -129,6 +92,44 @@ export class GraphComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
+    let iterableColorList = this.generateIterableArray(this.colorList);
+    this.doughnutPolarColors[0].backgroundColor.push(
+      hexToRgba(iterableColorList.next(), 60),
+      hexToRgba(iterableColorList.next(), 60),
+      hexToRgba(iterableColorList.next(), 60),
+      hexToRgba(iterableColorList.next(), 60),
+      hexToRgba(iterableColorList.next(), 60),
+      hexToRgba(iterableColorList.next(), 60),
+      hexToRgba(iterableColorList.next(), 60),
+      hexToRgba(iterableColorList.next(), 60),
+      hexToRgba(iterableColorList.next(), 60),
+    )
+    
+    iterableColorList = this.generateIterableArray(this.colorList);
+    this.doughnutPolarColors[0].borderColor.push(
+      iterableColorList.next(),
+      iterableColorList.next(),
+      iterableColorList.next(),
+      iterableColorList.next(),
+      iterableColorList.next(),
+      iterableColorList.next(),
+      iterableColorList.next(),
+      iterableColorList.next(),
+      iterableColorList.next(),
+    )
+
+    iterableColorList = this.generateIterableArray(this.colorList);
+    this.barColors.push(
+      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
+      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
+      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
+      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
+      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
+      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
+      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
+      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
+      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
+    )
   }
 
   /**
@@ -145,6 +146,9 @@ export class GraphComponent implements OnInit, OnChanges {
     }
     if (changes['labels']) {
       this._labels = this.mapLabel(changes['labels'].currentValue);
+    }
+    if (changes['colorList']) {
+      this._colorList = changes['colorList'].currentValue;
     }
     if (changes['min']) {
       this._min = changes['min'].currentValue;
@@ -222,8 +226,21 @@ export class GraphComponent implements OnInit, OnChanges {
     }
   }
 
-  getColor(i: number) {
-    return this.colorList[i];
-  }
+  generateIterableArray = (arr: any) => ({
+    current: 0,
+    arr,
+    next(){
+        if (this.arr.length == 0) {
+          return "#000000";
+        }
+        if (this.current >= (this.arr.length)) {
+             this.current = 0;
+        }
+        return this.arr[this.current++];
+    }
+  });
 
 }
+
+
+
