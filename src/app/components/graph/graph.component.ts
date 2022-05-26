@@ -204,17 +204,17 @@ export class GraphComponent implements OnInit, OnChanges {
       if (this.arr.length == 0) {
         return "#000000";
       }
-      if (this.current >= (this.arr.length)) {
-            this.current = 0;
+      if (this.nextIndex >= (this.arr.length)) {
+            this.nextIndex = 0;
       }
-      return this.arr[this.current++];
+      return this.arr[this.nextIndex++];
     },
     lastUsed() {
-      if(this.current == 0) {
+      if(this.nextIndex == 0) {
         return this.arr[0]
       } 
       else {
-        return this.arr[this.current-1];
+        return this.arr[this.nextIndex-1];
       }   
     }
   });
