@@ -1,4 +1,5 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import { resetFakeAsyncZone } from '@angular/core/testing';
 import {CustomTooltips} from '@coreui/coreui-plugin-chartjs-custom-tooltips';
 import {hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities';
 
@@ -92,44 +93,23 @@ export class GraphComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    let iterableColorList = this.generateIterableArray(this.colorList);
-    this.doughnutPolarColors[0].backgroundColor.push(
-      hexToRgba(iterableColorList.next(), 60),
-      hexToRgba(iterableColorList.next(), 60),
-      hexToRgba(iterableColorList.next(), 60),
-      hexToRgba(iterableColorList.next(), 60),
-      hexToRgba(iterableColorList.next(), 60),
-      hexToRgba(iterableColorList.next(), 60),
-      hexToRgba(iterableColorList.next(), 60),
-      hexToRgba(iterableColorList.next(), 60),
-      hexToRgba(iterableColorList.next(), 60),
-    )
-    
-    iterableColorList = this.generateIterableArray(this.colorList);
-    this.doughnutPolarColors[0].borderColor.push(
-      iterableColorList.next(),
-      iterableColorList.next(),
-      iterableColorList.next(),
-      iterableColorList.next(),
-      iterableColorList.next(),
-      iterableColorList.next(),
-      iterableColorList.next(),
-      iterableColorList.next(),
-      iterableColorList.next(),
-    )
+    const numberOfColors = 9;
 
+    let iterableColorList = this.generateIterableArray(this.colorList);
+    for (let i = 0; i < numberOfColors; i++) {
+      this.doughnutPolarColors[0].backgroundColor[i] = hexToRgba(iterableColorList.next(), 60);
+    }
+    
+    iterableColorList.reset();
+    for (let i = 0; i < numberOfColors; i++) {
+      this.doughnutPolarColors[0].borderColor[i] = iterableColorList.next();
+    }
+
+    iterableColorList.reset();
     iterableColorList = this.generateIterableArray(this.colorList);
-    this.barColors.push(
-      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
-      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
-      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
-      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
-      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
-      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
-      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
-      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
-      {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)},
-    )
+    for (let i = 0; i < numberOfColors; i++) {
+      this.barColors[i] = {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)};
+    }
   }
 
   /**
@@ -229,14 +209,17 @@ export class GraphComponent implements OnInit, OnChanges {
   generateIterableArray = (arr: any) => ({
     current: 0,
     arr,
-    next(){
-        if (this.arr.length == 0) {
-          return "#000000";
-        }
-        if (this.current >= (this.arr.length)) {
-             this.current = 0;
-        }
-        return this.arr[this.current++];
+    next() {
+      if (this.arr.length == 0) {
+        return "#000000";
+      }
+      if (this.current >= (this.arr.length)) {
+            this.current = 0;
+      }
+      return this.arr[this.current++];
+    },
+    reset() {
+      this.current = 0;
     }
   });
 
