@@ -98,17 +98,8 @@ export class GraphComponent implements OnInit, OnChanges {
     let iterableColorList = this.generateIterableArray(this.colorList);
     for (let i = 0; i < numberOfColors; i++) {
       this.doughnutPolarColors[0].backgroundColor[i] = hexToRgba(iterableColorList.next(), 60);
-    }
-    
-    iterableColorList.reset();
-    for (let i = 0; i < numberOfColors; i++) {
-      this.doughnutPolarColors[0].borderColor[i] = iterableColorList.next();
-    }
-
-    iterableColorList.reset();
-    iterableColorList = this.generateIterableArray(this.colorList);
-    for (let i = 0; i < numberOfColors; i++) {
-      this.barColors[i] = {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.next(), 60)};
+      this.doughnutPolarColors[0].borderColor[i] = iterableColorList.lastUsed();
+      this.barColors[i] = {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.lastUsed(), 60)};
     }
   }
 
@@ -218,8 +209,13 @@ export class GraphComponent implements OnInit, OnChanges {
       }
       return this.arr[this.current++];
     },
-    reset() {
-      this.current = 0;
+    lastUsed() {
+      if(this.current == 0) {
+        return this.arr[0]
+      } 
+      else {
+        return this.arr[this.current-1];
+      }   
     }
   });
 
