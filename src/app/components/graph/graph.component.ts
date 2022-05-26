@@ -198,7 +198,7 @@ export class GraphComponent implements OnInit, OnChanges {
   }
 
   generateIterableArray = (arr: any) => ({
-    current: 0,
+    nextIndex: 0,
     arr,
     next() {
       if (this.arr.length == 0) {
