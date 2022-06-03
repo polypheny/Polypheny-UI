@@ -3,7 +3,7 @@
   <div class="col-lg-8 col-md-8 col-sm-12 mb-3">
       <ul class="list-group grey-border" id="console">
           <li id="console-item-head" *ngIf="usesAdvancedConsole(lang)" class="list-group-item header grey-bg">
-              <span  class="document-db-info"><i>Database: {{defaultDocumentDB}}</i></span>
+              <span  class="document-db-info"><i>Namespace: {{defaultDocumentDB}}</i></span>
               <button  type="submit" class="btn btn-primary btn-sm pull-right" (click)="clearConsole()"><i class="cui-trash"></i></button>
               <button type="submit" class="btn btn-primary btn-sm pull-right mr-1" (click)="formatQuery()"><i class="cui-clear-all"></i></button>
           </li>
