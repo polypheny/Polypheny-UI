@@ -5,7 +5,7 @@ import {CrudService} from '../../../services/crud.service';
 import {ResultSet} from '../../../components/data-view/models/result-set.model';
 import {SqlHistory} from './sql-history.model';
 import {KeyValue} from '@angular/common';
-import {QueryRequest} from '../../../models/ui-request.model';
+import {QueryRequest, Schema, SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {InformationObject, InformationPage} from '../../../models/information-page.model';
@@ -18,6 +18,11 @@ import {WebSocket} from '../../../services/webSocket';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToastService} from '../../../components/toast/toast.service';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
+
+class Namespace {
+    name: string;
+    id: string;
+}
 
 @Component({
     selector: 'app-console',
@@ -48,6 +53,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     historySearchQuery = '';
     confirmDeletingHistory;
     defaultDocumentDB: string;
+    namespaces = [];
 
     tableConfig: TableConfig = {
         create: false,
@@ -58,6 +64,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         exploring: false
     };
     private documentDBs: String[];
+    showNamespaceConfig: boolean;
 
     constructor(
         private formBuilder: FormBuilder,
@@ -69,7 +76,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         public modalService: BsModalService,
         public _toast: ToastService
     ) {
-        
+
         this.websocket = new WebSocket(_settings);
 
         // @ts-ignore
@@ -88,6 +95,20 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this._breadcrumb.hide();
 
         this.getAndSetDocumentDB();
+        this._crud.getSchema(new SchemaRequest('views/querying/console/', false, 1, false)).subscribe(
+            res => {
+                console.log(res);
+                this.namespaces = [];
+                for ( const namespace of <Namespace[]>res ) {
+                    console.log(namespace.name);
+                    this.namespaces.push( namespace.name );
+                }
+                if( !this.namespaces.includes( this.defaultDocumentDB )){
+                    this.namespaces.push( this.defaultDocumentDB );
+                }
+
+            }
+        );
     }
 
     private getAndSetDocumentDB() {
@@ -118,14 +139,13 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         }
         if (this.usesAdvancedConsole(this.lang)) { // maybe adjust
             const match = code.toLowerCase().match('use [a-zA-Z][a-zA-Z0-1]*');
-            console.log(match)
             if (match !== null && match.length >= 0) {
-                const database = match[match.length-1].replace('use ', '');
+                const database = match[match.length - 1].replace('use ', '');
                 this.setDefaultDB(database);
             }
             const matchGraph = code.toLowerCase().match('use graph [a-zA-Z][a-zA-Z0-1]*');
             if (matchGraph !== null && matchGraph.length >= 0) {
-                const database = matchGraph[matchGraph.length-1].replace('use ', '');
+                const database = matchGraph[matchGraph.length - 1].replace('use ', '');
                 this.setDefaultDB(database);
             }
 
@@ -374,7 +394,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     toggleCache(b: boolean) {
-        if(this.originalCache === null) {
+        if (this.originalCache === null) {
             this.originalCache = this.useCache;
         }
         this.useCache = b;
@@ -389,4 +409,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     usesAdvancedConsole(lang: string) {
         return lang === 'mql' || lang === 'cypher';
     }
+
+    toggleNamespaceField() {
+        this.showNamespaceConfig = !this.showNamespaceConfig;
+    }
+
 }
