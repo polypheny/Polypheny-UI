@@ -37,6 +37,7 @@ import { JsonTextComponent } from './data-view/json-text/json-text.component';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {JsonEditorComponent} from './json/json-editor.component';
 import {JsonElemComponent} from './json/json-elem/json-elem.component';
+import { EditProceduresComponent } from './edit-procedures/edit-procedures.component';
 
 //import 'hammerjs';
 
@@ -80,7 +81,8 @@ import {JsonElemComponent} from './json/json-elem/json-elem.component';
         DeleteConfirmComponent,
         ExpandableTextComponent,
         JsonTextComponent,
-        JsonElemComponent
+        JsonElemComponent,
+        EditProceduresComponent,
     ],
   exports: [
     BreadcrumbComponent,
@@ -97,7 +99,8 @@ import {JsonElemComponent} from './json/json-elem/json-elem.component';
     InputComponent,
     JsonEditorComponent,
     EditorComponent,
-    DeleteConfirmComponent
+    DeleteConfirmComponent,
+    EditProceduresComponent,
   ]
 })
 export class ComponentsModule { }

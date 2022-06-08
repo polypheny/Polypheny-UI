@@ -41,6 +41,7 @@ import {SearchFilterPipe, ValuePipe} from '../pipes/pipes';
 import {DocumentEditCollectionsComponent} from './schema-editing/document-edit-collections/document-edit-collections.component';
 import {DocumentEditCollectionComponent} from './schema-editing/document-edit-collection/document-edit-collection.component';
 import {StatisticsColumnComponent} from './schema-editing/statistics-column/statistics-column.component';
+import { EditProceduresComponent } from '../components/edit-procedures/edit-procedures.component';
 
 
 @NgModule({
@@ -66,7 +67,6 @@ import {StatisticsColumnComponent} from './schema-editing/statistics-column/stat
     AutocompleteLibModule,
     ProgressbarModule,
     PopoverModule,
-    NgxSliderModule
   ],
   declarations: [
     EditColumnsComponent,
@@ -93,7 +93,7 @@ import {StatisticsColumnComponent} from './schema-editing/statistics-column/stat
     EditSourceColumnsComponent,
     StatisticsColumnComponent,
     ValuePipe,
-    SearchFilterPipe
+    SearchFilterPipe,
   ],
   exports: [
     ExploreByExampleComponent

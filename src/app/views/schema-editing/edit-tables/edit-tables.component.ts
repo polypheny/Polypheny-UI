@@ -13,7 +13,8 @@ import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {UtilService} from '../../../services/util.service';
 import * as $ from 'jquery';
-import {DbProcedure, DbTable} from '../../uml/uml.model';
+import {DbTable} from '../../uml/uml.model';
+
 
 @Component({
   selector: 'app-edit-tables',
@@ -33,7 +34,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   stores: Store[];
   selectedStore;
   creatingTable = false;
-  droppingProcedure = false;
 
   //export table
   showExportButton = false;
@@ -48,7 +48,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     addDefaultValue: new FormControl(true, Validators.required)
   });
   @ViewChild('exportTableModal', {static: false}) public exportTableModal: ModalDirective;
-  procedures: DbProcedure[];
+  
 
   constructor(
     public _crud: CrudService,
@@ -74,7 +74,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this.getTables();
     this.getTypeInfo();
     this.getStores();
-    this.getProcedures();
     this.initSocket();
     const sub2 = this._crud.onReconnection().subscribe((b)=> {
       if(b) {
@@ -93,7 +92,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this.getTables();
     this.getTypeInfo();
     this.getStores();
-    this.getProcedures();
     this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
   }
 
@@ -120,18 +118,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         this.tables = this.tables.sort( (a,b) => a.name.localeCompare(b.name) );
       }, err => {
         this._toast.error('could not retrieve list of tables');
-        console.log(err);
-      }
-    );
-  }
-
-  getProcedures() {
-    this._crud.getProcedures().subscribe(
-      res => {
-        const result = <DbProcedure[]>res;
-        this.procedures = result;
-      }, err => {
-        this._toast.error('could not retrieve list of procedures');
         console.log(err);
       }
     );
@@ -206,12 +192,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         console.log(err);
       }
     );
-  }
-
-  dropProcedure(procedure: DbProcedure) {
-    this.droppingProcedure = true;
-    console.log('Dropping procedure ' + procedure.name);
-    this.droppingProcedure = false;
   }
 
   createTable() {
