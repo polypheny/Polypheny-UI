@@ -479,6 +479,10 @@ export class CrudService {
     return this._http.get(`${this.httpUrl}/getDocumentDatabases`);
   }
 
+  getProcedures() {
+    return this._http.get(`${this.httpUrl}/getProcedures`, this.httpOptions);
+  }
+
   /**
    * Get the http url with which multimedia files can be displayed or downloaded
    */

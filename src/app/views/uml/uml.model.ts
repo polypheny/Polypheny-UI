@@ -17,6 +17,13 @@ export class DbTable {
   tableType: string;
 }
 
+
+export class DbProcedure {
+  procedureName: string;
+  schema: string;
+  modifiable: boolean;
+}
+
 export class ForeignKey{
   fkName: string;
 

@@ -194,6 +194,28 @@
     </div>
 </div>
 
+<h5>procedures table</h5>
+<table class="table table-hover table-striped">
+    <thead>
+    <tr>
+        <th>Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let procedure of procedures">
+      <td>{{procedure.name}}</td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="procedure name" [(ngModel)]="procedure.name" #procedureName>
+        </td>
+        <td>
+          <div class="input-group-append">
+            <button class="btn btn-danger" [ngClass]="{'progress-bar-striped progress-bar-animated': droppingTable}" [disabled]="droppingTable" (click)="dropProcedure(procedure.name)">drop procedure</button>
+          </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
 <div bsModal #exportTableModal="bs-modal" class="modal fade" id="exportTableModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetExport()">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
