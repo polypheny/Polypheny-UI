@@ -208,9 +208,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     );
   }
 
-  dropProcedure(procedure: any) {
+  dropProcedure(procedure: DbProcedure) {
     this.droppingProcedure = true;
-    console.log('Dropping procedure ' + procedure);
+    console.log('Dropping procedure ' + procedure.name);
     this.droppingProcedure = false;
   }
 

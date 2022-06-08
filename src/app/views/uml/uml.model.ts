@@ -17,9 +17,8 @@ export class DbTable {
   tableType: string;
 }
 
-
 export class DbProcedure {
-  procedureName: string;
+  name: string;
   schema: string;
   modifiable: boolean;
 }

@@ -199,17 +199,17 @@
     <thead>
     <tr>
         <th>Name</th>
+        <th>Actions</th>
     </tr>
     </thead>
     <tbody>
     <tr *ngFor="let procedure of procedures">
-      <td>{{procedure.name}}</td>
         <td>
-            <input type="text" class="form-control form-control-sm" placeholder="procedure name" [(ngModel)]="procedure.name" #procedureName>
+            {{procedure.name}}
         </td>
         <td>
           <div class="input-group-append">
-            <button class="btn btn-danger" [ngClass]="{'progress-bar-striped progress-bar-animated': droppingTable}" [disabled]="droppingTable" (click)="dropProcedure(procedure.name)">drop procedure</button>
+            <button class="btn btn-danger" [ngClass]="{'progress-bar-striped progress-bar-animated': droppingTable}" [disabled]="droppingTable" (click)="dropProcedure(procedure)">drop procedure</button>
           </div>
         </td>
     </tr>
