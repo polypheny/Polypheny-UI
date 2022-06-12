@@ -483,6 +483,14 @@ export class CrudService {
     return this._http.get(`${this.httpUrl}/getProcedures`, this.httpOptions);
   }
 
+    /**
+   * delete a procedure from a schema
+   * @param request UIRequest
+   */
+  deleteProcedure ( procedureName: string) {
+    return this._http.post(`${this.httpUrl}/dropProcedure`, procedureName, this.httpOptions);
+  }
+
   /**
    * Get the http url with which multimedia files can be displayed or downloaded
    */

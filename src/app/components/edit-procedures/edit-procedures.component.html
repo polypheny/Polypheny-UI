@@ -1,4 +1,5 @@
 <h5>procedures table</h5>
+<app-confirm-modal-component (confirmedClicked)="confirmEventHandler($event)"></app-confirm-modal-component>
 <table class="table table-hover table-striped">
     <thead>
     <tr>
@@ -13,7 +14,7 @@
         </td>
         <td>
           <div class="input-group-append">
-            <button class="btn btn-danger" [ngClass]="{'progress-bar-striped progress-bar-animated': droppingProcedure}" [disabled]="droppingProcedure" (click)="dropProcedure(procedure)">drop procedure</button>
+            <button class="btn btn-danger" [ngClass]="{'progress-bar-striped progress-bar-animated': droppingProcedure}" [disabled]="droppingProcedure" (click)="confirmAction(procedure)">drop procedure</button>
           </div>
         </td>
     </tr>
