@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CrudService} from '../../../services/crud.service';
 import {ToastService} from '../../toast/toast.service';
@@ -13,31 +13,33 @@ import {GraphRequest} from '../../../models/ui-request.model';
 import {WebSocket} from '../../../services/webSocket';
 import {Subscription} from 'rxjs';
 
-class Edge{
-    id:string;
-    labels:string[];
-    properties:any[];
-    source:string;
-    target:string;
+class Edge {
+    id: string;
+    labels: string[];
+    properties: any[];
+    source: string;
+    target: string;
 }
 
-class Node{
-    id:string;
-    labels:string[];
-    properties:any[];
+class Node {
+    id: string;
+    labels: string[];
+    properties: any[];
 }
 
 
 class Graph {
     nodes: Node[];
     edges: Edge[];
+    selfEdges: Edge[];
 
     constructor(data) {
-        console.log(data);
         //const parsed = JSON.parse(data);
         //console.log(parsed);
         this.nodes = <Node[]>Object.values(data['nodes']);
-        this.edges = <Edge[]> Object.values(data['edges']);
+        this.edges = <Edge[]>Object.values(data['edges']).filter(d => d['source'] !== d['target']);
+        this.selfEdges = <Edge[]>Object.values(data['edges']).filter(d => d['source'] === d['target']);
+        //console.log(this.edges)
     }
 }
 
@@ -58,7 +60,7 @@ class Detail {
     templateUrl: './data-graph.component.html',
     styleUrls: ['./data-graph.component.scss']
 })
-export class DataGraphComponent extends DataViewComponent implements OnInit {
+export class DataGraphComponent extends DataViewComponent implements OnInit, OnChanges {
     private hidden: string[];
     private update: () => void;
     private graph: Graph;
@@ -89,8 +91,8 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
     private width: number;
     private zoom: any;
     private subElement: any;
-    private labels:string[];
-    private ratio:number;
+    private labels: string[];
+    private ratio: number;
     private color: any;
     private isPath: boolean;
     private initialEdgeIds: string[];
@@ -101,6 +103,10 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
         const source = !p.afterInit ? d.source : d.source['id'];
         const target = !p.afterInit ? d.target : d.target['id'];
+
+        if (source === target) {
+            return true;
+        }
 
         const connectionsIncluded = !hidden.includes(source) && !hidden.includes(target);
         if (connectionsIncluded) {
@@ -116,10 +122,20 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.graphLoading = true;
-        this.getGraph(this.resultSet);
+        // this.graphLoading = true;
+        // this.getGraph(this.resultSet);
     }
 
+
+    ngOnChanges(changes: SimpleChanges): void {
+        //this.graphLoading = true;
+        if (changes.hasOwnProperty('resultSet')) {
+            this.graphLoading = true;
+            d3.select('.svg-responsive').remove();
+            this.getGraph(changes['resultSet']['currentValue']);
+        }
+
+    }
 
     private renderGraph(graph: Graph) {
 
@@ -159,6 +175,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             .attr('viewBox', `0 0 ${width} ${height}`)
             .attr('class', 'svg-content-responsive');
 
+        svg.exit().remove();
 
         const g = svg.append('g');
 
@@ -174,7 +191,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
         // Add "forces" to the simulation here
         const simulation = d3.forceSimulation()
-            .force('center', d3.forceCenter(width/2 , height/2 ))
+            .force('center', d3.forceCenter(width / 2, height / 2))
             .force('charge', d3.forceManyBody().strength(-this.initialIds.size))
             .force('collide', d3.forceCollide(100).strength(0.9).radius(40))
             .force('link', d3.forceLink().id(d => d.id).distance(160));
@@ -221,15 +238,17 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         const restart = (p: any) => {
 
 
-            let hidden = p.hidden;
-            console.log(hidden);
+            const hidden = p.hidden;
 
             g.exit().remove();
 
             // build the arrow.
-            g.append('svg:defs').selectAll('marker')
+            g
+                .append('svg:defs')
+                .selectAll('marker')
                 .data(['end'])      // Different link/path types can be defined here
-                .enter().append('svg:marker')    // This section adds in the arrows
+                .enter()
+                .append('svg:marker')    // This section adds in the arrows
                 .attr('id', String)
                 .attr('viewBox', '0 -5 10 10')
                 .attr('refX', 30)
@@ -248,7 +267,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .append('g')
                 .attr('class', 'links')
                 .selectAll('path')
-                // hidde edges to hidden nodes
+                // add edges to hidden nodes
                 .data(graph.edges.filter((d) => {
                     return DataGraphComponent.filterEdges(hidden, d, p);
                 }));
@@ -257,9 +276,14 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             newLinks.remove().exit();
 
 
-            newLinktext = g.selectAll('g.linklabelholder').data(graph.edges.filter((d) => DataGraphComponent.filterEdges(hidden, d, p)));
+            newLinktext = g
+                .selectAll('g.linklabelholder')
+                .data(graph.edges.filter((d) => DataGraphComponent.filterEdges(hidden, d, p)));
 
-            newLinktext.enter().append('svg:g').attr('class', 'linklabelholder')
+            newLinktext
+                .enter()
+                .append('svg:g')
+                .attr('class', 'linklabelholder')
                 .append('text')
                 .attr('class', 'linklabel')
                 .style('font-size', linkSize + 'px')
@@ -289,8 +313,12 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
 
                 });
 
+
             link = newLinks
                 .enter()
+                .filter(d => {
+                    return DataGraphComponent.filterEdges(hidden, d, p);
+                })
                 .append('g')
                 .attr('class', 'link')
                 .append('path')
@@ -371,7 +399,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             right = newOverlay.append('path').attr('fill', 'grey')
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
-                .style( 'cursor', 'pointer')
+                .style('cursor', 'pointer')
                 .attr('d', arc({startAngle: 0, endAngle: Math.PI}))
                 .on('mouseover', function (d) {
                     d3.select(this).attr('fill', 'darkgray');
@@ -398,7 +426,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             left = newOverlay.append('path').attr('fill', 'grey')
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
-                .style( 'cursor', 'pointer')
+                .style('cursor', 'pointer')
                 .attr('d', arc({startAngle: -Math.PI, endAngle: 0}))
                 .on('mouseover', function (d) {
                     d3.select(this).attr('fill', 'darkgray');
@@ -406,7 +434,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .on('mouseout', function (d) {
                     d3.select(this).attr('fill', 'grey');
                 })
-                .on('click',  (d) => {
+                .on('click', (d) => {
                     hidden.push(d.id);
                     this.update();
                 });
@@ -440,17 +468,15 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
             p.labels = new Set();
 
             for (const e of graph.edges) {
-                e.labels.forEach( l => p.labels.add(l));
+                e.labels.forEach(l => p.labels.add(l));
             }
             for (const n of graph.nodes) {
-                n.labels.forEach( l => p.labels.add(l));
+                n.labels.forEach(l => p.labels.add(l));
             }
-            
+
             p.labels = Array.from(p.labels);
             p.color = d3.interpolateSinebow;
-            p.ratio = 1/p.labels.length;
-
-
+            p.ratio = 1 / p.labels.length;
 
 
             // Add circles for every node in the dataset
@@ -459,7 +485,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 .attr('r', size)
                 .attr('fill', d => {
                     const i = p.labels.indexOf(d.labels[0]);
-                    return p.color(p.ratio*i);
+                    return p.color(p.ratio * i);
                 })
                 .on('click', action)
                 .attr('cursor', 'pointer')
@@ -610,14 +636,14 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
                 });
             }
 
-            if(dbColumn.dataType.toLowerCase().includes('path')){
+            if (dbColumn.dataType.toLowerCase().includes('path')) {
                 this.isPath = true;
-                resultSet.data.forEach( d => {
+                resultSet.data.forEach(d => {
                     for (const el of JSON.parse(d[i]).path) {
-                        if( el.type === 'NODE'){
+                        if (el.type === 'NODE') {
                             nodeIds.add(el.id);
                         }
-                        if( el.type === 'EDGE'){
+                        if (el.type === 'EDGE') {
                             edgeIds.add(el.id);
                         }
                     }
@@ -644,9 +670,9 @@ export class DataGraphComponent extends DataViewComponent implements OnInit {
         this.showInsertCard = true;
     }
 
-    getLabelColor(label: string):string {
+    getLabelColor(label: string): string {
         const i = this.labels.indexOf(label);
-        return this.color(this.ratio*i);
+        return this.color(this.ratio * i);
     }
 
     reset() {
