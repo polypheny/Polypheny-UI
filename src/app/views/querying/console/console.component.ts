@@ -138,16 +138,20 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             this.addToHistory(code, this.lang);
         }
         if (this.usesAdvancedConsole(this.lang)) { // maybe adjust
-            const match = code.toLowerCase().match('use [a-zA-Z][a-zA-Z0-1]*');
-            if (match !== null && match.length >= 0) {
-                const database = match[match.length - 1].replace('use ', '');
-                this.setDefaultDB(database);
-            }
             const matchGraph = code.toLowerCase().match('use graph [a-zA-Z][a-zA-Z0-1]*');
             if (matchGraph !== null && matchGraph.length >= 0) {
                 const database = matchGraph[matchGraph.length - 1].replace('use ', '');
                 this.setDefaultDB(database);
             }
+
+            const match = code.toLowerCase().match('use [a-zA-Z][a-zA-Z0-1]*');
+            if (match !== null && match.length >= 0) {
+                const database = match[match.length - 1].replace('use ', '');
+                if( database !== 'placement' ){
+                    this.setDefaultDB(database);
+                }
+            }
+
 
             if (code.match('show db')) {
                 this._crud.getDocumentDatabases().subscribe(res => {
