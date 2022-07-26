@@ -41,6 +41,7 @@ import {SearchFilterPipe, ValuePipe} from '../pipes/pipes';
 import {DocumentEditCollectionsComponent} from './schema-editing/document-edit-collections/document-edit-collections.component';
 import {DocumentEditCollectionComponent} from './schema-editing/document-edit-collection/document-edit-collection.component';
 import {StatisticsColumnComponent} from './schema-editing/statistics-column/statistics-column.component';
+import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-edit-graph.component';
 
 
 @NgModule({
@@ -79,6 +80,7 @@ import {StatisticsColumnComponent} from './schema-editing/statistics-column/stat
     EditTablesComponent,
     DocumentEditCollectionsComponent,
     DocumentEditCollectionComponent,
+    GraphEditGraphComponent,
     MonitoringComponent,
     DashboardComponent,
     RelationalAlgebraComponent,
