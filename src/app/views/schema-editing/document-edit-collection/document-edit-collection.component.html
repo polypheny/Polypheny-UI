@@ -1,11 +1,10 @@
 <app-toast></app-toast>
-<app-edit-source-columns *ngIf="isSource() && tableId && tableId.includes('.')"></app-edit-source-columns>
-<div class="row" *ngIf="!isSource()">
+<div class="row" >
 
   <div class="col-lg-12">
 
-    <h5 *ngIf="tableId">{{tableId}}</h5>
-    <span *ngIf="!tableId">Please select a table in the left sidebar to edit its columns.</span>
+    <h5 *ngIf="collectionId">{{collectionId}}</h5>
+    <span *ngIf="!collectionId">Please select a table in the left sidebar to edit its columns.</span>
 
     <p *ngIf="resultSet">Double click on a fixed field in the collection below to edit the fixed field.</p>
     <table class="table table-hover table-striped" *ngIf="resultSet" id="dbColumnTable">
@@ -18,7 +17,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let col of filterData(resultSet.header); let i = index" (dblclick)="editCol(i, col, $event)" [ngClass]="{'editing': i === editColumn}">
+      <tr *ngFor="let col of resultSet.header; let i = index" (dblclick)="editCol(i, col, $event)" [ngClass]="{'editing': i === editColumn}">
         <ng-container *ngIf="i === editColumn" [formGroup]="updateColumn">
           <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
           <td>
@@ -61,64 +60,6 @@
 
   </div>
 
-  <div class="col-lg-12">
-    <hr>
-    <h5>Indexes</h5>
-    <div class="card">
-      <div class="card-header">
-        <span>Add index</span>
-      </div>
-      <div class="card-body">
-        <form [formGroup]="newIndexForm" (submit)="addIndex()">
-          <div class="form-inline mb-2">
-            <div class="form-group">
-              <label for="indexName">Name </label>
-              <input id="indexName" type="text" autocomplete="off" class="form-control form-control-sm"
-                     [placeholder]="proposedIndexName" name="name" required formControlName="name"
-                     [ngClass]="inputValidation('name')">
-              <div class="invalid-feedback">invalid name</div>
-            </div>
-            <div class="form-group" *ngIf="availableStoresForIndexes && availableStoresForIndexes.length > 0">
-              <label for="storeName">Location</label>
-              <select name="storeName" id="storeName" class="form-control form-control-sm" [ngModel]="selectedStoreForIndex" (ngModelChange)="onSelectingIndexStore($event)" [ngModelOptions]="{standalone: true}">
-                <option *ngFor="let store of availableStoresForIndexes" [ngValue]="store">{{store.uniqueName}}</option>
-              </select>
-            </div>
-            <div class="form-group" *ngIf="selectedStoreForIndex != null">
-              <label for="indexMethod">Method</label>
-              <select id="indexMethod" class="form-control form-control-sm" formControlName="method">
-                <option *ngFor="let m of selectedStoreForIndex.availableIndexMethods" [value]="m.name">{{m.displayName}}</option>
-              </select>
-            </div>
-          </div>
-          <div class="constraint-columns">
-            <div class="form-check form-check-inline" *ngFor="let c of newIndexCols | keyvalue; let j=index">
-              <input type="checkbox" class="form-check-input" [id]="'indexCol'+j" [(ngModel)]="newIndexCols[c.key]" [ngModelOptions]="{standalone: true}">
-              <label class="form-check-label" [for]="'indexCol'+j">{{c.key}}</label>
-            </div>
-            <button type="submit" class="btn btn-primary btn-sm" [ngClass]="{'progress-bar-striped progress-bar-animated': addingIndex}" [disabled]="addingIndex || !availableStoresForIndexes || availableStoresForIndexes.length == 0">create</button>
-          </div>
-        </form>
-      </div>
-    </div>
-    <table class="table table-hover table-striped" *ngIf="indexes && indexes.data.length > 0">
-      <thead>
-      <tr>
-        <th *ngFor="let h of indexes.header">{{h.name}}</th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let d1 of indexes.data; let i = index">
-        <td *ngFor="let d2 of d1">{{d2}}</td>
-        <td class="delete">
-          <app-delete-confirm *ngIf="d1[4] != 'FUNCTIONAL'" (delete)="dropIndex(d1[0])"></app-delete-confirm>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-
   <div class="col-lg-12" *ngIf="dataPlacements">
     <hr>
     <div class="mb-3" style="position: relative">
@@ -137,7 +78,7 @@
             <li *ngIf="getAddableStores().length === 0" role="menuitem"><a class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
           </ul>
         </div>
-        <button class="btn btn-primary btn-sm" (click)="initPlacementModal('ADD')">add</button>
+        <button class="btn btn-primary btn-sm" (click)="modifyPlacement('ADD')">add</button>
       </div>
     </div>
     <table class="table table-hover table-striped">
@@ -145,8 +86,6 @@
       <tr>
         <th>Store</th>
         <th>Adapter</th>
-        <th>Fields</th>
-        <th>Partitions</th><!-- *ngIf="isPartitioned()" -->
         <th></th>
       </tr>
       </thead>
@@ -154,23 +93,10 @@
       <tr *ngFor="let store of dataPlacements.stores; let i = index">
         <td>{{store.uniqueName}}</td>
         <td>{{store.adapterName}}</td>
-        <td>
-          <ng-container *ngFor="let p of store.columnPlacements; let isLast = last">
-            <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{p.columnName}}</span>{{isLast ? '' : ', '}}
-          </ng-container>
-          <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPlacementModal('MODIFY', store, store.columnPlacements)"></span>
-        </td>
-        <td><!-- *ngIf="isPartitioned()" -->
-          <span *ngIf="!store.partitionKeys || store.partitionKeys.length === 0" class="font-italic">none</span>
-          <ng-container *ngFor="let pKey of store.partitionKeys; let isLast = last">
-            <span>{{dataPlacements.partitionNames[pKey]}}</span>{{isLast ? '' : ', '}}
-          </ng-container>
-          <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPartitioningModal( store )"></span>
-        </td>
         <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
         <ng-container *ngIf="dataPlacements.stores.length > 1">
           <td class="delete">
-            <app-delete-confirm (delete)="dropPlacement(store.uniqueName)"></app-delete-confirm>
+            <app-delete-confirm (delete)="modifyPlacement('DROP', store )"></app-delete-confirm>
           </td>
         </ng-container>
         <!-- don't show delete icon if there is only one placement --->
@@ -186,108 +112,3 @@
 </div>
 
 
-<div *ngIf="!isSource()" bsModal #placementModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="clearPlacementModal()">
-  <form [formGroup]="columnPlacement" *ngIf="columnPlacement">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">Column placements</h4>
-          <button type="button" class="close" (click)="placementModal.hide()" aria-label="Close" [disabled]="isAddingPlacement">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body" *ngIf="columnPlacement && selectedStore">
-          Store: {{selectedStore.uniqueName}}
-          <p>Select the columns that you want to be part of the placement.</p>
-          <div class="form-group">
-            <a [routerLink]="[]" class="text-muted" (click)="selectAllColumns(true)">select all</a> - <a [routerLink]="[]" class="text-muted" (click)="selectAllColumns(false)">deselect all</a>
-          </div>
-          <div class="form-group">
-            <div *ngFor="let col of getColumnArray()" class="form-check form-check-inline">
-              <input type="checkbox" class="form-check-input" [id]="'colPlacement'+col" [formControlName]="col">
-              <label [for]="'colPlacement'+col" class="form-check-label">{{col}}</label>
-            </div>
-          </div>
-
-        </div>
-        <div class="modal-footer" style="position: relative">
-          <div class="progress-wrapper" *ngIf="isAddingPlacement">
-            <progressbar type="info" [value]="0" [max]="100" class="progress progress-bar progress-bar-striped progress-bar-animated"></progressbar>
-          </div>
-          <button type="button" class="btn btn-secondary float-left" (click)="placementModal.hide()" [disabled]="isAddingPlacement">Close</button>
-          <button type="submit" class="btn btn-primary" (click)="addPlacement()" [disabled]="isAddingPlacement">{{titleCase( placementMethod )}} placement</button>
-        </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </form>
-</div>
-
-<div *ngIf="!isSource()" bsModal #partitioningModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="clearPartitioningModal()">
-  <!--<form [formGroup]="columnPlacement" *ngIf="columnPlacement">-->
-  <div class="modal-dialog" role="document">
-    <div class="modal-content" *ngIf="selectedStore && partitionsToModify">
-      <div class="modal-header">
-        <h4 class="modal-title">Modify partitions</h4>
-        <button type="button" class="close" (click)="partitioningModal.hide()" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        Store: {{selectedStore.uniqueName}}
-        <p>Select the partitions that you want to be part of the new partitioning.</p>
-        <div class="form-group">
-          <a [routerLink]="[]" class="text-muted" (click)="selectAllPartitions(true)">select all</a> - <a [routerLink]="[]" class="text-muted" (click)="selectAllPartitions(false)">deselect all</a>
-        </div>
-        <div class="form-group mb-0">
-          <div class="form-check form-check-inline" *ngFor="let p of partitionsToModify | keyvalue">
-            <input type="checkbox" class="form-check-input" [id]="'partitionKey'+p.key" [(ngModel)]="partitionsToModify[p.key].selected">
-            <label [for]="'partitionKey'+p.key" class="form-check-label">{{partitionsToModify[p.key].partitionName}}</label>
-          </div>
-        </div>
-        <span class="text-danger" *ngIf="!validatePartitionModification()">Please select at least one partition</span>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary float-left" (click)="partitioningModal.hide()">Close</button>
-        <button type="submit" class="btn btn-primary" (click)="modifyPartitioning()" [disabled]="!validatePartitionModification()">Modify</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-  <!--</form>-->
-</div>
-
-<div bsModal #partitionFunctionModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content" *ngIf="partitionFunctionParams">
-      <div class="modal-header">
-        <h4>{{partitionFunctionParams.title}}</h4>
-      </div>
-      <div class="modal-body">
-        <p>{{partitionFunctionParams.description}}</p>
-        <table class="table table-hover table-striped table-bordered" id="partitionParamsTable">
-          <tr>
-            <th *ngFor="let colName of partitionFunctionParams.columnNames">{{colName}}</th>
-          </tr>
-          <tr *ngFor="let col of partitionFunctionParams.rows">
-            <td *ngFor="let row of col as PartitionFunctionColumn">
-              <div class="partition-param-wrapper">
-                <ng-container [ngSwitch]="row.type">
-                  <span *ngSwitchCase="fieldTypes.LABEL">{{row.value}}</span>
-                  <select *ngSwitchCase="fieldTypes.LIST" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value}">
-                    <option *ngFor="let option of row.options" [value]="option">{{option}}</option>
-                  </select>
-                  <input *ngSwitchCase="fieldTypes.INTEGER" type="number" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value && row.value !== 0}">
-                  <input *ngSwitchDefault type="text" [(ngModel)]="row.value" class="form-control form-control-sm" [disabled]="!row.modifiable" [ngClass]="{'is-invalid': row.mandatory && !row.value}">
-                </ng-container>
-                <span class="invalid-partition-param" *ngIf="row.mandatory && !row.value && row.value !== 0">required</span>
-              </div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary float-left" (click)="partitionFunctionModal.hide()">Close</button>
-        <button type="submit" class="btn btn-primary" (click)="partitionTable()" [disabled]="">Partition</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div>

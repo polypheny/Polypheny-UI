@@ -164,6 +164,13 @@ export class CrudService {
   }
 
   /**
+   * get the columns of a DataStore
+   */
+  getFixedFields ( columnRequest: ColumnRequest ) {
+    return this._http.post(`${this.httpUrl}/getFixedFields`, columnRequest, this.httpOptions);
+  }
+
+  /**
    * Get the columns of a DataSource
    */
   getDataSourceColumns ( request: TableRequest ) {
@@ -286,6 +293,14 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/getPlacements`, index, this.httpOptions);
   }
 
+  /**
+   * Get data placement information
+   */
+  getCollectionPlacements(namespace: string, collection: string) {
+    const index = new Index(namespace, collection, '', '', '', []);
+    return this._http.post(`${this.httpUrl}/getCollectionPlacements`, index, this.httpOptions);
+  }
+
   getGraphPlacements( graph: string ) {
     const index = new Index(graph, '', '', '', '', []);
     return this._http.post(`${this.httpUrl}/getGraphPlacements`, index, this.httpOptions);
@@ -320,6 +335,24 @@ export class CrudService {
     const request = new QueryRequest(code, false, true, 'cypher', graph);
 
     return this._http.post(`${this.langUrl}/cypher`, request, this.httpOptions);
+  }
+
+  /**
+   * Add or drop a placement
+   */
+  addDropCollectionPlacement( namespace: string, collection: string, store: string, method: 'ADD' | 'DROP') {
+    let code:string;
+    switch (method) {
+      case 'ADD':
+        code = `db.${collection}.addPlacement( "${store}" )`;
+        break;
+      case 'DROP':
+        code = `db.${collection}.deletePlacement( "${store}" )`;
+        break;
+    }
+    const request = new QueryRequest(code, false, true, 'cypher', namespace);
+    console.log(request)
+    return this._http.post(`${this.langUrl}/mql`, request, this.httpOptions);
   }
 
 
