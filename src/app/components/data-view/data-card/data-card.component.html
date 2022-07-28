@@ -72,7 +72,7 @@
     <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
   </div>
 
-  <div class="card" *ngIf="config.create && showInsertCard">
+  <div class="card" *ngIf="config.create && showInsertCard" [ngClass]="{'json-card': resultSet.namespaceType === 'DOCUMENT'}">
     <div class="card-header">
       Insert data
     </div>
@@ -80,7 +80,7 @@
       <li  class="list-group-item" *ngFor="let h of resultSet.header">
         <app-input *ngIf="schemaType.toLowerCase() === 'relational' || h.name === '_id'" [header]="h" [showLabel]="true" [value]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"
                    (enter)="insertRow()"></app-input>
-        <app-json-editor (validChange)="setJsonValid($event)" *ngIf="this.schemaType.toLowerCase() === 'document' && h.name !== '_id'" [empty]="true" [json]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"></app-json-editor>
+        <app-json-editor (validChange)="setJsonValid($event)" *ngIf="this.schemaType.toLowerCase() === 'document'" [empty]="true" [json]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"></app-json-editor>
       </li>
       <li class="list-group-item">
         <progressbar *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary"></progressbar>

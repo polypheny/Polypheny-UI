@@ -267,6 +267,11 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       this.confirm = i;
       return;
     }
+    if( this.resultSet.namespaceType.toLowerCase() === 'document' ){
+      this.adjustDocument('DELETE', values[0]);
+      return;
+    }
+
     const rowMap = new Map<string, string>();
     values.forEach((val, key) => {
       rowMap.set(this.resultSet.header[key].name, val);
@@ -430,6 +435,10 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   insertRow() {
+    if( this.resultSet.namespaceType.toLowerCase() === 'document' ){
+      this.adjustDocument('ADD');
+      return ;
+    }
     const formData = new FormData();
     this.insertValues.forEach((v, k) => {
       //only values with dirty state will be submitted. Columns that are not nullable are already set dirty
@@ -472,6 +481,42 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     return emitResult;
   }
 
+  private adjustDocument(method: 'ADD' | 'MODIFY' | 'DELETE', initialData: string = '') {
+    switch (method) {
+      case 'ADD':
+        const data = this.insertValues.get('d');
+        const add = `db.${this.getCollection()}.insert(${data})`;
+        this._crud.anyQuery( this.webSocket, new QueryRequest(add, false, true, 'mql', this.resultSet.namespaceName ));
+        this.insertValues.clear();
+        this.getTable();
+        break;
+      case 'MODIFY':
+        const values = new Map<string, string>();//previous values
+        for (let i = 0; i < this.resultSet.header.length; i++) {
+          values.set(this.resultSet.header[i].name, this.resultSet.data[this.editing][i]);
+          i++;
+        }
+        const updated = this.updateValues.get('d');
+        const parsed = JSON.parse(updated);
+        if( parsed.hasOwnProperty( '_id' )){
+          const modify = `db.${this.getCollection()}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;
+          this._crud.anyQuery( this.webSocket, new QueryRequest(modify,false, true, 'mql', this.resultSet.namespaceName ));
+          this.insertValues.clear();
+          this.getTable();
+        }
+        break;
+      case 'DELETE':
+        const parsedDelete = JSON.parse(initialData);
+        if( parsedDelete.hasOwnProperty( '_id' )){
+          const modify = `db.${this.getCollection()}.deleteMany({"_id": "${parsedDelete['_id']}" })`;
+          this._crud.anyQuery( this.webSocket, new QueryRequest(modify,false, true, 'mql', this.resultSet.namespaceName ));
+          this.insertValues.clear();
+          this.getTable();
+        }
+        break;
+    }
+  }
+
   buildInsertObject() {
     if (this.config && !this.config.create || !this.resultSet) {
       return;
@@ -509,6 +554,11 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   updateRow() {
+    if( this.resultSet.namespaceType.toLowerCase() === 'document' ){
+      this.adjustDocument('MODIFY');
+      return;
+    }
+
     const oldValues = new Map<string, string>();//previous values
     /*$('.editing').each(function (e) {
       const oldVal = $(this).attr('data-before');
@@ -773,6 +823,12 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         && !this.isDMLResult()
         && this.resultSet.language !== 'cql'
         && this.checkModelAndLanguage();
+  }
+
+
+  private getCollection() {
+    const split = this.tableId.split('.');
+    return split[split.length - 1];
   }
 }
 
