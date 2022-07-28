@@ -153,19 +153,20 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
 
     if (changes.hasOwnProperty('resultSet')) {
-      this.schemaType = this.resultSet.namespaceType;
-      if(this.schemaType.toLowerCase() === 'document') {
-        this.presentationType = DataPresentationType.CARD;
-      } else if ( this.schemaType.toLowerCase() === 'graph' && this.containsGraphObject(this.resultSet)){
-        this.presentationType = DataPresentationType.GRAPH;
-      }else{
-        this.presentationType = DataPresentationType.TABLE;
-      }
       //fix for carousel View, if no currentPage and no highestPage is set, set it to 1
       if(this.resultSet !== null){
+        this.schemaType = this.resultSet.namespaceType;
+        if(this.schemaType.toLowerCase() === 'document') {
+          this.presentationType = DataPresentationType.CARD;
+        } else if ( this.schemaType.toLowerCase() === 'graph' && this.containsGraphObject(this.resultSet)){
+          this.presentationType = DataPresentationType.GRAPH;
+        }else{
+          this.presentationType = DataPresentationType.TABLE;
+        }
+
+
         if(this.resultSet.currentPage === 0 ){
           this.resultSet.currentPage = 1;
         }
@@ -204,13 +205,14 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         res => {
           this.resultSet = <ResultSet>res;
 
-          //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
+          //go to the highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
           if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
             this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
           }
           this.setPagination();
           this.editing = -1;
-          if (this.resultSet.type === 'TABLE') {
+          console.log(this.resultSet);
+          if (this.resultSet.type === 'TABLE' || this.resultSet.namespaceType === 'DOCUMENT' ) {
             this.config.create = true;
             this.config.update = true;
             this.config.delete = true;

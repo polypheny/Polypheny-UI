@@ -4,7 +4,7 @@
 </div>
 
 <div class="card-wrapper" *ngIf="resultSet">
-  <div class="card" *ngFor="let d1 of resultSet.data; let i = index" (dblclick)="triggerEditing(i)" [ngClass]="{'editing': i===editing}">
+  <div class="card" *ngFor="let d1 of resultSet.data; let i = index" (dblclick)="triggerEditing(i)" [ngClass]="{'editing': i===editing, 'json-card': resultSet.namespaceType === 'DOCUMENT'}">
     <a *ngIf="config.update && i !== editing" [routerLink]="[]" class="edit-card btn btn-outline-secondary btn-sm" (click)="triggerEditing(i)"><i class="cui-pencil"></i></a>
     <a *ngIf="config.update && i !== editing" [routerLink]="[]" class="delete-card btn btn-outline-secondary btn-sm" (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"><i [ngClass]="{ 'cui-trash': i!==confirm, 'fa': i===confirm, 'fa-warning': i===confirm}"></i></a>
     <ul class="list-group list-group-flush">
@@ -53,7 +53,7 @@
           </ng-container>
           <ng-container *ngIf="i === editing">
             <app-input *ngIf="this.schemaType.toLowerCase() === 'relational' || h.name === '_id'" [header]="h" [showLabel]="h.name !== '_data' " [value]="updateValues.get(h.name)" (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateRow()" [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
-            <app-json-editor (validChange)="setJsonValid($event)" *ngIf="this.schemaType.toLowerCase() === 'document' && h.name !== '_id'" [json]="updateValues.get(h.name)" (valueChange)="newUpdateValue(h.name, $event)"></app-json-editor>
+            <app-json-editor (validChange)="setJsonValid($event)" *ngIf="this.schemaType.toLowerCase() === 'document'" [json]="updateValues.get(h.name)" (valueChange)="newUpdateValue(h.name, $event)"></app-json-editor>
           </ng-container>
         </li>
       </ng-container>
