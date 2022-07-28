@@ -113,6 +113,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
   getFixedFields () {
     this._crud.getFixedFields( new ColumnRequest( this.collectionId )).subscribe(
       res => {
+        console.log(res)
         this.resultSet = <ResultSet> res;
 
       }, err => {

@@ -10,7 +10,6 @@
     <table class="table table-hover table-striped" *ngIf="resultSet" id="dbColumnTable">
       <thead>
       <tr>
-        <th class="pk">PK</th>
         <th>Name</th>
         <th></th>
         <th></th>
@@ -19,7 +18,6 @@
       <tbody>
       <tr *ngFor="let col of resultSet.header; let i = index" (dblclick)="editCol(i, col, $event)" [ngClass]="{'editing': i === editColumn}">
         <ng-container *ngIf="i === editColumn" [formGroup]="updateColumn">
-          <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
           <td>
             <input type="text" class="form-control form-control-sm" formControlName="name" [attr.data-before]="col.name" id="colName" #editColName [ngClass]="columnValidation(editColName.value, col.name)">
           </td>
@@ -29,30 +27,22 @@
           </td>
         </ng-container>
         <ng-container *ngIf="i !== editColumn">
-          <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
           <td>{{col.name}}</td>
           <td class="buffer">
-            <div></div>
-          </td>
-          <td class="delete" *ngIf="col.name !== '_data' && col.name !== '_id'">
-            <app-delete-confirm (delete)="dropColumn(col)"></app-delete-confirm>
-          </td>
-          <td class="delete" *ngIf="col.name === '_data' || col.name === '_id'">
             <div></div>
           </td>
         </ng-container>
       </tr>
 
       <tr>
-        <td class="pk"></td>
         <td>
-          <input type="text" class="form-control form-control-sm" name="columnName" placeholder="field name" [(ngModel)]="createColumn.name" [ngClass]="columnValidation(createColumn.name)">
+          <input type="text" class="form-control form-control-sm" name="columnName" placeholder="field name" [(ngModel)]="createColumn.name" [ngClass]="columnValidation(createColumn.name)" readonly>
         </td>
         <td>
           <div></div>
         </td>
         <td>
-          <a [routerLink]="" class="btn btn-primary" id="addColumnBtn" (click)="addColumn()">+</a>
+          <a [routerLink]="" class="btn btn-primary disabled" id="addColumnBtn" (click)="addColumn()">+</a>
         </td>
       </tr>
       </tbody>
