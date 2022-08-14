@@ -441,6 +441,7 @@ export class TableModel {
   newName: string;
   modifiable: boolean;
   tableType: string;
+  triggers: string[];
   constructor( table:DbTable) {
     this.name = table.tableName;
     this.newName = table.tableName;
