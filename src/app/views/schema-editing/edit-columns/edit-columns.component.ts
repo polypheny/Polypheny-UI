@@ -6,7 +6,7 @@ import {CrudService} from '../../../services/crud.service';
 import {DbColumn, FieldType, Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, ResultSet, StatisticColumnSet, StatisticTableSet, TableConstraint} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest, TriggerRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {CatalogColumnPlacement, MaterializedInfos, Placements, PlacementType, Store} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -34,6 +34,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   confirm = -1;
   oldColumns = new Map<string, DbColumn>();
   updateColumn = new FormGroup({name: new FormControl('')});
+  triggers: string[];
 
   constraints: ResultSet;
   confirmConstraint = -1;
@@ -109,6 +110,18 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this.getPlacementsAndPartitions();
     this.getPartitionTypes();
     this.getGeneratedNames();
+    this.getTriggers();
+  }
+  getTriggers() {
+    console.log(this.schema);
+    this._crud.getTriggers( new TriggerRequest( this.schema, this.table )).subscribe(
+      res => {
+        this.triggers = <string[]> res;
+      }, err => {
+        this._toast.error('Could not load triggers of the table.', null, ToastDuration.INFINITE);
+        console.log(err);
+      }
+    );
   }
 
   ngOnDestroy() {
@@ -139,6 +152,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.getPlacementsAndPartitions();
         this.getAvailableStoresForIndexes();
         this.getUml();
+        this.getTriggers();
       }
     });
     this.subscriptions.add(sub);

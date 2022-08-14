@@ -538,27 +538,21 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>name</td>
-                        <td>operations</td>
+                    <tr *ngFor="let trigger of triggers">
+                        <td>{{trigger.name}}</td>
+                        <td>
+                            <p>delete button</p>
+                            <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPlacementModal('MODIFY', trigger, trigger.columnPlacements)"></span>
+                        </td>
+                        <td>
+                            <span *ngFor="let trigger of triggers">{{ trigger }}</span>
+                        </td>
                         <td>
                             <div class="input-group-append">
                                 <button class="btn btn-danger" [disabled]="false" (click)="dropTrigger()">drop trigger</button>
                             </div>
                         </td>
                     </tr>
-                <!--<tr *ngFor="let trigger of dataPlacements.triggers; let i = index">
-                    <td>{{trigger.name}}</td>
-                    <td>
-                        <ng-container *ngFor="let operation of trigger.operation">
-                            <span>{{operation.name}}</span>
-                        </ng-container>
-                    </td>
-                    <td>
-                        <p>delete button</p>
-                        <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPlacementModal('MODIFY', trigger, trigger.columnPlacements)"></span>
-                    </td>
-                </tr>-->
                 </tbody>
             </table>
         </div>

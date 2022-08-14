@@ -210,6 +210,17 @@ export class ColumnRequest extends UIRequest {
   }
 }
 
+export class TriggerRequest extends UIRequest {
+  schema: string;
+  tableName: string;
+
+  constructor( schema: string, tableName: string ) {
+    super();
+    this.schema = schema;
+    this.tableName = tableName;
+  }
+}
+
 export class MaterializedRequest extends UIRequest{
   constructor(tableId: string) {
     super();
