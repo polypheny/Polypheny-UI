@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { CrudService } from '../../services/crud.service';
 import { DbProcedure } from '../../views/uml/uml.model';
 import { ConfirmModalComponentComponent } from '../confirm-modal-component/confirm-modal-component.component';

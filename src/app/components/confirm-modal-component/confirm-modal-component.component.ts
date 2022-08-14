@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output, TemplateRef, ViewChild } from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
 @Component({
@@ -12,9 +12,6 @@ message: string;
 constructor(private modalService: BsModalService) {}
   @Output() confirmedClicked: EventEmitter<void> = new EventEmitter();
   @ViewChild('confirmModalTemplate') formModal: TemplateRef<any>;
-  //@Input() dialogText: string;
-//  @Input() denyText: string = "No";
-//  @Input() confirmText: string = "Yes";
 
   public openModal() {
     this.modalRef = this.modalService.show(this.formModal, {class: 'modal-sm'});
@@ -23,7 +20,6 @@ constructor(private modalService: BsModalService) {}
   confirm(): void {
     this.modalRef.hide();
     this.confirmedClicked.emit();
-
   }
 
   decline(): void {
