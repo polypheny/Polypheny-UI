@@ -929,6 +929,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
   }
 
+  dropTrigger() {
+    console.log('dropping trigger');
+  }
+
   getGeneratedNames() {
     this._crud.getGeneratedNames().subscribe(
       res => {
