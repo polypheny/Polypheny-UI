@@ -6,7 +6,7 @@ import {CrudService} from '../../../services/crud.service';
 import {DbColumn, FieldType, Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, ResultSet, StatisticColumnSet, StatisticTableSet, TableConstraint} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest, TriggerRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, DropTriggerRequest, EditTableRequest, MaterializedRequest, TriggerRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {CatalogColumnPlacement, MaterializedInfos, Placements, PlacementType, Store} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -112,17 +112,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this.getGeneratedNames();
     this.getTriggers();
   }
-  getTriggers() {
-    console.log(this.schema);
-    this._crud.getTriggers( new TriggerRequest( this.schema, this.table )).subscribe(
-      res => {
-        this.triggers = <string[]> res;
-      }, err => {
-        this._toast.error('Could not load triggers of the table.', null, ToastDuration.INFINITE);
-        console.log(err);
-      }
-    );
-  }
 
   ngOnDestroy() {
     $(document).off('click');
@@ -136,6 +125,30 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     if( $(targetElement).parents('.editing').length === 0 ){
       self.editColumn = -1;
     }
+  }
+
+  
+  getTriggers() {
+    this._crud.getTriggers( new TriggerRequest( this.schema, this.table )).subscribe(
+      res => {
+        this.triggers = <string[]> res;
+      }, err => {
+        this._toast.error('Could not load triggers of the table.', null, ToastDuration.INFINITE);
+        console.log(err);
+      }
+    );
+  }
+
+  dropTrigger(trigger: string) {
+    this._crud.dropTrigger( new DropTriggerRequest( this.schema, trigger )).subscribe(
+      res => {
+        this._toast.success('Trigger deleted', null, null, ToastDuration.INFINITE);
+        this.getTriggers();
+      }, err => {
+        this._toast.error('Could not drop trigger', null, ToastDuration.INFINITE);
+        console.log(err);
+      }
+    );
   }
 
   getTableId () {
@@ -941,10 +954,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
       ).add(() => this.addingIndex = false);
     }
-  }
-
-  dropTrigger() {
-    console.log('dropping trigger');
   }
 
   getGeneratedNames() {

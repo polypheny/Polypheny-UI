@@ -542,14 +542,13 @@
                         <td>{{trigger.name}}</td>
                         <td>
                             <p>delete button</p>
-                            <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn" (click)="initPlacementModal('MODIFY', trigger, trigger.columnPlacements)"></span>
                         </td>
                         <td>
-                            <span *ngFor="let trigger of triggers">{{ trigger }}</span>
+                            <span *ngFor="let action of trigger">{{ action }}</span>
                         </td>
                         <td>
                             <div class="input-group-append">
-                                <button class="btn btn-danger" [disabled]="false" (click)="dropTrigger()">drop trigger</button>
+                                <button class="btn btn-danger" [disabled]="false" (click)="dropTrigger(trigger.name)">drop trigger</button>
                             </div>
                         </td>
                     </tr>

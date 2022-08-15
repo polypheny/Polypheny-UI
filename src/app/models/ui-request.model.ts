@@ -221,6 +221,17 @@ export class TriggerRequest extends UIRequest {
   }
 }
 
+export class DropTriggerRequest extends UIRequest {
+  schema: string;
+  triggerName: string;
+
+  constructor( schema: string, triggerName: string ) {
+    super();
+    this.schema = schema;
+    this.triggerName = triggerName;
+  }
+}
+
 export class MaterializedRequest extends UIRequest{
   constructor(tableId: string) {
     super();

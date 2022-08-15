@@ -23,6 +23,11 @@ export class DbProcedure {
   modifiable: boolean;
 }
 
+export class DbTrigger {
+  name: string;
+  event: string;
+}
+
 export class ForeignKey{
   fkName: string;
 
