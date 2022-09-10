@@ -212,12 +212,12 @@ export class ColumnRequest extends UIRequest {
 
 export class TriggerRequest extends UIRequest {
   schema: string;
-  tableName: string;
+  tableId: string;
 
-  constructor( schema: string, tableName: string ) {
+  constructor( schema: string, tableId: string ) {
     super();
     this.schema = schema;
-    this.tableName = tableName;
+    this.tableId = tableId;
   }
 }
 
