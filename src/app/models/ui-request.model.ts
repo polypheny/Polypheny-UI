@@ -4,7 +4,7 @@ import {Node} from '../views/querying/relational-algebra/relational-algebra.mode
 
 export class UIRequest {
   requestType = 'UIRequest';
-  tableName: string;
+  tableId: string;
   currentPage: number;
   data: Map<string, string>;
   filter: Map<string, string>;
@@ -15,7 +15,7 @@ export class TableRequest extends UIRequest {
   requestType = 'TableRequest';
   constructor ( tableName: string, currentPage: number, filter: any = null, sortState: any = null ) {
     super();
-    this.tableName = tableName;
+    this.tableId = tableName;
     this.currentPage = currentPage;
     this.filter = filter;
     this.sortState = sortState;
@@ -129,7 +129,7 @@ export class ExploreTable extends UIRequest{
 export class StatisticRequest extends UIRequest {
   constructor (tableName?: string ){
     super();
-    this.tableName = tableName || null;
+    this.tableId = tableName || null;
     return this;
   }
 }
@@ -152,7 +152,7 @@ export class SchemaTypeRequest extends UIRequest{
 export class DeleteRequest extends UIRequest {
   constructor ( tableName: string, data: any) {
     super();
-    this.tableName = tableName;
+    this.tableId = tableName;
     this.data = data;
   }
 }
@@ -165,7 +165,7 @@ export class DeleteRequest extends UIRequest {
 export class UpdateRequest extends UIRequest {
   constructor ( tableName: string, data: any, filter: any ){
     super();
-    this.tableName = tableName;
+    this.tableId = tableName;
     this.data = data;
     this.filter = filter;
   }
@@ -200,9 +200,9 @@ export class ColumnRequest extends UIRequest {
   newColumn: DbColumn;
   renameOnly: boolean;
   tableType: string;
-  constructor( tableName: string, oldColumn: DbColumn = null, newColumn: DbColumn = null, renameOnly = false, tableType:string = 'table' ) {
+  constructor( tableId: string, oldColumn: DbColumn = null, newColumn: DbColumn = null, renameOnly = false, tableType:string = 'table' ) {
     super();
-    this.tableName = tableName;
+    this.tableId = tableId;
     this.oldColumn = oldColumn;
     this.newColumn = newColumn;
     this.renameOnly = renameOnly;
@@ -235,7 +235,7 @@ export class DropTriggerRequest extends UIRequest {
 export class MaterializedRequest extends UIRequest{
   constructor(tableName: string) {
     super();
-    this.tableName = tableName;
+    this.tableId = tableName;
   }
 }
 
