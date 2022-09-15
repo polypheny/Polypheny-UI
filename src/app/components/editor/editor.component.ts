@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
 import * as ace from 'ace-builds'; // ace module ..
 import 'ace-builds/src-noconflict/mode-sql';
 import 'ace-builds/src-noconflict/mode-pgsql';
@@ -17,7 +17,7 @@ import {SidebarNode} from '../../models/sidebar-node.model';
 
 //ace editor: see: https://medium.com/@ofir3322/create-an-online-ide-with-angular-6-nodejs-part-1-163a939a7929
 
-export class EditorComponent implements OnInit, AfterViewInit {
+export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
 
   @ViewChild('editor', {static: false}) codeEditorElmRef: ElementRef;
   private codeEditor: ace.Ace.Editor;
@@ -133,6 +133,9 @@ export class EditorComponent implements OnInit, AfterViewInit {
       });
     }
     return map;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
   }
 
 }

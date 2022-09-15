@@ -25,7 +25,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   schemas: SidebarNode[];
   createSubmitted = false;
   dropSubmitted = false;
-  createSchemaFeedback = 'Schema name is invalid';
+  createSchemaFeedback = 'Schema namespace is invalid';
   private subscriptions = new Subscription();
   schemaType: any;
   stores: Store[];
@@ -64,11 +64,11 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
       this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema Editing')], 'notShow');
     }else if(url.includes('statistics-column')) {
       const colName = url.replace('/statistics-column', '').split('.')[url.replace('/statistics-column', '').split('.').length -1];
-      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(colName, this._router.url.replace('/statistics-column', '')), new BreadcrumbItem('statistics')]);
+      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Namespace Editing', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(colName, this._router.url.replace('/statistics-column', '')), new BreadcrumbItem('statistics')]);
     }else if(!url.includes('.')){
       this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(url)], 'notShow');
     }else{
-      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(url.split('.')[url.split('.').length - 1])]);
+      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Namespace Editing', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(url.split('.')[url.split('.').length - 1])]);
     }
   }
 
@@ -147,7 +147,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
           if (result.error) {
             this._toast.exception(result);
           } else {
-            this._toast.success('Created schema ' + val.name);
+            this._toast.success('Created namespace ' + val.name);
             this.getSchema();
           }
           this.resetForm('createForm');
@@ -170,7 +170,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
           if (result.error) {
             this._toast.exception(result);
           } else {
-            this._toast.success('Dropped schema ' + val.name);
+            this._toast.success('Dropped namespace ' + val.name);
             this.getSchema();
           }
           this.resetForm('dropForm');
@@ -179,7 +179,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         }
       ).add( () => this.dropSubmitted = false );
     } else {
-      this._toast.warn('This schema does not exist', 'cannot drop');
+      this._toast.warn('This namespace does not exist', 'cannot drop');
     }
 
   }
@@ -200,10 +200,10 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     }
     if (this.schemas) {
       if (this.schemas.filter((o) => o.name === name).length > 0) {
-        this.createSchemaFeedback = 'Schema name is already taken';
+        this.createSchemaFeedback = 'Namespace name is already taken';
         return 'is-invalid';
       } else {
-        this.createSchemaFeedback = 'Schema name is invalid';
+        this.createSchemaFeedback = 'Namespace name is invalid';
       }
     }
     const regex = this._crud.getValidationRegex();

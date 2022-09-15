@@ -14,7 +14,7 @@
               <button type="submit" class="btn btn-primary btn-sm pull-right mr-1" (click)="formatQuery()"><i class="cui-clear-all"></i></button>
           </li>
       <div class="form-group" [ngClass]="usesAdvancedConsole(lang) ? 'mql-console': 'sql-console'">
-          <app-editor #editor id="sql-editor"></app-editor>
+          <app-editor [lang]="lang" #editor id="sql-editor"></app-editor>
       </div>
       </ul>
   </div>
