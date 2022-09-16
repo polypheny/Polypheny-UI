@@ -210,6 +210,19 @@ export class ColumnRequest extends UIRequest {
   }
 }
 
+export class MergeColumnsRequest extends UIRequest {
+  columnsToMerge: DbColumn[];
+  newColumnName: string;
+  tableType: string;
+  constructor( tableId: string, columnsToMerge: DbColumn[], newColumnName: string, tableType:string = 'table') {
+    super();
+    this.tableId = tableId;
+    this.columnsToMerge = columnsToMerge;
+    this.newColumnName = newColumnName;
+    this.tableType = tableType;
+  }
+}
+
 export class MaterializedRequest extends UIRequest{
   constructor(tableId: string) {
     super();
