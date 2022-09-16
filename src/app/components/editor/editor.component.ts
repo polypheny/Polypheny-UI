@@ -17,7 +17,7 @@ import {SidebarNode} from '../../models/sidebar-node.model';
 
 //ace editor: see: https://medium.com/@ofir3322/create-an-online-ide-with-angular-6-nodejs-part-1-163a939a7929
 
-export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
+export class EditorComponent implements OnInit, AfterViewInit {
 
   @ViewChild('editor', {static: false}) codeEditorElmRef: ElementRef;
   private codeEditor: ace.Ace.Editor;
@@ -133,9 +133,6 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
       });
     }
     return map;
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
   }
 
 }
