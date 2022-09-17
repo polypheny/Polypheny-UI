@@ -174,7 +174,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.partitioningRequest.column = this.resultSet.header[0].name;
         // deep copy: from: https://stackoverflow.com/questions/35504310/deep-copy-an-array-in-angular-2-typescript
         this.newPrimaryKey = this.resultSet.header.map( x => Object.assign({}, x));
-        this.mergeableColumns = this.resultSet.header.map( x => Object.assign({}, x));
+        this.mergeableColumns = this.resultSet.header.filter(x => x.dataType == 'VARCHAR').map( x => Object.assign({}, x));
       }, err => {
         this._toast.error('Could not load columns of the table.', null, ToastDuration.INFINITE);
         console.log(err);
