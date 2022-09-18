@@ -475,11 +475,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
       return;
     }
-    // TODO: the new column name can also be one of the merged column names
-    if( this.resultSet.header.filter( (h) => h.name === this.mergedColumnName ).length > 0 ) {
-      this._toast.warn( 'There already exists a column with this name', 'invalid column name' );
-      return;
-    }
 
     const columnsToMerge = [];
     this.mergeableColumns.forEach((v, k) => {
@@ -488,6 +483,16 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       }
     });
 
+    // TODO: the new column name can also be one of the merged column names
+    if( this.resultSet.header
+        .filter( h => !columnsToMerge.map(h => h.name).includes(h.name))
+        .filter( h => h.name === this.mergedColumnName )
+        .length > 0 ) {
+      this._toast.warn( 'There already exists a column with this name', 'invalid column name' );
+      return;
+    }
+
+   
     const req = new MergeColumnsRequest( this.tableId, columnsToMerge, this.mergedColumnName)
     this._crud.mergeColumns( req ).subscribe(
       res => {
