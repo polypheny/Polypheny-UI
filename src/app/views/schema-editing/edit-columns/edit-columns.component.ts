@@ -483,31 +483,23 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       }
     });
 
-    // TODO: the new column name can also be one of the merged column names
     if( this.resultSet.header
         .filter( h => !columnsToMerge.map(h => h.name).includes(h.name))
         .filter( h => h.name === this.mergedColumnName )
         .length > 0 ) {
-      this._toast.warn( 'There already exists a column with this name', 'invalid column name' );
+      this._toast.warn( 'There already exists a column with this name. However, it is allowed to select one of the names of the columns to be merged', 
+      'invalid column name' );
       return;
     }
 
-   
     const req = new MergeColumnsRequest( this.tableId, columnsToMerge, this.mergedColumnName)
     this._crud.mergeColumns( req ).subscribe(
       res => {
         const result = <ResultSet> res;
         if( result.error === undefined ){
-          // TODO: do we need it? Reset?
           this.getColumns();
           this.getPlacementsAndPartitions();
-          this.createColumn.name = '';
-          this.createColumn.nullable = true;
-          this.createColumn.dataType = this.types[0].name;
-          this.createColumn.collectionsType = '';
-          this.createColumn.precision = null;
-          this.createColumn.scale = null;
-          this.createColumn.defaultValue = null;
+          this.mergedColumnName = ''
         } else {
           this._toast.exception(result, null, 'server error', ToastDuration.INFINITE);
         }
