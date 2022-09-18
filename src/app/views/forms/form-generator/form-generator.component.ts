@@ -332,8 +332,6 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
 
       const status:DockerStatus = <DockerStatus><unknown>res;
 
-      console.log(status)
-
       if( value.dockerRunning !== status.successful ){
         value.dockerRunning = status.successful;
         this.markElement(key);

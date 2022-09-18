@@ -97,14 +97,12 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.getAndSetDocumentDB();
         this._crud.getSchema(new SchemaRequest('views/querying/console/', false, 1, false)).subscribe(
             res => {
-                console.log(res);
                 this.namespaces = [];
-                for ( const namespace of <Namespace[]>res ) {
-                    console.log(namespace.name);
-                    this.namespaces.push( namespace.name );
+                for (const namespace of <Namespace[]>res) {
+                    this.namespaces.push(namespace.name);
                 }
-                if( !this.namespaces.includes( this.defaultDocumentDB )){
-                    this.namespaces.push( this.defaultDocumentDB );
+                if (!this.namespaces.includes(this.defaultDocumentDB)) {
+                    this.namespaces.push(this.defaultDocumentDB);
                 }
 
             }
@@ -112,7 +110,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     private getAndSetDocumentDB() {
-        let db = localStorage.getItem('document-db');
+        let db = null;//localStorage.getItem('document-db');
         if (db === null) {
             db = 'private';
         }
@@ -147,7 +145,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             const match = code.toLowerCase().match('use [a-zA-Z][a-zA-Z0-1]*');
             if (match !== null && match.length >= 0) {
                 const database = match[match.length - 1].replace('use ', '');
-                if( database !== 'placement' ){
+                if (database !== 'placement') {
                     this.setDefaultDB(database);
                 }
             }
@@ -418,4 +416,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.showNamespaceConfig = !this.showNamespaceConfig;
     }
 
+    changedDefaultDB() {
+        this.setDefaultDB( this.defaultDocumentDB );
+    }
 }

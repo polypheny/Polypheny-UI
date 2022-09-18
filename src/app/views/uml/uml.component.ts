@@ -2,7 +2,7 @@ import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/c
 import * as $ from 'jquery';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CrudService} from '../../services/crud.service';
-import {EditTableRequest, SchemaRequest} from '../../models/ui-request.model';
+import {DataModels, EditTableRequest, SchemaRequest} from '../../models/ui-request.model';
 import {DbTable, ForeignKey, SvgLine, Uml} from './uml.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {FormBuilder} from '@angular/forms';
@@ -81,11 +81,11 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     const sub = this._crud.onReconnection().subscribe(
       b => {
-        if(b) this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', false, 1, true), this._router);
+        if(b) this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', false, 1, true, false, [DataModels.RELATIONAL]), this._router);
       }
     );
     this.subscriptions.add(sub);
-    this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', true, 1, true), this._router);
+    this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', true, 1, true, false, [DataModels.RELATIONAL]), this._router);
   }
 
   ngAfterViewInit() {

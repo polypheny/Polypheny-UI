@@ -19,14 +19,14 @@
               <form *ngIf="createForm" [formGroup]="createForm" (submit)="createSchema()">
                 <div class="input-group mb-3">
                   <div class="input-group-prepend">
-                    <label for="schemaNameCreate2" class="input-group-text">Namespace name</label>
+                    <label for="schemaNameCreate2" class="input-group-text">Name</label>
                   </div>
                   <input type="text" id="schemaNameCreate2" autocomplete="off" class="form-control" formControlName="name" [ngClass]="createSchemaValidation(createForm.controls['name'].value)" placeholder="namespace name">
                   <div class="invalid-feedback">{{createSchemaFeedback}}</div>
                 </div>
                 <div class="input-group mb-3">
                   <div class="input-group-prepend">
-                    <label class="input-group-text" for="schema-type">Namespace type</label>
+                    <label class="input-group-text" for="schema-type">Type</label>
                   </div>
                   <select class="form-control" formControlName="type" id="schema-type">
                     <option value="relational">relational</option>
@@ -36,7 +36,7 @@
                 </div>
                 <div class="input-group mb-3" *ngIf="this.createForm.get('type').value === 'graph'">
                   <div class="input-group-prepend">
-                    <label class="input-group-text" for="schema-type">Stores</label>
+                    <label class="input-group-text" for="schema-type">Store</label>
                   </div>
                   <select  class="form-control" formControlName="type" id="graph-store">
                     <option *ngFor="let store of stores" (click)="graphStore = store.uniqueName" value="relational">{{store.uniqueName}}</option>
@@ -59,10 +59,10 @@
               <form [formGroup]="dropForm" (submit)="dropSchema()">
                 <div class="input-group mb-3">
                   <div class="input-group-prepend">
-                    <label for="schemaNameDrop" class="input-group-text">Namespace name</label>
+                    <label for="schemaNameDrop" class="input-group-text">Name</label>
                   </div>
                   <input type="text" class="form-control" formControlName="name" id="schemaNameDrop" placeholder="namespace name" autocomplete="off" [ngClass]="getValidationClass(dropForm.controls['name'].value)">
-                  <div class="invalid-feedback">this namespace does not exist</div>
+                  <div class="invalid-feedback">This namespace does not exist</div>
                 </div>
                 <!--<div class="form-check checkbox">
                     <input type="checkbox" id="cascade" class="form-check-input" formControlName="cascade">

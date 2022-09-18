@@ -200,13 +200,16 @@ export class SchemaRequest extends UIRequest {
    */
   showTable: boolean;
   schemaEdit: boolean;
-  constructor( routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean ) {
+  dataModels: DataModels[];
+
+  constructor(routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: DataModels[] = [DataModels.RELATIONAL, DataModels.DOCUMENT, DataModels.GRAPH]) {
     super();
     this.routerLinkRoot = routerLinkRoot;
     this.views = views;
     this.depth = depth;
     this.showTable = showTable;
     this.schemaEdit = schemaEdit || false;
+    this.dataModels = dataModels;
   }
 }
 
@@ -230,6 +233,12 @@ export class MaterializedRequest extends UIRequest{
     super();
     this.tableId = tableId;
   }
+}
+
+export enum DataModels{
+  DOCUMENT = 'document',
+  RELATIONAL = 'relational',
+  GRAPH = 'graph'
 }
 
 

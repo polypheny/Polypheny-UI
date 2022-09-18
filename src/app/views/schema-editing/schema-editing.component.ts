@@ -52,7 +52,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     });
     const sub = this._crud.onReconnection().subscribe(
       b => {
-        this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2,false, true), this._router);
+        this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false, true), this._router);
       }
     );
     this.subscriptions.add(sub);
@@ -61,14 +61,14 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   setBreadCrumb() {
     const url = this._router.url.replace('/views/schema-editing/', '');
     if(url.length <= 0){
-      this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema Editing')], 'notShow');
+      this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema')], 'notShow');
     }else if(url.includes('statistics-column')) {
       const colName = url.replace('/statistics-column', '').split('.')[url.replace('/statistics-column', '').split('.').length -1];
-      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Namespace Editing', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(colName, this._router.url.replace('/statistics-column', '')), new BreadcrumbItem('statistics')]);
+      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(colName, this._router.url.replace('/statistics-column', '')), new BreadcrumbItem('statistics')]);
     }else if(!url.includes('.')){
-      this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema Editing', '/views/schema-editing/'), new BreadcrumbItem(url)], 'notShow');
+      this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema', '/views/schema-editing/'), new BreadcrumbItem(url)], 'notShow');
     }else{
-      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Namespace Editing', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(url.split('.')[url.split('.').length - 1])]);
+      this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0] ), new BreadcrumbItem(url.split('.')[url.split('.').length - 1])]);
     }
   }
 

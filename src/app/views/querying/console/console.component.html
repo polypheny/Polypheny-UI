@@ -6,7 +6,7 @@
               <span *ngIf="showNamespaceConfig" class="document-db-info"><i>Namespace: {{defaultDocumentDB}}</i></span>
               <div *ngIf="!showNamespaceConfig" class="advanced-console-db-info">
                   <span class="document-db-info"><i>Namespace: </i></span>
-                  <select class="form-control form-control-sm advanced-console-db-info" [(ngModel)]="defaultDocumentDB">
+                  <select class="form-control form-control-sm advanced-console-db-info" [(ngModel)]="defaultDocumentDB" (ngModelChange)="changedDefaultDB()">
                       <option *ngFor="let namespace of namespaces" [ngValue]="namespace">{{namespace}}</option>
                   </select>
               </div>
