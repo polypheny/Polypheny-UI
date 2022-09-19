@@ -112,7 +112,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private getAndSetDocumentDB() {
         let db = null;//localStorage.getItem('document-db');
         if (db === null) {
-            db = 'private';
+            db = 'public';
         }
         this.setDefaultDB(db);
     }
