@@ -9,9 +9,10 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 import * as d3 from 'd3';
 import {ResultSet} from '../models/result-set.model';
-import {GraphRequest} from '../../../models/ui-request.model';
+import {DataModels, GraphRequest} from '../../../models/ui-request.model';
 import {WebSocket} from '../../../services/webSocket';
 import {Subscription} from 'rxjs';
+import {fakeAsync} from '@angular/core/testing';
 
 class Edge {
     id: string;
@@ -33,14 +34,20 @@ class Graph {
     edges: Edge[];
     selfEdges: Edge[];
 
-    constructor(data) {
-        //const parsed = JSON.parse(data);
-        //console.log(parsed);
-        this.nodes = <Node[]>Object.values(data['nodes']);
-        this.edges = <Edge[]>Object.values(data['edges']).filter(d => d['source'] !== d['target']);
-        this.selfEdges = <Edge[]>Object.values(data['edges']).filter(d => d['source'] === d['target']);
-        //console.log(this.edges)
+    public static from(n: any, e: any): Graph {
+        const nodes = <Node[]>Object.values(n);
+        const edges = <Edge[]>Object.values(e).filter(d => d['source'] !== d['target']);
+
+        return new Graph(nodes, edges);
     }
+
+    constructor(nodes: Node[], edges: Edge[]) {
+
+        this.nodes = nodes;
+        this.edges = edges;
+        this.selfEdges = edges.filter(d => d['source'] === d['target']);
+    }
+
 }
 
 class Detail {
@@ -470,6 +477,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
             for (const e of graph.edges) {
                 e.labels.forEach(l => p.labels.add(l));
             }
+
             for (const n of graph.nodes) {
                 n.labels.forEach(l => p.labels.add(l));
             }
@@ -600,10 +608,9 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
     initWebsocket() {
         const sub = this.webSocket.onMessage().subscribe(
             res => {
-                //const response = <ResultSet>res;
                 const unparsedGraph: string = <string>res;
                 this.graphLoading = false;
-                this.renderGraph(new Graph(unparsedGraph));
+                this.renderGraph(Graph.from(unparsedGraph['nodes'], unparsedGraph['edges']));
 
             }, err => {
                 this._toast.error('Could not load the data.');
@@ -654,11 +661,23 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
             this.initialEdgeIds = Array.from(edgeIds);
         }
 
-        if (!this._crud.getGraph(this.webSocket, new GraphRequest(resultSet.namespaceName, nodeIds, edgeIds))) {
-            //this._toast.error('Could not retrieve the graphical representation of the graph.');
-        } else {
-            this.graphLoading = true;
-        }
+        this._crud.getTypeSchemas().subscribe(res => {
+            const model = <DataModels>res[resultSet.namespaceName];
+            if (model === DataModels.GRAPH) {
+                // is native
+                if (!this._crud.getGraph(this.webSocket, new GraphRequest(resultSet.namespaceName, nodeIds, edgeIds))) {
+                    console.log('Could not retrieve the graphical representation of the graph.');
+                } else {
+                    this.graphLoading = true;
+                }
+            } else {
+                this.graphLoading = false;
+                const graph = Graph.from(resultSet.data.map(r => r.map(n => JSON.parse(n)).reduce( (a,v) => ({...a['id'], [v]: v}))), []);
+                console.log(graph);
+                this.renderGraph(graph);
+            }
+        });
+
     }
 
     setJsonValid($event: any) {
