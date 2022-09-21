@@ -71,6 +71,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
     private hidden: string[];
     private update: () => void;
     private graph: Graph;
+    public isLimited: boolean;
 
     constructor(
         public _crud: CrudService,
@@ -661,6 +662,14 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
             this.initialEdgeIds = Array.from(edgeIds);
         }
 
+        if( this.initialIds.size > 300 ){
+            this.isLimited = true;
+            this.initialIds = new Set([...this.initialIds].slice(0, 300));
+        }else{
+            this.isLimited = false;
+        }
+
+
         this._crud.getTypeSchemas().subscribe(res => {
             const model = <DataModels>res[resultSet.namespaceName];
             if (model === DataModels.GRAPH) {
@@ -673,7 +682,6 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
             } else {
                 this.graphLoading = false;
                 const graph = Graph.from(resultSet.data.map(r => r.map(n => JSON.parse(n)).reduce( (a,v) => ({...a['id'], [v]: v}))), []);
-                console.log(graph);
                 this.renderGraph(graph);
             }
         });
