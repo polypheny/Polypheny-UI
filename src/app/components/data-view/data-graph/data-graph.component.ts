@@ -12,7 +12,6 @@ import {ResultSet} from '../models/result-set.model';
 import {DataModels, GraphRequest} from '../../../models/ui-request.model';
 import {WebSocket} from '../../../services/webSocket';
 import {Subscription} from 'rxjs';
-import {fakeAsync} from '@angular/core/testing';
 
 class Edge {
     id: string;
@@ -192,7 +191,8 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
         };
 
         this.zoom = d3.zoom()
-            .on('zoom', zoom_actions);
+            .on('zoom', zoom_actions)
+            .filter(() => !d3.event.button); // fix for windows trackpad zooming
 
         this.zoom(svg);
 
