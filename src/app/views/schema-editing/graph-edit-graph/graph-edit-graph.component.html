@@ -31,6 +31,8 @@
         </div>
         <button class="btn btn-primary btn-sm" (click)="modifyPlacement('ADD')">add</button>
       </div>
+      <progressbar *ngIf="isAddingPlacement" class="progress progress-bar progress-bar-striped progress-bar-animated mt-2" [value]="0"
+                   [max]="1"></progressbar>
     </div>
     <table class="table table-hover table-striped">
       <thead>
@@ -59,7 +61,6 @@
       </tr>
       </tbody>
     </table>
-
   </div>
 
 </div>

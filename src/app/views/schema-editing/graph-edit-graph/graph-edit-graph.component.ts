@@ -42,20 +42,11 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
 
   //data placement handling
   stores: Store[];
-  availableStoresForIndexes: Store[];
   selectedStore: Store;
   dataPlacements: GraphPlacements;
-  columnPlacement: FormGroup;
-  placementMethod: 'ADD' | 'MODIFY' | 'DROP';
   isAddingPlacement = false;
 
   //partition handling
-  partitionTypes: string[];
-  partitioningRequest: PartitioningRequest = new PartitioningRequest();
-  isMergingPartitions = false;
-  partitionsToModify: { partitionName: string, selected: boolean }[];
-  partitionFunctionParams: PartitionFunctionModel;
-  fieldTypes: typeof FieldType = FieldType;
 
   subscriptions = new Subscription();
 
