@@ -211,14 +211,14 @@ export class ColumnRequest extends UIRequest {
 }
 
 export class MergeColumnsRequest extends UIRequest {
-  columnsToMerge: DbColumn[];
-  newColumnName: string;
+  sourceColumns: DbColumn[];
+  targetColumnName: string;
   tableType: string;
-  constructor( tableId: string, columnsToMerge: DbColumn[], newColumnName: string, tableType:string = 'table') {
+  constructor( tableId: string, sourceColumns: DbColumn[], targetColumnName: string, tableType:string = 'table') {
     super();
     this.tableId = tableId;
-    this.columnsToMerge = columnsToMerge;
-    this.newColumnName = newColumnName;
+    this.sourceColumns = sourceColumns;
+    this.targetColumnName = targetColumnName;
     this.tableType = tableType;
   }
 }
