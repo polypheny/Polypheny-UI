@@ -69,7 +69,6 @@ export class CrudService {
   }
 
   getGraph ( socket: WebSocket, data: GraphRequest ): boolean {
-    console.log(data)
     return socket.sendMessage(data);
   }
 

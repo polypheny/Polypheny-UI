@@ -662,20 +662,13 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
             this.initialEdgeIds = Array.from(edgeIds);
         }
 
-        if( this.initialIds.size > 300 ){
-            this.isLimited = true;
-            this.initialIds = new Set([...this.initialIds].slice(0, 300));
-        }else{
-            this.isLimited = false;
-        }
-
 
         this._crud.getTypeSchemas().subscribe(res => {
             const model = <DataModels>res[resultSet.namespaceName];
             if (model === DataModels.GRAPH) {
                 // is native
                 if (!this._crud.getGraph(this.webSocket, new GraphRequest(resultSet.namespaceName, nodeIds, edgeIds))) {
-                    console.log('Could not retrieve the graphical representation of the graph.');
+                    // is printed every time console.log('Could not retrieve the graphical representation of the graph.');
                 } else {
                     this.graphLoading = true;
                 }
