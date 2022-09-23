@@ -133,28 +133,25 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     }
 
 
-    validate(defaultValue) {
-        if (defaultValue === null) {
-            return '';
-        } else if (isNaN(defaultValue) || defaultValue === '') {
-            return 'is-invalid';
-        } else {
-            return 'is-valid';
-        }
+  validate( defaultValue ){
+    if( defaultValue === null ){
+      return '';
+    } else if ( isNaN(defaultValue) || defaultValue === '' ) {
+      return 'is-invalid';
+    }else{
+      return 'is-valid';
     }
+  }
 
-    private getPlacements() {
-        this._crud.getGraphPlacements(this.graphId).subscribe(res => {
-            console.log(res);
-            this.dataPlacements = <GraphPlacements>res;
-            if (this.dataPlacements.exception) {
-                // @ts-ignore
-                this._toast.exception({
-                    error: this.dataPlacements.exception.detailMessage,
-                    exception: this.dataPlacements.exception
-                });
-            }
-        });
-    }
+  private getPlacements() {
+    this._crud.getGraphPlacements( this.graphId ).subscribe( res => {
+      console.log(res);
+      this.dataPlacements = <GraphPlacements>res;
+      if( this.dataPlacements.exception ){
+        // @ts-ignore
+        this._toast.exception( {error: this.dataPlacements.exception.detailMessage, exception: this.dataPlacements.exception} );
+      }
+    });
+  }
 
 }
