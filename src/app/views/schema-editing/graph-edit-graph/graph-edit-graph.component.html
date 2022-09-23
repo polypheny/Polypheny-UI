@@ -45,7 +45,7 @@
       <tr *ngFor="let store of dataPlacements.stores; let i = index">
         <td>{{store.uniqueName}}</td>
         <td>{{store.adapterName}}</td>
-        <td><i [class]="store.isNative ? 'cui-check' : 'cui-x'"></i></td>
+        <td>{{ store.isNative ? '✔' : '❌'}}</td>
         <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
         <ng-container *ngIf="dataPlacements.stores.length > 1">
           <td class="delete">

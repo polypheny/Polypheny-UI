@@ -215,14 +215,6 @@ export class LeftSidebarService {
         else if (schemaRequest.depth === 1) {
 
           schema.forEach((val, key) => {
-            if( (val as SidebarNode).namespaceType.toLowerCase() === 'document' || (val as SidebarNode).namespaceType.toLowerCase() === 'graph'){
-              if( val.cssClass === undefined){
-                val.cssClass = 'node-disabled';
-              }else {
-                val.cssClass += ' node-disabled';
-              }
-            }
-
             val.routerLink = schemaRequest.routerLinkRoot + val.id;
           });
         }

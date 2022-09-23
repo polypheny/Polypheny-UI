@@ -100,7 +100,7 @@ const routes: Routes = [
     path: 'schema-editing/:id',
     component: SchemaEditingComponent,
     data: {
-      title: 'Schema Editing'
+      title: 'Namespaces'
     }
   },
   {

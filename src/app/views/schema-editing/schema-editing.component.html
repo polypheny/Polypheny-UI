@@ -6,7 +6,7 @@
 <app-document-edit-collection *ngIf="routeParam && routeParam.includes('.') && schemaType !=null && (schemaType.toLowerCase() == 'document')  && !isStatistic()"></app-document-edit-collection>
 <app-graph-edit *ngIf="routeParam && schemaType != null && (schemaType.toLowerCase() == 'graph')  && !isStatistic()"></app-graph-edit>
 <ng-container *ngIf="!routeParam">
-    <h1>Schema Editing</h1>
+    <h1>Namespaces</h1>
     <p>Select an item from the left sidebar to edit its entities.</p>
 
     <div class="row">
