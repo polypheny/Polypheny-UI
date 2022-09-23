@@ -3,9 +3,9 @@ import {FormBuilder} from '@angular/forms';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import {CrudService} from '../../../services/crud.service';
 import {ResultSet} from '../../../components/data-view/models/result-set.model';
-import {SqlHistory} from './sql-history.model';
+import {QueryHistory} from './query-history.model';
 import {KeyValue} from '@angular/common';
-import {QueryRequest, Schema, SchemaRequest} from '../../../models/ui-request.model';
+import {QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {InformationObject, InformationPage} from '../../../models/information-page.model';
@@ -34,8 +34,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     @ViewChild('editor', {static: false}) codeEditor;
     @ViewChild('historySearchInput') historySearchInput;
 
-    history: Map<string, SqlHistory> = new Map<string, SqlHistory>();
-    readonly MAXHISTORY = 50;//maximum items in history
+    history: Map<string, QueryHistory> = new Map<string, QueryHistory>();
+    readonly MAX_HISTORY = 50;//maximum items in history
+    private readonly LOCAL_STORAGE_HISTORY_KEY = 'query-history';
+    private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
 
     resultSets: ResultSet[];
     collapsed: boolean[];
@@ -52,7 +54,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     showSearch = false;
     historySearchQuery = '';
     confirmDeletingHistory;
-    defaultDocumentDB: string;
+    activeNamespace: string;
     namespaces = [];
 
     tableConfig: TableConfig = {
@@ -63,7 +65,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         search: false,
         exploring: false
     };
-    private documentDBs: String[];
+    private existingNamespaces: String[];
     showNamespaceConfig: boolean;
 
     constructor(
@@ -90,29 +92,36 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.initWebsocket();
     }
 
+
     ngOnInit() {
-        SqlHistory.fromJson(localStorage.getItem('sql-history'), this.history);
+        QueryHistory.fromJson(localStorage.getItem(this.LOCAL_STORAGE_HISTORY_KEY), this.history);
         this._breadcrumb.hide();
 
-        this.getAndSetDocumentDB();
+        this.updateExistingNamespaces();
+        this.loadAndSetNamespaceDB();
+    }
+
+    private updateExistingNamespaces() {
         this._crud.getSchema(new SchemaRequest('views/querying/console/', false, 1, false)).subscribe(
             res => {
                 this.namespaces = [];
                 for (const namespace of <Namespace[]>res) {
                     this.namespaces.push(namespace.name);
                 }
-                if (!this.namespaces.includes(this.defaultDocumentDB)) {
-                    this.namespaces.push(this.defaultDocumentDB);
-                }
 
+                this.loadAndSetNamespaceDB();
             }
         );
     }
 
-    private getAndSetDocumentDB() {
-        let db = null;//localStorage.getItem('document-db');
-        if (db === null) {
-            db = 'public';
+    private loadAndSetNamespaceDB() {
+        let db = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
+        if (db === null || ( this.namespaces && this.namespaces.length > 0 && !this.namespaces.includes(db))) {
+            if( this.namespaces && this.namespaces.length > 0 ){
+                db = this.namespaces[0];
+            }else{
+                db = 'public';
+            }
         }
         this.setDefaultDB(db);
     }
@@ -153,9 +162,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
             if (code.match('show db')) {
                 this._crud.getDocumentDatabases().subscribe(res => {
-                    this.documentDBs = [];
+                    this.existingNamespaces = [];
                     for (const entry of (<ResultSet>res).data) {
-                        this.documentDBs.push(entry[0]);
+                        this.existingNamespaces.push(entry[0]);
                     }
                     this.loading = false;
                     this.resultSets = [<ResultSet>res];
@@ -174,7 +183,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.queryAnalysis = null;
 
         this.loading = true;
-        if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.lang, this.defaultDocumentDB))) {
+        if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.lang, this.activeNamespace))) {
             this.loading = false;
             this.resultSets = [new ResultSet('Could not establish a connection with the server.', code)];
         }
@@ -185,8 +194,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     addToHistory(query: string, lang: string): void {
-        if (this.history.size >= this.MAXHISTORY) {
-            let h: SqlHistory = new SqlHistory('');
+        if (this.history.size >= this.MAX_HISTORY) {
+            let h: QueryHistory = new QueryHistory('');
             this.history.forEach((val, key) => {
                 if (val.time < h.time) {
                     h = val;
@@ -194,10 +203,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             });
             this.history.delete(h.query);
         }
-        const newHistory = new SqlHistory(query, null, lang);
+        const newHistory = new QueryHistory(query, null, lang);
         this.history.set(newHistory.query, newHistory);
 
-        localStorage.setItem('sql-history', JSON.stringify(Array.from(this.history.values())));
+        localStorage.setItem(this.LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(Array.from(this.history.values())));
     }
 
     applyHistory(query: string, lang: string, run: boolean) {
@@ -211,7 +220,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     deleteHistoryItem(key, e) {
         if (this.confirmDeletingHistory === key) {
             this.history.delete(key);
-            localStorage.setItem('sql-history', JSON.stringify(Array.from(this.history.values())));
+            localStorage.setItem(this.LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(Array.from(this.history.values())));
         } else {
             this.confirmDeletingHistory = key;
         }
@@ -219,7 +228,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     //from: https://stackoverflow.com/questions/52793944/angular-keyvalue-pipe-sort-properties-iterate-in-order
-    orderHistory(a: KeyValue<string, SqlHistory>, b: KeyValue<string, SqlHistory>) {
+    orderHistory(a: KeyValue<string, QueryHistory>, b: KeyValue<string, QueryHistory>) {
         return a.value.time > b.value.time ? -1 : (b.value.time > a.value.time ? 1 : 0);
     }
 
@@ -369,7 +378,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             this.codeEditor.setCode(before + json + after);
         } catch (e) {
             this._toast.warn(e);
-            //console.log(e); // todo dl show via toast
         }
     }
 
@@ -381,8 +389,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     private setDefaultDB(name: string) {
         name = name.trim();
-        this.defaultDocumentDB = name;
-        localStorage.setItem('document-db', name);
+        this.activeNamespace = name;
+        localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
     }
 
     toggleCollapsed(i: number) {
@@ -417,6 +425,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     changedDefaultDB() {
-        this.setDefaultDB( this.defaultDocumentDB );
+        this.setDefaultDB( this.activeNamespace );
     }
 }

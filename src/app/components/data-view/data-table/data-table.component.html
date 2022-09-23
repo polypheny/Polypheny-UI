@@ -52,7 +52,7 @@
                             <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)" style="max-height:200px; max-width: 300px"/>
                             <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
                             <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d2)" [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
-                            <app-json-text *ngSwitchCase="'JSON'" [text]="d2"  ></app-json-text>
+                            <app-json-text *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH'] | multipleSwitch: removeNull(resultSet.header[j].dataType)" [text]="d2"  ></app-json-text>
                             <app-json-text *ngSwitchCase="'ANY'" [text]="d2"  ></app-json-text>
                             <app-expandable-text *ngSwitchDefault [text]="d2"></app-expandable-text>
                         </ng-container>

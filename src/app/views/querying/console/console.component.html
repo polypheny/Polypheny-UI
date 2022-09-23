@@ -3,10 +3,10 @@
   <div class="col-lg-8 col-md-8 col-sm-12 mb-3">
       <ul class="list-group grey-border" id="console">
           <li id="console-item-head" *ngIf="usesAdvancedConsole(lang)" class="list-group-item header grey-bg" (dblclick)="toggleNamespaceField()">
-              <span *ngIf="showNamespaceConfig" class="document-db-info"><i>Namespace: {{defaultDocumentDB}}</i></span>
+              <span *ngIf="showNamespaceConfig" class="document-db-info"><i>Namespace: {{activeNamespace}}</i></span>
               <div *ngIf="!showNamespaceConfig" class="advanced-console-db-info">
                   <span class="document-db-info"><i>Namespace: </i></span>
-                  <select class="form-control form-control-sm advanced-console-db-info" [(ngModel)]="defaultDocumentDB" (ngModelChange)="changedDefaultDB()">
+                  <select class="form-control form-control-sm advanced-console-db-info" [(ngModel)]="activeNamespace" (ngModelChange)="changedDefaultDB()">
                       <option *ngFor="let namespace of namespaces" [ngValue]="namespace">{{namespace}}</option>
                   </select>
               </div>
