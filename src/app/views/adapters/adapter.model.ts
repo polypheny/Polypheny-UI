@@ -21,6 +21,10 @@ export interface Store extends Adapter{
   persistent: boolean;
 }
 
+export interface GraphStore extends Store{
+  isNative: boolean;
+}
+
 export interface AdapterInformation {
   name: string;
   description: string;
@@ -49,6 +53,14 @@ export interface Placements {
   isPartitioned: boolean;
   partitionNames: string[];
   tableType: string;
+}
+
+export interface GraphPlacements {
+  stores: GraphStore[];
+  exception: ResultException;
+  isPartitioned: boolean;
+  partitionNames: string[];
+  entityType: string;
 }
 
 export interface UnderlyingTables {

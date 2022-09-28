@@ -2,34 +2,44 @@
 <app-statistics-column  *ngIf="routeParam && isStatistic()"></app-statistics-column>
 <app-edit-columns *ngIf="routeParam && routeParam.includes('.') && schemaType != null && schemaType.toLowerCase() == 'relational' && !isStatistic()"></app-edit-columns>
 <app-edit-tables *ngIf="routeParam && !routeParam.includes('.') && schemaType != null && schemaType.toLowerCase() == 'relational'  && !isStatistic()"></app-edit-tables>
-<app-document-edit-collections *ngIf="routeParam && !routeParam.includes('.') &&  schemaType !=null && schemaType.toLowerCase() == 'document' && !isStatistic()"></app-document-edit-collections>
-<app-document-edit-collection *ngIf="routeParam && routeParam.includes('.') && schemaType !=null && schemaType.toLowerCase() == 'document'  && !isStatistic()"></app-document-edit-collection>
+<app-document-edit-collections *ngIf="routeParam && !routeParam.includes('.') &&  schemaType !=null && ( schemaType.toLowerCase() == 'document') && !isStatistic()"></app-document-edit-collections>
+<app-document-edit-collection *ngIf="routeParam && routeParam.includes('.') && schemaType !=null && (schemaType.toLowerCase() == 'document')  && !isStatistic()"></app-document-edit-collection>
+<app-graph-edit *ngIf="routeParam && schemaType != null && (schemaType.toLowerCase() == 'graph')  && !isStatistic()"></app-graph-edit>
 <ng-container *ngIf="!routeParam">
-    <h1>Schema editing</h1>
+    <h1>Namespaces</h1>
     <p>Select an item from the left sidebar to edit its entities.</p>
 
     <div class="row">
         <div class="col-lg-6 fixed-width">
           <div class="card">
             <div class="card-header">
-              <span class="mb-0">Create Schema</span>
+              <span class="mb-0">Create Namespace</span>
             </div>
             <div class="card-body">
               <form *ngIf="createForm" [formGroup]="createForm" (submit)="createSchema()">
                 <div class="input-group mb-3">
                   <div class="input-group-prepend">
-                    <label for="schemaNameCreate2" class="input-group-text">Schema name</label>
+                    <label for="schemaNameCreate2" class="input-group-text">Name</label>
                   </div>
-                  <input type="text" id="schemaNameCreate2" autocomplete="off" class="form-control" formControlName="name" [ngClass]="createSchemaValidation(createForm.controls['name'].value)" placeholder="schema name">
+                  <input type="text" id="schemaNameCreate2" autocomplete="off" class="form-control" formControlName="name" [ngClass]="createSchemaValidation(createForm.controls['name'].value)" placeholder="namespace name">
                   <div class="invalid-feedback">{{createSchemaFeedback}}</div>
                 </div>
                 <div class="input-group mb-3">
                   <div class="input-group-prepend">
-                    <label class="input-group-text" for="schema-type">Schema type</label>
+                    <label class="input-group-text" for="schema-type">Type</label>
                   </div>
                   <select class="form-control" formControlName="type" id="schema-type">
                     <option value="relational">relational</option>
                     <option value="document">document</option>
+                    <option value="graph">graph</option>
+                  </select>
+                </div>
+                <div class="input-group mb-3" *ngIf="this.createForm.get('type').value === 'graph'">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text" for="schema-type">Store</label>
+                  </div>
+                  <select  class="form-control" formControlName="type" id="graph-store">
+                    <option *ngFor="let store of stores" (click)="graphStore = store.uniqueName" value="relational">{{store.uniqueName}}</option>
                   </select>
                 </div>
                 <div class="form-group mb-0">
@@ -43,16 +53,16 @@
         <div class="col-lg-6 fixed-width">
           <div class="card">
             <div class="card-header">
-              <span class="mb-0">Drop Schema</span>
+              <span class="mb-0">Drop Namespace</span>
             </div>
             <div class="card-body">
               <form [formGroup]="dropForm" (submit)="dropSchema()">
                 <div class="input-group mb-3">
                   <div class="input-group-prepend">
-                    <label for="schemaNameDrop" class="input-group-text">Schema name</label>
+                    <label for="schemaNameDrop" class="input-group-text">Name</label>
                   </div>
-                  <input type="text" class="form-control" formControlName="name" id="schemaNameDrop" placeholder="schema name" autocomplete="off" [ngClass]="getValidationClass(dropForm.controls['name'].value)">
-                  <div class="invalid-feedback">this schema does not exist</div>
+                  <input type="text" class="form-control" formControlName="name" id="schemaNameDrop" placeholder="namespace name" autocomplete="off" [ngClass]="getValidationClass(dropForm.controls['name'].value)">
+                  <div class="invalid-feedback">This namespace does not exist</div>
                 </div>
                 <!--<div class="form-check checkbox">
                     <input type="checkbox" id="cascade" class="form-check-input" formControlName="cascade">

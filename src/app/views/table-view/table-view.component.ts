@@ -91,7 +91,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
         if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
           this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
         }
-        if (this.resultSet.type === 'TABLE') {
+        if (this.resultSet.type === 'TABLE' || this.resultSet.namespaceType === 'DOCUMENT') {
           this.tableConfig.create = true;
           this.tableConfig.update = true;
           this.tableConfig.delete = true;

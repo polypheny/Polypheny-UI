@@ -58,6 +58,11 @@
   //https://stackoverflow.com/questions/11008614
   overflow: hidden;
 }
+
+.card.json-card .list-group-item:first-child {
+  overflow: inherit;
+}
+
 .list-group-item {
   img, video, audio {
     width: 100%;

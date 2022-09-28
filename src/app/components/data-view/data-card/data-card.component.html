@@ -4,7 +4,7 @@
 </div>
 
 <div class="card-wrapper" *ngIf="resultSet">
-  <div class="card" *ngFor="let d1 of resultSet.data; let i = index" (dblclick)="triggerEditing(i)" [ngClass]="{'editing': i===editing}">
+  <div class="card" *ngFor="let d1 of resultSet.data; let i = index" (dblclick)="triggerEditing(i)" [ngClass]="{'editing': i===editing, 'json-card': resultSet.namespaceType === 'DOCUMENT'}">
     <a *ngIf="config.update && i !== editing" [routerLink]="[]" class="edit-card btn btn-outline-secondary btn-sm" (click)="triggerEditing(i)"><i class="cui-pencil"></i></a>
     <a *ngIf="config.update && i !== editing" [routerLink]="[]" class="delete-card btn btn-outline-secondary btn-sm" (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"><i [ngClass]="{ 'cui-trash': i!==confirm, 'fa': i===confirm, 'fa-warning': i===confirm}"></i></a>
     <ul class="list-group list-group-flush">
@@ -33,9 +33,8 @@
                 <span class="key">{{h.name}}:</span>
                 <a class="download val" [href]="getFileLink(d1[j])" download><span class="cui-cloud-download"></span></a>
               </ng-container>
-              <ng-container *ngSwitchCase="'JSON'">
-                <span *ngIf="h.name !== '_data'" class="key">{{ h.name }} </span>
-                <app-json-text  [text]="d1[j]"  ></app-json-text>
+              <ng-container *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH'] | multipleSwitch: removeNull(h.dataType)">
+                <ng-container *ngTemplateOutlet="json; context: {d1: d1, h: h, j: j}"></ng-container>
               </ng-container>
               <ng-container *ngSwitchCase="'ANY'">
                 <span *ngIf="h.name !== '_data'" class="key">{{ h.name }} </span>
@@ -49,7 +48,7 @@
           </ng-container>
           <ng-container *ngIf="i === editing">
             <app-input *ngIf="this.schemaType.toLowerCase() === 'relational' || h.name === '_id'" [header]="h" [showLabel]="h.name !== '_data' " [value]="updateValues.get(h.name)" (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateRow()" [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
-            <app-json-editor (validChange)="setJsonValid($event)" *ngIf="this.schemaType.toLowerCase() === 'document' && h.name !== '_id'" [json]="updateValues.get(h.name)" (valueChange)="newUpdateValue(h.name, $event)"></app-json-editor>
+            <app-json-editor (validChange)="setJsonValid($event)" *ngIf="this.schemaType.toLowerCase() === 'document'" [json]="updateValues.get(h.name)" (valueChange)="newUpdateValue(h.name, $event)"></app-json-editor>
           </ng-container>
         </li>
       </ng-container>
@@ -68,7 +67,7 @@
     <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
   </div>
 
-  <div class="card" *ngIf="config.create && showInsertCard">
+  <div class="card" *ngIf="config.create && showInsertCard" [ngClass]="{'json-card': resultSet.namespaceType === 'DOCUMENT'}">
     <div class="card-header">
       Insert data
     </div>
@@ -76,7 +75,7 @@
       <li  class="list-group-item" *ngFor="let h of resultSet.header">
         <app-input *ngIf="schemaType.toLowerCase() === 'relational' || h.name === '_id'" [header]="h" [showLabel]="true" [value]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"
                    (enter)="insertRow()"></app-input>
-        <app-json-editor (validChange)="setJsonValid($event)" *ngIf="this.schemaType.toLowerCase() === 'document' && h.name !== '_id'" [empty]="true" [json]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"></app-json-editor>
+        <app-json-editor (validChange)="setJsonValid($event)" *ngIf="this.schemaType.toLowerCase() === 'document'" [empty]="true" [json]="insertValues.get(h.name)" (valueChange)="inputChange(h.name, $event)"></app-json-editor>
       </li>
       <li class="list-group-item">
         <progressbar *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false" type="primary"></progressbar>
@@ -100,3 +99,8 @@
     </nav>
   </div>
 </div>
+
+<ng-template #json let-h='h' let-d1='d1' let-j='j'>
+  <span class="key">{{ h.name }} </span>
+  <app-json-text [text]="d1[j]"  ></app-json-text>
+</ng-template>

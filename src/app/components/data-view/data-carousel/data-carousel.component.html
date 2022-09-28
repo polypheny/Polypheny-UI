@@ -53,11 +53,8 @@
                     </span>
                     <span class="val">: <a class="download" [href]="getFileLink(d1[j])" download><span class="cui-cloud-download"></span></a></span>
                   </ng-container>
-                  <ng-container *ngSwitchCase="'JSON'">
-                    <div class="json-carousel" >
-                      <span *ngIf="h.name !== '_data'" class="key">{{ h.name }} </span>
-                      <app-json-text  [text]="d1[j]"  ></app-json-text>
-                    </div>
+                  <ng-container *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH'] | multipleSwitch: removeNull(h.dataType)">
+                    <ng-container *ngTemplateOutlet="json; context: {d1: d1, h: h, j: j}"></ng-container>
                   </ng-container>
                   <ng-container *ngSwitchDefault>
                     <span class="key">{{h.name}}: </span>
@@ -94,3 +91,8 @@
 
   </carousel>
 </div>
+
+<ng-template #json let-h='h' let-d1='d1' let-j='j'>
+  <span *ngIf="h.name !== 'd'" class="key">{{ h.name }} </span>
+  <app-json-text  [text]="d1[j]"  ></app-json-text>
+</ng-template>

@@ -1,4 +1,15 @@
-import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {DataPresentationType, ResultSet} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
@@ -142,15 +153,20 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+
     if (changes.hasOwnProperty('resultSet')) {
-      this.schemaType = this.resultSet.schemaType;
-      if(this.schemaType.toLowerCase() === 'document') {
-        this.presentationType = DataPresentationType.CARD;
-      }else{
-        this.presentationType = DataPresentationType.TABLE;
-      }
       //fix for carousel View, if no currentPage and no highestPage is set, set it to 1
       if(this.resultSet !== null){
+        this.schemaType = this.resultSet.namespaceType;
+        if(this.schemaType.toLowerCase() === 'document') {
+          this.presentationType = DataPresentationType.CARD;
+        } else if ( this.schemaType.toLowerCase() === 'graph' && this.containsGraphObject(this.resultSet)){
+          this.presentationType = DataPresentationType.GRAPH;
+        }else{
+          this.presentationType = DataPresentationType.TABLE;
+        }
+
+
         if(this.resultSet.currentPage === 0 ){
           this.resultSet.currentPage = 1;
         }
@@ -161,6 +177,15 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       this.setPagination();
       this.buildInsertObject();
     }
+  }
+
+  deactivateGraphButton( resultSet: ResultSet) {
+    return resultSet.namespaceType.toLowerCase() !== 'graph' || !this.containsGraphObject(resultSet);
+  }
+
+  containsGraphObject(resultSet: ResultSet) {
+    const includes = resultSet.header.map(d => d.dataType.toLowerCase().includes('graph') || d.dataType.toLowerCase().includes('node'));
+    return includes.includes(true);
   }
 
   documentListener() {
@@ -180,13 +205,14 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         res => {
           this.resultSet = <ResultSet>res;
 
-          //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
+          //go to the highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
           if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
             this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
           }
           this.setPagination();
           this.editing = -1;
-          if (this.resultSet.type === 'TABLE') {
+          console.log(this.resultSet);
+          if (this.resultSet.type === 'TABLE' || this.resultSet.namespaceType === 'DOCUMENT' ) {
             this.config.create = true;
             this.config.update = true;
             this.config.delete = true;
@@ -241,6 +267,11 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       this.confirm = i;
       return;
     }
+    if( this.resultSet.namespaceType.toLowerCase() === 'document' ){
+      this.adjustDocument('DELETE', values[0]);
+      return;
+    }
+
     const rowMap = new Map<string, string>();
     values.forEach((val, key) => {
       rowMap.set(this.resultSet.header[key].name, val);
@@ -404,6 +435,10 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   insertRow() {
+    if( this.resultSet.namespaceType.toLowerCase() === 'document' ){
+      this.adjustDocument('ADD');
+      return ;
+    }
     const formData = new FormData();
     this.insertValues.forEach((v, k) => {
       //only values with dirty state will be submitted. Columns that are not nullable are already set dirty
@@ -446,6 +481,42 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     return emitResult;
   }
 
+  private adjustDocument(method: 'ADD' | 'MODIFY' | 'DELETE', initialData: string = '') {
+    switch (method) {
+      case 'ADD':
+        const data = this.insertValues.get('d');
+        const add = `db.${this.getCollection()}.insert(${data})`;
+        this._crud.anyQuery( this.webSocket, new QueryRequest(add, false, true, 'mql', this.resultSet.namespaceName ));
+        this.insertValues.clear();
+        this.getTable();
+        break;
+      case 'MODIFY':
+        const values = new Map<string, string>();//previous values
+        for (let i = 0; i < this.resultSet.header.length; i++) {
+          values.set(this.resultSet.header[i].name, this.resultSet.data[this.editing][i]);
+          i++;
+        }
+        const updated = this.updateValues.get('d');
+        const parsed = JSON.parse(updated);
+        if( parsed.hasOwnProperty( '_id' )){
+          const modify = `db.${this.getCollection()}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;
+          this._crud.anyQuery( this.webSocket, new QueryRequest(modify,false, true, 'mql', this.resultSet.namespaceName ));
+          this.insertValues.clear();
+          this.getTable();
+        }
+        break;
+      case 'DELETE':
+        const parsedDelete = JSON.parse(initialData);
+        if( parsedDelete.hasOwnProperty( '_id' )){
+          const modify = `db.${this.getCollection()}.deleteMany({"_id": "${parsedDelete['_id']}" })`;
+          this._crud.anyQuery( this.webSocket, new QueryRequest(modify,false, true, 'mql', this.resultSet.namespaceName ));
+          this.insertValues.clear();
+          this.getTable();
+        }
+        break;
+    }
+  }
+
   buildInsertObject() {
     if (this.config && !this.config.create || !this.resultSet) {
       return;
@@ -483,6 +554,11 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   updateRow() {
+    if( this.resultSet.namespaceType.toLowerCase() === 'document' ){
+      this.adjustDocument('MODIFY');
+      return;
+    }
+
     const oldValues = new Map<string, string>();//previous values
     /*$('.editing').each(function (e) {
       const oldVal = $(this).attr('data-before');
@@ -556,7 +632,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       let fullQuery;
 
       if(!isView){
-        if ( this.resultSet.schemaType.toLowerCase() === 'document'){
+        if ( this.resultSet.namespaceType.toLowerCase() === 'document'){
           this._toast.error('Materialized views are not jet supported for document queries.');
           return;
         }
@@ -586,7 +662,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
 
   private getViewQuery() {
-    if( this.resultSet.schemaType.toLowerCase() === 'document'){
+    if( this.resultSet.namespaceType.toLowerCase() === 'document'){
       let source;
       let pipeline;
 
@@ -603,7 +679,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
       temp.shift(); // remove collection
       temp[0] = temp[0].replace('aggregate(', '').replace('find(', '');
       temp[temp.length-1] = temp[temp.length-1].slice(0, -1); // remove last bracket
-      
+
       if( this.query.includes('.aggregate(')){
 
         pipeline = temp.join('.');
@@ -737,8 +813,22 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   checkModelAndLanguage() {
-    return (this.resultSet.schemaType.toLowerCase() === 'document' && this.resultSet.language.toLowerCase() === 'mql') ||
-        (this.resultSet.schemaType.toLowerCase() === 'relational' && this.resultSet.language.toLowerCase() === 'sql');
+    return (this.resultSet.namespaceType.toLowerCase() === 'document' && this.resultSet.language.toLowerCase() === 'mql') ||
+        (this.resultSet.namespaceType.toLowerCase() === 'relational' && this.resultSet.language.toLowerCase() === 'sql');
+  }
+
+  showCreateView() {
+    return this.resultSet.data
+        && !(this._router.url.startsWith('/views/data-table/'))
+        && !this.isDMLResult()
+        && this.resultSet.language !== 'cql'
+        && this.checkModelAndLanguage();
+  }
+
+
+  private getCollection() {
+    const split = this.tableId.split('.');
+    return split[split.length - 1];
   }
 }
 

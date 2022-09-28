@@ -200,4 +200,11 @@ export class DbmsTypesService {
     }
   }
 
+    isDocument(namespaceType: string) {
+      return namespaceType.toLowerCase() === 'document';
+    }
+
+  isGraph(namespaceType: string) {
+    return namespaceType.toLowerCase() === 'graph';
+  }
 }

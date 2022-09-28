@@ -2,13 +2,19 @@
   <app-toast></app-toast>
   <div class="col-lg-8 col-md-8 col-sm-12 mb-3">
       <ul class="list-group grey-border" id="console">
-          <li id="console-item-head" *ngIf="lang === 'mql'" class="list-group-item header grey-bg">
-              <span  class="document-db-info"><i>Database: {{defaultDocumentDB}}</i></span>
+          <li id="console-item-head" *ngIf="usesAdvancedConsole(lang)" class="list-group-item header grey-bg" (dblclick)="toggleNamespaceField()">
+              <span *ngIf="showNamespaceConfig" class="document-db-info"><i>Namespace: {{activeNamespace}}</i></span>
+              <div *ngIf="!showNamespaceConfig" class="advanced-console-db-info">
+                  <span class="document-db-info"><i>Namespace: </i></span>
+                  <select class="form-control form-control-sm advanced-console-db-info" [(ngModel)]="activeNamespace" (ngModelChange)="changedDefaultDB()">
+                      <option *ngFor="let namespace of namespaces" [ngValue]="namespace">{{namespace}}</option>
+                  </select>
+              </div>
               <button  type="submit" class="btn btn-primary btn-sm pull-right" (click)="clearConsole()"><i class="cui-trash"></i></button>
               <button type="submit" class="btn btn-primary btn-sm pull-right mr-1" (click)="formatQuery()"><i class="cui-clear-all"></i></button>
           </li>
-      <div class="form-group" [ngClass]="lang == 'mql' ? 'mql-console': 'sql-console'">
-          <app-editor #editor id="sql-editor"></app-editor>
+      <div class="form-group" [ngClass]="usesAdvancedConsole(lang) ? 'mql-console': 'sql-console'">
+          <app-editor [lang]="lang" #editor id="sql-editor"></app-editor>
       </div>
       </ul>
   </div>
@@ -67,6 +73,7 @@
       <div *ngIf="!loading" class="pull-right">
           <button type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
           <select class="form-control btn pull-right mr-1 border bg-white" [(ngModel)]="lang">
+              <option value="cypher">CYPHER</option>
               <option value="sql">SQL</option>
               <option value="mql">MQL</option>
               <option value="cql">CQL</option>
