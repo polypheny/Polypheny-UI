@@ -5,6 +5,8 @@ import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
 import { SidebarNode } from '../../models/sidebar-node.model';
 
+const EXPAND_HIDDEN_ROUTES: String[] = ['/views/monitoring','/views/config','/views/uml','/views/querying/console','/views/querying/relational-algebra'];
+
 @Component({
   selector: 'app-left-sidebar',
   templateUrl: './left-sidebar.component.html',
@@ -106,19 +108,13 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
   }
 
-  hideExpandandCollapse() {
-    const routes: String[] = ["/views/monitoring","/views/config","/views/uml","/views/querying/console","/views/querying/relational-algebra"];
-    const check: Boolean[] = [];
-    check.push(this.checkRoute(routes[0]));
-    check.push(this.checkRoute(routes[1]));
-    check.push(this.checkRoute(routes[2]));
-    check.push(this.checkRoute(routes[3]));
-    check.push(this.checkRoute(routes[4]));
-    return check.includes(true) !== true;
-  }
-
-  checkRoute(route: String) {
-    return this.router.url.startsWith(route);
+  isExpandAndCollapseHidden() {
+    for (const route of EXPAND_HIDDEN_ROUTES) {
+      if(this.router.url.startsWith(route)){
+        return true;
+      }
+    }
+    return false;
   }
 
   expandAll() {
