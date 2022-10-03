@@ -458,6 +458,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         return path + 'mongodb.png';
       case 'Ethereum':
         return path + 'ethereum.png';
+      case 'Neo4j':
+        return path + 'neo4j.png';
       default:
         return 'fa fa-database';
     }

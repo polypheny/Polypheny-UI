@@ -1,9 +1,31 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest} from '../components/data-view/models/result-set.model';
+import {
+  Index,
+  ModifyPartitionRequest,
+  PartitionFunctionModel,
+  PartitioningRequest,
+  ResultSet
+} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, ExploreTable, MaterializedRequest, MonitoringRequest, QueryRequest, RelAlgRequest, Schema, SchemaRequest, StatisticRequest, TableRequest} from '../models/ui-request.model';
+import {
+  ColumnRequest,
+  ConstraintRequest,
+  DeleteRequest,
+  EditCollectionRequest,
+  EditTableRequest,
+  ExploreTable,
+  GraphRequest,
+  MaterializedRequest,
+  MonitoringRequest,
+  QueryRequest,
+  RelAlgRequest,
+  Schema,
+  SchemaRequest,
+  StatisticRequest,
+  TableRequest
+} from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {HubService} from './hub.service';
@@ -20,7 +42,7 @@ export class CrudService {
   constructor(
     private _http:HttpClient,
     private _settings:WebuiSettingsService,
-    private _hub: HubService
+    private _hub: HubService,
   ) {
     this.initWebSocket();
     setInterval(() => this.socket.next('keepalive'), 10_000);
@@ -28,7 +50,8 @@ export class CrudService {
 
   public connected = false;
   private reconnected = new EventEmitter<boolean>();
-  private httpUrl = this._settings.getConnection('crud.rest');
+  private httpUrl = this._settings.getConnection('crud.rest' );
+  private langUrl = this._settings.getConnection('httpServer.rest' );
   private httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
   private socket;
 
@@ -43,6 +66,10 @@ export class CrudService {
 
   getSchema ( request: SchemaRequest ) {
     return this._http.post(`${this.httpUrl}/getSchemaTree`, request, this.httpOptions);
+  }
+
+  getGraph ( socket: WebSocket, data: GraphRequest ): boolean {
+    return socket.sendMessage(data);
   }
 
   insertRow (formData: FormData ) {
@@ -60,7 +87,7 @@ export class CrudService {
   /**
    * @param query will be converted in the back end to return an initial table for exploration
    */
-  createInitialExploreQuery (query ){
+  createInitialExploreQuery ( query ){
     return this._http.post(`${this.httpUrl}/createInitialExploreQuery`, query, this.httpOptions);
   }
 
@@ -134,6 +161,13 @@ export class CrudService {
    */
   getColumns ( columnRequest: ColumnRequest ) {
     return this._http.post(`${this.httpUrl}/getColumns`, columnRequest, this.httpOptions);
+  }
+
+  /**
+   * get the columns of a DataStore
+   */
+  getFixedFields ( columnRequest: ColumnRequest ) {
+    return this._http.post(`${this.httpUrl}/getFixedFields`, columnRequest, this.httpOptions);
   }
 
   /**
@@ -259,6 +293,19 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/getPlacements`, index, this.httpOptions);
   }
 
+  /**
+   * Get data placement information
+   */
+  getCollectionPlacements(namespace: string, collection: string) {
+    const index = new Index(namespace, collection, '', '', '', []);
+    return this._http.post(`${this.httpUrl}/getCollectionPlacements`, index, this.httpOptions);
+  }
+
+  getGraphPlacements( graph: string ) {
+    const index = new Index(graph, '', '', '', '', []);
+    return this._http.post(`${this.httpUrl}/getGraphPlacements`, index, this.httpOptions);
+  }
+
   getUnderlyingTable( request: TableRequest ) {
     return this._http.post(`${this.httpUrl}/getUnderlyingTable`, request, this.httpOptions);
   }
@@ -271,6 +318,43 @@ export class CrudService {
     const index = new Index(schema, table, null, store, method, columns);
     return this._http.post(`${this.httpUrl}/addDropPlacement`, index, this.httpOptions);
   }
+
+  /**
+   * Add or drop a placement
+   */
+  addDropGraphPlacement( graph: string, store: string, method: 'ADD' | 'DROP') {
+    let code:string;
+    switch (method) {
+      case 'ADD':
+        code = `CREATE PLACEMENT OF ${graph} ON STORE ${store}`;
+        break;
+      case 'DROP':
+        code = `DROP PLACEMENT OF ${graph} ON STORE ${store}`;
+        break;
+    }
+    const request = new QueryRequest(code, false, true, 'cypher', graph);
+
+    return this._http.post(`${this.langUrl}/cypher`, request, this.httpOptions);
+  }
+
+  /**
+   * Add or drop a placement
+   */
+  addDropCollectionPlacement( namespace: string, collection: string, store: string, method: 'ADD' | 'DROP') {
+    let code:string;
+    switch (method) {
+      case 'ADD':
+        code = `db.${collection}.addPlacement( "${store}" )`;
+        break;
+      case 'DROP':
+        code = `db.${collection}.deletePlacement( "${store}" )`;
+        break;
+    }
+    const request = new QueryRequest(code, false, true, 'cypher', namespace);
+    console.log(request)
+    return this._http.post(`${this.langUrl}/mql`, request, this.httpOptions);
+  }
+
 
   // PARTITIONING
 
@@ -534,5 +618,4 @@ export class CrudService {
       return 'is-invalid';
     }
   }
-
 }

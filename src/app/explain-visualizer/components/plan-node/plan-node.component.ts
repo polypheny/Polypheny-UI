@@ -250,4 +250,8 @@ export class PlanNodeComponent implements OnInit, DoCheck {
     return true;
   }
 
+
+  getDataModelShort() {
+    return this.node[this._planService.MODEL].toUpperCase().substring(0,1);
+  }
 }

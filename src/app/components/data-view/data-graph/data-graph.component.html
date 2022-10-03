@@ -1,0 +1,86 @@
+<app-toast></app-toast>
+<div class="text-center" *ngIf="!resultSet || !resultSet.data || resultSet.data.length == 0">
+    <span class="text-danger">(no data to show)</span>
+</div>
+
+<div class="card-wrapper">
+    <div class="wrapper d-flex justify-content-center graph-wrapper">
+        <div id="chart-area"></div>
+        <div *ngIf="showProperties" class="graph-properties">
+            <div class="card text-center h-100">
+                <div class="card-header">
+                    {{detail.id}}
+                </div>
+                <div class="card-body">
+                    <span *ngFor="let label of detail.labels" class="badge badge-pill" [style]="{ 'background-color': getLabelColor(label) }">{{label}}</span>
+                    <div class="my-2"></div>
+                    <div *ngFor="let entry of detail.properties | keyvalue">
+                        <p><strong>{{entry.key}}: </strong>{{entry.value}}</p>
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    <button class="btn btn-primary" (click)="showProperties = false"><span class="cui-arrow-thick-from-left"></span></button>
+                </div>
+            </div>
+        </div>
+        <div class="graph-bottom d-flex justify-content-start pl-1 pb-1">
+            <button class="btn btn-primary" (click)="center()"><span class="cui-center-focus pr-1"></span>Refocus</button>
+            <button class="btn btn-primary ml-1" (click)="reset()"><span class="cui-reload pr-1"></span>Reset</button>
+        </div>
+        <div class="graph-loader" *ngIf="graphLoading">
+            <div class="spinner-border text-primary" ></div>
+        </div>
+    </div>
+
+    <div *ngIf="config.create && !showInsertCard" (click)="showInsert()">
+        <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
+    </div>
+
+    <div class="card" *ngIf="config.create && showInsertCard">
+        <div class="card-header">
+            Insert data
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" *ngFor="let h of resultSet.header">
+                <app-input *ngIf="schemaType.toLowerCase() === 'relational' || h.name === '_id'" [header]="h"
+                           [showLabel]="true" [value]="insertValues.get(h.name)"
+                           (valueChange)="inputChange(h.name, $event)"
+                           (enter)="insertRow()"></app-input>
+                <app-json-editor (validChange)="setJsonValid($event)"
+                                 *ngIf="this.schemaType.toLowerCase() === 'document' && h.name !== '_id'" [empty]="true"
+                                 [json]="insertValues.get(h.name)"
+                                 (valueChange)="inputChange(h.name, $event)"></app-json-editor>
+            </li>
+            <li class="list-group-item">
+                <progressbar
+                        *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0"
+                        [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false"
+                        type="primary"></progressbar>
+                <progressbar
+                        *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)"
+                        [animate]="true" [value]="100" [striped]="true" type="primary"></progressbar>
+                <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-light btn-sm"
+                        (click)="showInsertCard = false">cancel
+                </button>
+                <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-primary btn-sm float-right"
+                        [disabled]="this.schemaType.toLowerCase() === 'document' && !jsonValid" (click)="insertRow()">
+                    save
+                </button>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <nav aria-label="Page navigation" class="float-right" *ngIf="resultSet.highestPage > 1">
+            <ul class="pagination">
+                <li *ngFor="let p of pagination" class="page-item"
+                    [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">
+                    <a class="page-link" (click)="paginate(p)" [routerLink]="[]">{{p.label}}</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

@@ -2,7 +2,7 @@ import {SortState} from '../../../components/data-view/models/sort-state.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 
 export enum LogicalOperator {
-  TableScan = 'TableScan',
+  Scan = 'Scan',
   Join = 'Join',
   Filter = 'Filter',
   Project = 'Project',
@@ -29,7 +29,7 @@ export class LogicalOperatorUtil {
   static operatorToSidbearNode(operator: LogicalOperator): SidebarNode {
     let sidebarNode;
     switch (operator) {
-      case LogicalOperator.TableScan:
+      case LogicalOperator.Scan:
         sidebarNode = new SidebarNode('operator_' + operator, operator, 'fa fa-database', null, true);
         break;
       case LogicalOperator.Join:
@@ -88,7 +88,7 @@ export class Node {
   zIndex = 1;
 
   //parameters:
-  //TableScan
+  //Scan
   tableName: string;
   tableType: String;
 

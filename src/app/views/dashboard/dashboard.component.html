@@ -38,15 +38,17 @@
 
                             <thead>
                             <tr>
-                                <th>Adapter Name</th>
-                                <th>Adapter Type</th>
+                                <th>Name</th>
+                                <th>Adapter</th>
+                                <th>Type</th>
                                 <th></th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr *ngFor="let obj of this.dashboardSet.availableAdapter | keyvalue">
                                 <td>{{obj.key}}</td>
-                                <td>{{obj.value}}</td>
+                                <td>{{obj.value.left}}</td>
+                                <td>{{obj.value.right}}</td>
                                 <th></th>
                             </tr>
                             </tbody>
@@ -58,15 +60,13 @@
 
                             <thead>
                             <tr>
-                                <th>Schema Id</th>
-                                <th>Schema Name</th>
-                                <th>Schema Type</th>
+                                <th>Name</th>
+                                <th>Data Model</th>
                                 <th></th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr *ngFor="let obj of this.dashboardSet.availableSchemas | keyvalue">
-                                <td>{{obj.key}}</td>
                                 <td>{{obj.value.left}}</td>
                                 <td>{{obj.value.right}}</td>
                                 <th></th>

@@ -168,20 +168,21 @@ table.loading:after {
   content: "";
 }
 
+app-data-table {
+  rect {
+    fill: #fff;
+    stroke: #306f91;
+    stroke-width: 1;
+  }
 
-rect {
-  fill: #fff;
-  stroke: #306f91;
-  stroke-width: 1;
-}
+  path {
+    stroke: #333;
+    stroke-width: 1.5px;
+  }
 
-path {
-  stroke: #333;
-  stroke-width: 1.5px;
-}
-
-text {
-  fill:blue;
+  text {
+    fill: blue;
+  }
 }
 
 
