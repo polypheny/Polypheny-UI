@@ -18,7 +18,7 @@
   <span *ngIf="error">{{error}}</span>
   <div id="tree-inner-wrapper">
 
-    <tree-root [nodes]="nodes" [options]="options" #tree>
+    <tree-root [nodes]="nodes" [options]="options" [class]="{'no-children': !hasChildren(nodes)}" #tree>
       <ng-template #treeNodeWrapperTemplate let-node let-index="index">
         <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
          <tree-node-expander [ngClass]="{'hidden-expander': node.data.children.length === 0}" [node]="node"></tree-node-expander>

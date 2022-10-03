@@ -96,9 +96,14 @@
   }
 }
 
+.no-children {
+  .hidden-expander {
+    width: 0;
+  }
+}
+
 .hidden-expander {
   opacity: 0;
-  width: 0;
 }
 
 .node-disabled {
