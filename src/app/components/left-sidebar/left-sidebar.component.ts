@@ -5,7 +5,6 @@ import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
 import { SidebarNode } from '../../models/sidebar-node.model';
 
-const EXPAND_SHOWN_ROUTES: String[] = ['/views/monitoring','/views/config','/views/uml','/views/querying/console','/views/querying/relational-algebra'];
 
 @Component({
   selector: 'app-left-sidebar',
@@ -15,6 +14,8 @@ const EXPAND_SHOWN_ROUTES: String[] = ['/views/monitoring','/views/config','/vie
 
 //docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarComponent implements OnInit, AfterViewInit {
+
+  static readonly EXPAND_SHOWN_ROUTES: String[] = ['/views/monitoring','/views/config','/views/uml','/views/querying/console','/views/querying/relational-algebra'];
 
   @ViewChild('tree', {static: false}) treeComponent: TreeComponent;
   nodes = [];
@@ -109,7 +110,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
   }
 
   isExpandAndCollapseShown() {
-    for (const route of EXPAND_SHOWN_ROUTES) {
+    for (const route of LeftSidebarComponent.EXPAND_SHOWN_ROUTES) {
       if(this.router.url.startsWith(route)){
         return false;
       }
