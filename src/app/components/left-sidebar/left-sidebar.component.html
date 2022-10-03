@@ -6,7 +6,7 @@
       <a [routerLink]="[]" (click)="collapseAll()" id="collapse"><i class="fa fa-compress"></i></a>
       </span>
     </div>
-    <input type="text" class="form-control form-control-sm" placeholder="search" id="search-tree">
+    <input type="text" class="form-control form-control-sm" [class]="{'rounded-search': !isExpandAndCollapseShown()}" placeholder="search" id="search-tree">
     <div class="input-group-append">
     <span *ngIf="isExpandAndCollapseShown()" class="input-group-text">
         <a [routerLink]="[]" (click)="expandAll()" id="expand"><i class="fa fa-expand"></i></a>
