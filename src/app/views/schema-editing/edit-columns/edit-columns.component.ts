@@ -34,7 +34,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   confirm = -1;
   oldColumns = new Map<string, DbColumn>();
   updateColumn = new FormGroup({name: new FormControl('')});
-  triggers: string[];
+  triggers: string[] = [];
 
   constraints: ResultSet;
   confirmConstraint = -1;
@@ -132,6 +132,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this._crud.getTriggers( new TriggerRequest( this.schema, this.table )).subscribe(
       res => {
         this.triggers = <string[]> res;
+        console.log(this.triggers);
       }, err => {
         this._toast.error('Could not load triggers of the table.', null, ToastDuration.INFINITE);
         console.log(err);
