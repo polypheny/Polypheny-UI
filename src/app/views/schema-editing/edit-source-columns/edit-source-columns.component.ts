@@ -77,6 +77,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     this._crud.getAvailableSourceColumns( new TableRequest(this.tableId, null, null, null) ).subscribe(
       res => {
         const tables = <ResultSet[]> res;
+        if(res.hasOwnProperty('error')) {
+          this.errorMsg = 'Could not fetch exported columns';
+          return;  
+        }
         for(const table of tables) {
           this.exportedColumns.set(table.table, table);
         }
