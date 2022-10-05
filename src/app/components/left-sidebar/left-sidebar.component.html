@@ -6,7 +6,7 @@
       <a [routerLink]="[]" (click)="collapseAll()" id="collapse"><i class="fa fa-compress"></i></a>
       </span>
     </div>
-    <input type="text" class="form-control form-control-sm" placeholder="search" id="search-tree">
+    <input type="text" class="form-control form-control-sm" [class]="{'rounded-search': !isExpandAndCollapseShown()}" placeholder="search" id="search-tree">
     <div class="input-group-append">
     <span *ngIf="isExpandAndCollapseShown()" class="input-group-text">
         <a [routerLink]="[]" (click)="expandAll()" id="expand"><i class="fa fa-expand"></i></a>
@@ -18,7 +18,7 @@
   <span *ngIf="error">{{error}}</span>
   <div id="tree-inner-wrapper">
 
-    <tree-root [nodes]="nodes" [options]="options" #tree>
+    <tree-root [nodes]="nodes" [options]="options" [class]="{'no-children': !hasChildren(nodes)}" #tree>
       <ng-template #treeNodeWrapperTemplate let-node let-index="index">
         <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
          <tree-node-expander [ngClass]="{'hidden-expander': node.data.children.length === 0}" [node]="node"></tree-node-expander>
