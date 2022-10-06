@@ -139,4 +139,13 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
   needsButton() {
     return this.router.url.startsWith('/views/schema-editing/');
   }
+
+    hasChildren(nodes: any[]):boolean {
+      for (const node of nodes) {
+        if( node.children.length > 0 ){
+          return true;
+        }
+      }
+      return false;
+    }
 }
