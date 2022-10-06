@@ -4,3 +4,12 @@
 .selectInverval{
   float: right;
 }
+
+.card-header-button {
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-header-title {
+  align-self: center;
+}

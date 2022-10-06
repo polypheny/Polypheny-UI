@@ -31,7 +31,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   informationInterval: number;
   infoCounter: number;
   diagramCounter: number;
-  selectIntervalDisplay = "All";
+  selectIntervalDisplay = 'All';
 
   constructor(
       public _crud: CrudService,
@@ -43,7 +43,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.infoCounter = 0;
     this.diagramCounter = 0;
 
-    this.getDiagram("all");
+    this.getDiagram('all');
     this.getDashboardInformation();
     this.checkIfInformationAvailable();
   }
@@ -133,17 +133,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   public setSelectInterval(interval: string){
-    if( interval == "all" ){
-      this.selectIntervalDisplay = "All";
-    }else if( interval == "60" ){
-      this.selectIntervalDisplay = "1 hour";
-    }else if( interval == "30" ){
-      this.selectIntervalDisplay = "30 minutes";
-    }else if( interval == "15" ){
-      this.selectIntervalDisplay = "15 minutes";
-    }else if( interval == "5" ){
-      this.selectIntervalDisplay = "5 minutes";
+    if( interval === 'all' ){
+      this.selectIntervalDisplay = 'All';
     }
+    const numberInterval = Number(interval);
+
+    if( isNaN(numberInterval) ){
+      this.selectIntervalDisplay = 'All';
+    }else{
+      this.selectIntervalDisplay = this.getIntervalString(numberInterval);
+    }
+
     this.getDiagram(interval);
+  }
+
+  private getIntervalString(numberInterval: number):string {
+    const hours = Math.floor(numberInterval/60 );
+
+    const minutes = numberInterval % 60;
+
+    return (hours > 0 ? ( '' + hours + (hours === 1 ? ' hour' : ' hours' )) : '' ) + (minutes > 0 ? ( '' + minutes + (minutes === 1 ? ' minute' : ' minutes' )) : '' ) ;
   }
 }
