@@ -9,6 +9,7 @@ export class UIRequest {
   data: Map<string, string>;
   filter: Map<string, string>;
   sortState: Map<string, SortState>;
+  selectInterval: string;
 }
 
 
@@ -150,8 +151,9 @@ export class StatisticRequest extends UIRequest {
 }
 
 export class MonitoringRequest extends UIRequest{
-  constructor() {
+  constructor(selectInterval?: string) {
     super();
+    this.selectInterval = selectInterval || null;
     return this;
   }
 }
