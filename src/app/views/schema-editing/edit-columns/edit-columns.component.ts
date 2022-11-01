@@ -40,6 +40,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   newPrimaryKey: DbColumn[];
 
   mergedColumnName = ''
+  joinString = ''
   mergeableColumns: DbColumn[];
   columnsToMerge: DbColumn[] = [];
 
@@ -491,7 +492,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const req = new MergeColumnsRequest( this.tableId, this.columnsToMerge, this.mergedColumnName)
+    const req = new MergeColumnsRequest( this.tableId, this.columnsToMerge, this.joinString, this.mergedColumnName)
     this._crud.mergeColumns( req ).subscribe(
       res => {
         const result = <ResultSet> res;
@@ -499,6 +500,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
           this.getColumns();
           this.getPlacementsAndPartitions();
           this.mergedColumnName = '';
+          this.joinString = '';
           this.columnsToMerge = [];
         } else {
           this._toast.exception(result, null, 'server error', ToastDuration.INFINITE);
