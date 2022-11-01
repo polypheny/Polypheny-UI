@@ -1,0 +1,21 @@
+<div class="source-column">
+  <span>{{ sourceTitle }}</span>
+  <div class="list-container">
+    <div *ngFor="let option of _getSourceOptions()" class="list-item" (click)="_onAddOption(option)">
+      <span>{{ option[labelProperty] }}</span>
+      <em class="fa fa-solid fa-chevron-right"></em>
+    </div>
+  </div>
+</div>
+
+<div class="target-column">
+  <span>{{ targetTitle }}</span>
+  <div id="target-container" class="list-container" cdkDropList (cdkDropListDropped)="_onMoveOption($event)">
+    <div *ngFor="let option of _value;  let first = first;  let last = last;" class="list-item"
+      (click)="_onRemoveOption(option)" cdkDrag [cdkDragData]="option" [cdkDragDisabled]="disableSort"
+      cdkDragBoundary="#target-container">
+      <span>
+        <em *ngIf="!disableSort" class="fa fa-solid fa-sort"></em> {{ option[labelProperty] }}</span>
+    </div>
+  </div>
+</div>

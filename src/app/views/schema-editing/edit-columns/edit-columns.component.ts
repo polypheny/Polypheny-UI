@@ -41,6 +41,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   mergedColumnName = ''
   mergeableColumns: DbColumn[];
+  columnsToMerge: DbColumn[] = [];
 
   uniqueConstraintName = '';
   proposedConstraintName = 'constraintName';
@@ -467,6 +468,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   mergeColumns() {
+
+    if( this.columnsToMerge?.length < 2 ) {
+      this._toast.warn('Please select at least 2 columns to merge.', 'merged colum name');
+      return;
+    }
     if( this.mergedColumnName === '' ) {
       this._toast.warn('Please provide a name for the merged column.', 'merged colum name');
       return;
@@ -476,15 +482,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const columnsToMerge = [];
-    this.mergeableColumns.forEach((v, k) => {
-      if(v.mergeable) { 
-        columnsToMerge.push(v); 
-      }
-    });
-
     if( this.resultSet.header
-        .filter( h => !columnsToMerge.map(h => h.name).includes(h.name))
+        .filter( h => !this.columnsToMerge.map(h => h.name).includes(h.name))
         .filter( h => h.name === this.mergedColumnName )
         .length > 0 ) {
       this._toast.warn( 'There already exists a column with this name. However, it is allowed to select one of the names of the columns to be merged', 
@@ -492,14 +491,15 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const req = new MergeColumnsRequest( this.tableId, columnsToMerge, this.mergedColumnName)
+    const req = new MergeColumnsRequest( this.tableId, this.columnsToMerge, this.mergedColumnName)
     this._crud.mergeColumns( req ).subscribe(
       res => {
         const result = <ResultSet> res;
         if( result.error === undefined ){
           this.getColumns();
           this.getPlacementsAndPartitions();
-          this.mergedColumnName = ''
+          this.mergedColumnName = '';
+          this.columnsToMerge = [];
         } else {
           this._toast.exception(result, null, 'server error', ToastDuration.INFINITE);
         }

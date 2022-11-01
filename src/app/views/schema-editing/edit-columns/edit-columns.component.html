@@ -537,11 +537,9 @@
             </div>
             <div class="card-body">          
                 <p>Currently, only the merge of non-primary, varchar columns is permitted.</p> 
-                <div class="constraint-columns">
-                    <div class="form-check form-check-inline" *ngFor="let c of mergeableColumns; let j = index">
-                        <input type="checkbox" class="form-check-input" [id]="'pkcol'+j" [(ngModel)]="c.mergeable">
-                        <label class="form-check-label" [for]="'pkcol'+j">{{c.name}}</label>
-                    </div>                    
+                <div class="constraint-columns mb-2">
+                    <app-list-picker [sourceOptions]="mergeableColumns" [(ngModel)]="columnsToMerge" 
+                        labelProperty="name" sourceTitle="Mergeable columns" targetTitle="Columns to merge (sortable)" selectionLimit="3"></app-list-picker>
                 </div>
                 <div class="form-inline mb-2">
                     <div class="form-group">
@@ -549,7 +547,7 @@
                         <input id="mergedColumnName" type="text" class="form-control form-control-sm" [(ngModel)]="mergedColumnName"
                                [ngClass]="_crud.getValidationClass(mergedColumnName)">
                     </div>
-                    <button class="btn btn-sm btn-primary add-constraint" (click)="mergeColumns()">merge</button>
+                    <button class="btn btn-sm btn-primary" (click)="mergeColumns()">merge</button>
                 </div>
             </div>
         </div>

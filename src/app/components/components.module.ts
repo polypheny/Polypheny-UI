@@ -37,6 +37,8 @@ import { JsonTextComponent } from './data-view/json-text/json-text.component';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {JsonEditorComponent} from './json/json-editor.component';
 import {JsonElemComponent} from './json/json-elem/json-elem.component';
+import { ListPickerComponent } from './list-picker/list-picker.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 //import 'hammerjs';
 
@@ -46,6 +48,7 @@ import {JsonElemComponent} from './json/json-elem/json-elem.component';
     RouterModule,
     CommonModule,
     ChartsModule,
+    DragDropModule,
     TypeaheadModule.forRoot(),
     AppBreadcrumbModule.forRoot(),
     TreeModule,
@@ -70,6 +73,7 @@ import {JsonElemComponent} from './json/json-elem/json-elem.component';
         InformationManagerComponent,
         RenderItemComponent,
         InputComponent,
+        ListPickerComponent,
         EditorComponent,
         JsonEditorComponent,
         DataViewComponent,
@@ -95,6 +99,7 @@ import {JsonElemComponent} from './json/json-elem/json-elem.component';
     ToastComponent,
     InformationManagerComponent,
     InputComponent,
+    ListPickerComponent,
     JsonEditorComponent,
     EditorComponent,
     DeleteConfirmComponent
