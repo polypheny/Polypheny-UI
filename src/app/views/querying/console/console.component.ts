@@ -389,6 +389,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     private setDefaultDB(name: string) {
         name = name.trim();
+        if( !this.namespaces.includes(name) ){
+            this.namespaces.push(name);
+        }
+
         this.activeNamespace = name;
         localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
     }
