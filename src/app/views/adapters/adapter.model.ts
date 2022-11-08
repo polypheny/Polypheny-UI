@@ -28,7 +28,8 @@ export interface GraphStore extends Store{
 export interface AdapterInformation {
   name: string;
   description: string;
-  clazz: string;
+  adapterName: string;
+  adapterType: string;
   adapterSettings: Map<string, AdapterSetting[]>;
 }
 

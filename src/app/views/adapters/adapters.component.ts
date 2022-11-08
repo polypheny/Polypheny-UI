@@ -339,7 +339,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     if(!this.availableAdapterUniqueNameForm.valid) { return; }
     const deploy = {
       uniqueName: this.availableAdapterUniqueNameForm.controls['uniqueName'].value,
-      clazzName: this.editingAvailableAdapter.clazz,
+      adapterName: this.editingAvailableAdapter.adapterName,
+      adapterType: this.editingAvailableAdapter.adapterType,
       settings: {}
     };
     const fd: FormData = new FormData();
