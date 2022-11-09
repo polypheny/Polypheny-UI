@@ -29,7 +29,7 @@ export interface AdapterInformation {
   name: string;
   description: string;
   adapterName: string;
-  adapterType: string;
+  type: string;
   adapterSettings: Map<string, AdapterSetting[]>;
 }
 

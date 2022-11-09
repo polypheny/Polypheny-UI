@@ -337,10 +337,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   deploy(){
     if(!this.editingAvailableAdapterForm.valid) { return; }
     if(!this.availableAdapterUniqueNameForm.valid) { return; }
+    console.log(this.editingAvailableAdapter);
     const deploy = {
       uniqueName: this.availableAdapterUniqueNameForm.controls['uniqueName'].value,
-      adapterName: this.editingAvailableAdapter.adapterName,
-      adapterType: this.editingAvailableAdapter.adapterType,
+      adapterName: this.editingAvailableAdapter.name, // todo dl: change to correct class logic, object atm
+      adapterType: this.editingAvailableAdapter.type, // todo dl: change to correct class logic, object atm
       settings: {}
     };
     const fd: FormData = new FormData();
