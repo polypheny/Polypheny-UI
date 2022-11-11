@@ -8,7 +8,6 @@ import {MonitoringComponent} from './monitoring/monitoring.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {QueryingComponent} from './querying/querying.component';
 import {AdaptersComponent} from './adapters/adapters.component';
-import {HubComponent} from './hub/hub.component';
 import {AboutComponent} from './about/about.component';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 
@@ -150,20 +149,6 @@ const routes: Routes = [
     component: QueryInterfacesComponent,
     data: {
       title: 'QueryInterfaces'
-    }
-  },
-  {
-    path: 'hub',
-    component: HubComponent,
-    data: {
-      title: 'Polypheny-DB Hub'
-    }
-  },
-  {
-    path: 'hub/:sub',
-    component: HubComponent,
-    data: {
-      title: 'Polypheny-DB Hub'
     }
   },
 ];

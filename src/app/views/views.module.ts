@@ -22,7 +22,6 @@ import {QueryingComponent} from './querying/querying.component';
 import {NodeComponent} from './querying/relational-algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import {AdaptersComponent} from './adapters/adapters.component';
-import {HubComponent} from './hub/hub.component';
 import {RefinementOptionsComponent} from './querying/graphical-querying/refinement-options/refinement-options.component';
 import {ExploreByExampleComponent} from './querying/explore-by-example/explore-by-example.component';
 import {AboutComponent} from './about/about.component';
@@ -87,7 +86,6 @@ import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-e
     QueryingComponent,
     NodeComponent,
     AdaptersComponent,
-    HubComponent,
     RefinementOptionsComponent,
     ExploreByExampleComponent,
     AboutComponent,
