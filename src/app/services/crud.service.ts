@@ -38,6 +38,10 @@ import {WebSocket} from './webSocket';
   providedIn: 'root'
 })
 export class CrudService {
+  private enabledPlugins: [string] = null;
+  private enabledRequestFired:number = null;
+  private REQUEST_DELAY: number = 1000*20;
+
 
   constructor(
     private _http:HttpClient,
@@ -89,6 +93,24 @@ export class CrudService {
    */
   createInitialExploreQuery ( query ){
     return this._http.post(`${this.httpUrl}/createInitialExploreQuery`, query, this.httpOptions);
+  }
+
+  getEnabledPlugins(): string[] {
+    if( this.enabledRequestFired === null ){
+      this.enabledRequestFired = Date.now() - (this.REQUEST_DELAY + 100);
+    }
+    if (this.enabledPlugins === null) {
+      const today = Date.now();
+      if ( (this.enabledRequestFired + this.REQUEST_DELAY) < today ) {
+        this.enabledRequestFired = today;
+        this._http.get(`${this.httpUrl}/getEnabledPlugins`, this.httpOptions)
+            .subscribe(res => {
+              this.enabledPlugins = <[string]>res;
+            });
+      }
+      return [];
+    }
+    return this.enabledPlugins;
   }
 
   /**

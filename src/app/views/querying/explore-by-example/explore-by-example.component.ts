@@ -287,7 +287,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
   }
 
   exploreByExampleEnabled(): boolean {
-      return this._information.getEnabledPlugins().includes('Explore-By-Example');
+      return this._crud.getEnabledPlugins().includes('explore-by-example');
   }
 }
 

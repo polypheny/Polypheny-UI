@@ -8,8 +8,6 @@ import {InformationObject} from '../models/information-page.model';
     providedIn: 'root'
 })
 export class InformationService {
-    private enabledPlugins: [string] = null;
-    private enabledRequestFired:number = null;
 
     constructor(private _http: HttpClient, private _settings: WebuiSettingsService) {
         this.initWebSocket();
@@ -20,7 +18,6 @@ export class InformationService {
     private socket;
     httpUrl = this._settings.getConnection('information.rest');
     httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
-    private REQUEST_DELAY: number = 1000*20;
 
     getPage(pageId: string) {
         return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
@@ -40,24 +37,6 @@ export class InformationService {
 
     executeAction(i: InformationObject) {
         return this._http.post(`${this.httpUrl}/executeAction`, JSON.stringify(i), this.httpOptions);
-    }
-
-    getEnabledPlugins(): string[] {
-        if( this.enabledRequestFired === null ){
-            this.enabledRequestFired = Date.now() - (this.REQUEST_DELAY + 100);
-        }
-        if (this.enabledPlugins === null) {
-            const today = Date.now();
-            if ( (this.enabledRequestFired + this.REQUEST_DELAY) < today ) {
-                this.enabledRequestFired = today;
-                this._http.get(`${this.httpUrl}/getEnabledPlugins`, this.httpOptions)
-                    .subscribe(res => {
-                        this.enabledPlugins = <[string]>res;
-                    });
-            }
-            return [];
-        }
-        return this.enabledPlugins;
     }
 
     //websocket:
