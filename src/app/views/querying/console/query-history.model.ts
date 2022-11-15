@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 
 
-export class SqlHistory {
+export class QueryHistory {
     query: string;
     time: Date;
     lang: string;
@@ -16,7 +16,7 @@ export class SqlHistory {
         }
     }
 
-    static fromJson ( json: string, map: Map<string, SqlHistory> ): void {
+    static fromJson ( json: string, map: Map<string, QueryHistory> ): void {
         if( json === null ) {
             return;
         }
@@ -24,7 +24,7 @@ export class SqlHistory {
 
         for ( const key in obj ) {
             if( obj.hasOwnProperty(key) ){
-                map.set( obj[key].query, new SqlHistory( obj[key].query, obj[key].time, obj[key].lang) );
+                map.set( obj[key].query, new QueryHistory( obj[key].query, obj[key].time, obj[key].lang) );
             }
         }
     }

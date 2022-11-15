@@ -9,9 +9,14 @@
 
 #tree-inner-wrapper {
   display: flex;
-  max-width: 160px;
   overflow: auto;
   padding-left: 1em;
+  padding-right: 1rem;
+  width: 100%;
+
+  tree-root {
+    width: 100%;
+  }
 
   .node-content-wrapper {
     width: 100%;
@@ -91,10 +96,23 @@
   }
 }
 
+.no-children {
+  .hidden-expander {
+    width: 0;
+  }
+}
+
 .hidden-expander {
   opacity: 0;
 }
 
 .node-disabled {
   display: none;
+}
+
+
+.rounded-search {
+  border-radius: 0.2rem !important;
+  margin-left: 1px;
+  margin-right: 1px;
 }

@@ -201,8 +201,13 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       this._toast.warn('Please provide a valid name for the new table. The new table was not created.', 'invalid table name', ToastDuration.INFINITE);
       return;
     }
-    if( this.tables.filter((t) => t.name === this.newTableName ).length > 0 ){
-    //if (this.tables.indexOf(this.newTableName) !== -1) {
+    if( this.tables.filter((t) => {
+      console.log(this.schemaType)
+      if( this.schemaType.toLowerCase() === 'relational'){
+        return t.name.toLowerCase() === this.newTableName.toLowerCase();
+      }
+      return t.name === this.newTableName;
+    }).length > 0 ){
       this._toast.warn('A table with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
       return;
     }
@@ -382,8 +387,12 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     const regex = this._crud.getValidationRegex();
     if (name === '') {
       return '';
-    //} else if (regex.test(name) && name.length <= 100 && this.tables.indexOf(name) === -1) {
-    } else if ( regex.test(name) && name.length <= 100 && this.tables.filter((t) => t.name === name).length === 0 ) {
+    } else if ( regex.test(name) && name.length <= 100 && this.tables.filter((t) => {
+      if( this.schemaType.toLowerCase() === 'relational'){
+        return t.name.toLowerCase() === name.toLowerCase();
+      }
+      return t.name === name;
+    }).length === 0 ) {
       return 'is-valid';
     } else {
       return 'is-invalid';

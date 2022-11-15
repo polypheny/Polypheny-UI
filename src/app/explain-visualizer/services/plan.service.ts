@@ -13,9 +13,11 @@ export class PlanService {
   AGGREGATIONS = 'aggs';
   FIELDS = 'fields';
   CONDITION = 'condition';
+  TRANSFORMATION = 'transformation';
   TABLE = 'table';
   CPU_COST = 'cpu cost';
   ROW_COUNT = 'rowcount';
+  MODEL = 'model';
 
   // plan property keys
   NODE_TYPE_PROP = 'relOp';

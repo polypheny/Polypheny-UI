@@ -3,6 +3,8 @@ import * as $ from 'jquery';
 import {TreeComponent, TreeModel} from 'angular-tree-component';
 import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
+import { SidebarNode } from '../../models/sidebar-node.model';
+
 
 @Component({
   selector: 'app-left-sidebar',
@@ -12,6 +14,8 @@ import {LeftSidebarService} from './left-sidebar.service';
 
 //docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarComponent implements OnInit, AfterViewInit {
+
+  static readonly EXPAND_SHOWN_ROUTES: String[] = ['/views/monitoring','/views/config','/views/uml','/views/querying/console','/views/querying/relational-algebra'];
 
   @ViewChild('tree', {static: false}) treeComponent: TreeComponent;
   nodes = [];
@@ -105,6 +109,14 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
   }
 
+  isExpandAndCollapseShown() {
+    for (const route of LeftSidebarComponent.EXPAND_SHOWN_ROUTES) {
+      if(this.router.url.startsWith(route)){
+        return false;
+      }
+    }
+    return true;
+  }
 
   expandAll() {
     this.treeComponent.treeModel.expandAll();
@@ -127,4 +139,13 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
   needsButton() {
     return this.router.url.startsWith('/views/schema-editing/');
   }
+
+    hasChildren(nodes: any[]):boolean {
+      for (const node of nodes) {
+        if( node.children.length > 0 ){
+          return true;
+        }
+      }
+      return false;
+    }
 }

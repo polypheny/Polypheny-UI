@@ -177,7 +177,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     const x = Math.max(0, Math.min(this.dropArea.nativeElement.offsetWidth - 270, e.event.offsetX));
     const y = Math.max(0, Math.min(this.dropArea.nativeElement.offsetHeight - 140, e.event.offsetY));
     const node = new Node(id, e.element.data.name, x, y).setRelAlgSymbol(e.element.data.relAlgSymbol).setIcon(e.element.data.icon);
-    if (e.element.data.name === 'TableScan') {
+    if (e.element.data.name === 'Scan') {
       const ac = [];
       const acType = [];
       if (this.autocomplete) {
@@ -336,7 +336,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   /**
    * Set the autocomplete fields for each node
    * default: get columns from all children
-   * TableScan node: get columns from autocomplete object
+   * Scan node: get columns from autocomplete object
    * Project node: get columns from all children, but only save the ones that are being projected
    */
   updateNodeAutocomplete(node: Node) {
@@ -346,7 +346,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       return self.nodes.get(node.getId());
     }
 
-    if (node.type === LogicalOperator.TableScan) {
+    if (node.type === LogicalOperator.Scan) {
       if (node.tableName === undefined || !node.tableName.includes('\.')) {
         getNode().getAcSchema().clear();
         getNode().getAcTable().clear();

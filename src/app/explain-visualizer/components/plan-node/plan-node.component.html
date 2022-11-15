@@ -5,7 +5,7 @@
          [class.expanded]="showDetails"
          [class.compact]="viewOptions.viewMode === viewModes.COMPACT"
          [class.dot]="viewOptions.viewMode === viewModes.DOT">
-
+      <i class="model-mark">{{getDataModelShort()}}</i>
       <header (click)="showDetails = !showDetails" tooltip="view node details">
         <h4>{{getNodeName()}}</h4>
         <!--<span *ngIf="viewOptions.viewMode === viewModes.FULL || showDetails">
@@ -27,7 +27,6 @@
       -->
 
       <div *ngIf="viewOptions.viewMode === viewModes.FULL">
-
         <div class="relation-name" *ngIf="node[_planService.JOIN_TYPE_PROP]">
           <span class="text-muted">join: </span>
           {{node[_planService.JOIN_TYPE_PROP]}}
@@ -48,6 +47,10 @@
         <div class="relation-name" *ngIf="node[_planService.CONDITION]">
           <span class="text-muted">condition: </span>
           <span>{{node[_planService.CONDITION]}}</span>
+        </div>
+        <div class="relation-name" *ngIf="node[_planService.TRANSFORMATION]">
+          <span class="text-muted">transformation: </span>
+          <span>{{node[_planService.TRANSFORMATION]}}</span>
         </div>
         <div class="relation-name" *ngIf="node[_planService.AGGREGATIONS]">
           <span class="text-muted">aggs: </span>

@@ -9,7 +9,7 @@
       </li>
     </ol>
   </div>
-  <div class="col-md-6" *ngIf="breadcrumbs[0].name != 'Schema Editing'">
+  <div class="col-md-6" *ngIf="breadcrumbs[0].name != 'Schema'">
     <div class="custom-control-inline breadcrumb" id="zoom-wrapper">
       <div class="custom-control" *ngIf="_breadcrumb._showZoom">
         Zoom: {{zoom}} <button class="btn btn-light" (click)="zoomOut()">-</button> <button class="btn btn-light" style="margin-left:0.5em;" (click)="zoomIn()">+</button>
@@ -17,9 +17,9 @@
       </div>
     </div>
   </div>
-  <div class="col-md-6" *ngIf="breadcrumbs[0].name == 'Schema Editing'">
+  <div class="col-md-6" *ngIf="breadcrumbs[0].name == 'Schema'">
     <div class="custom-control-inline breadcrumb" id="statistics-wrapper">
-      <div class="custom-control" *ngIf="_breadcrumb.getTableId() && _breadcrumb.getTableId() != 'notShow'" >
+      <div class="custom-control" *ngIf="_breadcrumb.getTableId() && _breadcrumb.getTableId() != '!notShow!'" >
         <button class="btn btn-light" [routerLink]=" '/views/schema-editing/' + _breadcrumb.getTableId() + '/statistics-column'" >Statistics</button>
       </div>
     </div>

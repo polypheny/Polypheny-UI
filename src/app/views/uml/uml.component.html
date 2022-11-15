@@ -1,10 +1,13 @@
 <app-toast></app-toast>
-<div class="row">
+
+<span *ngIf="schemaType.toLowerCase() === 'document'"><i>Document schemas do not support the UML builder.</i></span>
+<span *ngIf="schemaType.toLowerCase() === 'graph'"><i>Graph schemas do not support the UML builder.</i></span>
+
+<div class="row" *ngIf="schemaType.toLowerCase() !== 'graph' && schemaType.toLowerCase() !== 'document'">
   <div class="col-lg-12">
     <h5 *ngIf="schema">{{schema}}</h5>
     <p *ngIf="uml">Drag a connection from a column to a <span class="badge" id="badge-pk">primary key</span> or <span class="badge" id="badge-unique">unique column</span> to create a new foreign key.</p>
-    <span *ngIf="!schema">Please select a schema in the left sidebar. Document schemas and tables originating from a data source are not supported.</span>
-    <span *ngIf="schemaType.toLowerCase() === 'document'"><i>Document schemas do not support the UML builder.</i></span>
+    <span *ngIf="!schema">Please select a namespace in the left sidebar. Namespaces of type document and graph, as well as entities originating from a data source, are not supported.</span>
   </div>
   <div id="drag-container" class="col-lg-12" *ngIf="uml">
     <div class="card uml" *ngFor="let table of uml.tables | value" [id]="table.schema+'_'+table.tableName" [attr.tableName]="table.schema+'.'+table.tableName" cdkDragBoundary="#drag-container" cdkDrag (cdkDragEnded)="updateZIndex($event)" (cdkDragStarted)="onDragging($event)">

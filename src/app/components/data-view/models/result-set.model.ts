@@ -17,7 +17,8 @@ export class ResultSet {
   affectedRows: number;
   generatedQuery: string;
   type: string;//"table" or "view"
-  schemaType: string;//"relational" or "document"
+  namespaceName: string;
+  namespaceType = 'RELATIONAL';//"relational" or "document"
   language: string; //sql,mql,cql
   explorerId: number;
   classificationInfo: string;
@@ -322,5 +323,5 @@ export class ModifyPartitionRequest {
  * How a ResultSet should be displayed
  */
 export enum DataPresentationType {
-  TABLE, CAROUSEL, CARD
+  TABLE, CAROUSEL, CARD, GRAPH
 }

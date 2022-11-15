@@ -16,6 +16,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   dataWorkload = [];
   dataDql = [];
   labels = [];
+  colorList = [];
   line = 'line';
   min = 0;
   max = 0;
@@ -28,10 +29,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   maintainAspectRatio = false;
   digramInterval: number;
   informationInterval: number;
-
   infoCounter: number;
   diagramCounter: number;
-
+  selectIntervalDisplay = 'All';
 
   constructor(
       public _crud: CrudService,
@@ -43,7 +43,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.infoCounter = 0;
     this.diagramCounter = 0;
 
-    this.getDiagram();
+    this.getDiagram('all');
     this.getDashboardInformation();
     this.checkIfInformationAvailable();
   }
@@ -64,11 +64,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
 
-  getDiagram() {
+  getDiagram(interval: string) {
     this.dataWorkload = [];
     this.dataDql = [];
     this.labels = [];
-    this._crud.getDashboardDiagram(new MonitoringRequest()).subscribe(
+    this.min = 0;
+    this.max = 0;
+    this._crud.getDashboardDiagram(new MonitoringRequest(interval)).subscribe(
         res => {
           this.dashboardInformation = <DashboardData>res;
 
@@ -128,5 +130,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.infoCounter++;
         }
     );
+  }
+
+  public setSelectInterval(interval: string){
+    if( interval === 'all' ){
+      this.selectIntervalDisplay = 'All';
+    }
+    const numberInterval = Number(interval);
+
+    if( isNaN(numberInterval) ){
+      this.selectIntervalDisplay = 'All';
+    }else{
+      this.selectIntervalDisplay = this.getIntervalString(numberInterval);
+    }
+
+    this.getDiagram(interval);
+  }
+
+  private getIntervalString(numberInterval: number):string {
+    const hours = Math.floor(numberInterval/60 );
+
+    const minutes = numberInterval % 60;
+
+    return (hours > 0 ? ( '' + hours + (hours === 1 ? ' hour' : ' hours' )) : '' ) + (minutes > 0 ? ( '' + minutes + (minutes === 1 ? ' minute' : ' minutes' )) : '' ) ;
   }
 }

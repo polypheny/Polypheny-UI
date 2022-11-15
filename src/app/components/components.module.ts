@@ -28,41 +28,44 @@ import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 import {DataCardComponent} from './data-view/data-card/data-card.component';
 import {DataCarouselComponent} from './data-view/data-carousel/data-carousel.component';
 import {CarouselModule} from 'ngx-bootstrap/carousel';
-import { DataViewComponent } from './data-view/data-view.component';
+import {DataViewComponent} from './data-view/data-view.component';
 import {PlyrModule} from 'ngx-plyr';
-import { MediaComponent } from './data-view/media/media.component';
-import { DeleteConfirmComponent } from './delete-confirm/delete-confirm.component';
-import { ExpandableTextComponent } from './data-view/expandable-text/expandable-text.component';
-import { JsonTextComponent } from './data-view/json-text/json-text.component';
+import {MediaComponent} from './data-view/media/media.component';
+import {DeleteConfirmComponent} from './delete-confirm/delete-confirm.component';
+import {ExpandableTextComponent} from './data-view/expandable-text/expandable-text.component';
+import {JsonTextComponent} from './data-view/json-text/json-text.component';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {JsonEditorComponent} from './json/json-editor.component';
 import {JsonElemComponent} from './json/json-elem/json-elem.component';
 import { ListPickerComponent } from './list-picker/list-picker.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import {DataGraphComponent} from './data-view/data-graph/data-graph.component';
+import {MultipleSwitchPipe} from './data-view/multiple-switch.pipe';
+import {DatesPipeModule} from './data-view/shared-module';
 
 //import 'hammerjs';
 
 @NgModule({
-  imports: [
-    //AppRoutingModule,
-    RouterModule,
-    CommonModule,
-    ChartsModule,
-    DragDropModule,
-    TypeaheadModule.forRoot(),
-    AppBreadcrumbModule.forRoot(),
-    TreeModule,
-    TabsModule.forRoot(),
-    // forms
-    FormsModule, ReactiveFormsModule,
-    CollapseModule,
-    TooltipModule,
-    ProgressbarModule.forRoot(),
-    ExplainVisualizerModule,
-    ModalModule.forRoot(),
-    CarouselModule,
-    PlyrModule, NgxJsonViewerModule
-  ],
+    imports: [
+        //AppRoutingModule,
+        RouterModule,
+        CommonModule,
+        ChartsModule,
+        DragDropModule,
+        TypeaheadModule.forRoot(),
+        AppBreadcrumbModule.forRoot(),
+        TreeModule,
+        TabsModule.forRoot(),
+        // forms
+        FormsModule, ReactiveFormsModule,
+        CollapseModule,
+        TooltipModule,
+        ProgressbarModule.forRoot(),
+        ExplainVisualizerModule,
+        ModalModule.forRoot(),
+        CarouselModule,
+        PlyrModule, NgxJsonViewerModule, DatesPipeModule
+    ],
     declarations: [
         BreadcrumbComponent,
         DynamicFormsComponent,
@@ -79,6 +82,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
         DataViewComponent,
         DataCardComponent,
         DataTableComponent,
+        DataGraphComponent,
         DataCarouselComponent,
         MediaComponent,
         DeleteConfirmComponent,
@@ -86,23 +90,24 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
         JsonTextComponent,
         JsonElemComponent
     ],
-  exports: [
-    BreadcrumbComponent,
-    DataViewComponent,
-    DataTableComponent,
-    DataCardComponent,
-    DataCarouselComponent,
-    DynamicFormsComponent,
-    GraphComponent,
-    LeftSidebarComponent,
-    RightSidebarComponent,
-    ToastComponent,
-    InformationManagerComponent,
-    InputComponent,
-    ListPickerComponent,
-    JsonEditorComponent,
-    EditorComponent,
-    DeleteConfirmComponent
-  ]
+    exports: [
+        BreadcrumbComponent,
+        DataViewComponent,
+        DataTableComponent,
+        DataCardComponent,
+        DataCarouselComponent,
+        DynamicFormsComponent,
+        GraphComponent,
+        LeftSidebarComponent,
+        RightSidebarComponent,
+        ToastComponent,
+        InformationManagerComponent,
+        InputComponent,
+        ListPickerComponent,
+        JsonEditorComponent,
+        EditorComponent,
+        DeleteConfirmComponent
+    ]
 })
-export class ComponentsModule { }
+export class ComponentsModule {
+}

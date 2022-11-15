@@ -184,14 +184,14 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
       res => {
         const result = <ResultSet> res;
         if( !result.error ){
-          this._toast.success('Added query interface', result.generatedQuery);
+          this._toast.success('Added query interface: ' + deploy.uniqueName, result.generatedQuery);
           this._router.navigate(['./../'], {relativeTo: this._route});
         } else {
           this._toast.exception( result );
         }
         this.QISettingsModal.hide();
       }, err => {
-        this._toast.error('Could not add query interface');
+        this._toast.error('Could not add query interface: ' + deploy.uniqueName );
         console.log(err);
       }
     );
@@ -205,13 +205,13 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         res => {
           const result = <ResultSet> res;
           if(!result.error){
-            this._toast.success('Removed queryInterface', result.generatedQuery);
+            this._toast.success('Removed query interface: ' + queryInterface.uniqueName, result.generatedQuery);
             this.getQueryInterfaces();
           }else{
             this._toast.exception( result );
           }
         }, err => {
-          this._toast.error('Could not remove queryInterface', 'server error');
+          this._toast.error('Could not remove query interface: ' + queryInterface.uniqueName, 'server error');
           console.log(err);
         }
       );

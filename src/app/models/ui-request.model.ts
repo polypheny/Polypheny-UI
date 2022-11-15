@@ -9,7 +9,9 @@ export class UIRequest {
   data: Map<string, string>;
   filter: Map<string, string>;
   sortState: Map<string, SortState>;
+  selectInterval: string;
 }
+
 
 export class TableRequest extends UIRequest {
   requestType = 'TableRequest';
@@ -66,6 +68,20 @@ export class QueryRequest extends UIRequest {
     this.language = lang;
     this.database = database;
     return this;
+  }
+}
+
+
+export class GraphRequest extends QueryRequest {
+  requestType = 'GraphRequest';
+  private namespaceName: string;
+  private nodeIds: string[];
+  private edgeIds: string[];
+  constructor ( namespaceName: string, nodeIds:Set<string>, edgeIds:Set<string> ) {
+    super('MATCH * RETURN *', false, false, 'CYPHER', namespaceName );
+    this.namespaceName = namespaceName;
+    this.nodeIds = Array.from(nodeIds);
+    this.edgeIds = Array.from(edgeIds);
   }
 }
 
@@ -135,8 +151,9 @@ export class StatisticRequest extends UIRequest {
 }
 
 export class MonitoringRequest extends UIRequest{
-  constructor() {
+  constructor(selectInterval?: string) {
     super();
+    this.selectInterval = selectInterval || null;
     return this;
   }
 }
@@ -185,13 +202,16 @@ export class SchemaRequest extends UIRequest {
    */
   showTable: boolean;
   schemaEdit: boolean;
-  constructor( routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean ) {
+  dataModels: DataModels[];
+
+  constructor(routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: DataModels[] = [DataModels.RELATIONAL, DataModels.DOCUMENT, DataModels.GRAPH]) {
     super();
     this.routerLinkRoot = routerLinkRoot;
     this.views = views;
     this.depth = depth;
     this.showTable = showTable;
     this.schemaEdit = schemaEdit || false;
+    this.dataModels = dataModels;
   }
 }
 
@@ -230,6 +250,12 @@ export class MaterializedRequest extends UIRequest{
     super();
     this.tableId = tableId;
   }
+}
+
+export enum DataModels{
+  DOCUMENT = 'document',
+  RELATIONAL = 'relational',
+  GRAPH = 'graph'
 }
 
 
@@ -287,6 +313,7 @@ export class ConstraintRequest {
 export class Schema {
   private name: string;
   private type: string;//todo enum
+  private store: string;
 
   // fields for creation
   create = false;
@@ -298,9 +325,10 @@ export class Schema {
   ifExists = true;
   cascade = false;
 
-  constructor( name: string, type: string ) {
+  constructor( name: string, type: string, store: string ) {
     this.name = name;
     this.type = type;
+    this.store = store;
   }
   setCreate( create: boolean ){
     this.create = create;

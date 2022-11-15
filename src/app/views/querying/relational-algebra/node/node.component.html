@@ -5,7 +5,7 @@
   <!--<div class="drag-handle card-header">{{type}} (node component)<span class="del float-right"><i class="cui-trash"></i></span></div>-->
   <ng-content></ng-content>
   <ng-container [ngSwitch]="node.type">
-    <li class="param list-group-item" *ngSwitchCase="'TableScan'">
+    <li class="param list-group-item" *ngSwitchCase="'Scan'">
       <div class="param-wrapper">
         <label *ngIf="!isView" for="{{node.id}}tableName">Table</label>
         <label *ngIf="isView" for="{{node.id}}tableName">View</label>

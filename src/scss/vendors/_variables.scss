@@ -2,3 +2,14 @@
 @import "../variables";
 @import "~bootstrap/scss/mixins";
 @import "~@coreui/coreui/scss/variables";
+
+@font-face {
+  font-family: 'FontAwesome';
+  src: url("~app/explain-visualizer/assets/fonts/fontawesome-webfont.eot?v=4.5.0");
+  src: url("~app/explain-visualizer/assets/fonts/fontawesome-webfont.eot?#iefix&v=4.5.0") format("embedded-opentype"),
+  url("~app/explain-visualizer/assets/fonts/fontawesome-webfont.woff2?v=4.5.0") format("woff2"),
+  url("~app/explain-visualizer/assets/fonts/fontawesome-webfont.woff?v=4.5.0") format("woff"),
+  url("~app/explain-visualizer/assets/fonts/fontawesome-webfont.ttf?v=4.5.0") format("truetype");
+  font-weight: normal;
+  font-style: normal
+}
