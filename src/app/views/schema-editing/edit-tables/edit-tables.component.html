@@ -11,6 +11,7 @@
             <th>Table</th>
             <th>Truncate</th>
             <th>Drop</th>
+            <th>Move</th>
         </tr>
     </thead>
     <tbody>
@@ -50,6 +51,24 @@
                     </div>
                 </div>
             </td>
+            <td>
+              <div class="input-group confirm-group" *ngIf="table.modifiable">
+                <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="stores && stores.length>3">
+                  <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+                      <span *ngIf="!selectedStore">Select namespace</span>
+                      <span *ngIf="selectedStore">{{selectedStore.uniqueName}}</span>
+                      <span class="caret"></span>
+                  </button>
+                  <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+                      <ng-container *ngFor="let namespace of getAvailableNamespaces()">
+                          <li role="menuitem"><a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = store">{{namespace}}</a></li>
+                      </ng-container>
+                      <li *ngIf="getAvailableNamespaces().length === 0" role="menuitem"><a class="dropdown-item disabled" [routerLink]="[]">no other namespaces available</a></li>
+                  </ul>
+                </div>
+              <button class="btn btn-primary btn-sm" (click)="initPlacementModal('ADD')">move</button>
+              </div>
+          </td>
         </tr>
     </tbody>
 </table>

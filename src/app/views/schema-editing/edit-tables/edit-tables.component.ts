@@ -15,12 +15,19 @@ import {UtilService} from '../../../services/util.service';
 import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
 
+class Namespace {
+  name: string;
+  id: string;
+}
+
 @Component({
   selector: 'app-edit-tables',
   templateUrl: './edit-tables.component.html',
   styleUrls: ['./edit-tables.component.scss']
 })
 export class EditTablesComponent implements OnInit, OnDestroy {
+
+  private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
 
   types: PolyType[] = [];
   schema: string;
@@ -33,6 +40,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   stores: Store[];
   selectedStore;
   creatingTable = false;
+
+  activeNamespace: string;
+  namespaces = [];
+  private existingNamespaces: String[];
 
   //export table
   showExportButton = false;
@@ -79,6 +90,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.add(sub2);
     this.documentListener();
+    this.updateExistingNamespaces();
   }
 
   ngOnDestroy() {
@@ -103,6 +115,48 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         self.tables.forEach((t) => t.editing = false );
       }
     });
+  }
+
+  getAvailableNamespaces (): Namespace[] {
+    if(!this.namespaces) { return []; }
+    return this.namespaces.filter( (n: string) => {
+      return n != this.activeNamespace;
+    });
+  }
+
+  private updateExistingNamespaces() {
+    this._crud.getSchema(new SchemaRequest('views/querying/console/', false, 1, false)).subscribe(
+        res => {
+            this.namespaces = [];
+            for (const namespace of <Namespace[]>res) {
+                this.namespaces.push(namespace.name);
+            }
+
+            this.loadAndSetNamespaceDB();
+        }
+    );
+  }
+
+  private loadAndSetNamespaceDB() {
+    let db = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
+    if (db === null || ( this.namespaces && this.namespaces.length > 0 && !this.namespaces.includes(db))) {
+        if( this.namespaces && this.namespaces.length > 0 ){
+            db = this.namespaces[0];
+        }else{
+            db = 'public';
+        }
+    }
+    this.setDefaultDB(db);
+  }
+
+  private setDefaultDB(name: string) {
+    name = name.trim();
+    if( !this.namespaces.includes(name) ){
+        this.namespaces.push(name);
+    }
+
+    this.activeNamespace = name;
+    localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
   }
 
   getTables() {
