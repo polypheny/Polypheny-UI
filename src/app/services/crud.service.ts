@@ -19,6 +19,7 @@ import {
   GraphRequest,
   MaterializedRequest,
   MonitoringRequest,
+  TransferTableRequest,
   QueryRequest,
   RelAlgRequest,
   Schema,
@@ -223,6 +224,13 @@ export class CrudService {
    */
   createTable(tableRequest: EditTableRequest) {
     return this._http.post(`${this.httpUrl}/createTable`, tableRequest, this.httpOptions);
+  }
+
+  /**
+   * Transfer a table to different namespace/schema
+   */
+   transferTable(tableRequest: TransferTableRequest) {
+    return this._http.post(`${this.httpUrl}/transferTable`, tableRequest, this.httpOptions);
   }
 
   /**

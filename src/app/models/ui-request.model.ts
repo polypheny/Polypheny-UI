@@ -271,6 +271,18 @@ export class EditTableRequest {
   }
 }
 
+ export class TransferTableRequest {
+  table: string;
+  sourceSchema: string;
+  targetSchema: string;
+
+  constructor(table: string, sourceNamespaceName: string, targetNamespaceName: string) {
+    this.table = table;
+    this.sourceSchema = sourceNamespaceName;
+    this.targetSchema = targetNamespaceName;
+  }
+}
+
 export class EditCollectionRequest {
   database: string;
   collection: string;
