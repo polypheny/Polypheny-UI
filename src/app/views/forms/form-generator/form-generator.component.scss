@@ -157,3 +157,14 @@
 .restart-info{
   width: 100%;
 }
+
+// Plugin
+
+.plugin-wrapper{
+  display: grid;
+  grid-template-columns: min-content 1fr min-content ;
+
+  .checkbox {
+    align-self: center;
+  }
+}

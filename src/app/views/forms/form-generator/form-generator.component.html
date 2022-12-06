@@ -91,12 +91,31 @@
 																   [removeElement]="removeElement"
 																   [addElement]="addElement"></app-docker-config>
 											</div>
-											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">
+											<div class="list-wrapper col-12" *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">
 												<div class="input-group">
 													<div class="list-input-wrapper input-group my-1" *ngFor="let el of config.value.values; let i = index;">
 														<!-- Object { pluginId: "cypher-language", loaded: true, id: 31, key: "pluginConfigcypher-language", description: "", requiresRestart: false, webUiFormType: "PLUGIN_INSTANCE", webUiOrder: 0, configType: "ConfigPlugin", isObservable: true } -->
-														<h3>{{ el.pluginId }}</h3>
-														<p>{{ el.description }}</p>
+														<div class="card input-group ">
+															<div class="title card-header">
+																{{ el.pluginId }} <span *ngIf="el.type">{{ el.type }}</span>
+															</div>
+															<div class="plugin-wrapper">
+																<div class="image-wrapper m-2">
+																	<img src="{{ el.imagePath ? el.imagePath : 'assets/img/plugin/plugin-placeholder.svg' }}" alt="">
+																</div>
+																<div class="description">
+																	<p>{{ el.description }}</p>
+																</div>
+																<div class="mx-2 checkbox">
+																	<input type="checkbox" aria-label="Checkbox for following text input">
+																</div>
+
+															</div>
+															<div class="card-footer">
+																<a href=" el.url ? el.url : 'polypheny.com' "><small class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
+															</div>
+														</div>
+														
 													</div>
 													<div class="list-add-wrapper input-group m-1">
 														<span class="input-group-btn">
