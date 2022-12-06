@@ -1,0 +1,159 @@
+.form-group{
+  //border: 1px #dadada solid;
+  //border-radius: 3px;
+  margin: 0.1rem;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+}
+.card-body .input-group:last-child {
+  margin-bottom: 0;
+}
+
+.save-configs{
+  position: absolute;
+  top: 0;
+  right: 1rem;
+}
+.checkbox-wrapper{
+  position: relative;
+  flex: 1 1 auto;
+  padding-left: 2em;
+  padding-bottom: 0 !important;
+  display: block;
+  height: 94%;
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  border: 1px solid #e4e7ea;
+  line-height: 2.4em;//for .switch
+}
+
+.checkbox-wrapper input{
+  border: none !important;
+  box-shadow: none !important;
+  height: calc(1.5em + 0.75rem) !important;
+}
+
+.list-wrapper {
+  position: relative;
+  flex: 1 1 auto;
+  padding-bottom: 0 !important;
+  display: block;
+}
+
+.list-add-wrapper {
+  justify-content: center;
+  width: 100%;
+  display: flex;
+}
+
+.list-input-wrapper {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.switch{
+  position: absolute;
+  top: calc(50% - 0.75em);
+  left: calc(50% - 1.4em);
+}
+
+.pageLink {
+  margin-right: 1rem;
+}
+.row .card{
+  margin-bottom: 2rem;
+}
+.card-columns .card {
+  margin-bottom: 1rem;
+}
+
+.card-body{
+  padding: 1rem;
+}
+.card-header{
+  padding: 1rem;
+  line-height: 1.25em;
+  min-height: 3rem;
+  small {
+    margin-left: 0.5em;
+    color: #5c6873;
+  }
+}
+
+
+.input-group-prepend-list{
+  max-width: 50%;
+  min-width: 50%;
+  overflow: hidden;
+  position: relative;
+
+  //todo there is a delay when the mouse leaves the element
+  -webkit-transition: max-width 1s linear 0s;
+  -moz-transition: max-width 1s linear 0s;
+  -o-transition: max-width 1s linear 0s;
+  transition: max-width 1s linear 0s;
+}
+.input-group-prepend:hover{
+  max-width: 100%;
+}
+
+.input-group-prepend .input-group-text{
+  width: 100%;
+}
+
+.input-group-full {
+  max-width: 100%;
+  min-width: 100%;
+}
+
+.gradient{
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1em;
+  z-index: 2;
+  height: 90%;
+
+  //gradient
+  // http://colorzilla.com/gradient-editor/#7db9e8+0,f0f3f5+100&0+0,1+100
+  background: -moz-linear-gradient(left, rgba(125,185,232,0) 0%, rgba(240,243,245,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(left, rgba(125,185,232,0) 0%,rgba(240,243,245,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to right, rgba(125,185,232,0) 0%,rgba(240,243,245,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#007db9e8', endColorstr='#f0f3f5',GradientType=1 ); /* IE6-9 */
+}
+
+.instance-taskbar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.instance-collapsed {
+  display: flex;
+  justify-content: space-between;
+}
+
+.docker-status {
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  align-items: center;
+
+  &>* {
+    margin: 0;
+  }
+
+  .status {
+    justify-self: center;
+  }
+}
+
+.prepend-status {
+  flex: max-content;
+}
+
+.restart-info{
+  width: 100%;
+}

@@ -37,7 +37,7 @@ export class GraphComponent implements OnInit, OnChanges {
   @Input() yLabel: string;
 
   @Input() maintainAspectRatio = true;
-  
+
 
   options: any = {
     animation: false,
@@ -94,11 +94,11 @@ export class GraphComponent implements OnInit, OnChanges {
   ngOnInit() {
     const numberOfColors = 9;
 
-    let iterableColorList = this.generateIterableArray(this.colorList);
+    const iterableColorList = this.generateIterableArray(this.colorList);
     for (let i = 0; i < numberOfColors; i++) {
       this.doughnutPolarColors[0].backgroundColor[i] = hexToRgba(iterableColorList.next(), 60);
       this.doughnutPolarColors[0].borderColor[i] = iterableColorList.lastUsed();
-      this.barColors[i] = {borderWidth: 1, backgroundColor: hexToRgba(iterableColorList.lastUsed(), 60)};
+      this.barColors[i] = {borderWidth: 1, backgroundColor: (iterableColorList.lastUsed() ? hexToRgba(iterableColorList.lastUsed(), 60) : null )};
     }
   }
 
@@ -211,10 +211,10 @@ export class GraphComponent implements OnInit, OnChanges {
     lastUsed() {
       if(this.nextIndex == 0) {
         return this.arr[0]
-      } 
+      }
       else {
         return this.arr[this.nextIndex-1];
-      }   
+      }
     }
   });
 

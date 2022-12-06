@@ -3,6 +3,7 @@ import { DOCUMENT } from '@angular/common';
 import { navItems } from '../../_nav';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {InformationService} from '../../services/information.service';
+import {PluginService} from '../../services/plugin.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,6 +18,7 @@ export class DefaultLayoutComponent implements OnDestroy {
   constructor(
     public _sidebar: LeftSidebarService,
     public _information: InformationService,
+    public _plugin: PluginService,
     @Inject(DOCUMENT) _document?: any
   ) {
 
@@ -39,7 +41,7 @@ export class DefaultLayoutComponent implements OnDestroy {
   }
 
   exploreByExampleEnabled() {
-    return this._information.getEnabledPlugins().includes('Explore-By-Example');
+    return this._plugin.getEnabledPlugins().includes('explore-by-example');
 
   }
 }

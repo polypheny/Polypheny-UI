@@ -351,7 +351,6 @@ export class CrudService {
         break;
     }
     const request = new QueryRequest(code, false, true, 'cypher', namespace);
-    console.log(request)
     return this._http.post(`${this.langUrl}/mql`, request, this.httpOptions);
   }
 
@@ -562,6 +561,8 @@ export class CrudService {
   getDocumentDatabases() {
     return this._http.get(`${this.httpUrl}/getDocumentDatabases`);
   }
+
+
 
   /**
    * Get the http url with which multimedia files can be displayed or downloaded

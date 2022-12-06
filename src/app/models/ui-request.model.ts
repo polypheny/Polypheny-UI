@@ -128,6 +128,14 @@ export class Exploration{
   }
 }
 
+
+export class PluginStatus{
+  id: string;
+  stringPath: string;
+  loaded: boolean;
+  imagePath: string;
+}
+
 export class ExploreTable extends UIRequest{
   id: number;
   header: DbColumn[];
