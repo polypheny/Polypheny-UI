@@ -137,9 +137,9 @@ export class PluginEntity {
 }
 
 export enum PluginStatus {
-  UNLOADED,
-  LOADED,
-  ACTIVE
+  UNLOADED = 'UNLOADED',
+  LOADED = 'LOADED',
+  ACTIVE = 'ACTIVE'
 }
 
 export class ExploreTable extends UIRequest{

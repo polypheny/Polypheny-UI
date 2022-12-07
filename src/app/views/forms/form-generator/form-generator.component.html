@@ -114,8 +114,8 @@
 														</div>
 														<div class="card-footer plugin-footer">
 															<a href=" el.url ? el.url : 'polypheny.com' "><small class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
-															<button (click)="deactivatePlugin(el, key)" *ngIf="el.status === 'ACTIVE'" class="btn btn-info">Deactivate</button>
-															<button (click)="activatePlugin(el, key)" *ngIf="el.status === 'LOADED'" class="btn btn-primary">Activate</button>
+															<button (click)="deactivatePlugin(el, config.value.key)" *ngIf="el.status === 'ACTIVE'" class="btn btn-info">Deactivate</button>
+															<button (click)="activatePlugin(el, config.value.key)" *ngIf="el.status === 'LOADED'" class="btn btn-primary">Activate</button>
 														</div>
 													</div>
 

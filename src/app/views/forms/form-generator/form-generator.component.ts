@@ -339,10 +339,12 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
 
   deactivatePlugin(el:any, key: string) {
     el.status = PluginStatus.LOADED;
+    this.markElementReset(key, el);
   }
 
   activatePlugin(el:any, key: string) {
     el.status = PluginStatus.ACTIVE;
+    this.markElementReset(key, el);
   }
 }
 
