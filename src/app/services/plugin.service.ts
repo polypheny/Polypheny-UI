@@ -3,7 +3,7 @@ import {WebuiSettingsService} from './webui-settings.service';
 import {HubService} from './hub.service';
 import {CrudService} from './crud.service';
 import {Injectable} from '@angular/core';
-import {PluginStatus} from '../models/ui-request.model';
+import {PluginEntity} from '../models/ui-request.model';
 
 @Injectable({
     providedIn: 'root'
@@ -27,7 +27,7 @@ export class PluginService{
     }
 
 
-    private availablePlugins: [PluginStatus] = null;
+    private availablePlugins: [PluginEntity] = null;
     private pluginRequestFired:number = null;
     private REQUEST_DELAY: number = 1000*20;
 
@@ -36,7 +36,7 @@ export class PluginService{
         return this.getAvailablePlugins().map( p =>  p.id );
     }
 
-    getAvailablePlugins(): PluginStatus[] {
+    getAvailablePlugins(): PluginEntity[] {
         if( this.pluginRequestFired === null ){
             this.pluginRequestFired = Date.now() - (this.REQUEST_DELAY + 100);
         }
@@ -46,7 +46,7 @@ export class PluginService{
                 this.pluginRequestFired = today;
                 this._http.get(`${this.httpUrl}/getAvailablePlugins`, this.httpOptions)
                     .subscribe(res => {
-                        this.availablePlugins = <[PluginStatus]>res;
+                        this.availablePlugins = <[PluginEntity]>res;
                     });
             }
             return [];

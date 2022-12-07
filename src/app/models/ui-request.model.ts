@@ -129,11 +129,17 @@ export class Exploration{
 }
 
 
-export class PluginStatus{
+export class PluginEntity {
   id: string;
   stringPath: string;
-  loaded: boolean;
+  status: boolean;
   imagePath: string;
+}
+
+export enum PluginStatus {
+  UNLOADED,
+  LOADED,
+  ACTIVE
 }
 
 export class ExploreTable extends UIRequest{

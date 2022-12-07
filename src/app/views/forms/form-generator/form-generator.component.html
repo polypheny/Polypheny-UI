@@ -13,8 +13,8 @@
 		<div class="card-columns" [ngStyle]="{'column-count': _breadcrumb.getMasonryZoom()}">
 			<ng-container *ngFor="let group of formObj.groups | keyvalue: orderGroups">
 				<div>
-					<div class="form-group card">
-						<div class="card-header">
+					<div class="form-group" [ngClass]="{ 'card': !formObj.fullWidth }">
+						<div [ngClass]="{'card-header': !formObj.fullWidth}">
 							<div style="width: 100%;">
 								<span>{{group.value.title}}</span>
 								<ng-container *ngIf="group.value.description">
@@ -23,11 +23,11 @@
 							</div>
 						</div>
 						<!--<p>{{group.value.description}}</p>-->
-						<div class="card-body" >
+						<div [ngClass]="{'card-body': !formObj.fullWidth }" >
 							<ng-container *ngFor="let config of group.value.configs | keyvalue: orderConfigs; let nth = index">
 								<ng-container [ngSwitch]="config.value.webUiFormType">
 									<div class="input-group">
-										<div class="input-group-prepend-list" [class.input-group-full]=" config.value.webUiFormType === 'LIST'" >
+										<div *ngIf="!formObj.fullWidth" class="input-group-prepend-list" [class.input-group-full]=" config.value.webUiFormType === 'LIST'" >
 											<label [for]="config.value.key" class="input-group-text" id="basic-addon1" [tooltip]="config.value.description" placement="left" container="body">{{ config.value.key }}</label>
 											<div class="gradient"></div>
 										</div>
@@ -46,12 +46,6 @@
 										</ng-container>
 
 										<ng-container #booleanCase *ngSwitchCase="'BOOLEAN'">
-											<!--<div class="checkbox-wrapper">-->
-														<!--<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
-														<!-- throws warning, but solves problem of assigning value "false" (as string) -->
-												<!--<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
-											<!--</div>-->
-
 											<div class="checkbox-wrapper">
 												<br>
 												<label [class]="'switch switch-label switch-pill switch-sm switch-primary'">
@@ -64,7 +58,7 @@
 											</small>
 
 										</ng-container>
-										<ng-container #listCase *ngSwitchCase="'LIST'">
+										<ng-container #listCase *ngSwitchCase="'LIST'" [ngClass]="{'card-group': formObj.fullWidth}">
 											<!-- List of ConfigString -->
 
 											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'TEXT'">
@@ -91,62 +85,65 @@
 																   [removeElement]="removeElement"
 																   [addElement]="addElement"></app-docker-config>
 											</div>
-											<div class="list-wrapper col-12" *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">
-												<div class="input-group">
-													<div class="list-input-wrapper input-group my-1" *ngFor="let el of config.value.values; let i = index;">
-														<!-- Object { pluginId: "cypher-language", loaded: true, id: 31, key: "pluginConfigcypher-language", description: "", requiresRestart: false, webUiFormType: "PLUGIN_INSTANCE", webUiOrder: 0, configType: "ConfigPlugin", isObservable: true } -->
-														<div class="card input-group ">
-															<div class="title card-header">
-																{{ el.pluginId }} <span *ngIf="el.type">{{ el.type }}</span>
-															</div>
-															<div class="plugin-wrapper">
+											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">
+												<div class="list-add-wrapper input-group m-1 pr-4">
+													<input type="file" class="plugin-file-input"
+														   (change)="onFileSelected($event)" #fileUpload>
+													<div class="file-upload">
+														{{fileName || ""}}
+														<button class="btn btn-primary upload-btn" (click)="fileUpload.click()">
+															Upload Local Plugin
+														</button>
+													</div>
+												</div>
+												<div class="list-input-wrapper my-1 card-deck" *ngFor="let el of config.value.values; let i = index;">
+													<!-- Object { pluginId: "cypher-language", loaded: true, id: 31, key: "pluginConfigcypher-language", description: "", requiresRestart: false, webUiFormType: "PLUGIN_INSTANCE", webUiOrder: 0, configType: "ConfigPlugin", isObservable: true } -->
+													<div class="card">
+														<div class="plugin-wrapper">
+															<div class="left">
 																<div class="image-wrapper m-2">
 																	<img src="{{ el.imagePath ? el.imagePath : 'assets/img/plugin/plugin-placeholder.svg' }}" alt="">
 																</div>
-																<div class="description">
-																	<p>{{ el.description }}</p>
+															</div>
+															<div class="right">
+																<div class="title">
+																	{{ el.pluginId }} <span *ngIf="el.type">{{ el.type }}</span>
 																</div>
-																<div class="mx-2 checkbox">
-																	<input type="checkbox" aria-label="Checkbox for following text input">
-																</div>
+															</div>
 
-															</div>
-															<div class="card-footer">
-																<a href=" el.url ? el.url : 'polypheny.com' "><small class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
-															</div>
 														</div>
-														
+														<div class="card-footer plugin-footer">
+															<a href=" el.url ? el.url : 'polypheny.com' "><small class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
+															<button (click)="deactivatePlugin(el, key)" *ngIf="el.status === 'ACTIVE'" class="btn btn-info">Deactivate</button>
+															<button (click)="activatePlugin(el, key)" *ngIf="el.status === 'LOADED'" class="btn btn-primary">Activate</button>
+														</div>
 													</div>
-													<div class="list-add-wrapper input-group m-1">
-														<span class="input-group-btn">
-															<button class="btn btn-secondary" type="button" (click)="addElement(config.value.values, config.value.key, config.value.template)">+</button>
-														</span>
-													</div>
+
 												</div>
 											</div>
 										</ng-container>
 
-                    <!-- ConfigClazz, ConfigEnum -->
-                    <ng-container *ngSwitchCase="'SELECT'">
-                      <select [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" class="form-control" [ngClass]="inputValidation(config.value.key)">
-                        <option *ngFor="let c of config.value.values" [value]="c">{{classOrEnumName(c)}}</option>
-                      </select>
-						<small id="help-enum" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
-							value until restart: {{config.value.oldValue}}
-						</small>
-                    </ng-container>
+										<!-- ConfigClazz, ConfigEnum -->
+										<ng-container *ngSwitchCase="'SELECT'">
+										  <select [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" class="form-control" [ngClass]="inputValidation(config.value.key)">
+											<option *ngFor="let c of config.value.values" [value]="c">{{classOrEnumName(c)}}</option>
+										  </select>
+											<small id="help-enum" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
+												value until restart: {{config.value.oldValue}}
+											</small>
+										</ng-container>
 
-                    <!-- ConfigClazzList, ConfigEnumList -->
-                    <ng-container *ngSwitchCase="'CHECKBOXES'">
-                      <div class="form-control" style="height:auto">
-                        <div *ngFor="let c of config.value.values">
-                          <label><input type="checkbox" [checked]="config.value.value.includes(c)" style="margin-right:0.5em" #cb (change)="handleClassList(config.value.key, c, cb.checked)">{{classOrEnumName(c)}}</label>
-                        </div>
-						  <small id="help-checkboxes" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
-							  value until restart: {{config.value.oldValue}}
-						  </small>
-                      </div>
-                    </ng-container>
+										<!-- ConfigClazzList, ConfigEnumList -->
+										<ng-container *ngSwitchCase="'CHECKBOXES'">
+										  <div class="form-control" style="height:auto">
+											<div *ngFor="let c of config.value.values">
+											  <label><input type="checkbox" [checked]="config.value.value.includes(c)" style="margin-right:0.5em" #cb (change)="handleClassList(config.value.key, c, cb.checked)">{{classOrEnumName(c)}}</label>
+											</div>
+											  <small id="help-checkboxes" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
+												  value until restart: {{config.value.oldValue}}
+											  </small>
+										  </div>
+										</ng-container>
 
 										<div class="invalid-feedback" *ngIf="submitted && !form.controls[config.value.key].valid">
 											<div *ngIf="form.controls[config.value.key].errors.required">
@@ -184,6 +181,8 @@
 		{{serverError.name}}: {{serverError.message}}
 	</p>
 </ng-container>
+
+
 
 <!--<div class="row" *ngIf="formObj && form">
 	<div class="col-lg-6">

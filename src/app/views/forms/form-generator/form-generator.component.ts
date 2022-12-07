@@ -11,6 +11,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {isEqual} from 'lodash';
 import {DockerStatus} from './form-generator.model';
+import {PluginStatus} from '../../../models/ui-request.model';
 
 @Component({
   selector: 'app-form-generator',
@@ -28,6 +29,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   pageList;//wenn man nicht auf einer gewissen Seite ist und alle Pages als links aufgelisted werden sollen.
   serverError;//wenn der Server nicht antwortet
   private subscriptions = new Subscription();
+  fileName: string;
 
   constructor(
     private _config:ConfigService,
@@ -330,6 +332,18 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     }
     this.markElementReset(key, el);
   }
+
+  onFileSelected($event: Event) {
+    console.log($event);
+  }
+
+  deactivatePlugin(el:any, key: string) {
+    el.status = PluginStatus.LOADED;
+  }
+
+  activatePlugin(el:any, key: string) {
+    el.status = PluginStatus.ACTIVE;
+  }
 }
 
 
@@ -338,6 +352,8 @@ export interface JavaUiPage {
   title: String;
   description: String;
   groups: Map<string, JavaUiGroup>;
+
+  fullWidth: boolean;
 }
 export interface JavaUiGroup {
   id: number;
