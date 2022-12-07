@@ -109,6 +109,9 @@
 																<div class="title">
 																	{{ el.pluginId }} <span *ngIf="el.type">{{ el.type }}</span>
 																</div>
+																<div class="badge-wrapper" >
+																	<span class="badge badge-primary mr-1" *ngFor="let category of el.categories">{{category}}</span>
+																</div>
 															</div>
 
 														</div>
