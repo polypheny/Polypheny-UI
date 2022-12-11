@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
-import {EditCollectionRequest, EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {EditCollectionRequest, EditTableRequest, SchemaRequest, TransferTableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbColumn, Index, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
@@ -14,6 +14,11 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 import {UtilService} from '../../../services/util.service';
 import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
+
+class Namespace {
+  name: string;
+  id: string;
+}
 
 @Component({
   selector: 'app-document-edit-collections',
@@ -33,6 +38,10 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   stores: Store[];
   selectedStore;
   creatingTable = false;
+
+  activeNamespace: string;
+  namespaces: Namespace[];
+  selectedSchemas = new Map<string, string>(); // name of the collection, name of the selected namespace
 
   //export table
   showExportButton = false;
@@ -78,6 +87,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.add(sub2);
     this.documentListener();
+    this.updateExistingSchemas();
   }
 
   ngOnDestroy() {
@@ -377,6 +387,53 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         this.types = t;
         this.newColumns.get(0).dataType = t[0].name;
       }
+    );
+  }
+
+  transferTable(table : TableModel) {
+    const req = new TransferTableRequest( table.name, this.database, this.getSelectedSchemaForTable(table))
+    this._crud.transferTable( req ).subscribe(
+      res => {
+        const result = <ResultSet>res;
+        if (result.error) {
+          this._toast.exception(result, 'Could not transfer collection:');
+        } else {
+          this._toast.success('Transfered collection ' + table.name, result.generatedQuery);
+          this.updateExistingSchemas();
+          this.selectedSchemas.delete(table.name);
+          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
+        }
+        this.getTables();
+      }, err => {
+        this._toast.error('Could not transfer collection');
+        console.log(err);
+      }
+    );
+  }
+
+  selectSchemaForTable(table : TableModel, selectedSchema : string) {
+    this.selectedSchemas.set(table.name, selectedSchema);
+  }
+
+  getSelectedSchemaForTable(table : TableModel) {
+    return this.selectedSchemas.get(table.name);
+  }
+
+  getAvailableSchemas (): Namespace[] {
+    if(!this.namespaces) { return []; }
+    return this.namespaces.filter( (n: Namespace) => {
+      return n.name != this.database;
+    });
+  }
+
+  private updateExistingSchemas() {
+    this._crud.getSchema(new SchemaRequest('views/querying/console/', false, 1, false)).subscribe(
+        res => {
+          this.namespaces = [];
+          for (const namespace of <Namespace[]>res) {
+              this.namespaces.push(namespace);
+          }
+        }
     );
   }
 
