@@ -333,10 +333,6 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     this.markElementReset(key, el);
   }
 
-  onFileSelected($event: Event) {
-    console.log($event);
-  }
-
   deactivatePlugin(el:any, key: string) {
     el.status = PluginStatus.LOADED;
     this.markElementReset(key, el);

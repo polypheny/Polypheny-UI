@@ -87,14 +87,7 @@
 											</div>
 											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">
 												<div class="list-add-wrapper input-group m-1 pr-4">
-													<input type="file" class="plugin-file-input"
-														   (change)="onFileSelected($event)" #fileUpload>
-													<div class="file-upload">
-														{{fileName || ""}}
-														<button class="btn btn-primary upload-btn" (click)="fileUpload.click()">
-															Upload Local Plugin
-														</button>
-													</div>
+													<app-file-uploader></app-file-uploader>
 												</div>
 												<div class="list-input-wrapper my-1 card-deck" *ngFor="let el of config.value.values; let i = index;">
 													<!-- Object { pluginId: "cypher-language", loaded: true, id: 31, key: "pluginConfigcypher-language", description: "", requiresRestart: false, webUiFormType: "PLUGIN_INSTANCE", webUiOrder: 0, configType: "ConfigPlugin", isObservable: true } -->
