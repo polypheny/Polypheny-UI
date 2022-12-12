@@ -41,6 +41,8 @@ import {DocumentEditCollectionsComponent} from './schema-editing/document-edit-c
 import {DocumentEditCollectionComponent} from './schema-editing/document-edit-collection/document-edit-collection.component';
 import {StatisticsColumnComponent} from './schema-editing/statistics-column/statistics-column.component';
 import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-edit-graph.component';
+import { DockerConfigComponent } from './forms/form-generator/docker-config/docker-config.component';
+import { FileUploaderComponent } from './forms/form-generator/file-uploader/file-uploader.component';
 
 
 @NgModule({
@@ -93,7 +95,9 @@ import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-e
     EditSourceColumnsComponent,
     StatisticsColumnComponent,
     ValuePipe,
-    SearchFilterPipe
+    SearchFilterPipe,
+    DockerConfigComponent,
+    FileUploaderComponent
   ],
   exports: [
     ExploreByExampleComponent

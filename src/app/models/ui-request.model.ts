@@ -128,6 +128,21 @@ export class Exploration{
   }
 }
 
+
+export class PluginEntity {
+  id: string;
+  stringPath: string;
+  status: boolean;
+  imagePath: string;
+  categories: string[];
+}
+
+export enum PluginStatus {
+  UNLOADED = 'UNLOADED',
+  LOADED = 'LOADED',
+  ACTIVE = 'ACTIVE'
+}
+
 export class ExploreTable extends UIRequest{
   id: number;
   header: DbColumn[];

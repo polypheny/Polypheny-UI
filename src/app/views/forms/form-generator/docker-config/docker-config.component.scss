@@ -157,30 +157,3 @@
 .restart-info{
   width: 100%;
 }
-
-// Plugin
-
-.plugin-wrapper{
-  display: grid;
-  grid-template-columns: min-content 1fr;
-
-  .right{
-    display: grid;
-
-    .title{
-      align-self: center;
-    }
-
-  }
-}
-
-.plugin-footer{
-  display: grid;
-  align-items: center;
-  justify-content: space-between;
-  grid-template-columns: 1fr min-content;
-}
-
-.plugin-file-input{
-  display: none;
-}

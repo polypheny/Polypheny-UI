@@ -23,6 +23,7 @@ import {TableConfig} from '../../../components/data-view/data-table/table-config
 import {WebSocket} from '../../../services/webSocket';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {InformationService} from '../../../services/information.service';
+import {PluginService} from '../../../services/plugin.service';
 
 @Component({
   selector: 'app-explore-by-example',
@@ -81,6 +82,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     private _toast: ToastService,
     private _settings: WebuiSettingsService,
     private _information: InformationService,
+    private _plugin: PluginService,
     private modalService: BsModalService) {
     this.websocket = new WebSocket(_settings);
   }
@@ -287,7 +289,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
   }
 
   exploreByExampleEnabled(): boolean {
-      return this._crud.getEnabledPlugins().includes('explore-by-example');
+      return this._plugin.getEnabledPlugins().includes('explore-by-example');
   }
 }
 

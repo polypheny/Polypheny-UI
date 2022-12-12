@@ -13,8 +13,8 @@
 		<div class="card-columns" [ngStyle]="{'column-count': _breadcrumb.getMasonryZoom()}">
 			<ng-container *ngFor="let group of formObj.groups | keyvalue: orderGroups">
 				<div>
-					<div class="form-group card">
-						<div class="card-header">
+					<div class="form-group" [ngClass]="{ 'card': !formObj.fullWidth }">
+						<div [ngClass]="{'card-header': !formObj.fullWidth}">
 							<div style="width: 100%;">
 								<span>{{group.value.title}}</span>
 								<ng-container *ngIf="group.value.description">
@@ -23,11 +23,11 @@
 							</div>
 						</div>
 						<!--<p>{{group.value.description}}</p>-->
-						<div class="card-body" >
+						<div [ngClass]="{'card-body': !formObj.fullWidth }" >
 							<ng-container *ngFor="let config of group.value.configs | keyvalue: orderConfigs; let nth = index">
 								<ng-container [ngSwitch]="config.value.webUiFormType">
 									<div class="input-group">
-										<div class="input-group-prepend-list" [class.input-group-full]=" config.value.webUiFormType === 'LIST'" >
+										<div *ngIf="!formObj.fullWidth" class="input-group-prepend-list" [class.input-group-full]=" config.value.webUiFormType === 'LIST'" >
 											<label [for]="config.value.key" class="input-group-text" id="basic-addon1" [tooltip]="config.value.description" placement="left" container="body">{{ config.value.key }}</label>
 											<div class="gradient"></div>
 										</div>
@@ -46,12 +46,6 @@
 										</ng-container>
 
 										<ng-container #booleanCase *ngSwitchCase="'BOOLEAN'">
-											<!--<div class="checkbox-wrapper">-->
-														<!--<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
-														<!-- throws warning, but solves problem of assigning value "false" (as string) -->
-												<!--<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control" [ngClass]="inputValidation(config.value.key)">-->
-											<!--</div>-->
-
 											<div class="checkbox-wrapper">
 												<br>
 												<label [class]="'switch switch-label switch-pill switch-sm switch-primary'">
@@ -64,8 +58,9 @@
 											</small>
 
 										</ng-container>
-										<ng-container #listCase *ngSwitchCase="'LIST'">
+										<ng-container #listCase *ngSwitchCase="'LIST'" [ngClass]="{'card-group': formObj.fullWidth}">
 											<!-- List of ConfigString -->
+
 											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'TEXT'">
 												<div class="input-group">
 													<div class="list-input-wrapper input-group my-1" *ngFor="let el of config.value.values; let i = index;">
@@ -83,119 +78,68 @@
 											</div>
 											<!--List of DockerInstance-->
 											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'DOCKER_INSTANCE'">
-												<div class=" input-group instance-wrapper card p-1 my-1 border" *ngFor="let el of config.value.values; let i = index;" [ngClass]="el.dockerRunning ? 'border-success' : 'border-danger'">
-													<div class="instance-collapsed p-2 bg-gray d-none">
-														<div class="info">
-															<span>Alias: {{el.alias}}</span>
-															<span>Host: {{el.url}}</span>
-														</div>
-														<i class="cui-pencil"></i>
-													</div>
-													<div class="instance-expanded">
-														<div class="input-group docker-status">
-															<div class="input-group-prepend prepend-status">
-																<span class="input-group-text" *ngIf="el.isTesting; else notTesting">Waiting...</span>
-																<ng-template #notTesting>
-																	<span class="input-group-text bg-success" *ngIf="el.dockerRunning; else notRunning">Reachable</span>
-																</ng-template>
-																<ng-template #notRunning>
-																	<span class="input-group-text bg-danger">{{ form.dirty ? 'Please save first' : 'Not Reachable'}}</span>
-																</ng-template>
-															</div>
-															<button class="btn btn-secondary" (click)="testConnection($event, config.value.values[i], config.value.key)" [disabled]="form.dirty" ><i class="cui-reload"></i></button>
-														</div>
-														<div class="input-group">
-															<div class="input-group-prepend">
-																<span class="input-group-text" id="basiaddon1">Host</span>
-															</div>
-															<input type="text" class="form-control list-input" [(ngModel)]="el.host" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
-														</div>
-														<div class="input-group">
-															<div class="input-group-prepend">
-																<span class="input-group-text" id="basiaddon2">Alias</span>
-															</div>
-															<input type="text" class="form-control list-input form-control" [(ngModel)]="el.alias" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
-														</div>
-														<div class="input-group">
-															<div class="input-group-prepend">
-																<span class="input-group-text" id="basiaddon4">Protocol</span>
-															</div>
-															<select class="custom-select" id="inputGroupSelect01" (change)="setProtocolAndMarkElement(el, $event, config.value.key, config.value.values[i])">
-																<option *ngFor="let protocol of el.protocols" [selected]="protocol === el.protocol">{{protocol}}</option>
-															</select>
-														</div>
-														<div class="input-group">
-															<div class="input-group-prepend">
-																<span class="input-group-text">Insecure Connection (HTTP)</span>
-															</div>
-															<div class="checkbox-wrapper">
-																<br>
-																<label [class]="'switch switch-label switch-pill switch-sm switch-primary'">
-																	<input [(ngModel)]="el.usingInsecure" [ngModelOptions]="{standalone: true}"  (change)="setInsecureAndMark(el.usingInsecure, config.value.key, config.value.values[i])" type="checkbox" class="form-control switch-input" [ngClass]="inputValidation(config.value.key)">
-																	<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
-																</label>
-															</div>
-														</div>
-														<div class="input-group" *ngIf="el.protocol === 'tcp'">
-															<div class="input-group-prepend">
-																<span class="input-group-text" id="basiaddon5">Port</span>
-															</div>
-															<input type="number" class="form-control list-input" [(ngModel)]="el.port" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
-														</div>
-														<div class="auth" *ngIf="el.protocol === 'ssh'">
-															<div class="input-group">
-																<div class="input-group-prepend">
-																	<span class="input-group-text" id="basiaddon3">Username</span>
-																</div>
-																<input type="text" class="form-control list-input form-control" [(ngModel)]="el.username" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
-															</div>
-															<div class="input-group">
-																<div class="input-group-prepend">
-																	<span class="input-group-text" id="basiaddon6">Password</span>
-																</div>
-																<input type="password" class="form-control list-input form-control" [(ngModel)]="el.password" (input)="markElementReset(config.value.key, config.value.values[i])" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
-															</div>
-														</div>
-
-														<div class="instance-taskbar">
-															<div></div>
-															<span class="input-group-btn">
-																<button class="btn btn-secondary" (click)="removeElement(config.value.values, config.value.key, i)" type="button">Delete</button>
-															</span>
-														</div>
-													</div>
+												<app-docker-config [form]="form"
+																   [onSubmit]="onSubmit"
+																   [config]="config"
+																   [submitted]="submitted"
+																   [removeElement]="removeElement"
+																   [addElement]="addElement"></app-docker-config>
+											</div>
+											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">
+												<div class="list-add-wrapper input-group m-1 pr-4">
+													<app-file-uploader></app-file-uploader>
 												</div>
-												<div class="input-group my-1">
-													<div class="list-add-wrapper input-group">
-														<span class="input-group-btn">
-															<button class="btn btn-secondary" type="button" (click)="addElement(config.value.values, config.value.key, config.value.template)">New Instance</button>
-														</span>
+												<div class="list-input-wrapper my-1 card-deck" *ngFor="let el of config.value.values; let i = index;">
+													<!-- Object { pluginId: "cypher-language", loaded: true, id: 31, key: "pluginConfigcypher-language", description: "", requiresRestart: false, webUiFormType: "PLUGIN_INSTANCE", webUiOrder: 0, configType: "ConfigPlugin", isObservable: true } -->
+													<div class="card">
+														<div class="plugin-wrapper">
+															<div class="left">
+																<div class="image-wrapper m-2">
+																	<img src="{{ el.imagePath ? el.imagePath : 'assets/img/plugin/plugin-placeholder.svg' }}" alt="">
+																</div>
+															</div>
+															<div class="right">
+																<div class="title">
+																	{{ el.pluginId }} <span *ngIf="el.type">{{ el.type }}</span>
+																</div>
+																<div class="badge-wrapper" >
+																	<span class="badge badge-primary mr-1" *ngFor="let category of el.categories">{{category}}</span>
+																</div>
+															</div>
+
+														</div>
+														<div class="card-footer plugin-footer">
+															<a href=" el.url ? el.url : 'polypheny.com' "><small class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
+															<button (click)="deactivatePlugin(el, config.value.key)" *ngIf="el.status === 'ACTIVE'" class="btn btn-info">Deactivate</button>
+															<button (click)="activatePlugin(el, config.value.key)" *ngIf="el.status === 'LOADED'" class="btn btn-primary">Activate</button>
+														</div>
 													</div>
+
 												</div>
 											</div>
 										</ng-container>
 
-                    <!-- ConfigClazz, ConfigEnum -->
-                    <ng-container *ngSwitchCase="'SELECT'">
-                      <select [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" class="form-control" [ngClass]="inputValidation(config.value.key)">
-                        <option *ngFor="let c of config.value.values" [value]="c">{{classOrEnumName(c)}}</option>
-                      </select>
-						<small id="help-enum" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
-							value until restart: {{config.value.oldValue}}
-						</small>
-                    </ng-container>
+										<!-- ConfigClazz, ConfigEnum -->
+										<ng-container *ngSwitchCase="'SELECT'">
+										  <select [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" class="form-control" [ngClass]="inputValidation(config.value.key)">
+											<option *ngFor="let c of config.value.values" [value]="c">{{classOrEnumName(c)}}</option>
+										  </select>
+											<small id="help-enum" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
+												value until restart: {{config.value.oldValue}}
+											</small>
+										</ng-container>
 
-                    <!-- ConfigClazzList, ConfigEnumList -->
-                    <ng-container *ngSwitchCase="'CHECKBOXES'">
-                      <div class="form-control" style="height:auto">
-                        <div *ngFor="let c of config.value.values">
-                          <label><input type="checkbox" [checked]="config.value.value.includes(c)" style="margin-right:0.5em" #cb (change)="handleClassList(config.value.key, c, cb.checked)">{{classOrEnumName(c)}}</label>
-                        </div>
-						  <small id="help-checkboxes" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
-							  value until restart: {{config.value.oldValue}}
-						  </small>
-                      </div>
-                    </ng-container>
+										<!-- ConfigClazzList, ConfigEnumList -->
+										<ng-container *ngSwitchCase="'CHECKBOXES'">
+										  <div class="form-control" style="height:auto">
+											<div *ngFor="let c of config.value.values">
+											  <label><input type="checkbox" [checked]="config.value.value.includes(c)" style="margin-right:0.5em" #cb (change)="handleClassList(config.value.key, c, cb.checked)">{{classOrEnumName(c)}}</label>
+											</div>
+											  <small id="help-checkboxes" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
+												  value until restart: {{config.value.oldValue}}
+											  </small>
+										  </div>
+										</ng-container>
 
 										<div class="invalid-feedback" *ngIf="submitted && !form.controls[config.value.key].valid">
 											<div *ngIf="form.controls[config.value.key].errors.required">
@@ -233,6 +177,8 @@
 		{{serverError.name}}: {{serverError.message}}
 	</p>
 </ng-container>
+
+
 
 <!--<div class="row" *ngIf="formObj && form">
 	<div class="col-lg-6">

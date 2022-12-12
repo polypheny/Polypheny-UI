@@ -11,6 +11,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {isEqual} from 'lodash';
 import {DockerStatus} from './form-generator.model';
+import {PluginStatus} from '../../../models/ui-request.model';
 
 @Component({
   selector: 'app-form-generator',
@@ -28,6 +29,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   pageList;//wenn man nicht auf einer gewissen Seite ist und alle Pages als links aufgelisted werden sollen.
   serverError;//wenn der Server nicht antwortet
   private subscriptions = new Subscription();
+  fileName: string;
 
   constructor(
     private _config:ConfigService,
@@ -324,42 +326,20 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   }
 
 
-  testConnection(e: Event, value, key: string ) {
-    e.preventDefault();
-    value.isTesting = true;
-    this._config.testConnection(value.id).subscribe(async (res) => {
-      value.isTesting = false;
-
-      const status:DockerStatus = <DockerStatus><unknown>res;
-
-      if( value.dockerRunning !== status.successful ){
-        value.dockerRunning = status.successful;
-        this.markElement(key);
-        this.onSubmit(this.form.value, null);
-
-        if( status.successful ) {
-          this._toast.success('The entered docker instance is correctly configured.', null, 'Docker Reachable');
-        } else if ( status.errorMessage.trim() !== ''){
-          this._toast.error( status.errorMessage, 'Docker not reachable');
-        }else {
-          this._toast.error('Failed connecting to the Docker instance. Make sure, that the entered parameters are correct and Docker is reachable.', 'Docker not reachable');
-        }
-
-      }else if( !status.successful ){
-        if ( status.errorMessage.trim() !== ''){
-          this._toast.error( status.errorMessage, 'Docker not reachable');
-        }else {
-          this._toast.error('Failed connecting to the Docker instance. Make sure, that the entered parameters are correct and Docker is reachable.', 'Docker not reachable');
-        }
-      }
-
-    });
-  }
-
   setInsecureAndMark(usingInsecure: boolean, key: string , el: any) {
     if( usingInsecure ) {
       el.port = 2375.0;
     }
+    this.markElementReset(key, el);
+  }
+
+  deactivatePlugin(el:any, key: string) {
+    el.status = PluginStatus.LOADED;
+    this.markElementReset(key, el);
+  }
+
+  activatePlugin(el:any, key: string) {
+    el.status = PluginStatus.ACTIVE;
     this.markElementReset(key, el);
   }
 }
@@ -370,6 +350,8 @@ export interface JavaUiPage {
   title: String;
   description: String;
   groups: Map<string, JavaUiGroup>;
+
+  fullWidth: boolean;
 }
 export interface JavaUiGroup {
   id: number;

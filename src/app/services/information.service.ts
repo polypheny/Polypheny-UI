@@ -15,7 +15,7 @@ export class InformationService {
 
     public connected = false;
     private reconnected = new EventEmitter<boolean>();
-    private socket;
+    public socket;
     httpUrl = this._settings.getConnection('information.rest');
     httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
@@ -38,6 +38,7 @@ export class InformationService {
     executeAction(i: InformationObject) {
         return this._http.post(`${this.httpUrl}/executeAction`, JSON.stringify(i), this.httpOptions);
     }
+
 
     //websocket:
     //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
