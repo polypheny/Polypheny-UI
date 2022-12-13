@@ -184,3 +184,9 @@
 .plugin-file-input{
   display: none;
 }
+
+.file-upload-drop{
+  display: grid;
+  justify-content: center;
+  align-items: center;
+}

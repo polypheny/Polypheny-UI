@@ -14,8 +14,8 @@ export class HubService {
   constructor( private _http:HttpClient, private _settings: WebuiSettingsService ) {
     let hubUrl = this._settings.getConnection('hub.url');
     if( !hubUrl.endsWith('\.php') ){
-      if( hubUrl.endsWith('/') ) hubUrl = hubUrl + 'index.php';
-      else hubUrl = hubUrl + '/index.php';
+      if( hubUrl.endsWith('/') ) { hubUrl = hubUrl + 'index.php'; }
+      else { hubUrl = hubUrl + '/index.php'; }
     }
     this.hubUrl = hubUrl;
   }

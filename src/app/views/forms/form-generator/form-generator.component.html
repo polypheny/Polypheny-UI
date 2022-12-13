@@ -59,7 +59,7 @@
 											</small>
 
 										</ng-container>
-										<ng-container #listCase *ngSwitchCase="'LIST'" [ngClass]="{'card-group': formObj.fullWidth}">
+										<ng-container #listCase *ngSwitchCase="'LIST'">
 											<!-- List of ConfigString -->
 
 											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'TEXT'">
@@ -87,8 +87,10 @@
 																   [addElement]="addElement"></app-docker-config>
 											</div>
 											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">
-												<div class="list-add-wrapper input-group m-1 pr-4">
-													<app-file-uploader></app-file-uploader>
+												<div class="list-input-wrapper card-deck">
+													<div class="card text-center bg-transparent border-0">
+														<app-file-uploader></app-file-uploader>
+													</div>
 												</div>
 												<div class="list-input-wrapper my-1 card-deck" *ngFor="let el of config.value.values; let i = index;">
 													<!-- Object { pluginId: "cypher-language", loaded: true, id: 31, key: "pluginConfigcypher-language", description: "", requiresRestart: false, webUiFormType: "PLUGIN_INSTANCE", webUiOrder: 0, configType: "ConfigPlugin", isObservable: true } -->
