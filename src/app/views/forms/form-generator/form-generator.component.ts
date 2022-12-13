@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConfigService} from '../../../services/config.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
@@ -12,13 +12,17 @@ import {Subscription} from 'rxjs';
 import {isEqual} from 'lodash';
 import {DockerStatus} from './form-generator.model';
 import {PluginStatus} from '../../../models/ui-request.model';
+import { shareReplay } from 'rxjs/internal/operators/shareReplay';
 
 @Component({
   selector: 'app-form-generator',
   templateUrl: './form-generator.component.html',
   styleUrls: ['./form-generator.component.scss']
 })
+
 export class FormGeneratorComponent implements OnInit, OnDestroy {
+
+  @ViewChild('submitButton') submitButton: ElementRef;
 
   formObj: JavaUiPage;
   submitted = false;
@@ -254,7 +258,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     list.splice(index,1);
   }
 
-  onSubmit(form, e) {
+  onSubmit(form, e, error: () => {} = null) {
     this.submitted = true;
     //console.log(this.form);
     if(this.form.valid){
@@ -274,11 +278,17 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
           this.loadPage();// reload config-page after updating a config, because it can lead to additional groups or elements
         } else {
           this._toast.warn(f.warning, null, ToastDuration.INFINITE);
+          if( error != null ){
+            error();
+          }
         }
         this.form.markAsPristine();
       }, err=>{
         console.log(err);
         this._toast.error('an error occurred on the server');
+        if( error != null ){
+          error();
+        }
       });
     } else {
       this._toast.warn('Changes could not be saved. Please check invalid input.', 'invalid input', ToastDuration.INFINITE);
@@ -336,11 +346,18 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   deactivatePlugin(el:any, key: string) {
     el.status = PluginStatus.LOADED;
     this.markElementReset(key, el);
+    this.forceSubmit(() => el.status = PluginStatus.ACTIVE );
   }
 
   activatePlugin(el:any, key: string) {
     el.status = PluginStatus.ACTIVE;
     this.markElementReset(key, el);
+    this.forceSubmit( () => el.status = PluginStatus.LOADED );
+
+  }
+
+  forceSubmit(func: () => {} ){
+    this.onSubmit(this.form, null, func);
   }
 }
 

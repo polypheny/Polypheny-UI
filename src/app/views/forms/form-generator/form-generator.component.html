@@ -2,10 +2,11 @@
 <a href="http://jasonwatmore.com/post/2018/05/10/angular-6-reactive-forms-validation-example">tutorial2</a>-->
 <app-toast></app-toast>
 <ng-container *ngIf="formObj && form && !pageNotFound">
-	<form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form">
+	<form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form" #formElement>
 		<div id="form-generator-main" class="row">
 			<div class="col-md-12">
 				<button *ngIf="form.dirty" type="submit" class="btn btn-circle btn-primary save-configs"><i class="fa fa-save"></i></button>
+				<button #submitButton type="submit" class="btn btn-circle btn-primary save-configs d-none"><i class="fa fa-save"></i></button>
 				<h1 *ngIf="formObj.title">{{formObj.title}}</h1>
 				<p *ngIf="formObj.description">{{formObj.description}}</p>
 			</div>
