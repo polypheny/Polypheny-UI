@@ -275,11 +275,13 @@ export class EditTableRequest {
   table: string;
   sourceSchema: string;
   targetSchema: string;
+  primaryKeyNames: string;
 
-  constructor(table: string, sourceNamespaceName: string, targetNamespaceName: string) {
+  constructor(table: string, sourceNamespaceName: string, targetNamespaceName: string, primaryKeyNames: string) {
     this.table = table;
     this.sourceSchema = sourceNamespaceName;
     this.targetSchema = targetNamespaceName;
+    this.primaryKeyNames = primaryKeyNames;
   }
 }
 

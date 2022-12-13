@@ -26,7 +26,7 @@ class Namespace {
   styleUrls: ['./document-edit-collections.component.scss']
 })
 export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
-
+  
   types: PolyType[] = [];
   database: string;
   schemaType: string;
@@ -42,6 +42,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   activeNamespace: string;
   namespaces: Namespace[];
   selectedSchemas = new Map<string, string>(); // name of the collection, name of the selected namespace
+  tableToTransfer : TableModel;
 
   //export table
   showExportButton = false;
@@ -56,6 +57,11 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     addDefaultValue: new FormControl(true, Validators.required)
   });
   @ViewChild('exportTableModal', {static: false}) public exportTableModal: ModalDirective;
+  transferTableForm = new FormGroup({
+    name: new FormControl('', Validators.required),
+  });
+  @ViewChild('transferTableModal', {static: false}) public transferTableModal: ModalDirective;
+
 
   constructor(
     public _crud: CrudService,
@@ -390,17 +396,18 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     );
   }
 
-  transferTable(table : TableModel) {
-    const req = new TransferTableRequest( table.name, this.database, this.getSelectedSchemaForTable(table))
+  transferTable() {
+    let primaryKeyNames = this.transferTableForm.controls['name'].value;
+    const req = new TransferTableRequest( this.tableToTransfer.name, this.database, this.getSelectedSchemaForTable(this.tableToTransfer), primaryKeyNames);
     this._crud.transferTable( req ).subscribe(
       res => {
         const result = <ResultSet>res;
         if (result.error) {
           this._toast.exception(result, 'Could not transfer collection:');
         } else {
-          this._toast.success('Transfered collection ' + table.name, result.generatedQuery);
+          this._toast.success('Transfered collection ' + this.tableToTransfer.name, result.generatedQuery);
           this.updateExistingSchemas();
-          this.selectedSchemas.delete(table.name);
+          this.selectedSchemas.delete(this.tableToTransfer.name);
           this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
         }
         this.getTables();
@@ -408,7 +415,9 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         this._toast.error('Could not transfer collection');
         console.log(err);
       }
-    );
+    ).add(() => {
+      this.transferTableModal.hide();
+    });
   }
 
   selectSchemaForTable(table : TableModel, selectedSchema : string) {
@@ -435,6 +444,19 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
           }
         }
     );
+  }
+
+  initTransferTableModal(table : TableModel ){
+    let selectedSchema = this.getSelectedSchemaForTable(table)
+    if (selectedSchema == undefined) {
+      return;
+    }
+    this.tableToTransfer = table;
+    this.transferTableModal.show();
+  }
+
+  clearTransferTableModal(){
+    this.selectedStore = null;
   }
 
 }
