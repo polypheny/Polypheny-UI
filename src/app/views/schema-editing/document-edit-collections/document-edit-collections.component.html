@@ -11,6 +11,7 @@
             <th>Collection</th>
             <th>Truncate</th>
             <th>Drop</th>
+            <th *ngIf="getAvailableSchemas().length > 0">Transfer</th>
         </tr>
     </thead>
     <tbody>
@@ -49,6 +50,26 @@
                       </button>
                     </div>
                 </div>
+            </td>
+            <td *ngIf="getAvailableSchemas().length > 0">
+              <div class="input-group confirm-group" *ngIf="table.modifiable">
+                <div class="btn-group btn-group-sm" id="transferBtnGroup">
+                  <div class="btn-group btn-group-sm" dropdown placement="top right">
+                    <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle"  style="min-width:140px">
+                        <span *ngIf="!getSelectedSchemaForTable(table)">Select namespace</span>
+                        <span *ngIf="getSelectedSchemaForTable(table)">{{getSelectedSchemaForTable(table)}}</span>
+                        <span class="canewret"></span>
+                    </button>
+                    <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+                        <ng-container *ngFor="let namespace of getAvailableSchemas()">
+                            <li role="menuitem"><a class="dropdown-item" [routerLink]="[]" (click)="selectSchemaForTable(table, namespace.name)">{{namespace.name}}</a></li>
+                        </ng-container>
+                        <li *ngIf="getAvailableSchemas().length === 0" role="menuitem"><a class="dropdown-item disabled" [routerLink]="[]">no other namespaces available</a></li>
+                    </ul>
+                  </div>
+                  <button class="btn btn-primary btn-sm" (click)="initTransferTableModal(table)">transfer</button>
+                </div>
+              </div>
             </td>
         </tr>
     </tbody>
@@ -183,6 +204,40 @@
           <div class="progress-wrapper">
             <progressbar *ngIf="uploading && exportProgress < 1" class="progress progress-striped" [value]="exportProgress" [max]="1"></progressbar>
             <progressbar *ngIf="uploading && exportProgress === 1" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>
+          </div>
+        </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<div bsModal #transferTableModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form [formGroup]="transferTableForm">
+        <div class="modal-header">
+          <h4 class="modal-title">Transfer collection to relational namespace</h4>
+          <button type="button" class="close" (click)="transferTableModal.hide()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p>The transfer of a document-based collection to a relational namespace only works to a limited extent. Please select a field that should become the primary key.
+            Example for the input: ("id1","id2")
+          </p>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend"><label for="fieldName" class="input-group-text">Field</label></div>
+              <input type="text" placeholder="name" id="fieldName" class="form-control" formControlName="name"
+                     autocomplete="off">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="transferTableModal.hide()">Close</button>
+            <button type="button" class="btn btn-primary" (click)="transferTable()" [disabled]="uploading">
+              Transfer
+            </button>
           </div>
         </div>
       </form>

@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
-import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {EditTableRequest, SchemaRequest, TransferTableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbColumn, Index, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
@@ -15,12 +15,19 @@ import {UtilService} from '../../../services/util.service';
 import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
 
+class Namespace {
+  name: string;
+  id: string;
+}
+
 @Component({
   selector: 'app-edit-tables',
   templateUrl: './edit-tables.component.html',
   styleUrls: ['./edit-tables.component.scss']
 })
 export class EditTablesComponent implements OnInit, OnDestroy {
+
+  private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
 
   types: PolyType[] = [];
   schema: string;
@@ -33,6 +40,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   stores: Store[];
   selectedStore;
   creatingTable = false;
+
+  activeNamespace: string;
+  namespaces: Namespace[];
+  selectedSchemas = new Map<string, string>(); // name of the table, name of the selected namespace
 
   //export table
   showExportButton = false;
@@ -79,6 +90,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.add(sub2);
     this.documentListener();
+    this.updateExistingSchemas();
   }
 
   ngOnDestroy() {
@@ -104,6 +116,25 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  getAvailableSchemas (): Namespace[] {
+    if(!this.namespaces) { return []; }
+    return this.namespaces.filter( (n: Namespace) => {
+      return n.name != this.schema;
+    });
+  }
+
+  private updateExistingSchemas() {
+    this._crud.getSchema(new SchemaRequest('views/querying/console/', false, 1, false)).subscribe(
+        res => {
+          this.namespaces = [];
+          for (const namespace of <Namespace[]>res) {
+              this.namespaces.push(namespace);
+          }
+        }
+    );
+  }
+
 
   getTables() {
     this._crud.getTables(new EditTableRequest(this.schema)).subscribe(
@@ -366,6 +397,35 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         this.exportTableModal.hide();
       });
     }
+  }
+
+  transferTable(table : TableModel) {
+    const req = new TransferTableRequest( table.name, this.schema, this.getSelectedSchemaForTable(table), null)
+    this._crud.transferTable( req ).subscribe(
+      res => {
+        const result = <ResultSet>res;
+        if (result.error) {
+          this._toast.exception(result, 'Could not transfer table:');
+        } else {
+          this._toast.success('Transfered table ' + table.name, result.generatedQuery);
+          this.updateExistingSchemas();
+          this.selectedSchemas.delete(table.name);
+          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
+        }
+        this.getTables();
+      }, err => {
+        this._toast.error('Could not transfer table');
+        console.log(err);
+      }
+    );
+  }
+
+  selectSchemaForTable(table : TableModel, selectedSchema : string) {
+    this.selectedSchemas.set(table.name, selectedSchema);
+  }
+
+  getSelectedSchemaForTable(table : TableModel) {
+    return this.selectedSchemas.get(table.name);
   }
 
   initSocket() {

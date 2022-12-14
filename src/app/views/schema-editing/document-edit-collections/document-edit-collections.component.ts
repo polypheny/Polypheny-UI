@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
-import {EditCollectionRequest, EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {EditCollectionRequest, EditTableRequest, SchemaRequest, TransferTableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbColumn, Index, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
@@ -15,13 +15,18 @@ import {UtilService} from '../../../services/util.service';
 import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
 
+class Namespace {
+  name: string;
+  id: string;
+}
+
 @Component({
   selector: 'app-document-edit-collections',
   templateUrl: './document-edit-collections.component.html',
   styleUrls: ['./document-edit-collections.component.scss']
 })
 export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
-
+  
   types: PolyType[] = [];
   database: string;
   schemaType: string;
@@ -33,6 +38,11 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   stores: Store[];
   selectedStore;
   creatingTable = false;
+
+  activeNamespace: string;
+  namespaces: Namespace[];
+  selectedSchemas = new Map<string, string>(); // name of the collection, name of the selected namespace
+  tableToTransfer : TableModel;
 
   //export table
   showExportButton = false;
@@ -47,6 +57,11 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     addDefaultValue: new FormControl(true, Validators.required)
   });
   @ViewChild('exportTableModal', {static: false}) public exportTableModal: ModalDirective;
+  transferTableForm = new FormGroup({
+    name: new FormControl('', Validators.required),
+  });
+  @ViewChild('transferTableModal', {static: false}) public transferTableModal: ModalDirective;
+
 
   constructor(
     public _crud: CrudService,
@@ -78,6 +93,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.add(sub2);
     this.documentListener();
+    this.updateExistingSchemas();
   }
 
   ngOnDestroy() {
@@ -378,6 +394,72 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         this.newColumns.get(0).dataType = t[0].name;
       }
     );
+  }
+
+  /**
+   * Transfer table (a collection) from one namepsace to another
+   */
+  transferTable() {
+    let primaryKeyNames = this.transferTableForm.controls['name'].value;
+    const req = new TransferTableRequest( this.tableToTransfer.name, this.database, this.getSelectedSchemaForTable(this.tableToTransfer), primaryKeyNames);
+    this._crud.transferTable( req ).subscribe(
+      res => {
+        const result = <ResultSet>res;
+        if (result.error) {
+          this._toast.exception(result, 'Could not transfer collection:');
+        } else {
+          this._toast.success('Transfered collection ' + this.tableToTransfer.name, result.generatedQuery);
+          this.updateExistingSchemas();
+          this.selectedSchemas.delete(this.tableToTransfer.name);
+          this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
+        }
+        this.getTables();
+      }, err => {
+        this._toast.error('Could not transfer collection');
+        console.log(err);
+      }
+    ).add(() => {
+      this.transferTableModal.hide();
+    });
+  }
+
+  selectSchemaForTable(table : TableModel, selectedSchema : string) {
+    this.selectedSchemas.set(table.name, selectedSchema);
+  }
+
+  getSelectedSchemaForTable(table : TableModel) {
+    return this.selectedSchemas.get(table.name);
+  }
+
+  getAvailableSchemas (): Namespace[] {
+    if(!this.namespaces) { return []; }
+    return this.namespaces.filter( (n: Namespace) => {
+      return n.name != this.database;
+    });
+  }
+
+  private updateExistingSchemas() {
+    this._crud.getSchema(new SchemaRequest('views/querying/console/', false, 1, false)).subscribe(
+        res => {
+          this.namespaces = [];
+          for (const namespace of <Namespace[]>res) {
+              this.namespaces.push(namespace);
+          }
+        }
+    );
+  }
+
+  initTransferTableModal(table : TableModel ){
+    let selectedSchema = this.getSelectedSchemaForTable(table)
+    if (selectedSchema == undefined) {
+      return;
+    }
+    this.tableToTransfer = table;
+    this.transferTableModal.show();
+  }
+
+  clearTransferTableModal(){
+    this.selectedStore = null;
   }
 
 }

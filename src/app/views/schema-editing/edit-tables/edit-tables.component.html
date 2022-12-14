@@ -11,6 +11,7 @@
             <th>Table</th>
             <th>Truncate</th>
             <th>Drop</th>
+            <th *ngIf="getAvailableSchemas().length > 0">Transfer</th>
         </tr>
     </thead>
     <tbody>
@@ -49,6 +50,26 @@
                       </button>
                     </div>
                 </div>
+            </td>
+            <td *ngIf="getAvailableSchemas().length > 0">
+              <div class="input-group confirm-group" *ngIf="table.modifiable">
+                <div class="btn-group btn-group-sm" id="moveBtnGroup">
+                  <div class="btn-group btn-group-sm" dropdown placement="top right">
+                    <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle"  style="min-width:140px">
+                        <span *ngIf="!getSelectedSchemaForTable(table)">Select namespace</span>
+                        <span *ngIf="getSelectedSchemaForTable(table)">{{getSelectedSchemaForTable(table)}}</span>
+                        <span class="canewret"></span>
+                    </button>
+                    <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+                        <ng-container *ngFor="let namespace of getAvailableSchemas()">
+                            <li role="menuitem"><a class="dropdown-item" [routerLink]="[]" (click)="selectSchemaForTable(table, namespace.name)">{{namespace.name}}</a></li>
+                        </ng-container>
+                        <li *ngIf="getAvailableSchemas().length === 0" role="menuitem"><a class="dropdown-item disabled" [routerLink]="[]">no other namespaces available</a></li>
+                    </ul>
+                  </div>
+                  <button class="btn btn-primary btn-sm" (click)="transferTable(table)">transfer</button>
+                </div>
+              </div>
             </td>
         </tr>
     </tbody>
