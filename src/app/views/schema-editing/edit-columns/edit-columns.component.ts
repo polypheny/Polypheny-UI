@@ -39,8 +39,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   confirmConstraint = -1;
   newPrimaryKey: DbColumn[];
 
-  mergedColumnName = ''
-  joinString = ''
+  //merge columns handling
+  mergedColumnName = '';
+  joinString = '';
   mergeableColumns: DbColumn[];
   columnsToMerge: DbColumn[] = [];
 

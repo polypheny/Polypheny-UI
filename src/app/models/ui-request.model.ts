@@ -230,12 +230,17 @@ export class ColumnRequest extends UIRequest {
   }
 }
 
+
+/**
+ * Merge columns within a relational namespace.
+ * Used for request where you want to merge multiple columns of a table.
+ */
 export class MergeColumnsRequest extends UIRequest {
   sourceColumns: DbColumn[];
   targetColumnName: string;
   joinString: string;
   tableType: string;
-  constructor( tableId: string, sourceColumns: DbColumn[],  targetColumnName: string, joinString: string, tableType:string = 'table') {
+  constructor( tableId: string, sourceColumns: DbColumn[],  targetColumnName: string, joinString: string, tableType:string = 'table' ) {
     super();
     this.tableId = tableId;
     this.sourceColumns = sourceColumns;

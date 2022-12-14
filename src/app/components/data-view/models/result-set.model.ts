@@ -166,7 +166,6 @@ export class DbColumn {
   defaultValue: any;
   dimension: number;
   cardinality: number;
-  mergeable: boolean;
 
   //for data sources
   as: string;
