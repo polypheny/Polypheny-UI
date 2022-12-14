@@ -396,6 +396,9 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Transfer table (a collection) from one namepsace to another
+   */
   transferTable() {
     let primaryKeyNames = this.transferTableForm.controls['name'].value;
     const req = new TransferTableRequest( this.tableToTransfer.name, this.database, this.getSelectedSchemaForTable(this.tableToTransfer), primaryKeyNames);

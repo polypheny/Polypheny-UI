@@ -271,13 +271,17 @@ export class EditTableRequest {
   }
 }
 
+/**
+ * Transfer a table from one namespace to another.
+ * Used for request where you want to transfer a table
+ */
  export class TransferTableRequest {
   table: string;
   sourceSchema: string;
   targetSchema: string;
   primaryKeyNames: string;
 
-  constructor(table: string, sourceNamespaceName: string, targetNamespaceName: string, primaryKeyNames: string) {
+  constructor( table: string, sourceNamespaceName: string, targetNamespaceName: string, primaryKeyNames: string ) {
     this.table = table;
     this.sourceSchema = sourceNamespaceName;
     this.targetSchema = targetNamespaceName;

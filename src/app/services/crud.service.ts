@@ -227,9 +227,9 @@ export class CrudService {
   }
 
   /**
-   * Transfer a table to different namespace/schema
+   * Transfer a table to another schema
    */
-   transferTable(tableRequest: TransferTableRequest) {
+   transferTable( tableRequest: TransferTableRequest ) {
     return this._http.post(`${this.httpUrl}/transferTable`, tableRequest, this.httpOptions);
   }
 

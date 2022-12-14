@@ -11,7 +11,7 @@
             <th>Table</th>
             <th>Truncate</th>
             <th>Drop</th>
-            <th *ngIf="getAvailableSchemas().length > 0">Move</th>
+            <th *ngIf="getAvailableSchemas().length > 0">Transfer</th>
         </tr>
     </thead>
     <tbody>
@@ -67,7 +67,7 @@
                         <li *ngIf="getAvailableSchemas().length === 0" role="menuitem"><a class="dropdown-item disabled" [routerLink]="[]">no other namespaces available</a></li>
                     </ul>
                   </div>
-                  <button class="btn btn-primary btn-sm" (click)="transferTable(table)">move</button>
+                  <button class="btn btn-primary btn-sm" (click)="transferTable(table)">transfer</button>
                 </div>
               </div>
             </td>

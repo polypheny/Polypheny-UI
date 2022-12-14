@@ -400,7 +400,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   transferTable(table : TableModel) {
-    const req = new TransferTableRequest( table.name, this.schema, this.getSelectedSchemaForTable(table))
+    const req = new TransferTableRequest( table.name, this.schema, this.getSelectedSchemaForTable(table), null)
     this._crud.transferTable( req ).subscribe(
       res => {
         const result = <ResultSet>res;
