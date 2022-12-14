@@ -6,7 +6,7 @@ import {CrudService} from '../../../services/crud.service';
 import {DbColumn, FieldType, Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, ResultSet, StatisticColumnSet, StatisticTableSet, TableConstraint} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest, MergeColumnsRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {CatalogColumnPlacement, MaterializedInfos, Placements, PlacementType, Store} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -38,6 +38,12 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   constraints: ResultSet;
   confirmConstraint = -1;
   newPrimaryKey: DbColumn[];
+
+  //merge columns handling
+  mergedColumnName = '';
+  joinString = '';
+  mergeableColumns: DbColumn[];
+  columnsToMerge: DbColumn[] = [];
 
   uniqueConstraintName = '';
   proposedConstraintName = 'constraintName';
@@ -171,6 +177,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.partitioningRequest.column = this.resultSet.header[0].name;
         // deep copy: from: https://stackoverflow.com/questions/35504310/deep-copy-an-array-in-angular-2-typescript
         this.newPrimaryKey = this.resultSet.header.map( x => Object.assign({}, x));
+        this.mergeableColumns = this.resultSet.header.filter(x => x.dataType == 'VARCHAR' && !x.primary).map( x => Object.assign({}, x));
       }, err => {
         this._toast.error('Could not load columns of the table.', null, ToastDuration.INFINITE);
         console.log(err);
@@ -459,6 +466,50 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this._toast.error('Could not update primary key.', null, ToastDuration.INFINITE);
         console.log(err);
       }
+    );
+  }
+
+  mergeColumns() {
+
+    if( this.columnsToMerge?.length < 2 ) {
+      this._toast.warn('Please select at least 2 columns to merge.', 'merged colum name');
+      return;
+    }
+    if( this.mergedColumnName === '' ) {
+      this._toast.warn('Please provide a name for the merged column.', 'merged colum name');
+      return;
+    }
+    if( ! this._crud.nameIsValid( this.mergedColumnName ) ){
+      this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
+      return;
+    }
+
+    if( this.resultSet.header
+        .filter( h => !this.columnsToMerge.map(h => h.name).includes(h.name))
+        .filter( h => h.name === this.mergedColumnName )
+        .length > 0 ) {
+      this._toast.warn( 'There already exists a column with this name. However, it is allowed to select one of the names of the columns to be merged', 
+      'invalid column name' );
+      return;
+    }
+
+    const req = new MergeColumnsRequest( this.tableId, this.columnsToMerge, this.mergedColumnName, this.joinString)
+    this._crud.mergeColumns( req ).subscribe(
+      res => {
+        const result = <ResultSet> res;
+        if( result.error === undefined ){
+          this.getColumns();
+          this.getPlacementsAndPartitions();
+          this.mergedColumnName = '';
+          this.columnsToMerge = [];
+          this.joinString = '';
+        } else {
+          this._toast.exception(result, null, 'server error', ToastDuration.INFINITE);
+        }
+      }, err => {
+        this._toast.error('An error occurred on the server.', null, ToastDuration.INFINITE);
+        console.log(err);
+    }
     );
   }
 

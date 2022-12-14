@@ -1,0 +1,66 @@
+.app-list-picker {
+    display: flex;
+    gap: 10px;
+
+    .source-column,
+    .target-column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .list-container {
+        min-width: 200px;
+        min-height: 200px;
+        max-height: 200px;
+        border: 1px #e4e7ea solid;
+        flex: 1 1 auto;
+        border-radius: 0.2rem;
+        overflow-y: scroll;
+    }
+    
+    .list-container .list-item:not(.cdk-drag-dragging) {
+        opacity: 1;
+        padding: 0.2rem 0.5rem;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px var(--white) solid;
+        border-radius: 0;
+        box-shadow: none;
+        border: 1x var(--white) solid;
+        background: var(--white);
+
+        em {
+            color: var(--gray);
+            font-size: 10px;
+        }
+    }
+
+    .list-container .list-item:not(.cdk-drag-dragging):hover {
+        background: var(--light);
+        cursor: pointer;
+    }
+
+    .list-container .list-item.cdk-drag-placeholder {
+        opacity: 0.2;
+    }
+}
+
+.cdk-drag.list-item { 
+    opacity: 1;
+    padding: 0.2rem 0.5rem;
+    transition: all 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--light);
+    border: 1px var(--gray) solid;
+    border-radius: 0.2rem;
+    box-shadow: 0px 0px 5px var(--light);
+    
+    em {
+        color: var(--gray);
+        font-size: 10px;
+    }
+}

@@ -37,8 +37,9 @@ import {JsonTextComponent} from './data-view/json-text/json-text.component';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {JsonEditorComponent} from './json/json-editor.component';
 import {JsonElemComponent} from './json/json-elem/json-elem.component';
+import {ListPickerComponent} from './list-picker/list-picker.component';
+import {DragDropModule} from '@angular/cdk/drag-drop';
 import {DataGraphComponent} from './data-view/data-graph/data-graph.component';
-import {MultipleSwitchPipe} from './data-view/multiple-switch.pipe';
 import {DatesPipeModule} from './data-view/shared-module';
 
 //import 'hammerjs';
@@ -49,6 +50,7 @@ import {DatesPipeModule} from './data-view/shared-module';
         RouterModule,
         CommonModule,
         ChartsModule,
+        DragDropModule,
         TypeaheadModule.forRoot(),
         AppBreadcrumbModule.forRoot(),
         TreeModule,
@@ -73,6 +75,7 @@ import {DatesPipeModule} from './data-view/shared-module';
         InformationManagerComponent,
         RenderItemComponent,
         InputComponent,
+        ListPickerComponent,
         EditorComponent,
         JsonEditorComponent,
         DataViewComponent,
@@ -99,6 +102,7 @@ import {DatesPipeModule} from './data-view/shared-module';
         ToastComponent,
         InformationManagerComponent,
         InputComponent,
+        ListPickerComponent,
         JsonEditorComponent,
         EditorComponent,
         DeleteConfirmComponent
