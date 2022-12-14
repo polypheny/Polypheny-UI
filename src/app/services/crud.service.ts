@@ -646,9 +646,6 @@ export class CrudService {
       const formData = new FormData();
       formData.append( 'action', 'loadPlugins');
       formData.append( 'plugins', files[0]);
-      return this._http.post( `${this.httpUrl}/loadPlugins`, formData, {reportProgress: true,
-          observe: 'events',
-          responseType: 'blob' as 'json',
-          headers: new HttpHeaders({'Content-Type': 'application/octet-stream'})} );
+      return this._http.post( `${this.httpUrl}/loadPlugins`, formData );
     }
 }

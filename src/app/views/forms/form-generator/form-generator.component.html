@@ -61,7 +61,6 @@
 										</ng-container>
 										<ng-container #listCase *ngSwitchCase="'LIST'">
 											<!-- List of ConfigString -->
-
 											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'TEXT'">
 												<div class="input-group">
 													<div class="list-input-wrapper input-group my-1" *ngFor="let el of config.value.values; let i = index;">
@@ -89,11 +88,10 @@
 											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">
 												<div class="list-input-wrapper card-deck">
 													<div class="card text-center bg-transparent border-0">
-														<app-file-uploader></app-file-uploader>
+														<app-file-uploader [loadPage]="loadPage"></app-file-uploader>
 													</div>
 												</div>
 												<div class="list-input-wrapper my-1 card-deck" *ngFor="let el of config.value.values; let i = index;">
-													<!-- Object { pluginId: "cypher-language", loaded: true, id: 31, key: "pluginConfigcypher-language", description: "", requiresRestart: false, webUiFormType: "PLUGIN_INSTANCE", webUiOrder: 0, configType: "ConfigPlugin", isObservable: true } -->
 													<div class="card">
 														<div class="plugin-wrapper">
 															<div class="left">
@@ -112,7 +110,7 @@
 
 														</div>
 														<div class="card-footer plugin-footer">
-															<a href=" el.url ? el.url : 'polypheny.com' "><small class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
+															<a target="_blank" [href]=" el.url ? el.url : 'https://polypheny.com' "><small class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
 															<button (click)="deactivatePlugin(el, config.value.key)" *ngIf="el.status === 'ACTIVE'" class="btn btn-info">Deactivate</button>
 															<button (click)="activatePlugin(el, config.value.key)" *ngIf="el.status === 'LOADED'" class="btn btn-primary">Activate</button>
 														</div>

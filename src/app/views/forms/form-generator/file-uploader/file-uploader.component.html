@@ -1,14 +1,13 @@
 <label class="btn btn-primary mt-4">
-    {{ this.isLoading ? "" : this.files ? getFilesMessage() : "Select a directory or zip file" }}
+    {{ this.isLoading ? "" : this.files ? getFilesMessage() : "Load Local Plugins" }}
     <div class="spinner-border" *ngIf="this.isLoading" role="status">
         <span class="visually-hidden d-none">Loading...</span>
     </div>
+
 <br>
 <button class="btn btn-outline-primary bg-white" *ngIf="this.files && !isLoading" (click)="loadPlugins()">Load Plugins</button>
 <input type="file"
-       webkitdirectory
-       mozdirectory
-       directory
+       multiple
        class="d-none"
        (change)="onFileSelected($event)"
        accept=".zip" />

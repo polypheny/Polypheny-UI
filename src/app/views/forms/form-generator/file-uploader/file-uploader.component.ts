@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {PluginService} from '../../../../services/plugin.service';
 import {ToastService} from '../../../../components/toast/toast.service';
 import {HttpEventType} from '@angular/common/http';
@@ -13,6 +13,8 @@ export class FileUploaderComponent implements OnInit {
 
   public isLoading = false;
   private uploadProgress = 0;
+
+  @Input() loadPage: () => void;
 
   constructor(
       public _plugin: PluginService,
@@ -30,7 +32,7 @@ export class FileUploaderComponent implements OnInit {
   getFilesMessage() {
     let msg = '';
     for (const filesKey of Array.from( this.files)) {
-      msg += filesKey.name;
+      msg += filesKey.name + "\n";
     }
     return msg;
   }
@@ -39,12 +41,9 @@ export class FileUploaderComponent implements OnInit {
     this.isLoading = true;
     this.uploadProgress = 0;
     this._plugin.loadPlugins(this.files).subscribe( res => {
-      if (res.type && res.type === HttpEventType.DownloadProgress) {
-        this.uploadProgress = Math.round(100 * res.loaded / res.total);
-      } else if (res.type === HttpEventType.Response) {
-        this._toast.success('Plugins were loaded successfully.');
-        this.isLoading = false;
-      }
+      this.files = null;
+      this.isLoading = false;
+      this.loadPage();
     }, err => {
       console.log(err);
       this._toast.error(err.message);
