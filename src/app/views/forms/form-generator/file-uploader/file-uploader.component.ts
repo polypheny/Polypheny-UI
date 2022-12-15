@@ -9,7 +9,7 @@ import {HttpEventType} from '@angular/common/http';
   styleUrls: ['./file-uploader.component.scss']
 })
 export class FileUploaderComponent implements OnInit {
-  public files: FileList;
+  public files: File[];
 
   public isLoading = false;
   private uploadProgress = 0;
@@ -25,16 +25,8 @@ export class FileUploaderComponent implements OnInit {
   }
 
   onFileSelected(event: Event) {
-    this.files = (event.target as HTMLInputElement).files;
+    this.files = Array.from( (event.target as HTMLInputElement).files );
     console.log(this.files);
-  }
-
-  getFilesMessage() {
-    let msg = '';
-    for (const filesKey of Array.from( this.files)) {
-      msg += filesKey.name + "\n";
-    }
-    return msg;
   }
 
   loadPlugins() {
@@ -50,5 +42,10 @@ export class FileUploaderComponent implements OnInit {
       this.isLoading = false;
     });
 
+  }
+
+
+  removeFile(file: File) {
+    this.files = this.files.filter( f => f.name !== file.name);
   }
 }

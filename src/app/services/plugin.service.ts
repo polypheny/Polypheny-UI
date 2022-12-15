@@ -54,7 +54,7 @@ export class PluginService{
         return this.availablePlugins;
     }
 
-    loadPlugins(files: FileList) {
-        return this._crud.loadPlugins(Array.from( files ));
+    loadPlugins(files: File[]) {
+        return this._crud.loadPlugins(files);
     }
 }

@@ -645,7 +645,10 @@ export class CrudService {
     loadPlugins(files: File[]) {
       const formData = new FormData();
       formData.append( 'action', 'loadPlugins');
-      formData.append( 'plugins', files[0]);
+      files.forEach(f => {
+        formData.append( 'plugins', f);
+      });
+
       return this._http.post( `${this.httpUrl}/loadPlugins`, formData );
     }
 }
