@@ -1,7 +1,7 @@
 <div>
-    <p class="btn btn-primary" *ngIf="!this.files" (click)="file.click()">Select Local Plugins</p>
+    <p class="btn btn-primary" *ngIf="!hasFiles()" (click)="file.click()">Select Local Plugins</p>
 
-    <div *ngIf="files" class="card-deck">
+    <div *ngIf="hasFiles()" class="card-deck">
         <div class="card">
             <div *ngFor="let file of files" class="plugin-files m-1 ml-2">
                 <p>{{file.name}}</p>
@@ -11,7 +11,7 @@
     </div>
 
 
-    <button class="btn btn-outline-primary bg-white" *ngIf="this.files && !isLoading" (click)="loadPlugins()">Load Plugins</button>
+    <button class="btn btn-outline-primary bg-white" *ngIf="hasFiles() && !isLoading" (click)="loadPlugins()">Load Plugins</button>
     <input #file
            type="file"
            multiple

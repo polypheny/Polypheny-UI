@@ -48,4 +48,8 @@ export class FileUploaderComponent implements OnInit {
   removeFile(file: File) {
     this.files = this.files.filter( f => f.name !== file.name);
   }
+
+  hasFiles() {
+    return this.files && this.files.length > 0;
+  }
 }

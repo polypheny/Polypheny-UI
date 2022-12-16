@@ -86,36 +86,33 @@
 																   [addElement]="addElement"></app-docker-config>
 											</div>
 											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">
-												<div class="list-input-wrapper card-deck">
-													<div class="card text-center bg-transparent border-0">
+												<div class="list-input-wrapper">
+													<div class="text-center bg-transparent border-0">
 														<app-file-uploader [loadPage]="loadPage"></app-file-uploader>
 													</div>
 												</div>
-												<div class="list-input-wrapper my-1 card-deck" *ngFor="let el of config.value.values; let i = index;">
-													<div class="card">
-														<div class="plugin-wrapper">
-															<div class="left">
-																<div class="image-wrapper m-2">
-																	<img src="{{ el.imagePath ? el.imagePath : 'assets/img/plugin/plugin-placeholder.svg' }}" alt="">
-																</div>
+												<div class="list-input-wrapper my-1 card" *ngFor="let el of config.value.values; let i = index;">
+													<div class="plugin-wrapper">
+														<div class="left">
+															<div class="image-wrapper m-2">
+																<img src="{{ el.imagePath ? el.imagePath : 'assets/img/plugin/plugin-placeholder.svg' }}" alt="">
 															</div>
-															<div class="right">
-																<div class="title">
-																	{{ el.pluginId }} <span *ngIf="el.type">{{ el.type }}</span>
-																</div>
-																<div class="badge-wrapper" >
-																	<span class="badge badge-primary mr-1" *ngFor="let category of el.categories">{{category}}</span>
-																</div>
+														</div>
+														<div class="right">
+															<div class="title">
+																{{ el.pluginId }} <span *ngIf="el.type">{{ el.type }}</span>
 															</div>
+															<div class="badge-wrapper" >
+																<span class="badge badge-primary mr-1" *ngFor="let category of el.categories">{{category}}</span>
+															</div>
+														</div>
 
-														</div>
-														<div class="card-footer plugin-footer">
-															<a target="_blank" [href]=" el.url ? el.url : 'https://polypheny.com' "><small class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
-															<button (click)="deactivatePlugin(el, config.value.key)" *ngIf="el.status === 'ACTIVE'" class="btn btn-info">Deactivate</button>
-															<button (click)="activatePlugin(el, config.value.key)" *ngIf="el.status === 'LOADED'" class="btn btn-primary">Activate</button>
-														</div>
 													</div>
-
+													<div class="card-footer plugin-footer">
+														<a target="_blank" [href]=" el.url ? el.url : 'https://polypheny.com' "><small class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
+														<button (click)="deactivatePlugin(el, config.value.key)" *ngIf="el.status === 'ACTIVE'" class="btn btn-info">Deactivate</button>
+														<button (click)="activatePlugin(el, config.value.key)" *ngIf="el.status === 'LOADED'" class="btn btn-primary">Activate</button>
+													</div>
 												</div>
 											</div>
 										</ng-container>
