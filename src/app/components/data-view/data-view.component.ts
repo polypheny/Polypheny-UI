@@ -211,7 +211,6 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
           }
           this.setPagination();
           this.editing = -1;
-          console.log(this.resultSet);
           if (this.resultSet.type === 'TABLE' || this.resultSet.namespaceType === 'DOCUMENT' ) {
             this.config.create = true;
             this.config.update = true;
