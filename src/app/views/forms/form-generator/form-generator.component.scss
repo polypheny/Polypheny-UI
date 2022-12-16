@@ -190,3 +190,9 @@
   justify-content: center;
   align-items: center;
 }
+
+.plugin-header {
+  display: grid;
+  grid-template-columns: 1fr min-content;
+  align-items: center;
+}

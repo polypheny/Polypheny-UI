@@ -135,6 +135,7 @@ export class PluginEntity {
   status: boolean;
   imagePath: string;
   categories: string[];
+  version: string;
 }
 
 export enum PluginStatus {

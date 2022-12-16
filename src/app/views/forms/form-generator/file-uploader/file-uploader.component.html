@@ -17,7 +17,7 @@
            multiple
            class="d-none h-0"
            (change)="onFileSelected($event)"
-           accept=".zip" />
+           accept=".zip,.jar" />
     <div class="bg-primary d-inline-block rounded p-1" *ngIf="this.isLoading">
         <div class="spinner-border"  role="status">
             <span class="visually-hidden d-none">Loading...</span>

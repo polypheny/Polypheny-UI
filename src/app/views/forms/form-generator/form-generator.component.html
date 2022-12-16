@@ -99,8 +99,11 @@
 															</div>
 														</div>
 														<div class="right">
-															<div class="title">
-																{{ el.pluginId }} <span *ngIf="el.type">{{ el.type }}</span>
+															<div class="plugin-header">
+																<div class="title">
+																	{{ el.pluginId }} <span *ngIf="el.type">{{ el.type }}</span>
+																</div>
+																<p class="mr-2 m-0">{{ el.version }}</p>
 															</div>
 															<div class="badge-wrapper" >
 																<span class="badge badge-primary mr-1" *ngFor="let category of el.categories">{{category}}</span>
