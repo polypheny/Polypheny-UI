@@ -91,7 +91,7 @@
 														<app-file-uploader [loadPage]="loadPage"></app-file-uploader>
 													</div>
 												</div>
-												<div class="list-input-wrapper my-1 card" *ngFor="let el of config.value.values; let i = index;">
+												<div class="list-input-wrapper my-1 card" *ngFor="let el of filterPlugins(config.value.values); let i = index;">
 													<div class="plugin-wrapper">
 														<div class="left">
 															<div class="image-wrapper m-2">
@@ -106,6 +106,7 @@
 																<p class="mr-2 m-0">{{ el.version }}</p>
 															</div>
 															<div class="badge-wrapper" >
+																<span class="badge badge-danger mr-1" *ngIf="el.isSystemComponent">system</span>
 																<span class="badge badge-primary mr-1" *ngFor="let category of el.categories">{{category}}</span>
 															</div>
 														</div>
@@ -113,8 +114,8 @@
 													</div>
 													<div class="card-footer plugin-footer">
 														<a target="_blank" [href]=" el.url ? el.url : 'https://polypheny.com' "><small class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
-														<button (click)="deactivatePlugin(el, config.value.key)" *ngIf="el.status === 'ACTIVE'" class="btn btn-info">Deactivate</button>
-														<button (click)="activatePlugin(el, config.value.key)" *ngIf="el.status === 'LOADED'" class="btn btn-primary">Activate</button>
+														<button [disabled]="el.isSystemComponent" (click)="deactivatePlugin(el, config.value.key)" *ngIf="el.status === 'ACTIVE' && !el.isSystemComponent" class="btn btn-info">Deactivate</button>
+														<button [disabled]="el.isSystemComponent" (click)="activatePlugin(el, config.value.key)" *ngIf="el.status === 'LOADED' && !el.isSystemComponent" class="btn btn-primary">Activate</button>
 													</div>
 												</div>
 											</div>
