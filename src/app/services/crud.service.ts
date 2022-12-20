@@ -5,8 +5,7 @@ import {
   Index,
   ModifyPartitionRequest,
   PartitionFunctionModel,
-  PartitioningRequest,
-  ResultSet
+  PartitioningRequest
 } from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
@@ -18,7 +17,9 @@ import {
   ExploreTable,
   GraphRequest,
   MaterializedRequest,
+  MergeColumnsRequest,
   MonitoringRequest,
+  TransferTableRequest,
   QueryRequest,
   RelAlgRequest,
   Schema,
@@ -204,6 +205,13 @@ export class CrudService {
     return this._http.post(`${this.httpUrl}/dropColumn`, columnRequest, this.httpOptions);
   }
 
+   /**
+   * Merge columns of a table in a relational namespace
+   */
+  mergeColumns ( columnRequest: MergeColumnsRequest ) {
+    return this._http.post(`${this.httpUrl}/mergeColumns`, columnRequest, this.httpOptions);
+  }
+
   /**
    * Get list of tables of a schema to truncate/drop them
    */
@@ -223,6 +231,13 @@ export class CrudService {
    */
   createTable(tableRequest: EditTableRequest) {
     return this._http.post(`${this.httpUrl}/createTable`, tableRequest, this.httpOptions);
+  }
+
+  /**
+   * Transfer a table to another schema
+   */
+   transferTable( tableRequest: TransferTableRequest ) {
+    return this._http.post(`${this.httpUrl}/transferTable`, tableRequest, this.httpOptions);
   }
 
   /**

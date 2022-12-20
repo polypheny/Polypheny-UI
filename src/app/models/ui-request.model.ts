@@ -230,6 +230,26 @@ export class ColumnRequest extends UIRequest {
   }
 }
 
+
+/**
+ * Merge columns within a relational namespace.
+ * Used for request where you want to merge multiple columns of a table.
+ */
+export class MergeColumnsRequest extends UIRequest {
+  sourceColumns: DbColumn[];
+  targetColumnName: string;
+  joinString: string;
+  tableType: string;
+  constructor( tableId: string, sourceColumns: DbColumn[],  targetColumnName: string, joinString: string, tableType:string = 'table' ) {
+    super();
+    this.tableId = tableId;
+    this.sourceColumns = sourceColumns;
+    this.targetColumnName = targetColumnName;
+    this.joinString = joinString;   
+    this.tableType = tableType;
+  }
+}
+
 export class MaterializedRequest extends UIRequest{
   constructor(tableId: string) {
     super();
@@ -268,6 +288,24 @@ export class EditTableRequest {
 
   getAction() {
     return this.action;
+  }
+}
+
+/**
+ * Transfer a table from one namespace to another.
+ * Used for request where you want to transfer a table
+ */
+ export class TransferTableRequest {
+  table: string;
+  sourceSchema: string;
+  targetSchema: string;
+  primaryKeyNames: string;
+
+  constructor( table: string, sourceNamespaceName: string, targetNamespaceName: string, primaryKeyNames: string ) {
+    this.table = table;
+    this.sourceSchema = sourceNamespaceName;
+    this.targetSchema = targetNamespaceName;
+    this.primaryKeyNames = primaryKeyNames;
   }
 }
 
