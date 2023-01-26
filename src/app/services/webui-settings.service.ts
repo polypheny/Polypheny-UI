@@ -19,7 +19,6 @@ export class WebuiSettingsService {
     new Setting( this.settings, 'configServer.port', '8081' );
     new Setting( this.settings, 'informationServer.port', '8082' );
     new Setting( this.settings, 'httpServer.port', '13137' );
-    new Setting( this.settings, 'hub.url', 'https://hub.polypheny.org/index.php' );
     new Setting( this.settings, 'websocketGestureRecognition.ip:port', 'localhost:4999/index.php' );
     new Setting( this.settings, 'reconnection.timeout', '5000' );
 
@@ -37,7 +36,6 @@ export class WebuiSettingsService {
         'ws://' + this.host + ':' + localStorage.getItem( 'webUI.port' ) + '/webSocket' );
     this.connections.set( 'httpServer.rest',
         'http://' + this.host + ':' + localStorage.getItem( 'httpServer.port' ) );
-    this.connections.set( 'hub.url', localStorage.getItem('hub.url'));
     this.connections.set('websocketGestureRecognition', 'ws://' + localStorage.getItem('websocketGestureRecognition.ip:port'));
   }
 

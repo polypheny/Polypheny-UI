@@ -46,7 +46,6 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     createPrimaryKeys: new FormControl(true, Validators.required),
     addDefaultValue: new FormControl(true, Validators.required)
   });
-  @ViewChild('exportTableModal', {static: false}) public exportTableModal: ModalDirective;
 
   constructor(
     public _crud: CrudService,
@@ -247,10 +246,6 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
       this._crud.nameIsValid( table.newName );
   }
 
-  initExportModal() {
-    this.exportTableModal.show();
-  }
-
   /**
    * Determine if the "export" button should be shown
    * (if at least one table is selected)
@@ -267,52 +262,6 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
       }
     }
     this.showExportButton = false;
-  }
-
-  resetExport() {
-    this.exportForm.reset({ name: '', description: '', pub: 0, createPrimaryKeys: true, addDefaultValue: true});
-    this.uploading = false;
-    this.exportProgress = 0.0;
-    for(const t of this.tables){
-      t.export = false;
-    }
-  }
-
-  exportTable() {
-    const exportTables = {};
-    for(const t of this.tables){
-      if(t.export){
-        exportTables[t.name] = {initialName: t.name, newName: t.name};
-      }
-    }
-    if (this.exportForm.valid) {
-      this.uploading = true;
-      this._crud.exportTable(
-        this.exportForm.controls['name'].value,
-        this.exportForm.controls['description'].value,
-        this.database,
-        exportTables,
-        +this.exportForm.controls['pub'].value,
-        this.exportForm.controls['createPrimaryKeys'].value,
-        this.exportForm.controls['addDefaultValue'].value,
-      ).subscribe(
-        res => {
-          const result = <ResultSet>res;
-          if (result.error) {
-            this._toast.exception(result);
-          } else {
-            this._toast.success('Exported collection to Polypheny-Hub');
-          }
-        }, err => {
-          this._toast.error('Could not export collection');
-          console.log(err);
-        }
-        //"finally block"
-      ).add(() => {
-        this.resetExport();
-        this.exportTableModal.hide();
-      });
-    }
   }
 
   initSocket() {
@@ -342,34 +291,6 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  addNewColumn() {
-    this.newColumns.set( this.counter++, new DbColumn('', false, true, this.types[0].name, '', null, null ) );
-  }
-
-  removeNewColumn(i: number) {
-    if( this.newColumns.size === 1){
-      this.counter = 0;
-      this.newColumns.clear();
-      this.newColumns.set( this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null ) );
-    } else {
-      //don't change the counter here!
-      this.newColumns.delete( i );
-    }
-  }
-
-  triggerDefaultNull(col: DbColumn) {
-    if (col.defaultValue === null) {
-      if (this._types.isNumeric(col.dataType)) {
-        col.defaultValue = 0;
-      } else if (this._types.isBoolean(col.dataType)) {
-        col.defaultValue = false;
-      } else {
-        col.defaultValue = '';
-      }
-    } else {
-      col.defaultValue = null;
-    }
-  }
 
   getTypeInfo() {
     this._types.getTypes().subscribe(

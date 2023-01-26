@@ -1,6 +1,5 @@
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {HubService} from './hub.service';
 import {CrudService} from './crud.service';
 import {Injectable} from '@angular/core';
 import {PluginEntity} from '../models/ui-request.model';
@@ -19,7 +18,6 @@ export class PluginService{
     constructor(
         private _http:HttpClient,
         private _settings:WebuiSettingsService,
-        private _hub: HubService,
         private _crud: CrudService
     ) {
 

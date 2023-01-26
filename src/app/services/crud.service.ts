@@ -28,7 +28,6 @@ import {
 } from '../models/ui-request.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
-import {HubService} from './hub.service';
 import {Adapter} from '../views/adapters/adapter.model';
 import {QueryInterface} from '../views/query-interfaces/query-interfaces.model';
 import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
@@ -45,8 +44,7 @@ export class CrudService {
 
   constructor(
     private _http:HttpClient,
-    private _settings:WebuiSettingsService,
-    private _hub: HubService,
+    private _settings:WebuiSettingsService
   ) {
     this.initWebSocket();
     setInterval(() => this.socket.next('keepalive'), 10_000);
@@ -497,27 +495,6 @@ export class CrudService {
    */
   getFkActions(){
     return this._http.get(`${this.httpUrl}/getForeignKeyActions`, this.httpOptions);
-  }
-
-  importDataset ( tables: any, schema: string, store: string, url: string, createPks: boolean, addDefault: boolean ) {
-    return this._http.post(`${this.httpUrl}/importDataset`, {tables: tables, schema: schema, store: store, url: url, createPks: createPks, defaultValues: addDefault}, this.httpOptions);
-  }
-
-  exportTable( name: string, description: string, schema: string, tables: any, pub: number, createPks: boolean, addDefault: boolean ){
-    const body = {
-      userId: this._hub.getId(),
-      secret: this._hub.getSecret(),
-      name: name,
-      description: description,
-      schema: schema,
-      tables: tables,
-      pub: pub,
-      hubLink: this._hub.getHubUrl(),
-      createPks: createPks,
-      defaultValues: addDefault
-    };
-    //const index = new Index( schema, table, this._settings.getConnection('hub.url'), null, null );
-    return this._http.post( `${this.httpUrl}/exportTable`, body );
   }
 
   getTypeSchemas() {

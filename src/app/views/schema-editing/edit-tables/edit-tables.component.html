@@ -7,7 +7,6 @@
 <table class="table table-hover table-striped" *ngIf="tables">
     <thead>
         <tr>
-            <th>Export</th>
             <th>Table</th>
             <th>Truncate</th>
             <th>Drop</th>
@@ -15,7 +14,6 @@
     </thead>
     <tbody>
         <tr *ngFor="let table of tables let i = index" [ngClass]="{'table-warning':table.export}" [class.editing]="table.editing">
-            <td><input type="checkbox" class="" [(ngModel)]="table.export" (change)="updateShowExportButton($event)"></td>
           <td>
             <span *ngIf="!table.editing">
               {{table.name}}
@@ -53,7 +51,6 @@
         </tr>
     </tbody>
 </table>
-<button class="btn btn-primary" (click)="initExportModal()" [hidden]="!showExportButton">Export tables</button>
 
 <hr>
 
@@ -194,15 +191,12 @@
     </div>
 </div>
 
-<div bsModal #exportTableModal="bs-modal" class="modal fade" id="exportTableModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="resetExport()">
+<div bsModal #exportTableModal="bs-modal" class="modal fade" id="exportTableModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <form [formGroup]="exportForm">
         <div class="modal-header">
           <h4 class="modal-title">Export tables</h4>
-          <button type="button" class="close" (click)="exportTableModal.hide()" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
         <div class="modal-body">
           <p>Keep in mind that exporting a whole table can lead to a large dataset. If you want to proceed, specify the name the exported dataset should have and click on the export button.</p>
@@ -260,11 +254,6 @@
 
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="exportTableModal.hide()">Close</button>
-          <button type="button" class="btn btn-primary" (click)="exportTable()" [disabled]="uploading">
-            <span class="spinner-border spinner-border-sm" *ngIf="uploading"></span>
-            Export
-          </button>
           <div class="progress-wrapper">
             <progressbar *ngIf="uploading && exportProgress < 1" class="progress progress-striped" [value]="exportProgress" [max]="1"></progressbar>
             <progressbar *ngIf="uploading && exportProgress === 1" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>

@@ -202,7 +202,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       return;
     }
     if( this.tables.filter((t) => {
-      console.log(this.schemaType)
       if( this.schemaType.toLowerCase() === 'relational'){
         return t.name.toLowerCase() === this.newTableName.toLowerCase();
       }
@@ -298,74 +297,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     //table.name !== table.newName  not necessary, since the filter will catch it as well
     return this.tables.filter((t) => t.name === table.newName ).length === 0 &&
       this._crud.nameIsValid( table.newName );
-  }
-
-  initExportModal() {
-    this.exportTableModal.show();
-  }
-
-  /**
-   * Determine if the "export" button should be shown
-   * (if at least one table is selected)
-   */
-  updateShowExportButton( e ){
-    if( e.target.checked ){
-      this.showExportButton = true;
-      return;
-    }
-    for( const t of this.tables ){
-      if( t.export ) {
-        this.showExportButton = true;
-        return;
-      }
-    }
-    this.showExportButton = false;
-  }
-
-  resetExport() {
-    this.exportForm.reset({ name: '', description: '', pub: 0, createPrimaryKeys: true, addDefaultValue: true});
-    this.uploading = false;
-    this.exportProgress = 0.0;
-    for(const t of this.tables){
-      t.export = false;
-    }
-  }
-
-  exportTable() {
-    const exportTables = {};
-    for(const t of this.tables){
-      if(t.export){
-        exportTables[t.name] = {initialName: t.name, newName: t.name};
-      }
-    }
-    if (this.exportForm.valid) {
-      this.uploading = true;
-      this._crud.exportTable(
-        this.exportForm.controls['name'].value,
-        this.exportForm.controls['description'].value,
-        this.schema,
-        exportTables,
-        +this.exportForm.controls['pub'].value,
-        this.exportForm.controls['createPrimaryKeys'].value,
-        this.exportForm.controls['addDefaultValue'].value,
-      ).subscribe(
-        res => {
-          const result = <ResultSet>res;
-          if (result.error) {
-            this._toast.exception(result);
-          } else {
-            this._toast.success('Exported table to Polypheny-Hub');
-          }
-        }, err => {
-          this._toast.error('Could not export table');
-          console.log(err);
-        }
-        //"finally block"
-      ).add(() => {
-        this.resetExport();
-        this.exportTableModal.hide();
-      });
-    }
   }
 
   initSocket() {
