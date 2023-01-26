@@ -1,25 +1,25 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { GraphicalQueryingComponent } from './graphical-querying.component';
+import {GraphicalQueryingComponent} from './graphical-querying.component';
 
 describe('GraphicalQueryingComponent', () => {
-  let component: GraphicalQueryingComponent;
-  let fixture: ComponentFixture<GraphicalQueryingComponent>;
+    let component: GraphicalQueryingComponent;
+    let fixture: ComponentFixture<GraphicalQueryingComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ GraphicalQueryingComponent ]
-    })
-    .compileComponents();
-  }));
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            declarations: [GraphicalQueryingComponent]
+        })
+            .compileComponents();
+    }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(GraphicalQueryingComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    beforeEach(() => {
+        fixture = TestBed.createComponent(GraphicalQueryingComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

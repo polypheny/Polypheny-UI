@@ -1,7 +1,8 @@
 <ng-container *ngIf="tableId">
-	<h5>{{tableId}}</h5>
-	<br>
+    <h5>{{tableId}}</h5>
+    <br>
 </ng-container>
-<a routerLink="." class="btn btn-light btn-circle" [ngClass]="{'rotating': loading}" id="reload-btn" (click)="getTable()"><i class="icon-reload"></i></a>
+<a routerLink="." class="btn btn-light btn-circle" [ngClass]="{'rotating': loading}" id="reload-btn"
+   (click)="getTable()"><i class="icon-reload"></i></a>
 <app-data-view [resultSet]="resultSet" [loading]="loading" [config]="tableConfig" [tableId]="tableId"></app-data-view>
 <p *ngIf="!tableId">Please select an entity in the left sidebar to view its data.</p>

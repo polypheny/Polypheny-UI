@@ -1,42 +1,45 @@
-.form-control.fit{
-    display: inline-table;
+.form-control.fit {
+  display: inline-table;
 }
-.dbCol, .dbTable{
-    margin-right: 0.5rem;
-    margin-top: 0.5rem;
+
+.dbCol, .dbTable {
+  margin-right: 0.5rem;
+  margin-top: 0.5rem;
 }
-.dbTable{
-    font-size: 1em;
-    font-weight:normal;
+
+.dbTable {
+  font-size: 1em;
+  font-weight: normal;
 }
-#tablesList li{
-    cursor: grab;
+
+#tablesList li {
+  cursor: grab;
 }
 
 #explore-button {
-    margin-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-#selectedCols{
-    margin: 0.25rem;
+#selectedCols {
+  margin: 0.25rem;
 }
 
-#fullNameSelectedcols{
-    margin: 0.25rem;
+#fullNameSelectedcols {
+  margin: 0.25rem;
 }
 
-#tutorialSwitch{
-    margin-right: 0.25rem;
+#tutorialSwitch {
+  margin-right: 0.25rem;
 }
 
-#switch-tutorial{
-    margin-left: 0.5rem;
+#switch-tutorial {
+  margin-left: 0.5rem;
 }
 
 .output .label-container {
-    fill: white;
+  fill: white;
 }
 
 .output .edgePath .path {
-    stroke: black;
+  stroke: black;
 }

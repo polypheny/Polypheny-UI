@@ -3,98 +3,99 @@ import {BehaviorSubject} from 'rxjs';
 import {BreadcrumbItem} from './breadcrumb-item';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class BreadcrumbService implements OnInit, OnDestroy {
 
-  //BehaviorSubjects: https://pillar-soft.com/2018/07/02/behavior-subjects-in-angular-6/
-  breadcrumbs: BehaviorSubject<BreadcrumbItem[]> = new BehaviorSubject<BreadcrumbItem[]>([]);
-  MAXCOLS = 10;
-  zoom: number;
-  _showZoom = true;
-  tableId = '!notShow!';
+    //BehaviorSubjects: https://pillar-soft.com/2018/07/02/behavior-subjects-in-angular-6/
+    breadcrumbs: BehaviorSubject<BreadcrumbItem[]> = new BehaviorSubject<BreadcrumbItem[]>([]);
+    MAXCOLS = 10;
+    zoom: number;
+    _showZoom = true;
+    tableId = '!notShow!';
 
-  routerId;
+    routerId;
 
-  constructor() {
-    if( localStorage.getItem( 'breadcrumb.zoom' ) === null ) {
-      localStorage.setItem( 'breadcrumb.zoom', String(this.MAXCOLS - 1) );
+    constructor() {
+        if (localStorage.getItem('breadcrumb.zoom') === null) {
+            localStorage.setItem('breadcrumb.zoom', String(this.MAXCOLS - 1));
+        }
+        this.zoom = +localStorage.getItem('breadcrumb.zoom');
     }
-    this.zoom = +localStorage.getItem( 'breadcrumb.zoom' );
-  }
 
-  ngOnInit() {}
-
-  ngOnDestroy() {
-    this.breadcrumbs.next([]);
-  }
-
-  private setZoom( zoom: number ){
-    this.zoom = zoom;
-    localStorage.setItem( 'breadcrumb.zoom', String(zoom) );
-  }
-
-  zoomIn() {
-    if (this.zoom < this.MAXCOLS) {
-      this.setZoom( this.zoom+1 );
+    ngOnInit() {
     }
-    return this.zoom;
-  }
 
-  zoomOut() {
-    if (this.zoom > 1) {
-      this.setZoom( this.zoom-1 );
+    ngOnDestroy() {
+        this.breadcrumbs.next([]);
     }
-    return this.zoom;
-  }
 
-  getZoom() {
-    return this.zoom;
-  }
+    private setZoom(zoom: number) {
+        this.zoom = zoom;
+        localStorage.setItem('breadcrumb.zoom', String(zoom));
+    }
 
-  getTableId(){
-    return this.tableId;
-  }
+    zoomIn() {
+        if (this.zoom < this.MAXCOLS) {
+            this.setZoom(this.zoom + 1);
+        }
+        return this.zoom;
+    }
 
-  getMasonryZoom() {
-    return this.MAXCOLS - ( this.zoom-1 );
-  }
+    zoomOut() {
+        if (this.zoom > 1) {
+            this.setZoom(this.zoom - 1);
+        }
+        return this.zoom;
+    }
 
-  getCardClass() {
-    //todo color..
-    return '';
-  }
+    getZoom() {
+        return this.zoom;
+    }
 
-  getBreadcrumbs(){
-    return this.breadcrumbs.asObservable();
-  }
+    getTableId() {
+        return this.tableId;
+    }
 
-  public setBreadcrumbs( breadcrumbs: BreadcrumbItem[] ) {
-    this.breadcrumbs.next( breadcrumbs );
-    this.showZoom();
-  }
+    getMasonryZoom() {
+        return this.MAXCOLS - (this.zoom - 1);
+    }
 
-  public setDashboardBreadcrumbs( breadcrumbs: BreadcrumbItem[] ) {
-    this.breadcrumbs.next( breadcrumbs );
-    this.hideZoom();
-  }
+    getCardClass() {
+        //todo color..
+        return '';
+    }
 
-  public setBreadcrumbsSchema( breadcrumbs: BreadcrumbItem[], tableId: string) {
-    this.breadcrumbs.next( breadcrumbs );
-    this.hideZoom();
-    this.tableId = tableId;
-  }
+    getBreadcrumbs() {
+        return this.breadcrumbs.asObservable();
+    }
 
-  hide() {
-    this.breadcrumbs.next([]);
-  }
+    public setBreadcrumbs(breadcrumbs: BreadcrumbItem[]) {
+        this.breadcrumbs.next(breadcrumbs);
+        this.showZoom();
+    }
 
-  hideZoom() {
-    this._showZoom = false;
-  }
+    public setDashboardBreadcrumbs(breadcrumbs: BreadcrumbItem[]) {
+        this.breadcrumbs.next(breadcrumbs);
+        this.hideZoom();
+    }
 
-  showZoom() {
-    this._showZoom = true;
-  }
+    public setBreadcrumbsSchema(breadcrumbs: BreadcrumbItem[], tableId: string) {
+        this.breadcrumbs.next(breadcrumbs);
+        this.hideZoom();
+        this.tableId = tableId;
+    }
+
+    hide() {
+        this.breadcrumbs.next([]);
+    }
+
+    hideZoom() {
+        this._showZoom = false;
+    }
+
+    showZoom() {
+        this._showZoom = true;
+    }
 
 }

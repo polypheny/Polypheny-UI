@@ -1,21 +1,23 @@
 #operatorList .rel-op:hover {
-  background: rgba( 0, 0, 0, 0.05 );
+  background: rgba(0, 0, 0, 0.05);
 }
-.rel-op{
+
+.rel-op {
   cursor: grab;
 }
 
-#drop{
+#drop {
   border: 1px solid #c8ced3;
   border-radius: 0.25rem;
   height: 1000px;
 }
+
 #drop .node, .cdk-drag-preview .node {
   position: absolute;
   min-width: 260px;
   z-index: 1;
 
-  .in, .out{
+  .in, .out {
     position: absolute;
     left: 50%;
     margin-left: -10px;
@@ -24,70 +26,84 @@
     border-radius: 100%;
     z-index: 1;
   }
-  .in{
+
+  .in {
     bottom: -10px;
     background: rgba(181, 229, 160, 0.3);
   }
-  .out{
+
+  .out {
     top: -10px;
     background: rgba(150, 216, 228, 0.3);
   }
-  .drag-handle{
+
+  .drag-handle {
     cursor: move;
   }
-  .del{
+
+  .del {
     margin-left: 1em;
     color: #c8ced3;
   }
-  .del:hover{
+
+  .del:hover {
     color: #dc3545;
     cursor: pointer;
   }
-  .form-group{
-    input{
+
+  .form-group {
+    input {
       margin-left: 1em;
     }
   }
-  .list-group-item{
+
+  .list-group-item {
     padding: 0.5rem 1.25rem;
   }
-  .param-wrapper{
+
+  .param-wrapper {
     display: flex;
     justify-content: space-between;
-    label{
+
+    label {
       margin-bottom: 0;
       margin-right: 1em;
       line-height: 2em;
     }
   }
-  .param-input{
+
+  .param-input {
     width: 100%;
   }
+
   input[type=checkbox].param-input {
     box-shadow: none;
   }
 }
-#drop:not(.connecting) .out:hover{
+
+#drop:not(.connecting) .out:hover {
   background: rgba(150, 216, 228, 0.7);
   cursor: pointer;
 }
-#drop.connecting .in:hover{
+
+#drop.connecting .in:hover {
   background: rgba(181, 229, 160, 0.7);
 }
-#drop .cdk-drag-placeholder{
+
+#drop .cdk-drag-placeholder {
   display: none;
 }
 
-svg{
+svg {
   position: absolute;
-  top:0;
-  left:0;
+  top: 0;
+  left: 0;
   stroke: black;
-  stroke-width:1;
+  stroke-width: 1;
   z-index: -1;
 }
 
-#run{
+#run {
   position: absolute;
   top: 1em;
   right: 1em;
@@ -95,7 +111,7 @@ svg{
   z-index: 2;
 }
 
-#result-wrapper{
+#result-wrapper {
   padding-bottom: 1em;
   padding-right: 0;
 }
@@ -107,45 +123,51 @@ svg{
 }
 
 /* autocomplete package */
-.ng-autocomplete{
+.ng-autocomplete {
   width: 100% !important;
 }
-.autocomplete-container{
+
+.autocomplete-container {
   box-shadow: none !important;
   border: 1px solid #e4e7ea;
   border-radius: 0.25rem;
   line-height: 2;
   height: auto !important;
 }
-.input-container{
+
+.input-container {
   height: initial;
   line-height: initial;
-  input{
-    background-color:transparent !important;
+
+  input {
+    background-color: transparent !important;
     height: auto !important;
     line-height: 1 !important;
     padding: 0.25rem 0.5rem !important;
   }
 }
-.autocomplete-container .suggestions-container ul li a{
+
+.autocomplete-container .suggestions-container ul li a {
   padding: 0 0.5em !important;
 }
-.input-container input::placeholder{
-  font-size:0.765625rem;
+
+.input-container input::placeholder {
+  font-size: 0.765625rem;
 }
 
 /* bootstrap styles */
-.autocomplete-container{
+.autocomplete-container {
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
-.autocomplete-container:focus-within{
+
+.autocomplete-container:focus-within {
   border: 1px #8ad4ee solid !important;
   border-radius: 0.25rem;
   outline: 0 !important;
   box-shadow: 0 0 0 0.2rem rgba(32, 168, 216, 0.25) !important;
 }
 
-.analyze-query{
+.analyze-query {
   margin-top: 0.25rem;
   font-size: 0.765625rem;
 }

@@ -4,12 +4,14 @@
   align-items: flex-start;
   justify-content: center;
 }
+
 .card {
   width: 300px;
   margin-bottom: 1em;
   margin-right: 1em;
   position: relative;
 }
+
 .delete-card, .edit-card {
   display: none;
   position: absolute;
@@ -18,29 +20,35 @@
   color: black;
   box-shadow: none;
 }
+
 .delete-card:hover, .edit-card:hover {
   border-color: #505050;
 }
+
 .delete-card {
   top: 5px;
   right: 5px;
 }
+
 .edit-card {
   right: 3.5em;
   top: 5px;
 }
+
 .delete-card:hover {
   color: #dc3545 !important;
 }
+
 .card:hover .delete-card, .card:hover .edit-card {
   display: initial;
 }
-.key{
+
+.key {
   color: #656565;
 }
 
 //.list-group-item
-.card .list-group{
+.card .list-group {
   border: none;
 }
 
@@ -67,32 +75,37 @@
   img, video, audio {
     width: 100%;
   }
-  audio{
+
+  audio {
     display: block;
   }
 }
+
 .multimedia {
   padding: 0;
 }
-progressbar{
+
+progressbar {
   height: 5px;
 }
 
 //.download
-.list-group-item .download{
-  opacity:.4;
+.list-group-item .download {
+  opacity: .4;
   text-decoration: none;
   color: black;
   padding: 0.3em 0.5em;
 }
-.list-group-item:hover .download{
-  opacity:.7;
+
+.list-group-item:hover .download {
+  opacity: .7;
 }
-.list-group-item .download:hover{
+
+.list-group-item .download:hover {
   opacity: 1;
 }
 
-.toggle-insert{
+.toggle-insert {
   width: 50px;
   height: 50px;
   margin-top: 90px;

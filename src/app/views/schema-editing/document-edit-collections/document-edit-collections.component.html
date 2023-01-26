@@ -6,49 +6,54 @@
 
 <table class="table table-hover table-striped" *ngIf="tables">
     <thead>
-        <tr>
-            <th>Collection</th>
-            <th>Truncate</th>
-            <th>Drop</th>
-        </tr>
+    <tr>
+        <th>Collection</th>
+        <th>Truncate</th>
+        <th>Drop</th>
+    </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let table of tables let i = index" [ngClass]="{'table-warning':table.export}" [class.editing]="table.editing">
-          <td>
+    <tr *ngFor="let table of tables let i = index" [ngClass]="{'table-warning':table.export}"
+        [class.editing]="table.editing">
+        <td>
             <span *ngIf="!table.editing">
               {{table.name}}
-              <i class="cui-pencil edit-table-name ml-2" (click)="table.editing = !table.editing"></i>
+                <i class="cui-pencil edit-table-name ml-2" (click)="table.editing = !table.editing"></i>
             </span>
             <div class="input-group input-group-sm" *ngIf="table.editing" style="max-width: 200px">
-              <input type="text" class="form-control form-control-sm" placeholder="newName" [(ngModel)]="table.newName" autofocus (keyup.enter)="renameTable(table)" (keyup.escape)="table.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()">
-              <div class="input-group-append">
-                <button class="btn btn-primary btn-sm input-group" [disabled]="!canRename(table)" (click)="renameTable(table)">rename</button>
-              </div>
+                <input type="text" class="form-control form-control-sm" placeholder="newName"
+                       [(ngModel)]="table.newName" autofocus (keyup.enter)="renameTable(table)"
+                       (keyup.escape)="table.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()">
+                <div class="input-group-append">
+                    <button class="btn btn-primary btn-sm input-group" [disabled]="!canRename(table)"
+                            (click)="renameTable(table)">rename
+                    </button>
+                </div>
             </div>
-          </td>
-            <td>
-                <div class="input-group confirm-group" *ngIf="table.modifiable">
-                    <input type="text" class="form-control form-control-sm" placeholder="truncate {{table.name}}"
-                           [(ngModel)]="table.truncate" (keyup.enter)="sendRequest('truncate', table)">
-                    <div class="input-group-append">
-                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('truncate', table)" type="button"
-                              (click)="sendRequest('truncate', table)">truncate
-                      </button>
-                    </div>
+        </td>
+        <td>
+            <div class="input-group confirm-group" *ngIf="table.modifiable">
+                <input type="text" class="form-control form-control-sm" placeholder="truncate {{table.name}}"
+                       [(ngModel)]="table.truncate" (keyup.enter)="sendRequest('truncate', table)">
+                <div class="input-group-append">
+                    <button class="btn btn-sm" [ngClass]="dropTruncateClass('truncate', table)" type="button"
+                            (click)="sendRequest('truncate', table)">truncate
+                    </button>
                 </div>
-            </td>
-            <td>
-                <div class="input-group confirm-group" *ngIf="table.tableType !== 'SOURCE'">
-                  <input type="text" class="form-control form-control-sm" placeholder="drop {{table.name}}"
-                         [(ngModel)]="table.drop" (keyup.enter)="sendRequest('drop', table)">
-                    <div class="input-group-append">
-                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('drop', table)" type="button"
-                              (click)="sendRequest('drop', table)">drop
-                      </button>
-                    </div>
+            </div>
+        </td>
+        <td>
+            <div class="input-group confirm-group" *ngIf="table.tableType !== 'SOURCE'">
+                <input type="text" class="form-control form-control-sm" placeholder="drop {{table.name}}"
+                       [(ngModel)]="table.drop" (keyup.enter)="sendRequest('drop', table)">
+                <div class="input-group-append">
+                    <button class="btn btn-sm" [ngClass]="dropTruncateClass('drop', table)" type="button"
+                            (click)="sendRequest('drop', table)">drop
+                    </button>
                 </div>
-            </td>
-        </tr>
+            </div>
+        </td>
+    </tr>
     </tbody>
 </table>
 
@@ -60,46 +65,53 @@
         <h5>Create new collection</h5>
         <table class="table table-hover table-striped">
             <thead>
-                <tr>
-                    <th>Name</th>
-                    <th></th>
-                </tr>
+            <tr>
+                <th>Name</th>
+                <th></th>
+            </tr>
             </thead>
             <tbody>
             <tr>
-              <td>
-                <div class="btn-group">
-                  <div class="btn-group" dropdown placement="top right" [dropup]="true">
-                    <button dropdownToggle type="button" class="btn btn-light dropdown-toggle">
-                      <span *ngIf="!selectedStore">Select store</span><span
-                      *ngIf="selectedStore">{{selectedStore}}</span> <span
-                      class="caret"></span>
-                    </button>
-                    <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-                      <ng-container *ngIf="stores && stores.length > 0">
-                        <li role="menuitem">
-                          <a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = null">auto</a>
-                        </li>
-                        <li class="dropdown-divider"></li>
-                        <li role="menuitem" *ngFor="let store of stores">
-                          <a class="dropdown-item" [routerLink]="[]"
-                             (click)="selectedStore = store.uniqueName">{{store.uniqueName}}</a>
-                        </li>
-                      </ng-container>
-                      <li *ngIf="stores == stores.length === 0" role="menuitem"><a class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </td>
-              <td colspan="2">
-                <div class="input-group" style="justify-content: flex-end">
-                  <input type="text" placeholder="collection name" class="form-control" style="max-width: 200px;"
-                         [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)" (keyup.enter)="createCollection()" [tabIndex]="newColumns.size+1">
-                  <div class="input-group-append">
-                    <button class="btn btn-primary" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingTable}" [disabled]="creatingTable" (click)="createCollection()" [tabIndex]="newColumns.size+2">create collection</button>
-                  </div>
-                </div>
-              </td>
+                <td>
+                    <div class="btn-group">
+                        <div class="btn-group" dropdown placement="top right" [dropup]="true">
+                            <button dropdownToggle type="button" class="btn btn-light dropdown-toggle">
+                                <span *ngIf="!selectedStore">Select store</span><span
+                                    *ngIf="selectedStore">{{selectedStore}}</span> <span
+                                    class="caret"></span>
+                            </button>
+                            <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+                                <ng-container *ngIf="stores && stores.length > 0">
+                                    <li role="menuitem">
+                                        <a class="dropdown-item" [routerLink]="[]"
+                                           (click)="selectedStore = null">auto</a>
+                                    </li>
+                                    <li class="dropdown-divider"></li>
+                                    <li role="menuitem" *ngFor="let store of stores">
+                                        <a class="dropdown-item" [routerLink]="[]"
+                                           (click)="selectedStore = store.uniqueName">{{store.uniqueName}}</a>
+                                    </li>
+                                </ng-container>
+                                <li *ngIf="stores == stores.length === 0" role="menuitem"><a
+                                        class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </td>
+                <td colspan="2">
+                    <div class="input-group" style="justify-content: flex-end">
+                        <input type="text" placeholder="collection name" class="form-control" style="max-width: 200px;"
+                               [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)"
+                               (keyup.enter)="createCollection()" [tabIndex]="newColumns.size+1">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary"
+                                    [ngClass]="{'progress-bar-striped progress-bar-animated': creatingTable}"
+                                    [disabled]="creatingTable" (click)="createCollection()"
+                                    [tabIndex]="newColumns.size+2">create collection
+                            </button>
+                        </div>
+                    </div>
+                </td>
             </tr>
             </tbody>
         </table>

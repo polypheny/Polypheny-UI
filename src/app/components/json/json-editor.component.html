@@ -10,12 +10,17 @@
                        (add)="addColumn($event)"
                        (validChanged)="validChanged()"></app-json-elem>
     </form>
-    <div  class="input-group justify-content-center mt-3">
+    <div class="input-group justify-content-center mt-3">
         <div (mouseleave)="setMenuShow(false)" (mouseenter)="menuEnter()">
-            <button class="btn btn-sm btn-outline-primary" (click)="setMenuShow(true)"  type="button"><i class="cui-plus"></i></button>
+            <button class="btn btn-sm btn-outline-primary" (click)="setMenuShow(true)" type="button"><i
+                    class="cui-plus"></i></button>
             <ul *ngIf="show" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false)">
-                <li><div class="dropdown-item" (click)="addMainColumn(0)"><i class="cui-plus"></i>Add Key-Value</div></li>
-                <li><div class="dropdown-item" (click)="addMainColumn(1)"><i class="cui-plus"></i>Add Key-Object</div></li>
+                <li>
+                    <div class="dropdown-item" (click)="addMainColumn(0)"><i class="cui-plus"></i>Add Key-Value</div>
+                </li>
+                <li>
+                    <div class="dropdown-item" (click)="addMainColumn(1)"><i class="cui-plus"></i>Add Key-Object</div>
+                </li>
             </ul>
         </div>
     </div>

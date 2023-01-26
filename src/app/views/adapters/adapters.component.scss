@@ -1,32 +1,37 @@
 .col-lg-6.fixed-width {
   max-width: 400px;
 }
+
 .fixed-height {
   height: 240px;
 }
-@media screen and (max-width: 830px){
-  .fixed-width{
-    max-width:100%!important;
+
+@media screen and (max-width: 830px) {
+  .fixed-width {
+    max-width: 100% !important;
   }
 }
-.topRight{
+
+.topRight {
   position: absolute;
   top: -0.5rem;
   right: 1rem;
   z-index: 2;
 }
 
-.checkbox-wrapper{
+.checkbox-wrapper {
   flex: 1;
   border-top-right-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
   border: 1px solid #e4e7ea;
 }
+
 .input-group > .form-control:not(:last-child), .input-group > .custom-select:not(:last-child) {
   border-top-right-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
 }
-.input-group select{
+
+.input-group select {
   border-top-right-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
   /** from: https://www.clickstorm.de/blog/dropdown-css3/*/
@@ -34,59 +39,72 @@
   -webkit-appearance: none;
   appearance: none;
 }
-.noRadiusRight{
+
+.noRadiusRight {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-.select-wrapper::after{
+
+.select-wrapper::after {
   /* see: https://www.clickstorm.de/blog/dropdown-css3/ */
   content: "\25BE";
   font-family: initial;
-  font-size:1em;
+  font-size: 1em;
   position: absolute;
   right: 15px;
   top: 0.5em;
 }
-#adapter-table img{
+
+#adapter-table img {
   max-width: 50px;
   max-height: 50px;
 }
-#adapter-table tr td:first-child{
-  padding:0.5em;
+
+#adapter-table tr td:first-child {
+  padding: 0.5em;
 }
+
 .adapters {
   position: relative;
 }
-.adapters .logo{
+
+.adapters .logo {
   object-fit: contain;
   width: 60px;
   height: 60px;
   float: right;
   font-size: 50px;
 }
-.adapters .card .card-body{
+
+.adapters .card .card-body {
   overflow: auto;
+
   > span {
     display: block;
-    span{
+
+    span {
       width: 1.2em;
     }
   }
 }
+
 .add-adapter-wrapper {
   flex: 0;
 }
+
 .add-adapter {
   width: 50px;
   height: 50px;
   margin-top: 90px;
   flex: 0;
 }
-.center{
+
+.center {
   text-align: center;
   vertical-align: middle;
 }
-.center i{
+
+.center i {
   font-size: 50px;
 }
 

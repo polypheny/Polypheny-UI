@@ -1,90 +1,108 @@
 <div class="app-body">
-  <main class="main d-flex align-items-center">
-    <div class="container">
-      <div class="row">
-        <div class="mx-auto col-md-4">
-          <div class="card-group">
-            <div class="card p-4">
+    <main class="main d-flex align-items-center">
+        <div class="container">
+            <div class="row">
+                <div class="mx-auto col-md-4">
+                    <div class="card-group">
+                        <div class="card p-4">
 
-              <!--<div class="card-body" style="padding: 0 1.25rem;">
-                <div id="historyWrapper"  dropdown #dropdown="bs-dropdown" placement="bottom right" [autoClose]="true" style="position: relative;">
-                  <button id="showHistory" class="btn btn-outline-info dropdown-toggle" dropdownToggle aria-controls="dropdown-basic"><i class="fa fa-history"></i></button>
-                  <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
-                      role="menu" aria-labelledby="button-basic">
-                    <li role="menuitem"><a class="dropdown-item" href="#">Action</a></li>
-                    <li role="menuitem"><a class="dropdown-item" href="#">Another action</a></li>
-                    <li role="menuitem"><a class="dropdown-item" href="#">Something else here</a></li>
-                    <li class="divider dropdown-divider"></li>
-                    <li role="menuitem"><a class="dropdown-item" href="#">Separated link</a>
-                    </li>
-                  </ul>
+                            <!--<div class="card-body" style="padding: 0 1.25rem;">
+                              <div id="historyWrapper"  dropdown #dropdown="bs-dropdown" placement="bottom right" [autoClose]="true" style="position: relative;">
+                                <button id="showHistory" class="btn btn-outline-info dropdown-toggle" dropdownToggle aria-controls="dropdown-basic"><i class="fa fa-history"></i></button>
+                                <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
+                                    role="menu" aria-labelledby="button-basic">
+                                  <li role="menuitem"><a class="dropdown-item" href="#">Action</a></li>
+                                  <li role="menuitem"><a class="dropdown-item" href="#">Another action</a></li>
+                                  <li role="menuitem"><a class="dropdown-item" href="#">Something else here</a></li>
+                                  <li class="divider dropdown-divider"></li>
+                                  <li role="menuitem"><a class="dropdown-item" href="#">Separated link</a>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>-->
+
+                            <div class="card-body">
+
+                                <div class="btn-group float-right" dropdown>
+                                    <!--<button class="btn btn-primary fa fa-save"></button>-->
+                                    <button class="btn btn-primary dropdown-toggle p-2" dropdownToggle type="button"
+                                            aria-haspopup="true" aria-expanded="false"><i class="fa fa-history"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right" style="left: auto; right: 0px;">
+                                        <a class="dropdown-item" href="#">Action</a><a class="dropdown-item" href="#">Another
+                                        action</a><a class="dropdown-item" href="#">Something else here</a>
+                                    </div>
+
+                                    <div class="dropdown-menu dropdown-menu-right text-center" id="loginDropdown"
+                                         *dropdownMenu>
+                                        <h6 class="dropdown-header"><i class="cui-star"></i> favorites</h6>
+                                        <a class="dropdown-item" *ngFor="let f of favorites" href="#"
+                                           (click)="applyHistory(f)" [routerLink]="">
+                                            <i class="cui-trash text-danger" (click)="deleteFavorite()"></i>{{f.server}}
+                                            :{{f.port}}</a>
+
+                                        <a class="dropdown-item" href="#" (click)="saveNewFavorite(loginForm)"
+                                           [routerLink]="">save this login</a>
+                                        <h6 class="dropdown-header"><i class="fa fa-history"></i> history</h6>
+                                        <a class="dropdown-item" *ngFor="let h of history" href="#"
+                                           (click)="applyHistory(h)" [routerLink]="">{{h.server}}:{{h.port}}</a>
+                                    </div>
+                                </div>
+
+                                <form #loginForm='ngForm' (submit)="submit(loginForm)">
+                                    <h1>Login</h1>
+                                    <p class="text-muted">Connect with Polypheny</p>
+                                    <div class="input-group mb-3">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-server"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" placeholder="server"
+                                                   autocomplete="username" [(ngModel)]="loginModel.server" name="server"
+                                                   [ngClass]="{'is-valid': server.valid && submitted, 'is-invalid': !server.valid && submitted}"
+                                                   required #server='ngModel'>
+                                        </div>
+
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-anchor"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" placeholder="port"
+                                                   autocomplete="username" [(ngModel)]="loginModel.port" name="port"
+                                                   [ngClass]="{'is-valid': port.valid && submitted, 'is-invalid': !port.valid && submitted}"
+                                                   required #port='ngModel'>
+                                        </div>
+
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="icon-user"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" placeholder="username"
+                                               autocomplete="username">
+                                    </div>
+
+                                    <div class="input-group mb-4">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="icon-lock"></i></span>
+                                        </div>
+                                        <input type="password" class="form-control" placeholder="password"
+                                               autocomplete="current-password">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <button type="submit" class="btn btn-primary px-4">Login</button>
+                                        </div>
+                                        <div class="col-6 text-right">
+                                            <button type="button" class="btn btn-link px-0" (click)="testConnection()">
+                                                Test connection
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>-->
-
-              <div class="card-body">
-
-                <div class="btn-group float-right" dropdown>
-                  <!--<button class="btn btn-primary fa fa-save"></button>-->
-                  <button class="btn btn-primary dropdown-toggle p-2" dropdownToggle type="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-history"></i></button>
-                  <div class="dropdown-menu dropdown-menu-right" style="left: auto; right: 0px;">
-                    <a class="dropdown-item" href="#">Action</a><a class="dropdown-item" href="#">Another action</a><a class="dropdown-item" href="#">Something else here</a>
-                  </div>
-
-                  <div class="dropdown-menu dropdown-menu-right text-center" id="loginDropdown" *dropdownMenu>
-                    <h6 class="dropdown-header"><i class="cui-star"></i> favorites</h6>
-                    <a class="dropdown-item" *ngFor="let f of favorites" href="#" (click)="applyHistory(f)" [routerLink]="">
-                      <i class="cui-trash text-danger" (click)="deleteFavorite()"></i>{{f.server}}:{{f.port}}</a>
-
-                    <a class="dropdown-item" href="#" (click)="saveNewFavorite(loginForm)" [routerLink]="">save this login</a>
-                    <h6 class="dropdown-header"><i class="fa fa-history"></i> history</h6>
-                    <a class="dropdown-item" *ngFor="let h of history" href="#" (click)="applyHistory(h)" [routerLink]="">{{h.server}}:{{h.port}}</a>
-                  </div>
-                </div>
-
-                <form #loginForm='ngForm' (submit)="submit(loginForm)">
-                  <h1>Login</h1>
-                  <p class="text-muted">Connect with Polypheny</p>
-                  <div class="input-group mb-3">
-                    <div class="input-group mb-3">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fa fa-server"></i></span>
-                      </div>
-                      <input type="text" class="form-control" placeholder="server" autocomplete="username" [(ngModel)]="loginModel.server" name="server" [ngClass]="{'is-valid': server.valid && submitted, 'is-invalid': !server.valid && submitted}" required #server='ngModel'>
-                    </div>
-
-                    <div class="input-group mb-3">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fa fa-anchor"></i></span>
-                      </div>
-                      <input type="text" class="form-control" placeholder="port" autocomplete="username" [(ngModel)]="loginModel.port" name="port" [ngClass]="{'is-valid': port.valid && submitted, 'is-invalid': !port.valid && submitted}" required #port='ngModel'>
-                    </div>
-
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="icon-user"></i></span>
-                    </div>
-                    <input type="text" class="form-control" placeholder="username" autocomplete="username">
-                  </div>
-
-                  <div class="input-group mb-4">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="icon-lock"></i></span>
-                    </div>
-                    <input type="password" class="form-control" placeholder="password" autocomplete="current-password">
-                  </div>
-                  <div class="row">
-                    <div class="col-6">
-                      <button type="submit" class="btn btn-primary px-4">Login</button>
-                    </div>
-                    <div class="col-6 text-right">
-                      <button type="button" class="btn btn-link px-0" (click)="testConnection()">Test connection</button>
-                    </div>
-                  </div>
-                </form>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </main>
+    </main>
 </div>

@@ -1,7 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {PluginService} from '../../../../services/plugin.service';
 import {ToastService} from '../../../../components/toast/toast.service';
-import {HttpEventType} from '@angular/common/http';
 
 @Component({
   selector: 'app-file-uploader',
@@ -19,20 +18,21 @@ export class FileUploaderComponent implements OnInit {
   constructor(
       public _plugin: PluginService,
       public _toast: ToastService,
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
   }
 
   onFileSelected(event: Event) {
-    this.files = Array.from( (event.target as HTMLInputElement).files );
+    this.files = Array.from((event.target as HTMLInputElement).files);
     console.log(this.files);
   }
 
   loadPlugins() {
     this.isLoading = true;
     this.uploadProgress = 0;
-    this._plugin.loadPlugins(this.files).subscribe( res => {
+    this._plugin.loadPlugins(this.files).subscribe(res => {
       this.files = null;
       this.isLoading = false;
       this.loadPage();
@@ -46,7 +46,7 @@ export class FileUploaderComponent implements OnInit {
 
 
   removeFile(file: File) {
-    this.files = this.files.filter( f => f.name !== file.name);
+    this.files = this.files.filter(f => f.name !== file.name);
   }
 
   hasFiles() {

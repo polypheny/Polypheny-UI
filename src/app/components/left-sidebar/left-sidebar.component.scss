@@ -88,9 +88,10 @@
   align-self: flex-end;
 }
 
-.schema-button{
+.schema-button {
   margin-left: 1rem;
-  &:hover{
+
+  &:hover {
     background: lighten(#20a8d8, 30%);
     cursor: pointer;
   }

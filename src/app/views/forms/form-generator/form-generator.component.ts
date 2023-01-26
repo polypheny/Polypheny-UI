@@ -10,7 +10,7 @@ import {ToastDuration, ToastService} from '../../../components/toast/toast.servi
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {isEqual} from 'lodash';
-import {PluginEntity, PluginStatus} from '../../../models/ui-request.model';
+import {PluginStatus} from '../../../models/ui-request.model';
 
 @Component({
     selector: 'app-form-generator',
@@ -376,11 +376,11 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         this.onSubmit(this.form, null, func);
     }
 
-    comparePlugins( a:any, b:any ){
-        if( a.isSystemComponent ){
+    comparePlugins(a: any, b: any) {
+        if (a.isSystemComponent) {
             return -1;
         }
-        if( b.isSystemComponent ){
+        if (b.isSystemComponent) {
             return 1;
         }
         return 0;

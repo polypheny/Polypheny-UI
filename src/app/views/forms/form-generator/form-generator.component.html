@@ -5,8 +5,10 @@
 	<form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form" #formElement>
 		<div id="form-generator-main" class="row">
 			<div class="col-md-12">
-				<button *ngIf="form.dirty" type="submit" class="btn btn-circle btn-primary save-configs"><i class="fa fa-save"></i></button>
-				<button #submitButton type="submit" class="btn btn-circle btn-primary save-configs d-none"><i class="fa fa-save"></i></button>
+				<button *ngIf="form.dirty" type="submit" class="btn btn-circle btn-primary save-configs"><i
+						class="fa fa-save"></i></button>
+				<button #submitButton type="submit" class="btn btn-circle btn-primary save-configs d-none"><i
+						class="fa fa-save"></i></button>
 				<h1 *ngIf="formObj.title">{{formObj.title}}</h1>
 				<p *ngIf="formObj.description">{{formObj.description}}</p>
 			</div>
@@ -24,23 +26,36 @@
 							</div>
 						</div>
 						<!--<p>{{group.value.description}}</p>-->
-						<div [ngClass]="{'card-body': !formObj.fullWidth }" >
-							<ng-container *ngFor="let config of group.value.configs | keyvalue: orderConfigs; let nth = index">
+						<div [ngClass]="{'card-body': !formObj.fullWidth }">
+							<ng-container
+									*ngFor="let config of group.value.configs | keyvalue: orderConfigs; let nth = index">
 								<ng-container [ngSwitch]="config.value.webUiFormType">
 									<div class="input-group">
-										<div *ngIf="!formObj.fullWidth" class="input-group-prepend-list" [class.input-group-full]=" config.value.webUiFormType === 'LIST'" >
-											<label [for]="config.value.key" class="input-group-text" id="basic-addon1" [tooltip]="config.value.description" placement="left" container="body">{{ config.value.key }}</label>
+										<div *ngIf="!formObj.fullWidth" class="input-group-prepend-list"
+											 [class.input-group-full]=" config.value.webUiFormType === 'LIST'">
+											<label [for]="config.value.key" class="input-group-text" id="basic-addon1"
+												   [tooltip]="config.value.description" placement="left"
+												   container="body">{{ config.value.key }}</label>
 											<div class="gradient"></div>
 										</div>
 										<ng-container *ngSwitchCase="'TEXT'">
-											<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="text" class="form-control" [ngClass]="inputValidation(config.value.key)">
-											<small id="help-text" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
+											<input [formControlName]="config.value.key" [id]="config.value.key"
+												   [value]="config.value.value" type="text" class="form-control"
+												   [ngClass]="inputValidation(config.value.key)">
+											<small id="help-text"
+												   *ngIf="config.value.requiresRestart && config.value.oldValue != null"
+												   class="form-text text-success restart-info">
 												value until restart: {{config.value.oldValue}}
 											</small>
 										</ng-container>
 										<ng-container #numberCase *ngSwitchCase="'NUMBER'">
-											<input [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" type="number" class="form-control" [ngClass]="inputValidation(config.value.key)" aria-describedby="help">
-											<small id="help-number" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info " >
+											<input [formControlName]="config.value.key" [id]="config.value.key"
+												   [value]="config.value.value" type="number" class="form-control"
+												   [ngClass]="inputValidation(config.value.key)"
+												   aria-describedby="help">
+											<small id="help-number"
+												   *ngIf="config.value.requiresRestart && config.value.oldValue != null"
+												   class="form-text text-success restart-info ">
 												value until restart: {{config.value.oldValue}}
 											</small>
 
@@ -50,34 +65,50 @@
 											<div class="checkbox-wrapper">
 												<br>
 												<label [class]="'switch switch-label switch-pill switch-sm switch-primary'">
-													<input [formControlName]="config.value.key" [id]="config.value.key" [ngModel]="config.value.value" type="checkbox" class="form-control switch-input" [ngClass]="inputValidation(config.value.key)">
-													<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+													<input [formControlName]="config.value.key" [id]="config.value.key"
+														   [ngModel]="config.value.value" type="checkbox"
+														   class="form-control switch-input"
+														   [ngClass]="inputValidation(config.value.key)">
+													<span class="switch-slider" data-checked="✓"
+														  data-unchecked="✕"></span>
 												</label>
 											</div>
-											<small id="help-checkbox" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
+											<small id="help-checkbox"
+												   *ngIf="config.value.requiresRestart && config.value.oldValue != null"
+												   class="form-text text-success restart-info">
 												value until restart: {{config.value.oldValue}}
 											</small>
 
 										</ng-container>
 										<ng-container #listCase *ngSwitchCase="'LIST'">
 											<!-- List of ConfigString -->
-											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'TEXT'">
+											<div class="list-wrapper"
+												 *ngIf="config.value.template.webUiFormType === 'TEXT'">
 												<div class="input-group">
-													<div class="list-input-wrapper input-group my-1" *ngFor="let el of config.value.values; let i = index;">
-														<input type="text" class="form-control list-input mr-1" [(ngModel)]="el.value" (input)="markElement(config.value.key)" [ngModelOptions]="{standalone: true}" placeholder="" aria-label="" aria-describedby="basic-addon1">
+													<div class="list-input-wrapper input-group my-1"
+														 *ngFor="let el of config.value.values; let i = index;">
+														<input type="text" class="form-control list-input mr-1"
+															   [(ngModel)]="el.value"
+															   (input)="markElement(config.value.key)"
+															   [ngModelOptions]="{standalone: true}" placeholder=""
+															   aria-label="" aria-describedby="basic-addon1">
 														<span class="input-group-btn">
-															<button class="btn btn-secondary" (click)="removeElement(config.value.values, config.value.key, i)" type="button">-</button>
+															<button class="btn btn-secondary"
+																	(click)="removeElement(config.value.values, config.value.key, i)"
+																	type="button">-</button>
 														</span>
 													</div>
 													<div class="list-add-wrapper input-group m-1">
 														<span class="input-group-btn">
-															<button class="btn btn-secondary" type="button" (click)="addElement(config.value.values, config.value.key, config.value.template)">+</button>
+															<button class="btn btn-secondary" type="button"
+																	(click)="addElement(config.value.values, config.value.key, config.value.template)">+</button>
 														</span>
 													</div>
 												</div>
 											</div>
 											<!--List of DockerInstance-->
-											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'DOCKER_INSTANCE'">
+											<div class="list-wrapper"
+												 *ngIf="config.value.template.webUiFormType === 'DOCKER_INSTANCE'">
 												<app-docker-config [form]="form"
 																   [onSubmit]="onSubmit"
 																   [config]="config"
@@ -85,37 +116,53 @@
 																   [removeElement]="removeElement"
 																   [addElement]="addElement"></app-docker-config>
 											</div>
-											<div class="list-wrapper" *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">
+											<div class="list-wrapper"
+												 *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">
 												<div class="list-input-wrapper">
 													<div class="text-center bg-transparent border-0">
 														<app-file-uploader [loadPage]="loadPage"></app-file-uploader>
 													</div>
 												</div>
-												<div class="list-input-wrapper my-1 card" *ngFor="let el of filterPlugins(config.value.values); let i = index;">
+												<div class="list-input-wrapper my-1 card"
+													 *ngFor="let el of filterPlugins(config.value.values); let i = index;">
 													<div class="plugin-wrapper">
 														<div class="left">
 															<div class="image-wrapper m-2">
-																<img src="{{ el.imagePath ? el.imagePath : 'assets/img/plugin/plugin-placeholder.svg' }}" alt="">
+																<img src="{{ el.imagePath ? el.imagePath : 'assets/img/plugin/plugin-placeholder.svg' }}"
+																	 alt="">
 															</div>
 														</div>
 														<div class="right">
 															<div class="plugin-header">
 																<div class="title">
-																	{{ el.pluginId }} <span *ngIf="el.type">{{ el.type }}</span>
+																	{{ el.pluginId }} <span
+																		*ngIf="el.type">{{ el.type }}</span>
 																</div>
 																<p class="mr-2 m-0">{{ el.version }}</p>
 															</div>
-															<div class="badge-wrapper" >
-																<span class="badge badge-danger mr-1" *ngIf="el.isSystemComponent">system</span>
-																<span class="badge badge-primary mr-1" *ngFor="let category of el.categories">{{category}}</span>
+															<div class="badge-wrapper">
+                                                                <span class="badge badge-danger mr-1"
+																	  *ngIf="el.isSystemComponent">system</span>
+																<span class="badge badge-primary mr-1"
+																	  *ngFor="let category of el.categories">{{category}}</span>
 															</div>
 														</div>
 
 													</div>
 													<div class="card-footer plugin-footer">
-														<a target="_blank" [href]=" el.url ? el.url : 'https://polypheny.com' "><small class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
-														<button [disabled]="el.isSystemComponent" (click)="deactivatePlugin(el, config.value.key)" *ngIf="el.status === 'ACTIVE' && !el.isSystemComponent" class="btn btn-info">Deactivate</button>
-														<button [disabled]="el.isSystemComponent" (click)="activatePlugin(el, config.value.key)" *ngIf="el.status === 'LOADED' && !el.isSystemComponent" class="btn btn-primary">Activate</button>
+														<a target="_blank"
+														   [href]=" el.url ? el.url : 'https://polypheny.com' "><small
+																class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
+														<button [disabled]="el.isSystemComponent"
+																(click)="deactivatePlugin(el, config.value.key)"
+																*ngIf="el.status === 'ACTIVE' && !el.isSystemComponent"
+																class="btn btn-info">Deactivate
+														</button>
+														<button [disabled]="el.isSystemComponent"
+																(click)="activatePlugin(el, config.value.key)"
+																*ngIf="el.status === 'LOADED' && !el.isSystemComponent"
+																class="btn btn-primary">Activate
+														</button>
 													</div>
 												</div>
 											</div>
@@ -123,27 +170,39 @@
 
 										<!-- ConfigClazz, ConfigEnum -->
 										<ng-container *ngSwitchCase="'SELECT'">
-										  <select [formControlName]="config.value.key" [id]="config.value.key" [value]="config.value.value" class="form-control" [ngClass]="inputValidation(config.value.key)">
-											<option *ngFor="let c of config.value.values" [value]="c">{{classOrEnumName(c)}}</option>
-										  </select>
-											<small id="help-enum" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
+											<select [formControlName]="config.value.key" [id]="config.value.key"
+													[value]="config.value.value" class="form-control"
+													[ngClass]="inputValidation(config.value.key)">
+												<option *ngFor="let c of config.value.values"
+														[value]="c">{{classOrEnumName(c)}}</option>
+											</select>
+											<small id="help-enum"
+												   *ngIf="config.value.requiresRestart && config.value.oldValue != null"
+												   class="form-text text-success restart-info">
 												value until restart: {{config.value.oldValue}}
 											</small>
 										</ng-container>
 
 										<!-- ConfigClazzList, ConfigEnumList -->
 										<ng-container *ngSwitchCase="'CHECKBOXES'">
-										  <div class="form-control" style="height:auto">
-											<div *ngFor="let c of config.value.values">
-											  <label><input type="checkbox" [checked]="config.value.value.includes(c)" style="margin-right:0.5em" #cb (change)="handleClassList(config.value.key, c, cb.checked)">{{classOrEnumName(c)}}</label>
+											<div class="form-control" style="height:auto">
+												<div *ngFor="let c of config.value.values">
+													<label><input type="checkbox"
+																  [checked]="config.value.value.includes(c)"
+																  style="margin-right:0.5em" #cb
+																  (change)="handleClassList(config.value.key, c, cb.checked)">{{classOrEnumName(c)}}
+													</label>
+												</div>
+												<small id="help-checkboxes"
+													   *ngIf="config.value.requiresRestart && config.value.oldValue != null"
+													   class="form-text text-success restart-info">
+													value until restart: {{config.value.oldValue}}
+												</small>
 											</div>
-											  <small id="help-checkboxes" *ngIf="config.value.requiresRestart && config.value.oldValue != null" class="form-text text-success restart-info" >
-												  value until restart: {{config.value.oldValue}}
-											  </small>
-										  </div>
 										</ng-container>
 
-										<div class="invalid-feedback" *ngIf="submitted && !form.controls[config.value.key].valid">
+										<div class="invalid-feedback"
+											 *ngIf="submitted && !form.controls[config.value.key].valid">
 											<div *ngIf="form.controls[config.value.key].errors.required">
 												{{ config.value.key }} is required.
 											</div>
@@ -151,7 +210,8 @@
 												invalid email
 											</div>
 										</div>
-										<div class="valid-feedback" *ngIf="submitted && form.controls[config.value.key].valid && form.controls[config.value.key].dirty"></div>
+										<div class="valid-feedback"
+											 *ngIf="submitted && form.controls[config.value.key].valid && form.controls[config.value.key].dirty"></div>
 									</div>
 								</ng-container>
 
@@ -171,7 +231,8 @@
 </ng-container>
 <ng-container *ngIf="!formObj && !form && pageList">
 	Choose a page to display configs:<br><br>
-	<button *ngFor="let page of pageList | keyvalue" class="btn btn-light pageLink" [routerLink]="''+page.value.id">{{page.value.name}}</button>
+	<button *ngFor="let page of pageList | keyvalue" class="btn btn-light pageLink"
+			[routerLink]="''+page.value.id">{{page.value.name}}</button>
 </ng-container>
 <ng-container *ngIf="serverError">
 	<p class="text-danger">
@@ -179,7 +240,6 @@
 		{{serverError.name}}: {{serverError.message}}
 	</p>
 </ng-container>
-
 
 
 <!--<div class="row" *ngIf="formObj && form">

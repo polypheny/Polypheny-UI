@@ -6,49 +6,54 @@
 
 <table class="table table-hover table-striped" *ngIf="tables">
     <thead>
-        <tr>
-            <th>Table</th>
-            <th>Truncate</th>
-            <th>Drop</th>
-        </tr>
+    <tr>
+        <th>Table</th>
+        <th>Truncate</th>
+        <th>Drop</th>
+    </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let table of tables let i = index" [ngClass]="{'table-warning':table.export}" [class.editing]="table.editing">
-          <td>
+    <tr *ngFor="let table of tables let i = index" [ngClass]="{'table-warning':table.export}"
+        [class.editing]="table.editing">
+        <td>
             <span *ngIf="!table.editing">
               {{table.name}}
-              <i class="cui-pencil edit-table-name ml-2" (click)="table.editing = !table.editing"></i>
+                <i class="cui-pencil edit-table-name ml-2" (click)="table.editing = !table.editing"></i>
             </span>
             <div class="input-group input-group-sm" *ngIf="table.editing" style="max-width: 200px">
-              <input type="text" class="form-control form-control-sm" placeholder="newName" [(ngModel)]="table.newName" autofocus (keyup.enter)="renameTable(table)" (keyup.escape)="table.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()">
-              <div class="input-group-append">
-                <button class="btn btn-primary btn-sm input-group" [disabled]="!canRename(table)" (click)="renameTable(table)">rename</button>
-              </div>
+                <input type="text" class="form-control form-control-sm" placeholder="newName"
+                       [(ngModel)]="table.newName" autofocus (keyup.enter)="renameTable(table)"
+                       (keyup.escape)="table.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()">
+                <div class="input-group-append">
+                    <button class="btn btn-primary btn-sm input-group" [disabled]="!canRename(table)"
+                            (click)="renameTable(table)">rename
+                    </button>
+                </div>
             </div>
-          </td>
-            <td>
-                <div class="input-group confirm-group" *ngIf="table.modifiable">
-                    <input type="text" class="form-control form-control-sm" placeholder="truncate {{table.name}}"
-                           [(ngModel)]="table.truncate" (keyup.enter)="sendRequest('truncate', table)">
-                    <div class="input-group-append">
-                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('truncate', table)" type="button"
-                              (click)="sendRequest('truncate', table)">truncate
-                      </button>
-                    </div>
+        </td>
+        <td>
+            <div class="input-group confirm-group" *ngIf="table.modifiable">
+                <input type="text" class="form-control form-control-sm" placeholder="truncate {{table.name}}"
+                       [(ngModel)]="table.truncate" (keyup.enter)="sendRequest('truncate', table)">
+                <div class="input-group-append">
+                    <button class="btn btn-sm" [ngClass]="dropTruncateClass('truncate', table)" type="button"
+                            (click)="sendRequest('truncate', table)">truncate
+                    </button>
                 </div>
-            </td>
-            <td>
-                <div class="input-group confirm-group" *ngIf="table.tableType !== 'SOURCE'">
-                  <input type="text" class="form-control form-control-sm" placeholder="drop {{table.name}}"
-                         [(ngModel)]="table.drop" (keyup.enter)="sendRequest('drop', table)">
-                    <div class="input-group-append">
-                      <button class="btn btn-sm" [ngClass]="dropTruncateClass('drop', table)" type="button"
-                              (click)="sendRequest('drop', table)">drop
-                      </button>
-                    </div>
+            </div>
+        </td>
+        <td>
+            <div class="input-group confirm-group" *ngIf="table.tableType !== 'SOURCE'">
+                <input type="text" class="form-control form-control-sm" placeholder="drop {{table.name}}"
+                       [(ngModel)]="table.drop" (keyup.enter)="sendRequest('drop', table)">
+                <div class="input-group-append">
+                    <button class="btn btn-sm" [ngClass]="dropTruncateClass('drop', table)" type="button"
+                            (click)="sendRequest('drop', table)">drop
+                    </button>
                 </div>
-            </td>
-        </tr>
+            </div>
+        </td>
+    </tr>
     </tbody>
 </table>
 
@@ -61,205 +66,249 @@
         <p>Columns without column_name will be ignored.</p>
         <table class="table table-hover table-striped">
             <thead>
-                <tr>
-                   <th>Name</th>
-                    <th>Primary</th>
-                    <th>Nullable</th>
-                    <th>Type</th>
-                    <th>Collection</th>
-                    <th>Parameters</th>
-                    <th>Default</th>
-                    <th></th>
-                </tr>
+            <tr>
+                <th>Name</th>
+                <th>Primary</th>
+                <th>Nullable</th>
+                <th>Type</th>
+                <th>Collection</th>
+                <th>Parameters</th>
+                <th>Default</th>
+                <th></th>
+            </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let col of newColumns | keyvalue; let i=index">
-                    <td>
-                        <input type="text" class="form-control form-control-sm" placeholder="column name" [(ngModel)]="col.value.name" #columnName [ngClass]="_crud.getValidationClass(columnName.value)" [tabIndex]="i+1">
-                    </td>
-                    <td>
-                        <input type="checkbox" [(ngModel)]="col.value.primary">
-                    </td>
-                    <td>
-                        <input type="checkbox" [(ngModel)]="col.value.nullable">
-                    </td>
-                    <td>
-                        <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.dataType">
-                            <option *ngFor="let t of types" [ngValue]="t.name">{{t.name}}</option>
-                        </select>
-                    </td>
-                    <td>
-                      <select name="collection_type" id="collection_type" class="form-control form-control-sm editing" [(ngModel)]="col.value.collectionsType">
+            <tr *ngFor="let col of newColumns | keyvalue; let i=index">
+                <td>
+                    <input type="text" class="form-control form-control-sm" placeholder="column name"
+                           [(ngModel)]="col.value.name" #columnName
+                           [ngClass]="_crud.getValidationClass(columnName.value)" [tabIndex]="i+1">
+                </td>
+                <td>
+                    <input type="checkbox" [(ngModel)]="col.value.primary">
+                </td>
+                <td>
+                    <input type="checkbox" [(ngModel)]="col.value.nullable">
+                </td>
+                <td>
+                    <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.dataType">
+                        <option *ngFor="let t of types" [ngValue]="t.name">{{t.name}}</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="collection_type" id="collection_type" class="form-control form-control-sm editing"
+                            [(ngModel)]="col.value.collectionsType">
                         <option value="">none</option>
                         <option value="ARRAY">ARRAY</option>
-                      </select>
-                    </td>
-                    <td class="data-type-parameters">
-                      <!-- precision -->
-                      <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsPrecision(col.value.dataType)">
+                    </select>
+                </td>
+                <td class="data-type-parameters">
+                    <!-- precision -->
+                    <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsPrecision(col.value.dataType)">
                         <div class="input-group-prepend">
-                          <label [for]="'precision'+i" class="input-group-text">{{_types.precisionPlaceholder(col.value.dataType)}}</label>
+                            <label [for]="'precision'+i"
+                                   class="input-group-text">{{_types.precisionPlaceholder(col.value.dataType)}}</label>
                         </div>
-                        <input [id]="'precision'+i" type="number" class="form-control form-control-sm" [placeholder]="_types.precisionPlaceholder(col.value.dataType)" [(ngModel)]="col.value.precision">
-                      </div>
-                      <!-- scale -->
-                      <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsScale(col.value.dataType)">
+                        <input [id]="'precision'+i" type="number" class="form-control form-control-sm"
+                               [placeholder]="_types.precisionPlaceholder(col.value.dataType)"
+                               [(ngModel)]="col.value.precision">
+                    </div>
+                    <!-- scale -->
+                    <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsScale(col.value.dataType)">
                         <div class="input-group-prepend">
-                          <label [for]="'scale'+i" class="input-group-text">scale</label>
+                            <label [for]="'scale'+i" class="input-group-text">scale</label>
                         </div>
-                        <input [id]="'scale'+i" type="number" class="form-control form-control-sm" placeholder="scale" [(ngModel)]="col.value.scale">
-                      </div>
-                      <!-- dimension -->
-                      <div class="input-group input-group-sm mt-1" *ngIf="col.value.collectionsType === 'ARRAY'">
+                        <input [id]="'scale'+i" type="number" class="form-control form-control-sm" placeholder="scale"
+                               [(ngModel)]="col.value.scale">
+                    </div>
+                    <!-- dimension -->
+                    <div class="input-group input-group-sm mt-1" *ngIf="col.value.collectionsType === 'ARRAY'">
                         <div class="input-group-prepend">
-                          <label [for]="'dim'+i" class="input-group-text">dimension</label>
+                            <label [for]="'dim'+i" class="input-group-text">dimension</label>
                         </div>
-                        <input [id]="'dim'+i" type="number" placeholder="dimension" class="form-control form-control-sm" [(ngModel)]="col.value.dimension">
-                      </div>
-                      <!-- cardinality -->
-                      <div class="input-group input-group-sm mt-1" *ngIf="col.value.collectionsType === 'ARRAY'">
+                        <input [id]="'dim'+i" type="number" placeholder="dimension" class="form-control form-control-sm"
+                               [(ngModel)]="col.value.dimension">
+                    </div>
+                    <!-- cardinality -->
+                    <div class="input-group input-group-sm mt-1" *ngIf="col.value.collectionsType === 'ARRAY'">
                         <div class="input-group-prepend">
-                          <label [for]="'card'+i" class="input-group-text">cardinality</label>
+                            <label [for]="'card'+i" class="input-group-text">cardinality</label>
                         </div>
-                        <input [id]="'card'+i" type="number" placeholder="dimension" class="form-control form-control-sm" [(ngModel)]="col.value.cardinality">
-                      </div>
-                    </td>
-                    <td>
-                        <div class="input-group">
-                            <ng-container [ngSwitch]="col.value.dataType" *ngIf="col.value.dataType">
-                                <input *ngSwitchCase="_types.numericTypes().includes(col.value.dataType.toLowerCase()) && col.value.collectionsType !== 'ARRAY' ? col.value.dataType : ''" type="number" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
-                                <ng-container *ngSwitchCase="_types.booleanTypes().includes(col.value.dataType.toLowerCase()) ? col.value.dataType : ''">
-                                    <div class="form-check form-check-inline">
-                                        <label *ngIf="col.value.defaultValue === null" class="form-check-label disabled" [for]="'default'+col.value.name">null&nbsp;</label>
-                                        <label *ngIf="col.value.defaultValue === true" class="form-check-label" [for]="'default'+col.value.name">true&nbsp;</label>
-                                        <label *ngIf="col.value.defaultValue === false" class="form-check-label" [for]="'default'+col.value.name">false&nbsp;</label>
-                                        <input type="checkbox" class="form-check-input" [(ngModel)]="col.value.defaultValue" [id]="'default'+col.value.name" [disabled]="col.value.defaultValue === null">
-                                    </div>
-                                </ng-container>
-                                <input *ngSwitchDefault type="text" placeholder="default value" class="form-control form-control-sm" [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
+                        <input [id]="'card'+i" type="number" placeholder="dimension"
+                               class="form-control form-control-sm" [(ngModel)]="col.value.cardinality">
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group">
+                        <ng-container [ngSwitch]="col.value.dataType" *ngIf="col.value.dataType">
+                            <input *ngSwitchCase="_types.numericTypes().includes(col.value.dataType.toLowerCase()) && col.value.collectionsType !== 'ARRAY' ? col.value.dataType : ''"
+                                   type="number" placeholder="default value" class="form-control form-control-sm"
+                                   [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
+                            <ng-container
+                                    *ngSwitchCase="_types.booleanTypes().includes(col.value.dataType.toLowerCase()) ? col.value.dataType : ''">
+                                <div class="form-check form-check-inline">
+                                    <label *ngIf="col.value.defaultValue === null" class="form-check-label disabled"
+                                           [for]="'default'+col.value.name">null&nbsp;</label>
+                                    <label *ngIf="col.value.defaultValue === true" class="form-check-label"
+                                           [for]="'default'+col.value.name">true&nbsp;</label>
+                                    <label *ngIf="col.value.defaultValue === false" class="form-check-label"
+                                           [for]="'default'+col.value.name">false&nbsp;</label>
+                                    <input type="checkbox" class="form-check-input" [(ngModel)]="col.value.defaultValue"
+                                           [id]="'default'+col.value.name" [disabled]="col.value.defaultValue === null">
+                                </div>
                             </ng-container>
-                            <div class="input-group-append">
-                                <button class="btn btn-sm" [ngClass]="{'btn-primary': col.value.defaultValue ===null, 'btn-light': col.value.defaultValue !== null}" (click)="triggerDefaultNull( col.value )">null</button>
-                            </div>
+                            <input *ngSwitchDefault type="text" placeholder="default value"
+                                   class="form-control form-control-sm" [(ngModel)]="col.value.defaultValue"
+                                   [disabled]="col.value.defaultValue === null">
+                        </ng-container>
+                        <div class="input-group-append">
+                            <button class="btn btn-sm"
+                                    [ngClass]="{'btn-primary': col.value.defaultValue ===null, 'btn-light': col.value.defaultValue !== null}"
+                                    (click)="triggerDefaultNull( col.value )">null
+                            </button>
                         </div>
-                    </td>
-                    <td>
-                        <i class="cui-trash del" (click)="removeNewColumn(col.key)"></i>
-                    </td>
-                </tr>
+                    </div>
+                </td>
+                <td>
+                    <i class="cui-trash del" (click)="removeNewColumn(col.key)"></i>
+                </td>
+            </tr>
             <tr>
-              <td colspan="5">
-                <button class="btn btn-light" (click)="addNewColumn()">add column</button>
-              </td>
-              <td>
-                <div class="btn-group float-right">
-                  <div class="btn-group" dropdown placement="top right" [dropup]="true">
-                    <button dropdownToggle type="button" class="btn btn-light dropdown-toggle">
-                      <span *ngIf="!selectedStore">Select store</span><span
-                      *ngIf="selectedStore">{{selectedStore}}</span> <span
-                      class="caret"></span>
-                    </button>
-                    <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-                      <ng-container *ngIf="stores && stores.length > 0">
-                        <li role="menuitem">
-                          <a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = null">auto</a>
-                        </li>
-                        <li class="dropdown-divider"></li>
-                        <li role="menuitem" *ngFor="let store of stores">
-                          <a class="dropdown-item" [routerLink]="[]"
-                             (click)="selectedStore = store.uniqueName">{{store.uniqueName}}</a>
-                        </li>
-                      </ng-container>
-                      <li *ngIf="stores == stores.length === 0" role="menuitem"><a class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </td>
-              <td colspan="2">
-                <div class="input-group" style="justify-content: flex-end">
-                  <input type="text" placeholder="table name" class="form-control" style="max-width: 200px;"
-                         [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)" (keyup.enter)="createTable()" [tabIndex]="newColumns.size+1">
+                <td colspan="5">
+                    <button class="btn btn-light" (click)="addNewColumn()">add column</button>
+                </td>
+                <td>
+                    <div class="btn-group float-right">
+                        <div class="btn-group" dropdown placement="top right" [dropup]="true">
+                            <button dropdownToggle type="button" class="btn btn-light dropdown-toggle">
+                                <span *ngIf="!selectedStore">Select store</span><span
+                                    *ngIf="selectedStore">{{selectedStore}}</span> <span
+                                    class="caret"></span>
+                            </button>
+                            <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+                                <ng-container *ngIf="stores && stores.length > 0">
+                                    <li role="menuitem">
+                                        <a class="dropdown-item" [routerLink]="[]"
+                                           (click)="selectedStore = null">auto</a>
+                                    </li>
+                                    <li class="dropdown-divider"></li>
+                                    <li role="menuitem" *ngFor="let store of stores">
+                                        <a class="dropdown-item" [routerLink]="[]"
+                                           (click)="selectedStore = store.uniqueName">{{store.uniqueName}}</a>
+                                    </li>
+                                </ng-container>
+                                <li *ngIf="stores == stores.length === 0" role="menuitem"><a
+                                        class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </td>
+                <td colspan="2">
+                    <div class="input-group" style="justify-content: flex-end">
+                        <input type="text" placeholder="table name" class="form-control" style="max-width: 200px;"
+                               [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)"
+                               (keyup.enter)="createTable()" [tabIndex]="newColumns.size+1">
 
-                  <div class="input-group-append">
-                    <button class="btn btn-primary" [ngClass]="{'progress-bar-striped progress-bar-animated': creatingTable}" [disabled]="creatingTable" (click)="createTable()" [tabIndex]="newColumns.size+2">create table</button>
-                  </div>
-                </div>
-              </td>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary"
+                                    [ngClass]="{'progress-bar-striped progress-bar-animated': creatingTable}"
+                                    [disabled]="creatingTable" (click)="createTable()" [tabIndex]="newColumns.size+2">
+                                create table
+                            </button>
+                        </div>
+                    </div>
+                </td>
             </tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<div bsModal #exportTableModal="bs-modal" class="modal fade" id="exportTableModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <form [formGroup]="exportForm">
-        <div class="modal-header">
-          <h4 class="modal-title">Export tables</h4>
-        </div>
-        <div class="modal-body">
-          <p>Keep in mind that exporting a whole table can lead to a large dataset. If you want to proceed, specify the name the exported dataset should have and click on the export button.</p>
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend"><label for="exportName" class="input-group-text">Name</label></div>
-              <input type="text" placeholder="name" id="exportName" class="form-control" formControlName="name"
-                     autocomplete="off">
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend"><label for="exportDescription" class="input-group-text">Description</label></div>
-              <textarea placeholder="description" id="exportDescription" class="form-control"
-                        formControlName="description" autocomplete="off" #descr [rows]="_util.textareaHeight(descr.value)"></textarea>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend"><label for="exportPublic" class="input-group-text">Visibility</label></div>
-              <select formControlName="pub" id="exportPublic" class="form-control">
-                <option value="0">private</option>
-                <option value="1">internal</option>
-                <option value="2">public</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend"><label for="createPK" class="input-group-text">Create PK</label></div>
-              <div class="checkbox-wrapper">
-                <div style="display: flex;justify-content: center;">
-                  <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="createPK">
-                    <input type="checkbox" class="form-control switch-input" id="createPK" formControlName="createPrimaryKeys">
-                    <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
-                  </label>
+<div bsModal #exportTableModal="bs-modal" class="modal fade" id="exportTableModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form [formGroup]="exportForm">
+                <div class="modal-header">
+                    <h4 class="modal-title">Export tables</h4>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend"><label for="addDefaultVals" class="input-group-text">Default values</label></div>
-              <div class="checkbox-wrapper">
-                <div style="display: flex;justify-content: center;">
-                  <label class="switch switch-label switch-pill switch-sm switch-primary" style="margin: 8px 0;" for="addDefaultVals">
-                    <input type="checkbox" class="form-control switch-input" id="addDefaultVals" formControlName="addDefaultValue">
-                    <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
+                <div class="modal-body">
+                    <p>Keep in mind that exporting a whole table can lead to a large dataset. If you want to proceed,
+                        specify the name the exported dataset should have and click on the export button.</p>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend"><label for="exportName"
+                                                                    class="input-group-text">Name</label></div>
+                            <input type="text" placeholder="name" id="exportName" class="form-control"
+                                   formControlName="name"
+                                   autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend"><label for="exportDescription" class="input-group-text">Description</label>
+                            </div>
+                            <textarea placeholder="description" id="exportDescription" class="form-control"
+                                      formControlName="description" autocomplete="off" #descr
+                                      [rows]="_util.textareaHeight(descr.value)"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend"><label for="exportPublic" class="input-group-text">Visibility</label>
+                            </div>
+                            <select formControlName="pub" id="exportPublic" class="form-control">
+                                <option value="0">private</option>
+                                <option value="1">internal</option>
+                                <option value="2">public</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend"><label for="createPK" class="input-group-text">Create
+                                PK</label></div>
+                            <div class="checkbox-wrapper">
+                                <div style="display: flex;justify-content: center;">
+                                    <label class="switch switch-label switch-pill switch-sm switch-primary"
+                                           style="margin: 8px 0;" for="createPK">
+                                        <input type="checkbox" class="form-control switch-input" id="createPK"
+                                               formControlName="createPrimaryKeys">
+                                        <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend"><label for="addDefaultVals" class="input-group-text">Default
+                                values</label></div>
+                            <div class="checkbox-wrapper">
+                                <div style="display: flex;justify-content: center;">
+                                    <label class="switch switch-label switch-pill switch-sm switch-primary"
+                                           style="margin: 8px 0;" for="addDefaultVals">
+                                        <input type="checkbox" class="form-control switch-input" id="addDefaultVals"
+                                               formControlName="addDefaultValue">
+                                        <span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
 
-        </div>
-        <div class="modal-footer">
-          <div class="progress-wrapper">
-            <progressbar *ngIf="uploading && exportProgress < 1" class="progress progress-striped" [value]="exportProgress" [max]="1"></progressbar>
-            <progressbar *ngIf="uploading && exportProgress === 1" class="progress progress-bar progress-bar-striped progress-bar-animated" [value]="0" [max]="1"></progressbar>
-          </div>
-        </div>
-      </form>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
+                </div>
+                <div class="modal-footer">
+                    <div class="progress-wrapper">
+                        <progressbar *ngIf="uploading && exportProgress < 1" class="progress progress-striped"
+                                     [value]="exportProgress" [max]="1"></progressbar>
+                        <progressbar *ngIf="uploading && exportProgress === 1"
+                                     class="progress progress-bar progress-bar-striped progress-bar-animated"
+                                     [value]="0" [max]="1"></progressbar>
+                    </div>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
 </div>
