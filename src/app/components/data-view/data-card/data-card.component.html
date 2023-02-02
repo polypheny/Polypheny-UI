@@ -21,7 +21,7 @@
                             <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d1[j])"/>
                             <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d1[j])"
                                        [type]="h.dataType"></app-media>
-                            <app-media *ngSwitchCase="'SOUND'" [src]="getFileLink(d1[j])"
+                            <app-media *ngSwitchCase="'AUDIO'" [src]="getFileLink(d1[j])"
                                        [type]="h.dataType"></app-media>
                         </ng-container>
                     </ng-container>

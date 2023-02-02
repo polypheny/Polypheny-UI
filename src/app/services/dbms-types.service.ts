@@ -20,7 +20,7 @@ export class DbmsTypesService {
     private numericArray = ['int2', 'int4', 'int8', 'integer', 'bigint', 'smallint', 'float', 'float4', 'float8', 'double'];
     private booleanArray = ['bool', 'boolean'];
     private dateTimeArray = ['date', 'time', 'timestamp'];
-    private multimediaArray = ['file', 'image', 'video', 'sound'];
+    private multimediaArray = ['file', 'image', 'video', 'audio'];
     private types = new EventEmitter();
     private _types: PolyType[];
     private foreignKeyActions = new EventEmitter();

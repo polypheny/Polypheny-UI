@@ -345,13 +345,13 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     /**
-     * In the card and carousel view, show mm data first (only image, video and sound columns)
+     * In the card and carousel view, show mm data first (only image, video and audio columns)
      */
     showFirst(dataType: string) {
         switch (dataType) {
             case 'IMAGE':
             case 'VIDEO':
-            case 'SOUND':
+            case 'AUDIO':
                 return true;
         }
         return false;

@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -10,7 +10,6 @@ import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {Store} from '../../adapters/adapter.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
-import {ModalDirective} from 'ngx-bootstrap/modal';
 import {UtilService} from '../../../services/util.service';
 import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
@@ -46,7 +45,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         createPrimaryKeys: new FormControl(true, Validators.required),
         addDefaultValue: new FormControl(true, Validators.required)
     });
-    @ViewChild('exportTableModal', {static: false}) public exportTableModal: ModalDirective;
 
     constructor(
         public _crud: CrudService,
