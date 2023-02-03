@@ -70,7 +70,12 @@ export class RenderItemComponent implements OnInit {
         if (!this.li.code) {
             return '20px';
         } else {
-            const numberOfLines = this.li.code.match(/\n/g).length;
+            const match = this.li.code.match(/\n/g);
+            let numberOfLines = 1;
+            if (Array.isArray(match)) {
+                numberOfLines = this.li.code.match(/\n/g).length;
+            }
+
             return numberOfLines * 16 + 60 + 'px';
         }
     }
