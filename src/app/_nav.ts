@@ -63,11 +63,6 @@ export const navItems: NavData[] = [
         icon: 'icon-layers'
     },
     {
-        name: 'UML',
-        url: '/uml',
-        icon: 'icon-vector'
-    },
-    {
         name: 'dynamic forms',
         url: '/config',
         icon: 'icon-drawer'

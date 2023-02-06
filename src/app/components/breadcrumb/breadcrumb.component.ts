@@ -15,7 +15,7 @@ export class BreadcrumbComponent implements OnInit {
     routerId;
 
     constructor(
-        private _breadcrumb: BreadcrumbService,
+        public _breadcrumb: BreadcrumbService,
     ) {
     }
 

@@ -10,9 +10,9 @@ import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {Store} from '../../adapters/adapter.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
-import {UtilService} from '../../../services/util.service';
 import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
+import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 
 @Component({
     selector: 'app-edit-tables',
@@ -54,7 +54,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         private _leftSidebar: LeftSidebarService,
         public _types: DbmsTypesService,
         private _settings: WebuiSettingsService,
-        public _util: UtilService
+        public _breadcrumb: BreadcrumbService
     ) {
     }
 
@@ -133,6 +133,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         this._crud.getTypeSchemas().subscribe(
             res => {
                 this.schemaType = res[this.schema];
+                this._breadcrumb.setNamespaceType(this.schemaType);
             }, error => {
                 console.log(error);
             }

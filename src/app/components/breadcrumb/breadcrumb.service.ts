@@ -13,6 +13,7 @@ export class BreadcrumbService implements OnInit, OnDestroy {
     zoom: number;
     _showZoom = true;
     tableId = '!notShow!';
+    namespaceType = null;
 
     routerId;
 
@@ -98,4 +99,22 @@ export class BreadcrumbService implements OnInit, OnDestroy {
         this._showZoom = true;
     }
 
+    getNamespaceName() {
+        if (this.breadcrumbs.getValue().length < 2) {
+            return null;
+        }
+        return this.breadcrumbs.getValue()[1].name;
+    }
+
+    isRelational() {
+        return this.namespaceType != null && this.namespaceType === 'relational';
+    }
+
+    setNamespaceType(namespaceType: string) {
+        if (!namespaceType) {
+            this.namespaceType = null;
+            return;
+        }
+        this.namespaceType = namespaceType.toLowerCase();
+    }
 }
