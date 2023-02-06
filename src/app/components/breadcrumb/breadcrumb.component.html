@@ -21,7 +21,7 @@
     </div>
     <div class="col-md-6" *ngIf="breadcrumbs[0].name == 'Schema'">
         <div class="custom-control-inline breadcrumb breadcrumb-menu-right" id="statistics-wrapper">
-            <div class="custom-control" *ngIf="_breadcrumb.getTableId() && _breadcrumb.getTableId() != '!notShow!'">
+            <div class="custom-control" *ngIf="_breadcrumb.getTableId()">
                 <button class="btn btn-light"
                         [routerLink]=" '/views/schema-editing/' + _breadcrumb.getTableId() + '/statistics-column'">
                     Statistics
@@ -29,7 +29,7 @@
 
             </div>
             <div class="custom-control"
-                 *ngIf="_breadcrumb.getNamespaceName() && _breadcrumb.isRelational() && (!_breadcrumb.getTableId() || _breadcrumb.getTableId() == '!notShow!')">
+                 *ngIf="_breadcrumb.getNamespaceName() && _breadcrumb.isRelational() && !_breadcrumb.getTableId()">
                 <button class="btn btn-light" [routerLink]=" '/views/uml/' + _breadcrumb.getNamespaceName()">
                     UML
                 </button>

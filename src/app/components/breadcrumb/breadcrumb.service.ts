@@ -12,7 +12,7 @@ export class BreadcrumbService implements OnInit, OnDestroy {
     MAXCOLS = 10;
     zoom: number;
     _showZoom = true;
-    tableId = '!notShow!';
+    tableName = null;
     namespaceType = null;
 
     routerId;
@@ -55,7 +55,7 @@ export class BreadcrumbService implements OnInit, OnDestroy {
     }
 
     getTableId() {
-        return this.tableId;
+        return this.tableName;
     }
 
     getMasonryZoom() {
@@ -84,7 +84,7 @@ export class BreadcrumbService implements OnInit, OnDestroy {
     public setBreadcrumbsSchema(breadcrumbs: BreadcrumbItem[], tableId: string) {
         this.breadcrumbs.next(breadcrumbs);
         this.hideZoom();
-        this.tableId = tableId;
+        this.tableName = tableId;
     }
 
     hide() {
