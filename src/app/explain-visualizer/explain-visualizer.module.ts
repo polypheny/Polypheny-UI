@@ -1,5 +1,5 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {DurationPipe, DurationUnitPipe, MomentDatePipe} from './pipes';
 import {PlanNodeComponent} from './components/plan-node/plan-node.component';
 import {PlanViewComponent} from './components/plan-view/plan-view.component';
@@ -35,4 +35,5 @@ import {FormsModule} from '@angular/forms';
     PlanViewComponent
   ]
 })
-export class ExplainVisualizerModule { }
+export class ExplainVisualizerModule {
+}

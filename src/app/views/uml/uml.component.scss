@@ -1,4 +1,4 @@
-.uml{
+.uml {
   width: auto;
   min-width: 100px;
   float: left;
@@ -6,64 +6,75 @@
   margin-bottom: 2em;
   background: transparent;
 }
-.card-header, .list-group-item{
+
+.card-header, .list-group-item {
   padding: 0.5em;
 }
-.tableName{
+
+.tableName {
   cursor: move;
 }
-.cols{
+
+.cols {
   background: #ffffffee;
 }
-.cols:hover{
+
+.cols:hover {
   background: darken(#fff, 10%);
 }
-.cols{
+
+.cols {
   cursor: pointer;
 }
-.cols.pk{
+
+.cols.pk {
   text-decoration: underline;
 }
-.cols.unique{
+
+.cols.unique {
   font-style: italic;
   color: black;
 }
-#badge-pk{
-  background:#20a8d8;
-  color:white;
+
+#badge-pk {
+  background: #20a8d8;
+  color: white;
   text-decoration: underline;
 }
-#badge-unique{
+
+#badge-unique {
   background: #ffc107;
   font-style: italic;
 }
 
-#drag-container{
+#drag-container {
   margin-bottom: 1em;
   padding-bottom: 300px;
   overflow: hidden;
 }
 
-svg{
+svg {
   position: absolute;
-  top:0;
-  left:0;
+  top: 0;
+  left: 0;
   z-index: -1;
 
   stroke: black;
-  stroke-width:1;
+  stroke-width: 1;
 
-  line{
+  line {
     z-index: 2;
   }
-  line:hover{
+
+  line:hover {
     cursor: pointer;
   }
 }
 
-.modal-body .row .col-lg-12{
+.modal-body .row .col-lg-12 {
   margin-bottom: 1em;
 }
-.modal-body form span{
+
+.modal-body form span {
   vertical-align: text-bottom;
 }

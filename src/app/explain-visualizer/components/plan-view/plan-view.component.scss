@@ -4,62 +4,62 @@
 	MENU
 */
 .menu {
-	width: 210px;
-	height: 250px;
-	position: absolute;
-	font-size: 12px;
-	top: 115px;
-	left: 0;
-	background-color: #787878;
-	box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
-	color: #fff;
-	border-top-right-radius: 3px;
-	border-bottom-right-radius: 3px;
-	z-index: 1
+  width: 210px;
+  height: 250px;
+  position: absolute;
+  font-size: 12px;
+  top: 115px;
+  left: 0;
+  background-color: #787878;
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  z-index: 1
 }
 
 .menu header h3 {
-	padding: 10px 20px 0 0;
-	margin: 0 0 6px 3em;
-	font-size: 16px;
-	font-weight: 600;
-	line-height: 2;
-	text-align: left;
+  padding: 10px 20px 0 0;
+  margin: 0 0 6px 3em;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 2;
+  text-align: left;
 }
 
 .menu ul {
-	margin: 0 0 0 10px;
-	list-style: none;
-	padding: 0;
+  margin: 0 0 0 10px;
+  list-style: none;
+  padding: 0;
 }
 
 .menu ul li {
-	line-height: 1.5;
+  line-height: 1.5;
 }
 
 .menu-toggle {
-	font-size: 22px;
-	float: left;
-	padding-left: 6px;
-	line-height: 2;
-	cursor: pointer
+  font-size: 22px;
+  float: left;
+  padding-left: 6px;
+  line-height: 2;
+  cursor: pointer
 }
 
 .menu-hidden {
-	width: 45px;
-	height: 45px;
-	border-top-right-radius: 50%;
-	border-bottom-right-radius: 50%
+  width: 45px;
+  height: 45px;
+  border-top-right-radius: 50%;
+  border-bottom-right-radius: 50%
 }
 
 .menu-hidden ul,
 .menu-hidden h3 {
-	visibility: hidden
+  visibility: hidden
 }
 
 .menu .button-group {
-	display: flex;
-	margin-bottom: 6px
+  display: flex;
+  margin-bottom: 6px
 }
 
 /*
@@ -67,114 +67,114 @@
 */
 .page,
 .page-stretch {
-	padding-top: 10px;
-	margin: auto;
-	width: 1000px;
-	min-height: 600px
+  padding-top: 10px;
+  margin: auto;
+  width: 1000px;
+  min-height: 600px
 }
 
 .page em,
 .page-stretch em {
-	font-style: italic
+  font-style: italic
 }
 
 .page-content h2 {
-	font-size: 26px;
-	line-height: 2
+  font-size: 26px;
+  line-height: 2
 }
 
 .page-content h3 {
-	font-size: 22px;
-	margin-top: 18px;
-	line-height: 2
+  font-size: 22px;
+  margin-top: 18px;
+  line-height: 2
 }
 
 .page-content p,
 .page-content ul {
-	font-size: 16px;
-	line-height: 1.5;
-	margin-bottom: 18px
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 18px
 }
 
 .page-content ul {
-	list-style-type: disc;
-	position: relative;
-	left: 18px
+  list-style-type: disc;
+  position: relative;
+  left: 18px
 }
 
 .page-stretch {
-	margin: auto;
-	width: 95%
+  margin: auto;
+  width: 95%
 }
 
 .page-stretch h2 {
-	text-align: left;
-	font-size: 17px;
-	max-width: 1000px;
-	margin: auto;
-	margin-bottom: 20px
+  text-align: left;
+  font-size: 17px;
+  max-width: 1000px;
+  margin: auto;
+  margin-bottom: 20px
 }
 
 .page-stretch h2 .sub-title {
-	font-size: 13px;
-	font-style: italic
+  font-size: 13px;
+  font-style: italic
 }
 
 /*
 	BUTTON GROUP
 */
 .button-group button {
-	margin: 0;
-	background-color: #f7f7f7;
-	border-radius: 0;
-	float: left;
-	border: 1px solid #dedede;
-	cursor: pointer
+  margin: 0;
+  background-color: #f7f7f7;
+  border-radius: 0;
+  float: left;
+  border: 1px solid #dedede;
+  cursor: pointer
 }
 
 .button-group button:first-of-type {
-	border-top-left-radius: 6px;
-	border-bottom-left-radius: 6px
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px
 }
 
 .button-group button:last-of-type {
-	border-top-right-radius: 6px;
-	border-bottom-right-radius: 6px
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px
 }
 
 .button-group .selected {
-	background-color: #dedede
+  background-color: #dedede
 }
 
 /*
 	PLAN STATS
 */
 .plan-stats {
-	display: flex;
-	font-size: 13px;
-	margin: 0;
-	padding-bottom: 10px;
-	/*border-bottom: 1px solid #dedede;*/
-	border-radius: 12px;
-	width: 400px;
-	position: relative;
+  display: flex;
+  font-size: 13px;
+  margin: 0;
+  padding-bottom: 10px;
+  /*border-bottom: 1px solid #dedede;*/
+  border-radius: 12px;
+  width: 400px;
+  position: relative;
 }
 
 .plan-stats div {
-	padding-right: 10px;
-	flex-grow: 1
+  padding-right: 10px;
+  flex-grow: 1
 }
 
 .plan-stats .stat-value {
-	display: block;
-	text-align: center;
-	font-size: 17px
+  display: block;
+  text-align: center;
+  font-size: 17px
 }
 
 .plan-stats .stat-label {
-	display: block;
-	text-align: center;
-	font-size: 12px
+  display: block;
+  text-align: center;
+  font-size: 12px
 }
 
 /*.plan-stats:after {
@@ -191,58 +191,58 @@
 }*/
 
 .plan-stats .btn-close {
-	padding: 6px;
-	background-color: transparent;
-	font-size: 17px;
-	text-align: center;
-	margin-left: 6px;
-	cursor: pointer;
-	border: 0
+  padding: 6px;
+  background-color: transparent;
+  font-size: 17px;
+  text-align: center;
+  margin-left: 6px;
+  cursor: pointer;
+  border: 0
 }
 
 /*
 	INPUTS
 */
 .input-box:-moz-placeholder {
-	color: #ababab;
-	font-size: 18px
+  color: #ababab;
+  font-size: 18px
 }
 
 .input-box::-moz-placeholder {
-	color: #ababab;
-	font-size: 18px
+  color: #ababab;
+  font-size: 18px
 }
 
 .input-box:-ms-input-placeholder {
-	color: #ababab;
-	font-size: 18px
+  color: #ababab;
+  font-size: 18px
 }
 
 .input-box::-webkit-input-placeholder {
-	color: #ababab;
-	font-size: 18px
+  color: #ababab;
+  font-size: 18px
 }
 
 .input-box:focus {
-	box-shadow: 0 0 5px #51cbee
+  box-shadow: 0 0 5px #51cbee
 }
 
 .input-box-main {
-	font-size: 18px;
-	width: 700px;
-	border: 0;
-	border-bottom: 2px solid #00B5E2;
-	padding: 10px;
-	margin-top: 10px;
-	margin-bottom: 10px
+  font-size: 18px;
+  width: 700px;
+  border: 0;
+  border-bottom: 2px solid #00B5E2;
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px
 }
 
 .input-box-lg {
-	width: 98%;
-	height: 210px;
-	margin-bottom: 6px;
-	margin-bottom: 10px;
-	border-radius: 3px;
-	border: 1px solid #dedede;
-	padding: 10px
+  width: 98%;
+  height: 210px;
+  margin-bottom: 6px;
+  margin-bottom: 10px;
+  border-radius: 3px;
+  border: 1px solid #dedede;
+  padding: 10px
 }

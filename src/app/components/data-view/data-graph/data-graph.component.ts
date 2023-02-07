@@ -674,7 +674,10 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
                 }
             } else {
                 this.graphLoading = false;
-                const graph = Graph.from(resultSet.data.map(r => r.map(n => JSON.parse(n)).reduce( (a,v) => ({...a['id'], [v]: v}))), []);
+                const graph = Graph.from(resultSet.data.map(r => r.map(n => JSON.parse(n)).reduce((a, v) => ({
+                    ...a['id'],
+                    [v]: v
+                }))), []);
                 this.renderGraph(graph);
             }
         });

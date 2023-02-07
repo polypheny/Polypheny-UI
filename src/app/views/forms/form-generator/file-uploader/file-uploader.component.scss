@@ -1,0 +1,16 @@
+.plugin-files {
+  display: flex;
+  align-items: center;
+
+  p {
+    margin: 0;
+  }
+
+  .del {
+    cursor: pointer;
+  }
+}
+
+.h-0 {
+  height: 0 !important;
+}

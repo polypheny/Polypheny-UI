@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {IPlan} from '../../models/iplan';
 import {HighlightType, ViewMode} from '../../models/enums';
 import {PlanService} from '../../services/plan.service';
@@ -31,12 +31,12 @@ export class PlanViewComponent implements OnInit {
   highlightTypes = HighlightType; // exposing the enum to the view
   viewModes = ViewMode;
 
-  constructor( private _planService: PlanService ) {
+  constructor(private _planService: PlanService) {
 
   }
 
   initPlan() {
-    this.plan = this._planService.createPlan( 'name', JSON.parse(this.planObject), this.query);
+    this.plan = this._planService.createPlan('name', JSON.parse(this.planObject), this.query);
 
     this.rootContainer = this.plan.content;
     this.plan.planStats = {

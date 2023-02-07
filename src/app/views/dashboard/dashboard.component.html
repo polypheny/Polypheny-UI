@@ -16,8 +16,10 @@
                         role="menu" aria-labelledby="button-basic">
                         <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('all')">All</a></li>
                         <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('60')">1 hour</a></li>
-                        <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('30')">30 minutes</a></li>
-                        <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('15')">15 minutes</a></li>
+                        <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('30')">30 minutes</a>
+                        </li>
+                        <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('15')">15 minutes</a>
+                        </li>
                         <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('5')">5 minutes</a></li>
                     </ul>
                 </div>
@@ -25,9 +27,11 @@
         </div>
         <div class="card-body">
 
-            
+
             <div *ngIf="dashboardInformation != null && diagram.length > 0">
-                <app-graph [data]="diagram" [labels]="labels" [colorList]="colorList" [chartType]="line" [min]="min" [maintainAspectRatio]="false" [max]="max" [xLabel]="xLabel" [yLabel]="yLabel" class="dashboard-diagram"></app-graph>
+                <app-graph [data]="diagram" [labels]="labels" [colorList]="colorList" [chartType]="line" [min]="min"
+                           [maintainAspectRatio]="false" [max]="max" [xLabel]="xLabel" [yLabel]="yLabel"
+                           class="dashboard-diagram"></app-graph>
             </div>
 
             <div *ngIf="dashboardInformation == null && this.infoCounter > 120">

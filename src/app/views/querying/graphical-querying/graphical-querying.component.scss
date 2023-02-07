@@ -1,37 +1,46 @@
-.form-control.fit{
+.form-control.fit {
   display: inline-table;
 }
-.dbCol, .dbTable{
+
+.dbCol, .dbTable {
   margin-right: 0.5rem;
   margin-top: 0.5rem;
 }
-.dbTable{
+
+.dbTable {
   font-size: 1em;
-  font-weight:normal;
+  font-weight: normal;
 }
-#tablesList li{
+
+#tablesList li {
   cursor: grab;
 }
-.del{
+
+.del {
   cursor: pointer;
 }
+
 #joinConditionBox {
   min-height: 4em;
 }
+
 #sqlInput {
   min-height: 2.5em;
 }
+
 #selectBox {
   // padding: 10px;
   // padding-bottom: 0;
-  .dbCol{
+  .dbCol {
     cursor: grab;
   }
 }
+
 #aceWrapper {
   margin-bottom: 1em;
 }
-.fit{
+
+.fit {
   padding: 0.5rem 0.5rem 0 0.5rem;
 }
 

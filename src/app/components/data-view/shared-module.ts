@@ -10,4 +10,5 @@ import {NgModule} from '@angular/core';
         MultipleSwitchPipe
     ]
 })
-export class DatesPipeModule{}
+export class DatesPipeModule {
+}

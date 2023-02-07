@@ -1,19 +1,21 @@
-tabset tab{
-  .child1{
+tabset tab {
+  .child1 {
     padding-left: 3em;
   }
 }
 
-.aside-options{
-  .input-group{
+.aside-options {
+  .input-group {
     margin-bottom: 0.5em;
   }
-  small{
+
+  small {
     display: inline-block;
     margin-bottom: 0.5em;
   }
 }
-.input-group-prepend{
+
+.input-group-prepend {
   height: 2em;
 }
 

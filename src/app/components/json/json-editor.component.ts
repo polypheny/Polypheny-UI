@@ -1,21 +1,14 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges, OnInit,
-    Output, QueryList,
-    SimpleChanges, ViewChild, ViewChildren,
-} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output,} from '@angular/core';
 import {isNumeric} from 'rxjs/internal-compatibility';
 
 export class Pair {
 
-    constructor(key: string, value: string | number | { } | Pair[]) {
+    constructor(key: string, value: string | number | {} | Pair[]) {
         this.id = Pair.getAndIncrementId();
         this.key = key;
         this.value = value;
     }
+
     static idBuilder = 0;
     private id: number;
     key: string;
@@ -26,11 +19,11 @@ export class Pair {
         Pair.idBuilder++;
         return id;
     }
-    
+
     isValid() {
         let temp = this.key.trim() !== '';
-        if( this.value instanceof Array && this.value[0] instanceof Pair ) {
-            temp &&= new Set(this.value.map( e => e.key )).size === this.value.length && this.value.reduce<boolean>( (c, next) => c && next.isValid(), true);
+        if (this.value instanceof Array && this.value[0] instanceof Pair) {
+            temp &&= new Set(this.value.map(e => e.key)).size === this.value.length && this.value.reduce<boolean>((c, next) => c && next.isValid(), true);
         }
         return temp;
     }
@@ -39,6 +32,7 @@ export class Pair {
 export class Info {
     index: string;
     type: Type;
+
     constructor(index: string, type: Type) {
         this.index = index;
         this.type = type;
@@ -46,7 +40,7 @@ export class Info {
 }
 
 export enum Type {
-    Value,Object, Array
+    Value, Object, Array
 }
 
 
@@ -56,13 +50,14 @@ export enum Type {
     styleUrls: ['./json-editor.component.scss']
 })
 
-export class JsonEditorComponent implements OnInit  {
+export class JsonEditorComponent implements OnInit {
     @Output() valid: boolean;
     dupblKeyError = 'Document has duplicate key.';
 
     constructor() {
         this.data = [];
     }
+
     data: Pair[];
     @Input() empty: boolean;
     @Input() json: {};
@@ -83,33 +78,33 @@ export class JsonEditorComponent implements OnInit  {
     }
 
     private static getPair(data: any) {
-        if ( data instanceof Object ){
+        if (data instanceof Object) {
             const temp = [];
-            for (const [key, value] of Object.entries(data) ){
+            for (const [key, value] of Object.entries(data)) {
                 let val = value;
-                if ( value instanceof Object ){
+                if (value instanceof Object) {
                     val = this.getPair(value);
                 }
 
                 temp.push(new Pair(key, val));
             }
             return temp;
-        }else {
+        } else {
             return data;
         }
     }
 
     getType(el: Pair) {
-        if ( el.value instanceof Array){
-            if ( el.value.some(e => e instanceof Pair)){
+        if (el.value instanceof Array) {
+            if (el.value.some(e => e instanceof Pair)) {
                 return Type.Object;
-            }else {
+            } else {
                 return Type.Array;
             }
         }
         return Type.Value;
     }
-    
+
     ngOnInit() {
         this.addInitialValues();
     }
@@ -142,9 +137,9 @@ export class JsonEditorComponent implements OnInit  {
         const splits = i.split('_');
         let temp = this.data;
         for (let j = 0; j < splits.length; j++) {
-            if( j === splits.length - 1 ) {
+            if (j === splits.length - 1) {
                 temp.splice(Number(splits[j]), 1);
-            }else {
+            } else {
                 temp = temp[Number(splits[j])].value as Pair[];
             }
         }
@@ -155,22 +150,22 @@ export class JsonEditorComponent implements OnInit  {
         this.executeAdd(this.data, type);
     }
 
-    executeAdd(arr:Pair[], type: Type) {
-        if( type === 0 ){
+    executeAdd(arr: Pair[], type: Type) {
+        if (type === 0) {
             arr.push(new Pair('', ''));
-        }else {
+        } else {
             arr.push(new Pair('', [new Pair('', '')]));
         }
     }
 
-    addColumn($event: Info){
+    addColumn($event: Info) {
         const splits = $event.index.split('_');
         let temp = this.data;
         for (let j = 0; j < splits.length; j++) {
-            if( j === splits.length - 1 ) {
+            if (j === splits.length - 1) {
                 temp = temp[Number(splits[j])].value as Pair[];
                 this.executeAdd(temp, $event.type);
-            }else {
+            } else {
                 temp = temp[Number(splits[j])].value as Pair[];
             }
         }
@@ -178,9 +173,9 @@ export class JsonEditorComponent implements OnInit  {
     }
 
     normalize(value: string | number | {}) {
-        if( value instanceof Object){
+        if (value instanceof Object) {
             return JSON.stringify(value);
-        }else {
+        } else {
             return value;
         }
     }
@@ -189,16 +184,16 @@ export class JsonEditorComponent implements OnInit  {
         try {
             const data = JSON.parse(this.json.toString().replace('"', '\"'));
             this.data = [];
-            for (const [key, value] of Object.entries(data) ){
+            for (const [key, value] of Object.entries(data)) {
                 const val = JsonEditorComponent.getPair(value);
                 this.data.push(new Pair(key, val));
             }
 
-        }catch (e) {
+        } catch (e) {
             console.log('could not translate');
         }
 
-        if ( this.empty && this.data.length === 0 ){
+        if (this.empty && this.data.length === 0) {
             this.addMainColumn(0);
         }
     }
@@ -207,16 +202,16 @@ export class JsonEditorComponent implements OnInit  {
         const splits = index.split('_');
         let temp = this.data;
         for (let j = 0; j < splits.length; j++) {
-            if( j === splits.length - 1 ) {
+            if (j === splits.length - 1) {
                 this.changeColumnOrder(temp, Number(splits[j]), dir);
-            }else {
+            } else {
                 temp = temp[Number(splits[j])].value as Pair[];
             }
         }
     }
 
-    changeColumnOrder(data: Pair[],index: number, direction: number) {
-        if ( index + direction < 0 || index + direction >= data.length ){
+    changeColumnOrder(data: Pair[], index: number, direction: number) {
+        if (index + direction < 0 || index + direction >= data.length) {
             return;
         }
         const temp = data[index];
@@ -225,22 +220,22 @@ export class JsonEditorComponent implements OnInit  {
         this.changeHappened();
     }
 
-    setMenuShow(doShow: boolean, instant= false) {
-        if ( instant ) {
+    setMenuShow(doShow: boolean, instant = false) {
+        if (instant) {
             this.show = doShow;
             return;
         }
-        if(!doShow){
+        if (!doShow) {
             this.debounce = setTimeout(() => {
                 this.show = false;
             }, this.debounceDelay);
-        }else {
+        } else {
             this.show = true;
         }
     }
 
     menuEnter() {
-        if( this.show ){
+        if (this.show) {
             clearTimeout(this.debounce);
         }
     }
@@ -248,15 +243,16 @@ export class JsonEditorComponent implements OnInit  {
     isValid() {
         return this.data.reduce<boolean>((c, next) => c && next.isValid(), true);
     }
+
     validChanged() {
-        const hasDuplicates = new Set(this.data.map( e => e.key )).size === this.data.length;
+        const hasDuplicates = new Set(this.data.map(e => e.key)).size === this.data.length;
         this.valid = this.data.reduce<boolean>((c, next) => c && next.isValid(), true) && hasDuplicates;
         this.showError = !hasDuplicates;
         this.validChange.emit(this.valid);
     }
 
     getIsDuplicate(i: number) {
-        const keys = this.data.map( k => k.key );
+        const keys = this.data.map(k => k.key);
         const name = keys[i];
         keys.splice(i);
         return keys.includes(name);

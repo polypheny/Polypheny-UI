@@ -1,26 +1,28 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 
 @Component({
-  selector: 'app-querying',
-  templateUrl: './querying.component.html',
-  styleUrls: ['./querying.component.scss']
+    selector: 'app-querying',
+    templateUrl: './querying.component.html',
+    styleUrls: ['./querying.component.scss']
 })
 export class QueryingComponent implements OnInit {
 
-  public route = 'console';
-  constructor(
-    private _route: ActivatedRoute
-  ) { }
+    public route = 'console';
 
-  ngOnInit() {
-    this.getRoute();
-  }
+    constructor(
+        private _route: ActivatedRoute
+    ) {
+    }
 
-  getRoute() {
-    this.route = this._route.snapshot.paramMap.get('route');
-    this._route.params.subscribe(params => {
-      this.route = params['route'];
-    });
-  }
+    ngOnInit() {
+        this.getRoute();
+    }
+
+    getRoute() {
+        this.route = this._route.snapshot.paramMap.get('route');
+        this._route.params.subscribe(params => {
+            this.route = params['route'];
+        });
+    }
 }

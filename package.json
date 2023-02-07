@@ -59,7 +59,7 @@
     "socket.io-client": "^2.3.0",
     "ts-helpers": "^1.1.2",
     "ts-md5": "^1.2.7",
-    "tslib": "^2.3.0",
+    "tslib": "^2.4.1",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {

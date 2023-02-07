@@ -1,35 +1,43 @@
 .param-wrapper label {
   white-space: nowrap;
 }
-.sort-wrapper:not(:last-child){
+
+.sort-wrapper:not(:last-child) {
   margin-bottom: 5px;
 }
+
 .sort-direction {
   margin-left: 0.5em;
   width: 7em;
 }
+
 .sort-remove {
   cursor: pointer;
   line-height: 1.8;
   margin-left: 0.5em;
   color: #73818f;
 }
+
 .sort-remove:hover {
   color: initial;
 }
-.sort-wrapper{
+
+.sort-wrapper {
   height: 30px;
 }
+
 .sort-wrapper .icon-menu {
   line-height: 1.8;
   margin-right: 0.5em;
   cursor: ns-resize;
 }
+
 .sort-placeholder {
   background: #f0f3f5;
   margin: 5px 0;
-  border-radius:0.25rem;
+  border-radius: 0.25rem;
 }
-.cdk-drag-preview{
-  display:flex;
+
+.cdk-drag-preview {
+  display: flex;
 }

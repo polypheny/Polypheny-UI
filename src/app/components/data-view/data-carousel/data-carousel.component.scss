@@ -3,18 +3,22 @@ carousel {
   max-width: 1000px;
   min-width: 1000px;
 }
+
 .navigator-wrapper {
   display: flex;
   justify-content: center;
+
   button {
     margin: 0 1em;
     width: 50px;
   }
 }
+
 #carousel-wrapper {
   display: flex;
   justify-content: center;
 }
+
 .carousel-multimedia {
   display: block;
   max-width: 100%;
@@ -22,38 +26,45 @@ carousel {
   margin: 0 auto;
   margin-bottom: 1rem;
 }
+
 span.key {
   color: #656565;
 }
+
 //active-hover: https://stackoverflow.com/questions/16715274
 .btn-del:hover, .btn-del:active:hover {
   color: #dc3545;
 }
-.editing-wrapper{
+
+.editing-wrapper {
   max-width: 300px;
   margin: 0 auto;
 }
-#insert-btn{
+
+#insert-btn {
   position: absolute;
   top: 4em;
-  right:2em;
+  right: 2em;
 }
-#insert-wrapper{
+
+#insert-wrapper {
   margin: 0 auto;
   max-width: 300px;
 }
 
 //.download
-.list-group-item .download{
-  opacity:.4;
+.list-group-item .download {
+  opacity: .4;
   text-decoration: none;
   color: black;
   padding: 0.3em 0.5em;
 }
-.list-group-item:hover .download{
-  opacity:.7;
+
+.list-group-item:hover .download {
+  opacity: .7;
 }
-.list-group-item .download:hover{
+
+.list-group-item .download:hover {
   opacity: 1;
 }
 

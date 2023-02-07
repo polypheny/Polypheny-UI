@@ -22,8 +22,9 @@ import {QueryingComponent} from './querying/querying.component';
 import {NodeComponent} from './querying/relational-algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import {AdaptersComponent} from './adapters/adapters.component';
-import {HubComponent} from './hub/hub.component';
-import {RefinementOptionsComponent} from './querying/graphical-querying/refinement-options/refinement-options.component';
+import {
+    RefinementOptionsComponent
+} from './querying/graphical-querying/refinement-options/refinement-options.component';
 import {ExploreByExampleComponent} from './querying/explore-by-example/explore-by-example.component';
 import {AboutComponent} from './about/about.component';
 import {ButtonsModule} from 'ngx-bootstrap/buttons';
@@ -38,68 +39,75 @@ import {NgxSliderModule} from '@m0t0r/ngx-slider';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 import {EditSourceColumnsComponent} from './schema-editing/edit-source-columns/edit-source-columns.component';
 import {SearchFilterPipe, ValuePipe} from '../pipes/pipes';
-import {DocumentEditCollectionsComponent} from './schema-editing/document-edit-collections/document-edit-collections.component';
-import {DocumentEditCollectionComponent} from './schema-editing/document-edit-collection/document-edit-collection.component';
+import {
+    DocumentEditCollectionsComponent
+} from './schema-editing/document-edit-collections/document-edit-collections.component';
+import {
+    DocumentEditCollectionComponent
+} from './schema-editing/document-edit-collection/document-edit-collection.component';
 import {StatisticsColumnComponent} from './schema-editing/statistics-column/statistics-column.component';
 import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-edit-graph.component';
+import {DockerConfigComponent} from './forms/form-generator/docker-config/docker-config.component';
+import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
 
 
 @NgModule({
-  imports: [
-    //AppModule,
-    CommonModule,
-    ViewsRoutingModule,
-    FormsModule, ReactiveFormsModule,
-    ButtonsModule.forRoot(),
-    CollapseModule,
-    ComponentsModule,
-    TypeaheadModule,
-    // coreui / bootstrap
-    TooltipModule.forRoot(),
-    AppHeaderModule,
-    AppAsideModule,
-    AppSidebarModule,
-    AppFooterModule,
-    TreeModule,
-    BsDropdownModule,
-    DragDropModule,
-    ModalModule.forRoot(),
-    AutocompleteLibModule,
-    ProgressbarModule,
-    PopoverModule,
-    NgxSliderModule
-  ],
-  declarations: [
-    EditColumnsComponent,
-    FormGeneratorComponent,
-    GraphicalQueryingComponent,
-    ConsoleComponent,
-    TableViewComponent,
-    UmlComponent,
-    SchemaEditingComponent,
-    EditTablesComponent,
-    DocumentEditCollectionsComponent,
-    DocumentEditCollectionComponent,
-    GraphEditGraphComponent,
-    MonitoringComponent,
-    DashboardComponent,
-    RelationalAlgebraComponent,
-    QueryingComponent,
-    NodeComponent,
-    AdaptersComponent,
-    HubComponent,
-    RefinementOptionsComponent,
-    ExploreByExampleComponent,
-    AboutComponent,
-    QueryInterfacesComponent,
-    EditSourceColumnsComponent,
-    StatisticsColumnComponent,
-    ValuePipe,
-    SearchFilterPipe
-  ],
-  exports: [
-    ExploreByExampleComponent
-  ]
+    imports: [
+        //AppModule,
+        CommonModule,
+        ViewsRoutingModule,
+        FormsModule, ReactiveFormsModule,
+        ButtonsModule.forRoot(),
+        CollapseModule,
+        ComponentsModule,
+        TypeaheadModule,
+        // coreui / bootstrap
+        TooltipModule.forRoot(),
+        AppHeaderModule,
+        AppAsideModule,
+        AppSidebarModule,
+        AppFooterModule,
+        TreeModule,
+        BsDropdownModule,
+        DragDropModule,
+        ModalModule.forRoot(),
+        AutocompleteLibModule,
+        ProgressbarModule,
+        PopoverModule,
+        NgxSliderModule
+    ],
+    declarations: [
+        EditColumnsComponent,
+        FormGeneratorComponent,
+        GraphicalQueryingComponent,
+        ConsoleComponent,
+        TableViewComponent,
+        UmlComponent,
+        SchemaEditingComponent,
+        EditTablesComponent,
+        DocumentEditCollectionsComponent,
+        DocumentEditCollectionComponent,
+        GraphEditGraphComponent,
+        MonitoringComponent,
+        DashboardComponent,
+        RelationalAlgebraComponent,
+        QueryingComponent,
+        NodeComponent,
+        AdaptersComponent,
+        RefinementOptionsComponent,
+        ExploreByExampleComponent,
+        AboutComponent,
+        QueryInterfacesComponent,
+        EditSourceColumnsComponent,
+        StatisticsColumnComponent,
+        ValuePipe,
+        SearchFilterPipe,
+        DockerConfigComponent,
+        FileUploaderComponent
+    ],
+    exports: [
+        ExploreByExampleComponent
+    ]
 })
 export class ViewsModule {
 }

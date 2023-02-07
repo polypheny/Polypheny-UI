@@ -1,152 +1,89 @@
 <app-header
-  [navbarBrandRouterLink]="'/'"
-  [fixed]="true"
-  [navbarBrandFull]="{src: 'assets/img/brand/logo.svg', width: 89, height: 25, alt: 'Polypheny-DB Logo', class: 'd-md-down-none'}"
-  [navbarBrandMinimized]="{src: 'assets/img/brand/sygnet.svg', width: 30, height: 30, alt: 'Polypheny-DB Logo', class: 'd-md-down-none'}"
-  [sidebarToggler]="'lg'"
-  [asideMenuToggler]="'lg'">
-  <!-- bootstrap: -->
-  <!-- navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar -->
-  <!-- original: -->
-  <!-- app-header navbar -->
+        [navbarBrandRouterLink]="'/'"
+        [fixed]="true"
+        [navbarBrandFull]="{src: 'assets/img/brand/logo.svg', width: 89, height: 25, alt: 'Polypheny-DB Logo', class: 'd-md-down-none'}"
+        [navbarBrandMinimized]="{src: 'assets/img/brand/sygnet.svg', width: 30, height: 30, alt: 'Polypheny-DB Logo', class: 'd-md-down-none'}"
+        [sidebarToggler]="'lg'"
+        [asideMenuToggler]="'lg'">
 
-  <ul class="nav navbar-nav flex-row" id="top-nav">
-    <!--<li class="nav-item px-3">
-      <a class="nav-link" href="https://coreui.io/angular/demo/#/dashboard" target="_blank">CoreUI</a>
-    </li>
-    <li class="nav-item px-3">
-      <a class="nav-link" href="https://getbootstrap.com/docs/4.3/components/forms/" target="_blank">Bootstrap</a>
-    </li>
-    <li class="nav-item px-3">
-      <a class="nav-link" href="https://valor-software.com/ngx-bootstrap/#/documentation" target="_blank">Ang Btrap</a>
-    </li>-->
-    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/views/monitoring']" routerLinkActive="active">
-      <i class="fa fa-area-chart"></i><span class="d-md-down-none">Monitoring</span>
-    </a></li>
-    <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/views/config']" routerLinkActive="active"><!--tooltip="Dynamic Form" placement="bottom"-->
-      <i class="icon-settings"></i><span class="d-md-down-none">Config</span>
-    </a></li>
+    <ul class="nav navbar-nav flex-row" id="top-nav">
+        <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/views/monitoring']" routerLinkActive="active">
+            <i class="fa fa-area-chart"></i><span class="d-md-down-none">Monitoring</span>
+        </a></li>
+        <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/views/config']" routerLinkActive="active">
+            <!--tooltip="Dynamic Form" placement="bottom"-->
+            <i class="icon-settings"></i><span class="d-md-down-none">Config</span>
+        </a></li>
 
-    <li class="nav-item px-3">
-      <a [routerLink]="['/views/schema-editing']" class="nav-link" routerLinkActive="active" (click)="_sidebar.reset()">
-        <i class="fa fa-cubes"></i><span class="d-md-down-none">Schema</span>
-      </a>
-    </li>
+        <li class="nav-item px-3">
+            <a [routerLink]="['/views/schema-editing']" class="nav-link" routerLinkActive="active"
+               (click)="_sidebar.reset()">
+                <i class="fa fa-cubes"></i><span class="d-md-down-none">Schema</span>
+            </a>
+        </li>
 
-    <li class="nav-item px-3">
-      <a [routerLink]="['/views/uml']" class="nav-link" routerLinkActive="active">
-        <i class="cui-graph"></i><span class="d-md-down-none">UML</span>
-      </a>
-    </li>
+        <li class="nav-item px-3">
+            <a [routerLink]="['/views/data-table']" class="nav-link" routerLinkActive="active">
+                <i class="fa fa-table"></i><span class="d-md-down-none">Data</span>
+            </a>
+        </li>
 
-    <li class="nav-item px-3">
-      <a [routerLink]="['/views/data-table']" class="nav-link" routerLinkActive="active">
-        <i class="fa fa-table"></i><span class="d-md-down-none">Data</span>
-      </a>
-    </li>
+        <li class="nav-item" dropdown triggers="mouseover" placement="bottom left" #dropdown="bs-dropdown"
+            (mouseleave)="dropdown.hide()">
+            <a class="nav-link dropdown-toggle py-2 px-3" dropdownToggle [routerLink]="['/views/querying']">
+                <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Query</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-left text-center" *dropdownMenu style="margin-top: -1px;">
+                <a class="dropdown-item" [routerLink]="['/views/querying/console']" routerLinkActive="active">
+                    <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Console</span>
+                </a>
+                <a class="dropdown-item" [routerLink]="['/views/querying/graphical-querying']"
+                   routerLinkActive="active">
+                    <i class="icon-pencil"></i><span class="d-md-down-none">Graphical Querying</span>
+                </a>
+                <a class="dropdown-item" [routerLink]="['/views/querying/relational-algebra']"
+                   routerLinkActive="active">
+                    <i class="fa fa-cubes"></i><span class="d-md-down-none">Plan Builder</span>
+                </a>
+                <a *ngIf="exploreByExampleEnabled()" class="dropdown-item"
+                   [routerLink]="['/views/querying/explore-by-example']" routerLinkActive="active">
+                    <i class="fa fa-magic"></i><span class="d-md-down-none">Explore by Example</span>
+                </a>
+            </div>
+        </li>
 
-    <li class="nav-item" dropdown triggers="mouseover" placement="bottom left" #dropdown="bs-dropdown" (mouseleave)="dropdown.hide()">
-        <a class="nav-link dropdown-toggle py-2 px-3" dropdownToggle [routerLink]="['/views/querying']">
-          <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Query</span>
-        </a>
-        <div class="dropdown-menu dropdown-menu-left text-center" *dropdownMenu style="margin-top: -1px;">
-          <a class="dropdown-item" [routerLink]="['/views/querying/console']" routerLinkActive="active">
-            <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Console</span>
-          </a>
-          <a class="dropdown-item" [routerLink]="['/views/querying/graphical-querying']" routerLinkActive="active">
-            <i class="icon-pencil"></i><span class="d-md-down-none">Graphical Querying</span>
-          </a>
-          <a class="dropdown-item" [routerLink]="['/views/querying/relational-algebra']" routerLinkActive="active">
-            <i class="fa fa-cubes"></i><span class="d-md-down-none">Plan Builder</span>
-          </a>
-          <a *ngIf="exploreByExampleEnabled()" class="dropdown-item" [routerLink]="['/views/querying/explore-by-example']" routerLinkActive="active">
-            <i class="fa fa-magic"></i><span class="d-md-down-none">Explore by Example</span>
-          </a>
-        </div>
-    </li>
+        <li class="nav-item px-3">
+            <a [routerLink]="['/views/adapters']" class="nav-link" routerLinkActive="active">
+                <i class="fa fa-database"></i><span class="d-md-down-none">Adapters</span>
+            </a>
+        </li>
 
-    <li class="nav-item px-3">
-      <a [routerLink]="['/views/adapters']" class="nav-link" routerLinkActive="active">
-        <i class="fa fa-database"></i><span class="d-md-down-none">Adapters</span>
-      </a>
-    </li>
+        <li class="nav-item px-3">
+            <a [routerLink]="['/views/queryInterfaces']" class="nav-link" routerLinkActive="active">
+                <i class="fa fa-exchange"></i><span class="d-md-down-none">Interfaces</span>
+            </a>
+        </li>
 
-    <li class="nav-item px-3">
-      <a [routerLink]="['/views/queryInterfaces']" class="nav-link" routerLinkActive="active">
-        <i class="fa fa-exchange"></i><span class="d-md-down-none">Interfaces</span>
-      </a>
-    </li>
-
-    <li class="nav-item" dropdown triggers="mouseover" placement="bottom left" #dropdownHub="bs-dropdown" (mouseleave)="dropdownHub.hide()">
-      <a class="nav-link dropdown-toggle py-2 px-3" dropdownToggle [routerLink]="['/views/hub']" routerLinkActive="active">
-        <i class="fa fa-cloud"></i><span class="d-md-down-none">Hub</span>
-      </a>
-      <div class="dropdown-menu dropdown-menu-left text-center" *dropdownMenu style="margin-top: -1px;">
-        <a class="dropdown-item" [routerLink]="['/views/hub/data']" routerLinkActive="active">
-          <i class="fa fa-table"></i><span class="d-md-down-none">Data</span>
-        </a>
-        <a class="dropdown-item" [routerLink]="['/views/hub/manage']" routerLinkActive="active">
-          <i class="fa fa-user"></i><span class="d-md-down-none">Account</span>
-        </a>
-      </div>
-    </li>
-
-  </ul>
-  <ul class="nav navbar-nav ml-auto">
-    <!--<li class="nav-item d-md-down-none">
-      <a class="nav-link" href="#">Settings <i class="icon-settings"></i></a>
-    </li>-->
-    <!--<li class="nav-item dropdown" dropdown placement="bottom right">
-      <a class="nav-link" data-toggle="dropdown" [routerLink]="['/login']" role="button" aria-haspopup="true" aria-expanded="false" tooltip="logout" placement="bottom">
-        <img src="assets/img/avatars/6.jpg" class="img-avatar" alt="admin@bootstrapmaster.com" />
-      </a>
-    </li>-->
-  </ul>
-  <div id="connection-status" [ngClass]="getConnectionClass()" [tooltip]="getConnectionClass()" container="body" placement="left"></div>
+    </ul>
+    <ul class="nav navbar-nav ml-auto"></ul>
+    <div id="connection-status" [ngClass]="getConnectionClass()" [tooltip]="getConnectionClass()" container="body"
+         placement="left"></div>
 </app-header>
 <div class="app-body">
 
-  <!--<app-sidebar [fixed]="true" [display]="'lg'">
-    <app-sidebar-nav [navItems]="navItems" [perfectScrollbar] [disabled]="sidebarMinimized"></app-sidebar-nav>
-    <app-sidebar-minimizer></app-sidebar-minimizer>
-  </app-sidebar>-->
-  <app-left-sidebar class="sidebar"></app-left-sidebar>
+    <app-left-sidebar class="sidebar"></app-left-sidebar>
 
-  <!-- Main content -->
-  <main class="main">
-    <!-- Breadcrumb -->
-    <!-- breaking change 'cui-breadcrumb' -->
-    <!--<cui-breadcrumb>-->
-      <!-- Breadcrumb Menu-->
-      <!--<li class="breadcrumb-menu d-md-down-none">
-        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-          <a class="btn" href="#"><i class="icon-speech"></i></a>
-          <a class="btn" [routerLink]="['/dashboard']"><i class="icon-graph"></i> &nbsp;Dashboard</a>
-          <a class="btn" href="#"><i class="icon-settings"></i> &nbsp;Settings</a>
+    <!-- Main content -->
+    <main class="main">
+        <app-breadcrumb-main></app-breadcrumb-main>
+        <div class="container-fluid" style="position: relative;">
+            <router-outlet></router-outlet>
         </div>
-      </li>-->
-    <!--</cui-breadcrumb>-->
-    <app-breadcrumb-main></app-breadcrumb-main>
-    <!-- deprecation warning for 'app-breadcrumb' -->
-    <!--<ol class="breadcrumb">-->
-      <!--<app-breadcrumb></app-breadcrumb>-->
-      <!--&lt;!&ndash; Breadcrumb Menu&ndash;&gt;-->
-      <!--<li class="breadcrumb-menu d-md-down-none">-->
-        <!--<div class="btn-group" role="group" aria-label="Button group with nested dropdown">-->
-          <!--<a class="btn" href="#"><i class="icon-speech"></i></a>-->
-          <!--<a class="btn" [routerLink]="['/dashboard']"><i class="icon-graph"></i> &nbsp;Dashboard</a>-->
-          <!--<a class="btn" href="#"><i class="icon-settings"></i> &nbsp;Settings</a>-->
-        <!--</div>-->
-      <!--</li>-->
-    <!--</ol>-->
-    <div class="container-fluid" style="position: relative;">
-      <router-outlet></router-outlet>
-    </div><!-- /.container-fluid -->
-  </main>
-  <app-aside [fixed]="true" [display]="false">
-    <app-right-sidebar></app-right-sidebar>
-  </app-aside>
+    </main>
+    <app-aside [fixed]="true" [display]="false">
+        <app-right-sidebar></app-right-sidebar>
+    </app-aside>
 </div>
 <app-footer style="z-index: 2;">
-  <a class="text-muted" [routerLink]="['/views/about']">About Polypheny</a>
+    <a class="text-muted" [routerLink]="['/views/about']">About Polypheny</a>
 </app-footer>

@@ -2,14 +2,14 @@ import {Pipe, PipeTransform} from '@angular/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
-@Pipe({ name: 'momentDate' })
+@Pipe({name: 'momentDate'})
 export class MomentDatePipe implements PipeTransform {
     transform(value: string, args: string[]): any {
         return moment(value).format('LLL');
     }
 }
 
-@Pipe({ name: 'duration' })
+@Pipe({name: 'duration'})
 export class DurationPipe implements PipeTransform {
     transform(value: number): string {
         let duration = '';
@@ -27,7 +27,7 @@ export class DurationPipe implements PipeTransform {
     }
 }
 
-@Pipe({ name: 'durationUnit' })
+@Pipe({name: 'durationUnit'})
 export class DurationUnitPipe implements PipeTransform {
     transform(value: number) {
         let unit = '';

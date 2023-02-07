@@ -1,32 +1,38 @@
-#data-table{
+#data-table {
   width: auto;
   min-width: 60%;
   max-width: 100%;
   margin: 0 auto 0.5rem;
   overflow-x: auto;
   // display: inline-block;
-  tr th{
+  tr th {
     vertical-align: middle;
-    .btn{
+
+    .btn {
       padding: 2px;
     }
   }
-  tr td{
+
+  tr td {
     min-width: 100px;
     vertical-align: middle;
+
     span {
       white-space: pre-wrap;
     }
   }
+
   th span {
     //so the tooltip will show event if the mouse is not exactly on the column name
     padding: 0 1em;
     display: inline-table;
   }
+
   th .pk {
     text-decoration: underline;
   }
 }
+
 #data-table-wrapper {
   text-align: center;
   overflow-x: auto;
@@ -36,104 +42,117 @@
   overflow-y: hidden;
 }
 
-th.delete, td.delete{
+th.delete, td.delete {
   width: 1em;
   background: transparent;
-  i{
+
+  i {
     visibility: hidden;
   }
 }
-tr:hover i{
+
+tr:hover i {
   visibility: visible;
   cursor: pointer;
 }
-tr:hover .delete i:hover{
+
+tr:hover .delete i:hover {
   color: #dc3545;
 }
-#data-table tr td .download{
-  opacity:.4;
+
+#data-table tr td .download {
+  opacity: .4;
   text-decoration: none;
   color: black;
   padding: 0.3em 0.5em;
 }
-#data-table tr:hover td .download{
-  opacity:.7;
+
+#data-table tr:hover td .download {
+  opacity: .7;
 }
-#data-table tr td .download:hover{
+
+#data-table tr td .download:hover {
   opacity: 1;
 }
-.selector{
+
+.selector {
   width: 1em;
 }
-.selector input{
+
+.selector input {
   visibility: hidden;
 }
-tr:hover .selector input{
-  visibility: visible;
-}
-.selector input:checked{
+
+tr:hover .selector input {
   visibility: visible;
 }
 
-#addColumnBtn{
+.selector input:checked {
+  visibility: visible;
+}
+
+#addColumnBtn {
   border-radius: 100%;
   line-height: 1.25rem;
 }
-#editColSave{
+
+#editColSave {
   border-radius: 100%;
   line-height: 1.5rem;
 }
+
 .file-progress {
-  height:5px;
-  width:100px;
+  height: 5px;
+  width: 100px;
   display: inline-block;
-  background-color:#3d434a;
+  background-color: #3d434a;
 }
 
 .tooltip-inner {
   white-space: pre-wrap;
 }
 
-#insertRow td{
+#insertRow td {
   vertical-align: middle;
 }
-.pagination{
+
+.pagination {
   margin-top: 1rem;
 }
 
-#resetClassification{
+#resetClassification {
   margin-top: 1rem;
 }
 
-#sendClassification{
+#sendClassification {
   margin-top: 1rem;
 }
 
-#showDecisionTree{
+#showDecisionTree {
   margin-top: 1rem;
   margin-left: 0.25rem;
   margin-right: 0.25rem;
 }
 
-#treeInformation{
+#treeInformation {
   margin-bottom: 0.5rem;
 }
 
-#showSQL{
+#showSQL {
   margin-top: 1rem;
   margin-right: 0.25rem;
 }
 
-#startClassification{
+#startClassification {
   margin-top: 1rem;
   margin-left: 0.25rem;
 }
 
-#createView{
-    margin-top: 1rem;
+#createView {
+  margin-top: 1rem;
 }
 
-#modal-body-SQL{
+#modal-body-SQL {
   max-width: 600px !important;
   width: 600px !important;
 }
@@ -207,12 +226,13 @@ app-data-table {
   width: auto;
   min-width: 300px;
 }
+
 .modal-body { /* Restrict Modal width to 90% */
   overflow-x: auto !important;
   max-width: 90vw !important;
 }
 
-#tree{
+#tree {
   overflow: visible;
   margin: 2rem;
 }

@@ -15,7 +15,8 @@ export class UIRequest {
 
 export class TableRequest extends UIRequest {
   requestType = 'TableRequest';
-  constructor ( tableId: string, currentPage: number, filter: any = null, sortState: any = null ) {
+
+  constructor(tableId: string, currentPage: number, filter: any = null, sortState: any = null) {
     super();
     this.tableId = tableId;
     this.currentPage = currentPage;
@@ -30,7 +31,8 @@ export class RelAlgRequest extends UIRequest {
   topNode: Node;
   createView: boolean;
   analyze: boolean;
-  tableType; string;
+  tableType;
+  string;
   viewName: string;
   store: string;
   freshness: string;
@@ -38,7 +40,7 @@ export class RelAlgRequest extends UIRequest {
   timeUnit: string;
   useCache: boolean;
 
-  constructor( node: Node, cache: boolean, analyzeQuery: boolean, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?, timeUnit?: string ) {
+  constructor(node: Node, cache: boolean, analyzeQuery: boolean, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?, timeUnit?: string) {
     super();
     this.topNode = node;
     this.useCache = cache;
@@ -60,7 +62,8 @@ export class QueryRequest extends UIRequest {
   language: string;
   database: string;
   cache: boolean;
-  constructor ( query: string, analyze: boolean, cache: boolean, lang: string, database: string ) {
+
+  constructor(query: string, analyze: boolean, cache: boolean, lang: string, database: string) {
     super();
     this.query = query;
     this.analyze = analyze;
@@ -77,8 +80,9 @@ export class GraphRequest extends QueryRequest {
   private namespaceName: string;
   private nodeIds: string[];
   private edgeIds: string[];
-  constructor ( namespaceName: string, nodeIds:Set<string>, edgeIds:Set<string> ) {
-    super('MATCH * RETURN *', false, false, 'CYPHER', namespaceName );
+
+  constructor(namespaceName: string, nodeIds: Set<string>, edgeIds: Set<string>) {
+    super('MATCH * RETURN *', false, false, 'CYPHER', namespaceName);
     this.namespaceName = namespaceName;
     this.nodeIds = Array.from(nodeIds);
     this.edgeIds = Array.from(edgeIds);
@@ -89,7 +93,8 @@ export class QueryExplorationRequest extends UIRequest {
   query: string;
   analyze: boolean;
   cPage: number;
-  constructor ( query: string, analyze: boolean, cPage: number ) {
+
+  constructor(query: string, analyze: boolean, cPage: number) {
     super();
     this.query = query;
     this.analyze = analyze;
@@ -101,12 +106,13 @@ export class QueryExplorationRequest extends UIRequest {
 /**
  * Request to classify data
  */
-export class ClassifyRequest{
+export class ClassifyRequest {
   id: number;
   header: DbColumn[];
   classified: string[][];
   cPage: number;
-  constructor ( id: number, header: DbColumn[], classified: string[][], cPage: number ) {
+
+  constructor(id: number, header: DbColumn[], classified: string[][], cPage: number) {
     this.id = id;
     this.header = header;
     this.classified = classified;
@@ -115,12 +121,12 @@ export class ClassifyRequest{
   }
 }
 
-export class Exploration{
+export class Exploration {
   id: number;
   header: DbColumn[];
   classified: string[][];
 
-  constructor( id: number, header: DbColumn[], classified: string[][]) {
+  constructor(id: number, header: DbColumn[], classified: string[][]) {
     this.id = id;
     this.header = header;
     this.classified = classified;
@@ -128,12 +134,28 @@ export class Exploration{
   }
 }
 
-export class ExploreTable extends UIRequest{
+
+export class PluginEntity {
+  id: string;
+  stringPath: string;
+  status: boolean;
+  imagePath: string;
+  categories: string[];
+  version: string;
+}
+
+export enum PluginStatus {
+  UNLOADED = 'UNLOADED',
+  LOADED = 'LOADED',
+  ACTIVE = 'ACTIVE'
+}
+
+export class ExploreTable extends UIRequest {
   id: number;
   header: DbColumn[];
   cPage: number;
 
-  constructor( id: number, header: DbColumn[], cPage: number) {
+  constructor(id: number, header: DbColumn[], cPage: number) {
     super();
     this.id = id;
     this.header = header;
@@ -143,14 +165,14 @@ export class ExploreTable extends UIRequest{
 
 
 export class StatisticRequest extends UIRequest {
-  constructor (tableId?: string ){
+  constructor(tableId?: string) {
     super();
     this.tableId = tableId || null;
     return this;
   }
 }
 
-export class MonitoringRequest extends UIRequest{
+export class MonitoringRequest extends UIRequest {
   constructor(selectInterval?: string) {
     super();
     this.selectInterval = selectInterval || null;
@@ -158,7 +180,7 @@ export class MonitoringRequest extends UIRequest{
   }
 }
 
-export class SchemaTypeRequest extends UIRequest{
+export class SchemaTypeRequest extends UIRequest {
   constructor() {
     super();
     return this;
@@ -167,7 +189,7 @@ export class SchemaTypeRequest extends UIRequest{
 }
 
 export class DeleteRequest extends UIRequest {
-  constructor ( tableId: string, data: any) {
+  constructor(tableId: string, data: any) {
     super();
     this.tableId = tableId;
     this.data = data;
@@ -180,7 +202,7 @@ export class DeleteRequest extends UIRequest {
  * @param filter the previous values of the row, to find the row that should be updated
  */
 export class UpdateRequest extends UIRequest {
-  constructor ( tableId: string, data: any, filter: any ){
+  constructor(tableId: string, data: any, filter: any) {
     super();
     this.tableId = tableId;
     this.data = data;
@@ -220,7 +242,8 @@ export class ColumnRequest extends UIRequest {
   newColumn: DbColumn;
   renameOnly: boolean;
   tableType: string;
-  constructor( tableId: string, oldColumn: DbColumn = null, newColumn: DbColumn = null, renameOnly = false, tableType:string = 'table' ) {
+
+  constructor(tableId: string, oldColumn: DbColumn = null, newColumn: DbColumn = null, renameOnly = false, tableType: string = 'table') {
     super();
     this.tableId = tableId;
     this.oldColumn = oldColumn;
@@ -230,14 +253,14 @@ export class ColumnRequest extends UIRequest {
   }
 }
 
-export class MaterializedRequest extends UIRequest{
+export class MaterializedRequest extends UIRequest {
   constructor(tableId: string) {
     super();
     this.tableId = tableId;
   }
 }
 
-export enum DataModels{
+export enum DataModels {
   DOCUMENT = 'document',
   RELATIONAL = 'relational',
   GRAPH = 'graph'
@@ -289,7 +312,8 @@ export class EditCollectionRequest {
  * Request to drop or create a constraint of a table
  */
 export class ConstraintRequest {
-  constructor ( private table: string, private constraint: TableConstraint ) {}
+  constructor(private table: string, private constraint: TableConstraint) {
+  }
 }
 
 /**
@@ -310,24 +334,28 @@ export class Schema {
   ifExists = true;
   cascade = false;
 
-  constructor( name: string, type: string, store: string ) {
+  constructor(name: string, type: string, store: string) {
     this.name = name;
     this.type = type;
     this.store = store;
   }
-  setCreate( create: boolean ){
+
+  setCreate(create: boolean) {
     this.create = create;
     return this;
   }
-  setAuthorization( auth: string ){
+
+  setAuthorization(auth: string) {
     this.authorization = auth;
     return this;
   }
-  setDrop( drop: boolean ){
+
+  setDrop(drop: boolean) {
     this.drop = drop;
     return this;
   }
-  setCascade( cascade: boolean ){
+
+  setCascade(cascade: boolean) {
     this.cascade = cascade;
     return this;
   }

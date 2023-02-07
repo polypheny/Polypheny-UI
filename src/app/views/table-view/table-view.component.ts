@@ -10,124 +10,124 @@ import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {WebSocket} from '../../services/webSocket';
 
 @Component({
-  selector: 'app-table-view',
-  templateUrl: './table-view.component.html',
-  styleUrls: ['./table-view.component.scss']
+    selector: 'app-table-view',
+    templateUrl: './table-view.component.html',
+    styleUrls: ['./table-view.component.scss']
 })
 export class TableViewComponent implements OnInit, OnDestroy {
 
-  tableId = '';
-  currentPage = 1;
-  resultSet: ResultSet;
-  tableConfig: TableConfig = {
-    create: true,
-    search: true,
-    sort: true,
-    update: true,
-    delete: true,
-    exploring: false
-  };
-  loading: boolean;
-  private subscriptions = new Subscription();
-  webSocket: WebSocket;
+    tableId = '';
+    currentPage = 1;
+    resultSet: ResultSet;
+    tableConfig: TableConfig = {
+        create: true,
+        search: true,
+        sort: true,
+        update: true,
+        delete: true,
+        exploring: false
+    };
+    loading: boolean;
+    private subscriptions = new Subscription();
+    webSocket: WebSocket;
 
-  constructor(
-    private _route: ActivatedRoute,
-    private _router: Router,
-    private _crud: CrudService,
-    private _sidebar: LeftSidebarService,
-    private _settings: WebuiSettingsService
-  ) {
-    this.webSocket = new WebSocket(_settings);
-  }
-
-  ngOnInit() {
-
-    this._sidebar.open();
-    //listen to results
-    this.initWebsocket();
-
-    this.tableId = this._route.snapshot.paramMap.get('id');
-    if (this._route.snapshot.paramMap.get('page')) {
-      this.currentPage = +this._route.snapshot.paramMap.get('page');
-    } else {
-      this.currentPage = 1;
-    }
-    if (this.resultSet) {
-      this.resultSet.currentPage = this.currentPage;
+    constructor(
+        private _route: ActivatedRoute,
+        private _router: Router,
+        private _crud: CrudService,
+        private _sidebar: LeftSidebarService,
+        private _settings: WebuiSettingsService
+    ) {
+        this.webSocket = new WebSocket(_settings);
     }
 
-    this._sidebar.setSchema(new SchemaRequest('/views/data-table/', true, 2, false), this._router);
-    const sub = this.webSocket.onReconnect().subscribe(
-      b => {
-        if (b) {
-          this._sidebar.setSchema(new SchemaRequest('/views/data-table/', true, 2, false), this._router);
-          this.getTable();
-        }
-      }
-    );
-    this.subscriptions.add(sub);
+    ngOnInit() {
 
-    //listen to parameter changes
-    this._route.params.subscribe((params) => {
-      this.tableId = params['id'];
-      if (this._route.snapshot.paramMap.get('page')) {
-        this.currentPage = +this._route.snapshot.paramMap.get('page');
-      } else {
-        this.currentPage = 1;
-      }
-      if (this.resultSet) {
-        this.resultSet.currentPage = this.currentPage;
-      }
-      this.getTable();
-    });
-  }
+        this._sidebar.open();
+        //listen to results
+        this.initWebsocket();
 
-  initWebsocket() {
-    const sub = this.webSocket.onMessage().subscribe(
-      res => {
-        this.resultSet = <ResultSet>res;
-        //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
-        if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
-          this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
-        }
-        if (this.resultSet.type === 'TABLE' || this.resultSet.namespaceType === 'DOCUMENT') {
-          this.tableConfig.create = true;
-          this.tableConfig.update = true;
-          this.tableConfig.delete = true;
+        this.tableId = this._route.snapshot.paramMap.get('id');
+        if (this._route.snapshot.paramMap.get('page')) {
+            this.currentPage = +this._route.snapshot.paramMap.get('page');
         } else {
-          this.tableConfig.create = false;
-          this.tableConfig.update = false;
-          this.tableConfig.delete = false;
+            this.currentPage = 1;
         }
-        this.loading = false;
-      }, err => {
-        console.log(err);
-        this.loading = false;
-        this.resultSet = new ResultSet('Server is not available');
-      }
-    );
-    this.subscriptions.add(sub);
-  }
+        if (this.resultSet) {
+            this.resultSet.currentPage = this.currentPage;
+        }
 
-  getTable() {
-    if (this.tableId) {
-      this.loading = true;
-      const req = new TableRequest(this.tableId, this.currentPage);
-      if (!this._crud.getTable(this.webSocket, req)) {
-        this.resultSet = new ResultSet('Could not establish a connection with the server.');
-        this.loading = false;
-      }
-    } else {
-      this.resultSet = null;
-      this._sidebar.reset();
+        this._sidebar.setSchema(new SchemaRequest('/views/data-table/', true, 2, false), this._router);
+        const sub = this.webSocket.onReconnect().subscribe(
+            b => {
+                if (b) {
+                    this._sidebar.setSchema(new SchemaRequest('/views/data-table/', true, 2, false), this._router);
+                    this.getTable();
+                }
+            }
+        );
+        this.subscriptions.add(sub);
+
+        //listen to parameter changes
+        this._route.params.subscribe((params) => {
+            this.tableId = params['id'];
+            if (this._route.snapshot.paramMap.get('page')) {
+                this.currentPage = +this._route.snapshot.paramMap.get('page');
+            } else {
+                this.currentPage = 1;
+            }
+            if (this.resultSet) {
+                this.resultSet.currentPage = this.currentPage;
+            }
+            this.getTable();
+        });
     }
 
-  }
+    initWebsocket() {
+        const sub = this.webSocket.onMessage().subscribe(
+            res => {
+                this.resultSet = <ResultSet>res;
+                //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
+                if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
+                    this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
+                }
+                if (this.resultSet.type === 'TABLE' || this.resultSet.namespaceType === 'DOCUMENT') {
+                    this.tableConfig.create = true;
+                    this.tableConfig.update = true;
+                    this.tableConfig.delete = true;
+                } else {
+                    this.tableConfig.create = false;
+                    this.tableConfig.update = false;
+                    this.tableConfig.delete = false;
+                }
+                this.loading = false;
+            }, err => {
+                console.log(err);
+                this.loading = false;
+                this.resultSet = new ResultSet('Server is not available');
+            }
+        );
+        this.subscriptions.add(sub);
+    }
 
-  ngOnDestroy() {
-    this._sidebar.close();
-    this.subscriptions.unsubscribe();
-    this.webSocket.close();
-  }
+    getTable() {
+        if (this.tableId) {
+            this.loading = true;
+            const req = new TableRequest(this.tableId, this.currentPage);
+            if (!this._crud.getTable(this.webSocket, req)) {
+                this.resultSet = new ResultSet('Could not establish a connection with the server.');
+                this.loading = false;
+            }
+        } else {
+            this.resultSet = null;
+            this._sidebar.reset();
+        }
+
+    }
+
+    ngOnDestroy() {
+        this._sidebar.close();
+        this.subscriptions.unsubscribe();
+        this.webSocket.close();
+    }
 }

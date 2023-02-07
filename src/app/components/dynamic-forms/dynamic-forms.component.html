@@ -1,89 +1,94 @@
 <!--<input type="text" [formControlName]="formObj.groups[0].groups[0].key" >-->
 
 <form novalidate (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form">
-  <div class="form-row align-items-center row">
-      <div class="col-lg-6" *ngFor="let group of formObj.groups">
-        <div class="form-group form-row align-items-center">
-          <div class="col-12">{{group.title}}:</div>
-        <div class="col-lg-6 col-md-6 col-sm-12" *ngFor="let item of group.items">
-          <ng-container [ngSwitch]="item.type">
+    <div class="form-row align-items-center row">
+        <div class="col-lg-6" *ngFor="let group of formObj.groups">
+            <div class="form-group form-row align-items-center">
+                <div class="col-12">{{group.title}}:</div>
+                <div class="col-lg-6 col-md-6 col-sm-12" *ngFor="let item of group.items">
+                    <ng-container [ngSwitch]="item.type">
 
-            <ng-container *ngSwitchCase="'radio'">
-              {{item.label}}
-              <div class="form-check form-check-inline" *ngFor="let radio of item.options">
-                <input class="form-check-input" type="radio" id="radio{{radio.label}}" [value]="radio.value" [name]="item.key" [formControlName]="item.key" [checked]="radio.checked">
-                <label class="form-check-label" for="radio{{radio.label}}">{{radio.label}}</label>
-              </div>
-            </ng-container>
+                        <ng-container *ngSwitchCase="'radio'">
+                            {{item.label}}
+                            <div class="form-check form-check-inline" *ngFor="let radio of item.options">
+                                <input class="form-check-input" type="radio" id="radio{{radio.label}}"
+                                       [value]="radio.value" [name]="item.key" [formControlName]="item.key"
+                                       [checked]="radio.checked">
+                                <label class="form-check-label" for="radio{{radio.label}}">{{radio.label}}</label>
+                            </div>
+                        </ng-container>
 
-            <ng-container *ngSwitchCase="'checkbox'">
-              <!-- todo checked if item.checked is true, from the beginning! -->
-              <div class="form-check form-check-inline">
-                <input
-                        type="checkbox"
-                        [name]="item.key"
-                        [formControlName]="item.key"
-                        [value]="item.value"
-                        class="form-check-input"
-                        [id]="item.key"
-                        [checked]="item.value">
-                <label class="form-check-label" [for]="item.key">{{item.label}}</label>
-              </div>
-            </ng-container>
+                        <ng-container *ngSwitchCase="'checkbox'">
+                            <!-- todo checked if item.checked is true, from the beginning! -->
+                            <div class="form-check form-check-inline">
+                                <input
+                                        type="checkbox"
+                                        [name]="item.key"
+                                        [formControlName]="item.key"
+                                        [value]="item.value"
+                                        class="form-check-input"
+                                        [id]="item.key"
+                                        [checked]="item.value">
+                                <label class="form-check-label" [for]="item.key">{{item.label}}</label>
+                            </div>
+                        </ng-container>
 
-            <ng-container *ngSwitchCase="'range'">
-              <label [for]="item.label">{{item.value}}</label>
-              <input type="range" class="custom-range" [min]="item.min" [max]="item.max" [step]="item.step" [id]="item.label" [value]="item.value" [formControlName]="item.key" (input)="updateRange(item.key, $event)">
-            </ng-container>
+                        <ng-container *ngSwitchCase="'range'">
+                            <label [for]="item.label">{{item.value}}</label>
+                            <input type="range" class="custom-range" [min]="item.min" [max]="item.max"
+                                   [step]="item.step" [id]="item.label" [value]="item.value"
+                                   [formControlName]="item.key" (input)="updateRange(item.key, $event)">
+                        </ng-container>
 
-            <ng-container *ngSwitchCase="'select'">
-              <select [formControlName]="item.key" class="custom-select">
-                <option *ngFor="let option of item.options" [value]="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-            </ng-container>
+                        <ng-container *ngSwitchCase="'select'">
+                            <select [formControlName]="item.key" class="custom-select">
+                                <option *ngFor="let option of item.options" [value]="option.value">
+                                    {{ option.label }}
+                                </option>
+                            </select>
+                        </ng-container>
 
-            <ng-container *ngSwitchDefault>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="basic-addon1">{{ item.label }}</span>
+                        <ng-container *ngSwitchDefault>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1">{{ item.label }}</span>
+                                </div>
+                                <input [formControlName]="item.key" [id]="item.key" [type]="item.type"
+                                       class="form-control" [ngClass]="inputValidation(item.key)">
+
+                                <div class="invalid-feedback" *ngIf="submitted && form.get(item.key).invalid">
+                                    <div *ngIf="form.get(item.key).errors.required">
+                                        {{ item.label }} is required.
+                                    </div>
+                                    <div *ngIf="form.get(item.key).errors.email">
+                                        invalid email
+                                    </div>
+                                </div>
+                                <div class="valid-feedback" *ngIf="submitted && form.get(item.key).valid">
+                                    valid
+                                </div>
+
+
+                            </div>
+                        </ng-container>
+
+                    </ng-container><!-- end switch -->
                 </div>
-                <input [formControlName]="item.key" [id]="item.key" [type]="item.type" class="form-control" [ngClass]="inputValidation(item.key)">
-
-                <div class="invalid-feedback" *ngIf="submitted && form.get(item.key).invalid">
-                  <div *ngIf="form.get(item.key).errors.required">
-                    {{ item.label }} is required.
-                  </div>
-                  <div *ngIf="form.get(item.key).errors.email">
-                    invalid email
-                  </div>
-                </div>
-                <div class="valid-feedback" *ngIf="submitted && form.get(item.key).valid">
-                  valid
-                </div>
-
-
-              </div>
-            </ng-container>
-
-          </ng-container><!-- end switch -->
+            </div>
         </div>
-      </div>
+        <button type="submit" class="btn btn-primary">save</button>
     </div>
-    <button type="submit" class="btn btn-primary">save</button>
-  </div>
 </form>
 
-<hr />
+<hr/>
 <div class="row">
-  <div class="col-lg-6">
-    <strong>Form Value</strong>
-    <pre>{{ form.value | json }}</pre>
-    <strong>Form is valid:</strong> {{form.valid}}
-  </div>
-  <div class="col-lg-6">
-    <strong>input:</strong>
+    <div class="col-lg-6">
+        <strong>Form Value</strong>
+        <pre>{{ form.value | json }}</pre>
+        <strong>Form is valid:</strong> {{form.valid}}
+    </div>
+    <div class="col-lg-6">
+        <strong>input:</strong>
 
-  </div>
+    </div>
 </div>

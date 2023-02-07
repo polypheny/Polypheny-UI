@@ -6,9 +6,10 @@ export class SortState {
     sorting = false;
     //for the PlanBuilder
     column: string;
-  constructor () {
-    this.column = '';
-  }
+
+    constructor() {
+        this.column = '';
+    }
 }
 
 /**
@@ -26,16 +27,18 @@ export enum SortDirection {
      */
     DESC = 'DESC'
 }
+
 export class InputValidation {
-  cssClass;
-  constructor(
-    public valid: boolean,
-   public message: string = null,
-  ) {
-    if(valid){
-      this.cssClass = 'is-valid';
-    } else {
-      this.cssClass = 'is-invalid';
+    cssClass;
+
+    constructor(
+        public valid: boolean,
+        public message: string = null,
+    ) {
+        if (valid) {
+            this.cssClass = 'is-valid';
+        } else {
+            this.cssClass = 'is-invalid';
+        }
     }
-  }
 }
