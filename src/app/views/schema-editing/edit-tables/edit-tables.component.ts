@@ -14,6 +14,8 @@ import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 
+const INITIAL_TYPE = 'BIGINT';
+
 @Component({
     selector: 'app-edit-tables',
     templateUrl: './edit-tables.component.html',
@@ -59,7 +61,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.newColumns.set(this.counter++, new DbColumn('', true, false, '', '', null, null));
+        this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
         this.schema = this._route.snapshot.paramMap.get('id');
         const sub1 = this._route.params.subscribe((params) => {
             this.schema = params['id'];
@@ -256,7 +258,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
                     this._toast.success('Generated table ' + request.table, result.generatedQuery);
                     this.newColumns.clear();
                     this.counter = 0;
-                    this.newColumns.set(this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null));
+                    this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
                     this.newTableName = '';
                     this.selectedStore = null;
                     this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
@@ -335,14 +337,14 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }
 
     addNewColumn() {
-        this.newColumns.set(this.counter++, new DbColumn('', false, true, this.types[0].name, '', null, null));
+        this.newColumns.set(this.counter++, new DbColumn('', false, true, INITIAL_TYPE, '', null, null));
     }
 
     removeNewColumn(i: number) {
         if (this.newColumns.size === 1) {
             this.counter = 0;
             this.newColumns.clear();
-            this.newColumns.set(this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null));
+            this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
         } else {
             //don't change the counter here!
             this.newColumns.delete(i);
@@ -367,7 +369,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         this._types.getTypes().subscribe(
             t => {
                 this.types = t;
-                this.newColumns.get(0).dataType = t[0].name;
+                this.newColumns.get(0).dataType = INITIAL_TYPE;
             }
         );
     }

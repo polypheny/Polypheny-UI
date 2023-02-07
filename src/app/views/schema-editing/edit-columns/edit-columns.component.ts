@@ -37,6 +37,8 @@ import * as _ from 'lodash';
 import {Subscription} from 'rxjs';
 import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 
+const INITIAL_TYPE = 'BIGINT';
+
 @Component({
     selector: 'app-edit-columns',
     templateUrl: './edit-columns.component.html',
@@ -117,7 +119,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this._types.getTypes().subscribe(
             type => {
                 this.types = type;
-                this.createColumn.dataType = type[0].name;
+                this.createColumn.dataType = INITIAL_TYPE;
             }
         );
     }
@@ -370,7 +372,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                     this.getPlacementsAndPartitions();
                     this.createColumn.name = '';
                     this.createColumn.nullable = true;
-                    this.createColumn.dataType = this.types[0].name;
+                    this.createColumn.dataType = INITIAL_TYPE;
                     this.createColumn.collectionsType = '';
                     this.createColumn.precision = null;
                     this.createColumn.scale = null;

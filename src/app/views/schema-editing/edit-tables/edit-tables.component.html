@@ -92,12 +92,12 @@
                 </td>
                 <td>
                     <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.dataType">
-                        <option *ngFor="let t of types" [ngValue]="t.name">{{t.name}}</option>
+                        <option *ngFor="let t of types" [ngValue]="t.name" >{{t.name}}</option>
                     </select>
                 </td>
                 <td>
                     <select name="collection_type" id="collection_type" class="form-control form-control-sm editing"
-                            [(ngModel)]="col.value.collectionsType">
+                            [(ngModel)]="col.value.collectionsType" >
                         <option value="">none</option>
                         <option value="ARRAY">ARRAY</option>
                     </select>
