@@ -482,6 +482,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 return path + 'ethereum.png';
             case 'Neo4j':
                 return path + 'neo4j.png';
+            case 'Excel':
+                return path + 'xls.png';
+            case 'Google':
+                return path + 'google.png';
             default:
                 return 'fa fa-database';
         }
