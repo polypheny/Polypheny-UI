@@ -61,14 +61,18 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.initWebSocket();
   }
 
+  selectedLanguage: number;
+
   ngOnInit() {
+    this._leftSidebar.close();
+    this.subscriptions.unsubscribe();
     this._leftSidebar.open();
-    this.initSchema();
+    this.initSchema(this.selectedLanguage);
     this.initGraphicalQuerying();
     const sub = this._crud.onReconnection().subscribe(
       b => {
         if (b) {
-          this.initSchema();
+          this.initSchema(this.selectedLanguage);
         }
       }
     );
@@ -99,35 +103,98 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     );
   }
 
-  initSchema() {
-    this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.RELATIONAL])).subscribe(
-        res => {
-          const nodeAction = (tree, node, $event) => {
-            if (!node.isActive && node.isLeaf) {
-              this.addCol(node.data);
-              node.setIsActive(true, true);
-            } else if (node.isActive && node.isLeaf) {
-              node.setIsActive(false, true);
-              this.removeCol(node.data.id);
+  initSchema(selectedLanguage:number) {
+    console.log(selectedLanguage);
+    if (selectedLanguage == 2) {
+      this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.RELATIONAL])).subscribe(
+          res => {
+            const nodeAction = (tree, node, $event) => {
+              if (!node.isActive && node.isLeaf) {
+                this.addCol(node.data);
+                node.setIsActive(true, true);
+              } else if (node.isActive && node.isLeaf) {
+                node.setIsActive(false, true);
+                this.removeCol(node.data.id);
 
-              //deletes the selection if nothing is choosen
-            if (this.selectedColumn['column'].toString() === node.data.id) {
-              this.selectedCol([]);
+                //deletes the selection if nothing is choosen
+                if (this.selectedColumn['column'].toString() === node.data.id) {
+                  this.selectedCol([]);
+                }
+              }
+            };
+
+            const schemaTemp = <SidebarNode[]>res;
+            const schema = [];
+            for (const s of schemaTemp) {
+              const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
+              schema.push(node);
             }
+
+            this._leftSidebar.setNodes(schema);
+            this._leftSidebar.open();
           }
-        };
+      );
+    }
+    else if (selectedLanguage == 1) {
+      this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.GRAPH])).subscribe(
+          res => {
+            const nodeAction = (tree, node, $event) => {
+              if (!node.isActive && node.isLeaf) {
+                this.addCol(node.data);
+                node.setIsActive(true, true);
+              } else if (node.isActive && node.isLeaf) {
+                node.setIsActive(false, true);
+                this.removeCol(node.data.id);
 
-        const schemaTemp = <SidebarNode[]>res;
-        const schema = [];
-        for (const s of schemaTemp) {
-          const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
-          schema.push(node);
-        }
+                //deletes the selection if nothing is choosen
+                if (this.selectedColumn['column'].toString() === node.data.id) {
+                  this.selectedCol([]);
+                }
+              }
+            };
 
-        this._leftSidebar.setNodes(schema);
-        this._leftSidebar.open();
-      }
-    );
+            const schemaTemp = <SidebarNode[]>res;
+            const schema = [];
+            for (const s of schemaTemp) {
+              const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
+              schema.push(node);
+            }
+
+            this._leftSidebar.setNodes(schema);
+            this._leftSidebar.open();
+          }
+      );
+    }
+    else if (selectedLanguage == 3) {
+      this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.DOCUMENT])).subscribe(
+          res => {
+            const nodeAction = (tree, node, $event) => {
+              if (!node.isActive && node.isLeaf) {
+                this.addCol(node.data);
+                node.setIsActive(true, true);
+              } else if (node.isActive && node.isLeaf) {
+                node.setIsActive(false, true);
+                this.removeCol(node.data.id);
+
+                //deletes the selection if nothing is choosen
+                if (this.selectedColumn['column'].toString() === node.data.id) {
+                  this.selectedCol([]);
+                }
+              }
+            };
+
+            const schemaTemp = <SidebarNode[]>res;
+            const schema = [];
+            for (const s of schemaTemp) {
+              const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
+              schema.push(node);
+            }
+
+            this._leftSidebar.setNodes(schema);
+            this._leftSidebar.open();
+          }
+      );
+    }
   }
 
   initGraphicalQuerying() {
@@ -336,7 +403,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     let filteredInfos = '';
 
     if (this.columns.size === 0) {
-      this.editorGenerated.setCode('');
+      //this.editorGenerated.setCode('');
       return;
     }
 
