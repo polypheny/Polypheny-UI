@@ -270,6 +270,14 @@ export interface StackTrace {
     lineNumber: number;
 }
 
+export class PathAccessRequest {
+    constructor(
+        public name: string,
+        public directoryName: string,
+    ) {
+    }
+}
+
 export class PartitioningRequest {
     constructor(
         public schemaName: string = '',
