@@ -1,4 +1,13 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    Input,
+    OnDestroy,
+    OnInit,
+    TemplateRef,
+    ViewChild,
+    ViewEncapsulation
+} from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
@@ -10,12 +19,16 @@ import {ToastService} from '../../../components/toast/toast.service';
 import {DataModels, EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {WebSocket} from '../../../services/webSocket';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
+// new import added to extent graph
+import {DataGraphComponent} from '../../../components/data-view/data-graph/data-graph.component';
+import {DbmsTypesService} from '../../../services/dbms-types.service';
+import {TableConfig} from '../../../components/data-view/data-table/table-config';
 
 @Component({
     selector: 'app-graphical-querying',
@@ -61,7 +74,18 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.initWebSocket();
     }
 
+    // new additions by me:
     selectedLanguage: number;
+
+    tableId: string;
+    config: TableConfig;
+
+    inputMatch = '';
+    inputWhere = '';
+    inputReturn = '';
+
+    activeNamespace: string; // same usage as console.components.ts
+    private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace'; // same usage as console.components.ts
 
   ngOnInit() {
     this._leftSidebar.close();
@@ -105,7 +129,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     initSchema(selectedLanguage:number) {
     console.log(selectedLanguage);
-    if (selectedLanguage == 2) {
+    if (selectedLanguage == 1) {
       this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.RELATIONAL])).subscribe(
           res => {
             const nodeAction = (tree, node, $event) => {
@@ -135,22 +159,23 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
           }
       );
     }
-    else if (selectedLanguage == 1) {
+    else if (selectedLanguage == 2) {
       this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.GRAPH])).subscribe(
           res => {
             const nodeAction = (tree, node, $event) => {
-              if (!node.isActive && node.isLeaf) {
-                this.addCol(node.data);
-                node.setIsActive(true, true);
+              console.log(node.id);
+              this.setDefaultDB(node.id); //changes the activeNamespace to the one chosen on the leftside
+                /*
+                if (!node.isActive && node.isLeaf) {
+                //node.setIsActive(true, true);
+                console.log('activated');
+                // here code to show graph
+
               } else if (node.isActive && node.isLeaf) {
                 node.setIsActive(false, true);
-                this.removeCol(node.data.id);
-
-                //deletes the selection if nothing is choosen
-                if (this.selectedColumn['column'].toString() === node.data.id) {
-                  this.selectedCol([]);
-                }
-              }
+                  console.log('deactivated');
+                // here code to let graph disappear
+              }*/
             };
 
             const schemaTemp = <SidebarNode[]>res;
@@ -396,6 +421,19 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         return '"' + k.split('.').join('"."') + '"';
     }
 
+    // inspired by the same function in console.component.ts
+    private setDefaultDB(name: string) {
+        name = name.trim();
+        this.activeNamespace = name;
+        localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
+    }
+
+    async generateCypher() {
+        let cypher = ''; //TO DO: dynamic namespace
+        cypher += 'MATCH ' + this.inputMatch + '\nWHERE ' + this.inputWhere + '\nRETURN ' + this.inputReturn + ';';
+        this.editorGenerated.setCode(cypher);
+    }
+
     async generateSQL() {
         this.whereCounter = 0;
         this.andCounter = 0;
@@ -582,3 +620,4 @@ class JoinCondition {
         this.active = !this.active;
     }
 }
+
