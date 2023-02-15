@@ -1,32 +1,39 @@
 // Here you can add other styles
-table.table{
+table.table {
   background: white;
 }
+
 .table-hover tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.12);
 }
-table tr.editing td{
+
+table tr.editing td {
   //for the app-input fields
-  vertical-align:middle;
+  vertical-align: middle;
 }
-.breadcrumb .breadcrumb-item span{
+
+.breadcrumb .breadcrumb-item span {
   outline: none;
 }
-img.navbar-brand-full{
+
+img.navbar-brand-full {
   width: 95%;
   height: 95%;
 }
-input[type="text"], input[type="number"]{
+
+input[type="text"], input[type="number"] {
   color: black !important;
 }
 
-audio, video{
+audio, video {
   outline: none;
 }
+
 //carousel
 .carousel {
   outline: none;
 }
+
 .carousel-control {
   display: none;
 }

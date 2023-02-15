@@ -2,12 +2,11 @@ import {
     ChangeDetectionStrategy,
     Component,
     EventEmitter,
-    Input, OnChanges,
+    Input,
+    OnChanges,
     OnInit,
     Output,
-    QueryList, SimpleChanges,
-    ViewChild,
-    ViewChildren,
+    SimpleChanges,
 } from '@angular/core';
 import {Info, Pair, Type} from '../json-editor.component';
 
@@ -18,7 +17,7 @@ import {Info, Pair, Type} from '../json-editor.component';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class JsonElemComponent implements OnInit, OnChanges   {
+export class JsonElemComponent implements OnInit, OnChanges {
     static debounceDelay = 200;
 
     @Input() el: Pair;
@@ -69,12 +68,12 @@ export class JsonElemComponent implements OnInit, OnChanges   {
         this.add.emit(this.prefixInfo(i));
     }
 
-    upColumn(i: string ){
+    upColumn(i: string) {
         this.show = false;
         this.up.emit(i);
     }
 
-    downColumn(i: string ){
+    downColumn(i: string) {
         this.show = false;
         this.down.emit(i);
     }
@@ -86,21 +85,21 @@ export class JsonElemComponent implements OnInit, OnChanges   {
     }
 
     setMenuShow(doShow: boolean, instant = false) {
-        if ( instant ) {
+        if (instant) {
             this.show = doShow;
             return;
         }
-        if(!doShow){
+        if (!doShow) {
             this.debounce = setTimeout(() => {
                 this.show = false;
             }, JsonElemComponent.debounceDelay);
-        }else {
+        } else {
             this.show = true;
         }
     }
 
     menuEnter() {
-        if( this.show ){
+        if (this.show) {
             clearTimeout(this.debounce);
         }
     }
@@ -127,10 +126,10 @@ export class JsonElemComponent implements OnInit, OnChanges   {
     }
 
     getType(el: any) {
-        if ( el.value instanceof Array){
-            if ( el.value.some(e => e instanceof Pair)){
+        if (el.value instanceof Array) {
+            if (el.value.some(e => e instanceof Pair)) {
                 return Type.Object;
-            }else {
+            } else {
                 return Type.Array;
             }
         }
@@ -139,7 +138,7 @@ export class JsonElemComponent implements OnInit, OnChanges   {
 
     isSelfValid() {
         const temp = this.el.key.trim() !== '';
-        if( temp ) {
+        if (temp) {
             this.errorMessage = '';
         }
         return temp;
@@ -148,9 +147,9 @@ export class JsonElemComponent implements OnInit, OnChanges   {
     inputChanged() {
         this.valid = this.isSelfValid();
 
-        if( !this.isValue() ) {
-            const temp = this.el.value instanceof Array && new Set(this.el.value.map( e => e.key )).size === this.el.value.length;
-            if ( !temp ){
+        if (!this.isValue()) {
+            const temp = this.el.value instanceof Array && new Set(this.el.value.map(e => e.key)).size === this.el.value.length;
+            if (!temp) {
                 this.errorMessage = this.dupKeyError;
             }
             this.valid &&= temp && this.el.value instanceof Array && this.el.value.reduce<boolean>((c, next) => c && next.isValid(), true);
@@ -159,12 +158,12 @@ export class JsonElemComponent implements OnInit, OnChanges   {
     }
 
     showValid() {
-        if( !this.isSelfValid() ){
+        if (!this.isSelfValid()) {
             return false;
         }
-        if( !this.isValue() ){
-            const temp = this.el.value instanceof Array && new Set(this.el.value.map( e => e.key )).size === this.el.value.length;
-            if ( !temp ){
+        if (!this.isValue()) {
+            const temp = this.el.value instanceof Array && new Set(this.el.value.map(e => e.key)).size === this.el.value.length;
+            if (!temp) {
                 this.errorMessage = this.dupKeyError;
             }
             return temp;
@@ -173,7 +172,7 @@ export class JsonElemComponent implements OnInit, OnChanges   {
     }
 
     updateChildren() {
-        if( this.isValue()) {
+        if (this.isValue()) {
             return;
         }
         const keys = (this.el.value as Pair[]).map(e => e.key);
@@ -185,9 +184,9 @@ export class JsonElemComponent implements OnInit, OnChanges   {
 
         let count = 0;
         for (const key of keys) {
-            if( temp.includes(key)) {
+            if (temp.includes(key)) {
                 status.push(true);
-            }else {
+            } else {
                 copy.splice(count);
                 temp.push(key);
                 status.push(copy.includes(key));
@@ -197,14 +196,14 @@ export class JsonElemComponent implements OnInit, OnChanges   {
             console.log(status);
             count++;
         }
-        
+
         this.childDupStatus = status;
         console.log(this.childDupStatus);
 
     }
 
     getIsDuplicate(i: number) {
-        const keys = (this.el.value as Pair[]).map( k => k.key );
+        const keys = (this.el.value as Pair[]).map(k => k.key);
         const name = keys[i];
         keys.splice(i);
         return keys.includes(name);

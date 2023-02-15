@@ -1,16 +1,17 @@
-import { Injectable, Output, EventEmitter } from '@angular/core';
+import {EventEmitter, Injectable, Output} from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class RightSidebarToRelationalalgebraService {
 
-  constructor() { }
+    constructor() {
+    }
 
-  @Output() change: EventEmitter<boolean> = new EventEmitter();
+    @Output() change: EventEmitter<boolean> = new EventEmitter();
 
-  toggle() {
-    this.change.emit(true);
-  }
+    toggle() {
+        this.change.emit(true);
+    }
 
 }

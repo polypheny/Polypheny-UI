@@ -15,7 +15,7 @@ export class JsonTextComponent implements OnInit {
 
     ngOnInit(): void {
         const regex = new RegExp('/ObjectId(\d{1,24})/g');
-        if( regex.test(this.text) ){
+        if (regex.test(this.text)) {
             return;
         }
         this.testing = this.parse(this.text);

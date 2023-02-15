@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, OnInit, Pipe, PipeTransform, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CrudService} from '../../../services/crud.service';
 import {ToastService} from '../../toast/toast.service';

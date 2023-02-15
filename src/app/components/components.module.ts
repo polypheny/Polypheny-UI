@@ -38,7 +38,6 @@ import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {JsonEditorComponent} from './json/json-editor.component';
 import {JsonElemComponent} from './json/json-elem/json-elem.component';
 import {DataGraphComponent} from './data-view/data-graph/data-graph.component';
-import {MultipleSwitchPipe} from './data-view/multiple-switch.pipe';
 import {DatesPipeModule} from './data-view/shared-module';
 
 //import 'hammerjs';

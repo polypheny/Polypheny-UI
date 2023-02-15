@@ -1,43 +1,54 @@
 h5 {
   margin-bottom: 1em;
 }
+
 .btn.disabled {
   cursor: not-allowed;
 }
-.del{
+
+.del {
   visibility: hidden;
   cursor: pointer;
 }
-tr:hover .del{
+
+tr:hover .del {
   visibility: visible;
 }
-.del:hover{
+
+.del:hover {
   color: #dc3545;
 }
-label:not(.disabled){
+
+label:not(.disabled) {
   cursor: pointer;
 }
-label.disabled{
+
+label.disabled {
   color: grey;
 }
+
 .data-type-parameters .input-group-text {
   width: 78px;
 }
-.checkbox-wrapper{
+
+.checkbox-wrapper {
   flex: 1;
   border-top-right-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
   border: 1px solid #e4e7ea;
 }
-#exportTableModal .modal-footer{
+
+#exportTableModal .modal-footer {
   position: relative;
 }
-.progress-wrapper{
+
+.progress-wrapper {
   position: absolute;
   top: 0;
   left: -4px;
   right: 0;
 }
+
 .progress-wrapper progressbar {
   border-radius: 0;
   height: 5px;
@@ -47,13 +58,16 @@ label.disabled{
   background-color: #ebeef0;
   color: black;
 }
+
 tr .edit-table-name {
   visibility: hidden;
 }
+
 tr:hover .edit-table-name {
   visibility: visible;
   cursor: pointer;
 }
+
 .confirm-group {
   max-width: 350px;
 }

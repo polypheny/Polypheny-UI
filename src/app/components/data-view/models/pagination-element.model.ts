@@ -8,14 +8,14 @@ export class PaginationElement {
     disabled = false;
     routerLink: string;
 
-    withPage ( tableId:string, page:number ) {
+    withPage(tableId: string, page: number) {
         this.page = page;
         this.label = page.toString();
-        this.routerLink = '/views/data-table/'+ tableId +'/'+page;
+        this.routerLink = '/views/data-table/' + tableId + '/' + page;
         return this;
     }
 
-    withLabel ( label:string ) {
+    withLabel(label: string) {
         this.label = label;
         return this;
     }

@@ -4,78 +4,79 @@ import {webSocket} from 'rxjs/webSocket';
 import {WebuiSettingsService} from './webui-settings.service';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class ConfigService {
 
-  private socket;
-  public connected = false;
-  private reconnected = new EventEmitter<boolean>();
-  httpUrl;
-  httpOptions;
+    private socket;
+    public connected = false;
+    private reconnected = new EventEmitter<boolean>();
+    httpUrl;
+    httpOptions;
 
-  constructor( private _http:HttpClient, private _settings:WebuiSettingsService) {
-    this.initWebSocket();
-    this.httpUrl = this._settings.getConnection('config.rest');
-    this.httpOptions = { headers: new HttpHeaders({'Content-Type': 'application/json'})};
-  }
-
-
-  getPage(pageId:string) {
-    return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
-  }
-
-  getPageList() {
-    return this._http.get(`${this.httpUrl}/getPageList`, this.httpOptions);
-  }
-
-  saveChanges(data) {
-    return this._http.post(`${this.httpUrl}/updateConfigs`, data, this.httpOptions);
-  }
-
-  testConnection(dockerInstanceId:number) {
-    // we only have a connection for the configs but this is a more general request and goes to crud
-    return this._http.get( `${this._settings.getConnection('crud.rest')}/testDockerInstance/${dockerInstanceId}`, this.httpOptions );
-  }
+    constructor(private _http: HttpClient, private _settings: WebuiSettingsService) {
+        this.initWebSocket();
+        this.httpUrl = this._settings.getConnection('config.rest');
+        this.httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
+    }
 
 
-  //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
-  private initWebSocket() {
-    this.socket = webSocket({
-      url: this._settings.getConnection('config.socket'),
-      openObserver: {
-        next: (n) => {
-          this.reconnected.emit(true);
-          this.connected = true;
-        }
-      }
-    });
-    this.socket.subscribe(
-      msg => {},
-      err => {
-        //this.reconnected.emit(false);
-        this.connected = false;
-        setTimeout(() => {
-          this.initWebSocket();
-        }, +this._settings.getSetting('reconnection.timeout'));
-      }
-    );
-  }
+    getPage(pageId: string) {
+        return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
+    }
 
-  socketSend( msg: string ) {
-    this.socket.next(msg);
-  }
+    getPageList() {
+        return this._http.get(`${this.httpUrl}/getPageList`, this.httpOptions);
+    }
 
-  onSocketEvent () {
-    return this.socket;
-  }
+    saveChanges(data) {
+        return this._http.post(`${this.httpUrl}/updateConfigs`, data, this.httpOptions);
+    }
 
-  closeSocket() {
-    this.socket.complete();
-  }
+    testConnection(dockerInstanceId: number) {
+        // we only have a connection for the configs but this is a more general request and goes to crud
+        return this._http.get(`${this._settings.getConnection('crud.rest')}/testDockerInstance/${dockerInstanceId}`, this.httpOptions);
+    }
 
-  onReconnection(){
-    return this.reconnected;
-  }
+
+    //https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
+    private initWebSocket() {
+        this.socket = webSocket({
+            url: this._settings.getConnection('config.socket'),
+            openObserver: {
+                next: (n) => {
+                    this.reconnected.emit(true);
+                    this.connected = true;
+                }
+            }
+        });
+        this.socket.subscribe(
+            msg => {
+            },
+            err => {
+                //this.reconnected.emit(false);
+                this.connected = false;
+                setTimeout(() => {
+                    this.initWebSocket();
+                }, +this._settings.getSetting('reconnection.timeout'));
+            }
+        );
+    }
+
+    socketSend(msg: string) {
+        this.socket.next(msg);
+    }
+
+    onSocketEvent() {
+        return this.socket;
+    }
+
+    closeSocket() {
+        this.socket.complete();
+    }
+
+    onReconnection() {
+        return this.reconnected;
+    }
 
 }

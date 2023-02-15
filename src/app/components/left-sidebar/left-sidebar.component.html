@@ -1,55 +1,58 @@
 <div id="tree-outer-wrapper d-flex" class="schema-editing">
 
-  <div class="input-group input-group-sm" id="search-group">
-    <div class="input-group-prepend">
+    <div class="input-group input-group-sm" id="search-group">
+        <div class="input-group-prepend">
     <span *ngIf="isExpandAndCollapseShown()" class="input-group-text">
       <a [routerLink]="[]" (click)="collapseAll()" id="collapse"><i class="fa fa-compress"></i></a>
       </span>
-    </div>
-    <input type="text" class="form-control form-control-sm" [class]="{'rounded-search': !isExpandAndCollapseShown()}" placeholder="search" id="search-tree">
-    <div class="input-group-append">
+        </div>
+        <input type="text" class="form-control form-control-sm"
+               [class]="{'rounded-search': !isExpandAndCollapseShown()}" placeholder="search" id="search-tree">
+        <div class="input-group-append">
     <span *ngIf="isExpandAndCollapseShown()" class="input-group-text">
         <a [routerLink]="[]" (click)="expandAll()" id="expand"><i class="fa fa-expand"></i></a>
         </span>
-    </div>
-  </div>
-
-
-  <span *ngIf="error">{{error}}</span>
-  <div id="tree-inner-wrapper">
-
-    <tree-root [nodes]="nodes" [options]="options" [class]="{'no-children': !hasChildren(nodes)}" #tree>
-      <ng-template #treeNodeWrapperTemplate let-node let-index="index">
-        <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
-         <tree-node-expander [ngClass]="{'hidden-expander': node.data.children.length === 0}" [node]="node"></tree-node-expander>
-          <div class="node-content-wrapper"
-               [class.node-content-wrapper-active]="node.isActive"
-               [class.node-content-wrapper-focused]="false"
-               [class.separator]="node.data.isSeparator"
-               [ngClass]="node.data.cssClass"
-               (click)="node.mouseAction('click', $event)"
-               (dblclick)="node.mouseAction('dblClick', $event)"
-               (contextmenu)="node.mouseAction('contextMenu', $event)"
-               (treeDrop)="node.onDrop($event)"
-               [treeAllowDrop]="node.allowDrop"
-               [treeDrag]="node"
-               [treeDragEnabled]="node.allowDrag()">
-            <span *ngIf="node.data.icon" [ngClass]="[node.data.icon, 'sidebarIcon']"></span>
-            <span *ngIf="node.data.relAlgSymbol" [innerHTML]="node.data.relAlgSymbol" class="relAlgSymbol"></span>
-            <span class="title" [innerHTML]="node.data.name"></span>
-          </div>
         </div>
-      </ng-template>
-    </tree-root>
-  </div>
+    </div>
 
 
-  <div *ngIf="needsButton()" class="schema-editing-wrapper">
-    <div class="border-top my-3 "></div>
-    <p class="schema-button node-content-wrapper"  id="schemaText" [routerLink]="'/views/schema-editing/'"><i class="fa fa-pencil" aria-hidden="true"></i>
-      Manage Namespaces</p>
-  </div>
+    <span *ngIf="error">{{error}}</span>
+    <div id="tree-inner-wrapper">
 
+        <tree-root [nodes]="nodes" [options]="options" [class]="{'no-children': !hasChildren(nodes)}" #tree>
+            <ng-template #treeNodeWrapperTemplate let-node let-index="index">
+                <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
+                    <tree-node-expander [ngClass]="{'hidden-expander': node.data.children.length === 0}"
+                                        [node]="node"></tree-node-expander>
+                    <div class="node-content-wrapper"
+                         [class.node-content-wrapper-active]="node.isActive"
+                         [class.node-content-wrapper-focused]="false"
+                         [class.separator]="node.data.isSeparator"
+                         [ngClass]="node.data.cssClass"
+                         (click)="node.mouseAction('click', $event)"
+                         (dblclick)="node.mouseAction('dblClick', $event)"
+                         (contextmenu)="node.mouseAction('contextMenu', $event)"
+                         (treeDrop)="node.onDrop($event)"
+                         [treeAllowDrop]="node.allowDrop"
+                         [treeDrag]="node"
+                         [treeDragEnabled]="node.allowDrag()">
+                        <span *ngIf="node.data.icon" [ngClass]="[node.data.icon, 'sidebarIcon']"></span>
+                        <span *ngIf="node.data.relAlgSymbol" [innerHTML]="node.data.relAlgSymbol"
+                              class="relAlgSymbol"></span>
+                        <span class="title" [innerHTML]="node.data.name"></span>
+                    </div>
+                </div>
+            </ng-template>
+        </tree-root>
+    </div>
+
+
+    <div *ngIf="needsButton()" class="schema-editing-wrapper">
+        <div class="border-top my-3 "></div>
+        <p class="schema-button node-content-wrapper" id="schemaText" [routerLink]="'/views/schema-editing/'"><i
+                class="fa fa-pencil" aria-hidden="true"></i>
+            Manage Namespaces</p>
+    </div>
 
 
 </div>

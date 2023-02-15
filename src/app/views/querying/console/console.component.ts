@@ -116,10 +116,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     private loadAndSetNamespaceDB() {
         let db = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
-        if (db === null || ( this.namespaces && this.namespaces.length > 0 && !this.namespaces.includes(db))) {
-            if( this.namespaces && this.namespaces.length > 0 ){
+        if (db === null || (this.namespaces && this.namespaces.length > 0 && !this.namespaces.includes(db))) {
+            if (this.namespaces && this.namespaces.length > 0) {
                 db = this.namespaces[0];
-            }else{
+            } else {
                 db = 'public';
             }
         }
@@ -389,7 +389,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     private setDefaultDB(name: string) {
         name = name.trim();
-        if( !this.namespaces.includes(name) ){
+        if (!this.namespaces.includes(name)) {
             this.namespaces.push(name);
         }
 
@@ -429,6 +429,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     changedDefaultDB() {
-        this.setDefaultDB( this.activeNamespace );
+        this.setDefaultDB(this.activeNamespace);
     }
 }

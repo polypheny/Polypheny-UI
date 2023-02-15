@@ -1,43 +1,43 @@
 .plan-query-container {
-	border: 1px solid #dedede;
-	padding: 18px;
-	background-color: #fff;
-	position: absolute;
-	box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.3);
-	border-radius: 3px;
-	margin-bottom: 18px;
-	z-index: 6;
-	left: 0
+    border: 1px solid #dedede;
+    padding: 18px;
+    background-color: #fff;
+    position: absolute;
+    box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+    margin-bottom: 18px;
+    z-index: 6;
+    left: 0
 }
 
 .plan-query-container code {
-	font-weight: 300
+    font-weight: 300
 }
 
 .plan-query-container .plan-query-text {
-	background-color: #fff;
-	font-family: "source code";
-	text-align: left
+    background-color: #fff;
+    font-family: "source code";
+    text-align: left
 }
 
 .plan-query-container .plan-query-text .code-key-item {
-	background-color: #F8E400;
-	font-weight: 600;
-	padding: 1px
+    background-color: #F8E400;
+    font-weight: 600;
+    padding: 1px
 }
 
 .plan-query-container h3 {
-	font-size: 17px;
-	width: 93%;
-	text-align: left;
-	border-bottom: 1px solid #dedede;
-	padding-bottom: 6px;
-	margin-bottom: 10px
+    font-size: 17px;
+    width: 93%;
+    text-align: left;
+    border-bottom: 1px solid #dedede;
+    padding-bottom: 6px;
+    margin-bottom: 10px
 }
 
 .hljs,
 .hljs-subst {
-	color: #4d525a
+    color: #4d525a
 }
 
 .hljs-keyword,
@@ -46,8 +46,8 @@
 .hljs-meta-keyword,
 .hljs-doctag,
 .hljs-name {
-	color: #008CAF;
-	font-weight: bold
+    color: #008CAF;
+    font-weight: bold
 }
 
 .hljs-built_in,
@@ -55,8 +55,8 @@
 .hljs-bullet,
 .hljs-code,
 .hljs-addition {
-	color: #008CAF;
-	font-weight: bold
+    color: #008CAF;
+    font-weight: bold
 }
 
 .hljs-regexp,
@@ -66,8 +66,8 @@
 .hljs-link,
 .hljs-selector-attr,
 .hljs-selector-pseudo {
-	color: #008CAF;
-	font-weight: bold
+    color: #008CAF;
+    font-weight: bold
 }
 
 .hljs-type,
@@ -78,29 +78,29 @@
 .hljs-quote,
 .hljs-template-tag,
 .hljs-deletion {
-	color: #279404;
-	font-weight: 600
+    color: #279404;
+    font-weight: 600
 }
 
 .hljs-title,
 .hljs-section {
-	color: #008CAF;
-	font-weight: bold
+    color: #008CAF;
+    font-weight: bold
 }
 
 .hljs-comment {
-	color: #999ea7;
-	font-style: italic
+    color: #999ea7;
+    font-style: italic
 }
 
 .hljs-meta {
-	color: #999ea7
+    color: #999ea7
 }
 
 .hljs-emphasis {
-	font-style: italic
+    font-style: italic
 }
 
 .hljs-strong {
-	font-weight: 600
+    font-weight: 600
 }

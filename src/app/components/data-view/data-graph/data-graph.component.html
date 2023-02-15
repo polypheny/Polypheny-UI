@@ -12,23 +12,26 @@
                     {{detail.id}}
                 </div>
                 <div class="card-body">
-                    <span *ngFor="let label of detail.labels" class="badge badge-pill" [style]="{ 'background-color': getLabelColor(label) }">{{label}}</span>
+                    <span *ngFor="let label of detail.labels" class="badge badge-pill"
+                          [style]="{ 'background-color': getLabelColor(label) }">{{label}}</span>
                     <div class="my-2"></div>
                     <div *ngFor="let entry of detail.properties | keyvalue">
                         <p><strong>{{entry.key}}: </strong>{{entry.value}}</p>
                     </div>
                 </div>
                 <div class="card-footer text-muted">
-                    <button class="btn btn-primary" (click)="showProperties = false"><span class="cui-arrow-thick-from-left"></span></button>
+                    <button class="btn btn-primary" (click)="showProperties = false"><span
+                            class="cui-arrow-thick-from-left"></span></button>
                 </div>
             </div>
         </div>
         <div class="graph-bottom d-flex justify-content-start pl-1 pb-1">
-            <button class="btn btn-primary" (click)="center()"><span class="cui-center-focus pr-1"></span>Refocus</button>
+            <button class="btn btn-primary" (click)="center()"><span class="cui-center-focus pr-1"></span>Refocus
+            </button>
             <button class="btn btn-primary ml-1" (click)="reset()"><span class="cui-reload pr-1"></span>Reset</button>
         </div>
         <div class="graph-loader" *ngIf="graphLoading">
-            <div class="spinner-border text-primary" ></div>
+            <div class="spinner-border text-primary"></div>
         </div>
     </div>
 

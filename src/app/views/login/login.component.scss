@@ -1,15 +1,17 @@
-#showHistory{
+#showHistory {
   /*position: absolute;
   top: 1rem;
   right: 1rem;*/
 }
-#loginDropdown{
+
+#loginDropdown {
   left: auto;
   right: 0px;
   max-height: 20rem;
   overflow: scroll;
 }
-.dropdown-item i{
+
+.dropdown-item i {
   visibility: hidden;
   color: black;
   //margin-right: 0.5rem;
@@ -17,10 +19,12 @@
   left: 0.7rem;
   bottom: 0.9rem;
 }
-.dropdown-item:hover i{
+
+.dropdown-item:hover i {
   visibility: visible;
 }
-.dropdown-item:hover i:hover{
+
+.dropdown-item:hover i:hover {
   color: #f0f3f5 !important;
   padding: 0.2rem;
   background-color: #f86c6b;

@@ -1,48 +1,61 @@
-#addColumnBtn{
+#addColumnBtn {
   border-radius: 100%;
   line-height: 1.25rem;
 }
-h5{
+
+h5 {
   margin-bottom: 1em;
 }
+
 app-delete-confirm {
   visibility: hidden;
 }
+
 tr:hover app-delete-confirm {
   visibility: visible;
 }
+
 .add-constraint {
   display: inline-flex;
   margin-top: -0.4em;
 }
-.constraint-columns{
+
+.constraint-columns {
   line-height: 2em;
 }
-.constraint-title{
+
+.constraint-title {
   display: inline-flex;
   margin-bottom: 0.5em;
 }
-.form-inline .form-control, .form-inline label{
+
+.form-inline .form-control, .form-inline label {
   margin-right: 1em;
 }
-.form-group{
+
+.form-group {
   position: relative;
 }
-.invalid-feedback{
+
+.invalid-feedback {
   position: absolute;
   bottom: -1.5em;
 }
+
 table tr td.pk {
   width: 1em;
   text-align: center;
 }
+
 td.delete {
   width: 4em;
   text-align: center;
 }
+
 #dbColumnTable tr td {
   vertical-align: middle;
 }
+
 #dbColumnTable td span {
   display: block;
 }
@@ -50,43 +63,53 @@ td.delete {
 .dropdown-item {
   padding: 5px 20px;
 }
+
 #placementBtnGroup {
   position: absolute;
   right: 0;
   top: 0;
 }
+
 .modify-placement-btn {
   visibility: hidden;
 }
+
 table tr td:hover .modify-placement-btn {
   visibility: visible;
 }
+
 .data-type-parameters .input-group-text {
   width: 78px;
 }
-.modal-footer{
+
+.modal-footer {
   position: relative;
   justify-content: space-between;
 }
-.progress-wrapper{
+
+.progress-wrapper {
   position: absolute;
   top: -4px;
   left: -4px;
   right: -4px;
 }
-.progress-wrapper progressbar{
+
+.progress-wrapper progressbar {
   border-radius: 0;
   height: 5px;
 }
+
 .partition-param-wrapper {
   display: flex;
   flex-direction: column;
 }
+
 .invalid-partition-param {
   font-size: 80%;
   color: #f86c6b;
 }
-#partitionParamsTable tr td{
+
+#partitionParamsTable tr td {
   vertical-align: middle;
 }
 

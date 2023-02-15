@@ -41,11 +41,11 @@ path {
   stroke: grey;
 }
 
-path.link{
+path.link {
   stroke-width: 1px;
 }
 
-.graph-properties{
+.graph-properties {
   width: 200px;
   height: 100%;
   position: absolute;
@@ -55,7 +55,7 @@ path.link{
   transition: width 2s;
 }
 
-.graph-wrapper{
+.graph-wrapper {
   position: relative;
   flex-direction: column
 }
@@ -182,6 +182,7 @@ path.link{
   vertical-align: top;
   overflow: hidden;
 }
+
 .svg-content-responsive {
   display: inline-block;
   position: absolute;
@@ -189,12 +190,12 @@ path.link{
   left: 0;
 }
 
-.graph-bottom{
+.graph-bottom {
   position: absolute;
   bottom: 0;
   left: 0;
 }
 
 .el-back {
- transform: translate(-30px, 18px);
+  transform: translate(-30px, 18px);
 }
