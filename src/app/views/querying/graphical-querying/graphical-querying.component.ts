@@ -75,7 +75,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     // new additions by me:
-    selectedLanguage: number;
+    lang: string; // usage as lang in console.component.hmtl 'sql', 'cypher', 'mql'
 
     tableId: string;
     config: TableConfig;
@@ -91,12 +91,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this._leftSidebar.close();
     this.subscriptions.unsubscribe();
     this._leftSidebar.open();
-    this.initSchema(this.selectedLanguage);
+    this.initSchema(this.lang);
         this.initGraphicalQuerying();
         const sub = this._crud.onReconnection().subscribe(
             b => {
                 if (b) {
-                    this.initSchema(this.selectedLanguage);
+                    this.initSchema(this.lang);
                 }
             }
         );
@@ -127,9 +127,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         );
     }
 
-    initSchema(selectedLanguage:number) {
-    console.log(selectedLanguage);
-    if (selectedLanguage == 1) {
+    initSchema(lang:string) {
+    console.log(lang);
+    if (lang === 'sql') {
       this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.RELATIONAL])).subscribe(
           res => {
             const nodeAction = (tree, node, $event) => {
@@ -159,7 +159,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
           }
       );
     }
-    else if (selectedLanguage == 2) {
+    else if (lang === 'cypher') {
       this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.GRAPH])).subscribe(
           res => {
             const nodeAction = (tree, node, $event) => {
@@ -190,7 +190,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
           }
       );
     }
-    else if (selectedLanguage == 3) {
+    else if (lang === 'mql') {
       this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.DOCUMENT])).subscribe(
           res => {
             const nodeAction = (tree, node, $event) => {
@@ -533,7 +533,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     executeQuery() {
         this.loading = true;
         const code = this.editorGenerated.getCode();
-        if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, 'sql', null))) {
+        console.log(code);
+        if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, this.lang, null))) {
             this.loading = false;
             this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
         }

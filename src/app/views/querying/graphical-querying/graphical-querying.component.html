@@ -8,18 +8,18 @@
     <p>Select your query language:</p>
     <div class="btn-group-horizontal btn-group" id="radio" data-toggle="buttons">
       <label class="btn btn-secondary">
-        <input type="radio" name="language" [(ngModel)]="selectedLanguage" value="1" (ngModelChange)="ngOnInit()">SQL
+        <input type="radio" name="language" [(ngModel)]="lang" value="sql" (ngModelChange)="ngOnInit()">SQL
       </label>
       <label class="btn btn-secondary">
-        <input type="radio" name="language" [(ngModel)]="selectedLanguage" value="2" (ngModelChange)="ngOnInit()">Cypher
+        <input type="radio" name="language" [(ngModel)]="lang" value="cypher" (ngModelChange)="ngOnInit()">Cypher
       </label>
       <label class="btn btn-secondary">
-        <input type="radio" name="language" [(ngModel)]="selectedLanguage" value="3" (ngModelChange)="ngOnInit()">MQL
+        <input type="radio" name="language" [(ngModel)]="lang" value="mql" (ngModelChange)="ngOnInit()">MQL
       </label>
     </div>
 
     <!-- graphical-UI for SQL -->
-    <div *ngIf="selectedLanguage == 1">
+    <div *ngIf="lang === 'sql'">
       <p>Select columns from the left sidebar to get started. If needed, you can edit the generated SQL code.</p>
 
       <div class="input-group mb-3">
@@ -101,7 +101,7 @@
 
 
     <!-- graphical-UI for Cypher - Code from -->
-    <div *ngIf="selectedLanguage == 2">
+    <div *ngIf="lang === 'cypher'">
       <p>Select your namespace from the left sidebar.</p>
         <!-- TO DO: only if namespace from left sidebar is collected the part below should be shown-->
 
