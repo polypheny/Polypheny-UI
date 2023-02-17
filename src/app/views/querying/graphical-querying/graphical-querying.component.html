@@ -187,93 +187,119 @@
 
     <!-- graphical-UI for MQL -->
     <div *ngIf="lang === 'mql'">
-        <p>1. Choose what you would like to find.</p>
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <label class="input-group-text" for="mql-type">MATCH</label>
+        <p>1. Select your collection from the left sidebar.</p>
+
+        <div *ngIf="collectionName !== undefined">
+            <p>2. Choose how you want to find the elements.</p>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="mql-type">MATCH</label>
+                </div>
+                <select class="form-control" id="mql-type" [(ngModel)]="inputMatchMQL" (change)="generateMQL()">
+                    <option value="mql-and">all of ($and)</option>
+                    <option value="mql-or">any of ($or)</option>
+                    <option value="mql-nor">none of ($nor)</option>
+                </select>
             </div>
-            <select class="form-control" id="mql-type" [(ngModel)]="inputMatchMQL" (change)="generateMQL()">
-                <option value="mql-and">all of ($and)</option>
-                <option value="mql-or">any of ($or)</option>
-                <option value="mql-nor">none of ($nor)</option>
-            </select>
-        </div>
-        <p>2. Select the elements from the left sidebar.</p>
 
-        <div *ngIf="colList.length > 0">
-            <p>3. Fill in the details.</p>
-        </div>
+            <div *ngIf="inputMatchMQL !== ''">
+                <p>3. Fill in the details.</p>
 
-        <!-- Creating new field for each chosen column -->
-        <div *ngFor="let columns of colList; let i = index"> <!-- index differentiates each field-->
-            <div class="row">
-                <div class="col-lg-6 fixed-width">
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <label class="input-group-text" for="mql-boxes-{{columns}}">{{columns}}</label>
+            <!-- Creating new field for each chosen column -->
+                <div *ngFor="let columns of colList; let i = index"> <!-- index differentiates each field-->
+                    <div class="row">
+                        <div class="col-lg-4 fixed-width">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label for="mql-boxes-input-{{columns}}" class="input-group-text"></label>
+                                </div>
+                                <input type="text" id="mql-boxes-input-{{columns}}" class="form-control"
+                                       [(ngModel)]="inputTextMQL1[i]" (keyup)="generateMQL()" placeholder="key">
+                            </div>
                         </div>
-                        <select class="form-control" id="mql-boxes-{{columns}}" [(ngModel)]="inputDropdownMQL[i]" (change)="generateMQL()">
-                            <option value="{{columns}} : ">equals</option>
-                            <option value='{{columns}} : {"$ne" : '>does not equal</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-lg-6 fixed-width">
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <label for="mql-boxes-input-{{columns}}" class="input-group-text"></label>
+                        <div class="col-lg-3 fixed-width">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="mql-boxes-{{columns}}">{{columns}}</label>
+                                </div>
+                                <select class="form-control" id="mql-boxes-{{columns}}" [(ngModel)]="inputDropdownMQL[i]" (change)="generateMQL()">
+                                    <option value=" : ">equals</option>
+                                    <option value=' : {"$ne" : '>does not equal</option>
+                                </select>
+                            </div>
                         </div>
-                        <input type="text" id="mql-boxes-input-{{columns}}" class="form-control"
-                               [(ngModel)]="inputTextMQL[i]" (keyup)="generateMQL()" placeholder="your input">
+                        <div class="col-lg-4 fixed-width">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label for="mql-boxes-input-{{columns}}" class="input-group-text"></label>
+                                </div>
+                                <input type="text" id="mql-boxes-input-{{columns}}" class="form-control"
+                                       [(ngModel)]="inputTextMQL2[i]" (keyup)="generateMQL()" placeholder="object">
+                            </div>
+                        </div>
+                        <div class="col-lg-1 fixed-width">
+                            <div (click)="deleteMQLField(columns)">
+                                <button class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Button to add field -->
+                <div class="row" style="justify-content: center; max-width: 100%;">
+                    <div (click)="addMQLField()">
+                        <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
+                    </div>
+                </div>
+
+
+                <h5>Generated query</h5>
+                <p>Edit your code if needed.</p>
+                <div id="aceWrapper-mql" style="height: 150px">
+                    <app-editor #editorGenerated></app-editor>
+                </div>
+
+                <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
+                <button *ngIf="loading" class="btn btn-primary mb-3" disabled>Loading</button>
+
+                <div *ngIf="resultSet">
+                    <hr>
+                    <h5>Query Result</h5>
+                </div>
+
+                <div class="card " *ngIf="resultSet" id="result-graphical-mql">
+
+                    <div class="card-header">
+                        <span>{{resultSet.generatedQuery}}</span>
+                        <span class="badge pull-right"
+                              [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
+                      <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
+                      <ng-container *ngIf="resultSet.error">!</ng-container>
+                      </span>
+                    </div>
+
+                    <div class="card-body" style="padding-bottom: 0.25rem">
+                        <div class="text-danger" *ngIf="resultSet && resultSet.error">
+                            <strong>Error:</strong>
+                            <p class="mb-3">{{resultSet.error}}</p>
+                        </div>
+
+                        <div class="query-info">
+                            <p *ngIf="resultSet && !resultSet.data && !resultSet.error" class="mb-3">
+                                <i>Successfully executed</i>
+                            </p>
+                        </div>
+
+                        <div class="row" *ngIf="resultSet && resultSet.data">
+                            <div class="col-lg-12"  >
+                                <app-data-view [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}" [loading]="loading" (viewEditorCode)="createView($event)" (executeView)="executeView($event)"></app-data-view>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-
-        <h5>Generated query</h5>
-        <p>Edit your code if needed.</p>
-        <div id="aceWrapper-mql" style="height: 150px">
-            <app-editor #editorGenerated></app-editor>
-        </div>
-
-        <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
-        <button *ngIf="loading" class="btn btn-primary mb-3" disabled>Loading</button>
-
-        <div *ngIf="resultSet">
-            <hr>
-            <h5>Query Result</h5>
-        </div>
-
-        <div class="card " *ngIf="resultSet" id="result-graphical-mql">
-
-            <div class="card-header">
-                <span>{{resultSet.generatedQuery}}</span>
-                <span class="badge pull-right"
-                      [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
-              <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
-              <ng-container *ngIf="resultSet.error">!</ng-container>
-              </span>
-            </div>
-
-            <div class="card-body" style="padding-bottom: 0.25rem">
-                <div class="text-danger" *ngIf="resultSet && resultSet.error">
-                    <strong>Error:</strong>
-                    <p class="mb-3">{{resultSet.error}}</p>
-                </div>
-
-                <div class="query-info">
-                    <p *ngIf="resultSet && !resultSet.data && !resultSet.error" class="mb-3">
-                        <i>Successfully executed</i>
-                    </p>
-                </div>
-
-                <div class="row" *ngIf="resultSet && resultSet.data">
-                    <div class="col-lg-12"  >
-                        <app-data-view [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}" [loading]="loading" (viewEditorCode)="createView($event)" (executeView)="executeView($event)"></app-data-view>
-                    </div>
-                </div>
-            </div>
         </div>
 
     </div>

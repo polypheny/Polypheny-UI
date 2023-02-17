@@ -84,11 +84,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     inputMatch = '';
     inputWhere = '';
     inputReturn = '';
-    colList: string[] = [];
+    colList: string[] = ['1'];
     inputMatchMQL = '';
     inputDropdownMQL: string[] = [];
-    inputTextMQL: string[] = [];
+    inputTextMQL1: string[] = [];
+    inputTextMQL2: string[] = [];
     activeNamespace: string; // same usage as console.components.ts
+    collectionName: string;
+    fieldCounter = 1;
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace'; // same usage as console.components.ts
 
   ngOnInit() {
@@ -162,7 +165,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       );
     }
     else if (lang === 'cypher') {
-      this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.GRAPH])).subscribe(
+      this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 1, false, false, [DataModels.GRAPH])).subscribe(
           res => {
             const nodeAction = (tree, node, $event) => {
               console.log(node.id);
@@ -182,21 +185,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       );
     }
     else if (lang === 'mql') {
-      this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.DOCUMENT])).subscribe(
+      this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 2, false, false, [DataModels.DOCUMENT])).subscribe(
           res => {
             const nodeAction = (tree, node, $event) => { // TO DO: it only shows columns _id_ and _data_ but not correct ones.
               if (!node.isActive && node.isLeaf) {
-                console.log(node.data.name);
-                this.colList.push(node.data.id);
-                node.setIsActive(true, true); // TO DO: Find out what this does?
-              } else if (node.isActive && node.isLeaf) {
-                this.colList = this.colList.filter(col => col !== node.data.id); // removing specific column from the array by deselecting it in left sidebar
-                node.setIsActive(false, true); // TO DO: Find out what this does?
-
-                //deletes the selection if nothing is choosen
-                if (this.selectedColumn['column'].toString() === node.data.id) {
-                  this.selectedCol([]);
-                }
+                console.log(node.parent.id);
+                this.setDefaultDB(node.parent.id);
+                console.log(node.displayField);
+                this.collectionName = node.displayField;
               }
             };
 
@@ -420,6 +416,15 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
     }
 
+    addMQLField() {
+        this.fieldCounter += 1;
+        this.colList.push(String(this.fieldCounter));
+    }
+
+    deleteMQLField(name:string) {
+        this.colList = this.colList.filter(col => col !== name);
+    }
+
     async generateCypher() {
         let cypher = ''; //TO DO: dynamic namespace
         cypher += 'MATCH ' + this.inputMatch + '\nWHERE ' + this.inputWhere + '\nRETURN ' + this.inputReturn + ';';
@@ -430,23 +435,23 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         let mql = '';
         switch (this.inputMatchMQL) {
             case 'mql-and':
-                mql += 'db.getCollection("' + 'collection_name' + '").find({';
+                mql += 'db.getCollection("' + this.collectionName + '").find({';
                 break;
             case 'mql-or':
-                mql += 'db.getCollection("' + 'collection_name' + '").find({"$or" : [{';
+                mql += 'db.getCollection("' + this.collectionName + '").find({"$or" : [{';
                 break;
             case 'mql-nor':
-                mql += 'db.getCollection("' + 'collection_name' + '").find({"$nor" : [{';
+                mql += 'db.getCollection("' + this.collectionName + '").find({"$nor" : [{';
                 break;
         }
         for (let i = 0; i < this.inputDropdownMQL.length; i++) {
-            mql += this.inputDropdownMQL[i] + this.inputTextMQL[i];
+            mql += this.inputTextMQL1[i] + this.inputDropdownMQL[i] + this.inputTextMQL2[i];
             if (i+1 !== this.inputDropdownMQL.length) {
                 mql += ', ';
             }
         }
         // TO DO: if and
-        mql += '});';
+        mql += '})';
         // TO DO: if or
         // TO DO: if nor
         this.editorGenerated.setCode(mql);
