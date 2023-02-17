@@ -80,16 +80,18 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     tableId: string;
     config: TableConfig;
 
+
     inputMatch = '';
     inputWhere = '';
     inputReturn = '';
-
+    colList: string[] = [];
+    inputMatchMQL = '';
+    inputDropdownMQL: string[] = [];
+    inputTextMQL: string[] = [];
     activeNamespace: string; // same usage as console.components.ts
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace'; // same usage as console.components.ts
 
   ngOnInit() {
-    this._leftSidebar.close();
-    this.subscriptions.unsubscribe();
     this._leftSidebar.open();
     this.initSchema(this.lang);
         this.initGraphicalQuerying();
@@ -164,18 +166,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
           res => {
             const nodeAction = (tree, node, $event) => {
               console.log(node.id);
-              this.setDefaultDB(node.id); //changes the activeNamespace to the one chosen on the leftside
-                /*
-                if (!node.isActive && node.isLeaf) {
-                //node.setIsActive(true, true);
-                console.log('activated');
-                // here code to show graph
-
-              } else if (node.isActive && node.isLeaf) {
-                node.setIsActive(false, true);
-                  console.log('deactivated');
-                // here code to let graph disappear
-              }*/
+              this.setDefaultDB(node.id); //changes the activeNamespace to the one chosen on the left side
             };
 
             const schemaTemp = <SidebarNode[]>res;
@@ -193,13 +184,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     else if (lang === 'mql') {
       this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.DOCUMENT])).subscribe(
           res => {
-            const nodeAction = (tree, node, $event) => {
+            const nodeAction = (tree, node, $event) => { // TO DO: it only shows columns _id_ and _data_ but not correct ones.
               if (!node.isActive && node.isLeaf) {
-                this.addCol(node.data);
-                node.setIsActive(true, true);
+                console.log(node.data.name);
+                this.colList.push(node.data.id);
+                node.setIsActive(true, true); // TO DO: Find out what this does?
               } else if (node.isActive && node.isLeaf) {
-                node.setIsActive(false, true);
-                this.removeCol(node.data.id);
+                this.colList = this.colList.filter(col => col !== node.data.id); // removing specific column from the array by deselecting it in left sidebar
+                node.setIsActive(false, true); // TO DO: Find out what this does?
 
                 //deletes the selection if nothing is choosen
                 if (this.selectedColumn['column'].toString() === node.data.id) {
@@ -434,6 +426,32 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.editorGenerated.setCode(cypher);
     }
 
+    async generateMQL() {
+        let mql = '';
+        switch (this.inputMatchMQL) {
+            case 'mql-and':
+                mql += 'db.getCollection("' + 'collection_name' + '").find({';
+                break;
+            case 'mql-or':
+                mql += 'db.getCollection("' + 'collection_name' + '").find({"$or" : [{';
+                break;
+            case 'mql-nor':
+                mql += 'db.getCollection("' + 'collection_name' + '").find({"$nor" : [{';
+                break;
+        }
+        for (let i = 0; i < this.inputDropdownMQL.length; i++) {
+            mql += this.inputDropdownMQL[i] + this.inputTextMQL[i];
+            if (i+1 !== this.inputDropdownMQL.length) {
+                mql += ', ';
+            }
+        }
+        // TO DO: if and
+        mql += '});';
+        // TO DO: if or
+        // TO DO: if nor
+        this.editorGenerated.setCode(mql);
+    }
+
     async generateSQL() {
         this.whereCounter = 0;
         this.andCounter = 0;
@@ -534,7 +552,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.loading = true;
         const code = this.editorGenerated.getCode();
         console.log(code);
-        if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, this.lang, null))) {
+        console.log(this.activeNamespace);
+        if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, this.lang, this.activeNamespace))) {
             this.loading = false;
             this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
         }

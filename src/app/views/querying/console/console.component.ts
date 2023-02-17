@@ -184,6 +184,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
         this.loading = true;
         console.log(code);
+        console.log(this.activeNamespace);
         if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.lang, this.activeNamespace))) {
             this.loading = false;
             this.resultSets = [new ResultSet('Could not establish a connection with the server.', code)];
