@@ -418,12 +418,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     addMQLField() {
         this.fieldCounter += 1;
-        this.colList.push(String(this.fieldCounter));
+        this.colList.push(String(this.fieldCounter += 1));
     }
 
-    deleteMQLField(name:string) {
+    /*deleteMQLField(name:string) {
         this.colList = this.colList.filter(col => col !== name);
-    }
+    }*/
 
     async generateCypher() {
         let cypher = ''; //TO DO: dynamic namespace
@@ -436,24 +436,41 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         switch (this.inputMatchMQL) {
             case 'mql-and':
                 mql += 'db.getCollection("' + this.collectionName + '").find({';
+                for (let i = 0; i < this.inputDropdownMQL.length; i++) {
+                    if (this.inputDropdownMQL[i] === 'equal') {
+                        mql += this.inputTextMQL1[i] + ' : ' + this.inputTextMQL2[i];
+                    }
+                    else if (this.inputDropdownMQL[i] === 'notequal') {
+                        mql += this.inputTextMQL1[i] + ': {"$ne" : ' + this.inputTextMQL2[i] + '}';
+                    }
+                    if (i+1 !== this.inputDropdownMQL.length) {
+                        mql += ', ';
+                    }
+                }
+                mql += '})';
                 break;
             case 'mql-or':
-                mql += 'db.getCollection("' + this.collectionName + '").find({"$or" : [{';
-                break;
             case 'mql-nor':
-                mql += 'db.getCollection("' + this.collectionName + '").find({"$nor" : [{';
+                if (this.inputMatchMQL === 'mql-or') {
+                mql += 'db.getCollection("' + this.collectionName + '").find({"$or" : [';
+                }
+                else if (this.inputMatchMQL === 'mql-nor') {
+                mql += 'db.getCollection("' + this.collectionName + '").find({"$nor" : [';
+                }
+                for (let i = 0; i < this.inputDropdownMQL.length; i++) {
+                    if (this.inputDropdownMQL[i] === 'equal') {
+                        mql += '{' + this.inputTextMQL1[i] + ' : ' + this.inputTextMQL2[i] + '}';
+                    }
+                    else if (this.inputDropdownMQL[i] === 'notequal') {
+                        mql += '{' + this.inputTextMQL1[i] + ': {"$ne" : ' + this.inputTextMQL2[i] + '}}';
+                    }
+                    if (i+1 !== this.inputDropdownMQL.length) {
+                        mql += ', ';
+                    }
+                }
+                mql += ']})';
                 break;
         }
-        for (let i = 0; i < this.inputDropdownMQL.length; i++) {
-            mql += this.inputTextMQL1[i] + this.inputDropdownMQL[i] + this.inputTextMQL2[i];
-            if (i+1 !== this.inputDropdownMQL.length) {
-                mql += ', ';
-            }
-        }
-        // TO DO: if and
-        mql += '})';
-        // TO DO: if or
-        // TO DO: if nor
         this.editorGenerated.setCode(mql);
     }
 

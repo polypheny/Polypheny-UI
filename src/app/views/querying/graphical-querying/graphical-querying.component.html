@@ -220,11 +220,11 @@
                         <div class="col-lg-3 fixed-width">
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
-                                    <label class="input-group-text" for="mql-boxes-{{columns}}">{{columns}}</label>
+                                    <label class="input-group-text" for="mql-boxes-{{columns}}"></label>
                                 </div>
                                 <select class="form-control" id="mql-boxes-{{columns}}" [(ngModel)]="inputDropdownMQL[i]" (change)="generateMQL()">
-                                    <option value=" : ">equals</option>
-                                    <option value=' : {"$ne" : '>does not equal</option>
+                                    <option value="equal">equals</option>
+                                    <option value="notequal">does not equal</option>
                                 </select>
                             </div>
                         </div>
@@ -234,25 +234,21 @@
                                     <label for="mql-boxes-input-{{columns}}" class="input-group-text"></label>
                                 </div>
                                 <input type="text" id="mql-boxes-input-{{columns}}" class="form-control"
-                                       [(ngModel)]="inputTextMQL2[i]" (keyup)="generateMQL()" placeholder="object">
+                                       [(ngModel)]="inputTextMQL2[i]" (keyup)="generateMQL()" placeholder="value">
                             </div>
                         </div>
-                        <div class="col-lg-1 fixed-width">
-                            <div (click)="deleteMQLField(columns)">
-                                <button class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
 
                 <!-- Button to add field -->
-                <div class="row" style="justify-content: center; max-width: 100%;">
-                    <div (click)="addMQLField()">
+                <div class="row" style="justify-content: center; max-width: 100%; ">
+                    <div (click)="addMQLField()" style="margin-right: 0.5em;">
                         <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
                     </div>
+                    <div (click)="this.colList.pop()" style="margin-left: 0.5em;">
+                        <button class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                    </div>
                 </div>
-
 
                 <h5>Generated query</h5>
                 <p>Edit your code if needed.</p>
