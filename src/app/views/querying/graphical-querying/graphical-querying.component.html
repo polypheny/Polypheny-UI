@@ -1,26 +1,26 @@
 <div class="row" style="position: relative;">
     <div class="col-lg-12 col-sm-12" style="margin-bottom: 1em;">
 
-    <h5>Graphical Querying</h5>
+        <h5>Graphical Querying</h5>
 
-    <!-- choosing the query language -->
-    <!-- ngModel: hiding parts depending on language. ngModelChange: change Typescript ngOnInit for leftSidebar-->
-        <!-- TO DO: when changing language it should get back to its default state-->
-    <p>Select your query language:</p>
-    <div class="btn-group-horizontal btn-group" id="radio" data-toggle="buttons">
+        <!-- choosing the query language -->
+        <!-- ngModel: hiding parts depending on language. ngModelChange: change Typescript ngOnInit for leftSidebar-->
+            <!-- TO DO: when changing language it should get back to its default state-->
+        <p>Select your query language:</p>
+        <div class="btn-group-horizontal btn-group" id="radio" data-toggle="buttons">
       <label class="btn btn-secondary">
-        <input type="radio" name="language" [(ngModel)]="lang" value="sql" (ngModelChange)="ngOnInit()">SQL
+        <input type="radio" name="language" [(ngModel)]="lang" value="sql" (ngModelChange)="ngOnInit(); setDefaultState('sql')">SQL
       </label>
       <label class="btn btn-secondary">
-        <input type="radio" name="language" [(ngModel)]="lang" value="cypher" (ngModelChange)="ngOnInit()">Cypher
+        <input type="radio" name="language" [(ngModel)]="lang" value="cypher" (ngModelChange)="ngOnInit(); setDefaultState('cypher')">Cypher
       </label>
       <label class="btn btn-secondary">
-        <input type="radio" name="language" [(ngModel)]="lang" value="mql" (ngModelChange)="ngOnInit()">MQL
+        <input type="radio" name="language" [(ngModel)]="lang" value="mql" (ngModelChange)="ngOnInit(); setDefaultState('mql')">MQL
       </label>
     </div>
 
-    <!-- graphical-UI for SQL -->
-    <div *ngIf="lang === 'sql'">
+        <!-- graphical-UI for SQL -->
+        <div *ngIf="lang === 'sql'">
       <p>Select columns from the left sidebar to get started. If needed, you can edit the generated SQL code.</p>
 
       <div class="input-group mb-3">
@@ -100,10 +100,10 @@
       </div>
     </div>
 
-    <!-- graphical-UI for Cypher - Code from -->
-    <div *ngIf="lang === 'cypher'">
-      <p>Select your namespace from the left sidebar.</p>
-        <!-- TO DO: only if namespace from left sidebar is collected the part below should be shown-->
+        <!-- graphical-UI for Cypher - Code from -->
+        <div *ngIf="lang === 'cypher'">
+            <p>1. Select your graph from the left sidebar: {{ graphName !== undefined ? ' ' + graphName : '' }}</p>
+            <div *ngIf="graphName !== undefined">
 
      <!-- Code for Graph - From data-view.component.html-->
         <!--
@@ -113,158 +113,68 @@
       </ng-container>
       -->
       <!-- End Code for Graph -->
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <label for="cypher-match" class="input-group-text">MATCH</label>
-                </div>
-                <input type="text" id="cypher-match" class="form-control" placeholder="your input"
-                       [(ngModel)]="inputMatch" (keyup)="generateCypher()">
-                        <!--[ngClass]="createSchemaValidation(createForm.controls['name'].value)"-->
-            </div>
-
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <label for="cypher-where" class="input-group-text">WHERE</label>
-                </div>
-                <input type="text" id="cypher-where" placeholder="your input" class="form-control"
-                       [(ngModel)]="inputWhere" (keyup)="generateCypher()">
-            </div>
-
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <label for="cypher-return" class="input-group-text">RETURN</label>
-                </div>
-                <input type="text" id="cypher-return" placeholder="your input" autocomplete="off" class="form-control"
-                       [(ngModel)]="inputReturn" (keyup)="generateCypher()">
-            </div>
-
-      <h5>Generated query</h5>
-      <p>Edit your code if needed.</p>
-      <div id="aceWrapper-cypher" style="height: 150px">
-        <app-editor #editorGenerated></app-editor>
-      </div>
-
-      <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
-      <button *ngIf="loading" class="btn btn-primary mb-3" disabled>Loading</button>
-
-      <div *ngIf="resultSet">
-        <hr>
-        <h5>Query Result</h5>
-      </div>
-
-      <div class="card " *ngIf="resultSet" id="result-graphical-cypher">
-
-            <div class="card-header">
-                <span>{{resultSet.generatedQuery}}</span>
-                <span class="badge pull-right"
-                      [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
-              <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
-              <ng-container *ngIf="resultSet.error">!</ng-container>
-              </span>
-            </div>
-
-            <div class="card-body" style="padding-bottom: 0.25rem">
-                <div class="text-danger" *ngIf="resultSet && resultSet.error">
-                    <strong>Error:</strong>
-                    <p class="mb-3">{{resultSet.error}}</p>
-                </div>
-
-          <div class="query-info">
-            <p *ngIf="resultSet && !resultSet.data && !resultSet.error" class="mb-3">
-              <i>Successfully executed</i>
-            </p>
-          </div>
-
-          <div class="row" *ngIf="resultSet && resultSet.data">
-            <div class="col-lg-12"  >
-              <app-data-view [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}" [loading]="loading" (viewEditorCode)="createView($event)" (executeView)="executeView($event)"></app-data-view>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- graphical-UI for MQL -->
-    <div *ngIf="lang === 'mql'">
-        <p>1. Select your collection from the left sidebar.</p>
-
-        <div *ngIf="collectionName !== undefined">
-            <p>2. Choose how you want to find the elements.</p>
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <label class="input-group-text" for="mql-type">MATCH</label>
-                </div>
-                <select class="form-control" id="mql-type" [(ngModel)]="inputMatchMQL" (change)="generateMQL()">
-                    <option value="mql-and">all of ($and)</option>
-                    <option value="mql-or">any of ($or)</option>
-                    <option value="mql-nor">none of ($nor)</option>
-                </select>
-            </div>
-
-            <div *ngIf="inputMatchMQL !== ''">
-                <p>3. Fill in the details.</p>
-
-            <!-- Creating new field for each chosen column -->
-                <div *ngFor="let columns of colList; let i = index"> <!-- index differentiates each field-->
-                    <div class="row">
-                        <div class="col-lg-4 fixed-width">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <label for="mql-boxes-input-{{columns}}" class="input-group-text"></label>
-                                </div>
-                                <input type="text" id="mql-boxes-input-{{columns}}" class="form-control"
-                                       [(ngModel)]="inputTextMQL1[i]" (keyup)="generateMQL()" placeholder="key">
+                <p>2. Fill in the details.</p>
+                <div class="row">
+                    <div class="col-lg-4 fixed-width">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <label for="cypher-match-node" class="input-group-text">MATCH</label>
                             </div>
+                            <input type="text" id="cypher-match-node" class="form-control"
+                                   [(ngModel)]="inputMatch[0]" (keyup)="generateCypher()" placeholder="Node">
                         </div>
-                        <div class="col-lg-3 fixed-width">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <label class="input-group-text" for="mql-boxes-{{columns}}"></label>
-                                </div>
-                                <select class="form-control" id="mql-boxes-{{columns}}" [(ngModel)]="inputDropdownMQL[i]" (change)="generateMQL()">
-                                    <option value="equal">equals</option>
-                                    <option value="notequal">does not equal</option>
-                                </select>
+                    </div>
+                    <div class="col-lg-4 fixed-width">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <label for="cypher-match-rel" class="input-group-text"></label>
                             </div>
+                            <input type="text" id="cypher-match-rel" class="form-control"
+                                   [(ngModel)]="inputMatch[1]" (keyup)="generateCypher()" placeholder="Optional : Relationship">
                         </div>
-                        <div class="col-lg-4 fixed-width">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <label for="mql-boxes-input-{{columns}}" class="input-group-text"></label>
-                                </div>
-                                <input type="text" id="mql-boxes-input-{{columns}}" class="form-control"
-                                       [(ngModel)]="inputTextMQL2[i]" (keyup)="generateMQL()" placeholder="value">
+                    </div>
+                    <div class="col-lg-4 fixed-width">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <label for="cypher-match-node2" class="input-group-text"></label>
                             </div>
+                            <input type="text" id="cypher-match-node2" class="form-control"
+                                   [(ngModel)]="inputMatch[2]" (keyup)="generateCypher()" placeholder="Optional : Node">
                         </div>
                     </div>
                 </div>
 
-                <!-- Button to add field -->
-                <div class="row" style="justify-content: center; max-width: 100%; ">
-                    <div (click)="addMQLField()" style="margin-right: 0.5em;">
-                        <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label for="cypher-where" class="input-group-text">WHERE</label>
                     </div>
-                    <div (click)="this.colList.pop()" style="margin-left: 0.5em;">
-                        <button class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                    <input type="text" id="cypher-where" placeholder="Optional : Condition" class="form-control"
+                          [(ngModel)]="inputWhere" (keyup)="generateCypher()">
+                </div>
+
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label for="cypher-return" class="input-group-text">RETURN</label>
                     </div>
+                    <input type="text" id="cypher-return" placeholder="Node" autocomplete="off" class="form-control"
+                          [(ngModel)]="inputReturn" (keyup)="generateCypher()">
                 </div>
 
                 <h5>Generated query</h5>
-                <p>Edit your code if needed.</p>
-                <div id="aceWrapper-mql" style="height: 150px">
+                    <p>Edit your code if needed.</p>
+                    <div id="aceWrapper-cypher" style="height: 150px">
                     <app-editor #editorGenerated></app-editor>
-                </div>
+                    </div>
 
-                <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
-                <button *ngIf="loading" class="btn btn-primary mb-3" disabled>Loading</button>
+                    <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
+                    <button *ngIf="loading" class="btn btn-primary mb-3" disabled>Loading</button>
 
-                <div *ngIf="resultSet">
-                    <hr>
-                    <h5>Query Result</h5>
-                </div>
+                    <div *ngIf="resultSet">
+                        <hr>
+                        <h5>Query Result</h5>
+                    </div>
 
-                <div class="card " *ngIf="resultSet" id="result-graphical-mql">
+                <div class="card " *ngIf="resultSet" id="result-graphical-cypher">
 
                     <div class="card-header">
                         <span>{{resultSet.generatedQuery}}</span>
@@ -283,28 +193,136 @@
 
                         <div class="query-info">
                             <p *ngIf="resultSet && !resultSet.data && !resultSet.error" class="mb-3">
-                                <i>Successfully executed</i>
+                              <i>Successfully executed</i>
                             </p>
                         </div>
 
                         <div class="row" *ngIf="resultSet && resultSet.data">
                             <div class="col-lg-12"  >
-                                <app-data-view [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}" [loading]="loading" (viewEditorCode)="createView($event)" (executeView)="executeView($event)"></app-data-view>
+                              <app-data-view [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}" [loading]="loading" (viewEditorCode)="createView($event)" (executeView)="executeView($event)"></app-data-view>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
 
+        <!-- graphical-UI for MQL -->
+        <div *ngIf="lang === 'mql'">
+            <p>1. Select your collection from the left sidebar: {{ collectionName !== undefined ? ' ' + collectionName : '' }}</p>
+
+            <div *ngIf="collectionName !== undefined">
+                <p>2. Choose how you want to find the elements.</p>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="mql-type">MATCH</label>
+                    </div>
+                    <select class="form-control" id="mql-type" [(ngModel)]="inputMatchMQL" (change)="generateMQL()">
+                        <option value="mql-and">all of ($and)</option>
+                        <option value="mql-or">any of ($or)</option>
+                        <option value="mql-nor">none of ($nor)</option>
+                    </select>
+                </div>
+
+                <div *ngIf="inputMatchMQL !== ''">
+                    <p>3. Fill in the details.</p>
+
+                <!-- Creating new field for each chosen column -->
+                    <div *ngFor="let columns of colList; let i = index"> <!-- index differentiates each field-->
+                        <div class="row">
+                            <div class="col-lg-4 fixed-width">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <label for="mql-boxes-input-{{columns}}" class="input-group-text"></label>
+                                    </div>
+                                    <input type="text" id="mql-boxes-input-{{columns}}" class="form-control"
+                                           [(ngModel)]="inputTextMQL1[i]" (keyup)="generateMQL()" placeholder="key">
+                                </div>
+                            </div>
+                            <div class="col-lg-3 fixed-width">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="mql-boxes-{{columns}}"></label>
+                                    </div>
+                                    <select class="form-control" id="mql-boxes-{{columns}}" [(ngModel)]="inputDropdownMQL[i]" (change)="generateMQL()">
+                                        <option value="equal">equals</option>
+                                        <option value="notequal">does not equal</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 fixed-width">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <label for="mql-boxes-input-{{columns}}" class="input-group-text"></label>
+                                    </div>
+                                    <input type="text" id="mql-boxes-input-{{columns}}" class="form-control"
+                                           [(ngModel)]="inputTextMQL2[i]" (keyup)="generateMQL()" placeholder="value">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Button to add field -->
+                    <div class="row" style="justify-content: center; max-width: 100%; ">
+                        <div (click)="addMQLField()" style="margin-right: 0.5em;">
+                            <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
+                        </div>
+                        <div (click)="deleteMQLField()" style="margin-left: 0.5em;">
+                            <button class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                        </div>
+                    </div>
+
+                    <h5>Generated query</h5>
+                    <p>Edit your code if needed.</p>
+                    <div id="aceWrapper-mql" style="height: 150px">
+                        <app-editor #editorGenerated></app-editor>
+                    </div>
+
+                    <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
+                    <button *ngIf="loading" class="btn btn-primary mb-3" disabled>Loading</button>
+
+                    <div *ngIf="resultSet">
+                        <hr>
+                        <h5>Query Result</h5>
+                    </div>
+
+                    <div class="card " *ngIf="resultSet" id="result-graphical-mql">
+
+                        <div class="card-header">
+                            <span>{{resultSet.generatedQuery}}</span>
+                            <span class="badge pull-right"
+                                  [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
+                          <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
+                          <ng-container *ngIf="resultSet.error">!</ng-container>
+                          </span>
+                        </div>
+
+                        <div class="card-body" style="padding-bottom: 0.25rem">
+                            <div class="text-danger" *ngIf="resultSet && resultSet.error">
+                                <strong>Error:</strong>
+                                <p class="mb-3">{{resultSet.error}}</p>
+                            </div>
+
+                            <div class="query-info">
+                                <p *ngIf="resultSet && !resultSet.data && !resultSet.error" class="mb-3">
+                                    <i>Successfully executed</i>
+                                </p>
+                            </div>
+
+                            <div class="row" *ngIf="resultSet && resultSet.data">
+                                <div class="col-lg-12"  >
+                                    <app-data-view [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}" [loading]="loading" (viewEditorCode)="createView($event)" (executeView)="executeView($event)"></app-data-view>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
+</div>
 
-
-
-    </div>
-
-  </div>
 
 
 <div class="col-lg-12" id="results">

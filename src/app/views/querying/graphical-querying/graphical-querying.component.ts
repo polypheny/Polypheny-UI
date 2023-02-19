@@ -76,22 +76,22 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     // new additions by me:
     lang: string; // usage as lang in console.component.hmtl 'sql', 'cypher', 'mql'
-
     tableId: string;
     config: TableConfig;
-
-
-    inputMatch = '';
+    // cypher input fields
+    inputMatch: string[] = ['','','']; // three input fields for match
     inputWhere = '';
     inputReturn = '';
-    colList: string[] = ['1'];
+    colList: string[] = ['1']; // each newly created input field in mql gets another value
+    // mql input fields
     inputMatchMQL = '';
     inputDropdownMQL: string[] = [];
     inputTextMQL1: string[] = [];
     inputTextMQL2: string[] = [];
     activeNamespace: string; // same usage as console.components.ts
     collectionName: string;
-    fieldCounter = 1;
+    graphName: string;
+    fieldCounter = 0;
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace'; // same usage as console.components.ts
 
   ngOnInit() {
@@ -169,6 +169,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
           res => {
             const nodeAction = (tree, node, $event) => {
               console.log(node.id);
+              this.graphName = node.id;
               this.setDefaultDB(node.id); //changes the activeNamespace to the one chosen on the left side
             };
 
@@ -409,6 +410,43 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         return '"' + k.split('.').join('"."') + '"';
     }
 
+    setDefaultState(inputlang: string) { //sets the field values to zero if the user switches languages
+        switch (inputlang) {
+            case 'sql':
+                this.collectionName = undefined;
+                this.graphName = undefined;
+                this.inputMatchMQL = '';
+                this.inputDropdownMQL = [];
+                this.inputTextMQL1 = [];
+                this.inputTextMQL2 = [];
+                this.fieldCounter = 1;
+                document.getElementById('mql-type').onclick = () => {
+                    this.inputMatchMQL = null;
+                };
+                this.inputMatch = ['','','']; // three input fields for match
+                this.inputWhere = '';
+                this.inputReturn = '';
+                break;
+            case 'cypher':
+                this.collectionName = undefined;
+                this.inputMatchMQL = '';
+                this.inputDropdownMQL = [];
+                this.inputTextMQL1 = [];
+                this.inputTextMQL2 = [];
+                this.fieldCounter = 1;
+                document.getElementById('mql-type').onclick = () => {
+                    this.inputMatchMQL = null;
+                };
+                break;
+            case 'mql':
+                this.graphName = undefined;
+                this.inputMatch = ['','','']; // three input fields for match
+                this.inputWhere = '';
+                this.inputReturn = '';
+                break;
+        }
+    }
+
     // inspired by the same function in console.component.ts
     private setDefaultDB(name: string) {
         name = name.trim();
@@ -418,16 +456,34 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     addMQLField() {
         this.fieldCounter += 1;
-        this.colList.push(String(this.fieldCounter += 1));
+        this.colList.push(String(this.fieldCounter));
     }
 
-    /*deleteMQLField(name:string) {
-        this.colList = this.colList.filter(col => col !== name);
-    }*/
+    deleteMQLField() {
+        //this.colList = this.colList.filter(col => col !== name);
+        this.colList.pop();
+        this.inputDropdownMQL[this.fieldCounter] = '';
+        this.inputTextMQL1[this.fieldCounter] = '';
+        this.inputTextMQL2[this.fieldCounter] = '';
+        if (this.fieldCounter > -1) { // fixes bug if delete icon is clicked if there are no fields left
+            this.fieldCounter -= 1;
+        }
+        this.generateMQL();
+    }
 
     async generateCypher() {
         let cypher = ''; //TO DO: dynamic namespace
-        cypher += 'MATCH ' + this.inputMatch + '\nWHERE ' + this.inputWhere + '\nRETURN ' + this.inputReturn + ';';
+        cypher += 'MATCH ';
+        if (this.inputMatch[1] === '') {
+            cypher += '(' + this.inputMatch[0] + ')';
+        }
+        else {
+            cypher += '(' + this.inputMatch[0] + ')-[' + this.inputMatch[1] + ']->(' + this.inputMatch[2] + ')';
+        }
+        if (this.inputWhere !== '') {
+            cypher += '\nWHERE ' + this.inputWhere;
+        }
+        cypher += '\nRETURN ' + this.inputReturn + ';';
         this.editorGenerated.setCode(cypher);
     }
 
@@ -443,7 +499,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                     else if (this.inputDropdownMQL[i] === 'notequal') {
                         mql += this.inputTextMQL1[i] + ': {"$ne" : ' + this.inputTextMQL2[i] + '}';
                     }
-                    if (i+1 !== this.inputDropdownMQL.length) {
+                    if (i+1 <= this.inputDropdownMQL.length - 1 && this.inputDropdownMQL[i+1] !== '') {
                         mql += ', ';
                     }
                 }
