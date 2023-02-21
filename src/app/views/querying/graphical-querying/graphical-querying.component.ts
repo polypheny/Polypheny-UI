@@ -79,9 +79,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     tableId: string;
     config: TableConfig;
     // cypher input fields
-    inputMatch: string[] = ['','','']; // three input fields for match
+    inputMatch = '';
     inputWhere = '';
     inputReturn = '';
+    inputDropdownCypher: string;
+
+    inputRelationship: string[] = ['','','','']; // [0] = Relationship, [1] = Node, [2] = 2.Relationship, [3] = 2.Node
     colList: string[] = ['1']; // each newly created input field in mql gets another value
     // mql input fields
     inputMatchMQL = '';
@@ -423,9 +426,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 document.getElementById('mql-type').onclick = () => {
                     this.inputMatchMQL = null;
                 };
-                this.inputMatch = ['','','']; // three input fields for match
+                this.inputMatch = ''; // three input fields for match
                 this.inputWhere = '';
                 this.inputReturn = '';
+                this.inputRelationship = ['','','',''];
                 break;
             case 'cypher':
                 this.collectionName = undefined;
@@ -440,9 +444,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
             case 'mql':
                 this.graphName = undefined;
-                this.inputMatch = ['','','']; // three input fields for match
+                this.inputMatch = ''; // three input fields for match
                 this.inputWhere = '';
                 this.inputReturn = '';
+                this.inputRelationship = ['','','',''];
                 break;
         }
     }
@@ -472,13 +477,18 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     async generateCypher() {
-        let cypher = ''; //TO DO: dynamic namespace
-        cypher += 'MATCH ';
-        if (this.inputMatch[1] === '') {
-            cypher += '(' + this.inputMatch[0] + ')';
-        }
-        else {
-            cypher += '(' + this.inputMatch[0] + ')-[' + this.inputMatch[1] + ']->(' + this.inputMatch[2] + ')';
+        let cypher = '';
+        cypher += 'MATCH ' + '(' + this.inputMatch + ')';
+        switch (this.inputDropdownCypher) {
+            case 'cypher-outgoing':
+                cypher += '-->(' + this.inputRelationship[1] + ')';
+                break;
+            case 'cypher-directed':
+                cypher += '-[' + this.inputRelationship[0] + ']->(' + this.inputRelationship[1] + ')';
+                break;
+            case 'cypher-multiple':
+                cypher += '-[' + this.inputRelationship[0] + ']->(' + this.inputRelationship[1] + ')<-[' + this.inputRelationship[2] + ']-(' + this.inputRelationship[3] + ')';
+                break;
         }
         if (this.inputWhere !== '') {
             cypher += '\nWHERE ' + this.inputWhere;
