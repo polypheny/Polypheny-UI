@@ -489,15 +489,30 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     async generateMQL() {
         let mql = '';
+        //BUG: Special case if they are the same key, they have to get in the same bracket
         switch (this.inputMatchMQL) {
             case 'mql-and':
                 mql += 'db.getCollection("' + this.collectionName + '").find({';
                 for (let i = 0; i < this.inputDropdownMQL.length; i++) {
-                    if (this.inputDropdownMQL[i] === 'equal') {
-                        mql += this.inputTextMQL1[i] + ' : ' + this.inputTextMQL2[i];
-                    }
-                    else if (this.inputDropdownMQL[i] === 'notequal') {
-                        mql += this.inputTextMQL1[i] + ': {"$ne" : ' + this.inputTextMQL2[i] + '}';
+                    switch (this.inputDropdownMQL[i]) {
+                        case 'equal':
+                            mql += this.inputTextMQL1[i] + ' : ' + this.inputTextMQL2[i];
+                            break;
+                        case 'notequal':
+                            mql += this.inputTextMQL1[i] + ': {"$ne" : ' + this.inputTextMQL2[i] + '}';
+                            break;
+                        case 'greater':
+                            mql += this.inputTextMQL1[i] + ': {"$gt" : ' + this.inputTextMQL2[i] + '}';
+                            break;
+                        case 'lesser':
+                            mql += this.inputTextMQL1[i] + ': {"$lt" : ' + this.inputTextMQL2[i] + '}';
+                            break;
+                        //case 'contains':
+                        //    mql += this.inputTextMQL1[i] + ' : /.*' + this.inputTextMQL2[i] + '.*/i';
+                        //    break;
+                        //case 'notcontains':
+                        //    mql += this.inputTextMQL1[i] + ': {"$not" : /.*' + this.inputTextMQL2[i] + '.*/i}';
+                        //    break;*//
                     }
                     if (i+1 <= this.inputDropdownMQL.length - 1 && this.inputDropdownMQL[i+1] !== '') {
                         mql += ', ';
@@ -508,19 +523,33 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             case 'mql-or':
             case 'mql-nor':
                 if (this.inputMatchMQL === 'mql-or') {
-                mql += 'db.getCollection("' + this.collectionName + '").find({"$or" : [';
+                    mql += 'db.getCollection("' + this.collectionName + '").find({"$or" : [';
                 }
                 else if (this.inputMatchMQL === 'mql-nor') {
-                mql += 'db.getCollection("' + this.collectionName + '").find({"$nor" : [';
+                    mql += 'db.getCollection("' + this.collectionName + '").find({"$nor" : [';
                 }
                 for (let i = 0; i < this.inputDropdownMQL.length; i++) {
-                    if (this.inputDropdownMQL[i] === 'equal') {
-                        mql += '{' + this.inputTextMQL1[i] + ' : ' + this.inputTextMQL2[i] + '}';
+                    switch (this.inputDropdownMQL[i]) {
+                        case 'equal':
+                            mql += '{' + this.inputTextMQL1[i] + ' : ' + this.inputTextMQL2[i] + '}';
+                            break;
+                        case 'notequal':
+                            mql += '{' + this.inputTextMQL1[i] + ': {"$ne" : ' + this.inputTextMQL2[i] + '}}';
+                            break;
+                        case 'greater':
+                            mql += '{' + this.inputTextMQL1[i] + ': {"$gt" : ' + this.inputTextMQL2[i] + '}}';
+                            break;
+                        case 'lesser':
+                            mql += '{' + this.inputTextMQL1[i] + ': {"$lt" : ' + this.inputTextMQL2[i] + '}}';
+                            break;
+                        //case 'contains':
+                        //    mql += this.inputTextMQL1[i] + ' : /.*' + this.inputTextMQL2[i] + '.*/i';
+                        //    break;
+                        //case 'notcontains':
+                        //    mql += this.inputTextMQL1[i] + ': {"$not" : /.*' + this.inputTextMQL2[i] + '.*/i}';
+                        //    break;*//
                     }
-                    else if (this.inputDropdownMQL[i] === 'notequal') {
-                        mql += '{' + this.inputTextMQL1[i] + ': {"$ne" : ' + this.inputTextMQL2[i] + '}}';
-                    }
-                    if (i+1 !== this.inputDropdownMQL.length) {
+                    if (i+1 <= this.inputDropdownMQL.length - 1 && this.inputDropdownMQL[i+1] !== '') {
                         mql += ', ';
                     }
                 }
