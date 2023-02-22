@@ -79,18 +79,18 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     tableId: string;
     config: TableConfig;
     // cypher input fields
-    inputMatch = '';
-    inputWhere = '';
-    inputReturn = '';
-    inputDropdownCypher: string;
+    cypherMatch = '';
+    cypherWhere = '';
+    cypherReturn = '';
+    cypherDropdown: string;
 
-    inputRelationship: string[] = ['','','','']; // [0] = Relationship, [1] = Node, [2] = 2.Relationship, [3] = 2.Node
-    colList: string[] = ['1']; // each newly created input field in mql gets another value
+    cypherRelationship: string[] = ['','','','']; // [0] = Relationship, [1] = Node, [2] = 2.Relationship, [3] = 2.Node
+    fieldList: string[] = ['0']; // each newly created input field in mql gets another value
     // mql input fields
-    inputMatchMQL = '';
-    inputDropdownMQL: string[] = [];
-    inputTextMQL1: string[] = [];
-    inputTextMQL2: string[] = [];
+    mqlMatch = '';
+    mqlDropdown: string[] = [];
+    mqlText1: string[] = [];
+    mqlTest2: string[] = [];
     activeNamespace: string; // same usage as console.components.ts
     collectionName: string;
     graphName: string;
@@ -418,36 +418,38 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             case 'sql':
                 this.collectionName = undefined;
                 this.graphName = undefined;
-                this.inputMatchMQL = '';
-                this.inputDropdownMQL = [];
-                this.inputTextMQL1 = [];
-                this.inputTextMQL2 = [];
-                this.fieldCounter = 1;
+                this.mqlMatch = '';
+                this.mqlDropdown = [];
+                this.mqlText1 = [];
+                this.mqlTest2 = [];
+                this.fieldCounter = 0;
+                this.fieldList = ['0'];
                 document.getElementById('mql-type').onclick = () => {
-                    this.inputMatchMQL = null;
+                    this.mqlMatch = null;
                 };
-                this.inputMatch = ''; // three input fields for match
-                this.inputWhere = '';
-                this.inputReturn = '';
-                this.inputRelationship = ['','','',''];
+                this.cypherMatch = ''; // three input fields for match
+                this.cypherWhere = '';
+                this.cypherReturn = '';
+                this.cypherRelationship = ['','','',''];
                 break;
             case 'cypher':
                 this.collectionName = undefined;
-                this.inputMatchMQL = '';
-                this.inputDropdownMQL = [];
-                this.inputTextMQL1 = [];
-                this.inputTextMQL2 = [];
-                this.fieldCounter = 1;
+                this.mqlMatch = '';
+                this.mqlDropdown = [];
+                this.mqlText1 = [];
+                this.mqlTest2 = [];
+                this.fieldCounter = 0;
                 document.getElementById('mql-type').onclick = () => {
-                    this.inputMatchMQL = null;
+                    this.mqlMatch = null;
                 };
+                this.fieldList = ['0'];
                 break;
             case 'mql':
                 this.graphName = undefined;
-                this.inputMatch = ''; // three input fields for match
-                this.inputWhere = '';
-                this.inputReturn = '';
-                this.inputRelationship = ['','','',''];
+                this.cypherMatch = ''; // three input fields for match
+                this.cypherWhere = '';
+                this.cypherReturn = '';
+                this.cypherRelationship = ['','','',''];
                 break;
         }
     }
@@ -461,70 +463,71 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     addMQLField() {
         this.fieldCounter += 1;
-        this.colList.push(String(this.fieldCounter));
+        this.fieldList.push(String(this.fieldCounter));
     }
 
-    deleteMQLField() {
-        //this.colList = this.colList.filter(col => col !== name);
-        this.colList.pop();
-        this.inputDropdownMQL[this.fieldCounter] = '';
-        this.inputTextMQL1[this.fieldCounter] = '';
-        this.inputTextMQL2[this.fieldCounter] = '';
-        if (this.fieldCounter > -1) { // fixes bug if delete icon is clicked if there are no fields left
-            this.fieldCounter -= 1;
-        }
+    deleteMQLField(field:string) {
+        const x = Number(field);
+        this.mqlDropdown[x] = '';
+        this.mqlText1[x] = '';
+        this.mqlTest2[x] = '';
+        this.fieldList[x] = '';
         this.generateMQL();
     }
 
     async generateCypher() {
         let cypher = '';
-        cypher += 'MATCH ' + '(' + this.inputMatch + ')';
-        switch (this.inputDropdownCypher) {
+        cypher += 'MATCH ' + '(' + this.cypherMatch + ')';
+        switch (this.cypherDropdown) {
             case 'cypher-outgoing':
-                cypher += '-->(' + this.inputRelationship[1] + ')';
+                cypher += '-->(' + this.cypherRelationship[1] + ')';
                 break;
             case 'cypher-directed':
-                cypher += '-[' + this.inputRelationship[0] + ']->(' + this.inputRelationship[1] + ')';
+                cypher += '-[' + this.cypherRelationship[0] + ']->(' + this.cypherRelationship[1] + ')';
                 break;
             case 'cypher-multiple':
-                cypher += '-[' + this.inputRelationship[0] + ']->(' + this.inputRelationship[1] + ')<-[' + this.inputRelationship[2] + ']-(' + this.inputRelationship[3] + ')';
+                cypher += '-[' + this.cypherRelationship[0] + ']->(' + this.cypherRelationship[1] + ')<-[' + this.cypherRelationship[2] + ']-(' + this.cypherRelationship[3] + ')';
                 break;
         }
-        if (this.inputWhere !== '') {
-            cypher += '\nWHERE ' + this.inputWhere;
+        if (this.cypherWhere !== '') {
+            cypher += '\nWHERE ' + this.cypherWhere;
         }
-        cypher += '\nRETURN ' + this.inputReturn + ';';
+        cypher += '\nRETURN ' + this.cypherReturn + ';';
         this.editorGenerated.setCode(cypher);
     }
 
     async generateMQL() {
         let mql = '';
         //BUG: Special case if they are the same key, they have to get in the same bracket
-        switch (this.inputMatchMQL) {
+        // Filter empty fields
+        const mqlDropdownf = this.mqlDropdown.filter((el) => el !== '');
+        const mqlText1f = this.mqlText1.filter((_, idx) => mqlDropdownf[idx]);
+        const mqlText2f = this.mqlTest2.filter((_, idx) => mqlDropdownf[idx]);
+        switch (this.mqlMatch) {
             case 'mql-and':
                 mql += 'db.getCollection("' + this.collectionName + '").find({';
-                for (let i = 0; i < this.inputDropdownMQL.length; i++) {
-                    switch (this.inputDropdownMQL[i]) {
+                for (let i = 0; i < mqlDropdownf.length; i++) {
+                    switch (mqlDropdownf[i]) {
                         case 'equal':
-                            mql += this.inputTextMQL1[i] + ' : ' + this.inputTextMQL2[i];
+                            mql += mqlText1f[i] + ' : ' + mqlText2f[i];
                             break;
                         case 'notequal':
-                            mql += this.inputTextMQL1[i] + ': {"$ne" : ' + this.inputTextMQL2[i] + '}';
+                            mql += mqlText1f[i] + ': {"$ne" : ' + mqlText2f[i] + '}';
                             break;
                         case 'greater':
-                            mql += this.inputTextMQL1[i] + ': {"$gt" : ' + this.inputTextMQL2[i] + '}';
+                            mql += mqlText1f[i] + ': {"$gt" : ' + mqlText2f[i] + '}';
                             break;
                         case 'lesser':
-                            mql += this.inputTextMQL1[i] + ': {"$lt" : ' + this.inputTextMQL2[i] + '}';
+                            mql += mqlText1f[i] + ': {"$lt" : ' + mqlText2f[i] + '}';
                             break;
-                        //case 'contains':
-                        //    mql += this.inputTextMQL1[i] + ' : /.*' + this.inputTextMQL2[i] + '.*/i';
-                        //    break;
-                        //case 'notcontains':
-                        //    mql += this.inputTextMQL1[i] + ': {"$not" : /.*' + this.inputTextMQL2[i] + '.*/i}';
-                        //    break;*//
+                        case 'contains':
+                            mql += mqlText1f[i] + ' : {$regex: \'/.*' + mqlText2f[i] + '.*/i\'}';
+                            break;
+                        case 'notcontains':
+                            mql += mqlText1f[i] + ': {"$not" : /.*' + mqlText2f[i] + '.*/i}';
+                            break;
                     }
-                    if (i+1 <= this.inputDropdownMQL.length - 1 && this.inputDropdownMQL[i+1] !== '') {
+                    if (i+1 <= mqlDropdownf.length - 1 && mqlDropdownf[i+1] !== '') {
                         mql += ', ';
                     }
                 }
@@ -532,34 +535,34 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
             case 'mql-or':
             case 'mql-nor':
-                if (this.inputMatchMQL === 'mql-or') {
+                if (this.mqlMatch === 'mql-or') {
                     mql += 'db.getCollection("' + this.collectionName + '").find({"$or" : [';
                 }
-                else if (this.inputMatchMQL === 'mql-nor') {
+                else if (this.mqlMatch === 'mql-nor') {
                     mql += 'db.getCollection("' + this.collectionName + '").find({"$nor" : [';
                 }
-                for (let i = 0; i < this.inputDropdownMQL.length; i++) {
-                    switch (this.inputDropdownMQL[i]) {
+                for (let i = 0; i < mqlDropdownf.length; i++) {
+                    switch (mqlDropdownf[i]) {
                         case 'equal':
-                            mql += '{' + this.inputTextMQL1[i] + ' : ' + this.inputTextMQL2[i] + '}';
+                            mql += '{' + mqlText1f[i] + ' : ' + mqlText2f[i] + '}';
                             break;
                         case 'notequal':
-                            mql += '{' + this.inputTextMQL1[i] + ': {"$ne" : ' + this.inputTextMQL2[i] + '}}';
+                            mql += '{' + mqlText1f[i] + ': {"$ne" : ' + mqlText2f[i] + '}}';
                             break;
                         case 'greater':
-                            mql += '{' + this.inputTextMQL1[i] + ': {"$gt" : ' + this.inputTextMQL2[i] + '}}';
+                            mql += '{' + mqlText1f[i] + ': {"$gt" : ' + mqlText2f[i] + '}}';
                             break;
                         case 'lesser':
-                            mql += '{' + this.inputTextMQL1[i] + ': {"$lt" : ' + this.inputTextMQL2[i] + '}}';
+                            mql += '{' + mqlText1f[i] + ': {"$lt" : ' + mqlText2f[i] + '}}';
                             break;
-                        //case 'contains':
-                        //    mql += this.inputTextMQL1[i] + ' : /.*' + this.inputTextMQL2[i] + '.*/i';
-                        //    break;
-                        //case 'notcontains':
-                        //    mql += this.inputTextMQL1[i] + ': {"$not" : /.*' + this.inputTextMQL2[i] + '.*/i}';
-                        //    break;*//
+                        case 'contains':
+                            mql += mqlText1f[i] + ' : /.*' + mqlText2f[i] + '.*/i';
+                            break;
+                        case 'notcontains':
+                            mql += mqlText1f[i] + ': {"$not" : /.*' + mqlText2f[i] + '.*/i}';
+                            break;
                     }
-                    if (i+1 <= this.inputDropdownMQL.length - 1 && this.inputDropdownMQL[i+1] !== '') {
+                    if (i+1 <= mqlDropdownf.length - 1 && mqlDropdownf[i+1] !== '') {
                         mql += ', ';
                     }
                 }
