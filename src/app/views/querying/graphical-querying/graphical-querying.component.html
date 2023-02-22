@@ -290,7 +290,7 @@
                                                [(ngModel)]="mqlText1[i]" (keyup)="generateMQL()" placeholder="key">
                                     </div>
                                 </div>
-                                <div class="col-lg-2 fixed-width">
+                                <div class="col-lg-3 fixed-width">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
                                             <label class="input-group-text" for="mql-boxes-{{fieldNumber}}"></label>
@@ -322,12 +322,28 @@
                         </div>
                     </div>
 
-                    <!-- Button to add field -->
+                    <div class="input-group justify-content-center mt-3">
+                        <div (mouseleave)="setMenuShow(false)" (mouseenter)="menuEnter()">
+                            <button class="btn btn-primary toggle-insert" (click)="setMenuShow(true)" type="button"><i
+                                    class="fa fa-plus"></i></button>
+                                <ul *ngIf="show" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false)">
+                                    <li>
+                                        <div class="dropdown-item" (click)="addMQLField()"><i class="cui-plus"></i>Add Key-Object</div>
+                                    </li>
+                                    <li>
+                                        <div class="dropdown-item" (click)="addMQLField()"><i class="cui-plus"></i>Add Row</div>
+                                    </li>
+                                </ul>
+                        </div>
+                    </div>
+
+
+                    <!-- Button to add field
                     <div class="row" style="justify-content: center; max-width: 100%; ">
                         <div (click)="addMQLField()" style="margin-right: 0.5em;">
                             <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
                         </div>
-                    </div>
+                    </div> -->
 
                     <h5>Generated query</h5>
                     <p>Edit your code if needed.</p>

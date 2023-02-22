@@ -56,3 +56,17 @@
   padding-right: 0;
 }
 
+//Dropdown
+.json-dropdown {
+  display: block;
+  // center block
+  margin: 0 auto;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.show-error {
+  display: block !important;
+}
+

@@ -97,6 +97,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     fieldCounter = 0;
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace'; // same usage as console.components.ts
 
+    show = false;
+    private debounce: any;
+    private debounceDelay = 200;
+    showError: boolean;
+
+
   ngOnInit() {
     this._leftSidebar.open();
     this.initSchema(this.lang);
@@ -459,6 +465,28 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         name = name.trim();
         this.activeNamespace = name;
         localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
+    }
+
+    //taken from json-editor.component.ts
+    setMenuShow(doShow: boolean, instant = false) {
+        if (instant) {
+            this.show = doShow;
+            return;
+        }
+        if (!doShow) {
+            this.debounce = setTimeout(() => {
+                this.show = false;
+            }, this.debounceDelay);
+        } else {
+            this.show = true;
+        }
+    }
+
+    //taken from json-editor.component.ts
+    menuEnter() {
+        if (this.show) {
+            clearTimeout(this.debounce);
+        }
     }
 
     addMQLField() {
