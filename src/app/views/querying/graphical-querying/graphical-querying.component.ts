@@ -86,22 +86,25 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     cypherRelationship: string[] = ['','','','']; // [0] = Relationship, [1] = Node, [2] = 2.Relationship, [3] = 2.Node
     fieldList: string[] = ['0']; // each newly created input field in mql gets another value
+    fieldDepth: number[] = [0];
+    fieldDepthCounter = 0;
     // mql input fields
     mqlMatch = '';
     mqlDropdown: string[] = [];
+    mqlTextX: string[] =[];
     mqlText1: string[] = [];
-    mqlTest2: string[] = [];
+    mqlText2: string[] = [];
     activeNamespace: string; // same usage as console.components.ts
     collectionName: string;
     graphName: string;
     fieldCounter = 0;
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace'; // same usage as console.components.ts
 
+    // Dropdown
     show = false;
     private debounce: any;
     private debounceDelay = 200;
     showError: boolean;
-
 
   ngOnInit() {
     this._leftSidebar.open();
@@ -426,10 +429,13 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.graphName = undefined;
                 this.mqlMatch = '';
                 this.mqlDropdown = [];
+                this.mqlTextX = [];
                 this.mqlText1 = [];
-                this.mqlTest2 = [];
+                this.mqlText2 = [];
                 this.fieldCounter = 0;
                 this.fieldList = ['0'];
+                this.fieldDepth = [];
+                this.fieldDepthCounter = 0;
                 document.getElementById('mql-type').onclick = () => {
                     this.mqlMatch = null;
                 };
@@ -442,13 +448,16 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.collectionName = undefined;
                 this.mqlMatch = '';
                 this.mqlDropdown = [];
+                this.mqlTextX = [];
                 this.mqlText1 = [];
-                this.mqlTest2 = [];
+                this.mqlText2 = [];
                 this.fieldCounter = 0;
                 document.getElementById('mql-type').onclick = () => {
                     this.mqlMatch = null;
                 };
                 this.fieldList = ['0'];
+                this.fieldDepth = [];
+                this.fieldDepthCounter = 0;
                 break;
             case 'mql':
                 this.graphName = undefined;
@@ -489,16 +498,49 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
-    addMQLField() {
+    addMQLField() { // 'normal new Field'
         this.fieldCounter += 1;
         this.fieldList.push(String(this.fieldCounter));
+        this.fieldDepthCounter = 0;
+        this.fieldDepth.push(this.fieldDepthCounter);
+    }
+
+    addMQLFieldKeyObject() { // adding a property
+        this.fieldCounter += 1;
+        this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
+        this.fieldDepthCounter += 1;
+        this.fieldDepth.push(this.fieldDepthCounter);
+    }
+
+    addMQLFieldKeyObject2() { // staying on the same 'level' of property
+        this.fieldCounter += 1;
+        this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
+        this.fieldDepth.push(this.fieldDepthCounter);
+    }
+
+    prependKeyObject(depth: number, index: number) { //creating the dot notation for objects
+        let prependText = '';
+        if (depth !== 0) {
+            prependText = '"';
+            for (let i = this.mqlText1.length - 1; i >= 0; i--) { //searches elements in array with lower depth to append for dot-notation
+                if (this.fieldDepth[i] < depth) {
+                    prependText += this.mqlText1[i] + '.';
+                    break;
+                }
+            }
+        }
+        this.mqlText1[index] = prependText + this.mqlTextX[index];
+        if (depth !==0) {
+            this.mqlText1[index] += '"';
+        }
+        console.log(this.fieldDepth[index]);
     }
 
     deleteMQLField(field:string) {
         const x = Number(field);
         this.mqlDropdown[x] = '';
         this.mqlText1[x] = '';
-        this.mqlTest2[x] = '';
+        this.mqlText2[x] = '';
         this.fieldList[x] = '';
         this.generateMQL();
     }
@@ -528,9 +570,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         let mql = '';
         //BUG: Special case if they are the same key, they have to get in the same bracket
         // Filter empty fields
-        const mqlDropdownf = this.mqlDropdown.filter((el) => el !== '');
-        const mqlText1f = this.mqlText1.filter((_, idx) => mqlDropdownf[idx]);
-        const mqlText2f = this.mqlTest2.filter((_, idx) => mqlDropdownf[idx]);
+        const mqlDropdownf = this.mqlDropdown; //.filter((el) => el !== '');
+        const mqlText1f = this.mqlText1; //.filter((_, idx) => mqlDropdownf[idx]);
+        const mqlText2f = this.mqlText2; //.filter((_, idx) => mqlDropdownf[idx]);
         switch (this.mqlMatch) {
             case 'mql-and':
                 mql += 'db.getCollection("' + this.collectionName + '").find({';
@@ -555,7 +597,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                             mql += mqlText1f[i] + ': {"$not" : /.*' + mqlText2f[i] + '.*/i}';
                             break;
                     }
-                    if (i+1 <= mqlDropdownf.length - 1 && mqlDropdownf[i+1] !== '') {
+                    if (i+1 <= mqlDropdownf.length - 1 && mqlDropdownf[i] !== undefined) {
                         mql += ', ';
                     }
                 }
@@ -590,7 +632,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                             mql += mqlText1f[i] + ': {"$not" : /.*' + mqlText2f[i] + '.*/i}';
                             break;
                     }
-                    if (i+1 <= mqlDropdownf.length - 1 && mqlDropdownf[i+1] !== '') {
+                    if (i+1 <= mqlDropdownf.length - 1 && mqlDropdownf[i] !== undefined) {
                         mql += ', ';
                     }
                 }
