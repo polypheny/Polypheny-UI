@@ -521,8 +521,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     prependKeyObject(depth: number, index: number) { //creating the dot notation for objects
         let prependText = '';
-        if (depth !== 0) {
-            prependText = '"';
+        if (depth !== 0) { //does not have to iterarate through this if depth 0
             for (let i = this.mqlText1.length - 1; i >= 0; i--) { //searches elements in array with lower depth to append for dot-notation
                 if (this.fieldDepth[i] < depth) {
                     prependText += this.mqlText1[i] + '.';
@@ -531,10 +530,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             }
         }
         this.mqlText1[index] = prependText + this.mqlTextX[index];
-        if (depth !==0) {
-            this.mqlText1[index] += '"';
-        }
-        console.log(this.fieldDepth[index]);
     }
 
     deleteMQLField(field:string) {
@@ -586,22 +581,22 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 for (let i = 0; i < mqlDropdownf.length; i++) {
                     switch (mqlDropdownf[i]) {
                         case 'equal':
-                            mql += mqlText1f[i] + ' : ' + mqlText2f[i];
+                            mql += '"' + mqlText1f[i] + '" : ' + mqlText2f[i];
                             break;
                         case 'notequal':
-                            mql += mqlText1f[i] + ': {"$ne" : ' + mqlText2f[i] + '}';
+                            mql += '"' + mqlText1f[i] + '" : {"$ne" : ' + mqlText2f[i] + '}';
                             break;
                         case 'greater':
-                            mql += mqlText1f[i] + ': {"$gt" : ' + mqlText2f[i] + '}';
+                            mql += '"' + mqlText1f[i] + '" : {"$gt" : ' + mqlText2f[i] + '}';
                             break;
                         case 'lesser':
-                            mql += mqlText1f[i] + ': {"$lt" : ' + mqlText2f[i] + '}';
+                            mql += '"' + mqlText1f[i] + '" : {"$lt" : ' + mqlText2f[i] + '}';
                             break;
                         case 'contains':
-                            mql += mqlText1f[i] + ' : {$regex: \'/.*' + mqlText2f[i] + '.*/i\'}';
+                            mql += '"' + mqlText1f[i] + '" : {$regex: \'/.*' + mqlText2f[i] + '.*/i\'}';
                             break;
                         case 'notcontains':
-                            mql += mqlText1f[i] + ': {"$not" : /.*' + mqlText2f[i] + '.*/i}';
+                            mql += '"' + mqlText1f[i] + '" : {"$not" : /.*' + mqlText2f[i] + '.*/i}';
                             break;
                     }
                     if (i+1 <= mqlDropdownf.length - 1) {
@@ -621,22 +616,22 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 for (let i = 0; i < mqlDropdownf.length; i++) {
                     switch (mqlDropdownf[i]) {
                         case 'equal':
-                            mql += '{' + mqlText1f[i] + ' : ' + mqlText2f[i] + '}';
+                            mql += '{"' + mqlText1f[i] + '" : ' + mqlText2f[i] + '}';
                             break;
                         case 'notequal':
-                            mql += '{' + mqlText1f[i] + ': {"$ne" : ' + mqlText2f[i] + '}}';
+                            mql += '{"' + mqlText1f[i] + '" : {"$ne" : ' + mqlText2f[i] + '}}';
                             break;
                         case 'greater':
-                            mql += '{' + mqlText1f[i] + ': {"$gt" : ' + mqlText2f[i] + '}}';
+                            mql += '{"' + mqlText1f[i] + '" : {"$gt" : ' + mqlText2f[i] + '}}';
                             break;
                         case 'lesser':
-                            mql += '{' + mqlText1f[i] + ': {"$lt" : ' + mqlText2f[i] + '}}';
+                            mql += '{"' + mqlText1f[i] + '" : {"$lt" : ' + mqlText2f[i] + '}}';
                             break;
                         case 'contains':
-                            mql += mqlText1f[i] + ' : /.*' + mqlText2f[i] + '.*/i';
+                            mql += '"' + mqlText1f[i] + '" : /.*' + mqlText2f[i] + '.*/i';
                             break;
                         case 'notcontains':
-                            mql += mqlText1f[i] + ': {"$not" : /.*' + mqlText2f[i] + '.*/i}';
+                            mql += '"' + mqlText1f[i] + '" : {"$not" : /.*' + mqlText2f[i] + '.*/i}';
                             break;
                     }
                     if (i+1 <= mqlDropdownf.length - 1) {
