@@ -279,49 +279,47 @@
 
                 <!-- Creating new field for each chosen column -->
                     <div *ngFor="let fieldNumber of fieldList; let i = index"> <!-- index differentiates each field-->
-                        <div *ngIf="fieldNumber !==''">
-                            <div class="row" [style.padding-left.em]="this.fieldDepth[i]">
-                                <div class="col-lg-4 fixed-width">
+                        <div class="row" [style.padding-left.em]="this.fieldDepth[i]">
+                            <div class="col-lg-4 fixed-width">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <label for="mql-boxes-input-{{fieldNumber}}" class="input-group-text"></label>
+                                    </div>
+                                    <input type="text" id="mql-boxes-input-{{fieldNumber}}" class="form-control"
+                                        [(ngModel)]="mqlTextX[i]" (keyup)="prependKeyObject(this.fieldDepth[i], i); generateMQL()" placeholder="key">
+                                </div>
+                            </div>
+                            <div class="col-lg-3 fixed-width">
+                                <div *ngIf="i == this.fieldDepth.length-1 || this.fieldDepth[i] >= this.fieldDepth[i+1]"> <!-- is key of object-->
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="mql-boxes-{{fieldNumber}}"></label>
+                                        </div>
+                                        <select class="form-control" id="mql-boxes-{{fieldNumber}}" [(ngModel)]="mqlDropdown[i]" (change)="generateMQL()">
+                                            <option value="equal">equals</option>
+                                            <option value="notequal">does not equal</option>
+                                            <option value="greater">is greater than</option>
+                                            <option value="lesser">is less than</option>
+                                            <option value="contains">contains</option>
+                                            <option value="notcontains">does not contain</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 fixed-width">
+                                <div *ngIf="i == this.fieldDepth.length-1 || this.fieldDepth[i] >= this.fieldDepth[i+1]"> <!--is key of object-->
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
                                             <label for="mql-boxes-input-{{fieldNumber}}" class="input-group-text"></label>
                                         </div>
                                         <input type="text" id="mql-boxes-input-{{fieldNumber}}" class="form-control"
-                                               [(ngModel)]="mqlTextX[i]" (keyup)="prependKeyObject(this.fieldDepth[i], i); generateMQL()" placeholder="key">
+                                            [(ngModel)]="mqlText2[i]" (keyup)="generateMQL()" placeholder="value">
                                     </div>
                                 </div>
-                                <div class="col-lg-3 fixed-width">
-                                    <div *ngIf="i == this.fieldDepth.length-1 || this.fieldDepth[i] >= this.fieldDepth[i+1]"> <!-- is key of object-->
-                                        <div class="input-group mb-3">
-                                            <div class="input-group-prepend">
-                                                <label class="input-group-text" for="mql-boxes-{{fieldNumber}}"></label>
-                                            </div>
-                                            <select class="form-control" id="mql-boxes-{{fieldNumber}}" [(ngModel)]="mqlDropdown[i]" (change)="generateMQL()">
-                                                <option value="equal">equals</option>
-                                                <option value="notequal">does not equal</option>
-                                                <option value="greater">is greater than</option>
-                                                <option value="lesser">is less than</option>
-                                                <option value="contains">contains</option>
-                                                <option value="notcontains">does not contain</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4 fixed-width">
-                                    <div *ngIf="i == this.fieldDepth.length-1 || this.fieldDepth[i] >= this.fieldDepth[i+1]"> <!--is key of object-->
-                                        <div class="input-group mb-3">
-                                            <div class="input-group-prepend">
-                                                <label for="mql-boxes-input-{{fieldNumber}}" class="input-group-text"></label>
-                                            </div>
-                                            <input type="text" id="mql-boxes-input-{{fieldNumber}}" class="form-control"
-                                                   [(ngModel)]="mqlText2[i]" (keyup)="generateMQL()" placeholder="value">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-1 fixed-width">
-                                <!-- Button to delete field -->
-                                    <button id="button-mql-{{fieldNumber}}" (click)="deleteMQLField(fieldNumber)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
-                                </div>
+                            </div>
+                            <div class="col-lg-1 fixed-width">
+                            <!-- Button to delete field -->
+                                <button id="button-mql-{{fieldNumber}}" (click)="deleteMQLField(fieldNumber)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
                             </div>
                         </div>
                     </div>

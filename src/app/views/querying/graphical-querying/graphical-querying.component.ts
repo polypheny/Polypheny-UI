@@ -510,6 +510,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
         this.fieldDepthCounter += 1;
         this.fieldDepth.push(this.fieldDepthCounter);
+        //this.mqlDropdown[] = undefined;// deleting equal from field before
     }
 
     addMQLFieldKeyObject2() { // staying on the same 'level' of property
@@ -538,11 +539,16 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     deleteMQLField(field:string) {
         const x = Number(field);
-        this.mqlDropdown[x] = undefined;
-        this.mqlText1[x] = '';
-        this.mqlText2[x] = '';
-        this.fieldList[x] = '';
-        this.mqlTextX[x] = '';
+        this.mqlDropdown.splice(x, 1);
+        this.mqlText1.splice(x, 1);
+        this.mqlText2.splice(x, 1);
+        this.fieldList.pop();
+        this.mqlTextX.splice(x, 1);
+        if (x === this.mqlText1.length - 1 && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
+            this.fieldDepthCounter = this.fieldDepth[x - 1];
+        }
+        this.fieldDepth.splice(x, 1);
+        this.fieldCounter -= 1;
         this.generateMQL();
     }
 
@@ -571,7 +577,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         let mql = '';
         //BUG: Special case if they are the same key, they have to get in the same bracket
         // Filter empty fields
-        const mqlDropdownf = this.mqlDropdown.filter((el) => el !== '' && el !== undefined);
+        const mqlDropdownf = this.mqlDropdown.filter((el) => el !== '');
         const mqlText2f = this.mqlText2.filter((_, idx) => this.mqlDropdown[idx]);
         const mqlText1f = this.mqlText1.filter((_, idx) => this.mqlDropdown[idx]);
         switch (this.mqlMatch) {
