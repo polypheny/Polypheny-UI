@@ -91,7 +91,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     // mql input fields
     mqlMatch = '';
     mqlDropdown: string[] = [];
-    mqlTextX: string[] =[];
+    mqlTextX: string[] = [];
     mqlText1: string[] = [];
     mqlText2: string[] = [];
     activeNamespace: string; // same usage as console.components.ts
@@ -434,7 +434,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.mqlText2 = [];
                 this.fieldCounter = 0;
                 this.fieldList = ['0'];
-                this.fieldDepth = [];
+                this.fieldDepth = [0];
                 this.fieldDepthCounter = 0;
                 document.getElementById('mql-type').onclick = () => {
                     this.mqlMatch = null;
@@ -456,7 +456,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                     this.mqlMatch = null;
                 };
                 this.fieldList = ['0'];
-                this.fieldDepth = [];
+                this.fieldDepth = [0];
                 this.fieldDepthCounter = 0;
                 break;
             case 'mql':
@@ -538,10 +538,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     deleteMQLField(field:string) {
         const x = Number(field);
-        this.mqlDropdown[x] = '';
+        this.mqlDropdown[x] = undefined;
         this.mqlText1[x] = '';
         this.mqlText2[x] = '';
         this.fieldList[x] = '';
+        this.mqlTextX[x] = '';
         this.generateMQL();
     }
 
@@ -570,9 +571,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         let mql = '';
         //BUG: Special case if they are the same key, they have to get in the same bracket
         // Filter empty fields
-        const mqlDropdownf = this.mqlDropdown; //.filter((el) => el !== '');
-        const mqlText1f = this.mqlText1; //.filter((_, idx) => mqlDropdownf[idx]);
-        const mqlText2f = this.mqlText2; //.filter((_, idx) => mqlDropdownf[idx]);
+        const mqlDropdownf = this.mqlDropdown.filter((el) => el !== '' && el !== undefined);
+        const mqlText2f = this.mqlText2.filter((_, idx) => this.mqlDropdown[idx]);
+        const mqlText1f = this.mqlText1.filter((_, idx) => this.mqlDropdown[idx]);
         switch (this.mqlMatch) {
             case 'mql-and':
                 mql += 'db.getCollection("' + this.collectionName + '").find({';
@@ -597,7 +598,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                             mql += mqlText1f[i] + ': {"$not" : /.*' + mqlText2f[i] + '.*/i}';
                             break;
                     }
-                    if (i+1 <= mqlDropdownf.length - 1 && mqlDropdownf[i] !== undefined) {
+                    if (i+1 <= mqlDropdownf.length - 1) {
                         mql += ', ';
                     }
                 }
@@ -632,7 +633,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                             mql += mqlText1f[i] + ': {"$not" : /.*' + mqlText2f[i] + '.*/i}';
                             break;
                     }
-                    if (i+1 <= mqlDropdownf.length - 1 && mqlDropdownf[i] !== undefined) {
+                    if (i+1 <= mqlDropdownf.length - 1) {
                         mql += ', ';
                     }
                 }
@@ -640,6 +641,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
         }
         this.editorGenerated.setCode(mql);
+        console.log(mqlDropdownf);
+        console.log(mqlText1f);
+        console.log(mqlText2f);
     }
 
     async generateSQL() {
