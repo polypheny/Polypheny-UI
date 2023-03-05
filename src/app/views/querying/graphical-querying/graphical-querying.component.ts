@@ -665,7 +665,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         mql += '"' + this.mqlText1[i] + '" : {"$not" : /.*' + this.mqlText2[i] + '.*/i}';
                         break;
                     case 'type':
-                        mql += '"' + this.mqlText1[i] + '" : {"$type:" : ' + this.mqlText2[i] + '}';
+                        mql += '"' + this.mqlText1[i] + '" : {"$type" : ' + this.mqlText2[i] + '}';
                         break;
                 }
                 if (isInsideLogicalCondition.length !== 0){
