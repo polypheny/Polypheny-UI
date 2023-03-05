@@ -88,7 +88,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     fieldList: string[] = ['0']; // each newly created input field in mql gets another value
     fieldDepth: number[] = [0];
     fieldDepthCounter = 0;
-    logicalDepth: number[] = [0];
+    logicalDepth: number[] = [-1];
     logicalDepthCounter = 0;
     // mql input fields
     mqlDropdown: string[] = [];
@@ -524,7 +524,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.fieldList.push(String(this.fieldCounter));
         this.fieldDepthCounter = 0;
         this.fieldDepth.push(this.fieldDepthCounter);
-        this.logicalDepth.push(this.logicalDepthCounter);
+        this.logicalDepth.push(-1);
     }
 
     addMQLFieldKeyObject() { // adding a property
@@ -532,7 +532,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
         this.fieldDepthCounter += 1;
         this.fieldDepth.push(this.fieldDepthCounter);
-        this.logicalDepth.push(this.logicalDepthCounter);
+        this.logicalDepth.push(-1);
         //this.mqlDropdown[] = undefined;// deleting equal from field before
     }
 
@@ -540,15 +540,15 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.fieldCounter += 1;
         this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
         this.fieldDepth.push(this.fieldDepthCounter);
-        this.logicalDepth.push(this.logicalDepthCounter);
+        this.logicalDepth.push(-1);
     }
 
     addLogicalOperator(logical: string) { // adding Logical Operator AND or OR
         this.fieldCounter += 1;
         this.fieldList.push(logical); //adding addition marker to fieldList
         this.fieldDepth.push(this.fieldDepthCounter);
-        this.logicalDepthCounter += 1;
         this.logicalDepth.push(this.logicalDepthCounter);
+        this.logicalDepthCounter += 1;
         this.logicalOperatorStack.push(logical);
     }
 
@@ -578,13 +578,32 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.mqlDropdown.splice(x, 1);
         this.mqlText1.splice(x, 1);
         this.mqlText2.splice(x, 1);
-        this.fieldList.splice(x, 1);
         this.mqlTextX.splice(x, 1);
         if (x === this.mqlText1.length - 1 && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
             this.fieldDepthCounter = this.fieldDepth[x - 1];
         }
         this.fieldDepth.splice(x, 1);
         this.fieldCounter -= 1;
+        if (this.fieldList[x] === 'AND' || this.fieldList[x] === 'OR' || this.fieldList[x] === 'END') { //Deleting logical Operator and its END
+            const indicesToRemove: number[] = [];
+            for (let i = x; i < this.fieldList.length; i++) {
+                if (this.logicalDepth[i] === this.logicalDepth[x]) { //should only delete the next element of logical Operator
+                    indicesToRemove.push(i);
+                    if (indicesToRemove.length === 2) {
+                        break;
+                    }
+                }
+            }
+            this.fieldList = this.fieldList.filter((_, index) => !indicesToRemove.includes(index));
+            this.logicalDepth = this.logicalDepth.filter((_, index) => !indicesToRemove.includes(index));
+            if (indicesToRemove.length === 1) { // there is no END, so the logical depth counter has to be substracted
+                this.logicalDepthCounter -= 1;
+            }
+        }
+        else {
+            this.fieldList.splice(x, 1);
+            this.logicalDepth.splice(x, 1);
+        }
         this.generateMQL();
     }
 
@@ -611,11 +630,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     async generateMQL() {
         let mql = '';
-        //BUG: Special case if they are the same key, they have to get in the same bracket
-        // Filter empty fields
-        //const mqlDropdownf = this.mqlDropdown.filter((el) => el !== '');
-        //const mqlText2f = this.mqlText2.filter((_, idx) => this.mqlDropdown[idx]);
-        //const mqlText1f = this.mqlText1.filter((_, idx) => this.mqlDropdown[idx]);
         const isInsideLogicalCondition = [];
         mql += 'db.getCollection("' + this.collectionName + '").find({';
         for (let i = 0; i < this.fieldList.length; i++) {

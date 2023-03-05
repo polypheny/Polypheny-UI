@@ -269,17 +269,29 @@
                 <div *ngFor="let fieldNumber of fieldList; let i = index"> <!-- index differentiates each field-->
                     <div *ngIf="fieldNumber === 'AND'">
                         <div class="row" [style.padding-left.em]="this.logicalDepth[i]">
-                            <b>AND</b>
+                            <div class="col-lg-11 fixed-width">
+                                <b>AND</b>
+                            </div>
+                            <div class="col-lg-1 fixed-width">
+                                <button id="button-mql-{{i}}" (click)="deleteMQLField(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                            </div>
                         </div>
                     </div>
                     <div *ngIf="fieldNumber === 'OR'">
                         <div class="row" [style.padding-left.em]="this.logicalDepth[i]">
-                            <b>OR</b>
+                            <div class="col-lg-11 fixed-width">
+                                <b>OR</b>
+                            </div>
+                            <div class="col-lg-1 fixed-width">
+                                <button id="button-mql-{{i}}" (click)="deleteMQLField(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                            </div>
                         </div>
                     </div>
                     <div *ngIf="fieldNumber === 'END'">
-                        <div class="row" [style.padding-left.em]="this.logicalDepth[i] + 1">
-                            <b>END</b>
+                        <div class="row" [style.padding-left.em]="this.logicalDepth[i]">
+                            <div class="col-lg-12 fixed-width">
+                                <b>END</b>
+                            </div>
                         </div>
                     </div>
                     <div *ngIf="fieldNumber !== 'AND' && fieldNumber !== 'OR' && fieldNumber !== 'END'">
