@@ -83,8 +83,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     cypherWhere = '';
     cypherReturn = '';
     cypherDropdown: string;
-
     cypherRelationship: string[] = ['','','','']; // [0] = Relationship, [1] = Node, [2] = 2.Relationship, [3] = 2.Node
+    fieldListCypher: string[] = [];
     fieldList: string[] = ['0']; // each newly created input field in mql gets another value
     fieldDepth: number[] = [0];
     fieldDepthCounter = 0;
@@ -437,6 +437,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.mqlText2 = [];
                 this.fieldCounter = 0;
                 this.logicalDepth = [0];
+                this.logicalOperatorStack = [];
                 this.fieldList = ['0'];
                 this.fieldDepth = [0];
                 this.fieldDepthCounter = 0;
@@ -458,6 +459,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldDepthCounter = 0;
                 this.logicalDepth = [0];
                 this.logicalDepthCounter = 0;
+                this.logicalOperatorStack = [];
                 break;
             case 'mql':
                 this.graphName = undefined;
@@ -519,6 +521,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
+    addCypherField(type: string) {
+        this.fieldListCypher.push(type);
+    }
+
     addMQLField() { // 'normal new Field'
         this.fieldCounter += 1;
         this.fieldList.push(String(this.fieldCounter));
@@ -572,6 +578,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             }
         }
         this.mqlText1[index] = prependText + this.mqlTextX[index];
+    }
+
+    deleteCypherField(x:number) {
+        this.fieldListCypher.splice(x, 1);
     }
 
     deleteMQLField(x:number) {
@@ -701,16 +711,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
         mql += '})';
         this.editorGenerated.setCode(mql);
-    }
-
-    findMatchingIndex(array1: any[], array2: any[]): number {
-        for (let i = 0; i < array1.length; i++) {
-            const matchingIndex = array2.indexOf(array1[i]);
-            if (matchingIndex !== -1) {
-                return matchingIndex;
-            }
-        }
-        return -1;
     }
 
     async generateSQL() {
