@@ -75,6 +75,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     // new additions by me:
+
+    nodeLabels: string[] = ['Movie', 'Person']; //Hardcoded for the moment
+    relationLabels: string[] = ['DIRECTED', 'ACTED_IN', 'FATHER_OF']; //Hardcoded for the moment
     lang: string; // usage as lang in console.component.hmtl 'sql', 'cypher', 'mql'
     tableId: string;
     config: TableConfig;
@@ -519,6 +522,13 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         if (this.show2) {
             clearTimeout(this.debounce);
         }
+    }
+
+    //infinite color generation for labels
+    generateColor(index: number): string {
+        const hue = (index * 70) % 360;
+        const color = `hsl(${hue}, 50%, 60%)`;
+        return color;
     }
 
     addCypherField(type: string) {

@@ -70,3 +70,25 @@
   display: block !important;
 }
 
+//Label Container
+.label-container {
+  display: flex;
+}
+
+.label-container p {
+  margin-right: 2.5em;
+}
+
+.label-node {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  border: 1px solid black;
+}
+
+.label-relation {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  border-radius: 1.5em;
+  border: 1px solid black;
+}
+

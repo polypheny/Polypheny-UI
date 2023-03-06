@@ -104,12 +104,26 @@
         <div *ngIf="lang === 'cypher'">
             <p>Select your graph from the left sidebar: {{ graphName !== undefined ? ' ' + graphName : '' }}</p>
             <div *ngIf="graphName !== undefined">
-
-     <!-- Code for Graph - From data-view.component.html-->
-          <app-data-graph *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId"
-                          [config]="config"> </app-data-graph>
-      <!-- End Code for Graph -->
                 <p>Fill in the details.</p>
+
+                <!-- Node Labels -->
+                <p>Node Labels:</p>
+                <div class="label-container">
+                    <p *ngFor="let label of nodeLabels; let i = index" class="label-node" [ngStyle]="{backgroundColor: generateColor(i)}">{{label}}</p>
+                </div>
+
+                <!-- Relationship Labels -->
+                <p>Relationship Labels:</p>
+                <div class="label-container">
+                    <p *ngFor="let label of relationLabels; let i = index" class="label-relation" [ngStyle]="{backgroundColor: generateColor(i + nodeLabels.length)}">{{label}}</p>
+                </div>
+
+
+                <!-- Code for Graph - From data-view.component.html-->
+                <!-- <app-data-graph *ngIf="resultSet" [resultSet]="resultSet" [loading]="loading" [tableId]="tableId"
+                          [config]="config"> </app-data-graph> -->
+
+                <!-- End Code for Graph -->
                 <div class="row">
                     <div class="col-lg-12 fixed-width">
                         <div class="input-group mb-3">
