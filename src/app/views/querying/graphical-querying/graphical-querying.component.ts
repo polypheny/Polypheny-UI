@@ -525,6 +525,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.fieldDepthCounter = 0;
         this.fieldDepth.push(this.fieldDepthCounter);
         this.logicalDepth.push(-1);
+        console.log('The DepthCounter is: ' + this.fieldDepthCounter);
+        console.log('The DepthCounterList is: ' + this.fieldDepth);
+        console.log('The Fieldlist is: ' + this.fieldList);
+        console.log('The logicalDepthCounter is: ' + this.logicalDepthCounter);
+        console.log('The logicaldepthlist: ' + this.logicalDepth);
     }
 
     addMQLFieldKeyObject() { // adding a property
@@ -533,6 +538,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.fieldDepthCounter += 1;
         this.fieldDepth.push(this.fieldDepthCounter);
         this.logicalDepth.push(-1);
+        console.log('The DepthCounter is: ' + this.fieldDepthCounter);
+        console.log('The DepthCounterList is: ' + this.fieldDepth);
+        console.log('The Fieldlist is: ' + this.fieldList);
+        console.log('The logicalDepthCounter is: ' + this.logicalDepthCounter);
+        console.log('The logicaldepthlist: ' + this.logicalDepth);
         //this.mqlDropdown[] = undefined;// deleting equal from field before
     }
 
@@ -541,20 +551,30 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
         this.fieldDepth.push(this.fieldDepthCounter);
         this.logicalDepth.push(-1);
+        console.log('The DepthCounter is: ' + this.fieldDepthCounter);
+        console.log('The DepthCounterList is: ' + this.fieldDepth);
+        console.log('The Fieldlist is: ' + this.fieldList);
+        console.log('The logicalDepthCounter is: ' + this.logicalDepthCounter);
+        console.log('The logicaldepthlist: ' + this.logicalDepth);
     }
 
     addLogicalOperator(logical: string) { // adding Logical Operator AND or OR
         this.fieldCounter += 1;
-        this.fieldList.push(logical); //adding addition marker to fieldList
+        this.fieldList.push(logical);
         this.fieldDepth.push(this.fieldDepthCounter);
         this.logicalDepth.push(this.logicalDepthCounter);
         this.logicalDepthCounter += 1;
         this.logicalOperatorStack.push(logical);
+        console.log('The DepthCounter is: ' + this.fieldDepthCounter);
+        console.log('The DepthCounterList is: ' + this.fieldDepth);
+        console.log('The Fieldlist is: ' + this.fieldList);
+        console.log('The logicalDepthCounter is: ' + this.logicalDepthCounter);
+        console.log('The logicaldepthlist: ' + this.logicalDepth);
     }
 
     endLogicalOperator() { // ending Logical Operator AND or OR
         this.fieldCounter += 1;
-        this.fieldList.push('END'); //adding addition marker to fieldList
+        this.fieldList.push('END');
         this.fieldDepth.push(this.fieldDepthCounter);
         this.logicalDepthCounter -= 1;
         this.logicalDepth.push(this.logicalDepthCounter);
@@ -575,21 +595,21 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     deleteMQLField(x:number) {
-        this.mqlDropdown.splice(x, 1);
-        this.mqlText1.splice(x, 1);
-        this.mqlText2.splice(x, 1);
-        this.mqlTextX.splice(x, 1);
-        if (x === this.mqlText1.length - 1 && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
-            this.fieldDepthCounter = this.fieldDepth[x - 1];
-        }
-        this.fieldDepth.splice(x, 1);
-        this.fieldCounter -= 1;
         if (this.fieldList[x] === 'AND' || this.fieldList[x] === 'OR' || this.fieldList[x] === 'END') { //Deleting logical Operator and its END
             const indicesToRemove: number[] = [];
             for (let i = x; i < this.fieldList.length; i++) {
                 if (this.logicalDepth[i] === this.logicalDepth[x]) { //should only delete the next element of logical Operator
                     indicesToRemove.push(i);
                     if (indicesToRemove.length === 2) {
+                        if (indicesToRemove[1] === this.fieldList.length && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
+                            this.fieldDepthCounter = this.fieldDepth[x - 1];
+                        }
+                        this.mqlDropdown.splice(indicesToRemove[1], 1);
+                        this.mqlText1.splice(indicesToRemove[1], 1);
+                        this.mqlText2.splice(indicesToRemove[1], 1);
+                        this.mqlTextX.splice(indicesToRemove[1], 1);
+                        this.fieldDepth.splice(indicesToRemove[1], 1);
+                        this.fieldCounter -= 1;
                         break;
                     }
                 }
@@ -598,12 +618,24 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             this.logicalDepth = this.logicalDepth.filter((_, index) => !indicesToRemove.includes(index));
             if (indicesToRemove.length === 1) { // there is no END, so the logical depth counter has to be substracted
                 this.logicalDepthCounter -= 1;
+                if (x === this.fieldList.length && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
+                    this.fieldDepthCounter = this.fieldDepth[x - 1];
+                }
             }
         }
         else {
             this.fieldList.splice(x, 1);
             this.logicalDepth.splice(x, 1);
+            if (x === this.fieldList.length && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
+                this.fieldDepthCounter = this.fieldDepth[x - 1];
+            }
         }
+        this.mqlDropdown.splice(x, 1);
+        this.mqlText1.splice(x, 1);
+        this.mqlText2.splice(x, 1);
+        this.mqlTextX.splice(x, 1);
+        this.fieldDepth.splice(x, 1);
+        this.fieldCounter -= 1;
         this.generateMQL();
     }
 
