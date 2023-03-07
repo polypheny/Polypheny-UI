@@ -549,12 +549,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     addMQLFieldKeyObject() { // adding a property
+        this.mqlDropdown[this.fieldCounter] = undefined;// deleting equal from field before
         this.fieldCounter += 1;
         this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
         this.fieldDepthCounter += 1;
         this.fieldDepth.push(this.fieldDepthCounter);
         this.logicalDepth.push(-1);
-        //this.mqlDropdown[] = undefined;// deleting equal from field before
     }
 
     addMQLFieldKeyObject2() { // staying on the same 'level' of property
@@ -717,9 +717,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         matchingIndex = j;
                     }
                 }
-                if (matchingIndex + 1 <= fieldListf.length - 1 && matchingIndex !== -1) {
+                if (matchingIndex + 1 <= fieldListf.length - 1 && matchingIndex !== -1 && this.mqlDropdown[i] !== undefined) {
                     mql += ', ';
                 }
+                console.log(this.mqlDropdown);
             }
             if (this.fieldList[i] === 'END') {
                 mql += ']';
