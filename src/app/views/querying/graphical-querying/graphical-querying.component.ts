@@ -524,6 +524,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
+    //drag and drop for cypher labels
+    drag(event: any) {
+        event.dataTransfer.setData('text/plain', event.target.innerText);
+    }
+
     //infinite color generation for labels
     generateColor(index: number): string {
         const hue = (index * 70) % 360;
@@ -615,6 +620,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 }
             }
             this.fieldList = this.fieldList.filter((_, index) => !indicesToRemove.includes(index));
+            this.logicalOperatorStack = this.fieldList.filter((el) => el === 'AND' || el === 'OR' || el === 'END');
             this.logicalDepth = this.logicalDepth.filter((_, index) => !indicesToRemove.includes(index));
             if (indicesToRemove.length === 1) { // there is no END, so the logical depth counter has to be substracted
                 this.logicalDepthCounter -= 1;
@@ -637,6 +643,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.fieldDepth.splice(x, 1);
         this.fieldCounter -= 1;
         this.generateMQL();
+        console.log(this.logicalOperatorStack);
     }
 
     async generateCypher() {

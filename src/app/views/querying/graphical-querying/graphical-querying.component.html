@@ -104,18 +104,18 @@
         <div *ngIf="lang === 'cypher'">
             <p>Select your graph from the left sidebar: {{ graphName !== undefined ? ' ' + graphName : '' }}</p>
             <div *ngIf="graphName !== undefined">
-                <p>Fill in the details.</p>
+                <p>Fill in the details. You can drag and drop the labels into the input fields.</p>
 
                 <!-- Node Labels -->
                 <p>Node Labels:</p>
                 <div class="label-container">
-                    <p *ngFor="let label of nodeLabels; let i = index" class="label-node" [ngStyle]="{backgroundColor: generateColor(i)}">{{label}}</p>
+                    <p *ngFor="let label of nodeLabels; let i = index" class="label-node" draggable="true" (dragstart)="drag($event)" [ngStyle]="{backgroundColor: generateColor(i)}">{{label}}</p>
                 </div>
 
                 <!-- Relationship Labels -->
                 <p>Relationship Labels:</p>
                 <div class="label-container">
-                    <p *ngFor="let label of relationLabels; let i = index" class="label-relation" [ngStyle]="{backgroundColor: generateColor(i + nodeLabels.length)}">{{label}}</p>
+                    <p *ngFor="let label of relationLabels; let i = index" class="label-relation" draggable="true" (dragstart)="drag($event)" [ngStyle]="{backgroundColor: generateColor(i + nodeLabels.length)}">{{label}}</p>
                 </div>
 
 
