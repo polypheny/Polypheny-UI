@@ -113,6 +113,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     private debounce: any;
     private debounceDelay = 200;
 
+    initialrect: DOMRect;
+
   ngOnInit() {
     this._leftSidebar.open();
     this.initSchema(this.lang);
@@ -529,6 +531,39 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         event.dataTransfer.setData('text/plain', event.target.innerText);
     }
 
+    //drag and drop for mql rows
+    onDragStart(event: DragEvent, str: string) {
+        event.dataTransfer?.setData('text/plain', str);
+        const targetElement = event.currentTarget as HTMLElement;
+        this.initialrect = targetElement.getBoundingClientRect();
+    }
+
+    onDragOver(event: DragEvent) {
+        event.preventDefault();
+    }
+
+    onDrop(event: DragEvent) {
+        event.preventDefault();
+        const data = event.dataTransfer?.getData('text/plain');
+        if (data) {
+            const index = this.fieldList.indexOf(data);
+            const targetElement = event.currentTarget as HTMLElement;
+            setTimeout(() => {
+                const rect = targetElement.getBoundingClientRect();
+                const mouseY = rect.top - this.initialrect.top;
+                const targetIndex = Math.round(mouseY / rect.height) + index;
+                if (index !== -1 && targetIndex !== -1 && index !== targetIndex) {
+                    this.fieldList.splice(targetIndex, 0, this.fieldList.splice(index, 1)[0]);
+                    this.mqlDropdown.splice(targetIndex, 0, this.mqlDropdown.splice(index, 1)[0]);
+                    this.mqlText1.splice(targetIndex, 0, this.mqlText1.splice(index, 1)[0]);
+                    this.mqlText2.splice(targetIndex, 0, this.mqlText2.splice(index, 1)[0]);
+                    this.mqlTextX.splice(targetIndex, 0, this.mqlTextX.splice(index, 1)[0]);
+                    this.fieldDepth.splice(targetIndex, 0, this.fieldDepth.splice(index, 1)[0]);
+                }
+            }, 0);
+        }
+    }
+
     //infinite color generation for labels
     generateColor(index: number): string {
         const hue = (index * 70) % 360;
@@ -643,7 +678,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.fieldDepth.splice(x, 1);
         this.fieldCounter -= 1;
         this.generateMQL();
-        console.log(this.logicalOperatorStack);
     }
 
     async generateCypher() {
@@ -720,7 +754,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 if (matchingIndex + 1 <= fieldListf.length - 1 && matchingIndex !== -1 && this.mqlDropdown[i] !== undefined) {
                     mql += ', ';
                 }
-                console.log(this.mqlDropdown);
             }
             if (this.fieldList[i] === 'END') {
                 mql += ']';

@@ -337,9 +337,9 @@
                 <p>Fill in the details:</p>
 
                 <!-- Creating new field for each chosen column -->
-                <div *ngFor="let fieldNumber of fieldList; let i = index"> <!-- index differentiates each field-->
-                    <div *ngIf="fieldNumber === 'AND'">
-                        <div class="row" [style.padding-left.em]="this.logicalDepth[i]">
+                <div *ngFor="let fieldNumber of fieldList; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
+                    <ng-container *ngIf="fieldNumber === 'AND'">
+                        <div class="row" [style.padding-left.em]="2*this.logicalDepth[i]" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
                             <div class="col-lg-11 fixed-width">
                                 <b>AND</b>
                             </div>
@@ -347,9 +347,9 @@
                                 <button id="button-mql-{{i}}" (click)="deleteMQLField(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
                             </div>
                         </div>
-                    </div>
-                    <div *ngIf="fieldNumber === 'OR'">
-                        <div class="row" [style.padding-left.em]="this.logicalDepth[i]">
+                    </ng-container>
+                    <ng-container *ngIf="fieldNumber === 'OR'">
+                        <div class="row" [style.padding-left.em]="2*this.logicalDepth[i]" >
                             <div class="col-lg-11 fixed-width">
                                 <b>OR</b>
                             </div>
@@ -357,20 +357,20 @@
                                 <button id="button-mql-{{i}}" (click)="deleteMQLField(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
                             </div>
                         </div>
-                    </div>
-                    <div *ngIf="fieldNumber === 'END'">
-                        <div class="row" [style.padding-left.em]="this.logicalDepth[i]">
+                    </ng-container>
+                    <ng-container *ngIf="fieldNumber === 'END'">
+                        <div class="row" [style.padding-left.em]="2*this.logicalDepth[i]">
                             <div class="col-lg-12 fixed-width">
                                 <b>END</b>
                             </div>
                         </div>
-                    </div>
-                    <div *ngIf="fieldNumber !== 'AND' && fieldNumber !== 'OR' && fieldNumber !== 'END'">
-                        <div class="row" [style.padding-left.em]="this.fieldDepth[i]">
+                    </ng-container>
+                    <ng-container *ngIf="fieldNumber !== 'AND' && fieldNumber !== 'OR' && fieldNumber !== 'END'">
+                        <div class="row" [style.padding-left.em]="2*this.fieldDepth[i]" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
                             <div class="col-lg-4 fixed-width">
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
-                                        <label for="mql-boxes-input-{{i}}" class="input-group-text"></label>
+                                        <label for="mql-boxes-input-{{i}}" class="input-group-text"><i class="fa fa-arrows-v"></i></label>
                                     </div>
                                     <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
                                            [(ngModel)]="mqlTextX[i]" (keyup)="prependKeyObject(this.fieldDepth[i], i); generateMQL()" placeholder="key">
@@ -379,9 +379,6 @@
                             <div class="col-lg-3 fixed-width">
                                 <div *ngIf="i == this.fieldDepth.length-1 || this.fieldDepth[i] >= this.fieldDepth[i+1]"> <!-- is key of object-->
                                     <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <label class="input-group-text" for="mql-boxes-{{i}}"></label>
-                                        </div>
                                         <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="mqlDropdown[i]" (change)="generateMQL()">
                                             <option value="equal">equals</option>
                                             <option value="notequal">does not equal</option>
@@ -397,9 +394,6 @@
                             <div class="col-lg-4 fixed-width">
                                 <div *ngIf="i == this.fieldDepth.length-1 || this.fieldDepth[i] >= this.fieldDepth[i+1]"> <!--is key of object-->
                                     <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <label for="mql-boxes-input-{{i}}" class="input-group-text"></label>
-                                        </div>
                                         <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
                                                [(ngModel)]="mqlText2[i]" (keyup)="generateMQL()" placeholder="value">
                                     </div>
@@ -410,7 +404,7 @@
                                 <button id="button-mql-{{i}}" (click)="deleteMQLField(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
                             </div>
                         </div>
-                    </div>
+                    </ng-container>
                 </div>
 
                 <div class="input-group justify-content-center mt-3">
