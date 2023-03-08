@@ -113,7 +113,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     private debounce: any;
     private debounceDelay = 200;
 
-    initialrect: DOMRect;
+    private initialrect: DOMRect;
 
   ngOnInit() {
     this._leftSidebar.open();
@@ -154,83 +154,76 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     initSchema(lang:string) {
-    console.log(lang);
-    if (lang === 'sql') {
-      this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.RELATIONAL])).subscribe(
-          res => {
-            const nodeAction = (tree, node, $event) => {
-              if (!node.isActive && node.isLeaf) {
-                this.addCol(node.data);
-                node.setIsActive(true, true);
-              } else if (node.isActive && node.isLeaf) {
-                node.setIsActive(false, true);
-                this.removeCol(node.data.id);
-
-                //deletes the selection if nothing is choosen
-                if (this.selectedColumn['column'].toString() === node.data.id) {
-                  this.selectedCol([]);
+        console.log(lang);
+        if (lang === 'sql') {
+            this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false )).subscribe(
+                res => {
+                    const nodeAction = (tree, node, $event) => {
+                        if (!node.isActive && node.isLeaf) {
+                            this.addCol(node.data);
+                            node.setIsActive(true, true);
+                        } else if (node.isActive && node.isLeaf) {
+                            node.setIsActive(false, true);
+                            this.removeCol(node.data.id);
+                            //deletes the selection if nothing is choosen
+                            if (this.selectedColumn['column'].toString() === node.data.id) {
+                                this.selectedCol([]);
+                            }
+                        }
+                    };
+                    const schemaTemp = <SidebarNode[]>res;
+                    const schema = [];
+                    for (const s of schemaTemp) {
+                        const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
+                        schema.push(node);
+                    }
+                    this._leftSidebar.setNodes(schema);
+                    this._leftSidebar.open();
                 }
-              }
-            };
-
-            const schemaTemp = <SidebarNode[]>res;
-            const schema = [];
-            for (const s of schemaTemp) {
-              const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
-              schema.push(node);
-            }
-
-            this._leftSidebar.setNodes(schema);
-            this._leftSidebar.open();
-          }
-      );
+            );
+        }
+        else if (lang === 'cypher') {
+            this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 1, false, false)).subscribe(
+                res => {
+                    const nodeAction = (tree, node, $event) => {
+                        console.log(node.id);
+                        this.graphName = node.id;
+                        this.setDefaultDB(node.id); //changes the activeNamespace to the one chosen on the left side
+                    };
+                    const schemaTemp = <SidebarNode[]>res;
+                    const schema = [];
+                    for (const s of schemaTemp) {
+                        const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
+                        schema.push(node);
+                    }
+                    this._leftSidebar.setNodes(schema);
+                    this._leftSidebar.open();
+                }
+            );
+        }
+        else if (lang === 'mql') {
+            this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 2, false, false)).subscribe(
+                res => {
+                    const nodeAction = (tree, node, $event) => { // TO DO: it only shows columns _id_ and _data_ but not correct ones.
+                        if (!node.isActive && node.isLeaf) {
+                            console.log(node.parent.id);
+                            this.setDefaultDB(node.parent.id);
+                            console.log(node.displayField);
+                            this.collectionName = node.displayField;
+                        }
+                    };
+                    const schemaTemp = <SidebarNode[]>res;
+                    const schema = [];
+                    for (const s of schemaTemp) {
+                        const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
+                        schema.push(node);
+                    }
+                    this._leftSidebar.setNodes(schema);
+                    this._leftSidebar.open();
+                }
+            );
+        }
     }
-    else if (lang === 'cypher') {
-      this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 1, false, false, [DataModels.GRAPH])).subscribe(
-          res => {
-            const nodeAction = (tree, node, $event) => {
-              console.log(node.id);
-              this.graphName = node.id;
-              this.setDefaultDB(node.id); //changes the activeNamespace to the one chosen on the left side
-            };
-
-            const schemaTemp = <SidebarNode[]>res;
-            const schema = [];
-            for (const s of schemaTemp) {
-              const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
-              schema.push(node);
-            }
-
-            this._leftSidebar.setNodes(schema);
-            this._leftSidebar.open();
-          }
-      );
-    }
-    else if (lang === 'mql') {
-      this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 2, false, false, [DataModels.DOCUMENT])).subscribe(
-          res => {
-            const nodeAction = (tree, node, $event) => { // TO DO: it only shows columns _id_ and _data_ but not correct ones.
-              if (!node.isActive && node.isLeaf) {
-                console.log(node.parent.id);
-                this.setDefaultDB(node.parent.id);
-                console.log(node.displayField);
-                this.collectionName = node.displayField;
-              }
-            };
-
-            const schemaTemp = <SidebarNode[]>res;
-            const schema = [];
-            for (const s of schemaTemp) {
-              const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
-              schema.push(node);
-            }
-
-            this._leftSidebar.setNodes(schema);
-            this._leftSidebar.open();
-          }
-      );
-    }
-  }
 
     initGraphicalQuerying() {
         const self = this;
@@ -562,6 +555,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 }
             }, 0);
         }
+        this.generateMQL();
     }
 
     //infinite color generation for labels
