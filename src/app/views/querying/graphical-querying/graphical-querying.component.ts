@@ -570,7 +570,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.cypherFields.push([]);
     }
 
-    changeCypherField(type: string, index : number) {
+    changeCypherField(type: string, index: number) {
         if (index + 1 > this.fieldListCypher.length-1) {
             this.fieldListCypher.push(type);
             this.cypherFields.push([]);
