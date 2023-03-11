@@ -8,16 +8,16 @@
             <!-- TO DO: when changing language it should get back to its default state-->
         <p>Select your query language:</p>
         <div class="btn-group-horizontal btn-group" id="radio" data-toggle="buttons">
-      <label class="btn btn-secondary">
-        <input type="radio" name="language" [(ngModel)]="lang" value="sql" (ngModelChange)="ngOnInit(); setDefaultState('sql')">SQL
-      </label>
-      <label class="btn btn-secondary">
-        <input type="radio" name="language" [(ngModel)]="lang" value="cypher" (ngModelChange)="ngOnInit(); setDefaultState('cypher')">Cypher
-      </label>
-      <label class="btn btn-secondary">
-        <input type="radio" name="language" [(ngModel)]="lang" value="mql" (ngModelChange)="ngOnInit(); setDefaultState('mql')">MQL
-      </label>
-    </div>
+            <label class="btn btn-secondary">
+                <input type="radio" name="language" [(ngModel)]="lang" value="sql" (ngModelChange)="ngOnInit(); setDefaultState('sql')">SQL
+            </label>
+             <label class="btn btn-secondary">
+                <input type="radio" name="language" [(ngModel)]="lang" value="cypher" (ngModelChange)="ngOnInit(); setDefaultState('cypher')">Cypher
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio" name="language" [(ngModel)]="lang" value="mql" (ngModelChange)="ngOnInit(); setDefaultState('mql')">MQL
+            </label>
+        </div>
 
         <!-- graphical-UI for SQL -->
         <div *ngIf="lang === 'sql'">
@@ -164,18 +164,12 @@
                             <div class="col-lg-4 fixed-width"> <!-- has to be swapped so the column works with ngIf-->
                                 <div *ngIf="cypherDropdown[i] === 'cypher-outgoing'">
                                     <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <label for="cypher-match-node1-{{i}}" class="input-group-text"></label>
-                                        </div>
                                         <input type="text" id="cypher-match-node1-{{i}}" class="form-control"
                                                [(ngModel)]="cypherFields[i][2]" (keyup)="generateCypher()" placeholder="Node">
                                     </div>
                                 </div>
                                 <div *ngIf="cypherDropdown[i] === 'cypher-directed' || cypherDropdown[i] === 'cypher-multiple'">
                                     <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <label for="cypher-match-rel-{{i}}" class="input-group-text"></label>
-                                        </div>
                                         <input type="text" id="cypher-match-rel-{{i}}" class="form-control"
                                                [(ngModel)]="cypherFields[i][1]" (keyup)="generateCypher()" placeholder="Relationship">
                                     </div>
@@ -184,9 +178,6 @@
                             <div class="col-lg-4 fixed-width">
                                 <div *ngIf="cypherDropdown[i] === 'cypher-directed' || cypherDropdown[i] === 'cypher-multiple'">
                                     <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <label for="cypher-match-node2-{{i}}" class="input-group-text"></label>
-                                        </div>
                                         <input type="text" id="cypher-match-node2-{{i}}" class="form-control"
                                                [(ngModel)]="cypherFields[i][2]" (keyup)="generateCypher()" placeholder="Node">
                                     </div>
@@ -199,9 +190,6 @@
                             <div class="col-lg-4 fixed-width">
                                 <div *ngIf="cypherDropdown[i] === 'cypher-multiple'">
                                     <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <label for="cypher-match-rel2-{{i}}" class="input-group-text"></label>
-                                        </div>
                                         <input type="text" id="cypher-match-rel2-{{i}}" class="form-control"
                                                [(ngModel)]="cypherFields[i][3]" (keyup)="generateCypher()" placeholder="2. Relationship">
                                     </div>
@@ -210,9 +198,6 @@
                             <div class="col-lg-4 fixed-width">
                                 <div *ngIf="cypherDropdown[i] === 'cypher-multiple'">
                                     <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <label for="cypher-match-node3-{{i}}" class="input-group-text"></label>
-                                        </div>
                                         <input type="text" id="cypher-match-node3-{{i}}" class="form-control"
                                                [(ngModel)]="cypherFields[i][4]" (keyup)="generateCypher()" placeholder="2. Node">
                                     </div>
@@ -223,18 +208,119 @@
                     <!-- Where Clause-->
                     <div *ngIf="fieldNumber === 'WHERE'">
                         <div class="row">
-                            <div class="col-lg-11 fixed-width">
+                            <div class="col-lg-4 fixed-width">
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <label for="cypher-where-{{i}}" class="input-group-text">WHERE</label>
                                     </div>
-                                    <input type="text" id="cypher-where-{{i}}" placeholder="Optional : Condition" class="form-control"
+                                    <input type="text" id="cypher-where-{{i}}" placeholder="Condition" class="form-control"
                                            [(ngModel)]="cypherFields[i][0]" (keyup)="generateCypher()">
+                                </div>
+                            </div>
+                            <div class="col-lg-3 fixed-width">
+                                <div class="input-group mb-3">
+                                    <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="cypherFields[i][1]" (change)="generateCypher()">
+                                        <optgroup label="Comparison operators">
+                                            <option value="=">equals</option>
+                                            <option value="<>">does not equal</option>
+                                            <option value=">">is greater than</option>
+                                            <option value="<">is less than</option>
+                                            <option value=">=">is greater than or equal</option>
+                                            <option value="<=">is less than or equal</option>
+                                            <option value="IS NULL">is null</option>
+                                            <option value="IS NOT NULL">is not null</option>
+                                        </optgroup>
+                                        <optgroup label="String-specific operators">
+                                            <option value="STARTS WITH">starts with</option>
+                                            <option value="ENDS WITH">ends with</option>
+                                            <option value="CONTAINS">contains</option>
+                                        </optgroup>
+                                        <optgroup label="List operators">
+                                            <option value="IN">in</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 fixed-width">
+                                <div class="input-group mb-3">
+                                    <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                           [(ngModel)]="cypherFields[i][2]" (keyup)="generateCypher()" placeholder="value">
                                 </div>
                             </div>
                             <div class="col-lg-1 fixed-width">
                                 <!-- Button to delete field -->
                                 <button id="button-mql-{{i}}" (click)="deleteCypherField(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                            </div>
+                        </div>
+                        <div class="row" style="justify-content: center;">
+                            <div class="btn-group-horizontal btn-group" id="radio-{{i}}" data-toggle="buttons">
+                                <label class="btn btn-secondary">
+                                    <input type="radio" name="booleanoperator-{{i}}" (click)="changeCypherField('AND', i); generateCypher()">AND
+                                </label>
+                                <label class="btn btn-secondary">
+                                    <input type="radio" name="booleanoperator-{{i}}" (click)="changeCypherField('OR', i); generateCypher()">OR
+                                </label>
+                                <label class="btn btn-secondary">
+                                    <input type="radio" name="booleanoperator-{{i}}" (click)="changeCypherField('NOR', i); generateCypher()">XOR
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Additional Where rows -->
+                    <div *ngIf="fieldNumber === 'OR' || fieldNumber === 'AND' || fieldNumber === 'NOR'">
+                        <div class="row" [style.padding-left.em]='2'>
+                            <div class="col-lg-4 fixed-width">
+                                <div class="input-group mb-3">
+                                    <input type="text" id="cypher-where-{{i}}" placeholder="Condition" class="form-control"
+                                           [(ngModel)]="cypherFields[i][0]" (keyup)="generateCypher()">
+                                </div>
+                            </div>
+                            <div class="col-lg-3 fixed-width">
+                                <div class="input-group mb-3">
+                                    <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="cypherFields[i][1]" (change)="generateCypher()">
+                                        <optgroup label="Comparison operators">
+                                            <option value="=">equals</option>
+                                            <option value="<>">does not equal</option>
+                                            <option value=">">is greater than</option>
+                                            <option value="<">is less than</option>
+                                            <option value=">=">is greater than or equal</option>
+                                            <option value="<=">is less than or equal</option>
+                                            <option value="IS NULL">is null</option>
+                                            <option value="IS NOT NULL">is not null</option>
+                                        </optgroup>
+                                        <optgroup label="String-specific operators">
+                                            <option value="STARTS WITH">starts with</option>
+                                            <option value="ENDS WITH">ends with</option>
+                                            <option value="CONTAINS">contains</option>
+                                        </optgroup>
+                                        <optgroup label="List operators">
+                                            <option value="IN">in</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 fixed-width">
+                                <div class="input-group mb-3">
+                                    <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                           [(ngModel)]="cypherFields[i][2]" (keyup)="generateCypher()" placeholder="value">
+                                </div>
+                            </div>
+                            <div class="col-lg-1 fixed-width">
+                                <!-- Button to delete field -->
+                                <button id="button-mql-{{i}}" (click)="deleteCypherField(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                            </div>
+                        </div>
+                        <div class="row" style="justify-content: center;">
+                            <div class="btn-group-horizontal btn-group" id="radio-{{i}}" data-toggle="buttons">
+                                <label class="btn btn-secondary">
+                                    <input type="radio" name="booleanoperator-{{i}}" (click)="changeCypherField('AND', i);; generateCypher()">AND
+                                </label>
+                                <label class="btn btn-secondary">
+                                    <input type="radio" name="booleanoperator-{{i}}" (click)="changeCypherField('OR', i);; generateCypher()">OR
+                                </label>
+                                <label class="btn btn-secondary">
+                                    <input type="radio" name="booleanoperator-{{i}}" (click)="changeCypherField('NOR', i);; generateCypher()">XOR
+                                </label>
                             </div>
                         </div>
                     </div>

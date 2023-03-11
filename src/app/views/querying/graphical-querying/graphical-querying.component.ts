@@ -429,6 +429,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             case 'sql':
                 this.collectionName = undefined;
                 this.graphName = undefined;
+                //mql
                 this.mqlDropdown = [];
                 this.mqlTextX = [];
                 this.mqlText1 = [];
@@ -439,9 +440,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldList = ['0'];
                 this.fieldDepth = [0];
                 this.fieldDepthCounter = 0;
+                this.logicalDepthCounter = 0;
+                //cypher
                 this.cypherFields = [[]];
                 this.cypherReturn = '';
-                this.logicalDepthCounter = 0;
+                this.fieldListCypher = ['MATCH'];
                 break;
             case 'cypher':
                 this.collectionName = undefined;
@@ -461,6 +464,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.graphName = undefined;
                 this.cypherFields = [[]];
                 this.cypherReturn = '';
+                this.fieldListCypher = ['MATCH'];
                 break;
         }
     }
@@ -565,6 +569,17 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.fieldListCypher.push(type);
         this.cypherFields.push([]);
     }
+
+    changeCypherField(type: string, index : number) {
+        if (index + 1 > this.fieldListCypher.length-1) {
+            this.fieldListCypher.push(type);
+            this.cypherFields.push([]);
+        }
+        else {
+            this.fieldListCypher[index + 1] = type;
+        }
+    }
+
 
     addMQLField() { // 'normal new Field'
         this.fieldCounter += 1;
@@ -675,7 +690,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     async generateCypher() {
         let cypher = '';
-        for (let i = 0; i < this.fieldListCypher.length; i++) { // MATCH, RELATIONSHIP & WHERE
+        for (let i = 0; i < this.fieldListCypher.length; i++) {
             if (this.fieldListCypher[i] === 'MATCH') {
                 cypher += 'MATCH ' + '(' + this.cypherFields[i][0] + ')';
                 switch (this.cypherDropdown[i]) {
@@ -691,7 +706,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 }
             }
             if (this.fieldListCypher[i] === 'WHERE') {
-                cypher += 'WHERE ' + this.cypherFields[i][0];
+                cypher += 'WHERE ' + this.cypherFields[i][0] + ' ' + this.cypherFields[i][1] + ' ' + this.cypherFields[i][2];
+            }
+            if (this.fieldListCypher[i] === 'OR' || this.fieldListCypher[i] === 'AND' || this.fieldListCypher[i] === 'NOR') {
+                cypher +=  this.fieldListCypher[i] + ' ' + this.cypherFields[i][0] + ' ' + this.cypherFields[i][1] + ' ' + this.cypherFields[i][2];
             }
             cypher += '\n';
         }
