@@ -124,18 +124,6 @@
                           [config]="config"> </app-data-graph> -->
 
                 <!-- End Code for Graph -->
-                <div class="row">
-                    <div class="col-lg-12 fixed-width">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <label for="cypher-match-node" class="input-group-text">MATCH</label>
-                            </div>
-                            <input type="text" id="cypher-match-node" class="form-control"
-                                   [(ngModel)]="cypherMatch" (keyup)="generateCypher()" placeholder="Node">
-                        </div>
-                    </div>
-                </div>
-
                 <div *ngFor="let fieldNumber of fieldListCypher; let i = index"> <!-- index differentiates each field-->
                     <div *ngIf="fieldNumber === 'MATCH'">
                         <div class="row">
@@ -145,7 +133,7 @@
                                         <label for="cypher-match-node-{{i}}" class="input-group-text">MATCH</label>
                                     </div>
                                     <input type="text" id="cypher-match-node-{{i}}" class="form-control"
-                                           [(ngModel)]="cypherMatch" (keyup)="generateCypher()" placeholder="Node">
+                                           [(ngModel)]="cypherFields[i][0]" (keyup)="generateCypher()" placeholder="Node">
                                 </div>
                             </div>
                             <div class="col-lg-1 fixed-width">
@@ -155,7 +143,7 @@
                         </div>
                     </div>
 
-                    <div *ngIf="fieldNumber === 'RELATION'">
+                    <div *ngIf="fieldNumber === 'MATCH'" [style.padding-left.em]='2'>
                         <!-- Dropdown Selection for different relationshiptypes-->
                         <div class="row">
                             <div class="col-lg-3 fixed-width">
@@ -163,7 +151,7 @@
                                     <div class="input-group-prepend">
                                         <label class="input-group-text" for="cypher-relationship-type-{{i}}">Relationship</label>
                                     </div>
-                                    <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherDropdown" (change)="generateCypher()">
+                                    <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherDropdown[i]" (change)="generateCypher()">
                                         <option value="cypher-none" selected>None</option>
                                         <option value="cypher-outgoing">Outgoing</option>
                                         <option value="cypher-directed">Directed</option>
@@ -174,59 +162,59 @@
                             </div>
                             <!-- Different Cases depending on option value-->
                             <div class="col-lg-4 fixed-width"> <!-- has to be swapped so the column works with ngIf-->
-                                <div *ngIf="cypherDropdown === 'cypher-outgoing'">
+                                <div *ngIf="cypherDropdown[i] === 'cypher-outgoing'">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
-                                            <label for="cypher-match-node1" class="input-group-text"></label>
+                                            <label for="cypher-match-node1-{{i}}" class="input-group-text"></label>
                                         </div>
-                                        <input type="text" id="cypher-match-node1" class="form-control"
-                                               [(ngModel)]="cypherRelationship[1]" (keyup)="generateCypher()" placeholder="Node">
+                                        <input type="text" id="cypher-match-node1-{{i}}" class="form-control"
+                                               [(ngModel)]="cypherFields[i][2]" (keyup)="generateCypher()" placeholder="Node">
                                     </div>
                                 </div>
-                                <div *ngIf="cypherDropdown === 'cypher-directed' || cypherDropdown === 'cypher-multiple'">
+                                <div *ngIf="cypherDropdown[i] === 'cypher-directed' || cypherDropdown[i] === 'cypher-multiple'">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
-                                            <label for="cypher-match-rel" class="input-group-text"></label>
+                                            <label for="cypher-match-rel-{{i}}" class="input-group-text"></label>
                                         </div>
-                                        <input type="text" id="cypher-match-rel" class="form-control"
-                                               [(ngModel)]="cypherRelationship[0]" (keyup)="generateCypher()" placeholder="Relationship">
+                                        <input type="text" id="cypher-match-rel-{{i}}" class="form-control"
+                                               [(ngModel)]="cypherFields[i][1]" (keyup)="generateCypher()" placeholder="Relationship">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-lg-4 fixed-width">
-                                <div *ngIf="cypherDropdown === 'cypher-directed' || cypherDropdown === 'cypher-multiple'">
+                                <div *ngIf="cypherDropdown[i] === 'cypher-directed' || cypherDropdown[i] === 'cypher-multiple'">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
-                                            <label for="cypher-match-node2" class="input-group-text"></label>
+                                            <label for="cypher-match-node2-{{i}}" class="input-group-text"></label>
                                         </div>
-                                        <input type="text" id="cypher-match-node2" class="form-control"
-                                               [(ngModel)]="cypherRelationship[1]" (keyup)="generateCypher()" placeholder="Node">
+                                        <input type="text" id="cypher-match-node2-{{i}}" class="form-control"
+                                               [(ngModel)]="cypherFields[i][2]" (keyup)="generateCypher()" placeholder="Node">
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row" [style.padding-left.em]='2'>
                             <div class="col-lg-3 fixed-width">
                             </div>
                             <div class="col-lg-4 fixed-width">
-                                <div *ngIf="cypherDropdown === 'cypher-multiple'">
+                                <div *ngIf="cypherDropdown[i] === 'cypher-multiple'">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
-                                            <label for="cypher-match-rel2" class="input-group-text"></label>
+                                            <label for="cypher-match-rel2-{{i}}" class="input-group-text"></label>
                                         </div>
-                                        <input type="text" id="cypher-match-rel2" class="form-control"
-                                               [(ngModel)]="cypherRelationship[2]" (keyup)="generateCypher()" placeholder="2. Relationship">
+                                        <input type="text" id="cypher-match-rel2-{{i}}" class="form-control"
+                                               [(ngModel)]="cypherFields[i][3]" (keyup)="generateCypher()" placeholder="2. Relationship">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-lg-4 fixed-width">
-                                <div *ngIf="cypherDropdown === 'cypher-multiple'">
+                                <div *ngIf="cypherDropdown[i] === 'cypher-multiple'">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
-                                            <label for="cypher-match-node3" class="input-group-text"></label>
+                                            <label for="cypher-match-node3-{{i}}" class="input-group-text"></label>
                                         </div>
-                                        <input type="text" id="cypher-match-node3" class="form-control"
-                                               [(ngModel)]="cypherRelationship[3]" (keyup)="generateCypher()" placeholder="2. Node">
+                                        <input type="text" id="cypher-match-node3-{{i}}" class="form-control"
+                                               [(ngModel)]="cypherFields[i][4]" (keyup)="generateCypher()" placeholder="2. Node">
                                     </div>
                                 </div>
                             </div>
@@ -241,7 +229,7 @@
                                         <label for="cypher-where-{{i}}" class="input-group-text">WHERE</label>
                                     </div>
                                     <input type="text" id="cypher-where-{{i}}" placeholder="Optional : Condition" class="form-control"
-                                           [(ngModel)]="cypherWhere" (keyup)="generateCypher()">
+                                           [(ngModel)]="cypherFields[i][0]" (keyup)="generateCypher()">
                                 </div>
                             </div>
                             <div class="col-lg-1 fixed-width">
@@ -253,7 +241,7 @@
                 </div>
 
                 <!-- Add Button -->
-                <div class="input-group justify-content-center mt-3">
+                <div class="input-group justify-content-center mt-3" style="margin:1em;">
                     <div (mouseleave)="setMenuShow(false)" (mouseenter)="menuEnter()">
                         <button class="btn btn-primary toggle-insert" (click)="setMenuShow(true)" type="button"><i
                                 class="fa fa-plus"></i></button>

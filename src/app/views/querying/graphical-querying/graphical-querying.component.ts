@@ -82,12 +82,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     tableId: string;
     config: TableConfig;
     // cypher input fields
-    cypherMatch = '';
-    cypherWhere = '';
+    //cypherMatch: string[] = [];
+    cypherFields: string[][] = [[]]; // Matrix à [n,5] size  -> [1] = Relationship, [2] = Node, [3] = 2.Relationship, [4] = 2.Node
     cypherReturn = '';
-    cypherDropdown: string;
-    cypherRelationship: string[] = ['','','','']; // [0] = Relationship, [1] = Node, [2] = 2.Relationship, [3] = 2.Node
-    fieldListCypher: string[] = [];
+    cypherDropdown: string[] = [];
+    //cypherRelationship: string[] = ['','','','']; // [0] = Relationship, [1] = Node, [2] = 2.Relationship, [3] = 2.Node
+    fieldListCypher: string[] = ['MATCH'];
     fieldList: string[] = ['0']; // each newly created input field in mql gets another value
     fieldDepth: number[] = [0];
     fieldDepthCounter = 0;
@@ -439,10 +439,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldList = ['0'];
                 this.fieldDepth = [0];
                 this.fieldDepthCounter = 0;
-                this.cypherMatch = ''; // three input fields for match
-                this.cypherWhere = '';
+                this.cypherFields = [[]];
                 this.cypherReturn = '';
-                this.cypherRelationship = ['','','',''];
                 this.logicalDepthCounter = 0;
                 break;
             case 'cypher':
@@ -461,10 +459,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
             case 'mql':
                 this.graphName = undefined;
-                this.cypherMatch = ''; // three input fields for match
-                this.cypherWhere = '';
+                this.cypherFields = [[]];
                 this.cypherReturn = '';
-                this.cypherRelationship = ['','','',''];
                 break;
         }
     }
@@ -567,6 +563,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     addCypherField(type: string) {
         this.fieldListCypher.push(type);
+        this.cypherFields.push([]);
     }
 
     addMQLField() { // 'normal new Field'
@@ -626,6 +623,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     deleteCypherField(x:number) {
         this.fieldListCypher.splice(x, 1);
+        this.cypherFields.splice(x, 1);
+        this.generateCypher();
     }
 
     deleteMQLField(x:number) {
@@ -676,22 +675,27 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     async generateCypher() {
         let cypher = '';
-        cypher += 'MATCH ' + '(' + this.cypherMatch + ')';
-        switch (this.cypherDropdown) {
-            case 'cypher-outgoing':
-                cypher += '-->(' + this.cypherRelationship[1] + ')';
-                break;
-            case 'cypher-directed':
-                cypher += '-[' + this.cypherRelationship[0] + ']->(' + this.cypherRelationship[1] + ')';
-                break;
-            case 'cypher-multiple':
-                cypher += '-[' + this.cypherRelationship[0] + ']->(' + this.cypherRelationship[1] + ')<-[' + this.cypherRelationship[2] + ']-(' + this.cypherRelationship[3] + ')';
-                break;
+        for (let i = 0; i < this.fieldListCypher.length; i++) { // MATCH, RELATIONSHIP & WHERE
+            if (this.fieldListCypher[i] === 'MATCH') {
+                cypher += 'MATCH ' + '(' + this.cypherFields[i][0] + ')';
+                switch (this.cypherDropdown[i]) {
+                    case 'cypher-outgoing':
+                        cypher += '-->(' + this.cypherFields[i][2] + ')';
+                        break;
+                    case 'cypher-directed':
+                        cypher += '-[' + this.cypherFields[i][1] + ']->(' + this.cypherFields[i][2] + ')';
+                        break;
+                    case 'cypher-multiple':
+                        cypher += '-[' + this.cypherFields[i][1] + ']->(' + this.cypherFields[i][2] + ')<-[' + this.cypherFields[i][3] + ']-(' + this.cypherFields[i][4] + ')';
+                        break;
+                }
+            }
+            if (this.fieldListCypher[i] === 'WHERE') {
+                cypher += 'WHERE ' + this.cypherFields[i][0];
+            }
+            cypher += '\n';
         }
-        if (this.cypherWhere !== '') {
-            cypher += '\nWHERE ' + this.cypherWhere;
-        }
-        cypher += '\nRETURN ' + this.cypherReturn + ';';
+        cypher += 'RETURN ' + this.cypherReturn + ';';
         this.editorGenerated.setCode(cypher);
     }
 
@@ -756,6 +760,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
         mql += '})';
         this.editorGenerated.setCode(mql);
+        console.log(this.fieldList);
     }
 
     async generateSQL() {
