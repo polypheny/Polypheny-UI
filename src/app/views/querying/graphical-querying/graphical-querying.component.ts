@@ -72,34 +72,54 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     tableId: string;
     config: TableConfig;
     // cypher input fields
-    //cypherMatch: string[] = [];
     cypherFields: string[][] = [[]]; // Matrix à [n,5] size  -> [1] = Relationship, [2] = Node, [3] = 2.Relationship, [4] = 2.Node
     cypherReturn = '';
     cypherDropdown: string[] = [];
     //cypherRelationship: string[] = ['','','','']; // [0] = Relationship, [1] = Node, [2] = 2.Relationship, [3] = 2.Node
     fieldListCypher: string[] = ['MATCH'];
     fieldList: string[] = ['0'];
-
+    fieldListMATCH: string[] = ['0'];
+    fieldListGROUP: string[] = ['0'];
     fieldDepthCounter = 0;
+    fieldDepthCounterMATCH = 0;
+    fieldDepthCounterGROUP = 0;
     logicalDepthCounter = 0;
+    logicalDepthCounterMATCH = 0;
+    logicalDepthCounterGROUP = 0;
     // mql input fields
     mqlFields: any[][] = [['','','','',0,0]]; //mqlText1 = 0, mqlDropdown = 1, mqlText2 = 3, mqlTextX = 4, fieldDepth = 5, logicalDepth = 6
+
+    mqlFieldsMATCH: any[][] = [['','','','',0,0]];
+    mqlFieldsGROUP: any[][] = [['','','','',0,0]];
     activeNamespace: string; // same usage as console.components.ts
     collectionName: string;
+    collectionName2: string;
     graphName: string;
 
     logicalOperatorStack: string[] = [];
+    logicalOperatorStackMATCH: string[] = [];
+    logicalOperatorStackGROUP: string[] = [];
     fieldCounter = 0;
+    fieldCounterMATCH = 0;
+    fieldCounterGROUP = 0;
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace'; // same usage as console.components.ts
 
     // Dropdown
     show = false;
+    showFIND = false;
+    showMATCH = false;
+    showGROUP = false;
 
     show2 = false;
+    showFIND2 = false;
+    showMATCH2 = false;
+    showGROUP2 = false;
     private debounce: any;
     private debounceDelay = 200;
 
     private initialrect: DOMRect;
+
+    mqlType: string;
 
 
   ngOnInit() {
@@ -193,10 +213,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 res => {
                     const nodeAction = (tree, node, $event) => { // TO DO: it only shows columns _id_ and _data_ but not correct ones.
                         if (!node.isActive && node.isLeaf) {
-                            console.log(node.parent.id);
                             this.setDefaultDB(node.parent.id);
-                            console.log(node.displayField);
                             this.collectionName = node.displayField;
+                            this.collectionName2 = node.id;
                         }
                     };
                     const schemaTemp = <SidebarNode[]>res;
@@ -415,14 +434,27 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         switch (inputlang) {
             case 'sql':
                 this.collectionName = undefined;
+                this.collectionName2 = undefined;
                 this.graphName = undefined;
                 //mql
                 this.mqlFields = [['','','','',0,0]];
+                this.mqlFieldsMATCH = [['','','','',0,0]];
+                this.mqlFieldsGROUP = [['','','','',0,0]];
                 this.fieldCounter = 0;
                 this.logicalOperatorStack = [];
                 this.fieldList = ['0'];
                 this.fieldDepthCounter = 0;
                 this.logicalDepthCounter = 0;
+                this.fieldCounterMATCH = 0;
+                this.logicalOperatorStackMATCH = [];
+                this.fieldListMATCH = ['0'];
+                this.fieldDepthCounterMATCH = 0;
+                this.logicalDepthCounterMATCH = 0;
+                this.fieldCounterGROUP = 0;
+                this.logicalOperatorStackGROUP = [];
+                this.fieldListGROUP = ['0'];
+                this.fieldDepthCounterGROUP = 0;
+                this.logicalDepthCounterGROUP = 0;
                 //cypher
                 this.cypherFields = [[]];
                 this.cypherReturn = '';
@@ -430,12 +462,25 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
             case 'cypher':
                 this.collectionName = undefined;
+                this.collectionName2 = undefined;
                 this.mqlFields = [['','','','',0,0]];
+                this.mqlFieldsMATCH = [['','','','',0,0]];
+                this.mqlFieldsGROUP = [['','','','',0,0]];
                 this.fieldCounter = 0;
+                this.logicalOperatorStack = [];
                 this.fieldList = ['0'];
                 this.fieldDepthCounter = 0;
                 this.logicalDepthCounter = 0;
-                this.logicalOperatorStack = [];
+                this.fieldCounterMATCH = 0;
+                this.logicalOperatorStackMATCH = [];
+                this.fieldListMATCH = ['0'];
+                this.fieldDepthCounterMATCH = 0;
+                this.logicalDepthCounterMATCH = 0;
+                this.fieldCounterGROUP = 0;
+                this.logicalOperatorStackGROUP = [];
+                this.fieldListGROUP = ['0'];
+                this.fieldDepthCounterGROUP = 0;
+                this.logicalDepthCounterGROUP = 0;
                 break;
             case 'mql':
                 this.graphName = undefined;
@@ -454,46 +499,153 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     //taken from json-editor.component.ts
-    setMenuShow(doShow: boolean, instant = false) {
-        if (instant) {
-            this.show = doShow;
-            return;
-        }
-        if (!doShow) {
-            this.debounce = setTimeout(() => {
-                this.show = false;
-            }, this.debounceDelay);
-        } else {
-            this.show = true;
+    setMenuShow(doShow: boolean, instant = false, mqlCase: string) {
+        switch (mqlCase) {
+            case 'Cypher':
+                if (instant) {
+                    this.show = doShow;
+                    return;
+                }
+                if (!doShow) {
+                    this.debounce = setTimeout(() => {
+                        this.show = false;
+                    }, this.debounceDelay);
+                } else {
+                    this.show = true;
+                }
+                break;
+            case 'Find':
+                if (instant) {
+                    this.showFIND = doShow;
+                    return;
+                }
+                if (!doShow) {
+                    this.debounce = setTimeout(() => {
+                        this.showFIND = false;
+                    }, this.debounceDelay);
+                } else {
+                    this.showFIND = true;
+                }
+                break;
+            case 'Aggr1':
+                if (instant) {
+                    this.showMATCH = doShow;
+                    return;
+                }
+                if (!doShow) {
+                    this.debounce = setTimeout(() => {
+                        this.showMATCH = false;
+                    }, this.debounceDelay);
+                } else {
+                    this.showMATCH = true;
+                }
+                break;
+            case 'Aggr2':
+                if (instant) {
+                    this.showGROUP = doShow;
+                    return;
+                }
+                if (!doShow) {
+                    this.debounce = setTimeout(() => {
+                        this.showGROUP = false;
+                    }, this.debounceDelay);
+                } else {
+                    this.showGROUP = true;
+                }
+                break;
         }
     }
 
     //taken from json-editor.component.ts
-    menuEnter() {
-        if (this.show) {
-            clearTimeout(this.debounce);
+    menuEnter(mqlCase: string) {
+        switch (mqlCase) {
+            case 'Cypher':
+                if (this.show) {
+                    clearTimeout(this.debounce);
+                }
+                break;
+            case 'Find':
+                if (this.showFIND) {
+                    clearTimeout(this.debounce);
+                }
+                break;
+            case 'Aggr1':
+                if (this.showMATCH) {
+                    clearTimeout(this.debounce);
+                }
+                break;
+            case 'Aggr2':
+                if (this.showGROUP) {
+                    clearTimeout(this.debounce);
+                }
+                break;
         }
     }
 
-    setMenuShow2(doShow2: boolean, instant = false) {
-        if (instant) {
-            this.show2 = doShow2;
-            return;
-        }
-        if (!doShow2) {
-            this.debounce = setTimeout(() => {
-                this.show2 = false;
-            }, this.debounceDelay);
-        } else {
-            this.show2 = true;
+    setMenuShow2(doShow: boolean, instant = false, mqlCase: string) {
+        switch (mqlCase) {
+            case 'Find':
+                if (instant) {
+                    this.show2 = doShow;
+                    return;
+                }
+                if (!doShow) {
+                    this.debounce = setTimeout(() => {
+                        this.show2 = false;
+                    }, this.debounceDelay);
+                } else {
+                    this.show2 = true;
+                }
+            break;
+            case 'Aggr1':
+                if (instant) {
+                    this.showMATCH2 = doShow;
+                    return;
+                }
+                if (!doShow) {
+                    this.debounce = setTimeout(() => {
+                        this.showMATCH2 = false;
+                    }, this.debounceDelay);
+                } else {
+                    this.showMATCH2 = true;
+                }
+                break;
+            case 'Aggr2':
+                if (instant) {
+                    this.showGROUP2 = doShow;
+                    return;
+                }
+                if (!doShow) {
+                    this.debounce = setTimeout(() => {
+                        this.showGROUP2 = false;
+                    }, this.debounceDelay);
+                } else {
+                    this.showGROUP2 = true;
+                }
+                break;
         }
     }
 
     //taken from json-editor.component.ts
-    menuEnter2() {
-        if (this.show2) {
-            clearTimeout(this.debounce);
+    menuEnter2(mqlCase: string) {
+        switch (mqlCase) {
+            case 'Find':
+                if (this.showFIND2) {
+                    clearTimeout(this.debounce);
+                }
+                break;
+            case 'Aggr1':
+                if (this.showMATCH2) {
+                    clearTimeout(this.debounce);
+                }
+                break;
+            case 'Aggr2':
+                if (this.showGROUP2) {
+                    clearTimeout(this.debounce);
+                }
+                break;
         }
+
     }
 
     //drag and drop for cypher labels
@@ -512,25 +664,65 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         event.preventDefault();
     }
 
-    onDrop(event: DragEvent) {
+    onDrop(event: DragEvent, mqlCase: string) {
         event.preventDefault();
         const data = event.dataTransfer?.getData('text/plain');
-        if (data) {
-            const index = this.fieldList.indexOf(data);
-            const targetElement = event.currentTarget as HTMLElement;
-            setTimeout(() => {
-                const rect = targetElement.getBoundingClientRect();
-                const mouseY = rect.top - this.initialrect.top;
-                const targetIndex = Math.round(mouseY / rect.height) + index;
-                if (index !== -1 && targetIndex !== -1 && index !== targetIndex) {
-                    this.fieldList.splice(targetIndex, 0, this.fieldList.splice(index, 1)[0]);
-                    this.mqlFields.splice(targetIndex, 0, this.mqlFields.splice(index, 1)[0]);
-                    // Logical Operators
-                    this.logicalOperatorStack.splice(targetIndex, 0, this.logicalOperatorStack.splice(index, 1)[0]);
+        switch (mqlCase) {
+            case 'Find':
+                if (data) {
+                    const index = this.fieldList.indexOf(data);
+                    const targetElement = event.currentTarget as HTMLElement;
+                    setTimeout(() => {
+                        const rect = targetElement.getBoundingClientRect();
+                        const mouseY = rect.top - this.initialrect.top;
+                        const targetIndex = Math.round(mouseY / rect.height) + index;
+                        if (index !== -1 && targetIndex !== -1 && index !== targetIndex) {
+                            this.fieldList.splice(targetIndex, 0, this.fieldList.splice(index, 1)[0]);
+                            this.mqlFields.splice(targetIndex, 0, this.mqlFields.splice(index, 1)[0]);
+                            // Logical Operators
+                            this.logicalOperatorStack.splice(targetIndex, 0, this.logicalOperatorStack.splice(index, 1)[0]);
+                        }
+                    }, 0);
                 }
-            }, 0);
+                this.generateMQL();
+                break;
+            case 'Aggr1':
+                if (data) {
+                    const index = this.fieldListMATCH.indexOf(data);
+                    const targetElement = event.currentTarget as HTMLElement;
+                    setTimeout(() => {
+                        const rect = targetElement.getBoundingClientRect();
+                        const mouseY = rect.top - this.initialrect.top;
+                        const targetIndex = Math.round(mouseY / rect.height) + index;
+                        if (index !== -1 && targetIndex !== -1 && index !== targetIndex) {
+                            this.fieldListMATCH.splice(targetIndex, 0, this.fieldListMATCH.splice(index, 1)[0]);
+                            this.mqlFieldsMATCH.splice(targetIndex, 0, this.mqlFieldsMATCH.splice(index, 1)[0]);
+                            // Logical Operators
+                            this.logicalOperatorStackMATCH.splice(targetIndex, 0, this.logicalOperatorStackMATCH.splice(index, 1)[0]);
+                        }
+                    }, 0);
+                }
+                this.generateMQL();
+                break;
+            case 'Aggr2':
+                if (data) {
+                    const index = this.fieldListGROUP.indexOf(data);
+                    const targetElement = event.currentTarget as HTMLElement;
+                    setTimeout(() => {
+                        const rect = targetElement.getBoundingClientRect();
+                        const mouseY = rect.top - this.initialrect.top;
+                        const targetIndex = Math.round(mouseY / rect.height) + index;
+                        if (index !== -1 && targetIndex !== -1 && index !== targetIndex) {
+                            this.fieldListGROUP.splice(targetIndex, 0, this.fieldListGROUP.splice(index, 1)[0]);
+                            this.mqlFieldsGROUP.splice(targetIndex, 0, this.mqlFieldsGROUP.splice(index, 1)[0]);
+                            // Logical Operators
+                            this.logicalOperatorStackGROUP.splice(targetIndex, 0, this.logicalOperatorStackGROUP.splice(index, 1)[0]);
+                        }
+                    }, 0);
+                }
+                this.generateMQL();
+                break;
         }
-        this.generateMQL();
     }
 
     //similiar to data-graph.component.ts
@@ -557,65 +749,194 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
 
-    addMQLField() { // 'normal new Field'
-        this.fieldCounter += 1;
-        this.fieldList.push(String(this.fieldCounter));
-        this.fieldDepthCounter = 0;
-        this.mqlFields.push([]);
-        this.mqlFields[this.fieldList.length-1][5] = 0; //Key-Object Depth
-        this.mqlFields[this.fieldList.length-1][6] = -1; //Logical Operator Depth
-
-    }
-
-    addMQLFieldKeyObject() { // adding a property
-        this.mqlFields[this.fieldCounter][1] = undefined;// deleting equal from field before
-        this.fieldCounter += 1;
-        this.fieldDepthCounter += 1;
-        this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
-        this.mqlFields.push([]);
-        this.mqlFields[this.fieldList.length-1][5] = this.fieldDepthCounter; //Key-Object Depth
-        this.mqlFields[this.fieldList.length-1][6] = -1; //Logical Operator Depth
-    }
-
-    addMQLFieldKeyObject2() { // staying on the same 'level' of property
-        this.fieldCounter += 1;
-        this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
-        this.mqlFields.push([]);
-        this.mqlFields[this.fieldList.length-1][5] = this.fieldDepthCounter; //Key-Object Depth
-        this.mqlFields[this.fieldList.length-1][6] = -1; //Logical Operator Depth
-    }
-
-    addLogicalOperator(logical: string) { // adding Logical Operator AND or OR
-        this.fieldCounter += 1;
-        this.fieldList.push(logical);
-        this.logicalOperatorStack.push(logical);
-        this.mqlFields.push([]);
-        this.mqlFields[this.fieldList.length-1][5] = this.fieldDepthCounter; //Key-Object Depth
-        this.mqlFields[this.fieldList.length-1][6] = this.logicalDepthCounter; //Logical Operator Depth
-        this.logicalDepthCounter += 1;
-    }
-
-    endLogicalOperator() { // ending Logical Operator AND or OR
-        this.fieldCounter += 1;
-        this.logicalDepthCounter -= 1;
-        this.fieldList.push('END');
-        this.logicalOperatorStack.pop();
-        this.mqlFields.push([]);
-        this.mqlFields[this.fieldList.length-1][5] = this.fieldDepthCounter; //Key-Object Depth
-        this.mqlFields[this.fieldList.length-1][6] = this.logicalDepthCounter; //Logical Operator Depth
-    }
-
-    prependKeyObject(depth: number, index: number) { //creating the dot notation for objects
-        let prependText = '';
-        if (depth !== 0) { //does not have to iterarate through this if depth 0
-            for (let i = this.mqlFields.length - 1; i >= 0; i--) { //searches elements in array with lower depth to append for dot-notation
-                if (this.mqlFields[i][5] < depth) {
-                    prependText += this.mqlFields[i][0] + '.';
-                    break;
-                }
-            }
+    addMQLField(mqlCase: string) { // 'normal new Field'
+        switch (mqlCase) {
+            case 'Find':
+                this.fieldCounter += 1;
+                this.fieldList.push(String(this.fieldCounter));
+                this.fieldDepthCounter = 0;
+                this.mqlFields.push([]);
+                this.mqlFields[this.fieldList.length-1][5] = 0; //Key-Object Depth
+                this.mqlFields[this.fieldList.length-1][6] = -1; //Logical Operator Depth
+                break;
+            case 'Aggr1':
+                this.fieldCounterMATCH += 1;
+                this.fieldListMATCH.push(String(this.fieldCounterMATCH));
+                this.fieldDepthCounterMATCH = 0;
+                this.mqlFieldsMATCH.push([]);
+                this.mqlFieldsMATCH[this.fieldListMATCH.length-1][5] = 0;
+                this.mqlFieldsMATCH[this.fieldListMATCH.length-1][6] = -1;
+                break;
+            case 'Aggr2':
+                this.fieldCounterGROUP += 1;
+                this.fieldListGROUP.push(String(this.fieldCounterGROUP));
+                this.fieldDepthCounterGROUP = 0;
+                this.mqlFieldsGROUP.push([]);
+                this.mqlFieldsGROUP[this.fieldListGROUP.length-1][5] = 0;
+                this.mqlFieldsGROUP[this.fieldListGROUP.length-1][6] = -1;
+                break;
         }
-        this.mqlFields[index][0] = prependText + this.mqlFields[index][3];
+    }
+
+    addMQLFieldKeyObject(mqlCase: string) { // adding a property
+        switch (mqlCase) {
+            case 'Find':
+                this.mqlFields[this.fieldCounter][1] = undefined;// deleting equal from field before
+                this.fieldCounter += 1;
+                this.fieldDepthCounter += 1;
+                this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
+                this.mqlFields.push([]);
+                this.mqlFields[this.fieldList.length-1][5] = this.fieldDepthCounter; //Key-Object Depth
+                this.mqlFields[this.fieldList.length-1][6] = -1; //Logical Operator Depth
+                break;
+            case 'Aggr1':
+                this.mqlFieldsMATCH[this.fieldCounterMATCH][1] = undefined;
+                this.fieldCounterMATCH += 1;
+                this.fieldDepthCounterMATCH += 1;
+                this.fieldListMATCH.push(String(this.fieldCounterMATCH));
+                this.mqlFieldsMATCH.push([]);
+                this.mqlFieldsMATCH[this.fieldListMATCH.length-1][5] = this.fieldDepthCounterMATCH;
+                this.mqlFieldsMATCH[this.fieldListMATCH.length-1][6] = -1;
+                break;
+            case 'Aggr2':
+                this.mqlFieldsGROUP[this.fieldCounterGROUP][1] = undefined;
+                this.fieldCounterGROUP += 1;
+                this.fieldDepthCounterGROUP += 1;
+                this.fieldListGROUP.push(String(this.fieldCounterGROUP));
+                this.mqlFieldsGROUP.push([]);
+                this.mqlFieldsGROUP[this.fieldListGROUP.length-1][5] = this.fieldDepthCounterGROUP;
+                this.mqlFieldsGROUP[this.fieldListGROUP.length-1][6] = -1;
+                break;
+        }
+    }
+
+    addMQLFieldKeyObject2(mqlCase: string) { // staying on the same 'level' of property
+        switch (mqlCase) {
+            case 'Find':
+                this.fieldCounter += 1;
+                this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
+                this.mqlFields.push([]);
+                this.mqlFields[this.fieldList.length - 1][5] = this.fieldDepthCounter; //Key-Object Depth
+                this.mqlFields[this.fieldList.length - 1][6] = -1; //Logical Operator Depth
+                break;
+            case 'Aggr1':
+                this.fieldCounterMATCH += 1;
+                this.fieldListMATCH.push(String(this.fieldCounterMATCH));
+                this.mqlFieldsMATCH.push([]);
+                this.mqlFieldsMATCH[this.fieldListMATCH.length - 1][5] = this.fieldDepthCounterMATCH;
+                this.mqlFieldsMATCH[this.fieldListMATCH.length - 1][6] = -1;
+                break;
+            case 'Aggr2':
+                this.fieldCounterGROUP += 1;
+                this.fieldListGROUP.push(String(this.fieldCounterGROUP));
+                this.mqlFieldsGROUP.push([]);
+                this.mqlFieldsGROUP[this.fieldListGROUP.length - 1][5] = this.fieldDepthCounterGROUP;
+                this.mqlFieldsGROUP[this.fieldListGROUP.length - 1][6] = -1;
+                break;
+        }
+    }
+
+    addLogicalOperator(logical: string, mqlCase: string) { // adding Logical Operator AND or OR
+        switch (mqlCase) {
+            case 'Find':
+                this.fieldCounter += 1;
+                this.fieldList.push(logical);
+                this.logicalOperatorStack.push(logical);
+                this.mqlFields.push([]);
+                this.mqlFields[this.fieldList.length - 1][5] = this.fieldDepthCounter; //Key-Object Depth
+                this.mqlFields[this.fieldList.length - 1][6] = this.logicalDepthCounter; //Logical Operator Depth
+                this.logicalDepthCounter += 1;
+                break;
+            case 'Aggr1':
+                this.fieldCounterMATCH += 1;
+                this.fieldListMATCH.push(logical);
+                this.logicalOperatorStackMATCH.push(logical);
+                this.mqlFieldsMATCH.push([]);
+                this.mqlFieldsMATCH[this.fieldListMATCH.length - 1][5] = this.fieldDepthCounterMATCH;
+                this.mqlFieldsMATCH[this.fieldListMATCH.length - 1][6] = this.logicalDepthCounterMATCH;
+                this.logicalDepthCounterMATCH += 1;
+                break;
+            case 'Aggr2':
+                this.fieldCounterGROUP += 1;
+                this.fieldListGROUP.push(logical);
+                this.logicalOperatorStackGROUP.push(logical);
+                this.mqlFieldsGROUP.push([]);
+                this.mqlFieldsGROUP[this.fieldListGROUP.length - 1][5] = this.fieldDepthCounterGROUP;
+                this.mqlFieldsGROUP[this.fieldListGROUP.length - 1][6] = this.logicalDepthCounterGROUP;
+                this.logicalDepthCounterGROUP += 1;
+                break;
+        }
+    }
+
+    endLogicalOperator(mqlCase: string) { // ending Logical Operator AND or OR
+        switch (mqlCase) {
+            case 'Find':
+                this.fieldCounter += 1;
+                this.logicalDepthCounter -= 1;
+                this.fieldList.push('END');
+                this.logicalOperatorStack.pop();
+                this.mqlFields.push([]);
+                this.mqlFields[this.fieldList.length-1][5] = this.fieldDepthCounter; //Key-Object Depth
+                this.mqlFields[this.fieldList.length-1][6] = this.logicalDepthCounter; //Logical Operator Depth
+                break;
+            case 'Aggr1':
+                this.fieldCounterMATCH += 1;
+                this.logicalDepthCounterMATCH -= 1;
+                this.fieldListMATCH.push('END');
+                this.logicalOperatorStackMATCH.pop();
+                this.mqlFieldsMATCH.push([]);
+                this.mqlFieldsMATCH[this.fieldListMATCH.length-1][5] = this.fieldDepthCounterMATCH;
+                this.mqlFieldsMATCH[this.fieldListMATCH.length-1][6] = this.logicalDepthCounterMATCH;
+                break;
+            case 'Aggr2':
+                this.fieldCounterGROUP += 1;
+                this.logicalDepthCounterGROUP -= 1;
+                this.fieldListGROUP.push('END');
+                this.logicalOperatorStackGROUP.pop();
+                this.mqlFieldsGROUP.push([]);
+                this.mqlFieldsGROUP[this.fieldListGROUP.length-1][5] = this.fieldDepthCounterGROUP;
+                this.mqlFieldsGROUP[this.fieldListGROUP.length-1][6] = this.logicalDepthCounterGROUP;
+                break;
+        }
+    }
+
+    prependKeyObject(depth: number, index: number, mqlCase:string) { //creating the dot notation for objects
+        let prependText = '';
+        switch (mqlCase) {
+            case 'Find':
+                if (depth !== 0) { //does not have to iterarate through this if depth 0
+                    for (let i = this.mqlFields.length - 1; i >= 0; i--) { //searches elements in array with lower depth to append for dot-notation
+                        if (this.mqlFields[i][5] < depth) {
+                            prependText += this.mqlFields[i][0] + '.';
+                            break;
+                        }
+                    }
+                }
+                this.mqlFields[index][0] = prependText + this.mqlFields[index][3];
+                break;
+            case 'Aggr1':
+                if (depth !== 0) {
+                    for (let i = this.mqlFieldsMATCH.length - 1; i >= 0; i--) {
+                        if (this.mqlFieldsMATCH[i][5] < depth) {
+                            prependText += this.mqlFieldsMATCH[i][0] + '.';
+                            break;
+                        }
+                    }
+                }
+                this.mqlFieldsMATCH[index][0] = prependText + this.mqlFieldsMATCH[index][3];
+                break;
+            case 'Aggr2':
+                if (depth !== 0) {
+                    for (let i = this.mqlFieldsGROUP.length - 1; i >= 0; i--) {
+                        if (this.mqlFieldsGROUP[i][5] < depth) {
+                            prependText += this.mqlFieldsGROUP[i][0] + '.';
+                            break;
+                        }
+                    }
+                }
+                this.mqlFieldsGROUP[index][0] = prependText + this.mqlFieldsGROUP[index][3];
+                break;
+        }
     }
 
     deleteCypherField(x:number) {
@@ -624,40 +945,105 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.generateCypher();
     }
 
-    deleteMQLField(x:number) {
-        if (this.fieldList[x] === 'AND' || this.fieldList[x] === 'OR' || this.fieldList[x] === 'END') { //Deleting logical Operator and its END
-            const indicesToRemove = [];
-            for (let i = x; i < this.fieldList.length; i++) { // finds element and next element with same logical depth
-                console.log('The iterator goes to ' + i);
-                if (this.mqlFields[i][6] === this.mqlFields[x][6]) { // comparing logical depths
-                    indicesToRemove.push(i);
+    deleteMQLField(x:number, mqlCase:string) {
+        switch (mqlCase) {
+            case 'Find':
+                if (this.fieldList[x] === 'AND' || this.fieldList[x] === 'OR' || this.fieldList[x] === 'END') { //Deleting logical Operator and its END
+                    const indicesToRemove = [];
+                    for (let i = x; i < this.fieldList.length; i++) { // finds element and next element with same logical depth
+                        if (this.mqlFields[i][6] === this.mqlFields[x][6]) { // comparing logical depths
+                            indicesToRemove.push(i);
+                        }
+                        if (indicesToRemove.length === 2) {
+                            break;
+                        }
+                    }
+                    this.mqlFields = this.mqlFields.filter((_, index) => !indicesToRemove.includes(index));
+                    this.fieldCounter = this.fieldCounter - indicesToRemove.length;
+                    if (indicesToRemove[1] === this.fieldList.length && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
+                        this.fieldDepthCounter = this.mqlFields[x - 1][5];
+                    }
+                    this.fieldList = this.fieldList.filter((_, index) => !indicesToRemove.includes(index));
+                    this.logicalOperatorStack = this.fieldList.filter((el) => el === 'AND' || el === 'OR' || el === 'END');
+                    if (indicesToRemove.length === 1) { // there is no END, so the logical depth counter has to be substracted
+                        this.logicalDepthCounter -= 1;
+                    }
                 }
-                if (indicesToRemove.length === 2) {
-                    break;
+                else { // normal field
+                    this.fieldList.splice(x, 1);
+                    this.mqlFields.splice(x, 1);
+                    this.fieldCounter -= 1;
+                    if (x === this.fieldList.length && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
+                        this.fieldDepthCounter = this.mqlFields[x-1][5];
+                    }
                 }
-            }
-            console.log(indicesToRemove);
-            this.mqlFields = this.mqlFields.filter((_, index) => !indicesToRemove.includes(index));
-            this.fieldCounter = this.fieldCounter - indicesToRemove.length;
-            if (indicesToRemove[1] === this.fieldList.length && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
-                this.fieldDepthCounter = this.mqlFields[x - 1][5];
-            }
-            this.fieldList = this.fieldList.filter((_, index) => !indicesToRemove.includes(index));
-            this.logicalOperatorStack = this.fieldList.filter((el) => el === 'AND' || el === 'OR' || el === 'END');
-            if (indicesToRemove.length === 1) { // there is no END, so the logical depth counter has to be substracted
-                this.logicalDepthCounter -= 1;
-                console.log('The Logical DepthCounter is' + this.logicalDepthCounter);
-            }
+                this.generateMQL();
+                break;
+            case 'Aggr1':
+                if (this.fieldListMATCH[x] === 'AND' || this.fieldListMATCH[x] === 'OR' || this.fieldListMATCH[x] === 'END') {
+                    const indicesToRemove = [];
+                    for (let i = x; i < this.fieldListMATCH.length; i++) {
+                        if (this.mqlFieldsMATCH[i][6] === this.mqlFieldsMATCH[x][6]) {
+                            indicesToRemove.push(i);
+                        }
+                        if (indicesToRemove.length === 2) {
+                            break;
+                        }
+                    }
+                    this.mqlFieldsMATCH = this.mqlFieldsMATCH.filter((_, index) => !indicesToRemove.includes(index));
+                    this.fieldCounterMATCH = this.fieldCounterMATCH - indicesToRemove.length;
+                    if (indicesToRemove[1] === this.fieldListMATCH.length && x !== 0) {
+                        this.fieldDepthCounterMATCH = this.mqlFieldsMATCH[x - 1][5];
+                    }
+                    this.fieldListMATCH = this.fieldListMATCH.filter((_, index) => !indicesToRemove.includes(index));
+                    this.logicalOperatorStackMATCH = this.fieldListMATCH.filter((el) => el === 'AND' || el === 'OR' || el === 'END');
+                    if (indicesToRemove.length === 1) {
+                        this.logicalDepthCounterMATCH -= 1;
+                    }
+                }
+                else { // normal field
+                    this.fieldListMATCH.splice(x, 1);
+                    this.mqlFieldsMATCH.splice(x, 1);
+                    this.fieldCounterMATCH -= 1;
+                    if (x === this.fieldListMATCH.length && x !== 0) {
+                        this.fieldDepthCounterMATCH = this.mqlFieldsMATCH[x-1][5];
+                    }
+                }
+                this.generateMQL();
+                break;
+            case 'Aggr2':
+                if (this.fieldListGROUP[x] === 'AND' || this.fieldListGROUP[x] === 'OR' || this.fieldListGROUP[x] === 'END') {
+                    const indicesToRemove = [];
+                    for (let i = x; i < this.fieldListGROUP.length; i++) {
+                        if (this.mqlFieldsGROUP[i][6] === this.mqlFieldsGROUP[x][6]) {
+                            indicesToRemove.push(i);
+                        }
+                        if (indicesToRemove.length === 2) {
+                            break;
+                        }
+                    }
+                    this.mqlFieldsGROUP = this.mqlFieldsGROUP.filter((_, index) => !indicesToRemove.includes(index));
+                    this.fieldCounterGROUP = this.fieldCounterGROUP - indicesToRemove.length;
+                    if (indicesToRemove[1] === this.fieldListGROUP.length && x !== 0) {
+                        this.fieldDepthCounterGROUP = this.mqlFieldsGROUP[x - 1][5];
+                    }
+                    this.fieldListGROUP = this.fieldListGROUP.filter((_, index) => !indicesToRemove.includes(index));
+                    this.logicalOperatorStackGROUP = this.fieldListGROUP.filter((el) => el === 'AND' || el === 'OR' || el === 'END');
+                    if (indicesToRemove.length === 1) {
+                        this.logicalDepthCounterGROUP -= 1;
+                    }
+                }
+                else { // normal field
+                    this.fieldListGROUP.splice(x, 1);
+                    this.mqlFieldsGROUP.splice(x, 1);
+                    this.fieldCounterGROUP -= 1;
+                    if (x === this.fieldListGROUP.length && x !== 0) {
+                        this.fieldDepthCounterGROUP = this.mqlFieldsGROUP[x-1][5];
+                    }
+                }
+                this.generateMQL();
+                break;
         }
-        else { // normal field
-            this.fieldList.splice(x, 1);
-            this.mqlFields.splice(x, 1);
-            this.fieldCounter -= 1;
-            if (x === this.fieldList.length && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
-                this.fieldDepthCounter = this.mqlFields[x-1][5];
-            }
-        }
-        this.generateMQL();
     }
 
     async generateCypher() {
@@ -692,65 +1078,186 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     async generateMQL() {
         let mql = '';
         const isInsideLogicalCondition = [];
-        mql += 'db.getCollection("' + this.collectionName + '").find({';
-        for (let i = 0; i < this.fieldList.length; i++) {
-            if (this.fieldList[i] === 'AND') {
-                mql += '$and: [';
-                isInsideLogicalCondition.push('AND');
-            }
-            if (this.fieldList[i] === 'OR') {
-                mql += '$or: [';
-                isInsideLogicalCondition.push('OR');
-            }
-            if (this.fieldList[i] !== 'AND' && this.fieldList[i] !== 'OR' && this.fieldList[i] !== 'END') {
-                if (isInsideLogicalCondition.length !== 0){
-                    mql += '{';
-                }
-                switch (this.mqlFields[i][1]) {
-                    case 'equal':
-                        mql += '"' + this.mqlFields[i][0] + '" : ' + this.mqlFields[i][2];
-                        break;
-                    case 'notequal':
-                        mql += '"' + this.mqlFields[i][0] + '" : {"$ne" : ' + this.mqlFields[i][2] + '}';
-                        break;
-                    case 'greater':
-                        mql += '"' + this.mqlFields[i][0] + '" : {"$gt" : ' + this.mqlFields[i][2] + '}';
-                        break;
-                    case 'lesser':
-                        mql += '"' + this.mqlFields[i][0] + '" : {"$lt" : ' + this.mqlFields[i][2] + '}';
-                        break;
-                    case 'contains':
-                        mql += '"' + this.mqlFields[i][0] + '" : {$regex: \'/.*' + this.mqlFields[i][2] + '.*/i\'}';
-                        break;
-                    case 'notcontains':
-                        mql += '"' + this.mqlFields[i][0] + '" : {"$not" : /.*' + this.mqlFields[i][2] + '.*/i}';
-                        break;
-                    case 'type':
-                        mql += '"' + this.mqlFields[i][0] + '" : {"$type" : ' + this.mqlFields[i][2] + '}';
-                        break;
-                }
-                if (isInsideLogicalCondition.length !== 0){
-                    mql += '}';
-                }
-                const fieldListf = this.fieldList.filter((el) => el !== 'AND' && el !== 'OR' && el !== 'END');
-                let matchingIndex = -1;
-                for (let j = 0; j < fieldListf.length; j++) {
-                    if (fieldListf[j] === this.fieldList[i]) {
-                        matchingIndex = j;
+        switch (this.mqlType) {
+            case 'FIND':
+                mql += 'db.getCollection("' + this.collectionName + '").find({';
+                for (let i = 0; i < this.fieldList.length; i++) {
+                    if (this.fieldList[i] === 'AND') {
+                        mql += '$and: [';
+                        isInsideLogicalCondition.push('AND');
+                    }
+                    if (this.fieldList[i] === 'OR') {
+                        mql += '$or: [';
+                        isInsideLogicalCondition.push('OR');
+                    }
+                    if (this.fieldList[i] !== 'AND' && this.fieldList[i] !== 'OR' && this.fieldList[i] !== 'END') {
+                        if (isInsideLogicalCondition.length !== 0){
+                            mql += '{';
+                        }
+                        switch (this.mqlFields[i][1]) {
+                            case 'equal':
+                                mql += '"' + this.mqlFields[i][0] + '" : ' + this.mqlFields[i][2];
+                                break;
+                            case 'notequal':
+                                mql += '"' + this.mqlFields[i][0] + '" : {"$ne" : ' + this.mqlFields[i][2] + '}';
+                                break;
+                            case 'greater':
+                                mql += '"' + this.mqlFields[i][0] + '" : {"$gt" : ' + this.mqlFields[i][2] + '}';
+                                break;
+                            case 'lesser':
+                                mql += '"' + this.mqlFields[i][0] + '" : {"$lt" : ' + this.mqlFields[i][2] + '}';
+                                break;
+                            case 'contains':
+                                mql += '"' + this.mqlFields[i][0] + '" : {$regex: \'/.*' + this.mqlFields[i][2] + '.*/i\'}';
+                                break;
+                            case 'notcontains':
+                                mql += '"' + this.mqlFields[i][0] + '" : {"$not" : /.*' + this.mqlFields[i][2] + '.*/i}';
+                                break;
+                            case 'type':
+                                mql += '"' + this.mqlFields[i][0] + '" : {"$type" : ' + this.mqlFields[i][2] + '}';
+                                break;
+                        }
+                        if (isInsideLogicalCondition.length !== 0){
+                            mql += '}';
+                        }
+                        const fieldListf = this.fieldList.filter((el) => el !== 'AND' && el !== 'OR' && el !== 'END');
+                        let matchingIndex = -1;
+                        for (let j = 0; j < fieldListf.length; j++) {
+                            if (fieldListf[j] === this.fieldList[i]) {
+                                matchingIndex = j;
+                            }
+                        }
+                        if (matchingIndex + 1 <= fieldListf.length - 1 && matchingIndex !== -1 && this.mqlFields[i][1] !== undefined) {
+                            mql += ', ';
+                        }
+                    }
+                    if (this.fieldList[i] === 'END') {
+                        mql += ']';
+                        isInsideLogicalCondition.pop();
                     }
                 }
-                if (matchingIndex + 1 <= fieldListf.length - 1 && matchingIndex !== -1 && this.mqlFields[i][1] !== undefined) {
-                    mql += ', ';
+                mql += '})';
+                this.editorGenerated.setCode(mql);
+                break;
+            case 'AGGR':
+                mql += 'db.getCollection("' + this.collectionName + '").aggregate([{$match: {';
+                // Match-Loop
+                for (let i = 0; i < this.fieldListMATCH.length; i++) {
+                    if (this.fieldListMATCH[i] === 'AND') {
+                        mql += '$and: [';
+                        isInsideLogicalCondition.push('AND');
+                    }
+                    if (this.fieldListMATCH[i] === 'OR') {
+                        mql += '$or: [';
+                        isInsideLogicalCondition.push('OR');
+                    }
+                    if (this.fieldListMATCH[i] !== 'AND' && this.fieldListMATCH[i] !== 'OR' && this.fieldListMATCH[i] !== 'END') {
+                        if (isInsideLogicalCondition.length !== 0){
+                            mql += '{';
+                        }
+                        switch (this.mqlFieldsMATCH[i][1]) {
+                            case 'equal':
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : ' + this.mqlFieldsMATCH[i][2];
+                                break;
+                            case 'notequal':
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$ne" : ' + this.mqlFieldsMATCH[i][2] + '}';
+                                break;
+                            case 'greater':
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$gt" : ' + this.mqlFieldsMATCH[i][2] + '}';
+                                break;
+                            case 'lesser':
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$lt" : ' + this.mqlFieldsMATCH[i][2] + '}';
+                                break;
+                            case 'contains':
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {$regex: \'/.*' + this.mqlFieldsMATCH[i][2] + '.*/i\'}';
+                                break;
+                            case 'notcontains':
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$not" : /.*' + this.mqlFieldsMATCH[i][2] + '.*/i}';
+                                break;
+                            case 'type':
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$type" : ' + this.mqlFieldsMATCH[i][2] + '}';
+                                break;
+                        }
+                        if (isInsideLogicalCondition.length !== 0){
+                            mql += '}';
+                        }
+                        const fieldListf = this.fieldListMATCH.filter((el) => el !== 'AND' && el !== 'OR' && el !== 'END');
+                        let matchingIndex = -1;
+                        for (let j = 0; j < fieldListf.length; j++) {
+                            if (fieldListf[j] === this.fieldListMATCH[i]) {
+                                matchingIndex = j;
+                            }
+                        }
+                        if (matchingIndex + 1 <= fieldListf.length - 1 && matchingIndex !== -1 && this.mqlFieldsMATCH[i][1] !== undefined) {
+                            mql += ', ';
+                        }
+                    }
+                    if (this.fieldListMATCH[i] === 'END') {
+                        mql += ']';
+                        isInsideLogicalCondition.pop();
+                    }
                 }
-            }
-            if (this.fieldList[i] === 'END') {
-                mql += ']';
-                isInsideLogicalCondition.pop();
-            }
+                mql += '},{$group: {';
+                //Group-Loop
+                for (let i = 0; i < this.fieldList.length; i++) {
+                    if (this.fieldListGROUP[i] === 'AND') {
+                        mql += '$and: [';
+                        isInsideLogicalCondition.push('AND');
+                    }
+                    if (this.fieldListGROUP[i] === 'OR') {
+                        mql += '$or: [';
+                        isInsideLogicalCondition.push('OR');
+                    }
+                    if (this.fieldListGROUP[i] !== 'AND' && this.fieldListGROUP[i] !== 'OR' && this.fieldListGROUP[i] !== 'END') {
+                        if (isInsideLogicalCondition.length !== 0){
+                            mql += '{';
+                        }
+                        switch (this.mqlFieldsGROUP[i][1]) {
+                            case 'equal':
+                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : ' + this.mqlFieldsGROUP[i][2];
+                                break;
+                            case 'notequal':
+                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {"$ne" : ' + this.mqlFieldsGROUP[i][2] + '}';
+                                break;
+                            case 'greater':
+                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {"$gt" : ' + this.mqlFieldsGROUP[i][2] + '}';
+                                break;
+                            case 'lesser':
+                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {"$lt" : ' + this.mqlFieldsGROUP[i][2] + '}';
+                                break;
+                            case 'contains':
+                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {$regex: \'/.*' + this.mqlFieldsGROUP[i][2] + '.*/i\'}';
+                                break;
+                            case 'notcontains':
+                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {"$not" : /.*' + this.mqlFieldsGROUP[i][2] + '.*/i}';
+                                break;
+                            case 'type':
+                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {"$type" : ' + this.mqlFieldsGROUP[i][2] + '}';
+                                break;
+                        }
+                        if (isInsideLogicalCondition.length !== 0){
+                            mql += '}';
+                        }
+                        const fieldListf = this.fieldListGROUP.filter((el) => el !== 'AND' && el !== 'OR' && el !== 'END');
+                        let matchingIndex = -1;
+                        for (let j = 0; j < fieldListf.length; j++) {
+                            if (fieldListf[j] === this.fieldListGROUP[i]) {
+                                matchingIndex = j;
+                            }
+                        }
+                        if (matchingIndex + 1 <= fieldListf.length - 1 && matchingIndex !== -1 && this.mqlFieldsGROUP[i][1] !== undefined) {
+                            mql += ', ';
+                        }
+                    }
+                    if (this.fieldListGROUP[i] === 'END') {
+                        mql += ']';
+                        isInsideLogicalCondition.pop();
+                    }
+                }
+                mql += '}])';
+                this.editorGenerated.setCode(mql);
+                break;
         }
-        mql += '})';
-        this.editorGenerated.setCode(mql);
-        console.log(this.fieldList);
     }
 
     async generateSQL() {
@@ -852,8 +1359,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     executeQuery() {
         this.loading = true;
         const code = this.editorGenerated.getCode();
-        console.log(code);
-        console.log(this.activeNamespace);
+        if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, this.lang, this.activeNamespace))) {
+            this.loading = false;
+            this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
+        }
+    }
+
+    executeCypherFilter(code: string) {
+        this.loading = true;
         if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, this.lang, this.activeNamespace))) {
             this.loading = false;
             this.resultSet = new ResultSet('Could not establish a connection with the server.', code);

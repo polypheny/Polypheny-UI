@@ -69,8 +69,29 @@
 .show-error {
   display: block !important;
 }
+.label {
+  margin-bottom:1.5em;
+}
 
-//Label Container
+.cypher-sidebar {
+  background-color: #f0f3f5;
+  border: 1px solid #c8ced3;
+}
+
+.mql-second-text-fields {
+  background-color: rgb(210, 210, 210, 0.9);
+  padding: 1em;
+  border: 1px rgba(0, 0, 0, 0.125) solid;
+}
+
+.text-fields {
+  background-color: #dcdcdc;
+  padding: 1em;
+  margin-bottom: 1.5em;
+  border: 1px rgba(0, 0, 0, 0.125) solid;
+}
+
+  //Label Container
 .label-container {
   display: flex;
 }
