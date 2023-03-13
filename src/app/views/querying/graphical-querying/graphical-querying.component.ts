@@ -78,16 +78,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     cypherDropdown: string[] = [];
     //cypherRelationship: string[] = ['','','','']; // [0] = Relationship, [1] = Node, [2] = 2.Relationship, [3] = 2.Node
     fieldListCypher: string[] = ['MATCH'];
-    fieldList: string[] = ['0']; // each newly created input field in mql gets another value
-    fieldDepth: number[] = [0];
+    fieldList: string[] = ['0'];
+
     fieldDepthCounter = 0;
-    logicalDepth: number[] = [-1];
     logicalDepthCounter = 0;
     // mql input fields
-    mqlDropdown: string[] = [];
-    mqlTextX: string[] = [];
-    mqlText1: string[] = [];
-    mqlText2: string[] = [];
+    mqlFields: any[][] = [['','','','',0,0]]; //mqlText1 = 0, mqlDropdown = 1, mqlText2 = 3, mqlTextX = 4, fieldDepth = 5, logicalDepth = 6
     activeNamespace: string; // same usage as console.components.ts
     collectionName: string;
     graphName: string;
@@ -104,6 +100,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     private debounceDelay = 200;
 
     private initialrect: DOMRect;
+
 
   ngOnInit() {
     this._leftSidebar.open();
@@ -420,15 +417,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.collectionName = undefined;
                 this.graphName = undefined;
                 //mql
-                this.mqlDropdown = [];
-                this.mqlTextX = [];
-                this.mqlText1 = [];
-                this.mqlText2 = [];
+                this.mqlFields = [['','','','',0,0]];
                 this.fieldCounter = 0;
-                this.logicalDepth = [0];
                 this.logicalOperatorStack = [];
                 this.fieldList = ['0'];
-                this.fieldDepth = [0];
                 this.fieldDepthCounter = 0;
                 this.logicalDepthCounter = 0;
                 //cypher
@@ -438,15 +430,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
             case 'cypher':
                 this.collectionName = undefined;
-                this.mqlDropdown = [];
-                this.mqlTextX = [];
-                this.mqlText1 = [];
-                this.mqlText2 = [];
+                this.mqlFields = [['','','','',0,0]];
                 this.fieldCounter = 0;
                 this.fieldList = ['0'];
-                this.fieldDepth = [0];
                 this.fieldDepthCounter = 0;
-                this.logicalDepth = [0];
                 this.logicalDepthCounter = 0;
                 this.logicalOperatorStack = [];
                 break;
@@ -537,11 +524,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 const targetIndex = Math.round(mouseY / rect.height) + index;
                 if (index !== -1 && targetIndex !== -1 && index !== targetIndex) {
                     this.fieldList.splice(targetIndex, 0, this.fieldList.splice(index, 1)[0]);
-                    this.mqlDropdown.splice(targetIndex, 0, this.mqlDropdown.splice(index, 1)[0]);
-                    this.mqlText1.splice(targetIndex, 0, this.mqlText1.splice(index, 1)[0]);
-                    this.mqlText2.splice(targetIndex, 0, this.mqlText2.splice(index, 1)[0]);
-                    this.mqlTextX.splice(targetIndex, 0, this.mqlTextX.splice(index, 1)[0]);
-                    this.fieldDepth.splice(targetIndex, 0, this.fieldDepth.splice(index, 1)[0]);
+                    this.mqlFields.splice(targetIndex, 0, this.mqlFields.splice(index, 1)[0]);
+                    // Logical Operators
+                    this.logicalOperatorStack.splice(targetIndex, 0, this.logicalOperatorStack.splice(index, 1)[0]);
                 }
             }, 0);
         }
@@ -549,6 +534,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
 
     //similiar to data-graph.component.ts
+
     generateColor(index: number): string {
         const color = d3.interpolateSinebow;
         const ratio = 1 / (this.nodeLabels.length + this.relationLabels.length);
@@ -575,55 +561,61 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.fieldCounter += 1;
         this.fieldList.push(String(this.fieldCounter));
         this.fieldDepthCounter = 0;
-        this.fieldDepth.push(this.fieldDepthCounter);
-        this.logicalDepth.push(-1);
+        this.mqlFields.push([]);
+        this.mqlFields[this.fieldList.length-1][5] = 0; //Key-Object Depth
+        this.mqlFields[this.fieldList.length-1][6] = -1; //Logical Operator Depth
+
     }
 
     addMQLFieldKeyObject() { // adding a property
-        this.mqlDropdown[this.fieldCounter] = undefined;// deleting equal from field before
+        this.mqlFields[this.fieldCounter][1] = undefined;// deleting equal from field before
         this.fieldCounter += 1;
-        this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
         this.fieldDepthCounter += 1;
-        this.fieldDepth.push(this.fieldDepthCounter);
-        this.logicalDepth.push(-1);
+        this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
+        this.mqlFields.push([]);
+        this.mqlFields[this.fieldList.length-1][5] = this.fieldDepthCounter; //Key-Object Depth
+        this.mqlFields[this.fieldList.length-1][6] = -1; //Logical Operator Depth
     }
 
     addMQLFieldKeyObject2() { // staying on the same 'level' of property
         this.fieldCounter += 1;
         this.fieldList.push(String(this.fieldCounter)); //adding addition marker to fieldList
-        this.fieldDepth.push(this.fieldDepthCounter);
-        this.logicalDepth.push(-1);
+        this.mqlFields.push([]);
+        this.mqlFields[this.fieldList.length-1][5] = this.fieldDepthCounter; //Key-Object Depth
+        this.mqlFields[this.fieldList.length-1][6] = -1; //Logical Operator Depth
     }
 
     addLogicalOperator(logical: string) { // adding Logical Operator AND or OR
         this.fieldCounter += 1;
         this.fieldList.push(logical);
-        this.fieldDepth.push(this.fieldDepthCounter);
-        this.logicalDepth.push(this.logicalDepthCounter);
-        this.logicalDepthCounter += 1;
         this.logicalOperatorStack.push(logical);
+        this.mqlFields.push([]);
+        this.mqlFields[this.fieldList.length-1][5] = this.fieldDepthCounter; //Key-Object Depth
+        this.mqlFields[this.fieldList.length-1][6] = this.logicalDepthCounter; //Logical Operator Depth
+        this.logicalDepthCounter += 1;
     }
 
     endLogicalOperator() { // ending Logical Operator AND or OR
         this.fieldCounter += 1;
-        this.fieldList.push('END');
-        this.fieldDepth.push(this.fieldDepthCounter);
         this.logicalDepthCounter -= 1;
-        this.logicalDepth.push(this.logicalDepthCounter);
+        this.fieldList.push('END');
         this.logicalOperatorStack.pop();
+        this.mqlFields.push([]);
+        this.mqlFields[this.fieldList.length-1][5] = this.fieldDepthCounter; //Key-Object Depth
+        this.mqlFields[this.fieldList.length-1][6] = this.logicalDepthCounter; //Logical Operator Depth
     }
 
     prependKeyObject(depth: number, index: number) { //creating the dot notation for objects
         let prependText = '';
         if (depth !== 0) { //does not have to iterarate through this if depth 0
-            for (let i = this.mqlText1.length - 1; i >= 0; i--) { //searches elements in array with lower depth to append for dot-notation
-                if (this.fieldDepth[i] < depth) {
-                    prependText += this.mqlText1[i] + '.';
+            for (let i = this.mqlFields.length - 1; i >= 0; i--) { //searches elements in array with lower depth to append for dot-notation
+                if (this.mqlFields[i][5] < depth) {
+                    prependText += this.mqlFields[i][0] + '.';
                     break;
                 }
             }
         }
-        this.mqlText1[index] = prependText + this.mqlTextX[index];
+        this.mqlFields[index][0] = prependText + this.mqlFields[index][3];
     }
 
     deleteCypherField(x:number) {
@@ -634,47 +626,37 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     deleteMQLField(x:number) {
         if (this.fieldList[x] === 'AND' || this.fieldList[x] === 'OR' || this.fieldList[x] === 'END') { //Deleting logical Operator and its END
-            const indicesToRemove: number[] = [];
-            for (let i = x; i < this.fieldList.length; i++) {
-                if (this.logicalDepth[i] === this.logicalDepth[x]) { //should only delete the next element of logical Operator
+            const indicesToRemove = [];
+            for (let i = x; i < this.fieldList.length; i++) { // finds element and next element with same logical depth
+                console.log('The iterator goes to ' + i);
+                if (this.mqlFields[i][6] === this.mqlFields[x][6]) { // comparing logical depths
                     indicesToRemove.push(i);
-                    if (indicesToRemove.length === 2) {
-                        if (indicesToRemove[1] === this.fieldList.length && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
-                            this.fieldDepthCounter = this.fieldDepth[x - 1];
-                        }
-                        this.mqlDropdown.splice(indicesToRemove[1], 1);
-                        this.mqlText1.splice(indicesToRemove[1], 1);
-                        this.mqlText2.splice(indicesToRemove[1], 1);
-                        this.mqlTextX.splice(indicesToRemove[1], 1);
-                        this.fieldDepth.splice(indicesToRemove[1], 1);
-                        this.fieldCounter -= 1;
-                        break;
-                    }
                 }
+                if (indicesToRemove.length === 2) {
+                    break;
+                }
+            }
+            console.log(indicesToRemove);
+            this.mqlFields = this.mqlFields.filter((_, index) => !indicesToRemove.includes(index));
+            this.fieldCounter = this.fieldCounter - indicesToRemove.length;
+            if (indicesToRemove[1] === this.fieldList.length && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
+                this.fieldDepthCounter = this.mqlFields[x - 1][5];
             }
             this.fieldList = this.fieldList.filter((_, index) => !indicesToRemove.includes(index));
             this.logicalOperatorStack = this.fieldList.filter((el) => el === 'AND' || el === 'OR' || el === 'END');
-            this.logicalDepth = this.logicalDepth.filter((_, index) => !indicesToRemove.includes(index));
             if (indicesToRemove.length === 1) { // there is no END, so the logical depth counter has to be substracted
                 this.logicalDepthCounter -= 1;
-                if (x === this.fieldList.length && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
-                    this.fieldDepthCounter = this.fieldDepth[x - 1];
-                }
+                console.log('The Logical DepthCounter is' + this.logicalDepthCounter);
             }
         }
-        else {
+        else { // normal field
             this.fieldList.splice(x, 1);
-            this.logicalDepth.splice(x, 1);
+            this.mqlFields.splice(x, 1);
+            this.fieldCounter -= 1;
             if (x === this.fieldList.length && x !== 0) { //if last row of rows, we have to adapt fieldDepthCounter
-                this.fieldDepthCounter = this.fieldDepth[x - 1];
+                this.fieldDepthCounter = this.mqlFields[x-1][5];
             }
         }
-        this.mqlDropdown.splice(x, 1);
-        this.mqlText1.splice(x, 1);
-        this.mqlText2.splice(x, 1);
-        this.mqlTextX.splice(x, 1);
-        this.fieldDepth.splice(x, 1);
-        this.fieldCounter -= 1;
         this.generateMQL();
     }
 
@@ -724,27 +706,27 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 if (isInsideLogicalCondition.length !== 0){
                     mql += '{';
                 }
-                switch (this.mqlDropdown[i]) {
+                switch (this.mqlFields[i][1]) {
                     case 'equal':
-                        mql += '"' + this.mqlText1[i] + '" : ' + this.mqlText2[i];
+                        mql += '"' + this.mqlFields[i][0] + '" : ' + this.mqlFields[i][2];
                         break;
                     case 'notequal':
-                        mql += '"' + this.mqlText1[i] + '" : {"$ne" : ' + this.mqlText2[i] + '}';
+                        mql += '"' + this.mqlFields[i][0] + '" : {"$ne" : ' + this.mqlFields[i][2] + '}';
                         break;
                     case 'greater':
-                        mql += '"' + this.mqlText1[i] + '" : {"$gt" : ' + this.mqlText2[i] + '}';
+                        mql += '"' + this.mqlFields[i][0] + '" : {"$gt" : ' + this.mqlFields[i][2] + '}';
                         break;
                     case 'lesser':
-                        mql += '"' + this.mqlText1[i] + '" : {"$lt" : ' + this.mqlText2[i] + '}';
+                        mql += '"' + this.mqlFields[i][0] + '" : {"$lt" : ' + this.mqlFields[i][2] + '}';
                         break;
                     case 'contains':
-                        mql += '"' + this.mqlText1[i] + '" : {$regex: \'/.*' + this.mqlText2[i] + '.*/i\'}';
+                        mql += '"' + this.mqlFields[i][0] + '" : {$regex: \'/.*' + this.mqlFields[i][2] + '.*/i\'}';
                         break;
                     case 'notcontains':
-                        mql += '"' + this.mqlText1[i] + '" : {"$not" : /.*' + this.mqlText2[i] + '.*/i}';
+                        mql += '"' + this.mqlFields[i][0] + '" : {"$not" : /.*' + this.mqlFields[i][2] + '.*/i}';
                         break;
                     case 'type':
-                        mql += '"' + this.mqlText1[i] + '" : {"$type" : ' + this.mqlText2[i] + '}';
+                        mql += '"' + this.mqlFields[i][0] + '" : {"$type" : ' + this.mqlFields[i][2] + '}';
                         break;
                 }
                 if (isInsideLogicalCondition.length !== 0){
@@ -757,7 +739,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         matchingIndex = j;
                     }
                 }
-                if (matchingIndex + 1 <= fieldListf.length - 1 && matchingIndex !== -1 && this.mqlDropdown[i] !== undefined) {
+                if (matchingIndex + 1 <= fieldListf.length - 1 && matchingIndex !== -1 && this.mqlFields[i][1] !== undefined) {
                     mql += ', ';
                 }
             }

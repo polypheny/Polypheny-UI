@@ -380,6 +380,8 @@
                       </span>
                     </div>
 
+                    <!-- add filter - should execute query to get new result set if chosen-->
+
                     <div class="card-body" style="padding-bottom: 0.25rem">
                         <div class="text-danger" *ngIf="resultSet && resultSet.error">
                             <strong>Error:</strong>
@@ -393,8 +395,11 @@
                         </div>
 
                         <div class="row" *ngIf="resultSet && resultSet.data">
-                            <div class="col-lg-12"  >
+                            <div class="col-lg-9">
                               <app-data-view [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}" [loading]="loading" (viewEditorCode)="createView($event)" (executeView)="executeView($event)"></app-data-view>
+                            </div>
+                            <div class="col-lg-3">
+                                <p>Sidebar</p>
                             </div>
                         </div>
                     </div>
@@ -412,20 +417,10 @@
 
                 <!-- Creating new field for each chosen column -->
                 <div *ngFor="let fieldNumber of fieldList; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
-                    <ng-container *ngIf="fieldNumber === 'AND'">
-                        <div class="row" [style.padding-left.em]="2*this.logicalDepth[i]" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+                    <ng-container *ngIf="fieldNumber === 'AND' || fieldNumber === 'OR'">
+                        <div class="row" [style.padding-left.em]="2*this.mqlFields[i][6]" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
                             <div class="col-lg-11 fixed-width">
-                                <b>AND</b>
-                            </div>
-                            <div class="col-lg-1 fixed-width">
-                                <button id="button-mql-{{i}}" (click)="deleteMQLField(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
-                            </div>
-                        </div>
-                    </ng-container>
-                    <ng-container *ngIf="fieldNumber === 'OR'">
-                        <div class="row" [style.padding-left.em]="2*this.logicalDepth[i]" >
-                            <div class="col-lg-11 fixed-width">
-                                <b>OR</b>
+                                <b>{{fieldNumber}}</b>
                             </div>
                             <div class="col-lg-1 fixed-width">
                                 <button id="button-mql-{{i}}" (click)="deleteMQLField(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
@@ -433,27 +428,27 @@
                         </div>
                     </ng-container>
                     <ng-container *ngIf="fieldNumber === 'END'">
-                        <div class="row" [style.padding-left.em]="2*this.logicalDepth[i]">
+                        <div class="row" [style.padding-left.em]="2*this.mqlFields[i][6]">
                             <div class="col-lg-12 fixed-width">
                                 <b>END</b>
                             </div>
                         </div>
                     </ng-container>
                     <ng-container *ngIf="fieldNumber !== 'AND' && fieldNumber !== 'OR' && fieldNumber !== 'END'">
-                        <div class="row" [style.padding-left.em]="2*this.fieldDepth[i]" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+                        <div class="row" [style.padding-left.em]="2*this.mqlFields[i][5]" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
                             <div class="col-lg-4 fixed-width">
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <label for="mql-boxes-input-{{i}}" class="input-group-text"><i class="fa fa-arrows-v"></i></label>
                                     </div>
                                     <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
-                                           [(ngModel)]="mqlTextX[i]" (keyup)="prependKeyObject(this.fieldDepth[i], i); generateMQL()" placeholder="key">
+                                           [(ngModel)]="mqlFields[i][3]" (keyup)="prependKeyObject(this.mqlFields[i][5], i); generateMQL()" placeholder="key">
                                 </div>
                             </div>
                             <div class="col-lg-3 fixed-width">
-                                <div *ngIf="i == this.fieldDepth.length-1 || this.fieldDepth[i] >= this.fieldDepth[i+1]"> <!-- is key of object-->
+                                <div *ngIf="i == this.mqlFields.length-1 || this.mqlFields[i][5] >= this.mqlFields[i+1][5]"> <!-- is key of object-->
                                     <div class="input-group mb-3">
-                                        <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="mqlDropdown[i]" (change)="generateMQL()">
+                                        <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="mqlFields[i][1]" (change)="generateMQL()">
                                             <option value="equal">equals</option>
                                             <option value="notequal">does not equal</option>
                                             <option value="greater">is greater than</option>
@@ -466,10 +461,10 @@
                                 </div>
                             </div>
                             <div class="col-lg-4 fixed-width">
-                                <div *ngIf="i == this.fieldDepth.length-1 || this.fieldDepth[i] >= this.fieldDepth[i+1]"> <!--is key of object-->
+                                <div *ngIf="i == this.mqlFields.length-1 || this.mqlFields[i][5] >= this.mqlFields[i+1][5]"> <!--is key of object-->
                                     <div class="input-group mb-3">
                                         <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
-                                               [(ngModel)]="mqlText2[i]" (keyup)="generateMQL()" placeholder="value">
+                                               [(ngModel)]="mqlFields[i][2]" (keyup)="generateMQL()" placeholder="value">
                                     </div>
                                 </div>
                             </div>
@@ -489,14 +484,16 @@
                             <li>
                                 <div class="dropdown-item" (click)="addMQLField()"><i class="cui-plus"></i>Add Key</div>
                             </li>
-                            <div *ngIf="this.fieldDepth[this.fieldDepth.length - 1] > 0"> <!-- is property -->
+                            <div *ngIf="this.mqlFields.length !== 0 && this.mqlFields[this.mqlFields.length - 1][5] > 0"> <!-- is property -->
                                 <li>
                                     <div class="dropdown-item" (click)="addMQLFieldKeyObject2()"><i class="cui-plus"></i>Add Object</div>
                                 </li>
                             </div>
-                            <li>
-                                <div class="dropdown-item" (click)="addMQLFieldKeyObject()"><i class="cui-plus"></i>Add Key-Object</div>
-                            </li>
+                            <div *ngIf="this.mqlFields.length !== 0">
+                                <li>
+                                    <div class="dropdown-item" (click)="addMQLFieldKeyObject()"><i class="cui-plus"></i>Add Key-Object</div>
+                                </li>
+                            </div>
                             <li>
                                 <div class="dropdown-item" (mouseleave)="setMenuShow2(false)" (mouseenter)="menuEnter2()" (click)="setMenuShow2(true)"><i class="cui-plus"></i>Add Logical Operation
                                     <ul *ngIf="show2" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow2(false)">
@@ -516,11 +513,6 @@
                             </div>
                         </ul>
                     </div>
-                </div>
-
-                <!-- Logical Operators -->
-                <div *ngIf="collectionName !== undefined">
-
                 </div>
 
                 <h5>Generated query</h5>
