@@ -1,13 +1,4 @@
-import {
-    AfterViewInit,
-    Component,
-    Input,
-    OnDestroy,
-    OnInit,
-    TemplateRef,
-    ViewChild,
-    ViewEncapsulation
-} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
@@ -16,19 +7,18 @@ import {CrudService} from '../../../services/crud.service';
 import {FilteredUserInput, ResultSet} from '../../../components/data-view/models/result-set.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToastService} from '../../../components/toast/toast.service';
-import {DataModels, EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {WebSocket} from '../../../services/webSocket';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
 // new import added to extent graph
-import {DataGraphComponent} from '../../../components/data-view/data-graph/data-graph.component';
-import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
+import * as d3 from 'd3';
 
 @Component({
     selector: 'app-graphical-querying',
@@ -558,11 +548,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.generateMQL();
     }
 
-    //infinite color generation for labels
+    //similiar to data-graph.component.ts
     generateColor(index: number): string {
-        const hue = (index * 70) % 360;
-        const color = `hsl(${hue}, 50%, 60%)`;
-        return color;
+        const color = d3.interpolateSinebow;
+        const ratio = 1 / (this.nodeLabels.length + this.relationLabels.length);
+        return color(ratio * index);
     }
 
     addCypherField(type: string) {
