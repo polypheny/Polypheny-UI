@@ -85,7 +85,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     fieldDepthCounterGROUP = 0;
     logicalDepthCounter = 0;
     logicalDepthCounterMATCH = 0;
-    logicalDepthCounterGROUP = 0;
     // mql input fields
     mqlFields: any[][] = [['','','','',0,0]]; //mqlText1 = 0, mqlDropdown = 1, mqlText2 = 3, mqlTextX = 4, fieldDepth = 5, logicalDepth = 6
 
@@ -98,7 +97,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     logicalOperatorStack: string[] = [];
     logicalOperatorStackMATCH: string[] = [];
-    logicalOperatorStackGROUP: string[] = [];
     fieldCounter = 0;
     fieldCounterMATCH = 0;
     fieldCounterGROUP = 0;
@@ -113,7 +111,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     show2 = false;
     showFIND2 = false;
     showMATCH2 = false;
-    showGROUP2 = false;
     private debounce: any;
     private debounceDelay = 200;
 
@@ -451,10 +448,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldDepthCounterMATCH = 0;
                 this.logicalDepthCounterMATCH = 0;
                 this.fieldCounterGROUP = 0;
-                this.logicalOperatorStackGROUP = [];
                 this.fieldListGROUP = ['0'];
                 this.fieldDepthCounterGROUP = 0;
-                this.logicalDepthCounterGROUP = 0;
                 //cypher
                 this.cypherFields = [[]];
                 this.cypherReturn = '';
@@ -477,10 +472,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldDepthCounterMATCH = 0;
                 this.logicalDepthCounterMATCH = 0;
                 this.fieldCounterGROUP = 0;
-                this.logicalOperatorStackGROUP = [];
                 this.fieldListGROUP = ['0'];
                 this.fieldDepthCounterGROUP = 0;
-                this.logicalDepthCounterGROUP = 0;
                 break;
             case 'mql':
                 this.graphName = undefined;
@@ -610,19 +603,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                     this.showMATCH2 = true;
                 }
                 break;
-            case 'Aggr2':
-                if (instant) {
-                    this.showGROUP2 = doShow;
-                    return;
-                }
-                if (!doShow) {
-                    this.debounce = setTimeout(() => {
-                        this.showGROUP2 = false;
-                    }, this.debounceDelay);
-                } else {
-                    this.showGROUP2 = true;
-                }
-                break;
         }
     }
 
@@ -636,11 +616,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
             case 'Aggr1':
                 if (this.showMATCH2) {
-                    clearTimeout(this.debounce);
-                }
-                break;
-            case 'Aggr2':
-                if (this.showGROUP2) {
                     clearTimeout(this.debounce);
                 }
                 break;
@@ -716,7 +691,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                             this.fieldListGROUP.splice(targetIndex, 0, this.fieldListGROUP.splice(index, 1)[0]);
                             this.mqlFieldsGROUP.splice(targetIndex, 0, this.mqlFieldsGROUP.splice(index, 1)[0]);
                             // Logical Operators
-                            this.logicalOperatorStackGROUP.splice(targetIndex, 0, this.logicalOperatorStackGROUP.splice(index, 1)[0]);
                         }
                     }, 0);
                 }
@@ -856,15 +830,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.mqlFieldsMATCH[this.fieldListMATCH.length - 1][6] = this.logicalDepthCounterMATCH;
                 this.logicalDepthCounterMATCH += 1;
                 break;
-            case 'Aggr2':
-                this.fieldCounterGROUP += 1;
-                this.fieldListGROUP.push(logical);
-                this.logicalOperatorStackGROUP.push(logical);
-                this.mqlFieldsGROUP.push([]);
-                this.mqlFieldsGROUP[this.fieldListGROUP.length - 1][5] = this.fieldDepthCounterGROUP;
-                this.mqlFieldsGROUP[this.fieldListGROUP.length - 1][6] = this.logicalDepthCounterGROUP;
-                this.logicalDepthCounterGROUP += 1;
-                break;
         }
     }
 
@@ -887,15 +852,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.mqlFieldsMATCH.push([]);
                 this.mqlFieldsMATCH[this.fieldListMATCH.length-1][5] = this.fieldDepthCounterMATCH;
                 this.mqlFieldsMATCH[this.fieldListMATCH.length-1][6] = this.logicalDepthCounterMATCH;
-                break;
-            case 'Aggr2':
-                this.fieldCounterGROUP += 1;
-                this.logicalDepthCounterGROUP -= 1;
-                this.fieldListGROUP.push('END');
-                this.logicalOperatorStackGROUP.pop();
-                this.mqlFieldsGROUP.push([]);
-                this.mqlFieldsGROUP[this.fieldListGROUP.length-1][5] = this.fieldDepthCounterGROUP;
-                this.mqlFieldsGROUP[this.fieldListGROUP.length-1][6] = this.logicalDepthCounterGROUP;
                 break;
         }
     }
@@ -1028,10 +984,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         this.fieldDepthCounterGROUP = this.mqlFieldsGROUP[x - 1][5];
                     }
                     this.fieldListGROUP = this.fieldListGROUP.filter((_, index) => !indicesToRemove.includes(index));
-                    this.logicalOperatorStackGROUP = this.fieldListGROUP.filter((el) => el === 'AND' || el === 'OR' || el === 'END');
-                    if (indicesToRemove.length === 1) {
-                        this.logicalDepthCounterGROUP -= 1;
-                    }
                 }
                 else { // normal field
                     this.fieldListGROUP.splice(x, 1);
@@ -1200,18 +1152,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 mql += '},{$group: {';
                 //Group-Loop
                 for (let i = 0; i < this.fieldList.length; i++) {
-                    if (this.fieldListGROUP[i] === 'AND') {
-                        mql += '$and: [';
-                        isInsideLogicalCondition.push('AND');
-                    }
-                    if (this.fieldListGROUP[i] === 'OR') {
-                        mql += '$or: [';
-                        isInsideLogicalCondition.push('OR');
-                    }
-                    if (this.fieldListGROUP[i] !== 'AND' && this.fieldListGROUP[i] !== 'OR' && this.fieldListGROUP[i] !== 'END') {
-                        if (isInsideLogicalCondition.length !== 0){
-                            mql += '{';
-                        }
                         switch (this.mqlFieldsGROUP[i][1]) {
                             case 'equal':
                                 mql += '"' + this.mqlFieldsGROUP[i][0] + '" : ' + this.mqlFieldsGROUP[i][2];
@@ -1235,9 +1175,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                                 mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {"$type" : ' + this.mqlFieldsGROUP[i][2] + '}';
                                 break;
                         }
-                        if (isInsideLogicalCondition.length !== 0){
-                            mql += '}';
-                        }
                         const fieldListf = this.fieldListGROUP.filter((el) => el !== 'AND' && el !== 'OR' && el !== 'END');
                         let matchingIndex = -1;
                         for (let j = 0; j < fieldListf.length; j++) {
@@ -1248,11 +1185,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         if (matchingIndex + 1 <= fieldListf.length - 1 && matchingIndex !== -1 && this.mqlFieldsGROUP[i][1] !== undefined) {
                             mql += ', ';
                         }
-                    }
-                    if (this.fieldListGROUP[i] === 'END') {
-                        mql += ']';
-                        isInsideLogicalCondition.pop();
-                    }
                 }
                 mql += '}])';
                 this.editorGenerated.setCode(mql);

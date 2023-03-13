@@ -617,23 +617,6 @@
                                                 <div class="dropdown-item" (click)="addMQLFieldKeyObject('Aggr2')"><i class="cui-plus"></i>Add Key-Object</div>
                                             </li>
                                         </div>
-                                        <li>
-                                            <div class="dropdown-item" (mouseleave)="setMenuShow2(false, false, 'Aggr2')" (mouseenter)="menuEnter2('Aggr2')" (click)="setMenuShow2(true, false, 'Aggr2')"><i class="cui-plus"></i>Add Logical Operation
-                                                <ul *ngIf="showGROUP2" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow2(false, false, 'Aggr2')">
-                                                    <li>
-                                                        <div class="dropdown-item" (click)="addLogicalOperator('AND','Aggr2')"><i class="cui-plus"></i>Add AND</div>
-                                                    </li>
-                                                    <li>
-                                                        <div class="dropdown-item" (click)="addLogicalOperator('OR','Aggr2')"><i class="cui-plus"></i>Add OR</div>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </li>
-                                        <div *ngIf="this.logicalOperatorStackGROUP.length != 0">
-                                            <li>
-                                                <div class="dropdown-item" (click)="endLogicalOperator('Aggr2')"><i class="cui-plus"></i>End Logical Operation</div>
-                                            </li>
-                                        </div>
                                     </ul>
                                 </div>
                             </div>
