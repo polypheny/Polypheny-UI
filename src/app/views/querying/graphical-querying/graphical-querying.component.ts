@@ -89,7 +89,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     mqlFields: any[][] = [['','','','',0,0]]; //mqlText1 = 0, mqlDropdown = 1, mqlText2 = 3, mqlTextX = 4, fieldDepth = 5, logicalDepth = 6
 
     mqlFieldsMATCH: any[][] = [['','','','',0,0]];
-    mqlFieldsGROUP: any[][] = [['','','','',0,0]];
+    mqlFieldsGROUP: any[][] = [['_id','','','_id',0,0]];
     activeNamespace: string; // same usage as console.components.ts
     collectionName: string;
     collectionName2: string;
@@ -436,7 +436,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 //mql
                 this.mqlFields = [['','','','',0,0]];
                 this.mqlFieldsMATCH = [['','','','',0,0]];
-                this.mqlFieldsGROUP = [['','','','',0,0]];
+                this.mqlFieldsGROUP = [['_id','','','_id',0,0]];
                 this.fieldCounter = 0;
                 this.logicalOperatorStack = [];
                 this.fieldList = ['0'];
@@ -460,7 +460,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.collectionName2 = undefined;
                 this.mqlFields = [['','','','',0,0]];
                 this.mqlFieldsMATCH = [['','','','',0,0]];
-                this.mqlFieldsGROUP = [['','','','',0,0]];
+                this.mqlFieldsGROUP = [['_id','','','_id',0,0]];
                 this.fieldCounter = 0;
                 this.logicalOperatorStack = [];
                 this.fieldList = ['0'];
@@ -1149,44 +1149,20 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         isInsideLogicalCondition.pop();
                     }
                 }
-                mql += '},{$group: {';
+                mql += '}, {$group: {';
                 //Group-Loop
-                for (let i = 0; i < this.fieldList.length; i++) {
-                        switch (this.mqlFieldsGROUP[i][1]) {
-                            case 'equal':
-                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : ' + this.mqlFieldsGROUP[i][2];
-                                break;
-                            case 'notequal':
-                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {"$ne" : ' + this.mqlFieldsGROUP[i][2] + '}';
-                                break;
-                            case 'greater':
-                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {"$gt" : ' + this.mqlFieldsGROUP[i][2] + '}';
-                                break;
-                            case 'lesser':
-                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {"$lt" : ' + this.mqlFieldsGROUP[i][2] + '}';
-                                break;
-                            case 'contains':
-                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {$regex: \'/.*' + this.mqlFieldsGROUP[i][2] + '.*/i\'}';
-                                break;
-                            case 'notcontains':
-                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {"$not" : /.*' + this.mqlFieldsGROUP[i][2] + '.*/i}';
-                                break;
-                            case 'type':
-                                mql += '"' + this.mqlFieldsGROUP[i][0] + '" : {"$type" : ' + this.mqlFieldsGROUP[i][2] + '}';
-                                break;
-                        }
-                        const fieldListf = this.fieldListGROUP.filter((el) => el !== 'AND' && el !== 'OR' && el !== 'END');
-                        let matchingIndex = -1;
-                        for (let j = 0; j < fieldListf.length; j++) {
-                            if (fieldListf[j] === this.fieldListGROUP[i]) {
-                                matchingIndex = j;
-                            }
-                        }
-                        if (matchingIndex + 1 <= fieldListf.length - 1 && matchingIndex !== -1 && this.mqlFieldsGROUP[i][1] !== undefined) {
-                            mql += ', ';
-                        }
+                for (let i = 0; i < this.fieldListGROUP.length; i++) {
+                    if (this.mqlFieldsGROUP[i][0] === '_id') {
+                        mql += '"' + this.mqlFieldsGROUP[i][0] + '" : ' + this.mqlFieldsGROUP[i][2];
+                    }
+                    else {
+                        mql += '"' + this.mqlFieldsGROUP[i][0] + '" : { ' + this.mqlFieldsGROUP[i][1] + ' : { $' + this.mqlFieldsGROUP[i][2] + ' }}';
+                    }
+                    if (i < this.mqlFieldsGROUP.length-1) {
+                        mql += ', ';
+                    }
                 }
-                mql += '}])';
+                mql += '}}])';
                 this.editorGenerated.setCode(mql);
                 break;
         }
