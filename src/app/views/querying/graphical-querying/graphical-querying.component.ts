@@ -81,9 +81,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     fieldList: string[] = ['0'];
     fieldListMATCH: string[] = ['0'];
     fieldListGROUP: string[] = ['0'];
+    fieldListSORT: string[] = ['0'];
     fieldDepthCounter = 0;
     fieldDepthCounterMATCH = 0;
     fieldDepthCounterGROUP = 0;
+    fieldDepthCounterSORT = 0;
     logicalDepthCounter = 0;
     logicalDepthCounterMATCH = 0;
     // mql input fields
@@ -91,6 +93,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     mqlFieldsMATCH: any[][] = [['','','','',0,0]];
     mqlFieldsGROUP: any[][] = [['_id','','','_id',0,0]];
+
+    mqlFieldsSORT: any[][] = [['','','','',0,0]];
     activeNamespace: string; // same usage as console.components.ts
     collectionName: string;
     collectionName2: string;
@@ -98,9 +102,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     logicalOperatorStack: string[] = [];
     logicalOperatorStackMATCH: string[] = [];
+
     fieldCounter = 0;
     fieldCounterMATCH = 0;
     fieldCounterGROUP = 0;
+    fieldCounterSORT = 0;
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace'; // same usage as console.components.ts
 
     // Dropdown
@@ -109,9 +115,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     showMATCH = false;
     showGROUP = false;
 
+    showSORT = false;
+
     show2 = false;
     showFIND2 = false;
     showMATCH2 = false;
+    showGROUP2 = false;
     private debounce: any;
     private debounceDelay = 200;
 
@@ -445,6 +454,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.mqlFields = [['','','','',0,0]];
                 this.mqlFieldsMATCH = [['','','','',0,0]];
                 this.mqlFieldsGROUP = [['_id','','','_id',0,0]];
+                this.mqlFieldsSORT = [['_id','','','_id',0,0]];
                 this.fieldCounter = 0;
                 this.logicalOperatorStack = [];
                 this.fieldList = ['0'];
@@ -458,6 +468,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldCounterGROUP = 0;
                 this.fieldListGROUP = ['0'];
                 this.fieldDepthCounterGROUP = 0;
+                this.fieldCounterSORT = 0;
+                this.fieldListSORT = ['0'];
+                this.fieldDepthCounterSORT = 0;
                 //cypher
                 this.cypherFields = [[]];
                 this.cypherReturn = '';
@@ -469,6 +482,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.mqlFields = [['','','','',0,0]];
                 this.mqlFieldsMATCH = [['','','','',0,0]];
                 this.mqlFieldsGROUP = [['_id','','','_id',0,0]];
+                this.mqlFieldsSORT = [['_id','','','_id',0,0]];
                 this.fieldCounter = 0;
                 this.logicalOperatorStack = [];
                 this.fieldList = ['0'];
@@ -482,6 +496,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldCounterGROUP = 0;
                 this.fieldListGROUP = ['0'];
                 this.fieldDepthCounterGROUP = 0;
+                this.fieldCounterSORT = 0;
+                this.fieldListSORT = ['0'];
+                this.fieldDepthCounterSORT = 0;
                 break;
             case 'mql':
                 this.graphName = undefined;
@@ -554,6 +571,19 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                     this.showGROUP = true;
                 }
                 break;
+            case 'Aggr3':
+                if (instant) {
+                    this.showSORT = doShow;
+                    return;
+                }
+                if (!doShow) {
+                    this.debounce = setTimeout(() => {
+                        this.showSORT = false;
+                    }, this.debounceDelay);
+                } else {
+                    this.showSORT = true;
+                }
+                break;
         }
     }
 
@@ -577,6 +607,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
             case 'Aggr2':
                 if (this.showGROUP) {
+                    clearTimeout(this.debounce);
+                }
+                break;
+            case 'Aggr3':
+                if (this.showSORT) {
                     clearTimeout(this.debounce);
                 }
                 break;
@@ -704,6 +739,23 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 }
                 this.generateMQL();
                 break;
+            case 'Aggr3':
+                if (data) {
+                    const index = this.fieldListSORT.indexOf(data);
+                    const targetElement = event.currentTarget as HTMLElement;
+                    setTimeout(() => {
+                        const rect = targetElement.getBoundingClientRect();
+                        const mouseY = rect.top - this.initialrect.top;
+                        const targetIndex = Math.round(mouseY / rect.height) + index;
+                        if (index !== -1 && targetIndex !== -1 && index !== targetIndex) {
+                            this.fieldListSORT.splice(targetIndex, 0, this.fieldListSORT.splice(index, 1)[0]);
+                            this.mqlFieldsSORT.splice(targetIndex, 0, this.mqlFieldsSORT.splice(index, 1)[0]);
+                            // Logical Operators
+                        }
+                    }, 0);
+                }
+                this.generateMQL();
+                break;
         }
     }
 
@@ -757,6 +809,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.mqlFieldsGROUP[this.fieldListGROUP.length-1][5] = 0;
                 this.mqlFieldsGROUP[this.fieldListGROUP.length-1][6] = -1;
                 break;
+            case 'Aggr3':
+                this.fieldCounterSORT += 1;
+                this.fieldListSORT.push(String(this.fieldCounterSORT));
+                this.fieldDepthCounterSORT = 0;
+                this.mqlFieldsSORT.push([]);
+                this.mqlFieldsSORT[this.fieldListSORT.length-1][5] = 0;
+                this.mqlFieldsSORT[this.fieldListSORT.length-1][6] = -1;
+                break;
         }
     }
 
@@ -789,6 +849,15 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.mqlFieldsGROUP[this.fieldListGROUP.length-1][5] = this.fieldDepthCounterGROUP;
                 this.mqlFieldsGROUP[this.fieldListGROUP.length-1][6] = -1;
                 break;
+            case 'Aggr3':
+                this.mqlFieldsSORT[this.fieldCounterSORT][1] = undefined;
+                this.fieldCounterSORT += 1;
+                this.fieldDepthCounterSORT += 1;
+                this.fieldListSORT.push(String(this.fieldCounterSORT));
+                this.mqlFieldsSORT.push([]);
+                this.mqlFieldsSORT[this.fieldListSORT.length-1][5] = this.fieldDepthCounterSORT;
+                this.mqlFieldsSORT[this.fieldListSORT.length-1][6] = -1;
+                break;
         }
     }
 
@@ -814,6 +883,13 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.mqlFieldsGROUP.push([]);
                 this.mqlFieldsGROUP[this.fieldListGROUP.length - 1][5] = this.fieldDepthCounterGROUP;
                 this.mqlFieldsGROUP[this.fieldListGROUP.length - 1][6] = -1;
+                break;
+            case 'Aggr3':
+                this.fieldCounterSORT += 1;
+                this.fieldListSORT.push(String(this.fieldCounterSORT));
+                this.mqlFieldsSORT.push([]);
+                this.mqlFieldsSORT[this.fieldListSORT.length - 1][5] = this.fieldDepthCounterSORT;
+                this.mqlFieldsSORT[this.fieldListSORT.length - 1][6] = -1;
                 break;
         }
     }
@@ -899,6 +975,17 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                     }
                 }
                 this.mqlFieldsGROUP[index][0] = prependText + this.mqlFieldsGROUP[index][3];
+                break;
+            case 'Aggr3':
+                if (depth !== 0) {
+                    for (let i = this.mqlFieldsSORT.length - 1; i >= 0; i--) {
+                        if (this.mqlFieldsSORT[i][5] < depth) {
+                            prependText += this.mqlFieldsSORT[i][0] + '.';
+                            break;
+                        }
+                    }
+                }
+                this.mqlFieldsSORT[index][0] = prependText + this.mqlFieldsSORT[index][3];
                 break;
         }
     }
@@ -999,6 +1086,34 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                     this.fieldCounterGROUP -= 1;
                     if (x === this.fieldListGROUP.length && x !== 0) {
                         this.fieldDepthCounterGROUP = this.mqlFieldsGROUP[x-1][5];
+                    }
+                }
+                this.generateMQL();
+                break;
+            case 'Aggr3':
+                if (this.fieldListSORT[x] === 'AND' || this.fieldListSORT[x] === 'OR' || this.fieldListSORT[x] === 'END') {
+                    const indicesToRemove = [];
+                    for (let i = x; i < this.fieldListSORT.length; i++) {
+                        if (this.mqlFieldsSORT[i][6] === this.mqlFieldsSORT[x][6]) {
+                            indicesToRemove.push(i);
+                        }
+                        if (indicesToRemove.length === 2) {
+                            break;
+                        }
+                    }
+                    this.mqlFieldsSORT = this.mqlFieldsSORT.filter((_, index) => !indicesToRemove.includes(index));
+                    this.fieldCounterSORT = this.fieldCounterSORT - indicesToRemove.length;
+                    if (indicesToRemove[1] === this.fieldListSORT.length && x !== 0) {
+                        this.fieldDepthCounterSORT = this.mqlFieldsSORT[x - 1][5];
+                    }
+                    this.fieldListSORT = this.fieldListSORT.filter((_, index) => !indicesToRemove.includes(index));
+                }
+                else { // normal field
+                    this.fieldListSORT.splice(x, 1);
+                    this.mqlFieldsSORT.splice(x, 1);
+                    this.fieldCounterSORT -= 1;
+                    if (x === this.fieldListSORT.length && x !== 0) {
+                        this.fieldDepthCounterSORT = this.mqlFieldsSORT[x-1][5];
                     }
                 }
                 this.generateMQL();
@@ -1167,6 +1282,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         mql += '"' + this.mqlFieldsGROUP[i][0] + '" : { ' + this.mqlFieldsGROUP[i][1] + ' : { $' + this.mqlFieldsGROUP[i][2] + ' }}';
                     }
                     if (i < this.mqlFieldsGROUP.length-1) {
+                        mql += ', ';
+                    }
+                }
+                mql += '}}, {$sort: {';
+                //Sort-Loop
+                for (let i = 0; i < this.fieldListSORT.length; i++) {
+                    mql += '"' + this.mqlFieldsSORT[i][0] + '" : ' + this.mqlFieldsSORT[i][1];
+                    if (i < this.mqlFieldsSORT.length-1) {
                         mql += ', ';
                     }
                 }

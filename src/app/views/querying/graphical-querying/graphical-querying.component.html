@@ -148,7 +148,7 @@
                                     <br>
                                     To recreate this query, you can follow these steps:<br>
                                     <ol>
-                                        <li>In the MATCH input field, type <code>tom:Person</code></li>
+                                        <li>In the MATCH input field, type <code>tom:Person {{"{" }}name: "Tom Hanks"}</code></li>
                                         <li>Select the Relationship <i>Directed</i> from the dropdown menu</li>
                                         <li>Enter <code>ACTED_IN</code> into the first, and <code>tomHanksMovies</code> into the second appearing field</li>
                                         <li>Finally, add <code>tom, tomHanksMovies</code> to the RETURN input field</li>
@@ -510,11 +510,11 @@
                                         You can begin to build your query by filling in the input fields. Here's an example of a find() query:
                                         <br>
                                         <br>
-                                        <ul><li><code>db.yourCollection.find({{"{" }} "name": "John"})</code></li></ul>
-                                        <code>{{ "{" }} "name": "John" }</code> specifies the criteria for selecting documents. In this case, the query will select documents where the value of the <i>name</i> field is equal to <i>"John"</i>.
+                                        <ul><li><code>db.yourCollection.find({{"{" }} "name": "Jane"})</code></li></ul>
+                                        <code>{{ "{" }} "name": "Jane" }</code> specifies the criteria for selecting documents. In this case, the query will select documents where the value of the <i>name</i> field is equal to <i>"Jane"</i>.
                                         <br>
                                         <br>
-                                        To recreate this query, you can write <code>name</code> into the first input field. Next, select <code>equals</code> from the dropdown menu. Finally, enter <code>"John"</code> into the last input field. Don't forget the quotation marks if it is a string your looking for.
+                                        To recreate this query, you can write <code>name</code> into the first input field. Next, select <code>equals</code> from the dropdown menu. Finally, enter <code>"Jane"</code> into the last input field. Don't forget the quotation marks if it is a string your looking for.
                                         <br>
                                         <br>
                                         <b>Additional Features:</b>
@@ -551,8 +551,52 @@
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
-                                    <div class="modal-body">
-                                        Here is the text? AGGR
+                                    <div class="modal-body"> <!-- Text taken from https://www.mongodb.com/docs/manual/aggregation/-->
+                                        An aggregation pipeline consists of one or more stages that process documents:
+                                        <br>
+                                        <br>
+                                        <ul>
+                                            <li>Each stage performs an operation on the input documents. For example, a stage can filter documents, group documents, and calculate values.</li>
+                                            <li>The documents that are output from a stage are passed to the next stage.</li>
+                                            <li>An aggregation pipeline can return results for groups of documents. For example, return the total, average, maximum, and minimum values.</li>
+                                        </ul>
+                                        <b>Basics:</b>
+                                        <br>
+                                        This interface has per default an aggregation pipeline consisting of the stages $match, $group and $sort. The following aggregation pipeline example contains three stages and returns the total order quantity of medium size pizzas grouped by pizza name and sorted by:
+                                        <br>
+                                        <br>
+                                        <ul><li>
+                                            <code>db.orders.aggregate([{{"{" }}
+                                                <br>// Stage 1: Filter pizza order documents by pizza size
+                                                <br>$match: {{"{" }} size: "medium" }
+                                                <br>}, {{"{" }}
+                                                <br>// Stage 2: Group remaining documents by pizza name and calculate total quantity
+                                                <br>$group: {{"{" }} _id: "$name", totalQuantity: {{"{" }} $sum: "$quantity" } }
+                                                <br>}]
+                                            </code>
+                                        </li></ul>
+                                        The $match stage:
+                                        <br>
+                                        <br>
+                                        <ul>
+                                            <li>Filters the pizza order documents to pizzas with a size of medium.</li>
+                                            <li>Passes the remaining documents to the $group stage.</li>
+                                        </ul>
+                                        The $group stage:
+                                        <ul>
+                                            <li>Groups the remaining documents by pizza name.</li>
+                                            <li>Uses $sum to calculate the total order quantity for each pizza name. The total is stored in the totalQuantity field returned by the aggregation pipeline.</li>
+                                        </ul>
+                                        <br>
+                                        <br>
+                                        The $sort stage:
+                                        <ul>
+                                            <li>Test</li>
+                                            <li>Test2</li>
+                                        </ul>
+                                        To recreate this query [...]
+                                        <br>
+                                        <br>
                                     </div>
                                     <div class="modal-footer">
                                     </div>
@@ -561,6 +605,7 @@
                         </div>
                     </div>
                 </div>
+
 
                <!-- MQL Aggregate -->
                 <div *ngIf="mqlType === 'AGGR'">  <!-- Creating new field for each chosen column -->
@@ -674,7 +719,7 @@
                         <div style="display: inline-block;" tooltip="The group stage in an aggregate pipeline is used to group the documents in a collection by one or more fields and perform a variety of aggregations on the grouped data.">
                             <b>Group stage</b>
                         </div>
-                        <div class="mql-second-text-fields">
+                        <div class="mql-second-text-fields" style="margin-bottom:1em;">
                             <div *ngFor="let fieldNumber of fieldListGROUP; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
                                     <div class="row" [style.padding-left.em]="2*this.mqlFieldsGROUP[i][5]" (drop)="onDrop($event,'Aggr2')" (dragover)="onDragOver($event)">
                                         <div class="col-lg-4 fixed-width">
@@ -692,7 +737,7 @@
                                                     <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="mqlFieldsGROUP[i][1]" (change)="generateMQL()">
                                                         <optgroup label="Accumulator Operator">
                                                             <option value="$avg">average</option>
-                                                            <option value="$$count">count</option>
+                                                            <option value="$count">count</option>
                                                             <option value="$max">max</option>
                                                             <option value="$min">min</option>
                                                             <option value="$sum">sum</option>
@@ -732,6 +777,61 @@
                                         <div *ngIf="this.mqlFieldsGROUP.length !== 0">
                                             <li>
                                                 <div class="dropdown-item" (click)="addMQLFieldKeyObject('Aggr2')"><i class="cui-plus"></i>Add Key-Object</div>
+                                            </li>
+                                        </div>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Sort Stage-->
+                        <div style="display: inline-block;" tooltip="The group stage in an aggregate pipeline is used to group the documents in a collection by one or more fields and perform a variety of aggregations on the grouped data.">
+                            <b>Sort stage</b>
+                        </div>
+                        <div class="mql-second-text-fields">
+                            <div *ngFor="let fieldNumber of fieldListSORT; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
+                                <div class="row" [style.padding-left.em]="2*this.mqlFieldsSORT[i][5]" (drop)="onDrop($event,'Aggr3')" (dragover)="onDragOver($event)">
+                                    <div class="col-lg-6 fixed-width">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <label for="mql-boxes-input-{{i}}" class="input-group-text"><i class="fa fa-arrows-v"></i></label>
+                                            </div>
+                                            <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                                   [(ngModel)]="mqlFieldsSORT[i][3]" (keyup)="prependKeyObject(this.mqlFieldsSORT[i][5], i,'Aggr3'); generateMQL()" placeholder="key">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5 fixed-width">
+                                        <div *ngIf="i == this.mqlFieldsSORT.length-1 || this.mqlFieldsSORT[i][5] >= this.mqlFieldsSORT[i+1][5]"> <!-- is key of object-->
+                                            <div class="input-group mb-3">
+                                                <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="mqlFieldsSORT[i][1]" (change)="generateMQL()">
+                                                    <option value="1">Sort ascending</option>
+                                                    <option value="-1">Sort descending</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-1 fixed-width">
+                                        <!-- Button to delete field -->
+                                        <button id="button-mql-{{i}}" (click)="deleteMQLField(i,'Aggr3')" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="input-group justify-content-center mt-3">
+                                <div (mouseleave)="setMenuShow(false,false,'Aggr3')" (mouseenter)="menuEnter('Aggr3')">
+                                    <button class="btn btn-primary toggle-insert" (click)="setMenuShow(true, false,'Aggr3')" type="button"><i
+                                            class="fa fa-plus"></i></button>
+                                    <ul *ngIf="showSORT" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false, false, 'Aggr3')">
+                                        <li>
+                                            <div class="dropdown-item" (click)="addMQLField('Aggr3')"><i class="cui-plus"></i>Add Key</div>
+                                        </li>
+                                        <div *ngIf="this.mqlFieldsSORT.length !== 0 && this.mqlFieldsSORT[this.mqlFieldsSORT.length - 1][5] > 0"> <!-- is property -->
+                                            <li>
+                                                <div class="dropdown-item" (click)="addMQLFieldKeyObject2('Aggr3')"><i class="cui-plus"></i>Add Object</div>
+                                            </li>
+                                        </div>
+                                        <div *ngIf="this.mqlFieldsSORT.length !== 0">
+                                            <li>
+                                                <div class="dropdown-item" (click)="addMQLFieldKeyObject('Aggr3')"><i class="cui-plus"></i>Add Key-Object</div>
                                             </li>
                                         </div>
                                     </ul>
