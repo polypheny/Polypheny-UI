@@ -20,6 +20,7 @@ import {ViewInformation} from '../../../components/data-view/data-view.component
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import * as d3 from 'd3';
 
+
 @Component({
     selector: 'app-graphical-querying',
     templateUrl: './graphical-querying.component.html',
@@ -117,6 +118,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     private initialrect: DOMRect;
 
     mqlType: string;
+
+    activeMode: string;
 
 
   ngOnInit() {
@@ -426,6 +429,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     wrapInParetheses(k) {
         return '"' + k.split('.').join('"."') + '"';
     }
+
+    onCloseModal() {
+        this.activeMode = undefined;
+    }
+
 
     setDefaultState(inputlang: string) { //sets the field values to zero if the user switches languages
         switch (inputlang) {

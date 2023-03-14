@@ -108,19 +108,43 @@
 
                 <div class="label">
                     <!-- Node Labels -->
-                    <div style="display: inline-block;" tooltip="Nodes represent entities in the graph database. They can have labels that describe their type and properties that store their attributes.">
-                        <p>Node Labels:</p>
+                    <div style="display: inline-block; margin-bottom:0.75em;" tooltip="Nodes represent entities in the graph database. They can have labels that describe their type and properties that store their attributes.">
+                        <b>Node Labels:</b>
                     </div>
                     <div class="label-container">
                         <p *ngFor="let label of nodeLabels; let i = index" class="label-node" draggable="true" (dragstart)="drag($event)" [ngStyle]="{backgroundColor: generateColor(i)}">{{label}}</p>
                     </div>
 
                     <!-- Relationship Labels -->
-                    <div style="display: inline-block;" tooltip="Relationships represent the connections between nodes in the graph database. They have a type, a direction, and can have properties that store additional information about the relationship.">
-                        <p>Relationship Labels:</p>
+                    <div style="display: inline-block; margin-bottom:0.75em" tooltip="Relationships represent the connections between nodes in the graph database. They have a type, a direction, and can have properties that store additional information about the relationship.">
+                        <b>Relationship Labels:</b>
                     </div>
                     <div class="label-container">
                         <p *ngFor="let label of relationLabels; let i = index" class="label-relation" draggable="true" (dragstart)="drag($event)" [ngStyle]="{backgroundColor: generateColor(i + nodeLabels.length)}">{{label}}</p>
+                    </div>
+                </div>
+
+                <!-- Modal for Cypher -->
+                <div class="row" style="justify-content: right; margin-bottom: 0.5em; padding-right: 1em;">
+                    <button class="btn btn-primary pull-right" (click)="this.queryHelpCypher.show();"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></button>
+                    <div bsModal #queryHelpCypher="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                         aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal3" (onHide)="onCloseModal()">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Query-Generation: Cypher</h4>
+
+                                    <button type="button" class="close" (click)="queryHelpCypher.hide()" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+
+                                </div>
+                                <div class="modal-footer">
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
                     </div>
                 </div>
 
@@ -418,6 +442,8 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
         <!-- graphical-UI for MQL -->
         <div *ngIf="lang === 'mql'">
@@ -426,15 +452,87 @@
             <div *ngIf="collectionName !== undefined">
 
                 <p>Fill in the details:</p>
-                <div classe ="row">
-                        <p>Choose what you want to do: </p>
-                    <div class="btn-group-horizontal btn-group" id="radio-2" data-toggle="buttons">
-                        <label class="btn btn-secondary">
-                            <input type="radio" name="type" [(ngModel)]="mqlType" value="FIND" (ngModelChange)="generateMQL()">find
-                        </label>
-                        <label class="btn btn-secondary">
-                            <input type="radio" name="type" [(ngModel)]="mqlType" value="AGGR" (ngModelChange)="generateMQL()">aggregate
-                        </label>
+                <p>Choose what you want to do: </p>
+                <div classe ="row" style="display: flex; justify-content: space-between;">
+                    <div>
+                        <div class="btn-group-horizontal btn-group" id="radio-2" data-toggle="buttons">
+                            <label class="btn btn-secondary" tooltip="The find method is used to retrieve documents from a collection based on specified criteria.">
+                                <input type="radio" name="type" [(ngModel)]="mqlType" value="FIND" (ngModelChange)="generateMQL()">find
+                            </label>
+                            <label class="btn btn-secondary" tooltip="The aggregate method is used to perform advanced data processing and analysis on the documents in a collection.">
+                                <input type="radio" name="type" [(ngModel)]="mqlType" value="AGGR" (ngModelChange)="generateMQL()">aggregate
+                            </label>
+                        </div>
+                    </div>
+                    <div *ngIf="mqlType!== undefined && mqlType ==='FIND'">
+                        <!-- Modal for FIND -->
+                        <button class="btn btn-primary pull-right" (click)="this.queryHelp.show();"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></button>
+                        <div bsModal #queryHelp="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                             aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="onCloseModal()">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Query-Generation: Find</h4>
+
+                                        <button type="button" class="close" (click)="queryHelp.hide()" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <b>Basics:</b>
+                                        <br>
+                                        You can begin to build your query by filling in the input fields. Here's an example of a find() query:
+                                        <br>
+                                        <br>
+                                        <ul><li><b>db.yourCollection.find({{"{" }} "name": "John"})</b></li></ul>
+                                        <i>{{ "{" }} "name": "John" }</i> specifies the criteria for selecting documents. In this case, the query will select documents where the value of the <i>name</i> field is equal to <i>"John"</i>.
+                                        <br>
+                                        <br>
+                                        To recreate this query, you can write <i>name</i> into the first input field. Next, select <i>equals</i> from the dropdown menu. Finally, enter <i>"John"</i> into the last input field. Don't forget the quotation marks if it is a string your looking for.
+                                        <br>
+                                        <br>
+                                        <b>Additional Features:</b>
+                                        <br>
+                                        If you want to add more criterias to your search, you can use the additional features. Here's a step-by-step guide:
+                                        <br>
+                                        <br><ul>
+                                        <li><b>Adding new keys:</b> You can add new keys by clicking on the plus-button. To delete a key, click on the trash-button.</li>
+
+                                        <li><b>Defining key-objects:</b> You can define key-objects by creating a new key and adding sub-keys to it through the plus-button. For example, if you want to add an <i>address</i> key containing sub-keys <i>street</i> and <i>number</i>, you can create a new key <i>address</i>, then add the key-object <i>street</i>, and then the object <i>number</i> to it.</li>
+
+                                        <li><b>Using Boolean Operators:</b> You can use Boolean Operators (AND, OR) to create more complex conditions. Every Boolean Operator should be closed by an END on the same depth level. You can do this throug the plus-button. You can add multiple Boolean Operators in succession to create nested conditions. Every row between the condition and its END is logically connected.</li>
+
+                                        <li><b>Drag and Drop:</b> You can also drag and drop rows to transfer them inside the logical Operators or insert them into a different order. This can be useful if you made a mistake and need to correct the order of the criteria.</li>
+                                        </ul>
+                                    </div>
+                                    <div class="modal-footer">
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div>
+                    </div>
+                    <div *ngIf="mqlType!== undefined && mqlType === 'AGGR'">
+                        <!-- Modal for AGGR --- original from adapters.component.html -->
+                        <button class="btn btn-primary pull-right" (click)="this.queryHelpAGGR.show();"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></button>
+                        <div bsModal #queryHelpAGGR="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                             aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal2" (onHide)="onCloseModal()">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Query-Generation: Aggregation</h4>
+
+                                        <button type="button" class="close" (click)="queryHelpAGGR.hide()" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Here is the text? AGGR
+                                    </div>
+                                    <div class="modal-footer">
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div>
                     </div>
                 </div>
 
@@ -442,7 +540,9 @@
                 <div *ngIf="mqlType === 'AGGR'">  <!-- Creating new field for each chosen column -->
                     <div class="text-fields">
                         <!-- Match Stage-->
-                        <b>Match stage</b>
+                        <div style="display: inline-block;" tooltip="The match stage in an aggregate pipeline is used to filter the documents in a collection similar to the find method.">
+                            <b>Match stage</b>
+                        </div>
                         <div class="mql-second-text-fields" style="margin-bottom:1em;">
                             <div *ngFor="let fieldNumber of fieldListMATCH; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
                                 <ng-container *ngIf="fieldNumber === 'AND' || fieldNumber === 'OR'">
@@ -545,7 +645,9 @@
                         </div>
 
                         <!-- Group Stage-->
-                        <b>Group stage</b>
+                        <div style="display: inline-block;" tooltip="The group stage in an aggregate pipeline is used to group the documents in a collection by one or more fields and perform a variety of aggregations on the grouped data.">
+                            <b>Group stage</b>
+                        </div>
                         <div class="mql-second-text-fields">
                             <div *ngFor="let fieldNumber of fieldListGROUP; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
                                     <div class="row" [style.padding-left.em]="2*this.mqlFieldsGROUP[i][5]" (drop)="onDrop($event,'Aggr2')" (dragover)="onDragOver($event)">
@@ -763,8 +865,8 @@
                     </div>
                 </div>
             </div>
-
         </div>
+
     </div>
 </div>
 
