@@ -139,7 +139,33 @@
                                     </button>
                                 </div>
                                 <div class="modal-body">
+                                    <b>Basics:</b>
+                                    <br>
+                                    Imagine you have a graph that contains different persons and movies and their relationships. If you want to return the node for the actor Tom Hanks and all movie nodes that he acted in, you can use a Cypher query like this:
+                                    <br>
+                                    <br>
+                                    <ul><li><code>MATCH (tom:Person {{"{" }}name: "Tom Hanks"})-[:ACTED_IN]->(tomHanksMovies)<br>RETURN tom,tomHanksMovies</code></li></ul>
+                                    <br>
+                                    To recreate this query, you can follow these steps:<br>
+                                    <ol>
+                                        <li>In the MATCH input field, type <code>tom:Person</code></li>
+                                        <li>Select the Relationship <i>Directed</i> from the dropdown menu</li>
+                                        <li>Enter <code>ACTED_IN</code> into the first, and <code>tomHanksMovies</code> into the second appearing field</li>
+                                        <li>Finally, add <code>tom, tomHanksMovies</code> to the RETURN input field</li>
+                                    </ol>
 
+                                    <b>Additional Features:</b>
+                                    <br>
+                                    If you want to add more criteria to your search, you can use additional features. Here's a step-by-step guide:
+                                    <br>
+                                    <br><ul>
+                                    <li><b>Adding MATCH:</b> To add a new MATCH row and its relationship, click the plus button. To delete the row, click the trash button.</li>
+
+                                    <li><b>Adding WHERE:</b> To add a new WHERE row, click the plus button. You can choose various operators from the dropdown menu, and you can add AND, OR, or NOR conditions by selecting the appropriate radio buttons.</li>
+
+                                    <li><b>Drag and Drop Labels:</b> To input labels more quickly, you can drag and drop the listed labels above into the desired input fields.</li>
+
+                                </ul>
                                 </div>
                                 <div class="modal-footer">
                                 </div>
@@ -484,11 +510,11 @@
                                         You can begin to build your query by filling in the input fields. Here's an example of a find() query:
                                         <br>
                                         <br>
-                                        <ul><li><b>db.yourCollection.find({{"{" }} "name": "John"})</b></li></ul>
-                                        <i>{{ "{" }} "name": "John" }</i> specifies the criteria for selecting documents. In this case, the query will select documents where the value of the <i>name</i> field is equal to <i>"John"</i>.
+                                        <ul><li><code>db.yourCollection.find({{"{" }} "name": "John"})</code></li></ul>
+                                        <code>{{ "{" }} "name": "John" }</code> specifies the criteria for selecting documents. In this case, the query will select documents where the value of the <i>name</i> field is equal to <i>"John"</i>.
                                         <br>
                                         <br>
-                                        To recreate this query, you can write <i>name</i> into the first input field. Next, select <i>equals</i> from the dropdown menu. Finally, enter <i>"John"</i> into the last input field. Don't forget the quotation marks if it is a string your looking for.
+                                        To recreate this query, you can write <code>name</code> into the first input field. Next, select <code>equals</code> from the dropdown menu. Finally, enter <code>"John"</code> into the last input field. Don't forget the quotation marks if it is a string your looking for.
                                         <br>
                                         <br>
                                         <b>Additional Features:</b>
@@ -498,9 +524,9 @@
                                         <br><ul>
                                         <li><b>Adding new keys:</b> You can add new keys by clicking on the plus-button. To delete a key, click on the trash-button.</li>
 
-                                        <li><b>Defining key-objects:</b> You can define key-objects by creating a new key and adding sub-keys to it through the plus-button. For example, if you want to add an <i>address</i> key containing sub-keys <i>street</i> and <i>number</i>, you can create a new key <i>address</i>, then add the key-object <i>street</i>, and then the object <i>number</i> to it.</li>
+                                        <li><b>Defining key-objects:</b> You can define key-objects by creating a new key and adding key-objects to it through the plus-button. For example, if you want to add an <i>address</i> key containing objects <i>street</i> and <i>number</i>, you can create a new key <code>address</code>, then add the key-object <code>street</code>, and then the object <code>number</code> to it.</li>
 
-                                        <li><b>Using Boolean Operators:</b> You can use Boolean Operators (AND, OR) to create more complex conditions. Every Boolean Operator should be closed by an END on the same depth level. You can do this throug the plus-button. You can add multiple Boolean Operators in succession to create nested conditions. Every row between the condition and its END is logically connected.</li>
+                                        <li><b>Using Boolean Operators:</b> You can use Boolean Operators (<code>AND</code>, <code>OR</code>) to create more complex conditions. Every Boolean Operator should be closed by an <code>END</code> on the same depth level. You can do this through the plus-button. You can add multiple Boolean Operators in succession to create nested conditions. Every row between the condition and its <code>END</code> is logically connected.</li>
 
                                         <li><b>Drag and Drop:</b> You can also drag and drop rows to transfer them inside the logical Operators or insert them into a different order. This can be useful if you made a mistake and need to correct the order of the criteria.</li>
                                         </ul>
