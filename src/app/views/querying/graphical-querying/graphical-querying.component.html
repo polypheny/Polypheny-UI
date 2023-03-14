@@ -108,13 +108,17 @@
 
                 <div class="label">
                     <!-- Node Labels -->
-                    <p>Node Labels:</p>
+                    <div style="display: inline-block;" tooltip="Nodes represent entities in the graph database. They can have labels that describe their type and properties that store their attributes.">
+                        <p>Node Labels:</p>
+                    </div>
                     <div class="label-container">
                         <p *ngFor="let label of nodeLabels; let i = index" class="label-node" draggable="true" (dragstart)="drag($event)" [ngStyle]="{backgroundColor: generateColor(i)}">{{label}}</p>
                     </div>
 
                     <!-- Relationship Labels -->
-                    <p>Relationship Labels:</p>
+                    <div style="display: inline-block;" tooltip="Relationships represent the connections between nodes in the graph database. They have a type, a direction, and can have properties that store additional information about the relationship.">
+                        <p>Relationship Labels:</p>
+                    </div>
                     <div class="label-container">
                         <p *ngFor="let label of relationLabels; let i = index" class="label-relation" draggable="true" (dragstart)="drag($event)" [ngStyle]="{backgroundColor: generateColor(i + nodeLabels.length)}">{{label}}</p>
                     </div>
@@ -133,7 +137,9 @@
                                 <div class="col-lg-11 fixed-width">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
-                                            <label for="cypher-match-node-{{i}}" class="input-group-text">MATCH</label>
+                                            <label for="cypher-match-node-{{i}}" class="input-group-text"
+                                                   tooltip="The MATCH clause allows you to specify patterns of nodes and relationships that should be matched in the graph, and filter the results based on specific criteria"
+                                            >MATCH</label>
                                         </div>
                                         <input type="text" id="cypher-match-node-{{i}}" class="form-control"
                                                [(ngModel)]="cypherFields[i][0]" (keyup)="generateCypher()" placeholder="Node">
@@ -152,7 +158,9 @@
                                 <div class="col-lg-3 fixed-width">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
-                                            <label class="input-group-text" for="cypher-relationship-type-{{i}}">Relationship</label>
+                                            <label class="input-group-text" for="cypher-relationship-type-{{i}}"
+                                                   tooltip="Relationships are used to represent the connections between nodes in the graph. You can use relationship patterns to specify which relationships to traverse."
+                                            >Relationship</label>
                                         </div>
                                         <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherDropdown[i]" (change)="generateCypher()">
                                             <option value="cypher-none" selected>None</option>
@@ -214,7 +222,8 @@
                                 <div class="col-lg-4 fixed-width">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
-                                            <label for="cypher-where-{{i}}" class="input-group-text">WHERE</label>
+                                            <label for="cypher-where-{{i}}" class="input-group-text" tooltip="The WHERE clause is used to filter data based on specific conditions. It allows you to specify one or more boolean expressions that must evaluate to true for a node or relationship to be included in the query result."
+                                            >WHERE</label>
                                         </div>
                                         <input type="text" id="cypher-where-{{i}}" placeholder="Condition" class="form-control"
                                                [(ngModel)]="cypherFields[i][0]" (keyup)="generateCypher()">
@@ -350,7 +359,8 @@
                         <div class="col-lg-12 fixed-width">
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
-                                    <label for="cypher-return" class="input-group-text">RETURN</label>
+                                    <label for="cypher-return" class="input-group-text" tooltip="The RETURN clause is used to specify which data to include in the query result. It allows you to select nodes, relationships or properties"
+                                    >RETURN</label>
                                 </div>
                                 <input type="text" id="cypher-return" placeholder="Node" autocomplete="off" class="form-control"
                                        [(ngModel)]="cypherReturn" (keyup)="generateCypher()">
@@ -408,8 +418,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
         <!-- graphical-UI for MQL -->
         <div *ngIf="lang === 'mql'">
@@ -434,8 +442,8 @@
                 <div *ngIf="mqlType === 'AGGR'">  <!-- Creating new field for each chosen column -->
                     <div class="text-fields">
                         <!-- Match Stage-->
+                        <b>Match stage</b>
                         <div class="mql-second-text-fields" style="margin-bottom:1em;">
-                            <b>Match stage</b>
                             <div *ngFor="let fieldNumber of fieldListMATCH; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
                                 <ng-container *ngIf="fieldNumber === 'AND' || fieldNumber === 'OR'">
                                     <div class="row" [style.padding-left.em]="2*this.mqlFieldsMATCH[i][6]" (drop)="onDrop($event, 'Aggr1')" (dragover)="onDragOver($event)">
@@ -537,8 +545,8 @@
                         </div>
 
                         <!-- Group Stage-->
+                        <b>Group stage</b>
                         <div class="mql-second-text-fields">
-                            <b>Group stage</b>
                             <div *ngFor="let fieldNumber of fieldListGROUP; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
                                     <div class="row" [style.padding-left.em]="2*this.mqlFieldsGROUP[i][5]" (drop)="onDrop($event,'Aggr2')" (dragover)="onDragOver($event)">
                                         <div class="col-lg-4 fixed-width">
@@ -608,6 +616,7 @@
                 <!-- MQL-FIND -->
                 <div *ngIf="mqlType === 'FIND'">  <!-- Creating new field for each chosen column -->
                     <div class="text-fields">
+                        <b>Find</b>
                         <div *ngFor="let fieldNumber of fieldList; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
                             <ng-container *ngIf="fieldNumber === 'AND' || fieldNumber === 'OR'">
                                 <div class="row" [style.padding-left.em]="2*this.mqlFields[i][6]" (drop)="onDrop($event,'Find')" (dragover)="onDragOver($event)">
@@ -758,8 +767,6 @@
         </div>
     </div>
 </div>
-
-
 
 <div class="col-lg-12" id="results">
 
