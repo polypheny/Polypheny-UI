@@ -624,15 +624,15 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         switch (mqlCase) {
             case 'Find':
                 if (instant) {
-                    this.show2 = doShow;
+                    this.showFIND2 = doShow;
                     return;
                 }
                 if (!doShow) {
                     this.debounce = setTimeout(() => {
-                        this.show2 = false;
+                        this.showFIND2 = false;
                     }, this.debounceDelay);
                 } else {
-                    this.show2 = true;
+                    this.showFIND2 = true;
                 }
             break;
             case 'Aggr1':
