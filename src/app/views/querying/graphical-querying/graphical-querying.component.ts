@@ -74,9 +74,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     config: TableConfig;
     // cypher input fields
     cypherFields: string[][] = [[]]; // Matrix à [n,5] size  -> [1] = Relationship, [2] = Node, [3] = 2.Relationship, [4] = 2.Node
-    cypherReturn = '';
+    cypherReturn: string[] = [''];
+    cypherReturn2: string[] = [''];
     cypherDropdown: string[] = [];
-    //cypherRelationship: string[] = ['','','','']; // [0] = Relationship, [1] = Node, [2] = 2.Relationship, [3] = 2.Node
     fieldListCypher: string[] = ['MATCH'];
     fieldList: string[] = ['0'];
     fieldListMATCH: string[] = ['0'];
@@ -473,7 +473,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldDepthCounterSORT = 0;
                 //cypher
                 this.cypherFields = [[]];
-                this.cypherReturn = '';
+                this.cypherReturn = [''];
+                this.cypherReturn2 = [''];
                 this.fieldListCypher = ['MATCH'];
                 break;
             case 'cypher':
@@ -503,7 +504,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             case 'mql':
                 this.graphName = undefined;
                 this.cypherFields = [[]];
-                this.cypherReturn = '';
+                this.cypherReturn = [''];
+                this.cypherReturn2 = [''];
                 this.fieldListCypher = ['MATCH'];
                 break;
         }
@@ -1146,7 +1148,13 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             }
             cypher += '\n';
         }
-        cypher += 'RETURN ' + this.cypherReturn + ';';
+        cypher += 'RETURN ';
+        for (let i = 0; i < this.cypherReturn.length; i++) {
+            cypher += this.cypherReturn[i];
+            if (i < this.cypherReturn.length - 1) {
+                cypher += ', ';
+            }
+        }
         this.editorGenerated.setCode(cypher);
     }
 
@@ -1404,8 +1412,17 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
-    executeCypherFilter(code: string) {
+    executeCypherFilter() {
         this.loading = true;
+        let code = this.editorGenerated.getCode();
+        code += ', \n';
+        for (let i = 0; i < this.cypherReturn.length; i++) {
+            code += 'DISTINCT LABELS(' + this.cypherReturn[i] +') as test';
+            if (i < this.cypherReturn.length-1) {
+                code += ',\n';
+            }
+        }
+        console.log(code);
         if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, this.lang, this.activeNamespace))) {
             this.loading = false;
             this.resultSet = new ResultSet('Could not establish a connection with the server.', code);

@@ -405,16 +405,20 @@
                     </div>
 
                     <!-- Return Clause-->
-                    <div class="row">
-                        <div class="col-lg-12 fixed-width">
+                    <div class="row" style="display: flex; flex-direction: row; flex-wrap: wrap;">
+                        <div class="col-lg-3 fixed-width" *ngFor="let item of cypherReturn2; let i = index">
                             <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <label for="cypher-return" class="input-group-text" tooltip="The RETURN clause is used to specify which data to include in the query result. It allows you to select nodes, relationships or properties"
+                                <div class="input-group-prepend" *ngIf="i == 0">
+                                    <label for="cypher-return-{{i}}" class="input-group-text" tooltip="The RETURN clause is used to specify which data to include in the query result. It allows you to select nodes, relationships or properties"
                                     >RETURN</label>
                                 </div>
-                                <input type="text" id="cypher-return" placeholder="Node" autocomplete="off" class="form-control"
-                                       [(ngModel)]="cypherReturn" (keyup)="generateCypher()">
+                                <input type="text" id="cypher-return-{{i}}" placeholder="Node" autocomplete="off" class="form-control"
+                                       [(ngModel)]="cypherReturn[i]" (keyup)="generateCypher()">
                             </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" (click)="cypherReturn.push(''); cypherReturn2.push('');" style="border-radius: 100%;"><i class="cui-plus"></i></button>
+                            <button id="button-btn-return" (click)="cypherReturn.pop(); cypherReturn2.pop();" class="btn btn-primary toggle-insert" *ngIf="cypherReturn.length !=1" style="border-radius: 100%;"> <i class="cui-trash"></i></button>
                         </div>
                     </div>
                 </div>
