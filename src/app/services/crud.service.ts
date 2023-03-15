@@ -5,7 +5,7 @@ import {
     Index,
     ModifyPartitionRequest,
     PartitionFunctionModel,
-    PartitioningRequest
+    PartitioningRequest, PathAccessRequest
 } from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
@@ -529,6 +529,10 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/addAdapter`, fd);
     }
 
+    pathAccess(req: PathAccessRequest) {
+        return this._http.post( `${this.httpUrl}/pathAccess`, req );
+    }
+
     removeAdapter(storeId: string) {
         return this._http.post(`${this.httpUrl}/removeAdapter`, storeId, this.httpOptions);
     }
@@ -626,4 +630,5 @@ export class CrudService {
 
         return this._http.post(`${this.httpUrl}/loadPlugins`, formData);
     }
+
 }

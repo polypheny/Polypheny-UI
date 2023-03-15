@@ -13,7 +13,7 @@ import {
     ValidatorFn,
     Validators
 } from '@angular/forms';
-import {ResultSet} from '../../components/data-view/models/result-set.model';
+import {PathAccessRequest, ResultSet} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 
@@ -48,10 +48,20 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     fileLabel = 'Choose File';
     deploying = false;
+    handshaking = false;
+
+    subgroups = new Map<string, string>();
 
     @ViewChild('adapterSettingsModal', {static: false}) public adapterSettingsModal: ModalDirective;
     private allSettings: AdapterSetting[];
     public modeSettings: string[];
+    positionOrder = function (adapter: AdapterInformation) {
+        return function (a, b) {
+            return this.getAdapterSetting(adapter, a.key).position - this.getAdapterSetting(adapter, b.key).position;
+        }.bind(this);
+    }.bind(this);
+    public accessId: String;
+    private data: { data: FormData; deploy: any };
 
 
     constructor(
@@ -162,6 +172,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             }
         }
         this.editingAdapterForm = new FormGroup(fc);
+        this.handshaking = false;
         this.adapterSettingsModal.show();
     }
 
@@ -353,11 +364,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         if (!this.availableAdapterUniqueNameForm.valid) {
             return;
         }
-        console.log(this.editingAvailableAdapter);
         const deploy = {
             uniqueName: this.availableAdapterUniqueNameForm.controls['uniqueName'].value,
-            adapterName: this.editingAvailableAdapter.name, // todo dl: change to correct class logic, object atm
-            adapterType: this.editingAvailableAdapter.type, // todo dl: change to correct class logic, object atm
+            adapterName: this.editingAvailableAdapter.name,
+            adapterType: this.editingAvailableAdapter.type,
             settings: {}
         };
         const fd: FormData = new FormData();
@@ -385,6 +395,50 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         deploy.settings['mode'].defaultValue = this.activeMode;
 
         fd.append('body', JSON.stringify(deploy));
+
+        if (deploy.settings.hasOwnProperty('method') && deploy.settings['method'].defaultValue === 'link') {
+            // secure deploy
+            this.handshaking = true;
+            this._crud.pathAccess(new PathAccessRequest(deploy.uniqueName, deploy.settings['directoryName'].defaultValue)).subscribe(
+                res => {
+                    const id = <String>res;
+                    this.accessId = id;
+                    deploy.settings['access'] = id;
+                    this.data = {data: fd, deploy: deploy};
+                    if (!id || id.trim() === '') {
+                        // file is already placed
+                        this.continueSecureDeploy();
+                    }
+                }
+            );
+
+        } else {
+            // normal deploy
+            this.startDeploying(fd, deploy);
+        }
+
+    }
+
+    continueSecureDeploy() {
+        this.handshaking = false;
+        this.startDeploying(this.data.data, this.data.deploy);
+    }
+
+    createSecureFile() {
+        const file = new Blob(['test'], {type: '.access'});
+        const a = document.createElement('a'),
+            url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = 'polypheny.access';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 0);
+    }
+
+    private startDeploying(fd: FormData, deploy: { settings: {}; uniqueName: any; adapterName: string; adapterType: string }) {
         this.deploying = true;
         this._crud.addAdapter(fd).subscribe(
             res => {
@@ -482,6 +536,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 return path + 'ethereum.png';
             case 'Neo4j':
                 return path + 'neo4j.png';
+            case 'Excel':
+                return path + 'xls.png';
+            case 'GoogleSheets':
+                return path + 'google.png';
             default:
                 return 'fa fa-database';
         }
@@ -536,6 +594,30 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     isDeleting(adapter: Adapter) {
         return this.deletingInProgress.includes(adapter);
     }
+
+    subIsActive(information: AdapterInformation, subOf: string) {
+        if (!subOf) {
+            return true;
+        }
+        const keys = subOf.split('_');
+
+        if (!this.subgroups.has(keys[0])) {
+
+            const setting = this.getAdapterSetting(information, keys[0]);
+
+            this.subgroups.set(keys[0], setting.defaultValue);
+
+        }
+
+
+        return this.subgroups.has(keys[0]) && this.subgroups.get(keys[0]) === keys[1];
+    }
+
+    onChange(key: string, value: AbstractControl) {
+        this.subgroups.set(key, value.value);
+    }
+
+
 }
 
 // see https://angular.io/guide/form-validation#custom-validators

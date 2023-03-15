@@ -34,6 +34,7 @@ export interface AdapterInformation {
 }
 
 export interface AdapterSetting {
+    subOf: string;
     name: string;
     nameAlias: string;
     alias: any;
