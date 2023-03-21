@@ -454,7 +454,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.mqlFields = [['','','','',0,0]];
                 this.mqlFieldsMATCH = [['','','','',0,0]];
                 this.mqlFieldsGROUP = [['_id','','','_id',0,0]];
-                this.mqlFieldsSORT = [['_id','','','_id',0,0]];
+                this.mqlFieldsSORT = [['','','','',0,0]];
                 this.fieldCounter = 0;
                 this.logicalOperatorStack = [];
                 this.fieldList = ['0'];
@@ -483,7 +483,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.mqlFields = [['','','','',0,0]];
                 this.mqlFieldsMATCH = [['','','','',0,0]];
                 this.mqlFieldsGROUP = [['_id','','','_id',0,0]];
-                this.mqlFieldsSORT = [['_id','','','_id',0,0]];
+                this.mqlFieldsSORT = [['','','','',0,0]];
                 this.fieldCounter = 0;
                 this.logicalOperatorStack = [];
                 this.fieldList = ['0'];

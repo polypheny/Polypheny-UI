@@ -731,6 +731,28 @@
                         </div>
                         <div class="mql-second-text-fields" style="margin-bottom:1em;">
                             <div *ngFor="let fieldNumber of fieldListGROUP; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
+                                <div *ngIf="i === 0">
+                                    <div class="row" [style.padding-left.em]="2*this.mqlFieldsGROUP[i][5]" (drop)="onDrop($event,'Aggr2')" (dragover)="onDragOver($event)">
+                                        <div class="col-lg-6 fixed-width">
+                                            <div class="input-group mb-3">
+                                                <div class="input-group-prepend">
+                                                    <label for="mql-boxes-input-{{i}}" class="input-group-text"><i class="fa fa-arrows-v"></i></label>
+                                                </div>
+                                                <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                                       value="_id" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 fixed-width">
+                                            <div *ngIf="i == this.mqlFieldsGROUP.length-1 || this.mqlFieldsGROUP[i][5] >= this.mqlFieldsGROUP[i+1][5]"> <!--is key of object-->
+                                                <div class="input-group mb-3">
+                                                    <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                                           [(ngModel)]="mqlFieldsGROUP[i][2]" (keyup)="generateMQL()" placeholder="value">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="i !== 0">
                                     <div class="row" [style.padding-left.em]="2*this.mqlFieldsGROUP[i][5]" (drop)="onDrop($event,'Aggr2')" (dragover)="onDragOver($event)">
                                         <div class="col-lg-4 fixed-width">
                                             <div class="input-group mb-3">
@@ -769,6 +791,7 @@
                                             <button id="button-mql-{{i}}" (click)="deleteMQLField(i,'Aggr2')" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
                                         </div>
                                     </div>
+                                </div>
                             </div>
 
                             <div class="input-group justify-content-center mt-3">
