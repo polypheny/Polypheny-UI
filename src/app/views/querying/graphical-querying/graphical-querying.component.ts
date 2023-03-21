@@ -7,7 +7,7 @@ import {CrudService} from '../../../services/crud.service';
 import {FilteredUserInput, ResultSet} from '../../../components/data-view/models/result-set.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToastService} from '../../../components/toast/toast.service';
-import {EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {DataModels, EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
 import {Router} from '@angular/router';
@@ -220,7 +220,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         else if (lang === 'mql') {
             this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 2, false, false)).subscribe(
                 res => {
-                    const nodeAction = (tree, node, $event) => { // TO DO: it only shows columns _id_ and _data_ but not correct ones.
+                    const nodeAction = (tree, node, $event) => {
                         if (!node.isActive && node.isLeaf) {
                             this.setDefaultDB(node.parent.id);
                             this.collectionName = node.displayField;
@@ -1280,14 +1280,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         isInsideLogicalCondition.pop();
                     }
                 }
-                mql += '}, {$group: {';
+                mql += '}}, {$group: {';
                 //Group-Loop
                 for (let i = 0; i < this.fieldListGROUP.length; i++) {
                     if (this.mqlFieldsGROUP[i][0] === '_id') {
-                        mql += '"' + this.mqlFieldsGROUP[i][0] + '" : ' + this.mqlFieldsGROUP[i][2];
+                        mql += '"' + this.mqlFieldsGROUP[i][0] + '" : "$' + this.mqlFieldsGROUP[i][2] + '"';
                     }
                     else {
-                        mql += '"' + this.mqlFieldsGROUP[i][0] + '" : { ' + this.mqlFieldsGROUP[i][1] + ' : { $' + this.mqlFieldsGROUP[i][2] + ' }}';
+                        mql += '"' + this.mqlFieldsGROUP[i][0] + '" : { ' + this.mqlFieldsGROUP[i][1] + ' : "$' + this.mqlFieldsGROUP[i][2] + '"}';
                     }
                     if (i < this.mqlFieldsGROUP.length-1) {
                         mql += ', ';

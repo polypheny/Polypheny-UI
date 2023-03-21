@@ -518,7 +518,7 @@
                                         <code>{{ "{" }} "name": "Jane" }</code> specifies the criteria for selecting documents. In this case, the query will select documents where the value of the <i>name</i> field is equal to <i>"Jane"</i>.
                                         <br>
                                         <br>
-                                        To recreate this query, you can write <code>name</code> into the first input field. Next, select <code>equals</code> from the dropdown menu. Finally, enter <code>"Jane"</code> into the last input field. Don't forget the quotation marks if it is a string your looking for.
+                                        To recreate this query, you can write <code>name</code> into the first input field. Next, select <code>equals</code> from the dropdown menu. Finally, enter <code>"Jane"</code> into the last input field. Don't forget the quotation marks if it is a string you're looking for.
                                         <br>
                                         <br>
                                         <b>Additional Features:</b>
@@ -561,44 +561,50 @@
                                         <br>
                                         <ul>
                                             <li>Each stage performs an operation on the input documents. For example, a stage can filter documents, group documents, and calculate values.</li>
-                                            <li>The documents that are output from a stage are passed to the next stage.</li>
+                                            <li>The documents that are the output from a stage are passed to the next stage.</li>
                                             <li>An aggregation pipeline can return results for groups of documents. For example, return the total, average, maximum, and minimum values.</li>
                                         </ul>
                                         <b>Basics:</b>
                                         <br>
-                                        This interface has per default an aggregation pipeline consisting of the stages $match, $group and $sort. The following aggregation pipeline example contains three stages and returns the total order quantity of medium size pizzas grouped by pizza name and sorted by:
+                                        This interface has per default an aggregation pipeline consisting of the stages $match, $group and $sort. The following aggregation pipeline example contains three stages and returns the total order quantity of medium size pizzas grouped by pizza name and sorted by totalQuantity:
                                         <br>
                                         <br>
                                         <ul><li>
-                                            <code>db.orders.aggregate([{{"{" }}
-                                                <br>// Stage 1: Filter pizza order documents by pizza size
-                                                <br>$match: {{"{" }} size: "medium" }
-                                                <br>}, {{"{" }}
-                                                <br>// Stage 2: Group remaining documents by pizza name and calculate total quantity
-                                                <br>$group: {{"{" }} _id: "$name", totalQuantity: {{"{" }} $sum: "$quantity" } }
-                                                <br>}]
+                                            <code>db.pizzas.aggregate([{{"{" }}
+                                                <br>$match:{{"{" }}size: "medium"}},{{"{" }}
+                                                <br>$group:{{"{" }}_id: "$name", totalQuantity: {{"{" }}$sum: "$quantity"}}},{{"{" }}
+                                                <br>$sort:{{"{" }}totalQuantity: -1}}])
                                             </code>
                                         </li></ul>
                                         The $match stage:
                                         <br>
-                                        <br>
                                         <ul>
-                                            <li>Filters the pizza order documents to pizzas with a size of medium.</li>
+                                            <li>Filters the pizza documents to pizzas with a size of medium.</li>
                                             <li>Passes the remaining documents to the $group stage.</li>
                                         </ul>
                                         The $group stage:
                                         <ul>
                                             <li>Groups the remaining documents by pizza name.</li>
-                                            <li>Uses $sum to calculate the total order quantity for each pizza name. The total is stored in the totalQuantity field returned by the aggregation pipeline.</li>
+                                            <li>Uses $sum to calculate the total quantity for each pizza name. The total is stored in the totalQuantity field returned by the aggregation pipeline.</li>
                                         </ul>
-                                        <br>
-                                        <br>
                                         The $sort stage:
                                         <ul>
-                                            <li>Test</li>
-                                            <li>Test2</li>
+                                            <li>Sorts the totalQuantity in descending order</li>
                                         </ul>
-                                        To recreate this query [...]
+                                        To recreate this query, you can follow these steps:<br>
+                                        <ol>
+                                            <br>
+                                            <li>In the $match stage, write <code>size</code> into the first input field, select <code>equal</code> from the dropdown menu and write <code>"medium"</code> in the last input field. This will match all documents where the "size" field is equal to "medium".</li>
+                                            <br>
+                                            <li>In the $group stage:
+                                                <ul>
+                                                <li><code>_id</code> should be written as default in the first input field. Then write in the last input field <code>name</code>. This will group the documents by the "name" field.</li>
+                                                <li>add a new key and write <code>totalQuantity</code> into the first input field, select <code>sum</code> from the dropdown and write <code>quantity</code> in the last input field. This will calculate the sum of the "quantity" field for each group</li>
+                                                </ul>
+                                            </li>
+                                            <br>
+                                            <li>In the $sort stage, write <code>totalQuantity</code> into the first input field and select <code>descending</code> from the dropdown menu. This will sort the results in descending order based on the "totalQuantity" field.</li>
+                                        </ol>
                                         <br>
                                         <br>
                                     </div>
