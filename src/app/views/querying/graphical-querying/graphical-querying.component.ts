@@ -74,10 +74,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     config: TableConfig;
     // cypher input fields
     cypherFields: string[][] = [[]]; // Matrix à [n,5] size  -> [1] = Relationship, [2] = Node, [3] = 2.Relationship, [4] = 2.Node
+
+    cypherMatch: string[][] = [[]];
     cypherReturn: string[] = [''];
     cypherReturn2: string[] = [''];
     cypherDropdown: string[] = [];
     fieldListCypher: string[] = ['MATCH'];
+
+    fieldListCypherMatch: string[] = ['NODE'];
     fieldList: string[] = ['0'];
     fieldListMATCH: string[] = ['0'];
     fieldListGROUP: string[] = ['0'];
@@ -112,6 +116,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     // Dropdown
     show = false;
     showFIND = false;
+    showCypherMatch = false;
     showMATCH = false;
     showGROUP = false;
 
@@ -473,9 +478,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldDepthCounterSORT = 0;
                 //cypher
                 this.cypherFields = [[]];
+                this.cypherMatch = [[]];
                 this.cypherReturn = [''];
                 this.cypherReturn2 = [''];
                 this.fieldListCypher = ['MATCH'];
+                this.fieldListCypherMatch = ['NODE'];
                 break;
             case 'cypher':
                 this.collectionName = undefined;
@@ -504,9 +511,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             case 'mql':
                 this.graphName = undefined;
                 this.cypherFields = [[]];
+                this.cypherMatch = [[]];
                 this.cypherReturn = [''];
                 this.cypherReturn2 = [''];
                 this.fieldListCypher = ['MATCH'];
+                this.fieldListCypherMatch = ['NODE'];
                 break;
         }
     }
@@ -532,6 +541,19 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                     }, this.debounceDelay);
                 } else {
                     this.show = true;
+                }
+                break;
+            case 'CypherMatch':
+                if (instant) {
+                    this.showCypherMatch = doShow;
+                    return;
+                }
+                if (!doShow) {
+                    this.debounce = setTimeout(() => {
+                        this.showCypherMatch = false;
+                    }, this.debounceDelay);
+                } else {
+                    this.showCypherMatch = true;
                 }
                 break;
             case 'Find':
@@ -774,6 +796,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.cypherFields.push([]);
     }
 
+    addCypherMatchField(type: string) {
+        this.fieldListCypherMatch.push(type);
+        this.cypherMatch.push([]);
+    }
+
     changeCypherField(type: string, index: number) {
         if (index + 1 > this.fieldListCypher.length-1) {
             this.fieldListCypher.push(type);
@@ -998,6 +1025,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.generateCypher();
     }
 
+    deleteCypherMatchField(x:number) {
+        this.fieldListCypherMatch.splice(x, 1);
+        this.cypherMatch.splice(x, 1);
+    }
+
     deleteMQLField(x:number, mqlCase:string) {
         switch (mqlCase) {
             case 'Find':
@@ -1123,11 +1155,52 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
+    async generateMatch(index: number) {
+        this.cypherFields[index][0] = '';
+        const nodeStack = [];
+        const propertyStack = [];
+        // generate the content of the field
+        for (let i = 0; i < this.fieldListCypherMatch.length; i++) {
+            if (this.fieldListCypherMatch[i] === 'NODE') { // Node Element
+                if (nodeStack.pop() !== undefined) {
+                    if (propertyStack.pop() !== undefined) {
+                        this.cypherFields[index][0] += '}';
+                    }
+                    this.cypherFields[index][0] += '),';
+                }
+                if (this.cypherMatch[i][1] === '') { // dropdown is empty
+                    this.cypherFields[index][0] += '(' + this.cypherMatch[i][0];
+                }
+                else { // dropdown is not empty and label
+                    this.cypherFields[index][0] += '(' + this.cypherMatch[i][0] + ':' + this.cypherMatch[i][1];
+                }
+                nodeStack.push(1);
+            }
+            else { // Property Element
+                if (propertyStack.length === 0) {
+                    this.cypherFields[index][0] += '{';
+                    propertyStack.push(1);
+                }
+                this.cypherFields[index][0] += this.cypherMatch[i][0] + ':' + this.cypherMatch[i][1];
+                if (i < this.fieldListCypherMatch.length - 1 && this.fieldListCypherMatch[i+1] !== 'NODE') {
+                    this.cypherFields[index][0] += ',';
+                }
+            }
+        }
+        if (propertyStack.pop() !== undefined) {
+            this.cypherFields[index][0] += '}';
+        }
+        if (this.fieldListCypherMatch.length > 0) {
+            this.cypherFields[index][0] += ')';
+        }
+        this.generateCypher();
+    }
+
     async generateCypher() {
         let cypher = '';
         for (let i = 0; i < this.fieldListCypher.length; i++) {
             if (this.fieldListCypher[i] === 'MATCH') {
-                cypher += 'MATCH ' + '(' + this.cypherFields[i][0] + ')';
+                cypher += 'MATCH ' + this.cypherFields[i][0];
                 switch (this.cypherDropdown[i]) {
                     case 'cypher-outgoing':
                         cypher += '-->(' + this.cypherFields[i][2] + ')';
