@@ -1163,7 +1163,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         const isInsideLogicalCondition = [];
         switch (this.mqlType) {
             case 'FIND':
-                mql += 'db.getCollection("' + this.collectionName + '").find({';
+                mql += 'db.' + this.collectionName + '.find({';
                 for (let i = 0; i < this.fieldList.length; i++) {
                     if (this.fieldList[i] === 'AND') {
                         mql += '$and: [';
@@ -1223,7 +1223,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.editorGenerated.setCode(mql);
                 break;
             case 'AGGR':
-                mql += 'db.getCollection("' + this.collectionName + '").aggregate([{$match: {';
+                mql += 'db.' + this.collectionName + '.aggregate([{$match: {';
                 // Match-Loop
                 for (let i = 0; i < this.fieldListMATCH.length; i++) {
                     if (this.fieldListMATCH[i] === 'AND') {
