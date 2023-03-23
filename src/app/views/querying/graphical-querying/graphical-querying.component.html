@@ -218,7 +218,7 @@
                                                             </div>
                                                         </div>
                                                         <!-- Inside Match-Modal-->
-                                                        <div *ngFor="let fieldNumber2 of fieldListCypherMatch; let j = index">
+                                                        <div *ngFor="let fieldNumber2 of fieldListCypherMatch[i]; let j = index">
                                                             <!-- Node Row -->
                                                             <div *ngIf="fieldNumber2 == 'NODE'">
                                                                 <br>
@@ -226,17 +226,17 @@
                                                                 <div class="row">
                                                                     <div class="col-lg-5 fixed-width">
                                                                         <input type="text" id="cypher-match-node-{{j}}" class="form-control"
-                                                                               [(ngModel)]="cypherMatch[j][0]" (keyup)="generateMatch(i);" placeholder="Node">
+                                                                               [(ngModel)]="cypherMatch[i][j][0]" (keyup)="generateMatch(i);" placeholder="Node">
                                                                     </div>
                                                                     <div class="col-lg-5 fixed-width">
-                                                                        <select class="form-control" id="cypher-relationship-type-{{j}}" [(ngModel)]="cypherMatch[j][1]" (change)="generateMatch(i)">
+                                                                        <select class="form-control" id="cypher-relationship-type-{{j}}" [(ngModel)]="cypherMatch[i][j][1]" (change)="generateMatch(i)">
                                                                             <option value="" selected>None</option>
                                                                             <option *ngFor="let option of nodeLabels">{{ option }}</option>
                                                                         </select>
                                                                     </div>
                                                                     <div class="col-lg-1 fixed-width">
                                                                         <!-- Button to delete field -->
-                                                                        <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(j); generateMatch(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                                                        <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j); generateMatch(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -246,15 +246,15 @@
                                                                 <div class ="row">
                                                                     <div class="col-lg-5 fixed-width" [style.padding-left.em]="2">
                                                                         <input type="text" id="cypher-match-node-{{j}}" class="form-control"
-                                                                               [(ngModel)]="cypherMatch[j][0]" (keyup)="generateMatch(i)" placeholder="Property">
+                                                                               [(ngModel)]="cypherMatch[i][j][0]" (keyup)="generateMatch(i)" placeholder="Property">
                                                                     </div>
                                                                     <div class="col-lg-5 fixed-width">
                                                                         <input type="text" id="cypher-match-node-{{j}}" class="form-control"
-                                                                               [(ngModel)]="cypherMatch[j][1]" (keyup)="generateMatch(i);" placeholder="equals value">
+                                                                               [(ngModel)]="cypherMatch[i][j][1]" (keyup)="generateMatch(i);" placeholder="equals value">
                                                                     </div>
                                                                     <div class="col-lg-1 fixed-width">
                                                                         <!-- Button to delete field -->
-                                                                        <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(j); generateMatch(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                                                        <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j); generateMatch(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -267,10 +267,10 @@
                                                                         class="fa fa-plus"></i></button>
                                                                 <ul *ngIf="showCypherMatch" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false, false, 'CypherMatch')">
                                                                     <li>
-                                                                        <div class="dropdown-item" (click)="addCypherMatchField('NODE')"><i class="cui-plus"></i>Add Node</div>
+                                                                        <div class="dropdown-item" (click)="addCypherMatchField(i,'NODE')"><i class="cui-plus"></i>Add Node</div>
                                                                     </li>
                                                                     <li>
-                                                                        <div class="dropdown-item" (click)="addCypherMatchField('PROP')"><i class="cui-plus"></i>Add Node-Property</div>
+                                                                        <div class="dropdown-item" (click)="addCypherMatchField(i,'PROP')"><i class="cui-plus"></i>Add Node-Property</div>
                                                                     </li>
                                                                 </ul>
                                                             </div>
