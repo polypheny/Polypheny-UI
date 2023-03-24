@@ -124,7 +124,7 @@
                     </div>
                 </div>
 
-                <!-- Modal for Cypher -->
+                <!-- Helper-Modal for Cypher -->
                 <div class="row" style="justify-content: right; margin-bottom: 0.5em; padding-right: 1em;">
                     <button class="btn btn-primary pull-right" (click)="this.queryHelpCypher.show();"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></button>
                     <div bsModal #queryHelpCypher="bs-modal" class="modal fade" tabindex="-1" role="dialog"
@@ -186,7 +186,7 @@
                                         </div>
                                         <input type="text" id="cypher-match-node-{{i}}" class="form-control"
                                                [(ngModel)]="cypherFields[i][0]" (click)="this.matchModal.show();" placeholder="Node" autocomplete="off">
-                                        <!-- MATCH-Modal -->
+                                        <!-- Modal for Match-field -->
                                         <div bsModal #matchModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
                                              aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
                                             <div class="modal-dialog" role="document">
@@ -309,7 +309,7 @@
                                         <div class="input-group mb-3">
                                             <input type="text" id="cypher-match-node1-{{i}}" class="form-control"
                                                    [(ngModel)]="cypherFields[i][2]" (click)="this.matchModal2.show();" placeholder="Node" autocomplete="off">
-                                            <!-- Modal for Node2 -->
+                                            <!-- Modal for Relationship - Node 1 -->
                                             <div bsModal #matchModal2="bs-modal" class="modal fade" tabindex="-1" role="dialog"
                                                  aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
                                                 <div class="modal-dialog" role="document">
@@ -403,7 +403,95 @@
                                     <div *ngIf="cypherDropdown[i] === 'cypher-directed' || cypherDropdown[i] === 'cypher-multiple'">
                                         <div class="input-group mb-3">
                                             <input type="text" id="cypher-match-rel-{{i}}" class="form-control"
-                                                   [(ngModel)]="cypherFields[i][1]" (keyup)="generateCypher()" placeholder="Relationship" autocomplete="off">
+                                                   [(ngModel)]="cypherFields[i][1]" (click)="this.matchModal4.show();" placeholder="Relationship" autocomplete="off">
+                                            <!-- Modal for Relationship - Relationship 1 -->
+                                            <div bsModal #matchModal4="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                                                 aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause Relationship</h4>
+
+                                                            <button type="button" class="close" (click)="matchModal4.hide()" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Fill in the details. You can add new rows or properties of the nodes with the plus-button.</p>
+                                                            <div class="row">
+                                                                <div class="col-lg-5 fixed-width">
+                                                                    <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                    >Node name</b>
+                                                                </div>
+                                                                <div class="col-lg-5 fixed-width">
+                                                                    <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose none you return all the nodes without defining a specific category."
+                                                                    >Node label</b>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Inside Match-Modal-->
+                                                            <div *ngFor="let fieldNumber2 of fieldListCypherRel[i]; let j = index">
+                                                                <!-- Node Row -->
+                                                                <div *ngIf="fieldNumber2 == 'NODE'">
+                                                                    <br>
+                                                                    <b>Node:</b>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherRel[i][j][0]" (keyup)="generateMatch(i,4);" placeholder="Relationship" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <select class="form-control" id="cypher-relationship-type-{{j}}" [(ngModel)]="cypherRel[i][j][1]" (change)="generateMatch(i,4)">
+                                                                                <option *ngFor="let option of relationLabels">{{ option }}</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="col-lg-1 fixed-width">
+                                                                            <!-- Button to delete field -->
+                                                                            <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j,4); generateMatch(i,4)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Property Row -->
+                                                                <div *ngIf="fieldNumber2 == 'PROP'">
+                                                                    <div class ="row">
+                                                                        <div class="col-lg-5 fixed-width" [style.padding-left.em]="2">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherRel[i][j][0]" (keyup)="generateMatch(i,4)" placeholder="Property" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherRel[i][j][1]" (keyup)="generateMatch(i,4);" placeholder="equals value" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-1 fixed-width">
+                                                                            <!-- Button to delete field -->
+                                                                            <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j,4); generateMatch(i,4)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Add Button -->
+                                                            <div class="input-group justify-content-center mt-3">
+                                                                <div (mouseleave)="setMenuShow(false, false, 'CypherMatch')" (mouseenter)="menuEnter('CypherMatch')">
+                                                                    <button class="btn btn-primary toggle-insert" (click)="setMenuShow(true, false, 'CypherMatch')" type="button"><i
+                                                                            class="fa fa-plus"></i></button>
+                                                                    <ul *ngIf="showCypherMatch" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false, false, 'CypherMatch')">
+                                                                        <li>
+                                                                            <div class="dropdown-item" (click)="addCypherMatchField(i,'NODE',4)"><i class="cui-plus"></i>Add Node</div>
+                                                                        </li>
+                                                                        <li>
+                                                                            <div class="dropdown-item" (click)="addCypherMatchField(i,'PROP',4)"><i class="cui-plus"></i>Add Node-Property</div>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                        </div>
+                                                    </div><!-- /.modal-content -->
+                                                </div><!-- /.modal-dialog -->
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -412,7 +500,7 @@
                                         <div class="input-group mb-3">
                                             <input type="text" id="cypher-match-node2-{{i}}" class="form-control"
                                                    [(ngModel)]="cypherFields[i][2]" (click)="this.matchModal2.show();" placeholder="Node" autocomplete="off">
-                                            <!-- MATCH-Node3 -->
+                                            <!-- Modal for Relationship - Node 1 -->
                                             <div bsModal #matchModal2="bs-modal" class="modal fade" tabindex="-1" role="dialog"
                                                  aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
                                                 <div class="modal-dialog" role="document">
@@ -512,12 +600,101 @@
                                     <div *ngIf="cypherDropdown[i] === 'cypher-multiple'">
                                         <div class="input-group mb-3">
                                             <input type="text" id="cypher-match-rel2-{{i}}" class="form-control"
-                                                   [(ngModel)]="cypherFields[i][3]" (keyup)="generateCypher()" placeholder="2. Relationship" autocomplete="off">
+                                                   [(ngModel)]="cypherFields[i][3]" (click)="this.matchModal5.show();" placeholder="2. Relationship" autocomplete="off">
+                                            <!-- Modal for Relationship - Rel 2 -->
+                                            <div bsModal #matchModal5="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                                                 aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause Relationship</h4>
+
+                                                            <button type="button" class="close" (click)="matchModal5.hide()" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Fill in the details. You can add new rows or properties of the nodes with the plus-button.</p>
+                                                            <div class="row">
+                                                                <div class="col-lg-5 fixed-width">
+                                                                    <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                    >Node name</b>
+                                                                </div>
+                                                                <div class="col-lg-5 fixed-width">
+                                                                    <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose none you return all the nodes without defining a specific category."
+                                                                    >Node label</b>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Inside Match-Modal-->
+                                                            <div *ngFor="let fieldNumber2 of fieldListCypherRel2[i]; let j = index">
+                                                                <!-- Node Row -->
+                                                                <div *ngIf="fieldNumber2 == 'NODE'">
+                                                                    <br>
+                                                                    <b>Node:</b>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherRel2[i][j][0]" (keyup)="generateMatch(i,5);" placeholder="Relationship" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <select class="form-control" id="cypher-relationship-type-{{j}}" [(ngModel)]="cypherRel2[i][j][1]" (change)="generateMatch(i,5)">
+                                                                                <option *ngFor="let option of relationLabels">{{ option }}</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="col-lg-1 fixed-width">
+                                                                            <!-- Button to delete field -->
+                                                                            <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j,5); generateMatch(i,5)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Property Row -->
+                                                                <div *ngIf="fieldNumber2 == 'PROP'">
+                                                                    <div class ="row">
+                                                                        <div class="col-lg-5 fixed-width" [style.padding-left.em]="2">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherRel2[i][j][0]" (keyup)="generateMatch(i,5)" placeholder="Property" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherRel2[i][j][1]" (keyup)="generateMatch(i,5);" placeholder="equals value" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-1 fixed-width">
+                                                                            <!-- Button to delete field -->
+                                                                            <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j,5); generateMatch(i,5)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Add Button -->
+                                                            <div class="input-group justify-content-center mt-3">
+                                                                <div (mouseleave)="setMenuShow(false, false, 'CypherMatch')" (mouseenter)="menuEnter('CypherMatch')">
+                                                                    <button class="btn btn-primary toggle-insert" (click)="setMenuShow(true, false, 'CypherMatch')" type="button"><i
+                                                                            class="fa fa-plus"></i></button>
+                                                                    <ul *ngIf="showCypherMatch" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false, false, 'CypherMatch')">
+                                                                        <li>
+                                                                            <div class="dropdown-item" (click)="addCypherMatchField(i,'NODE',5)"><i class="cui-plus"></i>Add Node</div>
+                                                                        </li>
+                                                                        <li>
+                                                                            <div class="dropdown-item" (click)="addCypherMatchField(i,'PROP',5)"><i class="cui-plus"></i>Add Node-Property</div>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                        </div>
+                                                    </div><!-- /.modal-content -->
+                                                </div><!-- /.modal-dialog -->
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-4 fixed-width">
                                     <div *ngIf="cypherDropdown[i] === 'cypher-multiple'">
+                                        <!-- Modal for Relationship - Node 2 -->
                                         <div class="input-group mb-3">
                                             <input type="text" id="cypher-match-node3-{{i}}" class="form-control"
                                                    [(ngModel)]="cypherFields[i][4]" (click)="this.matchModal3.show()" placeholder="2. Node" autocomplete="off">

@@ -80,6 +80,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     cypherNode2: string[][][] = [[[]]];
 
     cypherNode3: string[][][] = [[[]]];
+
+    cypherRel: string[][][] = [[[]]];
+
+    cypherRel2: string[][][] = [[[]]];
     cypherReturn: string[] = [''];
     cypherReturn2: string[] = [''];
     cypherDropdown: string[] = [];
@@ -90,6 +94,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     fieldListCypherNode2: string[][] = [['NODE']];
 
     fieldListCypherNode3: string[][] = [['NODE']];
+
+    fieldListCypherRel2: string[][] = [['NODE']];
+
+    fieldListCypherRel: string[][] = [['NODE']];
     fieldList: string[] = ['0'];
     fieldListMATCH: string[] = ['0'];
     fieldListGROUP: string[] = ['0'];
@@ -487,10 +495,18 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 //cypher
                 this.cypherFields = [[]];
                 this.cypherNode = [[[]]];
+                this.cypherNode2 = [[[]]];
+                this.cypherNode3 = [[[]]];
+                this.cypherRel = [[[]]];
+                this.cypherRel2 = [[[]]];
                 this.cypherReturn = [''];
                 this.cypherReturn2 = [''];
                 this.fieldListCypher = ['MATCH'];
                 this.fieldListCypherNode = [['NODE']];
+                this.fieldListCypherNode2 = [['NODE']];
+                this.fieldListCypherNode3 = [['NODE']];
+                this.fieldListCypherRel2 = [['NODE']];
+                this.fieldListCypherRel = [['NODE']];
                 break;
             case 'cypher':
                 this.collectionName = undefined;
@@ -520,10 +536,16 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.graphName = undefined;
                 this.cypherFields = [[]];
                 this.cypherNode = [[[]]];
+                this.cypherNode2 = [[[]]];
+                this.cypherNode3 = [[[]]];
                 this.cypherReturn = [''];
                 this.cypherReturn2 = [''];
                 this.fieldListCypher = ['MATCH'];
                 this.fieldListCypherNode = [['NODE']];
+                this.fieldListCypherNode2 = [['NODE']];
+                this.fieldListCypherNode3 = [['NODE']];
+                this.fieldListCypherRel2 = [['NODE']];
+                this.fieldListCypherRel = [['NODE']];
                 break;
         }
     }
@@ -809,6 +831,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             this.cypherNode2.push([[]]);
             this.fieldListCypherNode3.push(['NODE']);
             this.cypherNode3.push([[]]);
+            this.fieldListCypherRel.push(['NODE']);
+            this.cypherRel.push([[]]);
+            this.fieldListCypherRel2.push(['NODE']);
+            this.cypherRel2.push([[]]);
         }
     }
 
@@ -824,6 +850,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         if (field === 3){
             this.fieldListCypherNode3[index].push(type);
             this.cypherNode3[index].push([]);
+        }
+        if (field === 4){
+            this.fieldListCypherRel[index].push(type);
+            this.cypherRel[index].push([]);
+        }
+        if (field === 5){
+            this.fieldListCypherRel2[index].push(type);
+            this.cypherRel2[index].push([]);
         }
     }
 
@@ -1064,6 +1098,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             this.fieldListCypherNode3[index].splice(x, 1);
             this.cypherNode3[index].splice(x, 1);
         }
+        if (field === 4) {
+            this.fieldListCypherRel[index].splice(x, 1);
+            this.cypherRel[index].splice(x, 1);
+        }
+        if (field === 5) {
+            this.fieldListCypherRel2[index].splice(x, 1);
+            this.cypherRel2[index].splice(x, 1);
+        }
     }
 
     deleteMQLField(x:number, mqlCase:string) {
@@ -1303,6 +1345,78 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.cypherFields[index][4] += ')';
             }
         }
+        if (field === 4) {
+            this.cypherFields[index][1] = '';
+            for (let i = 0; i < this.fieldListCypherRel[index].length; i++) {
+                if (this.fieldListCypherRel[index][i] === 'NODE') { // Node Element
+                    if (nodeStack.pop() !== undefined) {
+                        if (propertyStack.pop() !== undefined) {
+                            this.cypherFields[index][1] += '}';
+                        }
+                        this.cypherFields[index][1] += '],';
+                    }
+                    if (this.cypherRel[index][i][1] === '') { // dropdown is empty
+                        this.cypherFields[index][1] += '[' + this.cypherRel[index][i][0];
+                    }
+                    else { // dropdown is not empty and label
+                        this.cypherFields[index][1] += '[' + this.cypherRel[index][i][0] + ':' + this.cypherRel[index][i][1];
+                    }
+                    nodeStack.push(1);
+                }
+                else { // Property Element
+                    if (propertyStack.length === 0) {
+                        this.cypherFields[index][1] += '{';
+                        propertyStack.push(1);
+                    }
+                    this.cypherFields[index][1] += this.cypherRel[index][i][0] + ':' + this.cypherRel[index][i][1];
+                    if (i < this.fieldListCypherRel[index].length - 1 && this.fieldListCypherRel[index][i+1] !== 'NODE') {
+                        this.cypherFields[index][1] += ',';
+                    }
+                }
+            }
+            if (propertyStack.pop() !== undefined) {
+                this.cypherFields[index][1] += '}';
+            }
+            if (this.fieldListCypherRel[index].length > 0) {
+                this.cypherFields[index][1] += ']';
+            }
+        }
+        if (field === 5) {
+            this.cypherFields[index][3] = '';
+            for (let i = 0; i < this.fieldListCypherRel2[index].length; i++) {
+                if (this.fieldListCypherRel2[index][i] === 'NODE') { // Node Element
+                    if (nodeStack.pop() !== undefined) {
+                        if (propertyStack.pop() !== undefined) {
+                            this.cypherFields[index][3] += '}';
+                        }
+                        this.cypherFields[index][3] += '],';
+                    }
+                    if (this.cypherRel2[index][i][1] === '') { // dropdown is empty
+                        this.cypherFields[index][3] += '[' + this.cypherRel2[index][i][0];
+                    }
+                    else { // dropdown is not empty and label
+                        this.cypherFields[index][3] += '[' + this.cypherRel2[index][i][0] + ':' + this.cypherRel2[index][i][1];
+                    }
+                    nodeStack.push(1);
+                }
+                else { // Property Element
+                    if (propertyStack.length === 0) {
+                        this.cypherFields[index][3] += '{';
+                        propertyStack.push(1);
+                    }
+                    this.cypherFields[index][3] += this.cypherRel2[index][i][0] + ':' + this.cypherRel2[index][i][1];
+                    if (i < this.fieldListCypherRel2[index].length - 1 && this.fieldListCypherRel2[index][i+1] !== 'NODE') {
+                        this.cypherFields[index][3] += ',';
+                    }
+                }
+            }
+            if (propertyStack.pop() !== undefined) {
+                this.cypherFields[index][3] += '}';
+            }
+            if (this.fieldListCypherRel2[index].length > 0) {
+                this.cypherFields[index][3] += ']';
+            }
+        }
         this.generateCypher();
     }
 
@@ -1316,10 +1430,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         cypher += '-->' + this.cypherFields[i][2];
                         break;
                     case 'cypher-directed':
-                        cypher += '-[' + this.cypherFields[i][1] + ']->' + this.cypherFields[i][2];
+                        cypher += '-' + this.cypherFields[i][1] + '->' + this.cypherFields[i][2];
                         break;
                     case 'cypher-multiple':
-                        cypher += '-[' + this.cypherFields[i][1] + ']->' + this.cypherFields[i][2] + '<-[' + this.cypherFields[i][3] + ']-' + this.cypherFields[i][4];
+                        cypher += '-' + this.cypherFields[i][1] + '->' + this.cypherFields[i][2] + '<-' + this.cypherFields[i][3] + '-' + this.cypherFields[i][4];
                         break;
                 }
             }
