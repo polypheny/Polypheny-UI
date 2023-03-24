@@ -283,7 +283,6 @@
                                             <option value="cypher-outgoing">Outgoing</option>
                                             <option value="cypher-directed">Directed</option>
                                             <option value="cypher-multiple">Multiple</option>
-                                            <!--<option value="cypher-variable">Variable Length</option>-->
                                         </select>
                                     </div>
                                 </div>
@@ -820,7 +819,7 @@
                                         <label for="cypher-return-{{i}}" class="input-group-text" tooltip="The RETURN clause is used to specify which data to include in the query result. It allows you to select nodes, relationships or properties"
                                         >RETURN</label>
                                     </div>
-                                    <select class="form-control" id="cypher-return-{{i}}" [(ngModel)]="cypherReturnDrop[i]" (change)="generateCypher()" (click)="generateDropDownArray()">
+                                    <select class="form-control" id="cypher-return-{{i}}" [(ngModel)]="cypherReturnDrop[i]" (change)="generateCypher()" #dropdown (click)="generateDropDownArray(); onDropdownClick(dropdown)">
                                         <option *ngFor="let option of returnDropdown">{{ option }}</option>
                                     </select>
                                     <input type="text" id="cypher-return-{{i}}" placeholder="Optional: Property" autocomplete="off" class="form-control"

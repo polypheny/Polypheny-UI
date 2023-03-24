@@ -1257,6 +1257,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.returnDropdown.push(this.cypherRel2[i][0][0]);
             }
         }
+        this.returnDropdown = this.returnDropdown.filter((value, index) => this.returnDropdown.indexOf(value) === index); //only show unique values as options
+        this.returnDropdown = this.returnDropdown.sort(); // sorts array alphabetically
     }
 
     async generateMatch(index: number, field: number) {
@@ -1380,16 +1382,22 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             cypher += '\n';
         }
         cypher += 'RETURN ';
-        for (let i = 0; i < this.cypherReturnDrop.length; i += 2) {
+        for (let i = 0; i < this.cypherReturnDrop.length; i++) {
             cypher += this.cypherReturnDrop[i];
             if (this.cypherReturnProp[i] !== undefined && this.cypherReturnProp[i] !== '') {
                 cypher += '.' + this.cypherReturnProp[i];
+                console.log('Test');
             }
             if (i < this.cypherReturnDrop.length - 1) {
                 cypher += ', ';
             }
         }
         this.editorGenerated.setCode(cypher);
+    }
+
+    onDropdownClick(dropdown: any) { // is needed to change the cypherReturnDrop[0], by changes
+        const event = new Event('change');
+        dropdown.dispatchEvent(event);
     }
 
     async generateMQL() {
