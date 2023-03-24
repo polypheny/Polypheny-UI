@@ -251,7 +251,7 @@
 
                                                         <!-- Add Button -->
                                                         <div class="input-group justify-content-center mt-3">
-                                                            <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i,'PROP', 1)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
+                                                            <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i, 1)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
                                                         </div>
 
                                                     </div>
@@ -341,7 +341,7 @@
                                                                 <!-- Property Row -->
                                                                 <div *ngIf="fieldNumber2 == 'PROP'">
                                                                     <div class ="row">
-                                                                        <div class="col-lg-5 fixed-width" [style.padding-left.em]="2">
+                                                                        <div class="col-lg-5 fixed-width">
                                                                             <input type="text" id="cypher-match-node-{{j}}" class="form-control"
                                                                                    [(ngModel)]="cypherNode2[i][j][0]" (keyup)="generateMatch(i,2)" placeholder="Property" autocomplete="off">
                                                                         </div>
@@ -360,7 +360,7 @@
                                                             <!-- Add Button -->
                                                             <div class="input-group justify-content-center mt-3">
                                                                 <div class="input-group justify-content-center mt-3">
-                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i,'PROP', 2)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
+                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i, 2)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
                                                                 </div>
                                                             </div>
 
@@ -422,7 +422,7 @@
                                                                 <!-- Property Row -->
                                                                 <div *ngIf="fieldNumber2 == 'PROP'">
                                                                     <div class ="row">
-                                                                        <div class="col-lg-5 fixed-width" [style.padding-left.em]="2">
+                                                                        <div class="col-lg-5 fixed-width">
                                                                             <input type="text" id="cypher-match-node-{{j}}" class="form-control"
                                                                                    [(ngModel)]="cypherRel[i][j][0]" (keyup)="generateMatch(i,4)" placeholder="Property" autocomplete="off">
                                                                         </div>
@@ -441,7 +441,7 @@
                                                             <!-- Add Button -->
                                                             <div class="input-group justify-content-center mt-3">
                                                                 <div class="input-group justify-content-center mt-3">
-                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i,'PROP', 4)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
+                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i, 4)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
                                                                 </div>
                                                             </div>
 
@@ -506,7 +506,7 @@
                                                                 <!-- Property Row -->
                                                                 <div *ngIf="fieldNumber2 == 'PROP'">
                                                                     <div class ="row">
-                                                                        <div class="col-lg-5 fixed-width" [style.padding-left.em]="2">
+                                                                        <div class="col-lg-5 fixed-width">
                                                                             <input type="text" id="cypher-match-node-{{j}}" class="form-control"
                                                                                    [(ngModel)]="cypherNode2[i][j][0]" (keyup)="generateMatch(i,2)" placeholder="Property" autocomplete="off">
                                                                         </div>
@@ -525,7 +525,7 @@
                                                             <!-- Add Button -->
                                                             <div class="input-group justify-content-center mt-3">
                                                                 <div class="input-group justify-content-center mt-3">
-                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i,'PROP', 2)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
+                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i,2)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
                                                                 </div>
                                                             </div>
 
@@ -539,7 +539,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row" [style.padding-left.em]='2'>
+                            <div class="row">
                                 <div class="col-lg-3 fixed-width">
                                 </div>
                                 <div class="col-lg-4 fixed-width">
@@ -593,7 +593,7 @@
                                                                 <!-- Property Row -->
                                                                 <div *ngIf="fieldNumber2 == 'PROP'">
                                                                     <div class ="row">
-                                                                        <div class="col-lg-5 fixed-width" [style.padding-left.em]="2">
+                                                                        <div class="col-lg-5 fixed-width">
                                                                             <input type="text" id="cypher-match-node-{{j}}" class="form-control"
                                                                                    [(ngModel)]="cypherRel2[i][j][0]" (keyup)="generateMatch(i,5)" placeholder="Property" autocomplete="off">
                                                                         </div>
@@ -612,7 +612,7 @@
                                                             <!-- Add Button -->
                                                             <div class="input-group justify-content-center mt-3">
                                                                 <div class="input-group justify-content-center mt-3">
-                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i,'PROP', 5)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
+                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i,5)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
                                                                 </div>
                                                             </div>
 
@@ -677,7 +677,7 @@
                                                                 <!-- Property Row -->
                                                                 <div *ngIf="fieldNumber2 == 'PROP'">
                                                                     <div class ="row">
-                                                                        <div class="col-lg-5 fixed-width" [style.padding-left.em]="2">
+                                                                        <div class="col-lg-5 fixed-width">
                                                                             <input type="text" id="cypher-match-node-{{j}}" class="form-control"
                                                                                    [(ngModel)]="cypherNode3[i][j][0]" (keyup)="generateMatch(i,3)" placeholder="Property" autocomplete="off">
                                                                         </div>
@@ -696,7 +696,7 @@
                                                             <!-- Add Button -->
                                                             <div class="input-group justify-content-center mt-3">
                                                                 <div class="input-group justify-content-center mt-3">
-                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i,'PROP', 3)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
+                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i,3)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
                                                                 </div>
                                                             </div>
 

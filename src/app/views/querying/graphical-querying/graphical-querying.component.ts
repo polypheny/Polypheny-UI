@@ -838,25 +838,25 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
-    addCypherMatchField(index: number, type: string, field:number) {
+    addCypherMatchField(index: number, field:number) {
         if (field === 1){
-            this.fieldListCypherNode[index].push(type);
+            this.fieldListCypherNode[index].push('PROP');
             this.cypherNode[index].push([]);
         }
         if (field === 2){
-            this.fieldListCypherNode2[index].push(type);
+            this.fieldListCypherNode2[index].push('PROP');
             this.cypherNode2[index].push([]);
         }
         if (field === 3){
-            this.fieldListCypherNode3[index].push(type);
+            this.fieldListCypherNode3[index].push('PROP');
             this.cypherNode3[index].push([]);
         }
         if (field === 4){
-            this.fieldListCypherRel[index].push(type);
+            this.fieldListCypherRel[index].push('PROP');
             this.cypherRel[index].push([]);
         }
         if (field === 5){
-            this.fieldListCypherRel2[index].push(type);
+            this.fieldListCypherRel2[index].push('PROP');
             this.cypherRel2[index].push([]);
         }
     }
@@ -1238,183 +1238,78 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         const propertyStack = [];
         // generate the content of the field
         if (field === 1) {
-            this.cypherFields[index][0] = '';
-            for (let i = 0; i < this.fieldListCypherNode[index].length; i++) {
-                if (this.fieldListCypherNode[index][i] === 'NODE') { // Node Element
-                    if (nodeStack.pop() !== undefined) {
-                        if (propertyStack.pop() !== undefined) {
-                            this.cypherFields[index][0] += '}';
-                        }
-                        this.cypherFields[index][0] += '),';
-                    }
-                    if (this.cypherNode[index][i][1] === '') { // dropdown is empty
-                        this.cypherFields[index][0] += '(' + this.cypherNode[index][i][0];
-                    }
-                    else { // dropdown is not empty and label
-                        this.cypherFields[index][0] += '(' + this.cypherNode[index][i][0] + ':' + this.cypherNode[index][i][1];
-                    }
-                    nodeStack.push(1);
+            this.cypherFields[index][0] = this.cypherNode[index][0][0] + ':' + this.cypherNode[index][0][1];
+            for (let i = 1; i < this.fieldListCypherNode[index].length; i++) {
+                if (i === 1) { // first property element
+                    this.cypherFields[index][0] += '{';
                 }
-                else { // Property Element
-                    if (propertyStack.length === 0) {
-                        this.cypherFields[index][0] += '{';
-                        propertyStack.push(1);
-                    }
-                    this.cypherFields[index][0] += this.cypherNode[index][i][0] + ':' + this.cypherNode[index][i][1];
-                    if (i < this.fieldListCypherNode[index].length - 1 && this.fieldListCypherNode[index][i+1] !== 'NODE') {
-                        this.cypherFields[index][0] += ',';
-                    }
+                this.cypherFields[index][0] += this.cypherNode[index][i][0] + ':' + this.cypherNode[index][i][1];
+                if (i < this.fieldListCypherNode[index].length - 1) {
+                    this.cypherFields[index][0] += ',';
                 }
-            }
-            if (propertyStack.pop() !== undefined) {
-                this.cypherFields[index][0] += '}';
-            }
-            if (this.fieldListCypherNode[index].length > 0) {
-                this.cypherFields[index][0] += ')';
+                if (i === this.fieldListCypherNode[index].length - 1) {
+                    this.cypherFields[index][0] += '}';
+                }
             }
         }
         if (field === 2) {
-            this.cypherFields[index][2] = '';
-            for (let i = 0; i < this.fieldListCypherNode2[index].length; i++) {
-                if (this.fieldListCypherNode2[index][i] === 'NODE') { // Node Element
-                    if (nodeStack.pop() !== undefined) {
-                        if (propertyStack.pop() !== undefined) {
-                            this.cypherFields[index][2] += '}';
-                        }
-                        this.cypherFields[index][2] += '),';
-                    }
-                    if (this.cypherNode2[index][i][1] === '') { // dropdown is empty
-                        this.cypherFields[index][2] += '(' + this.cypherNode2[index][i][0];
-                    }
-                    else { // dropdown is not empty and label
-                        this.cypherFields[index][2] += '(' + this.cypherNode2[index][i][0] + ':' + this.cypherNode2[index][i][1];
-                    }
-                    nodeStack.push(1);
+            this.cypherFields[index][2] = this.cypherNode2[index][0][0] + ':' + this.cypherNode2[index][0][1];
+            for (let i = 1; i < this.fieldListCypherNode2[index].length; i++) {
+                if (i === 1) { // first property element
+                    this.cypherFields[index][2] += '{';
                 }
-                else { // Property Element
-                    if (propertyStack.length === 0) {
-                        this.cypherFields[index][2] += '{';
-                        propertyStack.push(1);
-                    }
-                    this.cypherFields[index][2] += this.cypherNode2[index][i][0] + ':' + this.cypherNode2[index][i][1];
-                    if (i < this.fieldListCypherNode2[index].length - 1 && this.fieldListCypherNode2[index][i+1] !== 'NODE') {
-                        this.cypherFields[index][2] += ',';
-                    }
+                this.cypherFields[index][2] += this.cypherNode2[index][i][0] + ':' + this.cypherNode2[index][i][1];
+                if (i < this.fieldListCypherNode2[index].length - 1) {
+                    this.cypherFields[index][2] += ',';
                 }
-            }
-            if (propertyStack.pop() !== undefined) {
-                this.cypherFields[index][2] += '}';
-            }
-            if (this.fieldListCypherNode2[index].length > 0) {
-                this.cypherFields[index][2] += ')';
+                if (i === this.fieldListCypherNode2[index].length - 1) {
+                    this.cypherFields[index][2] += '}';
+                }
             }
         }
         if (field === 3) {
-            this.cypherFields[index][4] = '';
-            for (let i = 0; i < this.fieldListCypherNode3[index].length; i++) {
-                if (this.fieldListCypherNode3[index][i] === 'NODE') { // Node Element
-                    if (nodeStack.pop() !== undefined) {
-                        if (propertyStack.pop() !== undefined) {
-                            this.cypherFields[index][4] += '}';
-                        }
-                        this.cypherFields[index][4] += '),';
-                    }
-                    if (this.cypherNode3[index][i][1] === '') { // dropdown is empty
-                        this.cypherFields[index][4] += '(' + this.cypherNode3[index][i][0];
-                    }
-                    else { // dropdown is not empty and label
-                        this.cypherFields[index][4] += '(' + this.cypherNode3[index][i][0] + ':' + this.cypherNode3[index][i][1];
-                    }
-                    nodeStack.push(1);
+            this.cypherFields[index][4] = this.cypherNode3[index][0][0] + ':' + this.cypherNode3[index][0][1];
+            for (let i = 1; i < this.fieldListCypherNode3[index].length; i++) {
+                if (i === 1) { // first property element
+                    this.cypherFields[index][4] += '{';
                 }
-                else { // Property Element
-                    if (propertyStack.length === 0) {
-                        this.cypherFields[index][4] += '{';
-                        propertyStack.push(1);
-                    }
-                    this.cypherFields[index][4] += this.cypherNode3[index][i][0] + ':' + this.cypherNode3[index][i][1];
-                    if (i < this.fieldListCypherNode3[index].length - 1 && this.fieldListCypherNode3[index][i+1] !== 'NODE') {
-                        this.cypherFields[index][4] += ',';
-                    }
+                this.cypherFields[index][4] += this.cypherNode3[index][i][0] + ':' + this.cypherNode3[index][i][1];
+                if (i < this.fieldListCypherNode3[index].length - 1) {
+                    this.cypherFields[index][4] += ',';
                 }
-            }
-            if (propertyStack.pop() !== undefined) {
-                this.cypherFields[index][4] += '}';
-            }
-            if (this.fieldListCypherNode3[index].length > 0) {
-                this.cypherFields[index][4] += ')';
+                if (i === this.fieldListCypherNode3[index].length - 1) {
+                    this.cypherFields[index][4] += '}';
+                }
             }
         }
         if (field === 4) {
-            this.cypherFields[index][1] = '';
-            for (let i = 0; i < this.fieldListCypherRel[index].length; i++) {
-                if (this.fieldListCypherRel[index][i] === 'NODE') { // Node Element
-                    if (nodeStack.pop() !== undefined) {
-                        if (propertyStack.pop() !== undefined) {
-                            this.cypherFields[index][1] += '}';
-                        }
-                        this.cypherFields[index][1] += '],';
-                    }
-                    if (this.cypherRel[index][i][1] === '') { // dropdown is empty
-                        this.cypherFields[index][1] += '[' + this.cypherRel[index][i][0];
-                    }
-                    else { // dropdown is not empty and label
-                        this.cypherFields[index][1] += '[' + this.cypherRel[index][i][0] + ':' + this.cypherRel[index][i][1];
-                    }
-                    nodeStack.push(1);
+            this.cypherFields[index][1] = this.cypherRel[index][0][0] + ':' + this.cypherRel[index][0][1];
+            for (let i = 1; i < this.fieldListCypherRel[index].length; i++) {
+                if (i === 1) { // first property element
+                    this.cypherFields[index][1] += '{';
                 }
-                else { // Property Element
-                    if (propertyStack.length === 0) {
-                        this.cypherFields[index][1] += '{';
-                        propertyStack.push(1);
-                    }
-                    this.cypherFields[index][1] += this.cypherRel[index][i][0] + ':' + this.cypherRel[index][i][1];
-                    if (i < this.fieldListCypherRel[index].length - 1 && this.fieldListCypherRel[index][i+1] !== 'NODE') {
-                        this.cypherFields[index][1] += ',';
-                    }
+                this.cypherFields[index][1] += this.cypherRel[index][i][0] + ':' + this.cypherRel[index][i][1];
+                if (i < this.fieldListCypherRel[index].length - 1) {
+                    this.cypherFields[index][1] += ',';
                 }
-            }
-            if (propertyStack.pop() !== undefined) {
-                this.cypherFields[index][1] += '}';
-            }
-            if (this.fieldListCypherRel[index].length > 0) {
-                this.cypherFields[index][1] += ']';
+                if (i === this.fieldListCypherRel[index].length - 1) {
+                    this.cypherFields[index][1] += '}';
+                }
             }
         }
         if (field === 5) {
-            this.cypherFields[index][3] = '';
-            for (let i = 0; i < this.fieldListCypherRel2[index].length; i++) {
-                if (this.fieldListCypherRel2[index][i] === 'NODE') { // Node Element
-                    if (nodeStack.pop() !== undefined) {
-                        if (propertyStack.pop() !== undefined) {
-                            this.cypherFields[index][3] += '}';
-                        }
-                        this.cypherFields[index][3] += '],';
-                    }
-                    if (this.cypherRel2[index][i][1] === '') { // dropdown is empty
-                        this.cypherFields[index][3] += '[' + this.cypherRel2[index][i][0];
-                    }
-                    else { // dropdown is not empty and label
-                        this.cypherFields[index][3] += '[' + this.cypherRel2[index][i][0] + ':' + this.cypherRel2[index][i][1];
-                    }
-                    nodeStack.push(1);
+            this.cypherFields[index][3] = this.cypherRel2[index][0][0] + ':' + this.cypherRel2[index][0][1];
+            for (let i = 1; i < this.fieldListCypherRel2[index].length; i++) {
+                if (i === 1) { // first property element
+                    this.cypherFields[index][3] += '{';
                 }
-                else { // Property Element
-                    if (propertyStack.length === 0) {
-                        this.cypherFields[index][3] += '{';
-                        propertyStack.push(1);
-                    }
-                    this.cypherFields[index][3] += this.cypherRel2[index][i][0] + ':' + this.cypherRel2[index][i][1];
-                    if (i < this.fieldListCypherRel2[index].length - 1 && this.fieldListCypherRel2[index][i+1] !== 'NODE') {
-                        this.cypherFields[index][3] += ',';
-                    }
+                this.cypherFields[index][3] += this.cypherRel2[index][i][0] + ':' + this.cypherRel2[index][i][1];
+                if (i < this.fieldListCypherRel2[index].length - 1) {
+                    this.cypherFields[index][3] += ',';
                 }
-            }
-            if (propertyStack.pop() !== undefined) {
-                this.cypherFields[index][3] += '}';
-            }
-            if (this.fieldListCypherRel2[index].length > 0) {
-                this.cypherFields[index][3] += ']';
+                if (i === this.fieldListCypherRel2[index].length - 1) {
+                    this.cypherFields[index][3] += '}';
+                }
             }
         }
         this.generateCypher();
@@ -1424,16 +1319,16 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         let cypher = '';
         for (let i = 0; i < this.fieldListCypher.length; i++) {
             if (this.fieldListCypher[i] === 'MATCH') {
-                cypher += 'MATCH ' + this.cypherFields[i][0];
+                cypher += 'MATCH ' + '(' + this.cypherFields[i][0] + ')';
                 switch (this.cypherDropdown[i]) {
                     case 'cypher-outgoing':
-                        cypher += '-->' + this.cypherFields[i][2];
+                        cypher += '-->(' + this.cypherFields[i][2] + ')';
                         break;
                     case 'cypher-directed':
-                        cypher += '-' + this.cypherFields[i][1] + '->' + this.cypherFields[i][2];
+                        cypher += '-[' + this.cypherFields[i][1] + ']->(' + this.cypherFields[i][2] + ')';
                         break;
                     case 'cypher-multiple':
-                        cypher += '-' + this.cypherFields[i][1] + '->' + this.cypherFields[i][2] + '<-' + this.cypherFields[i][3] + '-' + this.cypherFields[i][4];
+                        cypher += '-[' + this.cypherFields[i][1] + ']->(' + this.cypherFields[i][2] + ')<-[' + this.cypherFields[i][3] + ']-(' + this.cypherFields[i][4] + ')';
                         break;
                 }
             }
