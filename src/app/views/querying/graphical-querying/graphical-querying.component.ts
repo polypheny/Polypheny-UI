@@ -84,8 +84,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     cypherRel: string[][][] = [[[]]];
 
     cypherRel2: string[][][] = [[[]]];
-    cypherReturn: string[] = [''];
+    cypherReturnDrop: string[] = [''];
+    cypherReturnProp: string[] = [''];
     cypherReturn2: string[] = [''];
+
+    returnDropdown: string[] = [''];
     cypherDropdown: string[] = [];
     fieldListCypher: string[] = ['MATCH'];
 
@@ -499,7 +502,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.cypherNode3 = [[[]]];
                 this.cypherRel = [[[]]];
                 this.cypherRel2 = [[[]]];
-                this.cypherReturn = [''];
+                this.cypherReturnProp = [''];
+                this.cypherReturnDrop = [''];
                 this.cypherReturn2 = [''];
                 this.fieldListCypher = ['MATCH'];
                 this.fieldListCypherNode = [['NODE']];
@@ -538,7 +542,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.cypherNode = [[[]]];
                 this.cypherNode2 = [[[]]];
                 this.cypherNode3 = [[[]]];
-                this.cypherReturn = [''];
+                this.cypherReturnProp = [''];
+                this.cypherReturnDrop = [''];
                 this.cypherReturn2 = [''];
                 this.fieldListCypher = ['MATCH'];
                 this.fieldListCypherNode = [['NODE']];
@@ -1233,19 +1238,43 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
+    generateDropDownArray() {
+        this.returnDropdown = [];
+        for (let i = 0; i <= this.fieldListCypherNode.length - 1; i++) {
+            if (this.cypherNode[i][0][0] !== '' && this.cypherNode[i][0][0] !== undefined) {
+                this.returnDropdown.push(this.cypherNode[i][0][0]);
+            }
+            if (this.cypherNode2[i][0][0] !== '' && this.cypherNode2[i][0][0] !== undefined && this.cypherDropdown[i] !== 'cypher-none') {
+                this.returnDropdown.push(this.cypherNode2[i][0][0]);
+            }
+            if (this.cypherNode3[i][0][0] !== '' && this.cypherNode3[i][0][0] !== undefined && this.cypherDropdown[i] === 'cypher-multiple') {
+                this.returnDropdown.push(this.cypherNode3[i][0][0]);
+            }
+            if (this.cypherRel[i][0][0] !== '' && this.cypherRel[i][0][0] !== undefined && this.cypherDropdown[i] !== 'cypher-none' && this.cypherDropdown[i] !== 'cypher-outgoing') {
+                this.returnDropdown.push(this.cypherRel[i][0][0]);
+            }
+            if (this.cypherRel2[i][0][0] !== '' && this.cypherRel2[i][0][0] !== undefined && this.cypherDropdown[i] === 'cypher-multiple') {
+                this.returnDropdown.push(this.cypherRel2[i][0][0]);
+            }
+        }
+    }
+
     async generateMatch(index: number, field: number) {
-        const nodeStack = [];
-        const propertyStack = [];
         // generate the content of the field
         if (field === 1) {
-            this.cypherFields[index][0] = this.cypherNode[index][0][0] + ':' + this.cypherNode[index][0][1];
+            if (this.cypherNode[index][0][1] === '*') { // dropdown is empty
+                this.cypherFields[index][0] = this.cypherNode[index][0][0];
+            }
+            else {
+                this.cypherFields[index][0] = this.cypherNode[index][0][0] + ': ' + this.cypherNode[index][0][1];
+            }
             for (let i = 1; i < this.fieldListCypherNode[index].length; i++) {
                 if (i === 1) { // first property element
-                    this.cypherFields[index][0] += '{';
+                    this.cypherFields[index][0] += ' {';
                 }
-                this.cypherFields[index][0] += this.cypherNode[index][i][0] + ':' + this.cypherNode[index][i][1];
+                this.cypherFields[index][0] += this.cypherNode[index][i][0] + ': ' + this.cypherNode[index][i][1];
                 if (i < this.fieldListCypherNode[index].length - 1) {
-                    this.cypherFields[index][0] += ',';
+                    this.cypherFields[index][0] += ', ';
                 }
                 if (i === this.fieldListCypherNode[index].length - 1) {
                     this.cypherFields[index][0] += '}';
@@ -1253,14 +1282,19 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             }
         }
         if (field === 2) {
-            this.cypherFields[index][2] = this.cypherNode2[index][0][0] + ':' + this.cypherNode2[index][0][1];
+            if (this.cypherNode2[index][0][1] === '*') { // dropdown is empty
+                this.cypherFields[index][2] = this.cypherNode2[index][0][0];
+            }
+            else {
+                this.cypherFields[index][2] = this.cypherNode2[index][0][0] + ': ' + this.cypherNode2[index][0][1];
+            }
             for (let i = 1; i < this.fieldListCypherNode2[index].length; i++) {
                 if (i === 1) { // first property element
-                    this.cypherFields[index][2] += '{';
+                    this.cypherFields[index][2] += ' {';
                 }
-                this.cypherFields[index][2] += this.cypherNode2[index][i][0] + ':' + this.cypherNode2[index][i][1];
+                this.cypherFields[index][2] += this.cypherNode2[index][i][0] + ': ' + this.cypherNode2[index][i][1];
                 if (i < this.fieldListCypherNode2[index].length - 1) {
-                    this.cypherFields[index][2] += ',';
+                    this.cypherFields[index][2] += ', ';
                 }
                 if (i === this.fieldListCypherNode2[index].length - 1) {
                     this.cypherFields[index][2] += '}';
@@ -1268,14 +1302,19 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             }
         }
         if (field === 3) {
-            this.cypherFields[index][4] = this.cypherNode3[index][0][0] + ':' + this.cypherNode3[index][0][1];
+            if (this.cypherNode3[index][0][1] === '*') { // dropdown is empty
+                this.cypherFields[index][4] = this.cypherNode3[index][0][0];
+            }
+            else {
+                this.cypherFields[index][4] = this.cypherNode3[index][0][0] + ': ' + this.cypherNode3[index][0][1];
+            }
             for (let i = 1; i < this.fieldListCypherNode3[index].length; i++) {
                 if (i === 1) { // first property element
-                    this.cypherFields[index][4] += '{';
+                    this.cypherFields[index][4] += ' {';
                 }
-                this.cypherFields[index][4] += this.cypherNode3[index][i][0] + ':' + this.cypherNode3[index][i][1];
+                this.cypherFields[index][4] += this.cypherNode3[index][i][0] + ': ' + this.cypherNode3[index][i][1];
                 if (i < this.fieldListCypherNode3[index].length - 1) {
-                    this.cypherFields[index][4] += ',';
+                    this.cypherFields[index][4] += ', ';
                 }
                 if (i === this.fieldListCypherNode3[index].length - 1) {
                     this.cypherFields[index][4] += '}';
@@ -1283,14 +1322,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             }
         }
         if (field === 4) {
-            this.cypherFields[index][1] = this.cypherRel[index][0][0] + ':' + this.cypherRel[index][0][1];
+            this.cypherFields[index][1] = this.cypherRel[index][0][0] + ': ' + this.cypherRel[index][0][1];
             for (let i = 1; i < this.fieldListCypherRel[index].length; i++) {
                 if (i === 1) { // first property element
-                    this.cypherFields[index][1] += '{';
+                    this.cypherFields[index][1] += ' {';
                 }
-                this.cypherFields[index][1] += this.cypherRel[index][i][0] + ':' + this.cypherRel[index][i][1];
+                this.cypherFields[index][1] += this.cypherRel[index][i][0] + ': ' + this.cypherRel[index][i][1];
                 if (i < this.fieldListCypherRel[index].length - 1) {
-                    this.cypherFields[index][1] += ',';
+                    this.cypherFields[index][1] += ', ';
                 }
                 if (i === this.fieldListCypherRel[index].length - 1) {
                     this.cypherFields[index][1] += '}';
@@ -1298,14 +1337,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             }
         }
         if (field === 5) {
-            this.cypherFields[index][3] = this.cypherRel2[index][0][0] + ':' + this.cypherRel2[index][0][1];
+            this.cypherFields[index][3] = this.cypherRel2[index][0][0] + ': ' + this.cypherRel2[index][0][1];
             for (let i = 1; i < this.fieldListCypherRel2[index].length; i++) {
                 if (i === 1) { // first property element
-                    this.cypherFields[index][3] += '{';
+                    this.cypherFields[index][3] += ' {';
                 }
-                this.cypherFields[index][3] += this.cypherRel2[index][i][0] + ':' + this.cypherRel2[index][i][1];
+                this.cypherFields[index][3] += this.cypherRel2[index][i][0] + ': ' + this.cypherRel2[index][i][1];
                 if (i < this.fieldListCypherRel2[index].length - 1) {
-                    this.cypherFields[index][3] += ',';
+                    this.cypherFields[index][3] += ', ';
                 }
                 if (i === this.fieldListCypherRel2[index].length - 1) {
                     this.cypherFields[index][3] += '}';
@@ -1341,9 +1380,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             cypher += '\n';
         }
         cypher += 'RETURN ';
-        for (let i = 0; i < this.cypherReturn.length; i++) {
-            cypher += this.cypherReturn[i];
-            if (i < this.cypherReturn.length - 1) {
+        for (let i = 0; i < this.cypherReturnDrop.length; i += 2) {
+            cypher += this.cypherReturnDrop[i];
+            if (this.cypherReturnProp[i] !== undefined && this.cypherReturnProp[i] !== '') {
+                cypher += '.' + this.cypherReturnProp[i];
+            }
+            if (i < this.cypherReturnDrop.length - 1) {
                 cypher += ', ';
             }
         }
@@ -1603,24 +1645,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
         }
     }
-
-    executeCypherFilter() {
-        this.loading = true;
-        let code = this.editorGenerated.getCode();
-        code += ', \n';
-        for (let i = 0; i < this.cypherReturn.length; i++) {
-            code += 'DISTINCT LABELS(' + this.cypherReturn[i] +') as test';
-            if (i < this.cypherReturn.length-1) {
-                code += ',\n';
-            }
-        }
-        console.log(code);
-        if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, this.lang, this.activeNamespace))) {
-            this.loading = false;
-            this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
-        }
-    }
-
 
     addCol(data) {
         const treeElement = new SidebarNode(data.id, data.name, null, null);

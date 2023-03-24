@@ -102,10 +102,9 @@
 
         <!-- graphical-UI for Cypher -->
         <div *ngIf="lang === 'cypher'">
-            <p>Select your graph from the left sidebar: <b>{{ graphName !== undefined ? ' ' + graphName : '' }}</b></p>
+            <p>Select your graph from the left sidebar to get started: <b>{{ graphName !== undefined ? ' ' + graphName : '' }}</b></p>
+            <p>To generate your desired query, fill in the details in the appearing fields and use the graphical elements to fine-tune your selections. The query will be dynamically generated based on the information you provide, allowing you to customize the details to your exact specifications.</p>
             <div *ngIf="graphName !== undefined">
-                <p>Fill in the details. You can drag and drop the labels into the input fields.</p>
-
                 <div class="label">
                     <!-- Node Labels -->
                     <div style="display: inline-block; margin-bottom:0.75em;" tooltip="Nodes represent entities in the graph database. They can have labels that describe their type and properties that store their attributes.">
@@ -148,7 +147,14 @@
                                     <br>
                                     To recreate this query, you can follow these steps:<br>
                                     <ol>
-                                        <li>In the MATCH input field, type <code>tom:Person {{"{" }}name: "Tom Hanks"}</code></li>
+                                        <li>Click the MATCH input field to open a modal:</li>
+                                            <ul>
+                                                <li>Type <code>tom</code> into the input field of the Node Name.</li>
+                                                <li>Select <code>Person</code> from the dropdown menu of the Node Labels. (Note: Only applicable if your chosen graph has the same Labels)</li>
+                                                <li>Click on the plus-button to add a property field</li>
+                                                <li>Write <code>name</code> into the first property field</li>
+                                                <li>Write <code>"Tom Hanks"</code> into the second property field</li>
+                                            </ul>
                                         <li>Select the Relationship <i>Directed</i> from the dropdown menu</li>
                                         <li>Enter <code>ACTED_IN</code> into the first, and <code>tomHanksMovies</code> into the second appearing field</li>
                                         <li>Finally, add <code>tom, tomHanksMovies</code> to the RETURN input field</li>
@@ -184,51 +190,44 @@
                                                    tooltip="The MATCH clause allows you to specify patterns of nodes and relationships that should be matched in the graph, and filter the results based on specific criteria"
                                             >MATCH</label>
                                         </div>
-                                        <input type="text" id="cypher-match-node-{{i}}" class="form-control"
-                                               [(ngModel)]="cypherFields[i][0]" (click)="this.matchModal.show();" placeholder="Node" autocomplete="off">
+                                        <input type="text" id="cypher-match-node-{{i}}" class="form-control" style="background-color: white;"
+                                               [(ngModel)]="cypherFields[i][0]" (click)="this.matchModal.show();" placeholder="Node" autocomplete="off" readonly>
                                         <!-- Modal for Match-field -->
                                         <div bsModal #matchModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
                                              aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h4 class="modal-title">Query-Generation: MATCH-Clause</h4>
+                                                        <h4 class="modal-title">Query-Generation: MATCH-Clause Node</h4>
 
                                                         <button type="button" class="close" (click)="matchModal.hide()" aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <p>Fill in the details. You can add new rows or properties of the nodes with the plus-button.</p>
-                                                        <div class="row">
-                                                            <div class="col-lg-5 fixed-width">
-                                                                <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
-                                                                >Node name</b>
-                                                            </div>
-                                                            <div class="col-lg-5 fixed-width">
-                                                                <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose none you return all the nodes without defining a specific category."
-                                                                >Node label</b>
-                                                            </div>
-                                                        </div>
+                                                        <p>Define your node name and labels, and optionally add properties by clicking on the plus button to customize your query further.</p>
                                                         <!-- Inside Node Modal 1-->
                                                         <div>
-                                                            <br>
-                                                            <b>Node:</b>
                                                             <div class="row">
                                                                 <div class="col-lg-5 fixed-width">
+                                                                    <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                    >Node name</b>
                                                                     <input type="text" id="cypher-match-node-{{i}}" class="form-control"
                                                                            [(ngModel)]="cypherNode[i][0][0]" (keyup)="generateMatch(i,1);" placeholder="Node" autocomplete="off">
                                                                 </div>
                                                                 <div class="col-lg-5 fixed-width">
+                                                                    <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose * you return all the nodes without defining a specific category."
+                                                                    >Node label</b>
                                                                     <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherNode[i][0][1]" (change)="generateMatch(i,1)">
-                                                                        <option value="" selected>None</option>
+                                                                        <option value="*" selected>*</option>
                                                                         <option *ngFor="let option of nodeLabels">{{ option }}</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <br>
-                                                        <b>Properties:</b>
+                                                        <b tooltip="Properties can be used to filter the nodes and relationships that match a pattern by specifying the property name and value as a condition."
+                                                        >Properties (Optional):</b>
                                                         <div *ngFor="let fieldNumber2 of fieldListCypherNode[i]; let j = index">
                                                            <!-- Property Row -->
                                                             <div *ngIf="fieldNumber2 == 'PROP'">
@@ -246,6 +245,7 @@
                                                                         <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j,1); generateMatch(i,1)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
                                                                     </div>
                                                                 </div>
+                                                                <br>
                                                             </div>
                                                         </div>
 
@@ -253,7 +253,6 @@
                                                         <div class="input-group justify-content-center mt-3">
                                                             <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i, 1)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
                                                         </div>
-
                                                     </div>
                                                     <div class="modal-footer">
                                                     </div>
@@ -292,43 +291,35 @@
                                 <div class="col-lg-4 fixed-width"> <!-- has to be swapped so the column works with ngIf-->
                                     <div *ngIf="cypherDropdown[i] === 'cypher-outgoing'">
                                         <div class="input-group mb-3">
-                                            <input type="text" id="cypher-match-node1-{{i}}" class="form-control"
-                                                   [(ngModel)]="cypherFields[i][2]" (click)="this.matchModal2.show();" placeholder="Node" autocomplete="off">
+                                            <input type="text" id="cypher-match-node1-{{i}}" class="form-control" style="background-color: white;"
+                                                   [(ngModel)]="cypherFields[i][2]" (click)="this.matchModal2.show();" placeholder="Node" autocomplete="off" readonly>
                                             <!-- Modal for Relationship - Node 1 -->
                                             <div bsModal #matchModal2="bs-modal" class="modal fade" tabindex="-1" role="dialog"
                                                  aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
                                                 <div class="modal-dialog" role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause</h4>
+                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause Node</h4>
 
                                                             <button type="button" class="close" (click)="matchModal2.hide()" aria-label="Close">
                                                                 <span aria-hidden="true">&times;</span>
                                                             </button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <p>Fill in the details. You can add new rows or properties of the nodes with the plus-button.</p>
-                                                            <div class="row">
-                                                                <div class="col-lg-5 fixed-width">
-                                                                    <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
-                                                                    >Node name</b>
-                                                                </div>
-                                                                <div class="col-lg-5 fixed-width">
-                                                                    <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose none you return all the nodes without defining a specific category."
-                                                                    >Node label</b>
-                                                                </div>
-                                                            </div>
+                                                            <p>Define your node name and labels, and optionally add properties by clicking on the plus button to customize your query further.</p>
                                                             <div>
-                                                                <br>
-                                                                <b>Node:</b>
                                                                 <div class="row">
                                                                     <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                        >Node name</b>
                                                                         <input type="text" id="cypher-match-node-{{i}}" class="form-control"
                                                                                [(ngModel)]="cypherNode2[i][0][0]" (keyup)="generateMatch(i,2);" placeholder="Node" autocomplete="off">
                                                                     </div>
                                                                     <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose * you return all the nodes without defining a specific category."
+                                                                        >Node label</b>
                                                                         <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherNode2[i][0][1]" (change)="generateMatch(i,2)">
-                                                                            <option value="" selected>None</option>
+                                                                            <option value="*" selected>*</option>
                                                                             <option *ngFor="let option of nodeLabels">{{ option }}</option>
                                                                         </select>
                                                                     </div>
@@ -374,8 +365,8 @@
                                     </div>
                                     <div *ngIf="cypherDropdown[i] === 'cypher-directed' || cypherDropdown[i] === 'cypher-multiple'">
                                         <div class="input-group mb-3">
-                                            <input type="text" id="cypher-match-rel-{{i}}" class="form-control"
-                                                   [(ngModel)]="cypherFields[i][1]" (click)="this.matchModal4.show();" placeholder="Relationship" autocomplete="off">
+                                            <input type="text" id="cypher-match-rel-{{i}}" style="background-color: white;" class="form-control"
+                                                   [(ngModel)]="cypherFields[i][1]" (click)="this.matchModal4.show();" placeholder="Relationship" autocomplete="off" readonly>
                                             <!-- Modal for Relationship - Relationship 1 -->
                                             <div bsModal #matchModal4="bs-modal" class="modal fade" tabindex="-1" role="dialog"
                                                  aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
@@ -389,26 +380,18 @@
                                                             </button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <p>Fill in the details. You can add new rows or properties of the nodes with the plus-button.</p>
-                                                            <div class="row">
-                                                                <div class="col-lg-5 fixed-width">
-                                                                    <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
-                                                                    >Node name</b>
-                                                                </div>
-                                                                <div class="col-lg-5 fixed-width">
-                                                                    <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose none you return all the nodes without defining a specific category."
-                                                                    >Node label</b>
-                                                                </div>
-                                                            </div>
+                                                            <p>Define your relationship name and labels, and optionally add properties by clicking on the plus button to customize your query further.</p>
                                                             <div>
-                                                                <br>
-                                                                <b>Node:</b>
                                                                 <div class="row">
                                                                     <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="The name of the relationship allows you to refer to the relationship (or node) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                        >Relationship name</b>
                                                                         <input type="text" id="cypher-match-node-{{i}}" class="form-control"
                                                                                [(ngModel)]="cypherRel[i][0][0]" (keyup)="generateMatch(i,4);" placeholder="Relationship" autocomplete="off">
                                                                     </div>
                                                                     <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="Labels are used to assign a category or type to a relationship. You can choose from all existing relationship labels."
+                                                                        >Relationship label</b>
                                                                         <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherRel[i][0][1]" (change)="generateMatch(i,4)">
                                                                             <option *ngFor="let option of relationLabels">{{ option }}</option>
                                                                         </select>
@@ -416,7 +399,8 @@
                                                                 </div>
                                                             </div>
                                                             <br>
-                                                            <b>Properties:</b>
+                                                            <b tooltip="Properties can be used to filter the nodes and relationships that match a pattern by specifying the property name and value as a condition."
+                                                            >Properties (Optional):</b>
                                                             <!-- Inside Match-Modal-->
                                                             <div *ngFor="let fieldNumber2 of fieldListCypherRel[i]; let j = index">
                                                                 <!-- Property Row -->
@@ -457,50 +441,43 @@
                                 <div class="col-lg-4 fixed-width">
                                     <div *ngIf="cypherDropdown[i] === 'cypher-directed' || cypherDropdown[i] === 'cypher-multiple'">
                                         <div class="input-group mb-3">
-                                            <input type="text" id="cypher-match-node2-{{i}}" class="form-control"
-                                                   [(ngModel)]="cypherFields[i][2]" (click)="this.matchModal2.show();" placeholder="Node" autocomplete="off">
+                                            <input type="text" id="cypher-match-node2-{{i}}" style="background-color: white;" class="form-control"
+                                                   [(ngModel)]="cypherFields[i][2]" (click)="this.matchModal2.show();" placeholder="Node" autocomplete="off" readonly>
                                             <!-- Modal for Relationship - Node 1 -->
                                             <div bsModal #matchModal2="bs-modal" class="modal fade" tabindex="-1" role="dialog"
                                                  aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
                                                 <div class="modal-dialog" role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause</h4>
+                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause Node</h4>
 
                                                             <button type="button" class="close" (click)="matchModal2.hide()" aria-label="Close">
                                                                 <span aria-hidden="true">&times;</span>
                                                             </button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <p>Fill in the details. You can add new rows or properties of the nodes with the plus-button.</p>
-                                                            <div class="row">
-                                                                <div class="col-lg-5 fixed-width">
-                                                                    <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
-                                                                    >Node name</b>
-                                                                </div>
-                                                                <div class="col-lg-5 fixed-width">
-                                                                    <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose none you return all the nodes without defining a specific category."
-                                                                    >Node label</b>
-                                                                </div>
-                                                            </div>
+                                                            <p>Define your node name and labels, and optionally add properties by clicking on the plus button to customize your query further.</p>
                                                             <div>
-                                                                <br>
-                                                                <b>Node:</b>
                                                                 <div class="row">
                                                                     <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                        >Node name</b>
                                                                         <input type="text" id="cypher-match-node-{{i}}" class="form-control"
                                                                                [(ngModel)]="cypherNode2[i][0][0]" (keyup)="generateMatch(i,2);" placeholder="Node" autocomplete="off">
                                                                     </div>
                                                                     <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose * you return all the nodes without defining a specific category."
+                                                                        >Node label</b>
                                                                         <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherNode2[i][0][1]" (change)="generateMatch(i,2)">
-                                                                            <option value="" selected>None</option>
+                                                                            <option value="*" selected>*</option>
                                                                             <option *ngFor="let option of nodeLabels">{{ option }}</option>
                                                                         </select>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             <br>
-                                                            <b>Properties:</b>
+                                                            <b tooltip="Properties can be used to filter the nodes and relationships that match a pattern by specifying the property name and value as a condition."
+                                                            >Properties (Optional):</b>
                                                             <!-- Inside Match-Modal-->
                                                             <div *ngFor="let fieldNumber2 of fieldListCypherNode2[i]; let j = index">
                                                                 <!-- Property Row -->
@@ -545,8 +522,8 @@
                                 <div class="col-lg-4 fixed-width">
                                     <div *ngIf="cypherDropdown[i] === 'cypher-multiple'">
                                         <div class="input-group mb-3">
-                                            <input type="text" id="cypher-match-rel2-{{i}}" class="form-control"
-                                                   [(ngModel)]="cypherFields[i][3]" (click)="this.matchModal5.show();" placeholder="2. Relationship" autocomplete="off">
+                                            <input type="text" id="cypher-match-rel2-{{i}}" style="background-color: white;" class="form-control"
+                                                   [(ngModel)]="cypherFields[i][3]" (click)="this.matchModal5.show();" placeholder="2. Relationship" autocomplete="off" readonly>
                                             <!-- Modal for Relationship - Rel 2 -->
                                             <div bsModal #matchModal5="bs-modal" class="modal fade" tabindex="-1" role="dialog"
                                                  aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
@@ -560,26 +537,18 @@
                                                             </button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <p>Fill in the details. You can add new rows or properties of the nodes with the plus-button.</p>
-                                                            <div class="row">
-                                                                <div class="col-lg-5 fixed-width">
-                                                                    <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
-                                                                    >Node name</b>
-                                                                </div>
-                                                                <div class="col-lg-5 fixed-width">
-                                                                    <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose none you return all the nodes without defining a specific category."
-                                                                    >Node label</b>
-                                                                </div>
-                                                            </div>
+                                                            <p>Define your relationship name and labels, and optionally add properties by clicking on the plus button to customize your query further.</p>
                                                             <div>
-                                                                <br>
-                                                                <b>Node:</b>
                                                                 <div class="row">
                                                                     <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="The name of the relationship allows you to refer to the relationship (or node) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                        >Relationship name</b>
                                                                         <input type="text" id="cypher-match-node-{{i}}" class="form-control"
                                                                                [(ngModel)]="cypherRel2[i][0][0]" (keyup)="generateMatch(i,5);" placeholder="Relationship" autocomplete="off">
                                                                     </div>
                                                                     <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="Labels are used to assign a category or type to a relationship. You can choose from all existing relationship labels."
+                                                                        >Relationship label</b>
                                                                         <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherRel2[i][0][1]" (change)="generateMatch(i,5)">
                                                                             <option *ngFor="let option of relationLabels">{{ option }}</option>
                                                                         </select>
@@ -587,7 +556,8 @@
                                                                 </div>
                                                             </div>
                                                             <br>
-                                                            <b>Properties:</b>
+                                                            <b tooltip="Properties can be used to filter the nodes and relationships that match a pattern by specifying the property name and value as a condition."
+                                                            >Properties (Optional):</b>
                                                             <!-- Inside Match-Modal-->
                                                             <div *ngFor="let fieldNumber2 of fieldListCypherRel2[i]; let j = index">
                                                                 <!-- Property Row -->
@@ -629,49 +599,42 @@
                                     <div *ngIf="cypherDropdown[i] === 'cypher-multiple'">
                                         <!-- Modal for Relationship - Node 2 -->
                                         <div class="input-group mb-3">
-                                            <input type="text" id="cypher-match-node3-{{i}}" class="form-control"
-                                                   [(ngModel)]="cypherFields[i][4]" (click)="this.matchModal3.show()" placeholder="2. Node" autocomplete="off">
+                                            <input type="text" id="cypher-match-node3-{{i}}" style="background-color: white;" class="form-control"
+                                                   [(ngModel)]="cypherFields[i][4]" (click)="this.matchModal3.show()" placeholder="2. Node" autocomplete="off" readonly>
                                             <div bsModal #matchModal3="bs-modal" class="modal fade" tabindex="-1" role="dialog"
                                                  aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
                                                 <div class="modal-dialog" role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause</h4>
+                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause Node</h4>
 
                                                             <button type="button" class="close" (click)="matchModal3.hide()" aria-label="Close">
                                                                 <span aria-hidden="true">&times;</span>
                                                             </button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <p>Fill in the details. You can add new rows or properties of the nodes with the plus-button.</p>
-                                                            <div class="row">
-                                                                <div class="col-lg-5 fixed-width">
-                                                                    <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
-                                                                    >Node name</b>
-                                                                </div>
-                                                                <div class="col-lg-5 fixed-width">
-                                                                    <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose none you return all the nodes without defining a specific category."
-                                                                    >Node label</b>
-                                                                </div>
-                                                            </div>
+                                                            <p>Define your node name and labels, and optionally add properties by clicking on the plus button to customize your query further.</p>
                                                             <div>
-                                                                <br>
-                                                                <b>Node:</b>
                                                                 <div class="row">
                                                                     <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                        >Node name</b>
                                                                         <input type="text" id="cypher-match-node-{{i}}" class="form-control"
                                                                                [(ngModel)]="cypherNode3[i][0][0]" (keyup)="generateMatch(i,3);" placeholder="Node" autocomplete="off">
                                                                     </div>
                                                                     <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose * you return all the nodes without defining a specific category."
+                                                                        >Node label</b>
                                                                         <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherNode3[i][0][1]" (change)="generateMatch(i,3)">
-                                                                            <option value="" selected>None</option>
+                                                                            <option value="*" selected>*</option>
                                                                             <option *ngFor="let option of nodeLabels">{{ option }}</option>
                                                                         </select>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             <br>
-                                                            <b>Properties:</b>
+                                                            <b tooltip="Properties can be used to filter the nodes and relationships that match a pattern by specifying the property name and value as a condition."
+                                                            >Properties (Optional):</b>
                                                             <!-- Inside NodeModal 3-->
                                                             <div *ngFor="let fieldNumber2 of fieldListCypherNode3[i]; let j = index">
                                                                 <!-- Property Row -->
@@ -851,19 +814,22 @@
 
                     <!-- Return Clause-->
                     <div class="row" style="display: flex; flex-direction: row; flex-wrap: wrap;">
-                        <div class="col-lg-3 fixed-width" *ngFor="let item of cypherReturn2; let i = index">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend" *ngIf="i == 0">
-                                    <label for="cypher-return-{{i}}" class="input-group-text" tooltip="The RETURN clause is used to specify which data to include in the query result. It allows you to select nodes, relationships or properties"
-                                    >RETURN</label>
+                        <div class="col-lg-4 fixed-width" *ngFor="let item of cypherReturn2; let i = index">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend" *ngIf="i == 0">
+                                        <label for="cypher-return-{{i}}" class="input-group-text" tooltip="The RETURN clause is used to specify which data to include in the query result. It allows you to select nodes, relationships or properties"
+                                        >RETURN</label>
+                                    </div>
+                                    <select class="form-control" id="cypher-return-{{i}}" [(ngModel)]="cypherReturnDrop[i]" (change)="generateCypher()" (click)="generateDropDownArray()">
+                                        <option *ngFor="let option of returnDropdown">{{ option }}</option>
+                                    </select>
+                                    <input type="text" id="cypher-return-{{i}}" placeholder="Optional: Property" autocomplete="off" class="form-control"
+                                           [(ngModel)]="cypherReturnProp[i]" (keyup)="generateCypher()" autocomplete="off">
                                 </div>
-                                <input type="text" id="cypher-return-{{i}}" placeholder="Node" autocomplete="off" class="form-control"
-                                       [(ngModel)]="cypherReturn[i]" (keyup)="generateCypher()" autocomplete="off">
-                            </div>
                         </div>
                         <div>
-                            <button class="btn btn-primary" (click)="cypherReturn.push(''); cypherReturn2.push('');" style="border-radius: 100%;"><i class="cui-plus"></i></button>
-                            <button id="button-btn-return" (click)="cypherReturn.pop(); cypherReturn2.pop();" class="btn btn-primary toggle-insert" *ngIf="cypherReturn.length !=1" style="border-radius: 100%;"> <i class="cui-trash"></i></button>
+                            <button class="btn btn-primary" (click)="cypherReturnDrop.push(''); cypherReturnProp.push(''); cypherReturn2.push('');" style="border-radius: 100%;"><i class="cui-plus"></i></button>
+                            <button id="button-btn-return" (click)="cypherReturnDrop.pop(); cypherReturnProp.push(''); cypherReturn2.pop()" class="btn btn-primary toggle-insert" *ngIf="cypherReturnDrop.length !=1" style="border-radius: 100%;"> <i class="cui-trash"></i></button>
                         </div>
                     </div>
                 </div>
@@ -908,12 +874,7 @@
                         </div>
 
                         <div class="row" *ngIf="resultSet && resultSet.data">
-                            <div class="col-lg-9">
                               <app-data-view [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}" [loading]="loading" (viewEditorCode)="createView($event)" (executeView)="executeView($event)"></app-data-view>
-                            </div>
-                            <div class="col-lg-3 cypher-sidebar">
-                                <p>Sidebar</p>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -922,11 +883,9 @@
 
         <!-- graphical-UI for MQL -->
         <div *ngIf="lang === 'mql'">
-            <p>Select your collection from the left sidebar: <b>{{ collectionName2 !== undefined ? ' ' + collectionName2 : '' }}</b></p>
-
+            <p>Select your collection from the left sidebar to get started: <b>{{ collectionName2 !== undefined ? ' ' + collectionName2 : '' }}</b></p>
+            <p>To generate your desired query, fill in the details in the appearing fields and use the graphical elements to fine-tune your selections. The query will be dynamically generated based on the information you provide, allowing you to customize the details to your exact specifications.</p>
             <div *ngIf="collectionName !== undefined">
-
-                <p>Fill in the details:</p>
                 <p>Choose what you want to do: </p>
                 <div classe ="row" style="display: flex; justify-content: space-between;">
                     <div>
