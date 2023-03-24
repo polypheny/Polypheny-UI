@@ -335,7 +335,7 @@
                                                                 </div>
                                                             </div>
                                                             <br>
-                                                            <b>Properties:</b>
+                                                            <b>Properties (Optional):</b>
                                                             <!-- Inside Match-Modal-->
                                                             <div *ngFor="let fieldNumber2 of fieldListCypherNode2[i]; let j = index">
                                                                 <!-- Property Row -->
@@ -838,7 +838,7 @@
                         </div>
                         <div>
                             <button class="btn btn-primary" (click)="cypherReturnDrop.push(''); cypherReturnProp.push(''); cypherReturn2.push('');" style="border-radius: 100%;"><i class="cui-plus"></i></button>
-                            <button id="button-btn-return" (click)="cypherReturnDrop.pop(); cypherReturnProp.push(''); cypherReturn2.pop()" class="btn btn-primary toggle-insert" *ngIf="cypherReturnDrop.length !=1" style="border-radius: 100%;"> <i class="cui-trash"></i></button>
+                            <button id="button-btn-return" (click)="cypherReturnDrop.pop(); cypherReturnProp.push(''); cypherReturn2.pop(); generateCypher();" class="btn btn-primary toggle-insert" *ngIf="cypherReturnDrop.length !=1" style="border-radius: 100%;"> <i class="cui-trash"></i></button>
                         </div>
                     </div>
                 </div>

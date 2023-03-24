@@ -829,18 +829,16 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     addCypherField(type: string) {
         this.fieldListCypher.push(type);
         this.cypherFields.push([]);
-        if (type === 'MATCH') {
-            this.fieldListCypherNode.push(['NODE']);
-            this.cypherNode.push([[]]);
-            this.fieldListCypherNode2.push(['NODE']);
-            this.cypherNode2.push([[]]);
-            this.fieldListCypherNode3.push(['NODE']);
-            this.cypherNode3.push([[]]);
-            this.fieldListCypherRel.push(['NODE']);
-            this.cypherRel.push([[]]);
-            this.fieldListCypherRel2.push(['NODE']);
-            this.cypherRel2.push([[]]);
-        }
+        this.fieldListCypherNode.push(['NODE']);
+        this.cypherNode.push([[]]);
+        this.fieldListCypherNode2.push(['NODE']);
+        this.cypherNode2.push([[]]);
+        this.fieldListCypherNode3.push(['NODE']);
+        this.cypherNode3.push([[]]);
+        this.fieldListCypherRel.push(['NODE']);
+        this.cypherRel.push([[]]);
+        this.fieldListCypherRel2.push(['NODE']);
+        this.cypherRel2.push([[]]);
     }
 
     addCypherMatchField(index: number, field:number) {
@@ -1087,6 +1085,17 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     deleteCypherField(x:number) {
         this.fieldListCypher.splice(x, 1);
         this.cypherFields.splice(x, 1);
+
+        this.fieldListCypherNode.splice(x, 1);
+        this.cypherNode.splice(x, 1);
+        this.fieldListCypherNode2.splice(x, 1);
+        this.cypherNode2.splice(x, 1);
+        this.fieldListCypherNode3.splice(x, 1);
+        this.cypherNode3.splice(x, 1);
+        this.fieldListCypherRel.splice(x, 1);
+        this.cypherRel.splice(x, 1);
+        this.fieldListCypherRel2.splice(x, 1);
+        this.cypherRel2.splice(x, 1);
         this.generateCypher();
     }
 
@@ -1386,7 +1395,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             cypher += this.cypherReturnDrop[i];
             if (this.cypherReturnProp[i] !== undefined && this.cypherReturnProp[i] !== '') {
                 cypher += '.' + this.cypherReturnProp[i];
-                console.log('Test');
             }
             if (i < this.cypherReturnDrop.length - 1) {
                 cypher += ', ';
