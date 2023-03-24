@@ -143,7 +143,7 @@
                                     Imagine you have a graph that contains different persons and movies and their relationships. If you want to return the node for the actor Tom Hanks and all movie nodes that he acted in, you can use a Cypher query like this:
                                     <br>
                                     <br>
-                                    <ul><li><code>MATCH (tom:Person {{"{" }}name: "Tom Hanks"})-[:ACTED_IN]->(tomHanksMovies)<br>RETURN tom,tomHanksMovies</code></li></ul>
+                                    <ul><li><code>MATCH (tom:Person {{"{" }}name: "Tom Hanks"})-[r:ACTED_IN]->(tomHanksMovies)<br>RETURN tom,tomHanksMovies</code></li></ul>
                                     <br>
                                     To recreate this query, you can follow these steps:<br>
                                     <ol>
@@ -156,8 +156,18 @@
                                                 <li>Write <code>"Tom Hanks"</code> into the second property field</li>
                                             </ul>
                                         <li>Select the Relationship <i>Directed</i> from the dropdown menu</li>
-                                        <li>Enter <code>ACTED_IN</code> into the first, and <code>tomHanksMovies</code> into the second appearing field</li>
-                                        <li>Finally, add <code>tom, tomHanksMovies</code> to the RETURN input field</li>
+                                        <li>Click on the first appearing input field to open a modal:</li>
+                                        <ul>
+                                            <li>Type <code>r</code> into the input field of the Relationship Name.</li>
+                                            <li>Select <code>ACTED_IN</code> from the dropdown menu of the Relationship Labels. (Note: Only applicable if your chosen graph has the same Labels)</li>
+                                        </ul>
+                                        <li>Click on the second appearing input field to open a modal:</li>
+                                        <ul>
+                                            <li>Type <code>tomHanksMovie</code> into the input field of the Node Name.</li>
+                                            <li>Select <code>*</code> from the dropdown menu of the Node Labels.</li>
+                                        </ul>
+                                        <li>Select <code>tom</code> from the dropdown menu in the RETURN clause and ignore the optional property field</li>
+                                        <li>Add a new RETURN field with the plus-button right next to the field. Select <code>tomHanksMovie</code> from the appearing dropdown menu and ignore the optional property field</li>
                                     </ol>
 
                                     <b>Additional Features:</b>
@@ -816,10 +826,10 @@
                         <div class="col-lg-4 fixed-width" *ngFor="let item of cypherReturn2; let i = index">
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend" *ngIf="i == 0">
-                                        <label for="cypher-return-{{i}}" class="input-group-text" tooltip="The RETURN clause is used to specify which data to include in the query result. It allows you to select nodes, relationships or properties"
+                                        <label for="cypher-return-{{i}}" class="input-group-text" tooltip="The RETURN clause is used to specify which data to include in the query result. It allows you to select nodes, relationships or properties."
                                         >RETURN</label>
                                     </div>
-                                    <select class="form-control" id="cypher-return-{{i}}" [(ngModel)]="cypherReturnDrop[i]" (change)="generateCypher()" #dropdown (click)="generateDropDownArray(); onDropdownClick(dropdown)">
+                                    <select class="form-control"  tooltip="You can return elements from the defined names from your input." id="cypher-return-{{i}}" [(ngModel)]="cypherReturnDrop[i]" (change)="generateCypher()" #dropdown (click)="generateDropDownArray(); onDropdownClick(dropdown)">
                                         <option *ngFor="let option of returnDropdown">{{ option }}</option>
                                     </select>
                                     <input type="text" id="cypher-return-{{i}}" placeholder="Optional: Property" autocomplete="off" class="form-control"
