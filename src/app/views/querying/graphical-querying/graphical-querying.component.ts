@@ -67,8 +67,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     // new additions by me:
 
-    nodeLabels: string[] = ['Movie', 'Person']; //Hardcoded for the moment
-    relationLabels: string[] = ['DIRECTED', 'ACTED_IN', 'FATHER_OF']; //Hardcoded for the moment
+    nodeLabels: string[] = ['Movie', 'Person', 'Character']; //Hardcoded for the moment
+    relationLabels: string[] = ['DIRECTED_BY', 'HAS_ACTOR', 'PLAYS']; //Hardcoded for the moment
     lang: string; // usage as lang in console.component.hmtl 'sql', 'cypher', 'mql'
     tableId: string;
     config: TableConfig;
