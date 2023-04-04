@@ -474,84 +474,62 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.collectionName = undefined;
                 this.collectionName2 = undefined;
                 this.graphName = undefined;
-                //mql
-                this.mqlFields = [['','','','',0,0]];
-                this.mqlFieldsMATCH = [['','','','',0,0]];
-                this.mqlFieldsGROUP = [['_id','','','_id',0,0]];
-                this.mqlFieldsSORT = [['','','','',0,0]];
-                this.fieldCounter = 0;
-                this.logicalOperatorStack = [];
-                this.fieldList = ['0'];
-                this.fieldDepthCounter = 0;
-                this.logicalDepthCounter = 0;
-                this.fieldCounterMATCH = 0;
-                this.logicalOperatorStackMATCH = [];
-                this.fieldListMATCH = ['0'];
-                this.fieldDepthCounterMATCH = 0;
-                this.logicalDepthCounterMATCH = 0;
-                this.fieldCounterGROUP = 0;
-                this.fieldListGROUP = ['0'];
-                this.fieldDepthCounterGROUP = 0;
-                this.fieldCounterSORT = 0;
-                this.fieldListSORT = ['0'];
-                this.fieldDepthCounterSORT = 0;
-                //cypher
-                this.cypherFields = [[]];
-                this.cypherNode = [[[]]];
-                this.cypherNode2 = [[[]]];
-                this.cypherNode3 = [[[]]];
-                this.cypherRel = [[[]]];
-                this.cypherRel2 = [[[]]];
-                this.cypherReturnProp = [''];
-                this.cypherReturnDrop = [''];
-                this.cypherReturn2 = [''];
-                this.fieldListCypher = ['MATCH'];
-                this.fieldListCypherNode = [['NODE']];
-                this.fieldListCypherNode2 = [['NODE']];
-                this.fieldListCypherNode3 = [['NODE']];
-                this.fieldListCypherRel2 = [['NODE']];
-                this.fieldListCypherRel = [['NODE']];
+                this.clearInput('find');
+                this.clearInput('aggr');
+                this.clearInput('cypher');
                 break;
             case 'cypher':
                 this.collectionName = undefined;
                 this.collectionName2 = undefined;
-                this.mqlFields = [['','','','',0,0]];
-                this.mqlFieldsMATCH = [['','','','',0,0]];
-                this.mqlFieldsGROUP = [['_id','','','_id',0,0]];
-                this.mqlFieldsSORT = [['','','','',0,0]];
-                this.fieldCounter = 0;
-                this.logicalOperatorStack = [];
-                this.fieldList = ['0'];
-                this.fieldDepthCounter = 0;
-                this.logicalDepthCounter = 0;
-                this.fieldCounterMATCH = 0;
-                this.logicalOperatorStackMATCH = [];
-                this.fieldListMATCH = ['0'];
-                this.fieldDepthCounterMATCH = 0;
-                this.logicalDepthCounterMATCH = 0;
-                this.fieldCounterGROUP = 0;
-                this.fieldListGROUP = ['0'];
-                this.fieldDepthCounterGROUP = 0;
-                this.fieldCounterSORT = 0;
-                this.fieldListSORT = ['0'];
-                this.fieldDepthCounterSORT = 0;
+                this.clearInput('find');
+                this.clearInput('aggr');
                 break;
             case 'mql':
                 this.graphName = undefined;
-                this.cypherFields = [[]];
-                this.cypherNode = [[[]]];
-                this.cypherNode2 = [[[]]];
-                this.cypherNode3 = [[[]]];
-                this.cypherReturnProp = [''];
-                this.cypherReturnDrop = [''];
-                this.cypherReturn2 = [''];
-                this.fieldListCypher = ['MATCH'];
-                this.fieldListCypherNode = [['NODE']];
-                this.fieldListCypherNode2 = [['NODE']];
-                this.fieldListCypherNode3 = [['NODE']];
-                this.fieldListCypherRel2 = [['NODE']];
-                this.fieldListCypherRel = [['NODE']];
+                this.clearInput('cypher');
                 break;
+        }
+    }
+    
+    clearInput(type: string) {
+        if (type === 'cypher'){
+            this.cypherFields = [[]];
+            this.cypherNode = [[[]]];
+            this.cypherNode2 = [[[]]];
+            this.cypherNode3 = [[[]]];
+            this.cypherReturnProp = [''];
+            this.cypherReturnDrop = [''];
+            this.cypherReturn2 = [''];
+            this.fieldListCypher = ['MATCH'];
+            this.fieldListCypherNode = [['NODE']];
+            this.fieldListCypherNode2 = [['NODE']];
+            this.fieldListCypherNode3 = [['NODE']];
+            this.fieldListCypherRel2 = [['NODE']];
+            this.fieldListCypherRel = [['NODE']];
+        }
+        else if (type === 'find') {
+            this.mqlFields = [['','','','',0,0]];
+            this.fieldCounter = 0;
+            this.logicalOperatorStack = [];
+            this.fieldList = ['0'];
+            this.fieldDepthCounter = 0;
+            this.logicalDepthCounter = 0;
+        }
+        else {
+            this.mqlFieldsMATCH = [['','','','',0,0]];
+            this.mqlFieldsGROUP = [['_id','','','_id',0,0]];
+            this.mqlFieldsSORT = [['','','','',0,0]];
+            this.fieldCounterMATCH = 0;
+            this.logicalOperatorStackMATCH = [];
+            this.fieldListMATCH = ['0'];
+            this.fieldDepthCounterMATCH = 0;
+            this.logicalDepthCounterMATCH = 0;
+            this.fieldCounterGROUP = 0;
+            this.fieldListGROUP = ['0'];
+            this.fieldDepthCounterGROUP = 0;
+            this.fieldCounterSORT = 0;
+            this.fieldListSORT = ['0'];
+            this.fieldDepthCounterSORT = 0;
         }
     }
 
@@ -1283,10 +1261,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 if (i === 1) { // first property element
                     this.cypherFields[index][0] += ' {';
                 }
-                this.cypherFields[index][0] += this.cypherNode[index][i][0] + ': ' + this.cypherNode[index][i][1];
+                this.cypherFields[index][0] += this.cypherNode[index][i][0] + ': ' + this.checkInput(this.cypherNode[index][i][1]);
                 if (i < this.fieldListCypherNode[index].length - 1) {
                     this.cypherFields[index][0] += ', ';
-                }
+                } // last property element
                 if (i === this.fieldListCypherNode[index].length - 1) {
                     this.cypherFields[index][0] += '}';
                 }
@@ -1303,7 +1281,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 if (i === 1) { // first property element
                     this.cypherFields[index][2] += ' {';
                 }
-                this.cypherFields[index][2] += this.cypherNode2[index][i][0] + ': ' + this.cypherNode2[index][i][1];
+                this.cypherFields[index][2] += this.cypherNode2[index][i][0] + ': ' + this.checkInput(this.cypherNode2[index][i][1]);
                 if (i < this.fieldListCypherNode2[index].length - 1) {
                     this.cypherFields[index][2] += ', ';
                 }
@@ -1323,7 +1301,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 if (i === 1) { // first property element
                     this.cypherFields[index][4] += ' {';
                 }
-                this.cypherFields[index][4] += this.cypherNode3[index][i][0] + ': ' + this.cypherNode3[index][i][1];
+                this.cypherFields[index][4] += this.cypherNode3[index][i][0] + ': ' + this.checkInput(this.cypherNode3[index][i][1]);
                 if (i < this.fieldListCypherNode3[index].length - 1) {
                     this.cypherFields[index][4] += ', ';
                 }
@@ -1338,7 +1316,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 if (i === 1) { // first property element
                     this.cypherFields[index][1] += ' {';
                 }
-                this.cypherFields[index][1] += this.cypherRel[index][i][0] + ': ' + this.cypherRel[index][i][1];
+                this.cypherFields[index][1] += this.cypherRel[index][i][0] + ': ' + this.checkInput(this.cypherRel[index][i][1]);
                 if (i < this.fieldListCypherRel[index].length - 1) {
                     this.cypherFields[index][1] += ', ';
                 }
@@ -1353,7 +1331,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 if (i === 1) { // first property element
                     this.cypherFields[index][3] += ' {';
                 }
-                this.cypherFields[index][3] += this.cypherRel2[index][i][0] + ': ' + this.cypherRel2[index][i][1];
+                this.cypherFields[index][3] += this.cypherRel2[index][i][0] + ': ' + this.checkInput(this.cypherRel2[index][i][1]);
                 if (i < this.fieldListCypherRel2[index].length - 1) {
                     this.cypherFields[index][3] += ', ';
                 }
@@ -1364,6 +1342,17 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
         this.generateCypher();
     }
+
+    checkInput(input: string): string {
+        // Check if input contains at most one dot and only numeric values
+        const regex = /^[0-9]*\.?[0-9]*$/;  // only numeric values
+        const isValid = regex.test(input) && input.split('.').length <= 2;  // at most one dot
+        if (!isValid) {
+            return `"${input}"`;  // add quotation if it is not valid
+        }
+        return input;
+    }
+
 
     async generateCypher() {
         let cypher = '';
@@ -1383,10 +1372,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 }
             }
             if (this.fieldListCypher[i] === 'WHERE') {
-                cypher += 'WHERE ' + this.cypherFields[i][0] + ' ' + this.cypherFields[i][1] + ' ' + this.cypherFields[i][2];
+                cypher += 'WHERE ' + this.cypherFields[i][0] + ' ' + this.cypherFields[i][1] + ' ' + this.checkInput(this.cypherFields[i][2]);
             }
             if (this.fieldListCypher[i] === 'OR' || this.fieldListCypher[i] === 'AND' || this.fieldListCypher[i] === 'NOR') {
-                cypher +=  this.fieldListCypher[i] + ' ' + this.cypherFields[i][0] + ' ' + this.cypherFields[i][1] + ' ' + this.cypherFields[i][2];
+                cypher +=  this.fieldListCypher[i] + ' ' + this.cypherFields[i][0] + ' ' + this.cypherFields[i][1] + ' ' + this.checkInput(this.cypherFields[i][2]);
             }
             cypher += '\n';
         }
@@ -1429,25 +1418,25 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         }
                         switch (this.mqlFields[i][1]) {
                             case 'equal':
-                                mql += '"' + this.mqlFields[i][0] + '" : ' + this.mqlFields[i][2];
+                                mql += '"' + this.mqlFields[i][0] + '" : ' + this.checkInput(this.mqlFields[i][2]);
                                 break;
                             case 'notequal':
-                                mql += '"' + this.mqlFields[i][0] + '" : {"$ne" : ' + this.mqlFields[i][2] + '}';
+                                mql += '"' + this.mqlFields[i][0] + '" : {"$ne" : ' + this.checkInput(this.mqlFields[i][2]) + '}';
                                 break;
                             case 'greater':
-                                mql += '"' + this.mqlFields[i][0] + '" : {"$gt" : ' + this.mqlFields[i][2] + '}';
+                                mql += '"' + this.mqlFields[i][0] + '" : {"$gt" : ' + this.checkInput(this.mqlFields[i][2]) + '}';
                                 break;
                             case 'lesser':
-                                mql += '"' + this.mqlFields[i][0] + '" : {"$lt" : ' + this.mqlFields[i][2] + '}';
+                                mql += '"' + this.mqlFields[i][0] + '" : {"$lt" : ' + this.checkInput(this.mqlFields[i][2]) + '}';
                                 break;
                             case 'contains':
-                                mql += '"' + this.mqlFields[i][0] + '" : {$regex: \'/.*' + this.mqlFields[i][2] + '.*/i\'}';
+                                mql += '"' + this.mqlFields[i][0] + '" : {$regex: \'/.*' + this.checkInput(this.mqlFields[i][2]) + '.*/i\'}';
                                 break;
                             case 'notcontains':
-                                mql += '"' + this.mqlFields[i][0] + '" : {"$not" : /.*' + this.mqlFields[i][2] + '.*/i}';
+                                mql += '"' + this.mqlFields[i][0] + '" : {"$not" : /.*' + this.checkInput(this.mqlFields[i][2]) + '.*/i}';
                                 break;
                             case 'type':
-                                mql += '"' + this.mqlFields[i][0] + '" : {"$type" : ' + this.mqlFields[i][2] + '}';
+                                mql += '"' + this.mqlFields[i][0] + '" : {"$type" : ' + this.checkInput(this.mqlFields[i][2]) + '}';
                                 break;
                         }
                         if (isInsideLogicalCondition.length !== 0){
@@ -1490,25 +1479,25 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         }
                         switch (this.mqlFieldsMATCH[i][1]) {
                             case 'equal':
-                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : ' + this.mqlFieldsMATCH[i][2];
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : ' + this.checkInput(this.mqlFieldsMATCH[i][2]);
                                 break;
                             case 'notequal':
-                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$ne" : ' + this.mqlFieldsMATCH[i][2] + '}';
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$ne" : ' + this.checkInput(this.mqlFieldsMATCH[i][2]) + '}';
                                 break;
                             case 'greater':
-                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$gt" : ' + this.mqlFieldsMATCH[i][2] + '}';
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$gt" : ' + this.checkInput(this.mqlFieldsMATCH[i][2]) + '}';
                                 break;
                             case 'lesser':
-                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$lt" : ' + this.mqlFieldsMATCH[i][2] + '}';
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$lt" : ' + this.checkInput(this.mqlFieldsMATCH[i][2]) + '}';
                                 break;
                             case 'contains':
-                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {$regex: \'/.*' + this.mqlFieldsMATCH[i][2] + '.*/i\'}';
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {$regex: \'/.*' + this.checkInput(this.mqlFieldsMATCH[i][2]) + '.*/i\'}';
                                 break;
                             case 'notcontains':
-                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$not" : /.*' + this.mqlFieldsMATCH[i][2] + '.*/i}';
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$not" : /.*' + this.checkInput(this.mqlFieldsMATCH[i][2]) + '.*/i}';
                                 break;
                             case 'type':
-                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$type" : ' + this.mqlFieldsMATCH[i][2] + '}';
+                                mql += '"' + this.mqlFieldsMATCH[i][0] + '" : {"$type" : ' + this.checkInput(this.mqlFieldsMATCH[i][2]) + '}';
                                 break;
                         }
                         if (isInsideLogicalCondition.length !== 0){

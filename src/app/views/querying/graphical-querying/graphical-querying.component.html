@@ -125,6 +125,7 @@
 
                 <!-- Helper-Modal for Cypher -->
                 <div class="row" style="justify-content: right; margin-bottom: 0.5em; padding-right: 1em;">
+                    <button style="margin-right: 0.5em;" class="btn btn-primary pull-right" (click)="this.clearInput('cypher');generateCypher()" tooltip="The Clear button allows you to quickly clear all Input Fields.">clear</button>
                     <button class="btn btn-primary pull-right" (click)="this.queryHelpCypher.show();"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></button>
                     <div bsModal #queryHelpCypher="bs-modal" class="modal fade" tabindex="-1" role="dialog"
                          aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal3" (onHide)="onCloseModal()">
@@ -909,6 +910,7 @@
                     <div *ngIf="mqlType!== undefined && mqlType ==='FIND'">
                         <!-- Modal for FIND -->
                         <button class="btn btn-primary pull-right" (click)="this.queryHelp.show();"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></button>
+                        <button style="margin-right: 0.5em;" class="btn btn-primary pull-right" (click)="this.clearInput('find'); generateMQL();" tooltip="The Clear button allows you to quickly clear all Input Fields.">clear</button>
                         <div bsModal #queryHelp="bs-modal" class="modal fade" tabindex="-1" role="dialog"
                              aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="onCloseModal()">
                             <div class="modal-dialog" role="document">
@@ -956,6 +958,7 @@
                     <div *ngIf="mqlType!== undefined && mqlType === 'AGGR'">
                         <!-- Modal for AGGR --- original from adapters.component.html -->
                         <button class="btn btn-primary pull-right" (click)="this.queryHelpAGGR.show();"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></button>
+                        <button style="margin-right: 0.5em;" class="btn btn-primary pull-right" (click)="this.clearInput('aggr'); generateMQL();" tooltip="The Clear button allows you to quickly clear all Input Fields.">clear</button>
                         <div bsModal #queryHelpAGGR="bs-modal" class="modal fade" tabindex="-1" role="dialog"
                              aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal2" (onHide)="onCloseModal()">
                             <div class="modal-dialog" role="document">
