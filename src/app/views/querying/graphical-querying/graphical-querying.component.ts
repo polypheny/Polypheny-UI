@@ -737,9 +737,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                             // Logical Operators
                             this.logicalOperatorStack.splice(targetIndex, 0, this.logicalOperatorStack.splice(index, 1)[0]);
                         }
+                        this.generateMQL();
                     }, 0);
                 }
-                this.generateMQL();
                 break;
             case 'Aggr1':
                 if (data) {
@@ -755,9 +755,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                             // Logical Operators
                             this.logicalOperatorStackMATCH.splice(targetIndex, 0, this.logicalOperatorStackMATCH.splice(index, 1)[0]);
                         }
+                        this.generateMQL();
                     }, 0);
                 }
-                this.generateMQL();
                 break;
             case 'Aggr2':
                 if (data) {
@@ -772,9 +772,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                             this.mqlFieldsGROUP.splice(targetIndex, 0, this.mqlFieldsGROUP.splice(index, 1)[0]);
                             // Logical Operators
                         }
+                        this.generateMQL();
                     }, 0);
                 }
-                this.generateMQL();
                 break;
             case 'Aggr3':
                 if (data) {
@@ -789,9 +789,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                             this.mqlFieldsSORT.splice(targetIndex, 0, this.mqlFieldsSORT.splice(index, 1)[0]);
                             // Logical Operators
                         }
+                        this.generateMQL();
                     }, 0);
                 }
-                this.generateMQL();
                 break;
         }
     }
