@@ -290,15 +290,16 @@
                                         </div>
                                         <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherDropdown[i]" (change)="generateCypher()">
                                             <option value="cypher-none" selected>None</option>
-                                            <option value="cypher-outgoing">Outgoing</option>
-                                            <option value="cypher-directed">Directed</option>
-                                            <option value="cypher-multiple">Multiple</option>
+                                            <option value="cypher-related">Related (--)</option>
+                                            <option value="cypher-outgoing">Outgoing (-->)</option>
+                                            <option value="cypher-directed">Directed (-[]->)</option>
+                                            <option value="cypher-multiple">Multiple (-[]->()<-[]-)</option>
                                         </select>
                                     </div>
                                 </div>
                                 <!-- Different Cases depending on option value-->
                                 <div class="col-lg-4 fixed-width"> <!-- has to be swapped so the column works with ngIf-->
-                                    <div *ngIf="cypherDropdown[i] === 'cypher-outgoing'">
+                                    <div *ngIf="cypherDropdown[i] === 'cypher-outgoing' || cypherDropdown[i] === 'cypher-related'">
                                         <div class="input-group mb-3">
                                             <input type="text" id="cypher-match-node1-{{i}}" class="form-control" style="background-color: white;"
                                                    [(ngModel)]="cypherFields[i][2]" (click)="this.matchModal2.show();" placeholder="Node" autocomplete="off" readonly>
