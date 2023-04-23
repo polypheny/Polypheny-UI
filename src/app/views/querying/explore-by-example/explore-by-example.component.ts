@@ -108,7 +108,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     }
 
     initSchema() {
-        this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.RELATIONAL])).subscribe(
+        this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, false, [DataModels.RELATIONAL])).subscribe(
             res => {
                 const nodeAction = (tree, node, $event) => {
                     if (!node.isActive && node.isLeaf) {

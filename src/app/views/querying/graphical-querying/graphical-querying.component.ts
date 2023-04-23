@@ -196,7 +196,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     initSchema(lang:string) {
         console.log(lang);
         if (lang === 'sql') {
-            this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false )).subscribe(
+            this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, true)).subscribe(
                 res => {
                     const nodeAction = (tree, node, $event) => {
                         if (!node.isActive && node.isLeaf) {
@@ -223,7 +223,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             );
         }
         else if (lang === 'cypher') {
-            this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 1, false, false)).subscribe(
+            this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 1, false, false, true)).subscribe(
                 res => {
                     const nodeAction = (tree, node, $event) => {
                         console.log(node.id);
@@ -242,7 +242,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             );
         }
         else if (lang === 'mql') {
-            this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 2, false, false)).subscribe(
+            this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 2, false, false, true)).subscribe(
                 res => {
                     const nodeAction = (tree, node, $event) => {
                         if (!node.isActive && node.isLeaf) {
@@ -971,7 +971,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldList.push(logical);
                 this.logicalOperatorStack.push(logical);
                 this.mqlFields.push([]);
-                this.mqlFields[this.fieldList.length - 1][5] = this.fieldDepthCounter; //Key-Object Depth
+                this.mqlFields[this.fieldList.length - 1][5] = -1; //Key-Object Depth
                 this.mqlFields[this.fieldList.length - 1][6] = this.logicalDepthCounter; //Logical Operator Depth
                 this.logicalDepthCounter += 1;
                 break;
@@ -980,7 +980,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldListMATCH.push(logical);
                 this.logicalOperatorStackMATCH.push(logical);
                 this.mqlFieldsMATCH.push([]);
-                this.mqlFieldsMATCH[this.fieldListMATCH.length - 1][5] = this.fieldDepthCounterMATCH;
+                this.mqlFieldsMATCH[this.fieldListMATCH.length - 1][5] = -1;
                 this.mqlFieldsMATCH[this.fieldListMATCH.length - 1][6] = this.logicalDepthCounterMATCH;
                 this.logicalDepthCounterMATCH += 1;
                 break;
@@ -995,7 +995,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldList.push('END');
                 this.logicalOperatorStack.pop();
                 this.mqlFields.push([]);
-                this.mqlFields[this.fieldList.length-1][5] = this.fieldDepthCounter; //Key-Object Depth
+                this.mqlFields[this.fieldList.length-1][5] = -1; //Key-Object Depth
                 this.mqlFields[this.fieldList.length-1][6] = this.logicalDepthCounter; //Logical Operator Depth
                 break;
             case 'Aggr1':
@@ -1004,7 +1004,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 this.fieldListMATCH.push('END');
                 this.logicalOperatorStackMATCH.pop();
                 this.mqlFieldsMATCH.push([]);
-                this.mqlFieldsMATCH[this.fieldListMATCH.length-1][5] = this.fieldDepthCounterMATCH;
+                this.mqlFieldsMATCH[this.fieldListMATCH.length-1][5] = -1;
                 this.mqlFieldsMATCH[this.fieldListMATCH.length-1][6] = this.logicalDepthCounterMATCH;
                 break;
         }
@@ -1015,8 +1015,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         switch (mqlCase) {
             case 'Find':
                 if (depth !== 0) { //does not have to iterarate through this if depth 0
-                    for (let i = this.mqlFields.length - 1; i >= 0; i--) { //searches elements in array with lower depth to append for dot-notation
-                        if (this.mqlFields[i][5] < depth) {
+                    for (let i = index; i >= 0; i--) { //searches elements in array with lower depth to append for dot-notation
+                        if (this.mqlFields[i][5] < depth && this.mqlFields[i][5] !== -1) {
                             prependText += this.mqlFields[i][0] + '.';
                             break;
                         }
@@ -1027,7 +1027,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             case 'Aggr1':
                 if (depth !== 0) {
                     for (let i = this.mqlFieldsMATCH.length - 1; i >= 0; i--) {
-                        if (this.mqlFieldsMATCH[i][5] < depth) {
+                        if (this.mqlFieldsMATCH[i][5] < depth && this.mqlFields[i][5] !== -1) {
                             prependText += this.mqlFieldsMATCH[i][0] + '.';
                             break;
                         }
@@ -1038,7 +1038,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             case 'Aggr2':
                 if (depth !== 0) {
                     for (let i = this.mqlFieldsGROUP.length - 1; i >= 0; i--) {
-                        if (this.mqlFieldsGROUP[i][5] < depth) {
+                        if (this.mqlFieldsGROUP[i][5] < depth && this.mqlFields[i][5] !== -1) {
                             prependText += this.mqlFieldsGROUP[i][0] + '.';
                             break;
                         }
@@ -1049,7 +1049,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             case 'Aggr3':
                 if (depth !== 0) {
                     for (let i = this.mqlFieldsSORT.length - 1; i >= 0; i--) {
-                        if (this.mqlFieldsSORT[i][5] < depth) {
+                        if (this.mqlFieldsSORT[i][5] < depth && this.mqlFields[i][5] !== -1) {
                             prependText += this.mqlFieldsSORT[i][0] + '.';
                             break;
                         }
@@ -1435,7 +1435,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                         isInsideLogicalCondition.push('OR');
                     }
                     if (this.fieldList[i] !== 'AND' && this.fieldList[i] !== 'OR' && this.fieldList[i] !== 'END') {
-                        if (isInsideLogicalCondition.length !== 0){
+                        if (isInsideLogicalCondition.length !== 0 && this.mqlFields[i][1] !== undefined){
                             mql += '{';
                         }
                         switch (this.mqlFields[i][1]) {
@@ -1461,7 +1461,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                                 mql += '"' + this.mqlFields[i][0] + '" : {"$type" : ' + this.checkInput(this.mqlFields[i][2]) + '}';
                                 break;
                         }
-                        if (isInsideLogicalCondition.length !== 0){
+                        if (isInsideLogicalCondition.length !== 0 && this.mqlFields[i][1] !== undefined){
                             mql += '}';
                         }
                         const fieldListf = this.fieldList.filter((el) => el !== 'AND' && el !== 'OR' && el !== 'END');

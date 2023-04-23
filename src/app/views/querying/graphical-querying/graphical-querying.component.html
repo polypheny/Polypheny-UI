@@ -1320,7 +1320,7 @@
                                                 <label for="mql-boxes-input-{{i}}" class="input-group-text"><i class="fa fa-arrows-v"></i></label>
                                             </div>
                                             <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
-                                                   [(ngModel)]="mqlFields[i][3]" (keyup)="prependKeyObject(this.mqlFields[i][5], i,'Find'); generateMQL()" placeholder="key" autocomplete="off">
+                                                   [(ngModel)]="mqlFields[i][3]" (keyup)="prependKeyObject(this.mqlFields[i][5], i,'Find'); generateMQL();" placeholder="key" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="col-lg-3 fixed-width">
