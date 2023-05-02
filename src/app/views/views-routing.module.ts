@@ -10,6 +10,7 @@ import {QueryingComponent} from './querying/querying.component';
 import {AdaptersComponent} from './adapters/adapters.component';
 import {AboutComponent} from './about/about.component';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
+import {NotebooksComponent} from './notebooks/notebooks.component';
 
 const routes: Routes = [
     {
@@ -149,6 +150,13 @@ const routes: Routes = [
         component: QueryInterfacesComponent,
         data: {
             title: 'QueryInterfaces'
+        }
+    },
+    {
+        path: 'notebooks',
+        component: NotebooksComponent,
+        data: {
+            title: 'Notebooks'
         }
     },
 ];

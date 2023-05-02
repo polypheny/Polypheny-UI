@@ -64,6 +64,12 @@
             </a>
         </li>
 
+        <li class="nav-item px-3">
+            <a [routerLink]="['/views/notebooks']" class="nav-link" routerLinkActive="active">
+                <i class="fa fa-book"></i><span class="d-md-down-none">Notebooks</span>
+            </a>
+        </li>
+
     </ul>
     <ul class="nav navbar-nav ml-auto"></ul>
     <div id="connection-status" [ngClass]="getConnectionClass()" [tooltip]="getConnectionClass()" container="body"
