@@ -807,7 +807,7 @@
                     </div>
 
                     <!-- Add Button -->
-                    <div class="input-group justify-content-center mt-3" style="margin:1em;">
+                    <div class="input-group justify-content-center mt-3" tooltip="Use the Button to add new rows of clauses" style="margin:1em;">
                         <div (mouseleave)="setMenuShow(false, false, 'Cypher')" (mouseenter)="menuEnter('Cypher')">
                             <button class="btn btn-primary toggle-insert" (click)="setMenuShow(true, false, 'Cypher')" type="button"><i
                                     class="fa fa-plus"></i></button>
@@ -838,7 +838,7 @@
                                 </div>
                         </div>
                         <div>
-                            <button class="btn btn-primary" (click)="cypherReturnDrop.push(''); cypherReturnProp.push(''); cypherReturn2.push('');" style="border-radius: 100%;"><i class="cui-plus"></i></button>
+                            <button class="btn btn-primary" tooltip="Add additional return values" (click)="cypherReturnDrop.push(''); cypherReturnProp.push(''); cypherReturn2.push('');" style="border-radius: 100%;"><i class="cui-plus"></i></button>
                             <button id="button-btn-return" (click)="cypherReturnDrop.pop(); cypherReturnProp.push(''); cypherReturn2.pop(); generateCypher();" class="btn btn-primary toggle-insert" *ngIf="cypherReturnDrop.length !=1" style="border-radius: 100%;"> <i class="cui-trash"></i></button>
                         </div>
                     </div>
@@ -868,8 +868,6 @@
                       <ng-container *ngIf="resultSet.error">!</ng-container>
                       </span>
                     </div>
-
-                    <!-- add filter - should execute query to get new result set if chosen-->
 
                     <div class="card-body" style="padding-bottom: 0.25rem">
                         <div class="text-danger" *ngIf="resultSet && resultSet.error">

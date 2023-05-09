@@ -65,11 +65,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.initWebSocket();
     }
 
-    // new additions by me:
+    // new additions:
 
     nodeLabels: string[] = ['Movie', 'Person', 'Character']; //Hardcoded for the moment
     relationLabels: string[] = ['DIRECTED_BY', 'HAS_ACTOR', 'PLAYS']; //Hardcoded for the moment
-    lang: string; // usage as lang in console.component.hmtl 'sql', 'cypher', 'mql'
+    lang: string; // 'sql', 'cypher', 'mql'
     tableId: string;
     config: TableConfig;
     // cypher input fields
@@ -132,7 +132,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     fieldCounterSORT = 0;
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace'; // same usage as console.components.ts
 
-    // Dropdown
     show = false;
     showFIND = false;
     showCypherMatch = false;
@@ -141,10 +140,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     showSORT = false;
 
-    show2 = false;
     showFIND2 = false;
     showMATCH2 = false;
-    showGROUP2 = false;
     private debounce: any;
     private debounceDelay = 200;
 
@@ -193,6 +190,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         );
     }
 
+    /**
+     * changes language and sidebar depending on chosen radiobutton
+     */
     initSchema(lang:string) {
         console.log(lang);
         if (lang === 'sql') {
@@ -467,7 +467,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.activeMode = undefined;
     }
 
-
+    /**
+     * resets interface when language is changed by the radiobutton
+     */
     setDefaultState(inputlang: string) { //sets the field values to zero if the user switches languages
         switch (inputlang) {
             case 'sql':
@@ -490,7 +492,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
         }
     }
-    
+    /**
+     * clears all fields with the clear-button
+     */
     clearInput(type: string) {
         if (type === 'cypher'){
             this.cypherFields = [['','','','','']];
@@ -533,14 +537,18 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
-    // inspired by the same function in console.component.ts
+    /**
+     * inspired by the same function in console.component.ts
+     */
     private setDefaultDB(name: string) {
         name = name.trim();
         this.activeNamespace = name;
         localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
     }
 
-    //taken from json-editor.component.ts
+    /**
+     * taken from json-editor.component.ts - showing the option menu
+     */
     setMenuShow(doShow: boolean, instant = false, mqlCase: string) {
         switch (mqlCase) {
             case 'Cypher':
@@ -624,7 +632,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
-    //taken from json-editor.component.ts
+    /**
+     * taken from json-editor.component.ts
+     */
     menuEnter(mqlCase: string) {
         switch (mqlCase) {
             case 'Cypher':
@@ -685,8 +695,6 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
         }
     }
-
-    //taken from json-editor.component.ts
     menuEnter2(mqlCase: string) {
         switch (mqlCase) {
             case 'Find':
@@ -703,22 +711,24 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     }
 
-    //drag and drop for cypher labels
+    /**
+     * drag and drop for cypher labels
+     */
     drag(event: any) {
         event.dataTransfer.setData('text/plain', event.target.innerText);
     }
 
-    //drag and drop for mql rows
+    /**
+     * /drag and drop for mql rows
+     */
     onDragStart(event: DragEvent, str: string) {
         event.dataTransfer?.setData('text/plain', str);
         const targetElement = event.currentTarget as HTMLElement;
         this.initialrect = targetElement.getBoundingClientRect();
     }
-
     onDragOver(event: DragEvent) {
         event.preventDefault();
     }
-
     onDrop(event: DragEvent, mqlCase: string) {
         event.preventDefault();
         const data = event.dataTransfer?.getData('text/plain');
@@ -796,14 +806,18 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
-    //similiar to data-graph.component.ts
-
+    /**
+     * similiar to data-graph.component.ts - generates the color of the node/relationship labels
+     */
     generateColor(index: number): string {
         const color = d3.interpolateSinebow;
         const ratio = 1 / (this.nodeLabels.length + this.relationLabels.length);
         return color(ratio * index);
     }
 
+    /**
+     * adds new row
+     */
     addCypherField(type: string) {
         this.fieldListCypher.push(type);
         this.cypherFields.push(['','','','','']);
@@ -819,6 +833,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.cypherRel2.push([['']]);
     }
 
+    /**
+     * add new property inside match input field
+     */
     addCypherMatchField(index: number, field:number) {
         if (field === 1){
             this.fieldListCypherNode[index].push('PROP');
@@ -841,7 +858,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             this.cypherRel2[index].push([]);
         }
     }
-
+    /**
+     * changes between AND, OR, and NOR in the where-clause
+     */
     changeCypherField(type: string, index: number) {
         if (index + 1 > this.fieldListCypher.length-1) {
             this.fieldListCypher.push(type);
@@ -851,8 +870,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             this.fieldListCypher[index + 1] = type;
         }
     }
-
-
+    /**
+     * add a new mql field
+     */
     addMQLField(mqlCase: string) { // 'normal new Field'
         switch (mqlCase) {
             case 'Find':
@@ -889,7 +909,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
         }
     }
-
+    /**
+     * adds a new row with key-object field
+     */
     addMQLFieldKeyObject(mqlCase: string) { // adding a property
         switch (mqlCase) {
             case 'Find':
@@ -930,7 +952,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
         }
     }
-
+    /**
+     * adds a new object field
+     */
     addMQLFieldKeyObject2(mqlCase: string) { // staying on the same 'level' of property
         switch (mqlCase) {
             case 'Find':
@@ -963,7 +987,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
         }
     }
-
+    /**
+     * adds logical Operator AND or OR
+     */
     addLogicalOperator(logical: string, mqlCase: string) { // adding Logical Operator AND or OR
         switch (mqlCase) {
             case 'Find':
@@ -986,7 +1012,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
         }
     }
-
+    /**
+     * closes the Logical Operator with an END
+     */
     endLogicalOperator(mqlCase: string) { // ending Logical Operator AND or OR
         switch (mqlCase) {
             case 'Find':
@@ -1009,7 +1037,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
         }
     }
-
+    /**
+     * adds the fitting prepend text if object is part of the key-object
+     */
     prependKeyObject(depth: number, index: number, mqlCase:string) { //creating the dot notation for objects
         let prependText = '';
         switch (mqlCase) {
@@ -1059,7 +1089,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
         }
     }
-
+    /**
+     * deleting a cypher field
+     */
     deleteCypherField(x:number) {
         this.fieldListCypher.splice(x, 1);
         this.cypherFields.splice(x, 1);
@@ -1076,7 +1108,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.cypherRel2.splice(x, 1);
         this.generateCypher();
     }
-
+    /**
+     *  deleting a property field
+     */
     deleteCypherMatchField(index: number, x:number, field: number) {
         if (field === 1){
             this.fieldListCypherNode[index].splice(x, 1);
@@ -1099,7 +1133,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             this.cypherRel2[index].splice(x, 1);
         }
     }
-
+    /**
+     *  deleting a mql field
+     */
     deleteMQLField(x:number, mqlCase:string) {
         switch (mqlCase) {
             case 'Find':
@@ -1224,7 +1260,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 break;
         }
     }
-
+    /**
+     *  generates the Dropdown options in the return value
+     */
     generateDropDownArray() {
         this.returnDropdown = [];
         for (let i = 0; i <= this.fieldListCypherNode.length - 1; i++) {
@@ -1247,7 +1285,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         this.returnDropdown = this.returnDropdown.filter((value, index) => this.returnDropdown.indexOf(value) === index); //only show unique values as options
         this.returnDropdown = this.returnDropdown.sort(); // sorts array alphabetically
     }
-
+    /**
+     *  generates the overall match-clause with all input fields
+     */
     async generateMatch(index: number, field: number) {
         // generate the content of the field
         if (field === 1) {
@@ -1352,7 +1392,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
         this.generateCypher();
     }
-
+    /**
+     *  checks if input is a valid number, and if not add quotiation (string)
+     */
     checkInput(input: string): string {
         // Check if input contains at most one dot and only numeric values
         const regex = /^[0-9]*\.?[0-9]*$/;  // only numeric values
@@ -1362,8 +1404,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         }
         return input;
     }
-
-
+    /**
+     *  generates the final cypher code
+     */
     async generateCypher() {
         let cypher = '';
         for (let i = 0; i < this.fieldListCypher.length; i++) {
@@ -1418,7 +1461,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         const event = new Event('change');
         dropdown.dispatchEvent(event);
     }
-
+    /**
+     *  generates final mql code
+     */
     async generateMQL() {
         let mql = '';
         const isInsideLogicalCondition = [];
