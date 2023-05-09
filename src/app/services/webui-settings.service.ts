@@ -37,6 +37,8 @@ export class WebuiSettingsService {
         this.connections.set('httpServer.rest',
             'http://' + this.host + ':' + localStorage.getItem('httpServer.port'));
         this.connections.set('websocketGestureRecognition', 'ws://' + localStorage.getItem('websocketGestureRecognition.ip:port'));
+        this.connections.set('notebooks.rest',
+            'http://' + this.host + ':' + localStorage.getItem('webUI.port') + '/notebooks');
     }
 
     public getConnection(key: string) {
