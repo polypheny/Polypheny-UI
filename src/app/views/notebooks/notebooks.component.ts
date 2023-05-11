@@ -5,6 +5,9 @@ import {SidebarNode} from '../../models/sidebar-node.model';
 import {NotebooksService} from '../../services/notebooks.service';
 import {FormControl, FormGroup} from '@angular/forms';
 import {Observable} from 'rxjs';
+import {NotebooksWebSocket} from './notebooks-webSocket';
+import {WebuiSettingsService} from '../../services/webui-settings.service';
+import * as uuid from 'uuid';
 
 @Component({
     selector: 'app-notebooks',
@@ -13,6 +16,7 @@ import {Observable} from 'rxjs';
 })
 export class NotebooksComponent implements OnInit, OnDestroy {
 
+    requestSubmitted = false;
     requestGetForm: FormGroup;
     requestGetText = '';
 
@@ -28,12 +32,17 @@ export class NotebooksComponent implements OnInit, OnDestroy {
     manageFileForm: FormGroup;
     manageFileText = '';
 
-    requestSubmitted = false;
+    websocketForm: FormGroup;
+    websocketText = '';
+    //isConnected = false;
+    socket: NotebooksWebSocket;
+
 
     constructor(
         private _notebooks: NotebooksService,
         private _leftSidebar: LeftSidebarService,
-        private _toast: ToastService) {
+        private _toast: ToastService,
+        private _settings: WebuiSettingsService) {
     }
 
     ngOnInit(): void {
@@ -46,6 +55,7 @@ export class NotebooksComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        this.socket.close();
         this._leftSidebar.close();
     }
 
@@ -78,6 +88,11 @@ export class NotebooksComponent implements OnInit, OnDestroy {
             action: new FormControl('move'),
             arg: new FormControl('work/My Notebook.ipynb'),
         });
+
+        this.websocketForm = new FormGroup({
+            id: new FormControl(''),
+            code: new FormControl('print("Hello World!")'),
+        });
     }
 
     sendGetRequest() {
@@ -105,7 +120,6 @@ export class NotebooksComponent implements OnInit, OnDestroy {
                     break;
             }
             selected$.subscribe(res => {
-                console.log(res);
                 this.requestGetText = JSON.stringify(res, null, 4);
             }, err => {
                 console.log('Error:' + err);
@@ -122,7 +136,6 @@ export class NotebooksComponent implements OnInit, OnDestroy {
             this.requestSubmitted = true;
             const val = this.createSessionForm.value;
             this._notebooks.createSession(val.name, val.path, val.kernel).subscribe(res => {
-                console.log(res);
                 this.createSessionText = JSON.stringify(res, null, 4);
             }, err => {
                 console.log('Error in createSession:' + err);
@@ -146,7 +159,6 @@ export class NotebooksComponent implements OnInit, OnDestroy {
             }
 
             selected$.subscribe(res => {
-                console.log(res);
                 this.createFileText = JSON.stringify(res, null, 4);
             }, err => {
                 console.log('Error in createFile:' + err);
@@ -176,7 +188,6 @@ export class NotebooksComponent implements OnInit, OnDestroy {
                     break;
             }
             selected$.subscribe(res => {
-                console.log(res);
                 this.manageKernelText = JSON.stringify(res, null, 4);
             }, err => {
                 console.log('Error:' + err);
@@ -206,7 +217,6 @@ export class NotebooksComponent implements OnInit, OnDestroy {
                     break;
             }
             selected$.subscribe(res => {
-                console.log(res);
                 this.manageFileText = JSON.stringify(res, null, 4);
             }, err => {
                 console.log('Error:' + err);
@@ -216,6 +226,33 @@ export class NotebooksComponent implements OnInit, OnDestroy {
             this._toast.warn('invalid form', 'warning');
         }
         this.requestSubmitted = false;
+    }
+
+    connect() {
+        console.log('connecting...');
+        this.socket = new NotebooksWebSocket(this._settings, this.websocketForm.value.id);
+        this.socket.onMessage().subscribe(msg => {
+            this.websocketText += '\n' + JSON.stringify(msg, null, 4);
+        }, err => {
+            console.log('received error: ' + err);
+        }, () => {
+            this.socket = null;
+        });
+    }
+
+    disconnect() {
+        this.socket.close();
+    }
+
+    sendCode() {
+        const id = uuid.v4();
+        const msg = {
+            uuid: id,
+            type: 'code',
+            content: this.websocketForm.value.code
+        };
+        this.websocketText = `Request ${id}:\n`;
+        this.socket.sendMessage(msg);
     }
 
 }

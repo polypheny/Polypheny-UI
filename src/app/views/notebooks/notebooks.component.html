@@ -23,7 +23,8 @@
                             <option value="sessions">Sessions</option>
                         </select>
                     </div>
-                    <div class="input-group mb-3" *ngIf="['contents', 'session'].includes(this.requestGetForm.get('request').value)">
+                    <div class="input-group mb-3"
+                         *ngIf="['contents', 'session'].includes(this.requestGetForm.get('request').value)">
                         <div class="input-group-prepend">
                             <label for="request-path" class="input-group-text">Path</label>
                         </div>
@@ -215,6 +216,52 @@
             </div>
             <div class="list-group list-group-flush" *ngIf="manageFileText">
                 <pre class="list-group-item">{{ manageFileText }}</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 fixed-width">
+        <div class="card">
+            <div class="card-header">
+                <span class="mb-0">Kernel Connection</span>
+            </div>
+            <div class="card-body">
+                <form [formGroup]="websocketForm" (submit)="sendCode()">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label for="websocket-id" class="input-group-text">Kernel ID</label>
+                        </div>
+                        <input type="text" id="websocket-id" autocomplete="off" class="form-control"
+                               formControlName="id">
+                    </div>
+                    <div class="form-group mb-0 text-left">
+                        <button type="button" class="btn btn-primary" (click)="disconnect()"
+                                [disabled]="!this.socket?.connected">Disconnect
+                        </button>
+                    </div>
+                    <div class="form-group mb-0 text-right">
+                        <button type="button" class="btn btn-primary" (click)="connect()"
+                                [disabled]="this.socket?.connected">Connect
+                        </button>
+                    </div>
+                    <div class="input-group mb-3" *ngIf="this.socket?.connected">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="websocket-code">Code</label>
+                        </div>
+                        <input type="text" id="websocket-code" autocomplete="off" class="form-control"
+                               formControlName="code">
+                    </div>
+                    <div class="form-group mb-0 text-right" *ngIf="this.socket?.connected">
+                        <button type="submit" class="btn btn-primary"
+                                [ngClass]="{'progress-bar-striped progress-bar-animated': requestSubmitted}"
+                                [disabled]="requestSubmitted">Execute
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+            <div class="list-group list-group-flush" *ngIf="websocketText">
+                <pre class="list-group-item">{{ websocketText }}</pre>
             </div>
         </div>
     </div>
