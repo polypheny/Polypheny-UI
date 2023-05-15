@@ -2,96 +2,1446 @@
     <div class="col-lg-12 col-sm-12" style="margin-bottom: 1em;">
 
         <h5>Graphical Querying</h5>
-        <p>Select columns from the left sidebar to get started. If needed, you can edit the generated SQL code.</p>
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text">select</span>
-            </div>
-            <div class="form-control" id="selectBox"></div>
+        <!-- choosing the query language -->
+        <!-- ngModel: hiding parts depending on language. ngModelChange: change Typescript ngOnInit for leftSidebar-->
+            <!-- TO DO: when changing language it should get back to its default state-->
+        <p>Select your query language:</p>
+        <div class="btn-group-horizontal btn-group" id="radio" data-toggle="buttons">
+            <label class="btn btn-secondary">
+                <input type="radio" name="language" [(ngModel)]="lang" value="sql" (ngModelChange)="ngOnInit(); setDefaultState('sql')">SQL
+            </label>
+             <label class="btn btn-secondary">
+                <input type="radio" name="language" [(ngModel)]="lang" value="cypher" (ngModelChange)="ngOnInit(); setDefaultState('cypher')">Cypher
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio" name="language" [(ngModel)]="lang" value="mql" (ngModelChange)="ngOnInit(); setDefaultState('mql')">MQL
+            </label>
         </div>
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text">from</span>
+        <!-- graphical-UI for SQL -->
+        <div *ngIf="lang === 'sql'">
+      <p>Select columns from the left sidebar to get started. If needed, you can edit the generated SQL code.</p>
+
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">select</span>
+        </div>
+        <div class="form-control" id="selectBox"></div>
+      </div>
+
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">from</span>
+        </div>
+        <div class="form-control" id="fromBox">
+          <span *ngFor="let t of tables | keyvalue" class="badge badge-secondary dbTable">{{t.key}}test</span>
+        </div>
+      </div>
+
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">join<br>conditions</span>
+        </div>
+        <div class="form-control" id="joinConditionBox">
+          <ng-container *ngFor="let con of joinConditions | keyvalue">
+            <input type="checkbox" [(ngModel)]="con.value.active" [id]="con.key" (click)="toggleCondition(con.value)"><label [for]="con.key">&nbsp;{{con.value.condition}}</label><br>
+          </ng-container>
+        </div>
+      </div>
+
+      <h5>Generated query</h5>
+      <p>Edit your code if needed. Your changes will be overwritten, as soon as you add or remove a column in the select box or change any join condition.</p>
+      <div id="aceWrapper" style="height: 150px">
+        <app-editor #editorGenerated></app-editor>
+      </div>
+      <div></div>
+
+
+      <app-refinement-options [choosenTables]="selectedColumn" (filteredUserInputChange)="userInput($event)"></app-refinement-options>
+
+
+      <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
+      <button *ngIf="loading" class="btn btn-primary mb-3" disabled>Loading</button>
+
+      <div *ngIf="resultSet">
+        <hr>
+        <h5>Query Result</h5>
+      </div>
+
+      <div class="card " *ngIf="resultSet" id="result-graphical">
+
+          <div class="card-header">
+            <span>{{resultSet.generatedQuery}}</span>
+            <span class="badge pull-right" [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
+              <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
+              <ng-container *ngIf="resultSet.error">!</ng-container>
+              </span>
+          </div>
+
+          <div class="card-body" style="padding-bottom: 0.25rem" >
+            <div class="text-danger" *ngIf="resultSet && resultSet.error">
+              <strong>Error:</strong>
+              <p class="mb-3">{{resultSet.error}}</p>
             </div>
-            <div class="form-control" id="fromBox">
-                <span *ngFor="let t of tables | keyvalue" class="badge badge-secondary dbTable">{{t.key}}test</span>
+
+            <div class="query-info">
+              <p *ngIf="resultSet && !resultSet.data && !resultSet.error" class="mb-3">
+                  <i>Successfully executed</i>
+              </p>
+            </div>
+
+            <div class="row" *ngIf="resultSet && resultSet.data">
+              <div class="col-lg-12"  >
+                  <app-data-view [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}" [loading]="loading" (viewEditorCode)="createView($event)" (executeView)="executeView($event)"></app-data-view>
+              </div>
             </div>
         </div>
+      </div>
+    </div>
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text">join<br>conditions</span>
-            </div>
-            <div class="form-control" id="joinConditionBox">
-                <ng-container *ngFor="let con of joinConditions | keyvalue">
-                    <input type="checkbox" [(ngModel)]="con.value.active" [id]="con.key"
-                           (click)="toggleCondition(con.value)"><label
-                        [for]="con.key">&nbsp;{{con.value.condition}}</label><br>
-                </ng-container>
-            </div>
-        </div>
+        <!-- graphical-UI for Cypher -->
+        <div *ngIf="lang === 'cypher'">
+            <p>Select your graph from the left sidebar to get started: <b>{{ graphName !== undefined ? ' ' + graphName : '' }}</b></p>
+            <p>To generate your desired query, fill in the details in the appearing fields and use the graphical elements to fine-tune your selections. The query will be dynamically generated based on the information you provide, allowing you to customize the details to your exact specifications.</p>
+            <div *ngIf="graphName !== undefined">
+                <div class="label">
+                    <!-- Node Labels -->
+                    <div style="display: inline-block; margin-bottom:0.75em;" tooltip="Nodes represent entities in the graph database. They can have labels that describe their type and properties that store their attributes.">
+                        <b>Node Labels:</b>
+                    </div>
+                    <div class="label-container">
+                        <p *ngFor="let label of nodeLabels; let i = index" class="label-node" draggable="true" (dragstart)="drag($event)" [ngStyle]="{backgroundColor: generateColor(i)}">{{label}}</p>
+                    </div>
 
-        <h5>Generated query</h5>
-        <p>Edit your code if needed. Your changes will be overwritten, as soon as you add or remove a column in the
-            select box or change any join condition.</p>
-        <div id="aceWrapper" style="height: 150px">
-            <app-editor #editorGenerated></app-editor>
-        </div>
-        <div></div>
-
-
-        <app-refinement-options [choosenTables]="selectedColumn"
-                                (filteredUserInputChange)="userInput($event)"></app-refinement-options>
-
-
-        <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
-        <button *ngIf="loading" class="btn btn-primary mb-3" disabled>Loading</button>
-
-        <div *ngIf="resultSet">
-            <hr>
-            <h5>Query Result</h5>
-        </div>
-
-        <div class="card " *ngIf="resultSet" id="result-graphical">
-
-            <div class="card-header">
-                <span>{{resultSet.generatedQuery}}</span>
-                <span class="badge pull-right"
-                      [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
-            <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
-            <ng-container *ngIf="resultSet.error">!</ng-container>
-            </span>
-            </div>
-
-            <div class="card-body" style="padding-bottom: 0.25rem">
-                <div class="text-danger" *ngIf="resultSet && resultSet.error">
-                    <strong>Error:</strong>
-                    <p class="mb-3">{{resultSet.error}}</p>
+                    <!-- Relationship Labels -->
+                    <div style="display: inline-block; margin-bottom:0.75em" tooltip="Relationships represent the connections between nodes in the graph database. They have a type, a direction, and can have properties that store additional information about the relationship.">
+                        <b>Relationship Labels:</b>
+                    </div>
+                    <div class="label-container">
+                        <p *ngFor="let label of relationLabels; let i = index" class="label-relation" draggable="true" (dragstart)="drag($event)" [ngStyle]="{backgroundColor: generateColor(i + nodeLabels.length)}">{{label}}</p>
+                    </div>
                 </div>
 
-                <div class="query-info">
-                    <p *ngIf="resultSet && !resultSet.data && !resultSet.error" class="mb-3">
-                        <i>Successfully executed</i>
-                    </p>
+                <!-- Helper-Modal for Cypher -->
+                <div class="row" style="justify-content: right; margin-bottom: 0.5em; padding-right: 1em;">
+                    <button style="margin-right: 0.5em;" class="btn btn-primary pull-right" (click)="this.clearInput('cypher');generateCypher()" tooltip="The Clear button allows you to quickly clear all Input Fields.">clear</button>
+                    <button class="btn btn-primary pull-right" (click)="this.queryHelpCypher.show();"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></button>
+                    <div bsModal #queryHelpCypher="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                         aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal3" (onHide)="onCloseModal()">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Query-Generation: Cypher</h4>
+
+                                    <button type="button" class="close" (click)="queryHelpCypher.hide()" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <b>Basics:</b>
+                                    <br>
+                                    Imagine you have a graph that contains different persons and movies and their relationships. If you want to return the node for the actor Tom Hanks and all movie nodes that he acted in, you can use a Cypher query like this:
+                                    <br>
+                                    <br>
+                                    <ul><li><code>MATCH (tom:Person {{"{" }}name: "Tom Hanks"})-[r:ACTED_IN]->(tomHanksMovies)<br>RETURN tom,tomHanksMovies</code></li></ul>
+                                    <br>
+                                    To recreate this query, you can follow these steps:<br>
+                                    <ol>
+                                        <li>Click the MATCH input field to open a modal:</li>
+                                            <ul>
+                                                <li>Type <code>tom</code> into the input field of the Node Name.</li>
+                                                <li>Select <code>Person</code> from the dropdown menu of the Node Labels. (Note: Only applicable if your chosen graph has the same Labels)</li>
+                                                <li>Click on the plus-button to add a property field</li>
+                                                <li>Write <code>name</code> into the first property field</li>
+                                                <li>Write <code>"Tom Hanks"</code> into the second property field</li>
+                                            </ul>
+                                        <li>Select the Relationship <i>Directed</i> from the dropdown menu</li>
+                                        <li>Click on the first appearing input field to open a modal:</li>
+                                        <ul>
+                                            <li>Type <code>r</code> into the input field of the Relationship Name.</li>
+                                            <li>Select <code>ACTED_IN</code> from the dropdown menu of the Relationship Labels. (Note: Only applicable if your chosen graph has the same Labels)</li>
+                                        </ul>
+                                        <li>Click on the second appearing input field to open a modal:</li>
+                                        <ul>
+                                            <li>Type <code>tomHanksMovie</code> into the input field of the Node Name.</li>
+                                            <li>Select <code>*</code> from the dropdown menu of the Node Labels.</li>
+                                        </ul>
+                                        <li>Select <code>tom</code> from the dropdown menu in the RETURN clause and ignore the optional property field</li>
+                                        <li>Add a new RETURN field with the plus-button right next to the field. Select <code>tomHanksMovie</code> from the appearing dropdown menu and ignore the optional property field</li>
+                                    </ol>
+
+                                    <b>Additional Features:</b>
+                                    <br>
+                                    If you want to add more criteria to your search, you can use additional features. Here's a step-by-step guide:
+                                    <br>
+                                    <br><ul>
+                                    <li><b>Adding MATCH:</b> To add a new MATCH row and its relationship, click the plus button. To delete the row, click the trash button.</li>
+
+                                    <li><b>Adding WHERE:</b> To add a new WHERE row, click the plus button. You can choose various operators from the dropdown menu, and you can add AND, OR, or NOR conditions by selecting the appropriate radio buttons.</li>
+
+                                    <li><b>Adding RETURN values:</b> To add more RETURN values click on the plus button besides the RETURN field. To delete the row, click the appearing trash button. Keep in mind, that for the RETURN element only variable names defined in the input fields before can be chosen from the dropdown.</li>
+                                </ul>
+                                </div>
+                                <div class="modal-footer">
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div>
+                </div>
+                <div class="text-fields">
+                    <div *ngFor="let fieldNumber of fieldListCypher; let i = index"> <!-- index differentiates each field-->
+                        <div *ngIf="fieldNumber === 'MATCH'">
+                            <div class="row">
+                                <div class="col-lg-11 fixed-width">
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <label for="cypher-match-node-{{i}}" class="input-group-text"
+                                                   tooltip="The MATCH clause allows you to specify patterns of nodes and relationships that should be matched in the graph, and filter the results based on specific criteria"
+                                            >MATCH</label>
+                                        </div>
+                                        <input type="text" id="cypher-match-node-{{i}}" class="form-control" style="background-color: white;"
+                                               [(ngModel)]="cypherFields[i][0]" (click)="this.matchModal.show();" placeholder="Node" autocomplete="off" readonly>
+                                        <!-- Modal for Match-field -->
+                                        <div bsModal #matchModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                                             aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title">Query-Generation: MATCH-Clause Node</h4>
+
+                                                        <button type="button" class="close" (click)="matchModal.hide()" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Define your node name and labels, and optionally add properties by clicking on the plus button to customize your query further.</p>
+                                                        <!-- Inside Node Modal 1-->
+                                                        <div>
+                                                            <div class="row">
+                                                                <div class="col-lg-5 fixed-width">
+                                                                    <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                    >Node name</b>
+                                                                    <input type="text" id="cypher-match-node-{{i}}" class="form-control"
+                                                                           [(ngModel)]="cypherNode[i][0][0]" (keyup)="generateMatch(i,1);" placeholder="Node" autocomplete="off">
+                                                                </div>
+                                                                <div class="col-lg-5 fixed-width">
+                                                                    <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose * you return all the nodes without defining a specific category."
+                                                                    >Node label</b>
+                                                                    <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherNode[i][0][1]" (change)="generateMatch(i,1)">
+                                                                        <option value="*" selected>*</option>
+                                                                        <option *ngFor="let option of nodeLabels">{{ option }}</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <br>
+                                                        <b tooltip="Properties can be used to filter the nodes and relationships that match a pattern by specifying the property name and value as a condition."
+                                                        >Properties (Optional):</b>
+                                                        <div *ngFor="let fieldNumber2 of fieldListCypherNode[i]; let j = index">
+                                                           <!-- Property Row -->
+                                                            <div *ngIf="fieldNumber2 == 'PROP'">
+                                                                <div class ="row">
+                                                                    <div class="col-lg-5 fixed-width">
+                                                                        <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                               [(ngModel)]="cypherNode[i][j][0]" (keyup)="generateMatch(i,1)" placeholder="Property" autocomplete="off">
+                                                                    </div>
+                                                                    <div class="col-lg-5 fixed-width">
+                                                                        <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                               [(ngModel)]="cypherNode[i][j][1]" (keyup)="generateMatch(i,1);" placeholder="equals value" autocomplete="off">
+                                                                    </div>
+                                                                    <div class="col-lg-1 fixed-width">
+                                                                        <!-- Button to delete field -->
+                                                                        <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j,1); generateMatch(i,1)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Add Button -->
+                                                        <div class="input-group justify-content-center mt-3">
+                                                            <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i, 1)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                    </div>
+                                                </div><!-- /.modal-content -->
+                                            </div><!-- /.modal-dialog -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-1 fixed-width">
+                                    <!-- Button to delete field -->
+                                    <button id="button-mql-{{i}}" (click)="deleteCypherField(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="fieldNumber === 'MATCH'" [style.padding-left.em]='2'>
+                            <!-- Dropdown Selection for different relationshiptypes-->
+                            <div class="row">
+                                <div class="col-lg-3 fixed-width">
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="cypher-relationship-type-{{i}}"
+                                                   tooltip="Relationships are used to represent the connections between nodes in the graph. You can use relationship patterns to specify which relationships to traverse."
+                                            >Relationship</label>
+                                        </div>
+                                        <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherDropdown[i]" (change)="generateCypher()">
+                                            <option value="cypher-none" selected>None</option>
+                                            <option value="cypher-related">Related (--)</option>
+                                            <option value="cypher-outgoing">Outgoing (-->)</option>
+                                            <option value="cypher-directed">Directed (-[]->)</option>
+                                            <option value="cypher-multiple">Multiple (-[]->()<-[]-)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <!-- Different Cases depending on option value-->
+                                <div class="col-lg-4 fixed-width"> <!-- has to be swapped so the column works with ngIf-->
+                                    <div *ngIf="cypherDropdown[i] === 'cypher-outgoing' || cypherDropdown[i] === 'cypher-related'">
+                                        <div class="input-group mb-3">
+                                            <input type="text" id="cypher-match-node1-{{i}}" class="form-control" style="background-color: white;"
+                                                   [(ngModel)]="cypherFields[i][2]" (click)="this.matchModal2.show();" placeholder="Node" autocomplete="off" readonly>
+                                            <!-- Modal for Relationship - Node 1 -->
+                                            <div bsModal #matchModal2="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                                                 aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause Node</h4>
+
+                                                            <button type="button" class="close" (click)="matchModal2.hide()" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Define your node name and labels, and optionally add properties by clicking on the plus button to customize your query further.</p>
+                                                            <div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                        >Node name</b>
+                                                                        <input type="text" id="cypher-match-node-{{i}}" class="form-control"
+                                                                               [(ngModel)]="cypherNode2[i][0][0]" (keyup)="generateMatch(i,2);" placeholder="Node" autocomplete="off">
+                                                                    </div>
+                                                                    <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose * you return all the nodes without defining a specific category."
+                                                                        >Node label</b>
+                                                                        <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherNode2[i][0][1]" (change)="generateMatch(i,2)">
+                                                                            <option value="*" selected>*</option>
+                                                                            <option *ngFor="let option of nodeLabels">{{ option }}</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <br>
+                                                            <b>Properties (Optional):</b>
+                                                            <!-- Inside Match-Modal-->
+                                                            <div *ngFor="let fieldNumber2 of fieldListCypherNode2[i]; let j = index">
+                                                                <!-- Property Row -->
+                                                                <div *ngIf="fieldNumber2 == 'PROP'">
+                                                                    <div class ="row">
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherNode2[i][j][0]" (keyup)="generateMatch(i,2)" placeholder="Property" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherNode2[i][j][1]" (keyup)="generateMatch(i,2);" placeholder="equals value" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-1 fixed-width">
+                                                                            <!-- Button to delete field -->
+                                                                            <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j,2); generateMatch(i,2)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Add Button -->
+                                                            <div class="input-group justify-content-center mt-3">
+                                                                <div class="input-group justify-content-center mt-3">
+                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i, 2)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                        </div>
+                                                    </div><!-- /.modal-content -->
+                                                </div><!-- /.modal-dialog -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="cypherDropdown[i] === 'cypher-directed' || cypherDropdown[i] === 'cypher-multiple'">
+                                        <div class="input-group mb-3">
+                                            <input type="text" id="cypher-match-rel-{{i}}" style="background-color: white;" class="form-control"
+                                                   [(ngModel)]="cypherFields[i][1]" (click)="this.matchModal4.show();" placeholder="Relationship" autocomplete="off" readonly>
+                                            <!-- Modal for Relationship - Relationship 1 -->
+                                            <div bsModal #matchModal4="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                                                 aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause Relationship</h4>
+
+                                                            <button type="button" class="close" (click)="matchModal4.hide()" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Define your relationship name and labels, and optionally add properties by clicking on the plus button to customize your query further.</p>
+                                                            <div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="The name of the relationship allows you to refer to the relationship (or node) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                        >Relationship name</b>
+                                                                        <input type="text" id="cypher-match-node-{{i}}" class="form-control"
+                                                                               [(ngModel)]="cypherRel[i][0][0]" (keyup)="generateMatch(i,4);" placeholder="Relationship" autocomplete="off">
+                                                                    </div>
+                                                                    <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="Labels are used to assign a category or type to a relationship. You can choose from all existing relationship labels."
+                                                                        >Relationship label</b>
+                                                                        <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherRel[i][0][1]" (change)="generateMatch(i,4)">
+                                                                            <option *ngFor="let option of relationLabels">{{ option }}</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <br>
+                                                            <b tooltip="Properties can be used to filter the nodes and relationships that match a pattern by specifying the property name and value as a condition."
+                                                            >Properties (Optional):</b>
+                                                            <!-- Inside Match-Modal-->
+                                                            <div *ngFor="let fieldNumber2 of fieldListCypherRel[i]; let j = index">
+                                                                <!-- Property Row -->
+                                                                <div *ngIf="fieldNumber2 == 'PROP'">
+                                                                    <div class ="row">
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherRel[i][j][0]" (keyup)="generateMatch(i,4)" placeholder="Property" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherRel[i][j][1]" (keyup)="generateMatch(i,4);" placeholder="equals value" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-1 fixed-width">
+                                                                            <!-- Button to delete field -->
+                                                                            <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j,4); generateMatch(i,4)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Add Button -->
+                                                            <div class="input-group justify-content-center mt-3">
+                                                                <div class="input-group justify-content-center mt-3">
+                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i, 4)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                        </div>
+                                                    </div><!-- /.modal-content -->
+                                                </div><!-- /.modal-dialog -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 fixed-width">
+                                    <div *ngIf="cypherDropdown[i] === 'cypher-directed' || cypherDropdown[i] === 'cypher-multiple'">
+                                        <div class="input-group mb-3">
+                                            <input type="text" id="cypher-match-node2-{{i}}" style="background-color: white;" class="form-control"
+                                                   [(ngModel)]="cypherFields[i][2]" (click)="this.matchModal2.show();" placeholder="Node" autocomplete="off" readonly>
+                                            <!-- Modal for Relationship - Node 1 -->
+                                            <div bsModal #matchModal2="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                                                 aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause Node</h4>
+
+                                                            <button type="button" class="close" (click)="matchModal2.hide()" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Define your node name and labels, and optionally add properties by clicking on the plus button to customize your query further.</p>
+                                                            <div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                        >Node name</b>
+                                                                        <input type="text" id="cypher-match-node-{{i}}" class="form-control"
+                                                                               [(ngModel)]="cypherNode2[i][0][0]" (keyup)="generateMatch(i,2);" placeholder="Node" autocomplete="off">
+                                                                    </div>
+                                                                    <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose * you return all the nodes without defining a specific category."
+                                                                        >Node label</b>
+                                                                        <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherNode2[i][0][1]" (change)="generateMatch(i,2)">
+                                                                            <option value="*" selected>*</option>
+                                                                            <option *ngFor="let option of nodeLabels">{{ option }}</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <br>
+                                                            <b tooltip="Properties can be used to filter the nodes and relationships that match a pattern by specifying the property name and value as a condition."
+                                                            >Properties (Optional):</b>
+                                                            <!-- Inside Match-Modal-->
+                                                            <div *ngFor="let fieldNumber2 of fieldListCypherNode2[i]; let j = index">
+                                                                <!-- Property Row -->
+                                                                <div *ngIf="fieldNumber2 == 'PROP'">
+                                                                    <div class ="row">
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherNode2[i][j][0]" (keyup)="generateMatch(i,2)" placeholder="Property" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherNode2[i][j][1]" (keyup)="generateMatch(i,2);" placeholder="equals value" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-1 fixed-width">
+                                                                            <!-- Button to delete field -->
+                                                                            <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j,2); generateMatch(i,2)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Add Button -->
+                                                            <div class="input-group justify-content-center mt-3">
+                                                                <div class="input-group justify-content-center mt-3">
+                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i,2)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                        </div>
+                                                    </div><!-- /.modal-content -->
+                                                </div><!-- /.modal-dialog -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3 fixed-width">
+                                </div>
+                                <div class="col-lg-4 fixed-width">
+                                    <div *ngIf="cypherDropdown[i] === 'cypher-multiple'">
+                                        <div class="input-group mb-3">
+                                            <input type="text" id="cypher-match-rel2-{{i}}" style="background-color: white;" class="form-control"
+                                                   [(ngModel)]="cypherFields[i][3]" (click)="this.matchModal5.show();" placeholder="2. Relationship" autocomplete="off" readonly>
+                                            <!-- Modal for Relationship - Rel 2 -->
+                                            <div bsModal #matchModal5="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                                                 aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause Relationship</h4>
+
+                                                            <button type="button" class="close" (click)="matchModal5.hide()" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Define your relationship name and labels, and optionally add properties by clicking on the plus button to customize your query further.</p>
+                                                            <div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="The name of the relationship allows you to refer to the relationship (or node) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                        >Relationship name</b>
+                                                                        <input type="text" id="cypher-match-node-{{i}}" class="form-control"
+                                                                               [(ngModel)]="cypherRel2[i][0][0]" (keyup)="generateMatch(i,5);" placeholder="Relationship" autocomplete="off">
+                                                                    </div>
+                                                                    <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="Labels are used to assign a category or type to a relationship. You can choose from all existing relationship labels."
+                                                                        >Relationship label</b>
+                                                                        <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherRel2[i][0][1]" (change)="generateMatch(i,5)">
+                                                                            <option *ngFor="let option of relationLabels">{{ option }}</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <br>
+                                                            <b tooltip="Properties can be used to filter the nodes and relationships that match a pattern by specifying the property name and value as a condition."
+                                                            >Properties (Optional):</b>
+                                                            <!-- Inside Match-Modal-->
+                                                            <div *ngFor="let fieldNumber2 of fieldListCypherRel2[i]; let j = index">
+                                                                <!-- Property Row -->
+                                                                <div *ngIf="fieldNumber2 == 'PROP'">
+                                                                    <div class ="row">
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherRel2[i][j][0]" (keyup)="generateMatch(i,5)" placeholder="Property" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherRel2[i][j][1]" (keyup)="generateMatch(i,5);" placeholder="equals value" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-1 fixed-width">
+                                                                            <!-- Button to delete field -->
+                                                                            <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j,5); generateMatch(i,5)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Add Button -->
+                                                            <div class="input-group justify-content-center mt-3">
+                                                                <div class="input-group justify-content-center mt-3">
+                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i,5)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                        </div>
+                                                    </div><!-- /.modal-content -->
+                                                </div><!-- /.modal-dialog -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 fixed-width">
+                                    <div *ngIf="cypherDropdown[i] === 'cypher-multiple'">
+                                        <!-- Modal for Relationship - Node 2 -->
+                                        <div class="input-group mb-3">
+                                            <input type="text" id="cypher-match-node3-{{i}}" style="background-color: white;" class="form-control"
+                                                   [(ngModel)]="cypherFields[i][4]" (click)="this.matchModal3.show()" placeholder="2. Node" autocomplete="off" readonly>
+                                            <div bsModal #matchModal3="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                                                 aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal-{{i}}" (onHide)="onCloseModal()">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Query-Generation: MATCH-Clause Node</h4>
+
+                                                            <button type="button" class="close" (click)="matchModal3.hide()" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Define your node name and labels, and optionally add properties by clicking on the plus button to customize your query further.</p>
+                                                            <div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="The name of the node allows you to refer to the node (or relationship) later in the query, and to perform operations on it. You can chose the name arbitrary."
+                                                                        >Node name</b>
+                                                                        <input type="text" id="cypher-match-node-{{i}}" class="form-control"
+                                                                               [(ngModel)]="cypherNode3[i][0][0]" (keyup)="generateMatch(i,3);" placeholder="Node" autocomplete="off">
+                                                                    </div>
+                                                                    <div class="col-lg-5 fixed-width">
+                                                                        <b tooltip="Labels are used to assign a category or type to a node. You can choose from all existing node labels. If you chose * you return all the nodes without defining a specific category."
+                                                                        >Node label</b>
+                                                                        <select class="form-control" id="cypher-relationship-type-{{i}}" [(ngModel)]="cypherNode3[i][0][1]" (change)="generateMatch(i,3)">
+                                                                            <option value="*" selected>*</option>
+                                                                            <option *ngFor="let option of nodeLabels">{{ option }}</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <br>
+                                                            <b tooltip="Properties can be used to filter the nodes and relationships that match a pattern by specifying the property name and value as a condition."
+                                                            >Properties (Optional):</b>
+                                                            <!-- Inside NodeModal 3-->
+                                                            <div *ngFor="let fieldNumber2 of fieldListCypherNode3[i]; let j = index">
+                                                                <!-- Property Row -->
+                                                                <div *ngIf="fieldNumber2 == 'PROP'">
+                                                                    <div class ="row">
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherNode3[i][j][0]" (keyup)="generateMatch(i,3)" placeholder="Property" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-5 fixed-width">
+                                                                            <input type="text" id="cypher-match-node-{{j}}" class="form-control"
+                                                                                   [(ngModel)]="cypherNode3[i][j][1]" (keyup)="generateMatch(i,3);" placeholder="equals value" autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-lg-1 fixed-width">
+                                                                            <!-- Button to delete field -->
+                                                                            <button id="button-cypherMatch-{{j}}" (click)="deleteCypherMatchField(i,j,3); generateMatch(i,3)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Add Button -->
+                                                            <div class="input-group justify-content-center mt-3">
+                                                                <div class="input-group justify-content-center mt-3">
+                                                                    <button id="button-cypher-{{i}}" (click)="addCypherMatchField(i,3)" class="btn btn-primary toggle-insert"> <i class="cui-plus"></i></button>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                        </div>
+                                                    </div><!-- /.modal-content -->
+                                                </div><!-- /.modal-dialog -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Where Clause-->
+                        <div *ngIf="fieldNumber === 'WHERE'">
+                            <div class="row">
+                                <div class="col-lg-4 fixed-width">
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <label for="cypher-where-{{i}}" class="input-group-text" tooltip="The WHERE clause is used to filter data based on specific conditions. It allows you to specify one or more boolean expressions that must evaluate to true for a node or relationship to be included in the query result."
+                                            >WHERE</label>
+                                        </div>
+                                        <input type="text" id="cypher-where-{{i}}" placeholder="Condition" class="form-control"
+                                               [(ngModel)]="cypherFields[i][0]" (keyup)="generateCypher()" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 fixed-width">
+                                    <div class="input-group mb-3">
+                                        <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="cypherFields[i][1]" (change)="generateCypher()">
+                                            <optgroup label="Comparison operators">
+                                                <option value="=">equals</option>
+                                                <option value="<>">does not equal</option>
+                                                <option value=">">is greater than</option>
+                                                <option value="<">is less than</option>
+                                                <option value=">=">is greater than or equal</option>
+                                                <option value="<=">is less than or equal</option>
+                                                <option value="IS NULL">is null</option>
+                                                <option value="IS NOT NULL">is not null</option>
+                                            </optgroup>
+                                            <optgroup label="String-specific operators">
+                                                <option value="STARTS WITH">starts with</option>
+                                                <option value="ENDS WITH">ends with</option>
+                                                <option value="CONTAINS">contains</option>
+                                            </optgroup>
+                                            <optgroup label="List operators">
+                                                <option value="IN">in</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 fixed-width">
+                                    <div class="input-group mb-3">
+                                        <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                               [(ngModel)]="cypherFields[i][2]" (keyup)="generateCypher()" placeholder="value" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-lg-1 fixed-width">
+                                    <!-- Button to delete field -->
+                                    <button id="button-mql-{{i}}" (click)="deleteCypherField(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                </div>
+                            </div>
+                            <div class="row" style="justify-content: center;">
+                                <div class="btn-group-horizontal btn-group" id="radio-{{i}}" data-toggle="buttons">
+                                    <label class="btn btn-secondary">
+                                        <input type="radio" name="booleanoperator-{{i}}" (click)="changeCypherField('AND', i); generateCypher()">AND
+                                    </label>
+                                    <label class="btn btn-secondary">
+                                        <input type="radio" name="booleanoperator-{{i}}" (click)="changeCypherField('OR', i); generateCypher()">OR
+                                    </label>
+                                    <label class="btn btn-secondary">
+                                        <input type="radio" name="booleanoperator-{{i}}" (click)="changeCypherField('NOR', i); generateCypher()">XOR
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Additional Where rows -->
+                        <div *ngIf="fieldNumber === 'OR' || fieldNumber === 'AND' || fieldNumber === 'NOR'">
+                            <div class="row" [style.padding-left.em]='2'>
+                                <div class="col-lg-4 fixed-width">
+                                    <div class="input-group mb-3">
+                                        <input type="text" id="cypher-where-{{i}}" placeholder="Condition" class="form-control"
+                                               [(ngModel)]="cypherFields[i][0]" (keyup)="generateCypher()" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 fixed-width">
+                                    <div class="input-group mb-3">
+                                        <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="cypherFields[i][1]" (change)="generateCypher()">
+                                            <optgroup label="Comparison operators">
+                                                <option value="=">equals</option>
+                                                <option value="<>">does not equal</option>
+                                                <option value=">">is greater than</option>
+                                                <option value="<">is less than</option>
+                                                <option value=">=">is greater than or equal</option>
+                                                <option value="<=">is less than or equal</option>
+                                                <option value="IS NULL">is null</option>
+                                                <option value="IS NOT NULL">is not null</option>
+                                            </optgroup>
+                                            <optgroup label="String-specific operators">
+                                                <option value="STARTS WITH">starts with</option>
+                                                <option value="ENDS WITH">ends with</option>
+                                                <option value="CONTAINS">contains</option>
+                                            </optgroup>
+                                            <optgroup label="List operators">
+                                                <option value="IN">in</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 fixed-width">
+                                    <div class="input-group mb-3">
+                                        <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                               [(ngModel)]="cypherFields[i][2]" (keyup)="generateCypher()" placeholder="value" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-lg-1 fixed-width">
+                                    <!-- Button to delete field -->
+                                    <button id="button-mql-{{i}}" (click)="deleteCypherField(i)" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                </div>
+                            </div>
+                            <div class="row" style="justify-content: center;">
+                                <div class="btn-group-horizontal btn-group" id="radio-{{i}}" data-toggle="buttons">
+                                    <label class="btn btn-secondary">
+                                        <input type="radio" name="booleanoperator-{{i}}" (click)="changeCypherField('AND', i);; generateCypher()">AND
+                                    </label>
+                                    <label class="btn btn-secondary">
+                                        <input type="radio" name="booleanoperator-{{i}}" (click)="changeCypherField('OR', i);; generateCypher()">OR
+                                    </label>
+                                    <label class="btn btn-secondary">
+                                        <input type="radio" name="booleanoperator-{{i}}" (click)="changeCypherField('NOR', i);; generateCypher()">XOR
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Button -->
+                    <div class="input-group justify-content-center mt-3" tooltip="Use the Button to add new rows of clauses" style="margin:1em;">
+                        <div (mouseleave)="setMenuShow(false, false, 'Cypher')" (mouseenter)="menuEnter('Cypher')">
+                            <button class="btn btn-primary toggle-insert" (click)="setMenuShow(true, false, 'Cypher')" type="button"><i
+                                    class="fa fa-plus"></i></button>
+                            <ul *ngIf="show" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false, false, 'Cypher')">
+                                <li>
+                                    <div class="dropdown-item" (click)="addCypherField('MATCH')"><i class="cui-plus"></i>Add Match</div>
+                                </li>
+                                <li>
+                                    <div class="dropdown-item" (click)="addCypherField('WHERE')"><i class="cui-plus"></i>Add Where</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Return Clause-->
+                    <div class="row" style="display: flex; flex-direction: row; flex-wrap: wrap;">
+                        <div class="col-lg-4 fixed-width" *ngFor="let item of cypherReturn2; let i = index">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend" *ngIf="i == 0">
+                                        <label for="cypher-return-{{i}}" class="input-group-text" tooltip="The RETURN clause is used to specify which data to include in the query result. It allows you to select nodes, relationships or properties."
+                                        >RETURN</label>
+                                    </div>
+                                    <select class="form-control"  tooltip="You can return elements from the defined names from your input." id="cypher-return-{{i}}" [(ngModel)]="cypherReturnDrop[i]" (change)="generateCypher()" #dropdown (click)="generateDropDownArray(); onDropdownClick(dropdown)">
+                                        <option *ngFor="let option of returnDropdown">{{ option }}</option>
+                                    </select>
+                                    <input type="text" id="cypher-return-{{i}}" placeholder="Optional: Property" autocomplete="off" class="form-control"
+                                           [(ngModel)]="cypherReturnProp[i]" (keyup)="generateCypher()" autocomplete="off">
+                                </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" tooltip="Add additional return values" (click)="cypherReturnDrop.push(''); cypherReturnProp.push(''); cypherReturn2.push('');" style="border-radius: 100%;"><i class="cui-plus"></i></button>
+                            <button id="button-btn-return" (click)="cypherReturnDrop.pop(); cypherReturnProp.push(''); cypherReturn2.pop(); generateCypher();" class="btn btn-primary toggle-insert" *ngIf="cypherReturnDrop.length !=1" style="border-radius: 100%;"> <i class="cui-trash"></i></button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="row" *ngIf="resultSet && resultSet.data">
-                    <div class="col-lg-12">
-                        <app-data-view [resultSet]="resultSet"
-                                       [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}"
-                                       [loading]="loading" (viewEditorCode)="createView($event)"
-                                       (executeView)="executeView($event)"></app-data-view>
+                <h5>Generated query</h5>
+                    <p>Edit your code if needed.</p>
+                    <div id="aceWrapper-cypher" style="height: 150px">
+                    <app-editor #editorGenerated></app-editor>
+                    </div>
+
+                    <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
+                    <button *ngIf="loading" class="btn btn-primary mb-3" disabled>Loading</button>
+
+                    <div *ngIf="resultSet">
+                        <hr>
+                        <h5>Query Result</h5>
+                    </div>
+
+                <div class="card " *ngIf="resultSet" id="result-graphical-cypher">
+
+                    <div class="card-header">
+                        <span>{{resultSet.generatedQuery}}</span>
+                        <span class="badge pull-right"
+                              [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
+                      <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
+                      <ng-container *ngIf="resultSet.error">!</ng-container>
+                      </span>
+                    </div>
+
+                    <div class="card-body" style="padding-bottom: 0.25rem">
+                        <div class="text-danger" *ngIf="resultSet && resultSet.error">
+                            <strong>Error:</strong>
+                            <p class="mb-3">{{resultSet.error}}</p>
+                        </div>
+
+                        <div class="query-info">
+                            <p *ngIf="resultSet && !resultSet.data && !resultSet.error" class="mb-3">
+                              <i>Successfully executed</i>
+                            </p>
+                        </div>
+
+                        <div class="row" *ngIf="resultSet && resultSet.data">
+                              <app-data-view [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}" [loading]="loading" (viewEditorCode)="createView($event)" (executeView)="executeView($event)"></app-data-view>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- graphical-UI for MQL -->
+        <div *ngIf="lang === 'mql'">
+            <p>Select your collection from the left sidebar to get started: <b>{{ collectionName2 !== undefined ? ' ' + collectionName2 : '' }}</b></p>
+            <p>To generate your desired query, fill in the details in the appearing fields and use the graphical elements to fine-tune your selections. The query will be dynamically generated based on the information you provide, allowing you to customize the details to your exact specifications.</p>
+            <div *ngIf="collectionName !== undefined">
+                <p>Choose what you want to do: </p>
+                <div classe ="row" style="display: flex; justify-content: space-between;">
+                    <div>
+                        <div class="btn-group-horizontal btn-group" id="radio-2" data-toggle="buttons">
+                            <label class="btn btn-secondary" tooltip="The find method is used to retrieve documents from a collection based on specified criteria.">
+                                <input type="radio" name="type" [(ngModel)]="mqlType" value="FIND" (ngModelChange)="generateMQL()">find
+                            </label>
+                            <label class="btn btn-secondary" tooltip="The aggregate method is used to perform advanced data processing and analysis on the documents in a collection.">
+                                <input type="radio" name="type" [(ngModel)]="mqlType" value="AGGR" (ngModelChange)="generateMQL()">aggregate
+                            </label>
+                        </div>
+                    </div>
+                    <div *ngIf="mqlType!== undefined && mqlType ==='FIND'">
+                        <!-- Modal for FIND -->
+                        <button class="btn btn-primary pull-right" (click)="this.queryHelp.show();"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></button>
+                        <button style="margin-right: 0.5em;" class="btn btn-primary pull-right" (click)="this.clearInput('find'); generateMQL();" tooltip="The Clear button allows you to quickly clear all Input Fields.">clear</button>
+                        <div bsModal #queryHelp="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                             aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="onCloseModal()">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Query-Generation: Find</h4>
+
+                                        <button type="button" class="close" (click)="queryHelp.hide()" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <b>Basics:</b>
+                                        <br>
+                                        You can begin to build your query by filling in the input fields. Here's an example of a find() query:
+                                        <br>
+                                        <br>
+                                        <ul><li><code>db.yourCollection.find({{"{" }} "name": "Jane"})</code></li></ul>
+                                        <code>{{ "{" }} "name": "Jane" }</code> specifies the criteria for selecting documents. In this case, the query will select documents where the value of the <i>name</i> field is equal to <i>"Jane"</i>.
+                                        <br>
+                                        <br>
+                                        To recreate this query, you can write <code>name</code> into the first input field. Next, select <code>equals</code> from the dropdown menu. Finally, enter <code>"Jane"</code> into the last input field. Don't forget the quotation marks if it is a string you're looking for.
+                                        <br>
+                                        <br>
+                                        <b>Additional Features:</b>
+                                        <br>
+                                        If you want to add more criterias to your search, you can use the additional features. Here's a step-by-step guide:
+                                        <br>
+                                        <br><ul>
+                                        <li><b>Adding new keys:</b> You can add new keys by clicking on the plus-button. To delete a key, click on the trash-button.</li>
+
+                                        <li><b>Defining key-objects:</b> You can define key-objects by creating a new key and adding key-objects to it through the plus-button. For example, if you want to add an <i>address</i> key containing objects <i>street</i> and <i>number</i>, you can create a new key <code>address</code>, then add the key-object <code>street</code>, and then the object <code>number</code> to it.</li>
+
+                                        <li><b>Using Boolean Operators:</b> You can use Boolean Operators (<code>AND</code>, <code>OR</code>) to create more complex conditions. Every Boolean Operator should be closed by an <code>END</code> on the same depth level. You can do this through the plus-button. You can add multiple Boolean Operators in succession to create nested conditions. Every row between the condition and its <code>END</code> is logically connected.</li>
+
+                                        <li><b>Drag and Drop:</b> You can also drag and drop rows to transfer them inside the logical Operators or insert them into a different order. This can be useful if you made a mistake and need to correct the order of the criteria.</li>
+                                        </ul>
+                                    </div>
+                                    <div class="modal-footer">
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div>
+                    </div>
+                    <div *ngIf="mqlType!== undefined && mqlType === 'AGGR'">
+                        <!-- Modal for AGGR --- original from adapters.component.html -->
+                        <button class="btn btn-primary pull-right" (click)="this.queryHelpAGGR.show();"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></button>
+                        <button style="margin-right: 0.5em;" class="btn btn-primary pull-right" (click)="this.clearInput('aggr'); generateMQL();" tooltip="The Clear button allows you to quickly clear all Input Fields.">clear</button>
+                        <div bsModal #queryHelpAGGR="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+                             aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal2" (onHide)="onCloseModal()">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Query-Generation: Aggregation</h4>
+
+                                        <button type="button" class="close" (click)="queryHelpAGGR.hide()" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body"> <!-- Text taken from https://www.mongodb.com/docs/manual/aggregation/-->
+                                        An aggregation pipeline consists of one or more stages that process documents:
+                                        <br>
+                                        <br>
+                                        <ul>
+                                            <li>Each stage performs an operation on the input documents. For example, a stage can filter documents, group documents, and calculate values.</li>
+                                            <li>The documents that are the output from a stage are passed to the next stage.</li>
+                                            <li>An aggregation pipeline can return results for groups of documents. For example, return the total, average, maximum, and minimum values.</li>
+                                        </ul>
+                                        <b>Basics:</b>
+                                        <br>
+                                        This interface has per default an aggregation pipeline consisting of the stages $match, $group and $sort. The following aggregation pipeline example contains three stages and returns the total order quantity of medium size pizzas grouped by pizza name and sorted by totalQuantity:
+                                        <br>
+                                        <br>
+                                        <ul><li>
+                                            <code>db.pizzas.aggregate([{{"{" }}
+                                                <br>$match:{{"{" }}size: "medium"}},{{"{" }}
+                                                <br>$group:{{"{" }}_id: "$name", totalQuantity: {{"{" }}$sum: "$quantity"}}},{{"{" }}
+                                                <br>$sort:{{"{" }}totalQuantity: -1}}])
+                                            </code>
+                                        </li></ul>
+                                        The $match stage:
+                                        <br>
+                                        <ul>
+                                            <li>Filters the pizza documents to pizzas with a size of medium.</li>
+                                            <li>Passes the remaining documents to the $group stage.</li>
+                                        </ul>
+                                        The $group stage:
+                                        <ul>
+                                            <li>Groups the remaining documents by pizza name.</li>
+                                            <li>Uses $sum to calculate the total quantity for each pizza name. The total is stored in the totalQuantity field returned by the aggregation pipeline.</li>
+                                        </ul>
+                                        The $sort stage:
+                                        <ul>
+                                            <li>Sorts the totalQuantity in descending order</li>
+                                        </ul>
+                                        To recreate this query, you can follow these steps:<br>
+                                        <ol>
+                                            <br>
+                                            <li>In the $match stage, write <code>size</code> into the first input field, select <code>equal</code> from the dropdown menu and write <code>"medium"</code> in the last input field. This will match all documents where the "size" field is equal to "medium".</li>
+                                            <br>
+                                            <li>In the $group stage:
+                                                <ul>
+                                                <li><code>_id</code> should be written as default in the first input field. Then write in the last input field <code>name</code>. This will group the documents by the "name" field.</li>
+                                                <li>add a new key and write <code>totalQuantity</code> into the first input field, select <code>sum</code> from the dropdown and write <code>quantity</code> in the last input field. This will calculate the sum of the "quantity" field for each group</li>
+                                                </ul>
+                                            </li>
+                                            <br>
+                                            <li>In the $sort stage, write <code>totalQuantity</code> into the first input field and select <code>descending</code> from the dropdown menu. This will sort the results in descending order based on the "totalQuantity" field.</li>
+                                        </ol>
+                                        <br>
+                                        <br>
+                                    </div>
+                                    <div class="modal-footer">
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div>
+                    </div>
+                </div>
+
+
+               <!-- MQL Aggregate -->
+                <div *ngIf="mqlType === 'AGGR'">  <!-- Creating new field for each chosen column -->
+                    <div class="text-fields">
+                        <!-- Match Stage-->
+                        <div style="display: inline-block;" tooltip="The match stage in an aggregate pipeline is used to filter the documents in a collection similar to the find method.">
+                            <b>Match stage</b>
+                        </div>
+                        <div class="mql-second-text-fields" style="margin-bottom:1em;">
+                            <div *ngFor="let fieldNumber of fieldListMATCH; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
+                                <ng-container *ngIf="fieldNumber === 'AND' || fieldNumber === 'OR'">
+                                    <div class="row" [style.padding-left.em]="2*this.mqlFieldsMATCH[i][6]" (drop)="onDrop($event, 'Aggr1')" (dragover)="onDragOver($event)">
+                                        <div class="col-lg-11 fixed-width">
+                                            <b>{{fieldNumber}}</b>
+                                        </div>
+                                        <div class="col-lg-1 fixed-width">
+                                            <button id="button-mql-{{i}}" (click)="deleteMQLField(i,'Aggr1')" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngIf="fieldNumber === 'END'">
+                                    <div class="row" [style.padding-left.em]="2*this.mqlFieldsMATCH[i][6]">
+                                        <div class="col-lg-12 fixed-width">
+                                            <b>END</b>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngIf="fieldNumber !== 'AND' && fieldNumber !== 'OR' && fieldNumber !== 'END'">
+                                    <div class="row" [style.padding-left.em]="2*this.mqlFieldsMATCH[i][5]" (drop)="onDrop($event, 'Aggr1')" (dragover)="onDragOver($event)">
+                                        <div class="col-lg-4 fixed-width">
+                                            <div class="input-group mb-3">
+                                                <div class="input-group-prepend">
+                                                    <label for="mql-boxes-input-{{i}}" class="input-group-text"><i class="fa fa-arrows-v"></i></label>
+                                                </div>
+                                                <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                                       [(ngModel)]="mqlFieldsMATCH[i][3]" (keyup)="prependKeyObject(this.mqlFieldsMATCH[i][5], i,'Aggr1'); generateMQL()" placeholder="key" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 fixed-width">
+                                            <div *ngIf="i == this.mqlFieldsMATCH.length-1 || this.mqlFieldsMATCH[i][5] >= this.mqlFieldsMATCH[i+1][5]"> <!-- is key of object-->
+                                                <div class="input-group mb-3">
+                                                    <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="mqlFieldsMATCH[i][1]" (change)="generateMQL()">
+                                                        <option value="equal">equals</option>
+                                                        <option value="notequal">does not equal</option>
+                                                        <option value="greater">is greater than</option>
+                                                        <option value="lesser">is less than</option>
+                                                        <option value="contains">contains</option>
+                                                        <option value="notcontains">does not contain</option>
+                                                        <option value="type">is type</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 fixed-width">
+                                            <div *ngIf="i == this.mqlFieldsMATCH.length-1 || this.mqlFieldsMATCH[i][5] >= this.mqlFieldsMATCH[i+1][5]"> <!--is key of object-->
+                                                <div class="input-group mb-3">
+                                                    <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                                           [(ngModel)]="mqlFieldsMATCH[i][2]" (keyup)="generateMQL()" placeholder="value" autocomplete="off">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-1 fixed-width">
+                                            <!-- Button to delete field -->
+                                            <button id="button-mql-{{i}}" (click)="deleteMQLField(i,'Aggr1')" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                            </div>
+
+                            <div class="input-group justify-content-center mt-3">
+                                <div (mouseleave)="setMenuShow(false, false,'Aggr1')" (mouseenter)="menuEnter('Aggr1')">
+                                    <button class="btn btn-primary toggle-insert" (click)="setMenuShow(true, false, 'Aggr1')" type="button"><i
+                                            class="fa fa-plus"></i></button>
+                                    <ul *ngIf="showMATCH" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false, false, 'Aggr1')">
+                                        <li>
+                                            <div class="dropdown-item" (click)="addMQLField('Aggr1')"><i class="cui-plus"></i>Add Key</div>
+                                        </li>
+                                        <div *ngIf="this.mqlFieldsMATCH.length !== 0 && this.mqlFieldsMATCH[this.mqlFieldsMATCH.length - 1][5] > 0"> <!-- is property -->
+                                            <li>
+                                                <div class="dropdown-item" (click)="addMQLFieldKeyObject2('Aggr1')"><i class="cui-plus"></i>Add Object</div>
+                                            </li>
+                                        </div>
+                                        <div *ngIf="this.mqlFieldsMATCH.length !== 0">
+                                            <li>
+                                                <div class="dropdown-item" (click)="addMQLFieldKeyObject('Aggr1')"><i class="cui-plus"></i>Add Key-Object</div>
+                                            </li>
+                                        </div>
+                                        <li>
+                                            <div class="dropdown-item" (mouseleave)="setMenuShow2(false,false, 'Aggr1')" (mouseenter)="menuEnter2('Aggr1')" (click)="setMenuShow2(true, false, 'Aggr1')"><i class="cui-plus"></i>Add Logical Operation
+                                                <ul *ngIf="showMATCH2" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow2(false,false, 'Aggr1')">
+                                                    <li>
+                                                        <div class="dropdown-item" (click)="addLogicalOperator('AND','Aggr1')"><i class="cui-plus"></i>Add AND</div>
+                                                    </li>
+                                                    <li>
+                                                        <div class="dropdown-item" (click)="addLogicalOperator('OR','Aggr1')"><i class="cui-plus"></i>Add OR</div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </li>
+                                        <div *ngIf="this.logicalOperatorStackMATCH.length != 0">
+                                            <li>
+                                                <div class="dropdown-item" (click)="endLogicalOperator('Aggr1')"><i class="cui-plus"></i>End Logical Operation</div>
+                                            </li>
+                                        </div>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group Stage-->
+                        <div style="display: inline-block;" tooltip="The group stage in an aggregate pipeline is used to group the documents in a collection by one or more fields and perform a variety of aggregations on the grouped data.">
+                            <b>Group stage</b>
+                        </div>
+                        <div class="mql-second-text-fields" style="margin-bottom:1em;">
+                            <div *ngFor="let fieldNumber of fieldListGROUP; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
+                                <div *ngIf="i === 0">
+                                    <div class="row" [style.padding-left.em]="2*this.mqlFieldsGROUP[i][5]" (drop)="onDrop($event,'Aggr2')" (dragover)="onDragOver($event)">
+                                        <div class="col-lg-6 fixed-width">
+                                            <div class="input-group mb-3">
+                                                <div class="input-group-prepend">
+                                                    <label for="mql-boxes-input-{{i}}" class="input-group-text"><i class="fa fa-arrows-v"></i></label>
+                                                </div>
+                                                <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                                       value="_id" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 fixed-width">
+                                            <div *ngIf="i == this.mqlFieldsGROUP.length-1 || this.mqlFieldsGROUP[i][5] >= this.mqlFieldsGROUP[i+1][5]"> <!--is key of object-->
+                                                <div class="input-group mb-3">
+                                                    <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                                           [(ngModel)]="mqlFieldsGROUP[i][2]" (keyup)="generateMQL()" placeholder="value" autocomplete="off">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="i !== 0">
+                                    <div class="row" [style.padding-left.em]="2*this.mqlFieldsGROUP[i][5]" (drop)="onDrop($event,'Aggr2')" (dragover)="onDragOver($event)">
+                                        <div class="col-lg-4 fixed-width">
+                                            <div class="input-group mb-3">
+                                                <div class="input-group-prepend">
+                                                    <label for="mql-boxes-input-{{i}}" class="input-group-text"><i class="fa fa-arrows-v"></i></label>
+                                                </div>
+                                                <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                                       [(ngModel)]="mqlFieldsGROUP[i][3]" (keyup)="prependKeyObject(this.mqlFieldsGROUP[i][5], i,'Aggr2'); generateMQL()" placeholder="key" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 fixed-width">
+                                            <div *ngIf="i == this.mqlFieldsGROUP.length-1 || this.mqlFieldsGROUP[i][5] >= this.mqlFieldsGROUP[i+1][5]"> <!-- is key of object-->
+                                                <div class="input-group mb-3">
+                                                    <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="mqlFieldsGROUP[i][1]" (change)="generateMQL()">
+                                                        <optgroup label="Accumulator Operator">
+                                                            <option value="$avg">average</option>
+                                                            <option value="$count">count</option>
+                                                            <option value="$max">max</option>
+                                                            <option value="$min">min</option>
+                                                            <option value="$sum">sum</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 fixed-width">
+                                            <div *ngIf="i == this.mqlFieldsGROUP.length-1 || this.mqlFieldsGROUP[i][5] >= this.mqlFieldsGROUP[i+1][5]"> <!--is key of object-->
+                                                <div class="input-group mb-3">
+                                                    <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                                           [(ngModel)]="mqlFieldsGROUP[i][2]" (keyup)="generateMQL()" placeholder="value" autocomplete="off">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-1 fixed-width">
+                                            <!-- Button to delete field -->
+                                            <button id="button-mql-{{i}}" (click)="deleteMQLField(i,'Aggr2')" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="input-group justify-content-center mt-3">
+                                <div (mouseleave)="setMenuShow(false,false,'Aggr2')" (mouseenter)="menuEnter('Aggr2')">
+                                    <button class="btn btn-primary toggle-insert" (click)="setMenuShow(true, false,'Aggr2')" type="button"><i
+                                            class="fa fa-plus"></i></button>
+                                    <ul *ngIf="showGROUP" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false, false, 'Aggr2')">
+                                        <li>
+                                            <div class="dropdown-item" (click)="addMQLField('Aggr2')"><i class="cui-plus"></i>Add Key</div>
+                                        </li>
+                                        <div *ngIf="this.mqlFieldsGROUP.length !== 0 && this.mqlFieldsGROUP[this.mqlFieldsGROUP.length - 1][5] > 0"> <!-- is property -->
+                                            <li>
+                                                <div class="dropdown-item" (click)="addMQLFieldKeyObject2('Aggr2')"><i class="cui-plus"></i>Add Object</div>
+                                            </li>
+                                        </div>
+                                        <div *ngIf="this.mqlFieldsGROUP.length !== 0">
+                                            <li>
+                                                <div class="dropdown-item" (click)="addMQLFieldKeyObject('Aggr2')"><i class="cui-plus"></i>Add Key-Object</div>
+                                            </li>
+                                        </div>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Sort Stage-->
+                        <div style="display: inline-block;" tooltip="The group stage in an aggregate pipeline is used to group the documents in a collection by one or more fields and perform a variety of aggregations on the grouped data.">
+                            <b>Sort stage</b>
+                        </div>
+                        <div class="mql-second-text-fields">
+                            <div *ngFor="let fieldNumber of fieldListSORT; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
+                                <div class="row" [style.padding-left.em]="2*this.mqlFieldsSORT[i][5]" (drop)="onDrop($event,'Aggr3')" (dragover)="onDragOver($event)">
+                                    <div class="col-lg-6 fixed-width">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <label for="mql-boxes-input-{{i}}" class="input-group-text"><i class="fa fa-arrows-v"></i></label>
+                                            </div>
+                                            <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                                   [(ngModel)]="mqlFieldsSORT[i][3]" (keyup)="prependKeyObject(this.mqlFieldsSORT[i][5], i,'Aggr3'); generateMQL()" placeholder="key" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5 fixed-width">
+                                        <div *ngIf="i == this.mqlFieldsSORT.length-1 || this.mqlFieldsSORT[i][5] >= this.mqlFieldsSORT[i+1][5]"> <!-- is key of object-->
+                                            <div class="input-group mb-3">
+                                                <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="mqlFieldsSORT[i][1]" (change)="generateMQL()">
+                                                    <option value="1">Sort ascending</option>
+                                                    <option value="-1">Sort descending</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-1 fixed-width">
+                                        <!-- Button to delete field -->
+                                        <button id="button-mql-{{i}}" (click)="deleteMQLField(i,'Aggr3')" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="input-group justify-content-center mt-3">
+                                <div (mouseleave)="setMenuShow(false,false,'Aggr3')" (mouseenter)="menuEnter('Aggr3')">
+                                    <button class="btn btn-primary toggle-insert" (click)="setMenuShow(true, false,'Aggr3')" type="button"><i
+                                            class="fa fa-plus"></i></button>
+                                    <ul *ngIf="showSORT" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false, false, 'Aggr3')">
+                                        <li>
+                                            <div class="dropdown-item" (click)="addMQLField('Aggr3')"><i class="cui-plus"></i>Add Key</div>
+                                        </li>
+                                        <div *ngIf="this.mqlFieldsSORT.length !== 0 && this.mqlFieldsSORT[this.mqlFieldsSORT.length - 1][5] > 0"> <!-- is property -->
+                                            <li>
+                                                <div class="dropdown-item" (click)="addMQLFieldKeyObject2('Aggr3')"><i class="cui-plus"></i>Add Object</div>
+                                            </li>
+                                        </div>
+                                        <div *ngIf="this.mqlFieldsSORT.length !== 0">
+                                            <li>
+                                                <div class="dropdown-item" (click)="addMQLFieldKeyObject('Aggr3')"><i class="cui-plus"></i>Add Key-Object</div>
+                                            </li>
+                                        </div>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MQL-FIND -->
+                <div *ngIf="mqlType === 'FIND'">  <!-- Creating new field for each chosen column -->
+                    <div class="text-fields">
+                        <b>Find</b>
+                        <div *ngFor="let fieldNumber of fieldList; let i = index" draggable="true" (dragstart)="onDragStart($event, fieldNumber)"> <!-- index differentiates each field-->
+                            <ng-container *ngIf="fieldNumber === 'AND' || fieldNumber === 'OR'">
+                                <div class="row" [style.padding-left.em]="2*this.mqlFields[i][6]" (drop)="onDrop($event,'Find')" (dragover)="onDragOver($event)">
+                                    <div class="col-lg-11 fixed-width">
+                                        <b>{{fieldNumber}}</b>
+                                    </div>
+                                    <div class="col-lg-1 fixed-width">
+                                        <button id="button-mql-{{i}}" (click)="deleteMQLField(i,'Find')" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                    </div>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="fieldNumber === 'END'">
+                                <div class="row" [style.padding-left.em]="2*this.mqlFields[i][6]">
+                                    <div class="col-lg-12 fixed-width">
+                                        <b>END</b>
+                                    </div>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="fieldNumber !== 'AND' && fieldNumber !== 'OR' && fieldNumber !== 'END'">
+                                <div class="row" [style.padding-left.em]="2*this.mqlFields[i][5]" (drop)="onDrop($event,'Find')" (dragover)="onDragOver($event)">
+                                    <div class="col-lg-4 fixed-width">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <label for="mql-boxes-input-{{i}}" class="input-group-text"><i class="fa fa-arrows-v"></i></label>
+                                            </div>
+                                            <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                                   [(ngModel)]="mqlFields[i][3]" (keyup)="prependKeyObject(this.mqlFields[i][5], i,'Find'); generateMQL();" placeholder="key" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 fixed-width">
+                                        <div *ngIf="i == this.mqlFields.length-1 || this.mqlFields[i][5] >= this.mqlFields[i+1][5]"> <!-- is key of object-->
+                                            <div class="input-group mb-3">
+                                                <select class="form-control" id="mql-boxes-{{i}}" [(ngModel)]="mqlFields[i][1]" (change)="generateMQL()">
+                                                    <option value="equal">equals</option>
+                                                    <option value="notequal">does not equal</option>
+                                                    <option value="greater">is greater than</option>
+                                                    <option value="lesser">is less than</option>
+                                                    <option value="contains">contains</option>
+                                                    <option value="notcontains">does not contain</option>
+                                                    <option value="type">is type</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 fixed-width">
+                                        <div *ngIf="i == this.mqlFields.length-1 || this.mqlFields[i][5] >= this.mqlFields[i+1][5]"> <!--is key of object-->
+                                            <div class="input-group mb-3">
+                                                <input type="text" id="mql-boxes-input-{{i}}" class="form-control"
+                                                       [(ngModel)]="mqlFields[i][2]" (keyup)="generateMQL()" placeholder="value" autocomplete="off">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-1 fixed-width">
+                                    <!-- Button to delete field -->
+                                        <button id="button-mql-{{i}}" (click)="deleteMQLField(i,'Find')" class="btn btn-primary toggle-insert"> <i class="cui-trash"></i></button>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </div>
+
+                        <div class="input-group justify-content-center mt-3">
+                            <div (mouseleave)="setMenuShow(false, false, 'Find')" (mouseenter)="menuEnter('Find')">
+                                <button class="btn btn-primary toggle-insert" (click)="setMenuShow(true, false, 'Find')" type="button"><i
+                                        class="fa fa-plus"></i></button>
+                                <ul *ngIf="showFIND" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false, false, 'Find')">
+                                    <li>
+                                        <div class="dropdown-item" (click)="addMQLField('Find')"><i class="cui-plus"></i>Add Key</div>
+                                    </li>
+                                    <div *ngIf="this.mqlFields.length !== 0 && this.mqlFields[this.mqlFields.length - 1][5] > 0"> <!-- is property -->
+                                        <li>
+                                            <div class="dropdown-item" (click)="addMQLFieldKeyObject2('Find')"><i class="cui-plus"></i>Add Object</div>
+                                        </li>
+                                    </div>
+                                    <div *ngIf="this.mqlFields.length !== 0">
+                                        <li>
+                                            <div class="dropdown-item" (click)="addMQLFieldKeyObject('Find')"><i class="cui-plus"></i>Add Key-Object</div>
+                                        </li>
+                                    </div>
+                                    <li>
+                                        <div class="dropdown-item" (mouseleave)="setMenuShow2(false, false, 'Find')" (mouseenter)="menuEnter2('Find')" (click)="setMenuShow2(true, false, 'Find')"><i class="cui-plus"></i>Add Logical Operation
+                                            <ul *ngIf="showFIND2" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow2(false, false, 'Find')">
+                                                <li>
+                                                    <div class="dropdown-item" (click)="addLogicalOperator('AND','Find')"><i class="cui-plus"></i>Add AND</div>
+                                                </li>
+                                                <li>
+                                                    <div class="dropdown-item" (click)="addLogicalOperator('OR','Find')"><i class="cui-plus"></i>Add OR</div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <div *ngIf="this.logicalOperatorStack.length != 0">
+                                        <li>
+                                            <div class="dropdown-item" (click)="endLogicalOperator('Find')"><i class="cui-plus"></i>End Logical Operation</div>
+                                        </li>
+                                    </div>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h5>Generated query</h5>
+                <p>Edit your code if needed.</p>
+                <div id="aceWrapper-mql" style="height: 150px">
+                    <app-editor #editorGenerated></app-editor>
+                </div>
+
+                <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
+                <button *ngIf="loading" class="btn btn-primary mb-3" disabled>Loading</button>
+
+                <div *ngIf="resultSet">
+                    <hr>
+                    <h5>Query Result</h5>
+                </div>
+
+                <div class="card " *ngIf="resultSet" id="result-graphical-mql">
+
+                    <div class="card-header">
+                        <span>{{resultSet.generatedQuery}}</span>
+                        <span class="badge pull-right"
+                              [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
+                            <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
+                            <ng-container *ngIf="resultSet.error">!</ng-container>
+                        </span>
+                    </div>
+
+                    <div class="card-body" style="padding-bottom: 0.25rem">
+                        <div class="text-danger" *ngIf="resultSet && resultSet.error">
+                            <strong>Error:</strong>
+                            <p class="mb-3">{{resultSet.error}}</p>
+                        </div>
+
+                        <div class="query-info">
+                            <p *ngIf="resultSet && !resultSet.data && !resultSet.error" class="mb-3">
+                                <i>Successfully executed</i>
+                            </p>
+                        </div>
+
+                        <div class="row" *ngIf="resultSet && resultSet.data">
+                            <div class="col-lg-12"  >
+                                <app-data-view [resultSet]="resultSet" [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}" [loading]="loading" (viewEditorCode)="createView($event)" (executeView)="executeView($event)"></app-data-view>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
     </div>
-
 </div>
-
 
 <div class="col-lg-12" id="results">
 

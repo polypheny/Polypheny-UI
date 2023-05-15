@@ -56,3 +56,59 @@
   padding-right: 0;
 }
 
+//Dropdown
+.json-dropdown {
+  display: block;
+  // center block
+  margin: 0 auto;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.show-error {
+  display: block !important;
+}
+
+.cypher-sidebar {
+  background-color: #f0f3f5;
+  border: 1px solid #c8ced3;
+}
+
+.mql-second-text-fields {
+  background-color: rgb(210, 210, 210, 0.9);
+  padding: 1em;
+  border: 1px rgba(0, 0, 0, 0.125) solid;
+}
+
+.text-fields {
+  background-color: #dcdcdc;
+  padding: 1em;
+  margin-bottom: 1.5em;
+  border: 1px rgba(0, 0, 0, 0.125) solid;
+}
+
+//Label Container
+.label-container {
+  display: flex;
+}
+
+.label-container p {
+  margin-right: 2.5em;
+}
+
+.label-node {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  border: 1px solid black;
+}
+
+.label-relation {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  border-radius: 1.5em;
+  border: 1px solid black;
+}
+
+
+

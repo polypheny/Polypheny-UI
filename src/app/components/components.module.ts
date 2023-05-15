@@ -100,7 +100,8 @@ import {DatesPipeModule} from './data-view/shared-module';
         InputComponent,
         JsonEditorComponent,
         EditorComponent,
-        DeleteConfirmComponent
+        DeleteConfirmComponent,
+        DataGraphComponent
     ]
 })
 export class ComponentsModule {

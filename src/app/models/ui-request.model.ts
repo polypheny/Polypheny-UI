@@ -224,9 +224,11 @@ export class SchemaRequest extends UIRequest {
    */
   showTable: boolean;
   schemaEdit: boolean;
+
+  isCrossModel: boolean;
   dataModels: DataModels[];
 
-  constructor(routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: DataModels[] = [DataModels.RELATIONAL, DataModels.DOCUMENT, DataModels.GRAPH]) {
+  constructor(routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, isCrossModel= false, dataModels: DataModels[] = [DataModels.RELATIONAL, DataModels.DOCUMENT, DataModels.GRAPH]) {
     super();
     this.routerLinkRoot = routerLinkRoot;
     this.views = views;
@@ -234,6 +236,7 @@ export class SchemaRequest extends UIRequest {
     this.showTable = showTable;
     this.schemaEdit = schemaEdit || false;
     this.dataModels = dataModels;
+    this.isCrossModel = isCrossModel;
   }
 }
 
