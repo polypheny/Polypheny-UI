@@ -1,20 +1,19 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
-import {ToastService} from '../../components/toast/toast.service';
-import {SidebarNode} from '../../models/sidebar-node.model';
+import {ToastService} from '../../../../components/toast/toast.service';
+import {SidebarNode} from '../../../../models/sidebar-node.model';
 import {NotebooksService} from '../../services/notebooks.service';
 import {FormControl, FormGroup} from '@angular/forms';
 import {Observable} from 'rxjs';
-import {NotebooksWebSocket} from './notebooks-webSocket';
-import {WebuiSettingsService} from '../../services/webui-settings.service';
+import {NotebooksWebSocket} from '../../services/notebooks-webSocket';
+import {WebuiSettingsService} from '../../../../services/webui-settings.service';
 import * as uuid from 'uuid';
 
 @Component({
-    selector: 'app-notebooks',
-    templateUrl: './notebooks.component.html',
-    styleUrls: ['./notebooks.component.scss']
+    selector: 'app-notebooks-api-view',
+    templateUrl: './notebooks-api.component.html',
+    styleUrls: ['./notebooks-api.component.scss']
 })
-export class NotebooksComponent implements OnInit, OnDestroy {
+export class NotebooksApiComponent implements OnInit, OnDestroy {
 
     requestSubmitted = false;
     requestGetForm: FormGroup;
@@ -40,7 +39,6 @@ export class NotebooksComponent implements OnInit, OnDestroy {
 
     constructor(
         private _notebooks: NotebooksService,
-        private _leftSidebar: LeftSidebarService,
         private _toast: ToastService,
         private _settings: WebuiSettingsService) {
     }
@@ -50,13 +48,10 @@ export class NotebooksComponent implements OnInit, OnDestroy {
         const nodes = [
             new SidebarNode('filesHeading', 'Files', '', '').asSeparator()
         ];
-        this._leftSidebar.setNodes(nodes);
-        this._leftSidebar.open();
     }
 
     ngOnDestroy() {
-        this.socket.close();
-        this._leftSidebar.close();
+        this.socket?.close();
     }
 
     initForms() {
@@ -66,8 +61,8 @@ export class NotebooksComponent implements OnInit, OnDestroy {
         });
 
         this.createSessionForm = new FormGroup({
-            name: new FormControl(''),
-            path: new FormControl(''),
+            name: new FormControl('Untitled.ipynb'),
+            path: new FormControl('work/Untitled.ipynb'),
             kernel: new FormControl('python3'),
         });
 
@@ -99,7 +94,6 @@ export class NotebooksComponent implements OnInit, OnDestroy {
         if (this.requestGetForm.valid) {
             this.requestSubmitted = true;
             const val = this.requestGetForm.value;
-            console.log(val);
 
             let selected$: Observable<any>;
             switch (val.request) {

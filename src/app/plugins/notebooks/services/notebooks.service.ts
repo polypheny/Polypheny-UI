@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {WebuiSettingsService} from './webui-settings.service';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
 
 @Injectable({
     providedIn: 'root'

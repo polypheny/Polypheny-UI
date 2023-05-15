@@ -1,7 +1,6 @@
 import {Subject} from 'rxjs';
-import {EventEmitter} from '@angular/core';
 import {webSocket} from 'rxjs/webSocket';
-import {WebuiSettingsService} from '../../services/webui-settings.service';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
 
 export class NotebooksWebSocket {
     private socket;
@@ -29,7 +28,7 @@ export class NotebooksWebSocket {
             },
             err => {
                 this.connected = false;
-                console.log('websocket error...');
+                console.error('websocket error:', err);
             },
             () => {
                 console.log('closed websocket...');
