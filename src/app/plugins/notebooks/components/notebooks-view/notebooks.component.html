@@ -1,3 +1,96 @@
 <app-toast></app-toast>
-<h2>Jupyter Notebooks</h2>
-<p>The UI for working with Jupyter Notebooks.</p>
+<ng-container *ngIf="_sidebar.isRoot">
+    <h2>Jupyter Notebooks Dashboard</h2>
+    <p>Open Sessions: {{runningSessionsText}}</p>
+</ng-container>
+
+<ng-container *ngIf="!_sidebar.isRoot">
+    <h2 *ngIf="!_sidebar.isRoot">{{_sidebar.path}}</h2>
+
+    <p>Type: {{_sidebar.type}}</p>
+    <p>Content: {{contentText}}</p>
+    <p *ngIf="_sidebar.type==='notebook'">Session: {{sessionText}}</p>
+</ng-container>
+
+<div bsModal #addNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="addNotebookModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add File</h4>
+                <button type="button" class="close" (click)="addNotebookModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>Leave the name empty to keep the default name.</p>
+                <form [formGroup]="createFileForm" autocomplete="off">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label for="createFile-name" class="input-group-text">Name</label>
+                        </div>
+                        <input type="text" id="createFile-name" autocomplete="off" class="form-control col-sm-10"
+                               formControlName="name">
+                        <input type="text" id="createFile-ext" autocomplete="off" class="form-control col-sm-2"
+                               formControlName="ext" *ngIf="this.createFileForm.get('type').value === 'file'">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="createFile-type">File Type</label>
+                        </div>
+                        <select class="form-control" formControlName="type" id="createFile-type">
+                            <option value="notebook">Notebook</option>
+                            <option value="directory">Folder</option>
+                            <option value="file">File</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="addNotebookModal.hide()">Close</button>
+                <button type="submit" class="btn btn-primary" (click)="createFile()"
+                        [disabled]="!createFileForm.valid">Create
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #uploadNotebookModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="uploadNotebookModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Upload File</h4>
+                <button type="button" class="close" (click)="uploadNotebookModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>Upload one or several files to the current directory</p>
+                <form [formGroup]="uploadFileForm" autocomplete="off">
+                    <div class="input-group">
+                        <label for="notebookUploadFileInput" class="form-control form-control-sm file-label">
+                            <!-- see https://stackoverflow.com/questions/49976714/how-to-upload-the-same-file-in-angular4 -->
+                            <input type="file" multiple style="display: none;" id="notebookUploadFileInput"
+                                   (change)="onFileChange($event.target.files)" #fileInput>
+                            {{inputFileName}}
+                        </label>
+                        <div class="input-group-append">
+                            <label for="notebookUploadFileInput" class="btn btn-sm btn-light mb-0">Browse</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="uploadNotebookModal.hide()">Close</button>
+                <button type="submit" class="btn btn-primary" (click)="uploadFile()"
+                        [disabled]="!uploadFileForm.valid">Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

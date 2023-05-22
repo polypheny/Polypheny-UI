@@ -1,3 +1,5 @@
+import {TreeModel, TreeNode} from 'angular-tree-component';
+
 export class SidebarNode {
   id: any;// of the form "schema.table.column"
   name: string;
@@ -9,19 +11,24 @@ export class SidebarNode {
   allowRouting = true;
   cssClass: string;
   allowDrag = false;
+  allowDropFrom = false;
+  allowDropTo = false;
   children: SidebarNode[] = [];
   isSeparator = false;
   namespaceType: string;
   action: (tree, node, $event) => any = null;
+  private dropAction: (tree: TreeModel, node: TreeNode, $event: any, {from, to}: { from: any; to: any }) => any = null;
   private autoExpand = true;
   private autoActive = true;
 
-  constructor(id, name, icon = null, routerLink: any = null, allowDrag = false) {
+  constructor(id, name, icon = null, routerLink: any = null, allowDrag = false, allowDropFrom = false, allowDropTo = false) {
     this.id = id;
     this.name = name;
     this.icon = icon;
     this.routerLink = routerLink;
     this.allowDrag = allowDrag;
+    this.allowDropFrom = allowDropFrom;
+    this.allowDropTo = allowDropTo;
   }
 
   /**
@@ -77,6 +84,12 @@ export class SidebarNode {
   setAction(action: (tree, node, $event) => any) {
     this.action = action;
     return this;
+  }
+
+  setDropAction(action: (tree:TreeModel, node:TreeNode, $event:any, {from, to}) => any) {
+    this.dropAction = action;
+    return this;
+
   }
 
   setAutoExpand(autoExpand: boolean) {

@@ -10,6 +10,7 @@ import {JavaPage, SidebarNode} from '../../models/sidebar-node.model';
 import {Router} from '@angular/router';
 import {BreadcrumbItem} from '../breadcrumb/breadcrumb-item';
 import {BreadcrumbService} from '../breadcrumb/breadcrumb.service';
+import {SidebarButton} from '../../models/sidebar-button.model';
 
 @Injectable({
     providedIn: 'root'
@@ -35,6 +36,7 @@ export class LeftSidebarService {
     //node that should be set inactive:
     private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
     private resetSubject = new BehaviorSubject<boolean>(false);
+    private topButtonSubject = new BehaviorSubject<SidebarButton[]>([]);
     schemaType: string;
 
 
@@ -49,7 +51,7 @@ export class LeftSidebarService {
             return 1;
         }
         return 0;
-    };
+    }
 
     private mapPages(res: Object, mode: string) {
         const pages = <JavaPage[]>res;
@@ -277,6 +279,14 @@ export class LeftSidebarService {
      */
     getInactiveNode() {
         return this.inactiveNode;
+    }
+
+    getTopButtonSubject() {
+        return this.topButtonSubject;
+    }
+
+    setTopButtons(buttons: SidebarButton[]) {
+        this.topButtonSubject.next(buttons);
     }
 
 }

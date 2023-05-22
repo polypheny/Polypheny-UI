@@ -162,10 +162,15 @@ const routes: Routes = [
     },
     {
         path: 'notebooks/ui',
-        component: NotebooksComponent,
-        data: {
-            title: 'Notebooks'
-        }
+        children: [
+            {
+                path: '**',
+                component: NotebooksComponent,
+                data: {
+                    title: 'Notebooks'
+                }
+            }
+        ]
     },
 ];
 

@@ -45,9 +45,6 @@ export class NotebooksApiComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.initForms();
-        const nodes = [
-            new SidebarNode('filesHeading', 'Files', '', '').asSeparator()
-        ];
     }
 
     ngOnDestroy() {
@@ -62,7 +59,7 @@ export class NotebooksApiComponent implements OnInit, OnDestroy {
 
         this.createSessionForm = new FormGroup({
             name: new FormControl('Untitled.ipynb'),
-            path: new FormControl('work/Untitled.ipynb'),
+            path: new FormControl('notebooks/Untitled.ipynb'),
             kernel: new FormControl('python3'),
         });
 
@@ -73,15 +70,16 @@ export class NotebooksApiComponent implements OnInit, OnDestroy {
 
         this.createFileForm = new FormGroup({
             name: new FormControl('example'),
-            path: new FormControl('work'),
+            path: new FormControl('notebooks'),
             type: new FormControl('notebook'),
             ext: new FormControl('.txt'),
         });
 
         this.manageFileForm = new FormGroup({
-            path: new FormControl('work/Untitled.ipynb'),
+            path: new FormControl('notebooks/Untitled.ipynb'),
             action: new FormControl('move'),
-            arg: new FormControl('work/My Notebook.ipynb'),
+            type: new FormControl('file'),
+            arg: new FormControl('notebooks/My Notebook.ipynb'),
         });
 
         this.websocketForm = new FormGroup({
@@ -204,7 +202,7 @@ export class NotebooksApiComponent implements OnInit, OnDestroy {
                     selected$ = this._notebooks.moveFile(val.path, val.arg);
                     break;
                 case 'upload':
-                    selected$ = this._notebooks.updateFile(val.path, val.arg, 'text');
+                    selected$ = this._notebooks.updateFile(val.path, val.arg, 'text', val.type);
                     break;
                 case 'delete':
                     selected$ = this._notebooks.deleteFile(val.path);

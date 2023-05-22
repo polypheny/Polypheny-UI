@@ -188,7 +188,7 @@
                         </div>
                         <select class="form-control" formControlName="action" id="manageFile-action">
                             <option value="move">Move / Rename</option>
-                            <option value="upload">Upload</option>
+                            <option value="upload">Upload / Update</option>
                             <option value="delete">Delete</option>
                         </select>
                     </div>
@@ -199,7 +199,15 @@
                         <input type="text" id="manageFile-path" autocomplete="off" class="form-control"
                                formControlName="path">
                     </div>
-
+                    <div class="input-group mb-3" *ngIf="this.manageFileForm.get('action').value === 'upload'">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="manageFile-type">File Type</label>
+                        </div>
+                        <select class="form-control" formControlName="type" id="manageFile-type">
+                            <option value="notebook">Notebook</option>
+                            <option value="file">File</option>
+                        </select>
+                    </div>
                     <div class="input-group mb-3" *ngIf="this.manageFileForm.get('action').value !== 'delete'">
                         <div class="input-group-prepend">
                             <label class="input-group-text" for="manageFile-arg">Argument</label>
