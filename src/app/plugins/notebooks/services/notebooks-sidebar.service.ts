@@ -1,12 +1,12 @@
 import {NotebooksService} from './notebooks.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
-import {DirectoryContent, SessionResponse} from '../models/notebooks-response.model';
+import {Content, DirectoryContent, KernelSpecs, SessionResponse} from '../models/notebooks-response.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {SidebarButton} from '../../../models/sidebar-button.model';
 import {UrlSegment} from '@angular/router';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
-import {Subject} from 'rxjs';
+import {BehaviorSubject, interval, Subject, Subscription} from 'rxjs';
 import {ToastService} from '../../../components/toast/toast.service';
 import {Injectable} from '@angular/core';
 
@@ -26,17 +26,23 @@ export class NotebooksSidebarService {
     private _currentPath: string;
     private _isRoot = true;
 
-    private _sessions: SessionResponse[] = [];
-
     private movedSubject = new Subject<string>();
     private invalidLocationSubject = new Subject<string>();
     private addButtonSubject = new Subject<void>();
     private uploadButtonSubject = new Subject<void>();
 
+    private content = new BehaviorSubject<Content>(null);
+    private sessions = new BehaviorSubject<SessionResponse[]>([]);
+    private kernelSpecs = new BehaviorSubject<KernelSpecs>(null);
+    private interval$: Subscription;
+
     constructor(private _notebooks: NotebooksService,
                 private _leftSidebar: LeftSidebarService,
                 private _breadcrumb: BreadcrumbService,
                 private _toast: ToastService) {
+        this.interval$ = interval(15000).subscribe(() => {
+            this.updateSidebar();
+        });
     }
 
     update(url: UrlSegment[]) {
@@ -66,6 +72,7 @@ export class NotebooksSidebarService {
                         this._parentPath = this.pathSegments.slice(0, -2).join('/');
                     }
                 }
+                this.content.next(res);
                 this.updateBreadcrumbs();
                 this.updateSidebar();
                 return;
@@ -84,8 +91,9 @@ export class NotebooksSidebarService {
     }
 
     updateSidebar() {
+        this.updateAvailableKernels();
         this._notebooks.getSessions().subscribe(res => {
-            this._sessions = res;
+            this.sessions.next(res);
         });
 
         this._notebooks.getContents(this._currentPath, true).subscribe(res => {
@@ -134,8 +142,11 @@ export class NotebooksSidebarService {
             ];
             this._leftSidebar.setTopButtons(buttons);
 
-        }, err => {
-        });
+        }, err => this.invalidLocationSubject.next());
+    }
+
+    updateAvailableKernels() {
+        this._notebooks.getKernelspecs().subscribe(res => this.kernelSpecs.next(res));
     }
 
     private getIcon(type: string, isActive = false) {
@@ -145,16 +156,16 @@ export class NotebooksSidebarService {
             case 'directory':
                 return 'fa fa-folder';
             case 'notebook':
-                return isActive ? 'fa fa-book text-success' : 'fa fa-book';
+                return isActive ? 'fa fa-book text-danger' : 'fa fa-book';
         }
     }
 
     private hasRunningKernel(path: string) {
-        const session = this._sessions.find(s => s.path === path);
+        const session = this.sessions.getValue().find(s => s.path.startsWith(path));
         return session !== undefined;
     }
 
-    private moveFile(from: string, to: string) {
+    moveFile(from: string, to: string) {
         this._notebooks.moveFile(from, to).subscribe(res => {
             if (from === this._path) {
                 this.movedSubject.next(to);
@@ -172,8 +183,20 @@ export class NotebooksSidebarService {
     }
 
     close() {
+        this.interval$.unsubscribe();
         this._leftSidebar.setTopButtons([]);
         this._leftSidebar.close();
+    }
+
+    isValidSessionId(sessionId: string, path: string):boolean {
+        if (sessionId?.length === 36) {
+            const session = this.sessions.getValue().find(s => s.id === sessionId);
+            return session && session.path.startsWith(path);
+        }
+    }
+
+    addSession(session: SessionResponse) {
+        this.sessions.next([...this.sessions.getValue(), session]);
     }
 
     onAddButtonClicked() {
@@ -190,6 +213,18 @@ export class NotebooksSidebarService {
 
     onInvalidLocation() {
         return this.invalidLocationSubject;
+    }
+
+    onContentChange() {
+        return this.content;
+    }
+
+    onSessionsChange() {
+        return this.sessions;
+    }
+
+    onKernelSpecsChange() {
+        return this.kernelSpecs;
     }
 
     // Getters
@@ -215,9 +250,5 @@ export class NotebooksSidebarService {
 
     get isRoot(): boolean {
         return this._isRoot;
-    }
-
-    get sessions(): SessionResponse[] {
-        return this._sessions;
     }
 }

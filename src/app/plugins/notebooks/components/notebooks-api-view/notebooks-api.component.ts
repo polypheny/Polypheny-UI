@@ -1,6 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ToastService} from '../../../../components/toast/toast.service';
-import {SidebarNode} from '../../../../models/sidebar-node.model';
 import {NotebooksService} from '../../services/notebooks.service';
 import {FormControl, FormGroup} from '@angular/forms';
 import {Observable} from 'rxjs';

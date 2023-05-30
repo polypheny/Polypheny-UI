@@ -24,6 +24,11 @@ export class NotebooksService {
         return this._http.get<Content>(`${this.httpUrl}/contents/` + path,
             {...this.httpOptions, ...{params: params}});
     }
+    getContentsBase64(path: string) {
+        const params = new HttpParams().append('format', 'base64');
+        return this._http.get<Content>(`${this.httpUrl}/contents/` + path,
+            {...this.httpOptions, ...{params: params}});
+    }
 
     getSession(sessionId: string) {
         return this._http.get<SessionResponse>(`${this.httpUrl}/sessions/` + sessionId, this.httpOptions);
@@ -115,6 +120,12 @@ export class NotebooksService {
 
     deleteFile(filePath: string) {
         return this._http.delete(`${this.httpUrl}/contents/${filePath}`, this.httpOptions);
+    }
 
+    duplicateFile(srcFilePath: string, destFilePath: string) {
+        const json = {
+            copy_from: srcFilePath
+        };
+        return this._http.post<Content>(`${this.httpUrl}/contents/${destFilePath}`, json, this.httpOptions);
     }
 }

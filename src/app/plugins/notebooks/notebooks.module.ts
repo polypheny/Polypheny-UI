@@ -6,6 +6,8 @@ import {ComponentsModule} from '../../components/components.module';
 import {NotebooksComponent} from './components/notebooks-view/notebooks.component';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {NotebooksSidebarService} from './services/notebooks-sidebar.service';
+import { ManageNotebookComponent } from './components/notebooks-view/manage-notebook/manage-notebook.component';
+import { EditNotebookComponent } from './components/notebooks-view/edit-notebook/edit-notebook.component';
 
 
 @NgModule({
@@ -18,7 +20,9 @@ import {NotebooksSidebarService} from './services/notebooks-sidebar.service';
     ],
     declarations: [
         NotebooksApiComponent,
-        NotebooksComponent
+        NotebooksComponent,
+        ManageNotebookComponent,
+        EditNotebookComponent
     ],
     exports: [
         NotebooksApiComponent,

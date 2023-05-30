@@ -1,15 +1,14 @@
 <app-toast></app-toast>
 <ng-container *ngIf="_sidebar.isRoot">
     <h2>Jupyter Notebooks Dashboard</h2>
-    <p>Open Sessions: {{runningSessionsText}}</p>
 </ng-container>
 
 <ng-container *ngIf="!_sidebar.isRoot">
     <h2 *ngIf="!_sidebar.isRoot">{{_sidebar.path}}</h2>
-
-    <p>Type: {{_sidebar.type}}</p>
-    <p>Content: {{contentText}}</p>
-    <p *ngIf="_sidebar.type==='notebook'">Session: {{sessionText}}</p>
+    <app-manage-notebook *ngIf="editNotebookSession==''; else elseEditNotebook"></app-manage-notebook>
+    <ng-template #elseEditNotebook>
+        <app-edit-notebook [sessionId]="editNotebookSession"></app-edit-notebook>
+    </ng-template>
 </ng-container>
 
 <div bsModal #addNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
@@ -25,7 +24,7 @@
 
             <div class="modal-body">
                 <p>Leave the name empty to keep the default name.</p>
-                <form [formGroup]="createFileForm" autocomplete="off">
+                <form [formGroup]="createFileForm" autocomplete="off" (submit)="createFile()">
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
                             <label for="createFile-name" class="input-group-text">Name</label>
@@ -59,7 +58,7 @@
 </div>
 
 <div bsModal #uploadNotebookModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
-     aria-labelledby="uploadNotebookModal" aria-hidden="true">
+     aria-labelledby="uploadNotebookModal" aria-hidden="true" (submit)="uploadFile()">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">

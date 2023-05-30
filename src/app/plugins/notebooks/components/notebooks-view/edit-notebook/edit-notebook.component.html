@@ -1,0 +1,27 @@
+<button class="btn btn-danger" (click)="closeEdit()"> Close</button>
+<p><b>session-id:</b> {{sessionId}}</p>
+<p><b>kernel-id:</b> {{session.kernel.id}}</p>
+<p><b>kernel-status:</b> {{session.kernel.execution_state}}</p>
+
+<ng-container *ngIf="content">
+
+    <h4>Cells</h4>
+    <div *ngFor="let cell of nb.cells" class="card">
+        <div class="card-header">
+            <span><b>Type:</b> {{cell.cell_type}}</span>
+            <br>
+            <span><b>ID:</b> {{cell.id}}</span>
+
+        </div>
+        <div class="card-body">
+            <span>[{{cell.execution_count}}]</span>
+            <br>
+            <code>{{cell.source}}</code>
+        </div>
+        <div class="card-footer">
+            <code *ngFor="let output of cell.outputs">
+                {{output.text}}
+            </code>
+        </div>
+    </div>
+</ng-container>
