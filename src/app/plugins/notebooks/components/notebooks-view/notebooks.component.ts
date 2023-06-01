@@ -6,8 +6,9 @@ import {ActivatedRoute, Router, UrlSegment} from '@angular/router';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {finalize, mergeMap} from 'rxjs/operators';
-import {EMPTY} from 'rxjs';
+import {EMPTY, Subscription} from 'rxjs';
 import {NotebooksSidebarService} from '../../services/notebooks-sidebar.service';
+import {NotebooksContentService} from '../../services/notebooks-content.service';
 
 @Component({
     selector: 'app-notebooks',
@@ -22,17 +23,20 @@ export class NotebooksComponent implements OnInit, OnDestroy {
     uploadFileForm: FormGroup;
     inputFileName = 'Choose file(s)';
     editNotebookSession = '';
+    private subscriptions = new Subscription();
 
     constructor(
         private _router: Router,
         private _route: ActivatedRoute,
         private _notebooks: NotebooksService,
         public _sidebar: NotebooksSidebarService,
+        public _content: NotebooksContentService,
         private _toast: ToastService,
         private _settings: WebuiSettingsService) {
     }
 
     ngOnInit(): void {
+        console.log('init notebook');
         this._route.url.subscribe(url => {
             this.initForms();
             this.update(url);
@@ -41,20 +45,27 @@ export class NotebooksComponent implements OnInit, OnDestroy {
 
         this.initForms();
 
-        this._sidebar.onCurrentFileMoved().subscribe(
+        const sub1 = this._sidebar.onCurrentFileMoved().subscribe(
             to => this._router.navigate([this._sidebar.baseUrl].concat(to.split('/')))
         );
-        this._sidebar.onAddButtonClicked().subscribe(() => this.addNotebookModal.show());
-        this._sidebar.onUploadButtonClicked().subscribe(() => this.uploadNotebookModal.show());
-        this._sidebar.onInvalidLocation().subscribe(() => this.onPageNotFound());
-        this._sidebar.open();
+        const sub2 = this._sidebar.onAddButtonClicked().subscribe(() => this.addNotebookModal.show());
+        const sub3 = this._sidebar.onUploadButtonClicked().subscribe(() => this.uploadNotebookModal.show());
+        const sub4 = this._content.onInvalidLocation().subscribe(() => this.onPageNotFound());
 
-        this.update(this._route.snapshot.url);
-        this.updateSessionId(this._route.snapshot.queryParams['session']);
+        this.subscriptions.add(sub1);
+        this.subscriptions.add(sub2);
+        this.subscriptions.add(sub3);
+        this.subscriptions.add(sub4);
+
+        this._content.updateAvailableKernels();
+        this._content.updateSessions();
+
+        this._sidebar.open();
     }
 
     ngOnDestroy() {
         this._sidebar.close();
+        this.subscriptions.unsubscribe();
     }
 
 
@@ -75,16 +86,17 @@ export class NotebooksComponent implements OnInit, OnDestroy {
 
     private update(url: UrlSegment[]) {
 
-        this._sidebar.update(url);
+        this._content.updateLocation(url);
     }
 
     private updateSessionId(id: string) {
-        console.log('updating session...', id);
-        if (this._sidebar.isValidSessionId(id, this._sidebar.path)) {
-            console.log('valid');
+        if (!id) {
+            this.editNotebookSession = '';
+            return;
+        }
+        if (this._content.isValidSessionId(id, true)) {
             this.editNotebookSession = id;
         } else {
-            console.log('invalid');
             this.editNotebookSession = '';
             this._router.navigate([], {
                 relativeTo: this._route,
@@ -111,11 +123,15 @@ export class NotebooksComponent implements OnInit, OnDestroy {
             ext = val.ext === '.' ? '' : val.ext;
             fileName += ext;
         }
-        this._notebooks.createFileWithExtension(this._sidebar.currentPath, val.type, ext).pipe(
+        const path = this._content.directoryPath;
+        this._notebooks.createFileWithExtension(path, val.type, ext).pipe(
             mergeMap(res => val.name === '' ? EMPTY :
-                this._notebooks.moveFile(res.path, this._sidebar.currentPath + '/' + fileName)
+                this._notebooks.moveFile(res.path, path + '/' + fileName)
             ),
-            finalize(() => this._sidebar.updateSidebar())
+            finalize(() => {
+                this._content.update();
+                //this._sidebar.updateSidebar()
+            })
         ).subscribe(res => {                              // after renaming file
         }, err => {
             this._toast.error(err.error.message, `Creation of '${fileName}' failed`);
@@ -145,9 +161,9 @@ export class NotebooksComponent implements OnInit, OnDestroy {
                 'load',
                 (event) => {
                     const base64 = event.target.result.toString().split('base64,', 2)[1];
-                    this._notebooks.updateFile(this._sidebar.currentPath + '/' + file.name, base64, 'base64', 'file')
+                    this._notebooks.updateFile(this._content.directoryPath + '/' + file.name, base64, 'base64', 'file')
                         .subscribe(res => {
-                            this._sidebar.updateSidebar();
+                            this._content.update();
                         }, err => {
                             this._toast.warn(`An error occurred while uploading ${file.name}`, 'File could not be uploaded');
                         });

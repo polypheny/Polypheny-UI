@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NotebooksSidebarService} from '../../../services/notebooks-sidebar.service';
 import {Content, FileContent, KernelSpec, KernelSpecs, SessionResponse} from '../../../models/notebooks-response.model';
 import {NotebooksService} from '../../../services/notebooks.service';
@@ -7,15 +7,19 @@ import {ToastService} from '../../../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as uuid from 'uuid';
+import {NotebooksContentService} from '../../../services/notebooks-content.service';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'app-manage-notebook',
     templateUrl: './manage-notebook.component.html',
     styleUrls: ['./manage-notebook.component.scss']
 })
-export class ManageNotebookComponent implements OnInit {
+export class ManageNotebookComponent implements OnInit, OnDestroy {
 
-    content: Content;
+    metadata: Content;
+    private parentPath: string;
+    private directoryPath: string;
     sessions: SessionResponse[];
     availableKernels: KernelSpec[] = [];
     selectedSession: SessionResponse;
@@ -28,10 +32,12 @@ export class ManageNotebookComponent implements OnInit {
     @ViewChild('terminateSessionModal', {static: false}) public terminateSessionModal: ModalDirective;
     @ViewChild('connectSessionModal', {static: false}) public connectSessionModal: ModalDirective;
     @ViewChild('createKernelModal', {static: false}) public createKernelModal: ModalDirective;
+    private subscriptions = new Subscription();
 
     constructor(
         private _router: Router,
-        public _sidebar: NotebooksSidebarService,
+        private _sidebar: NotebooksSidebarService,
+        private _content: NotebooksContentService,
         private _notebooks: NotebooksService,
         private _toast: ToastService,) {
     }
@@ -39,12 +45,27 @@ export class ManageNotebookComponent implements OnInit {
     ngOnInit(): void {
         this.initForms();
 
-        this._sidebar.onContentChange().subscribe(content => {
-            this.content = content;
-            this.renameFileForm.patchValue({name: this.content.name});
+        this._content.onContentChange().subscribe(() => {
+            this.metadata = this._content.metadata;
+            this.parentPath = this._content.parentPath;
+            this.directoryPath = this._content.directoryPath;
+            this.renameFileForm.patchValue({name: this.metadata.name});
+            this.updateSessions(this._content.onSessionsChange().getValue());
         });
-        this._sidebar.onSessionsChange().subscribe(sessions => this.updateSessions(sessions));
-        this._sidebar.onKernelSpecsChange().subscribe(specs => this.updateAvailableKernels(specs));
+
+        this.metadata = this._content.metadata;
+        this.parentPath = this._content.parentPath;
+        this.directoryPath = this._content.directoryPath;
+        this.renameFileForm.patchValue({name: this.metadata.name});
+
+        const sub1 = this._content.onSessionsChange().subscribe(sessions => this.updateSessions(sessions));
+        const sub2 = this._content.onKernelSpecsChange().subscribe(specs => this.updateAvailableKernels(specs));
+        this.subscriptions.add(sub1);
+        this.subscriptions.add(sub2);
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
     }
 
     private initForms() {
@@ -69,19 +90,19 @@ export class ManageNotebookComponent implements OnInit {
     }
 
     deleteFile() {
-        this._notebooks.deleteFile(this._sidebar.path).subscribe(res => {
-                const path = this._sidebar.type === 'directory' ? this._sidebar.parentPath : this._sidebar.currentPath;
+        this._notebooks.deleteFile(this.metadata.path).subscribe(res => {
+                const path = this.metadata.type === 'directory' ? this.parentPath : this.directoryPath;
                 this._router.navigate([this._sidebar.baseUrl].concat(path.split('/')));
             },
             err => {
-                this._toast.error(err.error.message, `Could not delete ${this._sidebar.path}`);
+                this._toast.error(err.error.message, `Could not delete ${this.metadata.path}`);
             }
         );
     }
 
     duplicateFile() {
-        this._notebooks.duplicateFile(this._sidebar.path, this._sidebar.currentPath).subscribe(res => this._sidebar.updateSidebar(),
-            err => this._toast.error(err.error.message, `Could not duplicate ${this._sidebar.path}`));
+        this._notebooks.duplicateFile(this.metadata.path, this.directoryPath).subscribe(res => this._content.update(),
+            err => this._toast.error(err.error.message, `Could not duplicate ${this.metadata.path}`));
     }
 
     renameFile() {
@@ -89,16 +110,16 @@ export class ManageNotebookComponent implements OnInit {
             return;
         }
         let fileName = this.renameFileForm.value.name;
-        if (this.content.type === 'notebook' && !fileName.endsWith('.ipynb')) {
+        if (this.metadata.type === 'notebook' && !fileName.endsWith('.ipynb')) {
             fileName += '.ipynb';
         }
-        const path = this._sidebar.type === 'directory' ? this._sidebar.parentPath : this._sidebar.currentPath;
-        this._sidebar.moveFile(this._sidebar.path, path + '/' + fileName);
+        const path = this.metadata.type === 'directory' ? this.parentPath : this.directoryPath;
+        this._sidebar.moveFile(this.metadata.path, path + '/' + fileName);
         this.renameFileModal.hide();
     }
 
     downloadFile() {
-        this._notebooks.getContents(this._sidebar.path).subscribe(res => {
+        this._notebooks.getContents(this.metadata.path).subscribe(res => {
             const file = <FileContent>res;
             this.download(file.content, file.name, file.format);
         });
@@ -114,11 +135,11 @@ export class ManageNotebookComponent implements OnInit {
         console.log('creating...');
         this.createKernelModal.hide();
         const id = '$' + uuid.v4(); // not session id, only for distinguishing multiple sessions for the same notebook
-        this._notebooks.createSession(this.content.name + id, this.content.path + id,
+        this._notebooks.createSession(this.metadata.name + id, this.metadata.path + id,
             this.createKernelForm.value.kernel).subscribe(res => {
-                this._sidebar.addSession(res);
+                this._content.addSession(res);
                 this.openSession(res.id);
-                this._sidebar.updateSidebar();
+                this._content.update();
         },
                 err => this._toast.error(err.error.message, `Could not create session`));
     }
@@ -152,6 +173,8 @@ export class ManageNotebookComponent implements OnInit {
                 byteNumbers[i] = byteCharacters.charCodeAt(i);
             }
             blob = new Blob([new Uint8Array(byteNumbers)], {type: 'application/octet-stream'});
+        } else if (format === 'json') {
+            blob = new Blob([JSON.stringify(content, null, 1)], {type: 'application/json'});
         } else {
             blob = new Blob([content], {type: 'text/plain'});
         }
@@ -169,7 +192,7 @@ export class ManageNotebookComponent implements OnInit {
     private deleteSession(id: string, update=true) {
         this._notebooks.deleteSession(id).subscribe(res => {
                 if (update) {
-                    this._sidebar.updateSidebar();
+                    this._content.updateSessions();
                 }
             },
             err => {
@@ -178,8 +201,8 @@ export class ManageNotebookComponent implements OnInit {
     }
 
     private updateSessions(sessions: SessionResponse[]) {
-        if (this.content.type === 'notebook') {
-            this.sessions = sessions.filter(session => session.path.startsWith(this.content.path));
+        if (this.metadata.type === 'notebook') {
+            this.sessions = sessions.filter(session => session.path.startsWith(this.metadata.path));
             const s = this.sessions.length > 1 ? 's' : '';
             if (this.sessions.length > 0) {
                 this.statusText = this.sessions.length + ' kernel' + s + ' running';
@@ -193,7 +216,7 @@ export class ManageNotebookComponent implements OnInit {
 
     private openSession(sessionId: string) {
         const queryParams = {session: sessionId};
-        this._router.navigate([this._sidebar.baseUrl].concat(this.content.path.split('/')), {queryParams});
+        this._router.navigate([this._sidebar.baseUrl].concat(this.metadata.path.split('/')), {queryParams});
     }
 
     private updateAvailableKernels(kernelSpecs: KernelSpecs) {

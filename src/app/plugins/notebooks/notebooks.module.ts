@@ -8,6 +8,7 @@ import {ModalModule} from 'ngx-bootstrap/modal';
 import {NotebooksSidebarService} from './services/notebooks-sidebar.service';
 import { ManageNotebookComponent } from './components/notebooks-view/manage-notebook/manage-notebook.component';
 import { EditNotebookComponent } from './components/notebooks-view/edit-notebook/edit-notebook.component';
+import {NotebooksContentService} from './services/notebooks-content.service';
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import { EditNotebookComponent } from './components/notebooks-view/edit-notebook
         NotebooksComponent
     ],
     providers: [
-        NotebooksSidebarService
+        NotebooksSidebarService,
+        NotebooksContentService
     ]
 })
 export class NotebooksModule {

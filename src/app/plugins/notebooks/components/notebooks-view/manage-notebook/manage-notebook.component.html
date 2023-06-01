@@ -2,18 +2,18 @@
     <div class="col-lg-4 fixed-width">
         <div class="card">
             <div class="card-header">
-                <span class="mb-0">Manage {{content.type.charAt(0).toUpperCase() + content.type.slice(1)}}</span>
+                <span class="mb-0">Manage {{metadata.type.charAt(0).toUpperCase() + metadata.type.slice(1)}}</span>
             </div>
             <div class="card-body">
-                <p>Size: {{content.size}} B</p>
-                <p>Created: {{content.created  | date: 'medium'}}</p>
-                <p>Last modified: {{content.last_modified  | date: 'medium'}}</p>
+                <p *ngIf="metadata.type!=='directory'">Size: {{metadata.size}} B</p>
+                <p>Created: {{metadata.created  | date: 'medium'}}</p>
+                <p>Last modified: {{metadata.last_modified  | date: 'medium'}}</p>
                 <div class="btn-group pull-right" role="group">
-                    <button class="btn btn-secondary" *ngIf="_sidebar.type!=='directory'"
+                    <button class="btn btn-secondary" *ngIf="metadata.type!=='directory'"
                             (click)="downloadFile()">Download
                     </button>
                     <button class="btn btn-secondary" (click)="renameFileModal.show()">Rename</button>
-                    <button class="btn btn-secondary" *ngIf="_sidebar.type!=='directory'"
+                    <button class="btn btn-secondary" *ngIf="metadata.type!=='directory'"
                             (click)="duplicateFile()">Duplicate
                     </button>
                 </div>
@@ -26,7 +26,7 @@
             </div>
         </div>
     </div>
-    <ng-container *ngIf="_sidebar.type==='notebook'">
+    <ng-container *ngIf="metadata.type==='notebook'">
         <div class="col-lg-4 fixed-width">
             <div class="card">
                 <div class="card-header">

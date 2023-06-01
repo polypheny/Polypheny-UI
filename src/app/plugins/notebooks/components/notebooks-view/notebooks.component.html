@@ -1,10 +1,10 @@
 <app-toast></app-toast>
-<ng-container *ngIf="_sidebar.isRoot">
+<ng-container *ngIf="_content.isRoot">
     <h2>Jupyter Notebooks Dashboard</h2>
 </ng-container>
 
-<ng-container *ngIf="!_sidebar.isRoot">
-    <h2 *ngIf="!_sidebar.isRoot">{{_sidebar.path}}</h2>
+<ng-container *ngIf="!_content.isRoot">
+    <h2 *ngIf="!_content.isRoot">{{_content.path}}</h2>
     <app-manage-notebook *ngIf="editNotebookSession==''; else elseEditNotebook"></app-manage-notebook>
     <ng-template #elseEditNotebook>
         <app-edit-notebook [sessionId]="editNotebookSession"></app-edit-notebook>
