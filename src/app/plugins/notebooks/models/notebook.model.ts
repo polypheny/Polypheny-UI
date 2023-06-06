@@ -1,3 +1,5 @@
+import {NotebookContent} from './notebooks-response.model';
+
 export interface Notebook {
     cells: NotebookCell[];
     metadata: NotebookMetadata;
@@ -6,12 +8,12 @@ export interface Notebook {
 }
 
 export interface NotebookMetadata {
-    kernelspec: {
+    kernelspec?: {
         display_name: string;
         language: string;
         name: string;
     };
-    language_info: {
+    language_info?: {
         codemirror_mode: {
             name: string;
             version: number;
@@ -44,4 +46,20 @@ export interface CellOutput {
         'text/html'?: Array<string>
         'image/png'?: string
     };
+}
+
+export class NotebookWrapper {
+    private nb: Notebook;
+
+    constructor(private content: NotebookContent) {
+        this.nb = content.content;
+    }
+
+    cell(i: number) {
+        return this.nb.cells[i];
+    }
+
+    get cells() {
+        return this.nb.cells;
+    }
 }

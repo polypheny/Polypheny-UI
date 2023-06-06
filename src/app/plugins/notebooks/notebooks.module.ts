@@ -9,6 +9,8 @@ import {NotebooksSidebarService} from './services/notebooks-sidebar.service';
 import { ManageNotebookComponent } from './components/notebooks-view/manage-notebook/manage-notebook.component';
 import { EditNotebookComponent } from './components/notebooks-view/edit-notebook/edit-notebook.component';
 import {NotebooksContentService} from './services/notebooks-content.service';
+import { NotebooksDashboardComponent } from './components/notebooks-view/notebooks-dashboard/notebooks-dashboard.component';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 
 
 @NgModule({
@@ -18,12 +20,14 @@ import {NotebooksContentService} from './services/notebooks-content.service';
         ComponentsModule,
 
         ModalModule.forRoot(),
+        BsDropdownModule,
     ],
     declarations: [
         NotebooksApiComponent,
         NotebooksComponent,
         ManageNotebookComponent,
-        EditNotebookComponent
+        EditNotebookComponent,
+        NotebooksDashboardComponent
     ],
     exports: [
         NotebooksApiComponent,

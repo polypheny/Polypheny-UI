@@ -1,27 +1,98 @@
-<button class="btn btn-danger" (click)="closeEdit()"> Close</button>
-<p><b>session-id:</b> {{sessionId}}</p>
-<p><b>kernel-id:</b> {{session.kernel.id}}</p>
-<p><b>kernel-status:</b> {{session.kernel.execution_state}}</p>
+<div class="row no-gutters nb-toolbar mb-2">
+    <div class="col-md-6">
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <button class="btn btn-danger mr-5" (click)="closeEdit()"> Close</button>
+            <div class="btn-group btn-group-sm mr-2" role="group" aria-label="First groupp">
+                <button type="button" class="btn btn-primary">1</button>
+                <button type="button" class="btn btn-primary">2</button>
+                <button type="button" class="btn btn-primary">3</button>
+                <button type="button" class="btn btn-primary">4</button>
+                <div class="btn-group" dropdown triggers="mouseover" #dropdownFile="bs-dropdown"
+                     (mouseleave)="dropdownFile.hide()">
+                    <button id="drop-file-btn" dropdownToggle type="button" class="btn btn-secondary dropdown-toggle"
+                            aria-controls="dropdown-menu">
+                        File
+                    </button>
+                    <div class="dropdown-menu  dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
+                        <a class="dropdown-item">
+                            <i class="fa fa-pencil"></i><span>Rename</span>
+                        </a>
+                        <a class="dropdown-item" (click)="deleteNotebookModal.show()">
+                            <i class="cui-trash"></i><span>Delete</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Second group">
+                <button type="button" class="btn btn-secondary">5</button>
+                <button type="button" class="btn btn-secondary">6</button>
+                <button type="button" class="btn btn-secondary">7</button>
+            </div>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Third group">
+                <button type="button" class="btn btn-info">8</button>
+            </div>
 
-<ng-container *ngIf="content">
-
-    <h4>Cells</h4>
-    <div *ngFor="let cell of nb.cells" class="card">
-        <div class="card-header">
-            <span><b>Type:</b> {{cell.cell_type}}</span>
-            <br>
-            <span><b>ID:</b> {{cell.id}}</span>
-
-        </div>
-        <div class="card-body">
-            <span>[{{cell.execution_count}}]</span>
-            <br>
-            <code>{{cell.source}}</code>
-        </div>
-        <div class="card-footer">
-            <code *ngFor="let output of cell.outputs">
-                {{output.text}}
-            </code>
         </div>
     </div>
+</div>
+
+
+<ng-container *ngIf="session">
+    <div class="nb-scroll">
+        <h2>{{session.path}}</h2>
+
+        <p><b>session-id:</b> {{sessionId}}</p>
+        <p><b>kernel-id:</b> {{session.kernel.id}}</p>
+        <p><b>kernel-status:</b> {{session.kernel.execution_state}}</p>
+
+        <ng-container *ngIf="nb">
+
+            <h4>Cells</h4>
+            <div *ngFor="let cell of nb.cells" class="card">
+                <div class="card-header">
+                    <span><b>Type:</b> {{cell.cell_type}}</span>
+                    <br>
+                    <span><b>ID:</b> {{cell.id}}</span>
+
+                </div>
+                <div class="card-body">
+                    <span>[{{cell.execution_count}}]</span>
+                    <br>
+                    <code>{{cell.source}}</code>
+                </div>
+                <div class="card-footer">
+                    <code *ngFor="let output of cell.outputs">
+                        {{output.text}}
+                    </code>
+                </div>
+            </div>
+        </ng-container>
+    </div>
 </ng-container>
+
+
+<div bsModal #deleteNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="deleteNotebookModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">DeleteNotebook</h4>
+                <button type="button" class="close" (click)="deleteNotebookModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>Are you sure you want to delete this notebook?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="deleteNotebookModal.hide()">Cancel</button>
+                <button type="button" class="btn btn-danger" (click)="deleteNotebook()"
+                        [disabled]="deleting">
+                    <span *ngIf="!deleting">Delete</span>
+                    <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

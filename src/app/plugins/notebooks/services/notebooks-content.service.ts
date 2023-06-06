@@ -1,9 +1,16 @@
 import {Injectable} from '@angular/core';
 import {NotebooksService} from './notebooks.service';
-import {BehaviorSubject, interval, Subject, Subscription} from 'rxjs';
-import {Content, DirectoryContent, KernelSpecs, SessionResponse} from '../models/notebooks-response.model';
+import {BehaviorSubject, forkJoin, interval, Observable, of, Subject, Subscription} from 'rxjs';
+import {
+    Content,
+    DirectoryContent, KernelSpec,
+    KernelSpecs,
+    NotebookContent,
+    SessionResponse
+} from '../models/notebooks-response.model';
 import {UrlSegment} from '@angular/router';
-import {mergeMap} from 'rxjs/operators';
+import {mergeMap, switchMap, tap} from 'rxjs/operators';
+import {Notebook} from '../models/notebook.model';
 
 @Injectable()
 export class NotebooksContentService {
@@ -20,6 +27,8 @@ export class NotebooksContentService {
 
     private _directory: DirectoryContent;
     private _metadata: Content;
+    private notebook: Notebook = null;
+    private notebookPath: string = null;
     private sessions = new BehaviorSubject<SessionResponse[]>([]);
     private kernelSpecs = new BehaviorSubject<KernelSpecs>(null);
     private invalidLocationSubject = new Subject<string>();
@@ -47,7 +56,7 @@ export class NotebooksContentService {
             })
         ).subscribe(
             res => {
-                this.updateDirectory(<DirectoryContent> res);
+                this.updateDirectory(<DirectoryContent>res);
                 this.contentChange.next();
             },
             error => this.invalidLocationSubject.next()
@@ -99,16 +108,6 @@ export class NotebooksContentService {
         return path === this._path;
     }
 
-    isValidSessionId(sessionId: string, onlyForCurrentPath = true): boolean {
-        if (sessionId?.length === 36) {
-            const session = this.sessions.getValue().find(s => s.id === sessionId);
-            if (onlyForCurrentPath) {
-                return session && session.path.startsWith(this._path);
-            }
-            return session != null;
-        }
-    }
-
     setAutoUpdate(active: boolean) {
         this.updateInterval$?.unsubscribe();
         if (active) {
@@ -122,6 +121,42 @@ export class NotebooksContentService {
 
     addSession(session: SessionResponse) {
         this.sessions.next([...this.sessions.getValue(), session]);
+    }
+
+    removeSessions(sessionIds: string[]) {
+        const newSessions = this.sessions.getValue().filter(s => !sessionIds.includes(s.id));
+        this.sessions.next(newSessions);
+    }
+
+    moveSessionsWithFile(fromPath: string, toName: string, toPath: string) {
+        const sessionsToMove = this.sessions.getValue().filter(s => s.path.startsWith(fromPath));
+        forkJoin(
+            sessionsToMove.map(s => {
+                const id = this._notebooks.getUniqueIdFromSession(s);
+                return this._notebooks.moveSession(s.id, toName + id, toPath + id);
+            })
+        ).subscribe().add(() => this.updateSessions());
+    }
+
+    getSpecifiedKernel(path: string): Observable<KernelSpec> {
+        if (path === this.notebookPath && this.notebook) {
+            return of(this.getKernelspec(this.notebook.metadata?.kernelspec?.name));
+        }
+        return this._notebooks.getContents(path, true).pipe(
+            tap((res: Content) => {
+                this.notebook = (<NotebookContent>res).content;
+                this.notebookPath = path;
+            }),
+            switchMap(() => of(this.getKernelspec(this.notebook.metadata?.kernelspec?.name)))
+        );
+    }
+
+    private getKernelspec(kernelName: string): KernelSpec {
+        return this.kernelSpecs.getValue().kernelspecs[kernelName];
+    }
+
+    getSessionsForNotebook(path: string = this.metadata.path): SessionResponse[] {
+        return this.sessions.getValue().filter(session => session.path.startsWith(path));
     }
 
     onContentChange() {
@@ -165,6 +200,7 @@ export class NotebooksContentService {
     get isRoot(): boolean {
         return this._isRoot;
     }
+
     get pathSegments(): string[] {
         return this._pathSegments;
     }

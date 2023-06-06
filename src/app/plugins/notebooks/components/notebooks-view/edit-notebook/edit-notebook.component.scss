@@ -1,1 +1,17 @@
+.nb-toolbar {
+  background: white;
+  padding: 12px 16px;
+  margin-top: -24px;
+  margin-left: -30px;
+  margin-right: -30px;
+  border-bottom: 1px solid #c8ced3;
+}
 
+.nb-scroll {
+  overflow-y: auto;
+  height: calc(100vh - 230px);
+}
+
+.dropdown-item:hover {
+  cursor: pointer;
+}

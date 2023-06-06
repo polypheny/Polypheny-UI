@@ -1,3 +1,4 @@
+<h2>{{metadata.path}}</h2>
 <div class="row">
     <div class="col-lg-4 fixed-width">
         <div class="card">
@@ -5,24 +6,25 @@
                 <span class="mb-0">Manage {{metadata.type.charAt(0).toUpperCase() + metadata.type.slice(1)}}</span>
             </div>
             <div class="card-body">
-                <p *ngIf="metadata.type!=='directory'">Size: {{metadata.size}} B</p>
+                <p *ngIf="metadata.type!=='directory'">Size: {{_util.humanFileSize(metadata.size)}}</p>
                 <p>Created: {{metadata.created  | date: 'medium'}}</p>
                 <p>Last modified: {{metadata.last_modified  | date: 'medium'}}</p>
+            </div>
+            <div class="card-footer bg-transparent">
                 <div class="btn-group pull-right" role="group">
-                    <button class="btn btn-secondary" *ngIf="metadata.type!=='directory'"
-                            (click)="downloadFile()">Download
-                    </button>
                     <button class="btn btn-secondary" (click)="renameFileModal.show()">Rename</button>
                     <button class="btn btn-secondary" *ngIf="metadata.type!=='directory'"
                             (click)="duplicateFile()">Duplicate
                     </button>
-                </div>
-                <div class="row">
-                    <button class="btn btn-danger" (click)="deleteFile()">
-                        <i class="cui-trash"></i>
+                    <button class="btn btn-secondary" *ngIf="metadata.type!=='directory'"
+                            (click)="downloadFile()"><span class="cui-cloud-download"></span>
                     </button>
                 </div>
-
+                <div class="row">
+                    <button class="btn btn-danger" (click)="deleteFile()" (mouseleave)="resetDeleteConfirm()">
+                        <i [ngClass]="{'cui-trash': !confirmingDeletion, 'fa fa-warning': confirmingDeletion}"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -35,7 +37,10 @@
                 <div class="card-body">
                     <b>Status: {{statusText}}</b>
                     <p></p>
-                    <button class="btn btn-danger" [disabled]="sessions.length == 0"
+
+                </div>
+                <div class="card-footer bg-transparent">
+                    <button class="btn btn-danger" [disabled]="sessions.length === 0"
                             (click)="terminateSessionModal.show()">
                         Shut Down
                     </button>
@@ -43,7 +48,7 @@
                         <button class="btn btn-outline-primary" (click)="connectSessionModal.show()"
                                 *ngIf="sessions.length > 0">Connect
                         </button>
-                        <button class="btn btn-primary" (click)="createKernelModal.show()">Create</button>
+                        <button class="btn btn-primary" (click)="createKernelModal.show()">Open</button>
                     </div>
                 </div>
             </div>
@@ -76,7 +81,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" (click)="renameFileModal.hide()">Close</button>
                 <button type="submit" class="btn btn-primary" (click)="renameFile()"
-                        [disabled]="!renameFileForm.valid">Create
+                        [disabled]="!renameFileForm.valid">Rename
                 </button>
             </div>
         </div>
@@ -117,9 +122,10 @@
                 <button type="button" class="btn btn-secondary" (click)="terminateSessionModal.hide()">Cancel</button>
                 <div class="btn-group pull-right" role="group">
                     <button type="submit" class="btn btn-outline-danger" (click)="terminateSession()"
-                            [disabled]="!terminateSessionForm.valid">Shut Down Selected
+                            [disabled]="!terminateSessionForm.valid || deleting">Shut Down Selected
                     </button>
-                    <button type="button" class="btn btn-danger" (click)="terminateAllSessions()">
+                    <button type="button" class="btn btn-danger" (click)="terminateAllSessions()"
+                            [disabled]="deleting">
                         Shut Down All
                     </button>
                 </div>
@@ -197,7 +203,9 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" (click)="createKernelModal.hide()">Cancel</button>
                 <button type="submit" class="btn btn-primary" (click)="create()"
-                        [disabled]="!createKernelForm.valid">Create
+                        [disabled]="!createKernelForm.valid || creating">
+                    <span *ngIf="!creating">Create</span>
+                    <span *ngIf="creating" class="spinner-border spinner-border-sm" role="status"></span>
                 </button>
             </div>
         </div>

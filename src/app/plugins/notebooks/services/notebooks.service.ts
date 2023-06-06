@@ -3,6 +3,8 @@ import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Content, FileContent, KernelResponse, KernelSpecs, SessionResponse} from '../models/notebooks-response.model';
 import {Notebook} from '../models/notebook.model';
+import * as uuid from 'uuid';
+import {forkJoin} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -24,6 +26,7 @@ export class NotebooksService {
         return this._http.get<Content>(`${this.httpUrl}/contents/` + path,
             {...this.httpOptions, ...{params: params}});
     }
+
     getContentsBase64(path: string) {
         const params = new HttpParams().append('format', 'base64');
         return this._http.get<Content>(`${this.httpUrl}/contents/` + path,
@@ -42,16 +45,37 @@ export class NotebooksService {
         return this._http.get<KernelResponse>(`${this.httpUrl}/kernels`, this.httpOptions);
     }
 
-    createSession(name: string, path: string, kernel: string) {
+    /**
+     * Creates a new session and returns it.
+     * If a session with the same path already exists and unique == false, then the existing session is returned.
+     */
+    createSession(name: string, path: string, kernel: string, unique = false) {
+        const id = unique ? '$' + uuid.v4() : '';
         const json = {
             kernel: {
                 name: kernel
             },
-            name: name,
-            path: path,
+            name: name + id,
+            path: path + id,
             type: 'notebook'
         };
         return this._http.post<SessionResponse>(`${this.httpUrl}/sessions`, json, this.httpOptions);
+    }
+
+    getPathFromSession(session: SessionResponse) {
+        return session.path.split('$', 1)[0];
+    }
+
+    getNameFromSession(session: SessionResponse) {
+        return session.name.split('$', 1)[0];
+    }
+
+    getUniqueIdFromSession(session: SessionResponse): string {
+        const split = session.name.split('$', 2);
+        if (split.length === 2) {
+            return '$' + split[1];
+        }
+        return '';
     }
 
     createFile(location: string, type: string) {
@@ -84,7 +108,19 @@ export class NotebooksService {
         return this._http.delete(`${this.httpUrl}/sessions/${sessionId}`, this.httpOptions);
     }
 
-    renameSession(sessionId: string, name: string, path: string) {
+    deleteSessions(sessionIds: string[]) {
+        return forkJoin(
+            sessionIds.map(id => this.deleteSession(id))
+        );
+    }
+
+    deleteSessionsByResponse(sessions: SessionResponse[]) {
+        return forkJoin(
+            sessions.map(s => this.deleteSession(s.id))
+        );
+    }
+
+    moveSession(sessionId: string, name: string, path: string) {
         const json = {
             id: sessionId,
             name: name,

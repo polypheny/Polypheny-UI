@@ -6,9 +6,9 @@ import {Router} from '@angular/router';
 import {ToastService} from '../../../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ModalDirective} from 'ngx-bootstrap/modal';
-import * as uuid from 'uuid';
 import {NotebooksContentService} from '../../../services/notebooks-content.service';
 import {Subscription} from 'rxjs';
+import {UtilService} from '../../../../../services/util.service';
 
 @Component({
     selector: 'app-manage-notebook',
@@ -24,6 +24,9 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     availableKernels: KernelSpec[] = [];
     selectedSession: SessionResponse;
     statusText = 'No kernel running';
+    confirmingDeletion = false;
+    creating = false;
+    deleting = false;
     renameFileForm: FormGroup;
     terminateSessionForm: FormGroup;
     connectSessionForm: FormGroup;
@@ -39,7 +42,8 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
         private _sidebar: NotebooksSidebarService,
         private _content: NotebooksContentService,
         private _notebooks: NotebooksService,
-        private _toast: ToastService,) {
+        private _toast: ToastService,
+        public _util: UtilService,) {
     }
 
     ngOnInit(): void {
@@ -49,7 +53,9 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
             this.metadata = this._content.metadata;
             this.parentPath = this._content.parentPath;
             this.directoryPath = this._content.directoryPath;
-            this.renameFileForm.patchValue({name: this.metadata.name});
+            if (!this.renameFileModal.isShown) {
+                this.renameFileForm.patchValue({name: this.metadata.name});
+            }
             this.updateSessions(this._content.onSessionsChange().getValue());
         });
 
@@ -90,6 +96,13 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     }
 
     deleteFile() {
+        if (!this.confirmingDeletion) {
+            this.confirmingDeletion = true;
+            return;
+        }
+        if (this.metadata.type === 'notebook' && this.sessions.length > 0) {
+            this.terminateAllSessions();
+        }
         this._notebooks.deleteFile(this.metadata.path).subscribe(res => {
                 const path = this.metadata.type === 'directory' ? this.parentPath : this.directoryPath;
                 this._router.navigate([this._sidebar.baseUrl].concat(path.split('/')));
@@ -98,6 +111,10 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
                 this._toast.error(err.error.message, `Could not delete ${this.metadata.path}`);
             }
         );
+    }
+
+    resetDeleteConfirm() {
+        this.confirmingDeletion = false;
     }
 
     duplicateFile() {
@@ -126,40 +143,41 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     }
 
     connect() {
-        console.log('connecting...');
         this.connectSessionModal.hide();
         this.openSession(this.connectSessionForm.value.session);
     }
 
     create() {
-        console.log('creating...');
-        this.createKernelModal.hide();
-        const id = '$' + uuid.v4(); // not session id, only for distinguishing multiple sessions for the same notebook
-        this._notebooks.createSession(this.metadata.name + id, this.metadata.path + id,
-            this.createKernelForm.value.kernel).subscribe(res => {
+        this.creating = true;
+        this._notebooks.createSession(this.metadata.name, this.metadata.path,
+            this.createKernelForm.value.kernel, true).subscribe(res => {
                 this._content.addSession(res);
                 this.openSession(res.id);
-                this._content.update();
-        },
-                err => this._toast.error(err.error.message, `Could not create session`));
+            },
+            err => this._toast.error(err.error.message, `Could not create session`)
+        ).add(() => {
+            this.creating = false;
+            this.createKernelModal.hide();
+        });
     }
 
     terminateSession() {
-        console.log('shut down...');
-        this.deleteSession(this.terminateSessionForm.value.session);
-        this.terminateSessionModal.hide();
+        const id = this.terminateSessionForm.value.session;
+        this.deleteSessions([id]);
     }
 
     terminateAllSessions() {
-        console.log('shut down all...');
         const ids = this.sessions.map(session => session.id);
-        for (const id of ids.slice(0, -1)) {
-            console.log('false:', id);
-            this.deleteSession(id, false);
-        }
-        console.log('true:', ids[ids.length-1]);
-        this.deleteSession(ids[ids.length-1], true); // only update UI after the last deletion
-        this.terminateSessionModal.hide();
+        this.deleteSessions(ids);
+    }
+
+    private deleteSessions(ids) {
+        this.deleting = true;
+        this._notebooks.deleteSessions(ids).subscribe().add(() => {
+            this._content.removeSessions(ids);
+            this.deleting = false;
+            this.terminateSessionModal.hide();
+        });
     }
 
     private download(content: string, name: string, format: string) {
@@ -187,17 +205,6 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
 
         a.click();
         URL.revokeObjectURL(url);
-    }
-
-    private deleteSession(id: string, update=true) {
-        this._notebooks.deleteSession(id).subscribe(res => {
-                if (update) {
-                    this._content.updateSessions();
-                }
-            },
-            err => {
-                this._toast.error(err.error.message, `Could not shut down ${id}`);
-            });
     }
 
     private updateSessions(sessions: SessionResponse[]) {

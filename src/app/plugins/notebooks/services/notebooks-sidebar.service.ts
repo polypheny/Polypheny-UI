@@ -23,6 +23,7 @@ export class NotebooksSidebarService {
     private movedSubject = new Subject<string>();
     private addButtonSubject = new Subject<void>();
     private uploadButtonSubject = new Subject<void>();
+    private notebookClickedSubject = new Subject<[any, any, any]>(); // tree, node, $event
 
     constructor(private _notebooks: NotebooksService,
                 private _content: NotebooksContentService,
@@ -75,11 +76,12 @@ export class NotebooksSidebarService {
         }
         const fileNodes = []; // files should be below all directories
         for (const file of this.directory.content) {
+            const routerLink = file.type === 'notebook' ? null : this._baseUrl + '/' + file.path;
             const node = new SidebarNode(
                 file.path,
                 file.name,
                 this.getIcon(file.type, file.type === 'notebook' && this._content.hasRunningKernel(file.path)),
-                this._baseUrl + '/' + file.path,
+                routerLink,
                 true,
                 true,
                 file.type === 'directory'
@@ -89,9 +91,12 @@ export class NotebooksSidebarService {
                     this.moveFile(from.data.id, to.parent.data.id + '/' + from.data.name);
                 });
                 nodes.push(node);
-            } else {
-                fileNodes.push(node);
+                continue;
+            } else if (file.type === 'notebook') {
+                node.setAction((tree, actionNode, $event) =>
+                    this.notebookClickedSubject.next([tree, actionNode, $event]));
             }
+            fileNodes.push(node);
         }
 
         this._leftSidebar.setNodes(nodes.concat(fileNodes));
@@ -115,12 +120,17 @@ export class NotebooksSidebarService {
     }
 
     moveFile(from: string, to: string) {
+        //const fromFile = this.directory.content.find(file => file.path === from);
         this._notebooks.moveFile(from, to).subscribe(res => {
             if (this._content.isCurrentPath(from)) {
                 this.movedSubject.next(to);
             } else {
-                this.updateSidebar();
+                this._content.update();
             }
+            if (this._content.hasRunningKernel(from)) {
+                this._content.moveSessionsWithFile(from, res.name, to);
+            }
+
         }, err => {
             this._toast.error(err.error.message, `Failed to move '${from}'`);
         });
@@ -134,6 +144,7 @@ export class NotebooksSidebarService {
 
     close() {
         this._content.setAutoUpdate(false);
+        this._breadcrumb.hide();
         this._leftSidebar.setTopButtons([]);
         this._leftSidebar.close();
     }
@@ -148,6 +159,10 @@ export class NotebooksSidebarService {
 
     onCurrentFileMoved() {
         return this.movedSubject;
+    }
+
+    onNotebookClicked() {
+        return this.notebookClickedSubject;
     }
 
     // Getters
