@@ -2,7 +2,7 @@
 <br>
 
 <div class="row">
-    <div class="col-lg-4 fixed-width">
+    <div class="col-lg-6 fixed-width">
         <div class="card">
             <div class="card-header">
                 <span class="mb-0">Status</span>
@@ -22,7 +22,8 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr *ngFor="let session of sessions; index as i">
+                    <tr *ngFor="let session of sessions; index as i"
+                        [ngClass]="{'preferred-session': isPreferredSession[i]}">
                         <td>{{notebookPaths[i]}}</td>
                         <td>{{session.kernel.name}}</td>
                         <td>{{session.kernel.last_activity | date: 'short'}}</td>

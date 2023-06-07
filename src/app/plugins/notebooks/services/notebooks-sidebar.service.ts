@@ -45,11 +45,12 @@ export class NotebooksSidebarService {
     }
 
     private updateBreadcrumbs() {
-        const breadcrumbs = this.pathSegments.slice(0, -1).map((segment, i) => new BreadcrumbItem(
+        const renamedSegments = ['Dashboard', ...this.pathSegments.slice(1)];
+        const breadcrumbs = renamedSegments.slice(0, -1).map((segment, i) => new BreadcrumbItem(
             segment,
             this._baseUrl + '/' + this.pathSegments.slice(0, i + 1).join('/')
         ));
-        breadcrumbs.push(new BreadcrumbItem(this.pathSegments[this.pathSegments.length - 1]));
+        breadcrumbs.push(new BreadcrumbItem(renamedSegments[renamedSegments.length - 1]));
         this._breadcrumb.setBreadcrumbs(breadcrumbs);
         this._breadcrumb.hideZoom();
     }

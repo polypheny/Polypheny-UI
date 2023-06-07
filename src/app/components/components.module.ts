@@ -39,6 +39,7 @@ import {JsonEditorComponent} from './json/json-editor.component';
 import {JsonElemComponent} from './json/json-elem/json-elem.component';
 import {DataGraphComponent} from './data-view/data-graph/data-graph.component';
 import {DatesPipeModule} from './data-view/shared-module';
+import { LoadingScreenComponent } from './loading-screen/loading-screen.component';
 
 //import 'hammerjs';
 
@@ -83,7 +84,8 @@ import {DatesPipeModule} from './data-view/shared-module';
         DeleteConfirmComponent,
         ExpandableTextComponent,
         JsonTextComponent,
-        JsonElemComponent
+        JsonElemComponent,
+        LoadingScreenComponent
     ],
     exports: [
         BreadcrumbComponent,
@@ -100,7 +102,8 @@ import {DatesPipeModule} from './data-view/shared-module';
         InputComponent,
         JsonEditorComponent,
         EditorComponent,
-        DeleteConfirmComponent
+        DeleteConfirmComponent,
+        LoadingScreenComponent
     ]
 })
 export class ComponentsModule {

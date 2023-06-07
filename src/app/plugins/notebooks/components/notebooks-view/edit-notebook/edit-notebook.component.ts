@@ -58,6 +58,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                     this.closeEdit();
                     return;
                 }
+                this._content.setPreferredSessionId(this.path, this.sessionId);
                 this.loadNotebook();
                 this.connectToKernel();
             }, err => {

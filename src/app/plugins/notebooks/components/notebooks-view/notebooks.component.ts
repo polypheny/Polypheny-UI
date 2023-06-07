@@ -10,6 +10,7 @@ import {EMPTY, Observable, of, Subscription} from 'rxjs';
 import {NotebooksSidebarService} from '../../services/notebooks-sidebar.service';
 import {NotebooksContentService} from '../../services/notebooks-content.service';
 import {KernelSpec, KernelSpecs, SessionResponse} from '../../models/notebooks-response.model';
+import {LoadingScreenService} from '../../../../components/loading-screen/loading-screen.service';
 
 @Component({
     selector: 'app-notebooks',
@@ -39,7 +40,8 @@ export class NotebooksComponent implements OnInit, OnDestroy {
         public _sidebar: NotebooksSidebarService,
         public _content: NotebooksContentService,
         private _toast: ToastService,
-        private _settings: WebuiSettingsService) {
+        private _settings: WebuiSettingsService,
+        private _loading: LoadingScreenService) {
     }
 
     ngOnInit(): void {
@@ -135,6 +137,13 @@ export class NotebooksComponent implements OnInit, OnDestroy {
         const sessions = this._content.getSessionsForNotebook(path);
 
         if (sessions.length > 0) {
+
+            const preferredId = this._content.getPreferredSessionId(path);
+            if (sessions.find(s => s.id === preferredId)) {
+                // open last used session
+                this.openSession(preferredId, path);
+                return;
+            }
             // kernel chooser modal (with connect ability)
             this.createSessionForm.patchValue({
                 name: name,
@@ -143,9 +152,10 @@ export class NotebooksComponent implements OnInit, OnDestroy {
                 session: sessions[0].id,
                 canConnect: true
             });
+            this.selectedSession = sessions[0];
             this.createSessionModal.show();
         } else {
-            this.loading = true;
+            this._loading.show();
 
             this._content.getSpecifiedKernel(path).pipe(
                 mergeMap(res => {
@@ -153,7 +163,8 @@ export class NotebooksComponent implements OnInit, OnDestroy {
                             console.log('kernel:', res.name);
                             return this.startAndOpenNotebook(name, path, res.name);
                         }
-                        this.loading = false;
+
+                        this._loading.hide();
                         console.log('no kernel specified');
                         // kernel chooser modal (without connect ability)
                         this.createSessionForm.patchValue({
@@ -173,7 +184,7 @@ export class NotebooksComponent implements OnInit, OnDestroy {
                     this._toast.error('Cannot open Notebook. The file might be corrupted.');
                     this.openManagePage(path);
                 }
-            ).add(() => this.loading = false);
+            ).add(() => this._loading.hide());
         }
     }
 

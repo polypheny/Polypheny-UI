@@ -34,6 +34,8 @@ export class NotebooksContentService {
     private invalidLocationSubject = new Subject<string>();
     private updateInterval$: Subscription;
 
+    private preferredSessions: Map<string, string> = new Map<string, string>();
+
     constructor(private _notebooks: NotebooksService,) {
         this.updateAvailableKernels();
         this.updateSessions();
@@ -157,6 +159,18 @@ export class NotebooksContentService {
 
     getSessionsForNotebook(path: string = this.metadata.path): SessionResponse[] {
         return this.sessions.getValue().filter(session => session.path.startsWith(path));
+    }
+
+    /**
+     * Returns the sessionId for the given notebook that was last used.
+     * It is not guaranteed that the session still exists.
+     */
+    getPreferredSessionId(path: string): string {
+        return this.preferredSessions.get(path);
+    }
+
+    setPreferredSessionId(path: string, session: string) {
+        this.preferredSessions.set(path, session);
     }
 
     onContentChange() {

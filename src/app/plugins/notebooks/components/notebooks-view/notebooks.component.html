@@ -1,9 +1,6 @@
 <app-toast></app-toast>
-<div class="loading-spinner-overlay" *ngIf="loading">
-    <div class="spinner-grow text-primary loading-spinner" role="status">
-        <span class="sr-only">Loading...</span>
-    </div>
-</div>
+<app-loading-screen></app-loading-screen>
+
 <app-notebooks-dashboard *ngIf="_content.isRoot"></app-notebooks-dashboard>
 
 <ng-container *ngIf="!_content.isRoot">
@@ -112,7 +109,11 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Open Notebook</h4>
+                <h4 class="modal-title" *ngIf="createSessionForm.get('canConnect').value; else elseDefaultKernel">
+                    Open Notebook</h4>
+                <ng-template #elseDefaultKernel>
+                    <h4 class="modal-title" >Select Default Kernel</h4>
+                </ng-template>
                 <button type="button" class="close" (click)="createSessionModal.hide()" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>

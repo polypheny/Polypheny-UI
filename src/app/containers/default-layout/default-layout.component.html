@@ -52,20 +52,8 @@
             </div>
         </li>
 
-        <li class="nav-item px-3">
-            <a [routerLink]="['/views/adapters']" class="nav-link" routerLinkActive="active">
-                <i class="fa fa-database"></i><span class="d-md-down-none">Adapters</span>
-            </a>
-        </li>
-
-        <li class="nav-item px-3">
-            <a [routerLink]="['/views/queryInterfaces']" class="nav-link" routerLinkActive="active">
-                <i class="fa fa-exchange"></i><span class="d-md-down-none">Interfaces</span>
-            </a>
-        </li>
-
-        <li class="nav-item" dropdown triggers="mouseover" placement="bottom left" #dropdown="bs-dropdown"
-            (mouseleave)="dropdown.hide()">
+        <li class="nav-item" dropdown triggers="mouseover" placement="bottom left" #dropdownNb="bs-dropdown"
+            (mouseleave)="dropdownNb.hide()">
             <a class="nav-link dropdown-toggle py-2 px-3" dropdownToggle [routerLink]="['/views/notebooks/ui/notebooks']">
                 <i class="fa fa-book"></i><span class="d-md-down-none">Notebooks</span>
             </a>
@@ -79,6 +67,20 @@
                 </a>
             </div>
         </li>
+
+        <li class="nav-item px-3">
+            <a [routerLink]="['/views/adapters']" class="nav-link" routerLinkActive="active">
+                <i class="fa fa-database"></i><span class="d-md-down-none">Adapters</span>
+            </a>
+        </li>
+
+        <li class="nav-item px-3">
+            <a [routerLink]="['/views/queryInterfaces']" class="nav-link" routerLinkActive="active">
+                <i class="fa fa-exchange"></i><span class="d-md-down-none">Interfaces</span>
+            </a>
+        </li>
+
+
 
     </ul>
     <ul class="nav navbar-nav ml-auto"></ul>

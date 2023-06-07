@@ -17,6 +17,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     private subscriptions = new Subscription();
     sessions: SessionResponse[] = [];
     notebookPaths: string[] = [];
+    isPreferredSession: boolean[] = [];
     deleting = false;
 
     constructor(private _notebooks: NotebooksService,
@@ -50,7 +51,12 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
                 return a.path > b.path ? 1 : 0;
             }
         });
-        this.notebookPaths = this.sessions.map(s => this._notebooks.getPathFromSession(s).split('notebooks/', 2)[1]);
+        const paths = this.sessions.map(s => this._notebooks.getPathFromSession(s));
+        this.notebookPaths = paths.map(p => p.replace('notebooks/', '')
+            .replace(/\//g, '/\u200B')); // zero-width space => allow soft line breaks after '/'
+        this.isPreferredSession = this.sessions.map((s, i) =>
+            this._content.getPreferredSessionId(paths[i]) === s.id
+        );
     }
 
 }
