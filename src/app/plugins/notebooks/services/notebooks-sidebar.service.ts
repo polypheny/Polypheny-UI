@@ -55,7 +55,10 @@ export class NotebooksSidebarService {
         this._breadcrumb.hideZoom();
     }
 
-    private updateSidebar() {
+    /**
+     * Update the sidebar and breadcrumb based on the current state of the NotebooksContentService.
+     */
+    updateSidebar() {
         if (!this.directoryPath) {
             return;
         }
@@ -81,7 +84,10 @@ export class NotebooksSidebarService {
             const node = new SidebarNode(
                 file.path,
                 file.name,
-                this.getIcon(file.type, file.type === 'notebook' && this._content.hasRunningKernel(file.path)),
+                this.getIcon(file.type,
+                    file.type === 'notebook' && this._content.hasRunningKernel(file.path),
+                    file.path === this._leftSidebar.selectedNodeId,
+                    this._content.getPreferredSessionId(file.path) != null),
                 routerLink,
                 true,
                 true,
@@ -109,14 +115,19 @@ export class NotebooksSidebarService {
         this._leftSidebar.setTopButtons(buttons);
     }
 
-    private getIcon(type: string, isActive = false) {
+    private getIcon(type: string, isActive = false, isSelected = false, hasPreferred = false) {
         switch (type) {
             case 'file':
                 return 'fa fa-file';
             case 'directory':
                 return 'fa fa-folder';
             case 'notebook':
-                return isActive ? 'fa fa-book text-danger' : 'fa fa-book';
+                if (isSelected) {
+                    return 'fa fa-book';
+                }
+                return isActive ?
+                    (hasPreferred ? 'fa fa-book text-success' : 'fa fa-book text-danger') :
+                    'fa fa-book';
         }
     }
 

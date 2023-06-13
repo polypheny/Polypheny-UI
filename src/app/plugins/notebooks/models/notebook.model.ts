@@ -1,4 +1,4 @@
-import {NotebookContent} from './notebooks-response.model';
+import {KernelData, KernelDisplayMetadata} from './kernel-response.model';
 
 export interface Notebook {
     cells: NotebookCell[];
@@ -29,37 +29,41 @@ export interface NotebookMetadata {
 }
 
 export interface NotebookCell {
-    cell_type: string;
+    cell_type: 'code' | 'markdown' | 'raw';
     id: string;
     metadata: {};
-    source: string[];
+    source: string[] | string;
     execution_count: number;
-    outputs?: CellOutput[];
+    outputs?: (CellStreamOutput | CellDisplayDataOutput | CellExecuteResultOutput | CellErrorOutput)[];
 }
 
 export interface CellOutput {
-    name: string;
     output_type: string;
-    text?: string[];
-    data?: {
-        'text/plain': Array<string>
-        'text/html'?: Array<string>
-        'image/png'?: string
+}
+
+export interface CellStreamOutput extends CellOutput{
+    name: 'stdout' | 'stderr';
+    text: string[] | string;
+}
+
+export interface CellDisplayDataOutput extends CellOutput{
+    data: KernelData;
+    metadata: KernelDisplayMetadata;
+    transient?: {
+        display_id: string
     };
 }
 
-export class NotebookWrapper {
-    private nb: Notebook;
+export interface CellExecuteResultOutput extends CellOutput{
+    execution_count: number;
+    data: KernelData;
+    metadata: KernelDisplayMetadata;
+    transient?: { [key: string]: string };
 
-    constructor(private content: NotebookContent) {
-        this.nb = content.content;
-    }
+}
 
-    cell(i: number) {
-        return this.nb.cells[i];
-    }
-
-    get cells() {
-        return this.nb.cells;
-    }
+export interface CellErrorOutput extends CellOutput{
+    ename: string;
+    evalue: string;
+    traceback: string[];
 }

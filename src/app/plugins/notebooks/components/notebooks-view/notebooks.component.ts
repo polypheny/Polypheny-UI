@@ -108,15 +108,13 @@ export class NotebooksComponent implements OnInit, OnDestroy {
             // Variables that cannot be set directly by the user:
             name: new FormControl('', [Validators.required]),
             path: new FormControl('', [Validators.required]),
-            canConnect: new FormControl(true)
+            canConnect: new FormControl(true),
+            canManage: new FormControl(true)
         });
         this.createSessionForm.get('isNew').valueChanges.subscribe((isNew: boolean) => {
-            console.log('isNew?', isNew);
             if (isNew) {
-                console.log('kernel val:', this.createSessionForm.value.kernel);
                 this.createSessionForm.patchValue({kernel: this.availableKernels[0].name});
             } else {
-                console.log('session val:', this.createSessionForm.value.session);
                 this.createSessionForm.patchValue({session: this.createSessionForm.value.sessions[0].id});
             }
         });
@@ -132,28 +130,19 @@ export class NotebooksComponent implements OnInit, OnDestroy {
      * A notebook in the sidebar was clicked
      */
     private notebookClicked(node) {
+        this._sidebar.updateSidebar();
         const path = node.data.id;
         const name = node.data.name;
         const sessions = this._content.getSessionsForNotebook(path);
 
         if (sessions.length > 0) {
-
             const preferredId = this._content.getPreferredSessionId(path);
             if (sessions.find(s => s.id === preferredId)) {
                 // open last used session
                 this.openSession(preferredId, path);
                 return;
             }
-            // kernel chooser modal (with connect ability)
-            this.createSessionForm.patchValue({
-                name: name,
-                path: path,
-                sessions: sessions,
-                session: sessions[0].id,
-                canConnect: true
-            });
-            this.selectedSession = sessions[0];
-            this.createSessionModal.show();
+            this.openConnectOrCreateSessionModal(name, path, sessions);
         } else {
             this._loading.show();
 
@@ -166,15 +155,7 @@ export class NotebooksComponent implements OnInit, OnDestroy {
 
                         this._loading.hide();
                         console.log('no kernel specified');
-                        // kernel chooser modal (without connect ability)
-                        this.createSessionForm.patchValue({
-                            name: name,
-                            path: path,
-                            kernel: this.availableKernels[0].name,
-                            isNew: true,
-                            canConnect: false
-                        });
-                        this.createSessionModal.show();
+                        this.openCreateSessionModal(name, path);
                         return EMPTY;
                     }
                 )
@@ -186,6 +167,32 @@ export class NotebooksComponent implements OnInit, OnDestroy {
                 }
             ).add(() => this._loading.hide());
         }
+    }
+
+    private openConnectOrCreateSessionModal(name: string, path: string, sessions: SessionResponse[], canManage = true) {
+        this.createSessionForm.patchValue({
+            name: name,
+            path: path,
+            sessions: sessions,
+            session: sessions[0].id,
+            canConnect: true,
+            canManage: canManage
+        });
+        this.selectedSession = sessions[0];
+        this.createSessionModal.show();
+    }
+
+    private openCreateSessionModal(name: string, path: string, canManage = true) {
+        this.createSessionForm.patchValue({
+            name: name,
+            path: path,
+            kernel: this.availableKernels[0].name,
+            isNew: true,
+            canConnect: false,
+            canManage: canManage
+        });
+        this.createSessionModal.show();
+
     }
 
     /**
@@ -211,9 +218,16 @@ export class NotebooksComponent implements OnInit, OnDestroy {
         this.createSessionModal.hide();
     }
 
-    private updateSessionId(id: string, path: string) {
-        this.editNotebookSession = (id?.length === 36) ? id : '';
+    openChangeSessionModal(name: string, path: string) {
+        const sessions = this._content.getSessionsForNotebook(path);
+
+        if (sessions.length > 0) {
+            this.openConnectOrCreateSessionModal(name, path, sessions, false);
+        } else {
+            this.openCreateSessionModal(name, path, false);
+        }
     }
+
 
     createFile() {
         if (!this.createFileForm.valid) {

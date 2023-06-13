@@ -28,7 +28,7 @@ export interface KernelSpecs {
 export interface KernelSpec {
     name: string;
     spec: {
-        argv: Array<string>;
+        argv: string[];
         env: {};
         display_name: string;
         language: string;

@@ -51,6 +51,14 @@ export class EditorComponent implements OnInit, AfterViewInit {
         this.codeEditor.resize();
     }
 
+    blur() {
+        this.codeEditor.blur();
+    }
+
+    focus() {
+        this.codeEditor.focus();
+    }
+
     initEditor() {
         const element = this.codeEditorElmRef.nativeElement;
         const editorOptions: Partial<ace.Ace.EditorOptions> = {

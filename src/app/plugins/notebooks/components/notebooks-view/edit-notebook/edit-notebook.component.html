@@ -1,74 +1,154 @@
-<div class="row no-gutters nb-toolbar mb-2">
-    <div class="col-md-6">
+<div class="row no-gutters nb-toolbar">
+    <div class="col-md-9">
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-            <button class="btn btn-danger mr-5" (click)="closeEdit()"> Close</button>
-            <div class="btn-group btn-group-sm mr-2" role="group" aria-label="First groupp">
-                <button type="button" class="btn btn-primary">1</button>
-                <button type="button" class="btn btn-primary">2</button>
-                <button type="button" class="btn btn-primary">3</button>
-                <button type="button" class="btn btn-primary">4</button>
+            <button class="btn btn-danger mr-4" (click)="closeEdit()"> Close</button>
+            <div class="btn-group btn-group-sm mr-4" role="group" aria-label="Save">
+                <button type="button" class="btn btn-primary" (click)="uploadNotebook()"
+                        onclick="this.blur();" tooltip="save notebook" container="body">
+                    <i class="fa fa-save"></i>
+                </button>
+            </div>
+
+            <div class="btn-group btn-group-sm mr-2" role="group" aria-label="File Run Kernel">
                 <div class="btn-group" dropdown triggers="mouseover" #dropdownFile="bs-dropdown"
                      (mouseleave)="dropdownFile.hide()">
-                    <button id="drop-file-btn" dropdownToggle type="button" class="btn btn-secondary dropdown-toggle"
-                            aria-controls="dropdown-menu">
+                    <button id="drop-file-btn" dropdownToggle type="button" class="btn btn-light dropdown-toggle"
+                            aria-controls="dropdown-menu" onclick="this.blur();">
                         File
                     </button>
                     <div class="dropdown-menu  dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
-                        <a class="dropdown-item">
-                            <i class="fa fa-pencil"></i><span>Rename</span>
+                        <a class="dropdown-item" (click)="renameNotebookModal.show()">
+                            <span>Rename</span>
+                        </a>
+                        <a class="dropdown-item" (click)="duplicateNotebook()">
+                            <span>Duplicate</span>
+                        </a>
+                        <a class="dropdown-item" (click)="uploadNotebook()">
+                            <span>Save</span>
                         </a>
                         <a class="dropdown-item" (click)="deleteNotebookModal.show()">
-                            <i class="cui-trash"></i><span>Delete</span>
+                            <span>Delete</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="btn-group" dropdown triggers="mouseover" #dropdownRun="bs-dropdown"
+                     (mouseleave)="dropdownRun.hide()">
+                    <button id="drop-run-btn" dropdownToggle type="button" class="btn btn-light dropdown-toggle"
+                            aria-controls="dropdown-menu" onclick="this.blur();">
+                        Run
+                    </button>
+                    <div class="dropdown-menu  dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
+                        <a class="dropdown-item" (click)="executeSelected()">
+                            <span>Run Selected Cell</span>
+                        </a>
+                        <a class="dropdown-item" (click)="executeAll()">
+                            <span>Run All Cells</span>
+                        </a>
+                        <a class="dropdown-item" (click)="executeAboveSelected()">
+                            <span>Run All Above Selected Cell</span>
+                        </a>
+                        <a class="dropdown-item" (click)="executeSelectedAndBelow()">
+                            <span>Run Selected Cell and All Below</span>
+                        </a>
+                        <a class="dropdown-item" (click)="renderMdCells()">
+                            <span>Render All Markdown Cells</span>
+                        </a>
+                        <a class="dropdown-item" (click)="clearSelectedOutput()">
+                            <span>Clear Output</span>
+                        </a>
+                        <a class="dropdown-item" (click)="clearAllOutputs()">
+                            <span>Clear All Outputs</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="btn-group" dropdown triggers="mouseover" #dropdownKernel="bs-dropdown"
+                     (mouseleave)="dropdownKernel.hide()">
+                    <button id="drop-kernel-btn" dropdownToggle type="button" class="btn btn-light dropdown-toggle"
+                            aria-controls="dropdown-menu" onclick="this.blur();">
+                        Kernel
+                    </button>
+                    <div class="dropdown-menu  dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
+                        <a class="dropdown-item" (click)="interruptKernel()">
+                            <span>Interrupt Kernel</span>
+                        </a>
+                        <a class="dropdown-item" (click)="requestRestart(false)">
+                            <span>Restart Kernel</span>
+                        </a>
+                        <a class="dropdown-item" (click)="requestRestart(true)">
+                            <span>Restart Kernel and Run All Cells</span>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Second group">
-                <button type="button" class="btn btn-secondary">5</button>
-                <button type="button" class="btn btn-secondary">6</button>
-                <button type="button" class="btn btn-secondary">7</button>
+
+            <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Execution">
+                <button type="button" class="btn btn-primary" (click)="executeSelected()"
+                        onclick="this.blur();" tooltip="run selected cell" container="body">
+                    <i class="fa fa-play"></i>
+                </button>
+                <button type="button" class="btn btn-primary" (click)="interruptKernel()"
+                        onclick="this.blur();" tooltip="interrupt" container="body">
+                    <i class="fa fa-stop"></i>
+                </button>
+                <button type="button" class="btn btn-primary" (click)="requestRestart(true)"
+                        onclick="this.blur();" tooltip="restart & run all" container="body">
+                    <i class="fa fa-forward"></i>
+                </button>
             </div>
-            <div class="btn-group btn-group-sm" role="group" aria-label="Third group">
-                <button type="button" class="btn btn-info">8</button>
-            </div>
+            <!--<select class="form-select mr-5 px-1" aria-label="Select Cell Type"-->
+            <select class="form-select btn pull-right mr-1 border bg-white" aria-label="Select Cell Type"
+                    (change)="onTypeChange($event)"
+                    [(ngModel)]="selectedCellType">
+                <option value="code">Code</option>
+                <option value="markdown">Markdown</option>
+                <option value="poly">Polypheny</option>
+                <option value="raw">Raw</option>
+            </select>
 
         </div>
+    </div>
+    <div class="col-md-3 text-right">
+        <button type="button" class="btn btn-light" style="white-space: nowrap"
+                (click)="openChangeSessionModal.emit({name: name, path: path})">
+            <span class="mr-2">{{kernelSpec?.spec?.display_name || 'No Kernel'}}</span>
+            <span class="badge badge-pill badge-primary"
+                  [ngClass]="{'badge-success': nb?.kernelStatus === 'idle',
+                              'badge-danger': !nb || nb?.kernelStatus === 'unknown',
+                              'badge-primary': nb?.kernelStatus === 'busy',
+                              'badge-secondary': nb?.kernelStatus === 'starting'}">
+                {{nb?.kernelStatus || 'unknown'}}
+            </span>
+        </button>
     </div>
 </div>
 
 
-<ng-container *ngIf="session">
-    <div class="nb-scroll">
-        <h2>{{session.path}}</h2>
-
-        <p><b>session-id:</b> {{sessionId}}</p>
-        <p><b>kernel-id:</b> {{session.kernel.id}}</p>
-        <p><b>kernel-status:</b> {{session.kernel.execution_state}}</p>
-
+<div class="nb-scroll" *ngIf="session" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
+    <h1 class="nb-title">{{name}}</h1>
+    <div class="nb-background mt-4 mb-4 pt-4">
         <ng-container *ngIf="nb">
-
-            <h4>Cells</h4>
-            <div *ngFor="let cell of nb.cells" class="card">
-                <div class="card-header">
-                    <span><b>Type:</b> {{cell.cell_type}}</span>
-                    <br>
-                    <span><b>ID:</b> {{cell.id}}</span>
-
-                </div>
-                <div class="card-body">
-                    <span>[{{cell.execution_count}}]</span>
-                    <br>
-                    <code>{{cell.source}}</code>
-                </div>
-                <div class="card-footer">
-                    <code *ngFor="let output of cell.outputs">
-                        {{output.text}}
-                    </code>
+            <div cdkDropList class="drop-list" (cdkDropListDropped)="drop($event)">
+                <div class="drop-box" cdkDrag cdkDragLockAxis="y"
+                     *ngFor="let cell of nb.cells; trackBy:identify">
+                    <app-nb-cell #nbCell
+                                 [cell]="cell"
+                                 [isFocused]="cell.id === selectedCell.id"
+                                 [isExecuting]="busyCellIds.has(cell.id)"
+                                 [(mode)]="this.mode"
+                                 (execute)="this.nb.executeCell($event)"
+                                 (insert)="insertCell(cell.id, $event)"
+                                 (delete)="deleteCell($event)"
+                                 (selected)="selectCell($event)">
+                        <div class="nb-drag-handle" cdkDragHandle></div>
+                    </app-nb-cell>
                 </div>
             </div>
+
         </ng-container>
     </div>
-</ng-container>
+</div>
 
 
 <div bsModal #deleteNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
@@ -76,7 +156,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">DeleteNotebook</h4>
+                <h4 class="modal-title">Delete Notebook</h4>
                 <button type="button" class="close" (click)="deleteNotebookModal.hide()" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -91,6 +171,93 @@
                         [disabled]="deleting">
                     <span *ngIf="!deleting">Delete</span>
                     <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #overwriteNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="deleteNotebookModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Notebook Changed</h4>
+                <button type="button" class="close" (click)="overwriteNotebookModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>There is a conflict between this version of the notebook and the one stored on disk.
+                    Are you sure you want to overwrite it with your version? Alternatively, you can discard your changes
+                    and revert to the version on disk.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="overwriteNotebookModal.hide()">Cancel</button>
+                <button type="button" class="btn btn-secondary" (click)="revertNotebook()" [disabled]="overwriting">
+                    <span *ngIf="!overwriting">Revert</span>
+                    <span *ngIf="overwriting" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+                <button type="button" class="btn btn-danger" (click)="overwriteNotebook()"
+                        [disabled]="overwriting">
+                    <span *ngIf="!overwriting">Overwrite</span>
+                    <span *ngIf="overwriting" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #restartKernelModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="restartKernelModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Restart Kernel</h4>
+                <button type="button" class="close" (click)="restartKernelModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>Are you sure you want to restart the kernel? All variables will be lost.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="restartKernelModal.hide()">Cancel</button>
+                <button type="button" class="btn btn-danger" (click)="restartKernel()"
+                        [disabled]="deleting">Restart
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #renameNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="renameFileModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Rename File</h4>
+                <button type="button" class="close" (click)="renameNotebookModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form [formGroup]="renameNotebookForm" autocomplete="off" (submit)="rename()">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label for="renameFile-name" class="input-group-text">Name</label>
+                        </div>
+                        <input type="text" id="renameFile-name" autocomplete="off" class="form-control col-sm-10"
+                               formControlName="name">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="renameNotebookModal.hide()">Close</button>
+                <button type="submit" class="btn btn-primary" (click)="rename()"
+                        [disabled]="!renameNotebookForm.valid">Rename
                 </button>
             </div>
         </div>

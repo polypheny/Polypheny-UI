@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {Content, FileContent, KernelResponse, KernelSpecs, SessionResponse} from '../models/notebooks-response.model';
+import {Content, KernelResponse, KernelSpecs, SessionResponse} from '../models/notebooks-response.model';
 import {Notebook} from '../models/notebook.model';
 import * as uuid from 'uuid';
 import {forkJoin} from 'rxjs';

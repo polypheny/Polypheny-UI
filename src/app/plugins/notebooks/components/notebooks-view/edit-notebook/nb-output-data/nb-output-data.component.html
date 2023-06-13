@@ -1,0 +1,22 @@
+<ng-container *ngIf="data['image/png'];else elseHtml">
+    <span>i'm an image!</span>
+    <div class="nb-image-wrapper">
+        <img class="nb-image" src="{{'data:image/png;base64,'+ data['image/png']}}" alt="{{data['text/plain']}}" />
+    </div>
+</ng-container>
+<ng-template #elseHtml>
+    <ng-container *ngIf="data['text/html'];else elseJson">
+        <div class="table table-hover table-striped table-borderless"
+             [innerHTML]="data['text/html']"></div>
+    </ng-container>
+</ng-template>
+<ng-template #elseJson>
+    <ng-container *ngIf="data['application/json'];else elsePlain">
+        <ngx-json-viewer [json]="data['application/json']" [expanded]="false"></ngx-json-viewer>
+    </ng-container>
+</ng-template>
+<ng-template #elsePlain>
+    <ng-container *ngIf="data['text/plain']">
+        <pre class="nb-plaintext">{{data['text/plain']}}</pre>
+    </ng-container>
+</ng-template>

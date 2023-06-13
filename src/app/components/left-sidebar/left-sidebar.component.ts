@@ -35,6 +35,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
             actionMapping: {
                 mouse: {
                     click: (tree, node, $event) => {
+                        _sidebar.selectedNodeId = node.data.id;
                         if (node.data.action !== null) {
                             node.data.action(tree, node, $event);
                         }

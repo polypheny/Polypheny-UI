@@ -1,0 +1,19 @@
+
+
+.nb-image {
+  max-width: 100%;
+}
+
+table.dataframe::ng-deep {
+  border-collapse: collapse;
+  border: none;
+  background: red;
+}
+
+table.dataframe thead {
+  border-bottom: 1px solid black;
+}
+
+.nb-plaintext {
+  white-space: pre-line;
+}

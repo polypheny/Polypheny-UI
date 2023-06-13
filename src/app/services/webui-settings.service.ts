@@ -41,6 +41,8 @@ export class WebuiSettingsService {
             'http://' + this.host + ':' + localStorage.getItem('webUI.port') + '/notebooks');
         this.connections.set('notebooks.socket',
             'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/notebooks/webSocket');
+        this.connections.set('notebooks.file',
+            'http://' + this.host + ':' + localStorage.getItem('webUI.port') + '/notebooks/file');
     }
 
     public getConnection(key: string) {

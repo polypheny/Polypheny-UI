@@ -10,7 +10,6 @@ import {
 } from '../models/notebooks-response.model';
 import {UrlSegment} from '@angular/router';
 import {mergeMap, switchMap, tap} from 'rxjs/operators';
-import {Notebook} from '../models/notebook.model';
 
 @Injectable()
 export class NotebooksContentService {
@@ -27,8 +26,7 @@ export class NotebooksContentService {
 
     private _directory: DirectoryContent;
     private _metadata: Content;
-    private notebook: Notebook = null;
-    private notebookPath: string = null;
+    private cachedNb: NotebookContent = null;
     private sessions = new BehaviorSubject<SessionResponse[]>([]);
     private kernelSpecs = new BehaviorSubject<KernelSpecs>(null);
     private invalidLocationSubject = new Subject<string>();
@@ -132,28 +130,70 @@ export class NotebooksContentService {
 
     moveSessionsWithFile(fromPath: string, toName: string, toPath: string) {
         const sessionsToMove = this.sessions.getValue().filter(s => s.path.startsWith(fromPath));
+        const preferredId = this.preferredSessions.get(fromPath);
+        this.preferredSessions.delete(fromPath);
         forkJoin(
             sessionsToMove.map(s => {
-                const id = this._notebooks.getUniqueIdFromSession(s);
-                return this._notebooks.moveSession(s.id, toName + id, toPath + id);
+                const uid = this._notebooks.getUniqueIdFromSession(s);
+                if (preferredId === s.id) {
+                    this.preferredSessions.set(toPath, s.id);
+                }
+                return this._notebooks.moveSession(s.id, toName + uid, toPath + uid);
             })
         ).subscribe().add(() => this.updateSessions());
     }
 
+    /**
+     * Observable that can be used to find out which kernel is specified inside a notebook file.
+     * If not yet done, the notebook content must first be retrieved.
+     */
     getSpecifiedKernel(path: string): Observable<KernelSpec> {
-        if (path === this.notebookPath && this.notebook) {
-            return of(this.getKernelspec(this.notebook.metadata?.kernelspec?.name));
+        if (path === this.cachedNb?.path && this.cachedNbIsFresh()) {
+            return of(this.getKernelspec(this.cachedNb.content.metadata?.kernelspec?.name));
         }
         return this._notebooks.getContents(path, true).pipe(
             tap((res: Content) => {
-                this.notebook = (<NotebookContent>res).content;
-                this.notebookPath = path;
+                this.cacheNb(<NotebookContent>res);
             }),
-            switchMap(() => of(this.getKernelspec(this.notebook.metadata?.kernelspec?.name)))
+            switchMap(() => of(this.getKernelspec(this.cachedNb.content.metadata?.kernelspec?.name)))
         );
     }
 
-    private getKernelspec(kernelName: string): KernelSpec {
+    getNotebookContent(path: string): Observable<NotebookContent> {
+        if (path === this.cachedNb?.path && this.cachedNbIsFresh()) {
+            console.log('return cached');
+            return of(this.cachedNb);
+        }
+        return this._notebooks.getContents(path, true).pipe(
+            tap((res: Content) => {
+                console.log('return new');
+                this.cacheNb(<NotebookContent>res);
+            }),
+            switchMap(() => of(this.cachedNb))
+        );
+    }
+
+    updateCachedModifiedTime(path: string, lastModified: string) {
+        if (path === this.cachedNb?.path) {
+            this.cachedNb.last_modified = lastModified;
+        }
+    }
+
+    private cacheNb(nb: NotebookContent) {
+        if (nb.type !== 'notebook') {
+            this.cachedNb = null;
+        }
+        this.cachedNb = nb;
+    }
+
+    private cachedNbIsFresh(): boolean {
+        return this._directory.content.some(file => {
+            return file.path === this.cachedNb?.path &&
+                file.last_modified === this.cachedNb.last_modified;
+        });
+    }
+
+    getKernelspec(kernelName: string): KernelSpec {
         return this.kernelSpecs.getValue().kernelspecs[kernelName];
     }
 
@@ -169,8 +209,9 @@ export class NotebooksContentService {
         return this.preferredSessions.get(path);
     }
 
-    setPreferredSessionId(path: string, session: string) {
-        this.preferredSessions.set(path, session);
+    setPreferredSessionId(path: string, sessionId: string) {
+        this.preferredSessions.set(path, sessionId);
+        this.updateSessions();
     }
 
     onContentChange() {

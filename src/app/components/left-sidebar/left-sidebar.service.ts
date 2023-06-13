@@ -29,15 +29,21 @@ export class LeftSidebarService {
         private _crud: CrudService,
         private _breadcrumb: BreadcrumbService
     ) {
+        this.nodes.subscribe(nodes => {
+            if (this.selectedNodeId && !nodes.some(node => node.id === this.selectedNodeId))  {
+                this.selectedNodeId = null;
+            }
+        });
     }
 
-    nodes: BehaviorSubject<Object[]> = new BehaviorSubject<Object[]>([]);
+    nodes: BehaviorSubject<SidebarNode[]> = new BehaviorSubject<SidebarNode[]>([]);
     error: BehaviorSubject<string> = new BehaviorSubject<string>(null);
     //node that should be set inactive:
     private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
     private resetSubject = new BehaviorSubject<boolean>(false);
     private topButtonSubject = new BehaviorSubject<SidebarButton[]>([]);
     schemaType: string;
+    selectedNodeId: any;
 
 
     /**
@@ -288,5 +294,4 @@ export class LeftSidebarService {
     setTopButtons(buttons: SidebarButton[]) {
         this.topButtonSubject.next(buttons);
     }
-
 }
