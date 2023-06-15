@@ -13,6 +13,7 @@ import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {KatexOptions, MarkdownService} from 'ngx-markdown';
 import {NbMode} from '../edit-notebook.component';
 import {NbInputEditorComponent} from '../nb-input-editor/nb-input-editor.component';
+import {CellType} from '../notebook-wrapper';
 
 @Component({
     selector: 'app-nb-cell',
@@ -24,9 +25,11 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     @Input() isFocused: boolean;
     @Input() isExecuting: boolean;
     @Input() mode: NbMode;
+    @Input() selectedCellType: CellType;
     @Output() modeChange = new EventEmitter<NbMode>();
     @Output() insert = new EventEmitter<boolean>(); // true: below, false: above
     @Output() execute = new EventEmitter<string>();
+    @Output() changeType = new EventEmitter<Event>();
     @Output() delete = new EventEmitter<string>();
     @Output() selected = new EventEmitter<string>();
     @ViewChild('editor') editor: NbInputEditorComponent;
@@ -51,7 +54,6 @@ export class NbCellComponent implements OnInit, AfterViewInit {
 
     ngOnInit(): void {
         this.ansi_up.escape_html = true; // prevent xss
-        console.log('init cell', this.cell);
         if (this.cell.cell_type === 'markdown') {
             this.isMdRendered = true;
             this.mdSource = Array.isArray(this.cell.source) ? this.cell.source.join('') : this.cell.source;
@@ -86,7 +88,6 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         if (this.mode === 'edit') {
             return;
         }
-        console.log('activating edit mode');
         this.isMdRendered = false;
         this.editor.focus();
         this.mode = 'edit';
@@ -94,7 +95,6 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     }
 
     commandMode() {
-        console.log('activating command mode');
         this.editor.blur();
         this.mode = 'command';
         this.modeChange.emit(this.mode);
@@ -109,11 +109,9 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     onMouseLeave() {
         this.isMouseOver = false;
         this.updateSource();
-        //console.warn(this.cell.outputs);
     }
 
     executeCell() {
-        console.log('executing');
         this.updateSource();
         this.execute.emit(this.id);
     }
@@ -121,12 +119,10 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     updateSource() {
         if (!this.isMdRendered) {
             this.cell.source = this.editor.getCode();
-            console.log('updating source...');
         }
     }
 
     renderMd() {
-        console.log('rendering md');
         this.mdSource = Array.isArray(this.cell.source) ? this.cell.source.join('') : this.cell.source;
         this.isMdRendered = true;
 
@@ -134,7 +130,6 @@ export class NbCellComponent implements OnInit, AfterViewInit {
 
     renderError(output: CellErrorOutput) {
         if (output) {
-            console.log(output);
             this.errorHtml = this._sanitizer.bypassSecurityTrustHtml(this.ansi_up.ansi_to_html(output.traceback.join('\n')));
         }
     }
@@ -165,7 +160,6 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         const elements = document.querySelectorAll('.nb-markdown img');
         for (let i = 0; i < elements.length; i++) {
             const element = elements[i] as HTMLElement;
-            console.log('element');
             element.style.maxWidth = '100%';
         }
     }

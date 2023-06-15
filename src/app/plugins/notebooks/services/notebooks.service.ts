@@ -1,7 +1,12 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {Content, KernelResponse, KernelSpecs, SessionResponse} from '../models/notebooks-response.model';
+import {
+    Content,
+    KernelResponse,
+    KernelSpecs,
+    SessionResponse, StatusResponse
+} from '../models/notebooks-response.model';
 import {Notebook} from '../models/notebook.model';
 import * as uuid from 'uuid';
 import {forkJoin} from 'rxjs';
@@ -16,6 +21,10 @@ export class NotebooksService {
 
     private httpUrl = this._settings.getConnection('notebooks.rest');
     private httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
+
+    getStatus() {
+        return this._http.get<StatusResponse>(`${this.httpUrl}/status`, this.httpOptions);
+    }
 
     getKernelspecs() {
         return this._http.get<KernelSpecs>(`${this.httpUrl}/kernelspecs`, this.httpOptions);
@@ -163,5 +172,9 @@ export class NotebooksService {
             copy_from: srcFilePath
         };
         return this._http.post<Content>(`${this.httpUrl}/contents/${destFilePath}`, json, this.httpOptions);
+    }
+
+    restartContainer() {
+        return this._http.post(`${this.httpUrl}/container/restart`, '', this.httpOptions);
     }
 }

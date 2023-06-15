@@ -2,7 +2,14 @@ import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NotebooksService} from '../../services/notebooks.service';
 import {ToastService} from '../../../../components/toast/toast.service';
 import {WebuiSettingsService} from '../../../../services/webui-settings.service';
-import {ActivatedRoute, Router, UrlSegment} from '@angular/router';
+import {
+    ActivatedRoute,
+    ActivatedRouteSnapshot,
+    CanDeactivate,
+    Router,
+    RouterStateSnapshot,
+    UrlSegment
+} from '@angular/router';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {mergeMap, tap} from 'rxjs/operators';
@@ -11,17 +18,20 @@ import {NotebooksSidebarService} from '../../services/notebooks-sidebar.service'
 import {NotebooksContentService} from '../../services/notebooks-content.service';
 import {KernelSpec, KernelSpecs, SessionResponse} from '../../models/notebooks-response.model';
 import {LoadingScreenService} from '../../../../components/loading-screen/loading-screen.service';
+import {ComponentCanDeactivate} from '../../services/unsaved-changes.guard';
+import {EditNotebookComponent} from './edit-notebook/edit-notebook.component';
 
 @Component({
     selector: 'app-notebooks',
     templateUrl: './notebooks.component.html',
     styleUrls: ['./notebooks.component.scss']
 })
-export class NotebooksComponent implements OnInit, OnDestroy {
+export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<ComponentCanDeactivate> {
 
-    @ViewChild('addNotebookModal', {static: false}) public addNotebookModal: ModalDirective;
-    @ViewChild('uploadNotebookModal', {static: false}) public uploadNotebookModal: ModalDirective;
-    @ViewChild('createSessionModal', {static: false}) public createSessionModal: ModalDirective;
+    @ViewChild('addNotebookModal') public addNotebookModal: ModalDirective;
+    @ViewChild('uploadNotebookModal') public uploadNotebookModal: ModalDirective;
+    @ViewChild('createSessionModal') public createSessionModal: ModalDirective;
+    @ViewChild('editNotebook') public editNotebook: EditNotebookComponent;
     createFileForm: FormGroup;
     uploadFileForm: FormGroup;
     createSessionForm: FormGroup;
@@ -65,6 +75,7 @@ export class NotebooksComponent implements OnInit, OnDestroy {
         const sub4 = this._sidebar.onNotebookClicked().subscribe(([t, n, $e]) => this.notebookClicked(n));
         const sub5 = this._content.onInvalidLocation().subscribe(() => this.onPageNotFound());
         const sub6 = this._content.onKernelSpecsChange().subscribe(specs => this.updateAvailableKernels(specs));
+        const sub7 = this._content.onServerUnreachable().subscribe(() => this.onServerUnreachable());
 
         this.subscriptions.add(sub1);
         this.subscriptions.add(sub2);
@@ -72,6 +83,7 @@ export class NotebooksComponent implements OnInit, OnDestroy {
         this.subscriptions.add(sub4);
         this.subscriptions.add(sub5);
         this.subscriptions.add(sub6);
+        this.subscriptions.add(sub7);
 
         this._content.updateAvailableKernels();
         this._content.updateSessions();
@@ -82,6 +94,15 @@ export class NotebooksComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this._sidebar.close();
         this.subscriptions.unsubscribe();
+    }
+
+    canDeactivate(component: ComponentCanDeactivate, currentRoute: ActivatedRouteSnapshot,
+                  currentState: RouterStateSnapshot, nextState: RouterStateSnapshot): Observable<boolean> | boolean {
+        const forced = nextState.root.queryParams?.forced;
+        if (!forced && this.editNotebookSession && this.editNotebook && !this.editNotebook.canDeactivate()) {
+            return this.editNotebook.confirmClose();
+        }
+        return true;
     }
 
 
@@ -136,6 +157,7 @@ export class NotebooksComponent implements OnInit, OnDestroy {
         const sessions = this._content.getSessionsForNotebook(path);
 
         if (sessions.length > 0) {
+            this._content.clearNbCache(); // cache is only useful if the specified kernel is not known
             const preferredId = this._content.getPreferredSessionId(path);
             if (sessions.find(s => s.id === preferredId)) {
                 // open last used session
@@ -149,12 +171,10 @@ export class NotebooksComponent implements OnInit, OnDestroy {
             this._content.getSpecifiedKernel(path).pipe(
                 mergeMap(res => {
                         if (res) {
-                            console.log('kernel:', res.name);
                             return this.startAndOpenNotebook(name, path, res.name);
                         }
 
                         this._loading.hide();
-                        console.log('no kernel specified');
                         this.openCreateSessionModal(name, path);
                         return EMPTY;
                     }
@@ -303,7 +323,7 @@ export class NotebooksComponent implements OnInit, OnDestroy {
                         .subscribe(res => {
                             this._content.update();
                         }, err => {
-                            this._toast.warn(`An error occurred while uploading ${file.name}:\n${err.error}`, 'File could not be uploaded');
+                            this._toast.error(`An error occurred while uploading ${file.name}:\n${err.error}`, 'File could not be uploaded');
                         });
                 },
                 false
@@ -341,8 +361,18 @@ export class NotebooksComponent implements OnInit, OnDestroy {
     }
 
     private onPageNotFound() {
-        if (this.editNotebookSession === '') {
-            this._router.navigate([this._sidebar.baseUrl, 'notebooks']);
+        let queryParams = {};
+        if (!this.editNotebook) {
+            queryParams = {forced: true};
+        }
+        this._router.navigate([this._sidebar.baseUrl, 'notebooks'], {queryParams});
+    }
+
+    private onServerUnreachable() {
+        if (!this._content.isRoot) {
+            this._toast.error('Jupyter Server seems to be offline');
+            const queryParams = {forced: true};
+            this._router.navigate([this._sidebar.baseUrl, 'notebooks'], {queryParams});
         }
     }
 }

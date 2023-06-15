@@ -24,6 +24,7 @@ import {
 import {TreeModule} from 'angular-tree-component';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {NbOutputDataComponent} from './components/notebooks-view/edit-notebook/nb-output-data/nb-output-data.component';
+import {UnsavedChangesGuard} from './services/unsaved-changes.guard';
 
 
 @NgModule({
@@ -60,7 +61,8 @@ import {NbOutputDataComponent} from './components/notebooks-view/edit-notebook/n
     ],
     providers: [
         NotebooksSidebarService,
-        NotebooksContentService
+        NotebooksContentService,
+        UnsavedChangesGuard
     ]
 })
 export class NotebooksModule {

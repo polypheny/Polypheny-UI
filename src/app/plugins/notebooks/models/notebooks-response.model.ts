@@ -61,12 +61,16 @@ export interface DirectoryContent extends Content {
 }
 
 export interface FileContent extends Content {
-    content: string;
+    content: string | Notebook;
 }
 
 export interface NotebookContent extends Content {
     content: Notebook;
 }
 
-
-
+export interface StatusResponse {
+    connections: number;
+    kernels: number;
+    last_activity: string;
+    started: string;
+}

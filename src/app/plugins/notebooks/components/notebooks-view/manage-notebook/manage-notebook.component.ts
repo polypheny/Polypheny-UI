@@ -136,10 +136,7 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     }
 
     downloadFile() {
-        this._notebooks.getContents(this.metadata.path).subscribe(res => {
-            const file = <FileContent>res;
-            this.download(file.content, file.name, file.format);
-        });
+        this._content.downloadFile();
     }
 
     connect() {
@@ -163,48 +160,23 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
 
     terminateSession() {
         const id = this.terminateSessionForm.value.session;
-        this.deleteSessions([id]);
+        this.deleting = true;
+        this._content.deleteSession(id).subscribe(
+            res => {
+                this.deleting = false;
+                this.terminateSessionModal.hide();
+            }
+        );
     }
 
     terminateAllSessions() {
-        const ids = this.sessions.map(session => session.id);
-        this.deleteSessions(ids);
-    }
-
-    private deleteSessions(ids) {
         this.deleting = true;
-        this._notebooks.deleteSessions(ids).subscribe().add(() => {
-            this._content.removeSessions(ids);
-            this.deleting = false;
-            this.terminateSessionModal.hide();
-        });
-    }
-
-    private download(content: string, name: string, format: string) {
-        let blob: Blob;
-        if (format === 'base64') {
-            // https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
-            const byteCharacters = atob(content);
-            const byteNumbers = new Array(byteCharacters.length);
-
-            for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
+        this._content.deleteSessions(this.metadata.path).subscribe(
+            res => {
+                this.deleting = false;
+                this.terminateSessionModal.hide();
             }
-            blob = new Blob([new Uint8Array(byteNumbers)], {type: 'application/octet-stream'});
-        } else if (format === 'json') {
-            blob = new Blob([JSON.stringify(content, null, 1)], {type: 'application/json'});
-        } else {
-            blob = new Blob([content], {type: 'text/plain'});
-        }
-
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = name;
-        a.style.display = 'none';
-
-        a.click();
-        URL.revokeObjectURL(url);
+        );
     }
 
     private updateSessions(sessions: SessionResponse[]) {

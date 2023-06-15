@@ -16,7 +16,7 @@ import {ToastService} from '../../../../../components/toast/toast.service';
 import {NotebookCell} from '../../../models/notebook.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NotebooksContentService} from '../../../services/notebooks-content.service';
-import {EMPTY, Observable, Subscription} from 'rxjs';
+import {EMPTY, Observable, Subject, Subscription} from 'rxjs';
 import {NotebooksWebSocket} from '../../../services/notebooks-webSocket';
 import {WebuiSettingsService} from '../../../../../services/webui-settings.service';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -51,10 +51,15 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     private executeAllAfterRestart = false;
     @ViewChild('overwriteNotebookModal') public overwriteNotebookModal: ModalDirective;
     @ViewChild('renameNotebookModal') public renameNotebookModal: ModalDirective;
+    @ViewChild('closeNotebookModal') public closeNotebookModal: ModalDirective;
+    @ViewChild('terminateKernelModal') public terminateKernelModal: ModalDirective;
+    @ViewChild('terminateAllKernelsModal') public terminateAllKernelsModal: ModalDirective;
     @ViewChildren('nbCell') cellComponents: QueryList<NbCellComponent>;
     renameNotebookForm: FormGroup;
+    closeNotebookForm: FormGroup;
     deleting = false;
     overwriting = false;
+    closeNbSubject: Subject<boolean>;
 
     constructor(
         private _notebooks: NotebooksService,
@@ -77,6 +82,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.sessionId) {
+            console.log('session id change');
             // Handle changes to sessionId
             this._notebooks.getSession(this.sessionId).subscribe(session => {
                 this.session = session;
@@ -103,10 +109,13 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnDestroy() {
+        console.log('destroyed edit');
         this.subscriptions.unsubscribe();
+        this.nb?.closeSocket();
     }
 
     closeEdit() {
+        this.nb?.closeSocket();
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: null,
@@ -114,10 +123,26 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         });
     }
 
+    confirmClose(): Subject<boolean> | boolean {
+        if (this.closeNotebookModal.isShown) {
+            return false;
+        }
+        this.closeNbSubject = new Subject<boolean>();
+        this.closeNotebookModal.config.keyboard = false;
+        this.closeNotebookModal.config.backdrop = 'static';
+        this.closeNotebookModal.show();
+        return this.closeNbSubject;
+    }
+
     // https://stackoverflow.com/questions/35922071/warn-user-of-unsaved-changes-before-leaving-page
     @HostListener('window:beforeunload')
     canDeactivate(): Observable<boolean> | boolean {
-        return true; // doesn't do anything yet
+        console.warn('try to deactivate edit');
+        const hasChanged = this.nb?.hasChangedSinceSave();
+        if (hasChanged) {
+            console.error('it has changed!');
+        }
+        return !hasChanged;
     }
 
     initForms() {
@@ -128,58 +153,28 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 Validators.required
             ])
         });
-    }
-
-
-    deleteNotebook(): void {
-        this.deleting = true;
-        const ids = this._content.getSessionsForNotebook(this.path).map(s => s.id);
-        this._notebooks.deleteSessions(ids).subscribe().add(() => {
-            this._content.removeSessions(ids);
+        this.closeNotebookForm = new FormGroup({
+            saveChanges: new FormControl(true),
+            shutDown: new FormControl(false)
         });
-        this._notebooks.deleteFile(this.path).subscribe().add(() => {
-            this._content.update();
-            this.deleting = false;
-            this.deleteNotebookModal.hide();
-            this.closeEdit();
-        });
-
-    }
-
-    rename() {
-        if (!this.renameNotebookForm.valid) {
-            return;
-        }
-        let fileName = this.renameNotebookForm.value.name;
-        if (!fileName.endsWith('.ipynb')) {
-            fileName += '.ipynb';
-        }
-        const dirPath = this._content.directoryPath;
-        this._sidebar.moveFile(this.path, dirPath + '/' + fileName);
-        this.renameNotebookModal.hide();
-    }
-
-    duplicateNotebook() {
-        this._notebooks.duplicateFile(this.path, this._content.directoryPath).subscribe(res => this._content.update(),
-            err => this._toast.error(err.error.message, `Could not duplicate ${this.path}`));
     }
 
     private updateSession(sessions: SessionResponse[]) {
+        console.log('update session');
         this.session = sessions.find(session => session.id === this.sessionId);
         if (!this.session) {
-            this._toast.error(`The session was closed`); // TODO: save notebook
-            this.closeEdit();
+            this._toast.warn(`Kernel was closed`);
             return;
         }
         const path = this._notebooks.getPathFromSession(this.session);
         if (this.path !== path) {
             if (this.path) {
+                const queryParams = {session: this.sessionId, forced: true};
+                this._router.navigate([this._sidebar.baseUrl].concat(path.split('/')), {queryParams});
                 this._toast.warn(`The path to the notebook has changed`, 'Info');
             }
             this.path = path;
             this.name = this.name = this._notebooks.getNameFromSession(this.session);
-            const queryParams = {session: this.sessionId};
-            this._router.navigate([this._sidebar.baseUrl].concat(path.split('/')), {queryParams});
 
         }
     }
@@ -192,6 +187,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this._loading.show();
         this._content.getNotebookContent(this.path).subscribe(res => {
             if (res) {
+                this.nb?.closeSocket();
                 this.nb = new NotebookWrapper(res, this.busyCellIds, this.socket,
                     id => this.getCellComponent(id)?.renderMd(),
                     (id, output) => this.getCellComponent(id)?.renderError(output));
@@ -215,6 +211,94 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 this.closeEdit();
             }
         });
+    }
+
+
+    closeNotebookCancelled() {
+        console.error('cancelled!');
+        this.closeNbSubject?.next(false);
+        this.closeNbSubject?.complete();
+        this.closeNbSubject = null;
+        this.closeNotebookModal.hide();
+    }
+
+
+    deleteNotebook(): void {
+        this.deleting = true;
+        this.terminateSessions();
+        this._notebooks.deleteFile(this.path).subscribe().add(() => {
+            this._content.update();
+            this.deleting = false;
+            this.deleteNotebookModal.hide();
+            this.closeEdit();
+        });
+
+    }
+
+    closeNotebookSubmitted() {
+        if (this.closeNotebookForm.value.saveChanges) {
+            console.log('overwriting');
+            this.overwriteNotebook(true);
+        }
+
+        if (this.closeNotebookForm.value.shutDown) {
+            console.log('shutting down');
+            //this.closeAndTerminate(false);
+            this.terminateSession();
+        } /*else {
+            console.log('closing edit');
+            this.closeEdit();
+        }*/
+        if (this.closeNbSubject) {
+            this.nb?.closeSocket();
+            this.closeNbSubject.next(true);
+            this.closeNbSubject?.complete();
+        } else {
+            this.closeEdit();
+        }
+        this.closeNbSubject = null;
+        this.closeNotebookModal.hide();
+    }
+
+    closeAndTerminate(terminateAll: boolean) {
+        this.closeEdit();
+        if (terminateAll) {
+            this.terminateSessions();
+            this.terminateAllKernelsModal.hide();
+        } else {
+            this.terminateSession();
+            this.terminateKernelModal.hide();
+        }
+    }
+
+    terminateSession() {
+        this._content.deleteSession(this.sessionId).subscribe();
+    }
+
+    terminateSessions() {
+        this._content.deleteSessions(this.path).subscribe();
+    }
+
+    rename() {
+        if (!this.renameNotebookForm.valid) {
+            return;
+        }
+        let fileName = this.renameNotebookForm.value.name;
+        if (!fileName.endsWith('.ipynb')) {
+            fileName += '.ipynb';
+        }
+        const dirPath = this._content.directoryPath;
+        this._sidebar.moveFile(this.path, dirPath + '/' + fileName);
+        this.renameNotebookModal.hide();
+    }
+
+    duplicateNotebook() {
+        this._notebooks.duplicateFile(this.path, this._content.directoryPath).subscribe(res => this._content.update(),
+            err => this._toast.error(err.error.message, `Could not duplicate ${this.path}`));
+    }
+
+    downloadNotebook() {
+        this._content.downloadNotebook(this.nb.notebook, this.name);
     }
 
 
@@ -256,6 +340,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
                 } else {
                     // show confirm dialog
+                    console.log('time on disk:', res.last_modified);
+                    console.log('time in nb:', this.nb.lastModifiedWhenLoaded);
                     this.overwriteNotebookModal.show();
                     return EMPTY;
                 }
@@ -264,8 +350,9 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             if (showSuccessToast) {
                 this._toast.success('uploaded notebook!');
             }
-            this.nb.lastModifiedWhenLoaded = res.last_modified;
-            this._content.updateCachedModifiedTime(this.path, res.last_modified);
+            this.nb.markAsSaved(res.last_modified);
+            //this.nb.lastModifiedWhenLoaded = res.last_modified;
+            //this._content.updateCachedModifiedTime(this.path, res.last_modified);
         }, error => {
             this._toast.error('error while uploading notebook');
             console.log('upload error:', error);
@@ -273,11 +360,13 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         });
     }
 
-    overwriteNotebook() {
+    overwriteNotebook(showSuccessToast = true) {
         this.overwriting = true;
         this._notebooks.updateNotebook(this.path, this.nb.notebook).subscribe(res => {
-            this._toast.success('uploaded notebook!');
-            this.nb.lastModifiedWhenLoaded = res.last_modified;
+            if (showSuccessToast) {
+                this._toast.success('uploaded notebook!');
+            }
+            this.nb.markAsSaved(res.last_modified);
         }, error => {
             this._toast.error('error while uploading notebook');
             console.log('upload error:', error);
@@ -349,7 +438,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     selectCellAbove(editMode = false) {
-        const cellAbove= this.nb.cellAbove(this.selectedCell.id);
+        const cellAbove = this.nb.cellAbove(this.selectedCell.id);
         if (cellAbove) {
             this.selectCell(cellAbove.id, editMode);
         }

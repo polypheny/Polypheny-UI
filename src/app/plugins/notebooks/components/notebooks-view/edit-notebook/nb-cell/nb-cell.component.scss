@@ -75,12 +75,13 @@
 }
 
 .nb-plaintext {
-  white-space: pre-line;
+  white-space: pre-wrap;
 }
 
 .nb-error {
   background-color: rgba(248, 108, 107, 0.3);
   padding: 5px;
+  margin-bottom: 0;
   word-break: break-all;
   white-space: pre-wrap;
 }
@@ -119,6 +120,10 @@ pre {
   right: 0;
   z-index: 1;
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+}
+
+.nb-overlay-separator {
+  width: 2px;
 }
 
 .vertical-icons {

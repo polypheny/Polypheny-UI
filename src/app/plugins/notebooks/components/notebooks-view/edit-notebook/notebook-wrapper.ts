@@ -22,38 +22,64 @@ import {
     KernelStream,
     KernelUpdateDisplayData
 } from '../../../models/kernel-response.model';
+import {interval, Subscription} from 'rxjs';
 
 export class NotebookWrapper {
     private nb: Notebook;
     private codeOrigin: Map<string, string> = new Map<string, string>();
+    private copyNbJson: string;
     kernelStatus: 'unknown' | 'idle' | 'busy' | 'starting' = 'unknown';
     lastModifiedWhenLoaded: string;
+    private keepAlive: Subscription;
 
     constructor(private content: NotebookContent,
                 private busyCellIds: Set<string>,
                 private socket: NotebooksWebSocket,
-                private onExecuteMdCell:  (id: string) => void,
+                private onExecuteMdCell: (id: string) => void,
                 private onReceivedErrorOutput: (id: string, output: CellErrorOutput) => void) {
         this.nb = content.content;
-        this.lastModifiedWhenLoaded = content.last_modified;
-        this.nb.cells.map(cell => {
-            if (!cell.id) {
-                console.log('setting id for', cell.source);
-                cell.id = uuid.v4();
-            }
-        });
+        this.markAsSaved(content.last_modified);
+        this.validateIds();
         this.busyCellIds.clear();
         this.socket.onMessage().subscribe(msg => this.handleKernelMsg(msg),
             err => {
                 console.log('received error: ' + err);
             }, () => {
                 this.socket = null;
+                this.kernelStatus = 'unknown';
             });
         this.socket.requestExecutionState();
+        this.keepAlive = interval(60000).subscribe(() => { // prevent 300s timeout
+            this.socket?.requestExecutionState();
+            console.error('requesting execution state');
+        });
     }
 
-    cell(i: number) {
-        return this.nb.cells[i];
+    closeSocket() {
+        this.keepAlive?.unsubscribe();
+        this.socket?.close();
+    }
+
+    markAsSaved(lastModified: string) {
+        console.log('marking...');
+        this.lastModifiedWhenLoaded = lastModified;
+        this.copyNbJson = JSON.stringify(this.nb);
+    }
+
+    hasChangedSinceSave(): boolean {
+        console.log('comparing:', this.copyNbJson, JSON.stringify(this.nb));
+        return this.copyNbJson && this.copyNbJson !== JSON.stringify(this.nb);
+    }
+
+    private validateIds() {
+        const ids = new Set<string>();
+        for (const cell of this.nb.cells) {
+            if (cell.id == null || ids.has(cell.id)) {
+                console.log('setting id for', cell.source);
+                cell.id = uuid.v4();
+            }
+            ids.add(cell.id);
+        }
     }
 
     insertCellByIdx(i: number, below: boolean = true): NotebookCell {
@@ -133,10 +159,14 @@ export class NotebookWrapper {
         }
         switch (cell.cell_type) {
             case 'code':
-                cell.outputs = [];
-                const id = this.socket.sendCode(cell.source);
-                this.codeOrigin.set(id, cell.id);
-                this.busyCellIds.add(cell.id);
+                if (this.socket) {
+                    cell.outputs = [];
+                    const id = this.socket?.sendCode(cell.source);
+                    this.codeOrigin.set(id, cell.id);
+                    this.busyCellIds.add(cell.id);
+                } else {
+                    console.warn('Kernel socket seems to have closed. Cannot send code.');
+                }
                 break;
             case 'markdown':
                 console.log('executing md');

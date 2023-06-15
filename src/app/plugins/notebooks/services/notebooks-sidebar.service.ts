@@ -79,7 +79,7 @@ export class NotebooksSidebarService {
             nodes.push(new SidebarNode('rootSeparator', '').asSeparator());
         }
         const fileNodes = []; // files should be below all directories
-        for (const file of this.directory.content) {
+        for (const file of this.directory?.content || []) {
             const routerLink = file.type === 'notebook' ? null : this._baseUrl + '/' + file.path;
             const node = new SidebarNode(
                 file.path,
@@ -132,7 +132,6 @@ export class NotebooksSidebarService {
     }
 
     moveFile(from: string, to: string) {
-        //const fromFile = this.directory.content.find(file => file.path === from);
         this._notebooks.moveFile(from, to).subscribe(res => {
             if (this._content.isCurrentPath(from)) {
                 this.movedSubject.next(to);

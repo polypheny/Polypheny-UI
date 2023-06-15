@@ -3,13 +3,14 @@ import {NotebooksService} from './notebooks.service';
 import {BehaviorSubject, forkJoin, interval, Observable, of, Subject, Subscription} from 'rxjs';
 import {
     Content,
-    DirectoryContent, KernelSpec,
+    DirectoryContent, FileContent, KernelSpec,
     KernelSpecs,
     NotebookContent,
     SessionResponse
 } from '../models/notebooks-response.model';
 import {UrlSegment} from '@angular/router';
 import {mergeMap, switchMap, tap} from 'rxjs/operators';
+import {Notebook} from '../models/notebook.model';
 
 @Injectable()
 export class NotebooksContentService {
@@ -30,6 +31,7 @@ export class NotebooksContentService {
     private sessions = new BehaviorSubject<SessionResponse[]>([]);
     private kernelSpecs = new BehaviorSubject<KernelSpecs>(null);
     private invalidLocationSubject = new Subject<string>();
+    private serverUnreachableSubject = new Subject<string>();
     private updateInterval$: Subscription;
 
     private preferredSessions: Map<string, string> = new Map<string, string>();
@@ -44,6 +46,9 @@ export class NotebooksContentService {
         this._path = this._pathSegments.join('/');
         this._directoryPath = this._path;
         this._parentPath = null;
+        if (this._pathSegments.length === 1) {
+            this._isRoot = true;
+        }
 
         this.update();
     }
@@ -57,10 +62,9 @@ export class NotebooksContentService {
         ).subscribe(
             res => {
                 this.updateDirectory(<DirectoryContent>res);
-                this.contentChange.next();
             },
             error => this.invalidLocationSubject.next()
-        );
+        ).add(() => this.contentChange.next());
     }
 
     private updateMetadata(res: Content) {
@@ -92,11 +96,16 @@ export class NotebooksContentService {
     }
 
     updateAvailableKernels() {
-        this._notebooks.getKernelspecs().subscribe(res => this.kernelSpecs.next(res));
+        this._notebooks.getKernelspecs().subscribe(res => this.kernelSpecs.next(res),
+            err => this.serverUnreachableSubject.next());
     }
 
     updateSessions() {
-        this._notebooks.getSessions().subscribe(res => this.sessions.next(res));
+        this._notebooks.getSessions().subscribe(res => this.sessions.next(res),
+            err => {
+                this.sessions.next([]);
+                this.serverUnreachableSubject.next();
+            });
     }
 
     hasRunningKernel(path: string) {
@@ -123,9 +132,32 @@ export class NotebooksContentService {
         this.sessions.next([...this.sessions.getValue(), session]);
     }
 
-    removeSessions(sessionIds: string[]) {
-        const newSessions = this.sessions.getValue().filter(s => !sessionIds.includes(s.id));
-        this.sessions.next(newSessions);
+    deleteSession(sessionId: string): Observable<any> {
+        return this._notebooks.deleteSession(sessionId).pipe(
+            tap(res => {
+                const newSessions = this.sessions.getValue().filter(s => s.id !== sessionId);
+                this.sessions.next(newSessions);
+            })
+        );
+
+    }
+
+    deleteSessions(notebookPath: string): Observable<Object[]> {
+        const sessionIds = this.getSessionsForNotebook(notebookPath).map(session => session.id);
+        return this._notebooks.deleteSessions(sessionIds).pipe(
+            tap(res => {
+                const newSessions = this.sessions.getValue().filter(s => !sessionIds.includes(s.id));
+                this.sessions.next(newSessions);
+            })
+        );
+    }
+
+    deleteAllSessions(): Observable<Object[]> {
+        const sessionIds = this.sessions.getValue().map(session => session.id);
+        return this._notebooks.deleteSessions(sessionIds).pipe(
+            tap(res => this.sessions.next([]))
+        );
+
     }
 
     moveSessionsWithFile(fromPath: string, toName: string, toPath: string) {
@@ -161,12 +193,14 @@ export class NotebooksContentService {
 
     getNotebookContent(path: string): Observable<NotebookContent> {
         if (path === this.cachedNb?.path && this.cachedNbIsFresh()) {
-            console.log('return cached');
-            return of(this.cachedNb);
+            const cached = of(this.cachedNb);
+            this.cachedNb = null; // only return content once, since it could get modified
+            return cached;
+            //const copy = JSON.parse(JSON.stringify(this.cachedNb));
+            //return of(copy);
         }
         return this._notebooks.getContents(path, true).pipe(
             tap((res: Content) => {
-                console.log('return new');
                 this.cacheNb(<NotebookContent>res);
             }),
             switchMap(() => of(this.cachedNb))
@@ -179,6 +213,11 @@ export class NotebooksContentService {
         }
     }
 
+    /**
+     * To determine the specified kernel of a notebook, its content must be loaded.
+     * To prevent the notebook from being loaded twice, when it is actually opened, we cache it.
+     * It is guaranteed that the cached version is only used if it has the same modification date as the one on disk.
+     */
     private cacheNb(nb: NotebookContent) {
         if (nb.type !== 'notebook') {
             this.cachedNb = null;
@@ -186,11 +225,55 @@ export class NotebooksContentService {
         this.cachedNb = nb;
     }
 
+    clearNbCache() {
+        this.cachedNb = null;
+    }
+
     private cachedNbIsFresh(): boolean {
         return this._directory.content.some(file => {
             return file.path === this.cachedNb?.path &&
                 file.last_modified === this.cachedNb.last_modified;
         });
+    }
+
+    downloadFile() {
+        if (this.type !== 'directory') {
+            this._notebooks.getContents(this.metadata.path).subscribe(res => {
+                const file = <FileContent>res;
+                this.download(file.content, file.name, file.format);
+            });
+        }
+    }
+
+    downloadNotebook(notebook: Notebook, name: string) {
+        this.download(notebook, name, 'json');
+    }
+
+    private download(content: string | Notebook, name: string, format: string) {
+        let blob: Blob;
+        if (format === 'json' || typeof content !== 'string') {
+            blob = new Blob([JSON.stringify(content, null, 1)], {type: 'application/json'});
+        } else if (format === 'base64') {
+            // https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
+            const byteCharacters = atob(content);
+            const byteNumbers = new Array(byteCharacters.length);
+
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            blob = new Blob([new Uint8Array(byteNumbers)], {type: 'application/octet-stream'});
+        } else {
+            blob = new Blob([content], {type: 'text/plain'});
+        }
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.style.display = 'none';
+
+        a.click();
+        URL.revokeObjectURL(url);
     }
 
     getKernelspec(kernelName: string): KernelSpec {
@@ -232,6 +315,10 @@ export class NotebooksContentService {
 
     onInvalidLocation() {
         return this.invalidLocationSubject;
+    }
+
+    onServerUnreachable() {
+        return this.serverUnreachableSubject;
     }
 
     // Getters

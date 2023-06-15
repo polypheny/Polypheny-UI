@@ -6,7 +6,7 @@
 <ng-container *ngIf="!_content.isRoot">
     <app-manage-notebook *ngIf="editNotebookSession==''; else elseEditNotebook"></app-manage-notebook>
     <ng-template #elseEditNotebook>
-        <app-edit-notebook [sessionId]="editNotebookSession"
+        <app-edit-notebook #editNotebook [sessionId]="editNotebookSession"
                            (openChangeSessionModal)="openChangeSessionModal($event.name, $event.path)">
         </app-edit-notebook>
     </ng-template>
@@ -114,7 +114,7 @@
                 <h4 class="modal-title" *ngIf="createSessionForm.get('canConnect').value; else elseDefaultKernel">
                     Select Kernel</h4>
                 <ng-template #elseDefaultKernel>
-                    <h4 class="modal-title" >Select Default Kernel</h4>
+                    <h4 class="modal-title">Select Default Kernel</h4>
                 </ng-template>
                 <button type="button" class="close" (click)="createSessionModal.hide()" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -163,7 +163,8 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" (click)="createSessionModal.hide()">Close</button>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-outline-primary" *ngIf="createSessionForm.get('canManage').value"
+                    <button type="button" class="btn btn-outline-primary"
+                            *ngIf="createSessionForm.get('canManage').value"
                             (click)="openManagePage(createSessionForm.get('path').value)"
                             [disabled]="!createSessionForm.valid || creating">Manage File
                     </button>

@@ -1,10 +1,10 @@
 <div class="row no-gutters nb-toolbar">
     <div class="col-md-9">
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-            <button class="btn btn-danger mr-4" (click)="closeEdit()"> Close</button>
-            <div class="btn-group btn-group-sm mr-4" role="group" aria-label="Save">
-                <button type="button" class="btn btn-primary" (click)="uploadNotebook()"
-                        onclick="this.blur();" tooltip="save notebook" container="body">
+            <button class="btn btn-outline-danger mr-4" (click)="closeNotebookModal.show()">Close</button>
+            <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Save">
+                <button type="button" class="btn btn-light" (click)="uploadNotebook()"
+                        onclick="this.blur();" tooltip="save notebook (S)" container="body">
                     <i class="fa fa-save"></i>
                 </button>
             </div>
@@ -25,6 +25,9 @@
                         </a>
                         <a class="dropdown-item" (click)="uploadNotebook()">
                             <span>Save</span>
+                        </a>
+                        <a class="dropdown-item" (click)="downloadNotebook()">
+                            <span>Download</span>
                         </a>
                         <a class="dropdown-item" (click)="deleteNotebookModal.show()">
                             <span>Delete</span>
@@ -79,26 +82,31 @@
                         <a class="dropdown-item" (click)="requestRestart(true)">
                             <span>Restart Kernel and Run All Cells</span>
                         </a>
+                        <a class="dropdown-item" (click)="terminateKernelModal.show()">
+                            <span>Shut Down Kernel</span>
+                        </a>
+                        <a class="dropdown-item" (click)="terminateAllKernelsModal.show()">
+                            <span>Shut Down All Kernels</span>
+                        </a>
                     </div>
                 </div>
             </div>
 
             <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Execution">
-                <button type="button" class="btn btn-primary" (click)="executeSelected()"
+                <button type="button" class="btn btn-light" (click)="executeSelected()"
                         onclick="this.blur();" tooltip="run selected cell" container="body">
                     <i class="fa fa-play"></i>
                 </button>
-                <button type="button" class="btn btn-primary" (click)="interruptKernel()"
+                <button type="button" class="btn btn-light" (click)="interruptKernel()"
                         onclick="this.blur();" tooltip="interrupt" container="body">
                     <i class="fa fa-stop"></i>
                 </button>
-                <button type="button" class="btn btn-primary" (click)="requestRestart(true)"
+                <button type="button" class="btn btn-light" (click)="requestRestart(true)"
                         onclick="this.blur();" tooltip="restart & run all" container="body">
                     <i class="fa fa-forward"></i>
                 </button>
             </div>
-            <!--<select class="form-select mr-5 px-1" aria-label="Select Cell Type"-->
-            <select class="form-select btn pull-right mr-1 border bg-white" aria-label="Select Cell Type"
+            <select class="form-select btn pull-right mr-1 bg-light px-1" aria-label="Select Cell Type"
                     (change)="onTypeChange($event)"
                     [(ngModel)]="selectedCellType">
                 <option value="code">Code</option>
@@ -125,7 +133,7 @@
 </div>
 
 
-<div class="nb-scroll" *ngIf="session" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
+<div class="nb-scroll" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
     <h1 class="nb-title">{{name}}</h1>
     <div class="nb-background mt-4 mb-4 pt-4">
         <ng-container *ngIf="nb">
@@ -136,11 +144,13 @@
                                  [cell]="cell"
                                  [isFocused]="cell.id === selectedCell.id"
                                  [isExecuting]="busyCellIds.has(cell.id)"
+                                 [selectedCellType]="selectedCellType"
                                  [(mode)]="this.mode"
                                  (execute)="this.nb.executeCell($event)"
                                  (insert)="insertCell(cell.id, $event)"
                                  (delete)="deleteCell($event)"
-                                 (selected)="selectCell($event)">
+                                 (selected)="selectCell($event)"
+                                (changeType)="onTypeChange($event)">
                         <div class="nb-drag-handle" cdkDragHandle></div>
                     </app-nb-cell>
                 </div>
@@ -149,6 +159,18 @@
         </ng-container>
     </div>
 </div>
+<ng-template #elseNoSession>
+    <h1 class="nb-title">The Selected Kernel No Longer Exists</h1>
+    <p>You can either close the notebook (you can save your changes if you want), or start a new Kernel</p>
+    <button type="button" class="btn btn-primary" style="white-space: nowrap"
+            (click)="openChangeSessionModal.emit({name: name, path: path})">
+        Create New Kernel
+    </button>
+    <button type="button" class="btn btn-primary ml-4" style="white-space: nowrap"
+            (click)="closeNotebookModal.show()">
+        Close Notebook
+    </button>
+</ng-template>
 
 
 <div bsModal #deleteNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
@@ -233,7 +255,7 @@
 </div>
 
 <div bsModal #renameNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
-     aria-labelledby="renameFileModal" aria-hidden="true">
+     aria-labelledby="renameNotebookModal" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -247,17 +269,105 @@
                 <form [formGroup]="renameNotebookForm" autocomplete="off" (submit)="rename()">
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <label for="renameFile-name" class="input-group-text">Name</label>
+                            <label for="renameNotebook-name" class="input-group-text">Name</label>
                         </div>
-                        <input type="text" id="renameFile-name" autocomplete="off" class="form-control col-sm-10"
+                        <input type="text" id="renameNotebook-name" autocomplete="off" class="form-control col-sm-10"
                                formControlName="name">
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" (click)="renameNotebookModal.hide()">Close</button>
-                <button type="submit" class="btn btn-primary" (click)="rename()"
+                <button type="submit" class="btn btn-primary pull-right" (click)="rename()"
                         [disabled]="!renameNotebookForm.valid">Rename
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #closeNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="terminateKernelModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Close Notebook</h4>
+                <button type="button" class="close" (click)="closeNotebookCancelled()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form [formGroup]="closeNotebookForm" autocomplete="off">
+                    <p>You are about to close this notebook. Unsaved changes will be lost.</p>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" formControlName="saveChanges"
+                               id="saveChanges-chkbx">
+                        <label class="form-check-label" for="saveChanges-chkbx">
+                            Save Changes (overwriting the file on disk)
+                        </label>
+                    </div>
+                    <div class="form-check" *ngIf="session">
+                        <input class="form-check-input" type="checkbox" formControlName="shutDown"
+                               id="shutDown-chkbx">
+                        <label class="form-check-label" for="shutDown-chkbx">
+                            Shut Down Kernel
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="closeNotebookCancelled()">Cancel</button>
+                <button type="submit" class="btn btn-primary" (click)="closeNotebookSubmitted()"
+                        [disabled]="deleting">{{closeNotebookForm.get("shutDown").value ? 'Close & Shut Down' : 'Close'}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #terminateKernelModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="terminateKernelModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Shut Down Kernel and Close Notebook</h4>
+                <button type="button" class="close" (click)="terminateKernelModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>Are you sure you want to shut this kernel down and close the notebook? All variables will be lost.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="terminateKernelModal.hide()">Cancel</button>
+                <button type="button" class="btn btn-danger" (click)="closeAndTerminate(false)"
+                        [disabled]="deleting">Shut Down
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #terminateAllKernelsModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="terminateAllKernelsModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Shut Down All Kernels and Close Notebook</h4>
+                <button type="button" class="close" (click)="terminateAllKernelsModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>Are you sure you want to shut down all running Kernels of this notebook? Unsaved changes are lost!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="terminateAllKernelsModal.hide()">Cancel</button>
+                <button type="button" class="btn btn-danger" (click)="closeAndTerminate(true)"
+                        [disabled]="deleting">Shut Down All
                 </button>
             </div>
         </div>

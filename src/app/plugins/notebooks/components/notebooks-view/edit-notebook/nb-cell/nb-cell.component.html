@@ -1,7 +1,16 @@
 <div class="nb-cell" #cellDiv (click)="onFocus($event)" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()"
      tabindex="-1">
     <div *ngIf="isFocused" class="nb-overlay">
-        <div class="nb-overlay-buttons btn-group btn-group-sm mr-2" role="group" aria-label="Second group">
+        <div class="nb-overlay-buttons btn-group btn-group-sm mr-2" role="group" aria-label="Overlay Buttons">
+            <select class="form-select btn bg-light px-0" aria-label="Select Cell Type"
+                    (change)="changeType.emit($event)"
+                    [value]="selectedCellType">
+                <option value="code">Code</option>
+                <option value="markdown">Markdown</option>
+                <option value="poly">Polypheny</option>
+                <option value="raw">Raw</option>
+            </select>
+            <div class="nb-overlay-separator bg-secondary"></div>
             <button type="button" class="btn btn-light vertical-icons py-0 no-select-cell" (click)="insert.emit(false)"
                     onclick="this.blur();" tooltip="insert cell above (A)" container="body">
                 <i class="fa fa-chevron-up no-select-cell"></i>
@@ -12,6 +21,7 @@
                 <i class="fa fa-plus-square vertical-icon-plus-top no-select-cell"></i>
                 <i class="fa fa-chevron-down no-select-cell"></i>
             </button>
+            <div class="nb-overlay-separator bg-secondary"></div>
             <button class="btn btn-light no-select-cell" (click)="deleteCell()" (mouseleave)="resetDeleteConfirm()"
                     tooltip="delete cell" container="body">
                 <i class="no-select-cell"

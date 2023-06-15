@@ -12,6 +12,7 @@ import {AboutComponent} from './about/about.component';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 import {NotebooksApiComponent} from '../plugins/notebooks/components/notebooks-api-view/notebooks-api.component';
 import {NotebooksComponent} from '../plugins/notebooks/components/notebooks-view/notebooks.component';
+import {UnsavedChangesGuard} from '../plugins/notebooks/services/unsaved-changes.guard';
 
 const routes: Routes = [
     {
@@ -168,7 +169,8 @@ const routes: Routes = [
                 component: NotebooksComponent,
                 data: {
                     title: 'Notebooks'
-                }
+                },
+                canDeactivate: [UnsavedChangesGuard]
             }
         ]
     },
