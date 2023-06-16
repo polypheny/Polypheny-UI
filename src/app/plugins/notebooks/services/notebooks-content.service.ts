@@ -35,10 +35,12 @@ export class NotebooksContentService {
     private updateInterval$: Subscription;
 
     private preferredSessions: Map<string, string> = new Map<string, string>();
+    private readonly LOCAL_STORAGE_PREFERRED_SESSIONS_KEY = 'notebooks-preferred-sessions';
 
     constructor(private _notebooks: NotebooksService,) {
         this.updateAvailableKernels();
         this.updateSessions();
+        this.loadPreferredSessions();
     }
 
     updateLocation(url: UrlSegment[]) {
@@ -101,7 +103,10 @@ export class NotebooksContentService {
     }
 
     updateSessions() {
-        this._notebooks.getSessions().subscribe(res => this.sessions.next(res),
+        this._notebooks.getSessions().subscribe(res => {
+                this.updatePreferredSessions(res);
+                this.sessions.next(res);
+            },
             err => {
                 this.sessions.next([]);
                 this.serverUnreachableSubject.next();
@@ -163,12 +168,12 @@ export class NotebooksContentService {
     moveSessionsWithFile(fromPath: string, toName: string, toPath: string) {
         const sessionsToMove = this.sessions.getValue().filter(s => s.path.startsWith(fromPath));
         const preferredId = this.preferredSessions.get(fromPath);
-        this.preferredSessions.delete(fromPath);
+        this.deletePreferredSessionId(fromPath);
         forkJoin(
             sessionsToMove.map(s => {
                 const uid = this._notebooks.getUniqueIdFromSession(s);
                 if (preferredId === s.id) {
-                    this.preferredSessions.set(toPath, s.id);
+                    this.setPreferredSessionId(toPath, s.id);
                 }
                 return this._notebooks.moveSession(s.id, toName + uid, toPath + uid);
             })
@@ -196,8 +201,6 @@ export class NotebooksContentService {
             const cached = of(this.cachedNb);
             this.cachedNb = null; // only return content once, since it could get modified
             return cached;
-            //const copy = JSON.parse(JSON.stringify(this.cachedNb));
-            //return of(copy);
         }
         return this._notebooks.getContents(path, true).pipe(
             tap((res: Content) => {
@@ -205,12 +208,6 @@ export class NotebooksContentService {
             }),
             switchMap(() => of(this.cachedNb))
         );
-    }
-
-    updateCachedModifiedTime(path: string, lastModified: string) {
-        if (path === this.cachedNb?.path) {
-            this.cachedNb.last_modified = lastModified;
-        }
     }
 
     /**
@@ -294,7 +291,37 @@ export class NotebooksContentService {
 
     setPreferredSessionId(path: string, sessionId: string) {
         this.preferredSessions.set(path, sessionId);
+        this.storePreferredSessions();
         this.updateSessions();
+    }
+
+    deletePreferredSessionId(path: string) {
+        this.preferredSessions.delete(path);
+        this.storePreferredSessions();
+    }
+
+    private updatePreferredSessions(validSessions: SessionResponse[]) {
+        const ids = validSessions.map(s => s.id);
+        let changed = false;
+        for (const [path, id] of this.preferredSessions.entries()) {
+            if (!ids.includes(id)) {
+                changed = true;
+                this.preferredSessions.delete(path);
+            }
+        }
+        if (changed) {
+            this.storePreferredSessions();
+        }
+    }
+
+    private storePreferredSessions() {
+        localStorage.setItem(this.LOCAL_STORAGE_PREFERRED_SESSIONS_KEY,
+            JSON.stringify(Array.from(this.preferredSessions.entries())));
+    }
+
+    private loadPreferredSessions() {
+        this.preferredSessions = new Map<string, string>(
+            JSON.parse(localStorage.getItem(this.LOCAL_STORAGE_PREFERRED_SESSIONS_KEY)));
     }
 
     onContentChange() {
