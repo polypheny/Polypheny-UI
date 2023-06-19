@@ -11,12 +11,10 @@
   margin-bottom: 10px;
 }
 
-.nb-input-area {
-  border: 1px solid #ccc;
-  padding: 10px;
-  overflow-x: auto;
-  white-space: pre;
-  min-height: 1em;
+.nb-input {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .nb-code {
@@ -26,7 +24,7 @@
 
 .sql-console {
   height: 200px;
-  flex: 1 0 300px;
+  //flex: 1 0 300px;
   margin-bottom: 0;
   border-radius: 4px;
   display: inline-block;
@@ -55,6 +53,7 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .nb-output {
@@ -67,6 +66,7 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  overflow-x: hidden;
   padding-left: 5px;
 }
 
@@ -141,15 +141,6 @@ pre {
   margin-top: -2px;
 }
 
-span.ansi-cyan-fg {
-  color: cyan;
+.input-group input {
+  min-width: 50px;
 }
-
-span.ansi-green-fg {
-  color: green;
-}
-
-span.ansi-red-fg {
-  color: red;
-}
-

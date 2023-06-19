@@ -182,7 +182,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
             ).subscribe(res => {
                 },
                 err => {
-                    this._toast.error('Cannot open Notebook. The file might be corrupted.');
+                    this._toast.error('Failed to open Notebook. The file might be corrupted or does no longer exist.');
                     this.openManagePage(path);
                 }
             ).add(() => this._loading.hide());

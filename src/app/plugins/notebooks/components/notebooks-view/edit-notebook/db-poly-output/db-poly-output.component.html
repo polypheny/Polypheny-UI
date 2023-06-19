@@ -1,0 +1,11 @@
+<div class="result-wrapper" *ngIf="resultSet">
+    <app-data-view class="result-view" [resultSet]="resultSet" [config]="tableConfig"></app-data-view>
+    <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="resultSet.hasMoreRows">
+        Only {{resultSet.data.length}} rows are being displayed. To fetch more rows, please specify
+        a LIMIT clause.</p>
+    <p class="text-center" *ngIf="resultVariable">
+        <i class="cui-arrow-right"></i>
+        <i> {{resultVariable}}</i>
+    </p>
+</div>
+

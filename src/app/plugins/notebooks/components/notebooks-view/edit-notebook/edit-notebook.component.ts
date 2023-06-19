@@ -9,7 +9,7 @@ import {
     ViewChild,
     ViewChildren
 } from '@angular/core';
-import {KernelSpec, SessionResponse} from '../../../models/notebooks-response.model';
+import {KernelSpec, NotebookContent, SessionResponse} from '../../../models/notebooks-response.model';
 import {NotebooksService} from '../../../services/notebooks.service';
 import {NotebooksSidebarService} from '../../../services/notebooks-sidebar.service';
 import {ToastService} from '../../../../../components/toast/toast.service';
@@ -23,9 +23,10 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {NbCellComponent} from './nb-cell/nb-cell.component';
 import {CellType, NotebookWrapper} from './notebook-wrapper';
-import {mergeMap} from 'rxjs/operators';
+import {delay, mergeMap, tap} from 'rxjs/operators';
 import {LoadingScreenService} from '../../../../../components/loading-screen/loading-screen.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {CrudService} from '../../../../../services/crud.service';
 
 @Component({
     selector: 'app-edit-notebook',
@@ -46,6 +47,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     selectedCellType = 'code';
     busyCellIds = new Set<string>();
     mode: NbMode = 'command';
+    namespaces: string[] = [];
     @ViewChild('deleteNotebookModal') public deleteNotebookModal: ModalDirective;
     @ViewChild('restartKernelModal') public restartKernelModal: ModalDirective;
     private executeAllAfterRestart = false;
@@ -69,12 +71,16 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         private _router: Router,
         private _route: ActivatedRoute,
         private _settings: WebuiSettingsService,
-        private _loading: LoadingScreenService) {
+        private _loading: LoadingScreenService,
+        private _crud: CrudService) {
     }
 
     ngOnInit(): void {
         this.subscriptions.add(
             this._content.onSessionsChange().subscribe(sessions => this.updateSession(sessions))
+        );
+        this.subscriptions.add(
+            this._content.onNamespaceChange().subscribe(namespaces => this.namespaces = namespaces)
         );
         this.initForms();
 
@@ -82,7 +88,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.sessionId) {
-            console.log('session id change');
             // Handle changes to sessionId
             this._notebooks.getSession(this.sessionId).subscribe(session => {
                 this.session = session;
@@ -109,7 +114,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnDestroy() {
-        console.log('destroyed edit');
         this.subscriptions.unsubscribe();
         this.nb?.closeSocket();
     }
@@ -137,11 +141,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     // https://stackoverflow.com/questions/35922071/warn-user-of-unsaved-changes-before-leaving-page
     @HostListener('window:beforeunload')
     canDeactivate(): Observable<boolean> | boolean {
-        console.warn('try to deactivate edit');
         const hasChanged = this.nb?.hasChangedSinceSave();
-        if (hasChanged) {
-            console.error('it has changed!');
-        }
         return !hasChanged;
     }
 
@@ -160,7 +160,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private updateSession(sessions: SessionResponse[]) {
-        console.log('update session');
         this.session = sessions.find(session => session.id === this.sessionId);
         if (!this.session) {
             this._toast.warn(`Kernel was closed`);
@@ -190,7 +189,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 this.nb?.closeSocket();
                 this.nb = new NotebookWrapper(res, this.busyCellIds, this.socket,
                     id => this.getCellComponent(id)?.renderMd(),
-                    (id, output) => this.getCellComponent(id)?.renderError(output));
+                    (id, output) => this.getCellComponent(id)?.renderError(output),
+                    id => this.getCellComponent(id)?.renderResultSet());
                 this.kernelSpec = this._content.getKernelspec(this.session.kernel.name);
                 if (this.kernelSpec) {
                     this.nb.setKernelSpec(this.kernelSpec);
@@ -215,7 +215,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
 
     closeNotebookCancelled() {
-        console.error('cancelled!');
         this.closeNbSubject?.next(false);
         this.closeNbSubject?.complete();
         this.closeNbSubject = null;
@@ -237,18 +236,12 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     closeNotebookSubmitted() {
         if (this.closeNotebookForm.value.saveChanges) {
-            console.log('overwriting');
             this.overwriteNotebook(true);
         }
 
         if (this.closeNotebookForm.value.shutDown) {
-            console.log('shutting down');
-            //this.closeAndTerminate(false);
             this.terminateSession();
-        } /*else {
-            console.log('closing edit');
-            this.closeEdit();
-        }*/
+        }
         if (this.closeNbSubject) {
             this.nb?.closeSocket();
             this.closeNbSubject.next(true);
@@ -332,31 +325,52 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this.nb.clearAllOutputs();
     }
 
+    /**
+     * This first compares the modification times of when this notebook was loaded and the one on disk.
+     * If they are not equal, the content of the one on disk is loaded and compared. This is only done now for
+     * improved performance.If they differ, the overwriteNotebookModal is shown.
+     * Otherwise, the notebook is uploaded.
+     */
     uploadNotebook(showSuccessToast = true) {
         this._notebooks.getContents(this.path, false).pipe(
             mergeMap(res => {
                 if (res.last_modified === this.nb.lastModifiedWhenLoaded) {
                     return this._notebooks.updateNotebook(this.path, this.nb.notebook);
-
                 } else {
-                    // show confirm dialog
-                    console.log('time on disk:', res.last_modified);
-                    console.log('time in nb:', this.nb.lastModifiedWhenLoaded);
-                    this.overwriteNotebookModal.show();
+                    this.uploadNotebookWithDeepCompare();
                     return EMPTY;
                 }
             })
         ).subscribe(res => {
             if (showSuccessToast) {
-                this._toast.success('uploaded notebook!');
+                this._toast.success('Saved notebook!');
             }
             this.nb.markAsSaved(res.last_modified);
-            //this.nb.lastModifiedWhenLoaded = res.last_modified;
-            //this._content.updateCachedModifiedTime(this.path, res.last_modified);
         }, error => {
             this._toast.error('error while uploading notebook');
             console.log('upload error:', error);
 
+        });
+    }
+
+    uploadNotebookWithDeepCompare(showSuccessToast = true) {
+        this._notebooks.getContents(this.path, true).pipe(
+            mergeMap(res => {
+                if (this.nb.lastSaveDiffersFrom((<NotebookContent>res).content)) {
+                    this.overwriteNotebookModal.show();  // show confirm dialog
+                    return EMPTY;
+                } else {
+                    return this._notebooks.updateNotebook(this.path, this.nb.notebook);
+                }
+            })
+        ).subscribe(res => {
+            if (showSuccessToast) {
+                this._toast.success('Saved notebook!');
+            }
+            this.nb.markAsSaved(res.last_modified);
+        }, error => {
+            this._toast.error('error while uploading notebook');
+            console.log('upload error:', error);
         });
     }
 
@@ -396,12 +410,16 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     restartKernel() {
-        this._notebooks.restartKernel(this.session.kernel.id).subscribe(res => {
+        this._notebooks.restartKernel(this.session.kernel.id).pipe(
+            tap(res => this.nb.setKernelStatusBusy()),
+            delay(1000) // time for the kernel to restart
+        ).subscribe(res => {
             if (this.executeAllAfterRestart) {
                 this.nb.executeAll();
             }
         }, err => {
             this._toast.error('Unable to restart the kernel');
+            console.log(err);
         });
         this.restartKernelModal.hide();
     }
@@ -413,12 +431,12 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     deleteCell(id: string) {
         if (this.nb.cells.length > 1) {
-            const cellAbove = this.nb.cellAbove(id);
+            const cellBelow = this.nb.cellBelow(id);
             this.nb.deleteCell(id);
-            if (cellAbove) {
-                this.selectCell(cellAbove.id, true);
+            if (cellBelow) {
+                this.selectCell(cellBelow.id, false);
             } else {
-                this.selectCell(this.nb.cells[0].id, true);
+                this.selectCell(this.nb.cells[this.nb.cells.length - 1].id, false);
             }
         }
     }
@@ -428,7 +446,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         if (id !== unselectId) {
             this.selectedCell = this.nb.getCell(id);
             if (this.selectedCell) {
-                this.selectedCellType = this.selectedCell.cell_type;
+                this.selectedCellType = this.nb.getCellType(this.selectedCell);
                 if (editMode) {
                     this.mode = 'edit'; // if component does not yet exist
                     this.selectedComponent?.editMode();
@@ -453,11 +471,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
 
     keyDown(event: KeyboardEvent) {
-        //console.log('key pressed:', event);
         const modifiers: number = +event.altKey + +event.ctrlKey + +event.shiftKey;
         if (this.mode === 'edit') {
             this.handleEditModeKey(event, modifiers);
-        } else {
+        } else if (!(event.target as HTMLElement).classList.contains('no-command-hotkey')) {
             this.handleCommandModeKey(event, modifiers);
         }
 
@@ -523,6 +540,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                     event.preventDefault();
                     this.setCellType('code');
                     break;
+                case 'p':
+                    event.preventDefault();
+                    this.setCellType('poly');
+                    break;
                 case 's':
                     this.uploadNotebook();
                     break;
@@ -540,22 +561,18 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     private handleModifiedEnter(event: KeyboardEvent, modifiers: number) {
         if (modifiers > 1) {
-            console.log('too many');
             return;
         }
         event.preventDefault();
         this.executeSelected();
         if (event.altKey) {
-            console.log('Alt key is pressed');
             this.insertCell(this.selectedCell.id, true);
         } else if (event.ctrlKey) {
-            console.log('Ctrl key is pressed');
             if (this.mode === 'edit') {
                 this.selectedComponent?.commandMode();
                 document.getElementById('notebook').focus();
             }
         } else if (event.shiftKey) {
-            console.log('Shift key is pressed');
             this.selectCellBelow();
         }
     }

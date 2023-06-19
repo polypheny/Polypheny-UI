@@ -76,4 +76,22 @@ export class NotebooksWebSocket {
         this.sendMessage(msg);
         return id;
     }
+
+    sendQuery(query: string[] | string, language: string, namespace: string, variable: string): string {
+        const queryStr = (typeof query === 'string') ?
+            query : query.join('/n');
+        console.warn('sending', queryStr);
+
+        const id = uuid.v4();
+        const msg = {
+            uuid: id,
+            type: 'poly',
+            content: queryStr,
+            language: language,
+            namespace: namespace,
+            variable: variable
+        };
+        this.sendMessage(msg);
+        return id;
+    }
 }

@@ -11,6 +11,8 @@ import {
 import {UrlSegment} from '@angular/router';
 import {mergeMap, switchMap, tap} from 'rxjs/operators';
 import {Notebook} from '../models/notebook.model';
+import {SchemaRequest} from '../../../models/ui-request.model';
+import {CrudService} from '../../../services/crud.service';
 
 @Injectable()
 export class NotebooksContentService {
@@ -36,8 +38,11 @@ export class NotebooksContentService {
 
     private preferredSessions: Map<string, string> = new Map<string, string>();
     private readonly LOCAL_STORAGE_PREFERRED_SESSIONS_KEY = 'notebooks-preferred-sessions';
+    private namespaces = new BehaviorSubject<string[]>([]);
 
-    constructor(private _notebooks: NotebooksService,) {
+    constructor(private _notebooks: NotebooksService,
+                private _crud: CrudService) {
+        this.updateExistingNamespaces();
         this.updateAvailableKernels();
         this.updateSessions();
         this.loadPreferredSessions();
@@ -126,10 +131,12 @@ export class NotebooksContentService {
         this.updateInterval$?.unsubscribe();
         if (active) {
             this.updateInterval$ = interval(15000).subscribe(() => {
+                this.updateExistingNamespaces();
                 this.updateAvailableKernels();
                 this.updateSessions();
                 this.update();
             });
+            this.updateExistingNamespaces();
         }
     }
 
@@ -324,6 +331,19 @@ export class NotebooksContentService {
             JSON.parse(localStorage.getItem(this.LOCAL_STORAGE_PREFERRED_SESSIONS_KEY)));
     }
 
+
+    private updateExistingNamespaces() {
+        this._crud.getSchema(new SchemaRequest('views/notebooks/', false, 1, false)).subscribe(
+            res => {
+                const names = [];
+                for (const namespace of <any[]>res) {
+                    names.push(namespace?.name);
+                }
+                this.namespaces.next(names);
+            }
+        );
+    }
+
     onContentChange() {
         return this.contentChange;
     }
@@ -334,6 +354,10 @@ export class NotebooksContentService {
 
     onKernelSpecsChange() {
         return this.kernelSpecs;
+    }
+
+    onNamespaceChange() {
+        return this.namespaces;
     }
 
     onDirectoryChange() {

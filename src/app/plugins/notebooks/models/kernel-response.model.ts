@@ -112,4 +112,7 @@ export interface KernelDisplayMetadata {
     'application/json'?: {
         'expanded': boolean
     };
+    polypheny?: {
+        result_variable: string;
+    };
 }

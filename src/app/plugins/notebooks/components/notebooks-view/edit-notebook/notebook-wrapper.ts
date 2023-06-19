@@ -3,6 +3,7 @@ import {
     CellDisplayDataOutput,
     CellErrorOutput,
     CellExecuteResultOutput,
+    CellOutputType,
     CellStreamOutput,
     Notebook,
     NotebookCell
@@ -36,7 +37,8 @@ export class NotebookWrapper {
                 private busyCellIds: Set<string>,
                 private socket: NotebooksWebSocket,
                 private onExecuteMdCell: (id: string) => void,
-                private onReceivedErrorOutput: (id: string, output: CellErrorOutput) => void) {
+                private onReceivedErrorOutput: (id: string, output: CellErrorOutput) => void,
+                private onRenderPolyCell: (id: string) => void) {
         this.nb = content.content;
         this.markAsSaved(content.last_modified);
         this.validateIds();
@@ -49,10 +51,7 @@ export class NotebookWrapper {
                 this.kernelStatus = 'unknown';
             });
         this.socket.requestExecutionState();
-        this.keepAlive = interval(60000).subscribe(() => { // prevent 300s timeout
-            this.socket?.requestExecutionState();
-            console.error('requesting execution state');
-        });
+        this.keepAlive = interval(60000).subscribe(() => this.socket?.requestExecutionState()); // prevent 300s timeout
     }
 
     closeSocket() {
@@ -61,21 +60,22 @@ export class NotebookWrapper {
     }
 
     markAsSaved(lastModified: string) {
-        console.log('marking...');
         this.lastModifiedWhenLoaded = lastModified;
         this.copyNbJson = JSON.stringify(this.nb);
     }
 
     hasChangedSinceSave(): boolean {
-        console.log('comparing:', this.copyNbJson, JSON.stringify(this.nb));
         return this.copyNbJson && this.copyNbJson !== JSON.stringify(this.nb);
+    }
+
+    lastSaveDiffersFrom(other: Notebook): boolean {
+        return JSON.stringify(other) !== this.copyNbJson;
     }
 
     private validateIds() {
         const ids = new Set<string>();
         for (const cell of this.nb.cells) {
             if (cell.id == null || ids.has(cell.id)) {
-                console.log('setting id for', cell.source);
                 cell.id = uuid.v4();
             }
             ids.add(cell.id);
@@ -157,20 +157,28 @@ export class NotebookWrapper {
         if (!cell) {
             return;
         }
-        switch (cell.cell_type) {
+        switch (this.getCellType(cell)) {
             case 'code':
                 if (this.socket) {
                     cell.outputs = [];
-                    const id = this.socket?.sendCode(cell.source);
-                    this.codeOrigin.set(id, cell.id);
+                    const msgId = this.socket?.sendCode(cell.source);
+                    this.codeOrigin.set(msgId, cell.id);
                     this.busyCellIds.add(cell.id);
                 } else {
                     console.warn('Kernel socket seems to have closed. Cannot send code.');
                 }
                 break;
             case 'markdown':
-                console.log('executing md');
                 this.onExecuteMdCell(cell.id);
+                break;
+            case 'poly':
+                if (this.socket) {
+                    cell.outputs = [];
+                    const poly = cell.metadata.polypheny;
+                    const id = this.socket.sendQuery(cell.source, poly.language, poly.namespace, poly.result_variable || '_');
+                    this.codeOrigin.set(id, cell.id);
+                    this.busyCellIds.add(cell.id);
+                }
                 break;
             default:
         }
@@ -179,7 +187,6 @@ export class NotebookWrapper {
     executeMdCells() {
         for (const cell of this.nb.cells) {
             if (cell.cell_type === 'markdown') {
-                console.log('executing', cell);
                 this.executeCell(cell);
             }
         }
@@ -208,6 +215,8 @@ export class NotebookWrapper {
             case 'raw':
                 break;
             case 'poly':
+                delete cell.outputs;
+                delete cell.execution_count;
                 break;
         }
         switch (type) {
@@ -223,11 +232,16 @@ export class NotebookWrapper {
                 cell.metadata = {};
                 break;
             case 'poly':
+                cell.outputs = [];
+                cell.execution_count = null;
+                cell.metadata = {
+                    polypheny: {cell_type: 'poly', language: 'sql', namespace: 'public', result_variable: 'result'}
+                };
                 break;
             default:
                 return;
         }
-        this.setCellType(cell, type);
+        cell.cell_type = type === 'poly' ? 'code' : type;
     }
 
     clearAllOutputs() {
@@ -288,7 +302,6 @@ export class NotebookWrapper {
 
     private handleStatusMsg(msg: KernelStatus) {
         this.kernelStatus = msg.content.execution_state;
-
     }
 
     private handleInputMsg(msg: KernelExecuteInput, cell: NotebookCell) {
@@ -324,13 +337,13 @@ export class NotebookWrapper {
 
     private handleResultMsg(msg: KernelExecuteResult, cell: NotebookCell) {
         const output = msg.content as CellExecuteResultOutput;
-        output.output_type = msg.msg_type;
+        output.output_type = msg.msg_type as CellOutputType;
         cell.outputs.push(output);
     }
 
     private handleErrorMsg(msg: KernelErrorMsg, cell: NotebookCell) {
         const output = msg.content as CellErrorOutput;
-        output.output_type = msg.msg_type;
+        output.output_type = msg.msg_type as CellOutputType;
         cell.outputs.push(output);
         this.busyCellIds.delete(cell.id);
         this.onReceivedErrorOutput(cell.id, output);
@@ -348,22 +361,30 @@ export class NotebookWrapper {
 
     private handleDisplayMsg(msg: KernelDisplayData, cell: NotebookCell) {
         const output = msg.content as CellDisplayDataOutput;
-        output.output_type = msg.msg_type;
+        output.output_type = msg.msg_type as CellOutputType;
         cell.outputs.push(output);
+        if (output.data['application/json'] && this.getCellType(cell) === 'poly') {
+            output.metadata.polypheny = {result_variable: cell.metadata.polypheny.result_variable || '_'};
+            this.onRenderPolyCell(cell.id);
+        }
     }
 
     private handleUpdateDisplayMsg(msg: KernelUpdateDisplayData, cell: NotebookCell) {
         this.handleDisplayMsg(msg, cell); // not correctly handled
     }
 
-    private getCellType(cell: NotebookCell): CellType {
-        // TODO: handle 'poly'
+    getCellType(cell: NotebookCell): CellType {
+        if (cell.cell_type === 'code') {
+            if (cell.metadata?.polypheny?.cell_type === 'poly') {
+                return 'poly';
+            }
+        }
         return cell.cell_type;
     }
 
     private setCellType(cell: NotebookCell, type: CellType) {
         if (type === 'poly') {
-            // TODO: handle 'poly'
+            cell.cell_type = 'code';
             return;
         }
         cell.cell_type = type;
@@ -389,6 +410,13 @@ export class NotebookWrapper {
             execution_count: null,
             outputs: []
         };
+    }
+
+    /**
+     * Useful to set to signal to the user the UI is waiting for the kernel to restart.
+     */
+    setKernelStatusBusy() {
+        this.kernelStatus = 'busy';
     }
 
     get cells() {
