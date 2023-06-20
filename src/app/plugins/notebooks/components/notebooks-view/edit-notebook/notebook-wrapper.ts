@@ -175,7 +175,8 @@ export class NotebookWrapper {
                 if (this.socket) {
                     cell.outputs = [];
                     const poly = cell.metadata.polypheny;
-                    const id = this.socket.sendQuery(cell.source, poly.language, poly.namespace, poly.result_variable || '_');
+                    const id = this.socket.sendQuery(cell.source, poly.language, poly.namespace,
+                        poly.result_variable || '_', poly.expand_params);
                     this.codeOrigin.set(id, cell.id);
                     this.busyCellIds.add(cell.id);
                 }
@@ -235,7 +236,10 @@ export class NotebookWrapper {
                 cell.outputs = [];
                 cell.execution_count = null;
                 cell.metadata = {
-                    polypheny: {cell_type: 'poly', language: 'sql', namespace: 'public', result_variable: 'result'}
+                    polypheny: {
+                        cell_type: 'poly', language: 'sql', namespace: 'public',
+                        result_variable: 'result', expand_params: false
+                    }
                 };
                 break;
             default:
@@ -317,6 +321,9 @@ export class NotebookWrapper {
     }
 
     private handleStreamMsg(msg: KernelStream, cell: NotebookCell) {
+        if (this.getCellType(cell) === 'poly') {
+            return;
+        }
         let lastOutput = cell.outputs[cell.outputs.length - 1];
         if (lastOutput && lastOutput.output_type === 'stream') {
             lastOutput = <CellStreamOutput>lastOutput;
@@ -336,6 +343,9 @@ export class NotebookWrapper {
     }
 
     private handleResultMsg(msg: KernelExecuteResult, cell: NotebookCell) {
+        if (this.getCellType(cell) === 'poly') {
+            return;
+        }
         const output = msg.content as CellExecuteResultOutput;
         output.output_type = msg.msg_type as CellOutputType;
         cell.outputs.push(output);

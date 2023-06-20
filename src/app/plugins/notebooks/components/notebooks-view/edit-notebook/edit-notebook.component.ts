@@ -16,14 +16,14 @@ import {ToastService} from '../../../../../components/toast/toast.service';
 import {NotebookCell} from '../../../models/notebook.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NotebooksContentService} from '../../../services/notebooks-content.service';
-import {EMPTY, Observable, Subject, Subscription} from 'rxjs';
+import {EMPTY, Observable, Subject, Subscription, timer} from 'rxjs';
 import {NotebooksWebSocket} from '../../../services/notebooks-webSocket';
 import {WebuiSettingsService} from '../../../../../services/webui-settings.service';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {NbCellComponent} from './nb-cell/nb-cell.component';
 import {CellType, NotebookWrapper} from './notebook-wrapper';
-import {delay, mergeMap, tap} from 'rxjs/operators';
+import {delay, mergeMap, take, tap} from 'rxjs/operators';
 import {LoadingScreenService} from '../../../../../components/loading-screen/loading-screen.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {CrudService} from '../../../../../services/crud.service';
@@ -295,9 +295,12 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
 
-    executeSelected() {
+    executeSelected(advanceToNext = false) {
         this.selectedComponent?.updateSource();
         this.nb.executeCell(this.selectedCell);
+        if (advanceToNext) {
+            this.selectCellBelow();
+        }
     }
 
     executeAboveSelected() {
@@ -426,7 +429,17 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     insertCell(id: string, below: boolean, editMode = true) {
         const cell = this.nb.insertCell(id, below);
-        this.selectCell(cell.id, editMode, true);
+        timer(50).pipe(take(1)).subscribe(() => {
+            // ensure enough time has passed for the cell to be added to DOM
+            this.selectCell(cell.id, editMode, true);
+        });
+    }
+
+    moveCell(oldIdx: number, below: boolean) {
+        const newIdx = oldIdx + (below ? 1 : -1);
+        if (newIdx >= 0 && newIdx < this.nb.cells.length) {
+            moveItemInArray(this.nb.cells, oldIdx, newIdx);
+        }
     }
 
     deleteCell(id: string) {
@@ -573,7 +586,11 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 document.getElementById('notebook').focus();
             }
         } else if (event.shiftKey) {
-            this.selectCellBelow();
+            if (this.nb.getCellIndex(this.selectedCell.id) === this.nb.cells.length - 1) {
+                this.insertCell(this.selectedCell.id, true, false);
+            } else {
+                this.selectCellBelow();
+            }
         }
     }
 
@@ -589,6 +606,12 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         }
         this.nb.changeCellType(this.selectedCell, type);
         this.selectedCellType = type;
+        this.selectedComponent.updateCellType();
+    }
+
+    getPreviewText(cell: NotebookCell) {
+        const source = Array.isArray(cell.source) ? cell.source[0] : cell.source.split('\n', 2)[0];
+        return source?.slice(0, 50);
     }
 
 

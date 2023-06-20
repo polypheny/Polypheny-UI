@@ -8,7 +8,6 @@
 .nb-input-wrapper {
   display: flex;
   flex-direction: row;
-  margin-bottom: 10px;
 }
 
 .nb-input {
@@ -17,14 +16,23 @@
   flex: 1;
 }
 
+.nb-hider {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  overflow-x: hidden;
+}
+
+.nb-hidden {
+  width: 100%;
+}
+
 .nb-code {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
   font-weight: 800;
 }
 
 .sql-console {
-  height: 200px;
-  //flex: 1 0 300px;
   margin-bottom: 0;
   border-radius: 4px;
   display: inline-block;
@@ -43,10 +51,18 @@
   flex-shrink: 0;
 }
 
+.nb-select-bar.bg-primary:hover {
+  background-color: #187CA0 !important;
+}
+
+.nb-select-bar.bg-light:hover {
+  background-color: #ccc !important;
+}
+
 .nb-output-wrapper {
   display: flex;
   flex-direction: row;
-  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 .nb-outputs {
@@ -91,7 +107,8 @@ pre {
 }
 
 .nb-exec-btn {
-  z-index: 1;
+  position:relative;
+  z-index: 2;
   margin-right: 5px;
   padding: 0 3px;
   color: #C8CED3;
@@ -101,13 +118,20 @@ pre {
   color: black;
 }
 
+.nb-exec-counter {
+  z-index: 0;
+}
+
 .nb-markdown {
-  flex-grow: 1;
+  flex-grow: 2;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   display: inline-block;
   overflow: hidden;
   padding-left: 5px;
   padding-right: 25px;
+  white-space: normal;
+  word-wrap: break-word;
+  border-radius: 4px;
 }
 
 .nb-overlay {
@@ -116,14 +140,18 @@ pre {
 
 .nb-overlay-buttons {
   position: absolute;
-  top: -20px;
+  top: -16px;
   right: 0;
   z-index: 1;
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+  background-color: white;
+  border-radius: 5px;
+
 }
 
 .nb-overlay-separator {
-  width: 2px;
+  width: 1px;
+  z-index: 1;
 }
 
 .vertical-icons {

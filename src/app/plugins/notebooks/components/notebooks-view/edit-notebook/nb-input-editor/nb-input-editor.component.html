@@ -1,14 +1,8 @@
 <ng-container [ngSwitch]="type">
-    <app-editor #codeEditor [lang]="'sql'" id="nb-code-editor"></app-editor>
-    <!--<ng-container *ngSwitchCase="'markdown'">
-        <app-editor #mdEditor [lang]="'sql'" id="nb-md-editor"></app-editor>
-    </ng-container>
-
-    <ng-container *ngSwitchCase="'code'">
-        <app-editor #codeEditor [lang]="'sql'" id="nb-code-editor"></app-editor>
-    </ng-container>
-
-    <ng-container *ngSwitchCase="'poly'"></ng-container>
-    <ng-container *ngSwitchCase="'raw'"></ng-container>-->
+    <app-editor #editor id="nb-code-editor"
+                [lang]="editorLanguage"
+                [autocomplete]="type === 'poly'"
+                [initOptions]="editorOptions"
+                [useParentHeight]="true"></app-editor>
 
 </ng-container>

@@ -25,18 +25,23 @@ import {FormControl, FormGroup, Validators} from '@angular/forms';
 export class NbCellComponent implements OnInit, AfterViewInit {
     @Input() cell: NotebookCell;
     @Input() isFocused: boolean;
+    @Input() isFirst: boolean;
+    @Input() isLast: boolean;
     @Input() isExecuting: boolean;
     @Input() mode: NbMode;
-    @Input() selectedCellType: CellType;
+    @Input() selectedCellType: CellType; // not necessarily the type of this cell
     @Input() namespaces: string[];
+    @Input() nbLanguage: string;
     @Output() modeChange = new EventEmitter<NbMode>();
     @Output() insert = new EventEmitter<boolean>(); // true: below, false: above
+    @Output() move = new EventEmitter<boolean>(); // true: down, false: up
     @Output() execute = new EventEmitter<string>();
     @Output() changeType = new EventEmitter<Event>();
     @Output() delete = new EventEmitter<string>();
     @Output() selected = new EventEmitter<string>();
     @ViewChild('editor') editor: NbInputEditorComponent;
     @ViewChild('cellDiv') cellDiv: ElementRef;
+    cellType: CellType = 'code';
 
     isMouseOver = false;
     resultVariable: string;
@@ -47,6 +52,8 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     errorHtml: SafeHtml;
     isMdRendered = false;
     confirmingDeletion = false;
+    sourceHidden = false;
+    outputsHidden = false;
 
     // https://katex.org/docs/options.html
     public options: KatexOptions = {
@@ -59,20 +66,23 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit(): void {
+        this.updateCellType();
         this.ansi_up.escape_html = true; // prevent xss
         this.initForms();
 
-        if (this.cell.cell_type === 'markdown') {
+        if (this.cellType === 'markdown') {
             this.isMdRendered = true;
             this.mdSource = Array.isArray(this.cell.source) ? this.cell.source.join('') : this.cell.source;
-        } else if (this.isPolyCell()) {
+        } else if (this.cellType === 'poly') {
             this.renderResultSet();
-        } else if (this.cell.cell_type === 'code') {
+        } else if (this.cellType === 'code') {
             const output = this.cell.outputs.find(o => o.output_type === 'error');
             if (output) {
                 this.renderError(<CellErrorOutput>output);
             }
         }
+        this.sourceHidden = this.cell.metadata.jupyter?.source_hidden;
+        this.outputsHidden = this.cell.metadata.jupyter?.outputs_hidden;
     }
 
     ngAfterViewInit(): void {
@@ -92,11 +102,13 @@ export class NbCellComponent implements OnInit, AfterViewInit {
                 Validators.maxLength(30),
                 Validators.required
             ]),
+            expand: new FormControl(this.cell.metadata.polypheny?.expand_params || false),
         });
-        if (this.isPolyCell()) { // cell-type was already poly when loaded
+        if (this.cellType === 'poly') { // cell-type was already poly when loaded
             this.cell.metadata.polypheny.language = this.polyForm.value.language;
             this.cell.metadata.polypheny.namespace = this.polyForm.value.namespace;
             this.cell.metadata.polypheny.result_variable = this.polyForm.value.variable;
+            this.cell.metadata.polypheny.expand_params = this.polyForm.value.expand;
         }
     }
 
@@ -125,6 +137,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         this.editor.focus();
         this.mode = 'edit';
         this.modeChange.emit(this.mode);
+        this.setSourceHidden(false);
     }
 
     commandMode() {
@@ -170,7 +183,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     }
 
     renderResultSet() {
-        if (this.isPolyCell()) {
+        if (this.cellType === 'poly') {
             const output = <CellDisplayDataOutput>this.cell.outputs.find(o => o.output_type === 'display_data'
                 && (<CellDisplayDataOutput>o).data['application/json']);
             if (output) {
@@ -203,6 +216,14 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         }
     }
 
+    updateCellType() {
+        if (this.cell.metadata.polypheny?.cell_type === 'poly') {
+            this.cellType = 'poly';
+        } else {
+            this.cellType = this.cell.cell_type;
+        }
+    }
+
     changedNamespace() {
         this.cell.metadata.polypheny.namespace = this.polyForm.value.namespace;
     }
@@ -215,8 +236,25 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         this.cell.metadata.polypheny.result_variable = this.polyForm.valid ? this.polyForm.value.variable : '';
     }
 
-    isPolyCell(): boolean {
-        return this.cell.metadata.polypheny?.cell_type === 'poly';
+    toggledExpansion() {
+        this.cell.metadata.polypheny.expand_params = this.polyForm.value.expand;
+        console.log('toggled expansion for', this.cell.id, 'to', this.polyForm.value.expand);
+    }
+
+    setSourceHidden(hide: boolean) {
+        this.sourceHidden = hide;
+        if (!this.cell.metadata.jupyter) {
+            this.cell.metadata.jupyter = {};
+        }
+        this.cell.metadata.jupyter.source_hidden = hide;
+    }
+
+    setOutputsHidden(hide: boolean) {
+        this.outputsHidden = hide;
+        if (!this.cell.metadata.jupyter) {
+            this.cell.metadata.jupyter = {};
+        }
+        this.cell.metadata.jupyter.outputs_hidden = hide;
     }
 
     get source(): string {

@@ -42,7 +42,7 @@
                         Run
                     </button>
                     <div class="dropdown-menu  dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
-                        <a class="dropdown-item" (click)="executeSelected()">
+                        <a class="dropdown-item" (click)="executeSelected(true)">
                             <span>Run Selected Cell</span>
                         </a>
                         <a class="dropdown-item" (click)="executeAll()">
@@ -93,7 +93,7 @@
             </div>
 
             <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Execution">
-                <button type="button" class="btn btn-light" (click)="executeSelected()"
+                <button type="button" class="btn btn-light" (click)="executeSelected(true)"
                         onclick="this.blur();" tooltip="run selected cell" container="body">
                     <i class="fa fa-play"></i>
                 </button>
@@ -135,25 +135,34 @@
 
 <div class="nb-scroll" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
     <h1 class="nb-title">{{name}}</h1>
-    <div class="nb-background mt-4 mb-4 pt-4">
+    <div class="nb-background mt-4 pt-4">
         <ng-container *ngIf="nb">
             <div cdkDropList class="drop-list" (cdkDropListDropped)="drop($event)">
-                <div class="drop-box" cdkDrag cdkDragLockAxis="y"
-                     *ngFor="let cell of nb.cells; trackBy:identify">
+                <div class="drop-box" cdkDrag cdkDragBoundary=".nb-background"
+                     *ngFor="let cell of nb.cells; let i = index; trackBy:identify">
                     <app-nb-cell #nbCell
                                  [cell]="cell"
                                  [isFocused]="cell.id === selectedCell.id"
                                  [isExecuting]="busyCellIds.has(cell.id)"
+                                 [isFirst]="i === 0"
+                                 [isLast]="i === nb.cells.length-1"
                                  [selectedCellType]="selectedCellType"
                                  [(mode)]="mode"
                                  [namespaces]="namespaces"
+                                 [nbLanguage]="kernelSpec?.spec?.language || 'python'"
                                  (execute)="nb.executeCell($event)"
                                  (insert)="insertCell(cell.id, $event)"
+                                 (move)="moveCell(i, $event)"
                                  (delete)="deleteCell($event)"
                                  (selected)="selectCell($event)"
-                                (changeType)="onTypeChange($event)">
+                                 (changeType)="onTypeChange($event)">
                         <div class="nb-drag-handle" cdkDragHandle></div>
                     </app-nb-cell>
+                    <div *cdkDragPreview class="drop-preview">
+                        <span class="text-secondary mr-4" *ngIf="cell.cell_type === 'code'">[ ]:</span>
+                        <span>{{getPreviewText(cell)}}</span>
+                    </div>
+                    <div class="example-custom-placeholder bg-primary" *cdkDragPlaceholder></div>
                 </div>
             </div>
 
@@ -339,7 +348,8 @@
             </div>
 
             <div class="modal-body">
-                <p>Are you sure you want to shut this kernel down and close the notebook? All variables will be lost.</p>
+                <p>Are you sure you want to shut this kernel down and close the notebook? All variables will be
+                    lost.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" (click)="terminateKernelModal.hide()">Cancel</button>
@@ -363,10 +373,12 @@
             </div>
 
             <div class="modal-body">
-                <p>Are you sure you want to shut down all running Kernels of this notebook? Unsaved changes are lost!</p>
+                <p>Are you sure you want to shut down all running Kernels of this notebook? Unsaved changes are
+                    lost!</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="terminateAllKernelsModal.hide()">Cancel</button>
+                <button type="button" class="btn btn-secondary" (click)="terminateAllKernelsModal.hide()">Cancel
+                </button>
                 <button type="button" class="btn btn-danger" (click)="closeAndTerminate(true)"
                         [disabled]="deleting">Shut Down All
                 </button>

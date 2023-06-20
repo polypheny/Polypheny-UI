@@ -92,6 +92,7 @@ export interface PolyphenyMetadata {
     namespace?: string;
     language?: string;
     result_variable?: string;
+    expand_params?: boolean;
 }
 
 export type CellOutputType = 'execute_result' | 'stream' | 'display_data' | 'error';

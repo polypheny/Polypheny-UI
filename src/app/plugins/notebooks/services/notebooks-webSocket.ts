@@ -77,7 +77,7 @@ export class NotebooksWebSocket {
         return id;
     }
 
-    sendQuery(query: string[] | string, language: string, namespace: string, variable: string): string {
+    sendQuery(query: string[] | string, language: string, namespace: string, variable: string, expand: boolean): string {
         const queryStr = (typeof query === 'string') ?
             query : query.join('/n');
         console.warn('sending', queryStr);
@@ -89,7 +89,8 @@ export class NotebooksWebSocket {
             content: queryStr,
             language: language,
             namespace: namespace,
-            variable: variable
+            variable: variable,
+            expand: expand
         };
         this.sendMessage(msg);
         return id;

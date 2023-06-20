@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {CellType} from '../notebook-wrapper';
 import {EditorComponent} from '../../../../../../components/editor/editor.component';
+import * as ace from 'ace-builds';
 
 @Component({
     selector: 'app-nb-input-editor',
@@ -9,8 +10,19 @@ import {EditorComponent} from '../../../../../../components/editor/editor.compon
 })
 export class NbInputEditorComponent implements OnInit, OnChanges {
     @Input() type: CellType;
-    @ViewChild('codeEditor') codeEditor: EditorComponent;
-    @ViewChild('mdEditor') mdEditor: EditorComponent;
+    @Input() nbLanguage: CellType; // cannot change while a notebook is open
+    @Input() polyLanguage: 'cypher' | 'mql' | 'cql' | 'sql' | 'pig';
+    @ViewChild('editor') editor: EditorComponent;
+
+    editorLanguage = 'python';
+
+    editorOptions = {
+        minLines: 4,
+        maxLines: 60,
+        showLineNumbers: false,
+        highlightGutterLine: false,
+        highlightActiveLine: false
+    };
 
 
     constructor() {
@@ -20,9 +32,11 @@ export class NbInputEditorComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.type?.previousValue) {
+        if (changes.type) {
             //console.log('try to change...', changes.type);
-            //this.changeEditor(changes.type.previousValue, changes.type.currentValue);
+            this.updateEditorLanguage();
+        } else if (changes.polyLanguage) {
+            this.updateEditorLanguage();
         }
     }
 
@@ -42,26 +56,20 @@ export class NbInputEditorComponent implements OnInit, OnChanges {
         this.editor.blur();
     }
 
-    /*private changeEditor(oldType: CellType, newType: CellType) {
-        console.log('changing from', oldType, 'to', newType);
-        const code = this.getEditor(oldType).getCode();
-        this.getEditor(newType).setCode(code);
-    }*/
-
-    private getEditor(type: CellType): EditorComponent {
-        return this.codeEditor;
-        /*switch (type) {
-            case 'code':
-                return this.codeEditor;
+    private updateEditorLanguage() {
+        switch (this.type) {
             case 'markdown':
-                return this.mdEditor;
-            default:
-                return this.codeEditor;
-        }*/
-    }
-
-    get editor(): EditorComponent {
-        return this.getEditor(this.type);
+                this.editorLanguage = 'markdown';
+                break;
+            case 'code':
+                this.editorLanguage = this.nbLanguage;
+                break;
+            case 'poly':
+                this.editorLanguage = this.polyLanguage;
+                break;
+            case 'raw':
+                this.editorLanguage = 'python'; // could be anything
+        }
     }
 
 }
