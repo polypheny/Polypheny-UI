@@ -98,6 +98,27 @@ export class NotebookWrapper {
         return null;
     }
 
+    insertCopyOfCell(jsonCell: string, reference: NotebookCell, below: boolean = true): NotebookCell {
+        const i = this.nb.cells.indexOf(reference);
+        if (i !== -1) {
+            const copyCell = this.getCopyOfCell(jsonCell);
+            this.nb.cells.splice(i + +below, 0, copyCell);
+            return copyCell;
+        }
+        return null;
+
+    }
+
+    duplicateCell(id: string) {
+        const originalCell = this.getCell(id);
+        if (originalCell) {
+            const copyCell = this.getCopyOfCell(JSON.stringify(originalCell));
+            this.cells.splice(this.getCellIndex(id) + 1, 0, copyCell);
+            return copyCell;
+        }
+        return null;
+    }
+
     deleteCell(id: string) {
         const i = this.getCellIndex(id);
         if (i !== -1) {
@@ -129,7 +150,7 @@ export class NotebookWrapper {
 
     executeAll() {
         for (const cell of this.nb.cells) {
-            this.executeCell(cell);
+            this.executeCell(cell, true);
         }
     }
 
@@ -140,21 +161,22 @@ export class NotebookWrapper {
         }
         if (above) {
             for (const cell of this.nb.cells.slice(0, idx)) {
-                this.executeCell(cell);
+                this.executeCell(cell, true);
             }
         }
         if (refAndBelow) {
-            for (const cell of this.nb.cells.slice(idx)) {
-                this.executeCell(cell);
+            this.executeCell(reference, false);
+            for (const cell of this.nb.cells.slice(idx+1)) {
+                this.executeCell(cell, true);
             }
         }
     }
 
-    executeCell(cell: NotebookCell | string) {
+    executeCell(cell: NotebookCell | string, automatic = false) {
         if (typeof cell === 'string') {
             cell = this.getCell(cell);
         }
-        if (!cell) {
+        if (!cell || (automatic && cell.metadata.polypheny?.manual_execution)) {
             return;
         }
         switch (this.getCellType(cell)) {
@@ -218,13 +240,15 @@ export class NotebookWrapper {
             case 'poly':
                 delete cell.outputs;
                 delete cell.execution_count;
+                delete cell.metadata.polypheny?.cell_type;
                 break;
         }
+        const oldMeta = cell.metadata.polypheny;
         switch (type) {
             case 'code':
                 cell.outputs = [];
                 cell.execution_count = null;
-                cell.metadata = {};
+                cell.metadata = {polypheny: oldMeta};
                 break;
             case 'markdown':
                 cell.metadata = {};
@@ -237,8 +261,11 @@ export class NotebookWrapper {
                 cell.execution_count = null;
                 cell.metadata = {
                     polypheny: {
-                        cell_type: 'poly', language: 'sql', namespace: 'public',
-                        result_variable: 'result', expand_params: false
+                        cell_type: 'poly', language: oldMeta?.language || 'sql',
+                        namespace: oldMeta?.namespace || 'public',
+                        result_variable: oldMeta?.result_variable ||'result',
+                        expand_params: oldMeta?.expand_params ||false,
+                        manual_execution: oldMeta?.manual_execution ||false
                     }
                 };
                 break;
@@ -420,6 +447,12 @@ export class NotebookWrapper {
             execution_count: null,
             outputs: []
         };
+    }
+
+    private getCopyOfCell(jsonCell: string): NotebookCell {
+        const copyCell = <NotebookCell>JSON.parse(jsonCell);
+        copyCell.id = uuid.v4();
+        return copyCell;
     }
 
     /**

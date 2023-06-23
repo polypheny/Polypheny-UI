@@ -111,7 +111,7 @@
                     [(ngModel)]="selectedCellType">
                 <option value="code">Code</option>
                 <option value="markdown">Markdown</option>
-                <option value="poly">Polypheny</option>
+                <option value="poly">Query</option>
                 <option value="raw">Raw</option>
             </select>
 
@@ -153,6 +153,7 @@
                                  (execute)="nb.executeCell($event)"
                                  (insert)="insertCell(cell.id, $event)"
                                  (move)="moveCell(i, $event)"
+                                 (duplicate)="duplicateCell(cell.id)"
                                  (delete)="deleteCell($event)"
                                  (selected)="selectCell($event)"
                                  (changeType)="onTypeChange($event)">

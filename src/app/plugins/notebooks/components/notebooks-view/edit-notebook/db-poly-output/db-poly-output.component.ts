@@ -11,6 +11,7 @@ export class DbPolyOutputComponent implements OnInit {
 
     @Input() resultSet: ResultSet;
     @Input() resultVariable: string;
+    @Input() resultIsTooLong: boolean;
 
     tableConfig: TableConfig = {
         create: false,

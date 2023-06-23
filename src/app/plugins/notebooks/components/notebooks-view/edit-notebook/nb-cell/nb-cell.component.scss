@@ -41,7 +41,7 @@
 .nb-side-area {
   text-align: end;
   position: relative;
-  padding: 5px;
+  padding: 0 5px 5px;
   flex: 0 0 60px
 }
 
@@ -112,6 +112,11 @@ pre {
   margin-right: 5px;
   padding: 0 3px;
   color: #C8CED3;
+  line-height: 1;
+}
+
+.nb-exec-play-manual {
+  padding-left: 1px;
 }
 
 .nb-exec-btn:hover {
@@ -126,7 +131,8 @@ pre {
   flex-grow: 2;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   display: inline-block;
-  overflow: hidden;
+  //overflow: hidden;
+  overflow-x: auto;
   padding-left: 5px;
   padding-right: 25px;
   white-space: normal;
@@ -151,7 +157,7 @@ pre {
 
 .nb-overlay-separator {
   width: 1px;
-  z-index: 1;
+  z-index: 2;
 }
 
 .vertical-icons {

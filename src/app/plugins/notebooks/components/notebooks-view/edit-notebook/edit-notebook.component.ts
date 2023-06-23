@@ -48,6 +48,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     busyCellIds = new Set<string>();
     mode: NbMode = 'command';
     namespaces: string[] = [];
+    private copiedCell: string; // stringified NotebookCell
     @ViewChild('deleteNotebookModal') public deleteNotebookModal: ModalDirective;
     @ViewChild('restartKernelModal') public restartKernelModal: ModalDirective;
     private executeAllAfterRestart = false;
@@ -415,7 +416,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     restartKernel() {
         this._notebooks.restartKernel(this.session.kernel.id).pipe(
             tap(res => this.nb.setKernelStatusBusy()),
-            delay(1000) // time for the kernel to restart
+            delay(1500) // time for the kernel to restart
         ).subscribe(res => {
             if (this.executeAllAfterRestart) {
                 this.nb.executeAll();
@@ -439,6 +440,27 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         const newIdx = oldIdx + (below ? 1 : -1);
         if (newIdx >= 0 && newIdx < this.nb.cells.length) {
             moveItemInArray(this.nb.cells, oldIdx, newIdx);
+        }
+    }
+
+    duplicateCell(id: string) {
+        const cell = this.nb.duplicateCell(id);
+        timer(50).pipe(take(1)).subscribe(() => {
+            this.selectCell(cell.id, false, true);
+        });
+    }
+
+    copySelectedCell() {
+        this.selectedComponent?.updateSource();
+        this.copiedCell = JSON.stringify(this.selectedCell);
+    }
+
+    pasteCopiedCell(below: boolean = true) {
+        if (this.copiedCell) {
+            const copyCell = this.nb.insertCopyOfCell(this.copiedCell, this.selectedCell, below);
+            timer(50).pipe(take(1)).subscribe(() => {
+                this.selectCell(copyCell.id, false, true);
+            });
         }
     }
 
@@ -495,8 +517,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     private handleEditModeKey(event: KeyboardEvent, modifiers: number) {
         if (modifiers > 0) {
-            switch (event.key) {
-                case 'Enter':
+            switch (event.key.toLowerCase()) {
+                case 'enter':
                     this.handleModifiedEnter(event, modifiers);
                     break;
                 case 's':
@@ -507,8 +529,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                     break;
             }
         } else {
-            switch (event.key) {
-                case 'Escape':
+            switch (event.key.toLowerCase()) {
+                case 'escape':
                     this.selectedComponent?.commandMode();
                     document.getElementById('notebook').focus();
                     break;
@@ -518,9 +540,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private handleCommandModeKey(event: KeyboardEvent, modifiers: number) {
+        console.log(event);
         if (modifiers > 0) {
-            switch (event.key) {
-                case 'Enter':
+            switch (event.key.toLowerCase()) {
+                case 'enter':
                     this.handleModifiedEnter(event, modifiers);
                     break;
                 case 's':
@@ -529,11 +552,17 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                         this.uploadNotebook();
                     }
                     break;
+                case 'v':
+                    if (event.shiftKey && modifiers === 1) {
+                        event.preventDefault();
+                        this.pasteCopiedCell(false);
+                        break;
+                    }
             }
 
         } else {
-            switch (event.key) {
-                case 'Enter':
+            switch (event.key.toLowerCase()) {
+                case 'enter':
                     event.preventDefault();
                     this.selectedComponent?.editMode();
                     break;
@@ -558,13 +587,27 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                     this.setCellType('poly');
                     break;
                 case 's':
+                    event.preventDefault();
                     this.uploadNotebook();
                     break;
-                case 'ArrowUp':
+                case 'c':
+                    event.preventDefault();
+                    this.copySelectedCell();
+                    break;
+                case 'v':
+                    event.preventDefault();
+                    this.pasteCopiedCell(true);
+                    break;
+                case 'x':
+                    event.preventDefault();
+                    this.copySelectedCell();
+                    this.deleteCell(this.selectedCell.id);
+                    break;
+                case 'arrowup':
                     event.preventDefault();
                     this.selectCellAbove();
                     break;
-                case 'ArrowDown':
+                case 'arrowdown':
                     event.preventDefault();
                     this.selectCellBelow();
                     break;

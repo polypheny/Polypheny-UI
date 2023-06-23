@@ -7,7 +7,7 @@
                     [value]="selectedCellType">
                 <option value="code">Code</option>
                 <option value="markdown">Markdown</option>
-                <option value="poly">Polypheny</option>
+                <option value="poly">Query</option>
                 <option value="raw">Raw</option>
             </select>
             <div class="nb-overlay-separator bg-secondary"></div>
@@ -20,6 +20,10 @@
                 <i class="fa fa-arrow-down no-select-cell"></i>
             </button>
             <div class="nb-overlay-separator bg-secondary"></div>
+            <button type="button" class="btn btn-light no-select-cell" (click)="duplicate.emit()"
+                    onclick="this.blur();" tooltip="duplicate cell" container="body">
+                <i class="fa fa-clone no-select-cell"></i>
+            </button>
             <button type="button" class="btn btn-light vertical-icons py-0 no-select-cell ml-0"
                     (click)="insert.emit(false)"
                     onclick="this.blur();" tooltip="insert cell above (A)" container="body">
@@ -50,12 +54,26 @@
                 [{{(isExecuting ? '*' : cell.execution_count) || ' '}}]:
             </span>
             <ng-content></ng-content> <!-- turns the drag-container into a DragHandle-->
-            <button *ngIf="(isFocused || isMouseOver) && (cell.cell_type === 'code' || (cellType === 'markdown' && !isMdRendered))"
-                    [hidden]="sourceHidden"
-                    type="button" class="btn nb-exec-btn"
-                    (click)="executeCell()" onclick="this.blur();">
-                <i class="fa fa-play"></i>
-            </button>
+            <ng-container
+                    *ngIf="(isFocused || isMouseOver || manualExecution) && (cell.cell_type === 'code' || (cellType === 'markdown' && !isMdRendered))">
+                <button
+                        [hidden]="sourceHidden"
+                        type="button" class="btn nb-exec-btn" [ngClass]="{'mr-0 pr-0': manualExecution}"
+                        (click)="executeCell()" onclick="this.blur();">
+                    <i *ngIf="cellType === 'markdown' || !manualExecution; else elseManual" class="fa fa-play" style="vertical-align: middle"></i>
+                    <ng-template #elseManual>
+                        (<i class="fa fa-play nb-exec-play-manual" style="vertical-align: middle"></i>)
+                    </ng-template>
+                </button>
+                <button *ngIf="isFocused && cellType !== 'markdown'"
+                        [hidden]="sourceHidden"
+                        type="button" class="btn nb-exec-btn"
+                        (click)="toggledManual()" onclick="this.blur();">
+                    <i class="fa" [ngClass]="{'fa-toggle-off': !manualExecution, 'fa-toggle-on': manualExecution}"
+                       tooltip="toggle manual execution (useful to prevent queries from being executed more than once)"
+                       placement="right" container="body"></i>
+                </button>
+            </ng-container>
 
 
         </div>
@@ -146,10 +164,11 @@
         <div class="nb-hider" *ngIf="!outputsHidden">
             <div class="nb-outputs" *ngIf="cellType === 'poly'; else codeOutput">
                 <div class="nb-poly-data-view nb-output">
-                    <div class="nb-side-area"></div>
+                    <!--<div class="nb-side-area"></div>-->
                     <div class="nb-output-text">
                         <app-db-poly-output [resultSet]="resultSet"
-                                            [resultVariable]="resultVariable"></app-db-poly-output>
+                                            [resultVariable]="resultVariable"
+                        [resultIsTooLong]="resultIsTooLong"></app-db-poly-output>
                     </div>
                 </div>
             </div>
@@ -177,9 +196,9 @@
 
                         <ng-template #elseExecuteResult>
                             <div class="nb-side-area">
-                        <span [ngClass]="{'text-primary': isFocused, 'text-secondary': !isFocused}">
-                            [{{(isExecuting ? '*' : cell.execution_count) || ' '}}]:
-                        </span>
+                                <span [ngClass]="{'text-primary': isFocused, 'text-secondary': !isFocused}">
+                                    [{{(isExecuting ? '*' : cell.execution_count) || ' '}}]:
+                                </span>
                             </div>
 
                             <div class="nb-output-text nb-execute-result">

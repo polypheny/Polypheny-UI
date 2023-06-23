@@ -88,10 +88,11 @@ export interface CellMetadata {
 }
 
 export interface PolyphenyMetadata {
-    cell_type: CellType;
+    cell_type?: CellType;
     namespace?: string;
     language?: string;
     result_variable?: string;
+    manual_execution?: boolean;
     expand_params?: boolean;
 }
 

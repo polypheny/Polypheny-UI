@@ -8,7 +8,7 @@ import * as ace from 'ace-builds';
     templateUrl: './nb-input-editor.component.html',
     styleUrls: ['./nb-input-editor.component.scss']
 })
-export class NbInputEditorComponent implements OnInit, OnChanges {
+export class NbInputEditorComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() type: CellType;
     @Input() nbLanguage: CellType; // cannot change while a notebook is open
     @Input() polyLanguage: 'cypher' | 'mql' | 'cql' | 'sql' | 'pig';
@@ -31,9 +31,12 @@ export class NbInputEditorComponent implements OnInit, OnChanges {
     ngOnInit(): void {
     }
 
+    ngAfterViewInit(): void {
+        this.editor.setScrollMargin(5, 5);
+    }
+
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.type) {
-            //console.log('try to change...', changes.type);
             this.updateEditorLanguage();
         } else if (changes.polyLanguage) {
             this.updateEditorLanguage();

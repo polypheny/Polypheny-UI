@@ -35,6 +35,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     @Output() modeChange = new EventEmitter<NbMode>();
     @Output() insert = new EventEmitter<boolean>(); // true: below, false: above
     @Output() move = new EventEmitter<boolean>(); // true: down, false: up
+    @Output() duplicate = new EventEmitter<null>();
     @Output() execute = new EventEmitter<string>();
     @Output() changeType = new EventEmitter<Event>();
     @Output() delete = new EventEmitter<string>();
@@ -45,6 +46,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
 
     isMouseOver = false;
     resultVariable: string;
+    resultIsTooLong = false;
     polyForm: FormGroup;
     resultSet: ResultSet;
     private ansi_up = new AnsiUp();
@@ -54,6 +56,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     confirmingDeletion = false;
     sourceHidden = false;
     outputsHidden = false;
+    manualExecution = false;
 
     // https://katex.org/docs/options.html
     public options: KatexOptions = {
@@ -83,6 +86,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         }
         this.sourceHidden = this.cell.metadata.jupyter?.source_hidden;
         this.outputsHidden = this.cell.metadata.jupyter?.outputs_hidden;
+        this.manualExecution = this.cell.metadata.polypheny?.manual_execution;
     }
 
     ngAfterViewInit(): void {
@@ -187,9 +191,15 @@ export class NbCellComponent implements OnInit, AfterViewInit {
             const output = <CellDisplayDataOutput>this.cell.outputs.find(o => o.output_type === 'display_data'
                 && (<CellDisplayDataOutput>o).data['application/json']);
             if (output) {
-                const jsonResult = (output).data['application/json'];
-                this.resultSet = <ResultSet>jsonResult;
-                this.resultVariable = output.metadata.polypheny?.result_variable;
+                const jsonResult = <ResultSet>(output.data['application/json']);
+                if (jsonResult.data?.length > 1000) {
+                    this.resultIsTooLong = true;
+                    jsonResult.data = jsonResult.data.slice(0, 1000);
+                } else {
+                    this.resultIsTooLong = false;
+                }
+                    this.resultVariable = output.metadata.polypheny?.result_variable;
+                this.resultSet = jsonResult;
             } else {
                 this.resultSet = null;
             }
@@ -209,10 +219,16 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     }
 
     onReady() {
-        const elements = document.querySelectorAll('.nb-markdown img');
-        for (let i = 0; i < elements.length; i++) {
-            const element = elements[i] as HTMLElement;
-            element.style.maxWidth = '100%';
+        const images = document.querySelectorAll('.nb-markdown img');
+        for (let i = 0; i < images.length; i++) {
+            const image = images[i] as HTMLElement;
+            image.style.maxWidth = '100%';
+        }
+
+        const tables = document.querySelectorAll('.nb-markdown table');
+        for (let i = 0; i < tables.length; i++) {
+            const table = tables[i] as HTMLElement;
+            table.classList.add('table', 'table-hover', 'table-striped', 'table-borderless'); //'table table-hover table-striped table-borderless'
         }
     }
 
@@ -222,6 +238,9 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         } else {
             this.cellType = this.cell.cell_type;
         }
+        this.manualExecution = this.cell.metadata.polypheny?.manual_execution;
+        this.sourceHidden = this.cell.metadata.jupyter?.source_hidden;
+        this.outputsHidden = this.cell.metadata.jupyter?.outputs_hidden;
     }
 
     changedNamespace() {
@@ -238,7 +257,14 @@ export class NbCellComponent implements OnInit, AfterViewInit {
 
     toggledExpansion() {
         this.cell.metadata.polypheny.expand_params = this.polyForm.value.expand;
-        console.log('toggled expansion for', this.cell.id, 'to', this.polyForm.value.expand);
+    }
+
+    toggledManual() {
+        this.manualExecution = !this.manualExecution;
+        if (!this.cell.metadata.polypheny) {
+            this.cell.metadata.polypheny = {};
+        }
+        this.cell.metadata.polypheny.manual_execution = this.manualExecution;
     }
 
     setSourceHidden(hide: boolean) {
