@@ -4,7 +4,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {
     Content,
     KernelResponse,
-    KernelSpecs,
+    KernelSpecs, NotebookContent,
     SessionResponse, StatusResponse
 } from '../models/notebooks-response.model';
 import {Notebook} from '../models/notebook.model';
@@ -33,6 +33,12 @@ export class NotebooksService {
     getContents(path: string, includeInnerContent = true) {
         const params = new HttpParams().append('content', includeInnerContent ? '1' : '0');
         return this._http.get<Content>(`${this.httpUrl}/contents/` + path,
+            {...this.httpOptions, ...{params: params}});
+    }
+
+    getExportedNotebook(path: string, language: string) {
+        const params = new HttpParams().append('language', language);
+        return this._http.get<NotebookContent>(`${this.httpUrl}/export/` + path,
             {...this.httpOptions, ...{params: params}});
     }
 

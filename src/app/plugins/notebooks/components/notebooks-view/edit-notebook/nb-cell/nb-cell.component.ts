@@ -106,7 +106,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
                 Validators.maxLength(30),
                 Validators.required
             ]),
-            expand: new FormControl(this.cell.metadata.polypheny?.expand_params || false),
+            expand: new FormControl(this.cell.metadata.polypheny?.expand_params || true),
         });
         if (this.cellType === 'poly') { // cell-type was already poly when loaded
             this.cell.metadata.polypheny.language = this.polyForm.value.language;
@@ -198,7 +198,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
                 } else {
                     this.resultIsTooLong = false;
                 }
-                    this.resultVariable = output.metadata.polypheny?.result_variable;
+                this.resultVariable = output.metadata.polypheny?.result_variable;
                 this.resultSet = jsonResult;
             } else {
                 this.resultSet = null;
@@ -256,6 +256,8 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     }
 
     toggledExpansion() {
+        // Cell-level control over variable expansion is implemented, but currently not in use.
+        // Notebook-level control is sufficient
         this.cell.metadata.polypheny.expand_params = this.polyForm.value.expand;
     }
 

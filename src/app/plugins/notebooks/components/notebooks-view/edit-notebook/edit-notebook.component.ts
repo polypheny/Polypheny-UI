@@ -48,6 +48,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     busyCellIds = new Set<string>();
     mode: NbMode = 'command';
     namespaces: string[] = [];
+    expand = false;
     private copiedCell: string; // stringified NotebookCell
     @ViewChild('deleteNotebookModal') public deleteNotebookModal: ModalDirective;
     @ViewChild('restartKernelModal') public restartKernelModal: ModalDirective;
@@ -97,7 +98,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 const urlPath = this._route.snapshot.url.map(segment => decodeURIComponent(segment.toString())).join('/');
                 if (this.path !== urlPath) {
                     console.log('path does not match url');
-                    this.closeEdit();
+                    this.closeEdit(true);
                     return;
                 }
                 if (!this.renameNotebookModal.isShown) {
@@ -119,13 +120,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this.nb?.closeSocket();
     }
 
-    closeEdit() {
+    closeEdit(forced = false) {
         this.nb?.closeSocket();
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: null,
-            replaceUrl: true
-        });
+        const queryParams = forced ? {forced: true} : null;
+        this._router.navigate([this._sidebar.baseUrl, 'notebooks'], {queryParams});
     }
 
     confirmClose(): Subject<boolean> | boolean {
@@ -192,6 +190,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                     id => this.getCellComponent(id)?.renderMd(),
                     (id, output) => this.getCellComponent(id)?.renderError(output),
                     id => this.getCellComponent(id)?.renderResultSet());
+                this.expand = this.nb.isExpansionAllowed();
                 this.kernelSpec = this._content.getKernelspec(this.session.kernel.name);
                 if (this.kernelSpec) {
                     this.nb.setKernelSpec(this.kernelSpec);
@@ -209,7 +208,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this._loading.hide();
             if (!this.nb) {
                 this._toast.error(`Could not read content of ${this.path}`);
-                this.closeEdit();
+                this.closeEdit(true);
             }
         });
     }
@@ -230,7 +229,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this._content.update();
             this.deleting = false;
             this.deleteNotebookModal.hide();
-            this.closeEdit();
+            this.closeEdit(true);
         });
 
     }
@@ -240,7 +239,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this.overwriteNotebook(true);
         }
 
-        if (this.closeNotebookForm.value.shutDown) {
+        if (this.session && this.closeNotebookForm.value.shutDown) {
             this.terminateSession();
         }
         if (this.closeNbSubject) {
@@ -248,7 +247,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this.closeNbSubject.next(true);
             this.closeNbSubject?.complete();
         } else {
-            this.closeEdit();
+            this.closeEdit(true);
         }
         this.closeNbSubject = null;
         this.closeNotebookModal.hide();
@@ -295,6 +294,20 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this._content.downloadNotebook(this.nb.notebook, this.name);
     }
 
+    exportNotebook() {
+        if (this.nb.hasChangedSinceSave()) {
+            this._toast.warn('Please save your changes first before exporting the notebook');
+            return;
+        }
+        this._notebooks.getExportedNotebook(this.path, this.kernelSpec?.name).subscribe(res => {
+                console.log('result:', res);
+                this._content.downloadNotebook(res.content, 'exported_' + this.name);
+            },
+            err => {
+                this._toast.warn('Unable to export the notebook.');
+            });
+    }
+
 
     executeSelected(advanceToNext = false) {
         this.selectedComponent?.updateSource();
@@ -327,6 +340,11 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     clearAllOutputs() {
         this.nb.clearAllOutputs();
+    }
+
+    toggleExpansion() {
+        this.expand = !this.expand;
+        this.nb.setExpansionAllowed(this.expand);
     }
 
     /**

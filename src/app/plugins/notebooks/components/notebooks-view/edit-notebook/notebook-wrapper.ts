@@ -42,6 +42,11 @@ export class NotebookWrapper {
         this.nb = content.content;
         this.markAsSaved(content.last_modified);
         this.validateIds();
+        if (!this.nb.metadata.polypheny?.expand_params) {
+            const metadata = this.nb.metadata.polypheny || {};
+            metadata.expand_params = false;
+            this.nb.metadata.polypheny = metadata;
+        }
         this.busyCellIds.clear();
         this.socket.onMessage().subscribe(msg => this.handleKernelMsg(msg),
             err => {
@@ -166,7 +171,7 @@ export class NotebookWrapper {
         }
         if (refAndBelow) {
             this.executeCell(reference, false);
-            for (const cell of this.nb.cells.slice(idx+1)) {
+            for (const cell of this.nb.cells.slice(idx + 1)) {
                 this.executeCell(cell, true);
             }
         }
@@ -198,7 +203,7 @@ export class NotebookWrapper {
                     cell.outputs = [];
                     const poly = cell.metadata.polypheny;
                     const id = this.socket.sendQuery(cell.source, poly.language, poly.namespace,
-                        poly.result_variable || '_', poly.expand_params);
+                        poly.result_variable || '_', this.isExpansionAllowed() && poly.expand_params);
                     this.codeOrigin.set(id, cell.id);
                     this.busyCellIds.add(cell.id);
                 }
@@ -263,9 +268,9 @@ export class NotebookWrapper {
                     polypheny: {
                         cell_type: 'poly', language: oldMeta?.language || 'sql',
                         namespace: oldMeta?.namespace || 'public',
-                        result_variable: oldMeta?.result_variable ||'result',
-                        expand_params: oldMeta?.expand_params ||false,
-                        manual_execution: oldMeta?.manual_execution ||false
+                        result_variable: oldMeta?.result_variable || 'result',
+                        expand_params: oldMeta?.expand_params || true, // nb-lvl expand_params also needs to be true to work
+                        manual_execution: oldMeta?.manual_execution || false
                     }
                 };
                 break;
@@ -468,6 +473,14 @@ export class NotebookWrapper {
 
     get notebook() {
         return this.nb;
+    }
+
+    isExpansionAllowed(): boolean {
+        return this.nb.metadata.polypheny?.expand_params;
+    }
+
+    setExpansionAllowed(allowed: boolean) {
+        this.nb.metadata.polypheny.expand_params = allowed;
     }
 
 

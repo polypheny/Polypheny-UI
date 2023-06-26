@@ -26,6 +26,7 @@ export interface NotebookMetadata {
         pygments_lexer: string;
         version: string;
     };
+    polypheny?: PolyphenyNbMetadata;
 
 }
 
@@ -87,13 +88,19 @@ export interface CellMetadata {
 
 }
 
+// Cell-level metadata
 export interface PolyphenyMetadata {
     cell_type?: CellType;
     namespace?: string;
     language?: string;
     result_variable?: string;
     manual_execution?: boolean;
-    expand_params?: boolean;
+    expand_params?: boolean; // default: true (only active if nb-lvl expand_params is true as well)
+}
+
+// Notebook-level metadata
+export interface PolyphenyNbMetadata {
+    expand_params?: boolean; // used to toggle expansion for entire notebook, default: false
 }
 
 export type CellOutputType = 'execute_result' | 'stream' | 'display_data' | 'error';

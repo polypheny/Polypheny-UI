@@ -29,6 +29,11 @@
                         <a class="dropdown-item" (click)="downloadNotebook()">
                             <span>Download</span>
                         </a>
+                        <a class="dropdown-item" (click)="exportNotebook()"
+                           tooltip="download the notebook with all query-cells transformed to regular code-cells"
+                           container="body" placement="right">
+                            <span>Export</span>
+                        </a>
                         <a class="dropdown-item" (click)="deleteNotebookModal.show()">
                             <span>Delete</span>
                         </a>
@@ -42,6 +47,14 @@
                         Run
                     </button>
                     <div class="dropdown-menu  dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
+                        <a class="dropdown-item" (click)="toggleExpansion()"
+                           tooltip="Toggle the ability to expand '${var_name}' by its value. Use with care, as this can lead to unwanted query injections!"
+                           placement="right">
+                            <span>
+                                <i class="fa" [ngClass]="{'fa-square-o': !expand, 'fa-check-square-o': expand}"></i>
+                                Variable Expansion
+                            </span>
+                        </a>
                         <a class="dropdown-item" (click)="executeSelected(true)">
                             <span>Run Selected Cell</span>
                         </a>
@@ -329,8 +342,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" (click)="closeNotebookCancelled()">Cancel</button>
-                <button type="submit" class="btn btn-primary" (click)="closeNotebookSubmitted()"
-                        [disabled]="deleting">{{closeNotebookForm.get("shutDown").value ? 'Close & Shut Down' : 'Close'}}
+                <button type="submit" class="btn btn-primary" (click)="closeNotebookSubmitted()" [disabled]="deleting">
+                    {{closeNotebookForm.get("shutDown").value && session ? 'Close & Shut Down' : 'Close'}}
                 </button>
             </div>
         </div>
