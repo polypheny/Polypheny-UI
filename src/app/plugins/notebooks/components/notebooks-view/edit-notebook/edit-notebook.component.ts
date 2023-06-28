@@ -63,6 +63,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     closeNotebookForm: FormGroup;
     deleting = false;
     overwriting = false;
+    inserting = false;
     closeNbSubject: Subject<boolean>;
 
     constructor(
@@ -447,10 +448,15 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     insertCell(id: string, below: boolean, editMode = true) {
+        if (this.inserting) {
+            return;
+        }
         const cell = this.nb.insertCell(id, below);
+        this.inserting = true;
         timer(50).pipe(take(1)).subscribe(() => {
             // ensure enough time has passed for the cell to be added to DOM
-            this.selectCell(cell.id, editMode, true);
+            this.selectCell(cell.id, editMode);
+            timer(100).pipe(take(1)).subscribe(() => this.inserting = false); // prevent spam
         });
     }
 
@@ -464,7 +470,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     duplicateCell(id: string) {
         const cell = this.nb.duplicateCell(id);
         timer(50).pipe(take(1)).subscribe(() => {
-            this.selectCell(cell.id, false, true);
+            this.selectCell(cell.id, false);
         });
     }
 
@@ -477,7 +483,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         if (this.copiedCell) {
             const copyCell = this.nb.insertCopyOfCell(this.copiedCell, this.selectedCell, below);
             timer(50).pipe(take(1)).subscribe(() => {
-                this.selectCell(copyCell.id, false, true);
+                this.selectCell(copyCell.id, false);
             });
         }
     }
@@ -494,7 +500,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    selectCell(id: string, editMode = false, ignoreFocusLoss = false) {
+    selectCell(id: string, editMode = false) {
         const unselectId = this.selectedCell?.id;
         if (id !== unselectId) {
             this.selectedCell = this.nb.getCell(id);
@@ -558,7 +564,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private handleCommandModeKey(event: KeyboardEvent, modifiers: number) {
-        console.log(event);
         if (modifiers > 0) {
             switch (event.key.toLowerCase()) {
                 case 'enter':

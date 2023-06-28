@@ -114,11 +114,25 @@
                         onclick="this.blur();" tooltip="interrupt" container="body">
                     <i class="fa fa-stop"></i>
                 </button>
+                <button type="button" class="btn btn-light" (click)="requestRestart(false)"
+                        onclick="this.blur();" tooltip="restart" container="body">
+                    <i class="fa fa-rotate-right"></i>
+                </button>
                 <button type="button" class="btn btn-light" (click)="requestRestart(true)"
                         onclick="this.blur();" tooltip="restart & run all" container="body">
                     <i class="fa fa-forward"></i>
                 </button>
             </div>
+
+            <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Insert">
+                <button type="button" class="btn btn-light"
+                        (click)="insertCell(selectedCell.id, true, false)"
+                        onclick="this.blur();" tooltip="insert cell below (B)" container="body"
+                        [disabled]="inserting">
+                    <i class="fa fa-plus"></i>
+                </button>
+            </div>
+
             <select class="form-select btn pull-right mr-1 bg-light px-1" aria-label="Select Cell Type"
                     (change)="onTypeChange($event)"
                     [(ngModel)]="selectedCellType">

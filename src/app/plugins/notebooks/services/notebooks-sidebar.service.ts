@@ -63,7 +63,7 @@ export class NotebooksSidebarService {
             return;
         }
         const nodes: SidebarNode[] = [
-            new SidebarNode('$breadcrumbs', this.directoryPath.split('/').slice(1).join(' > ')).asSeparator()
+            new SidebarNode('$breadcrumbs', this.directoryPath.split('/').slice(1).join(' > ') || '/').asSeparator()
         ];
         if (this.parentPath) { //check if not in root
             const parent = new SidebarNode(
@@ -75,8 +75,6 @@ export class NotebooksSidebarService {
             });
             nodes.push(parent);
 
-        } else {
-            nodes.push(new SidebarNode('rootSeparator', '').asSeparator());
         }
         const fileNodes = []; // files should be below all directories
         for (const file of this.directory?.content || []) {

@@ -51,16 +51,12 @@ export interface CellStreamOutput extends CellOutput {
 export interface CellDisplayDataOutput extends CellOutput {
     data: KernelData;
     metadata: KernelDisplayMetadata;
-    transient?: {
-        display_id: string
-    };
 }
 
 export interface CellExecuteResultOutput extends CellOutput {
     execution_count: number;
     data: KernelData;
     metadata: KernelDisplayMetadata;
-    transient?: { [key: string]: string };
 
 }
 

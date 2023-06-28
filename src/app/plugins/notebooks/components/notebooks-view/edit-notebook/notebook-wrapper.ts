@@ -404,6 +404,7 @@ export class NotebookWrapper {
     private handleDisplayMsg(msg: KernelDisplayData, cell: NotebookCell) {
         const output = msg.content as CellDisplayDataOutput;
         output.output_type = msg.msg_type as CellOutputType;
+        delete output['transient']; // not supported yet
         cell.outputs.push(output);
         if (output.data['application/json'] && this.getCellType(cell) === 'poly') {
             output.metadata.polypheny = {result_variable: cell.metadata.polypheny.result_variable || '_'};
@@ -412,7 +413,7 @@ export class NotebookWrapper {
     }
 
     private handleUpdateDisplayMsg(msg: KernelUpdateDisplayData, cell: NotebookCell) {
-        this.handleDisplayMsg(msg, cell); // not correctly handled
+        this.handleDisplayMsg(msg, cell); // not well supported yet
     }
 
     getCellType(cell: NotebookCell): CellType {

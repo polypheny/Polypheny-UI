@@ -37,7 +37,7 @@
             </button>
             <div class="nb-overlay-separator bg-secondary"></div>
             <button class="btn btn-light no-select-cell" (click)="deleteCell()" (mouseleave)="resetDeleteConfirm()"
-                    tooltip="delete cell" container="body">
+                    [disabled]="isFirst && isLast" tooltip="delete cell" container="body">
                 <i class="no-select-cell"
                    [ngClass]="{'cui-trash': !confirmingDeletion, 'fa fa-warning': confirmingDeletion}"></i>
             </button>
