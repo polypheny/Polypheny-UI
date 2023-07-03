@@ -1,5 +1,5 @@
 <div class="row no-gutters" *ngIf="!hidden">
-    <div class="col-md-6">
+    <div class="col-md">
         <ol class="breadcrumb">
             <li *ngFor="let b of breadcrumbs" class="breadcrumb-item">
                 <ng-container *ngIf="b.routerLink">
@@ -9,7 +9,7 @@
             </li>
         </ol>
     </div>
-    <div class="col-md-6" *ngIf="breadcrumbs[0].name != 'Schema'">
+    <div class="col-md-6" *ngIf="breadcrumbs[0].name !== 'Schema' && breadcrumbs[0].name !== 'Dashboard'">
         <div class="custom-control-inline breadcrumb" id="zoom-wrapper">
             <div class="custom-control" *ngIf="_breadcrumb._showZoom">
                 Zoom: {{zoom}}
