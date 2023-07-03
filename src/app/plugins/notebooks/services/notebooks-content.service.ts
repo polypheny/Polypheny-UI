@@ -50,6 +50,7 @@ export class NotebooksContentService {
 
     updateLocation(url: UrlSegment[]) {
         this._pathSegments = url.map((segment) => decodeURIComponent(segment.toString()));
+        this._pathSegments.unshift('notebooks');
         this._path = this._pathSegments.join('/');
         this._directoryPath = this._path;
         this._parentPath = null;

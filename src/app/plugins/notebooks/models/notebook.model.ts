@@ -1,5 +1,5 @@
 import {KernelData, KernelDisplayMetadata} from './kernel-response.model';
-import {CellType} from '../components/notebooks-view/edit-notebook/notebook-wrapper';
+import {CellType} from '../components/edit-notebook/notebook-wrapper';
 
 export interface Notebook {
     cells: NotebookCell[];

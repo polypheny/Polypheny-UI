@@ -9,24 +9,24 @@ import {
     ViewChild,
     ViewChildren
 } from '@angular/core';
-import {KernelSpec, NotebookContent, SessionResponse} from '../../../models/notebooks-response.model';
-import {NotebooksService} from '../../../services/notebooks.service';
-import {NotebooksSidebarService} from '../../../services/notebooks-sidebar.service';
-import {ToastService} from '../../../../../components/toast/toast.service';
-import {NotebookCell} from '../../../models/notebook.model';
+import {KernelSpec, NotebookContent, SessionResponse} from '../../models/notebooks-response.model';
+import {NotebooksService} from '../../services/notebooks.service';
+import {NotebooksSidebarService} from '../../services/notebooks-sidebar.service';
+import {ToastService} from '../../../../components/toast/toast.service';
+import {NotebookCell} from '../../models/notebook.model';
 import {ActivatedRoute, Router} from '@angular/router';
-import {NotebooksContentService} from '../../../services/notebooks-content.service';
+import {NotebooksContentService} from '../../services/notebooks-content.service';
 import {EMPTY, Observable, Subject, Subscription, timer} from 'rxjs';
-import {NotebooksWebSocket} from '../../../services/notebooks-webSocket';
-import {WebuiSettingsService} from '../../../../../services/webui-settings.service';
+import {NotebooksWebSocket} from '../../services/notebooks-webSocket';
+import {WebuiSettingsService} from '../../../../services/webui-settings.service';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {NbCellComponent} from './nb-cell/nb-cell.component';
 import {CellType, NotebookWrapper} from './notebook-wrapper';
 import {delay, mergeMap, take, tap} from 'rxjs/operators';
-import {LoadingScreenService} from '../../../../../components/loading-screen/loading-screen.service';
+import {LoadingScreenService} from '../../../../components/loading-screen/loading-screen.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {CrudService} from '../../../../../services/crud.service';
+import {CrudService} from '../../../../services/crud.service';
 
 @Component({
     selector: 'app-edit-notebook',
@@ -94,7 +94,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 this.session = session;
                 this.path = this._notebooks.getPathFromSession(session);
                 this.name = this._notebooks.getNameFromSession(session);
-                const urlPath = this._route.snapshot.url.map(segment => decodeURIComponent(segment.toString())).join('/');
+                const urlPath = 'notebooks/' + this._route.snapshot.url.map(segment => decodeURIComponent(segment.toString())).join('/');
                 if (this.path !== urlPath) {
                     console.log('path does not match url');
                     this.closeEdit(true);
@@ -687,7 +687,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     drop(event: CdkDragDrop<string[]>) {
         // https://material.angular.io/cdk/drag-drop/overview
-        console.log('moving', event.previousIndex, 'to', event.currentIndex);
         moveItemInArray(this.nb.cells, event.previousIndex, event.currentIndex);
     }
 

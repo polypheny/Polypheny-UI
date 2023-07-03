@@ -1,7 +1,6 @@
 import {AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {CellType} from '../notebook-wrapper';
-import {EditorComponent} from '../../../../../../components/editor/editor.component';
-import * as ace from 'ace-builds';
+import {EditorComponent} from '../../../../../components/editor/editor.component';
 
 @Component({
     selector: 'app-nb-input-editor',

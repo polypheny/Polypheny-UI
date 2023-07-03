@@ -1,5 +1,5 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {KernelData} from '../../../../models/kernel-response.model';
+import {Component, Input, OnInit} from '@angular/core';
+import {KernelData} from '../../../models/kernel-response.model';
 
 @Component({
     selector: 'app-nb-output-data',

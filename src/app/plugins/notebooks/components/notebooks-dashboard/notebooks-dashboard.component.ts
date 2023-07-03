@@ -1,9 +1,9 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {NotebooksService} from '../../../services/notebooks.service';
-import {NotebooksContentService} from '../../../services/notebooks-content.service';
-import {ToastService} from '../../../../../components/toast/toast.service';
+import {NotebooksService} from '../../services/notebooks.service';
+import {NotebooksContentService} from '../../services/notebooks-content.service';
+import {ToastService} from '../../../../components/toast/toast.service';
 import {interval, Subscription} from 'rxjs';
-import {SessionResponse, StatusResponse} from '../../../models/notebooks-response.model';
+import {SessionResponse, StatusResponse} from '../../models/notebooks-response.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({

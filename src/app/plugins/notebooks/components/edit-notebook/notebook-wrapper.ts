@@ -1,4 +1,4 @@
-import {KernelSpec, NotebookContent} from '../../../models/notebooks-response.model';
+import {KernelSpec, NotebookContent} from '../../models/notebooks-response.model';
 import {
     CellDisplayDataOutput,
     CellErrorOutput,
@@ -7,9 +7,9 @@ import {
     CellStreamOutput,
     Notebook,
     NotebookCell
-} from '../../../models/notebook.model';
+} from '../../models/notebook.model';
 import * as uuid from 'uuid';
-import {NotebooksWebSocket} from '../../../services/notebooks-webSocket';
+import {NotebooksWebSocket} from '../../services/notebooks-webSocket';
 import {
     KernelDisplayData,
     KernelErrorMsg,
@@ -22,7 +22,7 @@ import {
     KernelStatus,
     KernelStream,
     KernelUpdateDisplayData
-} from '../../../models/kernel-response.model';
+} from '../../models/kernel-response.model';
 import {interval, Subscription} from 'rxjs';
 
 export class NotebookWrapper {

@@ -62,7 +62,6 @@ export class NotebooksWebSocket {
     sendCode(code: string[] | string): string {
         const codeStr = (typeof code === 'string') ?
             code : code.join('/n');
-        console.warn('sending', codeStr);
 
         const id = uuid.v4();
         const msg = {
@@ -77,7 +76,6 @@ export class NotebooksWebSocket {
     sendQuery(query: string[] | string, language: string, namespace: string, variable: string, expand: boolean): string {
         const queryStr = (typeof query === 'string') ?
             query : query.join('/n');
-        console.warn('sending', queryStr);
 
         const id = uuid.v4();
         const msg = {

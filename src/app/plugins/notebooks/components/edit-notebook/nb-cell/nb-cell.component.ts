@@ -12,14 +12,14 @@ import {
     CellErrorOutput,
     CellStreamOutput,
     NotebookCell
-} from '../../../../models/notebook.model';
+} from '../../../models/notebook.model';
 import {default as AnsiUp} from 'ansi_up';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {KatexOptions, MarkdownService} from 'ngx-markdown';
 import {NbMode} from '../edit-notebook.component';
 import {NbInputEditorComponent} from '../nb-input-editor/nb-input-editor.component';
 import {CellType} from '../notebook-wrapper';
-import {ResultSet} from '../../../../../../components/data-view/models/result-set.model';
+import {ResultSet} from '../../../../../components/data-view/models/result-set.model';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 
 @Component({

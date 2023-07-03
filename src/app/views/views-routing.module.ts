@@ -10,8 +10,7 @@ import {QueryingComponent} from './querying/querying.component';
 import {AdaptersComponent} from './adapters/adapters.component';
 import {AboutComponent} from './about/about.component';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
-import {NotebooksApiComponent} from '../plugins/notebooks/components/notebooks-api-view/notebooks-api.component';
-import {NotebooksComponent} from '../plugins/notebooks/components/notebooks-view/notebooks.component';
+import {NotebooksComponent} from '../plugins/notebooks/components/notebooks.component';
 import {UnsavedChangesGuard} from '../plugins/notebooks/services/unsaved-changes.guard';
 
 const routes: Routes = [
@@ -155,14 +154,7 @@ const routes: Routes = [
         }
     },
     {
-        path: 'notebooks/api',
-        component: NotebooksApiComponent,
-        data: {
-            title: 'Notebooks'
-        }
-    },
-    {
-        path: 'notebooks/ui',
+        path: 'notebooks',
         children: [
             {
                 path: '**',

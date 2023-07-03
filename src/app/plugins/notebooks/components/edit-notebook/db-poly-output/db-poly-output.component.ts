@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ResultSet} from '../../../../../../components/data-view/models/result-set.model';
-import {TableConfig} from '../../../../../../components/data-view/data-table/table-config';
+import {ResultSet} from '../../../../../components/data-view/models/result-set.model';
+import {TableConfig} from '../../../../../components/data-view/data-table/table-config';
 
 @Component({
     selector: 'app-db-poly-output',

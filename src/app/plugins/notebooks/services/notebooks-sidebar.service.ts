@@ -13,7 +13,7 @@ import {NotebooksContentService} from './notebooks-content.service';
 @Injectable()
 export class NotebooksSidebarService {
 
-    private _baseUrl = 'views/notebooks/ui';
+    private _baseUrl = 'views/';
 
     private pathSegments: string[];
     private parentPath: string;

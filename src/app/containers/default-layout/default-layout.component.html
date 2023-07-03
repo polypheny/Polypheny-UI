@@ -52,20 +52,10 @@
             </div>
         </li>
 
-        <li class="nav-item" dropdown triggers="mouseover" placement="bottom left" #dropdownNb="bs-dropdown"
-            (mouseleave)="dropdownNb.hide()">
-            <a class="nav-link dropdown-toggle py-2 px-3" dropdownToggle [routerLink]="['/views/notebooks/ui/notebooks']">
+        <li class="nav-item px-3">
+            <a [routerLink]="['/views/notebooks']" class="nav-link" routerLinkActive="active">
                 <i class="fa fa-book"></i><span class="d-md-down-none">Notebooks</span>
             </a>
-            <div class="dropdown-menu dropdown-menu-left text-center" *dropdownMenu style="margin-top: -1px;">
-                <a class="dropdown-item" [routerLink]="['/views/notebooks/ui/notebooks']" routerLinkActive="active">
-                    <i class="fa fa-book"></i><span class="d-md-down-none">UI</span>
-                </a>
-                <a class="dropdown-item" [routerLink]="['/views/notebooks/api']"
-                   routerLinkActive="active">
-                    <i class="fa fa-search"></i><span class="d-md-down-none">API</span>
-                </a>
-            </div>
         </li>
 
         <li class="nav-item px-3">

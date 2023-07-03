@@ -1,7 +1,7 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {NotebooksService} from '../../services/notebooks.service';
-import {ToastService} from '../../../../components/toast/toast.service';
-import {WebuiSettingsService} from '../../../../services/webui-settings.service';
+import {NotebooksService} from '../services/notebooks.service';
+import {ToastService} from '../../../components/toast/toast.service';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {
     ActivatedRoute,
     ActivatedRouteSnapshot,
@@ -14,11 +14,11 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {mergeMap, tap} from 'rxjs/operators';
 import {EMPTY, Observable, of, Subscription} from 'rxjs';
-import {NotebooksSidebarService} from '../../services/notebooks-sidebar.service';
-import {NotebooksContentService} from '../../services/notebooks-content.service';
-import {KernelSpec, KernelSpecs, SessionResponse} from '../../models/notebooks-response.model';
-import {LoadingScreenService} from '../../../../components/loading-screen/loading-screen.service';
-import {ComponentCanDeactivate} from '../../services/unsaved-changes.guard';
+import {NotebooksSidebarService} from '../services/notebooks-sidebar.service';
+import {NotebooksContentService} from '../services/notebooks-content.service';
+import {KernelSpec, KernelSpecs, SessionResponse} from '../models/notebooks-response.model';
+import {LoadingScreenService} from '../../../components/loading-screen/loading-screen.service';
+import {ComponentCanDeactivate} from '../services/unsaved-changes.guard';
 import {EditNotebookComponent} from './edit-notebook/edit-notebook.component';
 
 @Component({

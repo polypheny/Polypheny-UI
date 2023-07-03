@@ -1,14 +1,14 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {NotebooksSidebarService} from '../../../services/notebooks-sidebar.service';
-import {Content, FileContent, KernelSpec, KernelSpecs, SessionResponse} from '../../../models/notebooks-response.model';
-import {NotebooksService} from '../../../services/notebooks.service';
+import {NotebooksSidebarService} from '../../services/notebooks-sidebar.service';
+import {Content, FileContent, KernelSpec, KernelSpecs, SessionResponse} from '../../models/notebooks-response.model';
+import {NotebooksService} from '../../services/notebooks.service';
 import {Router} from '@angular/router';
-import {ToastService} from '../../../../../components/toast/toast.service';
+import {ToastService} from '../../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ModalDirective} from 'ngx-bootstrap/modal';
-import {NotebooksContentService} from '../../../services/notebooks-content.service';
+import {NotebooksContentService} from '../../services/notebooks-content.service';
 import {Subscription} from 'rxjs';
-import {UtilService} from '../../../../../services/util.service';
+import {UtilService} from '../../../../services/util.service';
 
 @Component({
     selector: 'app-manage-notebook',
