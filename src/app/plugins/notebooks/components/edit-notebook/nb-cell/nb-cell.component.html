@@ -2,7 +2,7 @@
      tabindex="-1">
     <div *ngIf="isFocused" class="nb-overlay">
         <div class="nb-overlay-buttons btn-group btn-group-sm mr-2" role="group" aria-label="Overlay Buttons">
-            <select class="form-select btn bg-light px-0" aria-label="Select Cell Type"
+            <select class="form-select btn bg-light pr-0 pl-1" aria-label="Select Cell Type"
                     (change)="changeType.emit($event)"
                     [value]="selectedCellType">
                 <option value="code">Code</option>

@@ -83,7 +83,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
 
         if (this.cellType === 'markdown') {
             this.isMdRendered = true;
-            this.mdSource = Array.isArray(this.cell.source) ? this.cell.source.join('') : this.cell.source;
+            this.mdSource = this.source;
         } else if (this.cellType === 'poly') {
             this.renderResultSet();
         } else if (this.cellType === 'code') {
@@ -149,7 +149,10 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         if (this.mode === 'edit') {
             return;
         }
-        this.isMdRendered = false;
+        if (this.isMdRendered) {
+            this.editor.setCode(this.source);
+            this.isMdRendered = false;
+        }
         this.editor.focus();
         this.mode = 'edit';
         this.modeChange.emit(this.mode);
@@ -185,7 +188,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     }
 
     renderMd() {
-        this.mdSource = Array.isArray(this.cell.source) ? this.cell.source.join('') : this.cell.source;
+        this.mdSource = this.source;
         if (!this.mdSource?.trim()) {
             this.mdSource = 'Empty Markdown Cell';
         }
@@ -306,7 +309,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
 
     get source(): string {
         return (typeof this.cell.source === 'string') ?
-            this.cell.source : this.cell.source.join('/n');
+            this.cell.source : this.cell.source.join('');
     }
 
 
