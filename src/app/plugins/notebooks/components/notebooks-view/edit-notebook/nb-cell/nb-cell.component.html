@@ -12,32 +12,32 @@
             </select>
             <div class="nb-overlay-separator bg-secondary"></div>
             <button type="button" class="btn btn-light no-select-cell ml-0" (click)="move.emit(false)"
-                    [disabled]="isFirst" onclick="this.blur();" tooltip="move cell up" container="body">
+                    [disabled]="isFirst" onclick="this.blur();" tooltip="Move cell up" container="body">
                 <i class="fa fa-arrow-up no-select-cell"></i>
             </button>
             <button type="button" class="btn btn-light no-select-cell" (click)="move.emit(true)"
-                    [disabled]="isLast" onclick="this.blur();" tooltip="move cell down" container="body">
+                    [disabled]="isLast" onclick="this.blur();" tooltip="Move cell down" container="body">
                 <i class="fa fa-arrow-down no-select-cell"></i>
             </button>
             <div class="nb-overlay-separator bg-secondary"></div>
             <button type="button" class="btn btn-light no-select-cell" (click)="duplicate.emit()"
-                    onclick="this.blur();" tooltip="duplicate cell" container="body">
+                    onclick="this.blur();" tooltip="Duplicate cell" container="body">
                 <i class="fa fa-clone no-select-cell"></i>
             </button>
             <button type="button" class="btn btn-light vertical-icons py-0 no-select-cell ml-0"
                     (click)="insert.emit(false)"
-                    onclick="this.blur();" tooltip="insert cell above (A)" container="body">
+                    onclick="this.blur();" tooltip="Insert cell above (A)" container="body">
                 <i class="fa fa-chevron-up no-select-cell"></i>
                 <i class="fa fa-plus-square vertical-icon-plus-bottom no-select-cell"></i>
             </button>
             <button type="button" class="btn btn-light vertical-icons py-0 no-select-cell" (click)="insert.emit(true)"
-                    onclick="this.blur();" tooltip="insert cell below (B)" container="body">
+                    onclick="this.blur();" tooltip="Insert cell below (B)" container="body">
                 <i class="fa fa-plus-square vertical-icon-plus-top no-select-cell"></i>
                 <i class="fa fa-chevron-down no-select-cell"></i>
             </button>
             <div class="nb-overlay-separator bg-secondary"></div>
             <button class="btn btn-light no-select-cell" (click)="deleteCell()" (mouseleave)="resetDeleteConfirm()"
-                    [disabled]="isFirst && isLast" tooltip="delete cell" container="body">
+                    [disabled]="isFirst && isLast" tooltip="Delete cell" container="body">
                 <i class="no-select-cell"
                    [ngClass]="{'cui-trash': !confirmingDeletion, 'fa fa-warning': confirmingDeletion}"></i>
             </button>
@@ -71,7 +71,7 @@
                         type="button" class="btn nb-exec-btn"
                         (click)="toggledManual()" onclick="this.blur();">
                     <i class="fa" [ngClass]="{'fa-toggle-off': !manualExecution, 'fa-toggle-on': manualExecution}"
-                       tooltip="toggle manual execution (useful to prevent queries from being executed more than once)"
+                       tooltip="Toggle manual execution (useful to prevent queries from being executed more than once)"
                        placement="right" container="body"></i>
                 </button>
             </ng-container>
@@ -181,14 +181,15 @@
                             <div class="nb-output-text">
                                 <ng-container [ngSwitch]="output.output_type">
                                     <ng-container *ngSwitchCase="'stream'">
-                                        <span class="nb-plaintext">{{ output.text}}</span>
+                                        <pre class="nb-plaintext text-monospace" [innerHTML]="streamHtml"></pre>
                                     </ng-container>
                                     <ng-container *ngSwitchCase="'display_data'">
-                                        <app-nb-output-data [data]="output.data"></app-nb-output-data>
+                                        <app-nb-output-data [data]="output.data"
+                                                            [isTrusted]="isTrusted"></app-nb-output-data>
                                     </ng-container>
                                     <pre class="nb-error text-monospace" *ngSwitchCase="'error'"
                                          [innerHTML]="errorHtml">
-                            </pre>
+                                    </pre>
                                 </ng-container>
 
                             </div>
@@ -202,7 +203,7 @@
                             </div>
 
                             <div class="nb-output-text nb-execute-result">
-                                <app-nb-output-data [data]="output.data"></app-nb-output-data>
+                                <app-nb-output-data [data]="output.data" [isTrusted]="isTrusted"></app-nb-output-data>
                             </div>
                         </ng-template>
                     </div>

@@ -21,7 +21,8 @@ export class NbInputEditorComponent implements OnInit, OnChanges, AfterViewInit 
         maxLines: 60,
         showLineNumbers: false,
         highlightGutterLine: false,
-        highlightActiveLine: false
+        highlightActiveLine: false,
+        fontSize: '0.875rem'
     };
 
 

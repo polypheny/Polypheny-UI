@@ -41,7 +41,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     nb: NotebookWrapper;
     session: SessionResponse;
     kernelSpec: KernelSpec;
-    private socket: NotebooksWebSocket;
     private subscriptions = new Subscription();
     selectedCell: NotebookCell;
     selectedCellType = 'code';
@@ -86,7 +85,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this._content.onNamespaceChange().subscribe(namespaces => this.namespaces = namespaces)
         );
         this.initForms();
-
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -106,12 +104,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                     this.renameNotebookForm.patchValue({name: this.name});
                 }
                 this._content.setPreferredSessionId(this.path, this.sessionId);
-                this.connectToKernel();
                 this.loadNotebook();
             }, err => {
                 console.log('session does not exist!');
                 this.closeEdit();
-
             });
         }
     }
@@ -119,26 +115,11 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
         this.nb?.closeSocket();
-    }
-
-    closeEdit(forced = false) {
-        this.nb?.closeSocket();
-        const queryParams = forced ? {forced: true} : null;
-        this._router.navigate([this._sidebar.baseUrl, 'notebooks'], {queryParams});
-    }
-
-    confirmClose(): Subject<boolean> | boolean {
-        if (this.closeNotebookModal.isShown) {
-            return false;
-        }
-        this.closeNbSubject = new Subject<boolean>();
-        this.closeNotebookModal.config.keyboard = false;
-        this.closeNotebookModal.config.backdrop = 'static';
-        this.closeNotebookModal.show();
-        return this.closeNbSubject;
+        this._sidebar.deselect();
     }
 
     // https://stackoverflow.com/questions/35922071/warn-user-of-unsaved-changes-before-leaving-page
+
     @HostListener('window:beforeunload')
     canDeactivate(): Observable<boolean> | boolean {
         const hasChanged = this.nb?.hasChangedSinceSave();
@@ -162,7 +143,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     private updateSession(sessions: SessionResponse[]) {
         this.session = sessions.find(session => session.id === this.sessionId);
         if (!this.session) {
-            this._toast.warn(`Kernel was closed`);
+            this._toast.warn(`Kernel was closed.`);
             return;
         }
         const path = this._notebooks.getPathFromSession(this.session);
@@ -170,7 +151,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             if (this.path) {
                 const queryParams = {session: this.sessionId, forced: true};
                 this._router.navigate([this._sidebar.baseUrl].concat(path.split('/')), {queryParams});
-                this._toast.warn(`The path to the notebook has changed`, 'Info');
+                this._toast.warn(`The path to the notebook has changed.`, 'Info');
             }
             this.path = path;
             this.name = this.name = this._notebooks.getNameFromSession(this.session);
@@ -178,18 +159,19 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    private connectToKernel() {
-        this.socket = new NotebooksWebSocket(this._settings, this.session.kernel.id);
-    }
-
     private loadNotebook() {
         this._loading.show();
-        this._content.getNotebookContent(this.path).subscribe(res => {
+        if (this.nb) {
+            this.nb.closeSocket();
+            this.nb = null;
+        }
+        this._content.getNotebookContent(this.path, this.nb == null).subscribe(res => {
             if (res) {
-                this.nb?.closeSocket();
-                this.nb = new NotebookWrapper(res, this.busyCellIds, this.socket,
+                this.nb = new NotebookWrapper(res, this.busyCellIds,
+                    new NotebooksWebSocket(this._settings, this.session.kernel.id),
                     id => this.getCellComponent(id)?.renderMd(),
                     (id, output) => this.getCellComponent(id)?.renderError(output),
+                    (id, output) => this.getCellComponent(id)?.renderStream(output),
                     id => this.getCellComponent(id)?.renderResultSet());
                 this.expand = this.nb.isExpansionAllowed();
                 this.kernelSpec = this._content.getKernelspec(this.session.kernel.name);
@@ -208,10 +190,27 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         }).add(() => {
             this._loading.hide();
             if (!this.nb) {
-                this._toast.error(`Could not read content of ${this.path}`);
+                this._toast.error(`Could not read content of ${this.path}.`);
                 this.closeEdit(true);
             }
         });
+    }
+
+    closeEdit(forced = false) {
+        this.nb?.closeSocket();
+        const queryParams = forced ? {forced: true} : null;
+        this._router.navigate([this._sidebar.baseUrl, 'notebooks'], {queryParams});
+    }
+
+    confirmClose(): Subject<boolean> | boolean {
+        if (this.closeNotebookModal.isShown) {
+            return false;
+        }
+        this.closeNbSubject = new Subject<boolean>();
+        this.closeNotebookModal.config.keyboard = false;
+        this.closeNotebookModal.config.backdrop = 'static';
+        this.closeNotebookModal.show();
+        return this.closeNbSubject;
     }
 
 
@@ -288,7 +287,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     duplicateNotebook() {
         this._notebooks.duplicateFile(this.path, this._content.directoryPath).subscribe(res => this._content.update(),
-            err => this._toast.error(err.error.message, `Could not duplicate ${this.path}`));
+            err => this._toast.error(err.error.message, `Could not duplicate ${this.path}.`));
     }
 
     downloadNotebook() {
@@ -297,7 +296,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     exportNotebook() {
         if (this.nb.hasChangedSinceSave()) {
-            this._toast.warn('Please save your changes first before exporting the notebook');
+            this._toast.warn('Please save your changes first before exporting the notebook.', 'Info');
             return;
         }
         this._notebooks.getExportedNotebook(this.path, this.kernelSpec?.name).subscribe(res => {
@@ -307,6 +306,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             err => {
                 this._toast.warn('Unable to export the notebook.');
             });
+    }
+
+    trustNotebook() {
+        this.nb.trustAllCells();
     }
 
 
@@ -360,17 +363,17 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 if (res.last_modified === this.nb.lastModifiedWhenLoaded) {
                     return this._notebooks.updateNotebook(this.path, this.nb.notebook);
                 } else {
-                    this.uploadNotebookWithDeepCompare();
+                    this.uploadNotebookWithDeepCompare(showSuccessToast);
                     return EMPTY;
                 }
             })
         ).subscribe(res => {
             if (showSuccessToast) {
-                this._toast.success('Saved notebook!');
+                this._toast.success('Notebook was saved.');
             }
             this.nb.markAsSaved(res.last_modified);
         }, error => {
-            this._toast.error('error while uploading notebook');
+            this._toast.error('An error occurred while uploading the notebook.');
             console.log('upload error:', error);
 
         });
@@ -388,11 +391,11 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             })
         ).subscribe(res => {
             if (showSuccessToast) {
-                this._toast.success('Saved notebook!');
+                this._toast.success('Notebook was saved.');
             }
             this.nb.markAsSaved(res.last_modified);
         }, error => {
-            this._toast.error('error while uploading notebook');
+            this._toast.error('An error occurred while uploading the notebook.');
             console.log('upload error:', error);
         });
     }
@@ -401,11 +404,11 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this.overwriting = true;
         this._notebooks.updateNotebook(this.path, this.nb.notebook).subscribe(res => {
             if (showSuccessToast) {
-                this._toast.success('uploaded notebook!');
+                this._toast.success('Notebook was saved.');
             }
-            this.nb.markAsSaved(res.last_modified);
+            this.nb?.markAsSaved(res.last_modified);
         }, error => {
-            this._toast.error('error while uploading notebook');
+            this._toast.error('An error occurred while uploading the notebook.');
             console.log('upload error:', error);
         }).add(() => {
             this.overwriteNotebookModal.hide();
@@ -415,7 +418,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     revertNotebook() {
         this.loadNotebook();
-        this._toast.success('Reverted Notebook!');
+        this._toast.success('Notebook was reverted.');
         this.overwriteNotebookModal.hide();
 
     }
@@ -423,7 +426,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     interruptKernel() {
         this._notebooks.interruptKernel(this.session.kernel.id).subscribe(res => {
         }, err => {
-            this._toast.error('Unable to interrupt the kernel');
+            this._toast.error('Unable to interrupt the kernel.');
         });
     }
 
@@ -437,11 +440,12 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             tap(res => this.nb.setKernelStatusBusy()),
             delay(1500) // time for the kernel to restart
         ).subscribe(res => {
+            this.nb.requestExecutionState();
             if (this.executeAllAfterRestart) {
                 this.nb.executeAll();
             }
         }, err => {
-            this._toast.error('Unable to restart the kernel');
+            this._toast.error('Unable to restart the kernel.');
             console.log(err);
         });
         this.restartKernelModal.hide();

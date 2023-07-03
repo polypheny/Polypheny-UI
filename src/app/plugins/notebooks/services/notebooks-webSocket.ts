@@ -10,12 +10,10 @@ export class NotebooksWebSocket {
     private msgSubject = new Subject<KernelMsg>();
 
     constructor(private _settings: WebuiSettingsService, kernelId: string) {
-        console.log('instantiating new websocket...');
         this.initWebSocket(kernelId);
     }
 
     private initWebSocket(kernelId: string) {
-        console.log('init websocket...');
         this.socket = webSocket({
             url: this._settings.getConnection('notebooks.socket') + `/${kernelId}`,
             openObserver: {
@@ -33,7 +31,6 @@ export class NotebooksWebSocket {
                 console.error('websocket error:', err);
             },
             () => {
-                console.log('closed websocket...');
                 this.connected = false;
                 this.msgSubject.complete();
             }

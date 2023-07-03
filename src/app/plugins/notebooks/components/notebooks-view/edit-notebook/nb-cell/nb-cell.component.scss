@@ -91,6 +91,8 @@
 }
 
 .nb-plaintext {
+  margin-bottom: 0;
+  word-break: break-all;
   white-space: pre-wrap;
 }
 
@@ -107,7 +109,7 @@ pre {
 }
 
 .nb-exec-btn {
-  position:relative;
+  position: relative;
   z-index: 2;
   margin-right: 5px;
   padding: 0 3px;
@@ -131,13 +133,13 @@ pre {
   flex-grow: 2;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   display: inline-block;
-  //overflow: hidden;
   overflow-x: auto;
   padding-left: 5px;
   padding-right: 25px;
   white-space: normal;
   word-wrap: break-word;
   border-radius: 4px;
+  min-height: 20px;
 }
 
 .nb-overlay {
@@ -170,6 +172,7 @@ pre {
   margin-top: 4px;
   margin-bottom: -3px;
 }
+
 .vertical-icon-plus-bottom {
   margin-bottom: 3px;
   margin-top: -2px;

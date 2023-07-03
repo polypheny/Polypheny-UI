@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {KernelData} from '../../../../models/kernel-response.model';
 
 @Component({
@@ -7,7 +7,8 @@ import {KernelData} from '../../../../models/kernel-response.model';
     styleUrls: ['./nb-output-data.component.scss']
 })
 export class NbOutputDataComponent implements OnInit {
-  @Input() data: KernelData;
+    @Input() data: KernelData;
+    @Input() isTrusted = false;
 
     constructor() {
     }

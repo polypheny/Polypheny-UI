@@ -84,7 +84,7 @@ export class NotebooksSidebarService {
                 file.name,
                 this.getIcon(file.type,
                     file.type === 'notebook' && this._content.hasRunningKernel(file.path),
-                    file.path === this._leftSidebar.selectedNodeId,
+                    !this._content.isRoot && file.path === this._leftSidebar.selectedNodeId,
                     this._content.getPreferredSessionId(file.path) != null),
                 routerLink,
                 true,
@@ -111,6 +111,10 @@ export class NotebooksSidebarService {
             new SidebarButton('Upload', () => this.uploadButtonSubject.next(), true),
         ];
         this._leftSidebar.setTopButtons(buttons);
+
+        if (this._content.isRoot) {
+            this.deselect();
+        }
     }
 
     private getIcon(type: string, isActive = false, isSelected = false, hasPreferred = false) {
@@ -147,15 +151,17 @@ export class NotebooksSidebarService {
     }
 
     open() {
-        this._content.setAutoUpdate(true);
         this._leftSidebar.open();
     }
 
     close() {
-        this._content.setAutoUpdate(false);
         this._breadcrumb.hide();
         this._leftSidebar.setTopButtons([]);
         this._leftSidebar.close();
+    }
+
+    deselect() {
+        this._leftSidebar.reset(true);
     }
 
     onAddButtonClicked() {

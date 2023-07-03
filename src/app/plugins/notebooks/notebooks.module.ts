@@ -26,6 +26,7 @@ import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {NbOutputDataComponent} from './components/notebooks-view/edit-notebook/nb-output-data/nb-output-data.component';
 import {UnsavedChangesGuard} from './services/unsaved-changes.guard';
 import {DbPolyOutputComponent} from './components/notebooks-view/edit-notebook/db-poly-output/db-poly-output.component';
+import { SafeHtmlPipe } from './services/safe-html.pipe';
 
 
 @NgModule({
@@ -55,7 +56,8 @@ import {DbPolyOutputComponent} from './components/notebooks-view/edit-notebook/d
         NbCellComponent,
         NbInputEditorComponent,
         NbOutputDataComponent,
-        DbPolyOutputComponent
+        DbPolyOutputComponent,
+        SafeHtmlPipe
     ],
     exports: [
         NotebooksApiComponent,

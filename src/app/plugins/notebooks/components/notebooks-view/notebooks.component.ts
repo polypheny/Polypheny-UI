@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NotebooksService} from '../../services/notebooks.service';
 import {ToastService} from '../../../../components/toast/toast.service';
 import {WebuiSettingsService} from '../../../../services/webui-settings.service';
@@ -32,6 +32,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
     @ViewChild('uploadNotebookModal') public uploadNotebookModal: ModalDirective;
     @ViewChild('createSessionModal') public createSessionModal: ModalDirective;
     @ViewChild('editNotebook') public editNotebook: EditNotebookComponent;
+    @ViewChild('fileInput') fileInput: ElementRef;
     createFileForm: FormGroup;
     uploadFileForm: FormGroup;
     createSessionForm: FormGroup;
@@ -87,11 +88,13 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
 
         this._content.updateAvailableKernels();
         this._content.updateSessions();
+        this._content.setAutoUpdate(true);
 
         this._sidebar.open();
     }
 
     ngOnDestroy() {
+        this._content.setAutoUpdate(false);
         this._sidebar.close();
         this.subscriptions.unsubscribe();
     }
@@ -117,7 +120,6 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
         });
 
         this.uploadFileForm = new FormGroup({
-            files: new FormControl('',),
             fileList: new FormControl('', [Validators.required])
         });
 
@@ -277,7 +279,6 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
                         return of({});
                     }
                     return this._notebooks.moveFile(res.path, path);
-                    //return (val.name === '' ? EMPTY : this._notebooks.moveFile(res.path, path));
                 }
             ), mergeMap(res => {
                 if (val.type !== 'notebook') {
@@ -293,12 +294,16 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
                 this._content.update(); // update for notebook happens automatically when navigating
             }
             this.addNotebookModal.hide();
+            this.createFileForm.patchValue({name: '', type: 'notebook', ext: '.txt'});
             this.creating = false;
         });
     }
 
     onFileChange(files) {
-        if (files === null || files.length < 1) {
+        if (files == null || files.length < 1) {
+            if (this.fileInput) {
+                this.fileInput.nativeElement.value = '';
+            }
             this.inputFileName = 'Choose file(s)';
         } else if (files.length === 1) {
             this.inputFileName = files[0].name;
@@ -330,6 +335,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
             );
             reader.readAsDataURL(file);
         }
+        this.onFileChange(null);
         this.uploadNotebookModal.hide();
     }
 
@@ -370,7 +376,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
 
     private onServerUnreachable() {
         if (!this._content.isRoot) {
-            this._toast.error('Jupyter Server seems to be offline');
+            this._toast.error('Jupyter Server seems to be offline.');
             const queryParams = {forced: true};
             this._router.navigate([this._sidebar.baseUrl, 'notebooks'], {queryParams});
         }

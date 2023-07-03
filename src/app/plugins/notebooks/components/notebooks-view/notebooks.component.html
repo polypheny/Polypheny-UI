@@ -17,7 +17,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Add File</h4>
+                <h4 class="modal-title">Create File</h4>
                 <button type="button" class="close" (click)="addNotebookModal.hide()" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -157,7 +157,7 @@
                 <ng-container *ngIf="selectedSession != null && !createSessionForm.get('isNew').value">
                     <p>Status: {{selectedSession.kernel.execution_state}}</p>
                     <p>Last Activity: {{selectedSession.kernel.last_activity | date: 'medium'}}</p>
-                    <p>Connections (db): {{selectedSession.kernel.connections}}</p>
+                    <p>Connections: {{selectedSession.kernel.connections}}</p>
                 </ng-container>
             </div>
             <div class="modal-footer">

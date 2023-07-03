@@ -32,12 +32,14 @@ export class NotebookWrapper {
     kernelStatus: 'unknown' | 'idle' | 'busy' | 'starting' = 'unknown';
     lastModifiedWhenLoaded: string;
     private keepAlive: Subscription;
+    trustedCellIds: Set<string> = new Set<string>(); // cells that were executed by the user -> trust html outputs
 
     constructor(private content: NotebookContent,
                 private busyCellIds: Set<string>,
                 private socket: NotebooksWebSocket,
                 private onExecuteMdCell: (id: string) => void,
                 private onReceivedErrorOutput: (id: string, output: CellErrorOutput) => void,
+                private onReceivedStreamOutput: (id: string, output: CellStreamOutput) => void,
                 private onRenderPolyCell: (id: string) => void) {
         this.nb = content.content;
         this.markAsSaved(content.last_modified);
@@ -62,6 +64,10 @@ export class NotebookWrapper {
     closeSocket() {
         this.keepAlive?.unsubscribe();
         this.socket?.close();
+    }
+
+    requestExecutionState() {
+        this.socket?.requestExecutionState();
     }
 
     markAsSaved(lastModified: string) {
@@ -210,12 +216,21 @@ export class NotebookWrapper {
                 break;
             default:
         }
+        this.trustedCellIds.add(cell.id);
     }
 
     executeMdCells() {
         for (const cell of this.nb.cells) {
             if (cell.cell_type === 'markdown') {
                 this.executeCell(cell);
+            }
+        }
+    }
+
+    trustAllCells() {
+        for (const cell of this.nb.cells) {
+            if (cell.cell_type !== 'markdown') {
+                this.trustedCellIds.add(cell.id);
             }
         }
     }
@@ -289,7 +304,6 @@ export class NotebookWrapper {
     }
 
     private handleKernelMsg(msg: KernelMsg) {
-        console.log('received message:', msg);
         const cellId = this.codeOrigin.get(msg?.parent_header?.msg_id);
         if (!cellId && msg.msg_type !== 'status') {
             return; // we ignore messages from other users in the same session, except for status updates
@@ -361,6 +375,7 @@ export class NotebookWrapper {
             lastOutput = <CellStreamOutput>lastOutput;
             if (lastOutput.name === msg.content.name) {
                 this.addTextToOutputStream(lastOutput, msg.content.text);
+                this.onReceivedStreamOutput(cell.id, lastOutput);
                 return;
             }
 
@@ -371,10 +386,11 @@ export class NotebookWrapper {
             text: [msg.content.text]
         };
         cell.outputs.push(output);
-
+        this.onReceivedStreamOutput(cell.id, output);
     }
 
     private handleResultMsg(msg: KernelExecuteResult, cell: NotebookCell) {
+        this.busyCellIds.delete(cell.id);
         if (this.getCellType(cell) === 'poly') {
             return;
         }
@@ -413,7 +429,7 @@ export class NotebookWrapper {
     }
 
     private handleUpdateDisplayMsg(msg: KernelUpdateDisplayData, cell: NotebookCell) {
-        this.handleDisplayMsg(msg, cell); // not well supported yet
+        this.handleDisplayMsg(msg, cell); // not correctly supported yet
     }
 
     getCellType(cell: NotebookCell): CellType {
@@ -440,7 +456,19 @@ export class NotebookWrapper {
         } else if (!text) {
             text = '';
         }
-        text += newText;
+
+        // Carriage return should 'overwrite' the last line -> enables dynamic progress bars
+        const splitText = newText.split('\r');
+        text += splitText[0];
+        for (let i = 1; i < splitText.length; i++) {
+            const line = splitText[i];
+            const lastNewlineIdx = text.lastIndexOf('\n');
+            if (line.charAt(0) === '\n' || lastNewlineIdx === -1) {
+                text += line; // \r\n -> normal newline
+                continue;
+            }
+            text = text.slice(0, lastNewlineIdx + 1) + line;
+        }
         lastOutput.text = text;
     }
 
@@ -483,8 +511,6 @@ export class NotebookWrapper {
     setExpansionAllowed(allowed: boolean) {
         this.nb.metadata.polypheny.expand_params = allowed;
     }
-
-
 }
 
 export type CellType = 'code' | 'markdown' | 'raw' | 'poly';

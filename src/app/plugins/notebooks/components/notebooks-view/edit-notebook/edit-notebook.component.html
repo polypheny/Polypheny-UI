@@ -4,7 +4,7 @@
             <button class="btn btn-outline-danger mr-4" (click)="closeNotebookModal.show()">Close</button>
             <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Save">
                 <button type="button" class="btn btn-light" (click)="uploadNotebook()"
-                        onclick="this.blur();" tooltip="save notebook (S)" container="body">
+                        onclick="this.blur();" tooltip="Save notebook (S)" container="body">
                     <i class="fa fa-save"></i>
                 </button>
             </div>
@@ -17,6 +17,11 @@
                         File
                     </button>
                     <div class="dropdown-menu  dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
+                        <a class="dropdown-item" (click)="trustNotebook()"
+                           tooltip="Trust HTML output of all code cells. Trust resets after reloading a notebook and is usually set when a cell is executed"
+                           container="body" placement="right">
+                            <span>Trust Notebook</span>
+                        </a>
                         <a class="dropdown-item" (click)="renameNotebookModal.show()">
                             <span>Rename</span>
                         </a>
@@ -30,7 +35,7 @@
                             <span>Download</span>
                         </a>
                         <a class="dropdown-item" (click)="exportNotebook()"
-                           tooltip="download the notebook with all query-cells transformed to regular code-cells"
+                           tooltip="Download the notebook with all query-cells transformed to regular code-cells"
                            container="body" placement="right">
                             <span>Export</span>
                         </a>
@@ -107,19 +112,19 @@
 
             <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Execution">
                 <button type="button" class="btn btn-light" (click)="executeSelected(true)"
-                        onclick="this.blur();" tooltip="run selected cell" container="body">
+                        onclick="this.blur();" tooltip="Run selected cell and advance (Shift + Enter)" container="body">
                     <i class="fa fa-play"></i>
                 </button>
                 <button type="button" class="btn btn-light" (click)="interruptKernel()"
-                        onclick="this.blur();" tooltip="interrupt" container="body">
+                        onclick="this.blur();" tooltip="Interrupt" container="body">
                     <i class="fa fa-stop"></i>
                 </button>
                 <button type="button" class="btn btn-light" (click)="requestRestart(false)"
-                        onclick="this.blur();" tooltip="restart" container="body">
+                        onclick="this.blur();" tooltip="Restart" container="body">
                     <i class="fa fa-rotate-right"></i>
                 </button>
                 <button type="button" class="btn btn-light" (click)="requestRestart(true)"
-                        onclick="this.blur();" tooltip="restart & run all" container="body">
+                        onclick="this.blur();" tooltip="Restart & run all" container="body">
                     <i class="fa fa-forward"></i>
                 </button>
             </div>
@@ -127,7 +132,7 @@
             <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Insert">
                 <button type="button" class="btn btn-light"
                         (click)="insertCell(selectedCell.id, true, false)"
-                        onclick="this.blur();" tooltip="insert cell below (B)" container="body"
+                        onclick="this.blur();" tooltip="Insert cell below (B)" container="body"
                         [disabled]="inserting">
                     <i class="fa fa-plus"></i>
                 </button>
@@ -177,6 +182,7 @@
                                  [(mode)]="mode"
                                  [namespaces]="namespaces"
                                  [nbLanguage]="kernelSpec?.spec?.language || 'python'"
+                                 [isTrusted]="nb.trustedCellIds.has(cell.id)"
                                  (execute)="nb.executeCell($event)"
                                  (insert)="insertCell(cell.id, $event)"
                                  (move)="moveCell(i, $event)"

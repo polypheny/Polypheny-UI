@@ -23,7 +23,7 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     sessions: SessionResponse[];
     availableKernels: KernelSpec[] = [];
     selectedSession: SessionResponse;
-    statusText = 'No kernel running';
+    statusText = 'No Kernel running';
     confirmingDeletion = false;
     creating = false;
     deleting = false;
@@ -108,7 +108,7 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
                 this._router.navigate([this._sidebar.baseUrl].concat(path.split('/')));
             },
             err => {
-                this._toast.error(err.error.message, `Could not delete ${this.metadata.path}`);
+                this._toast.error(`Could not delete ${this.metadata.path}.`);
             }
         );
     }
@@ -119,7 +119,7 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
 
     duplicateFile() {
         this._notebooks.duplicateFile(this.metadata.path, this.directoryPath).subscribe(res => this._content.update(),
-            err => this._toast.error(err.error.message, `Could not duplicate ${this.metadata.path}`));
+            err => this._toast.error(`Could not duplicate ${this.metadata.path}.`));
     }
 
     renameFile() {
@@ -151,7 +151,7 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
                 this._content.addSession(res);
                 this.openSession(res.id);
             },
-            err => this._toast.error(err.error.message, `Could not create session`)
+            err => this._toast.error('Could not create session.')
         ).add(() => {
             this.creating = false;
             this.createKernelModal.hide();
@@ -184,11 +184,11 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
             this.sessions = sessions.filter(session => session.path.startsWith(this.metadata.path));
             const s = this.sessions.length > 1 ? 's' : '';
             if (this.sessions.length > 0) {
-                this.statusText = this.sessions.length + ' kernel' + s + ' running';
+                this.statusText = this.sessions.length + ' Kernel' + s + ' running';
                 this.connectSessionForm.patchValue({session: this.sessions[0].id});
                 this.terminateSessionForm.patchValue({session: this.sessions[0].id});
             } else {
-                this.statusText = 'No kernel running';
+                this.statusText = 'No Kernel running';
             }
         }
     }

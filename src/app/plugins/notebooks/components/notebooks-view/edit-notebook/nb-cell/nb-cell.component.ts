@@ -7,7 +7,12 @@ import {
     Output,
     ViewChild,
 } from '@angular/core';
-import {CellDisplayDataOutput, CellErrorOutput, NotebookCell} from '../../../../models/notebook.model';
+import {
+    CellDisplayDataOutput,
+    CellErrorOutput,
+    CellStreamOutput,
+    NotebookCell
+} from '../../../../models/notebook.model';
 import {default as AnsiUp} from 'ansi_up';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {KatexOptions, MarkdownService} from 'ngx-markdown';
@@ -32,6 +37,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     @Input() selectedCellType: CellType; // not necessarily the type of this cell
     @Input() namespaces: string[];
     @Input() nbLanguage: string;
+    @Input() isTrusted: boolean;
     @Output() modeChange = new EventEmitter<NbMode>();
     @Output() insert = new EventEmitter<boolean>(); // true: below, false: above
     @Output() move = new EventEmitter<boolean>(); // true: down, false: up
@@ -52,11 +58,13 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     private ansi_up = new AnsiUp();
     mdSource = '';
     errorHtml: SafeHtml;
+    streamHtml: SafeHtml;
     isMdRendered = false;
     confirmingDeletion = false;
     sourceHidden = false;
     outputsHidden = false;
     manualExecution = false;
+    private readonly MAX_RESULT_SIZE = 1000;
 
     // https://katex.org/docs/options.html
     public options: KatexOptions = {
@@ -82,6 +90,10 @@ export class NbCellComponent implements OnInit, AfterViewInit {
             const output = this.cell.outputs.find(o => o.output_type === 'error');
             if (output) {
                 this.renderError(<CellErrorOutput>output);
+            }
+            const stream = this.cell.outputs.find(o => o.output_type === 'stream');
+            if (stream) {
+                this.renderStream(<CellStreamOutput>stream);
             }
         }
         this.sourceHidden = this.cell.metadata.jupyter?.source_hidden;
@@ -174,7 +186,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
 
     renderMd() {
         this.mdSource = Array.isArray(this.cell.source) ? this.cell.source.join('') : this.cell.source;
-        if (!this.mdSource) {
+        if (!this.mdSource?.trim()) {
             this.mdSource = 'Empty Markdown Cell';
         }
         this.isMdRendered = true;
@@ -186,15 +198,22 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         }
     }
 
+    renderStream(output: CellStreamOutput) {
+        if (output) {
+            const text = Array.isArray(output.text) ? output.text.join('\n') : output.text;
+            this.streamHtml = this._sanitizer.bypassSecurityTrustHtml(this.ansi_up.ansi_to_html(text));
+        }
+    }
+
     renderResultSet() {
         if (this.cellType === 'poly') {
             const output = <CellDisplayDataOutput>this.cell.outputs.find(o => o.output_type === 'display_data'
                 && (<CellDisplayDataOutput>o).data['application/json']);
             if (output) {
                 const jsonResult = <ResultSet>(output.data['application/json']);
-                if (jsonResult.data?.length > 1000) {
+                if (jsonResult.affectedRows > this.MAX_RESULT_SIZE && jsonResult.data?.length >= this.MAX_RESULT_SIZE) {
                     this.resultIsTooLong = true;
-                    jsonResult.data = jsonResult.data.slice(0, 1000);
+                    jsonResult.data = jsonResult.data.slice(0, this.MAX_RESULT_SIZE);
                 } else {
                     this.resultIsTooLong = false;
                 }

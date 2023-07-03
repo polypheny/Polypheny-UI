@@ -1,7 +1,7 @@
 <h1>Notebooks Dashboard</h1>
 <br>
 
-<div class="row">
+<div class="row" *ngIf="pluginLoaded; else pluginOffline">
     <div class="col-lg-4 fixed-width">
         <div class="card">
             <div class="card-header">
@@ -41,16 +41,17 @@
                             <th>Kernel</th>
                             <th>Last Activity</th>
                             <th>Status</th>
+                            <th>Connections</th>
                             <th></th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr *ngFor="let session of sessions; index as i"
-                            [ngClass]="{'preferred-session': isPreferredSession[i]}">
+                        <tr *ngFor="let session of sessions; index as i">
                             <td>{{notebookPaths[i]}}</td>
                             <td>{{session.kernel.name}}</td>
                             <td>{{session.kernel.last_activity | date: 'short'}}</td>
                             <td>{{session.kernel.execution_state}}</td>
+                            <td>{{session.kernel.connections}}</td>
                             <th></th>
                         </tr>
                         </tbody>
@@ -62,14 +63,24 @@
             </div>
 
             <div class="card-footer bg-transparent">
-                <button class="btn btn-danger pull-right" [disabled]="sessions.length === 0"
-                        (click)="terminateSessionsModal.show()">
-                    Shut Down All
-                </button>
+                <div class="btn-group pull-right">
+                    <button class="btn btn-outline-danger " *ngIf="hasUnusedSessions"
+                            (click)="terminateUnusedSessionsModal.show()">
+                        Shut Down Unused
+                    </button>
+                    <button class="btn btn-danger" [disabled]="sessions.length === 0"
+                            (click)="terminateSessionsModal.show()">
+                        Shut Down All
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<ng-template #pluginOffline>
+    <p>The Jupyter Plugin is not loaded. Refresh the page to try again.</p>
+</ng-template>
 
 <div bsModal #terminateSessionsModal="bs-modal" class="modal" tabindex="-1" role="dialog"
      aria-labelledby="terminateSessionsModal" aria-hidden="true">
@@ -87,9 +98,36 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" (click)="terminateSessionsModal.hide()">Cancel</button>
-                <button type="button" class="btn btn-danger" (click)="terminateSessions()"
+                <button type="button" class="btn btn-danger" (click)="terminateSessions(false)"
                         [disabled]="deleting">
                     <span *ngIf="!deleting">Shut Down All</span>
+                    <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #terminateUnusedSessionsModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="terminateSessionsModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Shut Down Unused Kernels</h4>
+                <button type="button" class="close" (click)="terminateUnusedSessionsModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>Are you sure you want to shut down all Kernels with no open connections?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="terminateUnusedSessionsModal.hide()">Cancel
+                </button>
+                <button type="button" class="btn btn-danger" (click)="terminateSessions(true)"
+                        [disabled]="deleting">
+                    <span *ngIf="!deleting">Shut Down Unused</span>
                     <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status"></span>
                 </button>
             </div>

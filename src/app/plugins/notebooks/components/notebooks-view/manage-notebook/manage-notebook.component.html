@@ -115,7 +115,7 @@
                 <ng-container *ngIf="selectedSession != null">
                     <p>Status: {{selectedSession.kernel.execution_state}}</p>
                     <p>Last Activity: {{selectedSession.kernel.last_activity | date: 'medium'}}</p>
-                    <p>Connections (db): {{selectedSession.kernel.connections}}</p>
+                    <p>Connections: {{selectedSession.kernel.connections}}</p>
                 </ng-container>
             </div>
             <div class="modal-footer">
@@ -162,7 +162,7 @@
                 <ng-container *ngIf="selectedSession != null">
                     <p>Status: {{selectedSession.kernel.execution_state}}</p>
                     <p>Last Activity: {{selectedSession.kernel.last_activity | date: 'medium'}}</p>
-                    <p>Connections (db): {{selectedSession.kernel.connections}}</p>
+                    <p>Connections: {{selectedSession.kernel.connections}}</p>
                 </ng-container>
             </div>
             <div class="modal-footer">

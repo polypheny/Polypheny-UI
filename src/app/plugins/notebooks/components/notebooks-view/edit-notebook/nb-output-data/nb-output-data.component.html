@@ -1,13 +1,18 @@
 <div class="nb-output-data-wrapper">
-    <ng-container *ngIf="data['image/png'];else elseHtml">
+    <ng-container *ngIf="data['image/png'];else elseSvg">
         <div class="nb-image-wrapper">
             <img class="nb-image" src="{{'data:image/png;base64,'+ data['image/png']}}" alt="{{data['text/plain']}}"/>
         </div>
     </ng-container>
+    <ng-template #elseSvg>
+        <ng-container *ngIf="data['image/svg+xml'];else elseHtml">
+            <div [innerHTML]="isTrusted ? (data['image/svg+xml'] | safeHtml) : data['image/svg+xml']"></div>
+        </ng-container>
+    </ng-template>
     <ng-template #elseHtml>
         <ng-container *ngIf="data['text/html'];else elseJson">
             <div class="table table-hover table-striped table-borderless"
-                 [innerHTML]="data['text/html']"></div>
+                 [innerHTML]="isTrusted ? (data['text/html'] | safeHtml) : data['text/html']"></div>
         </ng-container>
     </ng-template>
     <ng-template #elseJson>

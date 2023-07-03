@@ -26,6 +26,10 @@ export class NotebooksService {
         return this._http.get<StatusResponse>(`${this.httpUrl}/status`, this.httpOptions);
     }
 
+    getPluginStatus() {
+        return this._http.get<any>(`${this.httpUrl}/plugin/status`, this.httpOptions);
+    }
+
     getKernelspecs() {
         return this._http.get<KernelSpecs>(`${this.httpUrl}/kernelspecs`, this.httpOptions);
     }
@@ -58,6 +62,14 @@ export class NotebooksService {
 
     getKernels() {
         return this._http.get<KernelResponse>(`${this.httpUrl}/kernels`, this.httpOptions);
+    }
+
+    /**
+     * Returns a map that shows for each kernel id how many websockets are connected to it.
+     * This is much more useful than the connections number in the KernelResponse
+     */
+    getOpenConnections() {
+        return this._http.get<{ [key: string]: number }>(`${this.httpUrl}/connections`, this.httpOptions);
     }
 
     /**

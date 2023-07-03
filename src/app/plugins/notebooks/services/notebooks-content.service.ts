@@ -108,14 +108,23 @@ export class NotebooksContentService {
     }
 
     updateSessions() {
-        this._notebooks.getSessions().subscribe(res => {
-                this.updatePreferredSessions(res);
-                this.sessions.next(res);
+        forkJoin([this._notebooks.getSessions(), this._notebooks.getOpenConnections()]).subscribe(
+            ([sessions, openConnections]) => {
+                const modifiedSessions = sessions.map(session => { // insert correct connections number
+                    if (session.kernel) {
+                        session.kernel.connections = openConnections[session.kernel.id] || 0;
+                    }
+                    return session;
+                });
+                this.updatePreferredSessions(modifiedSessions);
+                this.sessions.next(modifiedSessions);
+
             },
             err => {
                 this.sessions.next([]);
                 this.serverUnreachableSubject.next();
-            });
+            }
+        );
     }
 
     hasRunningKernel(path: string) {
@@ -130,7 +139,7 @@ export class NotebooksContentService {
     setAutoUpdate(active: boolean) {
         this.updateInterval$?.unsubscribe();
         if (active) {
-            this.updateInterval$ = interval(15000).subscribe(() => {
+            this.updateInterval$ = interval(10000).subscribe(() => {
                 this.updateExistingNamespaces();
                 this.updateAvailableKernels();
                 this.updateSessions();
@@ -164,12 +173,20 @@ export class NotebooksContentService {
         );
     }
 
-    deleteAllSessions(): Observable<Object[]> {
-        const sessionIds = this.sessions.getValue().map(session => session.id);
+    deleteAllSessions(onlyUnused = false): Observable<Object[]> {
+        let sessionIds = [];
+        if (onlyUnused) {
+            sessionIds = this.sessions.getValue()
+                .filter(session => session.kernel?.connections === 0)
+                .map(session => session.id);
+        } else {
+            sessionIds = this.sessions.getValue().map(session => session.id);
+        }
         return this._notebooks.deleteSessions(sessionIds).pipe(
-            tap(res => this.sessions.next([]))
+            tap(() => {
+                this.sessions.next(this.sessions.getValue().filter(session => !sessionIds.includes(session.id)));
+            })
         );
-
     }
 
     moveSessionsWithFile(fromPath: string, toName: string, toPath: string) {
@@ -203,8 +220,8 @@ export class NotebooksContentService {
         );
     }
 
-    getNotebookContent(path: string): Observable<NotebookContent> {
-        if (path === this.cachedNb?.path && this.cachedNbIsFresh()) {
+    getNotebookContent(path: string, allowCache = true): Observable<NotebookContent> {
+        if (allowCache && path === this.cachedNb?.path && this.cachedNbIsFresh()) {
             const cached = of(this.cachedNb);
             this.cachedNb = null; // only return content once, since it could get modified
             return cached;
