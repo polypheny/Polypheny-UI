@@ -588,6 +588,27 @@ export class CrudService {
         });
     }
 
+    startHandshake(hostname: string) {
+	return this._http.post(`${this.httpUrl}/startHandshake`, hostname, this.httpOptions);
+    }
+
+    redoHandshake(hostname: string) {
+	return this._http.post(`${this.httpUrl}/redoHandshake`, hostname, this.httpOptions);
+    }
+
+    listHandshakes() {
+        return this._http.get(`${this.httpUrl}/listHandshakes`);
+    }
+
+    autoHandshakeAvailable() {
+        return this._http.get(`${this.httpUrl}/autoHandshakeAvailable`);
+    }
+
+    doAutoHandshake() {
+        return this._http.post(`${this.httpUrl}/doAutoHandshake`, "", this.httpOptions);
+    }
+
+
     getNameValidator(required: boolean = false) {
         if (required) {
             return [Validators.pattern('^[a-zA-Z_][a-zA-Z0-9_]*$'), Validators.required, Validators.max(100)];

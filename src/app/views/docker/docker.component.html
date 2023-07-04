@@ -1,0 +1,97 @@
+<app-toast></app-toast>
+
+<div *ngIf="autoDockerAvailable">
+    Polypheny has found a locally running docker instance
+    <button class="btn btn-success mb-3" (click)="doAutoHandshake()">Connect</button>
+</div>
+<div *ngIf="autoDockerResult!=''">
+    {{ autoDockerResult }}
+</div>
+
+<form (ngSubmit)="onSubmit()">
+    <div class="input-group mb-3">
+	<div class="input-group-prepend">
+	    <label class="input-group-text" for="hostName">Hostname</label>
+	</div>
+	<input class="form-control" id="hostName" name="hostName" type="text" [(ngModel)]="hostname" required>
+    </div>
+    <div class="input-group">
+	<input class="btn btn-primary" type="submit" value="Add"><br>
+    </div>
+</form>
+
+<div *ngIf="handshakesByStatus.get('RUNNING').size>0">
+    <h3>Running handshakes</h3>
+    <div class="container">
+	<div *ngFor="let handshake of handshakesByStatus.get('RUNNING').values()" class="col">
+	    <div class="card">
+		<div class="card-header">
+		    {{ handshake.hostname }}
+		</div>
+		<div class="card-body">
+		    <div class="card-title">{{handshake.status}}</div>
+		    <p class="card-text">
+			Run one of the following commands on {{ handshake.hostname }}:<br>
+			<tt>{{ handshake.runCommand }}</tt><br><br>
+			<tt>{{ handshake.execCommand }}</tt><br>
+		</div>
+	    </div>
+	</div>
+    </div>
+</div>
+
+<div *ngIf="handshakesByStatus.get('NOT_RUNNING').size>0">
+    <h3>Idle handshakes</h3>
+    <div class="container">
+	<div *ngFor="let handshake of handshakesByStatus.get('NOT_RUNNING').values()" class="col">
+	    <div class="card">
+		<div class="card-header">
+		    {{ handshake.hostname }}
+		</div>
+		<div class="card-body">
+		    <div class="card-title">{{handshake.status}}: {{handshake.lastErrorMessage}}</div>
+		    <p class="card-text">
+			Run one of the following commands on {{ handshake.hostname }} and press the button below to try again:<br>
+			<tt>{{ handshake.runCommand }}</tt><br><br>
+			<tt>{{ handshake.execCommand }}</tt><br>
+
+			<button (click)="redoHandshake(handshake.hostname)" class="btn btn-primary">Try again</button>
+		</div>
+	    </div>
+	</div>
+    </div>
+</div>
+
+<div *ngIf="handshakesByStatus.get('SUCCESS').size>0">
+    <h3>Completed handshakes</h3>
+    <div class="container">
+	<div *ngFor="let handshake of handshakesByStatus.get('SUCCESS').values()" class="col">
+	    <div class="card">
+		<div class="card-header">
+		    {{ handshake.hostname }}
+		</div>
+		<div class="card-body">
+		    <div class="card-title">Successful handshake at {{handshake.lastErrorMessage}}</div>
+		    <button (click)="redoHandshake(handshake.hostname)" class="btn btn-primary">Redo</button>
+		</div>
+	    </div>
+	</div>
+    </div>
+</div>
+
+<div *ngIf="handshakesByStatus.get('FAILED').size>0">
+    <h3>Failed handshakes</h3>
+    <div class="container">
+	<div *ngFor="let handshake of handshakesByStatus.get('FAILED').values()" class="col">
+	    <div class="card">
+		<div class="card-header">
+		    {{ handshake.hostname }}
+		</div>
+		<div class="card-body">
+		    <div class="card-title">{{handshake.status}}: {{handshake.lastErrorMessage}}</div>
+		    <button (click)="redoHandshake(handshake.hostname)" class="btn btn-primary">Redo</button>
+		</div>
+	    </div>
+	</div>
+    </div>
+</div>

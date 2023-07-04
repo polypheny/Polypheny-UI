@@ -44,8 +44,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     availableAdapterUniqueNameForm: FormGroup;
     settingHeaders: string[];
 
-    usedDockerPorts: Map<Number, Number[]>;
-
     fileLabel = 'Choose File';
     deploying = false;
     handshaking = false;
@@ -205,7 +203,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     async initDeployModal(adapter: AdapterInformation) {
         this.editingAvailableAdapter = adapter;
-        await this.refreshUsedDockerPorts();
 
         const fc = {};
 
@@ -245,11 +242,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             }
         });
 
-        //when docker is supported we can attach a special validator to the docker FormGroup
-        if (this.editingAvailableAdapterForms.has('docker')) {
-            this.attachUsedPortValidator();
-        }
-
         this.activeMode = null;
         // if we only have one mode we directly set it
         if (this.modeSettings.length === 0) {
@@ -271,26 +263,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             uniqueName: new FormControl(null, [Validators.required, Validators.pattern(this._crud.getValidationRegex()), validateUniqueName([...this.stores, ...this.sources])])
         });
         this.adapterSettingsModal.show();
-    }
-
-    private attachUsedPortValidator() {
-        const dockerValidator: (control: AbstractControl) => (ValidationErrors | null) = (control: AbstractControl) => {
-            const port = Number(control.get('port').value);
-            const instanceId = Number(control.get('instanceId').value);
-
-            if (isNaN(port)) {
-                return {notNumber: 'The declared port is not a number.'};
-            }
-            if (!this.usedDockerPorts.has(instanceId)) {
-                return {noDockerRunning: 'There is no docker instance running, please check your configuration.'};
-            }
-
-            if (this.usedDockerPorts.get(instanceId).includes(port)) {
-                return {usedPort: 'This port is already used for the specified dockerInstance.'};
-            }
-            return null;
-        };
-        this.editingAvailableAdapterForms.get('docker').setValidators(dockerValidator);
     }
 
     onFileChange(event, form: FormGroup, key) {
@@ -544,17 +516,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 return 'fa fa-database';
         }
     }
-
-    async refreshUsedDockerPorts() {
-        const res = await this._crud.getUsedDockerPorts().toPromise();
-        const ports = new Map<Number, Number[]>();
-        Object.keys(res).forEach(k => {
-            const values: Number[] = res[k].filter(e => e !== null);
-            ports.set(Number(k), values);
-        });
-        this.usedDockerPorts = ports;
-    }
-
 
     deployType(): FormGroup {
         if (this.activeMode) {

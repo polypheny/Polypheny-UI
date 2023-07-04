@@ -82,20 +82,4 @@ export class DockerConfigComponent implements OnInit {
         this.markElement(key);
         value.dockerRunning = false;
     }
-
-    setProtocolAndMarkElement(el: any, e: Event, key: string, value: any) {
-        e.preventDefault();
-        el.protocol = e.target['value'];
-
-        this.markElementReset(key, value);
-    }
-
-
-    setInsecureAndMark(usingInsecure: boolean, key: string, el: any) {
-        if (usingInsecure) {
-            el.port = 2375.0;
-        }
-        this.markElementReset(key, el);
-    }
-
 }

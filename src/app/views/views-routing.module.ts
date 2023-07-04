@@ -10,6 +10,7 @@ import {QueryingComponent} from './querying/querying.component';
 import {AdaptersComponent} from './adapters/adapters.component';
 import {AboutComponent} from './about/about.component';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
+import {DockerComponent} from './docker/docker.component';
 
 const routes: Routes = [
     {
@@ -122,6 +123,13 @@ const routes: Routes = [
         data: {
             title: 'Form Generator'
         }
+    },
+    {
+	path: 'docker',
+	component: DockerComponent,
+	data: {
+	    title: 'Docker'
+	}
     },
     {
         path: 'adapters',
