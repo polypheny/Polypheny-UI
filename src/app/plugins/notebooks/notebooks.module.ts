@@ -15,7 +15,7 @@ import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {NbCellComponent} from './components/edit-notebook/nb-cell/nb-cell.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
-import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
+import {MarkdownModule, MarkedOptions, MarkedRenderer} from 'ngx-markdown';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {
     NbInputEditorComponent
@@ -25,7 +25,7 @@ import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {NbOutputDataComponent} from './components/edit-notebook/nb-output-data/nb-output-data.component';
 import {UnsavedChangesGuard} from './services/unsaved-changes.guard';
 import {DbPolyOutputComponent} from './components/edit-notebook/db-poly-output/db-poly-output.component';
-import { SafeHtmlPipe } from './services/safe-html.pipe';
+import {SafeHtmlPipe} from './services/safe-html.pipe';
 
 
 @NgModule({
@@ -40,7 +40,7 @@ import { SafeHtmlPipe } from './services/safe-html.pipe';
         MarkdownModule.forRoot({
             markedOptions: {
                 provide: MarkedOptions,
-                useFactory: baseUrlFactory,
+                useFactory: markedOptionsFactory,
                 deps: [WebuiSettingsService]
             }
         }),
@@ -70,6 +70,21 @@ export class NotebooksModule {
 }
 
 // https://stackoverflow.com/questions/69218645/dynamic-configuration-for-angular-module-imports
-export function baseUrlFactory(_settings: WebuiSettingsService) {
-    return {baseUrl: _settings.getConnection('notebooks.file') + '/notebooks/'};
+export function markedOptionsFactory(_settings: WebuiSettingsService) {
+    const renderer = new MarkedRenderer();
+
+    renderer.blockquote = (text: string) => {
+        return '<blockquote class="blockquote"><p>' + text + '</p></blockquote>';
+    };
+
+    const defaultLinkRenderer = renderer.link.bind(renderer);
+    renderer.link = (href, title, text) => {
+        const link = defaultLinkRenderer(href, title, text);
+        return link.startsWith('<a') ? '<a target="_blank"' + link.slice(2) : link;
+    };
+
+    return {
+        renderer: renderer,
+        baseUrl: _settings.getConnection('notebooks.file') + '/notebooks/'
+    };
 }
