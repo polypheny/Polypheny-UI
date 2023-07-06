@@ -122,17 +122,6 @@
                                (change)="changedVariableName()" formControlName="variable"
                                [ngClass]="{'is-invalid pr-4': !polyForm.valid}">
                     </div>
-                    <!--<div class="col-md-1 pr-0 d-flex flex-column justify-content-center">
-                        <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input bg-light" id="{{'expansion'+cell.id}}"
-                                   formControlName="expand" (change)="toggledExpansion()">
-                            <label class="custom-control-label text-nowrap" for="{{'expansion'+cell.id}}"
-                                   tooltip="Toggle variable expansion" container="body" placement="right">
-                                {{'${ }'}}
-                            </label>
-                        </div>
-                    </div>-->
-
                 </form>
 
                 <div class="sql-console form-group border" (click)="editMode()" [ngClass]=

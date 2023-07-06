@@ -52,7 +52,7 @@ export class NotebookWrapper {
         this.busyCellIds.clear();
         this.socket.onMessage().subscribe(msg => this.handleKernelMsg(msg),
             err => {
-                console.log('received error: ' + err);
+                console.warn('received error: ' + err);
             }, () => {
                 this.socket = null;
                 this.kernelStatus = 'unknown';
@@ -197,8 +197,6 @@ export class NotebookWrapper {
                     const msgId = this.socket?.sendCode(cell.source);
                     this.codeOrigin.set(msgId, cell.id);
                     this.busyCellIds.add(cell.id);
-                } else {
-                    console.warn('Kernel socket seems to have closed. Cannot send code.');
                 }
                 break;
             case 'markdown':
@@ -345,8 +343,6 @@ export class NotebookWrapper {
             case 'update_display_data':
                 this.handleUpdateDisplayMsg(<KernelUpdateDisplayData>msg, cell);
                 break;
-            default:
-                console.error('received unknown message type:', msg.msg_type);
         }
     }
 
@@ -409,12 +405,10 @@ export class NotebookWrapper {
 
     private handleInterruptMsg(msg: KernelInterruptReply, cell: NotebookCell) {
         this.busyCellIds.clear();
-
     }
 
     private handleShutdownMsg(msg: KernelShutdownReply, cell: NotebookCell) {
         this.busyCellIds.clear();
-
     }
 
     private handleDisplayMsg(msg: KernelDisplayData, cell: NotebookCell) {
@@ -439,14 +433,6 @@ export class NotebookWrapper {
             }
         }
         return cell.cell_type;
-    }
-
-    private setCellType(cell: NotebookCell, type: CellType) {
-        if (type === 'poly') {
-            cell.cell_type = 'code';
-            return;
-        }
-        cell.cell_type = type;
     }
 
     private addTextToOutputStream(lastOutput: CellStreamOutput, newText: string) {

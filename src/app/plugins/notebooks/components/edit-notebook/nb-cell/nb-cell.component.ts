@@ -118,7 +118,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
                 Validators.maxLength(30),
                 Validators.required
             ]),
-            expand: new FormControl(this.cell.metadata.polypheny?.expand_params || true),
+            expand: new FormControl(this.cell.metadata.polypheny?.expand_params || true), // turn off expansion for single cells
         });
         if (this.cellType === 'poly') { // cell-type was already poly when loaded
             this.cell.metadata.polypheny.language = this.polyForm.value.language;
@@ -275,12 +275,6 @@ export class NbCellComponent implements OnInit, AfterViewInit {
 
     changedVariableName() {
         this.cell.metadata.polypheny.result_variable = this.polyForm.valid ? this.polyForm.value.variable : '';
-    }
-
-    toggledExpansion() {
-        // Cell-level control over variable expansion is implemented, but currently not in use.
-        // Notebook-level control is sufficient
-        this.cell.metadata.polypheny.expand_params = this.polyForm.value.expand;
     }
 
     toggledManual() {

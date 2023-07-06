@@ -141,12 +141,6 @@ export class NotebooksService {
         );
     }
 
-    deleteSessionsByResponse(sessions: SessionResponse[]) {
-        return forkJoin(
-            sessions.map(s => this.deleteSession(s.id))
-        );
-    }
-
     moveSession(sessionId: string, name: string, path: string) {
         const json = {
             id: sessionId,

@@ -24,7 +24,7 @@ import {TreeModule} from 'angular-tree-component';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {NbOutputDataComponent} from './components/edit-notebook/nb-output-data/nb-output-data.component';
 import {UnsavedChangesGuard} from './services/unsaved-changes.guard';
-import {DbPolyOutputComponent} from './components/edit-notebook/db-poly-output/db-poly-output.component';
+import {NbPolyOutputComponent} from './components/edit-notebook/nb-poly-output/nb-poly-output.component';
 import {SafeHtmlPipe} from './services/safe-html.pipe';
 
 
@@ -54,7 +54,7 @@ import {SafeHtmlPipe} from './services/safe-html.pipe';
         NbCellComponent,
         NbInputEditorComponent,
         NbOutputDataComponent,
-        DbPolyOutputComponent,
+        NbPolyOutputComponent,
         SafeHtmlPipe
     ],
     exports: [

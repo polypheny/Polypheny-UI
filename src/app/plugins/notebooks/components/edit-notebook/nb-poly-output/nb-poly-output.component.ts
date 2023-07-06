@@ -4,10 +4,10 @@ import {TableConfig} from '../../../../../components/data-view/data-table/table-
 
 @Component({
     selector: 'app-db-poly-output',
-    templateUrl: './db-poly-output.component.html',
-    styleUrls: ['./db-poly-output.component.scss']
+    templateUrl: './nb-poly-output.component.html',
+    styleUrls: ['./nb-poly-output.component.scss']
 })
-export class DbPolyOutputComponent implements OnInit {
+export class NbPolyOutputComponent implements OnInit {
 
     @Input() resultSet: ResultSet;
     @Input() resultVariable: string;

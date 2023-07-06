@@ -1,7 +1,7 @@
 <div class="result-wrapper" *ngIf="resultSet">
     <p [ngClass]="{'result-text': !resultSet.data, 'text-center': resultSet.data}"
        *ngIf="!resultSet.error && resultSet.data">
-        <i>Rows returned: {{resultSet.affectedRows}}</i>
+        <i>Found: {{resultSet.affectedRows}}</i>
     </p>
     <p *ngIf="!resultSet.data && !resultSet.error" class="result-text">
         <i>Successfully executed</i>

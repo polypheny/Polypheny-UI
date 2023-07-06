@@ -152,7 +152,7 @@
     <div class="col-md-3 text-right">
         <button type="button" class="btn btn-light" style="white-space: nowrap"
                 (click)="openChangeSessionModal.emit({name: name, path: path})">
-            <span class="mr-2">{{kernelSpec?.spec?.display_name || 'No Kernel'}}</span>
+            <span class="mr-2">{{kernelSpec?.spec?.display_name || 'No kernel'}}</span>
             <span class="badge badge-pill badge-primary"
                   [ngClass]="{'badge-success': nb?.kernelStatus === 'idle',
                               'badge-danger': !nb || nb?.kernelStatus === 'unknown',
@@ -205,7 +205,7 @@
 </div>
 <ng-template #elseNoSession>
     <h1 class="nb-title">The Selected Kernel No Longer Exists</h1>
-    <p>You can either close the notebook (you can save your changes if you want), or start a new Kernel</p>
+    <p>You can either close the notebook (you can save your changes if you want), or start a new kernel</p>
     <button type="button" class="btn btn-primary" style="white-space: nowrap"
             (click)="openChangeSessionModal.emit({name: name, path: path})">
         Create New Kernel
@@ -407,7 +407,7 @@
             </div>
 
             <div class="modal-body">
-                <p>Are you sure you want to shut down all running Kernels of this notebook? Unsaved changes are
+                <p>Are you sure you want to shut down all running kernels of this notebook? Unsaved changes are
                     lost!</p>
             </div>
             <div class="modal-footer">

@@ -96,7 +96,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 this.name = this._notebooks.getNameFromSession(session);
                 const urlPath = 'notebooks/' + this._route.snapshot.url.map(segment => decodeURIComponent(segment.toString())).join('/');
                 if (this.path !== urlPath) {
-                    console.log('path does not match url');
                     this.closeEdit(true);
                     return;
                 }
@@ -105,8 +104,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 }
                 this._content.setPreferredSessionId(this.path, this.sessionId);
                 this.loadNotebook();
-            }, err => {
-                console.log('session does not exist!');
+            }, () => {
                 this.closeEdit();
             });
         }
@@ -136,7 +134,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         });
         this.closeNotebookForm = new FormGroup({
             saveChanges: new FormControl(true),
-            shutDown: new FormControl(false)
+            shutDown: new FormControl(true)
         });
     }
 
@@ -185,8 +183,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 this.selectCell(this.nb.cells[0].id);
                 document.getElementById('notebook').focus();
             }
-        }, error => {
-            console.log('error while reading notebook', this.path);
         }).add(() => {
             this._loading.hide();
             if (!this.nb) {
@@ -199,7 +195,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     closeEdit(forced = false) {
         this.nb?.closeSocket();
         const queryParams = forced ? {forced: true} : null;
-        this._router.navigate([this._sidebar.baseUrl, 'notebooks'], {queryParams});
+        this._router.navigate([this._sidebar.baseUrl].concat(this._content.directoryPath.split('/')),
+            {queryParams});
     }
 
     confirmClose(): Subject<boolean> | boolean {
@@ -286,7 +283,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     duplicateNotebook() {
-        this._notebooks.duplicateFile(this.path, this._content.directoryPath).subscribe(res => this._content.update(),
+        this._notebooks.duplicateFile(this.path, this._content.directoryPath).subscribe(() => this._content.update(),
             err => this._toast.error(err.error.message, `Could not duplicate ${this.path}.`));
     }
 
@@ -300,10 +297,9 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             return;
         }
         this._notebooks.getExportedNotebook(this.path, this.kernelSpec?.name).subscribe(res => {
-                console.log('result:', res);
                 this._content.downloadNotebook(res.content, 'exported_' + this.name);
             },
-            err => {
+            () => {
                 this._toast.warn('Unable to export the notebook.');
             });
     }
@@ -372,9 +368,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 this._toast.success('Notebook was saved.');
             }
             this.nb.markAsSaved(res.last_modified);
-        }, error => {
+        }, () => {
             this._toast.error('An error occurred while uploading the notebook.');
-            console.log('upload error:', error);
 
         });
     }
@@ -394,9 +389,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 this._toast.success('Notebook was saved.');
             }
             this.nb.markAsSaved(res.last_modified);
-        }, error => {
+        }, () => {
             this._toast.error('An error occurred while uploading the notebook.');
-            console.log('upload error:', error);
         });
     }
 
@@ -407,9 +401,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                 this._toast.success('Notebook was saved.');
             }
             this.nb?.markAsSaved(res.last_modified);
-        }, error => {
+        }, () => {
             this._toast.error('An error occurred while uploading the notebook.');
-            console.log('upload error:', error);
         }).add(() => {
             this.overwriteNotebookModal.hide();
             this.overwriting = false;
@@ -424,8 +417,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     interruptKernel() {
-        this._notebooks.interruptKernel(this.session.kernel.id).subscribe(res => {
-        }, err => {
+        this._notebooks.interruptKernel(this.session.kernel.id).subscribe(() => {
+        }, () => {
             this._toast.error('Unable to interrupt the kernel.');
         });
     }
@@ -437,16 +430,15 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     restartKernel() {
         this._notebooks.restartKernel(this.session.kernel.id).pipe(
-            tap(res => this.nb.setKernelStatusBusy()),
+            tap(() => this.nb.setKernelStatusBusy()),
             delay(1500) // time for the kernel to restart
-        ).subscribe(res => {
+        ).subscribe(() => {
             this.nb.requestExecutionState();
             if (this.executeAllAfterRestart) {
                 this.nb.executeAll();
             }
-        }, err => {
+        }, () => {
             this._toast.error('Unable to restart the kernel.');
-            console.log(err);
         });
         this.restartKernelModal.hide();
     }
