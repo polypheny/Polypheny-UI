@@ -345,6 +345,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     toggleExpansion() {
         this.expand = !this.expand;
         this.nb.setExpansionAllowed(this.expand);
+        this._toast.success('Variable expansion has been ' + (this.expand ? 'activated' : 'deactivated') + '.');
     }
 
     /**
