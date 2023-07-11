@@ -9,6 +9,7 @@ import {Subject} from 'rxjs';
 import {ToastService} from '../../../components/toast/toast.service';
 import {Injectable} from '@angular/core';
 import {NotebooksContentService} from './notebooks-content.service';
+import {LoadingScreenService} from '../../../components/loading-screen/loading-screen.service';
 
 @Injectable()
 export class NotebooksSidebarService {
@@ -29,7 +30,8 @@ export class NotebooksSidebarService {
                 private _content: NotebooksContentService,
                 private _leftSidebar: LeftSidebarService,
                 private _breadcrumb: BreadcrumbService,
-                private _toast: ToastService) {
+                private _toast: ToastService,
+                private _loading: LoadingScreenService) {
         _content.onContentChange().subscribe(() => this.update());
         _content.onSessionsChange().subscribe(() => this.updateSidebar());
     }
@@ -112,7 +114,7 @@ export class NotebooksSidebarService {
         ];
         this._leftSidebar.setTopButtons(buttons);
 
-        if (this._content.isRoot) {
+        if (this._content.isRoot && !this._loading.isShown()) {
             this.deselect();
         }
     }

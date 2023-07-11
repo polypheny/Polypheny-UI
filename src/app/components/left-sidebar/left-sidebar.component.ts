@@ -16,7 +16,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
     static readonly EXPAND_SHOWN_ROUTES: String[] = [
         '/views/monitoring', '/views/config', '/views/uml', '/views/querying/console',
-        '/views/querying/relational-algebra', '/views/notebooks/'];
+        '/views/querying/relational-algebra', '/views/notebooks'];
 
     @ViewChild('tree', {static: false}) treeComponent: TreeComponent;
     nodes = [];

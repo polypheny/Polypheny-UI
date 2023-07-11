@@ -222,11 +222,11 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     deleteNotebook(): void {
         this.deleting = true;
         this.terminateSessions();
+        this.closeEdit(true);
         this._notebooks.deleteFile(this.path).subscribe().add(() => {
             this._content.update();
             this.deleting = false;
             this.deleteNotebookModal.hide();
-            this.closeEdit(true);
         });
 
     }
