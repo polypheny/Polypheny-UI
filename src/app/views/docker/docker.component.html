@@ -1,97 +1,144 @@
-<app-toast></app-toast>
-
-<div *ngIf="autoDockerAvailable">
-    Polypheny has found a locally running docker instance
-    <button class="btn btn-success mb-3" (click)="doAutoHandshake()">Connect</button>
-</div>
-<div *ngIf="autoDockerResult!=''">
-    {{ autoDockerResult }}
-</div>
-
-<form (ngSubmit)="onSubmit()">
-    <div class="input-group mb-3">
-	<div class="input-group-prepend">
-	    <label class="input-group-text" for="hostName">Hostname</label>
-	</div>
-	<input class="form-control" id="hostName" name="hostName" type="text" [(ngModel)]="hostname" required>
-    </div>
-    <div class="input-group">
-	<input class="btn btn-primary" type="submit" value="Add"><br>
-    </div>
-</form>
-
-<div *ngIf="handshakesByStatus.get('RUNNING').size>0">
-    <h3>Running handshakes</h3>
-    <div class="container">
-	<div *ngFor="let handshake of handshakesByStatus.get('RUNNING').values()" class="col">
-	    <div class="card">
-		<div class="card-header">
-		    {{ handshake.hostname }}
-		</div>
-		<div class="card-body">
-		    <div class="card-title">{{handshake.status}}</div>
-		    <p class="card-text">
-			Run one of the following commands on {{ handshake.hostname }}:<br>
-			<tt>{{ handshake.runCommand }}</tt><br><br>
-			<tt>{{ handshake.execCommand }}</tt><br>
-		</div>
-	    </div>
-	</div>
+<app-toast *ngIf="!isCard"></app-toast>
+<div *ngIf="isCard" class="card">
+    <div class="card-header">{{ alias }}</div>
+    <div class="card-body">
+        <div *ngIf="error" class="alert alert-danger">
+            {{ error }}
+        </div>
+        ID: {{id}}<br>
+        Host: {{ host }}<br>
+        Connected: {{ connected }}<br>
+        <a class="btn btn-primary mr-2" [routerLink]="['.', id]">Edit</a>
+        <button class="btn btn-danger mr-2" (click)="removeDockerInstance();">Delete</button>
     </div>
 </div>
 
-<div *ngIf="handshakesByStatus.get('NOT_RUNNING').size>0">
-    <h3>Idle handshakes</h3>
-    <div class="container">
-	<div *ngFor="let handshake of handshakesByStatus.get('NOT_RUNNING').values()" class="col">
-	    <div class="card">
-		<div class="card-header">
-		    {{ handshake.hostname }}
-		</div>
-		<div class="card-body">
-		    <div class="card-title">{{handshake.status}}: {{handshake.lastErrorMessage}}</div>
-		    <p class="card-text">
-			Run one of the following commands on {{ handshake.hostname }} and press the button below to try again:<br>
-			<tt>{{ handshake.runCommand }}</tt><br><br>
-			<tt>{{ handshake.execCommand }}</tt><br>
+<div *ngIf="!isCard">
+    <div *ngIf="id===-1">
+        <form (ngSubmit)="addDockerInstance()">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <label for="hostField" class="input-group-text">Host</label>
+                </div>
+                <input id="hostField" class="form-control" type="text" name="host" (input)="hostInput()" [(ngModel)]="host" [disabled]="handshake!==null" required>
+            </div>
 
-			<button (click)="redoHandshake(handshake.hostname)" class="btn btn-primary">Try again</button>
-		</div>
-	    </div>
-	</div>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <label for="aliasField" class="input-group-text">Alias</label>
+                </div>
+                <input id="aliasField" class="form-control" type="text" name="alias" (input)="aliasInput()" [(ngModel)]="alias" [disabled]="handshake!==null" required>
+
+            </div>
+
+            <div class="input-group mb-3">
+                <input class="btn btn-success mr-2" type="submit" value="Add" [disabled]="handshake!==null">
+                <button class="btn btn-secondary" routerLink=".." [disabled]="handshake!==null">Cancel</button>
+            </div>
+
+        </form>
+        <div *ngIf="dockerSetupResult!==null&&dockerSetupResult.error!==''" class="alert alert-danger">
+            {{ dockerSetupResult.error }}
+        </div>
+
+
     </div>
-</div>
+    <div *ngIf="id!==-1">
+        <form>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <label for="idField" class="input-group-text">Id</label>
+                </div>
+                <input id="idField" class="form-control" type="text" name="id" [(ngModel)]="id" readonly="true">
 
-<div *ngIf="handshakesByStatus.get('SUCCESS').size>0">
-    <h3>Completed handshakes</h3>
-    <div class="container">
-	<div *ngFor="let handshake of handshakesByStatus.get('SUCCESS').values()" class="col">
-	    <div class="card">
-		<div class="card-header">
-		    {{ handshake.hostname }}
-		</div>
-		<div class="card-body">
-		    <div class="card-title">Successful handshake at {{handshake.lastErrorMessage}}</div>
-		    <button (click)="redoHandshake(handshake.hostname)" class="btn btn-primary">Redo</button>
-		</div>
-	    </div>
-	</div>
+            </div>
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <label for="hostField" class="input-group-text">Host</label>
+                </div>
+                <input id="hostField" class="form-control" type="text" name="host" (input)="modified=true" [(ngModel)]="host">
+            </div>
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <label for="aliasField" class="input-group-text">Alias</label>
+                </div>
+                <input id="aliasField" class="form-control" type="text" name="alias" (input)="modified=true" [(ngModel)]="alias">
+
+            </div>
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <label for="idField" class="input-group-text">Connected</label>
+                </div>
+                <input id="idField" class="form-control" type="text" name="connected" [(ngModel)]="connected" readonly="true">
+
+            </div>
+
+            <div class="input-group mb-3">
+                <button class="btn btn-success mr-2" (click)="updateDockerInstance()" [disabled]="!modified||updateLock||handshake!==null">Save</button>
+                <button class="btn btn-primary mr-2" routerLink=".." [disabled]="updateLock||handshake!==null">Cancel</button>
+                <button class="btn btn-primary mr-2" (click)="testConnection();" [disabled]="updateLock||handshake!==null">Test Connectivity</button>
+                <button *ngIf="!connected&&handshake===null" class="btn btn-primary mr-2" (click)="startHandshake()" [disabled]="updateLock||handshake!==null">Reconnect</button>
+                <button class="btn btn-danger mr-2" (click)="removeDockerInstance();" [disabled]="lock||handshake!==null">Delete</button>
+            </div>
+
+
+        </form>
     </div>
-</div>
 
-<div *ngIf="handshakesByStatus.get('FAILED').size>0">
-    <h3>Failed handshakes</h3>
-    <div class="container">
-	<div *ngFor="let handshake of handshakesByStatus.get('FAILED').values()" class="col">
-	    <div class="card">
-		<div class="card-header">
-		    {{ handshake.hostname }}
-		</div>
-		<div class="card-body">
-		    <div class="card-title">{{handshake.status}}: {{handshake.lastErrorMessage}}</div>
-		    <button (click)="redoHandshake(handshake.hostname)" class="btn btn-primary">Redo</button>
-		</div>
-	    </div>
-	</div>
+    <div *ngIf="handshake!==null">
+        <div *ngIf="handshake.status=='RUNNING'||handshake.status=='NOT_RUNNING'">
+            Run the following command on {{ handshake.hostname }}:<br>
+            <div *ngIf="handshake.containerExists==='true'">
+                <code>
+                    {{ handshake.execCommand }}
+                </code>
+                <br>
+                <button class="btn btn-secondary" (click)="_util.clipboard(handshake.execCommand)">Copy</button>
+                <details>
+                    <summary>No docker container running?</summary>
+                    Use this command:<br>
+                    <code>
+                        {{ handshake.runCommand }}
+                    </code>
+                    <br>
+                    <button class="btn btn-secondary mb-2" (click)="_util.clipboard(handshake.runCommand)">Copy</button>
+                </details>
+            </div>
+            <div *ngIf="handshake.containerExists==='false'">
+                <code>
+                    {{ handshake.runCommand }}
+                </code>
+                <br>
+                <button class="btn btn-secondary" (click)="_util.clipboard(handshake.runCommand)">Copy</button>
+                <details>
+                    <summary>Is there a docker container already running?</summary>
+                    Use this command:<br>
+                    <code>
+                        {{ handshake.execCommand }}
+                    </code>
+                    <br>
+                    <button class="btn btn-secondary mb-2" (click)="_util.clipboard(handshake.execCommand)">Copy</button>
+                </details>
+            </div>
+        </div>
+
+        <div *ngIf="handshake.status=='RUNNING'">
+            <button class="btn btn-danger" (click)="cancelHandshake()">Cancel handshake</button>
+        </div>
+
+        <div *ngIf="handshake.status=='NOT_RUNNING' || handshake.status=='FAILED'">
+            <div *ngIf="handshake.lastErrorMessage!=''" class="alert alert-danger">
+                Error: {{ handshake.lastErrorMessage }}
+            </div>
+            <button class="btn btn-primary" (click)="redoHandshake()">Try again</button>
+        </div>
+
+        <div *ngIf="handshake.status=='SUCCESS'" class="alert alert-success">
+            Successful handshake at {{ handshake.lastErrorMessage }}.
+        </div>
+
     </div>
 </div>

@@ -1,5 +1,5 @@
 import {EventEmitter, Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpUrlEncodingCodec} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {
     Index,
@@ -588,26 +588,49 @@ export class CrudService {
         });
     }
 
-    startHandshake(hostname: string) {
-	return this._http.post(`${this.httpUrl}/startHandshake`, hostname, this.httpOptions);
+    addDockerInstance(host: string, alias: string) {
+        return this._http.post(`${this.httpUrl}/addDockerInstance`, {'host': host, 'alias': alias}, this.httpOptions);
     }
 
-    redoHandshake(hostname: string) {
-	return this._http.post(`${this.httpUrl}/redoHandshake`, hostname, this.httpOptions);
+    testDockerInstance(id: number) {
+        return this._http.post(`${this.httpUrl}/testDockerInstance/${id}`, null, this.httpOptions);
     }
 
-    listHandshakes() {
-        return this._http.get(`${this.httpUrl}/listHandshakes`);
+    getDockerInstance(id: number) {
+        return this._http.get(`${this.httpUrl}/getDockerInstance/${id}`);
     }
 
-    autoHandshakeAvailable() {
-        return this._http.get(`${this.httpUrl}/autoHandshakeAvailable`);
+    getDockerInstances() {
+        return this._http.get(`${this.httpUrl}/getDockerInstances`);
+    }
+
+    updateDockerInstance(id: number, hostname: string, alias: string) {
+        return this._http.post(`${this.httpUrl}/updateDockerInstance`, {'id': id.toString(), 'hostname': hostname, 'alias': alias}, this.httpOptions);
+    }
+
+    removeDockerInstance(id: number) {
+        return this._http.post(`${this.httpUrl}/removeDockerInstance`, {'id': id.toString()}, this.httpOptions);
+    }
+
+    getAutoDockerStatus() {
+        return this._http.get(`${this.httpUrl}/getAutoDockerStatus`);
     }
 
     doAutoHandshake() {
         return this._http.post(`${this.httpUrl}/doAutoHandshake`, "", this.httpOptions);
     }
 
+    startHandshake(hostname: string) {
+        return this._http.post(`${this.httpUrl}/startHandshake`, hostname, this.httpOptions);
+    }
+
+    getHandshake(hostname: string) {
+        return this._http.get(`${this.httpUrl}/getHandshake/${new HttpUrlEncodingCodec().encodeKey(hostname)}`);
+    }
+
+    cancelHandshake(hostname: string) {
+        return this._http.post(`${this.httpUrl}/cancelHandshake`, hostname, this.httpOptions);
+    }
 
     getNameValidator(required: boolean = false) {
         if (required) {

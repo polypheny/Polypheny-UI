@@ -1,0 +1,19 @@
+<app-toast></app-toast>
+
+<div class="container">
+    <div class="row justify-content-start">
+        <app-docker *ngFor="let id of instances" [id]="id" (updated)="updateList()" class="col-4"></app-docker>
+    </div>
+    <div class="row justify-content-start">
+        <div class="col">
+            <a class="btn btn-success" [routerLink]="['.', 'new']">Add new instance</a>
+        </div>
+        <div *ngIf="status.available&&(!status.connected||autoConnectRunning)" class="col">
+            <button class="btn btn-success" (click)="autoDocker()" [disabled]="status.running||autoConnectRunning">Autoconnect to localhost</button>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="error!==null" class="alert alert-danger">
+    Cannot load list of docker instances: {{ error }}
+</div>

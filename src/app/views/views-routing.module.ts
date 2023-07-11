@@ -11,6 +11,7 @@ import {AdaptersComponent} from './adapters/adapters.component';
 import {AboutComponent} from './about/about.component';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 import {DockerComponent} from './docker/docker.component';
+import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
 
 const routes: Routes = [
     {
@@ -125,11 +126,18 @@ const routes: Routes = [
         }
     },
     {
-	path: 'docker',
-	component: DockerComponent,
-	data: {
-	    title: 'Docker'
-	}
+        path: 'docker',
+        component: DockerconfigComponent,
+        data: {
+            title: 'Docker'
+        }
+    },
+    {
+        path: 'docker/:id',
+        component: DockerComponent,
+        data: {
+            title: 'Docker'
+        }
     },
     {
         path: 'adapters',

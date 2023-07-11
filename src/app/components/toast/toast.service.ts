@@ -53,6 +53,20 @@ export class ToastService {
     }
 
     /**
+     * Generate an info toast message
+     * @param message Message
+     * @param generatedQuery Generated query that can be copied to the clipboard
+     * @param title Title of the message, default: 'info'. If null, it will be set to 'info'
+     * @param duration Optional. Set the duration of the toast message. Default: NORMAL
+     */
+    info(message: string, generatedQuery: string = null, title = 'info', duration: ToastDuration = ToastDuration.NORMAL) {
+        if (!title) {
+            title = 'info';
+        }
+        this.generateToast(title, message, generatedQuery, duration.valueOf(), 'bg-info');
+    }
+
+    /**
      * Generate a warning toast message. Use this method for errors caught by the UI.
      * @param message Message
      * @param title Title of the message, default: 'warning'. If null, it will be set to 'warning'

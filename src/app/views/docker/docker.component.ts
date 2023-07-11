@@ -1,154 +1,308 @@
-import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import {Component, EventEmitter, OnInit, Input, Output} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {FormGroup} from '@angular/forms';
 import {CrudService} from '../../services/crud.service';
 import {ToastService} from '../../components/toast/toast.service';
+import {UtilService} from '../../services/util.service';
 
 @Component({
-  selector: 'app-docker',
-  templateUrl: './docker.component.html',
-  styleUrls: ['./docker.component.scss']
+    selector: 'app-docker',
+    templateUrl: './docker.component.html',
+    styleUrls: ['./docker.component.scss']
 })
 export class DockerComponent implements OnInit {
 
-  form: FormGroup;
-  hostname: string;
-  handshakes: Map<String, OpenHandshake>;
-  handshakesByStatus: Map<String, Map<String, OpenHandshake>>;
-  intervalId: number;
-  autoDockerAvailable: boolean;
-  autoDockerResult: string;
+    @Input() id: number;
+    @Output() updated = new EventEmitter<void>();
 
-  constructor(
-    private _crud: CrudService,
-    private _toast: ToastService,
-  ) {
-    this.handshakes = new Map();
-    this.handshakesByStatus = new Map();
-    this.handshakesByStatus.set('FAILED', new Map());
-    this.handshakesByStatus.set('SUCCESS', new Map());
-    this.handshakesByStatus.set('RUNNING', new Map());
-    this.handshakesByStatus.set('NOT_RUNNING', new Map());
-    this.updateHandshakes();
+    host: string;
+    alias: string;
+    connected: string | boolean;
+    error: string;
+    isCard: boolean;
+    modified: boolean = false;
+    aliasModified: boolean = false;
+    dockerSetupResult: DockerSetupResult = null;
+    handshake: Handshake = null;
+    timeoutId: number = null; // Not null if a handshake is running
+    updateLock: boolean = false;
 
-    this.autoDockerAvailable = false;
-    this.autoDockerResult = "";
-
-    this._crud.autoHandshakeAvailable().subscribe(
-      res => {
-	let a = <Available>res;
-	this.autoDockerAvailable = a.available;
-      }, err => {
-	console.log(err);
-      }
-    );
-
-    this.intervalId = setInterval(() => {
-      if (this.handshakes.size > 0) {
-	this.updateHandshakes();
-      }
-    }, 1000);
-  }
-
-  ngOnInit(): void {
-  }
-
-  ngOnDestroy(): void {
-    clearInterval(this.intervalId);
-  }
-
-  onSubmit(): void {
-    if (this.hostname == "") {
-      return;
+    constructor(
+        private _crud: CrudService,
+        private _router: Router,
+        private _route: ActivatedRoute,
+        private _toast: ToastService,
+        private _util: UtilService,
+    ) {
     }
-    this._crud.startHandshake(this.hostname).subscribe(
-      res => {
-	this.hostname = "";
-	let h = <OpenHandshake>res;
-	if (this.handshakes.has(h.hostname)) {
-	  let status = this.handshakes.get(h.hostname).status;
-	  this.handshakesByStatus.get(status).delete(h.hostname);
-	}
-	this.handshakes.set(h.hostname, h)
-	this.handshakesByStatus.get(h.status).set(h.hostname, h);
-      }, err => {
-	console.log( err );
-      }
-    );
-  }
 
-  updateHandshakeLists(handshakes: OpenHandshake[]): void {
-    this.handshakes = new Map();
-    this.handshakesByStatus = new Map();
-    this.handshakesByStatus.set('FAILED', new Map());
-    this.handshakesByStatus.set('SUCCESS', new Map());
-    this.handshakesByStatus.set('RUNNING', new Map());
-    this.handshakesByStatus.set('NOT_RUNNING', new Map());
-
-    for (let handshake of handshakes) {
-      this.handshakes.set(handshake.hostname, handshake);
-      this.handshakesByStatus.get(handshake.status).set(handshake.hostname, handshake);
+    updateValues(instance: DockerInstance) {
+        this.host = instance.host;
+        this.alias = instance.alias;
+        this.connected = instance.connected;
+        this.modified = false;
     }
-  }
 
-  updateHandshakes(): void {
-    this._crud.listHandshakes().subscribe(
-      res => {
-	this.updateHandshakeLists(<OpenHandshake[]>res);
-      }, err => {
-	console.log(err);
-      }
-    );
-  }
+    ngOnInit(): void {
+        let dockerId = this._route.snapshot.paramMap.get('id');
+        this.isCard = dockerId === null;
+        if (!this.isCard) {
+            if (dockerId === "new") {
+                this.id = -1; // Invalid id for new elements
+            } else {
+                this.id = parseInt(dockerId);
+            }
+        }
+        if (this.id !== -1) {
+            this._crud.getDockerInstance(this.id).subscribe(
+                res => {
+                    this.updateValues(<DockerInstance>res);
+                },
+                err => {
+                    console.log(err);
+                }
+            );
+        }
+    }
 
-  redoHandshake(hostname: string): void {
-    let h = this.handshakes.get(hostname);
-    this.handshakesByStatus.get(h.status).delete(h.hostname);
-    this.handshakesByStatus.get('RUNNING').set(h.hostname, h);
+    ngOnDestroy(): void {
+        if (this.timeoutId !== null) {
+            clearTimeout(this.timeoutId);
+        }
+    }
 
-    this._crud.redoHandshake(hostname).subscribe(
-      res => {
-	let h = this.handshakes.get(hostname);
-	let newHandshake = <OpenHandshake>res;
-	this.handshakesByStatus.get(h.status).delete(h.hostname);
-	this.handshakesByStatus.get(h.status).set(h.hostname, h);
-	this.handshakes.set(h.hostname, h);
-      }, err => {
-	console.log(err);
-      }
-    );
-  }
+    testConnection() {
+        this.connected = "checking connection";
+        this._crud.testDockerInstance(this.id).subscribe(
+            res => {
+                let dockerStatus = <DockerStatus>res;
+                // TODO: check that instanceId matches
+                this.connected = dockerStatus.successful;
+                if (dockerStatus.errorMessage !== "") {
+                    this.error = dockerStatus.errorMessage;
+                }
+            },
+            err => {
+                this.connected = false;
+                console.log(err);
+            }
+        );
+    }
 
-  doAutoHandshake(): void {
-    this.autoDockerAvailable = false;
-    this.autoDockerResult = "waiting";
-    this._crud.doAutoHandshake().subscribe(
-      res => {
-	let s = <Success>res;
-	if (s.success) {
-	  this.autoDockerResult = "success";
-	} else {
-	  this.autoDockerResult = "failure";
-	}
-      }, err => {
-	console.log(err);
-      }
-    );
-  }
+    addDockerInstance() {
+        this._crud.addDockerInstance(this.host, this.alias).subscribe(
+            res => {
+                this.dockerSetupResult = <DockerSetupResult>res;
+                if (this.dockerSetupResult.success) {
+                    this.success();
+                }
+
+                if (this.dockerSetupResult.handshake.status !== undefined) {
+                    this.handshake = this.dockerSetupResult.handshake;
+                    this.timeoutId = setTimeout(() => this.updateHandshake(), 1000);
+                }
+            },
+            err => {
+                console.log(err);
+            },
+        );
+    }
+
+    updateDockerInstance() {
+        if (this.updateLock) {
+            return;
+        }
+        this.updateLock = true;
+        this._crud.updateDockerInstance(this.id, this.host, this.alias).subscribe(
+            res => {
+                let r = <DockerUpdateResponse>res;
+                if (r.error !== '') {
+                    this.error = r.error;
+                    this.updateLock = false;
+                    return;
+                }
+                this.updateValues(r.instance);
+                if (r.handshake.status !== undefined) {
+                    this.handshake = r.handshake;
+                    this.timeoutId = setTimeout(
+                        () => this.updateHandshake(),
+                        1000,
+                    );
+                } else {
+                    this._toast.success("Successfully updated config for '" + this.alias + "'");
+                }
+                this.modified = false;
+                this.updateLock = false;
+            },
+            err => {
+                this.updateLock = false;
+                console.log(err);
+            }
+        );
+    }
+
+    removeDockerInstance() {
+        this._crud.removeDockerInstance(this.id).subscribe(
+            res => {
+                let d = <DockerSetupResult>res;
+                console.log(res);
+                if (d.success) {
+                    this._toast.success("Deleted docker instance '" + this.alias + "'");
+                    if (this.isCard) {
+                        this.updated.emit();
+                    } else {
+                        this._router.navigate(['views/docker']);
+                    }
+                } else {
+                    this._toast.error(d.error);
+                }
+            },
+            err => {
+                console.log(err);
+            }
+        );
+    }
+
+    startHandshake() {
+        if (this.timeoutId !== null) {
+            clearTimeout(this.timeoutId);
+            this.timeoutId = null;
+            this._crud.cancelHandshake(this.host).subscribe(
+                res => {
+                },
+                err => {
+                    console.log(err);
+                }
+            );
+        }
+
+        this.handshake = null;
+        this.error = null;
+
+        this._crud.startHandshake(this.host).subscribe(
+            res => {
+                this.handshake = <Handshake>res;
+                this.timeoutId = setTimeout(() => this.updateHandshake(), 1000);
+            },
+            err => {
+                console.log(err);
+            }
+        );
+    }
+
+    redoHandshake() {
+        if (this.timeoutId !== null) {
+            return;
+        }
+
+        this._crud.startHandshake(this.host).subscribe(
+            res => {
+                this.handshake = <Handshake>res;
+                this.timeoutId = setTimeout(
+                    () => this.updateHandshake(),
+                    1000,
+                );
+            },
+            err => {
+                console.log(err);
+            }
+        );
+    }
+
+    updateHandshake() {
+        if (this.timeoutId === null) {
+            return;
+        }
+
+        this._crud.getHandshake(this.host).subscribe(
+            res => {
+                this.handshake = <Handshake>res;
+
+                if (this.handshake.status === 'RUNNING') {
+                    if (this.timeoutId !== null) {
+                        this.timeoutId = setTimeout(() => this.updateHandshake(), 1000);
+                    }
+                } else {
+                    this.timeoutId = null;
+                    if (this.handshake.status === 'SUCCESS') {
+                        this.success();
+                    }
+                }
+            },
+            err => {
+                console.log(err);
+            }
+        );
+    }
+
+    cancelHandshake() {
+        if (this.handshake !== null) {
+            this.handshake = null;
+            if (this.timeoutId !== null) {
+                clearTimeout(this.timeoutId);
+                this.timeoutId = null;
+            }
+            this._crud.cancelHandshake(this.host).subscribe(
+                res => {
+                },
+                err => {
+                    console.log(err);
+                }
+            );
+        }
+    }
+
+    hostInput() {
+        if (!this.aliasModified) {
+            this.alias = this.host;
+        }
+    }
+
+    aliasInput() {
+        this.aliasModified = true;
+    }
+
+    success() {
+        if (this.id === -1) {
+            this._toast.success("Successfully added docker instance '" + this.alias + "'");
+            this._router.navigate(['views/docker']);
+        } else {
+            this.handshake = null;
+            this._toast.success("Successfully updated docker instance '" + this.alias + "'");
+        }
+    }
 }
 
-export interface OpenHandshake {
-  hostname: string,
-  runCommand: string,
-  execCommand: string,
-  status: string,
-  lastErrorMessage: string,
-  containerExists: string,
+export interface DockerSetupResult {
+    error: string,
+    success: boolean,
+    handshake: Handshake,
+    dockerId: number,
 }
 
-export interface Available {
-  available: boolean,
+export interface Handshake {
+    lastErrorMessage: string,
+    hostname: string,
+    execCommand: string,
+    containerExists: string,
+    status: string,
+    runCommand: string,
 }
 
-export interface Success {
-  success: boolean,
+export interface DockerInstance {
+    host: string,
+    alias: string,
+    connected: boolean,
+}
+
+export interface DockerStatus {
+    successful: boolean,
+    errorMessage: string,
+    instanceId: number,
+}
+
+export interface DockerUpdateResponse {
+    error: string,
+    instance: DockerInstance,
+    handshake: Handshake,
 }
