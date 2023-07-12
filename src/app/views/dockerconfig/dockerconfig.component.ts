@@ -76,6 +76,7 @@ export class DockerconfigComponent implements OnInit {
                 } else {
                     this._toast.error("Failed to connect to local docker instance");
                 }
+                this.status = autoDockerResult.status;
                 this.instances = autoDockerResult.instances;
             },
             err => {
@@ -118,5 +119,6 @@ export interface AutoDockerStatus {
 
 export interface AutoDockerResult {
     success: boolean,
+    status: AutoDockerStatus,
     instances: number[],
 }

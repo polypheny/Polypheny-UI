@@ -33,7 +33,7 @@
 
             <div class="input-group mb-3">
                 <input class="btn btn-success mr-2" type="submit" value="Add" [disabled]="handshake!==null">
-                <button class="btn btn-secondary" routerLink=".." [disabled]="handshake!==null">Cancel</button>
+                <button class="btn btn-secondary" routerLink=".." [disabled]="handshake!==null && handshake.status!=='NOT_RUNNING' && handshake.status!=='FAILED'">Cancel</button>
             </div>
 
         </form>
@@ -129,7 +129,7 @@
             <button class="btn btn-danger" (click)="cancelHandshake()">Cancel handshake</button>
         </div>
 
-        <div *ngIf="handshake.status=='NOT_RUNNING' || handshake.status=='FAILED'">
+        <div *ngIf="handshake.status==='NOT_RUNNING' || handshake.status==='FAILED'">
             <div *ngIf="handshake.lastErrorMessage!=''" class="alert alert-danger">
                 Error: {{ handshake.lastErrorMessage }}
             </div>
