@@ -192,6 +192,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         });
     }
 
+    /**
+     * Close the edit component and navigate to the parent directory of this notebook.
+     * @param forced if true, no confirmation dialog will appear if there are unsaved changes
+     */
     closeEdit(forced = false) {
         this.nb?.closeSocket();
         const queryParams = forced ? {forced: true} : null;
@@ -199,6 +203,11 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             {queryParams});
     }
 
+    /**
+     * Open the close notebook dialog and return a subject to subscribe to the dialog result.
+     * If the dialog is already open, return false.
+     * @return a boolean Subject that emits true if the close operation is confirmed and false when aborted
+     */
     confirmClose(): Subject<boolean> | boolean {
         if (this.closeNotebookModal.isShown) {
             return false;
@@ -375,6 +384,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         });
     }
 
+    /**
+     * Checks whether the content of the notebook that is stored on disk has changed compared
+     * to when it was loaded. If true, the overwriteNotebookModal is shown. Otherwise, the notebook is uploaded.
+     */
     uploadNotebookWithDeepCompare(showSuccessToast = true) {
         this._notebooks.getContents(this.path, true).pipe(
             mergeMap(res => {
@@ -395,6 +408,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         });
     }
 
+    /**
+     * Upload to notebook without confirmation.
+     * The previous version is overwritten.
+     */
     overwriteNotebook(showSuccessToast = true) {
         this.overwriting = true;
         this._notebooks.updateNotebook(this.path, this.nb.notebook).subscribe(res => {
