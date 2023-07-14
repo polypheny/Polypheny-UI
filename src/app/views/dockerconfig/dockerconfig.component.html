@@ -2,14 +2,24 @@
 
 <div class="container">
     <div class="row justify-content-start">
-        <app-docker *ngFor="let id of instances" [id]="id" (updated)="updateList()" class="col-4"></app-docker>
+	<div *ngFor="let instance of instances" class="col-4">
+	    <div class="card">
+		<div class="card-header">{{ instance.alias }}</div>
+		<div class="card-body">
+		    Host: {{ instance.host }}<br>
+		    Connected: {{ instance.connected }}<br>
+		    <a class="btn btn-primary mr-2" [routerLink]="['.', instance.id]">Edit</a>
+		    <button class="btn btn-danger mr-2" (click)="removeDockerInstance(instance);">Delete</button>
+		</div>
+	    </div>
+	</div>
     </div>
     <div class="row justify-content-start">
         <div class="col">
-            <a class="btn btn-success" [routerLink]="['.', 'new']">Add new instance</a>
+	    <a class="btn btn-success" [routerLink]="['.', 'new']">Add new instance</a>
         </div>
         <div *ngIf="status.available&&(!status.connected||autoConnectRunning)" class="col">
-            <button class="btn btn-success" (click)="autoDocker()" [disabled]="status.running||autoConnectRunning">Autoconnect to localhost</button>
+	    <button class="btn btn-success" (click)="autoDocker()" [disabled]="status.running||autoConnectRunning">Autoconnect to localhost</button>
         </div>
     </div>
 </div>

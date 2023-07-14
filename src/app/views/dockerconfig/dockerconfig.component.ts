@@ -9,7 +9,7 @@ import { ToastService } from '../../components/toast/toast.service';
 })
 export class DockerconfigComponent implements OnInit {
 
-    instances: number[];
+    instances: DockerInstance[];
     error: string = null;
     status: AutoDockerStatus = {available: false, connected: false, running: false, message: ''};
     autoConnectRunning: boolean = false;
@@ -42,7 +42,7 @@ export class DockerconfigComponent implements OnInit {
     updateList() {
         this._crud.getDockerInstances().subscribe(
             res => {
-                this.instances = <number[]>res;
+                this.instances = <DockerInstance[]>res;
             },
             err => {
                 console.log(err);
@@ -108,6 +108,26 @@ export class DockerconfigComponent implements OnInit {
             }
         );
     }
+
+    removeDockerInstance(instance: DockerInstance) {
+        this._crud.removeDockerInstance(instance.id).subscribe(
+            res => {
+                let d = <DockerRemoveResponse>res;
+                if (d.error === '') {
+                    this._toast.success("Deleted docker instance '" + instance.alias + "'");
+                } else {
+                    this._toast.error(d.error);
+                }
+		this.instances = d.instances;
+		this.status = d.status;
+            },
+            err => {
+                console.log(err);
+            }
+        );
+    }
+
+
 }
 
 export interface AutoDockerStatus {
@@ -120,5 +140,18 @@ export interface AutoDockerStatus {
 export interface AutoDockerResult {
     success: boolean,
     status: AutoDockerStatus,
-    instances: number[],
+    instances: DockerInstance[],
+}
+
+export interface DockerRemoveResponse {
+    error: string,
+    instances: DockerInstance[],
+    status: AutoDockerStatus,
+}
+
+export interface DockerInstance {
+    id: number,
+    host: string,
+    alias: string,
+    connected: boolean,
 }

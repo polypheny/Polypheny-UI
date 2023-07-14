@@ -1,24 +1,11 @@
-<app-toast *ngIf="!isCard"></app-toast>
+<app-toast></app-toast>
 
 <div *ngIf="notfound">
     No docker instance with that id.<br>
     <button class="btn btn-primary" routerLink="..">Go Back</button>
 </div>
 
-<div *ngIf="!notfound&&isCard" class="card">
-    <div class="card-header">{{ alias }}</div>
-    <div class="card-body">
-        <div *ngIf="error" class="alert alert-danger">
-            {{ error }}
-        </div>
-        Host: {{ host }}<br>
-        Connected: {{ connected }}<br>
-        <a class="btn btn-primary mr-2" [routerLink]="['.', id]">Edit</a>
-        <button class="btn btn-danger mr-2" (click)="removeDockerInstance();">Delete</button>
-    </div>
-</div>
-
-<div *ngIf="!notfound&&!isCard">
+<div *ngIf="!notfound">
     <div *ngIf="id===-1">
         <form (ngSubmit)="addDockerInstance()">
             <div class="input-group mb-3">

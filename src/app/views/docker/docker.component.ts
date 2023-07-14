@@ -13,17 +13,15 @@ import {UtilService} from '../../services/util.service';
 export class DockerComponent implements OnInit {
 
     @Input() id: number;
-    @Output() updated = new EventEmitter<void>();
 
     notfound: boolean = false;
     host: string;
     alias: string;
     connected: string | boolean;
     error: string;
-    isCard: boolean;
     modified: boolean = false;
     aliasModified: boolean = false;
-    dockerSetupResult: DockerSetupResult = null;
+    dockerSetupResult: DockerSetupResponse = null;
     handshake: Handshake = null;
     timeoutId: number = null; // Not null if a handshake is running
     updateLock: boolean = false;
@@ -46,13 +44,10 @@ export class DockerComponent implements OnInit {
 
     ngOnInit(): void {
         let dockerId = this._route.snapshot.paramMap.get('id');
-        this.isCard = dockerId === null;
-        if (!this.isCard) {
-            if (dockerId === "new") {
-                this.id = -1; // Invalid id for new elements
-            } else {
-                this.id = parseInt(dockerId);
-            }
+        if (dockerId === "new") {
+            this.id = -1; // Invalid id for new elements
+        } else {
+            this.id = parseInt(dockerId);
         }
         if (this.id !== -1) {
             this._crud.getDockerInstance(this.id).subscribe(
@@ -94,7 +89,7 @@ export class DockerComponent implements OnInit {
     addDockerInstance() {
         this._crud.addDockerInstance(this.host, this.alias).subscribe(
             res => {
-                this.dockerSetupResult = <DockerSetupResult>res;
+                this.dockerSetupResult = <DockerSetupResponse>res;
                 if (this.dockerSetupResult.success) {
                     this.success();
                 }
@@ -173,17 +168,13 @@ export class DockerComponent implements OnInit {
     removeDockerInstance() {
         this._crud.removeDockerInstance(this.id).subscribe(
             res => {
-                let d = <DockerSetupResult>res;
-                if (d.success) {
+                let d = <DockerRemoveResponse>res;
+                if (d.error === '') {
                     this._toast.success("Deleted docker instance '" + this.alias + "'");
                 } else {
                     this._toast.error(d.error);
                 }
-                if (this.isCard) {
-                    this.updated.emit();
-                } else {
-                    this._router.navigate(['views/docker']);
-                }
+                this._router.navigate(['views/docker']);
             },
             err => {
                 console.log(err);
@@ -304,13 +295,6 @@ export class DockerComponent implements OnInit {
     }
 }
 
-export interface DockerSetupResult {
-    error: string,
-    success: boolean,
-    handshake: Handshake,
-    dockerId: number,
-}
-
 export interface Handshake {
     lastErrorMessage: string,
     hostname: string,
@@ -321,6 +305,7 @@ export interface Handshake {
 }
 
 export interface DockerInstance {
+    id: number,
     host: string,
     alias: string,
     connected: boolean,
@@ -332,6 +317,13 @@ export interface DockerStatus {
     instanceId: number,
 }
 
+export interface DockerSetupResponse {
+    error: string,
+    success: boolean,
+    handshake: Handshake,
+    dockerId: number,
+}
+
 export interface DockerUpdateResponse {
     error: string,
     instance: DockerInstance,
@@ -341,6 +333,11 @@ export interface DockerUpdateResponse {
 export interface DockerReconnectResponse {
     error: string,
     handshake: Handshake,
+}
+
+export interface DockerRemoveResponse {
+    error: string,
+    instances: DockerInstance[],
 }
 
 export interface HandshakeAndInstance {
