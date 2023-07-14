@@ -1,11 +1,16 @@
 <app-toast *ngIf="!isCard"></app-toast>
-<div *ngIf="isCard" class="card">
+
+<div *ngIf="notfound">
+    No docker instance with that id.<br>
+    <button class="btn btn-primary" routerLink="..">Go Back</button>
+</div>
+
+<div *ngIf="!notfound&&isCard" class="card">
     <div class="card-header">{{ alias }}</div>
     <div class="card-body">
         <div *ngIf="error" class="alert alert-danger">
             {{ error }}
         </div>
-        ID: {{id}}<br>
         Host: {{ host }}<br>
         Connected: {{ connected }}<br>
         <a class="btn btn-primary mr-2" [routerLink]="['.', id]">Edit</a>
@@ -13,7 +18,7 @@
     </div>
 </div>
 
-<div *ngIf="!isCard">
+<div *ngIf="!notfound&&!isCard">
     <div *ngIf="id===-1">
         <form (ngSubmit)="addDockerInstance()">
             <div class="input-group mb-3">
@@ -80,7 +85,7 @@
                 <button class="btn btn-success mr-2" (click)="updateDockerInstance()" [disabled]="!modified||updateLock||handshake!==null">Save</button>
                 <button class="btn btn-primary mr-2" routerLink=".." [disabled]="updateLock||handshake!==null">Cancel</button>
                 <button class="btn btn-primary mr-2" (click)="testConnection();" [disabled]="updateLock||handshake!==null">Test Connectivity</button>
-                <button *ngIf="!connected&&handshake===null" class="btn btn-primary mr-2" (click)="startHandshake()" [disabled]="updateLock||handshake!==null">Reconnect</button>
+                <button *ngIf="!connected&&handshake===null" class="btn btn-primary mr-2" (click)="reconnectToDockerInstance()" [disabled]="updateLock||handshake!==null">Reconnect</button>
                 <button class="btn btn-danger mr-2" (click)="removeDockerInstance();" [disabled]="lock||handshake!==null">Delete</button>
             </div>
 

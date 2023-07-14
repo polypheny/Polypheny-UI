@@ -608,6 +608,10 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/updateDockerInstance`, {'id': id.toString(), 'hostname': hostname, 'alias': alias}, this.httpOptions);
     }
 
+    reconnectToDockerInstance(id: number) {
+        return this._http.post(`${this.httpUrl}/reconnectToDockerInstance`, {'id': id.toString()}, this.httpOptions);
+    }
+
     removeDockerInstance(id: number) {
         return this._http.post(`${this.httpUrl}/removeDockerInstance`, {'id': id.toString()}, this.httpOptions);
     }

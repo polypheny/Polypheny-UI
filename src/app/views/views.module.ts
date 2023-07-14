@@ -50,7 +50,7 @@ import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-e
 import {DockerConfigComponent} from './forms/form-generator/docker-config/docker-config.component';
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
 import {DockerComponent} from './docker/docker.component';
-import { DockerconfigComponent } from './dockerconfig/dockerconfig.component';
+import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
 
 
 @NgModule({

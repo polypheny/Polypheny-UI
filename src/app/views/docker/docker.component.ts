@@ -15,6 +15,7 @@ export class DockerComponent implements OnInit {
     @Input() id: number;
     @Output() updated = new EventEmitter<void>();
 
+    notfound: boolean = false;
     host: string;
     alias: string;
     connected: string | boolean;
@@ -59,6 +60,7 @@ export class DockerComponent implements OnInit {
                     this.updateValues(<DockerInstance>res);
                 },
                 err => {
+                    this.notfound = true;
                     console.log(err);
                 }
             );
@@ -141,20 +143,46 @@ export class DockerComponent implements OnInit {
         );
     }
 
+    reconnectToDockerInstance() {
+        if (this.updateLock) {
+            return;
+        }
+        this.updateLock = true;
+        this._crud.reconnectToDockerInstance(this.id).subscribe(
+            res => {
+                let r = <DockerReconnectResponse>res;
+                if (r.error !== '') {
+                    this.error = r.error;
+                    this.updateLock = false;
+                    return;
+                }
+                this.handshake = r.handshake;
+                this.timeoutId = setTimeout(
+                    () => this.updateHandshake(),
+                    1000,
+                );
+                this.updateLock = false;
+            },
+            err => {
+                this.updateLock = false;
+                console.log(err);
+            }
+        );
+    }
+
     removeDockerInstance() {
         this._crud.removeDockerInstance(this.id).subscribe(
             res => {
                 let d = <DockerSetupResult>res;
-                console.log(res);
                 if (d.success) {
                     this._toast.success("Deleted docker instance '" + this.alias + "'");
-                    if (this.isCard) {
-                        this.updated.emit();
-                    } else {
-                        this._router.navigate(['views/docker']);
-                    }
                 } else {
                     this._toast.error(d.error);
+                }
+                if (this.isCard) {
+                    this.updated.emit();
+                } else {
+                    this._router.navigate(['views/docker']);
                 }
             },
             err => {
@@ -216,7 +244,10 @@ export class DockerComponent implements OnInit {
 
         this._crud.getHandshake(this.host).subscribe(
             res => {
-                this.handshake = <Handshake>res;
+                let r = <HandshakeAndInstance>res;
+
+                this.handshake = r.handshake;
+                this.updateValues(r.instance);
 
                 if (this.handshake.status === 'RUNNING') {
                     if (this.timeoutId !== null) {
@@ -305,4 +336,14 @@ export interface DockerUpdateResponse {
     error: string,
     instance: DockerInstance,
     handshake: Handshake,
+}
+
+export interface DockerReconnectResponse {
+    error: string,
+    handshake: Handshake,
+}
+
+export interface HandshakeAndInstance {
+    handshake: Handshake,
+    instance: DockerInstance,
 }
