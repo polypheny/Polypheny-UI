@@ -71,7 +71,7 @@ export class NotebooksContentService {
             res => {
                 this.updateDirectory(<DirectoryContent>res);
             },
-            error => this.invalidLocationSubject.next()
+            () => this.invalidLocationSubject.next()
         ).add(() => this.contentChange.next());
     }
 
@@ -105,7 +105,7 @@ export class NotebooksContentService {
 
     updateAvailableKernels() {
         this._notebooks.getKernelspecs().subscribe(res => this.kernelSpecs.next(res),
-            err => this.serverUnreachableSubject.next());
+            () => this.serverUnreachableSubject.next());
     }
 
     updateSessions() {
@@ -121,7 +121,7 @@ export class NotebooksContentService {
                 this.sessions.next(modifiedSessions);
 
             },
-            err => {
+            () => {
                 this.sessions.next([]);
                 this.serverUnreachableSubject.next();
             }
@@ -156,7 +156,7 @@ export class NotebooksContentService {
 
     deleteSession(sessionId: string): Observable<any> {
         return this._notebooks.deleteSession(sessionId).pipe(
-            tap(res => {
+            tap(() => {
                 const newSessions = this.sessions.getValue().filter(s => s.id !== sessionId);
                 this.sessions.next(newSessions);
             })
@@ -167,7 +167,7 @@ export class NotebooksContentService {
     deleteSessions(notebookPath: string): Observable<Object[]> {
         const sessionIds = this.getSessionsForNotebook(notebookPath).map(session => session.id);
         return this._notebooks.deleteSessions(sessionIds).pipe(
-            tap(res => {
+            tap(() => {
                 const newSessions = this.sessions.getValue().filter(s => !sessionIds.includes(s.id));
                 this.sessions.next(newSessions);
             })
@@ -360,6 +360,15 @@ export class NotebooksContentService {
                 this.namespaces.next(names);
             }
         );
+    }
+
+    /**
+     * Returns true if there exists a directory file inside the current directory with the specified path.
+     * Also returns true if the specified path is the current directory.
+     */
+    isDirectory(path: string) {
+        return path === this._directoryPath || this._directory.content.some(file =>
+            file.type === 'directory' && file.path === path);
     }
 
     onContentChange() {

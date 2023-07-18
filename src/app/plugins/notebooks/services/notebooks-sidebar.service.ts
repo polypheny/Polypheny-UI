@@ -136,6 +136,10 @@ export class NotebooksSidebarService {
     }
 
     moveFile(from: string, to: string) {
+        if (this._content.hasRunningKernel(from) && this._content.isDirectory(from)) {
+            this._toast.warn('Cannot move a folder that contains notebooks with running kernels.');
+            return;
+        }
         this._notebooks.moveFile(from, to).subscribe(res => {
             if (this._content.isCurrentPath(from)) {
                 this.movedSubject.next(to);
@@ -164,6 +168,7 @@ export class NotebooksSidebarService {
 
     deselect() {
         this._leftSidebar.reset(true);
+        this._leftSidebar.selectedNodeId = null;
     }
 
     onAddButtonClicked() {
