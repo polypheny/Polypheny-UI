@@ -238,7 +238,10 @@ export class DockerComponent implements OnInit, OnDestroy {
                 const r = <HandshakeAndInstance>res;
 
                 this.handshake = r.handshake;
-                this.updateValues(r.instance);
+
+                if ( r.instance.host !== undefined ) {
+                    this.updateValues(r.instance);
+                }
 
                 if (this.handshake.status === 'RUNNING') {
                     if (this.timeoutId !== null) {
