@@ -321,7 +321,6 @@ export interface DockerSetupResponse {
     error: string,
     success: boolean,
     handshake: Handshake,
-    dockerId: number,
 }
 
 export interface DockerUpdateResponse {
