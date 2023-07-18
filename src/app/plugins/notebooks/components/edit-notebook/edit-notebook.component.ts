@@ -482,6 +482,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     duplicateCell(id: string) {
+        this.getCellComponent(id)?.updateSource();
         const cell = this.nb.duplicateCell(id);
         timer(50).pipe(take(1)).subscribe(() => {
             this.selectCell(cell.id, false);

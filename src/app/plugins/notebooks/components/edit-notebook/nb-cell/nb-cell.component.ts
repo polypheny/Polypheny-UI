@@ -82,8 +82,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         this.initForms();
 
         if (this.cellType === 'markdown') {
-            this.isMdRendered = true;
-            this.mdSource = this.source;
+            this.renderMd();
         } else if (this.cellType === 'poly') {
             this.renderResultSet();
         } else if (this.cellType === 'code') {
@@ -190,7 +189,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     renderMd() {
         this.mdSource = this.source;
         if (!this.mdSource?.trim()) {
-            this.mdSource = 'Empty Markdown Cell';
+            this.mdSource = '`Empty Markdown Cell`';
         }
         this.isMdRendered = true;
     }
