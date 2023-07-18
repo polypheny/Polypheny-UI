@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CrudService } from '../../services/crud.service';
 import { ToastService } from '../../components/toast/toast.service';
 
@@ -7,7 +7,7 @@ import { ToastService } from '../../components/toast/toast.service';
     templateUrl: './dockerconfig.component.html',
     styleUrls: ['./dockerconfig.component.scss']
 })
-export class DockerconfigComponent implements OnInit {
+export class DockerconfigComponent implements OnInit, OnDestroy {
 
     instances: DockerInstance[];
     error: string = null;
@@ -56,12 +56,12 @@ export class DockerconfigComponent implements OnInit {
                 console.log(err);
             }
         );
-    };
+    }
 
     autoDocker() {
         this.autoConnectRunning = true;
-        this.status.message = "Sending start command...";
-        this._toast.info("Sending start command...");
+        this.status.message = 'Sending start command...';
+        this._toast.info('Sending start command...');
         this.timeoutId = setTimeout(() => this.updateAutoDockerStatus(), 500);
         this._crud.doAutoHandshake().subscribe(
             res => {
@@ -70,11 +70,11 @@ export class DockerconfigComponent implements OnInit {
                     clearTimeout(this.timeoutId);
                     this.timeoutId = null;
                 }
-                let autoDockerResult = <AutoDockerResult> res;
+                const autoDockerResult = <AutoDockerResult> res;
                 if (autoDockerResult.success) {
-                    this._toast.success("Connected to local docker instance");
+                    this._toast.success('Connected to local docker instance');
                 } else {
-                    this._toast.error("Failed to connect to local docker instance");
+                    this._toast.error('Failed to connect to local docker instance');
                 }
                 this.status = autoDockerResult.status;
                 this.instances = autoDockerResult.instances;
@@ -96,7 +96,7 @@ export class DockerconfigComponent implements OnInit {
                 if (this.timeoutId === null) {
                     return;
                 }
-                let status = <AutoDockerStatus>res;
+                const status = <AutoDockerStatus>res;
                 if (this.status.message !== status.message) {
                     this._toast.info(status.message);
                 }
@@ -112,14 +112,14 @@ export class DockerconfigComponent implements OnInit {
     removeDockerInstance(instance: DockerInstance) {
         this._crud.removeDockerInstance(instance.id).subscribe(
             res => {
-                let d = <DockerRemoveResponse>res;
+                const d = <DockerRemoveResponse>res;
                 if (d.error === '') {
                     this._toast.success("Deleted docker instance '" + instance.alias + "'");
                 } else {
                     this._toast.error(d.error);
                 }
-		this.instances = d.instances;
-		this.status = d.status;
+                this.instances = d.instances;
+                this.status = d.status;
             },
             err => {
                 console.log(err);
@@ -131,27 +131,27 @@ export class DockerconfigComponent implements OnInit {
 }
 
 export interface AutoDockerStatus {
-    available: boolean,
-    connected: boolean,
-    running: boolean,
-    message: string,
+    available: boolean;
+    connected: boolean;
+    running: boolean;
+    message: string;
 }
 
 export interface AutoDockerResult {
-    success: boolean,
-    status: AutoDockerStatus,
-    instances: DockerInstance[],
+    success: boolean;
+    status: AutoDockerStatus;
+    instances: DockerInstance[];
 }
 
 export interface DockerRemoveResponse {
-    error: string,
-    instances: DockerInstance[],
-    status: AutoDockerStatus,
+    error: string;
+    instances: DockerInstance[];
+    status: AutoDockerStatus;
 }
 
 export interface DockerInstance {
-    id: number,
-    host: string,
-    alias: string,
-    connected: boolean,
+    id: number;
+    host: string;
+    alias: string;
+    connected: boolean;
 }

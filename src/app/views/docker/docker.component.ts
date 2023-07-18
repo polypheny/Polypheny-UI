@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Input, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, OnDestroy, Input, Output} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormGroup} from '@angular/forms';
 import {CrudService} from '../../services/crud.service';
@@ -10,7 +10,7 @@ import {UtilService} from '../../services/util.service';
     templateUrl: './docker.component.html',
     styleUrls: ['./docker.component.scss']
 })
-export class DockerComponent implements OnInit {
+export class DockerComponent implements OnInit, OnDestroy {
 
     @Input() id: number;
 
@@ -43,11 +43,11 @@ export class DockerComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        let dockerId = this._route.snapshot.paramMap.get('id');
-        if (dockerId === "new") {
+        const dockerId = this._route.snapshot.paramMap.get('id');
+        if (dockerId === 'new') {
             this.id = -1; // Invalid id for new elements
         } else {
-            this.id = parseInt(dockerId);
+            this.id = parseInt(dockerId, 10);
         }
         if (this.id !== -1) {
             this._crud.getDockerInstance(this.id).subscribe(
@@ -69,13 +69,13 @@ export class DockerComponent implements OnInit {
     }
 
     testConnection() {
-        this.connected = "checking connection";
+        this.connected = 'checking connection';
         this._crud.testDockerInstance(this.id).subscribe(
             res => {
-                let dockerStatus = <DockerStatus>res;
+                const dockerStatus = <DockerStatus>res;
                 // TODO: check that instanceId matches
                 this.connected = dockerStatus.successful;
-                if (dockerStatus.errorMessage !== "") {
+                if (dockerStatus.errorMessage !== '') {
                     this.error = dockerStatus.errorMessage;
                 }
             },
@@ -112,7 +112,7 @@ export class DockerComponent implements OnInit {
         this.updateLock = true;
         this._crud.updateDockerInstance(this.id, this.host, this.alias).subscribe(
             res => {
-                let r = <DockerUpdateResponse>res;
+                const r = <DockerUpdateResponse>res;
                 if (r.error !== '') {
                     this.error = r.error;
                     this.updateLock = false;
@@ -145,7 +145,7 @@ export class DockerComponent implements OnInit {
         this.updateLock = true;
         this._crud.reconnectToDockerInstance(this.id).subscribe(
             res => {
-                let r = <DockerReconnectResponse>res;
+                const r = <DockerReconnectResponse>res;
                 if (r.error !== '') {
                     this.error = r.error;
                     this.updateLock = false;
@@ -168,7 +168,7 @@ export class DockerComponent implements OnInit {
     removeDockerInstance() {
         this._crud.removeDockerInstance(this.id).subscribe(
             res => {
-                let d = <DockerRemoveResponse>res;
+                const d = <DockerRemoveResponse>res;
                 if (d.error === '') {
                     this._toast.success("Deleted docker instance '" + this.alias + "'");
                 } else {
@@ -235,7 +235,7 @@ export class DockerComponent implements OnInit {
 
         this._crud.getHandshake(this.host).subscribe(
             res => {
-                let r = <HandshakeAndInstance>res;
+                const r = <HandshakeAndInstance>res;
 
                 this.handshake = r.handshake;
                 this.updateValues(r.instance);
@@ -296,50 +296,50 @@ export class DockerComponent implements OnInit {
 }
 
 export interface Handshake {
-    lastErrorMessage: string,
-    hostname: string,
-    execCommand: string,
-    containerExists: string,
-    status: string,
-    runCommand: string,
+    lastErrorMessage: string;
+    hostname: string;
+    execCommand: string;
+    containerExists: string;
+    status: string;
+    runCommand: string;
 }
 
 export interface DockerInstance {
-    id: number,
-    host: string,
-    alias: string,
-    connected: boolean,
+    id: number;
+    host: string;
+    alias: string;
+    connected: boolean;
 }
 
 export interface DockerStatus {
-    successful: boolean,
-    errorMessage: string,
-    instanceId: number,
+    successful: boolean;
+    errorMessage: string;
+    instanceId: number;
 }
 
 export interface DockerSetupResponse {
-    error: string,
-    success: boolean,
-    handshake: Handshake,
+    error: string;
+    success: boolean;
+    handshake: Handshake;
 }
 
 export interface DockerUpdateResponse {
-    error: string,
-    instance: DockerInstance,
-    handshake: Handshake,
+    error: string;
+    instance: DockerInstance;
+    handshake: Handshake;
 }
 
 export interface DockerReconnectResponse {
-    error: string,
-    handshake: Handshake,
+    error: string;
+    handshake: Handshake;
 }
 
 export interface DockerRemoveResponse {
-    error: string,
-    instances: DockerInstance[],
+    error: string;
+    instances: DockerInstance[];
 }
 
 export interface HandshakeAndInstance {
-    handshake: Handshake,
-    instance: DockerInstance,
+    handshake: Handshake;
+    instance: DockerInstance;
 }
