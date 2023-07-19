@@ -345,6 +345,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     clearSelectedOutput() {
         this.selectedCell.outputs = [];
+        this.selectedCell.execution_count = null;
     }
 
     clearAllOutputs() {
@@ -449,7 +450,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     restartKernel() {
         this._notebooks.restartKernel(this.session.kernel.id).pipe(
             tap(() => this.nb.setKernelStatusBusy()),
-            delay(1500) // time for the kernel to restart
+            delay(2500) // time for the kernel to restart
         ).subscribe(() => {
             this.nb.requestExecutionState();
             if (this.executeAllAfterRestart) {

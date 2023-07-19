@@ -297,6 +297,7 @@ export class NotebookWrapper {
         for (const cell of this.cells) {
             if (cell.cell_type === 'code') {
                 cell.outputs = [];
+                cell.execution_count = null;
             }
         }
     }
