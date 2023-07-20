@@ -49,7 +49,6 @@ import {StatisticsColumnComponent} from './schema-editing/statistics-column/stat
 import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-edit-graph.component';
 import {DockerConfigComponent} from './forms/form-generator/docker-config/docker-config.component';
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
-import {DockerComponent} from './docker/docker.component';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
 
 
@@ -106,7 +105,6 @@ import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
         SearchFilterPipe,
         DockerConfigComponent,
         FileUploaderComponent,
-        DockerComponent,
         DockerconfigComponent,
     ],
     exports: [

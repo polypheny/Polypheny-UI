@@ -1,0 +1,50 @@
+<div *ngIf="handshake.status === 'RUNNING' || handshake.status === 'NOT_RUNNING'">
+    Run the following command on {{ handshake.hostname }}:<br>
+    <div *ngIf="handshake.containerExists === 'true'">
+        <code>
+            {{ handshake.execCommand }}
+        </code>
+        <br>
+        <button class="btn btn-secondary" (click)="_util.clipboard(handshake.execCommand)">Copy</button>
+        <details>
+            <summary>No docker container running?</summary>
+            Use this command:<br>
+            <code>
+                {{ handshake.runCommand }}
+            </code>
+            <br>
+            <button class="btn btn-secondary mb-2" (click)="_util.clipboard(handshake.runCommand)">Copy</button>
+        </details>
+    </div>
+    <div *ngIf="handshake.containerExists === 'false'">
+        <code>
+            {{ handshake.runCommand }}
+        </code>
+        <br>
+        <button class="btn btn-secondary" (click)="_util.clipboard(handshake.runCommand)">Copy</button>
+        <details>
+            <summary>Is there a docker container already running?</summary>
+            Use this command:<br>
+            <code>
+                {{ handshake.execCommand }}
+            </code>
+            <br>
+            <button class="btn btn-secondary mb-2" (click)="_util.clipboard(handshake.execCommand)">Copy</button>
+        </details>
+    </div>
+</div>
+
+<div *ngIf="handshake.status === 'RUNNING'">
+    <button class="btn btn-danger" (click)="cancelHandshake()">Cancel handshake</button>
+</div>
+
+<div *ngIf="handshake.status === 'NOT_RUNNING' || handshake.status === 'FAILED'">
+    <div *ngIf="handshake.lastErrorMessage != ''" class="alert alert-danger">
+        Error: {{ handshake.lastErrorMessage }}
+    </div>
+    <button class="btn btn-primary" (click)="redoHandshake()">Try again</button>
+</div>
+
+<div *ngIf="handshake.status === 'SUCCESS'" class="alert alert-success">
+    Successful handshake at {{ handshake.lastErrorMessage }}.
+</div>

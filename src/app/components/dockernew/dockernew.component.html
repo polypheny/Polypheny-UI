@@ -1,0 +1,35 @@
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Add new instance</h4>
+        </div>
+        <div class="modal-body">
+            <div *ngIf="dockerSetupResult !== null && dockerSetupResult.error !== ''" class="alert alert-danger">
+                {{ dockerSetupResult.error }}
+            </div>
+            <form>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label for="hostField" class="input-group-text">Host</label>
+                    </div>
+                    <input id="hostField" class="form-control" type="text" name="host" (input)="hostInput()" [(ngModel)]="host" [disabled]="handshake !== null" required>
+                </div>
+
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label for="aliasField" class="input-group-text">Alias</label>
+                    </div>
+                    <input id="aliasField" class="form-control" type="text" name="alias" (input)="aliasInput()" [(ngModel)]="alias" [disabled]="handshake !== null" required>
+                </div>
+            </form>
+            <app-dockerhandshake *ngIf="handshake !== null" (cancel)="cancelHandshake()" (redo)="redoHandshake()" [handshake]="handshake"></app-dockerhandshake>
+        </div>
+
+        <div class="modal-footer">
+            <div class="input-group mb-3">
+                <input class="btn btn-success mr-2" (click)="addDockerInstance()" type="submit" value="Add" [disabled]="handshake !== null">
+                <button class="btn btn-secondary" (click)="cancel()" [disabled]="handshake !== null && handshake.status !== 'NOT_RUNNING' && handshake.status !== 'FAILED'">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

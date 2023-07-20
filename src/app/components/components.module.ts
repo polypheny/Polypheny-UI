@@ -39,6 +39,9 @@ import {JsonEditorComponent} from './json/json-editor.component';
 import {JsonElemComponent} from './json/json-elem/json-elem.component';
 import {DataGraphComponent} from './data-view/data-graph/data-graph.component';
 import {DatesPipeModule} from './data-view/shared-module';
+import {DockereditComponent} from './dockeredit/dockeredit.component';
+import {DockerhandshakeComponent} from './dockerhandshake/dockerhandshake.component';
+import {DockernewComponent} from './dockernew/dockernew.component';
 
 //import 'hammerjs';
 
@@ -83,7 +86,10 @@ import {DatesPipeModule} from './data-view/shared-module';
         DeleteConfirmComponent,
         ExpandableTextComponent,
         JsonTextComponent,
-        JsonElemComponent
+        JsonElemComponent,
+        DockereditComponent,
+        DockerhandshakeComponent,
+        DockernewComponent,
     ],
     exports: [
         BreadcrumbComponent,
@@ -100,7 +106,10 @@ import {DatesPipeModule} from './data-view/shared-module';
         InputComponent,
         JsonEditorComponent,
         EditorComponent,
-        DeleteConfirmComponent
+        DeleteConfirmComponent,
+        DockereditComponent,
+        DockerhandshakeComponent,
+        DockernewComponent,
     ]
 })
 export class ComponentsModule {

@@ -1,6 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CrudService } from '../../services/crud.service';
-import { ToastService } from '../../components/toast/toast.service';
+import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
+import {CrudService} from '../../services/crud.service';
+import {ToastService} from '../../components/toast/toast.service';
+import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
+import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
+import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
+import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({
     selector: 'app-dockerconfig',
@@ -14,11 +18,18 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
     status: AutoDockerStatus = {available: false, connected: false, running: false, message: ''};
     autoConnectRunning: boolean = false;
     timeoutId: number = null;
+    modalId: number = null;
+
+    @ViewChild('dockerConfigModal', {static: false}) public dockerConfigModal: ModalDirective;
 
     constructor(
+        private _breadcrumb: BreadcrumbService,
         private _crud: CrudService,
+        private _sidebar: LeftSidebarService,
         private _toast: ToastService,
-    ) { }
+    ) {
+        _sidebar.listConfigManagerPages();
+    }
 
     ngOnInit(): void {
         this._crud.getAutoDockerStatus().subscribe(
@@ -31,12 +42,17 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
         );
 
         this.updateList();
+        this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Config', '/views/config/'),
+                                         new BreadcrumbItem('Docker')]);
+        this._sidebar.open();
     }
 
     ngOnDestroy() {
         if (this.timeoutId !== null) {
             clearTimeout(this.timeoutId);
         }
+        this._breadcrumb.hide();
+        this._sidebar.close();
     }
 
     updateList() {
@@ -127,7 +143,16 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
         );
     }
 
+    showModal(id: number) {
+        this.modalId = id;
+        this.dockerConfigModal.show();
+    }
 
+    closeModal() {
+        this.updateList();
+        this.dockerConfigModal.hide();
+        this.modalId = null;
+    }
 }
 
 export interface AutoDockerStatus {
