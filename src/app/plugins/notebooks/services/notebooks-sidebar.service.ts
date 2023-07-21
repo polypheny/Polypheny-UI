@@ -43,7 +43,6 @@ export class NotebooksSidebarService {
         this.directory = this._content.directory;
         this.updateBreadcrumbs();
         this.updateSidebar();
-
     }
 
     private updateBreadcrumbs() {
@@ -60,7 +59,7 @@ export class NotebooksSidebarService {
     /**
      * Update the sidebar and breadcrumb based on the current state of the NotebooksContentService.
      */
-    updateSidebar() {
+    private updateSidebar() {
         if (!this.directoryPath) {
             return;
         }
@@ -114,7 +113,7 @@ export class NotebooksSidebarService {
         ];
         this._leftSidebar.setTopButtons(buttons);
 
-        if (this._content.isRoot && !this._loading.isShown()) {
+        if (this._content.isRoot && !this._loading.isShown() && this._leftSidebar.selectedNodeId) {
             this.deselect();
         }
     }

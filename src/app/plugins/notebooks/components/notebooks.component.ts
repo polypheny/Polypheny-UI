@@ -153,7 +153,6 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
      * A notebook in the sidebar was clicked
      */
     private notebookClicked(node) {
-        this._sidebar.updateSidebar();
         const path = node.data.id;
         const name = node.data.name;
         const sessions = this._content.getSessionsForNotebook(path);
@@ -299,6 +298,9 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
         });
     }
 
+    /**
+     * File(s) in upload file input changed
+     */
     onFileChange(files) {
         if (files == null || files.length < 1) {
             if (this.fileInput) {
