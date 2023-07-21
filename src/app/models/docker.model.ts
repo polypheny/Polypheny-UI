@@ -24,6 +24,7 @@ export interface DockerSetupResponse {
     error: string;
     success: boolean;
     handshake: Handshake;
+    instances: DockerInstance[];
 }
 
 export interface DockerUpdateResponse {

@@ -21,7 +21,7 @@ export class DockereditComponent implements OnInit, OnDestroy {
     timeoutId: number = null;
 
     @Input() id: number;
-    @Output() done = new EventEmitter<void>();
+    @Output() done = new EventEmitter<DockerInstance[]>();
 
     constructor(
         private _crud: CrudService,
@@ -172,7 +172,7 @@ export class DockereditComponent implements OnInit, OnDestroy {
                 } else {
                     this._toast.error(d.error);
                 }
-                this.done.emit();
+                this.done.emit(d.instances);
             },
             err => {
                 console.log(err);

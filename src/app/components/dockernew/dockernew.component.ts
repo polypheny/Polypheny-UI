@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, OnDestroy, Output} from '@angular/core';
-import {DockerSetupResponse, Handshake, HandshakeAndInstance} from '../../models/docker.model';
+import {DockerInstance, DockerSetupResponse, Handshake, HandshakeAndInstance} from '../../models/docker.model';
 import {CrudService} from '../../services/crud.service';
 import {ToastService} from '../../components/toast/toast.service';
 
@@ -17,7 +17,7 @@ export class DockernewComponent implements OnInit, OnDestroy {
     handshake: Handshake = null;
     timeoutId: number = null;
 
-    @Output() done = new EventEmitter<void>();
+    @Output() done = new EventEmitter<DockerInstance[]>();
 
     constructor(
         private _crud: CrudService,
@@ -48,7 +48,7 @@ export class DockernewComponent implements OnInit, OnDestroy {
             res => {
                 this.dockerSetupResult = <DockerSetupResponse>res;
                 if (this.dockerSetupResult.success) {
-                    this.success();
+                    this.success(this.dockerSetupResult.instances);
                 }
 
                 if (this.dockerSetupResult.handshake.status !== undefined) {
@@ -80,7 +80,7 @@ export class DockernewComponent implements OnInit, OnDestroy {
                 } else {
                     this.timeoutId = null;
                     if (this.handshake.status === 'SUCCESS') {
-                        this.success();
+                        this.success(undefined);
                     }
                 }
             },
@@ -126,9 +126,10 @@ export class DockernewComponent implements OnInit, OnDestroy {
         }
     }
 
-    success() {
+    success(instances: DockerInstance[]) {
+	console.log(instances);
         this._toast.success("Successfully added docker instance '" + this.alias + "'");
-        this.done.emit();
+        this.done.emit(instances);
     }
 
     cancel() {

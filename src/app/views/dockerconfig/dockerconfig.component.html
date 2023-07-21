@@ -16,8 +16,7 @@
     </div>
     <div class="row justify-content-start">
         <div class="col">
-            <!--<a class="btn btn-success" [routerLink]="['.', 'new']">Add new instance</a>-->
-            <button class="btn btn-primary" (click)="showModal(null)">Add new instance</button>
+            <button class="btn btn-primary" (click)="showModal(-1)">Add new instance</button>
         </div>
         <div *ngIf="status.available && (!status.connected || autoConnectRunning)" class="col">
             <button class="btn btn-success" (click)="autoDocker()" [disabled]="status.running || autoConnectRunning">Autoconnect to localhost</button>
@@ -30,6 +29,6 @@
 </div>
 
 <div bsModal #dockerConfigModal="bs-modal" id="addNewInstance" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="Add/Edit a docker instance" aria-hidden="true">
-    <app-dockernew *ngIf="modalId === null" (done)="closeModal()"></app-dockernew>
-    <app-dockeredit *ngIf="modalId !== null" [id]="modalId" (done)="closeModal()"></app-dockeredit>
+    <app-dockernew *ngIf="modalId === -1" (done)="closeModal($event)"></app-dockernew>
+    <app-dockeredit *ngIf="modalId >= 0" [id]="modalId" (done)="closeModal($event)"></app-dockeredit>
 </div>

@@ -148,8 +148,13 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
         this.dockerConfigModal.show();
     }
 
-    closeModal() {
-        this.updateList();
+    closeModal(newlist: DockerInstance[]) {
+	console.log(newlist);
+	if (newlist !== undefined) {
+	    this.instances = newlist;
+	} else {
+	    this.updateList();
+	}
         this.dockerConfigModal.hide();
         this.modalId = null;
     }
