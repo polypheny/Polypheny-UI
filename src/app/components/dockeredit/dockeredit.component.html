@@ -34,7 +34,7 @@
                     <input id="idField" class="form-control" type="text" name="connected" [(ngModel)]="connected" readonly="true">
                 </div>
                 <details>
-                    <summary>Advanced</summary>
+                    <summary>Advanced settings</summary>
                     <div class="input-group mt-3">
                         <div class="input-group-prepend">
                             <label for="registryField" class="input-group-text">Registry</label>
@@ -48,7 +48,7 @@
 
         </div>
         <div class="modal-footer">
-            <div class="input-group mb-3">
+            <div class="input-group">
                 <button class="btn btn-success mr-2" (click)="updateDockerInstance()" [disabled]="!modified || updateLock || handshake !== null">Save</button>
                 <button class="btn btn-primary mr-2" (click)="emitDone()" [disabled]="updateLock || handshake !== null">Cancel</button>
                 <button class="btn btn-primary mr-2" (click)="testConnection();" [disabled]="updateLock || handshake !== null">Test Connectivity</button>

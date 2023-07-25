@@ -22,7 +22,7 @@
                     <input id="aliasField" class="form-control" type="text" name="alias" (input)="aliasInput()" [(ngModel)]="alias" [disabled]="handshake !== null" required>
                 </div>
                 <details>
-                    <summary>Advanced</summary>
+                    <summary>Advanced settings</summary>
                     <div class="input-group mt-3">
                         <div class="input-group-prepend">
                             <label for="registryField" class="input-group-text">Registry</label>
@@ -38,7 +38,7 @@
         <div class="modal-footer">
             <div class="input-group">
                 <input class="btn btn-success mr-2" (click)="addDockerInstance()" type="submit" value="Add" [disabled]="handshake !== null">
-                <button class="btn btn-secondary" (click)="cancel()" [disabled]="handshake !== null && handshake.status !== 'NOT_RUNNING' && handshake.status !== 'FAILED'">Cancel</button>
+                <button class="btn btn-secondary" (click)="cancel()">Cancel</button>
             </div>
         </div>
     </div>

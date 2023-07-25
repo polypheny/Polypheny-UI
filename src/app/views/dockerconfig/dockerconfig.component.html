@@ -1,25 +1,34 @@
 <app-toast></app-toast>
 
-<div class="container">
-    <div class="row justify-content-start">
-        <div *ngFor="let instance of instances" class="col-4">
+<div class="container-fluid">
+    <div *ngIf="status.available && (!status.connected || autoConnectRunning)" class="row pb-3">
+        <div class="col">
+            <button class="btn btn-success" (click)="autoDocker()" [disabled]="status.running || autoConnectRunning">
+                <div *ngIf="status.running || autoConnectRunning" class="spinner-border spinner-border-sm" role="status"></div>
+                Autoconnect to localhost
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div *ngFor="let instance of instances" class="col-lg-6 fixed-width">
             <div class="card">
                 <div class="card-header">{{ instance.alias }}</div>
                 <div class="card-body">
                     Host: {{ instance.host }}<br>
                     Connected: {{ instance.connected }}<br>
-                    <button class="btn btn-primary mr-2" (click)="showModal(instance.id)">Edit</button>
-                    <button class="btn btn-danger mr-2" (click)="removeDockerInstance(instance);">Delete</button>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <button class="btn btn-danger" (click)="removeDockerInstance(instance);">Delete</button>
+                    <button class="btn btn-primary pull-right" (click)="showModal(instance.id)">Edit</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row justify-content-start">
+
+    <div class="row">
         <div class="col">
             <button class="btn btn-primary" (click)="showModal(-1)">Add new instance</button>
-        </div>
-        <div *ngIf="status.available && (!status.connected || autoConnectRunning)" class="col">
-            <button class="btn btn-success" (click)="autoDocker()" [disabled]="status.running || autoConnectRunning">Autoconnect to localhost</button>
         </div>
     </div>
 </div>

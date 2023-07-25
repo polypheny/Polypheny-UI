@@ -134,6 +134,7 @@ export class DockernewComponent implements OnInit, OnDestroy {
     }
 
     cancel() {
+        this.cancelHandshake();
         this.done.emit();
     }
 }
