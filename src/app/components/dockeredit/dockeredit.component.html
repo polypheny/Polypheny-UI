@@ -17,14 +17,14 @@
                     <div class="input-group-prepend">
                         <label for="hostField" class="input-group-text">Host</label>
                     </div>
-                    <input id="hostField" class="form-control" type="text" name="host" (input)="modified=true" [(ngModel)]="host">
+                    <input id="hostField" class="form-control" type="text" name="host" (input)="modified = true" [(ngModel)]="host">
                 </div>
 
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
                         <label for="aliasField" class="input-group-text">Alias</label>
                     </div>
-                    <input id="aliasField" class="form-control" type="text" name="alias" (input)="modified=true" [(ngModel)]="alias">
+                    <input id="aliasField" class="form-control" type="text" name="alias" (input)="modified = true" [(ngModel)]="alias">
                 </div>
 
                 <div class="input-group mb-3">
@@ -32,8 +32,17 @@
                         <label for="idField" class="input-group-text">Connected</label>
                     </div>
                     <input id="idField" class="form-control" type="text" name="connected" [(ngModel)]="connected" readonly="true">
-
                 </div>
+                <details>
+                    <summary>Advanced</summary>
+                    <div class="input-group mt-3">
+                        <div class="input-group-prepend">
+                            <label for="registryField" class="input-group-text">Registry</label>
+                        </div>
+                        <input id="registryField" class="form-control" type="text" name="registry" (input)="modified = true" [(ngModel)]="registry">
+                        <div class="form-text">Leave empty to use the default registry for this Polypheny instance</div>
+                    </div>
+                </details>
             </form>
             <app-dockerhandshake *ngIf="handshake !== null" [handshake]="handshake"></app-dockerhandshake>
 

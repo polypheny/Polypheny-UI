@@ -17,6 +17,7 @@ export class DockereditComponent implements OnInit, OnDestroy {
     modified = false;
     alias: string;
     host: string;
+    registry: string;
     error: string;
     timeoutId: number = null;
 
@@ -48,6 +49,7 @@ export class DockereditComponent implements OnInit, OnDestroy {
     updateValues(instance: DockerInstance) {
         this.host = instance.host;
         this.alias = instance.alias;
+        this.registry = instance.registry;
         this.connected = instance.connected;
         this.modified = false;
     }
@@ -117,7 +119,7 @@ export class DockereditComponent implements OnInit, OnDestroy {
             return;
         }
         this.updateLock = true;
-        this._crud.updateDockerInstance(this.id, this.host, this.alias).subscribe(
+        this._crud.updateDockerInstance(this.id, this.host, this.alias, this.registry).subscribe(
             res => {
                 const r = <DockerUpdateResponse>res;
                 if (r.error !== '') {

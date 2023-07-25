@@ -588,8 +588,8 @@ export class CrudService {
         });
     }
 
-    addDockerInstance(host: string, alias: string) {
-        return this._http.post(`${this.httpUrl}/addDockerInstance`, {'host': host, 'alias': alias}, this.httpOptions);
+    addDockerInstance(host: string, alias: string, registry: string) {
+        return this._http.post(`${this.httpUrl}/addDockerInstance`, {'host': host, 'alias': alias, 'registry': registry}, this.httpOptions);
     }
 
     testDockerInstance(id: number) {
@@ -604,8 +604,8 @@ export class CrudService {
         return this._http.get(`${this.httpUrl}/getDockerInstances`);
     }
 
-    updateDockerInstance(id: number, hostname: string, alias: string) {
-        return this._http.post(`${this.httpUrl}/updateDockerInstance`, {'id': id.toString(), 'hostname': hostname, 'alias': alias}, this.httpOptions);
+    updateDockerInstance(id: number, hostname: string, alias: string, registry: string) {
+        return this._http.post(`${this.httpUrl}/updateDockerInstance`, {'id': id.toString(), 'hostname': hostname, 'alias': alias, 'registry': registry}, this.httpOptions);
     }
 
     reconnectToDockerInstance(id: number) {

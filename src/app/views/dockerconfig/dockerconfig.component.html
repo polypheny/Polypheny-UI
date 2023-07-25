@@ -24,13 +24,13 @@
     </div>
 </div>
 
-<div *ngIf="error!==null" class="alert alert-danger">
+<div *ngIf="error !== null" class="alert alert-danger">
     Cannot load list of docker instances: {{ error }}
 </div>
 
 <div bsModal #dockerConfigModal="bs-modal" id="addNewInstance" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="Add/Edit a docker instance" aria-hidden="true">
     <div *ngIf="modalId !== null">
-	<app-dockernew *ngIf="modalId === -1" (done)="closeModal($event)"></app-dockernew>
-	<app-dockeredit *ngIf="modalId >= 0" [id]="modalId" (done)="closeModal($event)"></app-dockeredit>
+        <app-dockernew *ngIf="modalId === -1" (done)="closeModal($event)"></app-dockernew>
+        <app-dockeredit *ngIf="modalId >= 0" [id]="modalId" (done)="closeModal($event)"></app-dockeredit>
     </div>
 </div>

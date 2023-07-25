@@ -12,6 +12,7 @@ export class DockernewComponent implements OnInit, OnDestroy {
 
     host: string;
     alias: string;
+    registry: string = "";
     aliasModified = false;
     dockerSetupResult: DockerSetupResponse = null;
     handshake: Handshake = null;
@@ -44,7 +45,7 @@ export class DockernewComponent implements OnInit, OnDestroy {
     }
 
     addDockerInstance() {
-        this._crud.addDockerInstance(this.host, this.alias).subscribe(
+        this._crud.addDockerInstance(this.host, this.alias, this.registry).subscribe(
             res => {
                 this.dockerSetupResult = <DockerSetupResponse>res;
                 if (this.dockerSetupResult.success) {
@@ -127,7 +128,7 @@ export class DockernewComponent implements OnInit, OnDestroy {
     }
 
     success(instances: DockerInstance[]) {
-	console.log(instances);
+        console.log(instances);
         this._toast.success("Successfully added docker instance '" + this.alias + "'");
         this.done.emit(instances);
     }

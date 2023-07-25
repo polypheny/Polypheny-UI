@@ -11,6 +11,7 @@ export interface DockerInstance {
     id: number;
     host: string;
     alias: string;
+    registry: string;
     connected: boolean;
 }
 

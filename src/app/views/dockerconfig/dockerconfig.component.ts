@@ -32,15 +32,6 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this._crud.getAutoDockerStatus().subscribe(
-            res => {
-                this.status = <AutoDockerStatus>res;
-            },
-            err => {
-                console.log(err);
-            }
-        );
-
         this.updateList();
         this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Config', '/views/config/'),
                                          new BreadcrumbItem('Docker')]);
@@ -149,12 +140,11 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
     }
 
     closeModal(newlist: DockerInstance[]) {
-	console.log(newlist);
-	if (newlist !== undefined) {
-	    this.instances = newlist;
-	} else {
-	    this.updateList();
-	}
+        if (newlist !== undefined) {
+            this.instances = newlist;
+        } else {
+            this.updateList();
+        }
         this.dockerConfigModal.hide();
         this.modalId = null;
     }

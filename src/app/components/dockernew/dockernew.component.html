@@ -21,12 +21,22 @@
                     </div>
                     <input id="aliasField" class="form-control" type="text" name="alias" (input)="aliasInput()" [(ngModel)]="alias" [disabled]="handshake !== null" required>
                 </div>
+                <details>
+                    <summary>Advanced</summary>
+                    <div class="input-group mt-3">
+                        <div class="input-group-prepend">
+                            <label for="registryField" class="input-group-text">Registry</label>
+                        </div>
+                        <input id="registryField" class="form-control" type="text" name="registry" [(ngModel)]="registry" [disabled]="handshake !== null" required>
+                        <div class="form-text">Leave empty to use the default registry for this Polypheny instance</div>
+                    </div>
+                </details>
             </form>
             <app-dockerhandshake *ngIf="handshake !== null" (cancel)="cancelHandshake()" (redo)="redoHandshake()" [handshake]="handshake"></app-dockerhandshake>
         </div>
 
         <div class="modal-footer">
-            <div class="input-group mb-3">
+            <div class="input-group">
                 <input class="btn btn-success mr-2" (click)="addDockerInstance()" type="submit" value="Add" [disabled]="handshake !== null">
                 <button class="btn btn-secondary" (click)="cancel()" [disabled]="handshake !== null && handshake.status !== 'NOT_RUNNING' && handshake.status !== 'FAILED'">Cancel</button>
             </div>
