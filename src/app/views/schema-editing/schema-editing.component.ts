@@ -206,7 +206,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
                 this.createSchemaFeedback = 'Namespace name is invalid';
             }
         }
-        const regex = this._crud.getValidationRegex();
+        const regex = this._crud.getNamespaceValidationRegex();
         if (regex.test(name) && name.length <= 100) {
             return 'is-valid';
         } else {

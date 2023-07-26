@@ -653,6 +653,14 @@ export class CrudService {
         return new RegExp('^[a-zA-Z_][a-zA-Z0-9_]*$');
     }
 
+    getNamespaceValidationRegex() {
+        return new RegExp('^[a-z_][a-z0-9_]*$');
+    }
+
+    getAdapterNameValidationRegex() {
+        return new RegExp('^[a-z_][a-z0-9_]*$');
+    }
+
     nameIsValid(name: string) {
         const regex = this.getValidationRegex();
         return regex.test(name) && name.length <= 100;

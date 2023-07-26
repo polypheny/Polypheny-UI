@@ -201,6 +201,33 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         );
     }
 
+    getDefaultUniqueName(): string {
+        if (this.editingAvailableAdapter !== undefined) {
+            const base = this.editingAvailableAdapter.name.toLowerCase() + "_";
+            let max_i = 0;
+            for (const store of this.stores) {
+                if (store.uniqueName.startsWith(base)) {
+                    const suffix = store.uniqueName.slice(base.length);
+                    const i = parseInt(suffix, 10);
+                    if (!isNaN(i)) {
+                        max_i = Math.max(max_i, i);
+                    }
+                }
+            }
+            for (const store of this.sources) {
+                if (store.uniqueName.startsWith(base)) {
+                    const suffix = store.uniqueName.slice(base.length);
+                    const i = parseInt(suffix, 10);
+                    if (!isNaN(i)) {
+                        max_i = Math.max(max_i, i);
+                    }
+                }
+            }
+            return base + (max_i + 1).toString(10);
+        }
+        return null;
+    }
+
     async initDeployModal(adapter: AdapterInformation) {
         this.editingAvailableAdapter = adapter;
 
@@ -260,7 +287,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.allSettings = Object.keys(this.editingAvailableAdapter.adapterSettings).map(header => adapter.adapterSettings[header]).reduce((arr, val) => arr.concat(val));
 
         this.availableAdapterUniqueNameForm = new FormGroup({
-            uniqueName: new FormControl(null, [Validators.required, Validators.pattern(this._crud.getValidationRegex()), validateUniqueName([...this.stores, ...this.sources])])
+            uniqueName: new FormControl(this.getDefaultUniqueName(), [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores, ...this.sources])])
         });
         this.adapterSettingsModal.show();
     }
@@ -289,7 +316,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             if (errors.required) {
                 return 'missing unique name';
             } else if (errors.pattern) {
-                return 'invalid unique name';
+                return 'invalid unique name: unique name must only contain lower case letters, digits and underscores';
             } else if (errors.unique) {
                 return 'name is not unique';
             }
@@ -578,7 +605,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.subgroups.set(key, value.value);
     }
 
-
 }
 
 // see https://angular.io/guide/form-validation#custom-validators
@@ -595,4 +621,3 @@ function validateUniqueName(adapters: Adapter[]): ValidatorFn {
         return null;
     };
 }
-
