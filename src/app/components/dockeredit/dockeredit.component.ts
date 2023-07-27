@@ -189,6 +189,15 @@ export class DockereditComponent implements OnInit, OnDestroy {
     }
 
     emitDone() {
+        if (this.handshake !== null) {
+            this._crud.cancelHandshake(this.host).subscribe(
+                res => {
+                },
+                err => {
+                    console.log(err);
+                }
+            );
+        }
         this.done.emit();
     }
 }
