@@ -35,12 +35,44 @@
                 </div>
                 <details>
                     <summary>Advanced settings</summary>
-                    <div class="input-group mt-3">
-                        <div class="input-group-prepend">
-                            <label for="registryField" class="input-group-text">Registry</label>
+                    <div class="mt-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label for="registryField" class="input-group-text">Registry</label>
+                            </div>
+                            <input id="registryField" class="form-control" type="text" name="registry" (input)="modified = true" [(ngModel)]="registry">
+                            <div class="form-text">Leave empty to use the default registry for this Polypheny instance</div>
                         </div>
-                        <input id="registryField" class="form-control" type="text" name="registry" (input)="modified = true" [(ngModel)]="registry">
-                        <div class="form-text">Leave empty to use the default registry for this Polypheny instance</div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label for="communicationPortField" class="input-group-text">Communication Port</label>
+                            </div>
+                            <input id="communicationPortField" class="form-control" type="text" name="communicationPort" [(ngModel)]="communicationPort" disabled="true">
+                        </div>
+                        <div class="form-text">Leave empty to use the default port</div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <label for="handshakePortField" class="input-group-text">Handshake Port</label>
+                            </div>
+                            <input id="handshakePortField" class="form-control" type="text" name="handshakePort" [(ngModel)]="handshakePort" disabled="true">
+                        </div>
+                        <div class="form-text">Leave empty to use the default port</div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <label for="proxyPortField" class="input-group-text">Proxy Port</label>
+                            </div>
+                            <input id="proxyPortField" class="form-control" type="text" name="proxyPort" [(ngModel)]="proxyPort" disabled="true">
+                        </div>
+                        <div class="form-text">Leave empty to use the default port</div>
                     </div>
                 </details>
             </form>

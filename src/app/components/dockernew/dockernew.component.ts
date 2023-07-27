@@ -13,6 +13,9 @@ export class DockernewComponent implements OnInit, OnDestroy {
     host: string;
     alias: string;
     registry: string = "";
+    communicationPort: number;
+    handshakePort: number;
+    proxyPort: number;
     aliasModified = false;
     dockerSetupResult: DockerSetupResponse = null;
     handshake: Handshake = null;
@@ -45,7 +48,7 @@ export class DockernewComponent implements OnInit, OnDestroy {
     }
 
     addDockerInstance() {
-        this._crud.addDockerInstance(this.host, this.alias, this.registry).subscribe(
+        this._crud.addDockerInstance(this.host, this.alias, this.registry, this.communicationPort, this.handshakePort, this.proxyPort).subscribe(
             res => {
                 this.dockerSetupResult = <DockerSetupResponse>res;
                 if (this.dockerSetupResult.success) {

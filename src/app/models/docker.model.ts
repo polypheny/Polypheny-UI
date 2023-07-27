@@ -11,8 +11,12 @@ export interface DockerInstance {
     id: number;
     host: string;
     alias: string;
-    registry: string;
     connected: boolean;
+    registry: string;
+    communicationPort: number;
+    handshakePort: number;
+    proxyPort: number;
+    numberOfContainers: number;
 }
 
 export interface DockerStatus {

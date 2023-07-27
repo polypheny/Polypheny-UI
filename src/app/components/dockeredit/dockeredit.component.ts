@@ -18,6 +18,9 @@ export class DockereditComponent implements OnInit, OnDestroy {
     alias: string;
     host: string;
     registry: string;
+    communicationPort: number;
+    handshakePort: number;
+    proxyPort: number;
     error: string;
     timeoutId: number = null;
 
@@ -51,6 +54,9 @@ export class DockereditComponent implements OnInit, OnDestroy {
         this.alias = instance.alias;
         this.registry = instance.registry;
         this.connected = instance.connected;
+        this.communicationPort = instance.communicationPort;
+        this.handshakePort = instance.handshakePort;
+        this.proxyPort = instance.proxyPort;
         this.modified = false;
     }
 

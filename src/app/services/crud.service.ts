@@ -588,8 +588,8 @@ export class CrudService {
         });
     }
 
-    addDockerInstance(host: string, alias: string, registry: string) {
-        return this._http.post(`${this.httpUrl}/addDockerInstance`, {'host': host, 'alias': alias, 'registry': registry}, this.httpOptions);
+    addDockerInstance(host: string, alias: string, registry: string, communicationPort: number, handshakePort: number, proxyPort: number) {
+        return this._http.post(`${this.httpUrl}/addDockerInstance`, {'host': host, 'alias': alias, 'communicationPort': communicationPort, 'handshakePort': handshakePort, 'proxyPort': proxyPort, }, this.httpOptions);
     }
 
     testDockerInstance(id: number) {
