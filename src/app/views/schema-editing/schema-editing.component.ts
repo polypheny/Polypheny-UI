@@ -141,7 +141,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         if (this.createForm.valid && this.createSchemaValidation(this.createForm.controls['name'].value) === 'is-valid') {
             const val = this.createForm.value;
             this.createSubmitted = true;
-            this._crud.createOrDropSchema(new Schema(val.name, val.type, this.graphStore).setCreate(true)).subscribe(
+            this._crud.createOrDropSchema(new Schema(val.name, val.type, val.stores).setCreate(true)).subscribe(
                 res => {
                     const result = <ResultSet>res;
                     if (result.error) {
