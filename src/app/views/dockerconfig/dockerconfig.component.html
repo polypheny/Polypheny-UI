@@ -15,9 +15,10 @@
             <div class="card">
                 <div class="card-header">{{ instance.alias }}</div>
                 <div class="card-body">
+                    <div *ngIf="instance.connected" class="badge badge-success pull-right">connected</div>
+                    <div *ngIf="!instance.connected" class="badge badge-danger pull-right">not connected</div>
                     Host: {{ instance.host }}<br>
-                    Connected: {{ instance.connected }}<br>
-                    <div *ngIf="instance.numberOfContainers !== -1">There {{ instance.numberOfContainers === 1 ? 'is' : 'are' }} {{ instance.numberOfContainers }} {{ instance.numberOfContainers > 1 ? 'containers' : 'container' }} on this instance.</div>
+                    <div *ngIf="instance.numberOfContainers !== -1">{{ instance.numberOfContainers }} {{ instance.numberOfContainers > 1 ? 'containers' : 'container' }} deployed</div>
                 </div>
                 <div class="card-footer bg-transparent">
                     <button class="btn btn-danger" (click)="removeDockerInstance(instance);">Delete</button>
