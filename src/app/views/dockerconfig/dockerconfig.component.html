@@ -13,13 +13,17 @@
     <div class="row">
         <div *ngFor="let instance of instances" class="col-lg-6 fixed-width">
             <div class="card">
-                <div class="card-header">{{ instance.alias }}</div>
-                <div class="card-body">
+                <div class="card-header">
+                    {{ instance.alias }}
                     <div *ngIf="instance.connected" class="badge badge-success pull-right">connected</div>
                     <div *ngIf="!instance.connected" class="badge badge-danger pull-right">not connected</div>
-                    Host: {{ instance.host }}<br>
-                    <div *ngIf="instance.numberOfContainers !== -1">{{ instance.numberOfContainers }} {{ instance.numberOfContainers > 1 ? 'containers' : 'container' }} deployed</div>
                 </div>
+
+                <div class="card-body">
+                    Host: {{ instance.host }}<br>
+                    <div *ngIf="instance.numberOfContainers !== -1">{{ instance.numberOfContainers }} {{ instance.numberOfContainers != 1 ? 'containers' : 'container' }} deployed</div>
+                </div>
+
                 <div class="card-footer bg-transparent">
                     <button class="btn btn-danger" (click)="removeDockerInstance(instance);">Delete</button>
                     <button class="btn btn-primary pull-right" (click)="showModal(instance.id)">Edit</button>
@@ -30,7 +34,7 @@
 
     <div class="row">
         <div class="col">
-            <button class="btn btn-primary mr-2" (click)="showModal(-1)">Add new instance</button>
+            <button class="btn btn-success mr-2" (click)="showModal(-1)">Add new instance</button>
             <button class="btn btn-primary" (click)="showSettingsModal()">Global Settings</button>
         </div>
     </div>
@@ -40,13 +44,13 @@
     Cannot load list of docker instances: {{ error }}
 </div>
 
-<div bsModal #dockerConfigModal="bs-modal" id="addNewInstance" class="modal fade" aria-labelledby="Add/Edit a docker instance" aria-hidden="true">
+<div bsModal #dockerConfigModal="bs-modal" id="addNewInstance" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Add/Edit a docker instance" aria-hidden="true">
     <div *ngIf="modalId !== null">
         <app-dockernew *ngIf="modalId === -1" (done)="closeModal($event)"></app-dockernew>
         <app-dockeredit *ngIf="modalId >= 0" [id]="modalId" (done)="closeModal($event)"></app-dockeredit>
     </div>
 </div>
 
-<div bsModal #dockerSettingsModal="bs-modal" id="dockerSettings" class="modal fade" aria-labelledby="Edit docker settings" aria-hidden="true">
+<div bsModal #dockerSettingsModal="bs-modal" id="dockerSettings" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Edit docker settings" aria-hidden="true">
     <app-dockersettings (done)="closeSettingsModal()"></app-dockersettings>
 </div>
