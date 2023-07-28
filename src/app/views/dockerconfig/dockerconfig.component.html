@@ -30,7 +30,8 @@
 
     <div class="row">
         <div class="col">
-            <button class="btn btn-primary" (click)="showModal(-1)">Add new instance</button>
+            <button class="btn btn-primary mr-2" (click)="showModal(-1)">Add new instance</button>
+            <button class="btn btn-primary" (click)="showSettingsModal()">Global Settings</button>
         </div>
     </div>
 </div>
@@ -44,4 +45,8 @@
         <app-dockernew *ngIf="modalId === -1" (done)="closeModal($event)"></app-dockernew>
         <app-dockeredit *ngIf="modalId >= 0" [id]="modalId" (done)="closeModal($event)"></app-dockeredit>
     </div>
+</div>
+
+<div bsModal #dockerSettingsModal="bs-modal" id="dockerSettings" class="modal fade" aria-labelledby="Edit docker settings" aria-hidden="true">
+    <app-dockersettings (done)="closeSettingsModal()"></app-dockersettings>
 </div>

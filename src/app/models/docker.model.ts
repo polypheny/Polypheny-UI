@@ -52,3 +52,7 @@ export interface HandshakeAndInstance {
     handshake: Handshake;
     instance: DockerInstance;
 }
+
+export interface DockerSettings {
+    registry: string;
+}

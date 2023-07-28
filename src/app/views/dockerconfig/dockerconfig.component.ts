@@ -21,6 +21,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
     modalId: number = null;
 
     @ViewChild('dockerConfigModal', {static: false}) public dockerConfigModal: ModalDirective;
+    @ViewChild('dockerSettingsModal', {static: false}) public dockerSettingsModal: ModalDirective;
 
     constructor(
         private _breadcrumb: BreadcrumbService,
@@ -156,6 +157,15 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
         }
         this.dockerConfigModal.hide();
         this.modalId = null;
+    }
+
+    showSettingsModal() {
+        this.dockerSettingsModal.show();
+    }
+
+    closeSettingsModal() {
+        this.dockerSettingsModal.hide();
+        this.updateList();
     }
 }
 

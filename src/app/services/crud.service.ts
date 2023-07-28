@@ -25,6 +25,7 @@ import {
     StatisticRequest,
     TableRequest
 } from '../models/ui-request.model';
+import {DockerSettings} from '../models/docker.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {Adapter} from '../views/adapters/adapter.model';
@@ -634,6 +635,14 @@ export class CrudService {
 
     cancelHandshake(hostname: string) {
         return this._http.post(`${this.httpUrl}/cancelHandshake`, hostname, this.httpOptions);
+    }
+
+    getDockerSettings() {
+        return this._http.get(`${this.httpUrl}/getDockerSettings/`);
+    }
+
+    changeDockerSettings(settings: DockerSettings) {
+        return this._http.post(`${this.httpUrl}/changeDockerSettings`, settings, this.httpOptions);
     }
 
     getNameValidator(required: boolean = false) {

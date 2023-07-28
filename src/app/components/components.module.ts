@@ -42,6 +42,7 @@ import {DatesPipeModule} from './data-view/shared-module';
 import {DockereditComponent} from './dockeredit/dockeredit.component';
 import {DockerhandshakeComponent} from './dockerhandshake/dockerhandshake.component';
 import {DockernewComponent} from './dockernew/dockernew.component';
+import {DockersettingsComponent} from './dockersettings/dockersettings.component';
 
 //import 'hammerjs';
 
@@ -90,6 +91,7 @@ import {DockernewComponent} from './dockernew/dockernew.component';
         DockereditComponent,
         DockerhandshakeComponent,
         DockernewComponent,
+        DockersettingsComponent,
     ],
     exports: [
         BreadcrumbComponent,
@@ -110,6 +112,7 @@ import {DockernewComponent} from './dockernew/dockernew.component';
         DockereditComponent,
         DockerhandshakeComponent,
         DockernewComponent,
+        DockersettingsComponent,
     ]
 })
 export class ComponentsModule {
