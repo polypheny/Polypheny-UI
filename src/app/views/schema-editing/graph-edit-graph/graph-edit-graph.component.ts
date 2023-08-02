@@ -148,8 +148,8 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     private getPlacements() {
         this._crud.getGraphPlacements(this.graphId).subscribe(res => {
             this.dataPlacements = <GraphPlacements>res;
-	    // This happens when we switch the namespace to a non-graph one on the sidebar,
-	    // because it takes time for the parent component to replace us with the correct one.
+            // This happens when we switch the namespace to a non-graph one on the sidebar,
+            // because it takes time for the parent component to replace us with the correct one.
             //if (this.dataPlacements.exception) {
             //    // @ts-ignore
             //    this._toast.exception({
