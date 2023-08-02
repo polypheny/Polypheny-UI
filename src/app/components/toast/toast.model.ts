@@ -32,8 +32,8 @@ export class Toast {
     }
 
     twoDigits(n: number): string {
-        let s = n.toString();
-        if (s.length == 1) {
+        const s = n.toString();
+        if (s.length === 1) {
             return '0' + s;
         }
         return s;
@@ -43,4 +43,3 @@ export class Toast {
         this.exception = e;
     }
 }
-
