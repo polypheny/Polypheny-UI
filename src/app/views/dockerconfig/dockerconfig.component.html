@@ -1,6 +1,13 @@
 <app-toast></app-toast>
 
-<div class="container-fluid">
+<ng-container>
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Docker</h1>
+            <p>Docker related settings and configuration</p>
+        </div>
+    </div>
+
     <div *ngIf="status.available && (!status.connected || autoConnectRunning)" class="row pb-3">
         <div class="col">
             <button class="btn btn-success" (click)="autoDocker()" [disabled]="status.running || autoConnectRunning">
@@ -10,8 +17,8 @@
         </div>
     </div>
 
-    <div class="row">
-        <div *ngFor="let instance of instances" class="col-lg-6 fixed-width">
+    <div class="card-columns" [ngStyle]="{'column-count': 6}">
+        <div *ngFor="let instance of instances">
             <div class="card">
                 <div class="card-header">
                     {{ instance.alias }}
@@ -38,7 +45,7 @@
             <button class="btn btn-primary" (click)="showSettingsModal()">Global Settings</button>
         </div>
     </div>
-</div>
+</ng-container>
 
 <div *ngIf="error !== null" class="alert alert-danger">
     Cannot load list of docker instances: {{ error }}
