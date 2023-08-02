@@ -32,7 +32,7 @@
                             <div class="input-group-prepend">
                                 <label for="registryField" class="input-group-text">Registry</label>
                             </div>
-                            <input id="registryField" class="form-control" type="text" name="registry" [(ngModel)]="registry" [disabled]="handshake !== null" required>
+                            <input id="registryField" class="form-control" type="text" name="registry" placeholder="Using default setting" [(ngModel)]="registry" [disabled]="handshake !== null" required>
                         </div>
                         <div class="form-text">Leave empty to use the default registry for this Polypheny instance</div>
                     </div>
@@ -42,7 +42,7 @@
                             <div class="input-group-prepend">
                                 <label for="communicationPortField" class="input-group-text">Communication Port</label>
                             </div>
-                            <input id="communicationPortField" class="form-control" type="number" min="1" max="65535" name="communicationPort" [(ngModel)]="communicationPort" [disabled]="handshake !== null">
+                            <input id="communicationPortField" class="form-control" type="number" min="1" max="65535" name="communicationPort" placeholder="7001" [(ngModel)]="communicationPort" [disabled]="handshake !== null">
                         </div>
                         <div class="form-text">Leave empty to use the default port</div>
                     </div>
@@ -52,7 +52,7 @@
                             <div class="input-group-prepend">
                                 <label for="handshakePortField" class="input-group-text">Handshake Port</label>
                             </div>
-                            <input id="handshakePortField" class="form-control" type="number" min="1" max="65535" name="handshakePort" [(ngModel)]="handshakePort" [disabled]="handshake !== null">
+                            <input id="handshakePortField" class="form-control" type="number" min="1" max="65535" name="handshakePort" placeholder="7002" [(ngModel)]="handshakePort" [disabled]="handshake !== null">
                         </div>
                         <div class="form-text">Leave empty to use the default port</div>
                     </div>
@@ -62,7 +62,7 @@
                             <div class="input-group-prepend">
                                 <label for="proxyPortField" class="input-group-text">Proxy Port</label>
                             </div>
-                            <input id="proxyPortField" class="form-control" type="number" min="1" max="65535" name="proxyPort" [(ngModel)]="proxyPort" [disabled]="handshake !== null">
+                            <input id="proxyPortField" class="form-control" type="number" min="1" max="65535" name="proxyPort" placeholder="7003" [(ngModel)]="proxyPort" [disabled]="handshake !== null">
                         </div>
                         <div class="form-text">Leave empty to use the default port</div>
                     </div>
