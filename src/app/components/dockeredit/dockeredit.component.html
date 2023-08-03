@@ -33,7 +33,7 @@
                     <div class="input-group-prepend">
                         <label for="idField" class="input-group-text">Connected</label>
                     </div>
-                    <input id="idField" class="form-control" type="text" name="connected" [(ngModel)]="connected" readonly="true">
+                    <input id="idField" [class]="'form-control ' + (connected === true ? 'our-bg-success-subtle' : connected === false ? 'our-bg-danger-subtle' : '')" type="text" name="connected" [(ngModel)]="connected" readonly="true">
                 </div>
                 <details>
                     <summary>Advanced settings</summary>
