@@ -667,7 +667,9 @@ export class CrudService {
     }
 
     getAdapterNameValidationRegex() {
-        return new RegExp('^[a-z_][a-z0-9_]*$');
+        // TODO: re-enable underscores when graph namespaces work with it
+        //return new RegExp('^[a-z][a-z0-9_]*$');
+        return new RegExp('^[a-z][a-z0-9]*$');
     }
 
     nameIsValid(name: string) {

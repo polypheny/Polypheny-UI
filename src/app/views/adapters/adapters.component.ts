@@ -203,7 +203,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     getDefaultUniqueName(): string {
         if (this.editingAvailableAdapter !== undefined) {
-            const base = this.editingAvailableAdapter.name.toLowerCase() + "_";
+            const base = this.editingAvailableAdapter.name.toLowerCase(); // + "_"; // TODO: re-enable underscores when graph namespaces work with it
             let max_i = 0;
             for (const store of this.stores) {
                 if (store.uniqueName.startsWith(base)) {
