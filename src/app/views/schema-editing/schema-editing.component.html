@@ -46,9 +46,9 @@
                             <div class="input-group-prepend">
                                 <label class="input-group-text" for="schema-type">Store</label>
                             </div>
-                            <select class="form-control" formControlName="type" id="graph-store">
-                                <option *ngFor="let store of stores" (click)="graphStore = store.uniqueName"
-                                        value="relational">{{store.uniqueName}}</option>
+                            <select class="form-control" formControlName="stores" id="graph-store">
+                                <option *ngFor="let store of stores"
+                                        value="{{ store.uniqueName }}">{{store.uniqueName}}</option>
                             </select>
                         </div>
                         <div class="form-group mb-0">

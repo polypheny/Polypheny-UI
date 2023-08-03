@@ -109,12 +109,7 @@
 											<!--List of DockerInstance-->
 											<div class="list-wrapper"
 												 *ngIf="config.value.template.webUiFormType === 'DOCKER_INSTANCE'">
-												<app-docker-config [form]="form"
-																   [onSubmit]="onSubmit"
-																   [config]="config"
-																   [submitted]="submitted"
-																   [removeElement]="removeElement"
-																   [addElement]="addElement"></app-docker-config>
+											    <!-- Handled in Dockerconfig component which is injected via views-routing.module.ts -->
 											</div>
 											<div class="list-wrapper"
 												 *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">

@@ -47,8 +47,8 @@ import {
 } from './schema-editing/document-edit-collection/document-edit-collection.component';
 import {StatisticsColumnComponent} from './schema-editing/statistics-column/statistics-column.component';
 import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-edit-graph.component';
-import {DockerConfigComponent} from './forms/form-generator/docker-config/docker-config.component';
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
+import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
 
 
 @NgModule({
@@ -102,8 +102,8 @@ import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-u
         StatisticsColumnComponent,
         ValuePipe,
         SearchFilterPipe,
-        DockerConfigComponent,
-        FileUploaderComponent
+        FileUploaderComponent,
+        DockerconfigComponent,
     ],
     exports: [
         ExploreByExampleComponent
