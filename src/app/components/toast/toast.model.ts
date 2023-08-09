@@ -25,14 +25,21 @@ export class Toast {
         this.generatedQuery = generatedQuery;
         const d = new Date();
         this.time = d;
-        this.timeAsString = d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+        this.timeAsString = this.twoDigits(d.getHours()) + ':' + this.twoDigits(d.getMinutes()) + ':' + this.twoDigits(d.getSeconds());
         this.type = type;
         this.delay = delay;//default 0 -> not removed automatically. if > 0: removed after n miliseconds
         this.hash = this.timeAsString + this.message;
+    }
+
+    twoDigits(n: number): string {
+        const s = n.toString();
+        if (s.length === 1) {
+            return '0' + s;
+        }
+        return s;
     }
 
     setException(e: ResultException) {
         this.exception = e;
     }
 }
-

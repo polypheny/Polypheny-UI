@@ -40,6 +40,10 @@ import {JsonElemComponent} from './json/json-elem/json-elem.component';
 import {DataGraphComponent} from './data-view/data-graph/data-graph.component';
 import {DatesPipeModule} from './data-view/shared-module';
 import { LoadingScreenComponent } from './loading-screen/loading-screen.component';
+import {DockereditComponent} from './dockeredit/dockeredit.component';
+import {DockerhandshakeComponent} from './dockerhandshake/dockerhandshake.component';
+import {DockernewComponent} from './dockernew/dockernew.component';
+import {DockersettingsComponent} from './dockersettings/dockersettings.component';
 
 //import 'hammerjs';
 
@@ -85,7 +89,11 @@ import { LoadingScreenComponent } from './loading-screen/loading-screen.componen
         ExpandableTextComponent,
         JsonTextComponent,
         JsonElemComponent,
-        LoadingScreenComponent
+        LoadingScreenComponent,
+        DockereditComponent,
+        DockerhandshakeComponent,
+        DockernewComponent,
+        DockersettingsComponent,
     ],
     exports: [
         BreadcrumbComponent,
@@ -103,7 +111,11 @@ import { LoadingScreenComponent } from './loading-screen/loading-screen.componen
         JsonEditorComponent,
         EditorComponent,
         DeleteConfirmComponent,
-        LoadingScreenComponent
+        LoadingScreenComponent,
+        DockereditComponent,
+        DockerhandshakeComponent,
+        DockernewComponent,
+        DockersettingsComponent,
     ]
 })
 export class ComponentsModule {

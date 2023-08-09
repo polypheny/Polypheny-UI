@@ -12,6 +12,7 @@ import {AboutComponent} from './about/about.component';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 import {NotebooksComponent} from '../plugins/notebooks/components/notebooks.component';
 import {UnsavedChangesGuard} from '../plugins/notebooks/services/unsaved-changes.guard';
+import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
 
 const routes: Routes = [
     {
@@ -116,6 +117,20 @@ const routes: Routes = [
         component: FormGeneratorComponent,
         data: {
             title: 'Form Generator'
+        }
+    },
+    {
+        path: 'config/dockerConfig',
+        component: DockerconfigComponent,
+        data: {
+            title: 'Docker Setup'
+        }
+    },
+    {
+        path: 'config/dockerPage',
+        component: DockerconfigComponent,
+        data: {
+            title: 'Docker Setup'
         }
     },
     {

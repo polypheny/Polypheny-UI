@@ -1,5 +1,5 @@
 import {EventEmitter, Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpUrlEncodingCodec} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {
     Index,
@@ -25,6 +25,7 @@ import {
     StatisticRequest,
     TableRequest
 } from '../models/ui-request.model';
+import {DockerSettings} from '../models/docker.model';
 import {ForeignKey} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {Adapter} from '../views/adapters/adapter.model';
@@ -588,6 +589,62 @@ export class CrudService {
         });
     }
 
+    addDockerInstance(host: string, alias: string, registry: string, communicationPort: number, handshakePort: number, proxyPort: number) {
+        return this._http.post(`${this.httpUrl}/addDockerInstance`, {'host': host, 'alias': alias, 'communicationPort': communicationPort, 'handshakePort': handshakePort, 'proxyPort': proxyPort, }, this.httpOptions);
+    }
+
+    testDockerInstance(id: number) {
+        return this._http.post(`${this.httpUrl}/testDockerInstance/${id}`, null, this.httpOptions);
+    }
+
+    getDockerInstance(id: number) {
+        return this._http.get(`${this.httpUrl}/getDockerInstance/${id}`);
+    }
+
+    getDockerInstances() {
+        return this._http.get(`${this.httpUrl}/getDockerInstances`);
+    }
+
+    updateDockerInstance(id: number, hostname: string, alias: string, registry: string) {
+        return this._http.post(`${this.httpUrl}/updateDockerInstance`, {'id': id.toString(), 'hostname': hostname, 'alias': alias, 'registry': registry}, this.httpOptions);
+    }
+
+    reconnectToDockerInstance(id: number) {
+        return this._http.post(`${this.httpUrl}/reconnectToDockerInstance`, {'id': id.toString()}, this.httpOptions);
+    }
+
+    removeDockerInstance(id: number) {
+        return this._http.post(`${this.httpUrl}/removeDockerInstance`, {'id': id.toString()}, this.httpOptions);
+    }
+
+    getAutoDockerStatus() {
+        return this._http.get(`${this.httpUrl}/getAutoDockerStatus`);
+    }
+
+    doAutoHandshake() {
+        return this._http.post(`${this.httpUrl}/doAutoHandshake`, "", this.httpOptions);
+    }
+
+    startHandshake(hostname: string) {
+        return this._http.post(`${this.httpUrl}/startHandshake`, hostname, this.httpOptions);
+    }
+
+    getHandshake(hostname: string) {
+        return this._http.get(`${this.httpUrl}/getHandshake/${new HttpUrlEncodingCodec().encodeKey(hostname)}`);
+    }
+
+    cancelHandshake(hostname: string) {
+        return this._http.post(`${this.httpUrl}/cancelHandshake`, hostname, this.httpOptions);
+    }
+
+    getDockerSettings() {
+        return this._http.get(`${this.httpUrl}/getDockerSettings/`);
+    }
+
+    changeDockerSettings(settings: DockerSettings) {
+        return this._http.post(`${this.httpUrl}/changeDockerSettings`, settings, this.httpOptions);
+    }
+
     getNameValidator(required: boolean = false) {
         if (required) {
             return [Validators.pattern('^[a-zA-Z_][a-zA-Z0-9_]*$'), Validators.required, Validators.max(100)];
@@ -603,6 +660,16 @@ export class CrudService {
 
     getValidationRegex() {
         return new RegExp('^[a-zA-Z_][a-zA-Z0-9_]*$');
+    }
+
+    getNamespaceValidationRegex() {
+        return new RegExp('^[a-z_][a-z0-9_]*$');
+    }
+
+    getAdapterNameValidationRegex() {
+        // TODO: re-enable underscores when graph namespaces work with it
+        //return new RegExp('^[a-z][a-z0-9_]*$');
+        return new RegExp('^[a-z][a-z0-9]*$');
     }
 
     nameIsValid(name: string) {
