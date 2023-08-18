@@ -9,6 +9,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {first} from 'rxjs/operators';
 import {ResultSet} from '../models/result-set.model';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
+import {CatalogService} from "../../../services/catalog.service";
 
 @Component({
     selector: 'app-data-carousel',
@@ -41,9 +42,10 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
         public _types: DbmsTypesService,
         public _settings: WebuiSettingsService,
         public _sidebar: LeftSidebarService,
+        public _catalog: CatalogService,
         public modalService: BsModalService
     ) {
-        super(_crud, _toast, _route, _router, _types, _settings, _sidebar, modalService);
+        super(_crud, _toast, _route, _router, _types, _settings, _sidebar, _catalog, modalService);
     }
 
     ngOnInit(): void {

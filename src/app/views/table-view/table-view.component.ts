@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TableConfig} from '../../components/data-view/data-table/table-config';
 import {CrudService} from '../../services/crud.service';
@@ -16,7 +16,8 @@ import {WebSocket} from '../../services/webSocket';
 })
 export class TableViewComponent implements OnInit, OnDestroy {
 
-    tableId = '';
+    @Input()
+    tableId = -1;
     currentPage = 1;
     resultSet: ResultSet;
     tableConfig: TableConfig = {
@@ -47,7 +48,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
         //listen to results
         this.initWebsocket();
 
-        this.tableId = this._route.snapshot.paramMap.get('id');
+        //this.tableId = this._route.snapshot.paramMap.get('id');
         if (this._route.snapshot.paramMap.get('page')) {
             this.currentPage = +this._route.snapshot.paramMap.get('page');
         } else {

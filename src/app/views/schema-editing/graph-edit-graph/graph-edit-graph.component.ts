@@ -1,4 +1,4 @@
-import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, HostListener, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
@@ -18,7 +18,10 @@ import {Subscription} from 'rxjs';
 
 export class GraphEditGraphComponent implements OnInit, OnDestroy {
 
-    graphId: string;
+    @Input()
+    graphId: number;
+    @Input()
+    graphName: string;
 
     resultSet: ResultSet;
     types: PolyType[] = [];
@@ -49,7 +52,6 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.getGraphId();
         this.getStores();
         this.getPlacements();
     }
@@ -68,7 +70,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
         }
     }
 
-    getGraphId() {
+    /*getGraphId() {
         this.graphId = this._route.snapshot.paramMap.get('id');
         const sub = this._route.params.subscribe((params) => {
             this.graphId = params['id'];
@@ -76,7 +78,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
             this.getPlacements();
         });
         this.subscriptions.add(sub);
-    }
+    }*/
 
 
     getStores() {
@@ -117,7 +119,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
             return;
         }
         this.isAddingPlacement = true;
-        this._crud.addDropGraphPlacement(this.graphId, this.selectedStore.uniqueName, method).subscribe(res => {
+        this._crud.addDropGraphPlacement(this.graphId, this.graphName, this.selectedStore.adapterId, method).subscribe(res => {
             const result = <ResultSet>res;
             if (result.error) {
                 this._toast.exception(result);
@@ -146,17 +148,16 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     }
 
     private getPlacements() {
-        this._crud.getGraphPlacements(this.graphId).subscribe(res => {
+        this._crud.getGraphPlacements(this.graphId, this.graphId, []).subscribe(res => {
+            console.log(res);
             this.dataPlacements = <GraphPlacements>res;
-            // This happens when we switch the namespace to a non-graph one on the sidebar,
-            // because it takes time for the parent component to replace us with the correct one.
-            //if (this.dataPlacements.exception) {
-            //    // @ts-ignore
-            //    this._toast.exception({
-            //        error: this.dataPlacements.exception.detailMessage,
-            //        exception: this.dataPlacements.exception
-            //    });
-            //}
+            if (this.dataPlacements.exception) {
+                // @ts-ignore
+                this._toast.exception({
+                    error: this.dataPlacements.exception.detailMessage,
+                    exception: this.dataPlacements.exception
+                });
+            }
         });
     }
 

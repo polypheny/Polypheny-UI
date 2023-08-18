@@ -2,10 +2,11 @@ import {EventEmitter, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpUrlEncodingCodec} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {
+    EntityMeta,
     Index,
     ModifyPartitionRequest,
     PartitionFunctionModel,
-    PartitioningRequest, PathAccessRequest
+    PartitioningRequest, PathAccessRequest, PlacementMeta
 } from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
@@ -308,22 +309,22 @@ export class CrudService {
     /**
      * Get data placement information
      */
-    getDataPlacements(schema: string, table: string) {
-        const index = new Index(schema, table, '', '', '', []);
-        return this._http.post(`${this.httpUrl}/getPlacements`, index, this.httpOptions);
+    getDataPlacements(namespaceId: number, entityId: number, fields: number[] = null) {
+        const meta = new EntityMeta(namespaceId, entityId, null, fields);
+        return this._http.post(`${this.httpUrl}/getPlacements`, meta, this.httpOptions);
     }
 
     /**
      * Get data placement information
      */
-    getCollectionPlacements(namespace: string, collection: string) {
-        const index = new Index(namespace, collection, '', '', '', []);
-        return this._http.post(`${this.httpUrl}/getCollectionPlacements`, index, this.httpOptions);
+    getCollectionPlacements(namespaceId: number, entityId: number, fields: number[]) {
+      const meta = new EntityMeta(namespaceId, entityId, null, fields);
+        return this._http.post(`${this.httpUrl}/getCollectionPlacements`, meta, this.httpOptions);
     }
 
-    getGraphPlacements(graph: string) {
-        const index = new Index(graph, '', '', '', '', []);
-        return this._http.post(`${this.httpUrl}/getGraphPlacements`, index, this.httpOptions);
+    getGraphPlacements(namespaceId: number, entityId: number, fields: number[]) {
+        const meta = new EntityMeta(namespaceId, entityId, null, fields);
+        return this._http.post(`${this.httpUrl}/getGraphPlacements`, meta, this.httpOptions);
     }
 
     getUnderlyingTable(request: TableRequest) {
@@ -334,15 +335,15 @@ export class CrudService {
     /**
      * Add or drop a placement
      */
-    addDropPlacement(schema: string, table: string, store: string, method: 'ADD' | 'DROP' | 'MODIFY', columns = []) {
-        const index = new Index(schema, table, null, store, method, columns);
-        return this._http.post(`${this.httpUrl}/addDropPlacement`, index, this.httpOptions);
+    addDropPlacement(namespaceId: number, entityId: number, storeId: number, method: 'ADD' | 'DROP' | 'MODIFY', columns = []) {
+        const meta = new PlacementMeta(namespaceId, entityId, null, storeId, method, columns);
+        return this._http.post(`${this.httpUrl}/addDropPlacement`, meta, this.httpOptions);
     }
 
     /**
      * Add or drop a placement
      */
-    addDropGraphPlacement(graph: string, store: string, method: 'ADD' | 'DROP') {
+    addDropGraphPlacement(graphId: number, graph: string, store: number, method: 'ADD' | 'DROP') {
         let code: string;
         switch (method) {
             case 'ADD':
@@ -352,7 +353,7 @@ export class CrudService {
                 code = `DROP PLACEMENT OF ${graph} ON STORE ${store}`;
                 break;
         }
-        const request = new QueryRequest(code, false, true, 'cypher', graph);
+        const request = new QueryRequest(code, false, true, 'cypher', graphId);
 
         return this._http.post(`${this.langUrl}/cypher`, request, this.httpOptions);
     }
@@ -360,7 +361,7 @@ export class CrudService {
     /**
      * Add or drop a placement
      */
-    addDropCollectionPlacement(namespace: string, collection: string, store: string, method: 'ADD' | 'DROP') {
+    addDropCollectionPlacement(namespaceId: number, collectionId: number, collection: string, store: string, method: 'ADD' | 'DROP') {
         let code: string;
         switch (method) {
             case 'ADD':
@@ -370,7 +371,7 @@ export class CrudService {
                 code = `db.${collection}.deletePlacement( "${store}" )`;
                 break;
         }
-        const request = new QueryRequest(code, false, true, 'cypher', namespace);
+        const request = new QueryRequest(code, false, true, 'cypher', namespaceId);
         return this._http.post(`${this.langUrl}/mql`, request, this.httpOptions);
     }
 
@@ -473,8 +474,8 @@ export class CrudService {
     }
 
 
-    renameTable(table: Index) {
-        return this._http.post(`${this.httpUrl}/renameTable`, table, this.httpOptions);
+    renameTable(meta: EntityMeta) {
+        return this._http.post(`${this.httpUrl}/renameTable`, meta, this.httpOptions);
     }
 
     /**
@@ -622,7 +623,7 @@ export class CrudService {
     }
 
     doAutoHandshake() {
-        return this._http.post(`${this.httpUrl}/doAutoHandshake`, "", this.httpOptions);
+        return this._http.post(`${this.httpUrl}/doAutoHandshake`, '', this.httpOptions);
     }
 
     startHandshake(hostname: string) {

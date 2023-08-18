@@ -5,7 +5,7 @@ import {CrudService} from '../../../services/crud.service';
 import {ResultSet} from '../../../components/data-view/models/result-set.model';
 import {QueryHistory} from './query-history.model';
 import {KeyValue} from '@angular/common';
-import {QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {NamespaceType, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {InformationObject, InformationPage} from '../../../models/information-page.model';
@@ -18,6 +18,7 @@ import {WebSocket} from '../../../services/webSocket';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToastService} from '../../../components/toast/toast.service';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
+import {CatalogService} from '../../../services/catalog.service';
 
 class Namespace {
     name: string;
@@ -54,7 +55,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     showSearch = false;
     historySearchQuery = '';
     confirmDeletingHistory;
-    activeNamespace: string;
+    activeNamespaceId: number;
+    activeNamespaceName: string;
     namespaces = [];
 
     tableConfig: TableConfig = {
@@ -65,7 +67,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         search: false,
         exploring: false
     };
-    private existingNamespaces: String[];
+    private existingNamespaces: string[];
     showNamespaceConfig: boolean;
 
     constructor(
@@ -76,7 +78,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         private _settings: WebuiSettingsService,
         public _util: UtilService,
         public modalService: BsModalService,
-        public _toast: ToastService
+        public _toast: ToastService,
+        public _catalog: CatalogService
     ) {
 
         this.websocket = new WebSocket(_settings);
@@ -162,10 +165,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
             if (code.match('show db')) {
                 this._crud.getDocumentDatabases().subscribe(res => {
-                    this.existingNamespaces = [];
-                    for (const entry of (<ResultSet>res).data) {
-                        this.existingNamespaces.push(entry[0]);
-                    }
+                    this.existingNamespaces = this._catalog.getNamespaceNames();
                     this.loading = false;
                     this.resultSets = [<ResultSet>res];
                 });
@@ -183,7 +183,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.queryAnalysis = null;
 
         this.loading = true;
-        if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.lang, this.activeNamespace))) {
+        if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.lang, this.activeNamespaceId))) {
             this.loading = false;
             this.resultSets = [new ResultSet('Could not establish a connection with the server.', code)];
         }
@@ -393,7 +393,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             this.namespaces.push(name);
         }
 
-        this.activeNamespace = name;
+        this.activeNamespaceId = this._catalog.getNamespaceFromName(name).id;
+        this.activeNamespaceName = name;
         localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
     }
 
@@ -429,6 +430,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     changedDefaultDB() {
-        this.setDefaultDB(this.activeNamespace);
+        this.setDefaultDB(this.activeNamespaceName);
     }
 }

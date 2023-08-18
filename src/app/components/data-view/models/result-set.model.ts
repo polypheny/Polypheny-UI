@@ -11,6 +11,7 @@ export class ResultSet {
     currentPage: number;
     highestPage: number;
     table: string;
+    tableId: number;
     tables: string[];
     error: string;
     exception: ResultException;
@@ -18,6 +19,7 @@ export class ResultSet {
     generatedQuery: string;
     type: string;//"table" or "view"
     namespaceName: string;
+    namespaceId: number;
     namespaceType = 'RELATIONAL';//"relational" or "document"
     language: string; //sql,mql,cql
     explorerId: number;
@@ -225,13 +227,36 @@ export class TableConstraint {
  */
 export class Index {
     constructor(
-        private schema: string,
-        private table: string,
+        private namespaceId: number,
+        private entityId: number,
         private name: string,
         private storeUniqueName: string,
         private method: string,
         private columns: string[]
     ) {
+    }
+}
+
+export class EntityMeta {
+    constructor(
+        namespaceId: number,
+        entityId: number,
+        entityName: string,
+        fields: number[] = []
+    ) {
+    }
+}
+
+export class PlacementMeta extends EntityMeta {
+    constructor(
+        namespaceId: number,
+        entityId: number,
+        entityName: string,
+        private adapterId: number,
+        private method: string,
+        fields: number[]
+    ) {
+        super(namespaceId,entityId, entityName, fields);
     }
 }
 

@@ -16,7 +16,7 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
 
 
     subscriptions = new Subscription();
-    tableId: string;
+    entityId: number;
     statisticSet: StatisticTableSet;
     alphabeticStatisticSet: StatisticColumnSet;
     numericalStatisticSet: StatisticColumnSet;
@@ -32,16 +32,15 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.tableId = this._route.snapshot.paramMap.get('id');
-        this.getTableStatistics(this.tableId);
+        this.getTableStatistics(this.entityId);
     }
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
     }
 
-    getTableStatistics(tableId: string) {
-        this._crud.getTableStatistics(new StatisticRequest(tableId)).subscribe(
+    getTableStatistics(entityId: number) {
+        this._crud.getTableStatistics(new StatisticRequest(entityId)).subscribe(
             res => {
                 this.statisticSet = <StatisticTableSet>res;
                 this.alphabeticStatisticSet = this.statisticSet.alphabeticColumn;

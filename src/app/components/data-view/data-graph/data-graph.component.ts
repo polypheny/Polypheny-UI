@@ -9,9 +9,10 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 import * as d3 from 'd3';
 import {ResultSet} from '../models/result-set.model';
-import {DataModels, GraphRequest} from '../../../models/ui-request.model';
+import {NamespaceType, GraphRequest} from '../../../models/ui-request.model';
 import {WebSocket} from '../../../services/webSocket';
 import {Subscription} from 'rxjs';
+import {CatalogService} from '../../../services/catalog.service';
 
 class Edge {
     id: string;
@@ -80,9 +81,10 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
         public _types: DbmsTypesService,
         public _settings: WebuiSettingsService,
         public _sidebar: LeftSidebarService,
+        public _catalog: CatalogService,
         public modalService: BsModalService
     ) {
-        super(_crud, _toast, _route, _router, _types, _settings, _sidebar, modalService);
+        super(_crud, _toast, _route, _router, _types, _settings, _sidebar, _catalog, modalService);
         this.subscriptions = new Subscription();
         this.webSocket = new WebSocket(_settings);
         this.initWebsocket();
@@ -664,10 +666,10 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
 
 
         this._crud.getTypeSchemas().subscribe(res => {
-            const model = <DataModels>res[resultSet.namespaceName];
-            if (model === DataModels.GRAPH) {
+            const model = <NamespaceType>res[resultSet.namespaceName];
+            if (model === NamespaceType.GRAPH) {
                 // is native
-                if (!this._crud.getGraph(this.webSocket, new GraphRequest(resultSet.namespaceName, nodeIds, edgeIds))) {
+                if (!this._crud.getGraph(this.webSocket, new GraphRequest(resultSet.namespaceId, nodeIds, edgeIds))) {
                     // is printed every time console.log('Could not retrieve the graphical representation of the graph.');
                 } else {
                     this.graphLoading = true;

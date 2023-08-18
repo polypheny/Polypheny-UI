@@ -26,9 +26,9 @@ import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 
 export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
 
-    collectionId: string;
+    collectionId: number;
     collection: string;
-    schema: string;
+    namespaceId: number;
     foreignKeys: ForeignKey[] = [];
 
     resultSet: ResultSet;
@@ -71,7 +71,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
 
-        this.getCollectionId();
+        //this.getCollectionId();
         this.getFixedFields();
         this.getStores();
         this.getPlacements();
@@ -91,7 +91,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         }
     }
 
-    getCollectionId() {
+    /*getCollectionId() {
         this.collectionId = this._route.snapshot.paramMap.get('id');
         const sub = this._route.params.subscribe((params) => {
             this.collectionId = params['id'];
@@ -105,7 +105,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
             }
         });
         this.subscriptions.add(sub);
-    }
+    }*/
 
     getFixedFields() {
         this._crud.getFixedFields(new ColumnRequest(this.collectionId)).subscribe(
@@ -269,36 +269,6 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         );
     }
 
-    getUml() {
-        this.foreignKeys = [];
-        if (!this.schema) {
-            this.foreignKeys = null;
-            return;
-        }
-        this._crud.getUml(new EditTableRequest(this.schema)).subscribe(
-            res => {
-
-                const uml: Uml = <Uml>res;
-                const fks = new Map<string, ForeignKey>();
-
-                uml.foreignKeys.forEach((v, k) => {
-                    if ((v.sourceSchema + '.' + v.sourceTable) === this.collectionId) {
-                        if (fks.has(v.fkName)) {
-                            const fk = fks.get(v.fkName);
-                            fk.targetColumn = fk.targetColumn + ', ' + v.targetColumn;
-                            fk.sourceColumn = fk.sourceColumn + ', ' + v.sourceColumn;
-                        } else {
-                            fks.set(v.fkName, v);
-                        }
-                        this.foreignKeys = [...fks.values()];
-                    }
-                });
-            }, err => {
-                console.log(err);
-            }
-        );
-    }
-
 
     getStores() {
         this._crud.getStores().subscribe(
@@ -330,7 +300,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     }
 
     getPlacements() {
-        this._crud.getCollectionPlacements(this.schema, this.collection).subscribe(
+        this._crud.getCollectionPlacements(this.namespaceId, this.collectionId, []).subscribe(
             res => {
                 this.dataPlacements = <Placements>res;
 
@@ -356,7 +326,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
             return;
         }
         this.isAddingPlacement = true;
-        this._crud.addDropCollectionPlacement(this.schema, this.collection, this.selectedStore.uniqueName, this.placementMethod).subscribe(
+        this._crud.addDropCollectionPlacement(this.namespaceId, this.collectionId, this.collection, this.selectedStore.uniqueName, this.placementMethod).subscribe(
             res => {
                 const result = <ResultSet>res;
                 if (result.error) {
@@ -378,18 +348,18 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         });
     }
 
-    dropPlacement(store: string) {
-        this._crud.addDropPlacement(this.schema, this.collection, store, 'DROP').subscribe(
+    dropPlacement(storeId: number, storeName: string) {
+        this._crud.addDropPlacement(this.namespaceId, this.collectionId, storeId, 'DROP').subscribe(
             res => {
                 const result = <ResultSet>res;
                 if (result.error) {
                     this._toast.exception(result);
                 } else {
-                    this._toast.success('Dropped placement on store ' + store, result.generatedQuery, 'Dropped placement');
+                    this._toast.success('Dropped placement on store ' + storeName, result.generatedQuery, 'Dropped placement');
                     this.getPlacements();
                 }
             }, err => {
-                this._toast.error('Could not drop placement on store ' + store, 'Error');
+                this._toast.error('Could not drop placement on store ' + storeName, 'Error');
             }
         );
     }

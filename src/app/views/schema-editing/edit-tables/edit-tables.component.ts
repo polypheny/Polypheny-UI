@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DbColumn, Index, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
+import {DbColumn, EntityMeta, Index, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -24,8 +24,11 @@ const INITIAL_TYPE = 'BIGINT';
 export class EditTablesComponent implements OnInit, OnDestroy {
 
     types: PolyType[] = [];
-    schema: string;
-    schemaType: string;
+    namespaceId: number;
+    namespaceName: string;
+    namespaceType: string;
+    entityId: number;
+
     tables: TableModel[] = [];
 
     counter = 0;
@@ -62,10 +65,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
-        this.schema = this._route.snapshot.paramMap.get('id');
+        //this.schema = this._route.snapshot.paramMap.get('id');
         const sub1 = this._route.params.subscribe((params) => {
-            this.schema = params['id'];
-            this.getSchemaType();
+            // this.schema = params['id'];
+            //this.getSchemaType();
             this.getTables();
         });
         this.subscriptions.add(sub1);
@@ -107,7 +110,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }
 
     getTables() {
-        this._crud.getTables(new EditTableRequest(this.schema)).subscribe(
+        this._crud.getTables(new EditTableRequest(this.namespaceId)).subscribe(
             res => {
                 const result = <DbTable[]>res;
                 this.tables = [];
@@ -131,7 +134,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             });
     }
 
-    getSchemaType() {
+    /*getSchemaType() {
         this._crud.getTypeSchemas().subscribe(
             res => {
                 this.schemaType = res[this.schema];
@@ -140,7 +143,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
                 console.log(error);
             }
         );
-    }
+    }*/
 
     /**
      * get the right class for the 'drop' and 'truncate' buttons
@@ -163,10 +166,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         let type: string;
         if (this.dropTruncateClass(action, table) === 'btn-danger') {
             if (table.tableType !== 'VIEW') {
-                request = new EditTableRequest(this.schema, table.name, action);
+                request = new EditTableRequest(this.namespaceId, this.entityId, action);
                 type = ' the Table ';
             } else {
-                request = new EditTableRequest(this.schema, table.name, action, null, null, 'VIEW');
+                request = new EditTableRequest(this.namespaceId, this.entityId, action, null, null, 'VIEW');
                 type = ' the View ';
             }
 
@@ -204,7 +207,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             return;
         }
         if (this.tables.filter((t) => {
-            if (this.schemaType.toLowerCase() === 'relational') {
+            if (this.namespaceType.toLowerCase() === 'relational') {
                 return t.name.toLowerCase() === this.newTableName.toLowerCase();
             }
             return t.name === this.newTableName;
@@ -247,7 +250,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             this._toast.warn('Please make sure all column names are valid. The new table was not created.', 'invalid column name', ToastDuration.INFINITE);
             return;
         }
-        const request = new EditTableRequest(this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore);
+        const request = new EditTableRequest(this.namespaceId, null, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore);
         this.creatingTable = true;
         this._crud.createTable(request).subscribe(
             res => {
@@ -255,7 +258,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
                 if (result.error) {
                     this._toast.exception(result, 'Could not generate table:');
                 } else {
-                    this._toast.success('Generated table ' + request.table, result.generatedQuery);
+                    this._toast.success('Generated table ' + request.entityId, result.generatedQuery);
                     this.newColumns.clear();
                     this.counter = 0;
                     this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
@@ -272,14 +275,14 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }
 
     renameTable(table: TableModel) {
-        const t = new Index(this.schema, table.name, table.newName, null, null, null);
+        const meta = new EntityMeta(this.namespaceId, this.entityId, table.newName, []);
         let type;
         if (table.tableType === 'VIEW') {
             type = ' View ';
         } else {
             type = ' Table ';
         }
-        this._crud.renameTable(t).subscribe(
+        this._crud.renameTable(meta).subscribe(
             res => {
                 const r = <ResultSet>res;
                 if (r.exception) {
@@ -325,7 +328,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         if (name === '') {
             return '';
         } else if (regex.test(name) && name.length <= 100 && this.tables.filter((t) => {
-            if (this.schemaType.toLowerCase() === 'relational') {
+            if (this.namespaceType.toLowerCase() === 'relational') {
                 return t.name.toLowerCase() === name.toLowerCase();
             }
             return t.name === name;

@@ -4,7 +4,7 @@ import {Node} from '../views/querying/relational-algebra/relational-algebra.mode
 
 export class UIRequest {
   requestType = 'UIRequest';
-  tableId: string;
+  entityId: number;
   currentPage: number;
   data: Map<string, string>;
   filter: Map<string, string>;
@@ -16,9 +16,9 @@ export class UIRequest {
 export class TableRequest extends UIRequest {
   requestType = 'TableRequest';
 
-  constructor(tableId: string, currentPage: number, filter: any = null, sortState: any = null) {
+  constructor(entityId: number, currentPage: number, filter: any = null, sortState: any = null) {
     super();
-    this.tableId = tableId;
+    this.entityId = entityId;
     this.currentPage = currentPage;
     this.filter = filter;
     this.sortState = sortState;
@@ -60,16 +60,16 @@ export class QueryRequest extends UIRequest {
   query: string;
   analyze: boolean;
   language: string;
-  database: string;
+  namespaceId: number;
   cache: boolean;
 
-  constructor(query: string, analyze: boolean, cache: boolean, lang: string, database: string) {
+  constructor(query: string, analyze: boolean, cache: boolean, lang: string, namespaceId: number) {
     super();
     this.query = query;
     this.analyze = analyze;
     this.cache = cache;
     this.language = lang;
-    this.database = database;
+    this.namespaceId = namespaceId;
     return this;
   }
 }
@@ -77,13 +77,11 @@ export class QueryRequest extends UIRequest {
 
 export class GraphRequest extends QueryRequest {
   requestType = 'GraphRequest';
-  private namespaceName: string;
   private nodeIds: string[];
   private edgeIds: string[];
 
-  constructor(namespaceName: string, nodeIds: Set<string>, edgeIds: Set<string>) {
-    super('MATCH * RETURN *', false, false, 'CYPHER', namespaceName);
-    this.namespaceName = namespaceName;
+  constructor(namespaceId: number, nodeIds: Set<string>, edgeIds: Set<string>) {
+    super('MATCH * RETURN *', false, false, 'CYPHER', namespaceId);
     this.nodeIds = Array.from(nodeIds);
     this.edgeIds = Array.from(edgeIds);
   }
@@ -165,9 +163,9 @@ export class ExploreTable extends UIRequest {
 
 
 export class StatisticRequest extends UIRequest {
-  constructor(tableId?: string) {
+  constructor(entityId?: number) {
     super();
-    this.tableId = tableId || null;
+    this.entityId = entityId || null;
     return this;
   }
 }
@@ -189,9 +187,9 @@ export class SchemaTypeRequest extends UIRequest {
 }
 
 export class DeleteRequest extends UIRequest {
-  constructor(tableId: string, data: any) {
+  constructor(entityId: number, data: any) {
     super();
-    this.tableId = tableId;
+    this.entityId = entityId;
     this.data = data;
   }
 }
@@ -202,9 +200,9 @@ export class DeleteRequest extends UIRequest {
  * @param filter the previous values of the row, to find the row that should be updated
  */
 export class UpdateRequest extends UIRequest {
-  constructor(tableId: string, data: any, filter: any) {
+  constructor(entityId: number, data: any, filter: any) {
     super();
-    this.tableId = tableId;
+    this.entityId = entityId;
     this.data = data;
     this.filter = filter;
   }
@@ -224,9 +222,9 @@ export class SchemaRequest extends UIRequest {
    */
   showTable: boolean;
   schemaEdit: boolean;
-  dataModels: DataModels[];
+  dataModels: NamespaceType[];
 
-  constructor(routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: DataModels[] = [DataModels.RELATIONAL, DataModels.DOCUMENT, DataModels.GRAPH]) {
+  constructor(routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: NamespaceType[] = [NamespaceType.RELATIONAL, NamespaceType.DOCUMENT, NamespaceType.GRAPH]) {
     super();
     this.routerLinkRoot = routerLinkRoot;
     this.views = views;
@@ -243,9 +241,9 @@ export class ColumnRequest extends UIRequest {
   renameOnly: boolean;
   tableType: string;
 
-  constructor(tableId: string, oldColumn: DbColumn = null, newColumn: DbColumn = null, renameOnly = false, tableType: string = 'table') {
+  constructor(entityId: number, oldColumn: DbColumn = null, newColumn: DbColumn = null, renameOnly = false, tableType: string = 'table') {
     super();
-    this.tableId = tableId;
+    this.entityId = entityId;
     this.oldColumn = oldColumn;
     this.newColumn = newColumn;
     this.renameOnly = renameOnly;
@@ -254,13 +252,13 @@ export class ColumnRequest extends UIRequest {
 }
 
 export class MaterializedRequest extends UIRequest {
-  constructor(tableId: string) {
+  constructor(entityId: number) {
     super();
-    this.tableId = tableId;
+    this.entityId = entityId;
   }
 }
 
-export enum DataModels {
+export enum NamespaceType {
   DOCUMENT = 'document',
   RELATIONAL = 'relational',
   GRAPH = 'graph'
@@ -273,16 +271,18 @@ export enum DataModels {
  * and when you want to create a new table
  */
 export class EditTableRequest {
-  schema: string;
-  table: string;
+  namespaceId: number;
+  entityId: number;
+  entityName: string;
   action: string;//truncate / drop
   columns: DbColumn[];
   store: string;
   tableType: string;
 
-  constructor(schema: string, table: string = null, action: string = null, columns: DbColumn[] = null, store: string = null, tableType: string = null) {
-    this.schema = schema;
-    this.table = table;
+  constructor(namespaceId: number, entityId: number = null, entityName: string = null, action: string = null, columns: DbColumn[] = null, store: string = null, tableType: string = null) {
+    this.namespaceId = namespaceId;
+    this.entityId = entityId;
+    this.entityName = entityName;
     this.action = action;
     this.columns = columns;
     this.store = store;
@@ -295,14 +295,16 @@ export class EditTableRequest {
 }
 
 export class EditCollectionRequest {
-  database: string;
-  collection: string;
+  namespaceId: number;
+  entityName: string;
+  entityId: number;
   action: string;
   store: string;
 
-  constructor(database: string, collection: string = null, action: string = null, store: string = null) {
-    this.database = database;
-    this.collection = collection;
+  constructor(namespaceId: number, entityName: string = null, entityId: number = null, action: string = null, store: string = null) {
+    this.namespaceId = namespaceId;
+    this.entityName = entityName;
+    this.entityId = entityId;
     this.action = action;
     this.store = store;
   }
@@ -312,7 +314,7 @@ export class EditCollectionRequest {
  * Request to drop or create a constraint of a table
  */
 export class ConstraintRequest {
-  constructor(private table: string, private constraint: TableConstraint) {
+  constructor(private entityId: number, private constraint: TableConstraint) {
   }
 }
 

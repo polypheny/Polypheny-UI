@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditCollectionRequest, EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DbColumn, Index, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
+import {DbColumn, EntityMeta, Index, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -22,8 +22,9 @@ import {DbTable} from '../../uml/uml.model';
 export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 
   types: PolyType[] = [];
-  database: string;
-  schemaType: string;
+  namespaceId: number;
+  namespacName: string;
+  namespaceType: string;
   tables: TableModel[] = [];
 
   counter = 0;
@@ -60,10 +61,10 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.newColumns.set(this.counter++, new DbColumn('', true, false, '', '', null, null));
-    this.database = this._route.snapshot.paramMap.get('id');
+    //this.database = this._route.snapshot.paramMap.get('id');
     const sub1 = this._route.params.subscribe((params) => {
-      this.database = params['id'];
-      this.getSchemaType();
+      //this.database = params['id'];
+      //this.getSchemaType();
       this.getTables();
     });
     this.subscriptions.add(sub1);
@@ -105,7 +106,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   }
 
   getTables() {
-    this._crud.getTables(new EditTableRequest(this.database)).subscribe(
+    this._crud.getTables(new EditTableRequest(this.namespaceId)).subscribe(
         res => {
           const result = <DbTable[]>res;
           this.tables = [];
@@ -130,13 +131,13 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   }
 
   getSchemaType() {
-    this._crud.getTypeSchemas().subscribe(
+    /*this._crud.getTypeSchemas().subscribe(
         res => {
-          this.schemaType = res[this.database];
+          this.n = res[this.database];
         }, error => {
           console.log(error);
         }
-    );
+    );*/
   }
 
   /**
@@ -158,7 +159,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   sendRequest(action, table: TableModel) {
     let request;
     if (this.dropTruncateClass(action, table) === 'btn-danger') {
-      request = new EditTableRequest(this.database, table.name, action);
+      request = new EditTableRequest(this.namespaceId, table.id, action);
     } else {
       return;
     }
@@ -197,7 +198,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
       this._toast.warn('A collection with this name already exists. Please choose another name.', 'invalid collection name', ToastDuration.INFINITE);
       return;
     }
-    const request = new EditCollectionRequest(this.database, this.newTableName, 'create', this.selectedStore);
+    const request = new EditCollectionRequest(this.namespaceId, this.newTableName, null, 'create', this.selectedStore);
     this.creatingTable = true;
     this._crud.createCollection(request).subscribe(
         res => {
@@ -205,7 +206,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
           if (result.error) {
             this._toast.exception(result, 'Could not generate collection:');
           } else {
-            this._toast.success('Generated collection ' + request.collection, result.generatedQuery);
+            this._toast.success('Generated collection ' + request.entityName, result.generatedQuery);
             this.newColumns.clear();
             this.counter = 0;
             this.newColumns.set(this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null));
@@ -222,7 +223,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   }
 
   renameTable(table: TableModel) {
-    const t = new Index(this.database, table.name, table.newName, null, null, null);
+    const t = new EntityMeta(this.namespaceId, table.id, table.newName, []);
     this._crud.renameTable(t).subscribe(
         res => {
           const r = <ResultSet>res;
@@ -307,6 +308,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 }
 
 class TableModel {
+  id: number;
   name: string;
   truncate = '';
   drop = '';

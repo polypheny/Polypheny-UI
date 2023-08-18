@@ -3,6 +3,7 @@ import {CrudService} from '../../services/crud.service';
 import {MonitoringRequest, StatisticRequest} from '../../models/ui-request.model';
 import {DashboardData, DashboardSet} from '../../components/data-view/models/result-set.model';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
+import {CatalogService} from '../../services/catalog.service';
 
 
 @Component({
@@ -35,7 +36,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     constructor(
         public _crud: CrudService,
-        private _breadcrumb: BreadcrumbService
+        private _breadcrumb: BreadcrumbService,
+        public _catalog: CatalogService
     ) {
     }
 
@@ -46,6 +48,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.getDiagram('all');
         this.getDashboardInformation();
         this.checkIfInformationAvailable();
+        
+        this._catalog.updateNamespaces();
     }
 
     ngOnDestroy() {

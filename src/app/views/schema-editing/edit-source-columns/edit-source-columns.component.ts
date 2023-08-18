@@ -9,6 +9,7 @@ import {Placements, UnderlyingTables} from '../../adapters/adapter.model';
 import {Subscription} from 'rxjs';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {ForeignKey, Uml} from '../../../views/uml/uml.model';
+import {CatalogService} from '../../../services/catalog.service';
 
 @Component({
     selector: 'app-edit-source-columns',
@@ -18,8 +19,8 @@ import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
     resultSet: ResultSet;
-    tableId: string;
-    schema: string;
+    entityId: number;
+    namespaceId: number;
     exportedColumns: Map<string, ResultSet> = new Map<string, ResultSet>();
     errorMsg: string;
     editingCol: string;
@@ -32,14 +33,15 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         private _crud: CrudService,
         private _route: ActivatedRoute,
         private _toast: ToastService,
-        public _types: DbmsTypesService
+        public _types: DbmsTypesService,
+        public _catalog: CatalogService
     ) {
     }
 
     ngOnInit(): void {
-        this.tableId = this._route.snapshot.paramMap.get('id');
+        //this.tableId = this._route.snapshot.paramMap.get('id');
         const sub = this._route.params.subscribe((params) => {
-            this.tableId = params['id'];
+            //this.tableId = params['id'];
             this.fetchCurrentColumns();
             this.getUml();
             this.getPlacements();
@@ -65,7 +67,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     }
 
     fetchCurrentColumns() {
-        this._crud.getDataSourceColumns(new TableRequest(this.tableId, null, null, null)).subscribe(
+        this._crud.getDataSourceColumns(new TableRequest(this.entityId, null, null, null)).subscribe(
             res => {
                 this.resultSet = <ResultSet>res;
             }, err => {
@@ -75,7 +77,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     }
 
     fetchExportedColumns() {
-        this._crud.getAvailableSourceColumns(new TableRequest(this.tableId, null, null, null)).subscribe(
+        this._crud.getAvailableSourceColumns(new TableRequest(this.entityId, null, null, null)).subscribe(
             res => {
                 const tables = <ResultSet[]>res;
                 for (const table of tables) {
@@ -90,10 +92,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
     getAddableColumns(): DbColumn[] {
         const cols: DbColumn[] = [];
-        if (!this.exportedColumns || !this.tableId || !this.tableId.includes('.')) {
+        if (!this.exportedColumns || !this.entityId /*|| !this.tableId.includes('.')*/) {
             return [];
         }
-        const tableName = this.tableId.split('.')[1];
+        const tableName = this._catalog.getEntity(this.entityId).name;//this.tableId.split('.')[1];
         const table = this.exportedColumns.get(tableName);
         if (table) {
             for (const col of table.header) {
@@ -106,7 +108,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     }
 
     dropColumn(col: DbColumn) {
-        this._crud.dropColumn(new ColumnRequest(this.tableId, col)).subscribe(
+        this._crud.dropColumn(new ColumnRequest(this.entityId, col)).subscribe(
             res => {
                 const result = <ResultSet>res;
                 if (result.error) {
@@ -128,7 +130,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         }
         const newCol = Object.assign({}, oldCol);
         newCol.name = newName;
-        const request = new ColumnRequest(this.tableId, oldCol, newCol, true, tabletype);
+        const request = new ColumnRequest(this.entityId, oldCol, newCol, true, tabletype);
         this._crud.updateColumn(request).subscribe(
             res => {
                 const result = <ResultSet>res;
@@ -147,7 +149,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     }
 
     addColumn(col: DbColumn, newName: string, newDefault: string) {
-        const request = new ColumnRequest(this.tableId, null, new DbColumn(col.physicalName, null, null, col.dataType, '', null, null, newDefault, -1, -1, newName));
+        const request = new ColumnRequest(this.entityId, null, new DbColumn(col.physicalName, null, null, col.dataType, '', null, null, newDefault, -1, -1, newName));
         this._crud.addColumn(request).subscribe(
             res => {
                 const result = <ResultSet>res;
@@ -166,7 +168,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     }
 
     getUnderlyingTables() {
-        this._crud.getUnderlyingTable(new TableRequest(this.tableId, null, null, null)).subscribe(
+        this._crud.getUnderlyingTable(new TableRequest(this.entityId, null, null, null)).subscribe(
             res => {
                 const tables = <UnderlyingTables>res;
                 this.underlyingTables = tables.underlyingTable;
@@ -179,11 +181,11 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
 
     getPlacements() {
-        if (!this.tableId || !this.tableId.includes('.')) {
+        /*if (!this.entityId || !this.tableId.includes('.')) {
             return;
-        }
-        const t = this.tableId.split('.');
-        this._crud.getDataPlacements(t[0], t[1]).subscribe(
+        }*/
+        //const t = this.tableId.split('.');
+        this._crud.getDataPlacements(this.namespaceId, this.entityId).subscribe(
             res => {
                 this.dataPlacement = <Placements>res;
                 if (this.dataPlacement.tableType === 'VIEW') {
@@ -198,20 +200,20 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
     getUml() {
         this.foreignKeys = [];
-        const t = this.tableId.split('\.');
+        /*const t = this.tableId.split('\.');
         this.schema = t[0];
         if (!this.schema) {
             this.foreignKeys = null;
             return;
-        }
-        this._crud.getUml(new EditTableRequest(this.schema)).subscribe(
+        }*/
+        this._crud.getUml(new EditTableRequest(this.namespaceId)).subscribe(
             res => {
 
                 const uml: Uml = <Uml>res;
                 const fks = new Map<string, ForeignKey>();
 
                 uml.foreignKeys.forEach((v, k) => {
-                    if ((v.sourceSchema + '.' + v.sourceTable) === this.tableId) {
+                    if ((v.sourceSchema + '.' + v.sourceTable) === this._catalog.getFullEntityName(this.entityId)) {
                         if (fks.has(v.fkName)) {
                             const fk = fks.get(v.fkName);
                             fk.targetColumn = fk.targetColumn + ', ' + v.targetColumn;

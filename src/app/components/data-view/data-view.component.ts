@@ -31,6 +31,7 @@ import {TableModel} from '../../views/schema-editing/edit-tables/edit-tables.com
 import {Store} from '../../views/adapters/adapter.model';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
 import {FormGroup} from '@angular/forms';
+import {CatalogService} from '../../services/catalog.service';
 
 export class ViewInformation {
     freshness: string;
@@ -72,6 +73,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         public _types: DbmsTypesService,
         public _settings: WebuiSettingsService,
         public _sidebar: LeftSidebarService,
+        public _catalog: CatalogService,
         public modalService: BsModalService
     ) {
         this.webSocket = new WebSocket(_settings);
@@ -81,7 +83,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
     @Input() resultSet: ResultSet;
     @Input() config: TableConfig;
-    @Input() tableId?: string;
+    @Input() tableId?: number;
     @Input() loading?: boolean;
     @ViewChild('createView', {static: false}) public createView: TemplateRef<any>;
     @ViewChild('viewEditor', {static: false}) viewEditor;
@@ -276,7 +278,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
             rowMap.set(this.resultSet.header[key].name, val);
         });
         const row = this.mapToObject(rowMap);
-        const request = new DeleteRequest(this.resultSet.table, row);
+        const request = new DeleteRequest(this.resultSet.tableId, row);
         const emitResult = new EventEmitter<ResultSet>();
         this._crud.deleteRow(request).subscribe(
             res => {
@@ -482,11 +484,12 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private adjustDocument(method: 'ADD' | 'MODIFY' | 'DELETE', initialData: string = '') {
+        const entity = this._catalog.getEntity(this.tableId);
         switch (method) {
             case 'ADD':
                 const data = this.insertValues.get('d');
-                const add = `db.${this.getCollection()}.insert(${data})`;
-                this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.resultSet.namespaceName));
+                const add = `db.${entity.name}.insert(${data})`;
+                this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.resultSet.namespaceId ));
                 this.insertValues.clear();
                 this.getTable();
                 break;
@@ -499,8 +502,8 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
                 const updated = this.updateValues.get('d');
                 const parsed = JSON.parse(updated);
                 if (parsed.hasOwnProperty('_id')) {
-                    const modify = `db.${this.getCollection()}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;
-                    this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.resultSet.namespaceName));
+                    const modify = `db.${entity.name}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;
+                    this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.resultSet.namespaceId));
                     this.insertValues.clear();
                     this.getTable();
                 }
@@ -508,8 +511,8 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
             case 'DELETE':
                 const parsedDelete = JSON.parse(initialData);
                 if (parsedDelete.hasOwnProperty('_id')) {
-                    const modify = `db.${this.getCollection()}.deleteMany({"_id": "${parsedDelete['_id']}" })`;
-                    this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.resultSet.namespaceName));
+                    const modify = `db.${entity.name}.deleteMany({"_id": "${parsedDelete['_id']}" })`;
+                    this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.resultSet.namespaceId));
                     this.insertValues.clear();
                     this.getTable();
                 }
@@ -826,8 +829,8 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
 
     private getCollection() {
-        const split = this.tableId.split('.');
-        return split[split.length - 1];
+        //const split = this.tableId.split('.');
+        //return split[split.length - 1];
     }
 }
 

@@ -9,7 +9,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import * as $ from 'jquery';
-import {DataModels, EditTableRequest, QueryExplorationRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {NamespaceType, EditTableRequest, QueryExplorationRequest, SchemaRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ResultSet} from '../../../components/data-view/models/result-set.model';
@@ -108,7 +108,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     }
 
     initSchema() {
-        this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [DataModels.RELATIONAL])).subscribe(
+        this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [NamespaceType.RELATIONAL])).subscribe(
             res => {
                 const nodeAction = (tree, node, $event) => {
                     if (!node.isActive && node.isLeaf) {

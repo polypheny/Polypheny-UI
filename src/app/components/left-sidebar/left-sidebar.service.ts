@@ -49,7 +49,7 @@ export class LeftSidebarService {
             return 1;
         }
         return 0;
-    };
+    }
 
     private mapPages(res: Object, mode: string) {
         const pages = <JavaPage[]>res;
