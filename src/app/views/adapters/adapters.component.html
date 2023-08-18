@@ -111,6 +111,12 @@
             <ng-container
                     *ngTemplateOutlet="adapterTemplate; context:{adapters: sources, type: 'source'}"></ng-container>
         </div>
+        <div>
+            <button (click)="fetchEventCacheStatus()">Fetch Event Cache Status</button>
+            <div *ngIf="cachingStatus">
+                <pre>{{ cachingStatus | json }}</pre>
+            </div>
+        </div>
     </div>
 
 </ng-container>

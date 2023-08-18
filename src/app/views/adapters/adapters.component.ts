@@ -49,6 +49,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     handshaking = false;
 
     subgroups = new Map<string, string>();
+    cachingStatus : any;
 
     @ViewChild('adapterSettingsModal', {static: false}) public adapterSettingsModal: ModalDirective;
     private allSettings: AdapterSetting[];
@@ -603,6 +604,18 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     onChange(key: string, value: AbstractControl) {
         this.subgroups.set(key, value.value);
+    }
+
+    fetchEventCacheStatus() {
+        this._crud.getEventCacheStatus().subscribe(
+            res => {
+              this.cachingStatus = res;
+              console.log("Status", res); // This should log the actual data from the backend
+            },
+            error => {
+              console.error('There was an error:', error);
+            }
+          );
     }
 
 }

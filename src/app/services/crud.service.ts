@@ -698,4 +698,8 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/loadPlugins`, formData);
     }
 
+    getEventCacheStatus() {
+        return this._http.get(`${this.httpUrl}/getEventCacheStatus`);
+    }
+
 }
