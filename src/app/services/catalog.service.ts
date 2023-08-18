@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {EntityModel, IdEntity, NamespaceModel, NamespaceRequest} from '../models/catalog.model';
+import {EntityModel, IdEntity, NamespaceModel, NamespaceRequest, SnapshotModel} from '../models/catalog.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +13,8 @@ export class CatalogService {
   private entities = new Map<number, EntityModel>();
   private httpUrl = this._settings.getConnection('crud.rest');
   private httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
+  private snapshot: SnapshotModel;
+  private currentSnapshotId = -1;
 
   constructor(
       private _http: HttpClient,
@@ -27,6 +29,14 @@ export class CatalogService {
       this.namespaces = this.toIdMap(<NamespaceModel[]>res);
       this.namespacesNames = this.toNameMap(<NamespaceModel[]>res);
       console.log(this.namespaces);
+    });
+  }
+
+  updateSnapshot() {
+    this._http.get(`${this.httpUrl}/getSnapshot`).subscribe(res => {
+      this.snapshot = <SnapshotModel>res;
+      this.currentSnapshotId = this.snapshot.id;
+      console.log(this.snapshot);
     });
   }
 

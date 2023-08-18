@@ -49,7 +49,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.getDashboardInformation();
         this.checkIfInformationAvailable();
         
-        this._catalog.updateNamespaces();
+        this._catalog.updateSnapshot();
     }
 
     ngOnDestroy() {

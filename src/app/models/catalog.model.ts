@@ -7,16 +7,22 @@ export interface IdEntity{
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface NamespaceModel extends IdEntity{
+export interface NamespaceModel extends IdEntity {
 
 }
 
-export interface EntityModel extends IdEntity{
+export interface EntityModel extends IdEntity {
   namespaceId: number;
   entityType: EntityType;
 }
 
-export enum EntityType{
+export interface SnapshotModel {
+  id: number;
+  namespace: NamespaceModel[];
+  entities: EntityModel[];
+}
+
+export enum EntityType {
   ENTITY,
   SOURCE,
   VIEW,
