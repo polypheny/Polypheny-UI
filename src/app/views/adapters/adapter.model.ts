@@ -82,6 +82,13 @@ export interface CatalogColumnPlacement {
     columnId;
 }
 
+export interface CachingStatus {
+    [key: string]: {
+        percent: number;
+        state: 'INITIALIZED' | 'PROCESSING' | 'DONE';
+    };
+}
+
 export enum PlacementType {
     MANUAL = 'MANUAL', AUTOMATIC = 'AUTOMATIC'
 }

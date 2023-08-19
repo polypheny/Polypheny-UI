@@ -65,7 +65,9 @@
                     <span *ngIf="adapter.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
                     <span *ngIf="adapter.currentSettings.hasOwnProperty('host') && adapter.currentSettings.hasOwnProperty('port')">{{adapter.currentSettings['host']}}
                         <span *ngIf="adapter.currentSettings['mode'] === 'remote'">: {{adapter.currentSettings['port']}}</span></span>
-
+                    <div *ngIf="adapter.adapterName === 'Ethereum' && cachingStatus" class="info-bar" [class]="getCacheStatusClass(cachingStatus)">
+                        {{ percentage == null || percentage === 0 ? 'Initializing' : (percentage + '%') }}
+                    </div>
                 </div>
                 <div class="card-footer bg-transparent">
                     <button class="btn btn-danger" (click)="removeAdapter(adapter)"
@@ -110,12 +112,6 @@
         <div class="row adapters">
             <ng-container
                     *ngTemplateOutlet="adapterTemplate; context:{adapters: sources, type: 'source'}"></ng-container>
-        </div>
-        <div>
-            <button (click)="fetchEventCacheStatus()">Fetch Event Cache Status</button>
-            <div *ngIf="cachingStatus">
-                <pre>{{ cachingStatus | json }}</pre>
-            </div>
         </div>
     </div>
 

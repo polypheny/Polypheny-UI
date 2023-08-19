@@ -130,3 +130,23 @@
 select.ng-invalid {
   border: 1px red solid;
 }
+
+.info-bar {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  margin: 10px 0;
+
+  &.initialized {
+      background-color: blue;
+  }
+
+  &.processing {
+      background-color: orange;
+  }
+
+  &.done {
+      background-color: green;
+  }
+}

@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Adapter, AdapterInformation, AdapterSetting, Source, Store} from './adapter.model';
+import {Adapter, AdapterInformation, AdapterSetting, CachingStatus, Source, Store} from './adapter.model';
 import {ToastService} from '../../components/toast/toast.service';
 import {
     AbstractControl,
@@ -14,7 +14,8 @@ import {
     Validators
 } from '@angular/forms';
 import {PathAccessRequest, ResultSet} from '../../components/data-view/models/result-set.model';
-import {Subscription} from 'rxjs';
+import {Subscription, interval} from 'rxjs';
+import {switchMap, takeWhile, tap} from 'rxjs/operators';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({
@@ -49,7 +50,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     handshaking = false;
 
     subgroups = new Map<string, string>();
-    cachingStatus : any;
+
+    private statusSubscriptions = new Subscription();
+    cachingStatus : CachingStatus;
+    percentage : number;
 
     @ViewChild('adapterSettingsModal', {static: false}) public adapterSettingsModal: ModalDirective;
     private allSettings: AdapterSetting[];
@@ -93,6 +97,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
+        this.statusSubscriptions.unsubscribe();
     }
 
     getStoresAndSources() {
@@ -108,6 +113,14 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this._crud.getSources().subscribe(
             res => {
                 this.sources = <Source[]>res;
+                // check if Ethereum is deployed (works only for one instance of Ethereum for now)
+                const ethereumAdapter = this.sources.find(store => store.adapterName === 'Ethereum');
+                if (ethereumAdapter) {
+                    const isCachingEnabled = ethereumAdapter.currentSettings["Caching"] === "true";
+                    if (isCachingEnabled) {
+                        this.fetchEventCacheStatus('Ethereum');
+                    }
+                }
             }, err => {
                 console.log(err);
             }
@@ -453,7 +466,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             }, err => {
                 this._toast.error('Could not deploy adapter');
             }
-        ).add(() => this.deploying = false);
+        ).add(() => {this.deploying = false});
     }
 
     removeAdapter(adapter: Adapter) {
@@ -606,16 +619,57 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.subgroups.set(key, value.value);
     }
 
-    fetchEventCacheStatus() {
-        this._crud.getEventCacheStatus().subscribe(
-            res => {
-              this.cachingStatus = res;
-              console.log("Status", res); // This should log the actual data from the backend
-            },
-            error => {
-              console.error('There was an error:', error);
-            }
-          );
+    fetchEventCacheStatus(adapterName: string) {
+        if (adapterName === "Ethereum") {
+            const statusSubscription = interval(1000)
+            .pipe(
+                switchMap(() => this._crud.getEventCacheStatus()),
+                tap((res: CachingStatus) => {
+                    console.log("status");
+                    this.cachingStatus = res;
+                    this.percentage = this.getCachingPercentage();
+                }),
+                takeWhile((res: CachingStatus) => {
+                    const statusKey = Object.keys(res)[0];
+                    return res[statusKey].state !== 'DONE';
+                })
+            )
+            .subscribe(
+                () => {},
+                error => {
+                    console.error('There was an error:', error);
+                }
+            );
+
+            this.statusSubscriptions.add(statusSubscription);
+        }
+    }
+
+    getCacheStatusClass(status: CachingStatus): string {
+        // Assuming the status object only has one key at a time
+        const key = Object.keys(status)[0];
+        const state = status[key].state;
+    
+        switch(state) {
+            case 'INITIALIZED':
+                return 'initialized';
+            case 'PROCESSING':
+                return 'processing';
+            case 'DONE':
+                return 'done';
+            default:
+                return '';
+        }
+    }
+
+    getCachingPercentage(): number | null {
+        console.log("running getCachingPercentage");
+        if (this.cachingStatus && Object.keys(this.cachingStatus).length) {
+            const firstKey = Object.keys(this.cachingStatus)[0];
+            const percent = this.cachingStatus[firstKey]?.percent;
+            return percent || null;
+        }
+        return null;
     }
 
 }
