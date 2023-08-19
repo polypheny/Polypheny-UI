@@ -57,7 +57,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     confirmDeletingHistory;
     activeNamespaceId: number;
     activeNamespaceName: string;
-    namespaces = [];
+    namespaces: string[] = [];
 
     tableConfig: TableConfig = {
         create: false,
@@ -105,13 +105,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     private updateExistingNamespaces() {
-        this._crud.getSchema(new SchemaRequest('views/querying/console/', false, 1, false)).subscribe(
-            res => {
-                this.namespaces = [];
-                for (const namespace of <Namespace[]>res) {
-                    this.namespaces.push(namespace.name);
-                }
-
+        this._catalog.getSchemaTree( 'views/querying/console/', false, 1, false).subscribe(
+            (namespaces: Namespace[]) => {
+                this.namespaces = namespaces.map(n => n.name);
                 this.loadAndSetNamespaceDB();
             }
         );

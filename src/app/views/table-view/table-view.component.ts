@@ -58,11 +58,11 @@ export class TableViewComponent implements OnInit, OnDestroy {
             this.resultSet.currentPage = this.currentPage;
         }
 
-        this._sidebar.setSchema(new SchemaRequest('/views/data-table/', true, 2, false), this._router);
+        this._sidebar.setSchema( this._router,'/views/data-table/', true, 2, false);
         const sub = this.webSocket.onReconnect().subscribe(
             b => {
                 if (b) {
-                    this._sidebar.setSchema(new SchemaRequest('/views/data-table/', true, 2, false), this._router);
+                    this._sidebar.setSchema(this._router,'/views/data-table/', true, 2, false);
                     this.getTable();
                 }
             }

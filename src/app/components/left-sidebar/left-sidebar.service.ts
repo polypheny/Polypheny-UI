@@ -5,11 +5,12 @@ import {InformationService} from '../../services/information.service';
 import {ConfigService} from '../../services/config.service';
 import * as $ from 'jquery';
 import {CrudService} from '../../services/crud.service';
-import {SchemaRequest} from '../../models/ui-request.model';
+import {NamespaceType, SchemaRequest} from '../../models/ui-request.model';
 import {JavaPage, SidebarNode} from '../../models/sidebar-node.model';
 import {Router} from '@angular/router';
 import {BreadcrumbItem} from '../breadcrumb/breadcrumb-item';
 import {BreadcrumbService} from '../breadcrumb/breadcrumb.service';
+import {CatalogService} from '../../services/catalog.service';
 
 @Injectable({
     providedIn: 'root'
@@ -19,14 +20,15 @@ import {BreadcrumbService} from '../breadcrumb/breadcrumb.service';
 export class LeftSidebarService {
 
     @Input() schemaEdit: boolean;
-    router;
+    router: Router;
 
     constructor(
         private _http: HttpClient,
         private _informationService: InformationService,
         private _configService: ConfigService,
         private _crud: CrudService,
-        private _breadcrumb: BreadcrumbService
+        private _breadcrumb: BreadcrumbService,
+        private _catalog: CatalogService
     ) {
     }
 
@@ -35,7 +37,7 @@ export class LeftSidebarService {
     //node that should be set inactive:
     private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
     private resetSubject = new BehaviorSubject<boolean>(false);
-    schemaType: string;
+    namespaceType: string;
 
 
     /**
@@ -158,11 +160,9 @@ export class LeftSidebarService {
     /**
      * Retrieve a schemaTree using the _crud service and apply it to the left sidebar
      */
-    setSchema(schemaRequest: SchemaRequest, _router: Router) {
-        this._crud.getSchema(schemaRequest).subscribe(
-            res => {
-                this.error.next(null);
-                const schemaTemp = <SidebarNode[]>res;
+    setSchema(_router: Router, routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: NamespaceType[] = [NamespaceType.RELATIONAL, NamespaceType.DOCUMENT, NamespaceType.GRAPH]) {
+        this._catalog.getSchemaTree(routerLinkRoot, views, depth, showTable, schemaEdit, dataModels).subscribe((schemaTemp: SidebarNode[]) => {
+            this.error.next(null);
                 const schema = [];
                 this.router = _router;
                 for (const s of schemaTemp) {
@@ -170,8 +170,6 @@ export class LeftSidebarService {
                 }
                 //Schema editing view
 
-                // this.router.url.startsWith('/views/schema-editing/'
-                // !schemaRequest.views && schemaRequest.depth === 2
                 if (this.router.url.startsWith('/views/schema-editing/')) {
                     //function to define node behavior
                     const nodeBehavior = (tree, node, $event) => {
@@ -200,25 +198,23 @@ export class LeftSidebarService {
                     };
 
                     schema.forEach((val: SidebarNode, key) => {
-                        val.routerLink = schemaRequest.routerLinkRoot;
+                        val.routerLink = routerLinkRoot;
                         val.disableRouting();
                         val.setAutoExpand(false);
                         val.setAction(nodeBehavior);
                         val.children.forEach((v: SidebarNode, k) => {
-                            v.routerLink = schemaRequest.routerLinkRoot + val.id;
+                            v.routerLink = routerLinkRoot + val.id;
                             v.disableRouting();
                             v.setAutoExpand(false);
                             v.setAction(nodeBehavior);
                         });
-                        //val.children.unshift( new SidebarNode( val.id+'.manageTables', 'manage tables', 'fa fa-clone', schemaRequest.routerLinkRoot + val.id ) );
                     });
-                    //schema.unshift( new SidebarNode( 'schema', 'schema', 'fa fa-database', '/views/schema-editing') );
                 }
                 //Uml view
-                else if (schemaRequest.depth === 1) {
+                else if (depth === 1) {
 
                     schema.forEach((val, key) => {
-                        val.routerLink = schemaRequest.routerLinkRoot + val.id;
+                        val.routerLink = routerLinkRoot + val.id;
                     });
                 }
                 this.setNodes(schema);
@@ -229,41 +225,6 @@ export class LeftSidebarService {
         );
         this.open();
     }
-
-    setTableSchema(schemaRequest: SchemaRequest) {
-        this._crud.getSchema(schemaRequest).subscribe(
-            res => {
-                this.error.next(null);
-                const schema = <SidebarNode[]>res;
-                this.schemaEdit = false;
-                //Schema editing view
-                if (schemaRequest.schemaEdit && schemaRequest.depth === 2) {
-                    this.schemaEdit = true;
-                    schema.forEach((val, key) => {
-                        val.routerLink = schemaRequest.routerLinkRoot;
-                        val.children.forEach((v, k) => {
-                            v.routerLink = schemaRequest.routerLinkRoot + val.id;
-                        });
-                        //val.children.unshift( new SidebarNode( val.id+'.manageTables', 'manage tables', 'fa fa-clone', schemaRequest.routerLinkRoot + val.id ) );
-                    });
-                    //schema.unshift( new SidebarNode( 'schema', 'schema', 'fa fa-database', '/views/schema-editing') );
-                }
-                //Uml view
-                else if (schemaRequest.depth === 1) {
-                    schema.forEach((val, key) => {
-                        val.routerLink = schemaRequest.routerLinkRoot + val.id;
-                    });
-                }
-                this.setNodes(schema);
-            }, err => {
-                this.error.next('Could not load database schema.');
-                //this._toast.toast( 'server error', 'Could not load database schema.', 0, 'bg-danger' );
-                console.log(err);
-            }
-        );
-        this.open();
-    }
-
 
     /**
      * sets a SidebarNode with id nodeId to inactive

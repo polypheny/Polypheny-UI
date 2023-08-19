@@ -11,6 +11,7 @@ import {Subscription} from 'rxjs';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {Store} from '../adapters/adapter.model';
+import {CatalogService} from '../../services/catalog.service';
 
 @Component({
     selector: 'app-schema-editing',
@@ -37,7 +38,8 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         private _leftSidebar: LeftSidebarService,
         private _breadcrumb: BreadcrumbService,
         private _crud: CrudService,
-        private _toast: ToastService
+        private _toast: ToastService,
+        private _catalog: CatalogService
     ) {
     }
 
@@ -52,7 +54,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         });
         const sub = this._crud.onReconnection().subscribe(
             b => {
-                this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false, true), this._router);
+                this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false, true);
             }
         );
         this.subscriptions.add(sub);
@@ -86,10 +88,10 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     }
 
     public getSchema() {
-        this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false, true), this._router);
-        this._crud.getSchema(new SchemaRequest('/views/schema-editing/', true, 2, false, true)).subscribe(
-            res => {
-                this.schemas = <SidebarNode[]>res;
+        this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false, true);
+        this._catalog.getSchemaTree('/views/schema-editing/', true, 2, false, true).subscribe(
+            (schemas: SidebarNode[]) => {
+                this.schemas = schemas;
             }, err => {
                 console.log(err);
             }
@@ -104,7 +106,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         this._crud.getTypeSchemas().subscribe(
             res => {
                 this.schemaType = res[schema];
-                this._leftSidebar.schemaType = res[schema];
+                this._leftSidebar.namespaceType = res[schema];
             }, error => {
                 console.log(error);
             }

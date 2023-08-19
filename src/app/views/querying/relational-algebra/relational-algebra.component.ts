@@ -30,6 +30,7 @@ import {Subscription} from 'rxjs';
 import {WebSocket} from '../../../services/webSocket';
 import {UtilService} from '../../../services/util.service';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
+import {CatalogService} from '../../../services/catalog.service';
 
 @Component({
     selector: 'app-relational-algebra',
@@ -75,6 +76,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         private _leftSidebar: LeftSidebarService,
         private _breadcrumb: BreadcrumbService,
         private _settings: WebuiSettingsService,
+        private _catalog: CatalogService,
         private _util: UtilService
     ) {
         this.socketOn = false;
@@ -300,9 +302,8 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
      * Rearrange data to an object that can be used for the autocompletion
      */
     getAutocomplete() {
-        this._crud.getSchema(new SchemaRequest('', true, 3, true)).subscribe(
-            res => {
-                const schemaTree = <SidebarNode[]>res;
+        this._catalog.getSchemaTree('', true, 3, true).subscribe(
+            (schemaTree: SidebarNode[]) => {
                 const autocomplete = {schemas: []};
                 for (const schema of schemaTree) {
                     autocomplete.schemas.push(schema.name);

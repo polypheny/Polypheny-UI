@@ -48,8 +48,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.getDiagram('all');
         this.getDashboardInformation();
         this.checkIfInformationAvailable();
-        
-        this._catalog.updateSnapshot();
+
     }
 
     ngOnDestroy() {

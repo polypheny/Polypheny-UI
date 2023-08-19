@@ -1,15 +1,4 @@
-import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    OnDestroy,
-    OnInit,
-    Output,
-    SimpleChanges,
-    TemplateRef,
-    ViewChild
-} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild} from '@angular/core';
 import {DataPresentationType, ResultSet} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
@@ -17,7 +6,7 @@ import {ToastDuration, ToastService} from '../toast/toast.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {DeleteRequest, EditTableRequest, QueryRequest, TableRequest} from '../../models/ui-request.model';
+import {DeleteRequest, EditTableRequest, NamespaceType, QueryRequest, TableRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
 import {SortState} from './models/sort-state.model';
 import * as Plyr from 'plyr';
@@ -27,11 +16,12 @@ import {WebSocket} from '../../services/webSocket';
 import {HttpEventType} from '@angular/common/http';
 import * as $ from 'jquery';
 import {DbTable} from '../../views/uml/uml.model';
-import {TableModel} from '../../views/schema-editing/edit-tables/edit-tables.component';
+import {Table} from '../../views/schema-editing/edit-tables/edit-tables.component';
 import {Store} from '../../views/adapters/adapter.model';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
 import {FormGroup} from '@angular/forms';
 import {CatalogService} from '../../services/catalog.service';
+import {TableModel} from "../../models/catalog.model";
 
 export class ViewInformation {
     freshness: string;
@@ -120,7 +110,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     exploringShowView = false;
     creatingView = false;
     newViewName = '';
-    tables: TableModel[] = [];
+    tables: Table[] = [];
     gotTables = false;
     schemaType: string;
     viewOptions = 'view';
@@ -764,13 +754,21 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
     getAllTables() {
         //not possible to use public.table therefore schema always null
-        if (!this.gotTables) {
+        this._catalog.listener.subscribe( () => {
+            this.tables = this._catalog.getEntities(null)
+                .filter(e => e.namespaceType === NamespaceType.RELATIONAL )
+                .map( n => Table.fromModel(<TableModel>n))
+                .sort((a, b) => a.name.localeCompare(b.name));
+            this.gotTables = true;
+        });
+
+        /*if (!this.gotTables) {
             this._crud.getTables(new EditTableRequest(null)).subscribe(
                 res => {
                     const result = <DbTable[]>res;
                     this.tables = [];
                     for (const t of result) {
-                        this.tables.push(new TableModel(t));
+                        this.tables.push(new Table(t));
                     }
                     this.tables = this.tables.sort((a, b) => a.name.localeCompare(b.name));
                 }, err => {
@@ -779,7 +777,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
                 }
             );
             this.gotTables = true;
-        }
+        }*/
     }
 
     getStores() {

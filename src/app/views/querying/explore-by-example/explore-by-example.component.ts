@@ -24,6 +24,7 @@ import {WebSocket} from '../../../services/webSocket';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {InformationService} from '../../../services/information.service';
 import {PluginService} from '../../../services/plugin.service';
+import {CatalogService} from '../../../services/catalog.service';
 
 @Component({
     selector: 'app-explore-by-example',
@@ -83,6 +84,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         private _settings: WebuiSettingsService,
         private _information: InformationService,
         private _plugin: PluginService,
+        private _catalog: CatalogService,
         private modalService: BsModalService) {
         this.websocket = new WebSocket(_settings);
     }
@@ -108,8 +110,8 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     }
 
     initSchema() {
-        this._crud.getSchema(new SchemaRequest('views/graphical-querying/', true, 3, false, false, [NamespaceType.RELATIONAL])).subscribe(
-            res => {
+        this._catalog.getSchemaTree('views/graphical-querying/', true, 3, false, false, [NamespaceType.RELATIONAL]).subscribe(
+            (schemaTemp: SidebarNode[]) => {
                 const nodeAction = (tree, node, $event) => {
                     if (!node.isActive && node.isLeaf) {
                         this.addCol(node.data);
@@ -121,7 +123,6 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
                     }
                 };
 
-                const schemaTemp = <SidebarNode[]>res;
                 const schema = [];
                 for (const s of schemaTemp) {
                     const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});

@@ -1,4 +1,5 @@
 import {DbColumn} from '../../components/data-view/models/result-set.model';
+import {EntityType} from '../../models/catalog.model';
 
 export class Uml {
     constructor(
@@ -15,7 +16,7 @@ export class DbTable {
     primaryKeyFields: string[];
     uniqueColumns: string[];
     modifiable: boolean;
-    tableType: string;
+    tableType: EntityType;
 }
 
 export class ForeignKey {

@@ -8,6 +8,7 @@ import 'ace-builds/src-noconflict/ext-language_tools';
 import {CrudService} from '../../services/crud.service';
 import {SchemaRequest} from '../../models/ui-request.model';
 import {SidebarNode} from '../../models/sidebar-node.model';
+import {CatalogService} from "../../services/catalog.service";
 
 @Component({
     selector: 'app-editor',
@@ -28,10 +29,12 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
     suggestions: string[] = [];
 
-    constructor(private _crud: CrudService) {
-        this._crud.getSchema(new SchemaRequest('', true, 3, true)).subscribe(
-            res => {
-                const map = this.computeSuggestions(<SidebarNode[]>res);
+    constructor(
+        private _crud: CrudService,
+        private _catalog: CatalogService ) {
+        this._catalog.getSchemaTree( '', true, 3, true ).subscribe(
+            (res: SidebarNode[]) => {
+                const map = this.computeSuggestions(res);
                 map.forEach((v, k) => {
                     this.suggestions.push(v);
                 });

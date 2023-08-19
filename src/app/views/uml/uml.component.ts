@@ -82,12 +82,12 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         const sub = this._crud.onReconnection().subscribe(
             b => {
                 if (b) {
-                    this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', false, 1, true, false, [NamespaceType.RELATIONAL]), this._router);
+                    this._leftSidebar.setSchema( this._router,'/views/uml/', false, 1, true, false, [NamespaceType.RELATIONAL] );
                 }
             }
         );
         this.subscriptions.add(sub);
-        this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', true, 1, true, false, [NamespaceType.RELATIONAL]), this._router);
+        this._leftSidebar.setSchema(this._router, '/views/uml/', true, 1, true, false, [NamespaceType.RELATIONAL]);
     }
 
     ngAfterViewInit() {

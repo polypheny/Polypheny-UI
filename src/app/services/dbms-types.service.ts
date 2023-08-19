@@ -37,7 +37,7 @@ export class DbmsTypesService {
         this._crud.getTypeInfo().subscribe(
             res => {
                 const result = <PolyType[]>res;
-                if (result == undefined) {
+                if (result === undefined) {
                     this._toast.error('Could not retrieve DBMS types.');
                     return;
                 }
@@ -88,7 +88,7 @@ export class DbmsTypesService {
      * @return EventEmitter with the available DBMS data types
      */
     getTypes() {
-        this.fetchTypes();
+        // this.fetchTypes(); this was not even finished for the return
         return this.types;
     }
 

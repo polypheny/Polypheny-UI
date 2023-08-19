@@ -67,10 +67,6 @@ export class CrudService {
         return socket.sendMessage(data);
     }
 
-    getSchema(request: SchemaRequest) {
-        return this._http.post(`${this.httpUrl}/getSchemaTree`, request, this.httpOptions);
-    }
-
     getGraph(socket: WebSocket, data: GraphRequest): boolean {
         return socket.sendMessage(data);
     }

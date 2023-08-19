@@ -1,8 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
-import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {EditTableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DbColumn, EntityMeta, Index, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
+import {DbColumn, EntityMeta, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -13,6 +13,8 @@ import {Subscription} from 'rxjs';
 import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
+import {CatalogService} from '../../../services/catalog.service';
+import {EntityType, TableModel} from '../../../models/catalog.model';
 
 const INITIAL_TYPE = 'BIGINT';
 
@@ -25,11 +27,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
     types: PolyType[] = [];
     namespaceId: number;
-    namespaceName: string;
     namespaceType: string;
     entityId: number;
 
-    tables: TableModel[] = [];
+    tables: Table[] = [];
 
     counter = 0;
     newColumns = new Map<number, DbColumn>();
@@ -39,17 +40,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     creatingTable = false;
 
     //export table
-    showExportButton = false;
     exportProgress = 0.0;
-    uploading = false;
     private subscriptions = new Subscription();
-    exportForm = new FormGroup({
-        name: new FormControl('', Validators.required),
-        description: new FormControl(''),
-        pub: new FormControl(0, Validators.required),
-        createPrimaryKeys: new FormControl(true, Validators.required),
-        addDefaultValue: new FormControl(true, Validators.required)
-    });
 
     constructor(
         public _crud: CrudService,
@@ -59,22 +51,25 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         private _leftSidebar: LeftSidebarService,
         public _types: DbmsTypesService,
         private _settings: WebuiSettingsService,
+        private _catalog: CatalogService,
         public _breadcrumb: BreadcrumbService
     ) {
     }
 
     ngOnInit() {
         this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
-        //this.schema = this._route.snapshot.paramMap.get('id');
         const sub1 = this._route.params.subscribe((params) => {
-            // this.schema = params['id'];
-            //this.getSchemaType();
-            this.getTables();
+            this._catalog.updateIfNecessary().subscribe( () => {
+                this.namespaceId = this._catalog.getNamespaceFromName(params['id']).id;
+                this.subscriptions.add( this.subscribeTables() );
+            });
+
         });
         this.subscriptions.add(sub1);
-        this.getTables();
+
         this.getTypeInfo();
         this.getStores();
+
         this.initSocket();
         const sub2 = this._crud.onReconnection().subscribe((b) => {
             if (b) {
@@ -91,10 +86,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }
 
     onReconnect() {
-        this.getTables();
+        this._catalog.updateIfNecessary();
         this.getTypeInfo();
         this.getStores();
-        this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
+        this._leftSidebar.setSchema(this._router,'/views/schema-editing/', true, 2, false);
     }
 
     documentListener() {
@@ -109,20 +104,12 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         });
     }
 
-    getTables() {
-        this._crud.getTables(new EditTableRequest(this.namespaceId)).subscribe(
-            res => {
-                const result = <DbTable[]>res;
-                this.tables = [];
-                for (const t of result) {
-                    this.tables.push(new TableModel(t));
-                }
-                this.tables = this.tables.sort((a, b) => a.name.localeCompare(b.name));
-            }, err => {
-                this._toast.error('could not retrieve list of tables');
-                console.log(err);
-            }
-        );
+    subscribeTables():Subscription {
+        return this._catalog.listener.subscribe( () => {
+            this.tables = this._catalog.getEntities(this.namespaceId)
+                .map( n => Table.fromModel(<TableModel>n))
+                .sort((a, b) => a.name.localeCompare(b.name));
+        });
     }
 
     getStores() {
@@ -134,22 +121,12 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             });
     }
 
-    /*getSchemaType() {
-        this._crud.getTypeSchemas().subscribe(
-            res => {
-                this.schemaType = res[this.schema];
-                this._breadcrumb.setNamespaceType(this.schemaType);
-            }, error => {
-                console.log(error);
-            }
-        );
-    }*/
 
     /**
      * get the right class for the 'drop' and 'truncate' buttons
      * enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
      */
-    dropTruncateClass(action: string, table: TableModel) {
+    dropTruncateClass(action: string, table: Table) {
         if (action === 'drop' && (table.drop === table.name || table.drop === 'drop ' + table.name)) {
             return 'btn-danger';
         } else if (action === 'truncate' && (table.truncate === table.name || table.truncate === 'truncate ' + table.name)) {
@@ -161,11 +138,11 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     /**
      * send a request to either drop or truncate a table
      */
-    sendRequest(action, table: TableModel) {
+    sendRequest(action, table: Table) {
         let request;
         let type: string;
         if (this.dropTruncateClass(action, table) === 'btn-danger') {
-            if (table.tableType !== 'VIEW') {
+            if (table.tableType !== EntityType.VIEW) {
                 request = new EditTableRequest(this.namespaceId, this.entityId, action);
                 type = ' the Table ';
             } else {
@@ -177,18 +154,18 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             return;
         }
         this._crud.dropTruncateTable(request).subscribe(
-            res => {
-                const result = <ResultSet>res;
+            (result: ResultSet) => {
+
                 if (result.error) {
                     this._toast.exception(result, 'Could not ' + action + type + table + ':');
                 } else {
                     let toastAction = 'Truncated';
                     if (request.getAction() === 'drop') {
                         toastAction = 'Dropped';
-                        this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
+                        this._leftSidebar.setSchema( this._router, '/views/schema-editing/', true, 2, false );
                     }
                     this._toast.success(toastAction + type + request.table);
-                    this.getTables();
+                    this._catalog.updateIfNecessary();
                 }
             }, err => {
                 this._toast.error('Could not ' + action + type + table + ' due to an unknown error');
@@ -264,9 +241,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
                     this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
                     this.newTableName = '';
                     this.selectedStore = null;
-                    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
+                    this._leftSidebar.setSchema(this._router,'/views/schema-editing/', true, 2, false);
                 }
-                this.getTables();
+                this._catalog.updateIfNecessary();
             }, err => {
                 this._toast.error('Could not generate table');
                 console.log(err);
@@ -274,23 +251,17 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         ).add(() => this.creatingTable = false);
     }
 
-    renameTable(table: TableModel) {
+    renameTable(table: Table) {
         const meta = new EntityMeta(this.namespaceId, this.entityId, table.newName, []);
-        let type;
-        if (table.tableType === 'VIEW') {
-            type = ' View ';
-        } else {
-            type = ' Table ';
-        }
+        const type = table.tableType === EntityType.VIEW ? ' View ' : ' Table ';
         this._crud.renameTable(meta).subscribe(
-            res => {
-                const r = <ResultSet>res;
+            (r: ResultSet) => {
                 if (r.exception) {
                     this._toast.exception(r);
                 } else {
                     this._toast.success('Renamed' + type + table.name + ' to ' + table.newName);
-                    this.getTables();
-                    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
+                    this._catalog.updateIfNecessary();
+                    this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
                 }
             }, err => {
                 this._toast.error('Could not rename the' + type + table.name);
@@ -302,7 +273,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     /**
      * Check if the new table name is valid
      */
-    canRename(table: TableModel) {
+    canRename(table: Table) {
         //table.name !== table.newName  not necessary, since the filter will catch it as well
         return this.tables.filter((t) => t.name === table.newName).length === 0 &&
             this._crud.nameIsValid(table.newName);
@@ -310,10 +281,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
     initSocket() {
         const sub = this._crud.onSocketEvent().subscribe(
-            msg => {
-                const s = <Status>msg;
-                if (s.context === 'tableExport') {
-                    this.exportProgress = s.status;
+            (msg: Status) => {
+                if (msg.context === 'tableExport') {
+                    this.exportProgress = msg.status;
                 }
             }, err => {
                 setTimeout(() => {
@@ -379,7 +349,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
 }
 
-export class TableModel {
+export class Table {
     name: string;
     truncate = '';
     drop = '';
@@ -387,12 +357,22 @@ export class TableModel {
     editing = false;
     newName: string;
     modifiable: boolean;
-    tableType: string;
+    tableType: EntityType;
 
-    constructor(table: DbTable) {
-        this.name = table.tableName;
-        this.newName = table.tableName;
-        this.modifiable = table.modifiable;
-        this.tableType = table.tableType;
+    constructor( name: string, newName: string, modifiable: boolean, entityType: EntityType) {
+        this.name = name;
+        this.newName = newName;
+        this.modifiable = modifiable;
+        this.tableType = entityType;
     }
+    
+    static fromDb( table: DbTable ){
+        return new Table(table.tableName, table.tableName, table.modifiable, table.tableType );
+    }
+    
+    static fromModel( table: TableModel ){
+        return new Table(table.name, table.name, table.modifiable, table.entityType);
+    }
+
 }
+

@@ -37,7 +37,7 @@ import * as _ from 'lodash';
 import {Subscription} from 'rxjs';
 import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {EntityType} from "../../../models/catalog.model";
+import {ColumnModel, ConstraintModel, EntityType} from '../../../models/catalog.model';
 
 const INITIAL_TYPE = 'BIGINT';
 
@@ -49,9 +49,10 @@ const INITIAL_TYPE = 'BIGINT';
 
 export class EditColumnsComponent implements OnInit, OnDestroy {
 
-    columnId: number;
     entityId: number;
     namespaceId: number;
+
+
     foreignKeys: ForeignKey[] = [];
 
     resultSet: ResultSet;
@@ -62,7 +63,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     oldColumns = new Map<string, DbColumn>();
     updateColumn = new FormGroup({name: new FormControl('')});
 
-    constraints: ResultSet;
+    constraints: ConstraintModel;
     confirmConstraint = -1;
     newPrimaryKey: DbColumn[];
 
@@ -120,7 +121,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             method: new FormControl('')
         });
         this._types.getTypes().subscribe(
-            type => {
+            (type: PolyType[]) => {
                 this.types = type;
                 this.createColumn.dataType = INITIAL_TYPE;
             }
@@ -128,13 +129,24 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        const sub = this._route.params.subscribe((params) => {
+            const fullName = params['id'];
 
-        this.getTableId();
-        this.getColumns();
-        this.getConstraints();
-        this.getIndexes();
-        this.getStores();
-        this.getPlacementsAndPartitions();
+            const splits = fullName.split('\.');
+            this._catalog.updateIfNecessary().subscribe(() => {
+                this.namespaceId = this._catalog.getNamespaceFromName(splits[0]).id;
+                this.entityId = this._catalog.getEntityFromName(splits[1]).id;
+
+                this.subscriptions.add(this.subscribe());
+                this.getIndexes();
+                this.getPlacementsAndPartitions();
+                this.getAvailableStoresForIndexes();
+                this.getUml();
+            });
+
+        });
+        this.subscriptions.add(sub);
+
         this.getPartitionTypes();
         this.getGeneratedNames();
     }
@@ -153,26 +165,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
     }
 
-    getTableId() {
-        //this.tableId = this._route.snapshot.paramMap.get('id');
-        const sub = this._route.params.subscribe((params) => {
-            //this.tableId = params['id'];
-            /*if (this.tableId.includes('.')) {
-                const t = this.tableId.split('\.');
-                this.schema = t[0];
-                this.table = t[1];
-                this.getColumns();
-                this.getConstraints();
-                this.getIndexes();
-                this.getPlacementsAndPartitions();
-                this.getAvailableStoresForIndexes();
-                this.getUml();
-            }*/
-        });
-        this.subscriptions.add(sub);
-    }
-
     isSource( entityId: number ): boolean {
+        if (entityId == null){
+            return false;
+        }
         return this._catalog.getEntity(entityId).entityType === EntityType.SOURCE;
     }
 
@@ -183,14 +179,30 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         return this.resultSet.type.toLowerCase() === 'materialized';
     }
 
-    getColumns() {
-        this._crud.getColumns(new ColumnRequest(this.entityId)).subscribe(
-            res => {
-                this.resultSet = <ResultSet>res;
+    subscribe():Subscription {
+        return this._catalog.listener.subscribe(() => {
+            const key = this._catalog.getPrimaryKey(this.entityId);
+            const columns = this._catalog.getColumns(this.entityId).map(c => DbColumn.fromModel(<ColumnModel>c, key ? key.columnIds : [] ));
+            this.oldColumns = new Map(columns.map(c => [c.name, c]));
+
+            this.newIndexCols = {};
+            columns.forEach((v, k) => {
+                this.oldColumns.set(v.name, v);
+                this.newIndexCols[v.name] = false;
+            });
+            this.partitioningRequest.column = this.resultSet.header[0].name;
+            this.newPrimaryKey = this.resultSet.header.map(x => Object.assign({}, x));
+            this.constraints = this._catalog.getConstraints(this.entityId);
+        });
+
+
+        /*this._crud.getColumns(new ColumnRequest(this.entityId)).subscribe(
+            (res: ResultSet) => {
+                this.resultSet = res;
                 this.oldColumns.clear();
                 this.newIndexCols = {};
                 this.resultSet.header.forEach((v, k) => {
-                    this.oldColumns.set(v.name, DbColumn.fromJson(v));
+                    this.oldColumns.set(v.name, v);
                     this.newIndexCols[v.name] = false;
                 });
                 this.partitioningRequest.column = this.resultSet.header[0].name;
@@ -200,7 +212,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 this._toast.error('Could not load columns of the table.', null, ToastDuration.INFINITE);
                 console.log(err);
             }
-        );
+        );*/
     }
 
     getColumnArray() {
@@ -283,7 +295,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             res => {
                 const result = <ResultSet>res;
                 this.editColumn = -1;
-                this.getColumns();
+                this._catalog.updateIfNecessary();
                 if (result.error) {
                     this._toast.exception(result, 'Could not update column:');
                 } else {
@@ -330,7 +342,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             res => {
                 const result = <ResultSet>res;
                 this.editColumn = -1;
-                this.getColumns();
+                this._catalog.updateIfNecessary();
                 if (result.error) {
                     this._toast.exception(result, 'Could not update column:');
                     console.log(result);
@@ -368,7 +380,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             res => {
                 const result = <ResultSet>res;
                 if (result.error === undefined) {
-                    this.getColumns();
+                    this._catalog.updateIfNecessary();
                     this.getPlacementsAndPartitions();
                     this.createColumn.name = '';
                     this.createColumn.nullable = true;
@@ -389,26 +401,15 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     dropColumn(col: DbColumn) {
         this._crud.dropColumn(new ColumnRequest(this.entityId, col)).subscribe(
-            res => {
-                this.getColumns();
+            (result: ResultSet) => {
+                this._catalog.updateIfNecessary();
                 this.getPlacementsAndPartitions();
                 this.confirm = -1;
-                const result = <ResultSet>res;
                 if (result.error) {
                     this._toast.exception(result, 'Could not delete column:', 'server error', ToastDuration.INFINITE);
                 }
             }, err => {
                 this._toast.error('Could not delete column.', null, ToastDuration.INFINITE);
-                console.log(err);
-            }
-        );
-    }
-
-    getConstraints() {
-        this._crud.getConstraints(new ColumnRequest(this.entityId)).subscribe(
-            res => {
-                this.constraints = <ResultSet>res;
-            }, err => {
                 console.log(err);
             }
         );
@@ -452,7 +453,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 if (result.error) {
                     this._toast.exception(result, null, 'constraint error');
                 } else {
-                    this.getConstraints();
+                    this._catalog.updateIfNecessary();
                     this.getUml();
                 }
             }, err => {
@@ -473,9 +474,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             res => {
                 const result = <ResultSet>res;
                 if (!result.error) {
-                    this.getConstraints();
                     this._toast.success('The primary key was updated.', result.generatedQuery, 'updated primary key');
-                    this.getColumns();
+                    this._catalog.updateIfNecessary();
                     this.getPlacementsAndPartitions();
                 } else {
                     this._toast.exception(result, null, 'primary key error', ToastDuration.INFINITE);
@@ -517,7 +517,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             res => {
                 const result = <ResultSet>res;
                 if (!result.error) {
-                    this.getConstraints();
+                    this._catalog.updateIfNecessary();
                     this._toast.success('The unique constraint was successfully created', result.generatedQuery, 'added constraint');
                     this.uniqueConstraintName = '';
                     this.getGeneratedNames();
@@ -626,8 +626,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     getAvailableStoresForIndexes() {
         this._crud.getAvailableStoresForIndexes(new Index(this.namespaceId, this.entityId, null, null, null, null)).subscribe(
-            res => {
-                this.availableStoresForIndexes = <Store[]>res;
+            (res: Store[]) => {
+                this.availableStoresForIndexes = res;
                 if (this.availableStoresForIndexes && this.availableStoresForIndexes.length > 0) {
                     this.selectedStoreForIndex = this.availableStoresForIndexes[0];
                     this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.availableIndexMethods[0].name);
@@ -1026,5 +1026,4 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
     }
 
-    protected readonly EntityType = EntityType;
 }

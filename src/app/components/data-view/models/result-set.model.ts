@@ -1,4 +1,5 @@
 import {SortState} from './sort-state.model';
+import {ColumnModel} from "../../../models/catalog.model";
 
 /**
  * model for the result of a query coming from the server
@@ -187,8 +188,18 @@ export class DbColumn {
         this.as = as;
     }
 
-    static fromJson(obj) {
-        return new DbColumn(obj.name, obj.primary, obj.nullable, obj.dataType, obj.collectionsType, obj.precision, obj.scale, obj.defaultValue, obj.dimension, obj.cardinality, obj.as);
+    static fromModel( column: ColumnModel, primaries: number[] ){
+        return new DbColumn(
+            column.name,
+            primaries.includes(column.id),
+            column.nullable,
+            column.type.toString(),
+            column.collectionsType == null ? null : column.collectionsType.toString(),
+            column.precision,
+            column.scale,
+            column.defaultValue,
+            column.dimension,
+            column.cardinality);
     }
 }
 
