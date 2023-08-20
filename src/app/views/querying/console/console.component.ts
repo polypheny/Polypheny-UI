@@ -160,10 +160,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
 
             if (code.match('show db')) {
-                this._crud.getDocumentDatabases().subscribe(res => {
-                    this.existingNamespaces = this._catalog.getNamespaceNames();
+                this._catalog.updateIfNecessary().subscribe(catalog => {
+                    this.existingNamespaces = catalog.getNamespaceNames().value;
                     this.loading = false;
-                    this.resultSets = [<ResultSet>res];
                 });
                 return;
             }
@@ -389,7 +388,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             this.namespaces.push(name);
         }
 
-        this.activeNamespaceId = this._catalog.getNamespaceFromName(name).id;
+        this.activeNamespaceId = this._catalog.getNamespaceFromName(name).value.id;
         this.activeNamespaceName = name;
         localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
     }

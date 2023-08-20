@@ -2,16 +2,18 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../services/crud.service';
-import {Schema, SchemaRequest} from '../../models/ui-request.model';
+import {NamespaceType, Schema, SchemaRequest} from '../../models/ui-request.model';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {SidebarNode} from '../../models/sidebar-node.model';
 import {ResultSet} from '../../components/data-view/models/result-set.model';
 import {ToastService} from '../../components/toast/toast.service';
-import {Subscription} from 'rxjs';
+import {BehaviorSubject, Observable, pipe, Subscription} from 'rxjs';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {Store} from '../adapters/adapter.model';
 import {CatalogService} from '../../services/catalog.service';
+import {NamespaceModel} from '../../models/catalog.model';
+import {map, mergeMap} from 'rxjs/operators';
 
 @Component({
     selector: 'app-schema-editing',
@@ -19,18 +21,6 @@ import {CatalogService} from '../../services/catalog.service';
     styleUrls: ['./schema-editing.component.scss']
 })
 export class SchemaEditingComponent implements OnInit, OnDestroy {
-
-    routeParam: string;//either the name of a table (schemaName.tableName) or of a schema (schemaName)
-    createForm: FormGroup;
-    dropForm: FormGroup;
-    schemas: SidebarNode[];
-    createSubmitted = false;
-    dropSubmitted = false;
-    createSchemaFeedback = 'Schema namespace is invalid';
-    private subscriptions = new Subscription();
-    schemaType: any;
-    stores: Store[];
-    graphStore: string;
 
     constructor(
         private _route: ActivatedRoute,
@@ -43,13 +33,26 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     ) {
     }
 
+    namespace: BehaviorSubject<NamespaceModel> = new BehaviorSubject<NamespaceModel>(null );
+    routeParam: string;//either the name of a table (schemaName.tableName) or of a schema (schemaName)
+    createForm: FormGroup;
+    dropForm: FormGroup;
+    schemas: SidebarNode[];
+    createSubmitted = false;
+    dropSubmitted = false;
+    createSchemaFeedback = 'Schema namespace is invalid';
+    private subscriptions = new Subscription();
+    stores: Store[];
+    graphStore: string;
+
+    public readonly NamespaceType = NamespaceType;
+
     ngOnInit() {
         this.getRouteParam();
         this.getSchema();
         this.initForms();
         this.getStores();
         this._route.params.subscribe((ev) => {
-            this.getSchemaType();
             this.setBreadCrumb();
         });
         const sub = this._crud.onReconnection().subscribe(
@@ -98,20 +101,6 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         );
     }
 
-    getSchemaType() {
-        if (!this.routeParam) {
-            return;
-        }
-        const schema = this.routeParam.split('.')[0];
-        this._crud.getTypeSchemas().subscribe(
-            res => {
-                this.schemaType = res[schema];
-                this._leftSidebar.namespaceType = res[schema];
-            }, error => {
-                console.log(error);
-            }
-        );
-    }
 
     initForms() {
         this.createForm = new FormGroup({
@@ -218,8 +207,8 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
     getStores() {
         this._crud.getStores().subscribe(
-            res => {
-                this.stores = <Store[]>res;
+            (res:Store[]) => {
+                this.stores = res;
             }, err => {
                 console.log(err);
             });
@@ -227,5 +216,9 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
     isStatistic() {
         return this._router.url.includes('statistics');
+    }
+
+    isNamespaceType(namespaceType: NamespaceType): Observable<boolean> {
+        return this.namespace.pipe( map(n => n.namespaceType === namespaceType));
     }
 }

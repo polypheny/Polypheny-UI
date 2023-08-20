@@ -10,6 +10,7 @@ export interface IdEntity{
 // tslint:disable-next-line:no-empty-interface
 export interface NamespaceModel extends IdEntity {
   namespaceType: NamespaceType;
+  caseSensitive: boolean;
 }
 
 export interface EntityModel extends IdEntity {
@@ -93,10 +94,10 @@ export interface AllocationPartitionModel extends IdEntity{
 }
 
 export enum EntityType {
-  ENTITY,
-  SOURCE,
-  VIEW,
-  MATERIALIZED_VIEW
+  ENTITY= 'ENTITY',
+  SOURCE = 'SOURCE',
+  VIEW = 'VIEW',
+  MATERIALIZED_VIEW = 'MATERIALIZED_VIEW'
 }
 
 //// UTIL

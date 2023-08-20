@@ -9,12 +9,13 @@ import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {Store} from '../../adapters/adapter.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {Subscriber, Subscription} from 'rxjs';
+import {BehaviorSubject, Observable, Subscriber, Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
 import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
-import {CollectionModel, EntityType} from '../../../models/catalog.model';
+import {CollectionModel, EntityType, NamespaceModel} from '../../../models/catalog.model';
 import {CatalogService} from '../../../services/catalog.service';
+import {map, switchMap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-document-edit-collections',
@@ -24,10 +25,8 @@ import {CatalogService} from '../../../services/catalog.service';
 export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 
   types: PolyType[] = [];
-  namespaceId: number;
-  namespacName: string;
-  namespaceType: string;
-  tables: Collection[] = [];
+  namespace: BehaviorSubject<NamespaceModel>;
+  collections: BehaviorSubject<Collection[]>;
 
   counter = 0;
   newColumns = new Map<number, DbColumn>();
@@ -67,10 +66,9 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     //this.database = this._route.snapshot.paramMap.get('id');
     const sub1 = this._route.params.subscribe((params) => {
       this._catalog.updateIfNecessary().subscribe(() => {
-        this.namespaceId = this._catalog.getNamespaceFromName(params['id']).id;
+        this.namespace = this._catalog.getNamespaceFromName(params['id']);
 
-        const subCollection = this.subscribeCollection();
-        this.subscriptions.add(subCollection);
+        this.subscribeCollection();
 
       });
     });
@@ -109,17 +107,23 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         return;
       }
       if ($(e.target).parents('.editing').length === 0) {
-        self.tables.forEach((t) => t.editing = false);
+        //self.tables.forEach((t) => t.editing = false);
       }
     });
   }
 
-  subscribeCollection():Subscription {
-    return this._catalog.listener.subscribe( () => {
-      this._catalog.getEntities(this.namespaceId)
-        .map( n => Collection.fromModel(<CollectionModel>n))
-        .sort((a, b) => a.name.localeCompare(b.name));
+  subscribeCollection() {
+    this.collections = new BehaviorSubject<Collection[]>([]);
+
+    this.namespace.pipe(
+        map(namespace => this._catalog.getEntities( namespace.id ).pipe(
+            map(e => e.map(col => Collection.fromModel(<CollectionModel>col)).sort((a, b) => a.name.localeCompare(b.name)))
+        ))).subscribe(collections => {
+          collections.subscribe( cols => {
+            this.collections.next(cols);
+          });
     });
+
     
     /*this._crud.getTables(new EditTableRequest(this.namespaceId)).subscribe(
         res => {
@@ -171,29 +175,29 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   /**
    * send a request to either drop or truncate a table
    */
-  sendRequest(action, table: Collection) {
-    let request;
-    if (this.dropTruncateClass(action, table) === 'btn-danger') {
-      request = new EditTableRequest(this.namespaceId, table.id, action);
-    } else {
+  sendRequest(action, collection: Collection) {
+    if (this.dropTruncateClass(action, collection) !== 'btn-danger') {
       return;
     }
+    
+    const request = new EditTableRequest(this.namespace.value.id, collection.id, action);
+    
     this._crud.dropTruncateTable(request).subscribe(
         res => {
           const result = <ResultSet>res;
           if (result.error) {
-            this._toast.exception(result, 'Could not ' + action + ' the table ' + table + ':');
+            this._toast.exception(result, 'Could not ' + action + ' the table ' + collection + ':');
           } else {
             let toastAction = 'Truncated';
             if (request.getAction() === 'drop') {
               toastAction = 'Dropped';
               this._leftSidebar.setSchema( this._router, '/views/schema-editing/', false, 2, true );
             }
-            this._toast.success(toastAction + ' table ' + request.table);
+            this._toast.success(toastAction + ' table ' + collection.name);
             this._catalog.updateSnapshot();
           }
         }, err => {
-          this._toast.error('Could not ' + action + ' the table ' + table + ' due to an unknown error');
+          this._toast.error('Could not ' + action + ' the table ' + collection + ' due to an unknown error');
           console.log(err);
         }
     );
@@ -208,12 +212,12 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
       this._toast.warn('Please provide a valid name for the new collection. The new collection was not created.', 'invalid table name', ToastDuration.INFINITE);
       return;
     }
-    if (this.tables.filter((t) => t.name === this.newTableName).length > 0) {
+    if (this.collections.value.filter((t) => t.name === this.newTableName).length > 0) {
       //if (this.tables.indexOf(this.newTableName) !== -1) {
       this._toast.warn('A collection with this name already exists. Please choose another name.', 'invalid collection name', ToastDuration.INFINITE);
       return;
     }
-    const request = new EditCollectionRequest(this.namespaceId, this.newTableName, null, 'create', this.selectedStore);
+    const request = new EditCollectionRequest(this.namespace.value.id, this.newTableName, null, 'create', this.selectedStore);
     this.creatingTable = true;
     this._crud.createCollection(request).subscribe(
         res => {
@@ -238,7 +242,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   }
 
   renameTable(table: Collection) {
-    const t = new EntityMeta(this.namespaceId, table.id, table.newName, []);
+    const t = new EntityMeta(this.namespace.value.id, table.id, table.newName, []);
     this._crud.renameTable(t).subscribe(
         res => {
           const r = <ResultSet>res;
@@ -261,7 +265,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
    */
   canRename(table: Collection) {
     //table.name !== table.newName  not necessary, since the filter will catch it as well
-    return this.tables.filter((t) => t.name === table.newName).length === 0 &&
+    return this.collections.value.filter((t) => t.name === table.newName).length === 0 &&
         this._crud.nameIsValid(table.newName);
   }
 
@@ -285,7 +289,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     if (name === '') {
       return '';
       //} else if (regex.test(name) && name.length <= 100 && this.tables.indexOf(name) === -1) {
-    } else if (regex.test(name) && name.length <= 100 && this.tables.filter((t) => t.name === name).length === 0) {
+    } else if (regex.test(name) && name.length <= 100 && this.collections.value.filter((t) => t.name === name).length === 0) {
       return 'is-valid';
     } else {
       return 'is-invalid';

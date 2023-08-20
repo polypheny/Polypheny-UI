@@ -34,10 +34,10 @@
         <td>
             <div class="input-group confirm-group" *ngIf="table.modifiable">
                 <input type="text" class="form-control form-control-sm" placeholder="truncate {{table.name}}"
-                       [(ngModel)]="table.truncate" (keyup.enter)="sendRequest('truncate', table)">
+                       [(ngModel)]="table.truncate" (keyup.enter)="sendDropTruncateRequest('truncate', table)">
                 <div class="input-group-append">
                     <button class="btn btn-sm" [ngClass]="dropTruncateClass('truncate', table)" type="button"
-                            (click)="sendRequest('truncate', table)">truncate
+                            (click)="sendDropTruncateRequest('truncate', table)">truncate
                     </button>
                 </div>
             </div>
@@ -45,10 +45,10 @@
         <td>
             <div class="input-group confirm-group" *ngIf="table.tableType !== 'SOURCE'">
                 <input type="text" class="form-control form-control-sm" placeholder="drop {{table.name}}"
-                       [(ngModel)]="table.drop" (keyup.enter)="sendRequest('drop', table)">
+                       [(ngModel)]="table.drop" (keyup.enter)="sendDropTruncateRequest('drop', table)">
                 <div class="input-group-append">
                     <button class="btn btn-sm" [ngClass]="dropTruncateClass('drop', table)" type="button"
-                            (click)="sendRequest('drop', table)">drop
+                            (click)="sendDropTruncateRequest('drop', table)">drop
                     </button>
                 </div>
             </div>

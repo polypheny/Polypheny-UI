@@ -1,6 +1,7 @@
 import {SortState} from '../components/data-view/models/sort-state.model';
 import {DbColumn, TableConstraint} from '../components/data-view/models/result-set.model';
 import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
+import {EntityType} from './catalog.model';
 
 export class UIRequest {
   requestType = 'UIRequest';
@@ -259,9 +260,9 @@ export class MaterializedRequest extends UIRequest {
 }
 
 export enum NamespaceType {
-  DOCUMENT = 'document',
-  RELATIONAL = 'relational',
-  GRAPH = 'graph'
+  DOCUMENT = 'DOCUMENT',
+  RELATIONAL = 'RELATIONAL',
+  GRAPH = 'GRAPH'
 }
 
 
@@ -276,17 +277,17 @@ export class EditTableRequest {
   entityName: string;
   action: string;//truncate / drop
   columns: DbColumn[];
-  store: string;
-  tableType: string;
+  storeId: number;
+  tableType: EntityType;
 
-  constructor(namespaceId: number, entityId: number = null, entityName: string = null, action: string = null, columns: DbColumn[] = null, store: string = null, tableType: string = null) {
+  constructor(namespaceId: number, entityId: number = null, entityName: string = null, action: string = null, columns: DbColumn[] = null, storeId: number = null, tableType: EntityType = EntityType.ENTITY) {
     this.namespaceId = namespaceId;
     this.entityId = entityId;
     this.entityName = entityName;
     this.action = action;
     this.columns = columns;
-    this.store = store;
-    this.tableType = tableType || 'TABLE';
+    this.storeId = storeId;
+    this.tableType = EntityType.ENTITY;
   }
 
   getAction() {

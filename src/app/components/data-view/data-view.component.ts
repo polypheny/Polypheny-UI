@@ -10,7 +10,7 @@ import {DeleteRequest, EditTableRequest, NamespaceType, QueryRequest, TableReque
 import {PaginationElement} from './models/pagination-element.model';
 import {SortState} from './models/sort-state.model';
 import * as Plyr from 'plyr';
-import {Subscription} from 'rxjs';
+import {BehaviorSubject, Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {WebSocket} from '../../services/webSocket';
 import {HttpEventType} from '@angular/common/http';
@@ -21,7 +21,7 @@ import {Store} from '../../views/adapters/adapter.model';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
 import {FormGroup} from '@angular/forms';
 import {CatalogService} from '../../services/catalog.service';
-import {TableModel} from "../../models/catalog.model";
+import {TableModel} from '../../models/catalog.model';
 
 export class ViewInformation {
     freshness: string;
@@ -110,7 +110,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     exploringShowView = false;
     creatingView = false;
     newViewName = '';
-    tables: Table[] = [];
+    tables: BehaviorSubject<Table[]> = new BehaviorSubject([]);
     gotTables = false;
     schemaType: string;
     viewOptions = 'view';
@@ -478,7 +478,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         switch (method) {
             case 'ADD':
                 const data = this.insertValues.get('d');
-                const add = `db.${entity.name}.insert(${data})`;
+                const add = `db.${entity.value.name}.insert(${data})`;
                 this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.resultSet.namespaceId ));
                 this.insertValues.clear();
                 this.getTable();
@@ -492,7 +492,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
                 const updated = this.updateValues.get('d');
                 const parsed = JSON.parse(updated);
                 if (parsed.hasOwnProperty('_id')) {
-                    const modify = `db.${entity.name}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;
+                    const modify = `db.${entity.value.name}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;
                     this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.resultSet.namespaceId));
                     this.insertValues.clear();
                     this.getTable();
@@ -501,7 +501,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
             case 'DELETE':
                 const parsedDelete = JSON.parse(initialData);
                 if (parsedDelete.hasOwnProperty('_id')) {
-                    const modify = `db.${entity.name}.deleteMany({"_id": "${parsedDelete['_id']}" })`;
+                    const modify = `db.${entity.value.name}.deleteMany({"_id": "${parsedDelete['_id']}" })`;
                     this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.resultSet.namespaceId));
                     this.insertValues.clear();
                     this.getTable();
@@ -732,7 +732,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
             this._toast.warn('Please provide a valid name for the new view. The new view was not created.', 'invalid view name', ToastDuration.INFINITE);
             return false;
         }
-        if (this.tables.filter((t) => t.name === this.newViewName).length > 0) {
+        if (this.tables.value.filter((t) => t.name === this.newViewName).length > 0) {
             this._toast.warn('A table or view with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
             return false;
         }
@@ -743,7 +743,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         const regex = this._crud.getValidationRegex();
         if (name === '') {
             return '';
-        } else if (regex.test(name) && name.length <= 100 && this.tables.filter((t) => t.name === name).length === 0) {
+        } else if (regex.test(name) && name.length <= 100 && this.tables.value.filter((t) => t.name === name).length === 0) {
             this.creatingView = true;
             return 'is-valid';
         } else {
@@ -754,13 +754,13 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
     getAllTables() {
         //not possible to use public.table therefore schema always null
-        this._catalog.listener.subscribe( () => {
-            this.tables = this._catalog.getEntities(null)
-                .filter(e => e.namespaceType === NamespaceType.RELATIONAL )
-                .map( n => Table.fromModel(<TableModel>n))
-                .sort((a, b) => a.name.localeCompare(b.name));
-            this.gotTables = true;
+
+        this._catalog.getEntities(null).subscribe( entities => {
+            this.tables.next(entities.filter(e => e.namespaceType === NamespaceType.RELATIONAL )
+            .map( n => Table.fromModel(<TableModel>n))
+            .sort((a, b) => a.name.localeCompare(b.name)));
         });
+
 
         /*if (!this.gotTables) {
             this._crud.getTables(new EditTableRequest(null)).subscribe(

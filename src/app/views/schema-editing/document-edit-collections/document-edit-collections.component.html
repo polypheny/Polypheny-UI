@@ -4,7 +4,7 @@
     <p>Type the name of a collection into the text-fields to perform these actions.</p>
 </ng-container>-->
 
-<table class="table table-hover table-striped" *ngIf="tables">
+<table class="table table-hover table-striped" *ngIf="collections">
     <thead>
     <tr>
         <th>Collection</th>
@@ -13,7 +13,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let table of tables let i = index" [ngClass]="{'table-warning':table.export}"
+    <tr *ngFor="let table of collections let i = index" [ngClass]="{'table-warning':table.export}"
         [class.editing]="table.editing">
         <td>
             <span *ngIf="!table.editing">

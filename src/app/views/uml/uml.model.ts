@@ -21,6 +21,7 @@ export class DbTable {
 
 export class ForeignKey {
     fkName: string;
+    id: number;
 
     targetSchema: string;
     targetTable: string;
@@ -33,7 +34,8 @@ export class ForeignKey {
     onUpdate: string;
     onDelete: string;
 
-    constructor(fkName: string, schema: string, fkTable: string, fkCol: string, pkTable: string, pkCol: string) {
+    constructor(id: number, fkName: string, schema: string, fkTable: string, fkCol: string, pkTable: string, pkCol: string) {
+        this.id = id;
         this.fkName = fkName;
         this.targetSchema = schema;
         this.sourceSchema = schema;

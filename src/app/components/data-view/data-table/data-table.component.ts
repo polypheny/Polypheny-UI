@@ -435,7 +435,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
 
     createViewButton(createViewExample) {
         this.modalRefCreateView = this.modalService.show(createViewExample);
-        this.getAllTables();
+        this._catalog.updateIfNecessary();
         this.getStores();
 
     }
@@ -450,7 +450,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
             return;
         }
 
-        if (this.tables.filter((t) => t.name === this.newViewName).length > 0) {
+        if (this.tables.value.filter((t) => t.name === this.newViewName).length > 0) {
             this._toast.warn('A table or view with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
             return;
         }

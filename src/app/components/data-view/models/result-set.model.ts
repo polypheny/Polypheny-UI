@@ -1,5 +1,5 @@
 import {SortState} from './sort-state.model';
-import {ColumnModel} from "../../../models/catalog.model";
+import {ColumnModel} from '../../../models/catalog.model';
 
 /**
  * model for the result of a query coming from the server
@@ -212,13 +212,15 @@ export interface PolyType {
  * model for constraints of a table
  */
 export class TableConstraint {
+    id: number;
     name: string;
     type: string;
     deferrable: boolean;
     initially_deferred: boolean;
     columns: string[] = [];
 
-    constructor(name: string, type: string = null, deferrable: boolean = null, initially_deferred: boolean = null) {
+    constructor(id: number, name: string = null, type: string = null, deferrable: boolean = null, initially_deferred: boolean = null) {
+        this.id = id;
         this.name = name;
         this.type = type;
         this.deferrable = deferrable;
