@@ -5,10 +5,10 @@ import {Adapter, AdapterInformation, AdapterSetting, Source, Store} from './adap
 import {ToastService} from '../../components/toast/toast.service';
 import {
     AbstractControl,
-    FormArray,
-    FormBuilder,
-    FormControl,
-    FormGroup,
+    UntypedFormArray,
+    UntypedFormBuilder,
+    UntypedFormControl,
+    UntypedFormGroup,
     ValidationErrors,
     ValidatorFn,
     Validators
@@ -33,15 +33,15 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     private subscriptions = new Subscription();
 
     editingAdapter: Adapter;
-    editingAdapterForm: FormGroup;
+    editingAdapterForm: UntypedFormGroup;
     deletingAdapter;
     deletingInProgress: Adapter[];
 
     editingAvailableAdapter: AdapterInformation;
-    editingAvailableAdapterForm: FormGroup;
-    editingAvailableAdapterForms: Map<String, FormGroup>;
+    editingAvailableAdapterForm: UntypedFormGroup;
+    editingAvailableAdapterForms: Map<String, UntypedFormGroup>;
     activeMode: string;
-    availableAdapterUniqueNameForm: FormGroup;
+    availableAdapterUniqueNameForm: UntypedFormGroup;
     settingHeaders: string[];
 
     fileLabel = 'Choose File';
@@ -67,7 +67,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         private _route: ActivatedRoute,
         private _router: Router,
         private _toast: ToastService,
-        private _fb: FormBuilder
+        private _fb: UntypedFormBuilder
     ) {
     }
 
@@ -166,10 +166,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                     validators.push(Validators.required);
                 }
                 const val = adapter.currentSettings[v.name];
-                fc[v.name] = new FormControl({value: val, disabled: !v.modifiable}, validators);
+                fc[v.name] = new UntypedFormControl({value: val, disabled: !v.modifiable}, validators);
             }
         }
-        this.editingAdapterForm = new FormGroup(fc);
+        this.editingAdapterForm = new UntypedFormGroup(fc);
         this.handshaking = false;
         this.adapterSettingsModal.show();
     }
@@ -249,21 +249,21 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                     if (v.options) {
                         val = v.options[0];
                     } else if (v.fileNames) {
-                        val = new FormControl(val, validators);
+                        val = new UntypedFormControl(val, validators);
                     }
-                    fc[k][v.name] = new FormControl(val, validators);
+                    fc[k][v.name] = new UntypedFormControl(val, validators);
                 }
             }
         }
 
         this.modeSettings = Object.keys(this.editingAvailableAdapter.adapterSettings).filter(name => name !== 'mode' && name !== 'default');
-        this.editingAvailableAdapterForms = new Map<String, FormGroup>();
+        this.editingAvailableAdapterForms = new Map<String, UntypedFormGroup>();
         // we generate a set of settings consisting of the default settings and the deployment specific ones
         this.modeSettings.forEach(mode => {
             if (fc[mode]) {
-                this.editingAvailableAdapterForms.set(mode, new FormGroup(Object.assign(fc[mode], fc['default'])));
+                this.editingAvailableAdapterForms.set(mode, new UntypedFormGroup(Object.assign(fc[mode], fc['default'])));
             } else if (fc['default']) {
-                this.editingAvailableAdapterForms.set(mode, new FormGroup(fc['default']));
+                this.editingAvailableAdapterForms.set(mode, new UntypedFormGroup(fc['default']));
             } else {
                 this.editingAvailableAdapterForms.set(mode, this._fb.group([]));
             }
@@ -274,7 +274,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         if (this.modeSettings.length === 0) {
             this.activeMode = 'default';
             if (fc['default']) {
-                this.editingAvailableAdapterForm = new FormGroup(fc['default']);
+                this.editingAvailableAdapterForm = new UntypedFormGroup(fc['default']);
             } else {
                 this.editingAvailableAdapterForm = this._fb.group([]);
             }
@@ -286,17 +286,17 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
         this.allSettings = Object.keys(this.editingAvailableAdapter.adapterSettings).map(header => adapter.adapterSettings[header]).reduce((arr, val) => arr.concat(val));
 
-        this.availableAdapterUniqueNameForm = new FormGroup({
-            uniqueName: new FormControl(this.getDefaultUniqueName(), [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores, ...this.sources])])
+        this.availableAdapterUniqueNameForm = new UntypedFormGroup({
+            uniqueName: new UntypedFormControl(this.getDefaultUniqueName(), [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores, ...this.sources])])
         });
         this.adapterSettingsModal.show();
     }
 
-    onFileChange(event, form: FormGroup, key) {
+    onFileChange(event, form: UntypedFormGroup, key) {
         const files = event.target.files;
         if (files) {
             const fileNames = [];
-            const arr = form.controls[key] as FormArray;
+            const arr = form.controls[key] as UntypedFormArray;
             arr.clear();
             for (let i = 0; i < files.length; i++) {
                 fileNames.push(files.item(i).name);
@@ -304,7 +304,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             }
             this.fileLabel = fileNames.join(', ');
         } else {
-            const arr = form.controls[key] as FormArray;
+            const arr = form.controls[key] as UntypedFormArray;
             arr.clear();
             this.fileLabel = 'Choose File';
         }
@@ -375,7 +375,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 const setting = this.getAdapterSetting(this.editingAvailableAdapter, k);
                 if (setting.fileNames) {
                     const fileNames = [];
-                    const arr = v as FormArray;
+                    const arr = v as UntypedFormArray;
                     for (let i = 0; i < arr.length; i++) {
                         const file = arr.at(i).value as File;
                         fd.append(file.name, file);
@@ -490,10 +490,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             return;
         }
 
-        if (form instanceof FormControl) {
+        if (form instanceof UntypedFormControl) {
             return this.validateControl(form, key);
         }
-        if (!(form instanceof FormGroup)) {
+        if (!(form instanceof UntypedFormGroup)) {
             return;
         }
         if (form.controls[key].status === 'DISABLED') {
@@ -544,9 +544,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         }
     }
 
-    deployType(): FormGroup {
+    deployType(): UntypedFormGroup {
         if (this.activeMode) {
-            return this.editingAvailableAdapterForms.get(this.activeMode) as FormGroup;
+            return this.editingAvailableAdapterForms.get(this.activeMode) as UntypedFormGroup;
         }
         return null;
     }
@@ -556,7 +556,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.activeMode = mode;
     }
 
-    private validateControl(form: FormControl, key: string) {
+    private validateControl(form: UntypedFormControl, key: string) {
         if ((key === 'port' || key === 'instanceId') && this.activeMode === 'docker') {
             if (this.editingAvailableAdapterForm.valid) {
                 return 'is-valid';

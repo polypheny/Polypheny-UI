@@ -5,8 +5,8 @@
 
         <div class="card text-center">
             <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs">
-                    <li class="nav-item"
+                <ul class="c-header-nav nav-tabs card-header-tabs">
+                    <li class="c-header-nav-item"
                         *ngFor="let table of filterHeaders(stylingSet[schema.key], _choosenTables, schema.key) | keyvalue">
                         <a [className]="this.activeHeaders && this.activeHeaders[schema.key] === table.key ? 'nav-link active': 'nav-link'"
                            (click)="addToHeader(schema.key, table.key)">{{table.key}}</a>

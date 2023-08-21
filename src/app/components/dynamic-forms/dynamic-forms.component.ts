@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 
 @Component({
     selector: 'app-dynamic-forms',
@@ -12,7 +12,7 @@ export class DynamicFormsComponent implements OnInit {
 
     @Input() formObj;
     formObjAsString;
-    form: FormGroup;
+    form: UntypedFormGroup;
     submitted = false;
 
     // objectProps;
@@ -25,11 +25,11 @@ export class DynamicFormsComponent implements OnInit {
         const formGroup = {};
         for (const group of this.formObj.groups) {
             for (const i of group.groups) {
-                formGroup[i.key] = new FormControl(i.value || '', this.mapValidators(i.validation));
+                formGroup[i.key] = new UntypedFormControl(i.value || '', this.mapValidators(i.validation));
             }
         }
 
-        this.form = new FormGroup(formGroup);
+        this.form = new UntypedFormGroup(formGroup);
 
         this.formObjAsString = JSON.stringify(this.formObj, undefined, 2);
     }

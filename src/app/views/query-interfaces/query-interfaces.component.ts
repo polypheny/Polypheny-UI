@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {Subscription} from 'rxjs';
-import {AbstractControl, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
+import {AbstractControl, UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastService} from '../../components/toast/toast.service';
@@ -27,12 +27,12 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
     private subscriptions = new Subscription();
 
     editingQI: QueryInterface;
-    editingQIForm: FormGroup;
+    editingQIForm: UntypedFormGroup;
     deletingQI;
 
     editingAvailableQI: QueryInterfaceInformation;
-    editingAvailableQIForm: FormGroup;
-    availableQIUniqueNameForm: FormGroup;
+    editingAvailableQIForm: UntypedFormGroup;
+    availableQIUniqueNameForm: UntypedFormGroup;
 
     @ViewChild('QISettingsModal', {static: false}) public QISettingsModal: ModalDirective;
 
@@ -106,9 +106,9 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
                 validators.push(Validators.required);
             }
             const val = queryInterface.currentSettings[v.name];
-            fc[v.name] = new FormControl({value: val, disabled: !v.modifiable}, validators);
+            fc[v.name] = new UntypedFormControl({value: val, disabled: !v.modifiable}, validators);
         }
-        this.editingQIForm = new FormGroup(fc);
+        this.editingQIForm = new UntypedFormGroup(fc);
         this.QISettingsModal.show();
     }
 
@@ -152,11 +152,11 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
             if (v.options) {
                 val = v.options[0];
             }
-            fc[v.name] = new FormControl(val, validators);
+            fc[v.name] = new UntypedFormControl(val, validators);
         }
-        this.editingAvailableQIForm = new FormGroup(fc);
-        this.availableQIUniqueNameForm = new FormGroup({
-            uniqueName: new FormControl(null, [Validators.required, Validators.pattern(this._crud.getValidationRegex()), validateUniqueQI(this.queryInterfaces)])
+        this.editingAvailableQIForm = new UntypedFormGroup(fc);
+        this.availableQIUniqueNameForm = new UntypedFormGroup({
+            uniqueName: new UntypedFormControl(null, [Validators.required, Validators.pattern(this._crud.getValidationRegex()), validateUniqueQI(this.queryInterfaces)])
         });
         this.QISettingsModal.show();
     }
@@ -232,7 +232,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         }
     }
 
-    validate(form: FormGroup, key) {
+    validate(form: UntypedFormGroup, key) {
         if (form === undefined) {
             return;
         }

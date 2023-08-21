@@ -10,7 +10,7 @@ import {
     ResultSet
 } from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, EditTableRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {Placements, Store} from '../../adapters/adapter.model';
@@ -37,7 +37,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     createColumn = new DbColumn('', false, true, 'text', '', null, null, null);
     confirm = -1;
     oldColumns = new Map<string, DbColumn>();
-    updateColumn = new FormGroup({name: new FormControl('')});
+    updateColumn = new UntypedFormGroup({name: new UntypedFormControl('')});
 
     constraints: ResultSet;
     newPrimaryKey: DbColumn[];
@@ -144,17 +144,17 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
             if (col.defaultValue === undefined) {
                 col.defaultValue = null;
             }
-            this.updateColumn = new FormGroup({
-                name: new FormControl(col.name, Validators.required),
-                oldName: new FormControl(col.name),
-                nullable: new FormControl(col.nullable),
-                dataType: new FormControl(col.dataType),
-                collectionsType: new FormControl(col.collectionsType),
-                precision: new FormControl(col.precision),
-                scale: new FormControl(col.scale),
-                dimension: new FormControl(col.dimension),
-                cardinality: new FormControl(col.cardinality),
-                defaultValue: new FormControl({value: col.defaultValue, disabled: col.defaultValue === null})
+            this.updateColumn = new UntypedFormGroup({
+                name: new UntypedFormControl(col.name, Validators.required),
+                oldName: new UntypedFormControl(col.name),
+                nullable: new UntypedFormControl(col.nullable),
+                dataType: new UntypedFormControl(col.dataType),
+                collectionsType: new UntypedFormControl(col.collectionsType),
+                precision: new UntypedFormControl(col.precision),
+                scale: new UntypedFormControl(col.scale),
+                dimension: new UntypedFormControl(col.dimension),
+                cardinality: new UntypedFormControl(col.cardinality),
+                defaultValue: new UntypedFormControl({value: col.defaultValue, disabled: col.defaultValue === null})
             });
             this.editColumn = i;
         }

@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {CustomTooltips} from '@coreui/coreui-plugin-chartjs-custom-tooltips';
-import {hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities';
+import {hexToRgba} from "@coreui/utils";
 
 @Component({
     selector: 'app-graph',

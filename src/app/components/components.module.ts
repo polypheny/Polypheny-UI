@@ -4,7 +4,7 @@ import {GraphComponent} from './graph/graph.component';
 import {ChartsModule} from 'ng2-charts';
 import {ToastComponent} from './toast/toast.component';
 
-import {AppBreadcrumbModule} from '@coreui/angular';
+import {BreadcrumbModule, ToastComponent} from '@coreui/angular';
 
 import {BreadcrumbComponent} from './breadcrumb/breadcrumb.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -53,7 +53,6 @@ import {DockersettingsComponent} from './dockersettings/dockersettings.component
         CommonModule,
         ChartsModule,
         TypeaheadModule.forRoot(),
-        AppBreadcrumbModule.forRoot(),
         TreeModule,
         TabsModule.forRoot(),
         // forms
@@ -64,7 +63,7 @@ import {DockersettingsComponent} from './dockersettings/dockersettings.component
         ExplainVisualizerModule,
         ModalModule.forRoot(),
         CarouselModule,
-        PlyrModule, NgxJsonViewerModule, DatesPipeModule
+        PlyrModule, NgxJsonViewerModule, DatesPipeModule, ToastComponent
     ],
     declarations: [
         BreadcrumbComponent,

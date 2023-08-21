@@ -1,5 +1,5 @@
-<div class="app-body">
-    <main class="main d-flex align-items-center">
+<div class="c-app-body">
+    <c-main class="c-main d-flex align-items-center">
         <div class="container">
             <div class="row">
                 <div class="mx-auto col-md-4">
@@ -37,15 +37,15 @@
                                          *dropdownMenu>
                                         <h6 class="dropdown-header"><i class="cui-star"></i> favorites</h6>
                                         <a class="dropdown-item" *ngFor="let f of favorites" href="#"
-                                           (click)="applyHistory(f)" [routerLink]="">
+                                           (click)="applyHistory(f)" [routerLink]="[][]">
                                             <i class="cui-trash text-danger" (click)="deleteFavorite()"></i>{{f.server}}
                                             :{{f.port}}</a>
 
                                         <a class="dropdown-item" href="#" (click)="saveNewFavorite(loginForm)"
-                                           [routerLink]="">save this login</a>
+                                           [routerLink]="[]">save this login</a>
                                         <h6 class="dropdown-header"><i class="fa fa-history"></i> history</h6>
                                         <a class="dropdown-item" *ngFor="let h of history" href="#"
-                                           (click)="applyHistory(h)" [routerLink]="">{{h.server}}:{{h.port}}</a>
+                                           (click)="applyHistory(h)" [routerLink]="[][]">{{h.server}}:{{h.port}}</a>
                                     </div>
                                 </div>
 
@@ -104,5 +104,5 @@
                 </div>
             </div>
         </div>
-    </main>
+    </c-main>
 </div>

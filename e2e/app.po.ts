@@ -6,6 +6,6 @@ export class CoreUIPage {
   }
 
   getParagraphText() {
-    return element(by.className('app-footer')).getText();
+    return element(by.className('c-app-footer')).getText();
   }
 }

@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../services/crud.service';
 import {NamespaceType, Schema} from '../../models/ui-request.model';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {SidebarNode} from '../../models/sidebar-node.model';
 import {ResultSet} from '../../components/data-view/models/result-set.model';
 import {ToastService} from '../../components/toast/toast.service';
@@ -35,8 +35,8 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     readonly currentRoute: BehaviorSubject<string> = new BehaviorSubject('');//either the name of a table (schemaName.tableName) or of a schema (schemaName)
     readonly namespace: BehaviorSubject<NamespaceModel> = new BehaviorSubject<NamespaceModel>(null);
 
-    createForm: FormGroup;
-    dropForm: FormGroup;
+    createForm: UntypedFormGroup;
+    dropForm: UntypedFormGroup;
     schemas: SidebarNode[];
     createSubmitted = false;
     dropSubmitted = false;
@@ -105,14 +105,14 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
 
     initForms() {
-        this.createForm = new FormGroup({
-            name: new FormControl('', this._crud.getNameValidator(true)),
-            type: new FormControl('relational', Validators.required),
-            stores: new FormControl('hsqldb'),
+        this.createForm = new UntypedFormGroup({
+            name: new UntypedFormControl('', this._crud.getNameValidator(true)),
+            type: new UntypedFormControl('relational', Validators.required),
+            stores: new UntypedFormControl('hsqldb'),
         });
-        this.dropForm = new FormGroup({
-            name: new FormControl('', Validators.required),
-            cascade: new FormControl()
+        this.dropForm = new UntypedFormGroup({
+            name: new UntypedFormControl('', Validators.required),
+            cascade: new UntypedFormControl()
         });
     }
 

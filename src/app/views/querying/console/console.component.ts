@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {FormBuilder} from '@angular/forms';
+import {UntypedFormBuilder} from '@angular/forms';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import {CrudService} from '../../../services/crud.service';
 import {ResultSet} from '../../../components/data-view/models/result-set.model';
@@ -71,7 +71,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     showNamespaceConfig: boolean;
 
     constructor(
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
         private _crud: CrudService,
         private _leftSidebar: LeftSidebarService,
         private _breadcrumb: BreadcrumbService,

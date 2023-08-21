@@ -1,6 +1,6 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConfigService} from '../../../services/config.service';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {KeyValue} from '@angular/common';
@@ -24,7 +24,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
 
     formObj: JavaUiPage;
     submitted = false;
-    form: FormGroup;
+    form: UntypedFormGroup;
     //toasts:Toast[] = [];
     pageId = '';
     pageNotFound = false;
@@ -171,11 +171,11 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
                         initValue = config.value;
                     }
                 }
-                formGroup[cKey] = new FormControl(initValue,
+                formGroup[cKey] = new UntypedFormControl(initValue,
                     this.mapValidators(this.formObj.groups[gKey].configs[cKey]));
             }
         }
-        this.form = new FormGroup(formGroup);
+        this.form = new UntypedFormGroup(formGroup);
     }
 
     /** order groups within a page.

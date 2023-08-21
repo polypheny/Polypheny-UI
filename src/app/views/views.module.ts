@@ -7,7 +7,6 @@ import {ConsoleComponent} from './querying/console/console.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ComponentsModule} from '../components/components.module';
 import {EditColumnsComponent} from './schema-editing/edit-columns/edit-columns.component';
-import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
 import {UmlComponent} from './uml/uml.component';
 import {GraphicalQueryingComponent} from './querying/graphical-querying/graphical-querying.component';
 import {TreeModule} from 'angular-tree-component';
@@ -35,7 +34,6 @@ import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
 import {PopoverModule} from 'ngx-bootstrap/popover';
-import {NgxSliderModule} from '@m0t0r/ngx-slider';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 import {EditSourceColumnsComponent} from './schema-editing/edit-source-columns/edit-source-columns.component';
 import {SearchFilterPipe, ValuePipe} from '../pipes/pipes';
@@ -56,25 +54,21 @@ import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
         //AppModule,
         CommonModule,
         ViewsRoutingModule,
-        FormsModule, ReactiveFormsModule,
+        FormsModule,
+        ReactiveFormsModule,
         ButtonsModule.forRoot(),
         CollapseModule,
         ComponentsModule,
         TypeaheadModule,
         // coreui / bootstrap
         TooltipModule.forRoot(),
-        AppHeaderModule,
-        AppAsideModule,
-        AppSidebarModule,
-        AppFooterModule,
         TreeModule,
         BsDropdownModule,
         DragDropModule,
         ModalModule.forRoot(),
         AutocompleteLibModule,
         ProgressbarModule,
-        PopoverModule,
-        NgxSliderModule
+        PopoverModule
     ],
     declarations: [
         EditColumnsComponent,

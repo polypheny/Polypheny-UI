@@ -6,7 +6,7 @@ import {DbColumn, EntityMeta, PolyType, ResultSet, Status} from '../../../compon
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {Store} from '../../adapters/adapter.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {BehaviorSubject, Subscription} from 'rxjs';
@@ -40,12 +40,12 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   exportProgress = 0.0;
   uploading = false;
   private subscriptions = new Subscription();
-  exportForm = new FormGroup({
-    name: new FormControl('', Validators.required),
-    description: new FormControl(''),
-    pub: new FormControl(0, Validators.required),
-    createPrimaryKeys: new FormControl(true, Validators.required),
-    addDefaultValue: new FormControl(true, Validators.required)
+  exportForm = new UntypedFormGroup({
+    name: new UntypedFormControl('', Validators.required),
+    description: new UntypedFormControl(''),
+    pub: new UntypedFormControl(0, Validators.required),
+    createPrimaryKeys: new UntypedFormControl(true, Validators.required),
+    addDefaultValue: new UntypedFormControl(true, Validators.required)
   });
 
   constructor(

@@ -15,7 +15,7 @@ import {
     TableConstraint
 } from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {
     ColumnRequest,
     ConstraintRequest,
@@ -56,9 +56,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         public _types: DbmsTypesService,
         public _catalog: CatalogService
     ) {
-        this.newIndexForm = new FormGroup({
-            name: new FormControl('', this._crud.getNameValidator()),
-            method: new FormControl('')
+        this.newIndexForm = new UntypedFormGroup({
+            name: new UntypedFormControl('', this._crud.getNameValidator()),
+            method: new UntypedFormControl('')
         });
         this._types.getTypes().subscribe(
             (type: PolyType[]) => {
@@ -79,7 +79,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     createColumn = new DbColumn('', false, true, 'text', '', null, null, null);
     confirm = -1;
     readonly oldColumns = new BehaviorSubject(new Map<string, DbColumn>());
-    updateColumn = new FormGroup({name: new FormControl('')});
+    updateColumn = new UntypedFormGroup({name: new UntypedFormControl('')});
 
     constraints: Observable<ConstraintModel[]>;
     confirmConstraint = -1;
@@ -91,7 +91,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     indexes: ResultSet;
     newIndexCols = new Map<string, boolean>();
     selectedStoreForIndex: Store;
-    newIndexForm: FormGroup;
+    newIndexForm: UntypedFormGroup;
     indexSubmitted = false;
     proposedIndexName = 'indexName';
     addingIndex = false;
@@ -106,7 +106,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     readonly partitions: BehaviorSubject<AllocationPartitionModel[]> = new BehaviorSubject([]);
     readonly allocations: BehaviorSubject<AllocationEntityModel[]> = new BehaviorSubject([]);
 
-    columnPlacement: FormGroup;
+    columnPlacement: UntypedFormGroup;
     placementMethod: 'ADD' | 'MODIFY' | 'DROP';
     isAddingPlacement = false;
 
@@ -230,17 +230,17 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             if (col.defaultValue === undefined) {
                 col.defaultValue = null;
             }
-            this.updateColumn = new FormGroup({
-                name: new FormControl(col.name, Validators.required),
-                oldName: new FormControl(col.name),
-                nullable: new FormControl(col.nullable),
-                dataType: new FormControl(col.dataType),
-                collectionsType: new FormControl(col.collectionsType),
-                precision: new FormControl(col.precision),
-                scale: new FormControl(col.scale),
-                dimension: new FormControl(col.dimension),
-                cardinality: new FormControl(col.cardinality),
-                defaultValue: new FormControl({value: col.defaultValue, disabled: col.defaultValue === null})
+            this.updateColumn = new UntypedFormGroup({
+                name: new UntypedFormControl(col.name, Validators.required),
+                oldName: new UntypedFormControl(col.name),
+                nullable: new UntypedFormControl(col.nullable),
+                dataType: new UntypedFormControl(col.dataType),
+                collectionsType: new UntypedFormControl(col.collectionsType),
+                precision: new UntypedFormControl(col.precision),
+                scale: new UntypedFormControl(col.scale),
+                dimension: new UntypedFormControl(col.dimension),
+                cardinality: new UntypedFormControl(col.cardinality),
+                defaultValue: new UntypedFormControl({value: col.defaultValue, disabled: col.defaultValue === null})
             });
             this.editColumn = i;
         }
@@ -673,13 +673,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         if (!this.selectedStore) {
             return;
         }
-        this.columnPlacement = new FormGroup({});
+        this.columnPlacement = new UntypedFormGroup({});
         this.oldColumns.value.forEach((v, k) => {
             let state = true;
             if (preselect.length > 0 && !preselect.some(e => e.columnName === v.name && e.placementType === PlacementType.MANUAL)) {
                 state = false;
             }
-            this.columnPlacement.addControl(v.name, new FormControl(state));
+            this.columnPlacement.addControl(v.name, new UntypedFormControl(state));
         });
         this.placementModal.show();
     }

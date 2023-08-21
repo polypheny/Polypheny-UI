@@ -22,7 +22,7 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
 import {ChartsModule} from 'ng2-charts';
 import {HttpClientModule} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
-import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
+import {FooterComponent, HeaderComponent, ToastComponent, ToasterComponent} from '@coreui/angular';
 import {DefaultLayoutComponent} from './containers/default-layout';
 import {P404Component} from './views/error/404.component';
 import {P500Component} from './views/error/500.component';
@@ -32,38 +32,37 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
+import {RouterModule} from "@angular/router";
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     suppressScrollX: true
 };
 
 @NgModule({
-    imports: [
-        ComponentsModule,
-        AppRoutingModule,
-        BrowserAnimationsModule,
-        BrowserModule,
-        PerfectScrollbarModule,
-        BsDropdownModule.forRoot(),
-        TabsModule.forRoot(),
-        ChartsModule,
-        // coreui / bootstrap
-        TooltipModule.forRoot(),
-        AppHeaderModule,
-        AppAsideModule,
-        AppSidebarModule,
-        AppFooterModule,
-        // forms
-        FormsModule, ReactiveFormsModule,
-        TreeModule.forRoot(),
-        BsDropdownModule,
-        TypeaheadModule.forRoot(),
-        HttpClientModule,
-        ViewsModule,
-        PopoverModule.forRoot(),
-        ModalModule.forRoot(),
-        NgxJsonViewerModule
-    ],
+  imports: [
+    ComponentsModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    BrowserModule,
+    PerfectScrollbarModule,
+    BsDropdownModule.forRoot(),
+    RouterModule,
+    TabsModule.forRoot(),
+    ChartsModule,
+    // coreui / bootstrap
+    TooltipModule.forRoot(),
+    // forms
+    FormsModule,
+    ReactiveFormsModule,
+    TreeModule.forRoot(),
+    BsDropdownModule,
+    TypeaheadModule.forRoot(),
+    HttpClientModule,
+    ViewsModule,
+    PopoverModule.forRoot(),
+    ModalModule.forRoot(),
+    NgxJsonViewerModule, FooterComponent, HeaderComponent
+  ],
     declarations: [
         AppComponent,
         DefaultLayoutComponent,

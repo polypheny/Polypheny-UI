@@ -1,4 +1,4 @@
-<app-toast></app-toast>
+<c-toast></c-toast>
 <div *ngIf="!resultSet.data && !resultSet.error && creatingView">Successfully created View {{this.newViewName }}.</div>
 <div *ngIf="!resultSet.data && !resultSet.error && !creatingView">data-table: nothing to show.</div>
 <div class="text-danger mb-3" *ngIf="resultSet.error && !resultSet.header">{{resultSet.error}}</div>
@@ -13,7 +13,7 @@
                 <ng-container *ngFor="let h of resultSet.header">
                     <th><span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body"
                               [ngClass]="{'pk': h.primary}">{{ h.name }}</span>
-                        <a *ngIf="config.sort && canOrder(h) && h.name !== '_data'" [routerLink]=""
+                        <a *ngIf="config.sort && canOrder(h) && h.name !== '_data'" [routerLink]="[][]"
                            [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}"
                            (click)="sortTable(h.sort)">
                             <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
@@ -251,11 +251,11 @@
     <div class="modal-content">
         <div class="modal-header">
             <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link active view-title" aria-current="page" (click)="viewOptions ='view'">View</a>
+                <li class="c-header-nav-item">
+                    <a class="c-header-nav-link active view-title" aria-current="page" (click)="viewOptions ='view'">View</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link view-title" aria-current="page" (click)="viewOptions = 'materialized-view'">Materialized
+                <li class="c-header-nav-item">
+                    <a class="c-header-nav-link view-title" aria-current="page" (click)="viewOptions = 'materialized-view'">Materialized
                         View</a>
                 </li>
             </ul>

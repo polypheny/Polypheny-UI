@@ -1,4 +1,4 @@
-<app-header
+<c-header
         [navbarBrandRouterLink]="'/'"
         [fixed]="true"
         [navbarBrandFull]="{src: 'assets/img/brand/logo.svg', width: 89, height: 25, alt: 'Polypheny-DB Logo', class: 'd-md-down-none'}"
@@ -6,31 +6,31 @@
         [sidebarToggler]="'lg'"
         [asideMenuToggler]="'lg'">
 
-    <ul class="nav navbar-nav flex-row" id="top-nav">
-        <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/views/monitoring']" routerLinkActive="active">
+    <ul class="c-header-nav navbar-nav flex-row" id="top-nav">
+        <li class="c-header-nav-item px-3"><a class="c-header-nav-link" [routerLink]="['/views/monitoring']" routerLinkActive="active">
             <i class="fa fa-area-chart"></i><span class="d-md-down-none">Monitoring</span>
         </a></li>
-        <li class="nav-item px-3"><a class="nav-link" [routerLink]="['/views/config']" routerLinkActive="active">
+        <li class="c-header-nav-item px-3"><a class="c-header-nav-link" [routerLink]="['/views/config']" routerLinkActive="active">
             <!--tooltip="Dynamic Form" placement="bottom"-->
             <i class="icon-settings"></i><span class="d-md-down-none">Config</span>
         </a></li>
 
-        <li class="nav-item px-3">
-            <a [routerLink]="['/views/schema-editing']" class="nav-link" routerLinkActive="active"
+        <li class="c-header-nav-item px-3">
+            <a [routerLink]="['/views/schema-editing']" class="c-header-nav-link" routerLinkActive="active"
                (click)="_sidebar.reset()">
                 <i class="fa fa-cubes"></i><span class="d-md-down-none">Schema</span>
             </a>
         </li>
 
-        <li class="nav-item px-3">
-            <a [routerLink]="['/views/data-table']" class="nav-link" routerLinkActive="active">
+        <li class="c-header-nav-item px-3">
+            <a [routerLink]="['/views/data-table']" class="c-header-nav-link" routerLinkActive="active">
                 <i class="fa fa-table"></i><span class="d-md-down-none">Data</span>
             </a>
         </li>
 
-        <li class="nav-item" dropdown triggers="mouseover" placement="bottom left" #dropdown="bs-dropdown"
+        <li class="c-header-nav-item" dropdown triggers="mouseover" placement="bottom left" #dropdown="bs-dropdown"
             (mouseleave)="dropdown.hide()">
-            <a class="nav-link dropdown-toggle py-2 px-3" dropdownToggle [routerLink]="['/views/querying']">
+            <a class="c-header-nav-link dropdown-toggle py-2 px-3" dropdownToggle [routerLink]="['/views/querying']">
                 <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Query</span>
             </a>
             <div class="dropdown-menu dropdown-menu-left text-center" *dropdownMenu style="margin-top: -1px;">
@@ -52,38 +52,38 @@
             </div>
         </li>
 
-        <li class="nav-item px-3">
+        <li class="c-header-nav-item px-3">
             <a [routerLink]="['/views/adapters']" class="nav-link" routerLinkActive="active">
                 <i class="fa fa-database"></i><span class="d-md-down-none">Adapters</span>
             </a>
         </li>
 
-        <li class="nav-item px-3">
+        <li class="c-header-nav-item px-3">
             <a [routerLink]="['/views/queryInterfaces']" class="nav-link" routerLinkActive="active">
                 <i class="fa fa-exchange"></i><span class="d-md-down-none">Interfaces</span>
             </a>
         </li>
 
     </ul>
-    <ul class="nav navbar-nav ml-auto"></ul>
+    <ul class="c-header-nav navbar-nav ml-auto"></ul>
     <div id="connection-status" [ngClass]="getConnectionClass()" [tooltip]="getConnectionClass()" container="body"
          placement="left"></div>
-</app-header>
-<div class="app-body">
+</c-header>
+<div class="c-app-body">
 
     <app-left-sidebar class="sidebar"></app-left-sidebar>
 
     <!-- Main content -->
-    <main class="main">
+    <c-main class="c-main">
         <app-breadcrumb-main></app-breadcrumb-main>
         <div class="container-fluid" style="position: relative;">
             <router-outlet></router-outlet>
         </div>
-    </main>
+    </c-main>
     <app-aside [fixed]="true" [display]="false">
         <app-right-sidebar></app-right-sidebar>
     </app-aside>
 </div>
-<app-footer style="z-index: 2;">
+<c-footer style="z-index: 2;">
     <a class="text-muted" [routerLink]="['/views/about']">About Polypheny</a>
-</app-footer>
+</c-footer>

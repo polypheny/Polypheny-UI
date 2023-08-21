@@ -1,6 +1,6 @@
 <div class="row" [hidden]="showingAnalysis" (keydown.alt.shift)="toggleCache(false)" (keyup.alt.shift)="revertCache()"
      (keyup.shift.alt)="revertCache()" (keydown.alt.shift.enter)="submitQuery()" (keydown.alt.enter)="submitQuery()">
-    <app-toast></app-toast>
+    <c-toast></c-toast>
     <div class="col-lg-8 col-md-8 col-sm-12 mb-3">
         <ul class="list-group grey-border" id="console">
             <li id="console-item-head" *ngIf="usesAdvancedConsole(lang)" class="list-group-item header grey-bg"

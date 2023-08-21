@@ -19,7 +19,7 @@ import {DbTable} from '../../views/uml/uml.model';
 import {Table} from '../../views/schema-editing/edit-tables/edit-tables.component';
 import {Store} from '../../views/adapters/adapter.model';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
-import {FormGroup} from '@angular/forms';
+import {UntypedFormGroup} from '@angular/forms';
 import {CatalogService} from '../../services/catalog.service';
 import {TableModel} from '../../models/catalog.model';
 
@@ -126,7 +126,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     stores: Store[];
     storeOptions: Array<String>;
     storeSelected: string;
-    chooseNameForView: FormGroup;
+    chooseNameForView: UntypedFormGroup;
 
     // see https://stackoverflow.com/questions/52017809/how-to-convert-string-to-boolean-in-typescript-angular-4
     showView: ViewType;

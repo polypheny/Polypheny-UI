@@ -1,4 +1,4 @@
-<app-toast></app-toast>
+<c-toast></c-toast>
 <app-edit-source-columns *ngIf="isEntityType(EntityType.SOURCE) | async"></app-edit-source-columns>
 <div class="row" *ngIf="!(isEntityType(EntityType.SOURCE) | async)">
 
@@ -300,7 +300,7 @@
                     </div>
                 </td>
                 <td>
-                    <a [routerLink]="" class="btn btn-primary" id="addColumnBtn" (click)="addColumn()">+</a>
+                    <a [routerLink]="[]" class="btn btn-primary" id="addColumnBtn" (click)="addColumn()">+</a>
                 </td>
             </tr>
             </tbody>
