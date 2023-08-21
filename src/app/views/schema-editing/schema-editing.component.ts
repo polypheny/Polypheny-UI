@@ -32,9 +32,9 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         private _catalog: CatalogService
     ) {
     }
+    readonly currentRoute: BehaviorSubject<string> = new BehaviorSubject('');//either the name of a table (schemaName.tableName) or of a schema (schemaName)
+    readonly namespace: BehaviorSubject<NamespaceModel> = new BehaviorSubject<NamespaceModel>(null);
 
-    namespace: BehaviorSubject<NamespaceModel> = new BehaviorSubject<NamespaceModel>(null );
-    routeParam: string;//either the name of a table (schemaName.tableName) or of a schema (schemaName)
     createForm: FormGroup;
     dropForm: FormGroup;
     schemas: SidebarNode[];
@@ -48,7 +48,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     public readonly NamespaceType = NamespaceType;
 
     ngOnInit() {
-        this.getRouteParam();
+        this.attachSubscriber();
         this.getSchema();
         this.initForms();
         this.getStores();
@@ -83,12 +83,20 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         this._breadcrumb.hide();
     }
 
-    getRouteParam() {
-        this.routeParam = this._route.snapshot.paramMap.get('id');
-        this._route.params.subscribe((params) => {
-            this.routeParam = params['id'];
-            this.namespace = this._catalog.getNamespaceFromName(this.routeParam);
+    attachSubscriber() {
+        this.currentRoute.subscribe( route => {
+            const namespaceName = route.split('\.')[0];
+            this._catalog.getNamespaceFromName(namespaceName).subscribe( n => {
+                this.namespace.next(n);
+            });
         });
+
+        this._route.params.subscribe((params) => {
+            this.currentRoute.next( params['id'] );
+        });
+
+        this.currentRoute.next(this._route.snapshot.paramMap.get('id') || '');
+
     }
 
     public getSchema() {
@@ -216,6 +224,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         return this.namespace.pipe(
             filter(n => !!n),
             map(n => {
+                //console.log(n)
                 return n.namespaceType === namespaceType;
             }));
     }

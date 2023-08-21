@@ -22,7 +22,6 @@ export class CatalogService {
   private namespaces: BehaviorSubject<Map<number, NamespaceModel>> = new BehaviorSubject(new Map<number, NamespaceModel>());
   private namespacesNames: BehaviorSubject<Map<string, NamespaceModel>> = new BehaviorSubject(new Map<string, NamespaceModel>());
   private entities: BehaviorSubject<Map<number, EntityModel>> = new BehaviorSubject(new Map<number, EntityModel>());
-  private entitiesNames: BehaviorSubject<Map<string, EntityModel>> = new BehaviorSubject(new Map<string, EntityModel>());
   private fields: BehaviorSubject<Map<number, FieldModel>> = new BehaviorSubject( new Map<number, FieldModel>());
   private fieldNames: BehaviorSubject<Map<string, FieldModel>> = new BehaviorSubject( new Map<string, FieldModel>());
   private keys: BehaviorSubject<Map<number, KeyModel>> = new BehaviorSubject( new Map<number, KeyModel>());
@@ -48,7 +47,6 @@ export class CatalogService {
       this.namespaces.next(this.toIdMap(snapshot.namespaces));
       this.namespacesNames.next(this.toNameMap(snapshot.namespaces));
       this.entities.next(this.toIdMap( this.snapshot.entities ));
-      this.entitiesNames.next(this.toNameMap(this.snapshot.entities));
       this.fields.next(this.toIdMap(this.snapshot.fields));
       this.fieldNames.next(this.toNameMap(this.snapshot.fields));
       this.keys.next(this.toIdMap(this.snapshot.keys));
@@ -214,7 +212,7 @@ export class CatalogService {
           break;
       }
 
-      const tableNode = new SidebarNode(namespace.name + '.' + table.name, table.name, routerLinkRoot, icon );
+      const tableNode = new SidebarNode(namespace.name + '.' + table.name, table.name, icon, routerLinkRoot + namespace.name + '.' + table.name );
 
       if (depth > 2) {
         const columns = Array.from(this.snapshot.fields.values()).filter( f => f.entityId === table.id );
@@ -226,12 +224,14 @@ export class CatalogService {
 
     }
     if (showTable) {
-      const node = new SidebarNode( namespace.name + '.tables', 'tables', this.getNamespaceIcon(namespace.namespaceType),  routerLinkRoot );
+      const node = new SidebarNode( namespace.name + '.tables', 'tables', this.getNamespaceIcon(namespace.namespaceType),  '' );
       node.children.push( ...nodes );
       namespaceNode.children.push(node);
     }else {
       namespaceNode.children.push(...nodes);
+      namespaceNode.routerLink = '';
     }
+    console.log(namespaceNode);
 
   }
 
@@ -262,8 +262,7 @@ export class CatalogService {
 
   getPrimaryKey(entityId: number): BehaviorSubject<KeyModel> {
     return this.wrapBehaviorSubject( () => {
-      const entity = <TableModel>this.entities.value.get(entityId);
-      return this.keys.value.get(entity.primaryKey);
+      return Array.from(this.keys.value.values()).filter( k => k.isPrimary && k.entityId === entityId)[0];
     });
   }
 
@@ -289,5 +288,9 @@ export class CatalogService {
 
   getPlacements(entityId: number): BehaviorSubject<AllocationPlacementModel[]> {
     return this.wrapBehaviorSubject(() => Array.from(this.placements.value.values()).filter(p => p.logicalEntityId === entityId));
+  }
+
+  getPartitions(entityId: number): BehaviorSubject<AllocationPartitionModel[]>  {
+    return this.wrapBehaviorSubject(() => Array.from(this.partitions.value.values()).filter(p => p.logicalEntityId === entityId));
   }
 }

@@ -32,10 +32,10 @@ import {
 } from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
-import {BehaviorSubject, Observable, Subscription} from 'rxjs';
+import {BehaviorSubject, forkJoin, Observable, of, Subscription} from 'rxjs';
 import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {ConstraintModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, ConstraintModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {filter, map, mergeMap} from 'rxjs/operators';
 
 const INITIAL_TYPE = 'BIGINT';
@@ -68,18 +68,17 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         );
     }
 
-    entity: BehaviorSubject<TableModel>;
-    namespace: BehaviorSubject<NamespaceModel>;
-
+    readonly entity: BehaviorSubject<TableModel> = new BehaviorSubject<TableModel>(null);
+    readonly namespace: BehaviorSubject<NamespaceModel> = new BehaviorSubject<NamespaceModel>(null);
+    readonly currentRoute: BehaviorSubject<string> = new BehaviorSubject<string>(this._route.snapshot.paramMap.get('id'));
 
     foreignKeys: ForeignKey[] = [];
 
-    resultSet: ResultSet;
     types: PolyType[] = [];
     editColumn = -1;
     createColumn = new DbColumn('', false, true, 'text', '', null, null, null);
     confirm = -1;
-    oldColumns = new BehaviorSubject(new Map<string, DbColumn>());
+    readonly oldColumns = new BehaviorSubject(new Map<string, DbColumn>());
     updateColumn = new FormGroup({name: new FormControl('')});
 
     constraints: Observable<ConstraintModel[]>;
@@ -90,7 +89,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     proposedConstraintName = 'constraintName';
 
     indexes: ResultSet;
-    newIndexCols;
+    newIndexCols = new Map<string, boolean>();
     selectedStoreForIndex: Store;
     newIndexForm: FormGroup;
     indexSubmitted = false;
@@ -100,10 +99,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     materializedInfo: [];
 
     //data placement handling
-    stores: Store[];
+    readonly stores: BehaviorSubject<Store[]> = new BehaviorSubject<Store[]>([]);
     availableStoresForIndexes: Store[];
     selectedStore: Store;
-    dataPlacements: Placements;
+    readonly placements: BehaviorSubject<AllocationPlacementModel[]> = new BehaviorSubject([]);
+    readonly partitions: BehaviorSubject<AllocationPartitionModel[]> = new BehaviorSubject([]);
+    readonly allocations: BehaviorSubject<AllocationEntityModel[]> = new BehaviorSubject([]);
+
     columnPlacement: FormGroup;
     placementMethod: 'ADD' | 'MODIFY' | 'DROP';
     isAddingPlacement = false;
@@ -126,24 +128,35 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     public readonly EntityType = EntityType;
 
     ngOnInit() {
-        const sub = this._route.params.subscribe((params) => {
-            const fullName = params['id'];
 
-            const splits = fullName.split('\.');
-            this._catalog.updateIfNecessary().subscribe(catalog => {
-                this.namespace = this._catalog.getNamespaceFromName(splits[0]);
-                this._catalog.getEntityFromName(splits[0], splits[1]).subscribe( entity => {
-                    this.entity.next(<TableModel>entity);
-                });
+        this._route.params.subscribe( route => {
+           this.currentRoute.next(route['id']);
+        });
 
-                this.subscriptions.add(this.subscribe());
-                this.getIndexes();
-                this.getPlacementsAndPartitions();
-                this.getAvailableStoresForIndexes();
-                this.getUml();
+        const sub = this.currentRoute.subscribe(route => {
+            const splits = route.split('\.');
+
+            this._catalog.getNamespaceFromName(splits[0]).subscribe( n => {
+               this.namespace.next(n);
+            });
+            this._catalog.getEntityFromName(splits[0], splits[1]).subscribe( entity => {
+                this.entity.next(<TableModel>entity);
             });
 
+            this.subscriptions.add(this.subscribe());
+            //this.getPlacementsAndPartitions();
+            this.getAvailableStoresForIndexes();
+            this.getUml();
+
+            if (this.isEntityType(EntityType.MATERIALIZED_VIEW)) {
+                this.getMaterializedInfo();
+            }
+
+            this.getIndexes();
+            this.initNewIndexValues();
         });
+
+
         this.subscriptions.add(sub);
 
         this.getPartitionTypes();
@@ -169,52 +182,40 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     subscribe() {
-
         this.entity.pipe(
+            filter( n => !!n),
             mergeMap( entity => this._catalog.getColumns(entity.id) )).subscribe( columns => {
             this.oldColumns.next( new Map(columns.map( c => DbColumn.fromModel(c, this._catalog.getPrimaryKey(c.entityId).value.columnIds) ).map( c => [c.name, c])) );
 
-          this.newIndexCols = {};
-          columns.forEach((v, k) => {
-            this.newIndexCols[v.name] = false;
-          });
-
-          this.partitioningRequest.column = columns[0].name;
-          this.newPrimaryKey = Array.from(this.oldColumns.value.values()).map(x => Object.assign({}, x));
-          this.constraints = this._catalog.getConstraints(this.entity.value.id);
         } );
 
+        this.oldColumns.pipe(filter(n => !!n ), map(n => Array.from(n.values()))).subscribe( columns => {
+            this.newIndexCols = new Map(columns.map( c => [c.name, false]));
 
-        /*this._crud.getColumns(new ColumnRequest(this.entityId)).subscribe(
-            (res: ResultSet) => {
-                this.resultSet = res;
-                this.oldColumns.clear();
-                this.newIndexCols = {};
-                this.resultSet.header.forEach((v, k) => {
-                    this.oldColumns.set(v.name, v);
-                    this.newIndexCols[v.name] = false;
-                });
-                this.partitioningRequest.column = this.resultSet.header[0].name;
-                // deep copy: from: https://stackoverflow.com/questions/35504310/deep-copy-an-array-in-angular-2-typescript
-                this.newPrimaryKey = this.resultSet.header.map(x => Object.assign({}, x));
-            }, err => {
-                this._toast.error('Could not load columns of the table.', null, ToastDuration.INFINITE);
-                console.log(err);
-            }
-        );*/
-    }
+            this.partitioningRequest.column = columns.length !== 0 ? columns[0].name : '';
+            this.newPrimaryKey = Array.from(this.oldColumns.value.values()).map(x => Object.assign({}, x));
+            this.constraints = this._catalog.getConstraints(this.entity.value.id);
+        });
 
-    getColumnArray() {
-        return this.resultSet.header.map((h) => h.name);
+        this.entity.pipe(filter(n => !!n)).subscribe( entity => {
+            this._catalog.getPlacements(entity.id).subscribe(placements => {
+                this.placements.next(placements);
+            });
+
+            this._catalog.getPartitions(entity.id).subscribe( partitions => {
+               this.partitions.next(partitions);
+            });
+        });
+
     }
 
     columnValidation(columnName: string, editing: string = null) {
         if (editing) {
-            if (this.resultSet.header.filter((h) => h.name === columnName && h.name !== editing).length > 0) {
+            if (Array.from(this.oldColumns.value.values()).filter((h) => h.name === columnName && h.name !== editing).length > 0) {
                 return 'is-invalid';
             }
         } else {
-            if (this.resultSet.header.filter((h) => h.name === columnName).length > 0) {
+            if (Array.from(this.oldColumns.value.values()).filter((h) => h.name === columnName).length > 0) {
                 return 'is-invalid';
             }
         }
@@ -303,7 +304,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
             return;
         }
-        if (this.resultSet.header.filter((h) => h.name === this.updateColumn.controls['name'].value && h.name !== this.updateColumn.controls['oldName'].value).length > 0) {
+        if (Array.from( this.oldColumns.value.values()).filter((h) => h.name === this.updateColumn.controls['name'].value && h.name !== this.updateColumn.controls['oldName'].value).length > 0) {
             this._toast.warn('This column name already exists', 'invalid column name');
             return;
         }
@@ -354,7 +355,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
             return;
         }
-        if (this.resultSet.header.filter((h) => h.name === this.createColumn.name).length > 0) {
+        if (Array.from(this.oldColumns.value.values()).filter((h) => h.name === this.createColumn.name).length > 0) {
             this._toast.warn('There already exists a column with this name', 'invalid column name');
             return;
         }
@@ -370,7 +371,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 const result = <ResultSet>res;
                 if (result.error === undefined) {
                     this._catalog.updateIfNecessary();
-                    this.getPlacementsAndPartitions();
                     this.createColumn.name = '';
                     this.createColumn.nullable = true;
                     this.createColumn.dataType = INITIAL_TYPE;
@@ -392,7 +392,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this._crud.dropColumn(new ColumnRequest(this.entity.value.id, col)).subscribe(
             (result: ResultSet) => {
                 this._catalog.updateIfNecessary();
-                this.getPlacementsAndPartitions();
+                //this.getPlacementsAndPartitions();
                 this.confirm = -1;
                 if (result.error) {
                     this._toast.exception(result, 'Could not delete column:', 'server error', ToastDuration.INFINITE);
@@ -463,7 +463,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 if (!result.error) {
                     this._toast.success('The primary key was updated.', result.generatedQuery, 'updated primary key');
                     this._catalog.updateIfNecessary();
-                    this.getPlacementsAndPartitions();
+                    //this.getPlacementsAndPartitions();
                 } else {
                     this._toast.exception(result, null, 'primary key error', ToastDuration.INFINITE);
                 }
@@ -489,7 +489,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
         const constraint = new TableConstraint(-1, this.uniqueConstraintName, 'UNIQUE');
         let counter = 0;
-        this.resultSet.header.forEach((v, k) => {
+        this.oldColumns.value.forEach((v, k) => {
             if (v.unique) {
                 constraint.addColumn(v.name);
                 counter++;
@@ -508,7 +508,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                     this._toast.success('The unique constraint was successfully created', result.generatedQuery, 'added constraint');
                     this.uniqueConstraintName = '';
                     this.getGeneratedNames();
-                    this.resultSet.header.forEach((v, k) => {
+                    this.oldColumns.value.forEach((v, k) => {
                         v.unique = false;
                     });
                 } else {
@@ -585,7 +585,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     getStores() {
         this._crud.getStores().subscribe(
             res => {
-                this.stores = <Store[]>res;
+                this.stores.next(<Store[]>res);
                 this.initNewIndexValues();
             }, err => {
                 console.log(err);
@@ -629,31 +629,20 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         );
     }
 
-    getAddableStores(): Store[] {
-        if (!this.stores) {
-            return [];
-        }
-        return this.stores.filter((s: Store) => {
-            //hide stores that are already part of the placement
-            if (this.dataPlacements && this.dataPlacements.stores && this.dataPlacements.stores.length > 0) {
-                let showStore = true;
-                for (const store of this.dataPlacements.stores) {
-                    if (store.uniqueName === s.uniqueName) {
-                        showStore = false;
-                    }
-                }
-                return showStore;
-            } else {
-                return true;
-            }
-        });
+    getAddableStores(): Observable<Store[]> {
+        return forkJoin( [
+            this.stores,
+            this.placements.pipe(map(placements => placements.map( p => p.adapterId)))])
+        .pipe(map(usedUnusedIds => {
+            return Array.from(usedUnusedIds[0]).filter( store => usedUnusedIds[1].includes(store.adapterId));
+        }));
     }
 
-    getPlacementsAndPartitions() {
+    /*getPlacementsAndPartitions() {
         this._crud.getDataPlacements(this.namespace.value.id, this.entity.value.id).subscribe(
             res => {
-                this.dataPlacements = <Placements>res;
-                for (const s of this.dataPlacements.stores) {
+                this.placements = <Placements>res;
+                for (const s of this.placements.stores) {
                     s.columnPlacements.sort((a, b) => a.columnId - b.columnId);
                 }
 
@@ -663,18 +652,18 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
                 this.getIndexes();
                 this.initNewIndexValues();
-                if (this.dataPlacements.exception) {
+                if (this.placements.exception) {
                     // @ts-ignore
                     this._toast.exception({
-                        error: this.dataPlacements.exception.detailMessage,
-                        exception: this.dataPlacements.exception
+                        error: this.placements.exception.detailMessage,
+                        exception: this.placements.exception
                     });
                 }
             }, err => {
                 console.log(err);
             }
         );
-    }
+    }*/
 
     initPlacementModal(method: 'ADD' | 'MODIFY', store = null, preselect: CatalogColumnPlacement[] = []) {
         this.placementMethod = method;
@@ -685,7 +674,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             return;
         }
         this.columnPlacement = new FormGroup({});
-        this.resultSet.header.forEach((v, k) => {
+        this.oldColumns.value.forEach((v, k) => {
             let state = true;
             if (preselect.length > 0 && !preselect.some(e => e.columnName === v.name && e.placementType === PlacementType.MANUAL)) {
                 state = false;
@@ -700,7 +689,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     selectAllColumns(selectAll: boolean) {
-        this.resultSet.header.forEach((v, k) => {
+        this.oldColumns.value.forEach((v, k) => {
             this.columnPlacement.get(v.name).setValue(selectAll);
         });
     }
@@ -725,7 +714,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                     } else if (this.placementMethod === 'MODIFY') {
                         this._toast.success('Modified placement on store ' + this.selectedStore.uniqueName, result.generatedQuery, 'Modified placement');
                     }
-                    this.getPlacementsAndPartitions();
+                    //this.getPlacementsAndPartitions();
                     this.getAvailableStoresForIndexes();
                 }
                 this.selectedStore = null;
@@ -746,7 +735,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                     this._toast.exception(result);
                 } else {
                     this._toast.success('Dropped placement on store ' + store.uniqueName, result.generatedQuery, 'Dropped placement');
-                    this.getPlacementsAndPartitions();
+                    //this.getPlacementsAndPartitions();
                     this.getAvailableStoresForIndexes();
                 }
             }, err => {
@@ -770,10 +759,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
      * Whether the table is partitioned
      */
     isPartitioned() {
-        if (!this.dataPlacements || !this.dataPlacements.stores) {
-            return false;
-        }
-        return this.dataPlacements.isPartitioned;
+        return this.placements.pipe( map(p => p.length > 1));
     }
 
     getPartitionFunctionModel() {
@@ -811,7 +797,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                     console.log(result.generatedQuery);
                 } else {
                     this._toast.success('Partitioned table', result.generatedQuery);
-                    this.getPlacementsAndPartitions();
+                    //this.getPlacementsAndPartitions();
                 }
                 this.partitionFunctionModal.hide();
             }, err => {
@@ -829,7 +815,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 const result = <ResultSet>res;
                 if (!result.error) {
                     this._toast.success('Merged partitions ');
-                    this.getPlacementsAndPartitions();
+                    //this.getPlacementsAndPartitions();
                 } else {
                     this._toast.exception(result);
                 }
@@ -857,7 +843,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 if (!result.error) {
                     this.partitioningModal.hide();
                     this._toast.success('Modified partitions');
-                    this.getPlacementsAndPartitions();
+                    //this.getPlacementsAndPartitions();
                     console.log(result.generatedQuery);
                 } else {
                     this._toast.exception(result);
@@ -871,12 +857,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     initPartitioningModal(store: Store) {
         this.partitionsToModify = [];
-        for (let i = 0; i < this.dataPlacements.partitionNames.length; i++) {
+        for (const [i, partition] of this.partitions.value.entries()) {
             this.partitionsToModify.push({
-                partitionName: this.dataPlacements.partitionNames[i],
+                partitionName: partition.name,
                 selected: store.partitionKeys.includes(i)
             });
         }
+
         this.selectedStore = store;
         this.partitioningModal.show();
     }
@@ -929,10 +916,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                         this.getGeneratedNames();
                         this.newIndexForm.reset({name: '', method: ''});
                         this.initNewIndexValues();
-                        this.newIndexCols = {};
-                        this.resultSet.header.forEach((v, k) => {
-                            this.newIndexCols[v.name] = false;
-                        });
+                        this.newIndexCols = new Map(Array.from(this.oldColumns.value.values()).map( c => [c.name, false]));
                         this.indexSubmitted = false;
                     } else {
                         this._toast.exception(result, 'Could not create index:');

@@ -1,5 +1,6 @@
 import {SortState} from './sort-state.model';
 import {ColumnModel} from '../../../models/catalog.model';
+import {NamespaceType} from '../../../models/ui-request.model';
 
 /**
  * model for the result of a query coming from the server
@@ -21,7 +22,7 @@ export class ResultSet {
     type: string;//"table" or "view"
     namespaceName: string;
     namespaceId: number;
-    namespaceType = 'RELATIONAL';//"relational" or "document"
+    namespaceType = NamespaceType.RELATIONAL;//"relational" or "document"
     language: string; //sql,mql,cql
     explorerId: number;
     classificationInfo: string;

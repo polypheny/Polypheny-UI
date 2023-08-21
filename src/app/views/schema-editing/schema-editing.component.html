@@ -1,20 +1,21 @@
 <app-toast></app-toast>
-<div *ngIf="routeParam">
-    <app-statistics-column *ngIf="isStatistic()"></app-statistics-column>
+<div *ngIf="currentRoute">
+    <app-statistics-column
+            *ngIf="isStatistic()"></app-statistics-column>
     <app-edit-columns
-            *ngIf="routeParam.includes('.') && ( isNamespaceType(NamespaceType.RELATIONAL) | async) && !isStatistic()"></app-edit-columns>
+            *ngIf="(currentRoute | async).includes('.') && (isNamespaceType(NamespaceType.RELATIONAL) | async) && !isStatistic()"></app-edit-columns>
     <app-edit-tables
-            *ngIf="!routeParam.includes('.') && ( isNamespaceType(NamespaceType.RELATIONAL) | async) && !isStatistic()"></app-edit-tables>
+            *ngIf="!(currentRoute | async).includes('.') && (isNamespaceType(NamespaceType.RELATIONAL) | async) && !isStatistic()"></app-edit-tables>
     <app-document-edit-collections
-            *ngIf="!routeParam.includes('.') && ( isNamespaceType(NamespaceType.DOCUMENT) | async) && !isStatistic()"></app-document-edit-collections>
+            *ngIf="!(currentRoute | async).includes('.') && (isNamespaceType(NamespaceType.DOCUMENT) | async) && !isStatistic()"></app-document-edit-collections>
     <app-document-edit-collection
-            *ngIf="routeParam.includes('.') && ( isNamespaceType(NamespaceType.DOCUMENT) | async) && !isStatistic() "></app-document-edit-collection>
+            *ngIf="(currentRoute | async).includes('.') && (isNamespaceType(NamespaceType.DOCUMENT) | async) && !isStatistic() "></app-document-edit-collection>
     <app-graph-edit
-            *ngIf="( isNamespaceType(NamespaceType.GRAPH) | async)  && !isStatistic()"></app-graph-edit>
+            *ngIf="(isNamespaceType(NamespaceType.GRAPH) | async)  && !isStatistic()"></app-graph-edit>
 </div>
 
 
-<ng-container *ngIf="!routeParam">
+<ng-container *ngIf="!currentRoute">
     <h1>Namespaces</h1>
     <p>Select an item from the left sidebar to edit its entities.</p>
 

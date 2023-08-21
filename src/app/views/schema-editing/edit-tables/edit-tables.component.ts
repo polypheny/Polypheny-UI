@@ -56,6 +56,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
+
+
         const sub1 = this._route.params.subscribe((params) => {
             this.namespace = this._catalog.getNamespaceFromName(params['id']);
             this.subscribeTables() ;

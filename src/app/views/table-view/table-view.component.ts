@@ -4,7 +4,7 @@ import {TableConfig} from '../../components/data-view/data-table/table-config';
 import {CrudService} from '../../services/crud.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {ResultSet} from '../../components/data-view/models/result-set.model';
-import {SchemaRequest, TableRequest} from '../../models/ui-request.model';
+import {NamespaceType, SchemaRequest, TableRequest} from '../../models/ui-request.model';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {WebSocket} from '../../services/webSocket';
@@ -92,7 +92,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
                 if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
                     this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
                 }
-                if (this.resultSet.type === 'TABLE' || this.resultSet.namespaceType === 'DOCUMENT') {
+                if (this.resultSet.type === 'TABLE' || this.resultSet.namespaceType === NamespaceType.DOCUMENT) {
                     this.tableConfig.create = true;
                     this.tableConfig.update = true;
                     this.tableConfig.delete = true;
