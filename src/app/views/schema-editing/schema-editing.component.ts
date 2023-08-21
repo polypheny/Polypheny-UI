@@ -2,18 +2,18 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../services/crud.service';
-import {NamespaceType, Schema, SchemaRequest} from '../../models/ui-request.model';
+import {NamespaceType, Schema} from '../../models/ui-request.model';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {SidebarNode} from '../../models/sidebar-node.model';
 import {ResultSet} from '../../components/data-view/models/result-set.model';
 import {ToastService} from '../../components/toast/toast.service';
-import {BehaviorSubject, Observable, pipe, Subscription} from 'rxjs';
+import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {Store} from '../adapters/adapter.model';
 import {CatalogService} from '../../services/catalog.service';
 import {NamespaceModel} from '../../models/catalog.model';
-import {map, mergeMap} from 'rxjs/operators';
+import {filter, map} from 'rxjs/operators';
 
 @Component({
     selector: 'app-schema-editing',
@@ -87,18 +87,12 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         this.routeParam = this._route.snapshot.paramMap.get('id');
         this._route.params.subscribe((params) => {
             this.routeParam = params['id'];
+            this.namespace = this._catalog.getNamespaceFromName(this.routeParam);
         });
     }
 
     public getSchema() {
         this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false, true);
-        this._catalog.getSchemaTree('/views/schema-editing/', true, 2, false, true).subscribe(
-            (schemas: SidebarNode[]) => {
-                this.schemas = schemas;
-            }, err => {
-                console.log(err);
-            }
-        );
     }
 
 
@@ -219,6 +213,10 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     }
 
     isNamespaceType(namespaceType: NamespaceType): Observable<boolean> {
-        return this.namespace.pipe( map(n => n.namespaceType === namespaceType));
+        return this.namespace.pipe(
+            filter(n => !!n),
+            map(n => {
+                return n.namespaceType === namespaceType;
+            }));
     }
 }

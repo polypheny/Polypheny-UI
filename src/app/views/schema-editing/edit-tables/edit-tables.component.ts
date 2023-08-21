@@ -14,7 +14,7 @@ import {DbTable} from '../../uml/uml.model';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {CatalogService} from '../../../services/catalog.service';
 import {EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
-import {mergeMap} from 'rxjs/operators';
+import {filter, mergeMap} from 'rxjs/operators';
 
 const INITIAL_TYPE = 'BIGINT';
 
@@ -101,6 +101,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
     subscribeTables() {
         this.namespace.pipe(
+            filter(namespace => !!namespace),
             mergeMap( namespace => this._catalog.getEntities(namespace.id) )).subscribe( entities => {
             this.tables.next( entities.map( e => Table.fromModel(<TableModel>e ) ).sort((a, b) => a.name.localeCompare(b.name)) );
         });
@@ -221,14 +222,13 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             return;
         }
         const request = new EditTableRequest(this.namespace.value.id, null, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore);
-        console.log(request);
         this.creatingTable = true;
         this._crud.createTable(request).subscribe(
         (result: ResultSet) => {
                 if (result.error) {
                     this._toast.exception(result, 'Could not generate table:');
                 } else {
-                    this._toast.success('Generated table ' + request.entityId, result.generatedQuery);
+                    this._toast.success('Generated table ' + request.entityName, result.generatedQuery);
                     this.newColumns.clear();
                     this.counter = 0;
                     this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));

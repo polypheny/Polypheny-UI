@@ -13,7 +13,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let table of tables let i = index" [ngClass]="{'table-warning':table.export}"
+    <tr *ngFor="let table of tables | async; let i = index" [ngClass]="{'table-warning':table.export}"
         [class.editing]="table.editing">
         <td>
             <span *ngIf="!table.editing">

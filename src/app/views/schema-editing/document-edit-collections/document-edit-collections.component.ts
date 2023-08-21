@@ -1,21 +1,21 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
-import {EditCollectionRequest, EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {EditCollectionRequest, EditTableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DbColumn, EntityMeta, Index, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
+import {DbColumn, EntityMeta, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {Store} from '../../adapters/adapter.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {BehaviorSubject, Observable, Subscriber, Subscription} from 'rxjs';
+import {BehaviorSubject, Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
 import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
 import {CollectionModel, EntityType, NamespaceModel} from '../../../models/catalog.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {map, switchMap} from 'rxjs/operators';
+import {filter, map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-document-edit-collections',
@@ -65,7 +65,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     this.newColumns.set(this.counter++, new DbColumn('', true, false, '', '', null, null));
     //this.database = this._route.snapshot.paramMap.get('id');
     const sub1 = this._route.params.subscribe((params) => {
-      this._catalog.updateIfNecessary().subscribe(() => {
+      this._catalog.updateIfNecessary().subscribe(catalog => {
         this.namespace = this._catalog.getNamespaceFromName(params['id']);
 
         this.subscribeCollection();
@@ -116,9 +116,10 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     this.collections = new BehaviorSubject<Collection[]>([]);
 
     this.namespace.pipe(
+        filter(namespace => !!namespace),
         map(namespace => this._catalog.getEntities( namespace.id ).pipe(
-            map(e => e.map(col => Collection.fromModel(<CollectionModel>col)).sort((a, b) => a.name.localeCompare(b.name)))
-        ))).subscribe(collections => {
+            map(e =>
+                e.map(col => Collection.fromModel(<CollectionModel>col)).sort((a, b) => a.name.localeCompare(b.name)))))).subscribe(collections => {
           collections.subscribe( cols => {
             this.collections.next(cols);
           });

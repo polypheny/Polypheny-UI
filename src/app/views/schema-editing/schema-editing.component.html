@@ -2,15 +2,15 @@
 <div *ngIf="routeParam">
     <app-statistics-column *ngIf="isStatistic()"></app-statistics-column>
     <app-edit-columns
-            *ngIf="routeParam.includes('.') && isNamespaceType(NamespaceType.RELATIONAL) && !isStatistic()"></app-edit-columns>
+            *ngIf="routeParam.includes('.') && ( isNamespaceType(NamespaceType.RELATIONAL) | async) && !isStatistic()"></app-edit-columns>
     <app-edit-tables
-            *ngIf="!routeParam.includes('.') && isNamespaceType(NamespaceType.RELATIONAL) && !isStatistic()"></app-edit-tables>
+            *ngIf="!routeParam.includes('.') && ( isNamespaceType(NamespaceType.RELATIONAL) | async) && !isStatistic()"></app-edit-tables>
     <app-document-edit-collections
-            *ngIf="!routeParam.includes('.') && isNamespaceType(NamespaceType.DOCUMENT) && !isStatistic()"></app-document-edit-collections>
+            *ngIf="!routeParam.includes('.') && ( isNamespaceType(NamespaceType.DOCUMENT) | async) && !isStatistic()"></app-document-edit-collections>
     <app-document-edit-collection
-            *ngIf="routeParam.includes('.') && isNamespaceType(NamespaceType.DOCUMENT)  && !isStatistic()"></app-document-edit-collection>
+            *ngIf="routeParam.includes('.') && ( isNamespaceType(NamespaceType.DOCUMENT) | async) && !isStatistic() "></app-document-edit-collection>
     <app-graph-edit
-            *ngIf="namespace.namespaceType == NamespaceType.GRAPH && !isStatistic()"></app-graph-edit>
+            *ngIf="( isNamespaceType(NamespaceType.GRAPH) | async)  && !isStatistic()"></app-graph-edit>
 </div>
 
 

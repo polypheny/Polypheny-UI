@@ -3,19 +3,40 @@ import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
-import {DbColumn, FieldType, Index, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, ResultSet, TableConstraint} from '../../../components/data-view/models/result-set.model';
+import {
+    DbColumn,
+    FieldType,
+    Index,
+    ModifyPartitionRequest,
+    PartitionFunctionModel,
+    PartitioningRequest,
+    PolyType,
+    ResultSet,
+    TableConstraint
+} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest} from '../../../models/ui-request.model';
+import {
+    ColumnRequest,
+    ConstraintRequest,
+    EditTableRequest,
+    MaterializedRequest
+} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {CatalogColumnPlacement, MaterializedInfos, Placements, PlacementType, Store} from '../../adapters/adapter.model';
+import {
+    CatalogColumnPlacement,
+    MaterializedInfos,
+    Placements,
+    PlacementType,
+    Store
+} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import * as _ from 'lodash';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
 import {ConstraintModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
-import {map, mergeMap} from 'rxjs/operators';
+import {filter, map, mergeMap} from 'rxjs/operators';
 
 const INITIAL_TYPE = 'BIGINT';
 
@@ -144,7 +165,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     isEntityType( type: EntityType): Observable<boolean> {
-        return this.entity.pipe(map(e => e.entityType === type ));
+        return this.entity.pipe(filter(e => !!e), map(e => e.entityType === type));
     }
 
     subscribe() {

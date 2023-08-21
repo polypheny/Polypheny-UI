@@ -1,17 +1,22 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DbColumn, ResultSet} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
-import {ColumnRequest, EditTableRequest, TableRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, EditTableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {ToastService} from '../../../components/toast/toast.service';
-import {Placements, UnderlyingTables} from '../../adapters/adapter.model';
-import {BehaviorSubject, forkJoin, from, Observable, Subscriber, Subscription} from 'rxjs';
+import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {AllocationPlacementModel, ColumnModel, EntityModel, EntityType, NamespaceModel} from '../../../models/catalog.model';
-import {map, mergeMap, switchMap} from 'rxjs/operators';
+import {
+    AllocationPlacementModel,
+    EntityModel,
+    EntityType,
+    NamespaceModel,
+    TableModel
+} from '../../../models/catalog.model';
+import {mergeMap} from 'rxjs/operators';
 
 @Component({
     selector: 'app-edit-source-columns',
@@ -45,7 +50,9 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         //this.tableId = this._route.snapshot.paramMap.get('id');
         const sub = this._route.params.subscribe((params) => {
             const splits = params['id'].split('.');
-            this.namespace = this._catalog.getNamespaceFromName(splits[0]);
+            this._catalog.getEntityFromName(splits[0], splits[1]).subscribe(entity => {
+                this.entity.next(<TableModel>entity);
+            });
             this.subscriptions.add(this.subscribeColumns());
             this.getUml();
             this.subscriptions.add(this.subscribePlacements());
