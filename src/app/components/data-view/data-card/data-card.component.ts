@@ -7,7 +7,7 @@ import {BsModalService} from 'ngx-bootstrap/modal';
 import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
-import {CatalogService} from "../../../services/catalog.service";
+import {CatalogService} from '../../../services/catalog.service';
 
 @Component({
     selector: 'app-data-card',

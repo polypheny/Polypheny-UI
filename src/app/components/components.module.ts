@@ -1,15 +1,13 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {GraphComponent} from './graph/graph.component';
-import {ChartsModule} from 'ng2-charts';
-import {ToastComponent} from './toast/toast.component';
+import {NgChartsModule} from 'ng2-charts';
 
-import {BreadcrumbModule, ToastComponent} from '@coreui/angular';
+import {BgColorDirective, ToastComponent} from '@coreui/angular';
 
 import {BreadcrumbComponent} from './breadcrumb/breadcrumb.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {LeftSidebarComponent} from './left-sidebar/left-sidebar.component';
-import {TreeModule} from 'angular-tree-component';
 import {RightSidebarComponent} from './right-sidebar/right-sidebar.component';
 import {RouterModule} from '@angular/router';
 import {DataTableComponent} from './data-view/data-table/data-table.component';
@@ -29,7 +27,6 @@ import {DataCardComponent} from './data-view/data-card/data-card.component';
 import {DataCarouselComponent} from './data-view/data-carousel/data-carousel.component';
 import {CarouselModule} from 'ngx-bootstrap/carousel';
 import {DataViewComponent} from './data-view/data-view.component';
-import {PlyrModule} from 'ngx-plyr';
 import {MediaComponent} from './data-view/media/media.component';
 import {DeleteConfirmComponent} from './delete-confirm/delete-confirm.component';
 import {ExpandableTextComponent} from './data-view/expandable-text/expandable-text.component';
@@ -43,6 +40,7 @@ import {DockereditComponent} from './dockeredit/dockeredit.component';
 import {DockerhandshakeComponent} from './dockerhandshake/dockerhandshake.component';
 import {DockernewComponent} from './dockernew/dockernew.component';
 import {DockersettingsComponent} from './dockersettings/dockersettings.component';
+import {TreeModule} from '@ali-hm/angular-tree-component';
 
 //import 'hammerjs';
 
@@ -51,9 +49,8 @@ import {DockersettingsComponent} from './dockersettings/dockersettings.component
         //AppRoutingModule,
         RouterModule,
         CommonModule,
-        ChartsModule,
+        NgChartsModule,
         TypeaheadModule.forRoot(),
-        TreeModule,
         TabsModule.forRoot(),
         // forms
         FormsModule, ReactiveFormsModule,
@@ -63,7 +60,11 @@ import {DockersettingsComponent} from './dockersettings/dockersettings.component
         ExplainVisualizerModule,
         ModalModule.forRoot(),
         CarouselModule,
-        PlyrModule, NgxJsonViewerModule, DatesPipeModule, ToastComponent
+        NgxJsonViewerModule,
+        DatesPipeModule,
+        ToastComponent,
+        BgColorDirective,
+        TreeModule
     ],
     declarations: [
         BreadcrumbComponent,
@@ -71,7 +72,6 @@ import {DockersettingsComponent} from './dockersettings/dockersettings.component
         GraphComponent,
         LeftSidebarComponent,
         RightSidebarComponent,
-        ToastComponent,
         InformationManagerComponent,
         RenderItemComponent,
         InputComponent,

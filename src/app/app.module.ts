@@ -1,28 +1,43 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
-import {HashLocationStrategy, LocationStrategy} from '@angular/common';
-
-import {PerfectScrollbarConfigInterface, PerfectScrollbarModule} from 'ngx-perfect-scrollbar';
+import {HashLocationStrategy, LocationStrategy, NgOptimizedImage} from '@angular/common';
 
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 // coreui / bootstrap imports
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 // tree-module
-import {TreeModule} from 'angular-tree-component';
 import {AppComponent} from './app.component';
 
 // Import routing module
-import {AppRoutingModule} from './app.routing';
+import {AppRoutingModule} from './app-routing.module';
 
 // Import 3rd party components
 import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {TabsModule} from 'ngx-bootstrap/tabs';
-import {ChartsModule} from 'ng2-charts';
+import {NgChartsModule} from 'ng2-charts';
 import {HttpClientModule} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
-import {FooterComponent, HeaderComponent, ToastComponent, ToasterComponent} from '@coreui/angular';
+import {
+    ContainerComponent,
+    DropdownComponent,
+    DropdownItemDirective,
+    DropdownMenuDirective,
+    DropdownToggleDirective,
+    FooterComponent,
+    HeaderBrandComponent,
+    HeaderComponent,
+    HeaderDividerComponent,
+    HeaderNavComponent,
+    HeaderTextComponent,
+    HeaderTogglerDirective,
+    NavItemComponent,
+    NavLinkDirective,
+    SidebarComponent,
+    SidebarToggleDirective,
+    ToastComponent
+} from '@coreui/angular';
 import {DefaultLayoutComponent} from './containers/default-layout';
 import {P404Component} from './views/error/404.component';
 import {P500Component} from './views/error/500.component';
@@ -32,43 +47,54 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
-import {RouterModule} from "@angular/router";
 
-const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
-    suppressScrollX: true
-};
 
 @NgModule({
-  imports: [
-    ComponentsModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    BrowserModule,
-    PerfectScrollbarModule,
-    BsDropdownModule.forRoot(),
-    RouterModule,
-    TabsModule.forRoot(),
-    ChartsModule,
-    // coreui / bootstrap
-    TooltipModule.forRoot(),
-    // forms
-    FormsModule,
-    ReactiveFormsModule,
-    TreeModule.forRoot(),
-    BsDropdownModule,
-    TypeaheadModule.forRoot(),
-    HttpClientModule,
-    ViewsModule,
-    PopoverModule.forRoot(),
-    ModalModule.forRoot(),
-    NgxJsonViewerModule, FooterComponent, HeaderComponent
-  ],
+    imports: [
+        ComponentsModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        BrowserModule,
+        BsDropdownModule.forRoot(),
+        TabsModule.forRoot(),
+        ToastComponent,
+        NgChartsModule,
+        // coreui / bootstrap
+        TooltipModule.forRoot(),
+        // forms
+        FormsModule,
+        ReactiveFormsModule,
+        BsDropdownModule,
+        TypeaheadModule.forRoot(),
+        HttpClientModule,
+        ViewsModule,
+        PopoverModule.forRoot(),
+        ModalModule.forRoot(),
+        NgxJsonViewerModule,
+        FooterComponent,
+        HeaderComponent,
+        ContainerComponent,
+        HeaderDividerComponent,
+        HeaderBrandComponent,
+        HeaderNavComponent,
+        NavItemComponent,
+        DropdownToggleDirective,
+        DropdownComponent,
+        NavLinkDirective,
+        HeaderTextComponent,
+        SidebarComponent,
+        SidebarToggleDirective,
+        NgOptimizedImage,
+        DropdownItemDirective,
+        DropdownMenuDirective,
+        HeaderTogglerDirective
+    ],
     declarations: [
         AppComponent,
         DefaultLayoutComponent,
         P404Component,
         P500Component,
-        LoginComponent,
+        LoginComponent
     ],
     providers: [{
         provide: LocationStrategy,

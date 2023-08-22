@@ -1,4 +1,15 @@
-import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild} from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    Output,
+    SimpleChanges,
+    TemplateRef,
+    ViewChild
+} from '@angular/core';
 import {DataPresentationType, ResultSet} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
@@ -6,7 +17,7 @@ import {ToastDuration, ToastService} from '../toast/toast.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {DeleteRequest, EditTableRequest, NamespaceType, QueryRequest, TableRequest} from '../../models/ui-request.model';
+import {DeleteRequest, NamespaceType, QueryRequest, TableRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
 import {SortState} from './models/sort-state.model';
 import * as Plyr from 'plyr';
@@ -15,7 +26,6 @@ import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {WebSocket} from '../../services/webSocket';
 import {HttpEventType} from '@angular/common/http';
 import * as $ from 'jquery';
-import {DbTable} from '../../views/uml/uml.model';
 import {Table} from '../../views/schema-editing/edit-tables/edit-tables.component';
 import {Store} from '../../views/adapters/adapter.model';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
@@ -362,7 +372,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
                     this.downloadProgress = Math.round(100 * res.loaded / res.total);
                 } else if (res.type === HttpEventType.Response) {
                     //see https://stackoverflow.com/questions/51960172/
-                    const url = window.URL.createObjectURL(res.body);
+                    const url = window.URL.createObjectURL(<any>res.body);
                     window.open(url);
                 }
             }, err => {

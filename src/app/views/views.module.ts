@@ -9,7 +9,6 @@ import {ComponentsModule} from '../components/components.module';
 import {EditColumnsComponent} from './schema-editing/edit-columns/edit-columns.component';
 import {UmlComponent} from './uml/uml.component';
 import {GraphicalQueryingComponent} from './querying/graphical-querying/graphical-querying.component';
-import {TreeModule} from 'angular-tree-component';
 import {FormGeneratorComponent} from './forms/form-generator/form-generator.component';
 import {SchemaEditingComponent} from './schema-editing/schema-editing.component';
 import {EditTablesComponent} from './schema-editing/edit-tables/edit-tables.component';
@@ -62,7 +61,6 @@ import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
         TypeaheadModule,
         // coreui / bootstrap
         TooltipModule.forRoot(),
-        TreeModule,
         BsDropdownModule,
         DragDropModule,
         ModalModule.forRoot(),

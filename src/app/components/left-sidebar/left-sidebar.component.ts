@@ -1,8 +1,10 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
-import {TreeComponent, TreeModel} from 'angular-tree-component';
 import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
+import {TreeComponent, TreeModel} from '@ali-hm/angular-tree-component';
+
+;
 
 
 @Component({

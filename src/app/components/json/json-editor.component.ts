@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, OnInit, Output,} from '@angular/core';
-import {isNumeric} from 'rxjs/internal-compatibility';
 
 export class Pair {
 
@@ -23,7 +22,7 @@ export class Pair {
     isValid() {
         let temp = this.key.trim() !== '';
         if (this.value instanceof Array && this.value[0] instanceof Pair) {
-            temp &&= new Set(this.value.map(e => e.key)).size === this.value.length && this.value.reduce<boolean>((c, next) => c && next.isValid(), true);
+            temp &&= new Set(this.value.map(e => e.key)).size === this.value.length && this.value.map(p => p.isValid()).reduce((c, next) => c && next, true);
         }
         return temp;
     }
@@ -120,7 +119,7 @@ export class JsonEditorComponent implements OnInit {
         for (const entry of raw) {
             const parsed = JsonEditorComponent.tryParse(entry.value);
 
-            if (isNumeric(entry.value)) {
+            if (!isNaN(entry.value)) {
                 data[entry.key] = Number(entry.value);
             } else if (entry.value instanceof Array && entry.value.some(el => el instanceof Pair)) {
                 data[entry.key] = this.generateJson(entry.value);
