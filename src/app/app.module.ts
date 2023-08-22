@@ -35,7 +35,9 @@ import {
     NavItemComponent,
     NavLinkDirective,
     SidebarComponent,
+    SidebarNavComponent,
     SidebarToggleDirective,
+    SidebarTogglerComponent,
     ToastComponent
 } from '@coreui/angular';
 import {DefaultLayoutComponent} from './containers/default-layout';
@@ -87,7 +89,9 @@ import {NgxJsonViewerModule} from 'ngx-json-viewer';
         NgOptimizedImage,
         DropdownItemDirective,
         DropdownMenuDirective,
-        HeaderTogglerDirective
+        HeaderTogglerDirective,
+        SidebarTogglerComponent,
+        SidebarNavComponent
     ],
     declarations: [
         AppComponent,

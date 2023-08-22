@@ -5,7 +5,6 @@ import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.ser
 import {InformationService} from '../../services/information.service';
 import {CrudService} from '../../services/crud.service';
 import {PluginService} from '../../services/plugin.service';
-import {dropdownAnimation} from 'ngx-bootstrap/dropdown/dropdown-animations';
 
 @Component({
     selector: 'app-dashboard',
@@ -17,6 +16,8 @@ export class DefaultLayoutComponent implements OnDestroy {
     public sidebarMinimized = true;
     private changes: MutationObserver;
     public element: HTMLElement;
+    showLeft = true;
+    showRight = false;
 
     constructor(
         public _sidebar: LeftSidebarService,
@@ -48,6 +49,4 @@ export class DefaultLayoutComponent implements OnDestroy {
         return this._plugin.getEnabledPlugins().includes('explore-by-example');
 
     }
-
-    protected readonly dropdownAnimation = dropdownAnimation;
 }
