@@ -2,16 +2,16 @@
 <ng-container [ngSwitch]="route">
 
     <!-- availableAdapters -->
-    <div class="row" *ngSwitchCase="['addStore','addSource'].includes(route) ? route : ''">
-        <div class="col-lg-12">
+    <c-row class="row" *ngSwitchCase="['addStore','addSource'].includes(route) ? route : ''">
+        <c-col class="col-lg-12">
             <h2>Adapters</h2>
-        </div>
-    </div>
-    <div class="row" *ngSwitchCase="['addStore','addSource'].includes(route) ? route : ''">
+        </c-col>
+    </c-row>
+    <c-row class="row" *ngSwitchCase="['addStore','addSource'].includes(route) ? route : ''">
         <button class="btn btn-circle btn-primary topRight" [routerLink]="['./../']"><i class="fa fa-close"></i>
         </button>
 
-        <div class="col-lg-12" *ngIf="getAvailableAdapters()">
+        <c-col class="col-lg-12" *ngIf="getAvailableAdapters()">
             <table class="table table-hover table-sm table-bordered table-striped" id="adapter-table">
                 <thead>
                 <tr>
@@ -39,12 +39,12 @@
                 </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
+        </c-col>
+    </c-row>
 
     <!-- template for current stores and sources, it is called below -->
     <ng-template #adapterTemplate let-adapters="adapters" let-type="type">
-        <div class="col-lg-6 fixed-width" *ngFor="let adapter of adapters">
+        <c-col class="col-lg-6 fixed-width" *ngFor="let adapter of adapters">
 
             <div class="card fixed-height">
                 <div class="card-header card-header-adapter">
@@ -81,32 +81,32 @@
                 </div>
             </div>
 
-        </div>
-        <div class="col-lg-6 fixed-height add-adapter-wrapper">
+        </c-col>
+        <c-col class="col-lg-6 fixed-height add-adapter-wrapper">
             <button *ngIf="type === 'source'" class="btn btn-primary add-adapter" [routerLink]="['./addSource']"><i
                     class="fa fa-plus"></i></button>
             <button *ngIf="type === 'store'" class="btn btn-primary add-adapter" [routerLink]="['./addStore']"><i
                     class="fa fa-plus"></i></button>
-        </div>
+        </c-col>
     </ng-template>
 
     <!-- show current stores and sources -->
     <div *ngSwitchDefault>
-        <div class="row">
-            <div class="col-lg-12">
+        <c-row>
+            <c-col class="col-lg-12">
                 <h2>Stores</h2>
-            </div>
-        </div>
-        <div class="row adapters">
+            </c-col>
+        </c-row>
+        <c-row class="adapters">
             <ng-container *ngTemplateOutlet="adapterTemplate; context:{adapters: stores, type: 'store'}"></ng-container>
-        </div>
+        </c-row>
     </div>
     <div *ngSwitchDefault>
-        <div class="row">
-            <div class="col-lg-12">
+        <c-row class="row">
+            <c-col class="col-lg-12">
                 <h2>Sources</h2>
-            </div>
-        </div>
+            </c-col>
+        </c-row>
         <div class="row adapters">
             <ng-container
                     *ngTemplateOutlet="adapterTemplate; context:{adapters: sources, type: 'source'}"></ng-container>

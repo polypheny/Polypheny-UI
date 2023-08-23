@@ -1,8 +1,8 @@
 <c-toast></c-toast>
 <app-edit-source-columns *ngIf="isEntityType(EntityType.SOURCE) | async"></app-edit-source-columns>
-<div class="row" *ngIf="!(isEntityType(EntityType.SOURCE) | async)">
+<c-row class="row" *ngIf="!(isEntityType(EntityType.SOURCE) | async)">
 
-    <div class="col-lg-12">
+    <c-col class="col-lg-12">
 
         <h5 *ngIf="isEntityType(EntityType.MATERIALIZED_VIEW) | async">Materialized View: {{(entity|async).name}}</h5>
         <h5 *ngIf="!( isEntityType(EntityType.MATERIALIZED_VIEW) | async )">{{(entity|async).name}}</h5>
@@ -306,13 +306,13 @@
             </tbody>
         </table>
 
-    </div>
+    </c-col>
 
-    <div class="col-lg-12" *ngIf="!(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
+    <c-col class="col-lg-12" *ngIf="!(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
         <hr>
         <h5>Constraints</h5>
-        <div class="row">
-            <div class="col-6">
+        <c-row class="row">
+            <c-col class="col-6">
                 <div class="card" style="min-height: 153px">
                     <div class="card-header">
                         <span>Update primary key</span>
@@ -329,8 +329,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-6">
+            </c-col>
+            <c-col class="col-6">
                 <div class="card" style="min-height: 153px">
                     <div class="card-header">
                         <span>Add unique constraint</span>
@@ -354,8 +354,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </c-col>
+        </c-row>
         <table class="table table-hover table-striped" *ngIf="constraints && constraints > 0">
             <thead>
             <tr>
@@ -373,9 +373,9 @@
             </tr>
             </tbody>
         </table>
-    </div>
+    </c-col>
 
-    <div class="col-lg-12"
+    <c-col class="col-lg-12"
          *ngIf="foreignKeys && foreignKeys.length > 0 && !(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
         <hr>
         <h5>Foreign key</h5>
@@ -405,9 +405,9 @@
             </tr>
             </tbody>
         </table>
-    </div>
+    </c-col>
 
-    <div class="col-lg-12" *ngIf="(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
+    <c-col class="col-lg-12" *ngIf="(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
         <hr>
         <h5>Freshness</h5>
         <table class="table table-hover table-striped">
@@ -431,9 +431,9 @@
 
 
         <button type="submit" class="btn btn-primary btn-sm" (click)="updateMaterialized()">Update Materialized</button>
-    </div>
+    </c-col>
 
-    <div class="col-lg-12">
+    <c-col class="col-lg-12">
         <hr>
         <h5>Indexes</h5>
         <div class="card">
@@ -500,9 +500,9 @@
             </tr>
             </tbody>
         </table>
-    </div>
+    </c-col>
 
-    <div class="col-lg-12" *ngIf="placements">
+    <c-col class="col-lg-12" *ngIf="placements">
         <hr>
         <div class="mb-3" style="position: relative">
             <h5 style="display: inline">Data placements</h5>
@@ -613,9 +613,9 @@
             </div>
         </div>
 
-    </div>
+    </c-col>
 
-</div>
+</c-row>
 
 <div *ngIf="!(isEntityType(EntityType.SOURCE) | async)" bsModal #placementModal="bs-modal" class="modal fade"
      tabindex="-1" role="dialog"

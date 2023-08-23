@@ -1,7 +1,7 @@
 <c-toast></c-toast>
-<div class="row">
+<c-row class="row">
 
-    <div class="col-lg-12">
+    <c-col class="col-lg-12">
 
         <h5 *ngIf="collectionId">{{collectionId}}</h5>
         <span *ngIf="!collectionId">Please select a table in the left sidebar to edit its columns.</span>
@@ -53,9 +53,9 @@
             </tbody>
         </table>
 
-    </div>
+    </c-col>
 
-    <div class="col-lg-12" *ngIf="dataPlacements">
+    <c-col class="col-lg-12" *ngIf="dataPlacements">
         <hr>
         <div class="mb-3" style="position: relative">
             <h5 style="display: inline">Data placements</h5>
@@ -106,8 +106,8 @@
             </tbody>
         </table>
 
-    </div>
+    </c-col>
 
-</div>
+</c-row>
 
 

@@ -20,12 +20,14 @@ import {NgChartsModule} from 'ng2-charts';
 import {HttpClientModule} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
 import {
+    ColComponent,
     ContainerComponent,
     DropdownComponent,
     DropdownItemDirective,
     DropdownMenuDirective,
     DropdownToggleDirective,
     FooterComponent,
+    GutterDirective,
     HeaderBrandComponent,
     HeaderComponent,
     HeaderDividerComponent,
@@ -34,6 +36,7 @@ import {
     HeaderTogglerDirective,
     NavItemComponent,
     NavLinkDirective,
+    RowComponent,
     SidebarComponent,
     SidebarNavComponent,
     SidebarToggleDirective,
@@ -49,6 +52,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
+import {IconDirective} from '@coreui/icons-angular';
 
 
 @NgModule({
@@ -91,7 +95,11 @@ import {NgxJsonViewerModule} from 'ngx-json-viewer';
         DropdownMenuDirective,
         HeaderTogglerDirective,
         SidebarTogglerComponent,
-        SidebarNavComponent
+        SidebarNavComponent,
+        IconDirective,
+        RowComponent,
+        ColComponent,
+        GutterDirective
     ],
     declarations: [
         AppComponent,

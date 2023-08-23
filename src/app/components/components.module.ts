@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {GraphComponent} from './graph/graph.component';
 import {NgChartsModule} from 'ng2-charts';
 
-import {BgColorDirective, ToastComponent} from '@coreui/angular';
+import {BgColorDirective, ColComponent, RowComponent, ToastComponent} from '@coreui/angular';
 
 import {BreadcrumbComponent} from './breadcrumb/breadcrumb.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -64,7 +64,7 @@ import {TreeModule} from '@ali-hm/angular-tree-component';
         DatesPipeModule,
         ToastComponent,
         BgColorDirective,
-        TreeModule
+        TreeModule, RowComponent, ColComponent
     ],
     declarations: [
         BreadcrumbComponent,

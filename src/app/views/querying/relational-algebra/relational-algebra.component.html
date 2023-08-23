@@ -1,13 +1,13 @@
 <c-toast></c-toast>
 
-<div class="row" style="padding-bottom: 1em;">
+<c-row class="row" style="padding-bottom: 1em;">
 
-    <div class="col-12" *ngIf="queryAnalysis">
+    <c-col class="col-12" *ngIf="queryAnalysis">
         <app-information-manager [data]="queryAnalysis" [zoom]="_breadcrumb.getMasonryZoom()"
                                  [hidden]="!showingAnalysis"></app-information-manager>
-    </div>
+    </c-col>
 
-    <div class="col-12" id="drop" cdkDropList cdkDropListSortingDisabled #dropArea (treeDrop)="treeDrop($event)"
+    <c-col class="col-12" id="drop" cdkDropList cdkDropListSortingDisabled #dropArea (treeDrop)="treeDrop($event)"
          [hidden]="showingAnalysis">
         <ng-container *ngFor="let n of nodes | keyvalue; trackBy: trackNode">
             <app-node [node]="n.value"
@@ -42,7 +42,7 @@
                 <a [routerLink]="[]" class="btn btn-light btn-sm" (click)="exportTree()">export</a>
                 <a [routerLink]="[]" class="btn btn-light btn-sm" (click)="importTree()">import</a>
             </div>
-            <!-->
+            <!--
             <div class="analyze-query">
                 <input type="checkbox" class="analyze-query-input mr-1" id="analyzeQuery" [checked]="analyzeQuery"
                        (change)="analyzeQuery = !analyzeQuery">
@@ -66,8 +66,8 @@
                   [attr.y1]="getY1(conn.value.source)" [attr.x2]="getX2(conn.value.target)"
                   [attr.y2]="getY2(conn.value.target)" marker-end="url(#arrowhead)"></line>
         </svg>
-    </div>
-</div>
+    </c-col>
+</c-row>
 
 
 <div class="card " *ngIf="resultSet && !showingAnalysis " id="result-relational">
@@ -93,13 +93,13 @@
             </p>
         </div>
 
-        <div class="row" *ngIf="resultSet && resultSet.data" [hidden]="showingAnalysis">
-            <div class="col-lg-12">
+        <c-row class="row" *ngIf="resultSet && resultSet.data" [hidden]="showingAnalysis">
+            <c-col class="col-lg-12">
                 <app-data-view [resultSet]="resultSet"
                                [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: false}"
                                (executeView)="createView($event)"></app-data-view>
-            </div>
-        </div>
+            </c-col>
+        </c-row>
     </div>
 
 </div>

@@ -29,6 +29,7 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/@coreui/coreui/scss/coreui.scss",
               "./node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/@coreui/icons/css/free.css",
               "node_modules/flag-icons/css/flag-icons.css",

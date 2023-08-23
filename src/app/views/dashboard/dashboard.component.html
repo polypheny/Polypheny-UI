@@ -1,55 +1,66 @@
 <c-toast></c-toast>
 
-<div class="col-lg-12" style="padding-left: 0px;padding-right: 0px;">
+<c-container [gutter]="2">
+    <c-row>
+        <c-col size="12">
+            <c-card class="card">
+                <c-card-header class="card-header">
+                    <div class="card-header-button">
+                        <div class="card-header-title">Workload</div>
 
-    <div class="card">
-        <div class="card-header">
-            <div class="card-header-button">
-                <div class="card-header-title">Workload</div>
-
-                <div class="btn-group selectInverval" dropdown>
-                    <button id="button-basic" dropdownToggle type="button" class="btn dropdown-toggle"
-                            aria-controls="dropdown-basic">
-                        Time Interval: {{this.selectIntervalDisplay}}<span class="caret"></span>
-                    </button>
-                    <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
-                        role="menu" aria-labelledby="button-basic">
-                        <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('all')">All</a></li>
-                        <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('60')">1 hour</a></li>
-                        <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('30')">30 minutes</a>
-                        </li>
-                        <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('15')">15 minutes</a>
-                        </li>
-                        <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('5')">5 minutes</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="card-body">
-
-
-            <div *ngIf="dashboardInformation != null && diagram.length > 0">
-                <app-graph [data]="diagram" [labels]="labels" [colorList]="colorList" [chartType]="line" [min]="min"
-                           [maintainAspectRatio]="false" [max]="max" [xLabel]="xLabel" [yLabel]="yLabel"
-                           class="dashboard-diagram"></app-graph>
-            </div>
-
-            <div *ngIf="dashboardInformation == null && this.infoCounter > 120">
-                <p>There is not yet enough information to display the workload graph.</p>
-            </div>
+                        <div class="btn-group selectInverval" dropdown>
+                            <button id="button-basic" dropdownToggle type="button" class="btn dropdown-toggle"
+                                    aria-controls="dropdown-basic">
+                                Time Interval: {{this.selectIntervalDisplay}}<span class="caret"></span>
+                            </button>
+                            <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
+                                role="menu" aria-labelledby="button-basic">
+                                <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('all')">All</a>
+                                </li>
+                                <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('60')">1
+                                    hour</a>
+                                </li>
+                                <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('30')">30
+                                    minutes</a>
+                                </li>
+                                <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('15')">15
+                                    minutes</a>
+                                </li>
+                                <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('5')">5
+                                    minutes</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </c-card-header>
+                <c-card-body class="card-body">
 
 
-            <div class="d-flex justify-content-center" *ngIf="dashboardInformation == null && this.infoCounter <= 120">
-                <div class="spinner-border" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-            </div>
+                    <div *ngIf="dashboardInformation != null && diagram.length > 0">
+                        <app-graph [data]="diagram" [labels]="labels" [colorList]="colorList" [chartType]="line"
+                                   [min]="min"
+                                   [maintainAspectRatio]="false" [max]="max" [xLabel]="xLabel" [yLabel]="yLabel"
+                                   class="dashboard-diagram"></app-graph>
+                    </div>
 
-        </div>
-    </div>
+                    <div *ngIf="dashboardInformation == null && this.infoCounter > 120">
+                        <p>There is not yet enough information to display the workload graph.</p>
+                    </div>
 
-    <div class="row">
-        <div class="col-6">
+
+                    <div class="d-flex justify-content-center"
+                         *ngIf="dashboardInformation == null && this.infoCounter <= 120">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+
+                </c-card-body>
+            </c-card>
+        </c-col>
+    </c-row>
+    <c-row>
+        <c-col size="6">
             <div class="card" style="min-height: 153px">
                 <div class="card-header">
                     <span>General Information</span>
@@ -107,7 +118,8 @@
                     </div>
 
 
-                    <div class="d-flex justify-content-center" *ngIf="dashboardSet == null && this.infoCounter <= 120">
+                    <div class="d-flex justify-content-center"
+                         *ngIf="dashboardSet == null && this.infoCounter <= 120">
                         <div class="spinner-border" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
@@ -115,9 +127,9 @@
 
                 </div>
             </div>
-        </div>
+        </c-col>
 
-        <div class="col-6">
+        <c-col size="6">
             <div class="card" style="min-height: 153px">
                 <div class="card-header">
                     <span>Workload Information</span>
@@ -152,7 +164,8 @@
                         <p>There is not yet enough information to display the workload information.</p>
                     </div>
 
-                    <div class="d-flex justify-content-center" *ngIf="dashboardSet == null && this.infoCounter <= 120">
+                    <div class="d-flex justify-content-center"
+                         *ngIf="dashboardSet == null && this.infoCounter <= 120">
                         <div class="spinner-border" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
@@ -161,12 +174,9 @@
 
                 </div>
             </div>
-        </div>
-
-    </div>
-</div>
-
-
+        </c-col>
+    </c-row>
+</c-container>
 
 
 

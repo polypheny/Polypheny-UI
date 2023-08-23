@@ -5,6 +5,7 @@ import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.ser
 import {InformationService} from '../../services/information.service';
 import {CrudService} from '../../services/crud.service';
 import {PluginService} from '../../services/plugin.service';
+import {freeSet} from '@coreui/icons';
 
 @Component({
     selector: 'app-dashboard',
@@ -18,6 +19,7 @@ export class DefaultLayoutComponent implements OnDestroy {
     public element: HTMLElement;
     showLeft = true;
     showRight = false;
+    icons = freeSet;
 
     constructor(
         public _sidebar: LeftSidebarService,

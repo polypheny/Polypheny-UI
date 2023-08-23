@@ -46,6 +46,15 @@ import {StatisticsColumnComponent} from './schema-editing/statistics-column/stat
 import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-edit-graph.component';
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
+import {
+    CardBodyComponent,
+    CardComponent,
+    CardHeaderComponent,
+    ColComponent,
+    ContainerComponent,
+    GutterDirective,
+    RowComponent
+} from '@coreui/angular';
 
 
 @NgModule({
@@ -66,7 +75,14 @@ import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
         ModalModule.forRoot(),
         AutocompleteLibModule,
         ProgressbarModule,
-        PopoverModule
+        PopoverModule,
+        RowComponent,
+        ColComponent,
+        ContainerComponent,
+        CardComponent,
+        CardHeaderComponent,
+        CardBodyComponent,
+        GutterDirective
     ],
     declarations: [
         EditColumnsComponent,

@@ -1,8 +1,8 @@
 <div class="c-app-body">
     <main class="c-main d-flex align-items-center">
-        <div class="container">
-            <div class="row">
-                <div class="mx-auto col-md-4">
+        <c-container class="container">
+            <c-row class="row">
+                <c-col class="mx-auto col-md-4">
                     <div class="card-group">
                         <div class="card p-4">
 
@@ -87,22 +87,22 @@
                                         <input type="password" class="form-control" placeholder="password"
                                                autocomplete="current-password">
                                     </div>
-                                    <div class="row">
-                                        <div class="col-6">
+                                    <c-row class="row">
+                                        <c-col class="col-6">
                                             <button type="submit" class="btn btn-primary px-4">Login</button>
-                                        </div>
-                                        <div class="col-6 text-right">
+                                        </c-col>
+                                        <c-col class="col-6 text-right">
                                             <button type="button" class="btn btn-link px-0" (click)="testConnection()">
                                                 Test connection
                                             </button>
-                                        </div>
-                                    </div>
+                                        </c-col>
+                                    </c-row>
                                 </form>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
+                </c-col>
+            </c-row>
+        </c-container>
     </main>
 </div>

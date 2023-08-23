@@ -1,116 +1,122 @@
-<c-header>
-    <!--[navbarBrandRouterLink]="'/'"
-    [fixed]="true"
-    [navbarBrandFull]="{
-    src: 'assets/img/brand/logo.svg', width: 89, height: 25, alt: 'Polypheny-DB Logo', class: 'd-md-down-none'}"
-    [navbarBrandMinimized]="{
-    src: 'assets/img/brand/sygnet.svg', width: 30, height: 30, alt: 'Polypheny-DB Logo', class: 'd-md-down-none'}"
-    [sidebarToggler]="'lg'"
-    [asideMenuToggler]="'lg'">-->
-    <c-container fluid>
-        <c-header-brand [routerLink]="'/'"><img ngSrc="assets/img/brand/logo.svg" alt="Polypheny Logo" height="50"
-                                                width="200"></c-header-brand>
-        <c-header-nav class="ms-auto">
-            <c-nav-item>
-                <a cNavLink [routerLink]="['/views/monitoring']" routerLinkActive="active">
-                    <i class="fa fa-area-chart"></i><span class="d-md-down-none">Monitoring</span>
-                </a>
-            </c-nav-item>
-            <c-nav-item>
-                <a cNavLink [routerLink]="['/views/config']" routerLinkActive="active">
-                    <!--tooltip="Dynamic Form" placement="bottom"-->
-                    <i class="icon-settings"></i><span class="d-md-down-none">Config</span>
-                </a>
-            </c-nav-item>
+<div class="min-vh-100 wrapper d-flex flex-column overflow-x-hidden">
+    <c-header>
+        <c-container fluid>
+            <c-header-brand [routerLink]="'/'"><img ngSrc="assets/img/brand/logo.svg" alt="Polypheny Logo" height="50"
+                                                    width="200"></c-header-brand>
+            <div (click)="showLeft = !showLeft">
+                <svg [cIcon]="icons.cilHamburgerMenu" size="xl" title="Sidebar Toggle"></svg>
+            </div>
 
-            <c-nav-item>
-                <a cNavLink [routerLink]="['/views/schema-editing']" routerLinkActive="active"
-                   (click)="_sidebar.reset()">
-                    <i class="fa fa-cubes"></i><span class="d-md-down-none">Schema</span>
-                </a>
-            </c-nav-item>
-
-            <c-nav-item>
-                <a cNavLink [routerLink]="['/views/data-table']" routerLinkActive="active">
-                    <i class="fa fa-table"></i><span class="d-md-down-none">Data</span>
-                </a>
-            </c-nav-item>
-
-            <c-dropdown alignment="end">
+            <c-header-nav class="ms-auto">
                 <c-nav-item>
-                    <a cHeaderToggler cDropdownToggle cNavLink [caret]="false"
-                       [routerLink]="['/views/querying']">
-                        <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Query</span>
+                    <a cNavLink [routerLink]="['/views/monitoring']" routerLinkActive="active">
+                        <i class="fa fa-area-chart"></i><span class="d-md-down-none">Monitoring</span>
                     </a>
                 </c-nav-item>
-                <ul cDropdownMenu>
-                    <li>
-                        <a cDropdownItem [routerLink]="['/views/querying/console']"
-                           routerLinkActive="active">
-                            <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Console</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a cDropdownItem [routerLink]="['/views/querying/graphical-querying']"
-                           routerLinkActive="active">
-                            <i class="icon-pencil"></i><span class="d-md-down-none">Graphical Querying</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a cDropdownItem [routerLink]="['/views/querying/relational-algebra']"
-                           routerLinkActive="active">
-                            <i class="fa fa-cubes"></i><span class="d-md-down-none">Plan Builder</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a cDropdownItem *ngIf="exploreByExampleEnabled()"
-                           [routerLink]="['/views/querying/explore-by-example']" routerLinkActive="active">
-                            <i class="fa fa-magic"></i><span class="d-md-down-none">Explore by Example</span>
-                        </a>
-                    </li>
-                </ul>
-            </c-dropdown>
+                <c-nav-item>
+                    <a cNavLink [routerLink]="['/views/config']" routerLinkActive="active">
+                        <!--tooltip="Dynamic Form" placement="bottom"-->
+                        <i class="icon-settings"></i><span class="d-md-down-none">Config</span>
+                    </a>
+                </c-nav-item>
 
-            <c-nav-item>
-                <a cNavLink [routerLink]="['/views/adapters']" routerLinkActive="active">
-                    <i class="fa fa-database"></i><span class="d-md-down-none">Adapters</span>
+                <c-nav-item>
+                    <a cNavLink [routerLink]="['/views/schema-editing']" routerLinkActive="active"
+                       (click)="_sidebar.reset()">
+                        <i class="fa fa-cubes"></i><span class="d-md-down-none">Schema</span>
+                    </a>
+                </c-nav-item>
+
+                <c-nav-item>
+                    <a cNavLink [routerLink]="['/views/data-table']" routerLinkActive="active">
+                        <i class="fa fa-table"></i><span class="d-md-down-none">Data</span>
+                    </a>
+                </c-nav-item>
+
+                <c-dropdown alignment="end">
+                    <c-nav-item>
+                        <a cHeaderToggler cDropdownToggle cNavLink [caret]="false"
+                           [routerLink]="['/views/querying']">
+                            <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Query</span>
+                        </a>
+                    </c-nav-item>
+                    <ul cDropdownMenu>
+                        <li>
+                            <a cDropdownItem [routerLink]="['/views/querying/console']"
+                               routerLinkActive="active">
+                                <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Console</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a cDropdownItem [routerLink]="['/views/querying/graphical-querying']"
+                               routerLinkActive="active">
+                                <i class="icon-pencil"></i><span class="d-md-down-none">Graphical Querying</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a cDropdownItem [routerLink]="['/views/querying/relational-algebra']"
+                               routerLinkActive="active">
+                                <i class="fa fa-cubes"></i><span class="d-md-down-none">Plan Builder</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a cDropdownItem *ngIf="exploreByExampleEnabled()"
+                               [routerLink]="['/views/querying/explore-by-example']" routerLinkActive="active">
+                                <i class="fa fa-magic"></i><span class="d-md-down-none">Explore by Example</span>
+                            </a>
+                        </li>
+                    </ul>
+                </c-dropdown>
+
+                <c-nav-item>
+                    <a cNavLink [routerLink]="['/views/adapters']" routerLinkActive="active">
+                        <i class="fa fa-database"></i><span class="d-md-down-none">Adapters</span>
+                    </a>
+                </c-nav-item>
+
+                <c-nav-item>
+                    <a cNavLink [routerLink]="['/views/queryInterfaces']" routerLinkActive="active">
+                        <i class="fa fa-exchange"></i><span class="d-md-down-none">Interfaces</span>
+                    </a>
+                </c-nav-item>
+
+
+                <a (click)="showRight = !showRight">
+                    <svg [cIcon]="icons.cilHamburgerMenu" size="xl" title="Sidebar Toggle"></svg>
                 </a>
-            </c-nav-item>
 
-            <c-nav-item>
-                <a cNavLink [routerLink]="['/views/queryInterfaces']" routerLinkActive="active">
-                    <i class="fa fa-exchange"></i><span class="d-md-down-none">Interfaces</span>
-                </a>
-            </c-nav-item>
 
-            <ul class="c-header-nav navbar-nav ml-auto"></ul>
-            <div id="connection-status" [ngClass]="getConnectionClass()" [tooltip]="getConnectionClass()"
-                 container="body"
-                 placement="left"></div>
-        </c-header-nav>
-    </c-container>
-</c-header>
-<div class="wrapper position-relative h-100">
-        <c-sidebar id="left" [visible]="showLeft" size="lg" class="position-absolute">
+                <ul class="c-header-nav navbar-nav ml-auto"></ul>
+                <div id="connection-status" [ngClass]="getConnectionClass()" [tooltip]="getConnectionClass()"
+                     container="body"
+                     placement="left"></div>
+            </c-header-nav>
+        </c-container>
+    </c-header>
+
+
+    <div class="wrapper position-relative h-100 d-flex flex-grow-1">
+        <c-sidebar id="left" [visible]="showLeft" size="lg" class="position-relative">
             <app-left-sidebar></app-left-sidebar>
-            <c-sidebar-toggler cSidebarToggle (click)="showLeft = !showLeft" ></c-sidebar-toggler>
-        </c-sidebar>
-        <c-sidebar [visible]="showRight" placement="'end'" class="sidebar-end position-absolute">
-            <app-right-sidebar></app-right-sidebar>
-
-            <c-sidebar-toggler cSidebarToggle (click)="showRight = !showRight" ></c-sidebar-toggler>
         </c-sidebar>
 
-        <div class="body">
-            <c-container fluid>
+        <div class="body position-relative w-auto flex-grow-1">
+            <c-container>
                 <app-breadcrumb-main></app-breadcrumb-main>
             </c-container>
             <!-- Main content -->
             <c-container>
-                <router-outlet></router-outlet>
+                <c-row [gutter]="2">
+                    <router-outlet></router-outlet>
+                </c-row>
             </c-container>
         </div>
-        <c-footer style="z-index: 2;">
-            <a class="text-muted" [routerLink]="['/views/about']">About Polypheny</a>
-        </c-footer>
+        <c-sidebar id="right" [visible]="showRight" class="sidebar-end position-relative">
+            <app-right-sidebar></app-right-sidebar>
+        </c-sidebar>
+    </div>
+
+    <c-footer style="z-index: 2;">
+        <a class="text-muted" [routerLink]="['/views/about']">About Polypheny</a>
+    </c-footer>
 </div>

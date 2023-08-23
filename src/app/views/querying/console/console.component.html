@@ -1,7 +1,7 @@
-<div class="row" [hidden]="showingAnalysis" (keydown.alt.shift)="toggleCache(false)" (keyup.alt.shift)="revertCache()"
+<c-row class="row" [hidden]="showingAnalysis" (keydown.alt.shift)="toggleCache(false)" (keyup.alt.shift)="revertCache()"
      (keyup.shift.alt)="revertCache()" (keydown.alt.shift.enter)="submitQuery()" (keydown.alt.enter)="submitQuery()">
     <c-toast></c-toast>
-    <div class="col-lg-8 col-md-8 col-sm-12 mb-3">
+    <c-col class="col-lg-8 col-md-8 col-sm-12 mb-3">
         <ul class="list-group grey-border" id="console">
             <li id="console-item-head" *ngIf="usesAdvancedConsole(lang)" class="list-group-item header grey-bg"
                 (dblclick)="toggleNamespaceField()">
@@ -22,8 +22,8 @@
                 <app-editor [lang]="lang" #editor id="sql-editor"></app-editor>
             </div>
         </ul>
-    </div>
-    <div class="col-lg-4 col-md-4 col-sm-12 mb-3">
+    </c-col>
+    <c-col class="col-lg-4 col-md-4 col-sm-12 mb-3">
         <ul class="list-group" id="history">
             <li id="history-item-head" class="list-group-item header">
                 <div>History</div>
@@ -62,10 +62,10 @@
                 <!--{{h.value.query}}-->
             </li>
         </ul>
-    </div>
+    </c-col>
 
 
-    <div class="col-lg-8 mb-3" [hidden]="showingAnalysis">
+    <c-col class="col-lg-8 mb-3" [hidden]="showingAnalysis">
         <div class="custom-control custom-checkbox custom-control-inline">
             <input type="checkbox" class="custom-control-input" id="checkbox1" [(ngModel)]="analyzeQuery">
             <label class="custom-control-label" for="checkbox1">analyze query</label>
@@ -91,11 +91,11 @@
         <button *ngIf="loading" type="submit"
                 class="btn btn-primary progress-bar-striped progress-bar-animated pull-right" disabled>Loading
         </button>
-    </div>
-</div>
+    </c-col>
+</c-row>
 
-<div class="row" [hidden]="showingAnalysis || loading">
-    <div class="col-lg-12 pb-1" *ngIf="resultSets && resultSets.length > 1"
+<c-row class="row" [hidden]="showingAnalysis || loading">
+    <c-col class="col-lg-12 pb-1" *ngIf="resultSets && resultSets.length > 1"
          style="display: flex; justify-content: space-between">
         <span style="padding-top: 0.25em">Click on a query to view its result and additional information.</span>
         <div id="collapse-btn-wrapper">
@@ -104,8 +104,8 @@
             <button class="btn btn-light btn-sm ml-1" (click)="collapseAll(false)" tooltip="collapse all"
                     container="body" placement="top" delay="500"><i class="fa fa-compress"></i></button>
         </div>
-    </div>
-    <div class="col-lg-12 mb-3" [ngClass]="{'accordion': resultSets && resultSets.length > 1}" id="results">
+    </c-col>
+    <c-col class="col-lg-12 mb-3" [ngClass]="{'accordion': resultSets && resultSets.length > 1}" id="results">
         <div class="card" *ngFor="let resultSet of resultSets; let i = index;">
             <div class="card-header"
                  [ngClass]="{'pointer': resultSets.length > 1, 'open': collapsed !== undefined && collapsed[i]}"
@@ -132,19 +132,19 @@
                     </div>
 
 
-                    <div class="col-lg-12 result-wrapper" *ngIf="resultSet && resultSet.data">
+                    <c-row class="col-lg-12 result-wrapper" *ngIf="resultSet && resultSet.data">
                         <app-data-view [resultSet]="resultSet" [config]="tableConfig"
                                        (viewEditorCode)="createView($event)"
                                        (executeView)="executeView($event)"></app-data-view>
                         <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="resultSet.hasMoreRows">
                             Only {{resultSet.data.length}} rows are being displayed. To fetch more rows, please specify
                             a LIMIT clause.</p>
-                    </div>
+                    </c-row>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </c-col>
+</c-row>
 
 <app-information-manager *ngIf="queryAnalysis" [data]="queryAnalysis" [zoom]="_breadcrumb.getMasonryZoom()"
                          [hidden]="!showingAnalysis"></app-information-manager>

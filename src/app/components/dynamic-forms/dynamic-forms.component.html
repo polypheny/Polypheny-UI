@@ -2,10 +2,10 @@
 
 <form novalidate (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form">
     <div class="form-row align-items-center row">
-        <div class="col-lg-6" *ngFor="let group of formObj.groups">
+        <c-col class="col-lg-6" *ngFor="let group of formObj.groups">
             <div class="form-group form-row align-items-center">
-                <div class="col-12">{{group.title}}:</div>
-                <div class="col-lg-6 col-md-6 col-sm-12" *ngFor="let item of group.items">
+                <c-col class="col-12">{{group.title}}:</c-col>
+                <c-col class="col-lg-6 col-md-6 col-sm-12" *ngFor="let item of group.items">
                     <ng-container [ngSwitch]="item.type">
 
                         <ng-container *ngSwitchCase="'radio'">
@@ -73,22 +73,22 @@
                         </ng-container>
 
                     </ng-container><!-- end switch -->
-                </div>
+                </c-col>
             </div>
-        </div>
+        </c-col>
         <button type="submit" class="btn btn-primary">save</button>
     </div>
 </form>
 
 <hr/>
-<div class="row">
-    <div class="col-lg-6">
+<c-row class="row">
+    <c-col class="col-lg-6">
         <strong>Form Value</strong>
         <pre>{{ form.value | json }}</pre>
         <strong>Form is valid:</strong> {{form.valid}}
-    </div>
-    <div class="col-lg-6">
+    </c-col>
+    <c-col class="col-lg-6">
         <strong>input:</strong>
 
-    </div>
-</div>
+    </c-col>
+</c-row>

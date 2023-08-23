@@ -1,12 +1,12 @@
 <ng-container *ngIf="data">
-    <div class="row" *ngIf="data.name || data.description">
-        <div class="col-md-12">
+    <c-row class="row" *ngIf="data.name || data.description">
+        <c-col class="col-md-12">
             <h1 *ngIf="data.name">{{data.name}}</h1>
             <p *ngIf="data.description">{{data.description}}</p>
             <a class="btn btn-light btn-circle" *ngIf="data.refreshable" [ngClass]="{'rotating': refreshingPage}"
                (click)="refreshPage()" id="refreshPage"><i class="icon-reload"></i></a>
-        </div>
-    </div>
+        </c-col>
+    </c-row>
     <div class="card-columns" [ngStyle]="getZoom()">
         <div *ngFor="let item of data.groups | keyvalue : order">
             <div [className]="getCardClass(item.value.color)">

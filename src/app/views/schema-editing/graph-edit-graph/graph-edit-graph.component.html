@@ -1,16 +1,16 @@
 <c-toast></c-toast>
-<div class="row">
+<c-row class="row">
 
-    <div class="col-lg-12">
+    <c-col class="col-lg-12">
 
         <h5 *ngIf="graphId">{{graphId}}</h5>
         <span *ngIf="!graphId">Please select a graph in the left sidebar to edit its columns.</span>
 
         <p *ngIf="resultSet">Double click on a fixed field in the collection below to edit the fixed field.</p>
-    </div>
+    </c-col>
 
 
-    <div class="col-lg-12" *ngIf="dataPlacements">
+    <c-col class="col-lg-12" *ngIf="dataPlacements">
         <hr>
         <div class="mb-3" style="position: relative">
             <h5 style="display: inline">Data Placements</h5>
@@ -65,6 +65,6 @@
             </tr>
             </tbody>
         </table>
-    </div>
+    </c-col>
 
-</div>
+</c-row>

@@ -1,5 +1,5 @@
-<div class="row no-gutters" *ngIf="!hidden">
-    <div class="col-md-6">
+<c-row class="no-gutters" *ngIf="!hidden">
+    <c-col class="col-md-6">
         <ol class="breadcrumb">
             <li *ngFor="let b of breadcrumbs" class="breadcrumb-item">
                 <ng-container *ngIf="b.routerLink">
@@ -8,8 +8,8 @@
                 <ng-container *ngIf="!b.routerLink">{{b.name}}</ng-container>
             </li>
         </ol>
-    </div>
-    <div class="col-md-6" *ngIf="breadcrumbs[0].name != 'Schema'">
+    </c-col>
+    <c-col class="col-md-6" *ngIf="breadcrumbs[0].name != 'Schema'">
         <div class="custom-control-inline breadcrumb" id="zoom-wrapper">
             <div class="custom-control" *ngIf="_breadcrumb._showZoom">
                 Zoom: {{zoom}}
@@ -18,8 +18,8 @@
                 <span>  </span>
             </div>
         </div>
-    </div>
-    <div class="col-md-6" *ngIf="breadcrumbs[0].name == 'Schema'">
+    </c-col>
+    <c-col class="col-md-6" *ngIf="breadcrumbs[0].name == 'Schema'">
         <div class="custom-control-inline breadcrumb breadcrumb-menu-right" id="statistics-wrapper">
             <div class="custom-control" *ngIf="_breadcrumb.getTableId()">
                 <button class="btn btn-light"
@@ -35,7 +35,7 @@
                 </button>
             </div>
         </div>
-    </div>
+    </c-col>
 
-</div>
+</c-row>
 <div style="width:100%;height: 1.5rem;background: transparent;" *ngIf="hidden"></div>

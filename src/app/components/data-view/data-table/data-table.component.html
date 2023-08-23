@@ -3,8 +3,8 @@
 <div *ngIf="!resultSet.data && !resultSet.error && !creatingView">data-table: nothing to show.</div>
 <div class="text-danger mb-3" *ngIf="resultSet.error && !resultSet.header">{{resultSet.error}}</div>
 
-<div class="row" *ngIf="resultSet.header">
-    <div class="col-lg-12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': config.exploring }">
+<c-row class="row" *ngIf="resultSet.header">
+    <c-col class="col-lg-12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': config.exploring }">
         <table class="table table-hover table-sm table-bordered"
                [ngClass]="{'loading': loading, 'table-striped': !config.exploring || exploreSet}" id="data-table"
                [attr.data-table]="resultSet.table">
@@ -148,11 +148,11 @@
             </tr>
             </tbody>
         </table>
-    </div>
-</div>
+    </c-col>
+</c-row>
 
-<div class="row">
-    <div class="col-lg-12">
+<c-row class="row">
+    <c-col class="col-lg-12">
         <nav aria-label="Page navigation" class="float-right" *ngIf="resultSet.highestPage > 1">
             <ul class="pagination">
                 <li *ngFor="let p of pagination" class="page-item"
@@ -186,8 +186,8 @@
                 *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && this.resultSet.isConvertedToSql"
                 (click)="createViewButton(createViewExample)"> Create View
         </button>
-    </div>
-</div>
+    </c-col>
+</c-row>
 
 
 <ng-template #decisionTree>

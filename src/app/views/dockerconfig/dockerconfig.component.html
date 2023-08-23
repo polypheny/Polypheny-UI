@@ -1,21 +1,21 @@
 <c-toast></c-toast>
 
 <ng-container>
-    <div class="row">
-        <div class="col-md-12">
+    <c-row class="row">
+        <c-col class="col-md-12">
             <h1>Docker</h1>
             <p>Docker related settings and configurations.</p>
-        </div>
-    </div>
+        </c-col>
+    </c-row>
 
-    <div *ngIf="status.available && (!status.connected || autoConnectRunning)" class="row pb-3">
+    <c-row *ngIf="status.available && (!status.connected || autoConnectRunning)" class="pb-3">
         <div class="col">
             <button class="btn btn-success" (click)="autoDocker()" [disabled]="status.running || autoConnectRunning">
                 <div *ngIf="status.running || autoConnectRunning" class="spinner-border spinner-border-sm" role="status"></div>
                 Autoconnect to localhost
             </button>
         </div>
-    </div>
+    </c-row>
 
     <div class="card-columns" [ngStyle]="{'column-count': 6}">
         <div *ngFor="let instance of instances">

@@ -3,16 +3,16 @@
 <c-toast></c-toast>
 <ng-container *ngIf="formObj && form && !pageNotFound">
 	<form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form" #formElement>
-		<div id="form-generator-main" class="row">
-			<div class="col-md-12">
+        <c-row id="form-generator-main" class="row">
+            <c-col class="col-md-12">
 				<button *ngIf="form.dirty" type="submit" class="btn btn-circle btn-primary save-configs"><i
 						class="fa fa-save"></i></button>
 				<button #submitButton type="submit" class="btn btn-circle btn-primary save-configs d-none"><i
 						class="fa fa-save"></i></button>
 				<h1 *ngIf="formObj.title">{{formObj.title}}</h1>
 				<p *ngIf="formObj.description">{{formObj.description}}</p>
-			</div>
-		</div>
+            </c-col>
+        </c-row>
 		<div class="card-columns" [ngStyle]="{'column-count': _breadcrumb.getMasonryZoom()}">
 			<ng-container *ngFor="let group of formObj.groups | keyvalue: orderGroups">
 				<div>

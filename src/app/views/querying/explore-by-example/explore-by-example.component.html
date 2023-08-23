@@ -1,7 +1,7 @@
-<div class="row" style="position: relative;">
+<c-row class="row" style="position: relative;">
     <c-toast></c-toast>
     <ng-container *ngIf="exploreByExampleEnabled()">
-        <div class="col-lg-12">
+        <c-col class="col-lg-12">
             <h4>Explore by Example</h4>
             <p class="d-inline-block">Select columns from the left sidebar to get started. As soon as all needed columns
                 have been selected, the process can be started with Start Process.</p>
@@ -13,22 +13,22 @@
                     <span class="switch-slider"></span>
                 </label>
             </div>
-        </div>
-        <div class="col-lg-12">
+        </c-col>
+        <c-col class="col-lg-12">
             <button type="button" id="explore-button" class="btn btn-primary" (click)="selectedColumns()">Start
                 Process
             </button>
             <!--<button id="infoExploreProcess" type="button" class="btn btn-primary float-right"  (click)="openModal(informationExploreProcess)">Information Explore Process</button>-->
-        </div>
+        </c-col>
     </ng-container>
     <ng-container *ngIf="!exploreByExampleEnabled()">
-        <div class="col-lg-12">
+        <c-col class="col-lg-12">
             <p>This version of Polypheny does not come bundled with Explore-By-Example due to licencing. To enable
                 Explore-By-Example, Polypheny can be built yourself following this guide:</p>
             <a href="https://polypheny.org/documentation/Setup/">Polypheny Documentation</a>
-        </div>
+        </c-col>
     </ng-container>
-</div>
+</c-row>
 
 
 <ng-template #informationExploreProcess>
@@ -47,10 +47,10 @@
     </div>
 </ng-template>
 
-<div class="row" *ngIf="resultSet && resultSet.data">
-    <div class="col-lg-12" style="padding-bottom: 1em;">
+<c-row class="row" *ngIf="resultSet && resultSet.data">
+    <c-col class="col-lg-12" style="padding-bottom: 1em;">
         <h5>Query Result</h5>
         <app-data-table [resultSet]="resultSet" [config]="tableConfig" [loading]="loading" [tutorialMode]="tutorialMode"
                         [exploreId]="exploreId"></app-data-table>
-    </div>
-</div>
+    </c-col>
+</c-row>

@@ -24,9 +24,9 @@
                             <div *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName'])">
                                 <h5>Column: {{col.key}}</h5>
 
-                                <div class="row" [id]="this.statisticSet[col.value['qualifiedColumnName']]['table']">
+                                <c-row class="row" [id]="this.statisticSet[col.value['qualifiedColumnName']]['table']">
                                     <!-- sorting columns ascending, descending or off -->
-                                    <div class="col col-lg-4 col-md-6 col-sm-12"
+                                    <c-col class="col col-lg-4 col-md-6 col-sm-12"
                                          *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName'])">
                                         <p>Sorting</p>
                                         <div class="btn-group-vertical btn-group-toggle" id="radio"
@@ -56,10 +56,10 @@
                                                        (ngModelChange)="changeUserInput()"> descending
                                             </label>
                                         </div>
-                                    </div>
+                                    </c-col>
 
                                     <!-- avg, min max for numerical values -->
-                                    <div class="col col-lg-4 col-md-6 col-sm-12"
+                                    <c-col class="col col-lg-4 col-md-6 col-sm-12"
                                          *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && ['numeric','temporal'].includes(this.statisticSet[col.value['qualifiedColumnName']]['columnType'])">
                                         <p>Aggregate</p>
                                         <div class="row">
@@ -78,10 +78,10 @@
                                                 </select>
                                             </div>
                                         </div>
-                                    </div>
+                                    </c-col>
 
                                     <!-- min max for numeric values -->
-                                    <div class="col col-lg-4 col-md-6 col-sm-12"
+                                    <c-col class="col col-lg-4 col-md-6 col-sm-12"
                                          *ngIf="this.statisticSet[col.value['qualifiedColumnName']]['type'] && includes(this.statisticSet[col.value['qualifiedColumnName']]['type'], 'range') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && this.statisticSet[col.value['qualifiedColumnName']]['isFull']">
                                         <p>Min - Max</p>
                                         <ngx-slider id="slider"
@@ -90,10 +90,10 @@
                                                     [options]="this.statisticSet[col.value['qualifiedColumnName']]['options']"
                                                     [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['minMax']"
                                                     (ngModelChange)="changeUserInput()"></ngx-slider>
-                                    </div>
+                                    </c-col>
 
                                     <!-- column value for search -->
-                                    <div class="col col-lg-4 col-md-6 col-sm-12"
+                                    <c-col class="col col-lg-4 col-md-6 col-sm-12"
                                          *ngIf="this.statisticSet[col.value['qualifiedColumnName']]['type'] && includes(this.statisticSet[col.value['qualifiedColumnName']]['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && this.statisticSet[col.value['qualifiedColumnName']]['columnType'] == 'alphabetic' && this.statisticSet[col.value['qualifiedColumnName']]['isFull'] ">
                                         <p>Search</p>
                                         <div class="input-group mb-3" id="search">
@@ -105,7 +105,7 @@
                                                    [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['startsWith']"
                                                    (ngModelChange)="changeUserInput()">
                                         </div>
-                                    </div>
+                                    </c-col>
 
                                     <!-- checkbox for unique values -->
                                     <div class="col col-lg-4 col-md-6 col-sm-12"
@@ -122,7 +122,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </c-row>
                             </div>
                         </div>
                     </div>
