@@ -9,7 +9,7 @@ import {EditorComponent} from '../../../../../components/editor/editor.component
 })
 export class NbInputEditorComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() type: CellType;
-    @Input() nbLanguage: CellType; // cannot change while a notebook is open
+    @Input() nbLanguage: string; // cannot change while a notebook is open
     @Input() polyLanguage: 'cypher' | 'mql' | 'cql' | 'sql' | 'pig';
     @ViewChild('editor') editor: EditorComponent;
 

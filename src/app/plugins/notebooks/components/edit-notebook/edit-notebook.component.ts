@@ -43,7 +43,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     kernelSpec: KernelSpec;
     private subscriptions = new Subscription();
     selectedCell: NotebookCell;
-    selectedCellType = 'code';
+    selectedCellType: CellType = 'code';
     busyCellIds = new Set<string>();
     mode: NbMode = 'command';
     namespaces: string[] = [];
@@ -224,6 +224,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this.closeNbSubject?.next(false);
         this.closeNbSubject?.complete();
         this.closeNbSubject = null;
+        this._sidebar.deselect();
         this.closeNotebookModal.hide();
     }
 
@@ -322,7 +323,12 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this.selectedComponent?.updateSource();
         this.nb.executeCell(this.selectedCell);
         if (advanceToNext) {
-            this.selectCellBelow();
+            if (this.nb.getCellIndex(this.selectedCell.id) === this.nb.cells.length - 1) {
+                this.insertCell(this.selectedCell.id, true, true);
+            } else {
+                this.selectCellBelow(false);
+                this.forceCommandMode();
+            }
         }
     }
 
@@ -471,6 +477,9 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         timer(50).pipe(take(1)).subscribe(() => {
             // ensure enough time has passed for the cell to be added to DOM
             this.selectCell(cell.id, editMode);
+            if (!editMode) {
+                this.forceCommandMode();
+            }
             timer(100).pipe(take(1)).subscribe(() => this.inserting = false); // prevent spam
         });
     }
@@ -513,18 +522,24 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             } else {
                 this.selectCell(this.nb.cells[this.nb.cells.length - 1].id, false);
             }
+        } else {
+            this.insertCell(id, false, false);
+            this.deleteCell(id);
         }
     }
 
     selectCell(id: string, editMode = false) {
         const unselectId = this.selectedCell?.id;
         if (id !== unselectId) {
+            this.selectedComponent?.editor?.blur();
             this.selectedCell = this.nb.getCell(id);
             if (this.selectedCell) {
                 this.selectedCellType = this.nb.getCellType(this.selectedCell);
+                this.scrollCellIntoView(id);
                 if (editMode) {
                     this.mode = 'edit'; // if component does not yet exist
                     this.selectedComponent?.editMode();
+                    this.selectedComponent?.editor?.focus();
                 }
             }
         }
@@ -541,6 +556,20 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         const cellBelow = this.nb.cellBelow(this.selectedCell.id);
         if (cellBelow) {
             this.selectCell(cellBelow.id, editMode);
+        }
+    }
+
+    private scrollCellIntoView(id) {
+        // https://stackoverflow.com/a/37829643
+        const element = document.getElementById(id); // id of the scroll to element
+        if (!element) {
+            return;
+        }
+
+        if (element.getBoundingClientRect().bottom > window.innerHeight - 50) {
+            element.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'nearest'});
+        } else if (element.getBoundingClientRect().top < 100) {
+            element.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'nearest'});
         }
     }
 
@@ -571,8 +600,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         } else {
             switch (event.key.toLowerCase()) {
                 case 'escape':
-                    this.selectedComponent?.commandMode();
-                    document.getElementById('notebook').focus();
+                    this.forceCommandMode();
                     break;
             }
         }
@@ -659,21 +687,22 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             return;
         }
         event.preventDefault();
-        this.executeSelected();
         if (event.altKey) {
-            this.insertCell(this.selectedCell.id, true);
+            this.executeSelected();
+            this.insertCell(this.selectedCell.id, true, true);
         } else if (event.ctrlKey) {
+            this.executeSelected();
             if (this.mode === 'edit') {
-                this.selectedComponent?.commandMode();
-                document.getElementById('notebook').focus();
+                this.forceCommandMode();
             }
         } else if (event.shiftKey) {
-            if (this.nb.getCellIndex(this.selectedCell.id) === this.nb.cells.length - 1) {
-                this.insertCell(this.selectedCell.id, true, false);
-            } else {
-                this.selectCellBelow();
-            }
+            this.executeSelected(true);
         }
+    }
+
+    private forceCommandMode() {
+        this.selectedComponent?.commandMode();
+        document.getElementById('notebook').focus();
     }
 
     onTypeChange(event: Event) {

@@ -379,8 +379,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
     private onServerUnreachable() {
         if (!this._content.isRoot) {
             this._toast.error('Jupyter Server seems to be offline.');
-            const queryParams = {forced: true};
-            this._router.navigate([this._sidebar.baseUrl, 'notebooks'], {queryParams});
+            this._router.navigate([this._sidebar.baseUrl, 'notebooks']);
         }
     }
 }

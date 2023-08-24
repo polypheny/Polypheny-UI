@@ -173,6 +173,7 @@
                 <div class="drop-box" cdkDrag cdkDragBoundary=".nb-background"
                      *ngFor="let cell of nb.cells; let i = index; trackBy:identify">
                     <app-nb-cell #nbCell
+                                 [id]="cell.id"
                                  [cell]="cell"
                                  [isFocused]="cell.id === selectedCell.id"
                                  [isExecuting]="busyCellIds.has(cell.id)"

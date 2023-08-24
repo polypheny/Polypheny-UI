@@ -5,7 +5,7 @@ import {DirectoryContent} from '../models/notebooks-response.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {SidebarButton} from '../../../models/sidebar-button.model';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
-import {Subject} from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
 import {ToastService} from '../../../components/toast/toast.service';
 import {Injectable} from '@angular/core';
 import {NotebooksContentService} from './notebooks-content.service';
@@ -25,6 +25,7 @@ export class NotebooksSidebarService {
     private addButtonSubject = new Subject<void>();
     private uploadButtonSubject = new Subject<void>();
     private notebookClickedSubject = new Subject<[any, any, any]>(); // tree, node, $event
+    private subscriptions = new Subscription();
 
     constructor(private _notebooks: NotebooksService,
                 private _content: NotebooksContentService,
@@ -32,8 +33,6 @@ export class NotebooksSidebarService {
                 private _breadcrumb: BreadcrumbService,
                 private _toast: ToastService,
                 private _loading: LoadingScreenService) {
-        _content.onContentChange().subscribe(() => this.update());
-        _content.onSessionsChange().subscribe(() => this.updateSidebar());
     }
 
     private update() {
@@ -71,7 +70,7 @@ export class NotebooksSidebarService {
                 this.parentPath, '..', 'fa fa-arrow-left', this._baseUrl + '/' + this.parentPath,
                 false, false, true
             );
-            parent.setDropAction((action, treeNode, $event, {from, to}) => {
+            parent.setDropAction((action, treeNode, $event, {from, _}) => {
                 this.moveFile(from.data.id, this.parentPath + '/' + from.data.name);
             });
             nodes.push(parent);
@@ -85,7 +84,6 @@ export class NotebooksSidebarService {
                 file.name,
                 this.getIcon(file.type,
                     file.type === 'notebook' && this._content.hasRunningKernel(file.path),
-                    !this._content.isRoot && file.path === this._leftSidebar.selectedNodeId,
                     this._content.getPreferredSessionId(file.path) != null),
                 routerLink,
                 true,
@@ -118,16 +116,13 @@ export class NotebooksSidebarService {
         }
     }
 
-    private getIcon(type: string, isActive = false, isSelected = false, hasPreferred = false) {
+    private getIcon(type: string, isActive = false, hasPreferred = false) {
         switch (type) {
             case 'file':
                 return 'fa fa-file';
             case 'directory':
                 return 'fa fa-folder';
             case 'notebook':
-                if (isSelected) {
-                    return 'fa fa-book';
-                }
                 return isActive ?
                     (hasPreferred ? 'fa fa-book text-success' : 'fa fa-book text-danger') :
                     'fa fa-book';
@@ -156,10 +151,15 @@ export class NotebooksSidebarService {
     }
 
     open() {
+        this.subscriptions.unsubscribe();
+        this.subscriptions = new Subscription();
+        this.subscriptions.add(this._content.onContentChange().subscribe(() => this.update()));
+        this.subscriptions.add(this._content.onSessionsChange().subscribe(() => this.updateSidebar()));
         this._leftSidebar.open();
     }
 
     close() {
+        this.subscriptions.unsubscribe();
         this._breadcrumb.hide();
         this._leftSidebar.setTopButtons([]);
         this._leftSidebar.close();
