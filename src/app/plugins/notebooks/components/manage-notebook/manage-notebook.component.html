@@ -48,7 +48,7 @@
                         <button class="btn btn-outline-primary" (click)="connectSessionModal.show()"
                                 *ngIf="sessions.length > 0">Connect
                         </button>
-                        <button class="btn btn-primary" (click)="createKernelModal.show()">Open</button>
+                        <button class="btn btn-primary" (click)="createKernelModal.show()" [disabled]="availableKernels.length === 0">Open</button>
                     </div>
                 </div>
             </div>

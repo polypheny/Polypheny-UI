@@ -171,18 +171,20 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
 
             this._content.getSpecifiedKernel(path).pipe(
                 mergeMap(res => {
-                        if (res) {
-                            return this.startAndOpenNotebook(name, path, res.name);
-                        }
-
-                        this._loading.hide();
-                        this.openCreateSessionModal(name, path);
-                        return EMPTY;
+                    if (res) {
+                        return this.startAndOpenNotebook(name, path, res.name);
                     }
-                )
-            ).subscribe(res => {
+
+                    this._loading.hide();
+                    this.openCreateSessionModal(name, path);
+                    return EMPTY;
+                }
+                        )
+            ).subscribe(
+                res => {
                 },
                 err => {
+                    console.log(err);
                     this._toast.error('Failed to open Notebook. The file might be corrupted or does no longer exist.');
                     this.openManagePage(path);
                 }
@@ -204,6 +206,10 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
     }
 
     private openCreateSessionModal(name: string, path: string, canManage = true) {
+        if (this.availableKernels.length === 0){
+            this._toast.warn("No kernels are available.  Is the Jupyter container running?");
+            return;
+        }
         this.createSessionForm.patchValue({
             name: name,
             path: path,
@@ -272,19 +278,19 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
         let name = fileName;
         this._notebooks.createFileWithExtension(this._content.directoryPath, val.type, ext).pipe(
             mergeMap(res => {
-                    if (val.name === '') {
-                        name = res.name;
-                        path = res.path;
-                        return of({});
-                    }
-                    return this._notebooks.moveFile(res.path, path);
+                if (val.name === '') {
+                    name = res.name;
+                    path = res.path;
+                    return of({});
                 }
-            ), mergeMap(res => {
-                if (val.type !== 'notebook') {
-                    return EMPTY;
-                }
-                return this.startAndOpenNotebook(name, path, val.kernel);
-            })
+                return this._notebooks.moveFile(res.path, path);
+            }
+                    ), mergeMap(res => {
+                        if (val.type !== 'notebook') {
+                            return EMPTY;
+                        }
+                        return this.startAndOpenNotebook(name, path, val.kernel);
+                    })
         ).subscribe(res => {
         }, err => {
             this._toast.error(err.error.message, `Creation of '${fileName}' failed`);
@@ -347,10 +353,10 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
     private startAndOpenNotebook(name: string, path: string, kernel: string): Observable<SessionResponse> {
         return this._notebooks.createSession(name, path, kernel, true).pipe(
             tap(res => {
-                    this._content.addSession(res);
-                    this.openSession(res.id, path);
-                }
-            )
+                this._content.addSession(res);
+                this.openSession(res.id, path);
+            }
+               )
         );
     }
 

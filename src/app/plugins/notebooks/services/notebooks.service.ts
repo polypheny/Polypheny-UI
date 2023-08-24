@@ -189,4 +189,17 @@ export class NotebooksService {
     restartContainer() {
         return this._http.post(`${this.httpUrl}/container/restart`, '', this.httpOptions);
     }
+
+    getDockerInstances() {
+        return this._http.get(`${this.httpUrl}/container/getDockerInstances`);
+    }
+
+    createContainer(id: number) {
+        return this._http.post(`${this.httpUrl}/container/create?dockerInstance=${id}`, '', this.httpOptions);
+    }
+
+    destroyContainer() {
+        return this._http.post(`${this.httpUrl}/container/destroy`, '', this.httpOptions);
+    }
+
 }

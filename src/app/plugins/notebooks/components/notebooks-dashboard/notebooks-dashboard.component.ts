@@ -15,6 +15,9 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     @ViewChild('terminateSessionsModal') public terminateSessionsModal: ModalDirective;
     @ViewChild('terminateUnusedSessionsModal') public terminateUnusedSessionsModal: ModalDirective;
     @ViewChild('restartContainerModal') public restartContainerModal: ModalDirective;
+    @ViewChild('destroyContainerModal') public destroyContainerModal: ModalDirective;
+    @ViewChild('startContainerModal') public startContainerModal: ModalDirective;
+
 
     private subscriptions = new Subscription();
     sessions: SessionResponse[] = [];
@@ -23,7 +26,9 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     isPreferredSession: boolean[] = [];
     deleting = false;
     serverStatus: StatusResponse;
-    pluginLoaded = true;
+    pluginLoaded = false;
+    sessionSubscription = null;
+    instances = [];
 
     constructor(private _notebooks: NotebooksService,
                 private _content: NotebooksContentService,
@@ -31,22 +36,44 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        const sub1 = this._content.onSessionsChange().subscribe(res => {
-            this.updateSessions(res);
-            this.hasUnusedSessions = res.some(session => session.kernel?.connections === 0);
-        });
+        this.getServerStatus();
+        this._notebooks.getDockerInstances().subscribe(
+            res => {
+                this.instances = <[]>res;
+            },
+            err => {
+                console.log(err);
+            }
+        );
+        this.getPluginStatus();
 
-        const sub2 = interval(10000).subscribe(() => {
+        const sub = interval(10000).subscribe(() => {
             this.getServerStatus();
         });
-        this.getServerStatus();
-
-        this.subscriptions.add(sub1);
-        this.subscriptions.add(sub2);
+        this.subscriptions.add(sub);
     }
 
     ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
+    }
+
+    subscribeToSessionChanges() {
+        if (this.sessionSubscription !== null) {
+            return;
+        }
+        console.log("Adding subscription");
+        this.sessionSubscription = this._content.onSessionsChange().subscribe(res => {
+            this.updateSessions(res);
+            this.hasUnusedSessions = res.some(session => session.kernel?.connections === 0);
+        });
+    }
+
+    unsubscribeFromSessionChanges() {
+        if (this.sessionSubscription !== null) {
+            console.log("Removing subscription");
+            this.sessionSubscription.unsubscribe();
+            this.sessionSubscription = null;
+        }
     }
 
     terminateSessions(onlyUnused = false): void {
@@ -71,32 +98,69 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
             .replace(/\//g, '/\u200B')); // zero-width space => allow soft line breaks after '/'
         this.isPreferredSession = this.sessions.map((s, i) =>
             this._content.getPreferredSessionId(paths[i]) === s.id
+                                                   );
+    }
+
+    showStartContainerModal() {
+        this._notebooks.getDockerInstances().subscribe(
+            res => {
+                this.instances = <[]>res;
+            },
+            err => {
+                console.log(err);
+            }
         );
+    }
+
+    createContainer(id: number) {
+        this._notebooks.createContainer(id).subscribe(
+            res => this.startContainerModal.hide(),
+            err => console.log(err),
+        ).add(() => this.getServerStatus());
+    }
+
+    destroyContainer() {
+        this._notebooks.destroyContainer().subscribe(
+            res => this.destroyContainerModal.hide(),
+            err => console.log(err),
+        ).add(() => this.getServerStatus());
     }
 
     restartContainer() {
         this.serverStatus = null;
         this.restartContainerModal.hide();
         this._notebooks.restartContainer().subscribe(res => {
-                this._toast.success('Successfully restarted the container.');
-                this._content.updateSessions();
-                this._content.update();
-            },
-            err => {
-                this._toast.error('An error occurred while restarting the container!');
-            }).add(() => this.getServerStatus());
+            this._toast.success('Successfully restarted the container.');
+            this._content.updateSessions();
+            this._content.update();
+        },
+        err => {
+            this._toast.error('An error occurred while restarting the container!');
+        }).add(() => this.getServerStatus());
+    }
+
+    getPluginStatus() {
+        this._notebooks.getPluginStatus().subscribe(
+            () => {
+                this.pluginLoaded = true;
+            }, () => {
+                this.pluginLoaded = false;
+                this._content.setAutoUpdate(false);
+                this.subscriptions.unsubscribe();
+            });
     }
 
     getServerStatus() {
-        this._notebooks.getStatus().subscribe(res => this.serverStatus = res,
+        this._notebooks.getStatus().subscribe(
+            res => {
+                this.serverStatus = res
+                this.subscribeToSessionChanges();
+            },
             () => {
                 this.serverStatus = null;
-                this._notebooks.getPluginStatus().subscribe(() => {
-                }, () => {
-                    this.pluginLoaded = false;
-                    this._content.setAutoUpdate(false);
-                    this.subscriptions.unsubscribe();
-                });
+                this.unsubscribeFromSessionChanges();
+                this._content.setAutoUpdate(false);
+                this.getPluginStatus();
             });
     }
 
