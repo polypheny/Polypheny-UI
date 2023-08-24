@@ -8,7 +8,7 @@
                 <span class="mb-0">Jupyter Server</span>
             </div>
             <div class="card-body">
-                <h5>{{serverStatus ? 'Online' : 'Offline'}} </h5>
+                <h5>{{serverStatus ? 'Online' : 'Offline'}}</h5>
                 <ng-container *ngIf="serverStatus">
                     <p>Started: {{serverStatus.started | date: 'short'}}</p>
                     <p>Last Activity: {{serverStatus.last_activity | date: 'short'}}</p>
@@ -16,9 +16,17 @@
             </div>
 
             <div class="card-footer bg-transparent">
-                <button class="btn btn-danger pull-right"
-                        (click)="serverStatus ? restartContainerModal.show() : restartContainer()">
-                    {{serverStatus ? 'Restart Container' : 'Start Container'}}
+                <button *ngIf="serverStatus" class="btn btn-danger pull-right"
+                        (click)="destroyContainerModal.show()">
+                    Destroy Container
+                </button>
+                <button *ngIf="serverStatus" class="btn btn-danger pull-right mr-2"
+                        (click)="restartContainerModal.show()">
+                    Restart Container
+                </button>
+                <button *ngIf="!serverStatus" class="btn btn-success pull-right mr-2"
+                        (click)="startContainerModal.show()">
+                    Start Container
                 </button>
             </div>
         </div>
@@ -152,6 +160,61 @@
                 <button type="button" class="btn btn-secondary" (click)="restartContainerModal.hide()">Cancel</button>
                 <button type="button" class="btn btn-danger" (click)="restartContainer()">
                     <span>Restart</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #destroyContainerModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="terminateSessionsModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Destroy Docker Container</h4>
+                <button type="button" class="close" (click)="destroyContainerModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>Are you sure you want to destroy the Jupyter Server Docker container? This will shut down all running
+                    kernels. Unsaved changes might be lost.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="destroyContainerModal.hide()">Cancel</button>
+                <button type="button" class="btn btn-danger" (click)="destroyContainer()">
+                    <span>Destroy</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #startContainerModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="terminateSessionsModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Start Docker Container</h4>
+                <button type="button" class="close" (click)="startContainerModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                Select the Docker instance to use:
+                <select name="instanceId" #selectedInstance class="form-control">
+                    <option *ngFor="let instance of instances" [(value)]="instance.id">{{instance.alias}}</option>
+                </select>
+                <div class="alert alert-warning mt-3">
+                    The Jupyter image is very large, it might take some time to download.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="startContainerModal.hide()">Cancel</button>
+                <button type="button" class="btn btn-success" (click)="createContainer(selectedInstance.value)">
+                    <span>Start</span>
                 </button>
             </div>
         </div>
