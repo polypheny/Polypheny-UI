@@ -13,7 +13,7 @@ import {EditTableRequest, NamespaceType, QueryExplorationRequest} from '../../..
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {RelationalExploreResult} from '../../../components/data-view/models/result-set.model';
-import {ToastService} from '../../../components/toast/toast.service';
+import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {DataTableComponent} from '../../../components/data-view/data-table/data-table.component';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
@@ -80,7 +80,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     constructor(
         private _crud: CrudService,
         private _leftSidebar: LeftSidebarService,
-        private _toast: ToastService,
+        private _toast: ToasterService,
         private _settings: WebuiSettingsService,
         private _information: InformationService,
         private _plugin: PluginService,

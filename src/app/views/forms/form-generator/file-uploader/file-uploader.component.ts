@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {PluginService} from '../../../../services/plugin.service';
-import {ToastService} from '../../../../components/toast/toast.service';
+import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 
 @Component({
   selector: 'app-file-uploader',
@@ -17,7 +17,7 @@ export class FileUploaderComponent implements OnInit {
 
   constructor(
       public _plugin: PluginService,
-      public _toast: ToastService,
+      public _toast: ToasterService,
   ) {
   }
 

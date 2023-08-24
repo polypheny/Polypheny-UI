@@ -1,4 +1,4 @@
-<c-toast></c-toast>
+
 <div *ngIf="!resultSet.data && !resultSet.error && creatingView">Successfully created View {{this.newViewName }}.</div>
 <div *ngIf="!resultSet.data && !resultSet.error && !creatingView">data-table: nothing to show.</div>
 <div class="text-danger mb-3" *ngIf="resultSet.error && !resultSet.header">{{resultSet.error}}</div>

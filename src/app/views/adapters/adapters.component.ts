@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Adapter, AdapterInformation, AdapterSetting, Source, Store} from './adapter.model';
-import {ToastService} from '../../components/toast/toast.service';
+import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {
     AbstractControl,
     UntypedFormArray,
@@ -65,7 +65,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         private _crud: CrudService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _toast: ToastService,
+        private _toast: ToasterService,
         private _fb: UntypedFormBuilder
     ) {
     }

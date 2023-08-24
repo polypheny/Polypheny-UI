@@ -6,7 +6,7 @@ import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.
 import {KeyValue} from '@angular/common';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
-import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
+import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {isEqual} from 'lodash';
@@ -38,7 +38,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         private _route: ActivatedRoute,
         private _sidebar: LeftSidebarService,
         private _breadcrumb: BreadcrumbService,
-        private _toast: ToastService,
+        private _toast: ToasterService,
         private _settings: WebuiSettingsService
     ) {
 

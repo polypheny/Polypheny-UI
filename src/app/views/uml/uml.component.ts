@@ -6,7 +6,7 @@ import {EditTableRequest, NamespaceType} from '../../models/ui-request.model';
 import {DbTable, ForeignKey, SvgLine, Uml} from './uml.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {UntypedFormBuilder} from '@angular/forms';
-import {ToastDuration, ToastService} from '../../components/toast/toast.service';
+import {ToastDuration, ToasterService} from '../../components/toast-exposer/toaster.service';
 import {RelationalResult, UiColumnDefinition} from '../../components/data-view/models/result-set.model';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {Subscription} from 'rxjs';
@@ -56,7 +56,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         public _crud: CrudService,
         private _leftSidebar: LeftSidebarService,
         private _formBuilder: UntypedFormBuilder,
-        private _toast: ToastService,
+        private _toast: ToasterService,
         private _dbmsTypes: DbmsTypesService
     ) {
         this._dbmsTypes.getFkActions().subscribe(

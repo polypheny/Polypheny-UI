@@ -6,7 +6,7 @@ import 'jquery-ui/ui/widgets/draggable';
 import {CrudService} from '../../../services/crud.service';
 import {FilteredUserInput, RelationalResult} from '../../../components/data-view/models/result-set.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
-import {ToastService} from '../../../components/toast/toast.service';
+import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {EditTableRequest, NamespaceType, QueryRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
@@ -53,7 +53,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     constructor(
         private _crud: CrudService,
         private _leftSidebar: LeftSidebarService,
-        private _toast: ToastService,
+        private _toast: ToasterService,
         private _router: Router,
         private _settings: WebuiSettingsService,
         private _catalog: CatalogService,

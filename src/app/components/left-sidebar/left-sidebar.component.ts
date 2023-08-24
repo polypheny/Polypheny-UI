@@ -3,8 +3,7 @@ import * as $ from 'jquery';
 import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
 import {TreeComponent, TreeModel} from '@ali-hm/angular-tree-component';
-
-;
+import {SidebarNode} from '../../models/sidebar-node.model';
 
 
 @Component({
@@ -19,7 +18,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
     static readonly EXPAND_SHOWN_ROUTES: String[] = ['/views/monitoring', '/views/config', '/views/uml', '/views/querying/console', '/views/querying/relational-algebra'];
 
     @ViewChild('tree', {static: false}) treeComponent: TreeComponent;
-    nodes = [];
+    nodes:SidebarNode[] = [];
     options;
     error;
     router;

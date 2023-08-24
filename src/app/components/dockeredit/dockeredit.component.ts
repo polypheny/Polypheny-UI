@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {DockerInstance, DockerReconnectResponse, DockerRemoveResponse, DockerStatus, DockerUpdateResponse, Handshake, HandshakeAndInstance} from '../../models/docker.model';
-import {ToastService} from '../../components/toast/toast.service';
+import {ToasterService} from '../toast-exposer/toaster.service';
 
 @Component({
     selector: 'app-dockeredit',
@@ -29,7 +29,7 @@ export class DockereditComponent implements OnInit, OnDestroy {
 
     constructor(
         private _crud: CrudService,
-        private _toast: ToastService,
+        private _toast: ToasterService,
     ) { }
 
     ngOnInit(): void {

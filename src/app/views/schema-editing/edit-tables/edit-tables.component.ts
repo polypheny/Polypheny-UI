@@ -9,7 +9,7 @@ import {
     Status,
     UiColumnDefinition
 } from '../../../components/data-view/models/result-set.model';
-import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
+import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {Store} from '../../adapters/adapter.model';
@@ -50,7 +50,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     constructor(
         public _crud: CrudService,
         private _route: ActivatedRoute,
-        private _toast: ToastService,
+        private _toast: ToasterService,
         private _router: Router,
         private _leftSidebar: LeftSidebarService,
         public _types: DbmsTypesService,
@@ -179,6 +179,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }
 
     createTable() {
+        this._toast.warn('Please provide a name for the new table. The new table was not created.', 'missing table name', ToastDuration.INFINITE);
         if (this.newTableName === '') {
             this._toast.warn('Please provide a name for the new table. The new table was not created.', 'missing table name', ToastDuration.INFINITE);
             return;

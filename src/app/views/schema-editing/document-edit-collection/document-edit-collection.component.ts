@@ -9,7 +9,7 @@ import {
     RelationalResult,
     UiColumnDefinition
 } from '../../../components/data-view/models/result-set.model';
-import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
+import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ColumnRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -63,7 +63,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         private _route: ActivatedRoute,
         private _leftSidebar: LeftSidebarService,
         public _crud: CrudService,
-        private _toast: ToastService,
+        private _toast: ToasterService,
         public _types: DbmsTypesService
     ) {
 

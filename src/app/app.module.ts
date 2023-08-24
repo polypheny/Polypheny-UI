@@ -35,13 +35,17 @@ import {
     HeaderTextComponent,
     HeaderTogglerDirective,
     NavItemComponent,
-    NavLinkDirective,
+    NavLinkDirective, ProgressBarComponent, ProgressComponent,
     RowComponent,
     SidebarComponent,
     SidebarNavComponent,
     SidebarToggleDirective,
     SidebarTogglerComponent,
-    ToastComponent
+    ToastBodyComponent,
+    ToastCloseDirective,
+    ToastComponent,
+    ToasterComponent,
+    ToastHeaderComponent
 } from '@coreui/angular';
 import {DefaultLayoutComponent} from './containers/default-layout';
 import {P404Component} from './views/error/404.component';
@@ -53,6 +57,7 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {IconDirective} from '@coreui/icons-angular';
+import {ToastExposerComponent} from './components/toast-exposer/toast-exposer.component';
 
 
 @NgModule({
@@ -65,6 +70,7 @@ import {IconDirective} from '@coreui/icons-angular';
         TabsModule.forRoot(),
         ToastComponent,
         NgChartsModule,
+        ToasterComponent,
         // coreui / bootstrap
         TooltipModule.forRoot(),
         // forms
@@ -99,7 +105,14 @@ import {IconDirective} from '@coreui/icons-angular';
         IconDirective,
         RowComponent,
         ColComponent,
-        GutterDirective
+        GutterDirective,
+        ToastHeaderComponent,
+        ProgressComponent,
+        ToastBodyComponent,
+        ToastHeaderComponent,
+        ProgressBarComponent,
+        ToastCloseDirective,
+        ToasterComponent
     ],
     declarations: [
         AppComponent,

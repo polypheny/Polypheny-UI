@@ -11,7 +11,7 @@ import {
 import {Connection, LogicalOperator, LogicalOperatorUtil, Node} from './relational-algebra.model';
 import {RelationalResult} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
-import {ToastService} from '../../../components/toast/toast.service';
+import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/draggable';
@@ -69,7 +69,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
     constructor(
         private _crud: CrudService,
-        private _toast: ToastService,
+        private _toast: ToasterService,
         private _webSocketService: WebSocketService,
         private _RsToRa: RightSidebarToRelationalalgebraService,
         private _leftSidebar: LeftSidebarService,

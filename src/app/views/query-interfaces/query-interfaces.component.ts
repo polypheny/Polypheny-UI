@@ -4,7 +4,7 @@ import {Subscription} from 'rxjs';
 import {AbstractControl, UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ToastService} from '../../components/toast/toast.service';
+import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {RelationalResult} from '../../components/data-view/models/result-set.model';
 import {
     QueryInterface,
@@ -40,7 +40,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         private _crud: CrudService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _toast: ToastService
+        private _toast: ToasterService
     ) {
     }
 

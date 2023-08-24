@@ -1,5 +1,4 @@
-<div id="toast-wrapper">
-    <!--<div aria-atomic="true" aria-live="assertive" class="toast" role="alert" *ngFor="let toast of toasts |keyvalue">-->
+<!--<div id="toast-wrapper">
     <ng-container *ngFor="let toast of toasts | keyvalue :orderToasts">
         <div class="toast fade show" [ngClass]="getToastClass( toast.value )">
             <div class="toast-header">
@@ -19,26 +18,14 @@
             </div>
         </div>
     </ng-container>
-</div>
+</div>-->
+
+<c-toaster class="p-3" position="fixed" [placement]="placement"></c-toaster>
+
 
 <!-- stackTrace modal -->
-<div #stackTraceModal="bs-modal" aria-hidden="true" aria-labelledby="myModalLabel" bsModal class="modal fade"
-     role="dialog" tabindex="-1" id="stackTraceModal">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
-        <div class="modal-content bg-warning">
-            <div class="modal-header">
-                <h5>Exception</h5>
-            </div>
-            <div class="modal-body text-muted" *ngIf="exception">
-                <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: exception}"></ng-container>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="stackTraceModal.hide()">Close</button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div>
 
+<!--
 <ng-template #exceptionTemplate let-e="e">
     <ng-container *ngIf="e">
         <p *ngIf="e.detailMessage" class="font-weight-bold">{{e.detailMessage}}</p>
@@ -54,3 +41,6 @@
         </ng-container>
     </ng-container>
 </ng-template>
+-->
+
+

@@ -1,28 +1,18 @@
 import {Injectable} from '@angular/core';
-import {Toast} from './toast.model';
 import {RelationalResult} from '../data-view/models/result-set.model';
+import {Subject} from 'rxjs';
+import {Toast} from './toaster.model';
 
 @Injectable({
     providedIn: 'root'
 })
-export class ToastService {
+export class ToasterService {
 
-    public toasts: Map<string, Toast> = new Map<string, Toast>();
+    public toasts: Subject<Toast> = new Subject<Toast>();
 
     //public toastEvent: BehaviorSubject<Map<Date, Toast>> = new BehaviorSubject<Map<Date, Toast>>( new Map<Date, Toast>() );
 
     constructor() {
-    }
-
-    private setToast(t: Toast) {
-        this.toasts.set(t.hash, t);
-        //this.toastEvent.next(this.toasts);
-        if (t.delay > 0) {
-            setTimeout(() => {
-                this.toasts.delete(t.hash);
-                //this.toastEvent.next(this.toasts);
-            }, t.delay * 1000);
-        }
     }
 
     /**
@@ -35,7 +25,7 @@ export class ToastService {
      */
     private generateToast(title: string, message: string, generatedQuery: string, delay: number, type: String = '') {
         const t: Toast = new Toast(title, message, generatedQuery, delay, type);
-        this.setToast(t);
+        this.toasts.next(t);
     }
 
     /**
@@ -116,12 +106,7 @@ export class ToastService {
         if (result.exception) {
             t.setException(result.exception);
         }
-        this.setToast(t);
-    }
-
-    deleteToast(key) {
-        this.toasts.delete(key);
-        //this.toastEvent.next( this.toasts );
+        this.toasts.next(t);
     }
 
 }

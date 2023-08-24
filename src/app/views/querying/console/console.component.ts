@@ -16,7 +16,7 @@ import {Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
 import {WebSocket} from '../../../services/webSocket';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {ToastService} from '../../../components/toast/toast.service';
+import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
 import {CatalogService} from '../../../services/catalog.service';
 
@@ -78,7 +78,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         private _settings: WebuiSettingsService,
         public _util: UtilService,
         public modalService: BsModalService,
-        public _toast: ToastService,
+        public _toast: ToasterService,
         public _catalog: CatalogService
     ) {
 

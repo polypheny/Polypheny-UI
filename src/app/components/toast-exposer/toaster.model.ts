@@ -1,6 +1,6 @@
 import {ResultException} from '../data-view/models/result-set.model';
 
-export class Toast {
+export class Toast{
     title: string;
     message: string;
     generatedQuery: string;

@@ -96,14 +96,16 @@
 
 
     <div class="wrapper position-relative h-100 d-flex flex-grow-1">
-        <c-sidebar id="left" [visible]="showLeft" size="lg" class="position-relative">
+        <c-sidebar id="left" [visible]="showLeft" size="lg" class="position-relative p-3">
             <app-left-sidebar></app-left-sidebar>
         </c-sidebar>
 
         <div class="body position-relative w-auto flex-grow-1 d-flex flex-column">
+            <app-toast-exposer></app-toast-exposer>
             <c-container>
                 <app-breadcrumb-main></app-breadcrumb-main>
             </c-container>
+            <c-header-divider></c-header-divider>
 
             <!-- Main content -->
             <div class="overflow-y-auto flex-grow-1 d-flex flex-column">
@@ -117,7 +119,7 @@
                 </c-footer>
             </div>
         </div>
-        <c-sidebar id="right" [visible]="showRight" class="sidebar-end position-relative">
+        <c-sidebar id="right" [visible]="showRight" class="sidebar-end position-relative p-3">
             <app-right-sidebar></app-right-sidebar>
         </c-sidebar>
     </div>

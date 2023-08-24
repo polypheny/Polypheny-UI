@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FilteredUserInput, StatisticSet} from '../../../../components/data-view/models/result-set.model';
 import {StatisticRequest} from '../../../../models/ui-request.model';
 import {CrudService} from '../../../../services/crud.service';
-import {ToastService} from '../../../../components/toast/toast.service';
+import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 
 @Component({
     selector: 'app-refinement-options',
@@ -22,7 +22,7 @@ export class RefinementOptionsComponent implements OnInit {
 
     constructor(
         private _crud: CrudService,
-        private _toast: ToastService
+        private _toast: ToasterService
     ) {
     }
 

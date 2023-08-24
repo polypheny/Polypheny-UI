@@ -1,29 +1,25 @@
-<div id="tree-outer-wrapper d-flex" class="schema-editing">
+<div id="tree-outer-wrapper" class="schema-editing d-flex flex-column h-100 w-auto">
 
-    <div class="input-group input-group-sm" id="search-group">
-        <div class="input-group-prepend">
-    <span *ngIf="isExpandAndCollapseShown()" class="input-group-text">
-      <a [routerLink]="[]" (click)="collapseAll()" id="collapse"><i class="fa fa-compress"></i></a>
-      </span>
-        </div>
-        <input type="text" class="form-control form-control-sm"
-               [class]="{'rounded-search': !isExpandAndCollapseShown()}" placeholder="search" id="search-tree">
-        <div class="input-group-append">
-    <span *ngIf="isExpandAndCollapseShown()" class="input-group-text">
-        <a [routerLink]="[]" (click)="expandAll()" id="expand"><i class="fa fa-expand"></i></a>
+    <c-input-group>
+        <span cInputGroupText id="basic-addon1" *ngIf="isExpandAndCollapseShown()">
+            <span (click)="collapseAll()" id="collapse"><i class="fa fa-compress"></i></span>
         </span>
-        </div>
-    </div>
-
+        <input cFormControl type="text" placeholder="search" id="search-tree">
+        <span cInputGroupText *ngIf="isExpandAndCollapseShown()">
+            <span (click)="expandAll()" id="expand"><i class="fa fa-expand"></i></span>
+        </span>
+    </c-input-group>
 
     <span *ngIf="error">{{error}}</span>
-    <div id="tree-inner-wrapper">
+    <div id="tree-inner-wrapper" class="flex-grow-1">
 
         <tree-root [nodes]="nodes" [options]="options" [class]="{'no-children': !hasChildren(nodes)}" #tree>
-            <ng-template #treeNodeWrapperTemplate let-node let-index="index">
+            <ng-template #treeNodeWrapperTemplate let-index="index" let-node>
                 <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
                     <tree-node-expander [ngClass]="{'hidden-expander': node.data.children.length === 0}"
-                                        [node]="node"></tree-node-expander>
+                                        [node]="node">
+
+                    </tree-node-expander>
                     <div class="node-content-wrapper"
                          [class.node-content-wrapper-active]="node.isActive"
                          [class.node-content-wrapper-focused]="false"

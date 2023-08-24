@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, OnDestroy, Output} from '@angular/core';
 import {DockerInstance, DockerSetupResponse, Handshake, HandshakeAndInstance} from '../../models/docker.model';
 import {CrudService} from '../../services/crud.service';
-import {ToastService} from '../../components/toast/toast.service';
+import {ToasterService} from '../toast-exposer/toaster.service';
 
 @Component({
     selector: 'app-dockernew',
@@ -25,7 +25,7 @@ export class DockernewComponent implements OnInit, OnDestroy {
 
     constructor(
         private _crud: CrudService,
-        private _toast: ToastService,
+        private _toast: ToasterService,
     ) { }
 
     ngOnInit(): void {

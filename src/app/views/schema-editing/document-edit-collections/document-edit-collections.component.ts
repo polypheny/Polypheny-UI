@@ -9,7 +9,7 @@ import {
   Status,
   UiColumnDefinition
 } from '../../../components/data-view/models/result-set.model';
-import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
+import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
@@ -57,7 +57,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   constructor(
       public _crud: CrudService,
       private _route: ActivatedRoute,
-      private _toast: ToastService,
+      private _toast: ToasterService,
       private _router: Router,
       private _leftSidebar: LeftSidebarService,
       public _types: DbmsTypesService,

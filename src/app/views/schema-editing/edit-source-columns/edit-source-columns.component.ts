@@ -4,7 +4,7 @@ import {CrudService} from '../../../services/crud.service';
 import {ColumnRequest, EditTableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
-import {ToastService} from '../../../components/toast/toast.service';
+import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {ForeignKey, Uml} from '../../../views/uml/uml.model';
@@ -28,7 +28,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     constructor(
         private _crud: CrudService,
         private _route: ActivatedRoute,
-        private _toast: ToastService,
+        private _toast: ToasterService,
         public _types: DbmsTypesService,
         public _catalog: CatalogService
     ) {

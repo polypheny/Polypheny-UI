@@ -1,6 +1,6 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
-import {ToastService} from '../../toast/toast.service';
+import {ToasterService} from '../../toast-exposer/toaster.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
@@ -36,7 +36,7 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
 
     constructor(
         public _crud: CrudService,
-        public _toast: ToastService,
+        public _toast: ToasterService,
         public _route: ActivatedRoute,
         public _router: Router,
         public _types: DbmsTypesService,

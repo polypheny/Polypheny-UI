@@ -1,11 +1,3 @@
-#tree-outer-wrapper {
-  padding: 1em;
-  position: fixed;
-  width: 200px;
-  overflow: auto;
-  height: 100%;
-
-}
 
 #tree-inner-wrapper {
   display: flex;
@@ -75,17 +67,6 @@
 .fa, .relAlgSymbol {
   width: 1rem;
   text-align: center;
-}
-
-.schema-editing {
-  display: grid;
-  height: 100%;
-  grid-template-areas: ".""."".";
-  grid-template-rows: min-content min-content;
-}
-
-.schema-editing-wrapper {
-  align-self: flex-end;
 }
 
 .schema-button {

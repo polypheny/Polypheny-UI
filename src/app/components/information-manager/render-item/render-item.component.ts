@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Duration, InformationObject, InformationResponse} from '../../../models/information-page.model';
 import {InformationService} from '../../../services/information.service';
-import {ToastService} from '../../toast/toast.service';
+import {ToasterService} from '../../toast-exposer/toaster.service';
 
 @Component({
     selector: 'app-render-item',
@@ -15,7 +15,7 @@ export class RenderItemComponent implements OnInit {
 
     constructor(
         private _infoService: InformationService,
-        private _toast: ToastService
+        private _toast: ToasterService
     ) {
     }
 

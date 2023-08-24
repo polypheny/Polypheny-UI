@@ -1,7 +1,7 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {CrudService} from './crud.service';
 import {PolyType} from '../components/data-view/models/result-set.model';
-import {ToastService} from '../components/toast/toast.service';
+import {ToasterService} from '../components/toast-exposer/toaster.service';
 import {from} from 'rxjs';
 
 @Injectable({
@@ -11,7 +11,7 @@ export class DbmsTypesService {
 
     constructor(
         private _crud: CrudService,
-        private _toast: ToastService
+        private _toast: ToasterService
     ) {
         this.fetchTypes();
         this.fetchFkActions();

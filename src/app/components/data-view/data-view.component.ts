@@ -13,7 +13,7 @@ import {
 import {DataPresentationType, RelationalResult} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
-import {ToastDuration, ToastService} from '../toast/toast.service';
+import {ToastDuration, ToasterService} from '../toast-exposer/toaster.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
@@ -67,7 +67,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
     constructor(
         public _crud: CrudService,
-        public _toast: ToastService,
+        public _toast: ToasterService,
         public _route: ActivatedRoute,
         public _router: Router,
         public _types: DbmsTypesService,

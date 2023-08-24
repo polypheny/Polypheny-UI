@@ -5,7 +5,7 @@ import {ClassifyRequest, Exploration, ExploreTable} from '../../../models/ui-req
 import {PaginationElement} from '../models/pagination-element.model';
 import {ExploreSet, RelationalExploreResult, RelationalResult, UiColumnDefinition} from '../models/result-set.model';
 import {SortDirection, SortState} from '../models/sort-state.model';
-import {ToastDuration, ToastService} from '../../toast/toast.service';
+import {ToastDuration, ToasterService} from '../../toast-exposer/toaster.service';
 import {CrudService} from '../../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -29,7 +29,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
 
     constructor(
         public _crud: CrudService,
-        public _toast: ToastService,
+        public _toast: ToasterService,
         public _route: ActivatedRoute,
         public _router: Router,
         public _types: DbmsTypesService,

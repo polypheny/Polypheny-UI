@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
-import {ToastService} from '../../components/toast/toast.service';
+import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
@@ -27,7 +27,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
         private _breadcrumb: BreadcrumbService,
         private _crud: CrudService,
         private _sidebar: LeftSidebarService,
-        private _toast: ToastService,
+        private _toast: ToasterService,
     ) {
         _sidebar.listConfigManagerPages();
     }

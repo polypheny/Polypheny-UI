@@ -4,7 +4,7 @@ import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
 import {PolyType, RelationalResult} from '../../../components/data-view/models/result-set.model';
-import {ToastService} from '../../../components/toast/toast.service';
+import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {GraphPlacements, Store} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -46,7 +46,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
         private _route: ActivatedRoute,
         private _leftSidebar: LeftSidebarService,
         public _crud: CrudService,
-        private _toast: ToastService,
+        private _toast: ToasterService,
         public _types: DbmsTypesService
     ) {
     }

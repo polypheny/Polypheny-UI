@@ -1,7 +1,7 @@
 import {Component, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CrudService} from '../../../services/crud.service';
-import {ToastService} from '../../toast/toast.service';
+import {ToasterService} from '../../toast-exposer/toaster.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {DataViewComponent} from '../data-view.component';
@@ -75,7 +75,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
 
     constructor(
         public _crud: CrudService,
-        public _toast: ToastService,
+        public _toast: ToasterService,
         public _route: ActivatedRoute,
         public _router: Router,
         public _types: DbmsTypesService,

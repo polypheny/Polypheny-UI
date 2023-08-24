@@ -6,7 +6,7 @@ import {NamespaceType, Schema} from '../../models/ui-request.model';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {SidebarNode} from '../../models/sidebar-node.model';
 import {RelationalResult} from '../../components/data-view/models/result-set.model';
-import {ToastService} from '../../components/toast/toast.service';
+import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
@@ -28,7 +28,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         private _leftSidebar: LeftSidebarService,
         private _breadcrumb: BreadcrumbService,
         private _crud: CrudService,
-        private _toast: ToastService,
+        private _toast: ToasterService,
         private _catalog: CatalogService
     ) {
     }

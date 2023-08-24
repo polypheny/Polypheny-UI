@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {GraphComponent} from './graph/graph.component';
 import {NgChartsModule} from 'ng2-charts';
 
-import {BgColorDirective, ColComponent, RowComponent, ToastComponent} from '@coreui/angular';
+import {BgColorDirective, ColComponent, FormControlDirective, InputGroupComponent, InputGroupTextDirective, RowComponent, ToastComponent, ToasterComponent, ToastBodyComponent, ToastHeaderComponent, ProgressComponent, ProgressBarComponent, ToastCloseDirective} from '@coreui/angular';
 
 import {BreadcrumbComponent} from './breadcrumb/breadcrumb.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -41,78 +41,93 @@ import {DockerhandshakeComponent} from './dockerhandshake/dockerhandshake.compon
 import {DockernewComponent} from './dockernew/dockernew.component';
 import {DockersettingsComponent} from './dockersettings/dockersettings.component';
 import {TreeModule} from '@ali-hm/angular-tree-component';
+import {ToastExposerComponent} from './toast-exposer/toast-exposer.component';
+import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
 
 //import 'hammerjs';
 
 @NgModule({
-    imports: [
-        //AppRoutingModule,
-        RouterModule,
-        CommonModule,
-        NgChartsModule,
-        TypeaheadModule.forRoot(),
-        TabsModule.forRoot(),
-        // forms
-        FormsModule, ReactiveFormsModule,
-        CollapseModule,
-        TooltipModule,
-        ProgressbarModule.forRoot(),
-        ExplainVisualizerModule,
-        ModalModule.forRoot(),
-        CarouselModule,
-        NgxJsonViewerModule,
-        DatesPipeModule,
-        ToastComponent,
-        BgColorDirective,
-        TreeModule, RowComponent, ColComponent
-    ],
-    declarations: [
-        BreadcrumbComponent,
-        DynamicFormsComponent,
-        GraphComponent,
-        LeftSidebarComponent,
-        RightSidebarComponent,
-        InformationManagerComponent,
-        RenderItemComponent,
-        InputComponent,
-        EditorComponent,
-        JsonEditorComponent,
-        DataViewComponent,
-        DataCardComponent,
-        DataTableComponent,
-        DataGraphComponent,
-        DataCarouselComponent,
-        MediaComponent,
-        DeleteConfirmComponent,
-        ExpandableTextComponent,
-        JsonTextComponent,
-        JsonElemComponent,
-        DockereditComponent,
-        DockerhandshakeComponent,
-        DockernewComponent,
-        DockersettingsComponent,
-    ],
-    exports: [
-        BreadcrumbComponent,
-        DataViewComponent,
-        DataTableComponent,
-        DataCardComponent,
-        DataCarouselComponent,
-        DynamicFormsComponent,
-        GraphComponent,
-        LeftSidebarComponent,
-        RightSidebarComponent,
-        ToastComponent,
-        InformationManagerComponent,
-        InputComponent,
-        JsonEditorComponent,
-        EditorComponent,
-        DeleteConfirmComponent,
-        DockereditComponent,
-        DockerhandshakeComponent,
-        DockernewComponent,
-        DockersettingsComponent,
-    ]
+  imports: [
+    //AppRoutingModule,
+    RouterModule,
+    CommonModule,
+    NgChartsModule,
+    TypeaheadModule.forRoot(),
+    TabsModule.forRoot(),
+    ToasterComponent,
+    ToastBodyComponent,
+    ToastHeaderComponent,
+    ProgressbarModule,
+    // forms
+    FormsModule, ReactiveFormsModule,
+    CollapseModule,
+    TooltipModule,
+    ProgressbarModule.forRoot(),
+    ExplainVisualizerModule,
+    ModalModule.forRoot(),
+    CarouselModule,
+    NgxJsonViewerModule,
+    DatesPipeModule,
+    ToastComponent,
+    BgColorDirective,
+    TreeModule,
+    RowComponent,
+    ColComponent,
+    InputGroupComponent,
+    FormControlDirective,
+    InputGroupTextDirective, ProgressBarComponent, ProgressComponent, ToastCloseDirective
+  ],
+  declarations: [
+    BreadcrumbComponent,
+    DynamicFormsComponent,
+    GraphComponent,
+    LeftSidebarComponent,
+    RightSidebarComponent,
+    InformationManagerComponent,
+    RenderItemComponent,
+    InputComponent,
+    EditorComponent,
+    JsonEditorComponent,
+    DataViewComponent,
+    DataCardComponent,
+    DataTableComponent,
+    DataGraphComponent,
+    DataCarouselComponent,
+    MediaComponent,
+    DeleteConfirmComponent,
+    ExpandableTextComponent,
+    JsonTextComponent,
+    JsonElemComponent,
+    DockereditComponent,
+    DockerhandshakeComponent,
+    DockernewComponent,
+    DockersettingsComponent,
+    ToastExposerComponent,
+    Toast,
+  ],
+  exports: [
+    BreadcrumbComponent,
+    DataViewComponent,
+    DataTableComponent,
+    DataCardComponent,
+    DataCarouselComponent,
+    DynamicFormsComponent,
+    GraphComponent,
+    LeftSidebarComponent,
+    RightSidebarComponent,
+    ToastComponent,
+    InformationManagerComponent,
+    InputComponent,
+    JsonEditorComponent,
+    EditorComponent,
+    DeleteConfirmComponent,
+    DockereditComponent,
+    DockerhandshakeComponent,
+    DockernewComponent,
+    DockersettingsComponent,
+    ToastExposerComponent,
+    Toast,
+  ]
 })
 export class ComponentsModule {
 }

@@ -5,7 +5,7 @@ import {StatisticRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
-import {ToastService} from '../../../components/toast/toast.service';
+import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 
 @Component({
     selector: 'app-statistics-column',
@@ -27,7 +27,7 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
         private _route: ActivatedRoute,
         private _leftSidebar: LeftSidebarService,
         private _router: Router,
-        private _toast: ToastService
+        private _toast: ToasterService
     ) {
     }
 
