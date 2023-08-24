@@ -3,7 +3,7 @@ import * as $ from 'jquery';
 import {cloneDeep} from 'lodash';
 import {ClassifyRequest, Exploration, ExploreTable} from '../../../models/ui-request.model';
 import {PaginationElement} from '../models/pagination-element.model';
-import {DbColumn, ExploreSet, ResultSet} from '../models/result-set.model';
+import {ExploreSet, RelationalExploreResult, RelationalResult, UiColumnDefinition} from '../models/result-set.model';
 import {SortDirection, SortState} from '../models/sort-state.model';
 import {ToastDuration, ToastService} from '../../toast/toast.service';
 import {CrudService} from '../../../services/crud.service';
@@ -26,6 +26,21 @@ import {CatalogService} from '../../../services/catalog.service';
     encapsulation: ViewEncapsulation.None
 })
 export class DataTableComponent extends DataViewComponent implements OnInit {
+
+    constructor(
+        public _crud: CrudService,
+        public _toast: ToastService,
+        public _route: ActivatedRoute,
+        public _router: Router,
+        public _types: DbmsTypesService,
+        public _settings: WebuiSettingsService,
+        public _sidebar: LeftSidebarService,
+        public modalService: BsModalService,
+        public _catalog: CatalogService
+    ) {
+        super(_crud, _toast, _route, _router, _types, _settings, _sidebar, _catalog, modalService);
+        this.initWebsocket();
+    }
     @Input() exploreSet?: ExploreSet;
     @Input() exploreId?: number;
     @ViewChild('decisionTree', {static: false}) public decisionTree: TemplateRef<any>;
@@ -54,20 +69,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
 
     @Output() showViewExploring = new EventEmitter();
 
-    constructor(
-        public _crud: CrudService,
-        public _toast: ToastService,
-        public _route: ActivatedRoute,
-        public _router: Router,
-        public _types: DbmsTypesService,
-        public _settings: WebuiSettingsService,
-        public _sidebar: LeftSidebarService,
-        public modalService: BsModalService,
-        public _catalog: CatalogService
-    ) {
-        super(_crud, _toast, _route, _router, _types, _settings, _sidebar, _catalog, modalService);
-        this.initWebsocket();
-    }
+    protected readonly RelationalExploreResult = RelationalExploreResult;
 
 
     ngOnInit() {
@@ -93,13 +95,13 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
             this.prepareClassifiedData();
         }
         const savedResultHead = this.resultSet.header;
-        this._crud.getExploreTables(new ExploreTable(this.resultSet.explorerId, this.resultSet.header, this.resultSet.currentPage)).subscribe(
+        this._crud.getExploreTables(new ExploreTable(this.asExploreResult(this.resultSet).explorerId, this.resultSet.header, this.resultSet.currentPage)).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
 
-                if (result.includesClassificationInfo) {
+                if (this.asExploreResult(this.resultSet).includesClassificationInfo) {
                     this.userInput = {};
-                    this.prepareUserInput(result.classifiedData);
+                    this.prepareUserInput(this.asExploreResult(this.resultSet).classifiedData);
                 }
                 this.resultSet.header = savedResultHead;
                 this.resultSet.data = result.data;
@@ -130,7 +132,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
         );
     }
 
-    filterTable(e, filterVal, col: DbColumn) {
+    filterTable(e, filterVal, col: UiColumnDefinition) {
         this.resultSet.currentPage = 1;
         if (e.keyCode === 27) { //esc
             $('.table-filter').val('');
@@ -234,7 +236,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
         return false;
     }
 
-    isValidFilter(val, col: DbColumn) {
+    isValidFilter(val, col: UiColumnDefinition) {
         if (!val) {
             return;
         }
@@ -260,7 +262,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
                     this.openTutorial(this.tutorial);
                 }
                 this.exploreSet = <ExploreSet>res;
-                this.exploreId = this.resultSet.explorerId;
+                this.exploreId = this.asExploreResult(this.resultSet).explorerId;
                 // this.openModal(this.template);
                 this.userInput = {};
                 this.cData = [];
@@ -348,8 +350,8 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
                 this.finalresult = true;
                 this.userInput = {};
                 this.classifiedData = [];
-                this.resultSet = <ResultSet>res;
-                this.exploreId = this.resultSet.explorerId;
+                this.resultSet = <RelationalResult>res;
+                this.exploreId = this.asExploreResult(this.resultSet).explorerId;
                 if (this.resultSet.generatedQuery) {
                     this.createdSQL = this.resultSet.generatedQuery;
                 }
@@ -375,7 +377,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
         }).length;
     }
 
-    displayRowItem(data: string, col: DbColumn) {
+    displayRowItem(data: string, col: UiColumnDefinition) {
         if (data == null) {
             return '';
         } else if (!col) {
@@ -388,7 +390,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
         return data;
     }
 
-    getTooltip(col: DbColumn): string {
+    getTooltip(col: UiColumnDefinition): string {
         if (!col) {
             return '';
         }
@@ -428,7 +430,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     /**
      * returns true if a columns can be ordered
      */
-    canOrder(col: DbColumn) {
+    canOrder(col: UiColumnDefinition) {
         return !this._types.isMultimedia(col.dataType) && !col.collectionsType;
     }
 
@@ -484,4 +486,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
 
     }
 
+    asExploreResult(resultSet: RelationalResult) {
+        return <RelationalExploreResult>resultSet;
+    }
 }

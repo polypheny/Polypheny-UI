@@ -9,11 +9,10 @@ import {
     UntypedFormBuilder,
     UntypedFormControl,
     UntypedFormGroup,
-    ValidationErrors,
     ValidatorFn,
     Validators
 } from '@angular/forms';
-import {PathAccessRequest, ResultSet} from '../../components/data-view/models/result-set.model';
+import {PathAccessRequest, RelationalResult} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 
@@ -186,7 +185,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         }
         this._crud.updateAdapterSettings(adapter).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (result.error) {
                     this._toast.exception(result);
                 } else {
@@ -441,7 +440,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.deploying = true;
         this._crud.addAdapter(fd).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (!result.error) {
                     this._toast.success('Deployed "' + deploy.uniqueName + '"', result.generatedQuery);
                     this._router.navigate(['./../'], {relativeTo: this._route});
@@ -466,7 +465,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             this.deletingInProgress.push(adapter);
             this._crud.removeAdapter(adapter.uniqueName).subscribe(
                 res => {
-                    const result = <ResultSet>res;
+                    const result = <RelationalResult>res;
                     if (!result.error) {
                         this._toast.success('Dropped "' + adapter.uniqueName + '"', result.generatedQuery);
                         this.getStoresAndSources();

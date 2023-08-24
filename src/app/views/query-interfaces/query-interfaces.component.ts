@@ -5,7 +5,7 @@ import {AbstractControl, UntypedFormControl, UntypedFormGroup, ValidatorFn, Vali
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastService} from '../../components/toast/toast.service';
-import {ResultSet} from '../../components/data-view/models/result-set.model';
+import {RelationalResult} from '../../components/data-view/models/result-set.model';
 import {
     QueryInterface,
     QueryInterfaceInformation,
@@ -125,7 +125,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         }
         this._crud.updateQueryInterfaceSettings(queryInterface).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (!result.error) {
                     this._toast.success('updated queryInterface settings');
                 } else {
@@ -196,7 +196,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         }
         this._crud.addQueryInterface(deploy).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (!result.error) {
                     this._toast.success('Added query interface: ' + deploy.uniqueName, result.generatedQuery);
                     this._router.navigate(['./../'], {relativeTo: this._route});
@@ -217,7 +217,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         } else {
             this._crud.removeQueryInterface(queryInterface.uniqueName).subscribe(
                 res => {
-                    const result = <ResultSet>res;
+                    const result = <RelationalResult>res;
                     if (!result.error) {
                         this._toast.success('Removed query interface: ' + queryInterface.uniqueName, result.generatedQuery);
                         this.getQueryInterfaces();

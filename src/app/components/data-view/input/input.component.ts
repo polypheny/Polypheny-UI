@@ -10,7 +10,7 @@ import {
     SimpleChanges,
     ViewChild
 } from '@angular/core';
-import {DbColumn} from '../models/result-set.model';
+import {UiColumnDefinition} from '../models/result-set.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as $ from 'jquery';
 import flatpickr from 'flatpickr';
@@ -29,7 +29,13 @@ function getObjectId() {
 })
 export class InputComponent implements OnInit, OnChanges, AfterViewInit {
 
-    @Input() header: DbColumn;
+    constructor(
+        public _types: DbmsTypesService
+    ) {
+        this.randomId = Math.floor((Math.random() * 10e8));
+    }
+
+    @Input() header: UiColumnDefinition;
     @Input() value;
     @Input() showLabel? = false;
     @Output() valueChange = new EventEmitter();
@@ -41,10 +47,18 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
     inputFileName = 'Choose file';
     randomId;
 
-    constructor(
-        public _types: DbmsTypesService
-    ) {
-        this.randomId = Math.floor((Math.random() * 10e8));
+    private static validateJSON(val) {
+        let doc = val.replace(/NumberDecimal\("[0-9.]*"\)/g, '0');
+        doc = doc.replace(/[0-9a-zA-Z.]+[*\/+-]+[0-9a-zA-Z.]+/g, '0');
+        if (doc === '') {
+            return new InputValidation(false, 'Non-valid document');
+        }
+        try {
+            doc = JSON.parse(doc);
+        } catch (Exception) {
+            return new InputValidation(false, 'Non-valid document');
+        }
+        return new InputValidation(true);
     }
 
     ngOnInit() {
@@ -118,20 +132,6 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
             return InputComponent.validateJSON(val);
 
         }
-    }
-
-    private static validateJSON(val) {
-        let doc = val.replace(/NumberDecimal\("[0-9.]*"\)/g, '0');
-        doc = doc.replace(/[0-9a-zA-Z.]+[*\/+-]+[0-9a-zA-Z.]+/g, '0');
-        if (doc === '') {
-            return new InputValidation(false, 'Non-valid document');
-        }
-        try {
-            doc = JSON.parse(doc);
-        } catch (Exception) {
-            return new InputValidation(false, 'Non-valid document');
-        }
-        return new InputValidation(true);
     }
 
     private validateArray(val) {

@@ -8,8 +8,8 @@ import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 import * as d3 from 'd3';
-import {ResultSet} from '../models/result-set.model';
-import {NamespaceType, GraphRequest} from '../../../models/ui-request.model';
+import {GraphResult} from '../models/result-set.model';
+import {GraphRequest, NamespaceType} from '../../../models/ui-request.model';
 import {WebSocket} from '../../../services/webSocket';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../../services/catalog.service';
@@ -623,7 +623,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
         this.subscriptions.add(sub);
     }
 
-    getGraph(resultSet: ResultSet) {
+    getGraph(resultSet: GraphResult) {
         const nodeIds: Set<string> = new Set();
         const edgeIds: Set<string> = new Set();
 
@@ -665,7 +665,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
         }
 
 
-        this._crud.getTypeSchemas().subscribe(res => {
+        this._crud.getTypeSchemas().subscribe((res: GraphResult) => {
             const model = <NamespaceType>res[resultSet.namespaceName];
             if (model === NamespaceType.GRAPH) {
                 // is native

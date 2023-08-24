@@ -91,7 +91,7 @@
                             <app-expandable-text *ngSwitchDefault [text]="d2"></app-expandable-text>
                         </ng-container>
                     </td>
-                    <td *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible'">
+                    <td *ngIf="config.exploring && asExploreResult(resultSet).classificationInfo == 'ClassificationPossible'">
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'true'}">
                                 <input type="radio" class="form-control" name="choose" value="true" id="true"
@@ -162,11 +162,11 @@
             </ul>
         </nav>
         <button id="resetClassification" class="btn btn-primary" type="button"
-                *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' "
+                *ngIf="config.exploring && asExploreResult(resultSet).classificationInfo == 'ClassificationPossible' "
                 (click)="resetExporationData()">Reset
         </button>
         <button id="startClassification" class="btn btn-primary" type="button"
-                *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && ((this.initalClassifiation && this.getSelected() > 7 ) || (!this.initalClassifiation))"
+                *ngIf="config.exploring && asExploreResult(resultSet).classificationInfo == 'ClassificationPossible' && ((this.initalClassifiation && this.getSelected() > 7 ) || (!this.initalClassifiation))"
                 (click)="startClassification()">Start Classification
         </button>
         <button id="showDecisionTree" type="button" class="btn btn-primary"
@@ -174,16 +174,16 @@
                 (click)="openDecisionTree(decisionTree)">Show Decision Tree
         </button>
         <button id="showSQL" type="button" class="btn btn-primary"
-                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && this.resultSet.isConvertedToSql"
+                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && asExploreResult(resultSet).isConvertedToSql"
                 (click)="openSQL(sql)">Show SQL Statement
         </button>
         <button id="sendClassification" type="button" class="btn btn-primary"
-                *ngIf="config.exploring && resultSet.classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined "
+                *ngIf="config.exploring && asExploreResult(resultSet).classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined "
                 (click)="sendChosenCols()">Execute
         </button>
 
         <button id="createView" type="button" class="btn btn-primary" tooltip="create view"
-                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && this.resultSet.isConvertedToSql"
+                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && asExploreResult(resultSet).isConvertedToSql"
                 (click)="createViewButton(createViewExample)"> Create View
         </button>
     </c-col>

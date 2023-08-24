@@ -2,7 +2,13 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditCollectionRequest, EditTableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DbColumn, EntityMeta, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
+import {
+  EntityMeta,
+  PolyType,
+  RelationalResult,
+  Status,
+  UiColumnDefinition
+} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -29,7 +35,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   collections: BehaviorSubject<Collection[]>;
 
   counter = 0;
-  newColumns = new Map<number, DbColumn>();
+  newColumns = new Map<number, UiColumnDefinition>();
   newTableName = '';
   stores: Store[];
   selectedStore;
@@ -62,7 +68,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.newColumns.set(this.counter++, new DbColumn('', true, false, '', '', null, null));
+    this.newColumns.set(this.counter++, new UiColumnDefinition('', true, false, '', '', null, null));
     //this.database = this._route.snapshot.paramMap.get('id');
     const sub1 = this._route.params.subscribe((params) => {
       this._catalog.updateIfNecessary().subscribe(catalog => {
@@ -185,7 +191,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     
     this._crud.dropTruncateTable(request).subscribe(
         res => {
-          const result = <ResultSet>res;
+          const result = <RelationalResult>res;
           if (result.error) {
             this._toast.exception(result, 'Could not ' + action + ' the table ' + collection + ':');
           } else {
@@ -222,14 +228,14 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     this.creatingTable = true;
     this._crud.createCollection(request).subscribe(
         res => {
-          const result = <ResultSet>res;
+          const result = <RelationalResult>res;
           if (result.error) {
             this._toast.exception(result, 'Could not generate collection:');
           } else {
             this._toast.success('Generated collection ' + request.entityName, result.generatedQuery);
             this.newColumns.clear();
             this.counter = 0;
-            this.newColumns.set(this.counter++, new DbColumn('', true, false, this.types[0].name, '', null, null));
+            this.newColumns.set(this.counter++, new UiColumnDefinition('', true, false, this.types[0].name, '', null, null));
             this.newTableName = '';
             this.selectedStore = null;
             this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false );
@@ -246,7 +252,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     const t = new EntityMeta(this.namespace.value.id, table.id, table.newName, []);
     this._crud.renameTable(t).subscribe(
         res => {
-          const r = <ResultSet>res;
+          const r = <RelationalResult>res;
           if (r.exception) {
             this._toast.exception(r);
           } else {

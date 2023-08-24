@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
-import {PolyType, ResultSet} from '../../../components/data-view/models/result-set.model';
+import {PolyType, RelationalResult} from '../../../components/data-view/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {GraphPlacements, Store} from '../../adapters/adapter.model';
@@ -23,7 +23,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     @Input()
     graphName: string;
 
-    resultSet: ResultSet;
+    resultSet: RelationalResult;
     types: PolyType[] = [];
     editColumn = -1;
     confirm = -1;
@@ -120,7 +120,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
         }
         this.isAddingPlacement = true;
         this._crud.addDropGraphPlacement(this.graphId, this.graphName, this.selectedStore.adapterId, method).subscribe(res => {
-            const result = <ResultSet>res;
+            const result = <RelationalResult>res;
             if (result.error) {
                 this._toast.exception(result);
             } else {

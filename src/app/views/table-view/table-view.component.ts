@@ -3,8 +3,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {TableConfig} from '../../components/data-view/data-table/table-config';
 import {CrudService} from '../../services/crud.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
-import {ResultSet} from '../../components/data-view/models/result-set.model';
-import {NamespaceType, SchemaRequest, TableRequest} from '../../models/ui-request.model';
+import {RelationalResult} from '../../components/data-view/models/result-set.model';
+import {NamespaceType, TableRequest} from '../../models/ui-request.model';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {WebSocket} from '../../services/webSocket';
@@ -19,7 +19,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
     @Input()
     tableId = -1;
     currentPage = 1;
-    resultSet: ResultSet;
+    resultSet: RelationalResult;
     tableConfig: TableConfig = {
         create: true,
         search: true,
@@ -87,7 +87,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
     initWebsocket() {
         const sub = this.webSocket.onMessage().subscribe(
             res => {
-                this.resultSet = <ResultSet>res;
+                this.resultSet = <RelationalResult>res;
                 //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
                 if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
                     this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
@@ -105,7 +105,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
             }, err => {
                 console.log(err);
                 this.loading = false;
-                this.resultSet = new ResultSet('Server is not available');
+                this.resultSet = new RelationalResult('Server is not available');
             }
         );
         this.subscriptions.add(sub);
@@ -116,7 +116,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
             this.loading = true;
             const req = new TableRequest(this.tableId, this.currentPage);
             if (!this._crud.getTable(this.webSocket, req)) {
-                this.resultSet = new ResultSet('Could not establish a connection with the server.');
+                this.resultSet = new RelationalResult('Could not establish a connection with the server.');
                 this.loading = false;
             }
         } else {

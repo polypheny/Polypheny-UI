@@ -1,4 +1,4 @@
-import {DbColumn} from '../../components/data-view/models/result-set.model';
+import {UiColumnDefinition} from '../../components/data-view/models/result-set.model';
 import {EntityType} from '../../models/catalog.model';
 
 export class Uml {
@@ -12,7 +12,7 @@ export class Uml {
 export class DbTable {
     tableName: string;
     schema: string;
-    columns: DbColumn[];
+    columns: UiColumnDefinition[];
     primaryKeyFields: string[];
     uniqueColumns: string[];
     modifiable: boolean;

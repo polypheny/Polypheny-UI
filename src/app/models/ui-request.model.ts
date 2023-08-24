@@ -1,5 +1,5 @@
 import {SortState} from '../components/data-view/models/sort-state.model';
-import {DbColumn, TableConstraint} from '../components/data-view/models/result-set.model';
+import {TableConstraint, UiColumnDefinition} from '../components/data-view/models/result-set.model';
 import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
 import {EntityType} from './catalog.model';
 
@@ -107,11 +107,11 @@ export class QueryExplorationRequest extends UIRequest {
  */
 export class ClassifyRequest {
   id: number;
-  header: DbColumn[];
+  header: UiColumnDefinition[];
   classified: string[][];
   cPage: number;
 
-  constructor(id: number, header: DbColumn[], classified: string[][], cPage: number) {
+  constructor(id: number, header: UiColumnDefinition[], classified: string[][], cPage: number) {
     this.id = id;
     this.header = header;
     this.classified = classified;
@@ -122,10 +122,10 @@ export class ClassifyRequest {
 
 export class Exploration {
   id: number;
-  header: DbColumn[];
+  header: UiColumnDefinition[];
   classified: string[][];
 
-  constructor(id: number, header: DbColumn[], classified: string[][]) {
+  constructor(id: number, header: UiColumnDefinition[], classified: string[][]) {
     this.id = id;
     this.header = header;
     this.classified = classified;
@@ -151,10 +151,10 @@ export enum PluginStatus {
 
 export class ExploreTable extends UIRequest {
   id: number;
-  header: DbColumn[];
+  header: UiColumnDefinition[];
   cPage: number;
 
-  constructor(id: number, header: DbColumn[], cPage: number) {
+  constructor(id: number, header: UiColumnDefinition[], cPage: number) {
     super();
     this.id = id;
     this.header = header;
@@ -237,12 +237,12 @@ export class SchemaRequest extends UIRequest {
 }
 
 export class ColumnRequest extends UIRequest {
-  oldColumn: DbColumn;
-  newColumn: DbColumn;
+  oldColumn: UiColumnDefinition;
+  newColumn: UiColumnDefinition;
   renameOnly: boolean;
   tableType: string;
 
-  constructor(entityId: number, oldColumn: DbColumn = null, newColumn: DbColumn = null, renameOnly = false, tableType: string = 'table') {
+  constructor(entityId: number, oldColumn: UiColumnDefinition = null, newColumn: UiColumnDefinition = null, renameOnly = false, tableType: string = 'table') {
     super();
     this.entityId = entityId;
     this.oldColumn = oldColumn;
@@ -276,11 +276,11 @@ export class EditTableRequest {
   entityId: number;
   entityName: string;
   action: string;//truncate / drop
-  columns: DbColumn[];
+  columns: UiColumnDefinition[];
   storeId: number;
   tableType: EntityType;
 
-  constructor(namespaceId: number, entityId: number = null, entityName: string = null, action: string = null, columns: DbColumn[] = null, storeId: number = null, tableType: EntityType = EntityType.ENTITY) {
+  constructor(namespaceId: number, entityId: number = null, entityName: string = null, action: string = null, columns: UiColumnDefinition[] = null, storeId: number = null, tableType: EntityType = EntityType.ENTITY) {
     this.namespaceId = namespaceId;
     this.entityId = entityId;
     this.entityName = entityName;

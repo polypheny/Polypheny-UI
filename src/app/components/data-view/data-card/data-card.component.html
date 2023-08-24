@@ -58,12 +58,12 @@
                         </ng-container>
                     </ng-container>
                     <ng-container *ngIf="i === editing">
-                        <app-input *ngIf="this.schemaType.toLowerCase() === 'relational' || h.name === '_id'"
+                        <app-input *ngIf="this.namespaceType.toLowerCase() === 'relational' || h.name === '_id'"
                                    [header]="h" [showLabel]="h.name !== '_data' " [value]="updateValues.get(h.name)"
                                    (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateRow()"
                                    [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
                         <app-json-editor (validChange)="setJsonValid($event)"
-                                         *ngIf="this.schemaType.toLowerCase() === 'document'"
+                                         *ngIf="this.namespaceType.toLowerCase() === 'document'"
                                          [json]="updateValues.get(h.name)"
                                          (valueChange)="newUpdateValue(h.name, $event)"></app-json-editor>
                     </ng-container>
@@ -79,7 +79,7 @@
                 <button *ngIf="uploadProgress === -1" class="btn btn-light btn-sm" (click)="editing = -1">cancel
                 </button>
                 <button *ngIf="uploadProgress === -1" class="btn btn-primary btn-sm" (click)="updateRow()"
-                        [disabled]="this.schemaType.toLowerCase() === 'document' && !jsonValid">save
+                        [disabled]="this.namespaceType.toLowerCase() === 'document' && !jsonValid">save
                 </button>
             </li>
 
@@ -97,12 +97,12 @@
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item" *ngFor="let h of resultSet.header">
-                <app-input *ngIf="schemaType.toLowerCase() === 'relational' || h.name === '_id'" [header]="h"
+                <app-input *ngIf="namespaceType.toLowerCase() === 'relational' || h.name === '_id'" [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"
                            (valueChange)="inputChange(h.name, $event)"
                            (enter)="insertRow()"></app-input>
                 <app-json-editor (validChange)="setJsonValid($event)"
-                                 *ngIf="this.schemaType.toLowerCase() === 'document'" [empty]="true"
+                                 *ngIf="this.namespaceType.toLowerCase() === 'document'" [empty]="true"
                                  [json]="insertValues.get(h.name)"
                                  (valueChange)="inputChange(h.name, $event)"></app-json-editor>
             </li>
@@ -118,7 +118,8 @@
                         (click)="showInsertCard = false">cancel
                 </button>
                 <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-primary btn-sm float-right"
-                        [disabled]="this.schemaType.toLowerCase() === 'document' && !jsonValid" (click)="insertRow()">
+                        [disabled]="this.namespaceType.toLowerCase() === 'document' && !jsonValid"
+                        (click)="insertRow()">
                     save
                 </button>
             </li>

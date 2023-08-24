@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Toast} from './toast.model';
-import {ResultSet} from '../data-view/models/result-set.model';
+import {RelationalResult} from '../data-view/models/result-set.model';
 
 @Injectable({
     providedIn: 'root'
@@ -100,7 +100,7 @@ export class ToastService {
      * @param title Title of the message, default: 'error'. If null, it will be set to 'error'
      * @param duration Optional. Set the duration of the toast message. Default LONG
      */
-    exception(result: ResultSet, message: string = null, title = 'error', duration = ToastDuration.LONG) {
+    exception(result: RelationalResult, message: string = null, title = 'error', duration = ToastDuration.LONG) {
         let msg = result.error;
         if (message) {
             if (message.endsWith(' ')) {

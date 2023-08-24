@@ -9,10 +9,10 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import * as $ from 'jquery';
-import {NamespaceType, EditTableRequest, QueryExplorationRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {EditTableRequest, NamespaceType, QueryExplorationRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
-import {ResultSet} from '../../../components/data-view/models/result-set.model';
+import {RelationalExploreResult} from '../../../components/data-view/models/result-set.model';
 import {ToastService} from '../../../components/toast/toast.service';
 import {DataTableComponent} from '../../../components/data-view/data-table/data-table.component';
 import {SidebarNode} from '../../../models/sidebar-node.model';
@@ -43,7 +43,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     @ViewChild('editGenerated', {static: false}) editGenerated;
     websocket: WebSocket;
     loading = false;
-    resultSet: ResultSet;
+    resultSet: RelationalExploreResult;
     showResultTable: boolean;
     join = [];
     classificationPossible = true;
@@ -166,15 +166,16 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
 
         if (this.schemas.get(treeElement.getSchema()) === undefined) {
             this.schemas.set(treeElement.getSchema(), treeElement.getSchema());
-            this._crud.getUml(new EditTableRequest(treeElement.getSchema())).subscribe(
-                res => {
+            this._crud.getUml(new EditTableRequest(treeElement.getSchema())).subscribe({
+                next: res => {
                     const uml = <Uml>res;
                     this.umlData.set(treeElement.getSchema(), uml);
                     this.generateJoinConditions();
-                }, err => {
+                },
+                error: err => {
                     this._toast.error('Could not get foreign keys of the schema ' + treeElement.getSchema());
                 }
-            );
+            });
         } else {
             this.generateJoinConditions();
         }
@@ -264,9 +265,9 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     sendSQL(sql: string) {
         this.showResultTable = true;
         this.loading = true;
-        this._crud.createInitialExploreQuery(new QueryExplorationRequest(sql, false, this.cPage)).subscribe(
-            res => {
-                this.resultSet = <ResultSet>res;
+        this._crud.createInitialExploreQuery(new QueryExplorationRequest(sql, false, this.cPage)).subscribe({
+            next: res => {
+                this.resultSet = <RelationalExploreResult>res;
                 if (this.resultSet.error) {
                     this._toast.error(this.resultSet.error);
                     return;
@@ -282,9 +283,10 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
                     this._toast.warn('Not enough Data to use the classification. All available data is already within the initial table.');
                 }
                 //this._toast.success('Initial table successfully loaded.');
-            }, err => {
+            }, error: err => {
                 this._toast.error('Creation of initial table failed.');
                 this.loading = false;
+            }
             }
         );
     }

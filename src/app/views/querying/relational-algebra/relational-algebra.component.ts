@@ -9,7 +9,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import {Connection, LogicalOperator, LogicalOperatorUtil, Node} from './relational-algebra.model';
-import {ResultSet} from '../../../components/data-view/models/result-set.model';
+import {RelationalResult} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {ToastService} from '../../../components/toast/toast.service';
 import * as $ from 'jquery';
@@ -17,7 +17,6 @@ import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
 import {SvgLine} from '../../uml/uml.model';
-import {SchemaRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {WebSocketService} from '../../../services/web-socket.service';
 import {RightSidebarToRelationalalgebraService} from '../../../services/right-sidebar-to-relationalalgebra.service';
@@ -42,7 +41,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
     @ViewChild('dropArea', {static: false}) dropArea: ElementRef;
     @HostBinding('class.is-open')
-    resultSet: ResultSet;
+    resultSet: RelationalResult;
     private counter = 0;
     public connections = new Map<string, Connection>();
     public nodes = new Map<string, Node>();
@@ -172,7 +171,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
                 //a result
                 else {
                     $('#run i').removeClass().addClass('fa fa-play');
-                    this.resultSet = <ResultSet>msg;
+                    this.resultSet = <RelationalResult>msg;
                 }
             }, err => {
                 setTimeout(() => {
@@ -502,7 +501,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         }
         if (!this._crud.executeRelAlg(this.webSocket, tree, this.cache, this.analyzeQuery)) {
             $('#run i').removeClass().addClass('fa fa-play');
-            this.resultSet = new ResultSet('Could not establish a connection with the server.');
+            this.resultSet = new RelationalResult('Could not establish a connection with the server.');
         }
     }
 

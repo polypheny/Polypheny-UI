@@ -10,7 +10,7 @@ import {
     TemplateRef,
     ViewChild
 } from '@angular/core';
-import {DataPresentationType, ResultSet} from './models/result-set.model';
+import {DataPresentationType, RelationalResult} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
 import {ToastDuration, ToastService} from '../toast/toast.service';
@@ -81,7 +81,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
     }
 
-    @Input() resultSet: ResultSet;
+    @Input() resultSet: RelationalResult;
     @Input() config: TableConfig;
     @Input() tableId?: number;
     @Input() loading?: boolean;
@@ -113,7 +113,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     player: Plyr;
     webSocket: WebSocket;
     subscriptions = new Subscription();
-    resultSetEvent = new EventEmitter<ResultSet>();
+    resultSetEvent = new EventEmitter<RelationalResult>();
     modalRefCreateView: BsModalRef;
     viewName = 'viewname';
     query: string;
@@ -122,7 +122,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     newViewName = '';
     tables: BehaviorSubject<Table[]> = new BehaviorSubject([]);
     gotTables = false;
-    schemaType: string;
+    namespaceType: string;
     viewOptions = 'view';
     freshnessOptions: Array<string> = [
         'UPDATE', 'INTERVAL', 'MANUAL'
@@ -157,12 +157,13 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     ngOnChanges(changes: SimpleChanges): void {
 
         if (changes.hasOwnProperty('resultSet')) {
+            console.log(this.resultSet);
             //fix for carousel View, if no currentPage and no highestPage is set, set it to 1
             if (this.resultSet !== null) {
-                this.schemaType = this.resultSet.namespaceType;
-                if (this.schemaType.toLowerCase() === 'document') {
+                this.namespaceType = this.resultSet.namespaceType;
+                if (this.namespaceType === NamespaceType.DOCUMENT) {
                     this.presentationType = DataPresentationType.CARD;
-                } else if (this.schemaType.toLowerCase() === 'graph' && this.containsGraphObject(this.resultSet)) {
+                } else if (this.namespaceType === NamespaceType.GRAPH && this.containsGraphObject(this.resultSet)) {
                     this.presentationType = DataPresentationType.GRAPH;
                 } else {
                     this.presentationType = DataPresentationType.TABLE;
@@ -181,11 +182,12 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    deactivateGraphButton(resultSet: ResultSet) {
-        return resultSet.namespaceType.toLowerCase() !== 'graph' || !this.containsGraphObject(resultSet);
+    deactivateGraphButton(resultSet: RelationalResult) {
+        console.log(resultSet);
+        return resultSet.namespaceType === NamespaceType.GRAPH || !this.containsGraphObject(resultSet);
     }
 
-    containsGraphObject(resultSet: ResultSet) {
+    containsGraphObject(resultSet: RelationalResult) {
         const includes = resultSet.header.map(d => d.dataType.toLowerCase().includes('graph') || d.dataType.toLowerCase().includes('node'));
         return includes.includes(true);
     }
@@ -205,7 +207,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     initWebsocket() {
         const sub = this.webSocket.onMessage().subscribe(
             res => {
-                this.resultSet = <ResultSet>res;
+                this.resultSet = <RelationalResult>res;
 
                 //go to the highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
                 if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
@@ -213,7 +215,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
                 }
                 this.setPagination();
                 this.editing = -1;
-                if (this.resultSet.type === 'TABLE' || this.resultSet.namespaceType === 'DOCUMENT') {
+                if (this.resultSet.type === 'TABLE' || this.resultSet.namespaceType === NamespaceType.DOCUMENT) {
                     this.config.create = true;
                     this.config.update = true;
                     this.config.delete = true;
@@ -259,7 +261,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         });
         const request = new TableRequest(this.tableId, this.resultSet.currentPage, filterObj, sortState);
         if (!this._crud.getTable(this.webSocket, request)) {
-            this.resultSet = new ResultSet('Could not establish a connection with the server.');
+            this.resultSet = new RelationalResult('Could not establish a connection with the server.');
         }
     }
 
@@ -279,13 +281,13 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         });
         const row = this.mapToObject(rowMap);
         const request = new DeleteRequest(this.resultSet.tableId, row);
-        const emitResult = new EventEmitter<ResultSet>();
+        const emitResult = new EventEmitter<RelationalResult>();
         this._crud.deleteRow(request).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 emitResult.emit(result);
                 if (result.error) {
-                    const result2 = <ResultSet>res;
+                    const result2 = <RelationalResult>res;
                     this._toast.exception(result2, 'Could not delete this row:');
                 } else {
                     this.getTable();
@@ -293,7 +295,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
             }, err => {
                 this._toast.error('Could not delete this row.');
                 console.log(err);
-                emitResult.emit(new ResultSet('Could not delete this row.'));
+                emitResult.emit(new RelationalResult('Could not delete this row.'));
             }
         );
         return emitResult;
@@ -456,14 +458,14 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         });
         formData.append('tableId', String(this.resultSet.table));
         this.uploadProgress = 100;//show striped progressbar
-        const emitResult = new EventEmitter<ResultSet>();
+        const emitResult = new EventEmitter<RelationalResult>();
         this._crud.insertRow(formData).subscribe(
             res => {
                 if (res.type && res.type === HttpEventType.UploadProgress) {
                     this.uploadProgress = Math.round(100 * res.loaded / res.total);
                 } else if (res.type === HttpEventType.Response) {
                     this.uploadProgress = -1;
-                    const result = <ResultSet>res.body;
+                    const result = <RelationalResult>res.body;
                     emitResult.emit(result);
                     if (result.error) {
                         this._toast.exception(result, 'Could not insert the data', 'insert error');
@@ -477,7 +479,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
             }, err => {
                 this._toast.error('Could not insert the data.');
                 console.log(err);
-                emitResult.emit(new ResultSet('Could not insert the data.'));
+                emitResult.emit(new RelationalResult('Could not insert the data.'));
             }
         ).add(() => this.uploadProgress = -1);
         return emitResult;
@@ -489,7 +491,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
             case 'ADD':
                 const data = this.insertValues.get('d');
                 const add = `db.${entity.value.name}.insert(${data})`;
-                this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.resultSet.namespaceId ));
+                this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.resultSet.namespaceId));
                 this.insertValues.clear();
                 this.getTable();
                 break;
@@ -597,7 +599,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
                     this.uploadProgress = Math.round(100 * res.loaded / res.total);
                 } else if (res.type === HttpEventType.Response) {
                     this.uploadProgress = -1;
-                    const result = <ResultSet>res.body;
+                    const result = <RelationalResult>res.body;
                     if (result.affectedRows) {
                         this.getTable();
                         let rows = ' rows';
@@ -765,10 +767,10 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     getAllTables() {
         //not possible to use public.table therefore schema always null
 
-        this._catalog.getEntities(null).subscribe( entities => {
-            this.tables.next(entities.filter(e => e.namespaceType === NamespaceType.RELATIONAL )
-            .map( n => Table.fromModel(<TableModel>n))
-            .sort((a, b) => a.name.localeCompare(b.name)));
+        this._catalog.getEntities(null).subscribe(entities => {
+            this.tables.next(entities.filter(e => e.namespaceType === NamespaceType.RELATIONAL)
+                .map(n => Table.fromModel(<TableModel>n))
+                .sort((a, b) => a.name.localeCompare(b.name)));
         });
 
 
@@ -807,7 +809,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
         this.loading = true;
         if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, 'sql', null))) {
             this.loading = false;
-            this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
+            this.resultSet = new RelationalResult('Could not establish a connection with the server.', code);
         }
     }
 

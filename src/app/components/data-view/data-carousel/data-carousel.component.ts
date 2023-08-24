@@ -7,9 +7,9 @@ import {BsModalService} from 'ngx-bootstrap/modal';
 import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {first} from 'rxjs/operators';
-import {ResultSet} from '../models/result-set.model';
+import {RelationalResult} from '../models/result-set.model';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
-import {CatalogService} from "../../../services/catalog.service";
+import {CatalogService} from '../../../services/catalog.service';
 
 @Component({
     selector: 'app-data-carousel',
@@ -102,7 +102,7 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
     deleteRow(values: string[], i) {
         super.deleteRow(values, i).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (!result.error) {
                     this.currentSlide = Math.max(0, this.currentSlide - 1);
                 }

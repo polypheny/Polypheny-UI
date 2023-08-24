@@ -2,12 +2,12 @@ import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/c
 import * as $ from 'jquery';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CrudService} from '../../services/crud.service';
-import {NamespaceType, EditTableRequest, SchemaRequest} from '../../models/ui-request.model';
+import {EditTableRequest, NamespaceType} from '../../models/ui-request.model';
 import {DbTable, ForeignKey, SvgLine, Uml} from './uml.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {UntypedFormBuilder} from '@angular/forms';
 import {ToastDuration, ToastService} from '../../components/toast/toast.service';
-import {DbColumn, ResultSet} from '../../components/data-view/models/result-set.model';
+import {RelationalResult, UiColumnDefinition} from '../../components/data-view/models/result-set.model';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -123,7 +123,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     getGeneratedNames() {
         this._crud.getGeneratedNames().subscribe(
             res => {
-                const names = <ResultSet>res;
+                const names = <RelationalResult>res;
                 if (!names.error) {
                     this.proposedConstraintName = names.data[0][1];
                 } else {
@@ -135,7 +135,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         );
     }
 
-    getColumnClass(table: DbTable, col: DbColumn) {
+    getColumnClass(table: DbTable, col: UiColumnDefinition) {
         if (table.primaryKeyFields.indexOf(col.name) > -1) {
             return 'bg-primary pk';
         } else if (table.uniqueColumns.indexOf(col.name) > -1) {
@@ -295,7 +295,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         this._crud.addForeignKey(fk).subscribe(
             res => {
                 this.closeModal();
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (result.error) {
                     this._toast.exception(result, null, null, ToastDuration.INFINITE);
                 } else if (result.affectedRows === 1) {

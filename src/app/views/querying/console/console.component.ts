@@ -2,10 +2,10 @@ import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {UntypedFormBuilder} from '@angular/forms';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import {CrudService} from '../../../services/crud.service';
-import {ResultSet} from '../../../components/data-view/models/result-set.model';
+import {RelationalResult} from '../../../components/data-view/models/result-set.model';
 import {QueryHistory} from './query-history.model';
 import {KeyValue} from '@angular/common';
-import {NamespaceType, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {QueryRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {InformationObject, InformationPage} from '../../../models/information-page.model';
@@ -40,7 +40,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private readonly LOCAL_STORAGE_HISTORY_KEY = 'query-history';
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
 
-    resultSets: ResultSet[];
+    resultSets: RelationalResult[];
     collapsed: boolean[];
     queryAnalysis: InformationPage;
     analyzeQuery = true;
@@ -180,7 +180,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.loading = true;
         if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.lang, this.activeNamespaceId))) {
             this.loading = false;
-            this.resultSets = [new ResultSet('Could not establish a connection with the server.', code)];
+            this.resultSets = [new RelationalResult('Could not establish a connection with the server.', code)];
         }
     }
 
@@ -306,7 +306,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 // array of ResultSets
                 else if (Array.isArray(msg) && (msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedRows') || msg[0].hasOwnProperty('error'))) {
                     this.loading = false;
-                    this.resultSets = <ResultSet[]>msg;
+                    this.resultSets = <RelationalResult[]>msg;
                     this.collapsed = new Array(this.resultSets.length);
                     this.collapsed.fill(false);
                 }

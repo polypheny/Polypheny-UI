@@ -45,12 +45,13 @@
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item" *ngFor="let h of resultSet.header">
-                <app-input *ngIf="schemaType.toLowerCase() === 'relational' || h.name === '_id'" [header]="h"
+                <app-input *ngIf="namespaceType.toLowerCase() === 'relational' || h.name === '_id'" [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"
                            (valueChange)="inputChange(h.name, $event)"
                            (enter)="insertRow()"></app-input>
                 <app-json-editor (validChange)="setJsonValid($event)"
-                                 *ngIf="this.schemaType.toLowerCase() === 'document' && h.name !== '_id'" [empty]="true"
+                                 *ngIf="this.namespaceType.toLowerCase() === 'document' && h.name !== '_id'"
+                                 [empty]="true"
                                  [json]="insertValues.get(h.name)"
                                  (valueChange)="inputChange(h.name, $event)"></app-json-editor>
             </li>
@@ -66,7 +67,8 @@
                         (click)="showInsertCard = false">cancel
                 </button>
                 <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-primary btn-sm float-right"
-                        [disabled]="this.schemaType.toLowerCase() === 'document' && !jsonValid" (click)="insertRow()">
+                        [disabled]="this.namespaceType.toLowerCase() === 'document' && !jsonValid"
+                        (click)="insertRow()">
                     save
                 </button>
             </li>

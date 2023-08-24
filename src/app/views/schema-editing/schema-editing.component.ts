@@ -5,7 +5,7 @@ import {CrudService} from '../../services/crud.service';
 import {NamespaceType, Schema} from '../../models/ui-request.model';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {SidebarNode} from '../../models/sidebar-node.model';
-import {ResultSet} from '../../components/data-view/models/result-set.model';
+import {RelationalResult} from '../../components/data-view/models/result-set.model';
 import {ToastService} from '../../components/toast/toast.service';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
@@ -136,7 +136,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
             this.createSubmitted = true;
             this._crud.createOrDropSchema(new Schema(val.name, val.type, val.stores).setCreate(true)).subscribe(
                 res => {
-                    const result = <ResultSet>res;
+                    const result = <RelationalResult>res;
                     if (result.error) {
                         this._toast.exception(result);
                     } else {
@@ -159,7 +159,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
             this.dropSubmitted = true;
             this._crud.createOrDropSchema(new Schema(val.name, val.type, this.graphStore).setDrop(true).setCascade(val.cascade)).subscribe(
                 res => {
-                    const result = <ResultSet>res;
+                    const result = <RelationalResult>res;
                     if (result.error) {
                         this._toast.exception(result);
                     } else {

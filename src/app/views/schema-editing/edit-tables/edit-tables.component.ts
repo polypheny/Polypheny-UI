@@ -2,7 +2,13 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DbColumn, EntityMeta, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
+import {
+    EntityMeta,
+    PolyType,
+    RelationalResult,
+    Status,
+    UiColumnDefinition
+} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -31,7 +37,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     tables: BehaviorSubject<Table[]> = new BehaviorSubject([]);
 
     counter = 0;
-    newColumns = new Map<number, DbColumn>();
+    newColumns = new Map<number, UiColumnDefinition>();
     newTableName = '';
     stores: Store[];
     selectedStore;
@@ -55,7 +61,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
+        this.newColumns.set(this.counter++, new UiColumnDefinition('', true, false, INITIAL_TYPE, '', null, null));
 
 
         const sub1 = this._route.params.subscribe((params) => {
@@ -152,7 +158,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             return;
         }
         this._crud.dropTruncateTable(request).subscribe(
-            (result: ResultSet) => {
+            (result: RelationalResult) => {
 
                 if (result.error) {
                     this._toast.exception(result, 'Could not ' + action + type + table + ':');
@@ -226,14 +232,14 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         const request = new EditTableRequest(this.namespace.value.id, null, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore);
         this.creatingTable = true;
         this._crud.createTable(request).subscribe(
-        (result: ResultSet) => {
+            (result: RelationalResult) => {
                 if (result.error) {
                     this._toast.exception(result, 'Could not generate table:');
                 } else {
                     this._toast.success('Generated table ' + request.entityName, result.generatedQuery);
                     this.newColumns.clear();
                     this.counter = 0;
-                    this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
+                    this.newColumns.set(this.counter++, new UiColumnDefinition('', true, false, INITIAL_TYPE, '', null, null));
                     this.newTableName = '';
                     this.selectedStore = null;
                     this._leftSidebar.setSchema(this._router,'/views/schema-editing/', true, 2, false);
@@ -250,7 +256,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         const meta = new EntityMeta(this.namespace.value.id, table.id, table.newName, []);
         const type = table.tableType === EntityType.VIEW ? ' View ' : ' Table ';
         this._crud.renameTable(meta).subscribe(
-            (r: ResultSet) => {
+            (r: RelationalResult) => {
                 if (r.exception) {
                     this._toast.exception(r);
                 } else {
@@ -302,21 +308,21 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }
 
     addNewColumn() {
-        this.newColumns.set(this.counter++, new DbColumn('', false, true, INITIAL_TYPE, '', null, null));
+        this.newColumns.set(this.counter++, new UiColumnDefinition('', false, true, INITIAL_TYPE, '', null, null));
     }
 
     removeNewColumn(i: number) {
         if (this.newColumns.size === 1) {
             this.counter = 0;
             this.newColumns.clear();
-            this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
+            this.newColumns.set(this.counter++, new UiColumnDefinition('', true, false, INITIAL_TYPE, '', null, null));
         } else {
             //don't change the counter here!
             this.newColumns.delete(i);
         }
     }
 
-    triggerDefaultNull(col: DbColumn) {
+    triggerDefaultNull(col: UiColumnDefinition) {
         if (col.defaultValue === null) {
             if (this._types.isNumeric(col.dataType)) {
                 col.defaultValue = 0;

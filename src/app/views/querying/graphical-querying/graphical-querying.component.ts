@@ -4,10 +4,10 @@ import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
 import 'jquery-ui/ui/widgets/draggable';
 import {CrudService} from '../../../services/crud.service';
-import {FilteredUserInput, ResultSet} from '../../../components/data-view/models/result-set.model';
+import {FilteredUserInput, RelationalResult} from '../../../components/data-view/models/result-set.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToastService} from '../../../components/toast/toast.service';
-import {NamespaceType, EditTableRequest, QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {EditTableRequest, NamespaceType, QueryRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
 import {Router} from '@angular/router';
@@ -30,7 +30,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     @ViewChild('editorGenerated', {static: false}) editorGenerated;
     @ViewChild('createViewModal', {static: false}) public createViewModal: TemplateRef<any>;
     generatedSQL;
-    resultSet: ResultSet;
+    resultSet: RelationalResult;
     selectedColumn = {};
     loading = false;
     modalRefCreateView: BsModalRef;
@@ -91,7 +91,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     initWebSocket() {
         this.webSocket.onMessage().subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 this.resultSet = result[0];
                 this.loading = false;
             }, err => {
@@ -431,7 +431,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         const code = this.editorGenerated.getCode();
         if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, 'sql', null))) {
             this.loading = false;
-            this.resultSet = new ResultSet('Could not establish a connection with the server.', code);
+            this.resultSet = new RelationalResult('Could not establish a connection with the server.', code);
         }
     }
 

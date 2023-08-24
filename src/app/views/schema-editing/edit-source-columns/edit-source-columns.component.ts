@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {DbColumn, ResultSet} from '../../../components/data-view/models/result-set.model';
+import {RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {ColumnRequest, EditTableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
@@ -36,7 +36,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
     entity: BehaviorSubject<EntityModel> = new BehaviorSubject<EntityModel>(null);
     namespace: BehaviorSubject<NamespaceModel> = new BehaviorSubject<NamespaceModel>(null);
-    columns: BehaviorSubject<DbColumn[]> = new BehaviorSubject<DbColumn[]>([]);
+    columns: BehaviorSubject<UiColumnDefinition[]> = new BehaviorSubject<UiColumnDefinition[]>([]);
     errorMsg: string;
     editingCol: string;
     placement: BehaviorSubject<AllocationPlacementModel> = new BehaviorSubject<AllocationPlacementModel>(null);
@@ -80,7 +80,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     subscribeColumns() {
         this.entity.pipe( 
             mergeMap( entity => this._catalog.getColumns(entity.id) )).subscribe( columns => {
-                this.columns.next( columns.map( c => DbColumn.fromModel(c, this._catalog.getPrimaryKey(c.entityId).value.columnIds) ) );
+            this.columns.next(columns.map(c => UiColumnDefinition.fromModel(c, this._catalog.getPrimaryKey(c.entityId).value.columnIds)));
         } );
 
 
@@ -93,8 +93,8 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         );*/
     }
 
-    getAddableColumns(): Observable<DbColumn[]> {
-        const cols: DbColumn[] = [];
+    getAddableColumns(): Observable<UiColumnDefinition[]> {
+        const cols: UiColumnDefinition[] = [];
 
         for (const col of this.columns.value) {
             if (!this._catalog.getColumns(this.entity.value.id).value.find(h => h.name === col.name)) {
@@ -105,10 +105,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         return new BehaviorSubject(cols);
     }
 
-    dropColumn(col: DbColumn) {
+    dropColumn(col: UiColumnDefinition) {
         this._crud.dropColumn(new ColumnRequest(this.entity.value.id, col)).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (result.error) {
                     this._toast.exception(result);
                 } else {
@@ -121,7 +121,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         );
     }
 
-    renameColumn(oldCol: DbColumn, newName, tabletype) {
+    renameColumn(oldCol: UiColumnDefinition, newName, tabletype) {
         if (newName.trim() === '') {
             this._toast.error('Name can not be empty.');
             return;
@@ -131,7 +131,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         const request = new ColumnRequest(this.entity.value.id, oldCol, newCol, true, tabletype);
         this._crud.updateColumn(request).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (result.error) {
                     this._toast.exception(result);
                 } else {
@@ -146,11 +146,11 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         );
     }
 
-    addColumn(col: DbColumn, newName: string, newDefault: string) {
-        const request = new ColumnRequest(this.entity.value.id, null, new DbColumn(col.physicalName, null, null, col.dataType, '', null, null, newDefault, -1, -1, newName));
+    addColumn(col: UiColumnDefinition, newName: string, newDefault: string) {
+        const request = new ColumnRequest(this.entity.value.id, null, new UiColumnDefinition(col.physicalName, null, null, col.dataType, '', null, null, newDefault, -1, -1, newName));
         this._crud.addColumn(request).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (result.error) {
                     this._toast.exception(result);
                 } else {

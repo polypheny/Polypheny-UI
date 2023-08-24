@@ -6,9 +6,23 @@ import {NamespaceType} from '../../../models/ui-request.model';
  * model for the result of a query coming from the server
  */
 
-export class ResultSet {
-    header: DbColumn[];
-    data: string[][];
+export interface FieldDefinition {
+    name: string;
+    dataType: string;
+}
+
+export class Result<D, H> {
+    namespaceType: NamespaceType;
+    namespaceName: string;
+    namespaceId: number;
+    data: D[];
+    header: H[];
+    error: string;
+    language: string; //sql,mql,cql
+}
+
+
+export class RelationalResult extends Result<string[], UiColumnDefinition> {
     hasMoreRows: boolean;
     currentPage: number;
     highestPage: number;
@@ -20,24 +34,33 @@ export class ResultSet {
     affectedRows: number;
     generatedQuery: string;
     type: string;//"table" or "view"
-    namespaceName: string;
-    namespaceId: number;
-    namespaceType = NamespaceType.RELATIONAL;//"relational" or "document"
-    language: string; //sql,mql,cql
-    explorerId: number;
-    classificationInfo: string;
-    includesClassificationInfo: boolean;
-    classifiedData: string[][];
-    isConvertedToSql: boolean;
+
 
     constructor(error: string, generatedQuery = null, affectedRows = 0) {
+        super();
         this.error = error;
         this.generatedQuery = generatedQuery;
         this.affectedRows = affectedRows;
     }
 }
 
-export class InfoSet extends ResultSet {
+export class RelationalExploreResult extends RelationalResult {
+    explorerId: number;
+    classificationInfo: string;
+    includesClassificationInfo: boolean;
+    classifiedData: string[][];
+    isConvertedToSql: boolean;
+}
+
+export class GraphResult extends Result<string[], FieldDefinition> {
+    query: string;
+}
+
+export class DocumentResult extends Result<string, FieldDefinition> {
+    query: string;
+}
+
+export class InfoSet extends RelationalResult {
 
 
     constructor(error: string, generatedQuery: any, affectedRows: number) {
@@ -49,10 +72,10 @@ export class InfoSet extends ResultSet {
  * model with classified data coming form server
  */
 export class ExploreSet {
-    header: DbColumn[];
-    dataAfterClassification: String[];
-    exploreManagerId;
-    graph: String;
+    header: UiColumnDefinition[];
+    dataAfterClassification: string[];
+    exploreManagerId: number;
+    graph: string;
 }
 
 export class ExplorColSet {
@@ -150,7 +173,7 @@ export class DashboardData {
 /**
  * Model for a column of a table
  */
-export class DbColumn {
+export class UiColumnDefinition implements FieldDefinition {
     //for both
     name: string;
     physicalName: string;
@@ -190,7 +213,7 @@ export class DbColumn {
     }
 
     static fromModel( column: ColumnModel, primaries: number[] ){
-        return new DbColumn(
+        return new UiColumnDefinition(
             column.name,
             primaries.includes(column.id),
             column.nullable,

@@ -4,19 +4,19 @@ import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
 import {
-    DbColumn,
     PartitioningRequest,
     PolyType,
-    ResultSet
+    RelationalResult,
+    UiColumnDefinition
 } from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {ColumnRequest, EditTableRequest} from '../../../models/ui-request.model';
+import {ColumnRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {Placements, Store} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {Subscription} from 'rxjs';
-import {ForeignKey, Uml} from '../../../views/uml/uml.model';
+import {ForeignKey} from '../../../views/uml/uml.model';
 
 @Component({
     selector: 'app-document-edit-collection',
@@ -31,16 +31,16 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     namespaceId: number;
     foreignKeys: ForeignKey[] = [];
 
-    resultSet: ResultSet;
+    resultSet: RelationalResult;
     types: PolyType[] = [];
     editColumn = -1;
-    createColumn = new DbColumn('', false, true, 'text', '', null, null, null);
+    createColumn = new UiColumnDefinition('', false, true, 'text', '', null, null, null);
     confirm = -1;
-    oldColumns = new Map<string, DbColumn>();
+    oldColumns = new Map<string, UiColumnDefinition>();
     updateColumn = new UntypedFormGroup({name: new UntypedFormControl('')});
 
-    constraints: ResultSet;
-    newPrimaryKey: DbColumn[];
+    constraints: RelationalResult;
+    newPrimaryKey: UiColumnDefinition[];
 
 
     //data placement handling
@@ -111,7 +111,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         this._crud.getFixedFields(new ColumnRequest(this.collectionId)).subscribe(
             res => {
                 console.log(res);
-                this.resultSet = <ResultSet>res;
+                this.resultSet = <RelationalResult>res;
 
             }, err => {
                 this._toast.error('Could not load fields of the collection.', null, ToastDuration.INFINITE);
@@ -133,7 +133,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         return this._crud.getValidationClass(columnName);
     }
 
-    editCol(i: number, col: DbColumn, e = null) {
+    editCol(i: number, col: UiColumnDefinition, e = null) {
         if (col.name === '_id' || col.name === '_data') {
             return;
         }
@@ -170,7 +170,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
             return;
         }
         const oldColumn = this.oldColumns.get(this.updateColumn.controls['oldName'].value);
-        const newColumn = new DbColumn(
+        const newColumn = new UiColumnDefinition(
             this.updateColumn.controls['name'].value,
             null,
             this.updateColumn.controls['nullable'].value,
@@ -191,7 +191,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         const req = new ColumnRequest(this.collectionId, oldColumn, newColumn);
         this._crud.updateColumn(req).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 this.editColumn = -1;
                 this.getFixedFields();
                 if (result.error) {
@@ -231,7 +231,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         const req = new ColumnRequest(this.collectionId, null, this.createColumn);
         this._crud.addColumn(req).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (result.error === undefined) {
                     this.getFixedFields();
                     this.getPlacements();
@@ -252,13 +252,13 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         );
     }
 
-    dropColumn(col: DbColumn) {
+    dropColumn(col: UiColumnDefinition) {
         this._crud.dropColumn(new ColumnRequest(this.collectionId, col)).subscribe(
             res => {
                 this.getFixedFields();
                 this.getPlacements();
                 this.confirm = -1;
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (result.error) {
                     this._toast.exception(result, 'Could not delete field:', 'server error', ToastDuration.INFINITE);
                 }
@@ -328,7 +328,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         this.isAddingPlacement = true;
         this._crud.addDropCollectionPlacement(this.namespaceId, this.collectionId, this.collection, this.selectedStore.uniqueName, this.placementMethod).subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (result.error) {
                     this._toast.exception(result);
                 } else {
@@ -351,7 +351,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     dropPlacement(storeId: number, storeName: string) {
         this._crud.addDropPlacement(this.namespaceId, this.collectionId, storeId, 'DROP').subscribe(
             res => {
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (result.error) {
                     this._toast.exception(result);
                 } else {

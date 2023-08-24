@@ -1,5 +1,5 @@
-<div class="min-vh-100 wrapper d-flex flex-column overflow-x-hidden">
-    <c-header>
+<div class="min-vh-100 max-vh-100 wrapper d-flex flex-column overflow-hidden">
+    <c-header position="fixed" class="position-sticky w-100">
         <c-container fluid>
             <c-header-brand [routerLink]="'/'"><img ngSrc="assets/img/brand/logo.svg" alt="Polypheny Logo" height="50"
                                                     width="200"></c-header-brand>
@@ -100,23 +100,25 @@
             <app-left-sidebar></app-left-sidebar>
         </c-sidebar>
 
-        <div class="body position-relative w-auto flex-grow-1">
+        <div class="body position-relative w-auto flex-grow-1 d-flex flex-column">
             <c-container>
                 <app-breadcrumb-main></app-breadcrumb-main>
             </c-container>
+
             <!-- Main content -->
-            <c-container>
-                <c-row [gutter]="2">
-                    <router-outlet></router-outlet>
-                </c-row>
-            </c-container>
+            <div class="overflow-y-auto flex-grow-1 d-flex flex-column">
+                <c-container class="flex-grow-1 gy-2">
+                    <c-row [gutter]="2">
+                        <router-outlet></router-outlet>
+                    </c-row>
+                </c-container>
+                <c-footer>
+                    <a class="text-muted" [routerLink]="['/views/about']">About Polypheny</a>
+                </c-footer>
+            </div>
         </div>
         <c-sidebar id="right" [visible]="showRight" class="sidebar-end position-relative">
             <app-right-sidebar></app-right-sidebar>
         </c-sidebar>
     </div>
-
-    <c-footer style="z-index: 2;">
-        <a class="text-muted" [routerLink]="['/views/about']">About Polypheny</a>
-    </c-footer>
 </div>
