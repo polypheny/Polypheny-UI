@@ -20,6 +20,7 @@ import {NgChartsModule} from 'ng2-charts';
 import {HttpClientModule} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
 import {
+    BreadcrumbComponent,
     ColComponent,
     ContainerComponent,
     DropdownComponent,
@@ -35,7 +36,9 @@ import {
     HeaderTextComponent,
     HeaderTogglerDirective,
     NavItemComponent,
-    NavLinkDirective, ProgressBarComponent, ProgressComponent,
+    NavLinkDirective,
+    ProgressBarComponent,
+    ProgressComponent,
     RowComponent,
     SidebarComponent,
     SidebarNavComponent,
@@ -57,7 +60,6 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {IconDirective} from '@coreui/icons-angular';
-import {ToastExposerComponent} from './components/toast-exposer/toast-exposer.component';
 
 
 @NgModule({
@@ -107,6 +109,7 @@ import {ToastExposerComponent} from './components/toast-exposer/toast-exposer.co
         ColComponent,
         GutterDirective,
         ToastHeaderComponent,
+        BreadcrumbComponent,
         ProgressComponent,
         ToastBodyComponent,
         ToastHeaderComponent,

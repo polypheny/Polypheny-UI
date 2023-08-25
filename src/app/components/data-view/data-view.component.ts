@@ -183,7 +183,6 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     deactivateGraphButton(resultSet: RelationalResult) {
-        console.log(resultSet);
         return resultSet.namespaceType === NamespaceType.GRAPH || !this.containsGraphObject(resultSet);
     }
 

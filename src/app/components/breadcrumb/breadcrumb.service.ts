@@ -59,7 +59,8 @@ export class BreadcrumbService implements OnInit, OnDestroy {
     }
 
     getMasonryZoom() {
-        return this.MAXCOLS - (this.zoom - 1);
+        console.log(this.zoom);
+        return this.MAXCOLS - (this.zoom + 1);
     }
 
     getCardClass() {

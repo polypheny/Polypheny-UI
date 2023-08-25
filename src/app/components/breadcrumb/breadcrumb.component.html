@@ -1,13 +1,14 @@
 <c-row class="no-gutters" *ngIf="!hidden">
-    <c-col class="col-md-6">
-        <ol class="breadcrumb">
+    <c-col md="6">
+        <c-breadcrumb
+                style="--cui-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);">
             <li *ngFor="let b of breadcrumbs" class="breadcrumb-item">
                 <ng-container *ngIf="b.routerLink">
                     <a [routerLink]="b.routerLink">{{b.name}}</a>
                 </ng-container>
                 <ng-container *ngIf="!b.routerLink">{{b.name}}</ng-container>
             </li>
-        </ol>
+        </c-breadcrumb>
     </c-col>
     <c-col class="col-md-6" *ngIf="breadcrumbs[0].name != 'Schema'">
         <div class="custom-control-inline breadcrumb" id="zoom-wrapper">

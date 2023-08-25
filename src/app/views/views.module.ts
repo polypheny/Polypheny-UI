@@ -47,12 +47,15 @@ import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-e
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
 import {
+    BorderDirective,
     CardBodyComponent,
     CardComponent,
+    CardFooterComponent,
     CardHeaderComponent,
     ColComponent,
     ContainerComponent,
     GutterDirective,
+    HeaderComponent,
     RowComponent
 } from '@coreui/angular';
 
@@ -82,7 +85,10 @@ import {
         CardComponent,
         CardHeaderComponent,
         CardBodyComponent,
-        GutterDirective
+        GutterDirective,
+        HeaderComponent,
+        CardFooterComponent,
+        BorderDirective
     ],
     declarations: [
         EditColumnsComponent,
