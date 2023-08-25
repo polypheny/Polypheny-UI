@@ -70,7 +70,7 @@ export class NotebooksSidebarService {
                 this.parentPath, '..', 'fa fa-arrow-left', this._baseUrl + '/' + this.parentPath,
                 false, false, true
             );
-            parent.setDropAction((action, treeNode, $event, {from, _}) => {
+            parent.setDropAction((action, treeNode, $event, {from}) => {
                 this.moveFile(from.data.id, this.parentPath + '/' + from.data.name);
             });
             nodes.push(parent);
