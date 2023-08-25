@@ -165,8 +165,8 @@
                 <div class="btn-group">
                     <button type="button" class="btn btn-outline-primary"
                             *ngIf="createSessionForm.get('canManage').value"
-                            (click)="openManagePage(createSessionForm.get('path').value)"
-                            [disabled]="!createSessionForm.valid || creating">Manage File
+                            (click)="openManagePage(createSessionForm.get('path').value)">
+                        Manage File
                     </button>
                     <button type="submit" class="btn btn-primary" (click)="openNotebookClicked()"
                             [disabled]="!createSessionForm.valid || creating">
