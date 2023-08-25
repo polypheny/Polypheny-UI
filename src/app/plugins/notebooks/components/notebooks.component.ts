@@ -116,7 +116,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
                 Validators.maxLength(50)]),
             type: new FormControl('notebook'),
             ext: new FormControl('.txt'),
-            kernel: new FormControl('')
+            kernel: new FormControl('', [Validators.required]),
         });
 
         this.uploadFileForm = new FormGroup({
@@ -126,7 +126,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
         this.createSessionForm = new FormGroup({
             isNew: new FormControl(false),
             session: new FormControl(''),
-            kernel: new FormControl(''),
+            kernel: new FormControl('', [Validators.required]),
             sessions: new FormControl([]),
             // Variables that cannot be set directly by the user:
             name: new FormControl('', [Validators.required]),
@@ -213,7 +213,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
         this.createSessionForm.patchValue({
             name: name,
             path: path,
-            kernel: this.availableKernels[0].name,
+            kernel: this.availableKernels.length > 0 ? this.availableKernels[0].name : '',
             isNew: true,
             canConnect: false,
             canManage: canManage
