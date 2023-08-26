@@ -1,19 +1,25 @@
 import {NamespaceType} from './ui-request.model';
 import {PolyType} from '../components/data-view/models/result-set.model';
+import {PlacementType} from '../views/adapters/adapter.model';
 
+export enum CatalogState {
+  INIT,
+  LOADING,
+  UP_TO_DATE
+}
 
-export interface IdEntity{
+export class IdEntity {
   id: number;
   name: string;
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface NamespaceModel extends IdEntity {
+export class NamespaceModel extends IdEntity {
   namespaceType: NamespaceType;
   caseSensitive: boolean;
 }
 
-export interface EntityModel extends IdEntity {
+export class EntityModel extends IdEntity {
   namespaceId: number;
   namespaceType: NamespaceType;
   entityType: EntityType;
@@ -21,26 +27,26 @@ export interface EntityModel extends IdEntity {
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface TableModel extends EntityModel{
+export interface TableModel extends EntityModel {
   primaryKey: number;
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface CollectionModel extends EntityModel{
+export interface CollectionModel extends EntityModel {
 
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface GraphModel extends EntityModel{
+export interface GraphModel extends EntityModel {
 
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface FieldModel extends IdEntity{
+export interface FieldModel extends IdEntity {
   entityId: number;
 }
 
-export interface ColumnModel extends FieldModel{
+export interface ColumnModel extends FieldModel {
   type: PolyType;
   collectionsType: PolyType;
   nullable: boolean;
@@ -63,38 +69,48 @@ export interface LogicalSnapshotModel {
   placements: AllocationPlacementModel[];
   partitions: AllocationPartitionModel[];
   allocations: AllocationEntityModel[];
+  allocColumns: AllocationColumnModel[];
 }
 
 
-export interface KeyModel extends IdEntity{
+export interface KeyModel extends IdEntity {
   entityId: number;
   namespaceId: number;
   columnIds: number[];
   isPrimary: boolean;
 }
 
-export interface ConstraintModel extends IdEntity{
+export interface ConstraintModel extends IdEntity {
   keyId: number;
   type: string;
 }
 
-export interface AllocationEntityModel extends IdEntity{
+export interface AllocationEntityModel extends IdEntity {
   logicalEntityId: number;
   placementId: number;
   partitionId: number;
 }
 
-export interface AllocationPlacementModel extends IdEntity{
+export interface AllocationPlacementModel extends IdEntity {
   logicalEntityId: number;
   adapterId: number;
 }
 
-export interface AllocationPartitionModel extends IdEntity{
+export interface AllocationPartitionModel extends IdEntity {
   logicalEntityId: number;
 }
 
+export interface AllocationColumnModel extends IdEntity {
+  namespaceId: number;
+  placementId: number;
+  logicalTableId: number;
+  placementType: PlacementType;
+  position: number;
+  adapterId: number;
+}
+
 export enum EntityType {
-  ENTITY= 'ENTITY',
+  ENTITY = 'ENTITY',
   SOURCE = 'SOURCE',
   VIEW = 'VIEW',
   MATERIALIZED_VIEW = 'MATERIALIZED_VIEW'
@@ -113,12 +129,11 @@ export interface AssetsModel {
 }
 
 
-
 //// REQUESTS
-export class NamespaceRequest{
+export class NamespaceRequest {
 
   dataModels: NamespaceType[] = null;
-  
+
   constructor(dataModels: NamespaceType[] = null) {
     this.dataModels = dataModels;
   }

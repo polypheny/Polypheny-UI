@@ -14,8 +14,8 @@
               {{table.name}}
                 <i class="cui-pencil edit-table-name ml-2" (click)="table.editing = !table.editing"></i>
             </span>
-            <div class="input-group input-group-sm" *ngIf="table.editing" style="max-width: 200px">
-                <input type="text" class="form-control form-control-sm" placeholder="newName"
+            <c-input-group sizing="sm" *ngIf="table.editing" style="max-width: 200px">
+                <input type="text" cFormControl placeholder="newName"
                        [(ngModel)]="table.newName" autofocus (keyup.enter)="renameTable(table)"
                        (keyup.escape)="table.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()">
                 <div class="input-group-append">
@@ -23,7 +23,7 @@
                             (click)="renameTable(table)">rename
                     </button>
                 </div>
-            </div>
+            </c-input-group>
         </td>
         <td>
             <div class="input-group confirm-group" *ngIf="table.modifiable">
@@ -56,7 +56,7 @@
 <c-row class="row">
     <br><br>
     <c-col class="col-lg-12">
-        <h5>Create new collection</h5>
+        <h5>Create New Collection</h5>
         <table class="table table-hover table-striped">
             <thead>
             <tr>

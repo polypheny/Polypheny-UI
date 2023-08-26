@@ -1,4 +1,4 @@
-<div id="tree-outer-wrapper" class="schema-editing d-flex flex-column h-100 w-auto">
+<div id="tree-outer-wrapper" class="schema-editing d-flex flex-column h-100 w-auto gap-2">
 
     <c-input-group>
         <span cInputGroupText id="basic-addon1" *ngIf="isExpandAndCollapseShown()">
@@ -10,8 +10,13 @@
         </span>
     </c-input-group>
 
+    <div class="w-100 text-center flex-grow-1 d-flex align-items-center" *ngIf="(this._catalog.state | async ) !== CatalogState.UP_TO_DATE">
+        <c-spinner aria-hidden="true" size="xl" class="mx-auto"></c-spinner>
+    </div>
+
+
     <span *ngIf="error">{{error}}</span>
-    <div id="tree-inner-wrapper" class="flex-grow-1">
+    <div id="tree-inner-wrapper" [classList]=" (this._catalog.state | async ) === CatalogState.UP_TO_DATE ? 'flex-grow-1' : 'flex-grow-0' ">
 
         <tree-root [nodes]="nodes" [options]="options" [class]="{'no-children': !hasChildren(nodes)}" #tree>
             <ng-template #treeNodeWrapperTemplate let-index="index" let-node>
@@ -45,9 +50,8 @@
 
     <div *ngIf="needsButton()" class="schema-editing-wrapper">
         <div class="border-top my-3 "></div>
-        <p class="schema-button node-content-wrapper" id="schemaText" [routerLink]="'/views/schema-editing/'"><i
-                class="fa fa-pencil" aria-hidden="true"></i>
-            Manage Namespaces</p>
+        <p class="namespace-button node-content-wrapper" id="namespaceText" [routerLink]="'/views/schema-editing/'"><i
+                class="fa fa-pencil" aria-hidden="true"></i>Manage Namespaces</p>
     </div>
 
 

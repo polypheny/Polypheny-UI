@@ -102,7 +102,7 @@ export class ToasterService {
         if (!title) {
             title = 'error';
         }
-        const t: Toast = new Toast(title, msg, result.generatedQuery, duration, 'bg-warning');
+        const t: Toast = new Toast(title, msg, result.generatedQuery, duration, 'warning');
         if (result.exception) {
             t.setException(result.exception);
         }

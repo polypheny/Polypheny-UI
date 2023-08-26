@@ -28,7 +28,7 @@ export class LeftSidebarService {
       private _configService: ConfigService,
       private _crud: CrudService,
       private _breadcrumb: BreadcrumbService,
-      private _catalog: CatalogService
+      public _catalog: CatalogService
   ) {
   }
 

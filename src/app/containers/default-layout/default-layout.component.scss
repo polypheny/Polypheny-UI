@@ -6,36 +6,6 @@
   height: 100vh;
 }
 
-/* DROPDOWN */
-.dropdown-item {
-  text-align: left;
-}
-
-.dropdown-item, .dropdown-item i {
-  color: #73818f;
-}
-
-.dropdown-item i {
-  margin-right: 0.5em;
-}
-
-.dropdown-item:active {
-  background: #f0f3f5;
-}
-
-.dropdown-item.active {
-  background: white;
-  color: black;
-}
-
-.dropdown-item.active i {
-  color: black;
-}
-
-.dropdown-item.active:hover {
-  background: #f0f3f5;
-}
-
 #connection-status {
   width: 5px;
   height: 5px;

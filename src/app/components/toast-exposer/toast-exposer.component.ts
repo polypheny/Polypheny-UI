@@ -26,7 +26,7 @@ export class ToastExposerComponent implements OnInit {
           title: toast.title,
           delay: 5000,
           placement: this.placement,
-          color: 'info',
+          color: toast.type,
           autohide: true
         };
         const componentRef:ComponentRef<ToastComponent> = this.toaster.addToast( ToastComponent, {...options});

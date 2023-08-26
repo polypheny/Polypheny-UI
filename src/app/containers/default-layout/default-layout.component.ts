@@ -37,6 +37,7 @@ export class DefaultLayoutComponent implements OnDestroy {
             attributes: true,
             attributeFilter: ['class']
         });
+
     }
 
     ngOnDestroy(): void {
@@ -50,5 +51,9 @@ export class DefaultLayoutComponent implements OnDestroy {
     exploreByExampleEnabled() {
         return this._plugin.getEnabledPlugins().includes('explore-by-example');
 
+    }
+
+    toggleDropdown() {
+        console.log('enter');
     }
 }

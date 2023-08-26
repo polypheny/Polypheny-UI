@@ -12,9 +12,12 @@ import {BehaviorSubject, Observable} from 'rxjs';
   selector: 'app-toast',
   templateUrl: './toast.component.html',
   styleUrls: ['./toast.component.scss'],
-  providers: [{ provide: ToastComponent, useExisting: forwardRef(() => ToastParent) }]
+  providers: [{ provide: ToastParent, useExisting: forwardRef(() => ToastComponent) }]
 })
 export class ToastComponent extends ToastParent {
+
+  @Input() closeButton = true;
+  @Input() title = '';
 
   exception: ResultException;
   @ViewChild('stackTraceModal', {static: false}) public stackTraceModal: ModalDirective;

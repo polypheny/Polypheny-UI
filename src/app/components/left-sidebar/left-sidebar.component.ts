@@ -4,6 +4,8 @@ import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
 import {TreeComponent, TreeModel} from '@ali-hm/angular-tree-component';
 import {SidebarNode} from '../../models/sidebar-node.model';
+import {CatalogService} from "../../services/catalog.service";
+import {CatalogState} from "../../models/catalog.model";
 
 
 @Component({
@@ -26,6 +28,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
     constructor(
         _router: Router,
         private _sidebar: LeftSidebarService,
+        public _catalog: CatalogService
     ) {
         this.router = _router;
         //this.nodes = nodes;
@@ -148,4 +151,6 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
         }
         return false;
     }
+
+    protected readonly CatalogState = CatalogState;
 }

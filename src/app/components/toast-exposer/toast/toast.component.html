@@ -1,5 +1,5 @@
 <ng-container>
-    <c-toast-header [closeButton]="true" class="text-bg-dark">
+    <c-toast-header [closeButton]="true" [class]="(toast|async)?.type">
         <strong class="mr-auto" [ngClass]="{'hasGeneratedQuery': (toast | async)?.generatedQuery}"
                 (click)="copyGeneratedQuery(toast.value)">
             {{(toast | async)?.title}}
@@ -7,7 +7,7 @@
         </strong>
     </c-toast-header>
     <c-toast-body #t [cToastClose]="t.toast" class="text-bg-light">
-        <p class="mb-1">{{t.toast}}</p>
+
         <div class="toast-body" (click)="showStackTraceModal(toast.value)">
             {{(toast | async)?.message}}
         </div>

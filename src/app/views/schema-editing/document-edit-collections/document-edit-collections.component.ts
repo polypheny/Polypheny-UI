@@ -81,8 +81,6 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub1);
 
 
-
-    this.getTypeInfo();
     this.getStores();
     this.initSocket();
     const sub2 = this._crud.onReconnection().subscribe((b) => {

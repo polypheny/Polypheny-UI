@@ -1,5 +1,5 @@
 <div class="min-vh-100 max-vh-100 wrapper d-flex flex-column overflow-hidden">
-    <c-header position="fixed" class="position-sticky w-100">
+    <c-header position="fixed" class="position-sticky w-100 z-3">
         <c-container fluid>
             <c-header-brand [routerLink]="'/'"><img ngSrc="assets/img/brand/logo.svg" alt="Polypheny Logo" height="50"
                                                     width="200"></c-header-brand>
@@ -34,12 +34,13 @@
                 </c-nav-item>
 
                 <c-dropdown alignment="end">
-                    <c-nav-item>
-                        <a cHeaderToggler cDropdownToggle cNavLink [caret]="false"
-                           [routerLink]="['/views/querying']">
-                            <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Query</span>
-                        </a>
-                    </c-nav-item>
+
+
+                    <a cHeaderToggler cDropdownToggle cNavLink routerLinkActive="active">
+                        <i class="fa fa-keyboard-o"></i><span class="d-md-down-none">Query</span>
+                    </a>
+
+
                     <ul cDropdownMenu>
                         <li>
                             <a cDropdownItem [routerLink]="['/views/querying/console']"
@@ -81,9 +82,9 @@
                 </c-nav-item>
 
 
-                <a (click)="showRight = !showRight">
+                <div (click)="showRight = !showRight" class="d-flex align-items-center">
                     <svg [cIcon]="icons.cilHamburgerMenu" size="xl" title="Sidebar Toggle"></svg>
-                </a>
+                </div>
 
 
                 <ul class="c-header-nav navbar-nav ml-auto"></ul>
@@ -97,7 +98,7 @@
 
     <div class="wrapper position-relative h-100 d-flex flex-grow-1">
         <c-sidebar id="left" [visible]="showLeft" size="lg" class="position-relative p-3">
-            <app-left-sidebar></app-left-sidebar>
+            <app-left-sidebar class="flex-grow-1"></app-left-sidebar>
         </c-sidebar>
 
         <div class="body position-relative w-auto flex-grow-1 d-flex flex-column">

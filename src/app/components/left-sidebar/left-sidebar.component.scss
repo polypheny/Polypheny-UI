@@ -1,46 +1,4 @@
 
-#tree-inner-wrapper {
-  display: flex;
-  overflow: auto;
-  padding-left: 1em;
-  padding-right: 1rem;
-  width: 100%;
-
-  tree-root {
-    width: 100%;
-  }
-
-  .node-content-wrapper {
-    width: 100%;
-  }
-
-  .node-content-wrapper-focused, .node-content-wrapper:hover {
-    // color: black;
-    background: lighten(#20a8d8, 30%);
-  }
-
-  .node-content-wrapper-active {
-    // color: black;
-    background: #20a8d8;
-  }
-
-  .separator, .separator .sidebarIcon {
-    background: transparent !important;
-    color: #6c757d !important; /* from bootstrap .text-muted */
-    font-size: 0.75em;
-    text-transform: uppercase;
-    box-shadow: none;
-    cursor: default;
-    margin-top: 1em;
-  }
-}
-
-.sidebarIcon {
-  //redundant at the moment
-  color: white;
-  margin-right: 0.4em;
-}
-
 #collapse, #expand {
   color: black;
 }

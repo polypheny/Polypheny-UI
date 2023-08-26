@@ -64,7 +64,7 @@
                              *ngIf="_types.supportsPrecision(updateColumn.controls['dataType'].value)">
                             <div class="input-group-prepend">
                                 <label for="precision"
-                                       class="input-group-text">{{_types.precisionPlaceholder(updateColumn.controls['dataType'].value)}}</label>
+                                       class="input-group-text">{{_types.precisionPlaceholder( updateColumn.controls['dataType'].value )}}</label>
                             </div>
                             <input type="number"
                                    [placeholder]="_types.precisionPlaceholder(updateColumn.controls['dataType'].value)"
@@ -159,7 +159,7 @@
                     <td>{{col.dataType}}</td>
                     <td>{{col.collectionsType}}</td>
                     <td>
-                        <span *ngIf="col.precision">{{_types.precisionPlaceholder(col.dataType)}}
+                        <span *ngIf="col.precision">{{_types.precisionPlaceholder( col.dataType )}}
                             : {{col.precision}}</span>
                         <span *ngIf="col.scale">scale: {{col.scale}}</span>
                         <span *ngIf="col.dimension">dimension: {{col.dimension}}</span>
@@ -182,7 +182,7 @@
                     <td>{{col.dataType}}</td>
                     <td>{{col.collectionsType}}</td>
                     <td>
-                        <span *ngIf="col.precision">{{_types.precisionPlaceholder(col.dataType)}}
+                        <span *ngIf="col.precision">{{_types.precisionPlaceholder( col.dataType )}}
                             : {{col.precision}}</span>
                         <span *ngIf="col.scale">scale: {{col.scale}}</span>
                         <span *ngIf="col.dimension">dimension: {{col.dimension}}</span>
@@ -230,7 +230,7 @@
                          *ngIf="_types.supportsPrecision(createColumn.dataType)">
                         <div class="input-group-prepend">
                             <label for="createPrecision"
-                                   class="input-group-text">{{_types.precisionPlaceholder(createColumn.dataType)}}</label>
+                                   class="input-group-text">{{_types.precisionPlaceholder( createColumn.dataType )}}</label>
                         </div>
                         <input type="number" [placeholder]="_types.precisionPlaceholder(createColumn.dataType)"
                                class="form-control form-control-sm" id="createPrecision"
@@ -375,7 +375,7 @@
     </c-col>
 
     <c-col class="col-lg-12"
-         *ngIf="foreignKeys && foreignKeys.length > 0 && !(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
+           *ngIf="foreignKeys && foreignKeys.length > 0 && !(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
         <hr>
         <h5>Foreign key</h5>
         <table class="table table-hover table-striped">
@@ -420,10 +420,10 @@
             </thead>
             <tbody>
             <tr>
-                <td>{{getOrNull(materializedInfo, 0)}}</td>
-                <td>{{getOrNull(materializedInfo, 1)}}</td>
-                <td>{{getOrNull(materializedInfo, 2)}}</td>
-                <td>{{getOrNull(materializedInfo, 3)}}</td>
+                <td>{{getOrNull( materializedInfo, 0 )}}</td>
+                <td>{{getOrNull( materializedInfo, 1 )}}</td>
+                <td>{{getOrNull( materializedInfo, 2 )}}</td>
+                <td>{{getOrNull( materializedInfo, 3 )}}</td>
             </tr>
             </tbody>
         </table>
@@ -519,14 +519,14 @@
                                                    (click)="selectedStore = store">{{store.uniqueName}}</a></li>
                         </ng-container>
                         <li *ngIf="(getAddableStores()|async).length === 0" role="menuitem"><a class="dropdown-item disabled"
-                                                                                       [routerLink]="[]">no stores
+                                                                                               [routerLink]="[]">no stores
                             available</a></li>
                     </ul>
                 </div>
                 <button class="btn btn-primary btn-sm" (click)="initPlacementModal('ADD')">add</button>
             </div>
         </div>
-        <table class="table table-hover table-striped">
+        <table class="table table-hover table-striped" cTable>
             <thead>
             <tr>
                 <th>Store</th>
@@ -541,8 +541,8 @@
                 <td>{{placement.adapterId}}</td>
                 <td>{{placement.adapterId}}</td>
                 <td>
-                    <ng-container *ngFor="let p of store.columnPlacements; let isLast = last">
-                        <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{p.columnName}}</span>{{isLast ? '' : ', '}}
+                    <ng-container *ngFor="let p of _catalog.getAllocColumns(placement.id) | async; let isLast = last">
+                        <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{ _catalog.getColumn(p.id)}}</span>{{isLast ? '' : ', '}}
                     </ng-container>
                     <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn"
                           (click)="initPlacementModal('MODIFY', store, store.columnPlacements)"></span>
@@ -654,7 +654,7 @@
                             [disabled]="isAddingPlacement">Close
                     </button>
                     <button type="submit" class="btn btn-primary" (click)="addPlacement()"
-                            [disabled]="isAddingPlacement">{{titleCase(placementMethod)}} placement
+                            [disabled]="isAddingPlacement">{{titleCase( placementMethod )}} placement
                     </button>
                 </div>
             </div><!-- /.modal-content -->

@@ -32,20 +32,24 @@ export class FileUploaderComponent implements OnInit {
   loadPlugins() {
     this.isLoading = true;
     this.uploadProgress = 0;
-    this._plugin.loadPlugins(this.files).subscribe(res => {
-      this.files = null;
-      this.isLoading = false;
-      this.loadPage();
-    }, err => {
-      console.log(err);
-      this._toast.error(err.message);
-      this.isLoading = false;
+    this._plugin.loadPlugins(this.files).subscribe({
+      next: res => {
+        this.files = null;
+        this.isLoading = false;
+        this.loadPage();
+      }, error: err => {
+        console.log(err);
+        this._toast.error(err.message);
+        this.isLoading = false;
+      }
     });
-
   }
 
 
-  removeFile(file: File) {
+  removeFile(file
+                 :
+                 File
+  ) {
     this.files = this.files.filter(f => f.name !== file.name);
   }
 

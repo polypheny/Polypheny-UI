@@ -21,7 +21,7 @@ import {
     MonitoringRequest,
     QueryRequest,
     RelAlgRequest,
-    Schema,
+    Namespace,
     SchemaRequest,
     StatisticRequest,
     TableRequest
@@ -477,8 +477,8 @@ export class CrudService {
     /**
      * Send a request to either create or drop a schema
      */
-    createOrDropSchema(schema: Schema) {
-        return this._http.post(`${this.httpUrl}/schemaRequest`, schema, this.httpOptions);
+    createOrDropNamespace(namespace: Namespace) {
+        return this._http.post(`${this.httpUrl}/namespaceRequest`, namespace, this.httpOptions);
     }
 
     /**

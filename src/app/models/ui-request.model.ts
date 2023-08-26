@@ -322,7 +322,7 @@ export class ConstraintRequest {
 /**
  * Send request to either create or drop a schema
  */
-export class Schema {
+export class Namespace {
   private name: string;
   private type: string;//todo enum
   private store: string;
