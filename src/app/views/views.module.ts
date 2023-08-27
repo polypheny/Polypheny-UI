@@ -47,15 +47,15 @@ import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-e
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
 import {
-  BorderDirective, ButtonDirective,
+  BorderDirective, ButtonCloseDirective, ButtonDirective,
   CardBodyComponent,
   CardComponent,
   CardFooterComponent,
   CardHeaderComponent,
   ColComponent, ColDirective,
-  ContainerComponent, DropdownComponent, DropdownMenuDirective, DropdownToggleDirective, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormFeedbackComponent, FormSelectDirective,
+  ContainerComponent, DropdownComponent, DropdownMenuDirective, DropdownToggleDirective, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormFeedbackComponent, FormSelectDirective, FormTextDirective,
   GutterDirective,
-  HeaderComponent, InputGroupComponent, InputGroupTextDirective,
+  HeaderComponent, InputGroupComponent, InputGroupTextDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalDialogComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective,
   RowComponent, RowDirective, TableDirective
 } from '@coreui/angular';
 
@@ -103,7 +103,17 @@ import {
     FormCheckInputDirective,
     DropdownComponent,
     DropdownToggleDirective,
-    DropdownMenuDirective
+    DropdownMenuDirective,
+    FormTextDirective,
+    ModalComponent,
+    ModalContentComponent,
+    ModalDialogComponent,
+    ModalHeaderComponent,
+    ModalBodyComponent,
+    ModalFooterComponent,
+    ModalTitleDirective,
+    ButtonCloseDirective,
+    ModalToggleDirective
   ],
     declarations: [
         EditColumnsComponent,

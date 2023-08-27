@@ -232,25 +232,26 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }
     const request = new EditTableRequest(this.namespace.value.id, null, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore);
     this.creatingTable = true;
-    this._crud.createTable(request).subscribe(
-        (result: RelationalResult) => {
-          if (result.error) {
-            this._toast.exception(result, 'Could not generate table:');
-          } else {
-            this._toast.success('Generated table ' + request.entityName, result.generatedQuery);
-            this.newColumns.clear();
-            this.counter = 0;
-            this.newColumns.set(this.counter++, new UiColumnDefinition('', true, false, INITIAL_TYPE, '', null, null));
-            this.newTableName = '';
-            this.selectedStore = null;
-            this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
-          }
-          this._catalog.updateIfNecessary();
-        }, err => {
-          this._toast.error('Could not generate table');
-          console.log(err);
+    console.log(request);
+    this._crud.createTable(request).subscribe({
+      next: (result: RelationalResult) => {
+        if (result.error) {
+          this._toast.exception(result, 'Could not generate table:');
+        } else {
+          this._toast.success('Generated table ' + request.entityName, result.generatedQuery);
+          this.newColumns.clear();
+          this.counter = 0;
+          this.newColumns.set(this.counter++, new UiColumnDefinition('', true, false, INITIAL_TYPE, '', null, null));
+          this.newTableName = '';
+          this.selectedStore = null;
+          this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
         }
-    ).add(() => this.creatingTable = false);
+        this._catalog.updateIfNecessary();
+      }, error: err => {
+        this._toast.error('Could not generate table');
+        console.log(err);
+      }
+    }).add(() => this.creatingTable = false);
   }
 
   renameTable(table: Table) {

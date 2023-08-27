@@ -4,9 +4,10 @@ import {WebuiSettingsService} from './webui-settings.service';
 import {AllocationColumnModel, AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, AssetsModel, CatalogState, ColumnModel, ConstraintModel, EntityModel, EntityType, FieldModel, IdEntity, KeyModel, LogicalSnapshotModel, NamespaceModel} from '../models/catalog.model';
 import {NamespaceType} from '../models/ui-request.model';
 import {SidebarNode} from '../models/sidebar-node.model';
-import {BehaviorSubject, combineLatest, combineLatestWith, Observable} from 'rxjs';
+import {BehaviorSubject, combineLatestWith, firstValueFrom, Observable, Subject} from 'rxjs';
 import {DbmsTypesService} from './dbms-types.service';
-import {map} from 'rxjs/operators';
+import {map, mergeMap} from 'rxjs/operators';
+import {Adapter} from '../views/adapters/adapter.model';
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +36,8 @@ export class CatalogService {
   public readonly allocations: BehaviorSubject<Map<number, AllocationEntityModel>> = new BehaviorSubject(new Map<number, AllocationEntityModel>());
   public readonly allocationColumns: BehaviorSubject<Map<number, AllocationColumnModel>> = new BehaviorSubject(new Map());
 
+  public readonly adapters: BehaviorSubject<Map<number, Adapter>> = new BehaviorSubject(new Map());
+
   constructor(
       private _http: HttpClient,
       private _settings: WebuiSettingsService,
@@ -47,8 +50,9 @@ export class CatalogService {
     });
   }
 
-  updateSnapshot() {
-    return new Observable(observer => this._http.get(`${this.httpUrl}/getSnapshot`).subscribe((snapshot: LogicalSnapshotModel) => {
+  updateSnapshot(): Observable<CatalogService> {
+    console.log("updating")
+    return this._http.get(`${this.httpUrl}/getSnapshot`).pipe(map((snapshot: LogicalSnapshotModel) => {
       this.snapshot = snapshot;
       console.log(this.snapshot);
 
@@ -63,15 +67,11 @@ export class CatalogService {
       this.partitions.next(this.toIdMap(this.snapshot.partitions));
       this.allocations.next(this.toIdMap(this.snapshot.allocations));
       this.allocationColumns.next(this.toIdMap(this.snapshot.allocColumns));
+      this.adapters.next(this.toIdMap(this.snapshot.adapters));
 
       this.listener.next(this); // notify
 
-      observer.next();
-
-      return {
-        unsubscribe() {
-        }
-      };
+      return this;
     }));
   }
 
@@ -88,18 +88,13 @@ export class CatalogService {
   }
 
   updateIfNecessary(): Observable<CatalogService> {
-    return new Observable(observer => this._http.get(`${this.httpUrl}/getCurrentSnapshot`).subscribe((id: number) => {
-
+    const sub: Subject<CatalogService> = new Subject();
+    this._http.get(`${this.httpUrl}/getCurrentSnapshot`).subscribe((id: number) => {
       this.updateSnapshot().subscribe(() => {
-        observer.next(this);
+        sub.next(this);
       });
-
-      return {
-        unsubscribe() {
-        }
-      };
-    }));
-
+    });
+    return sub.pipe();
   }
 
   getSchemaTree(routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: NamespaceType[] = [NamespaceType.RELATIONAL, NamespaceType.DOCUMENT, NamespaceType.GRAPH]) {
@@ -327,6 +322,10 @@ export class CatalogService {
   }
 
   getColumn(id: number) {
-    return this.wrapBehaviorSubject(() => Array.from(this.allocationColumns.value.values()).filter( c =>  c.id === id))[0];
+    return this.wrapBehaviorSubject(() => Array.from(this.allocationColumns.value.values()).filter(c => c.id === id))[0];
+  }
+
+  getAdapter(adapterId: number) {
+    return this.wrapBehaviorSubject(() => this.adapters.value.get(adapterId));
   }
 }

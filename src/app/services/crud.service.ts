@@ -27,12 +27,13 @@ import {
     TableRequest
 } from '../models/ui-request.model';
 import {DockerSettings} from '../models/docker.model';
-import {ForeignKey} from '../views/uml/uml.model';
+import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {Adapter} from '../views/adapters/adapter.model';
 import {QueryInterface} from '../views/query-interfaces/query-interfaces.model';
 import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
 import {WebSocket} from './webSocket';
+import {Observable} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -399,8 +400,8 @@ export class CrudService {
      * the list of all tables of a schema with their columns
      * and a list of all the foreign keys of a schema
      */
-    getUml(request: EditTableRequest) {
-        return this._http.post(`${this.httpUrl}/getUml`, request, this.httpOptions);
+    getUml(request: EditTableRequest): Observable<Uml> {
+        return <Observable<Uml>> this._http.post(`${this.httpUrl}/getUml`, request, this.httpOptions);
     }
 
     /**

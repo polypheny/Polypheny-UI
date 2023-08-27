@@ -1,9 +1,10 @@
 import {AvailableIndexMethod, ResultException} from '../../components/data-view/models/result-set.model';
+import {IdEntity} from '../../models/catalog.model';
 
-export interface Adapter {
+export interface Adapter extends IdEntity{
     adapterId: number;
     uniqueName: string;
-    adapterName;
+    adapterName: string;
     adapterSettings: AdapterSetting[];
     currentSettings: Map<string, string>;
     columnPlacements: CatalogColumnPlacement[];

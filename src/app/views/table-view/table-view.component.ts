@@ -59,7 +59,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
     }
 
     this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);
-    const sub = this.webSocket.onReconnect().subscribe(
+    const sub = this.webSocket.reconnecting.subscribe(
         b => {
           if (b) {
             this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);

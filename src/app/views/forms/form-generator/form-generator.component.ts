@@ -9,7 +9,6 @@ import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
-import {isEqual} from 'lodash';
 import {PluginStatus} from '../../../models/ui-request.model';
 
 @Component({
@@ -81,7 +80,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
           c.value = update.value;
         } else {//has been edited
           //if incoming value is different. use lodash.isEqual for arrays and == comparator for values
-          if ((Array.isArray(update.value) && !isEqual(this.form.controls[c.key].value, update.value)) ||
+          if ((Array.isArray(update.value) && JSON.stringify(this.form.controls[c.key].value) !== JSON.stringify(update.value)) ||
               (!Array.isArray(update.value) && this.form.controls[c.key].value !== update.value)) {
             this._toast.warn(
                 'The setting with id ' + c.key + ' has been changed to the new value "' + update.value + '" by the server. If you save, these changes will be overwritten.',

@@ -21,5 +21,9 @@
       "hammerjs"
     ],
     "useDefineForClassFields": false
+  },
+  "exclude": ["node_modules"],
+  "angularCompilerOptions": {
+    "allowSyntheticDefaultImports": true
   }
 }

@@ -22,7 +22,8 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let col of oldColumns | async | value; let i = index" (dblclick)="editCol(i, col, $event)"
+
+            <tr *ngFor="let col of getArray((oldColumns | async).values()); let i = index" (dblclick)="editCol(i, col, $event)"
                 [ngClass]="{'editing': i === editColumn}">
                 <ng-container *ngIf="i === editColumn && !(isEntityType(EntityType.MATERIALIZED_VIEW) | async)"
                               [formGroup]="updateColumn">
@@ -42,14 +43,6 @@
                                 formControlName="dataType" (change)="onTypeChange()">
                             <option *ngFor="let t of types" [value]="t.name">{{t.name}}</option>
                         </select>
-                        <!--<input class="form-control form-control-sm"
-                               [typeahead]="types"
-                               [typeaheadScrollable]="true"
-                               [typeaheadOptionsInScrollableView]="5"
-                               [(ngModel)]="d1[2]"
-                               [ngModelOptions]="{standalone: true}"
-                               id="udt_name"
-                               [attr.data-before]="d1[2]">-->
                     </td>
                     <td>
                         <select class="form-control form-control-sm" id="collectionsType"
@@ -106,8 +99,7 @@
 
                     </td>
                     <td>
-                        <!--<input type="text" [(ngModel)]="col.defaultValue" class="form-control form-control-sm" id="defaultValue" [attr.data-before]="col.defaultValue">-->
-                        <div class="input-group">
+                        <c-input-group>
                             <input type="hidden" formControlName="oldName">
                             <ng-container [ngSwitch]="updateColumn.controls['dataType'].value.toLowerCase()">
                                 <input *ngSwitchCase="_types.numericTypes().includes( updateColumn.controls['dataType'].value.toLowerCase() ) && updateColumn.controls['collectionsType'].value !== 'ARRAY' ? updateColumn.controls['dataType'].value.toLowerCase() : ''"
@@ -116,7 +108,7 @@
                                        [ngClass]="validate(updateColumn.controls['defaultValue'].value)">
                                 <ng-container
                                         *ngSwitchCase="_types.booleanTypes().includes( updateColumn.controls['dataType'].value.toLowerCase() ) ? updateColumn.controls['dataType'].value.toLowerCase() : ''">
-                                    <div class="form-check form-check-inline">
+                                    <div cFormText class="form-check form-check-inline">
                                         <label *ngIf="col.defaultValue === null" class="form-check-label disabled"
                                                [for]="'default'+col.name">null&nbsp;</label>
                                         <label *ngIf="col.defaultValue === true" class="form-check-label"
@@ -135,7 +127,7 @@
                                         (click)="triggerDefaultNull()">null
                                 </button>
                             </div>
-                        </div>
+                        </c-input-group>
                     </td>
 
                     <td>
@@ -172,7 +164,6 @@
                     </td>
                 </ng-container>
 
-
                 <ng-container *ngIf="i !== editColumn ">
                     <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
                     <td>{{col.name}}</td>
@@ -185,8 +176,8 @@
                         <span *ngIf="col.precision">{{_types.precisionPlaceholder( col.dataType )}}
                             : {{col.precision}}</span>
                         <span *ngIf="col.scale">scale: {{col.scale}}</span>
-                        <span *ngIf="col.dimension">dimension: {{col.dimension}}</span>
-                        <span *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
+                        <span *ngIf="col.dimension !== -1">dimension: {{col.dimension}}</span>
+                        <span *ngIf="col.cardinality !== -1">cardinality: {{col.cardinality}}</span>
                     </td>
                     <td>{{col.defaultValue}}</td>
                     <td class="delete">
@@ -198,36 +189,29 @@
             <tr *ngIf="!(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
                 <td class="pk"></td>
                 <td>
-                    <input type="text" class="form-control form-control-sm" name="columnName" placeholder="column name"
+                    <input cFormControl type="text" class="form-control form-control-sm" name="columnName" placeholder="column name"
                            [(ngModel)]="createColumn.name" [ngClass]="columnValidation(createColumn.name)">
                 </td>
                 <td>
-                    <input type="checkbox" class="" [(ngModel)]="createColumn.nullable"
+                    <input cFormCheckInput type="checkbox" class="" [(ngModel)]="createColumn.nullable"
                            [checked]="createColumn.nullable" (change)="changeNullable(createColumn)">
                 </td>
                 <td>
-                    <select class="form-control form-control-sm" [(ngModel)]="createColumn.dataType"
+                    <select cSelect size="sm" [(ngModel)]="createColumn.dataType"
                             (change)="onTypeChange2( createColumn )">
                         <option *ngFor="let t of types" [value]="t.name">{{t.name}}</option>
                     </select>
-                    <!--<input class="form-control form-control-sm" placeholder="type"
-                           [typeahead]="types"
-                           [dropup]="true"
-                           [typeaheadScrollable]="true"
-                           [typeaheadOptionsInScrollableView]="5"
-                           [(ngModel)]="test"
-                           [ngModelOptions]="{standalone: true}">-->
                 </td>
                 <td>
-                    <select class="form-control form-control-sm" [(ngModel)]="createColumn.collectionsType">
+                    <select cSelect class="form-control form-control-sm" [(ngModel)]="createColumn.collectionsType">
                         <option value="">none</option>
                         <option value="ARRAY">ARRAY</option>
                     </select>
                 </td>
                 <td>
                     <!-- precision -->
-                    <div class="input-group input-group-sm mt-1"
-                         *ngIf="_types.supportsPrecision(createColumn.dataType)">
+                    <c-input-group sizing="sm" class="mt-1"
+                                   *ngIf="_types.supportsPrecision(createColumn.dataType)">
                         <div class="input-group-prepend">
                             <label for="createPrecision"
                                    class="input-group-text">{{_types.precisionPlaceholder( createColumn.dataType )}}</label>
@@ -235,37 +219,30 @@
                         <input type="number" [placeholder]="_types.precisionPlaceholder(createColumn.dataType)"
                                class="form-control form-control-sm" id="createPrecision"
                                [(ngModel)]="createColumn.precision">
-                    </div>
+                    </c-input-group>
                     <!-- scale -->
-                    <div class="input-group input-group-sm mt-1" *ngIf="_types.supportsScale(createColumn.dataType)">
-                        <div class="input-group-prepend">
-                            <label for="createScale" class="input-group-text">scale</label>
-                        </div>
-                        <input type="number" placeholder="scale" class="form-control form-control-sm" id="createScale"
+                    <c-input-group sizing="sm" class="mt-1" *ngIf="_types.supportsScale(createColumn.dataType)">
+                        <span cInputGroupText class="input-group-text">scale</span>
+                        <input cFormControl type="number" placeholder="scale" id="createScale"
                                [(ngModel)]="createColumn.scale">
-                    </div>
+                    </c-input-group>
 
                     <!-- dimension -->
-                    <div class="input-group input-group-sm mt-1" *ngIf="createColumn.collectionsType === 'ARRAY'">
-                        <div class="input-group-prepend">
-                            <label for="createDim" class="input-group-text">dimension</label>
-                        </div>
-                        <input id="newDim" type="number" placeholder="dimension" class="form-control form-control-sm"
+                    <c-input-group sizing="sm" class="mt-1" *ngIf="createColumn.collectionsType === 'ARRAY'">
+                        <span cInputGroupText>dimension</span>
+                        <input cFormControl id="newDim" type="number" placeholder="dimension"
                                id="createDim" [(ngModel)]="createColumn.dimension">
-                    </div>
+                    </c-input-group>
 
                     <!-- cardinality -->
-                    <div class="input-group input-group-sm mt-1" *ngIf="createColumn.collectionsType === 'ARRAY'">
-                        <div class="input-group-prepend">
-                            <label for="createCard" class="input-group-text">cardinality</label>
-                        </div>
-                        <input id="createCard" type="number" placeholder="dimension"
-                               class="form-control form-control-sm" [(ngModel)]="createColumn.cardinality">
-                    </div>
+                    <c-input-group sizing="sm" class="mt-1" *ngIf="createColumn.collectionsType === 'ARRAY'">
+                        <span cInputGroupText>cardinality</span>
+                        <input cFormControl id="createCard" type="number" placeholder="dimension" [(ngModel)]="createColumn.cardinality">
+                    </c-input-group>
 
                 </td>
                 <td>
-                    <div class="input-group">
+                    <c-input-group>
                         <ng-container [ngSwitch]="createColumn.dataType.toLowerCase()">
                             <input *ngSwitchCase="_types.numericTypes().includes( createColumn.dataType.toLowerCase() ) && createColumn.collectionsType !== 'ARRAY' ? createColumn.dataType.toLowerCase() : ''"
                                    type="number" inputmode="decimal" placeholder="default value"
@@ -275,28 +252,25 @@
                             <ng-container
                                     *ngSwitchCase="_types.booleanTypes().includes( createColumn.dataType.toLowerCase() ) ? createColumn.dataType.toLowerCase() : ''">
                                 <div class="form-check form-check-inline">
-                                    <label *ngIf="createColumn.defaultValue === null" class="form-check-label disabled"
-                                           [for]="'default'+createColumn.name">null&nbsp;</label>
-                                    <label *ngIf="createColumn.defaultValue === true" class="form-check-label"
-                                           [for]="'default'+createColumn.name">true&nbsp;</label>
-                                    <label *ngIf="createColumn.defaultValue === false" class="form-check-label"
-                                           [for]="'default'+createColumn.name">false&nbsp;</label>
-                                    <input type="checkbox" class="form-check-input"
+                                    <span *ngIf="createColumn.defaultValue === null" class="form-check-label disabled">null&nbsp;</span>
+                                    <span *ngIf="createColumn.defaultValue === true" class="form-check-label">true&nbsp;</span>
+                                    <span *ngIf="createColumn.defaultValue === false" class="form-check-label">false&nbsp;</span>
+                                    <input cFormCheckInput type="checkbox" class="form-check-input"
                                            [(ngModel)]="createColumn.defaultValue" [id]="'default'+createColumn.name"
                                            [disabled]="createColumn.defaultValue === null">
                                 </div>
                             </ng-container>
-                            <input *ngSwitchDefault type="text" placeholder="default value"
+                            <input cFormControl *ngSwitchDefault type="text" placeholder="default value"
                                    class="form-control form-control-sm" [(ngModel)]="createColumn.defaultValue"
                                    [disabled]="createColumn.defaultValue === null">
                         </ng-container>
                         <div class="input-group-append">
-                            <button class="btn btn-sm"
+                            <button cButton size="sm"
                                     [ngClass]="{'btn-primary': createColumn.defaultValue ===null, 'btn-light': createColumn.defaultValue !== null}"
                                     (click)="triggerDefaultNull( createColumn )">null
                             </button>
                         </div>
-                    </div>
+                    </c-input-group>
                 </td>
                 <td>
                     <a [routerLink]="[]" class="btn btn-primary" id="addColumnBtn" (click)="addColumn()">+</a>
@@ -310,31 +284,31 @@
     <c-col class="col-lg-12" *ngIf="!(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
         <hr>
         <h5>Constraints</h5>
-        <c-row class="row">
-            <c-col class="col-6">
-                <div class="card" style="min-height: 153px">
-                    <div class="card-header">
+        <c-row>
+            <c-col size="6">
+                <c-card class="h-100" style="min-height: 153px">
+                    <c-card-header>
                         <span>Update primary key</span>
-                    </div>
-                    <div class="card-body">
+                    </c-card-header>
+                    <c-card-body>
                         <div class="constraint-columns">
                             <div class="form-check form-check-inline" *ngFor="let c of newPrimaryKey; let j = index">
                                 <input type="checkbox" class="form-check-input" [id]="'pkcol'+j"
                                        [(ngModel)]="c.primary">
                                 <label class="form-check-label" [for]="'pkcol'+j">{{c.name}}</label>
                             </div>
-                            <button class="btn btn-sm btn-primary add-constraint" (click)="updatePrimaryKey()">update
+                            <button cButton size="sm" color="primary" class="add-constraint" (click)="updatePrimaryKey()">update
                             </button>
                         </div>
-                    </div>
-                </div>
+                    </c-card-body>
+                </c-card>
             </c-col>
-            <c-col class="col-6">
-                <div class="card" style="min-height: 153px">
-                    <div class="card-header">
+            <c-col size=6>
+                <c-card class="h-100" style="min-height: 153px">
+                    <c-card-header>
                         <span>Add unique constraint</span>
-                    </div>
-                    <div class="card-body">
+                    </c-card-header>
+                    <c-card-body>
                         <div class="form-inline mb-2">
                             <div class="form-group">
                                 <label for="uniqueName">Constraint name</label>
@@ -351,11 +325,11 @@
                             <button class="btn btn-sm btn-primary add-constraint" (click)="addUniqueConstraint()">add
                             </button>
                         </div>
-                    </div>
-                </div>
+                    </c-card-body>
+                </c-card>
             </c-col>
         </c-row>
-        <table class="table table-hover table-striped" *ngIf="constraints && constraints > 0">
+        <table cTable class="table table-hover table-striped" *ngIf="constraints && constraints > 0">
             <thead>
             <tr>
                 <th *ngFor="let h of constraints | async">{{h.name}}</th>
@@ -374,7 +348,7 @@
         </table>
     </c-col>
 
-    <c-col class="col-lg-12"
+    <c-col lg="12"
            *ngIf="foreignKeys && foreignKeys.length > 0 && !(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
         <hr>
         <h5>Foreign key</h5>
@@ -406,7 +380,7 @@
         </table>
     </c-col>
 
-    <c-col class="col-lg-12" *ngIf="(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
+    <c-col size="12" *ngIf="(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
         <hr>
         <h5>Freshness</h5>
         <table class="table table-hover table-striped">
@@ -432,14 +406,14 @@
         <button type="submit" class="btn btn-primary btn-sm" (click)="updateMaterialized()">Update Materialized</button>
     </c-col>
 
-    <c-col class="col-lg-12">
+    <c-col lg="12">
         <hr>
         <h5>Indexes</h5>
-        <div class="card">
-            <div class="card-header">
+        <c-card class="card">
+            <c-card-header>
                 <span>Add index</span>
-            </div>
-            <div class="card-body">
+            </c-card-header>
+            <c-card-body>
                 <form [formGroup]="newIndexForm" (submit)="addIndex()">
                     <div class="form-inline mb-2">
                         <div class="form-group">
@@ -474,15 +448,15 @@
                                    [(ngModel)]="newIndexCols[c.key]" [ngModelOptions]="{standalone: true}">
                             <label class="form-check-label" [for]="'indexCol'+j">{{c.key}}</label>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-sm"
+                        <button cButton type="submit" class="btn btn-primary btn-sm"
                                 [ngClass]="{'progress-bar-striped progress-bar-animated': addingIndex}"
                                 [disabled]="addingIndex || !availableStoresForIndexes || availableStoresForIndexes.length == 0">
                             create
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </c-card-body>
+        </c-card>
         <table class="table table-hover table-striped" *ngIf="indexes && indexes.data.length > 0">
             <thead>
             <tr>
@@ -501,7 +475,7 @@
         </table>
     </c-col>
 
-    <c-col class="col-lg-12" *ngIf="placements">
+    <c-col lg="12" *ngIf="placements">
         <hr>
         <div class="mb-3" style="position: relative">
             <h5 style="display: inline">Data placements</h5>
@@ -523,7 +497,7 @@
                             available</a></li>
                     </ul>
                 </div>
-                <button class="btn btn-primary btn-sm" (click)="initPlacementModal('ADD')">add</button>
+                <button class="btn btn-primary btn-sm" (click)="initPlacementModal('ADD', null)">add</button>
             </div>
         </div>
         <table class="table table-hover table-striped" cTable>
@@ -538,50 +512,50 @@
             </thead>
             <tbody>
             <tr *ngFor="let placement of placements | async; let i = index">
-                <td>{{placement.adapterId}}</td>
-                <td>{{placement.adapterId}}</td>
+                <td>{{ (_catalog.getAdapter( placement.adapterId ) | async)?.uniqueName}}</td>
+                <td>{{(_catalog.getAdapter( placement.adapterId ) | async)?.adapterName}}</td>
                 <td>
                     <ng-container *ngFor="let p of _catalog.getAllocColumns(placement.id) | async; let isLast = last">
-                        <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{ _catalog.getColumn(p.id)}}</span>{{isLast ? '' : ', '}}
+                        <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{ _catalog.getColumn( p.id )}}</span>{{isLast ? '' : ', '}}
                     </ng-container>
-                    <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn"
-                          (click)="initPlacementModal('MODIFY', store, store.columnPlacements)"></span>
+                    <button cButton size="sm" class="cui-pencil ml-2 modify-placement-btn"
+                            (click)="initPlacementModal('MODIFY', placement)"></button>
                 </td>
-                <td><!-- *ngIf="isPartitioned()" -->
+                <!--<td>
                     <span *ngIf="!store.partitionKeys || store.partitionKeys.length === 0"
                           class="font-italic">none</span>
                     <ng-container *ngFor="let pKey of store.partitionKeys; let isLast = last">
                         <span>{{placements.partitionNames[pKey]}}</span>{{isLast ? '' : ', '}}
                     </ng-container>
                     <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn"
-                          (click)="initPartitioningModal( store )"></span>
-                </td>
+                          (click)="initPartitioningModal( placement.adapterId )"></span>
+                </td>-->
                 <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
-                <ng-container *ngIf="placements.stores.length > 1">
+                <!--<ng-container *ngIf="(placements | async).length > 1">
                     <td class="delete">
-                        <app-delete-confirm (delete)="dropPlacement(store)"></app-delete-confirm>
+                        <app-delete-confirm (delete)="dropPlacement( placement.adapterId )"></app-delete-confirm>
                     </td>
-                </ng-container>
+                </ng-container>-->
                 <!-- don't show delete icon if there is only one placement --->
-                <ng-container *ngIf="placements.stores.length < 2">
+                <!-- <ng-container *ngIf="placements.stores.length < 2">
                     <td></td>
-                </ng-container>
+                </ng-container>-->
             </tr>
             </tbody>
         </table>
 
         <div class="mb-3" style="display: flex; justify-content: space-between;" *ngIf="isPartitioned()">
-            <span>PartitionType: {{placements.stores[0].partitionType}}</span>
+            <!-- <span>PartitionType: {{placements.stores[0].partitionType}}</span>
             <button class="btn btn-warning btn-sm" (click)="mergePartitions()">
                 merge partitions
                 <span *ngIf="isMergingPartitions" class="spinner-border spinner-border-sm" role="status"
                       aria-hidden="true"></span>
-            </button>
+            </button>-->
         </div>
 
-        <div class="card" *ngIf="!isPartitioned() && !(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
-            <div class="card-header">Horizontal partitioning</div>
-            <div class="card-body">
+        <c-card class="card" *ngIf="!isPartitioned() && !(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
+            <c-card-header>Horizontal partitioning</c-card-header>
+            <c-card-body>
                 <p>This table is not yet horizontally partitioned.</p>
                 <div class="form-inline mb-3">
                     <div class="form-group">
@@ -609,72 +583,63 @@
                         <button class="btn btn-primary btn-sm" (click)="getPartitionFunctionModel()">partition</button>
                     </div>
                 </div>
-            </div>
-        </div>
+            </c-card-body>
+        </c-card>
 
     </c-col>
 
 </c-row>
 
-<div *ngIf="!(isEntityType(EntityType.SOURCE) | async)" bsModal #placementModal="bs-modal" class="modal fade"
-     tabindex="-1" role="dialog"
-     aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="clearPlacementModal()">
+<c-modal *ngIf="!(isEntityType(EntityType.SOURCE) | async)" [visible]="placementModal" id="placementModal">
     <form [formGroup]="columnPlacement" *ngIf="columnPlacement">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Column placements</h4>
-                    <button type="button" class="close" (click)="placementModal.hide()" aria-label="Close"
-                            [disabled]="isAddingPlacement">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+        <c-modal-content>
+            <c-modal-header>
+                <h4 cModalTitle>Column Placements</h4>
+                <button (click)="placementModal = false" [cModalToggle]="placementModal.id" cButtonClose></button>
+            </c-modal-header>
+            <c-modal-body *ngIf="columnPlacement && selectedStore">
+                Store: {{selectedStore.uniqueName}}
+                <p>Select the columns that you want to be part of the placement.</p>
+                <div class="form-group">
+                    <a [routerLink]="[]" class="text-muted" (click)="selectAllColumns(true)">select all</a> - <a
+                        [routerLink]="[]" class="text-muted" (click)="selectAllColumns(false)">deselect all</a>
                 </div>
-                <div class="modal-body" *ngIf="columnPlacement && selectedStore">
-                    Store: {{selectedStore.uniqueName}}
-                    <p>Select the columns that you want to be part of the placement.</p>
-                    <div class="form-group">
-                        <a [routerLink]="[]" class="text-muted" (click)="selectAllColumns(true)">select all</a> - <a
-                            [routerLink]="[]" class="text-muted" (click)="selectAllColumns(false)">deselect all</a>
+                <div class="form-group">
+                    <div *ngFor="let col of oldColumns | async | keyvalue" class="form-check form-check-inline">
+                        <input type="checkbox" class="form-check-input" [id]="'colPlacement'+col"
+                               [formControlName]="col.value.name">
+                        <label [for]="'colPlacement'+col.value.name" class="form-check-label">{{col.value.name}}</label>
                     </div>
-                    <div class="form-group">
-                        <div *ngFor="let col of oldColumns | async | keyvalue" class="form-check form-check-inline">
-                            <input type="checkbox" class="form-check-input" [id]="'colPlacement'+col"
-                                   [formControlName]="col.value.name">
-                            <label [for]="'colPlacement'+col.value.name" class="form-check-label">{{col.value.name}}</label>
-                        </div>
-                    </div>
+                </div>
 
+            </c-modal-body>
+            <c-modal-footer style="position: relative">
+                <div class="progress-wrapper" *ngIf="isAddingPlacement">
+                    <progressbar type="info" [value]="0" [max]="100"
+                                 class="progress progress-bar progress-bar-striped progress-bar-animated"></progressbar>
                 </div>
-                <div class="modal-footer" style="position: relative">
-                    <div class="progress-wrapper" *ngIf="isAddingPlacement">
-                        <progressbar type="info" [value]="0" [max]="100"
-                                     class="progress progress-bar progress-bar-striped progress-bar-animated"></progressbar>
-                    </div>
-                    <button type="button" class="btn btn-secondary float-left" (click)="placementModal.hide()"
-                            [disabled]="isAddingPlacement">Close
-                    </button>
-                    <button type="submit" class="btn btn-primary" (click)="addPlacement()"
-                            [disabled]="isAddingPlacement">{{titleCase( placementMethod )}} placement
-                    </button>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </form>
-</div>
-
-<div *ngIf="!(isEntityType(EntityType.SOURCE) | async)" bsModal #partitioningModal="bs-modal" class="modal fade"
-     tabindex="-1" role="dialog"
-     aria-labelledby="myModalLabel" aria-hidden="true" (onHidden)="clearPartitioningModal()">
-    <!--<form [formGroup]="columnPlacement" *ngIf="columnPlacement">-->
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" *ngIf="selectedStore && partitionsToModify">
-            <div class="modal-header">
-                <h4 class="modal-title">Modify partitions</h4>
-                <button type="button" class="close" (click)="partitioningModal.hide()" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn btn-secondary float-left" (click)="placementModal.hide()"
+                        [disabled]="isAddingPlacement">Close
                 </button>
-            </div>
-            <div class="modal-body">
+                <button type="submit" class="btn btn-primary" (click)="addPlacement()"
+                        [disabled]="isAddingPlacement">{{ placementMethod | titlecase }} placement
+                </button>
+            </c-modal-footer>
+        </c-modal-content><!-- /.modal-content -->
+    </form>
+</c-modal>
+
+<c-modal *ngIf="!(isEntityType(EntityType.SOURCE) | async)" [visible]="partitioningModal" class="modal fade"
+         tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+    <!--<form [formGroup]="columnPlacement" *ngIf="columnPlacement">-->
+    <c-modal-dialog class="modal-dialog" role="document">
+        <c-modal-content class="modal-content" *ngIf="selectedStore && partitionsToModify">
+            <c-modal-header class="modal-header">
+                <h4 cModalTitle class="modal-title">Modify partitions</h4>
+                <button (click)="partitioningModal = false" cButtonClose></button>
+            </c-modal-header>
+            <c-modal-body class="modal-body">
                 Store: {{selectedStore.uniqueName}}
                 <p>Select the partitions that you want to be part of the new partitioning.</p>
                 <div class="form-group">
@@ -691,63 +656,61 @@
                 </div>
                 <span class="text-danger"
                       *ngIf="!validatePartitionModification()">Please select at least one partition</span>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary float-left" (click)="partitioningModal.hide()">Close
-                </button>
+            </c-modal-body>
+            <c-modal-footer class="modal-footer">
+                <button type="button" class="btn btn-secondary float-left" (click)="partitioningModal.hide()">Close</button>
                 <button type="submit" class="btn btn-primary" (click)="modifyPartitioning()"
                         [disabled]="!validatePartitionModification()">Modify
                 </button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
+            </c-modal-footer>
+        </c-modal-content><!-- /.modal-content -->
+    </c-modal-dialog><!-- /.modal-dialog -->
     <!--</form>-->
-</div>
+</c-modal>
 
-<div bsModal #partitionFunctionModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
-     aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" *ngIf="partitionFunctionParams">
-            <div class="modal-header">
-                <h4>{{partitionFunctionParams.title}}</h4>
-            </div>
-            <div class="modal-body">
-                <p>{{partitionFunctionParams.description}}</p>
-                <table class="table table-hover table-striped table-bordered" id="partitionParamsTable">
-                    <tr>
-                        <th *ngFor="let colName of partitionFunctionParams.columnNames">{{colName}}</th>
-                    </tr>
-                    <tr *ngFor="let col of partitionFunctionParams.rows">
-                        <td *ngFor="let row of col as PartitionFunctionColumn">
-                            <div class="partition-param-wrapper">
-                                <ng-container [ngSwitch]="row.type">
-                                    <span *ngSwitchCase="fieldTypes.LABEL">{{row.value}}</span>
-                                    <select *ngSwitchCase="fieldTypes.LIST" [(ngModel)]="row.value"
-                                            class="form-control form-control-sm" [disabled]="!row.modifiable"
-                                            [ngClass]="{'is-invalid': row.mandatory && !row.value}">
-                                        <option *ngFor="let option of row.options" [value]="option">{{option}}</option>
-                                    </select>
-                                    <input *ngSwitchCase="fieldTypes.INTEGER" type="number" [(ngModel)]="row.value"
-                                           class="form-control form-control-sm" [disabled]="!row.modifiable"
-                                           [ngClass]="{'is-invalid': row.mandatory && !row.value && row.value !== 0}">
-                                    <input *ngSwitchDefault type="text" [(ngModel)]="row.value"
-                                           class="form-control form-control-sm" [disabled]="!row.modifiable"
-                                           [ngClass]="{'is-invalid': row.mandatory && !row.value}">
-                                </ng-container>
-                                <span class="invalid-partition-param"
-                                      *ngIf="row.mandatory && !row.value && row.value !== 0">required</span>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary float-left" (click)="partitionFunctionModal.hide()">
-                    Close
-                </button>
-                <button type="submit" class="btn btn-primary" (click)="partitionTable()" [disabled]="">Partition
-                </button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div>
+<c-modal bsModal class="modal fade" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true" [visible]="partitionFunctionModal">
+    <c-modal-content *ngIf="partitionFunctionParams">
+        <c-modal-header>
+            <h4 cModalTitle>{{partitionFunctionParams.title}}</h4>
+            <button (click)="partitionFunctionModal = false" cButtonClose></button>
+        </c-modal-header>
+        <c-modal-body>
+            <p>{{partitionFunctionParams.description}}</p>
+            <table class="table table-hover table-striped table-bordered" id="partitionParamsTable">
+                <tr>
+                    <th *ngFor="let colName of partitionFunctionParams.columnNames">{{colName}}</th>
+                </tr>
+                <tr *ngFor="let col of partitionFunctionParams.rows">
+                    <td *ngFor="let row of col as PartitionFunctionColumn">
+                        <div class="partition-param-wrapper">
+                            <ng-container [ngSwitch]="row.type">
+                                <span *ngSwitchCase="fieldTypes.LABEL">{{row.value}}</span>
+                                <select *ngSwitchCase="fieldTypes.LIST" [(ngModel)]="row.value"
+                                        class="form-control form-control-sm" [disabled]="!row.modifiable"
+                                        [ngClass]="{'is-invalid': row.mandatory && !row.value}">
+                                    <option *ngFor="let option of row.options" [value]="option">{{option}}</option>
+                                </select>
+                                <input *ngSwitchCase="fieldTypes.INTEGER" type="number" [(ngModel)]="row.value"
+                                       class="form-control form-control-sm" [disabled]="!row.modifiable"
+                                       [ngClass]="{'is-invalid': row.mandatory && !row.value && row.value !== 0}">
+                                <input *ngSwitchDefault type="text" [(ngModel)]="row.value"
+                                       class="form-control form-control-sm" [disabled]="!row.modifiable"
+                                       [ngClass]="{'is-invalid': row.mandatory && !row.value}">
+                            </ng-container>
+                            <span class="invalid-partition-param"
+                                  *ngIf="row.mandatory && !row.value && row.value !== 0">required</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </c-modal-body>
+        <c-modal-footer>
+            <button type="button" class="btn btn-secondary float-left" (click)="partitionFunctionModal = false">
+                Close
+            </button>
+            <button type="submit" class="btn btn-primary" (click)="partitionTable()" [disabled]="">Partition
+            </button>
+        </c-modal-footer>
+    </c-modal-content><!-- /.modal-content -->
+</c-modal>

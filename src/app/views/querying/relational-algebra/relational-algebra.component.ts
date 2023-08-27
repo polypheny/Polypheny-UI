@@ -92,7 +92,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       this.makeSocketConnection();
     });
     this.subscriptions.add(sub1);
-    const sub2 = this.webSocket.onReconnect().subscribe(
+    const sub2 = this.webSocket.reconnecting.subscribe(
         b => {
           if (b) {
             this.getOperators();
