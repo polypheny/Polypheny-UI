@@ -24,6 +24,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     hasUnusedSessions = false;
     notebookPaths: string[] = [];
     isPreferredSession: boolean[] = [];
+    creating = false;
     deleting = false;
     serverStatus: StatusResponse;
     pluginLoaded = false;
@@ -111,9 +112,16 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     }
 
     createContainer(id: number) {
+        this.creating = true;
         this._notebooks.createContainer(id).subscribe(
-            res => this.startContainerModal.hide(),
-            err => console.log(err),
+            res => {
+                this.startContainerModal.hide();
+                this.creating = false;
+            },
+            err => {
+                this.creating = false;
+                console.log(err);
+            }
         ).add(() => this.getServerStatus());
     }
 

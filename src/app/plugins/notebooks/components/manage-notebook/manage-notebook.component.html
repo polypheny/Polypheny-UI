@@ -11,9 +11,9 @@
                 <p>Last modified: {{metadata.last_modified  | date: 'yyyy-MM-dd HH:mm:SS'}}</p>
             </div>
             <div class="card-footer bg-transparent">
-                <div class="btn-group pull-right" role="group">
-                    <button class="btn btn-secondary" (click)="renameFileModal.show()">Rename</button>
-                    <button class="btn btn-secondary" *ngIf="metadata.type!=='directory'"
+                <div class="pull-right" role="group">
+                    <button class="btn btn-primary mr-2" (click)="renameFileModal.show()">Rename</button>
+                    <button class="btn btn-secondary mr-2" *ngIf="metadata.type!=='directory'"
                             (click)="duplicateFile()">Duplicate
                     </button>
                     <button class="btn btn-secondary" *ngIf="metadata.type!=='directory'"

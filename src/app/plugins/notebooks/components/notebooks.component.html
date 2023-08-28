@@ -46,7 +46,7 @@
                             <option value="file">File</option>
                         </select>
                     </div>
-                    <div class="input-group mb-3" *ngIf="this.createFileForm.get('type').value === 'notebook'">
+                    <div class="input-group mb-3" *ngIf="this.createFileForm.get('type').value === 'notebook' && availableKernels.length > 0">
                         <div class="input-group-prepend">
                             <label class="input-group-text" for="selected-kernel">Kernel</label>
                         </div>
@@ -55,6 +55,10 @@
                                 {{ kernel.spec.display_name }}</option>
                         </select>
                     </div>
+                    <div *ngIf="this.createFileForm.get('type').value === 'notebook' && availableKernels.length === 0">
+                        <div class="alert alert-warning">No Jupyter kernels available.  Start a Jupyter Server container to add kernels.</div>
+                    </div>
+
                 </form>
             </div>
             <div class="modal-footer">
@@ -153,7 +157,7 @@
                                 {{ kernel.spec.display_name }}</option>
                         </select>
                     </div>
-                    <div *ngIf="availableKernels.length == 0">
+                    <div *ngIf="availableKernels.length === 0">
                         <div class="alert alert-warning">No Jupyter kernels available.  Start a Jupyter Server container to add kernels.</div>
                     </div>
                 </form>
