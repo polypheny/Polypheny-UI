@@ -47,7 +47,7 @@ import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-e
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
 import {
-  BorderDirective, ButtonCloseDirective, ButtonDirective,
+  BorderDirective, ButtonCloseDirective, ButtonDirective, ButtonGroupComponent,
   CardBodyComponent,
   CardComponent,
   CardFooterComponent,
@@ -113,7 +113,8 @@ import {
     ModalFooterComponent,
     ModalTitleDirective,
     ButtonCloseDirective,
-    ModalToggleDirective
+    ModalToggleDirective,
+    ButtonGroupComponent
   ],
     declarations: [
         EditColumnsComponent,

@@ -5,7 +5,7 @@ import {NgChartsModule} from 'ng2-charts';
 
 import {
   BgColorDirective,
-  BreadcrumbComponent as BreadCrumb,
+  BreadcrumbComponent as BreadCrumb, ButtonDirective,
   ColComponent,
   FormControlDirective,
   InputGroupComponent,
@@ -94,7 +94,7 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
     ProgressBarComponent,
     ProgressComponent,
     ToastCloseDirective,
-    BreadCrumb, SpinnerComponent
+    BreadCrumb, SpinnerComponent, ButtonDirective
   ],
     declarations: [
         BreadcrumbComponent,

@@ -5,7 +5,7 @@ import {ColumnRequest, EditTableRequest} from '../../../models/ui-request.model'
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
-import {BehaviorSubject, Observable, Subscription} from 'rxjs';
+import {BehaviorSubject, flatMap, Observable, Subscription} from 'rxjs';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
@@ -85,7 +85,6 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         mergeMap(entity => this._catalog.getColumns(entity.id))).subscribe(columns => {
       this.columns.next(columns.map(c => {
         const primaries: number[] = this._catalog.getPrimaryKey(c.entityId)?.value?.columnIds || [];
-        console.log(c);
         return UiColumnDefinition.fromModel(c, primaries);
       }));
 
@@ -165,9 +164,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
 
   subscribePlacements() {
-    this._catalog.getPlacements(this.entity.value.id).subscribe(placement => {
-      this.placements.next(placement);
-    });
+    this.entity.pipe(filter(e => !!e), mergeMap(e => this._catalog.getPlacements(e.id))).subscribe(
+        placement => {
+          this.placements.next(placement);
+        });
   }
 
   subscribeUml() {

@@ -2,8 +2,8 @@
 <a href="http://jasonwatmore.com/post/2018/05/10/angular-6-reactive-forms-validation-example">tutorial2</a>-->
 <ng-container *ngIf="formObj && form && !pageNotFound" xmlns="http://www.w3.org/1999/html">
     <form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form" #formElement cForm>
-        <c-row id="form-generator-main" class="row">
-            <c-col class="col-md-12">
+        <c-row id="form-generator-main">
+            <c-col md="12">
                 <button *ngIf="form.dirty" type="submit" class="btn btn-circle btn-primary save-configs"><i
                         class="fa fa-save"></i></button>
                 <button #submitButton type="submit" class="btn btn-circle btn-primary save-configs d-none"><i
@@ -29,14 +29,13 @@
                             <ng-container
                                     *ngFor="let config of group.value.configs | keyvalue: orderConfigs; let nth = index">
                                 <ng-container [ngSwitch]="config.value.webUiFormType">
-                                    <div class="input-group">
-                                        <div *ngIf="!formObj.fullWidth" class="input-group-prepend-list"
-                                             [class.input-group-full]=" config.value.webUiFormType === 'LIST'">
-                                            <label [for]="config.value.key" class="input-group-text" id="basic-addon1"
-                                                   [tooltip]="config.value.description" placement="left"
-                                                   container="body">{{ config.value.key }}</label>
-                                            <div class="gradient"></div>
-                                        </div>
+
+                                    <c-input-group>
+                                            <span cInputGroupText class="input-group-text w-50"
+                                                  [class.input-group-full]=" config.value.webUiFormType === 'LIST'"
+                                                  *ngIf="!formObj.fullWidth"
+                                                  [tooltip]="config.value.description" placement="left"
+                                                  container="body">{{ config.value.key }}</span>
                                         <ng-container *ngSwitchCase="'TEXT'">
                                             <input [formControlName]="config.value.key" [id]="config.value.key"
                                                    [value]="config.value.value" type="text" class="form-control"
@@ -83,9 +82,9 @@
                                             <!-- List of ConfigString -->
                                             <c-row [gutter]="2" class="list-wrapper"
                                                    *ngIf="config.value.template.webUiFormType === 'TEXT'">
-                                                <div class="input-group">
-                                                    <div class="list-input-wrapper input-group my-1"
-                                                         *ngFor="let el of config.value.values; let i = index;">
+                                                <c-input-group>
+                                                    <c-input-group class="list-input-wrapper input-group my-1"
+                                                                   *ngFor="let el of config.value.values; let i = index;">
                                                         <input type="text" class="form-control list-input mr-1"
                                                                [(ngModel)]="el.value"
                                                                (input)="markElement(config.value.key)"
@@ -96,14 +95,14 @@
                                                                     (click)="removeElement(config.value.values, config.value.key, i)"
                                                                     type="button">-</button>
 														</span>
-                                                    </div>
+                                                    </c-input-group>
                                                     <div class="list-add-wrapper input-group m-1">
 														<span class="input-group-btn">
 															<button class="btn btn-secondary" type="button"
                                                                     (click)="addElement(config.value.values, config.value.key, config.value.template)">+</button>
 														</span>
                                                     </div>
-                                                </div>
+                                                </c-input-group>
                                             </c-row>
                                             <!--List of DockerInstance-->
                                             <c-row class="list-wrapper" [gutter]="2"
@@ -174,7 +173,7 @@
                                                     [value]="config.value.value" class="form-control"
                                                     [ngClass]="inputValidation(config.value.key)">
                                                 <option *ngFor="let c of config.value.values"
-                                                        [value]="c">{{classOrEnumName(c)}}</option>
+                                                        [value]="c">{{classOrEnumName( c )}}</option>
                                             </select>
                                             <small id="help-enum"
                                                    *ngIf="config.value.requiresRestart && config.value.oldValue != null"
@@ -190,7 +189,7 @@
                                                     <label><input type="checkbox"
                                                                   [checked]="config.value.value.includes(c)"
                                                                   style="margin-right:0.5em" #cb
-                                                                  (change)="handleClassList(config.value.key, c, cb.checked)">{{classOrEnumName(c)}}
+                                                                  (change)="handleClassList(config.value.key, c, cb.checked)">{{classOrEnumName( c )}}
                                                     </label>
                                                 </div>
                                                 <small id="help-checkboxes"
@@ -212,7 +211,8 @@
                                         </div>
                                         <div class="valid-feedback"
                                              *ngIf="submitted && form.controls[config.value.key].valid && form.controls[config.value.key].dirty"></div>
-                                    </div>
+                                    </c-input-group>
+
                                 </ng-container>
 
                             </ng-container>
@@ -231,8 +231,12 @@
 </ng-container>
 <ng-container *ngIf="!formObj && !form && pageList">
     Choose a page to display configs:<br><br>
-    <button *ngFor="let page of pageList | keyvalue" class="btn btn-light pageLink"
-            [routerLink]="''+page.value.id">{{page.value.name}}</button>
+    <c-row>
+        <c-col>
+            <button cButton *ngFor="let page of pageList | keyvalue" class="pageLink mb-1"
+                    [routerLink]="''+page.value.id">{{page.value.name}}</button>
+        </c-col>
+    </c-row>
 </ng-container>
 <ng-container *ngIf="serverError">
     <p class="text-danger">

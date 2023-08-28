@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders, HttpUrlEncodingCodec} from '@angular/common/htt
 import {WebuiSettingsService} from './webui-settings.service';
 import {
     EntityMeta,
-    Index,
+    IndexModel,
     ModifyPartitionRequest,
     PartitionFunctionModel,
     PartitioningRequest, PathAccessRequest, PlacementMeta
@@ -292,14 +292,14 @@ export class CrudService {
     /**
      * Drop an index of a table
      */
-    dropIndex(index: Index) {
+    dropIndex(index: IndexModel) {
         return this._http.post(`${this.httpUrl}/dropIndex`, index, this.httpOptions);
     }
 
     /**
      * Create an index
      */
-    createIndex(index: Index) {
+    createIndex(index: IndexModel) {
         return this._http.post(`${this.httpUrl}/createIndex`, index, this.httpOptions);
     }
 
@@ -504,7 +504,7 @@ export class CrudService {
         return this._http.get(`${this.httpUrl}/getStores`);
     }
 
-    getAvailableStoresForIndexes(request: Index) {
+    getAvailableStoresForIndexes(request: IndexModel) {
         return this._http.post(`${this.httpUrl}/getAvailableStoresForIndexes`, request, this.httpOptions);
     }
 

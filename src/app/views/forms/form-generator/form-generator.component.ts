@@ -36,7 +36,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
       private _config: ConfigService,
       private _route: ActivatedRoute,
       private _sidebar: LeftSidebarService,
-      private _breadcrumb: BreadcrumbService,
+      public _breadcrumb: BreadcrumbService,
       private _toast: ToasterService,
       private _settings: WebuiSettingsService
   ) {
@@ -180,7 +180,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   /** order groups within a page.
    * groups with lower order value are rendered first
    */
-  private orderGroups(a: KeyValue<string, any>, b: KeyValue<string, any>) {
+  public orderGroups(a: KeyValue<string, any>, b: KeyValue<string, any>) {
     let out = 0;
     if (a.value.order !== 0 && b.value.order === 0) {
       out = -1;
@@ -197,7 +197,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
   /** order configs within a group.
    * configs with lower webUiOrder value are rendered first
    */
-  private orderConfigs(a: KeyValue<string, any>, b: KeyValue<string, any>) {
+  public orderConfigs(a: KeyValue<string, any>, b: KeyValue<string, any>) {
     let out = 0;
     if (a.value.webUiOrder > b.value.webUiOrder) {
       out = 1;

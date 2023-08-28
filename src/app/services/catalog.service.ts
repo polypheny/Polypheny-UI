@@ -321,11 +321,18 @@ export class CatalogService {
     return this.wrapBehaviorSubject(() => Array.from(this.allocationColumns.value.values()).filter(a => a.placementId === placemenId));
   }
 
-  getColumn(id: number) {
+  getAllocColumn(id: number): BehaviorSubject<AllocationColumnModel[]> {
     return this.wrapBehaviorSubject(() => Array.from(this.allocationColumns.value.values()).filter(c => c.id === id))[0];
   }
 
   getAdapter(adapterId: number) {
     return this.wrapBehaviorSubject(() => this.adapters.value.get(adapterId));
+  }
+
+  getAvailableStoresForIndexes(entityId: number): BehaviorSubject<Adapter[]> {
+    return this.wrapBehaviorSubject(() => {
+      const adapterIds = Array.from(this.placements.value.values()).map(p => p.adapterId);
+      return Array.from(this.adapters.value.values()).filter(a => adapterIds.includes(a.adapterId));
+    });
   }
 }

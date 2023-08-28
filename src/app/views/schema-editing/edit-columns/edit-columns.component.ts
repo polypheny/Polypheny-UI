@@ -1,42 +1,18 @@
-import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
-import {
-  FieldType,
-  Index,
-  ModifyPartitionRequest,
-  PartitionFunctionModel,
-  PartitioningRequest,
-  PolyType,
-  RelationalResult,
-  TableConstraint,
-  UiColumnDefinition
-} from '../../../components/data-view/models/result-set.model';
+import {FieldType, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, RelationalResult, TableConstraint, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {
-  ColumnRequest,
-  ConstraintRequest,
-  EditTableRequest,
-  MaterializedRequest
-} from '../../../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {CatalogColumnPlacement, MaterializedInfos, PlacementType, Store} from '../../adapters/adapter.model';
-import {ModalDirective} from 'ngx-bootstrap/modal';
-import {BehaviorSubject, forkJoin, Observable, Subscription} from 'rxjs';
+import {MaterializedInfos, PlacementType, Store} from '../../adapters/adapter.model';
+import {BehaviorSubject, firstValueFrom, forkJoin, Observable, Subscription} from 'rxjs';
 import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {
-  AllocationEntityModel,
-  AllocationPartitionModel,
-  AllocationPlacementModel,
-  ConstraintModel,
-  EntityType,
-  NamespaceModel,
-  TableModel
-} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, ConstraintModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {filter, map, mergeMap} from 'rxjs/operators';
 
 const INITIAL_TYPE = 'BIGINT';
@@ -98,11 +74,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   proposedIndexName = 'indexName';
   addingIndex = false;
 
-  materializedInfo: [];
+  materializedInfo: BehaviorSubject<[]> = new BehaviorSubject<[]>([]);
 
   //data placement handling
   readonly stores: BehaviorSubject<Store[]> = new BehaviorSubject<Store[]>([]);
-  availableStoresForIndexes: Store[];
+  availableStoresForIndexes: BehaviorSubject<Store[]> = new BehaviorSubject([]);
   selectedStore: Store;
   readonly placements: BehaviorSubject<AllocationPlacementModel[]> = new BehaviorSubject([]);
   readonly partitions: BehaviorSubject<AllocationPartitionModel[]> = new BehaviorSubject([]);
@@ -153,9 +129,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       this.getAvailableStoresForIndexes();
       this.getUml();
 
-      if (this.isEntityType(EntityType.MATERIALIZED_VIEW)) {
-        this.getMaterializedInfo();
-      }
+      firstValueFrom(this.entity.pipe(filter(e => !!e))).then(e => {
+        if (e.entityType === EntityType.MATERIALIZED_VIEW) {
+          this.subscribeMaterializedInfo();
+        }
+      });
 
       this.getIndexes();
       this.initNewIndexValues();
@@ -186,16 +164,20 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     return this.entity.pipe(filter(e => !!e), map(e => e.entityType === type));
   }
 
-    subscribe() {
-        this.entity.pipe(
-            filter( n => !!n),
-            mergeMap( entity => this._catalog.getColumns(entity.id) )).subscribe( columns => {
-            this.oldColumns.next(new Map(columns.map(c => UiColumnDefinition.fromModel(c, this._catalog.getPrimaryKey(c.entityId).value.columnIds)).map(c => [c.name, c])));
+  subscribe() {
+    this.entity.pipe(
+        filter(n => !!n),
+        mergeMap(entity => this._catalog.getColumns(entity.id))).subscribe(columns => {
+
+      this.oldColumns.next(new Map(columns.map(c => {
+        const columnIds = this._catalog.getPrimaryKey(c.entityId)?.value?.columnIds || [];
+        return UiColumnDefinition.fromModel(c, columnIds);
+      }).map(c => [c.name, c])));
 
     });
 
     this.oldColumns.pipe(
-        filter( n => !!this.entity.value),
+        filter(n => !!this.entity.value),
         filter(n => !!n),
         map(n => Array.from(n.values()))).subscribe(columns => {
       this.newIndexCols = new Map(columns.map(c => [c.name, false]));
@@ -254,21 +236,21 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
   }
 
-  getMaterializedInfo() {
-    this._crud.getMaterializedInfo(new EditTableRequest(this.namespace.value.id, this.entity.value.id)).subscribe({
-      next: (mat: MaterializedInfos) => {
-        this.materializedInfo = mat.materializedInfo;
-      }, error: err => {
-        console.log(err);
-      }
+  subscribeMaterializedInfo() {
+    firstValueFrom(this.entity.pipe(filter(e => !!e), mergeMap(() => this._crud.getMaterializedInfo(new EditTableRequest(this.namespace.value.id, this.entity.value.id))))).then(
+        (mat: MaterializedInfos) => {
+          this.materializedInfo.next(mat.materializedInfo);
+        }).catch(err => {
+      console.log(err);
     });
+
   }
 
   updateMaterialized() {
     const req = new MaterializedRequest(this.entity.value.id);
     this._crud.updateMaterialized(req).subscribe({
       next: (res: RelationalResult) => {
-        this.getMaterializedInfo();
+        this.subscribeMaterializedInfo();
         if (res.error) {
           this._toast.exception(res, 'Could not update materialized view:');
         } else {
@@ -597,7 +579,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   initNewIndexValues() {
     const availableStores = this.availableStoresForIndexes;
-    if (availableStores && availableStores.length > 0) {
+    if (availableStores.value?.length > 0) {
       this.selectedStoreForIndex = availableStores[0];
       if (availableStores[0].availableIndexMethods && availableStores[0].availableIndexMethods.length > 0) {
         this.newIndexForm.controls['method'].setValue(availableStores[0].availableIndexMethods[0].name);
@@ -614,10 +596,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   getAvailableStoresForIndexes() {
-    this._crud.getAvailableStoresForIndexes(new Index(this.namespace.value.id, this.entity.value.id, null, null, null, null)).subscribe({
-      next: (res: Store[]) => {
-        this.availableStoresForIndexes = res;
-        if (this.availableStoresForIndexes && this.availableStoresForIndexes.length > 0) {
+    this.entity.pipe(
+        map(e => !!e),
+        mergeMap(e =>
+            this._catalog.getAvailableStoresForIndexes(this.entity.value.id))).subscribe({
+      next: (stores: Store[]) => {
+        this.availableStoresForIndexes.next(stores);
+        if (stores?.length > 0) {
           this.selectedStoreForIndex = this.availableStoresForIndexes[0];
           this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.availableIndexMethods[0].name);
         } else {
@@ -629,6 +614,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.selectedStoreForIndex = null;
       }
     });
+
   }
 
   getAddableStores(): Observable<Store[]> {
@@ -667,7 +653,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       );
   }*/
 
-  initPlacementModal(method: 'ADD' | 'MODIFY', placement: AllocationPlacementModel ) {
+  initPlacementModal(method: 'ADD' | 'MODIFY', placement: AllocationPlacementModel) {
     let store;
     const preselect = this._catalog.getAllocColumns(placement.id).value;
     this.placementMethod = method;
@@ -731,7 +717,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     });
   }
 
-  dropPlacement( adapterId: number) {
+  dropPlacement(adapterId: number) {
     const store = <Store>this._catalog.getAdapter(adapterId).value;
     this._crud.addDropPlacement(this.namespace.value.id, this.entity.value.id, store.adapterId, 'DROP').subscribe({
       next: (res: RelationalResult) => {
@@ -882,7 +868,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   dropIndex(index: string) {
-    this._crud.dropIndex(new Index(this.namespace.value.id, this.entity.value.id, index, null, null, null)).subscribe({
+    this._crud.dropIndex(new IndexModel(this.namespace.value.id, this.entity.value.id, index, null, null, null)).subscribe({
       next: (res: RelationalResult) => {
         if (!res.error) {
           this.getIndexes();
@@ -908,7 +894,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
     if (this.newIndexForm.valid && newCols.length > 0 && this.selectedStoreForIndex != null) {
       const i = this.newIndexForm.value;
-      const index = new Index(this.namespace.value.id, this.entity.value.id, i.name, this.selectedStoreForIndex.uniqueName, i.method, newCols);
+      const index = new IndexModel(this.namespace.value.id, this.entity.value.id, i.name, this.selectedStoreForIndex.uniqueName, i.method, newCols);
       this.addingIndex = true;
       this._crud.createIndex(index).subscribe({
         next: (res: RelationalResult) => {

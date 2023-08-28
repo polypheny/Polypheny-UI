@@ -16,7 +16,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
   instances: DockerInstance[];
   error: string = null;
   status: AutoDockerStatus = {available: false, connected: false, running: false, message: ''};
-  autoConnectRunning: boolean = false;
+  autoConnectRunning = false;
   timeoutId: number = null;
   modalId: number = null;
 
@@ -123,7 +123,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
       next: res => {
         const d = <DockerRemoveResponse>res;
         if (d.error === '') {
-          this._toast.success('Deleted docker instance ' + instance.alias + "'");
+          this._toast.success('Deleted docker instance ' + instance.alias + '\'');
         } else {
           this._toast.error(d.error);
         }
@@ -144,14 +144,14 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
   closeModal(newlist: DockerInstance[]) {
     if (newlist !== undefined) {
       this.instances = newlist;
-      this._crud.getAutoDockerStatus().subscribe(
-          res => {
-            this.status = <AutoDockerStatus>res;
-          },
-          err => {
-            console.log(err);
-          }
-      );
+      this._crud.getAutoDockerStatus().subscribe({
+        next: (res: AutoDockerStatus) => {
+          this.status = res;
+        },
+        error: err => {
+          console.log(err);
+        }
+      });
     } else {
       this.updateList();
     }

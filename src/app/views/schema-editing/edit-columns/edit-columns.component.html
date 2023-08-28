@@ -1,8 +1,7 @@
 <app-edit-source-columns *ngIf="isEntityType(EntityType.SOURCE) | async"></app-edit-source-columns>
 <c-row class="row" *ngIf="!(isEntityType(EntityType.SOURCE) | async)">
 
-    <c-col class="col-lg-12">
-
+    <c-col>
         <h5 *ngIf="isEntityType(EntityType.MATERIALIZED_VIEW) | async">Materialized View: {{(entity|async).name}}</h5>
         <h5 *ngIf="!( isEntityType(EntityType.MATERIALIZED_VIEW) | async )">{{(entity|async).name}}</h5>
         <span *ngIf="!(entity | async)">Please select a table in the left sidebar to edit its columns.</span>
@@ -29,23 +28,23 @@
                               [formGroup]="updateColumn">
                     <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
                     <td>
-                        <input type="text" class="form-control form-control-sm" formControlName="name"
+                        <input cFormControl sizing="sm" type="text" formControlName="name"
                                [attr.data-before]="col.name" id="colName" #editColName
                                [ngClass]="columnValidation(editColName.value, col.name)">
                     </td>
 
                     <td>
-                        <input type="checkbox" class="" formControlName="nullable" id="nullable"
+                        <input cFormControl sizing="sm" type="checkbox" formControlName="nullable" id="nullable"
                                [attr.data-before]="col.nullable" (change)="changeNullable()">
                     </td>
                     <td>
-                        <select class="form-control form-control-sm" id="udt_name" [attr.data-before]="col.dataType"
+                        <select cSelect sizing="sm" id="udt_name" [attr.data-before]="col.dataType"
                                 formControlName="dataType" (change)="onTypeChange()">
                             <option *ngFor="let t of types" [value]="t.name">{{t.name}}</option>
                         </select>
                     </td>
                     <td>
-                        <select class="form-control form-control-sm" id="collectionsType"
+                        <select cSelect sizing="sm" id="collectionsType"
                                 [attr.data-before]="col.collectionsType" formControlName="collectionsType">
                             <option value="">none</option>
                             <option value="ARRAY">ARRAY</option>
@@ -53,49 +52,41 @@
                     </td>
                     <td class="data-type-parameters">
                         <!-- precision -->
-                        <div class="input-group input-group-sm mt-1"
-                             *ngIf="_types.supportsPrecision(updateColumn.controls['dataType'].value)">
-                            <div class="input-group-prepend">
-                                <label for="precision"
-                                       class="input-group-text">{{_types.precisionPlaceholder( updateColumn.controls['dataType'].value )}}</label>
-                            </div>
-                            <input type="number"
+                        <c-input-group sizing="sm" class="mt-1"
+                                       *ngIf="_types.supportsPrecision(updateColumn.controls['dataType'].value)">
+
+                            <span cInputGroupText>{{_types.precisionPlaceholder( updateColumn.controls['dataType'].value )}}</span>
+                            <input cFormControl type="number"
                                    [placeholder]="_types.precisionPlaceholder(updateColumn.controls['dataType'].value)"
-                                   formControlName="precision" class="form-control form-control-sm" id="precision"
+                                   formControlName="precision" id="precision"
                                    [attr.data-before]="col.precision">
-                        </div>
+                        </c-input-group>
 
                         <!-- scale -->
-                        <div class="input-group input-group-sm mt-1"
-                             *ngIf="_types.supportsScale(updateColumn.controls['dataType'].value)">
-                            <div class="input-group-prepend">
-                                <label for="scale" class="input-group-text">scale</label>
-                            </div>
+                        <c-input-group sizing="sm" class="mt-1"
+                                       *ngIf="_types.supportsScale(updateColumn.controls['dataType'].value)">
+                            <span cInputGroupText>scale</span>
                             <input type="number" placeholder="scale" formControlName="scale"
-                                   class="form-control form-control-sm" id="scale" [attr.data-before]="col.scale">
-                        </div>
+                                   cFormControl id="scale" [attr.data-before]="col.scale">
+                        </c-input-group>
 
                         <!-- dimension -->
-                        <div class="input-group input-group-sm mt-1"
-                             *ngIf="updateColumn.controls['collectionsType'].value === 'ARRAY'">
-                            <div class="input-group-prepend">
-                                <label for="updateDim" class="input-group-text">dimension</label>
-                            </div>
+                        <c-input-group sizing="sm" class="mt-1"
+                                       *ngIf="updateColumn.controls['collectionsType'].value === 'ARRAY'">
+                            <span cInputGroupText>dimension</span>
                             <input type="number" placeholder="dimension" formControlName="dimension"
-                                   class="form-control form-control-sm" id="updateDim"
+                                   cFormControl id="updateDim"
                                    [attr.data-before]="col.dimension">
-                        </div>
+                        </c-input-group>
 
                         <!-- cardinality -->
-                        <div class="input-group input-group-sm mt-1"
+                        <c-input-group sizing="sm" class="mt-1"
                              *ngIf="updateColumn.controls['collectionsType'].value === 'ARRAY'">
-                            <div class="input-group-prepend">
-                                <label for="updateCard" class="input-group-text">cardinality</label>
-                            </div>
+                            <span cInputGroupText>cardinality</span>
                             <input type="number" placeholder="cardinality" formControlName="cardinality"
-                                   class="form-control form-control-sm" id="updateCard"
+                                   cFormControl id="updateCard"
                                    [attr.data-before]="col.cardinality">
-                        </div>
+                        </c-input-group>
 
                     </td>
                     <td>
@@ -197,13 +188,13 @@
                            [checked]="createColumn.nullable" (change)="changeNullable(createColumn)">
                 </td>
                 <td>
-                    <select cSelect size="sm" [(ngModel)]="createColumn.dataType"
+                    <select cSelect sizing="sm" [(ngModel)]="createColumn.dataType"
                             (change)="onTypeChange2( createColumn )">
                         <option *ngFor="let t of types" [value]="t.name">{{t.name}}</option>
                     </select>
                 </td>
                 <td>
-                    <select cSelect class="form-control form-control-sm" [(ngModel)]="createColumn.collectionsType">
+                    <select cSelect sizing="sm" [(ngModel)]="createColumn.collectionsType">
                         <option value="">none</option>
                         <option value="ARRAY">ARRAY</option>
                     </select>
@@ -340,15 +331,14 @@
             <tr *ngFor="let constraint of constraints | async; let i = index">
                 <td *ngFor="let d2 of getColumnsOfKey(constraint)| async">{{d2}}</td>
                 <td class="delete">
-                    <app-delete-confirm *ngIf="constraint.type !== 'PRIMARY KEY'"
-                                        (delete)="dropConstraint(constraint.id)"></app-delete-confirm>
+                    <app-delete-confirm *ngIf="constraint.type !== 'PRIMARY KEY'" (delete)="dropConstraint(constraint.id)"></app-delete-confirm>
                 </td>
             </tr>
             </tbody>
         </table>
     </c-col>
 
-    <c-col lg="12"
+    <c-col size="12"
            *ngIf="foreignKeys && foreignKeys.length > 0 && !(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
         <hr>
         <h5>Foreign key</h5>
@@ -406,7 +396,7 @@
         <button type="submit" class="btn btn-primary btn-sm" (click)="updateMaterialized()">Update Materialized</button>
     </c-col>
 
-    <c-col lg="12">
+    <c-col>
         <hr>
         <h5>Indexes</h5>
         <c-card class="card">
@@ -516,7 +506,7 @@
                 <td>{{(_catalog.getAdapter( placement.adapterId ) | async)?.adapterName}}</td>
                 <td>
                     <ng-container *ngFor="let p of _catalog.getAllocColumns(placement.id) | async; let isLast = last">
-                        <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{ _catalog.getColumn( p.id )}}</span>{{isLast ? '' : ', '}}
+                        <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{ _catalog.getAllocColumn( p.id )}}</span>{{isLast ? '' : ', '}}
                     </ng-container>
                     <button cButton size="sm" class="cui-pencil ml-2 modify-placement-btn"
                             (click)="initPlacementModal('MODIFY', placement)"></button>
@@ -595,7 +585,7 @@
         <c-modal-content>
             <c-modal-header>
                 <h4 cModalTitle>Column Placements</h4>
-                <button (click)="placementModal = false" [cModalToggle]="placementModal.id" cButtonClose></button>
+                <button (click)="placementModal = false" cButtonClose></button>
             </c-modal-header>
             <c-modal-body *ngIf="columnPlacement && selectedStore">
                 Store: {{selectedStore.uniqueName}}
@@ -618,7 +608,7 @@
                     <progressbar type="info" [value]="0" [max]="100"
                                  class="progress progress-bar progress-bar-striped progress-bar-animated"></progressbar>
                 </div>
-                <button type="button" class="btn btn-secondary float-left" (click)="placementModal.hide()"
+                <button type="button" class="btn btn-secondary float-left" (click)="placementModal = false"
                         [disabled]="isAddingPlacement">Close
                 </button>
                 <button type="submit" class="btn btn-primary" (click)="addPlacement()"
@@ -658,7 +648,7 @@
                       *ngIf="!validatePartitionModification()">Please select at least one partition</span>
             </c-modal-body>
             <c-modal-footer class="modal-footer">
-                <button type="button" class="btn btn-secondary float-left" (click)="partitioningModal.hide()">Close</button>
+                <button type="button" class="btn btn-secondary float-left" (click)="partitioningModal = false">Close</button>
                 <button type="submit" class="btn btn-primary" (click)="modifyPartitioning()"
                         [disabled]="!validatePartitionModification()">Modify
                 </button>

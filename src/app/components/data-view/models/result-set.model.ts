@@ -262,14 +262,14 @@ export class TableConstraint {
 /**
  * SQL Index of a table
  */
-export class Index {
+export class IndexModel {
     constructor(
         private namespaceId: number,
         private entityId: number,
         private name: string,
         private storeUniqueName: string,
         private method: string,
-        private columns: string[]
+        private columnIds: number[]
     ) {
     }
 }
