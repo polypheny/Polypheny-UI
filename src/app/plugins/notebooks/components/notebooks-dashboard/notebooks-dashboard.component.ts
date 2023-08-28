@@ -61,7 +61,6 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
         if (this.sessionSubscription !== null) {
             return;
         }
-        console.log("Adding subscription");
         this.sessionSubscription = this._content.onSessionsChange().subscribe(res => {
             this.updateSessions(res);
             this.hasUnusedSessions = res.some(session => session.kernel?.connections === 0);
@@ -70,7 +69,6 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
 
     unsubscribeFromSessionChanges() {
         if (this.sessionSubscription !== null) {
-            console.log("Removing subscription");
             this.sessionSubscription.unsubscribe();
             this.sessionSubscription = null;
         }
@@ -129,14 +127,15 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     restartContainer() {
         this.serverStatus = null;
         this.restartContainerModal.hide();
-        this._notebooks.restartContainer().subscribe(res => {
-            this._toast.success('Successfully restarted the container.');
-            this._content.updateSessions();
-            this._content.update();
-        },
-        err => {
-            this._toast.error('An error occurred while restarting the container!');
-        }).add(() => this.getServerStatus());
+        this._notebooks.restartContainer().subscribe(
+            res => {
+                this._toast.success('Successfully restarted the container.');
+                this._content.updateSessions();
+                this._content.update();
+            },
+            err => {
+                this._toast.error('An error occurred while restarting the container!');
+            }).add(() => this.getServerStatus());
     }
 
     getPluginStatus() {
@@ -154,6 +153,8 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
         this._notebooks.getStatus().subscribe(
             res => {
                 this.serverStatus = res
+                this._content.updateAvailableKernels();
+                this._content.updateSessions();
                 this.subscribeToSessionChanges();
             },
             () => {

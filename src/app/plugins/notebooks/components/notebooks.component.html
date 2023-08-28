@@ -144,7 +144,7 @@
                     </div>
 
                     <div class="input-group mb-3" id="createSession-kernelGroup"
-                         *ngIf="createSessionForm.get('isNew').value">
+                         *ngIf="createSessionForm.get('isNew').value && availableKernels.length > 0">
                         <div class="input-group-prepend">
                             <label class="input-group-text" for="createSession-kernel">Kernel</label>
                         </div>
@@ -152,6 +152,9 @@
                             <option *ngFor="let kernel of availableKernels" [value]="kernel.name">
                                 {{ kernel.spec.display_name }}</option>
                         </select>
+                    </div>
+                    <div *ngIf="availableKernels.length == 0">
+                        <div class="alert alert-warning">No Jupyter kernels available.  Start a Jupyter Server container to add kernels.</div>
                     </div>
                 </form>
                 <ng-container *ngIf="selectedSession != null && !createSessionForm.get('isNew').value">

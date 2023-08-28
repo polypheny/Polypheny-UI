@@ -136,7 +136,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
         });
         this.createSessionForm.get('isNew').valueChanges.subscribe((isNew: boolean) => {
             if (isNew) {
-                this.createSessionForm.patchValue({kernel: this.availableKernels[0].name});
+                this.createSessionForm.patchValue({kernel: this.availableKernels.length > 0 ? this.availableKernels[0].name : ''});
             } else {
                 this.createSessionForm.patchValue({session: this.createSessionForm.value.sessions[0].id});
             }
@@ -206,10 +206,6 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
     }
 
     private openCreateSessionModal(name: string, path: string, canManage = true) {
-        if (this.availableKernels.length === 0){
-            this._toast.warn("No kernels are available.  Is the Jupyter container running?");
-            return;
-        }
         this.createSessionForm.patchValue({
             name: name,
             path: path,
