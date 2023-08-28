@@ -65,8 +65,29 @@
                     <span *ngIf="adapter.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
                     <span *ngIf="adapter.currentSettings.hasOwnProperty('host') && adapter.currentSettings.hasOwnProperty('port')">{{adapter.currentSettings['host']}}
                         <span *ngIf="adapter.currentSettings['mode'] === 'remote'">: {{adapter.currentSettings['port']}}</span></span>
-                    <div *ngIf="adapter.adapterName === 'Ethereum' && cachingStatus" class="info-bar" [class]="getCacheStatusClass(cachingStatus)">
-                        {{ percentage == null || percentage === 0 ? 'Initializing' : (percentage + '%') }}
+                    <div *ngIf="adapter.adapterName === 'Ethereum' && cachingStatus" class="info-bar">
+                        <div class="info-percentage" [class]="getCacheStatusClass(cachingStatus)">
+                            {{ percentage == null || percentage === 0 ? 'Initializing' : (percentage + '%') }}
+                        </div>
+                        <div class="info-block-wrapper">
+                            <div class="info-blocks" *ngIf="fromBlock || toBlock">
+                                <div *ngIf="fromBlock">
+                                    From: {{ fromBlock }}
+                                </div>
+                                <div *ngIf="toBlock">
+                                    To: {{ toBlock }}
+                                </div>
+                            </div>
+                            <div class="info-blocks" *ngIf="currentBlock && currentEndBlock">
+                                <div *ngIf="currentBlock">
+                                    CurrentFrom: {{ currentBlock }}
+                                </div>
+                                <div *ngIf="currentEndBlock">
+                                    CurrentEnd: {{ currentEndBlock }}
+                                </div>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
                 <div class="card-footer bg-transparent">

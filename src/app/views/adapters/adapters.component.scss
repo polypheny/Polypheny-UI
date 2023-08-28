@@ -132,21 +132,41 @@ select.ng-invalid {
 }
 
 .info-bar {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 5px;
+  font-size: 0.9em;
+}
+
+.info-percentage {
   display: inline-block;
   padding: 5px 10px;
   border-radius: 5px;
   color: white;
-  margin: 10px 0;
-
+  
   &.initialized {
-      background-color: blue;
+      background-color: #0d6efd;
   }
 
   &.processing {
-      background-color: orange;
+      background-color: #2982cc;
   }
 
   &.done {
-      background-color: green;
+      background-color: #198754;
   }
 }
+
+.info-block-wrapper {
+  display: flex;
+  flex-direction: column;
+  .info-blocks {
+    background-color: #e3e8ed;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-left: 10px;
+    margin-bottom: 5px;
+  }
+}
+
+

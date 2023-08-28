@@ -86,6 +86,10 @@ export interface CachingStatus {
     [key: string]: {
         percent: number;
         state: 'INITIALIZED' | 'PROCESSING' | 'DONE';
+        fromBlock: number;
+        toBlock: number;
+        currentBlock: number;
+        currentEndBlock: number;
     };
 }
 

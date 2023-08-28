@@ -53,7 +53,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     private statusSubscriptions = new Subscription();
     cachingStatus : CachingStatus;
-    percentage : number;
+    percentage: number | null = null;
+    fromBlock: number | null = null;
+    toBlock: number | null = null;
+    currentBlock: number | null = null;
+    currentEndBlock: number | null = null;
 
     @ViewChild('adapterSettingsModal', {static: false}) public adapterSettingsModal: ModalDirective;
     private allSettings: AdapterSetting[];
@@ -627,7 +631,14 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 tap((res: CachingStatus) => {
                     console.log("status");
                     this.cachingStatus = res;
-                    this.percentage = this.getCachingPercentage();
+                    const statusKey = Object.keys(res)[0];
+                    const currentStatus = this.cachingStatus[statusKey];
+                    console.log(this.cachingStatus);
+                    this.percentage = currentStatus?.percent || null;
+                    this.fromBlock = currentStatus?.fromBlock || null;
+                    this.toBlock = currentStatus?.toBlock || null;
+                    this.currentBlock = currentStatus?.currentBlock || null;
+                    this.currentEndBlock = currentStatus?.currentEndBlock || null;
                 }),
                 takeWhile((res: CachingStatus) => {
                     const statusKey = Object.keys(res)[0];
