@@ -159,7 +159,7 @@
                 </form>
                 <ng-container *ngIf="selectedSession != null && !createSessionForm.get('isNew').value">
                     <p>Status: {{selectedSession.kernel.execution_state}}</p>
-                    <p>Last Activity: {{selectedSession.kernel.last_activity | date: 'medium'}}</p>
+                    <p>Last Activity: {{selectedSession.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS'}}</p>
                     <p>Connections: {{selectedSession.kernel.connections}}</p>
                 </ng-container>
             </div>

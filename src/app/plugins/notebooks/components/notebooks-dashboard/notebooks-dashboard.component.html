@@ -10,8 +10,8 @@
             <div class="card-body">
                 <h5>{{serverStatus ? 'Online' : 'Offline'}}</h5>
                 <ng-container *ngIf="serverStatus">
-                    <p>Started: {{serverStatus.started | date: 'short'}}</p>
-                    <p>Last Activity: {{serverStatus.last_activity | date: 'short'}}</p>
+                    <p>Started: {{serverStatus.started | date: 'yyyy-MM-dd HH:mm:SS'}}</p>
+                    <p>Last Activity: {{serverStatus.last_activity | date: 'yyyy-MM-dd HH:mm:SS'}}</p>
                 </ng-container>
             </div>
 
@@ -57,7 +57,7 @@
                         <tr *ngFor="let session of sessions; index as i">
                             <td>{{notebookPaths[i]}}</td>
                             <td>{{session.kernel.name}}</td>
-                            <td>{{session.kernel.last_activity | date: 'short'}}</td>
+                            <td>{{session.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS'}}</td>
                             <td>{{session.kernel.execution_state}}</td>
                             <td>{{session.kernel.connections}}</td>
                             <th></th>
