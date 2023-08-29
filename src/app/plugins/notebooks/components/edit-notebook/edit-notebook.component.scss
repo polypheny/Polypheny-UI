@@ -1,0 +1,73 @@
+.nb-toolbar {
+  background: white;
+  padding: 5px 16px;
+  margin-top: -24px;
+  margin-left: -30px;
+  margin-right: -30px;
+  border-bottom: 1px solid #c8ced3;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 5; // make shadow appear above editor
+}
+
+.nb-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: calc(100vh - 197px);
+  padding-right: 30px;
+  margin-right: -30px;
+}
+
+.nb-background {
+  background: white;
+  margin-bottom: 250px;
+}
+
+.nb-title {
+  padding-top: 24px;
+}
+
+.dropdown-item:hover {
+  cursor: pointer;
+}
+
+
+.drop-preview {
+  background-color: white;
+  padding: 10px;
+  display: flex;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+  0 8px 10px 1px rgba(0, 0, 0, 0.14),
+  0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.example-custom-placeholder {
+  height: 2px;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.drop-box:last-child {
+  border: none;
+}
+
+.drop-list.cdk-drop-list-dragging .drop-box:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.nb-drag-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  z-index: 1;
+}
+
+.modal-footer {
+  justify-content: space-between;
+}

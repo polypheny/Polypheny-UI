@@ -14,7 +14,12 @@
         </span>
         </div>
     </div>
-
+    <div *ngIf="buttons.length > 0" class="btn-group" role="group">
+        <button *ngFor="let item of buttons" type="button" class="btn" [class.btn-secondary]="!item.isOutline"
+                [class.btn-outline-secondary]="item.isOutline" (click)="item.clickEvent($event)" onclick="this.blur();">
+            {{ item.name }}
+        </button>
+    </div>
 
     <span *ngIf="error">{{error}}</span>
     <div id="tree-inner-wrapper">

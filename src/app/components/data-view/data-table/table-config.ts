@@ -5,4 +5,5 @@ export interface TableConfig {
     sort: boolean;
     search: boolean;
     exploring: boolean;
+    hideCreateView?: boolean;
 }
