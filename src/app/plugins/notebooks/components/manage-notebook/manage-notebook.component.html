@@ -1,4 +1,4 @@
-<h2>{{metadata.path}}</h2>
+<h2>{{metadata.name}}</h2>
 <div class="row">
     <div class="col-lg-4 fixed-width">
         <div class="card">
@@ -37,15 +37,14 @@
                 <div class="card-body">
                     <b>Status: {{statusText}}</b>
                     <p></p>
-
                 </div>
                 <div class="card-footer bg-transparent">
                     <button class="btn btn-danger" [disabled]="sessions.length === 0"
                             (click)="terminateSessionModal.show()">
                         Shut Down
                     </button>
-                    <div class="btn-group pull-right" role="group">
-                        <button class="btn btn-outline-primary" (click)="connectSessionModal.show()"
+                    <div class="pull-right" role="group">
+                        <button class="btn btn-outline-primary mr-2" (click)="connectSessionModal.show()"
                                 *ngIf="sessions.length > 0">Connect
                         </button>
                         <button class="btn btn-primary" (click)="createKernelModal.show()" [disabled]="availableKernels.length === 0">Open</button>
