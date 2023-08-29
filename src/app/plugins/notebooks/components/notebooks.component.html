@@ -170,8 +170,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" (click)="createSessionModal.hide()">Close</button>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-outline-primary"
+                <div>
+                    <button type="button" class="btn btn-outline-primary mr-2"
                             *ngIf="createSessionForm.get('canManage').value"
                             (click)="openManagePage(createSessionForm.get('path').value)">
                         Manage File

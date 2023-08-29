@@ -68,8 +68,8 @@
             </div>
 
             <div class="card-footer bg-transparent">
-                <div class="btn-group pull-right">
-                    <button class="btn btn-outline-danger " *ngIf="hasUnusedSessions"
+                <div class="pull-right">
+                    <button class="btn btn-outline-danger mr-2" *ngIf="hasUnusedSessions"
                             (click)="terminateUnusedSessionsModal.show()">
                         Shut Down Unused
                     </button>
