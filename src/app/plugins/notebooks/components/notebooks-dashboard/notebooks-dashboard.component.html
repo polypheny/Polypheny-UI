@@ -204,10 +204,14 @@
 
             <div class="modal-body">
                 Select the Docker instance to use:
-                <select name="instanceId" #selectedInstance class="form-control">
+                <select name="instanceId" #selectedInstance class="form-control" [disabled]="instances.length === 0">
+                    <option *ngIf="instances.length === 0">No instances available</option>
                     <option *ngFor="let instance of instances" [(value)]="instance.id">{{instance.alias}}</option>
                 </select>
-                <div class="alert alert-warning mt-3">
+                <div *ngIf="instances.length === 0" class="alert alert-info mt-3">
+                    To add a Docker instance go to Config > Docker.
+                </div>
+                <div *ngIf="instances.length > 0" class="alert alert-warning mt-3">
                     The Jupyter image is very large, it might take some time to download.
                 </div>
             </div>
