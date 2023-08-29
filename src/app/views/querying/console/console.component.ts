@@ -105,7 +105,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   }
 
   private updateExistingNamespaces() {
-    this._catalog.getSchemaTree('views/querying/console/', false, 1, false).subscribe(
+    this._catalog.getSchemaTree('views/querying/console/', false, 1).subscribe(
         (namespaces: Namespace[]) => {
           this.namespaces = namespaces.map(n => n.name);
           this.loadAndSetNamespaceDB();
@@ -180,7 +180,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     this.loading = true;
     if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.lang, this.activeNamespaceId))) {
       this.loading = false;
-      this.resultSets = [new RelationalResult('Could not establish a connection with the server.', code)];
+      this.resultSets = [new RelationalResult('Could not establish a connection with the server.')];
     }
   }
 

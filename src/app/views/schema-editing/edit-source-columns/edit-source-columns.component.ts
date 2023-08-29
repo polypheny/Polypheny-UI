@@ -17,7 +17,7 @@ import {
   TableModel
 } from '../../../models/catalog.model';
 import {filter, map, mergeMap} from 'rxjs/operators';
-import {Adapter} from '../../adapters/adapter.model';
+import {AdapterModel} from '../../adapters/adapter.model';
 
 @Component({
   selector: 'app-edit-source-columns',
@@ -215,7 +215,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     return this._route.params['id'];
   }
 
-  getAdapters(): Observable<Adapter[]> {
+  getAdapters(): Observable<AdapterModel[]> {
     return this.placements.pipe(filter(n => !!n), map(p => p.map(a => this._catalog.getAdapter(a.adapterId).value)));
   }
 }

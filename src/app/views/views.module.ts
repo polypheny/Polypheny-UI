@@ -53,7 +53,7 @@ import {
   CardFooterComponent,
   CardHeaderComponent,
   ColComponent, ColDirective,
-  ContainerComponent, DropdownComponent, DropdownMenuDirective, DropdownToggleDirective, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormFeedbackComponent, FormSelectDirective, FormTextDirective,
+  ContainerComponent, DropdownComponent, DropdownDividerDirective, DropdownItemDirective, DropdownMenuDirective, DropdownToggleDirective, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormFeedbackComponent, FormSelectDirective, FormTextDirective,
   GutterDirective,
   HeaderComponent, InputGroupComponent, InputGroupTextDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalDialogComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective,
   RowComponent, RowDirective, TableDirective
@@ -114,7 +114,9 @@ import {
     ModalTitleDirective,
     ButtonCloseDirective,
     ModalToggleDirective,
-    ButtonGroupComponent
+    ButtonGroupComponent,
+    DropdownItemDirective,
+    DropdownDividerDirective
   ],
     declarations: [
         EditColumnsComponent,

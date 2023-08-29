@@ -12,7 +12,7 @@ import {
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {Store} from '../../adapters/adapter.model';
+import {StoreModel} from '../../adapters/adapter.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {BehaviorSubject, Subscription} from 'rxjs';
 import * as $ from 'jquery';
@@ -39,7 +39,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   counter = 0;
   newColumns = new Map<number, UiColumnDefinition>();
   newTableName = '';
-  stores: Store[];
+  stores: StoreModel[];
   selectedStore;
   creatingTable = false;
 
@@ -118,7 +118,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   getStores() {
     this._crud.getStores().subscribe({
       next: res => {
-        this.stores = <Store[]>res;
+        this.stores = <StoreModel[]>res;
       }, error: err => {
         console.log(err);
       }
@@ -238,7 +238,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         if (result.error) {
           this._toast.exception(result, 'Could not generate table:');
         } else {
-          this._toast.success('Generated table ' + request.entityName, result.generatedQuery);
+          this._toast.success('Generated table ' + request.entityName, result.query);
           this.newColumns.clear();
           this.counter = 0;
           this.newColumns.set(this.counter++, new UiColumnDefinition('', true, false, INITIAL_TYPE, '', null, null));

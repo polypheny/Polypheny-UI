@@ -4,10 +4,10 @@ import {WebuiSettingsService} from './webui-settings.service';
 import {AllocationColumnModel, AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, AssetsModel, CatalogState, ColumnModel, ConstraintModel, EntityModel, EntityType, FieldModel, IdEntity, KeyModel, LogicalSnapshotModel, NamespaceModel} from '../models/catalog.model';
 import {NamespaceType} from '../models/ui-request.model';
 import {SidebarNode} from '../models/sidebar-node.model';
-import {BehaviorSubject, combineLatestWith, firstValueFrom, Observable, Subject} from 'rxjs';
+import {BehaviorSubject, combineLatestWith, Observable, Subject} from 'rxjs';
 import {DbmsTypesService} from './dbms-types.service';
-import {map, mergeMap} from 'rxjs/operators';
-import {Adapter} from '../views/adapters/adapter.model';
+import {map} from 'rxjs/operators';
+import {AdapterModel, AdapterType, SourceModel, StoreModel} from '../views/adapters/adapter.model';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +36,7 @@ export class CatalogService {
   public readonly allocations: BehaviorSubject<Map<number, AllocationEntityModel>> = new BehaviorSubject(new Map<number, AllocationEntityModel>());
   public readonly allocationColumns: BehaviorSubject<Map<number, AllocationColumnModel>> = new BehaviorSubject(new Map());
 
-  public readonly adapters: BehaviorSubject<Map<number, Adapter>> = new BehaviorSubject(new Map());
+  public readonly adapters: BehaviorSubject<Map<number, AdapterModel>> = new BehaviorSubject(new Map());
 
   constructor(
       private _http: HttpClient,
@@ -51,7 +51,6 @@ export class CatalogService {
   }
 
   updateSnapshot(): Observable<CatalogService> {
-    console.log("updating")
     return this._http.get(`${this.httpUrl}/getSnapshot`).pipe(map((snapshot: LogicalSnapshotModel) => {
       this.snapshot = snapshot;
       console.log(this.snapshot);
@@ -97,10 +96,10 @@ export class CatalogService {
     return sub.pipe();
   }
 
-  getSchemaTree(routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: NamespaceType[] = [NamespaceType.RELATIONAL, NamespaceType.DOCUMENT, NamespaceType.GRAPH]) {
+  getSchemaTree(routerLinkRoot: string, views: boolean, depth: number, schemaEdit?: boolean, dataModels: NamespaceType[] = [NamespaceType.RELATIONAL, NamespaceType.DOCUMENT, NamespaceType.GRAPH]) {
     return new Observable<SidebarNode[]>(observer => {
       this.updateIfNecessary().subscribe(() => {
-        observer.next(this.buildSchemaTree(routerLinkRoot, views, depth, showTable, schemaEdit, dataModels));
+        observer.next(this.buildSchemaTree(routerLinkRoot, views, depth, schemaEdit, dataModels));
       });
 
       return {
@@ -161,7 +160,7 @@ export class CatalogService {
   //// UTIL
 
 
-  private buildSchemaTree(routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit: boolean, dataModels: NamespaceType[]): SidebarNode[] {
+  private buildSchemaTree(routerLinkRoot: string, views: boolean, depth: number, schemaEdit: boolean, dataModels: NamespaceType[]): SidebarNode[] {
     const nodes: SidebarNode[] = [];
     for (const namespace of this.namespaces.value.values()) {
       const namespaceNode = new SidebarNode(namespace.name, namespace.name, this.getNamespaceIcon(namespace.namespaceType), '');
@@ -169,10 +168,10 @@ export class CatalogService {
       if (depth > 1) {
         switch (namespace.namespaceType) {
           case NamespaceType.DOCUMENT:
-            this.attachDocumentTree(namespace, namespaceNode, routerLinkRoot, depth, views, showTable);
+            this.attachDocumentTree(namespace, namespaceNode, routerLinkRoot, depth, views);
             break;
           case NamespaceType.RELATIONAL:
-            this.attachRelationalTree(namespace, namespaceNode, routerLinkRoot, depth, views, showTable);
+            this.attachRelationalTree(namespace, namespaceNode, routerLinkRoot, depth, views);
             break;
           case NamespaceType.GRAPH:
             namespaceNode.routerLink = routerLinkRoot + '' + namespace.name;
@@ -185,7 +184,7 @@ export class CatalogService {
     return nodes;
   }
 
-  private attachDocumentTree(namespace: NamespaceModel, namespaceNode: SidebarNode, routerLinkRoot: string, depth: number, views: boolean, showTable: boolean) {
+  private attachDocumentTree(namespace: NamespaceModel, namespaceNode: SidebarNode, routerLinkRoot: string, depth: number, views: boolean) {
     const nodes: SidebarNode[] = [];
     const collections: EntityModel[] = Array.from(this.entities.value.values()).filter(e => e.namespaceId === namespace.id);
 
@@ -201,18 +200,10 @@ export class CatalogService {
 
       nodes.push(collectionTree);
     }
-
-    if (showTable) {
-      const node = new SidebarNode(namespace.name + '.tables', 'tables', this.getNamespaceIcon(namespace.namespaceType), routerLinkRoot);
-      node.children.push(...nodes);
-      namespaceNode.children.push(node);
-    } else {
-      namespaceNode.children.push(...nodes);
-    }
-
+    namespaceNode.children.push(...nodes);
   }
 
-  private attachRelationalTree(namespace: NamespaceModel, namespaceNode: SidebarNode, routerLinkRoot: string, depth: number, views: boolean, showTable: boolean) {
+  private attachRelationalTree(namespace: NamespaceModel, namespaceNode: SidebarNode, routerLinkRoot: string, depth: number, views: boolean) {
     const nodes: SidebarNode[] = [];
     const tables: EntityModel[] = Array.from(this.entities.value.values()).filter(t => t.namespaceId === namespace.id);
     for (const table of tables) {
@@ -239,16 +230,8 @@ export class CatalogService {
       nodes.push(tableNode);
 
     }
-    if (showTable) {
-      const node = new SidebarNode(namespace.name + '.tables', 'tables', this.getNamespaceIcon(namespace.namespaceType), '');
-      node.children.push(...nodes);
-      namespaceNode.children.push(node);
-    } else {
-      namespaceNode.children.push(...nodes);
-      namespaceNode.routerLink = '';
-    }
-    console.log(namespaceNode);
-
+    namespaceNode.children.push(...nodes);
+    namespaceNode.routerLink = '';
   }
 
   private updateAssets() {
@@ -329,10 +312,16 @@ export class CatalogService {
     return this.wrapBehaviorSubject(() => this.adapters.value.get(adapterId));
   }
 
-  getAvailableStoresForIndexes(entityId: number): BehaviorSubject<Adapter[]> {
+  getAvailableStoresForIndexes(entityId: number): BehaviorSubject<AdapterModel[]> {
     return this.wrapBehaviorSubject(() => {
       const adapterIds = Array.from(this.placements.value.values()).map(p => p.adapterId);
-      return Array.from(this.adapters.value.values()).filter(a => adapterIds.includes(a.adapterId));
+      return Array.from(this.adapters.value.values()).filter(a => adapterIds.includes(a.id));
     });
+  }
+
+  getStores(): BehaviorSubject<StoreModel[]> {
+    return this.wrapBehaviorSubject(() => Array.from(this.adapters.value.values()).filter(a => {
+      return a.type === AdapterType.STORE;
+    }).map(a => <StoreModel>a));
   }
 }

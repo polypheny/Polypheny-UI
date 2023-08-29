@@ -105,7 +105,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
                 }
                 this.resultSet.header = savedResultHead;
                 this.resultSet.data = result.data;
-                this.resultSet.generatedQuery = result.generatedQuery;
+                this.resultSet.query = result.query;
                 this.resultSet.affectedRows = result.affectedRows;
                 this.resultSet.highestPage = result.highestPage;
 
@@ -352,8 +352,8 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
                 this.classifiedData = [];
                 this.resultSet = <RelationalResult>res;
                 this.exploreId = this.asExploreResult(this.resultSet).explorerId;
-                if (this.resultSet.generatedQuery) {
-                    this.createdSQL = this.resultSet.generatedQuery;
+                if (this.resultSet.query) {
+                    this.createdSQL = this.resultSet.query;
                 }
                 this.setPagination();
                 this.showViewExploring.emit(true);

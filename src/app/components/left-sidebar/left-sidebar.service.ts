@@ -165,7 +165,7 @@ export class LeftSidebarService {
    * Retrieve a schemaTree using the _crud service and apply it to the left sidebar
    */
   setSchema(_router: Router, routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: NamespaceType[] = [NamespaceType.RELATIONAL, NamespaceType.DOCUMENT, NamespaceType.GRAPH]) {
-    this._catalog.getSchemaTree(routerLinkRoot, views, depth, showTable, schemaEdit, dataModels).subscribe({
+    this._catalog.getSchemaTree(routerLinkRoot, views, depth, schemaEdit, dataModels).subscribe({
       next: (schemaTemp: SidebarNode[]) => {
         this.error.next(null);
         const schema = [];

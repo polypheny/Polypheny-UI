@@ -15,8 +15,10 @@ export class Result<D, H> {
     namespaceType: NamespaceType;
     namespaceName: string;
     namespaceId: number;
+    query: string;
     data: D[];
     header: H[];
+    exception: ResultException;
     error: string;
     language: string; //sql,mql,cql
 }
@@ -30,16 +32,13 @@ export class RelationalResult extends Result<string[], UiColumnDefinition> {
     tableId: number;
     tables: string[];
     error: string;
-    exception: ResultException;
     affectedRows: number;
-    generatedQuery: string;
     type: string;//"table" or "view"
 
 
-    constructor(error: string, generatedQuery = null, affectedRows = 0) {
+    constructor(error: string, affectedRows = 0) {
         super();
         this.error = error;
-        this.generatedQuery = generatedQuery;
         this.affectedRows = affectedRows;
     }
 }
@@ -53,18 +52,18 @@ export class RelationalExploreResult extends RelationalResult {
 }
 
 export class GraphResult extends Result<string[], FieldDefinition> {
-    query: string;
+
 }
 
 export class DocumentResult extends Result<string, FieldDefinition> {
-    query: string;
+
 }
 
 export class InfoSet extends RelationalResult {
 
 
     constructor(error: string, generatedQuery: any, affectedRows: number) {
-        super(error, generatedQuery, affectedRows);
+        super(error, affectedRows);
     }
 }
 

@@ -298,7 +298,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         if (result.error) {
           this._toast.exception(result, null, null, ToastDuration.INFINITE);
         } else if (result.affectedRows === 1) {
-          this._toast.success('new foreign key was created', result.generatedQuery);
+          this._toast.success('new foreign key was created', result.query);
           // this.getUml();
           // this.connectTables();
           const fkTable = fk.sourceTable.substr(fk.sourceTable.indexOf('.') + 1, fk.sourceTable.length);

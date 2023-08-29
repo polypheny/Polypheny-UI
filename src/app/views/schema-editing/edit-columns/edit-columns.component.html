@@ -1,5 +1,5 @@
 <app-edit-source-columns *ngIf="isEntityType(EntityType.SOURCE) | async"></app-edit-source-columns>
-<c-row class="row" *ngIf="!(isEntityType(EntityType.SOURCE) | async)">
+<c-row *ngIf="!(isEntityType(EntityType.SOURCE) | async)">
 
     <c-col>
         <h5 *ngIf="isEntityType(EntityType.MATERIALIZED_VIEW) | async">Materialized View: {{(entity|async).name}}</h5>
@@ -384,10 +384,10 @@
             </thead>
             <tbody>
             <tr>
-                <td>{{getOrNull( materializedInfo, 0 )}}</td>
-                <td>{{getOrNull( materializedInfo, 1 )}}</td>
-                <td>{{getOrNull( materializedInfo, 2 )}}</td>
-                <td>{{getOrNull( materializedInfo, 3 )}}</td>
+                <td>{{getOrNull( 0 ) | async}}</td>
+                <td>{{getOrNull( 1 ) | async}}</td>
+                <td>{{getOrNull( 2 ) | async}}</td>
+                <td>{{getOrNull( 3 ) | async}}</td>
             </tr>
             </tbody>
         </table>
@@ -465,7 +465,7 @@
         </table>
     </c-col>
 
-    <c-col lg="12" *ngIf="placements">
+    <c-col *ngIf="placements">
         <hr>
         <div class="mb-3" style="position: relative">
             <h5 style="display: inline">Data placements</h5>

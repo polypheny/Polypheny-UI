@@ -1,6 +1,6 @@
 import {NamespaceType} from './ui-request.model';
 import {PolyType} from '../components/data-view/models/result-set.model';
-import {Adapter, PlacementType} from '../views/adapters/adapter.model';
+import {AdapterModel, PlacementType} from '../views/adapters/adapter.model';
 
 export enum CatalogState {
   INIT,
@@ -70,7 +70,7 @@ export interface LogicalSnapshotModel {
   partitions: AllocationPartitionModel[];
   allocations: AllocationEntityModel[];
   allocColumns: AllocationColumnModel[];
-  adapters: Adapter[];
+  adapters: AdapterModel[];
 }
 
 

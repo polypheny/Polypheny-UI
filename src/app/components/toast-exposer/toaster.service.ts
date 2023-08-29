@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {RelationalResult} from '../data-view/models/result-set.model';
+import {RelationalResult, Result} from '../data-view/models/result-set.model';
 import {Subject} from 'rxjs';
 import {Toast} from './toaster.model';
 
@@ -90,7 +90,7 @@ export class ToasterService {
      * @param title Title of the message, default: 'error'. If null, it will be set to 'error'
      * @param duration Optional. Set the duration of the toast message. Default LONG
      */
-    exception(result: RelationalResult, message: string = null, title = 'error', duration = ToastDuration.LONG) {
+    exception(result: Result<any, any>, message: string = null, title = 'error', duration = ToastDuration.LONG) {
         let msg = result.error;
         if (message) {
             if (message.endsWith(' ')) {
@@ -102,7 +102,7 @@ export class ToasterService {
         if (!title) {
             title = 'error';
         }
-        const t: Toast = new Toast(title, msg, result.generatedQuery, duration, 'warning');
+        const t: Toast = new Toast(title, msg, result.query, duration, 'bg-warning');
         if (result.exception) {
             t.setException(result.exception);
         }

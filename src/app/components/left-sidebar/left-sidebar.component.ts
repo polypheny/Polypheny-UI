@@ -4,8 +4,8 @@ import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
 import {TreeComponent, TreeModel} from '@ali-hm/angular-tree-component';
 import {SidebarNode} from '../../models/sidebar-node.model';
-import {CatalogService} from "../../services/catalog.service";
-import {CatalogState} from "../../models/catalog.model";
+import {CatalogService} from '../../services/catalog.service';
+import {CatalogState} from '../../models/catalog.model';
 
 
 @Component({
@@ -16,14 +16,6 @@ import {CatalogState} from "../../models/catalog.model";
 
 //docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarComponent implements OnInit, AfterViewInit {
-
-    static readonly EXPAND_SHOWN_ROUTES: String[] = ['/views/monitoring', '/views/config', '/views/uml', '/views/querying/console', '/views/querying/relational-algebra'];
-
-    @ViewChild('tree', {static: false}) treeComponent: TreeComponent;
-    nodes:SidebarNode[] = [];
-    options;
-    error;
-    router;
 
     constructor(
         _router: Router,
@@ -62,6 +54,16 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
             }
         );
     }
+
+    static readonly EXPAND_SHOWN_ROUTES: String[] = ['/views/monitoring', '/views/config', '/views/uml', '/views/querying/console', '/views/querying/relational-algebra'];
+
+    @ViewChild('tree', {static: false}) treeComponent: TreeComponent;
+    nodes:SidebarNode[] = [];
+    options;
+    error;
+    router;
+
+    protected readonly CatalogState = CatalogState;
 
     ngOnInit() {
     }
@@ -151,6 +153,4 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
         }
         return false;
     }
-
-    protected readonly CatalogState = CatalogState;
 }

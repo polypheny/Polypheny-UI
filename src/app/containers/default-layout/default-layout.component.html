@@ -1,11 +1,15 @@
 <div class="min-vh-100 max-vh-100 wrapper d-flex flex-column overflow-hidden">
     <c-header position="fixed" class="position-sticky w-100 z-3">
-        <c-container class="h-100 align-content-center" fluid >
-            <c-header-brand [routerLink]="'/'"><img ngSrc="assets/img/brand/logo.svg" alt="Polypheny Logo" height="50"
-                                                    width="200"></c-header-brand>
-            <div (click)="showLeft = !showLeft">
-                <svg [cIcon]="icons.cilHamburgerMenu"  title="Sidebar Toggle"></svg>
-            </div>
+        <c-container class="h-100 align-content-center" fluid>
+            <c-header-brand [routerLink]="'/'"><img ngSrc="assets/img/brand/logo.svg" alt="Polypheny Logo" height="50" width="200"></c-header-brand>
+
+            <c-header-nav class="justify-items-start">
+                <c-nav-item>
+                    <a cNavLink [routerLink]="['/views/monitoring']" (click)="showLeft = !showLeft" routerLinkActive="active">
+                        <svg [cIcon]="icons.cilHamburgerMenu" title="Sidebar Toggle"></svg>
+                    </a>
+                </c-nav-item>
+            </c-header-nav>
 
             <c-header-nav class="ms-auto">
                 <c-nav-item>
@@ -54,13 +58,13 @@
                             </a>
                         </li>
                         <li>
-                            <a cDropdownItem class="mb-1"  [routerLink]="['/views/querying/relational-algebra']"
+                            <a cDropdownItem class="mb-1" [routerLink]="['/views/querying/relational-algebra']"
                                routerLinkActive="active">
                                 <i class="fa fa-cubes"></i><span class="ml-1 d-md-down-none">Plan Builder</span>
                             </a>
                         </li>
                         <li>
-                            <a cDropdownItem class="mb-1"  *ngIf="exploreByExampleEnabled()"
+                            <a cDropdownItem class="mb-1" *ngIf="exploreByExampleEnabled()"
                                [routerLink]="['/views/querying/explore-by-example']" routerLinkActive="active">
                                 <i class="fa fa-magic"></i><span class="ml-1 d-md-down-none">Explore by Example</span>
                             </a>
@@ -81,9 +85,11 @@
                 </c-nav-item>
 
 
-                <div (click)="showRight = !showRight" class="d-flex align-items-center">
-                    <svg [cIcon]="icons.cilHamburgerMenu" title="Sidebar Toggle"></svg>
-                </div>
+                <c-nav-item>
+                    <a cNavLink [routerLink]="[]" (click)="showRight = !showRight">
+                        <svg [cIcon]="icons.cilHamburgerMenu" title="Sidebar Toggle"></svg>
+                    </a>
+                </c-nav-item>
 
 
                 <ul class="c-header-nav navbar-nav ml-auto"></ul>

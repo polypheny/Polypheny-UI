@@ -73,7 +73,7 @@
 <div class="card " *ngIf="resultSet && !showingAnalysis " id="result-relational">
 
     <div class="card-header ">
-        <span>{{resultSet.generatedQuery}}</span>
+        <span>{{resultSet.query}}</span>
         <span class="badge pull-right" *ngIf="resultSet.error"
               [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
             <!--<ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>-->

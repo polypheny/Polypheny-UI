@@ -198,7 +198,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
             res => {
                 const result = <RelationalResult>res;
                 if (!result.error) {
-                    this._toast.success('Added query interface: ' + deploy.uniqueName, result.generatedQuery);
+                    this._toast.success('Added query interface: ' + deploy.uniqueName, result.query);
                     this._router.navigate(['./../'], {relativeTo: this._route});
                 } else {
                     this._toast.exception(result);
@@ -219,7 +219,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
                 res => {
                     const result = <RelationalResult>res;
                     if (!result.error) {
-                        this._toast.success('Removed query interface: ' + queryInterface.uniqueName, result.generatedQuery);
+                        this._toast.success('Removed query interface: ' + queryInterface.uniqueName, result.query);
                         this.getQueryInterfaces();
                     } else {
                         this._toast.exception(result);

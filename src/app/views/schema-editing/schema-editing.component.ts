@@ -10,7 +10,7 @@ import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
-import {Store} from '../adapters/adapter.model';
+import {StoreModel} from '../adapters/adapter.model';
 import {CatalogService} from '../../services/catalog.service';
 import {NamespaceModel} from '../../models/catalog.model';
 import {filter, map} from 'rxjs/operators';
@@ -43,7 +43,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   dropSubmitted = false;
   createNamespaceFeedback = 'Name is invalid';
   private subscriptions = new Subscription();
-  stores: Store[];
+  stores: StoreModel[];
   graphStore: string;
 
   public readonly NamespaceType = NamespaceType;
@@ -212,7 +212,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
   getStores() {
     this._crud.getStores().subscribe({
-      next: (res: Store[]) => {
+      next: (res: StoreModel[]) => {
         this.stores = res;
       }, error: err => {
         console.log(err);

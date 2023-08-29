@@ -1,4 +1,4 @@
-import {Component, HostListener, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
@@ -6,9 +6,13 @@ import {CrudService} from '../../../services/crud.service';
 import {PolyType, RelationalResult} from '../../../components/data-view/models/result-set.model';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {GraphPlacements, Store} from '../../adapters/adapter.model';
+import {StoreModel} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
-import {Subscription} from 'rxjs';
+import {BehaviorSubject, combineLatest, concatMap, forkJoin, Observable, Subscription} from 'rxjs';
+import {AllocationPlacementModel, GraphModel, NamespaceModel} from '../../../models/catalog.model';
+import {CatalogService} from '../../../services/catalog.service';
+import {filter, map, mergeMap} from 'rxjs/operators';
+import {Method} from '../../../models/ui-request.model';
 
 @Component({
   selector: 'app-graph-edit',
@@ -18,21 +22,32 @@ import {Subscription} from 'rxjs';
 
 export class GraphEditGraphComponent implements OnInit, OnDestroy {
 
-  @Input()
-  graphId: number;
-  @Input()
-  graphName: string;
+  constructor(
+      private _route: ActivatedRoute,
+      private _leftSidebar: LeftSidebarService,
+      public _crud: CrudService,
+      private _toast: ToasterService,
+      public _types: DbmsTypesService,
+      private _catalog: CatalogService
+  ) {
+    this.subscribeStores();
+    this.subscribeAddableStores();
+    this.subscribePlacements();
+  }
 
-  resultSet: RelationalResult;
+  readonly entity: BehaviorSubject<GraphModel> = new BehaviorSubject(null);
+  readonly namespace: BehaviorSubject<NamespaceModel> = new BehaviorSubject<NamespaceModel>(null);
+
   types: PolyType[] = [];
   editColumn = -1;
   confirm = -1;
 
 
   //data placement handling
-  stores: Store[];
-  selectedStore: Store;
-  dataPlacements: GraphPlacements;
+  readonly stores: BehaviorSubject<StoreModel[]> = new BehaviorSubject([]);
+  readonly addableStores: BehaviorSubject<StoreModel[]> = new BehaviorSubject([]);
+  selectedStore: StoreModel;
+  readonly placements: BehaviorSubject<AllocationPlacementModel[]> = new BehaviorSubject([]);
   isAddingPlacement = false;
 
 
@@ -42,18 +57,20 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
   @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
   @ViewChild('partitionFunctionModal', {static: false}) public partitionFunctionModal: ModalDirective;
 
-  constructor(
-      private _route: ActivatedRoute,
-      private _leftSidebar: LeftSidebarService,
-      public _crud: CrudService,
-      private _toast: ToasterService,
-      public _types: DbmsTypesService
-  ) {
-  }
+  protected readonly Method = Method;
 
   ngOnInit() {
-    this.getStores();
-    this.getPlacements();
+    const sub = this._route.params.subscribe((params) => {
+      this._catalog.getNamespaceFromName(params['id']).pipe(filter(n => !!n)).subscribe(n => {
+        this.namespace.next(n);
+      });
+
+      this._catalog.getEntityFromName(params['id'], params['id']).pipe(filter(e => !!e)).subscribe(e => {
+        this.entity.next(e);
+      });
+    });
+
+    this.subscriptions.add(sub);
   }
 
   ngOnDestroy() {
@@ -70,49 +87,20 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     }
   }
 
-  /*getGraphId() {
-      this.graphId = this._route.snapshot.paramMap.get('id');
-      const sub = this._route.params.subscribe((params) => {
-          this.graphId = params['id'];
-          this.getStores();
-          this.getPlacements();
-      });
-      this.subscriptions.add(sub);
-  }*/
 
-
-  getStores() {
-    this._crud.getStores().subscribe({
-      next: (res: Store[]) => {
-        this.stores = res;
-      }, error: err => {
-        console.log(err);
-      }
-    });
-  }
-
-  getAddableStores(): Store[] {
-    if (!this.stores) {
-      return [];
-    }
-    return this.stores.filter((s: Store) => {
-      //hide stores that are already part of the placement
-      if (this.dataPlacements && this.dataPlacements.stores && this.dataPlacements.stores.length > 0) {
-        let showStore = true;
-        for (const store of this.dataPlacements.stores) {
-          if (store.uniqueName === s.uniqueName) {
-            showStore = false;
-          }
+  subscribeAddableStores() {
+    return combineLatest([this.stores, this.placements]).pipe(
+        filter(pair => !!pair[0] && !!pair[1])).subscribe(
+        pair => {
+          //hide stores that are already part of the placement
+          const adapterIds = pair[1].map(p => p.adapterId);
+          this.addableStores.next(pair[0].filter(s => !adapterIds.includes(s.id)));
         }
-        return showStore;
-      } else {
-        return true;
-      }
-    });
+    );
   }
 
 
-  modifyPlacement(method: 'ADD' | 'DROP', store = null) {
+  modifyPlacement(method: Method, store = null) {
     if (store != null) {
       this.selectedStore = store;
     }
@@ -120,18 +108,19 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
       return;
     }
     this.isAddingPlacement = true;
-    this._crud.addDropGraphPlacement(this.graphId, this.graphName, this.selectedStore.adapterId, method).subscribe(res => {
+    this._crud.addDropGraphPlacement(this.entity.value.id, this.entity.value.name, this.selectedStore.id, method).subscribe(res => {
       const result = <RelationalResult>res;
       if (result.error) {
         this._toast.exception(result);
-      } else {
-        if (method === 'ADD') {
-          this._toast.success('Added placement on store ' + this.selectedStore.uniqueName, result.generatedQuery, 'Added placement');
-        } else if (method === 'DROP') {
-          this._toast.success('Dropped placement on store ' + this.selectedStore.uniqueName, result.generatedQuery, 'Dropped placement');
-        }
-        this.getPlacements();
+        return;
       }
+      if (method === Method.ADD) {
+        this._toast.success('Added placement on store ' + this.selectedStore.name, result.query, 'Added placement');
+      } else if (method === Method.DROP) {
+        this._toast.success('Dropped placement on store ' + this.selectedStore.name, result.query, 'Dropped placement');
+      }
+      this._catalog.updateIfNecessary();
+
     }).add(() => {
       this.isAddingPlacement = false;
     });
@@ -148,18 +137,18 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getPlacements() {
-    this._crud.getGraphPlacements(this.graphId, this.graphId, []).subscribe(res => {
-      console.log(res);
-      this.dataPlacements = <GraphPlacements>res;
-      if (this.dataPlacements.exception) {
-        // @ts-ignore
-        this._toast.exception({
-          error: this.dataPlacements.exception.detailMessage,
-          exception: this.dataPlacements.exception
-        });
-      }
-    });
+  private subscribePlacements() {
+    combineLatest([this.entity, this.namespace])
+    .pipe(
+        filter(pair => !!pair[0] && !!pair[1]))
+    .pipe(mergeMap(pair => {
+      return this._catalog.getPlacements(pair[0].id);
+    })).subscribe(placements => this.placements.next(placements));
   }
 
+  private subscribeStores() {
+    this._catalog.getStores().subscribe(stores => {
+      this.stores.next(stores);
+    });
+  }
 }

@@ -319,6 +319,11 @@ export class ConstraintRequest {
   }
 }
 
+export enum Method{
+  ADD = 'ADD',
+  DROP = 'DROP',
+  MODIFY = 'MODIFY'
+}
 /**
  * Send request to either create or drop a schema
  */
@@ -362,5 +367,4 @@ export class Namespace {
     this.cascade = cascade;
     return this;
   }
-
 }

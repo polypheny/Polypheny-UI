@@ -24,12 +24,12 @@ import {
     Namespace,
     SchemaRequest,
     StatisticRequest,
-    TableRequest
+    TableRequest, Method
 } from '../models/ui-request.model';
 import {DockerSettings} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
-import {Adapter} from '../views/adapters/adapter.model';
+import {AdapterModel} from '../views/adapters/adapter.model';
 import {QueryInterface} from '../views/query-interfaces/query-interfaces.model';
 import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
 import {WebSocket} from './webSocket';
@@ -332,7 +332,7 @@ export class CrudService {
     /**
      * Add or drop a placement
      */
-    addDropPlacement(namespaceId: number, entityId: number, storeId: number, method: 'ADD' | 'DROP' | 'MODIFY', columns = []) {
+    addDropPlacement(namespaceId: number, entityId: number, storeId: number, method: Method, columns = []) {
         const meta = new PlacementMeta(namespaceId, entityId, null, storeId, method, columns);
         return this._http.post(`${this.httpUrl}/addDropPlacement`, meta, this.httpOptions);
     }
@@ -340,13 +340,13 @@ export class CrudService {
     /**
      * Add or drop a placement
      */
-    addDropGraphPlacement(graphId: number, graph: string, store: number, method: 'ADD' | 'DROP') {
+    addDropGraphPlacement(graphId: number, graph: string, store: number, method: Method) {
         let code: string;
         switch (method) {
-            case 'ADD':
+            case Method.ADD:
                 code = `CREATE PLACEMENT OF ${graph} ON STORE ${store}`;
                 break;
-            case 'DROP':
+            case Method.DROP:
                 code = `DROP PLACEMENT OF ${graph} ON STORE ${store}`;
                 break;
         }
@@ -358,7 +358,7 @@ export class CrudService {
     /**
      * Add or drop a placement
      */
-    addDropCollectionPlacement(namespaceId: number, collectionId: number, collection: string, store: string, method: 'ADD' | 'DROP') {
+    addDropCollectionPlacement(namespaceId: number, collection: string, store: string, method: Method ) {
         let code: string;
         switch (method) {
             case 'ADD':
@@ -434,6 +434,11 @@ export class CrudService {
       this.socket.next(msg);
     }*/
 
+    anyQueryBlocking(queryRequest: QueryRequest) {
+        console.log(queryRequest);
+        return this._http.post(`${this.httpUrl}/anyQuery`, queryRequest, this.httpOptions);
+    }
+
     onSocketEvent() {
         return this.socket;
     }
@@ -508,7 +513,7 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/getAvailableStoresForIndexes`, request, this.httpOptions);
     }
 
-    updateAdapterSettings(adapter: Adapter) {
+    updateAdapterSettings(adapter: AdapterModel) {
         return this._http.post(`${this.httpUrl}/updateAdapterSettings`, adapter);
     }
 
@@ -695,5 +700,7 @@ export class CrudService {
 
         return this._http.post(`${this.httpUrl}/loadPlugins`, formData);
     }
+
+
 
 }

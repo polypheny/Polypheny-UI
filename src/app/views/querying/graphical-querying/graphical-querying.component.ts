@@ -102,7 +102,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   initSchema() {
-    this._catalog.getSchemaTree('views/graphical-querying/', true, 3, false, false, [NamespaceType.RELATIONAL]).subscribe(
+    this._catalog.getSchemaTree('views/graphical-querying/', true, 3, false, [NamespaceType.RELATIONAL]).subscribe(
         (schemaTemp: SidebarNode[]) => {
           const nodeAction = (tree, node, $event) => {
             if (!node.isActive && node.isLeaf) {
@@ -470,7 +470,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     const code = this.editorGenerated.getCode();
     if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, 'sql', null))) {
       this.loading = false;
-      this.resultSet = new RelationalResult('Could not establish a connection with the server.', code);
+      this.resultSet = new RelationalResult('Could not establish a connection with the server.');
     }
   }
 

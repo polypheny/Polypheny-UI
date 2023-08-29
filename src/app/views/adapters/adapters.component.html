@@ -128,7 +128,7 @@
             </div>
 
             <!-- Edit adapter settings -->
-            <div class="modal-body" *ngIf="editingAdapter && editingAdapter.adapterSettings">
+            <div class="modal-body" *ngIf="editingAdapter && editingAdapter.settings">
                 <form [formGroup]="editingAdapterForm" autocomplete="off" (ngSubmit)="saveAdapterSettings()">
                     <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
                         <div>

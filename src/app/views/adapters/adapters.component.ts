@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Adapter, AdapterInformation, AdapterSetting, Source, Store} from './adapter.model';
+import {AdapterModel, AdapterInformation, AdapterSetting, SourceModel, StoreModel} from './adapter.model';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {
   AbstractControl,
@@ -23,18 +23,18 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 })
 export class AdaptersComponent implements OnInit, OnDestroy {
 
-  stores: Store[];
-  sources: Source[];
+  stores: StoreModel[];
+  sources: SourceModel[];
   availableStores: AdapterInformation[];
   availableSources: AdapterInformation[];
   route: String;
   routeListener;
   private subscriptions = new Subscription();
 
-  editingAdapter: Adapter;
+  editingAdapter: AdapterModel;
   editingAdapterForm: UntypedFormGroup;
   deletingAdapter;
-  deletingInProgress: Adapter[];
+  deletingInProgress: AdapterModel[];
 
   editingAvailableAdapter: AdapterInformation;
   editingAvailableAdapterForm: UntypedFormGroup;
@@ -96,8 +96,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   getStoresAndSources() {
     this._crud.getStores().subscribe({
       next: res => {
-        const stores = <Store[]>res;
-        stores.sort((a, b) => (a.uniqueName > b.uniqueName) ? 1 : -1);
+        const stores = <StoreModel[]>res;
+        stores.sort((a, b) => (a.name > b.name) ? 1 : -1);
         this.stores = stores;
       }
       ,
@@ -107,7 +107,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     });
     this._crud.getSources().subscribe({
       next: res => {
-        this.sources = <Source[]>res;
+        this.sources = <SourceModel[]>res;
       }
       ,
       error: err => {
@@ -162,10 +162,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     this.fileLabel = 'Choose File';
   }
 
-  initAdapterSettingsModal(adapter: Adapter) {
+  initAdapterSettingsModal(adapter: AdapterModel) {
     this.editingAdapter = adapter;
     const fc = {};
-    for (const [k, v] of Object.entries(this.editingAdapter.adapterSettings)) {
+    for (const [k, v] of Object.entries(this.editingAdapter.settings)) {
       const validators = [];
       if (v.fileNames) {
         fc[v.name] = this._fb.array([]);
@@ -215,8 +215,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       const base = this.editingAvailableAdapter.name.toLowerCase(); // + "_"; // TODO: re-enable underscores when graph namespaces work with it
       let max_i = 0;
       for (const store of this.stores) {
-        if (store.uniqueName.startsWith(base)) {
-          const suffix = store.uniqueName.slice(base.length);
+        if (store.name.startsWith(base)) {
+          const suffix = store.name.slice(base.length);
           const i = parseInt(suffix, 10);
           if (!isNaN(i)) {
             max_i = Math.max(max_i, i);
@@ -224,8 +224,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         }
       }
       for (const store of this.sources) {
-        if (store.uniqueName.startsWith(base)) {
-          const suffix = store.uniqueName.slice(base.length);
+        if (store.name.startsWith(base)) {
+          const suffix = store.name.slice(base.length);
           const i = parseInt(suffix, 10);
           if (!isNaN(i)) {
             max_i = Math.max(max_i, i);
@@ -452,7 +452,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       next: res => {
         const result = <RelationalResult>res;
         if (!result.error) {
-          this._toast.success('Deployed "' + deploy.uniqueName + '"', result.generatedQuery);
+          this._toast.success('Deployed "' + deploy.uniqueName + '"', result.query);
           this._router.navigate(['./../'], {relativeTo: this._route});
         } else {
           this._toast.exception(result, 'Could not deploy adapter');
@@ -465,7 +465,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }).add(() => this.deploying = false);
   }
 
-  removeAdapter(adapter: Adapter) {
+  removeAdapter(adapter: AdapterModel) {
     if (this.deletingAdapter !== adapter) {
       this.deletingAdapter = adapter;
     } else {
@@ -474,11 +474,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       }
 
       this.deletingInProgress.push(adapter);
-      this._crud.removeAdapter(adapter.uniqueName).subscribe({
+      this._crud.removeAdapter(adapter.name).subscribe({
         next: res => {
           const result = <RelationalResult>res;
           if (!result.error) {
-            this._toast.success('Dropped "' + adapter.uniqueName + '"', result.generatedQuery);
+            this._toast.success('Dropped "' + adapter.name + '"', result.query);
             this.getStoresAndSources();
           } else {
             this._toast.exception(result);
@@ -582,14 +582,14 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
   }
 
-  resetDeletingAdapter(adapter: Adapter) {
+  resetDeletingAdapter(adapter: AdapterModel) {
     if (this.deletingAdapter === adapter && this.deletingInProgress.includes(adapter)) {
       return;
     }
     this.deletingAdapter = undefined;
   }
 
-  isDeleting(adapter: Adapter) {
+  isDeleting(adapter: AdapterModel) {
     return this.deletingInProgress.includes(adapter);
   }
 
@@ -618,13 +618,13 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 }
 
 // see https://angular.io/guide/form-validation#custom-validators
-function validateUniqueName(adapters: Adapter[]): ValidatorFn {
+function validateUniqueName(adapters: AdapterModel[]): ValidatorFn {
   return (control: AbstractControl): { [key: string]: any } | null => {
     if (!control.value) {
       return null;
     }
     for (const s of adapters) {
-      if (s.uniqueName === control.value) {
+      if (s.name === control.value) {
         return {unique: true};
       }
     }

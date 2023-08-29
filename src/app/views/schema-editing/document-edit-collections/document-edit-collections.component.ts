@@ -1,11 +1,11 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
-import {EditCollectionRequest, EditTableRequest} from '../../../models/ui-request.model';
+import {EditCollectionRequest, EditTableRequest, QueryRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   EntityMeta,
   PolyType,
-  RelationalResult,
+  RelationalResult, Result,
   Status,
   UiColumnDefinition
 } from '../../../components/data-view/models/result-set.model';
@@ -13,7 +13,7 @@ import {ToastDuration, ToasterService} from '../../../components/toast-exposer/t
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {Store} from '../../adapters/adapter.model';
+import {StoreModel} from '../../adapters/adapter.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {BehaviorSubject, Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
@@ -21,7 +21,8 @@ import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
 import {CollectionModel, EntityType, NamespaceModel} from '../../../models/catalog.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {filter, map} from 'rxjs/operators';
+import {filter, map, mergeMap} from 'rxjs/operators';
+import {WebSocket} from '../../../services/webSocket';
 
 @Component({
   selector: 'app-document-edit-collections',
@@ -30,29 +31,17 @@ import {filter, map} from 'rxjs/operators';
 })
 export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 
-  types: PolyType[] = [];
-  namespace: BehaviorSubject<NamespaceModel>;
-  collections: BehaviorSubject<Collection[]>;
+  readonly namespace: BehaviorSubject<NamespaceModel> = new BehaviorSubject(null);
+  readonly collections: BehaviorSubject<Collection[]> = new BehaviorSubject<Collection[]>([]);
+  readonly currentRoute: BehaviorSubject<string> = new BehaviorSubject<string>(this._route.snapshot.paramMap.get('id'));
 
-  counter = 0;
-  newColumns = new Map<number, UiColumnDefinition>();
-  newTableName = '';
-  stores: Store[];
+  readonly stores: BehaviorSubject<StoreModel[]> = new BehaviorSubject<StoreModel[]>([]);
+  newCollectionName: string;
   selectedStore;
-  creatingTable = false;
+  creatingCollection = false;
 
-  //export table
-  showExportButton = false;
-  exportProgress = 0.0;
-  uploading = false;
   private subscriptions = new Subscription();
-  exportForm = new UntypedFormGroup({
-    name: new UntypedFormControl('', Validators.required),
-    description: new UntypedFormControl(''),
-    pub: new UntypedFormControl(0, Validators.required),
-    createPrimaryKeys: new UntypedFormControl(true, Validators.required),
-    addDefaultValue: new UntypedFormControl(true, Validators.required)
-  });
+  private resultSet: Result<any, any>;
 
   constructor(
       public _crud: CrudService,
@@ -61,28 +50,30 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
       private _router: Router,
       private _leftSidebar: LeftSidebarService,
       public _types: DbmsTypesService,
-      private _settings: WebuiSettingsService,
       public _catalog: CatalogService,
-      public _util: UtilService
   ) {
   }
 
   ngOnInit() {
-    this.newColumns.set(this.counter++, new UiColumnDefinition('', true, false, '', '', null, null));
-    //this.database = this._route.snapshot.paramMap.get('id');
-    const sub1 = this._route.params.subscribe((params) => {
-      this._catalog.updateIfNecessary().subscribe(catalog => {
-        this.namespace = this._catalog.getNamespaceFromName(params['id']);
+    this._route.params.subscribe(route => {
+      this.currentRoute.next(route['id']);
+    });
 
-        this.subscribeCollection();
 
+    const sub1 = this.currentRoute.subscribe(route => {
+      this._catalog.getNamespaceFromName(route).subscribe(n => {
+        this.namespace.next(n);
       });
     });
     this.subscriptions.add(sub1);
 
+    this.subscribeCollection();
 
-    this.getStores();
-    this.initSocket();
+    const subStore = this._catalog.getStores().subscribe(stores => {
+      this.stores.next(stores);
+    });
+    this.subscriptions.add(subStore);
+
     const sub2 = this._crud.onReconnection().subscribe((b) => {
       if (b) {
         this.onReconnect();
@@ -99,9 +90,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 
   onReconnect() {
     this._catalog.updateIfNecessary();
-    this.getTypeInfo();
-    this.getStores();
-    this._leftSidebar.setSchema( this._router,'/views/schema-editing/', false, 2, true );
+    this._leftSidebar.setSchema(this._router, '/views/schema-editing/', false, 2, true);
   }
 
   documentListener() {
@@ -117,51 +106,14 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   }
 
   subscribeCollection() {
-    this.collections = new BehaviorSubject<Collection[]>([]);
-
-    this.namespace.pipe(
+    const sub = this.namespace.pipe(
         filter(namespace => !!namespace),
-        map(namespace => this._catalog.getEntities( namespace.id ).pipe(
-            map(e =>
-                e.map(col => Collection.fromModel(<CollectionModel>col)).sort((a, b) => a.name.localeCompare(b.name)))))).subscribe(collections => {
-          collections.subscribe( cols => {
-            this.collections.next(cols);
-          });
+        mergeMap(namespace => this._catalog.getEntities(namespace.id)),
+        map(cols => cols.map(c => Collection.fromModel(<CollectionModel>c)).sort((a, b) => a.name.localeCompare(b.name)))).subscribe(cols => {
+      this.collections.next(cols);
     });
+    this.subscriptions.add(sub);
 
-    
-    /*this._crud.getTables(new EditTableRequest(this.namespaceId)).subscribe(
-        res => {
-          const result = <DbTable[]>res;
-          this.tables = [];
-          for (const t of result) {
-            this.tables.push(new Collection(t));
-          }
-          this.tables = this.tables.sort((a, b) => a.name.localeCompare(b.name));
-        }, err => {
-          this._toast.error('could not retrieve list of tables');
-          console.log(err);
-        }
-    );*/
-  }
-
-  getStores() {
-    this._crud.getStores().subscribe(
-        res => {
-          this.stores = <Store[]>res;
-        }, err => {
-          console.log(err);
-        });
-  }
-
-  getSchemaType() {
-    /*this._crud.getTypeSchemas().subscribe(
-        res => {
-          this.n = res[this.database];
-        }, error => {
-          console.log(error);
-        }
-    );*/
   }
 
   /**
@@ -184,109 +136,96 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     if (this.dropTruncateClass(action, collection) !== 'btn-danger') {
       return;
     }
-    
+
     const request = new EditTableRequest(this.namespace.value.id, collection.id, action);
-    
-    this._crud.dropTruncateTable(request).subscribe(
-        res => {
-          const result = <RelationalResult>res;
-          if (result.error) {
-            this._toast.exception(result, 'Could not ' + action + ' the table ' + collection + ':');
-          } else {
-            let toastAction = 'Truncated';
-            if (request.getAction() === 'drop') {
-              toastAction = 'Dropped';
-              this._leftSidebar.setSchema( this._router, '/views/schema-editing/', false, 2, true );
-            }
-            this._toast.success(toastAction + ' table ' + collection.name);
-            this._catalog.updateSnapshot();
+
+    this._crud.dropTruncateTable(request).subscribe({
+      next: (result: Result<any, any>) => {
+        if (result.error) {
+          this._toast.exception(result, 'Could not ' + action + ' the table ' + collection + ':');
+        } else {
+          let toastAction = 'Truncated';
+          if (request.getAction() === 'drop') {
+            toastAction = 'Dropped';
+            this._leftSidebar.setSchema(this._router, '/views/schema-editing/', false, 2, true);
           }
-        }, err => {
-          this._toast.error('Could not ' + action + ' the table ' + collection + ' due to an unknown error');
-          console.log(err);
+          this._toast.success(toastAction + ' table ' + collection.name);
+          this._catalog.updateSnapshot();
         }
-    );
+      }, error: err => {
+        this._toast.error('Could not ' + action + ' the table ' + collection + ' due to an unknown error');
+        console.log(err);
+      }
+    });
   }
 
   createCollection() {
-    if (this.newTableName === '') {
+    if (this.newCollectionName === '') {
       this._toast.warn('Please provide a name for the new collection. The new collection was not created.', 'missing table name', ToastDuration.INFINITE);
       return;
     }
-    if (!this._crud.nameIsValid(this.newTableName)) {
+    if (!this._crud.nameIsValid(this.newCollectionName)) {
       this._toast.warn('Please provide a valid name for the new collection. The new collection was not created.', 'invalid table name', ToastDuration.INFINITE);
       return;
     }
-    if (this.collections.value.filter((t) => t.name === this.newTableName).length > 0) {
+    if (this.collections.value.filter((t) => t.name === this.newCollectionName).length > 0) {
       //if (this.tables.indexOf(this.newTableName) !== -1) {
       this._toast.warn('A collection with this name already exists. Please choose another name.', 'invalid collection name', ToastDuration.INFINITE);
       return;
     }
-    const request = new EditCollectionRequest(this.namespace.value.id, this.newTableName, null, 'create', this.selectedStore);
-    this.creatingTable = true;
-    this._crud.createCollection(request).subscribe(
-        res => {
-          const result = <RelationalResult>res;
-          if (result.error) {
-            this._toast.exception(result, 'Could not generate collection:');
-          } else {
-            this._toast.success('Generated collection ' + request.entityName, result.generatedQuery);
-            this.newColumns.clear();
-            this.counter = 0;
-            this.newColumns.set(this.counter++, new UiColumnDefinition('', true, false, this.types[0].name, '', null, null));
-            this.newTableName = '';
-            this.selectedStore = null;
-            this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false );
-          }
-          this._catalog.updateIfNecessary();
-        }, err => {
-          this._toast.error('Could not generate collection');
-          console.log(err);
+    const query = 'db.createCollection('+ this.newCollectionName +')';
+    const entityName = this.newCollectionName;
+    //const request = new EditCollectionRequest(this.namespace.value.id, this.newCollectionName, null, 'create', this.selectedStore);
+    this.creatingCollection = true;
+    this._crud.anyQueryBlocking(new QueryRequest(query, false, true, 'mql', this.namespace.value.id)).subscribe({
+      next: (result: Result<any, any>) => {
+        console.log(result)
+        if (result.error) {
+          this._toast.exception(result, 'Could not generate collection:');
+        } else {
+          this._toast.success('Generated collection ' + entityName, result.query);
+          this.newCollectionName = '';
+          this.selectedStore = null;
+          this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
         }
-    ).add(() => this.creatingTable = false);
+        this._catalog.updateIfNecessary();
+      }, error: err => {
+        this._toast.error('Could not generate collection');
+        console.log(err);
+      }
+    }).add(() => this.creatingCollection = false);
   }
 
   renameTable(table: Collection) {
     const t = new EntityMeta(this.namespace.value.id, table.id, table.newName, []);
-    this._crud.renameTable(t).subscribe(
-        res => {
-          const r = <RelationalResult>res;
-          if (r.exception) {
-            this._toast.exception(r);
-          } else {
-            this._toast.success('Renamed table ' + table.name + ' to ' + table.newName);
-            this._catalog.updateIfNecessary();
-            this._leftSidebar.setSchema(this._router, '/views/schema-editing/', false, 2, true);
-          }
-        }, err => {
-          this._toast.error('Could not rename the collection ' + table.name);
-          console.log(err);
+    this._crud.renameTable(t).subscribe({
+      next: res => {
+        const r = <RelationalResult>res;
+        if (r.exception) {
+          this._toast.exception(r);
+        } else {
+          this._toast.success('Renamed table ' + table.name + ' to ' + table.newName);
+          this._catalog.updateIfNecessary();
+          this._leftSidebar.setSchema(this._router, '/views/schema-editing/', false, 2, true);
         }
-    );
+      }, error: err => {
+        this._toast.error('Could not rename the collection ' + table.name);
+        console.log(err);
+      }
+
+    });
   }
 
   /**
    * Check if the new table name is valid
    */
-  canRename(table: Collection) {
+  canRename(table
+                :
+                Collection
+  ) {
     //table.name !== table.newName  not necessary, since the filter will catch it as well
     return this.collections.value.filter((t) => t.name === table.newName).length === 0 &&
         this._crud.nameIsValid(table.newName);
-  }
-
-
-  initSocket() {
-    const sub = this._crud.onSocketEvent().subscribe(
-        (msg: Status) => {
-          if (msg.context === 'tableExport') {
-            this.exportProgress = msg.status;
-          }
-        }, err => {
-          setTimeout(() => {
-            this.initSocket();
-          }, +this._settings.getSetting('reconnection.timeout'));
-        });
-    this.subscriptions.add(sub);
   }
 
   createTableValidation(name: string) {
@@ -299,16 +238,6 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     } else {
       return 'is-invalid';
     }
-  }
-
-
-  getTypeInfo() {
-    this._types.getTypes().subscribe(
-        t => {
-          this.types = t;
-          this.newColumns.get(0).dataType = t[0].name;
-        }
-    );
   }
 
 }
@@ -324,18 +253,18 @@ class Collection {
   modifiable: boolean;
   tableType: EntityType;
 
-  constructor(name:string, newName:string, modifiable:boolean, entityType: EntityType) {
+  constructor(name: string, newName: string, modifiable: boolean, entityType: EntityType) {
     this.name = name;
     this.newName = newName;
     this.modifiable = modifiable;
     this.tableType = entityType;
   }
-  
+
   static fromDB(collection: DbTable) {
     return new Collection(collection.tableName, collection.tableName, collection.modifiable, collection.tableType);
   }
-  
-  static fromModel( collection: CollectionModel){
+
+  static fromModel(collection: CollectionModel) {
     return new Collection(collection.name, collection.name, collection.modifiable, collection.entityType);
   }
 }

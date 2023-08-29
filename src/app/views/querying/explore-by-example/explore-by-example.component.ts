@@ -110,7 +110,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     }
 
     initSchema() {
-        this._catalog.getSchemaTree('views/graphical-querying/', true, 3, false, false, [NamespaceType.RELATIONAL]).subscribe(
+        this._catalog.getSchemaTree('views/graphical-querying/', true, 3, false, [NamespaceType.RELATIONAL]).subscribe(
             (schemaTemp: SidebarNode[]) => {
                 const nodeAction = (tree, node, $event) => {
                     if (!node.isActive && node.isLeaf) {

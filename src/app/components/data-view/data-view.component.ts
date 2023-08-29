@@ -27,7 +27,7 @@ import {WebSocket} from '../../services/webSocket';
 import {HttpEventType} from '@angular/common/http';
 import * as $ from 'jquery';
 import {Table} from '../../views/schema-editing/edit-tables/edit-tables.component';
-import {Store} from '../../views/adapters/adapter.model';
+import {StoreModel} from '../../views/adapters/adapter.model';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
 import {UntypedFormGroup} from '@angular/forms';
 import {CatalogService} from '../../services/catalog.service';
@@ -133,7 +133,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   ];
   timeUniteSelected = 'minutes';
   intervalSelected = 10;
-  stores: Store[];
+  stores: StoreModel[];
   storeOptions: Array<String>;
   storeSelected: string;
   chooseNameForView: UntypedFormGroup;
@@ -605,7 +605,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
               if (result.affectedRows === 1) {
                 rows = ' row';
               }
-              this._toast.success('Updated ' + result.affectedRows + rows, result.generatedQuery, 'update', ToastDuration.SHORT);
+              this._toast.success('Updated ' + result.affectedRows + rows, result.query, 'update', ToastDuration.SHORT);
             } else if (result.error) {
               this._toast.exception(result, 'Could not update this row');
             }
@@ -792,15 +792,16 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   getStores() {
-    this._crud.getStores().subscribe(
-        res => {
-          this.stores = <Store[]>res;
-          this.storeOptions = this.stores.map(s => s.uniqueName);
-          this.storeSelected = this.stores[0]['uniqueName'];
+    this._crud.getStores().subscribe({
+      next: (res: StoreModel[]) => {
+        this.stores = res;
+        this.storeOptions = this.stores.map(s => s.name);
+        this.storeSelected = this.stores[0]['uniqueName'];
 
-        }, err => {
-          console.log(err);
-        });
+      }, error: err => {
+        console.log(err);
+      }
+    });
   }
 
 
@@ -808,7 +809,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
     this.loading = true;
     if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, 'sql', null))) {
       this.loading = false;
-      this.resultSet = new RelationalResult('Could not establish a connection with the server.', code);
+      this.resultSet = new RelationalResult('Could not establish a connection with the server.');
     }
   }
 

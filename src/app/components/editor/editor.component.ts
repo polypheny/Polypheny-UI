@@ -32,7 +32,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     constructor(
         private _crud: CrudService,
         private _catalog: CatalogService ) {
-        this._catalog.getSchemaTree( '', true, 3, true ).subscribe(
+        this._catalog.getSchemaTree('', true, 3).subscribe(
             (res: SidebarNode[]) => {
                 const map = this.computeSuggestions(res);
                 map.forEach((v, k) => {
