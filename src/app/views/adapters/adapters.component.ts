@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Adapter, AdapterInformation, AdapterSetting, CachingStatus, Source, Store} from './adapter.model';
+import {Adapter, AdapterInformation, AdapterSetting, CachingStatus, CachingStatuses, Source, Store} from './adapter.model';
 import {ToastService} from '../../components/toast/toast.service';
 import {
     AbstractControl,
@@ -52,7 +52,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     subgroups = new Map<string, string>();
 
     private statusSubscriptions = new Subscription();
-    cachingStatus : CachingStatus;
+    cachingStatuses : CachingStatuses = {};
+    cacheStatusKeys: string[] = [];
+    statusClasses: { [key: string]: string } = {};
     percentage: number | null = null;
     fromBlock: number | null = null;
     toBlock: number | null = null;
@@ -628,27 +630,22 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             const statusSubscription = interval(1000)
             .pipe(
                 switchMap(() => this._crud.getEventCacheStatus()),
-                tap((res: CachingStatus) => {
-                    console.log("status");
-                    this.cachingStatus = res;
-                    const statusKey = Object.keys(res)[0];
-                    const currentStatus = this.cachingStatus[statusKey];
-                    console.log(this.cachingStatus);
-                    this.percentage = currentStatus?.percent || null;
-                    this.fromBlock = currentStatus?.fromBlock || null;
-                    this.toBlock = currentStatus?.toBlock || null;
-                    this.currentBlock = currentStatus?.currentBlock || null;
-                    this.currentEndBlock = currentStatus?.currentEndBlock || null;
+                tap((res: CachingStatuses) => {
+                    this.cachingStatuses = res;
+                    this.cacheStatusKeys = Object.keys(res);
+                    for (let key of this.cacheStatusKeys) {
+                        this.statusClasses[key] = this.getCacheStatusClass(this.cachingStatuses[key]);
+                    }
+                    console.log(this.cachingStatuses);
                 }),
-                takeWhile((res: CachingStatus) => {
-                    const statusKey = Object.keys(res)[0];
-                    return res[statusKey].state !== 'DONE';
+                takeWhile((res: CachingStatuses) => {
+                    return Object.values(res).some(status => status.state !== 'DONE' && status.state !== 'ERROR');
                 })
             )
             .subscribe(
                 () => {},
-                error => {
-                    console.error('There was an error:', error);
+                () => {
+                    this._toast.error('Could not fetch cache status');
                 }
             );
 
@@ -656,29 +653,31 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         }
     }
 
+    getCacheStatusKeys(): string[] {
+        return this.cachingStatuses ? Object.keys(this.cachingStatuses) : [];
+    }
+
     getCacheStatusClass(status: CachingStatus): string {
-        // Assuming the status object only has one key at a time
-        const key = Object.keys(status)[0];
-        const state = status[key].state;
-    
-        switch(state) {
+        switch(status.state) {
             case 'INITIALIZED':
                 return 'initialized';
             case 'PROCESSING':
                 return 'processing';
             case 'DONE':
                 return 'done';
+            case 'ERROR':
+                return 'error';
             default:
                 return '';
         }
     }
-
+    
     getCachingPercentage(): number | null {
         console.log("running getCachingPercentage");
-        if (this.cachingStatus && Object.keys(this.cachingStatus).length) {
-            const firstKey = Object.keys(this.cachingStatus)[0];
-            const percent = this.cachingStatus[firstKey]?.percent;
-            return percent || null;
+        if (this.cachingStatuses && Object.keys(this.cachingStatuses).length) {
+            const percentages = Object.values(this.cachingStatuses).map(status => status.percent);
+            const averagePercent = percentages.reduce((acc, val) => acc + val, 0) / percentages.length;
+            return Math.round(averagePercent); // This rounds the average to the nearest whole number
         }
         return null;
     }

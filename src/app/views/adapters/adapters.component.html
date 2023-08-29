@@ -65,29 +65,41 @@
                     <span *ngIf="adapter.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
                     <span *ngIf="adapter.currentSettings.hasOwnProperty('host') && adapter.currentSettings.hasOwnProperty('port')">{{adapter.currentSettings['host']}}
                         <span *ngIf="adapter.currentSettings['mode'] === 'remote'">: {{adapter.currentSettings['port']}}</span></span>
-                    <div *ngIf="adapter.adapterName === 'Ethereum' && cachingStatus" class="info-bar">
-                        <div class="info-percentage" [class]="getCacheStatusClass(cachingStatus)">
-                            {{ percentage == null || percentage === 0 ? 'Initializing' : (percentage + '%') }}
-                        </div>
-                        <div class="info-block-wrapper">
-                            <div class="info-blocks" *ngIf="fromBlock || toBlock">
-                                <div *ngIf="fromBlock">
-                                    From: {{ fromBlock }}
+                    <div *ngIf="adapter.adapterName == 'Ethereum' && cachingStatuses">
+                        <div *ngFor="let statusKey of cacheStatusKeys">
+                            <div *ngIf="adapter.adapterId === cachingStatuses[statusKey].sourceAdapterId" class="info-bar">
+                                <div class="info-percentage" [class]="statusClasses[statusKey]">
+                                    {{ cachingStatuses[statusKey].percent == null || cachingStatuses[statusKey].percent === 0 ? 'Initializing' : (cachingStatuses[statusKey].percent + '%') }}
                                 </div>
-                                <div *ngIf="toBlock">
-                                    To: {{ toBlock }}
+                                <div class="info-block-wrapper">
+                                    <!-- Display general info blocks only when state is NOT ERROR -->
+                                    <ng-container *ngIf="cachingStatuses[statusKey].state !== 'ERROR'">
+                                        <div class="info-blocks" *ngIf="cachingStatuses[statusKey].fromBlock || cachingStatuses[statusKey].toBlock">
+                                            <div *ngIf="cachingStatuses[statusKey].fromBlock">
+                                                From: {{ cachingStatuses[statusKey].fromBlock }}
+                                            </div>
+                                            <div *ngIf="cachingStatuses[statusKey].toBlock">
+                                                To: {{ cachingStatuses[statusKey].toBlock }}
+                                            </div>
+                                        </div>
+                                        <div class="info-blocks" *ngIf="cachingStatuses[statusKey].currentBlock && cachingStatuses[statusKey].currentEndBlock">
+                                            <div *ngIf="cachingStatuses[statusKey].currentBlock">
+                                                CurrentFrom: {{ cachingStatuses[statusKey].currentBlock }}
+                                            </div>
+                                            <div *ngIf="cachingStatuses[statusKey].currentEndBlock">
+                                                CurrentEnd: {{ cachingStatuses[statusKey].currentEndBlock }}
+                                            </div>
+                                        </div>
+                                    </ng-container>
+                                    
+                                    <!-- Display only errorMessage when state is ERROR -->
+                                    <div class="error-block" *ngIf="cachingStatuses[statusKey].state === 'ERROR'">
+                                        Error: {{ cachingStatuses[statusKey].errorMessage }}
+                                    </div>
                                 </div>
+                                
                             </div>
-                            <div class="info-blocks" *ngIf="currentBlock && currentEndBlock">
-                                <div *ngIf="currentBlock">
-                                    CurrentFrom: {{ currentBlock }}
-                                </div>
-                                <div *ngIf="currentEndBlock">
-                                    CurrentEnd: {{ currentEndBlock }}
-                                </div>
-                            </div>
                         </div>
-                        
                     </div>
                 </div>
                 <div class="card-footer bg-transparent">

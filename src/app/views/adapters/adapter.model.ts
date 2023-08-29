@@ -82,15 +82,19 @@ export interface CatalogColumnPlacement {
     columnId;
 }
 
+export interface CachingStatuses {
+    [key: string]: CachingStatus
+}
+
 export interface CachingStatus {
-    [key: string]: {
-        percent: number;
-        state: 'INITIALIZED' | 'PROCESSING' | 'DONE';
-        fromBlock: number;
-        toBlock: number;
-        currentBlock: number;
-        currentEndBlock: number;
-    };
+    percent: number;
+    state: 'INITIALIZED' | 'PROCESSING' | 'DONE' | 'ERROR';
+    fromBlock: number;
+    toBlock: number;
+    currentBlock: number;
+    currentEndBlock: number;
+    sourceAdapterId: number;
+    errorMessage: string | null;
 }
 
 export enum PlacementType {
