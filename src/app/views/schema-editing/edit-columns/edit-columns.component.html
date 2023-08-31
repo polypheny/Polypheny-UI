@@ -414,13 +414,13 @@
                             <div class="invalid-feedback">invalid name</div>
                         </div>
                         <div class="form-group"
-                             *ngIf="availableStoresForIndexes && availableStoresForIndexes.length > 0">
+                             *ngIf="(availableStoresForIndexes | async).length > 0">
                             <label for="storeName">Location</label>
                             <select name="storeName" id="storeName" class="form-control form-control-sm"
                                     [ngModel]="selectedStoreForIndex" (ngModelChange)="onSelectingIndexStore($event)"
                                     [ngModelOptions]="{standalone: true}">
-                                <option *ngFor="let store of availableStoresForIndexes"
-                                        [ngValue]="store">{{store.uniqueName}}</option>
+                                <option *ngFor="let store of (availableStoresForIndexes | async)"
+                                        [ngValue]="store">{{store.name}}</option>
                             </select>
                         </div>
                         <div class="form-group" *ngIf="selectedStoreForIndex != null">
@@ -440,7 +440,7 @@
                         </div>
                         <button cButton type="submit" class="btn btn-primary btn-sm"
                                 [ngClass]="{'progress-bar-striped progress-bar-animated': addingIndex}"
-                                [disabled]="addingIndex || !availableStoresForIndexes || availableStoresForIndexes.length == 0">
+                                [disabled]="addingIndex || !availableStoresForIndexes || (availableStoresForIndexes | async)?.length == 0">
                             create
                         </button>
                     </div>
@@ -474,20 +474,20 @@
                 <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="(stores | async).length>3">
                     <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
                         <span *ngIf="!selectedStore">Select store</span>
-                        <span *ngIf="selectedStore">{{selectedStore.uniqueName}}</span>
+                        <span *ngIf="selectedStore">{{selectedStore.name}}</span>
                         <span class="caret"></span>
                     </button>
                     <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
                         <ng-container *ngFor="let store of getAddableStores() | async">
                             <li role="menuitem"><a class="dropdown-item" [routerLink]="[]"
-                                                   (click)="selectedStore = store">{{store.uniqueName}}</a></li>
+                                                   (click)="selectedStore = store">{{store.name}}</a></li>
                         </ng-container>
                         <li *ngIf="(getAddableStores()|async).length === 0" role="menuitem"><a class="dropdown-item disabled"
                                                                                                [routerLink]="[]">no stores
                             available</a></li>
                     </ul>
                 </div>
-                <button class="btn btn-primary btn-sm" (click)="initPlacementModal('ADD', null)">add</button>
+                <button class="btn btn-primary btn-sm" (click)="initPlacementModal(Method.ADD, null)">add</button>
             </div>
         </div>
         <table class="table table-hover table-striped" cTable>
@@ -502,14 +502,14 @@
             </thead>
             <tbody>
             <tr *ngFor="let placement of placements | async; let i = index">
-                <td>{{ (_catalog.getAdapter( placement.adapterId ) | async)?.uniqueName}}</td>
+                <td>{{ (_catalog.getAdapter( placement.adapterId ) | async)?.name}}</td>
                 <td>{{(_catalog.getAdapter( placement.adapterId ) | async)?.adapterName}}</td>
                 <td>
                     <ng-container *ngFor="let p of _catalog.getAllocColumns(placement.id) | async; let isLast = last">
                         <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{ _catalog.getAllocColumn( p.id )}}</span>{{isLast ? '' : ', '}}
                     </ng-container>
                     <button cButton size="sm" class="cui-pencil ml-2 modify-placement-btn"
-                            (click)="initPlacementModal('MODIFY', placement)"></button>
+                            (click)="initPlacementModal(Method.MODIFY, placement)"></button>
                 </td>
                 <!--<td>
                     <span *ngIf="!store.partitionKeys || store.partitionKeys.length === 0"
@@ -588,7 +588,7 @@
                 <button (click)="placementModal = false" cButtonClose></button>
             </c-modal-header>
             <c-modal-body *ngIf="columnPlacement && selectedStore">
-                Store: {{selectedStore.uniqueName}}
+                Store: {{selectedStore.name}}
                 <p>Select the columns that you want to be part of the placement.</p>
                 <div class="form-group">
                     <a [routerLink]="[]" class="text-muted" (click)="selectAllColumns(true)">select all</a> - <a
@@ -623,14 +623,14 @@
          tabindex="-1" role="dialog"
          aria-labelledby="myModalLabel" aria-hidden="true">
     <!--<form [formGroup]="columnPlacement" *ngIf="columnPlacement">-->
-    <c-modal-dialog class="modal-dialog" role="document">
-        <c-modal-content class="modal-content" *ngIf="selectedStore && partitionsToModify">
-            <c-modal-header class="modal-header">
-                <h4 cModalTitle class="modal-title">Modify partitions</h4>
+    <c-modal-dialog role="document">
+        <c-modal-content *ngIf="selectedStore && partitionsToModify">
+            <c-modal-header>
+                <h4 cModalTitle>Modify partitions</h4>
                 <button (click)="partitioningModal = false" cButtonClose></button>
             </c-modal-header>
-            <c-modal-body class="modal-body">
-                Store: {{selectedStore.uniqueName}}
+            <c-modal-body>
+                Store: {{selectedStore.name}}
                 <p>Select the partitions that you want to be part of the new partitioning.</p>
                 <div class="form-group">
                     <a [routerLink]="[]" class="text-muted" (click)="selectAllPartitions(true)">select all</a> - <a
@@ -647,9 +647,9 @@
                 <span class="text-danger"
                       *ngIf="!validatePartitionModification()">Please select at least one partition</span>
             </c-modal-body>
-            <c-modal-footer class="modal-footer">
-                <button type="button" class="btn btn-secondary float-left" (click)="partitioningModal = false">Close</button>
-                <button type="submit" class="btn btn-primary" (click)="modifyPartitioning()"
+            <c-modal-footer>
+                <button cButton color="secondary" type="button" class="float-left" (click)="partitioningModal = false">Close</button>
+                <button cButton color="primary" type="submit" (click)="modifyPartitioning()"
                         [disabled]="!validatePartitionModification()">Modify
                 </button>
             </c-modal-footer>
@@ -667,7 +667,7 @@
         </c-modal-header>
         <c-modal-body>
             <p>{{partitionFunctionParams.description}}</p>
-            <table class="table table-hover table-striped table-bordered" id="partitionParamsTable">
+            <table cTable hover striped bordered id="partitionParamsTable">
                 <tr>
                     <th *ngFor="let colName of partitionFunctionParams.columnNames">{{colName}}</th>
                 </tr>

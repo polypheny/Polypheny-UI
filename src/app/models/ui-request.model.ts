@@ -322,7 +322,8 @@ export class ConstraintRequest {
 export enum Method{
   ADD = 'ADD',
   DROP = 'DROP',
-  MODIFY = 'MODIFY'
+  MODIFY = 'MODIFY',
+  TRUNCATE = 'TRUNCATE'
 }
 /**
  * Send request to either create or drop a schema

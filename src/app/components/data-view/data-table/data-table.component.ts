@@ -63,13 +63,10 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
 
     columns = [];
     userInput = {};
-    tableColor = '#FFFFFF';
     exploreDataCounter = 0;
-    labled = [];
 
     @Output() showViewExploring = new EventEmitter();
 
-    protected readonly RelationalExploreResult = RelationalExploreResult;
 
 
     ngOnInit() {

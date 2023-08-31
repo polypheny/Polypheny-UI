@@ -17,17 +17,18 @@
         <td>
             <span *ngIf="!table.editing">
               {{table.name}}
-                <i class="cui-pencil edit-table-name ml-2" (click)="table.editing = !table.editing"></i>
+                <i class="cil-pencil edit-table-name ml-2" (click)="table.editing = !table.editing"></i>
             </span>
-            <c-input-group sizing="sm" class="input-group input-group-sm" *ngIf="table.editing" style="max-width: 200px">
+
+            <c-input-group sizing="sm" *ngIf="table.editing" style="max-width: 200px" [class.editings]="table.editing" #editing>
                 <input cFormControl type="text" placeholder="newName"
-                       [(ngModel)]="table.newName" autofocus (keyup.enter)="renameTable(table)"
-                       (keyup.escape)="table.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()">
+                       [(ngModel)]="table.newName" autofocus (keyup.enter)="rename(table)"
+                       (keyup.escape)="table.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()"
+                       [class.editings]="table.editing">
 
                 <button cButton color="primary" size="sm" [disabled]="!canRename(table)"
-                        (click)="renameTable(table)">rename
+                        (click)="rename(table)" [class.editings]="table.editing">rename
                 </button>
-
             </c-input-group>
         </td>
         <td>
@@ -182,7 +183,7 @@
                                     <li class="dropdown-divider"></li>
                                     <li role="menuitem" *ngFor="let store of stores">
                                         <a class="dropdown-item" [routerLink]="[]"
-                                           (click)="selectedStore = store.uniqueName">{{store.uniqueName}}</a>
+                                           (click)="selectedStore = store.name">{{store.name}}</a>
                                     </li>
                                 </ng-container>
                                 <li *ngIf="stores && stores.length === 0" role="menuitem">

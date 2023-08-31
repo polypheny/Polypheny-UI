@@ -55,29 +55,30 @@
     <c-col>
         <hr>
         <div class="mb-3" style="position: relative">
-            <h5 style="display: inline">Data placements</h5>
+            <h5 style="display: inline">Placements</h5>
             <div class="btn-group btn-group-sm" id="placementBtnGroup"
-                 *ngIf="(addableStores| async).length > 0">
-                <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="(stores|async).length>3">
+                 *ngIf="(addableStores | async).length > 0">
+                <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="(stores | async).length>3">
                     <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
                         <span *ngIf="!selectedStore">Select store</span>
                         <span *ngIf="selectedStore">{{selectedStore.name}}</span>
                         <span class="caret"></span>
                     </button>
                     <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-                        <ng-container *ngFor="let store of (addableStores| async)">
-                            <li role="menuitem"><a class="dropdown-item" [routerLink]="[]"
-                                                   (click)="selectedStore = store">{{store.name}}</a></li>
+                        <ng-container *ngFor="let store of (addableStores | async)">
+                            <li role="menuitem">
+                                <a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = store">{{store.name}}</a>
+                            </li>
                         </ng-container>
-                        <li *ngIf="(addableStores|async).length === 0" role="menuitem"><a class="dropdown-item disabled"
-                                                                                          [routerLink]="[]">no stores
-                            available</a></li>
+                        <li *ngIf="(addableStores | async).length === 0" role="menuitem">
+                            <a class="dropdown-item disabled" [routerLink]="[]">no stores available</a>
+                        </li>
                     </ul>
                 </div>
-                <button class="btn btn-primary btn-sm" (click)="modifyPlacement(Method.ADD)">add</button>
+                <button cButton size="sm" color="primary" (click)="modifyPlacement(Method.ADD)">add</button>
             </div>
         </div>
-        <table class="table table-hover table-striped">
+        <table cTable hover striped>
             <thead>
             <tr>
                 <th>Store</th>
@@ -86,17 +87,17 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let placement of (placements| async); let i = index">
-                <td>{{_catalog.getAdapter( placement.adapterId )}}</td>
-                <td>{{_catalog.getAdapter( placement.adapterId )}}</td>
+            <tr *ngFor="let placement of (placements | async); let i = index">
+                <td>{{(_catalog.getAdapter( placement.adapterId ) | async)?.name}}</td>
+                <td>{{(_catalog.getAdapter( placement.adapterId ) | async)?.adapterName}}</td>
                 <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
-                <ng-container *ngIf="(placements|async).length > 1">
+                <ng-container *ngIf="(placements | async).length > 1">
                     <td class="delete">
                         <app-delete-confirm (delete)="modifyPlacement(Method.DROP, placement.adapterId )"></app-delete-confirm>
                     </td>
                 </ng-container>
                 <!-- don't show delete icon if there is only one placement --->
-                <ng-container *ngIf="(placements|async).length < 2">
+                <ng-container *ngIf="(placements | async).length < 2">
                     <td></td>
                 </ng-container>
             </tr>

@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, QueryList, Renderer2, ViewChild, ViewChildren} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -15,7 +15,6 @@ import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {StoreModel} from '../../adapters/adapter.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {BehaviorSubject, Subscription} from 'rxjs';
-import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {CatalogService} from '../../../services/catalog.service';
@@ -31,6 +30,7 @@ const INITIAL_TYPE = 'BIGINT';
 })
 export class EditTablesComponent implements OnInit, OnDestroy {
 
+  @ViewChildren('editing', { read: ElementRef }) inputGroup: QueryList<ElementRef>;
   types: PolyType[] = [];
   namespace: BehaviorSubject<NamespaceModel>;
 
@@ -42,6 +42,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   stores: StoreModel[];
   selectedStore;
   creatingTable = false;
+
+  editOpen = false;
 
   //export table
   exportProgress = 0.0;
@@ -56,8 +58,23 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       public _types: DbmsTypesService,
       private _settings: WebuiSettingsService,
       private _catalog: CatalogService,
-      public _breadcrumb: BreadcrumbService
+      public _breadcrumb: BreadcrumbService,
+      private _render: Renderer2
   ) {
+    this._render.listen('document', 'click', (e:Event) => {
+      if (this.inputGroup.length === 0) {
+        return;
+      }
+      if (this.editOpen && !this.inputGroup.get(0).nativeElement.contains(e.target)) {
+        this.tables.next(this.tables.value.map(t => {
+          t.editing = false;
+          return t;
+        }));
+        this.editOpen = false;
+      }else {
+        this.editOpen = true;
+      }
+    });
   }
 
   ngOnInit() {
@@ -80,12 +97,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.add(sub2);
-    this.documentListener();
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
-    $(document).off('click');
   }
 
   onReconnect() {
@@ -93,18 +108,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     this.getTypeInfo();
     this.getStores();
     this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
-  }
-
-  documentListener() {
-    const self = this;
-    $(document).on('click', function (e) {
-      if ($(e.target).hasClass('edit-table-name')) {
-        return;
-      }
-      if ($(e.target).parents('.editing').length === 0) {
-        self.tables.value.forEach((t) => t.editing = false);
-      }
-    });
   }
 
   subscribeTables() {
@@ -254,7 +257,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }).add(() => this.creatingTable = false);
   }
 
-  renameTable(table: Table) {
+  rename(table: Table) {
     const meta = new EntityMeta(this.namespace.value.id, table.id, table.newName, []);
     const type = table.tableType === EntityType.VIEW ? ' View ' : ' Table ';
     this._crud.renameTable(meta).subscribe({

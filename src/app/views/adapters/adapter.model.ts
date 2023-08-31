@@ -3,8 +3,7 @@ import {IdEntity} from '../../models/catalog.model';
 
 export interface AdapterModel extends IdEntity {
   adapterName: string;
-  settings: AdapterSetting[];
-  currentSettings: Map<string, string>;
+  settings: Map<string, string>;
   persistent: boolean;
   type: AdapterType;
 }
@@ -22,33 +21,14 @@ export enum AdapterType {
   SOURCE = 'SOURCE'
 }
 
-export interface GraphStore extends StoreModel {
-  isNative: boolean;
-}
-
 export interface AdapterInformation {
   name: string;
   description: string;
   adapterName: string;
   type: string;
-  adapterSettings: Map<string, AdapterSetting[]>;
+  adapterSettings: Map<string, string>;
 }
 
-export interface AdapterSetting {
-  subOf: string;
-  name: string;
-  nameAlias: string;
-  alias: any;
-  description: string;
-  defaultValue: string;
-  canBeNull: boolean;
-  required: boolean;
-  modifiable: boolean;
-  options: string[];
-  fileNames: string[];
-  dynamic: boolean;
-  position: number;
-}
 
 export interface Placements {
   stores: StoreModel[];
@@ -58,13 +38,6 @@ export interface Placements {
   tableType: string;
 }
 
-export interface GraphPlacements {
-  stores: GraphStore[];
-  exception: ResultException;
-  isPartitioned: boolean;
-  partitionNames: string[];
-  entityType: string;
-}
 
 export interface UnderlyingTables {
   exception: ResultException;
@@ -77,11 +50,6 @@ export interface MaterializedInfos {
 }
 
 
-export interface CatalogColumnPlacement {
-  columnName: string;
-  placementType: PlacementType;
-  columnId;
-}
 
 export enum PlacementType {
   MANUAL = 'MANUAL', AUTOMATIC = 'AUTOMATIC'

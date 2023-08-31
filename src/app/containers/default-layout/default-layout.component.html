@@ -5,7 +5,7 @@
 
             <c-header-nav class="justify-items-start">
                 <c-nav-item>
-                    <a cNavLink [routerLink]="['/views/monitoring']" (click)="showLeft = !showLeft" routerLinkActive="active">
+                    <a cNavLink (click)="showLeft = !showLeft" routerLinkActive="active">
                         <svg [cIcon]="icons.cilHamburgerMenu" title="Sidebar Toggle"></svg>
                     </a>
                 </c-nav-item>
@@ -14,33 +14,33 @@
             <c-header-nav class="ms-auto">
                 <c-nav-item>
                     <a cNavLink [routerLink]="['/views/monitoring']" routerLinkActive="active">
-                        <i class="fa fa-area-chart"></i><span class="ml-1 d-md-down-none">Monitoring</span>
+                        <i class="fa fa-area-chart"></i><span class="ms-1 d-md-down-none">Monitoring</span>
                     </a>
                 </c-nav-item>
                 <c-nav-item>
                     <a cNavLink [routerLink]="['/views/config']" routerLinkActive="active">
                         <!--tooltip="Dynamic Form" placement="bottom"-->
-                        <i class="icon-settings"></i><span class="ml-1 d-md-down-none">Config</span>
+                        <i class="icon-settings"></i><span class="ms-1 d-md-down-none">Config</span>
                     </a>
                 </c-nav-item>
 
                 <c-nav-item>
                     <a cNavLink [routerLink]="['/views/schema-editing']" routerLinkActive="active"
                        (click)="_sidebar.reset()">
-                        <i class="fa fa-cubes"></i><span class="ml-1 d-md-down-none">Schema</span>
+                        <i class="fa fa-cubes"></i><span class="ms-1 d-md-down-none">Schema</span>
                     </a>
                 </c-nav-item>
 
                 <c-nav-item>
                     <a cNavLink [routerLink]="['/views/data-table']" routerLinkActive="active">
-                        <i class="fa fa-table"></i><span class="ml-1 d-md-down-none">Data</span>
+                        <i class="fa fa-table"></i><span class="ms-1 d-md-down-none">Data</span>
                     </a>
                 </c-nav-item>
 
                 <c-dropdown alignment="start">
 
                     <a cHeaderToggler cDropdownToggle cNavLink routerLinkActive="active" class="fs-6">
-                        <i class="fa fa-keyboard-o"></i><span class="ml-1 d-md-down-none">Query</span>
+                        <i class="fa fa-keyboard-o"></i><span class="ms-1 d-md-down-none">Query</span>
                     </a>
 
 
@@ -48,25 +48,25 @@
                         <li>
                             <a cDropdownItem class="mb-1" [routerLink]="['/views/querying/console']"
                                routerLinkActive="active">
-                                <i class="fa fa-keyboard-o"></i><span class="ml-1 d-md-down-none">Console</span>
+                                <i class="fa fa-keyboard-o"></i><span class="ms-1 d-md-down-none">Console</span>
                             </a>
                         </li>
                         <li>
                             <a cDropdownItem class="mb-1" [routerLink]="['/views/querying/graphical-querying']"
                                routerLinkActive="active">
-                                <i class="icon-pencil"></i><span class="ml-1 d-md-down-none">Graphical Querying</span>
+                                <i class="icon-pencil"></i><span class="ms-1 d-md-down-none">Graphical Querying</span>
                             </a>
                         </li>
                         <li>
                             <a cDropdownItem class="mb-1" [routerLink]="['/views/querying/relational-algebra']"
                                routerLinkActive="active">
-                                <i class="fa fa-cubes"></i><span class="ml-1 d-md-down-none">Plan Builder</span>
+                                <i class="fa fa-cubes"></i><span class="ms-1 d-md-down-none">Plan Builder</span>
                             </a>
                         </li>
                         <li>
                             <a cDropdownItem class="mb-1" *ngIf="exploreByExampleEnabled()"
                                [routerLink]="['/views/querying/explore-by-example']" routerLinkActive="active">
-                                <i class="fa fa-magic"></i><span class="ml-1 d-md-down-none">Explore by Example</span>
+                                <i class="fa fa-magic"></i><span class="ms-1 d-md-down-none">Explore by Example</span>
                             </a>
                         </li>
                     </ul>
@@ -86,7 +86,7 @@
 
 
                 <c-nav-item>
-                    <a cNavLink [routerLink]="[]" (click)="showRight = !showRight">
+                    <a cNavLink (click)="showRight = !showRight">
                         <svg [cIcon]="icons.cilHamburgerMenu" title="Sidebar Toggle"></svg>
                     </a>
                 </c-nav-item>

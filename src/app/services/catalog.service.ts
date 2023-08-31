@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {AllocationColumnModel, AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, AssetsModel, CatalogState, ColumnModel, ConstraintModel, EntityModel, EntityType, FieldModel, IdEntity, KeyModel, LogicalSnapshotModel, NamespaceModel} from '../models/catalog.model';
+import {AdapterTemplateModel, AllocationColumnModel, AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, AssetsModel, CatalogState, ColumnModel, ConstraintModel, EntityModel, EntityType, FieldModel, IdEntity, KeyModel, LogicalSnapshotModel, NamespaceModel} from '../models/catalog.model';
 import {NamespaceType} from '../models/ui-request.model';
 import {SidebarNode} from '../models/sidebar-node.model';
 import {BehaviorSubject, combineLatestWith, Observable, Subject} from 'rxjs';
@@ -37,6 +37,7 @@ export class CatalogService {
   public readonly allocationColumns: BehaviorSubject<Map<number, AllocationColumnModel>> = new BehaviorSubject(new Map());
 
   public readonly adapters: BehaviorSubject<Map<number, AdapterModel>> = new BehaviorSubject(new Map());
+  public readonly adapterTemplates: BehaviorSubject<Map<[string,AdapterType],AdapterTemplateModel>> = new BehaviorSubject(new Map<[string,AdapterType], AdapterTemplateModel>());
 
   constructor(
       private _http: HttpClient,
@@ -67,6 +68,7 @@ export class CatalogService {
       this.allocations.next(this.toIdMap(this.snapshot.allocations));
       this.allocationColumns.next(this.toIdMap(this.snapshot.allocColumns));
       this.adapters.next(this.toIdMap(this.snapshot.adapters));
+      this.adapterTemplates.next(new Map(this.snapshot.adapterTemplates.map( t => [[t.adapterName, t.adapterType], t])));
 
       this.listener.next(this); // notify
 

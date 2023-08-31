@@ -56,7 +56,7 @@ import {
   ContainerComponent, DropdownComponent, DropdownDividerDirective, DropdownItemDirective, DropdownMenuDirective, DropdownToggleDirective, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormFeedbackComponent, FormSelectDirective, FormTextDirective,
   GutterDirective,
   HeaderComponent, InputGroupComponent, InputGroupTextDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalDialogComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective,
-  RowComponent, RowDirective, TableDirective
+  RowComponent, RowDirective, SpinnerComponent, TableDirective, TooltipDirective
 } from '@coreui/angular';
 
 
@@ -116,7 +116,9 @@ import {
     ModalToggleDirective,
     ButtonGroupComponent,
     DropdownItemDirective,
-    DropdownDividerDirective
+    DropdownDividerDirective,
+    TooltipDirective,
+    SpinnerComponent
   ],
     declarations: [
         EditColumnsComponent,

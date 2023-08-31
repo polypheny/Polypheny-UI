@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {AdapterModel, AdapterInformation, AdapterSetting, SourceModel, StoreModel} from './adapter.model';
+import {AdapterModel, AdapterInformation, SourceModel, StoreModel, AdapterType} from './adapter.model';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {
   AbstractControl,
@@ -13,8 +13,11 @@ import {
   Validators
 } from '@angular/forms';
 import {PathAccessRequest, RelationalResult} from '../../components/data-view/models/result-set.model';
-import {Subscription} from 'rxjs';
+import {BehaviorSubject, Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
+import {CatalogService} from '../../services/catalog.service';
+import {filter, map} from 'rxjs/operators';
+import {AdapterSettingModel} from '../../models/catalog.model';
 
 @Component({
   selector: 'app-adapters',
@@ -23,8 +26,19 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 })
 export class AdaptersComponent implements OnInit, OnDestroy {
 
-  stores: StoreModel[];
-  sources: SourceModel[];
+
+  constructor(
+      private _crud: CrudService,
+      private _route: ActivatedRoute,
+      private _router: Router,
+      private _toast: ToasterService,
+      private _fb: UntypedFormBuilder,
+      private _catalog: CatalogService
+  ) {
+  }
+
+  readonly stores: BehaviorSubject<StoreModel[]> = new BehaviorSubject<StoreModel[]>([]);
+  readonly sources: BehaviorSubject<SourceModel[]> = new BehaviorSubject<SourceModel[]>([]);
   availableStores: AdapterInformation[];
   availableSources: AdapterInformation[];
   route: String;
@@ -49,8 +63,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
   subgroups = new Map<string, string>();
 
-  @ViewChild('adapterSettingsModal', {static: false}) public adapterSettingsModal: ModalDirective;
-  private allSettings: AdapterSetting[];
+  private allSettings: AdapterSettingModel[];
   public modeSettings: string[];
   positionOrder = function (adapter: AdapterInformation) {
     return function (a, b) {
@@ -60,19 +73,12 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   public accessId: String;
   private data: { data: FormData; deploy: any };
 
-
-  constructor(
-      private _crud: CrudService,
-      private _route: ActivatedRoute,
-      private _router: Router,
-      private _toast: ToasterService,
-      private _fb: UntypedFormBuilder
-  ) {
-  }
+  private readonly _name = 'name';
+  modalActive = false;
 
   ngOnInit() {
     this.deletingInProgress = [];
-    this.getStoresAndSources();
+    this.subscribeAdapters();
     this.fetchAvailableAdapters();
     this.route = this._route.snapshot.paramMap.get('action');
     this.routeListener = this._route.params.subscribe(params => {
@@ -81,7 +87,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     const sub = this._crud.onReconnection().subscribe(
         b => {
           if (b) {
-            this.getStoresAndSources();
             this.fetchAvailableAdapters();
           }
         }
@@ -93,26 +98,13 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  getStoresAndSources() {
-    this._crud.getStores().subscribe({
-      next: res => {
-        const stores = <StoreModel[]>res;
-        stores.sort((a, b) => (a.name > b.name) ? 1 : -1);
-        this.stores = stores;
-      }
-      ,
-      error: err => {
-        console.log(err);
-      }
-    });
-    this._crud.getSources().subscribe({
-      next: res => {
-        this.sources = <SourceModel[]>res;
-      }
-      ,
-      error: err => {
-        console.log(err);
-      }
+  subscribeAdapters() {
+    this._catalog.adapters.pipe(
+        filter(a => !!a),
+        map(adapters => Array.from(adapters.values()).sort((a, b) => (a.name > b.name) ? 1 : -1))).subscribe(adapters => {
+      console.log(adapters);
+      this.sources.next(adapters.filter(a => a.type === AdapterType.SOURCE).map(a => a as SourceModel));
+      this.stores.next(adapters.filter(a => a.type === AdapterType.STORE).map(a => a as StoreModel));
     });
   }
 
@@ -173,13 +165,13 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         if (v.required) {
           validators.push(Validators.required);
         }
-        const val = adapter.currentSettings[v.name];
+        const val = adapter.settings[v.name];
         fc[v.name] = new UntypedFormControl({value: val, disabled: !v.modifiable}, validators);
       }
     }
     this.editingAdapterForm = new UntypedFormGroup(fc);
     this.handshaking = false;
-    this.adapterSettingsModal.show();
+    this.modalActive = true;
   }
 
   saveAdapterSettings() {
@@ -200,8 +192,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         } else {
           this._toast.success('Updated adapter settings');
         }
-        this.adapterSettingsModal.hide();
-        this.getStoresAndSources();
+        this.modalActive = false;
+        this._catalog.updateIfNecessary();
       },
       error: err => {
         this._toast.error('Could not update adapter settings');
@@ -214,7 +206,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     if (this.editingAvailableAdapter !== undefined) {
       const base = this.editingAvailableAdapter.name.toLowerCase(); // + "_"; // TODO: re-enable underscores when graph namespaces work with it
       let max_i = 0;
-      for (const store of this.stores) {
+      for (const store of this.stores.value) {
         if (store.name.startsWith(base)) {
           const suffix = store.name.slice(base.length);
           const i = parseInt(suffix, 10);
@@ -223,7 +215,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
           }
         }
       }
-      for (const store of this.sources) {
+      for (const store of this.sources.value) {
         if (store.name.startsWith(base)) {
           const suffix = store.name.slice(base.length);
           const i = parseInt(suffix, 10);
@@ -253,14 +245,14 @@ export class AdaptersComponent implements OnInit, OnDestroy {
           fc[k] = {};
         }
         if (v.fileNames) {
-          fc[k][v.name] = this._fb.array([]);
+          fc[k][v._name] = this._fb.array([]);
         } else {
           if (v.options) {
             val = v.options[0];
           } else if (v.fileNames) {
             val = new UntypedFormControl(val, validators);
           }
-          fc[k][v.name] = new UntypedFormControl(val, validators);
+          fc[k][v._name] = new UntypedFormControl(val, validators);
         }
       }
     }
@@ -296,9 +288,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     this.allSettings = Object.keys(this.editingAvailableAdapter.adapterSettings).map(header => adapter.adapterSettings[header]).reduce((arr, val) => arr.concat(val));
 
     this.availableAdapterUniqueNameForm = new UntypedFormGroup({
-      uniqueName: new UntypedFormControl(this.getDefaultUniqueName(), [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores, ...this.sources])])
+      uniqueName: new UntypedFormControl(this.getDefaultUniqueName(), [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores.value, ...this.sources.value])])
     });
-    this.adapterSettingsModal.show();
+    this.modalActive = true;
   }
 
   onFileChange(event, form: UntypedFormGroup, key) {
@@ -308,7 +300,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       const arr = form.controls[key] as UntypedFormArray;
       arr.clear();
       for (let i = 0; i < files.length; i++) {
-        fileNames.push(files.item(i).name);
+        fileNames.push(files.item(i)._name);
         arr.push(this._fb.control(files.item(i)));
       }
       this.fileLabel = fileNames.join(', ');
@@ -320,7 +312,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   getFeedback() {
-    const errors = this.availableAdapterUniqueNameForm.controls['uniqueName'].errors;
+    const errors = this.availableAdapterUniqueNameForm.controls[this._name].errors;
     if (errors) {
       if (errors.required) {
         return 'missing unique name';
@@ -358,11 +350,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  getAdapterSetting(adapter, key: string): AdapterSetting {
+  getAdapterSetting(adapter, key: string): AdapterSettingModel {
     if (adapter.adapterSettings.hasOwnProperty('default')) {
       return this.allSettings.filter((a, i) => a.name === key)[0];
     }
-    return adapter.adapterSettings.filter((a, i) => a.name === key)[0];
+    return adapter.adapterSettings.filter((a, i) => a._name === key)[0];
   }
 
   deploy() {
@@ -373,7 +365,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       return;
     }
     const deploy = {
-      uniqueName: this.availableAdapterUniqueNameForm.controls['uniqueName'].value,
+      uniqueName: this.availableAdapterUniqueNameForm.controls[this._name].value,
       adapterName: this.editingAvailableAdapter.name,
       adapterType: this.editingAvailableAdapter.type,
       settings: {}
@@ -457,7 +449,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         } else {
           this._toast.exception(result, 'Could not deploy adapter');
         }
-        this.adapterSettingsModal.hide();
+        this.modalActive = true;
       },
       error: err => {
         this._toast.error('Could not deploy adapter');
@@ -479,12 +471,12 @@ export class AdaptersComponent implements OnInit, OnDestroy {
           const result = <RelationalResult>res;
           if (!result.error) {
             this._toast.success('Dropped "' + adapter.name + '"', result.query);
-            this.getStoresAndSources();
           } else {
             this._toast.exception(result);
           }
           this.deletingInProgress = this.deletingInProgress.filter(el => el !== adapter);
           this.deletingAdapter = undefined;
+          this._catalog.updateIfNecessary();
         }, error: err => {
           this._toast.error('Could not remove adapter', 'server error');
           console.log(err);

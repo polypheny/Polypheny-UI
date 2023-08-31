@@ -1,6 +1,6 @@
 import {NamespaceType} from './ui-request.model';
 import {PolyType} from '../components/data-view/models/result-set.model';
-import {AdapterModel, PlacementType} from '../views/adapters/adapter.model';
+import {AdapterModel, AdapterType, PlacementType} from '../views/adapters/adapter.model';
 
 export enum CatalogState {
   INIT,
@@ -71,6 +71,7 @@ export interface LogicalSnapshotModel {
   allocations: AllocationEntityModel[];
   allocColumns: AllocationColumnModel[];
   adapters: AdapterModel[];
+  adapterTemplates: AdapterTemplateModel[];
 }
 
 
@@ -108,6 +109,29 @@ export interface AllocationColumnModel extends IdEntity {
   placementType: PlacementType;
   position: number;
   adapterId: number;
+}
+
+export interface AdapterTemplateModel{
+  adapterName: string;
+  adapterType: AdapterType;
+  defaultSettings: AdapterSettingModel[];
+  description: string;
+}
+
+export interface AdapterSettingModel {
+  subOf: string;
+  name: string;
+  nameAlias: string;
+  alias: any;
+  description: string;
+  defaultValue: string;
+  canBeNull: boolean;
+  required: boolean;
+  modifiable: boolean;
+  options: string[];
+  fileNames: string[];
+  dynamic: boolean;
+  position: number;
 }
 
 export enum EntityType {

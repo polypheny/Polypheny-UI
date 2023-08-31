@@ -105,6 +105,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   public readonly EntityType = EntityType;
 
+  protected readonly Method = Method;
+
   ngOnInit() {
 
     this._route.params.subscribe(route => {
