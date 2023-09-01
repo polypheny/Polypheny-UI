@@ -3,7 +3,6 @@ import * as $ from 'jquery';
 import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
 import {TreeComponent, TreeModel} from '@ali-hm/angular-tree-component';
-import {SidebarNode} from '../../models/sidebar-node.model';
 import {CatalogService} from '../../services/catalog.service';
 import {CatalogState} from '../../models/catalog.model';
 
@@ -28,6 +27,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
             actionMapping: {
                 mouse: {
                     click: (tree, node, $event) => {
+                        _sidebar.selectedNodeId = node.data.id;
                         if (node.data.action !== null) {
                             node.data.action(tree, node, $event);
                         }
@@ -41,11 +41,19 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
                         if (node.data.isAutoActive()) {
                             node.setIsActive(true, false);
                         }
-                    }
+                    },
+                    drop: (tree, node, $event, {from, to}) => {
+                        if (node.data.dropAction !== null) {
+                            node.data.dropAction(tree, node, $event, {from, to});
+                        }
+                    },
+
                 },
             },
             allowDrag: (node) => node.data.allowDrag,
-            allowDrop: false
+            allowDrop: (element, {parent, index}) => {
+                return element.data.allowDropFrom && parent.data.allowDropTo && element.data.id !== parent.data.id;
+            }
         };
 
         _sidebar.getError().subscribe(
@@ -55,10 +63,13 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
         );
     }
 
-    static readonly EXPAND_SHOWN_ROUTES: String[] = ['/views/monitoring', '/views/config', '/views/uml', '/views/querying/console', '/views/querying/relational-algebra'];
+    static readonly EXPAND_SHOWN_ROUTES: String[] = [
+        '/views/monitoring', '/views/config', '/views/uml', '/views/querying/console',
+        '/views/querying/relational-algebra', '/views/notebooks'];
 
     @ViewChild('tree', {static: false}) treeComponent: TreeComponent;
-    nodes:SidebarNode[] = [];
+    nodes = [];
+    buttons = [];
     options;
     error;
     router;
@@ -112,6 +123,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
             }
         );
 
+        this._sidebar.getTopButtonSubject().subscribe(buttons => this.buttons = buttons);
     }
 
     isExpandAndCollapseShown() {

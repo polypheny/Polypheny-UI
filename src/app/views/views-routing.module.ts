@@ -10,6 +10,8 @@ import {QueryingComponent} from './querying/querying.component';
 import {AdaptersComponent} from './adapters/adapters.component';
 import {AboutComponent} from './about/about.component';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
+import {NotebooksComponent} from '../plugins/notebooks/components/notebooks.component';
+import {UnsavedChangesGuard} from '../plugins/notebooks/services/unsaved-changes.guard';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
 
 const routes: Routes = [
@@ -165,6 +167,19 @@ const routes: Routes = [
         data: {
             title: 'QueryInterfaces'
         }
+    },
+    {
+        path: 'notebooks',
+        children: [
+            {
+                path: '**',
+                component: NotebooksComponent,
+                data: {
+                    title: 'Notebooks'
+                },
+                canDeactivate: [UnsavedChangesGuard]
+            }
+        ]
     },
 ];
 

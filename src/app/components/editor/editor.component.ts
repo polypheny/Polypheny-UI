@@ -1,8 +1,11 @@
-import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import * as ace from 'ace-builds'; // ace module ..
 import 'ace-builds/src-noconflict/mode-sql';
 import 'ace-builds/src-noconflict/mode-pgsql';
 import 'ace-builds/src-noconflict/mode-java';
+import 'ace-builds/src-noconflict/mode-python';
+import 'ace-builds/src-noconflict/mode-markdown';
+import 'ace-builds/src-noconflict/mode-pig';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import {CrudService} from '../../services/crud.service';
@@ -18,16 +21,20 @@ import {CatalogService} from "../../services/catalog.service";
 
 //ace editor: see: https://medium.com/@ofir3322/create-an-online-ide-with-angular-6-nodejs-part-1-163a939a7929
 
-export class EditorComponent implements OnInit, AfterViewInit {
+export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
 
     @ViewChild('editor', {static: false}) codeEditorElmRef: ElementRef;
     private codeEditor: ace.Ace.Editor;
     @Input() readonly ? = false;
     @Input() theme ? = 'tomorrow';
     @Input() lang ? = 'pgsql';
+    @Input() initOptions ?: { [key: string]: any };
+    @Input() autocomplete ? = true;
+    @Input() useParentHeight ? = true;
     @Input() code ?;
 
     suggestions: string[] = [];
+    private readonly supportedLangs = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig'];
 
     constructor(
         private _crud: CrudService,
@@ -46,12 +53,29 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
     }
 
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.lang && !changes.lang.firstChange) {
+            this.updateLanguage();
+        }
+        if (changes.autocomplete && !changes.autocomplete.firstChange) {
+            this.updateAutocomplete();
+        }
+    }
+
     ngAfterViewInit(): void {
         this.initEditor();
         if (this.code) {
             this.codeEditor.setValue(this.code, -1);
         }
         this.codeEditor.resize();
+    }
+
+    blur() {
+        this.codeEditor.blur();
+    }
+
+    focus() {
+        this.codeEditor.focus();
     }
 
     initEditor() {
@@ -72,7 +96,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
         this.codeEditor = ace.edit(element, editorOptions);
         this.codeEditor.setTheme('ace/theme/' + this.theme);
-        this.codeEditor.getSession().setMode('ace/mode/' + this.lang);
+        this.updateLanguage();
         this.codeEditor.setShowFoldWidgets(true); // for the scope fold feature
         this.codeEditor.setShowPrintMargin(false); // https://stackoverflow.com/questions/14907184/is-there-a-way-to-hide-the-vertical-ruler-in-ace-editor
         if (this.readonly === true) {
@@ -82,7 +106,12 @@ export class EditorComponent implements OnInit, AfterViewInit {
             // from https://stackoverflow.com/questions/28283344/is-there-a-way-to-hide-the-line-numbers-in-ace-editor
             this.codeEditor.setHighlightActiveLine(false);
         }
-        this.setAutocomplete();
+        if (this.autocomplete) {
+            this.setAutocomplete();
+        }
+        if (this.initOptions) {
+            this.codeEditor.setOptions(this.initOptions);
+        }
     }
 
     getCode() {
@@ -136,6 +165,32 @@ export class EditorComponent implements OnInit, AfterViewInit {
             });
         }
         return map;
+    }
+
+    /**
+     * Change the syntax highlighting language to this.lang, if it is supported.
+     * Otherwise, sql is used.
+     */
+    updateLanguage() {
+        if (this.supportedLangs.includes(this.lang)) {
+            this.codeEditor.getSession().setMode('ace/mode/' + this.lang);
+        } else {
+            this.codeEditor.getSession().setMode('ace/mode/sql');
+
+        }
+    }
+
+    updateAutocomplete() {
+        if (this.autocomplete && !this.codeEditor['completers']) {
+            this.setAutocomplete();
+        } else {
+            this.codeEditor.setOptions({enableLiveAutocompletion: this.autocomplete});
+        }
+    }
+
+    setScrollMargin(top: number, bottom: number, left: number = 0, right: number = 0) {
+        // https://groups.google.com/g/ace-discuss/c/LmMRaYnLzCk
+        this.codeEditor.renderer.setScrollMargin(top, bottom, left, right);
     }
 
 }

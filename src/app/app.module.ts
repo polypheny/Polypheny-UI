@@ -59,6 +59,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
+import {NotebooksModule} from './plugins/notebooks/notebooks.module';
 import {IconDirective} from '@coreui/icons-angular';
 
 
@@ -70,6 +71,9 @@ import {IconDirective} from '@coreui/icons-angular';
         BrowserModule,
         BsDropdownModule.forRoot(),
         TabsModule.forRoot(),
+        NgChartsModule,
+        // plugins
+        NotebooksModule,
         ToastComponent,
         NgChartsModule,
         ToasterComponent,

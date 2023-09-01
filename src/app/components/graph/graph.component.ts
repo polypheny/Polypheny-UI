@@ -1,6 +1,5 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {CustomTooltips} from '@coreui/coreui-plugin-chartjs-custom-tooltips';
-import {hexToRgba} from "@coreui/utils";
+import {hexToRgba} from '@coreui/utils';
 
 @Component({
     selector: 'app-graph',
@@ -45,7 +44,6 @@ export class GraphComponent implements OnInit, OnChanges {
         maintainAspectRatio: true,
         tooltips: {
             enabled: false,
-            custom: CustomTooltips
         },
         layout: {
             padding: {
@@ -203,7 +201,7 @@ export class GraphComponent implements OnInit, OnChanges {
         nextIndex: 0,
         arr,
         next() {
-            if (this.arr.length == 0) {
+            if (this.arr.length === 0) {
                 return '#000000';
             }
             if (this.nextIndex >= (this.arr.length)) {
@@ -212,13 +210,13 @@ export class GraphComponent implements OnInit, OnChanges {
             return this.arr[this.nextIndex++];
         },
         lastUsed() {
-            if (this.nextIndex == 0) {
+            if (this.nextIndex === 0) {
                 return this.arr[0];
             } else {
                 return this.arr[this.nextIndex - 1];
             }
         }
-    });
+    })
 
 }
 

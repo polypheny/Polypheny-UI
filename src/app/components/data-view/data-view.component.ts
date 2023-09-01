@@ -830,7 +830,8 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   showCreateView() {
-    return this.resultSet.data
+    return !this.config.hideCreateView
+            && this.resultSet.data
         && !(this._router.url.startsWith('/views/data-table/'))
         && !this.isDMLResult()
         && this.resultSet.language !== 'cql'

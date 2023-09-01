@@ -10,6 +10,7 @@ import {JavaPage, SidebarNode} from '../../models/sidebar-node.model';
 import {Router} from '@angular/router';
 import {BreadcrumbItem} from '../breadcrumb/breadcrumb-item';
 import {BreadcrumbService} from '../breadcrumb/breadcrumb.service';
+import {SidebarButton} from '../../models/sidebar-button.model';
 import {CatalogService} from '../../services/catalog.service';
 
 @Injectable({
@@ -30,14 +31,21 @@ export class LeftSidebarService {
       private _breadcrumb: BreadcrumbService,
       public _catalog: CatalogService
   ) {
-  }
+  this.nodes.subscribe(nodes => {
+            if (this.selectedNodeId && !nodes.some(node => node.id === this.selectedNodeId))  {
+                this.selectedNodeId = null;
+            }
+        });
+    }
 
   nodes: BehaviorSubject<SidebarNode[]> = new BehaviorSubject([]);
   error: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   //node that should be set inactive:
   private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   private resetSubject = new BehaviorSubject<boolean>(false);
+  private topButtonSubject = new BehaviorSubject<SidebarButton[]>([]);
   namespaceType: string;
+  selectedNodeId: any;
 
 
   /**
@@ -245,4 +253,11 @@ export class LeftSidebarService {
     return this.inactiveNode;
   }
 
+    getTopButtonSubject() {
+        return this.topButtonSubject;
+    }
+
+    setTopButtons(buttons: SidebarButton[]) {
+        this.topButtonSubject.next(buttons);
+    }
 }
