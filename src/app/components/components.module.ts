@@ -39,6 +39,7 @@ import {JsonEditorComponent} from './json/json-editor.component';
 import {JsonElemComponent} from './json/json-elem/json-elem.component';
 import {DataGraphComponent} from './data-view/data-graph/data-graph.component';
 import {DatesPipeModule} from './data-view/shared-module';
+import { LoadingScreenComponent } from './loading-screen/loading-screen.component';
 import {DockereditComponent} from './dockeredit/dockeredit.component';
 import {DockerhandshakeComponent} from './dockerhandshake/dockerhandshake.component';
 import {DockernewComponent} from './dockernew/dockernew.component';
@@ -88,6 +89,7 @@ import {DockersettingsComponent} from './dockersettings/dockersettings.component
         ExpandableTextComponent,
         JsonTextComponent,
         JsonElemComponent,
+        LoadingScreenComponent,
         DockereditComponent,
         DockerhandshakeComponent,
         DockernewComponent,
@@ -109,6 +111,7 @@ import {DockersettingsComponent} from './dockersettings/dockersettings.component
         JsonEditorComponent,
         EditorComponent,
         DeleteConfirmComponent,
+        LoadingScreenComponent,
         DockereditComponent,
         DockerhandshakeComponent,
         DockernewComponent,

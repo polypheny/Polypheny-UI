@@ -1,0 +1,189 @@
+<app-toast></app-toast>
+<app-loading-screen></app-loading-screen>
+
+<app-notebooks-dashboard *ngIf="_content.isRoot"></app-notebooks-dashboard>
+
+<ng-container *ngIf="!_content.isRoot">
+    <app-manage-notebook *ngIf="editNotebookSession==''; else elseEditNotebook"></app-manage-notebook>
+    <ng-template #elseEditNotebook>
+        <app-edit-notebook #editNotebook [sessionId]="editNotebookSession"
+                           (openChangeSessionModal)="openChangeSessionModal($event.name, $event.path)">
+        </app-edit-notebook>
+    </ng-template>
+</ng-container>
+
+<div bsModal #addNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="addNotebookModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create File</h4>
+                <button type="button" class="close" (click)="addNotebookModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>Leave the name empty to keep the default name.</p>
+                <form [formGroup]="createFileForm" autocomplete="off" (submit)="createFile()">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label for="createFile-name" class="input-group-text">Name</label>
+                        </div>
+                        <input type="text" id="createFile-name" autocomplete="off" class="form-control col-sm-10"
+                               formControlName="name">
+                        <input type="text" id="createFile-ext" autocomplete="off" class="form-control col-sm-2"
+                               formControlName="ext" *ngIf="this.createFileForm.get('type').value === 'file'">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="createFile-type">File Type</label>
+                        </div>
+                        <select class="form-control" formControlName="type" id="createFile-type">
+                            <option value="notebook">Notebook</option>
+                            <option value="directory">Folder</option>
+                            <option value="file">File</option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3" *ngIf="this.createFileForm.get('type').value === 'notebook'">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="selected-kernel">Kernel</label>
+                        </div>
+                        <select class="form-control" formControlName="kernel" id="selected-kernel">
+                            <option *ngIf="availableKernels.length === 0" value="">No kernels available</option>
+                            <option *ngFor="let kernel of availableKernels" [value]="kernel.name">
+                                {{ kernel.spec.display_name }}</option>
+                        </select>
+                    </div>
+                    <div *ngIf="this.createFileForm.get('type').value === 'notebook' && availableKernels.length === 0">
+                        <div class="alert alert-info">No Jupyter kernels are available.  Start a Jupyter Server container to add kernels.</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="addNotebookModal.hide()">Close</button>
+                <button type="submit" class="btn btn-primary" (click)="createFile()"
+                        [disabled]="!createFileForm.valid || creating">
+                    <span *ngIf="!creating">Create</span>
+                    <span *ngIf="creating" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #uploadNotebookModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="uploadNotebookModal" aria-hidden="true" (submit)="uploadFile()">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Upload File</h4>
+                <button type="button" class="close" (click)="uploadNotebookModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>Upload one or several files to the current directory</p>
+                <form [formGroup]="uploadFileForm" autocomplete="off">
+                    <div class="input-group">
+                        <label for="notebookUploadFileInput" class="form-control form-control-sm file-label">
+                            <!-- see https://stackoverflow.com/questions/49976714/how-to-upload-the-same-file-in-angular4 -->
+                            <input type="file" multiple style="display: none;" id="notebookUploadFileInput"
+                                   (change)="onFileChange($event.target['files'])" #fileInput>
+                            {{inputFileName}}
+                        </label>
+                        <div class="input-group-append">
+                            <label for="notebookUploadFileInput" class="btn btn-sm btn-light mb-0">Browse</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="uploadNotebookModal.hide()">Close</button>
+                <button type="submit" class="btn btn-primary" (click)="uploadFile()"
+                        [disabled]="!uploadFileForm.valid">Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #createSessionModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+     aria-labelledby="addNotebookModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" *ngIf="createSessionForm.get('canConnect').value; else elseDefaultKernel">
+                    Select Kernel</h4>
+                <ng-template #elseDefaultKernel>
+                    <h4 class="modal-title">Select Default Kernel</h4>
+                </ng-template>
+                <button type="button" class="close" (click)="createSessionModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form [formGroup]="createSessionForm" autocomplete="off" (submit)="openNotebookClicked()">
+                    <div class="form-check" *ngIf="createSessionForm.get('canConnect').value">
+                        <input class="form-check-input" type="checkbox" formControlName="isNew"
+                               id="createSession-chkbx">
+                        <label class="form-check-label" for="createSession-chkbx">
+                            Create new Kernel
+                        </label>
+                    </div>
+
+                    <div class="input-group mb-3" id="createSession-sessionGroup"
+                         *ngIf="!createSessionForm.get('isNew').value">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="createSession-session">Running</label>
+                        </div>
+                        <select class="form-control" formControlName="session" id="createSession-session">
+                            <option *ngFor="let session of createSessionForm.get('sessions').value"
+                                    [value]="session.id">
+                                {{ session.kernel.name }}</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group mb-3" id="createSession-kernelGroup"
+                         *ngIf="createSessionForm.get('isNew').value">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="createSession-kernel">Kernel</label>
+                        </div>
+                        <select class="form-control" formControlName="kernel" id="createSession-kernel">
+                            <option *ngIf="availableKernels.length === 0" value="">No kernels available</option>
+                            <option *ngFor="let kernel of availableKernels" [value]="kernel.name">
+                                {{ kernel.spec.display_name }}</option>
+                        </select>
+                    </div>
+                    <div *ngIf="availableKernels.length === 0">
+                        <div class="alert alert-info">No Jupyter kernels are available.  Start a Jupyter Server container to add kernels.</div>
+                    </div>
+                </form>
+                <ng-container *ngIf="selectedSession != null && !createSessionForm.get('isNew').value">
+                    <p>Status: {{selectedSession.kernel.execution_state}}</p>
+                    <p>Last Activity: {{selectedSession.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS'}}</p>
+                    <p>Connections: {{selectedSession.kernel.connections}}</p>
+                </ng-container>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="createSessionModal.hide()">Close</button>
+                <div>
+                    <button type="button" class="btn btn-outline-primary mr-2"
+                            *ngIf="createSessionForm.get('canManage').value"
+                            (click)="openManagePage(createSessionForm.get('path').value)">
+                        Manage File
+                    </button>
+                    <button type="submit" class="btn btn-primary" (click)="openNotebookClicked()"
+                            [disabled]="!createSessionForm.valid || creating">
+                        <span *ngIf="!creating">Open</span>
+                        <span *ngIf="creating" class="spinner-border spinner-border-sm" role="status"></span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

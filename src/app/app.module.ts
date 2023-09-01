@@ -32,6 +32,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
+import {NotebooksModule} from './plugins/notebooks/notebooks.module';
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     suppressScrollX: true
@@ -47,6 +48,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         BsDropdownModule.forRoot(),
         TabsModule.forRoot(),
         ChartsModule,
+        // plugins
+        NotebooksModule,
         // coreui / bootstrap
         TooltipModule.forRoot(),
         AppHeaderModule,
