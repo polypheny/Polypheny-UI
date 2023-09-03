@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 
 import {ViewsRoutingModule} from './views-routing.module';
 import {TableViewComponent} from './table-view/table-view.component';
@@ -118,7 +118,8 @@ import {
     DropdownItemDirective,
     DropdownDividerDirective,
     TooltipDirective,
-    SpinnerComponent
+    SpinnerComponent,
+    NgOptimizedImage
   ],
     declarations: [
         EditColumnsComponent,

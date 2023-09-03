@@ -117,15 +117,16 @@ export interface AllocationColumnModel extends IdEntity {
   adapterId: number;
 }
 
-export interface AdapterTemplateModel{
+export interface AdapterTemplateModel {
   adapterName: string;
   adapterType: AdapterType;
   defaultSettings: AdapterSettingModel[];
   description: string;
   modes: DeployMode[];
+  persistent: boolean;
 }
 
-export enum DeployMode{
+export enum DeployMode {
   EMBEDDED = 'EMBEDDED',
   DOCKER = 'DOCKER',
   REMOTE = 'REMOTE',
@@ -148,9 +149,14 @@ export interface AdapterSettingModel {
   position: number;
 }
 
-export interface AdapterSettingValueModel {
+export class AdapterSettingValueModel {
   key: string;
   value: string;
+
+  constructor(key: string, value: string) {
+    this.key = key;
+    this.value = value;
+  }
 }
 
 export enum EntityType {

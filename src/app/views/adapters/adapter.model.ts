@@ -6,7 +6,7 @@ export class AdapterModel extends IdEntity {
   readonly settings: AdapterSettingValueModel[];
   readonly persistent: boolean;
   readonly type: AdapterType;
-  readonly deployMode: DeployMode;
+  readonly mode: DeployMode;
 
   constructor(uniqueName: string, adapterName: string, settings: AdapterSettingValueModel[], persistent: boolean, type: AdapterType, deployMode: DeployMode) {
     super(-1, uniqueName);
@@ -14,7 +14,7 @@ export class AdapterModel extends IdEntity {
     this.settings = settings;
     this.persistent = persistent;
     this.type = type;
-    this.deployMode = deployMode;
+    this.mode = deployMode;
   }
 }
 

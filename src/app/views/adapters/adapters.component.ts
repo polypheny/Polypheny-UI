@@ -37,13 +37,14 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   readonly currentRoute: BehaviorSubject<String> = new BehaviorSubject<String>(null);
   private subscriptions = new Subscription();
 
-  readonly editingAdapter: BehaviorSubject<AdapterModel> = new BehaviorSubject<AdapterModel>(null);
-  readonly editingAdapterTemplate: BehaviorSubject<AdapterTemplateModel> = new BehaviorSubject<AdapterTemplateModel>(null);
+  readonly originalValues: BehaviorSubject<AdapterModel> = new BehaviorSubject<AdapterModel>(null);
+  readonly originalTemplate: BehaviorSubject<AdapterTemplateModel> = new BehaviorSubject<AdapterTemplateModel>(null);
+  readonly adapter: BehaviorSubject<Adapter> = new BehaviorSubject<Adapter>(null);
   editingAdapterForm: FormGroup;
   deletingAdapter;
   deletingInProgress: AdapterModel[];
 
-  readonly editingAvailableAdapterTemplate: BehaviorSubject<AdapterTemplateModel> = new BehaviorSubject(null);
+  //readonly editingAvailableAdapterTemplate: BehaviorSubject<AdapterTemplateModel> = new BehaviorSubject(null);
   editingAvailableAdapterForm: FormGroup;
   readonly activeMode: BehaviorSubject<DeployMode> = new BehaviorSubject<DeployMode>(null);
   availableAdapterUniqueNameForm: UntypedFormGroup;
@@ -61,6 +62,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   modalActive = false;
 
   protected readonly Array = Array;
+
+  protected readonly DeployMode = DeployMode;
+
+  protected readonly AdapterModel = AdapterModel;
 
   readonly positionOrder = () => {
     return (a, b) => {
@@ -89,7 +94,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     this._catalog.adapters.pipe(
         filter(a => !!a),
         map(adapters => Array.from(adapters.values()).sort((a, b) => (a.name > b.name) ? 1 : -1))).subscribe(adapters => {
-      console.log(adapters);
       this.sources.next(adapters.filter(a => a.type === AdapterType.SOURCE).map(a => a as SourceModel));
       this.stores.next(adapters.filter(a => a.type === AdapterType.STORE).map(a => a as StoreModel));
     });
@@ -99,31 +103,27 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         map(adapters => adapters.filter(a => a.adapterType === this.getMatchingAdapterType()))).subscribe(adapters => {
       this.availableAdapters.next(adapters);
     });
-
-    this.editingAdapter.pipe(filter(a => !!a)).subscribe(a => {
-      this.editingAdapterTemplate.next(this._catalog.getAdapterTemplate(a.adapterName, a.type).value);
-    });
   }
 
   subscribeActiveChange() {
     const sub = this.activeMode.pipe(filter(m => !!m)).subscribe(mode => {
       const fc = {};
 
-      for (const setting of this.editingAvailableAdapterTemplate.value.defaultSettings) {
+      for (const setting of this.adapter.value.settings.values()) {
         const validators = [];
-        if (setting.required) {
+        if (setting.template.required) {
           validators.push(Validators.required);
         }
-        let val = setting.defaultValue;
-        if (setting.fileNames) {
-          fc[setting.name] = this._fb.array([]);
+        let val = setting.template.defaultValue;
+        if (setting.template.fileNames) {
+          fc[setting.template.name] = this._fb.array([]);
         } else {
-          if (setting.options) {
-            val = setting.options[0];
-          } else if (setting.fileNames) {
+          if (setting.template.options) {
+            val = setting.template.options[0];
+          } else if (setting.template.fileNames) {
             val = new UntypedFormControl(val, validators).value;
           }
-          fc[setting.name] = new UntypedFormControl(val, validators);
+          fc[setting.template.name] = new UntypedFormControl(val, validators);
         }
       }
 
@@ -143,12 +143,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   onVisibilityChange() {
-    if (this.modalActive){
+    if (this.modalActive) {
       return;
     }
-    this.editingAdapter.next(null);
+    this.adapter.next(null);
     this.editingAdapterForm = null;
-    this.editingAvailableAdapterTemplate.next(null);
     this.editingAvailableAdapterForm = null;
     this.activeMode.next(null);
     this.settingHeaders = null;
@@ -158,9 +157,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   initAdapterSettingsModal(adapter: AdapterModel) {
     const allSettings = this._catalog.getAdapterTemplate(adapter.adapterName, adapter.type).value;
     const allSettingByName = new Map(allSettings.defaultSettings.map(s => [s.name, s]));
-    this.editingAdapter.next(adapter);
+    console.log(adapter);
+    this.adapter.next(Adapter.from(allSettings, adapter));
     const fc = {};
-    for (const [k, v] of Object.entries(this.editingAdapter.value.settings)) {
+    for (const [k, v] of Object.entries(this.adapter.value.settings)) {
       const setting = allSettingByName.get(k);
       const validators = [];
       if (setting.fileNames) {
@@ -179,10 +179,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   saveAdapterSettings() {
-    const adapter = <any>this.editingAdapter;
+    const adapter = <any>this.adapter;
     adapter.settings = {};
     for (const [k, v] of Object.entries(this.editingAdapterForm.controls)) {
-      const setting = this.getAdapterSettingAndValue(k);
+      const setting = this.getAdapterSetting(k);
       if (!setting[0].modifiable || setting[0].fileNames) {
         continue;
       }
@@ -207,8 +207,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   getDefaultUniqueName(): string {
-    if (this.editingAvailableAdapterTemplate !== undefined) {
-      const base = this.editingAvailableAdapterTemplate.value.adapterName.toLowerCase(); // + "_"; // TODO: re-enable underscores when graph namespaces work with it
+    if (this.adapter !== undefined) {
+      const base = this.adapter.value.adapterName.toLowerCase(); // + "_"; // TODO: re-enable underscores when graph namespaces work with it
       let max_i = 0;
       for (const store of this.stores.value) {
         if (store.name.startsWith(base)) {
@@ -235,13 +235,13 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
   async initDeployModal(adapter: AdapterTemplateModel) {
     console.log(adapter);
-    this.editingAvailableAdapterTemplate.next(adapter);
+    this.adapter.next(Adapter.from(adapter, null));
 
     this.activeMode.next(null);
     // if we only have one mode we directly set it
     if (adapter.modes.length === 0) {
       this.activeMode.next(DeployMode.ALL);
-    }else if (adapter.modes.length === 1) {
+    } else if (adapter.modes.length === 1) {
       this.activeMode.next(adapter.modes[0]);
     }
 
@@ -309,10 +309,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  getAdapterSettingAndValue(key: string | unknown): [AdapterSettingModel, AdapterSettingValueModel] {
-    const value = this.editingAdapter.value.settings.filter((a, i) => a.key === key)[0];
-    const setting = this.editingAdapterTemplate.value.defaultSettings.filter(a => a.name === key)[0];
-    return [setting, value];
+  getAdapterSetting(key: string | unknown): MergedSetting {
+    return this.adapter.value.settings.get(<string>key);
   }
 
   deploy() {
@@ -322,11 +320,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     if (!this.availableAdapterUniqueNameForm.valid) {
       return;
     }
-    const deploy = new AdapterModel(this.availableAdapterUniqueNameForm.controls['name'].value, this.editingAdapter.value.adapterName, [], this.editingAdapter.value.persistent, this.deletingAdapter.value.adapterType, this.activeMode.value);
+    const deploy = new AdapterModel(this.availableAdapterUniqueNameForm.controls['name'].value, this.adapter.value.adapterName, [], this.adapter.value.persistent, this.deletingAdapter.value.adapterType, this.activeMode.value);
     const fd: FormData = new FormData();
 
     for (const [k, v] of Object.entries(this.editingAvailableAdapterForm.controls)) {
-      const settingAndValue = this.getAdapterSettingAndValue(k);
+      const settingAndValue = this.getAdapterSetting(k);
       if (settingAndValue[0].fileNames) {
         const fileNames = [];
         const arr = v as UntypedFormArray;
@@ -342,8 +340,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       deploy.settings[k] = settingAndValue[1];
     }
 
-
-    console.log(this.editingAvailableAdapterTemplate);
 
     if (deploy.settings.hasOwnProperty('method') && deploy.settings['method'].defaultValue === 'link') {
       // secure deploy
@@ -528,7 +524,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     if (!this.subgroups.has(keys[0])) {
 
-      const setting = this.getAdapterSettingAndValue(keys[0]);
+      const setting = this.getAdapterSetting(keys[0]);
 
       this.subgroups.set(keys[0], setting[1].value);
 
@@ -545,9 +541,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     this.subgroups.set(<string>key, (<AbstractControl>value).value);
   }
 
-  pos() {
-    return undefined;
-  }
 }
 
 // see https://angular.io/guide/form-validation#custom-validators
@@ -563,4 +556,45 @@ function validateUniqueName(adapters: AdapterModel[]): ValidatorFn {
     }
     return null;
   };
+}
+
+class Adapter {
+  adapterName: string;
+  persistent: boolean;
+  modes: DeployMode[];
+  mode: DeployMode;
+
+  constructor(adapterName: string, persistent: boolean, modes: DeployMode[], settings: Map<string, MergedSetting>) {
+    this.settings = settings;
+    this.adapterName = adapterName;
+    this.persistent = persistent;
+    this.modes = modes;
+  }
+
+
+  settings: Map<string, MergedSetting>;
+
+  public static from(adapter: AdapterTemplateModel, current: AdapterModel | null): Adapter {
+    const settings: Map<string, MergedSetting> = new Map();
+
+    for (const template of adapter.defaultSettings) {
+      const temp = (current === null ? [] : current.settings).filter(c => template.name === c.key);
+      const val = new MergedSetting(template, null);
+      if (temp.length === 1) {
+        val.current = temp[0];
+      }
+      settings.set(template.name, val);
+    }
+    return new Adapter(adapter.adapterName, adapter.persistent, adapter.modes, settings);
+  }
+}
+
+class MergedSetting {
+  template: AdapterSettingModel;
+  current: AdapterSettingValueModel;
+
+  constructor(template: AdapterSettingModel, current: AdapterSettingValueModel) {
+    this.template = template;
+    this.current = current;
+  }
 }
