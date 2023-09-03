@@ -11,6 +11,12 @@ export enum CatalogState {
 export class IdEntity {
   id: number;
   name: string;
+
+
+  constructor(id: number, name: string) {
+    this.id = id;
+    this.name = name;
+  }
 }
 
 // tslint:disable-next-line:no-empty-interface
@@ -116,6 +122,14 @@ export interface AdapterTemplateModel{
   adapterType: AdapterType;
   defaultSettings: AdapterSettingModel[];
   description: string;
+  modes: DeployMode[];
+}
+
+export enum DeployMode{
+  EMBEDDED = 'EMBEDDED',
+  DOCKER = 'DOCKER',
+  REMOTE = 'REMOTE',
+  ALL = 'ALL'
 }
 
 export interface AdapterSettingModel {
@@ -132,6 +146,11 @@ export interface AdapterSettingModel {
   fileNames: string[];
   dynamic: boolean;
   position: number;
+}
+
+export interface AdapterSettingValueModel {
+  key: string;
+  value: string;
 }
 
 export enum EntityType {

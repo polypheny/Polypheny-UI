@@ -22,6 +22,7 @@ export class LeftSidebarService {
 
   @Input() schemaEdit: boolean;
   router: Router;
+  public isVisible = true;
 
   constructor(
       private _http: HttpClient,
@@ -31,12 +32,12 @@ export class LeftSidebarService {
       private _breadcrumb: BreadcrumbService,
       public _catalog: CatalogService
   ) {
-  this.nodes.subscribe(nodes => {
-            if (this.selectedNodeId && !nodes.some(node => node.id === this.selectedNodeId))  {
-                this.selectedNodeId = null;
-            }
-        });
-    }
+    this.nodes.subscribe(nodes => {
+      if (this.selectedNodeId && !nodes.some(node => node.id === this.selectedNodeId)) {
+        this.selectedNodeId = null;
+      }
+    });
+  }
 
   nodes: BehaviorSubject<SidebarNode[]> = new BehaviorSubject([]);
   error: BehaviorSubject<string> = new BehaviorSubject<string>(null);
@@ -149,12 +150,16 @@ export class LeftSidebarService {
   }
 
   open() {
-    $('body').addClass('sidebar-lg-show');
+    this.isVisible = true;
+  }
+
+  hide() {
+    this.isVisible = false;
   }
 
   close() {
     this.nodes.next([]);
-    $('body').removeClass('sidebar-lg-show');
+    this.hide();
   }
 
   /**
@@ -253,11 +258,15 @@ export class LeftSidebarService {
     return this.inactiveNode;
   }
 
-    getTopButtonSubject() {
-        return this.topButtonSubject;
-    }
+  getTopButtonSubject() {
+    return this.topButtonSubject;
+  }
 
-    setTopButtons(buttons: SidebarButton[]) {
-        this.topButtonSubject.next(buttons);
-    }
+  setTopButtons(buttons: SidebarButton[]) {
+    this.topButtonSubject.next(buttons);
+  }
+
+  toggle() {
+    this.isVisible = !this.isVisible;
+  }
 }

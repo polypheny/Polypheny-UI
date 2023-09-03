@@ -37,7 +37,7 @@ export class CatalogService {
   public readonly allocationColumns: BehaviorSubject<Map<number, AllocationColumnModel>> = new BehaviorSubject(new Map());
 
   public readonly adapters: BehaviorSubject<Map<number, AdapterModel>> = new BehaviorSubject(new Map());
-  public readonly adapterTemplates: BehaviorSubject<Map<[string,AdapterType],AdapterTemplateModel>> = new BehaviorSubject(new Map<[string,AdapterType], AdapterTemplateModel>());
+  public readonly adapterTemplates: BehaviorSubject<Map<[string, AdapterType], AdapterTemplateModel>> = new BehaviorSubject(new Map<[string, AdapterType], AdapterTemplateModel>());
 
   constructor(
       private _http: HttpClient,
@@ -68,7 +68,7 @@ export class CatalogService {
       this.allocations.next(this.toIdMap(this.snapshot.allocations));
       this.allocationColumns.next(this.toIdMap(this.snapshot.allocColumns));
       this.adapters.next(this.toIdMap(this.snapshot.adapters));
-      this.adapterTemplates.next(new Map(this.snapshot.adapterTemplates.map( t => [[t.adapterName, t.adapterType], t])));
+      this.adapterTemplates.next(new Map(this.snapshot.adapterTemplates.map(t => [[t.adapterName, t.adapterType], t])));
 
       this.listener.next(this); // notify
 
@@ -325,5 +325,13 @@ export class CatalogService {
     return this.wrapBehaviorSubject(() => Array.from(this.adapters.value.values()).filter(a => {
       return a.type === AdapterType.STORE;
     }).map(a => <StoreModel>a));
+  }
+
+  getAdapterTemplate(adapterName: string, type: AdapterType): BehaviorSubject<AdapterTemplateModel> {
+    return this.wrapBehaviorSubject(() => this.adapterTemplates.value.get([adapterName, type]));
+  }
+
+  getAdapterTemplates() {
+    return this.wrapBehaviorSubject(() => Array.from(this.adapterTemplates.value.values()));
   }
 }

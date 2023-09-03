@@ -1,18 +1,18 @@
-<ng-container [ngSwitch]="route">
+<ng-container [ngSwitch]="currentRoute">
 
     <!-- availableAdapters -->
-    <c-row *ngSwitchCase="['addStore','addSource'].includes(route) ? route : ''">
+    <c-row *ngSwitchCase="['addStore','addSource'].includes( currentRoute|async ) ? currentRoute : ''">
         <c-col>
             <h2>Adapters</h2>
         </c-col>
     </c-row>
-    <c-row class="row" *ngSwitchCase="['addStore','addSource'].includes(route) ? route : ''">
+    <c-row class="row" *ngSwitchCase="['addStore','addSource'].includes( currentRoute | async ) ? currentRoute : ''">
         <button cButton color="primary" class="btn-circle topRight" [routerLink]="['./../']">
             <i class="fa fa-close"></i>
         </button>
 
-        <c-col *ngIf="getAvailableAdapters()">
-            <table cTable size="sm" hover bordered striped id="adapter-table">
+        <c-col *ngIf="availableAdapters | async">
+            <table cTable size="sm" hover bordered id="adapter-table">
                 <thead>
                 <tr>
                     <th>Logo</th>
@@ -22,16 +22,16 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let adapter of getAvailableAdapters()">
+                <tr *ngFor="let adapter of availableAdapters | async">
                     <td class="center">
-                        <ng-container *ngIf="getLogo(adapter.name).startsWith('assets/')">
-                            <img [src]="getLogo(adapter.name)" alt="">
+                        <ng-container *ngIf="getLogo(adapter.adapterName).startsWith('assets/')">
+                            <img [src]="getLogo(adapter.adapterName)" alt="">
                         </ng-container>
-                        <ng-container *ngIf="!getLogo(adapter.name).startsWith('assets/')">
-                            <i [class]="getLogo(adapter.name)"></i>
+                        <ng-container *ngIf="!getLogo(adapter.adapterName).startsWith('assets/')">
+                            <i [class]="getLogo(adapter.adapterName)"></i>
                         </ng-container>
                     </td>
-                    <td><strong>{{adapter.name}}</strong></td>
+                    <td><strong>{{adapter.adapterName}}</strong></td>
                     <td>{{adapter.description}}</td>
                     <td class="center">
                         <button cButton size="sm" color="primary" (click)="initDeployModal(adapter)">Deploy</button>
@@ -113,40 +113,37 @@
                     *ngTemplateOutlet="adapterTemplate; context:{adapters: (sources|async), type: 'source'}"></ng-container>
         </c-row>
     </div>
-
 </ng-container>
 
 
-<c-modal class="modal fade" role="dialog"
-         [visible]="modalActive"
-         aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (visibleChange)="onCloseModal()">
+<c-modal class="fade" role="dialog" *ngIf="modalActive" [visible]="modalActive" aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (visibleChange)="onVisibilityChange()">
 
     <c-modal-content>
         <c-modal-header>
-            <h4 cModalTitle>{{activeMode ? "Settings" : "Deployment Mode"}}</h4>
+            <h4 cModalTitle>{{(activeMode | async) ? "Settings" : "Deployment Mode"}}</h4>
             <button (click)="modalActive = false" cButtonClose></button>
         </c-modal-header>
 
         <!-- Edit adapter settings -->
-        <c-modal-body *ngIf="editingAdapter && editingAdapter.settings">
+        <c-modal-body *ngIf="(editingAdapter | async)?.settings">
             <form [formGroup]="editingAdapterForm" autocomplete="off" (ngSubmit)="saveAdapterSettings()">
                 <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
                     <div>
                         <c-input-group
-                                *ngIf="!getAdapterSetting(editingAdapter, control.key).options && !getAdapterSetting(editingAdapter, control.key).fileNames">
-                            <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSetting(editingAdapter, control.key).description">{{control.key}}</span>
+                                *ngIf="!getAdapterSettingAndValue(control.key)[0].options && !getAdapterSettingAndValue(control.key)[0].fileNames">
+                            <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSettingAndValue(control.key)[0].description">{{control.key}}</span>
                             <input cFormControl type="text" [id]="control.key"
                                    [formControlName]="control.key"
                                    [ngClass]="validate(editingAdapterForm, control.key)">
                             <c-form-feedback>required</c-form-feedback>
                         </c-input-group>
-                        <div class="form-group" *ngIf="getAdapterSetting(editingAdapter, control.key).options">
-                            <c-input-group class="select-wrapper" *ngIf="!getAdapterSetting(editingAdapter, control.key).dynamic; else editDynamic">
-                                        <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSetting(editingAdapter, control.key).description">
+                        <div class="form-group" *ngIf="getAdapterSettingAndValue(control.key)[0].options">
+                            <c-input-group class="select-wrapper" *ngIf="!getAdapterSettingAndValue(control.key)[0].dynamic; else editDynamic">
+                                        <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSettingAndValue(control.key)[0].description">
                                             {{control.key}}
                                         </span>
                                 <select cSelect [id]="control.key" [formControlName]="control.key">
-                                    <option *ngFor="let option of getAdapterSetting(editingAdapter, control.key).options"
+                                    <option *ngFor="let option of getAdapterSettingAndValue( control.key)[0].options"
                                             [value]="option">
                                         {{option}}
                                     </option>
@@ -155,18 +152,18 @@
                             <!--dynamic select, which use ids internally-->
                             <ng-template #editDynamic>
                                 <c-input-group class="select-wrapper">
-                                    <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSetting(editingAdapter, control.key).description"></span>
+                                    <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSettingAndValue(control.key)[0].description"></span>
                                     <select cSelect [id]="control.key" [formControlName]="control.key">
-                                        <option *ngFor="let option of getAdapterSetting(editingAdapter, control.key).options"
-                                                [value]="option">{{getAdapterSetting( editingAdapter, control.key ).alias[option]}}</option>
+                                        <option *ngFor="let option of getAdapterSettingAndValue(control.key)[0].options"
+                                                [value]="option">{{getAdapterSettingAndValue( control.key )[0].alias[option]}}</option>
                                     </select>
                                 </c-input-group>
                             </ng-template>
                         </div>
-                        <c-input-group *ngIf="getAdapterSetting(editingAdapter, control.key).fileNames">
-                            <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSetting(editingAdapter, control.key).description">{{control.key}}</span>
-                            <span cFormText *ngIf="!getAdapterSetting(editingAdapter, control.key).modifiable" type="text" disabled></span>
-                            <span cFormText *ngIf="getAdapterSetting(editingAdapter, control.key).modifiable" style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
+                        <c-input-group *ngIf="getAdapterSettingAndValue(control.key)[0].fileNames">
+                            <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSettingAndValue(control.key)[0].description">{{control.key}}</span>
+                            <span cFormText *ngIf="!getAdapterSettingAndValue(control.key)[0].modifiable" disabled></span>
+                            <span cFormText *ngIf="getAdapterSettingAndValue(control.key)[0].modifiable" style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
                                     {{fileLabel}}
                                 </span>
                             <input cFormControl type="file" multiple style="display: none" [id]="control.key"
@@ -180,12 +177,10 @@
         </c-modal-body>
 
         <!-- Form for deploying -->
-        <c-modal-body *ngIf="editingAvailableAdapter && editingAvailableAdapter.adapterSettings">
-            <div *ngIf="!activeMode; else options">
-                <div>
-                    <button cButton size="lg" color="primary" *ngFor="let mode of modeSettings" class="me-1 btn-block"
-                            (click)="setMode(mode)">{{mode}}</button>
-                </div>
+        <c-modal-body *ngIf="(editingAvailableAdapterTemplate|  async)">
+            <div *ngIf="!(activeMode | async); else options">
+                <button cButton size="lg" color="primary" *ngFor="let mode of (editingAvailableAdapterTemplate | async).modes" class="me-1 btn-block"
+                            (click)="activeMode.next(mode)">{{mode}}</button>
             </div>
 
             <ng-template #options>
@@ -197,26 +192,26 @@
                                 <input cFormControl type="text" id="adapterUniqueName"
                                        formControlName="uniqueName"
                                        [ngClass]="validate(availableAdapterUniqueNameForm, 'uniqueName')">
-                                <c-form-feedback>{{getFeedback()}}</c-form-feedback>
+                                <c-form-feedback>{{getFeedback(availableAdapterUniqueNameForm)}}</c-form-feedback>
                             </c-input-group>
                         </div>
                     </form>
                     <form [formGroup]="editingAvailableAdapterForm" (ngSubmit)="deploy()" autocomplete="off">
                         <div class="form-group"
-                             *ngFor="let control of editingAvailableAdapterForm.controls  | keyvalue: positionOrder( editingAvailableAdapter)">
-                            <div *ngIf=" !getAdapterSetting(editingAvailableAdapter, control.key).subOf || subIsActive(editingAvailableAdapter, getAdapterSetting(editingAvailableAdapter, control.key).subOf)">
-                                <c-input-group *ngIf="!getAdapterSetting(editingAvailableAdapter, control.key).options && !getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
-                                    <span cFormText [cTooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" cTooltipPlacement="left" class="input-group-text">{{control.key}}</span>
+                             *ngFor="let control of editingAvailableAdapterForm.controls  | keyvalue: positionOrder()">
+                            <div *ngIf=" !getAdapterSettingAndValue(control.key)[0].subOf || subIsActive( getAdapterSettingAndValue(control.key)[0].subOf)">
+                                <c-input-group *ngIf="!getAdapterSettingAndValue(control.key)[0].options && !getAdapterSettingAndValue(control.key)[0].fileNames">
+                                    <span cFormText [cTooltip]="getAdapterSettingAndValue(control.key)[0].description" cTooltipPlacement="left" class="input-group-text">{{control.key}}</span>
                                     <input cFormControl type="text" [id]="control.key"
                                            [formControlName]="control.key"
                                            [ngClass]="validate(control.value, control.key)">
                                     <c-form-feedback>{{ getGenericFeedback( control.key )}}</c-form-feedback>
                                 </c-input-group>
                                 <div class="form-group"
-                                     *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).options">
+                                     *ngIf="getAdapterSettingAndValue(control.key)[0].options">
                                     <c-input-group class="select-wrapper"
-                                                   *ngIf="!getAdapterSetting(editingAvailableAdapter, control.key).dynamic; else dynamicSelect">
-                                            <span cFormText [cTooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" class="input-group-text" tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description"
+                                                   *ngIf="!getAdapterSettingAndValue(control.key)[0].dynamic; else dynamicSelect">
+                                            <span cFormText [cTooltip]="getAdapterSettingAndValue(control.key)[0].description" class="input-group-text" tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description"
                                                   cTooltipPlacement="left">
                                                 {{control.key}}
                                             </span>
@@ -224,30 +219,29 @@
                                         <select cSelect [id]="control.key"
                                                 [ngClass]="validate(control.value, control.key)"
                                                 [formControlName]="control.key"
-                                                (change)="onChange(control.key, control.value)">
-                                            <option *ngFor="let option of getAdapterSetting(editingAvailableAdapter, control.key).options"
+                                                (change)="onChange(control.key,control.value)">
+                                            <option *ngFor="let option of getAdapterSettingAndValue(control.key)[0].options"
                                                     [value]="option">{{option}}</option>
                                         </select>
-                                        <c-form-feedback>{{ getGenericFeedback( control.key )}}</c-form-feedback>
+                                        <c-form-feedback>{{ getGenericFeedback( control.key ) }}</c-form-feedback>
                                     </c-input-group>
                                     <ng-template #dynamicSelect>
                                         <c-input-group class="select-wrapper select-dynamic">
-                                            <label cInputGroupText [cTooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description" cTooltipPlacement="left"
-                                                   [for]="control.key">{{getAdapterSetting( editingAvailableAdapter, control.key ).nameAlias}}</label>
+                                            <label cInputGroupText [cTooltip]="getAdapterSettingAndValue(control.key)[0].description" cTooltipPlacement="left"
+                                                   [for]="control.key">{{getAdapterSettingAndValue( control.key )[0].nameAlias}}</label>
 
                                             <select cSelect [id]="control.key"
                                                     [ngClass]="validate(control.value, control.key)"
                                                     [formControlName]="control.key">
-                                                <option *ngFor="let option of getAdapterSetting(editingAvailableAdapter, control.key).options"
-                                                        [value]="option">{{getAdapterSetting( editingAvailableAdapter, control.key ).alias[option]}}</option>
+                                                <option *ngFor="let option of getAdapterSettingAndValue(control.key)[0].options"
+                                                        [value]="option">{{getAdapterSettingAndValue( control.key )[0].alias[option]}}</option>
                                             </select>
-                                            <c-form-feedback>{{ getGenericFeedback( control.key )}}</c-form-feedback>
+                                            <c-form-feedback>{{ getGenericFeedback( (control.key) ) }}</c-form-feedback>
                                         </c-input-group>
                                     </ng-template>
                                 </div>
-                                <c-input-group
-                                        *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
-                                    <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description">{{control.key}}</span>
+                                <c-input-group *ngIf="getAdapterSettingAndValue(control.key)[0].fileNames">
+                                    <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSettingAndValue(control.key)[0].description">{{control.key}}</span>
                                     <span cFormText style="position: relative; text-align: left; white-space: nowrap; overflow: hidden"></span>
                                     <input type="file" multiple style="display: none" [id]="control.key"
                                            [ngClass]="validate(control.value, control.key)"
@@ -263,15 +257,15 @@
             </ng-template>
 
             <ng-template #secure>
-                <p>Due to the limited permissions available to browsers, Polypheny cannot directly link files via
-                    UI.</p>
+                <p>Due to the limited permissions available to browsers, Polypheny cannot directly link files via UI.</p>
                 <p>As a security measure, the established link has to be validated by the backend, for this it
                     requires a <i><strong>polypheny.access</strong></i>, with the following content in the target
                     directory:</p>
                 <p><i><strong>{{this.accessId}}</strong></i></p>
-                <p>This can be done created manually or downloaded: <a class="btn btn-primary" (click)="createSecureFile()" download>
-                    <i class="cui-file"></i>
-                </a>
+                <p>This can be done created manually or downloaded:
+                    <button cButton color="primary" (click)="createSecureFile()" download>
+                        <i class="cui-file"></i>
+                    </button>
                 </p>
 
 
@@ -279,16 +273,18 @@
         </c-modal-body>
 
         <c-modal-footer>
-            <button cButton color="secondary" (click)="modalActive = true">Close</button>
-            <button cButton color="primary" *ngIf="editingAdapter" type="submit" (click)="saveAdapterSettings()"
-                    [disabled]="!editingAdapterForm.valid">Save
+            <button cButton color="secondary" (click)="modalActive = false">
+                Close
             </button>
-            <button cButton color="primary" *ngIf="editingAvailableAdapter && activeMode && !handshaking" type="submit"
+            <button cButton color="primary" *ngIf="(editingAdapter | async)" type="submit" (click)="saveAdapterSettings()" [disabled]="!editingAdapterForm?.valid">
+                Save
+            </button>
+            <button cButton color="primary" *ngIf="(editingAvailableAdapterTemplate | async) && (activeMode | async)&& !handshaking" type="submit"
                     (click)="deploy()"
-                    [disabled]="!availableAdapterUniqueNameForm.valid || !editingAvailableAdapterForm.valid || deploying || handshaking">
+                    [disabled]="!availableAdapterUniqueNameForm?.valid || !editingAvailableAdapterForm?.valid || deploying || handshaking">
                 <span *ngIf="!deploying && !handshaking">Deploy</span>
                 <c-spinner size="sm" *ngIf="deploying || handshaking" role="status">
-                        <span class="sr-only">{{ handshaking ? 'Security checking...' : 'Loading...' }}</span>
+                    <span class="sr-only">{{ handshaking ? 'Security checking...' : 'Loading...' }}</span>
                 </c-spinner>
             </button>
             <button cButton color="primary" *ngIf="handshaking" (click)="continueSecureDeploy()">Continue</button>

@@ -32,7 +32,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
                             node.data.action(tree, node, $event);
                         }
                         if (node.data.routerLink && node.data.allowRouting) {
-                            _router.navigate([node.data.routerLink]);
+                            _router.navigate([node.data.routerLink]).then(r => null);
                         }
                         if (node.data.isAutoExpand()) {
                             node.toggleExpanded();

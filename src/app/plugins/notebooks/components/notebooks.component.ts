@@ -19,7 +19,7 @@ import {KernelSpec, KernelSpecs, SessionResponse} from '../models/notebooks-resp
 import {LoadingScreenService} from '../../../components/loading-screen/loading-screen.service';
 import {ComponentCanDeactivate} from '../services/unsaved-changes.guard';
 import {EditNotebookComponent} from './edit-notebook/edit-notebook.component';
-import {ToasterService} from "../../../components/toast-exposer/toaster.service";
+import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 
 @Component({
     selector: 'app-notebooks',

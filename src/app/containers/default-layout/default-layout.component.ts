@@ -17,7 +17,6 @@ export class DefaultLayoutComponent implements OnDestroy {
     public sidebarMinimized = true;
     private changes: MutationObserver;
     public element: HTMLElement;
-    showLeft = true;
     showRight = false;
     icons = freeSet;
 
@@ -26,6 +25,7 @@ export class DefaultLayoutComponent implements OnDestroy {
         public _information: InformationService,
         public _crud: CrudService,
         public _plugin: PluginService,
+        public _left: LeftSidebarService,
         @Inject(DOCUMENT) _document?: any
     ) {
 

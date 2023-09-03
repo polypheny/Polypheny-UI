@@ -20,7 +20,9 @@
         </button>
     </div>
 
-    <span *ngIf="error">{{error}}</span>
+    <span *ngIf="error">
+        {{error}}
+    </span>
     <div id="tree-inner-wrapper" [classList]=" (this._catalog.state | async ) === CatalogState.UP_TO_DATE ? 'flex-grow-1' : 'flex-grow-0' ">
 
         <tree-root [nodes]="nodes" [options]="options" [class]="{'no-children': !hasChildren(nodes)}" #tree>
@@ -55,8 +57,10 @@
 
     <div *ngIf="needsButton()" class="schema-editing-wrapper">
         <div class="border-top my-3 "></div>
-        <p class="namespace-button node-content-wrapper" id="namespaceText" [routerLink]="'/views/schema-editing/'"><i
-                class="fa fa-pencil" aria-hidden="true"></i> <span class="ms-1"> Manage Namespaces</span></p>
+        <p class="namespace-button node-content-wrapper" id="namespaceText" [routerLink]="'/views/schema-editing/'">
+            <i class="fa fa-pencil" aria-hidden="true"></i>
+            <span class="ms-1"> Manage Namespaces</span>
+        </p>
     </div>
 
 

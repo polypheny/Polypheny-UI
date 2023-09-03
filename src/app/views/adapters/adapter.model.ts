@@ -1,11 +1,21 @@
 import {AvailableIndexMethod, ResultException} from '../../components/data-view/models/result-set.model';
-import {IdEntity} from '../../models/catalog.model';
+import {AdapterSettingValueModel, AdapterSettingModel, IdEntity, DeployMode} from '../../models/catalog.model';
 
-export interface AdapterModel extends IdEntity {
-  adapterName: string;
-  settings: Map<string, string>;
-  persistent: boolean;
-  type: AdapterType;
+export class AdapterModel extends IdEntity {
+  readonly adapterName: string;
+  readonly settings: AdapterSettingValueModel[];
+  readonly persistent: boolean;
+  readonly type: AdapterType;
+  readonly deployMode: DeployMode;
+
+  constructor(uniqueName: string, adapterName: string, settings: AdapterSettingValueModel[], persistent: boolean, type: AdapterType, deployMode: DeployMode) {
+    super(-1, uniqueName);
+    this.adapterName = adapterName;
+    this.settings = settings;
+    this.persistent = persistent;
+    this.type = type;
+    this.deployMode = deployMode;
+  }
 }
 
 export interface SourceModel extends AdapterModel {
@@ -26,7 +36,7 @@ export interface AdapterInformation {
   description: string;
   adapterName: string;
   type: string;
-  adapterSettings: Map<string, string>;
+  adapterSettings: AdapterSettingValueModel[];
 }
 
 
@@ -48,7 +58,6 @@ export interface MaterializedInfos {
   exception: ResultException;
   materializedInfo: [];
 }
-
 
 
 export enum PlacementType {
