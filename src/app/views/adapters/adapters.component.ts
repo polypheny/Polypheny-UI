@@ -5,7 +5,7 @@ import {AdapterModel, AdapterType, SourceModel, StoreModel} from './adapter.mode
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {AbstractControl, Form, FormArray, FormGroup, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {PathAccessRequest, RelationalResult} from '../../components/data-view/models/result-set.model';
-import {BehaviorSubject, flatMap, Subscription} from 'rxjs';
+import {BehaviorSubject, combineLatest, Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
 import {filter, map, mergeMap} from 'rxjs/operators';
 import {AdapterSettingModel, AdapterSettingValueModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
@@ -37,17 +37,13 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   readonly currentRoute: BehaviorSubject<String> = new BehaviorSubject<String>(null);
   private subscriptions = new Subscription();
 
-  readonly originalValues: BehaviorSubject<AdapterModel> = new BehaviorSubject<AdapterModel>(null);
-  readonly originalTemplate: BehaviorSubject<AdapterTemplateModel> = new BehaviorSubject<AdapterTemplateModel>(null);
   readonly adapter: BehaviorSubject<Adapter> = new BehaviorSubject<Adapter>(null);
   editingAdapterForm: FormGroup;
   deletingAdapter;
   deletingInProgress: AdapterModel[];
 
-  //readonly editingAvailableAdapterTemplate: BehaviorSubject<AdapterTemplateModel> = new BehaviorSubject(null);
-  editingAvailableAdapterForm: FormGroup;
+  editingAvailableAdapterForm: UntypedFormGroup;
   readonly activeMode: BehaviorSubject<DeployMode> = new BehaviorSubject<DeployMode>(null);
-  availableAdapterUniqueNameForm: UntypedFormGroup;
   settingHeaders: string[];
 
   fileLabel = 'Choose File';
@@ -65,7 +61,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
   protected readonly DeployMode = DeployMode;
 
-  protected readonly AdapterModel = AdapterModel;
+  readonly _name: string = 'uniqueName';
+
 
   readonly positionOrder = () => {
     return (a, b) => {
@@ -106,7 +103,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   subscribeActiveChange() {
-    const sub = this.activeMode.pipe(filter(m => !!m)).subscribe(mode => {
+    const sub = combineLatest([this.activeMode, this.adapter]).pipe(filter(pair => !!pair[0] && !!pair[1])).subscribe((pair) => {
       const fc = {};
 
       for (const setting of this.adapter.value.settings.values()) {
@@ -126,8 +123,15 @@ export class AdaptersComponent implements OnInit, OnDestroy {
           fc[setting.template.name] = new UntypedFormControl(val, validators);
         }
       }
+      fc['uniqueName'] = new UntypedFormControl(this.getDefaultUniqueName(), [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores.value, ...this.sources.value])]);
 
-      this.editingAvailableAdapterForm = new UntypedFormGroup(fc);
+      if (pair[1].task === Task.DEPLOY) {
+        this.editingAvailableAdapterForm = new UntypedFormGroup(fc);
+      } else {
+        this.editingAdapterForm = new UntypedFormGroup(fc);
+      }
+
+
     });
 
     this.subscriptions.add(sub);
@@ -156,24 +160,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
   initAdapterSettingsModal(adapter: AdapterModel) {
     const allSettings = this._catalog.getAdapterTemplate(adapter.adapterName, adapter.type).value;
-    const allSettingByName = new Map(allSettings.defaultSettings.map(s => [s.name, s]));
-    console.log(adapter);
-    this.adapter.next(Adapter.from(allSettings, adapter));
-    const fc = {};
-    for (const [k, v] of Object.entries(this.adapter.value.settings)) {
-      const setting = allSettingByName.get(k);
-      const validators = [];
-      if (setting.fileNames) {
-        fc[setting.name] = this._fb.array([]);
-      } else {
-        if (setting.required) {
-          validators.push(Validators.required);
-        }
-        const val = adapter.settings[setting.name];
-        fc[setting.name] = new UntypedFormControl({value: val, disabled: !setting.modifiable}, validators);
-      }
-    }
-    this.editingAdapterForm = new FormGroup(fc);
+
+    this.adapter.next(Adapter.from(allSettings, adapter, Task.CHANGE));
+
     this.handshaking = false;
     this.modalActive = true;
   }
@@ -234,9 +223,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   async initDeployModal(adapter: AdapterTemplateModel) {
-    console.log(adapter);
-    this.adapter.next(Adapter.from(adapter, null));
-
     this.activeMode.next(null);
     // if we only have one mode we directly set it
     if (adapter.modes.length === 0) {
@@ -245,9 +231,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       this.activeMode.next(adapter.modes[0]);
     }
 
-    this.availableAdapterUniqueNameForm = new UntypedFormGroup({
-      uniqueName: new UntypedFormControl(this.getDefaultUniqueName(), [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores.value, ...this.sources.value])])
-    });
+    this.adapter.next(Adapter.from(adapter, null, Task.DEPLOY));
 
     this.modalActive = true;
   }
@@ -317,15 +301,16 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     if (!this.editingAvailableAdapterForm.valid) {
       return;
     }
-    if (!this.availableAdapterUniqueNameForm.valid) {
-      return;
-    }
-    const deploy = new AdapterModel(this.availableAdapterUniqueNameForm.controls['name'].value, this.adapter.value.adapterName, [], this.adapter.value.persistent, this.deletingAdapter.value.adapterType, this.activeMode.value);
+    const deploy = new AdapterModel(this.editingAvailableAdapterForm.controls['uniqueName'].value, this.adapter.value.adapterName, [], this.adapter.value.persistent, this.adapter.value.type, this.activeMode.value);
     const fd: FormData = new FormData();
 
     for (const [k, v] of Object.entries(this.editingAvailableAdapterForm.controls)) {
-      const settingAndValue = this.getAdapterSetting(k);
-      if (settingAndValue[0].fileNames) {
+      const setting = this.getAdapterSetting(k);
+      if (!setting) {
+        continue;
+      }
+
+      if (setting.template.fileNames) {
         const fileNames = [];
         const arr = v as UntypedFormArray;
         for (let i = 0; i < arr.length; i++) {
@@ -333,11 +318,12 @@ export class AdaptersComponent implements OnInit, OnDestroy {
           fd.append(file.name, file);
           fileNames.push(file.name);
         }
-        settingAndValue[1].value = fileNames.toString();
+        setting.current.value = fileNames.toString();
       } else {
-        settingAndValue[1].value = v.value;
+        setting.current.value = v.value;
       }
-      deploy.settings[k] = settingAndValue[1];
+
+      deploy.settings[k] = setting.current.value;
     }
 
 
@@ -540,7 +526,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
     this.subgroups.set(<string>key, (<AbstractControl>value).value);
   }
-
 }
 
 // see https://angular.io/guide/form-validation#custom-validators
@@ -559,33 +544,39 @@ function validateUniqueName(adapters: AdapterModel[]): ValidatorFn {
 }
 
 class Adapter {
+  uniqueName: string;
   adapterName: string;
   persistent: boolean;
   modes: DeployMode[];
   mode: DeployMode;
+  task: Task;
+  type: AdapterType;
 
-  constructor(adapterName: string, persistent: boolean, modes: DeployMode[], settings: Map<string, MergedSetting>) {
+  constructor(uniqueName: string, adapterName: string, persistent: boolean, modes: DeployMode[], type: AdapterType, settings: Map<string, MergedSetting>, task: Task) {
+    this.uniqueName = uniqueName;
     this.settings = settings;
     this.adapterName = adapterName;
     this.persistent = persistent;
     this.modes = modes;
+    this.task = task;
+    this.type = type;
   }
 
 
   settings: Map<string, MergedSetting>;
 
-  public static from(adapter: AdapterTemplateModel, current: AdapterModel | null): Adapter {
+  public static from(adapter: AdapterTemplateModel, current: AdapterModel | null, task: Task): Adapter {
     const settings: Map<string, MergedSetting> = new Map();
 
     for (const template of adapter.defaultSettings) {
       const temp = (current === null ? [] : current.settings).filter(c => template.name === c.key);
-      const val = new MergedSetting(template, null);
+      const val = new MergedSetting(template, new AdapterSettingValueModel( template.name, null ));
       if (temp.length === 1) {
         val.current = temp[0];
       }
       settings.set(template.name, val);
     }
-    return new Adapter(adapter.adapterName, adapter.persistent, adapter.modes, settings);
+    return new Adapter(current === null ? '' : current.name, adapter.adapterName, adapter.persistent, adapter.modes, adapter.adapterType, settings, task);
   }
 }
 
@@ -597,4 +588,9 @@ class MergedSetting {
     this.template = template;
     this.current = current;
   }
+}
+
+enum Task {
+  DEPLOY,
+  CHANGE
 }

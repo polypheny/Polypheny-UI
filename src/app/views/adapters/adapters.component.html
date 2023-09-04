@@ -117,7 +117,6 @@
 
 
 <c-modal class="fade" role="dialog" *ngIf="modalActive" [visible]="modalActive" aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (visibleChange)="onVisibilityChange()">
-
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>{{(activeMode | async) ? "Settings" : "Deployment Mode"}}</h4>
@@ -128,10 +127,11 @@
         <c-modal-body *ngIf="editingAdapterForm">
             <form [formGroup]="editingAdapterForm" autocomplete="off" (ngSubmit)="saveAdapterSettings()">
                 <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
-                    <div>
-                        <c-input-group
-                                *ngIf="!getAdapterSetting(control.key).template.options && !getAdapterSetting(control.key).template.fileNames">
-                            <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSetting(control.key).template.description">{{control.key}}</span>
+                    <ng-container *ngIf="getAdapterSetting(control.key)">
+                        <c-input-group *ngIf="!getAdapterSetting(control.key).template.options && !getAdapterSetting(control.key).template.fileNames">
+                            <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSetting(control.key).template.description">
+                                {{control.key}}
+                            </span>
                             <input cFormControl type="text" [id]="control.key"
                                    [formControlName]="control.key"
                                    [ngClass]="validate(editingAdapterForm, control.key)">
@@ -171,7 +171,7 @@
                                    (change)="onFileChange($event, editingAdapterForm, control.key)">
                             <c-form-feedback>required</c-form-feedback>
                         </c-input-group>
-                    </div>
+                    </ng-container>
                 </div>
             </form>
         </c-modal-body>
@@ -184,35 +184,27 @@
             </div>
 
             <ng-template #options>
-                <div *ngIf="!handshaking; else secure" cRow [gutter]="2">
-                    <form [formGroup]="availableAdapterUniqueNameForm" (ngSubmit)="deploy()" autocomplete="off">
-                        <div class="form-group">
-                            <c-input-group>
-                                <span cInputGroupText>Unique Name</span>
-                                <input cFormControl type="text" id="adapterUniqueName"
-                                       formControlName="uniqueName"
-                                       [ngClass]="validate(availableAdapterUniqueNameForm, 'uniqueName')">
-                                <c-form-feedback>{{getFeedback( availableAdapterUniqueNameForm )}}</c-form-feedback>
-                            </c-input-group>
-                        </div>
-                    </form>
-                    <form [formGroup]="editingAvailableAdapterForm" (ngSubmit)="deploy()" autocomplete="off">
-                        <div class="form-group"
-                             *ngFor="let control of editingAvailableAdapterForm.controls  | keyvalue: positionOrder()">
-                            <div *ngIf=" !getAdapterSetting(control.key).template.subOf || subIsActive( getAdapterSetting(control.key).template.subOf)">
-                                <c-input-group cCol *ngIf="!getAdapterSetting(control.key).template.options && !getAdapterSetting(control.key).template.fileNames">
-                                    <span cInputGroupText [cTooltip]="getAdapterSetting(control.key).template.description" cTooltipPlacement="left" class="input-group-text">{{control.key}}</span>
+                <c-container *ngIf="!handshaking; else secure" [gutter]="{gy:2}">
+                    <form [formGroup]="editingAvailableAdapterForm" (ngSubmit)="deploy()" autocomplete="off" cRow [gutter]="{gy:2}">
+                        <c-input-group class="has-validation">
+                            <span cInputGroupText>Unique Name</span>
+                            <input cFormControl type="text" id="adapterUniqueName"
+                                   formControlName="uniqueName"
+                                   [ngClass]="validate(editingAvailableAdapterForm.controls['uniqueName'].value, 'uniqueName')">
+                            <c-form-feedback>{{getFeedback( editingAvailableAdapterForm )}}</c-form-feedback>
+                        </c-input-group>
+                        <ng-container *ngFor="let control of editingAvailableAdapterForm.controls | keyvalue: positionOrder()">
+                            <ng-container *ngIf=" control.key !== 'uniqueName' && ( !getAdapterSetting(control.key).template.subOf || subIsActive( getAdapterSetting(control.key).template.subOf))">
+                                <c-input-group class="has-validation" *ngIf="!getAdapterSetting(control.key).template.options && !getAdapterSetting(control.key).template.fileNames">
+                                    <span cInputGroupText [cTooltip]="getAdapterSetting(control.key).template.description" cTooltipPlacement="left">{{control.key}}</span>
                                     <input cFormControl type="text" [id]="control.key"
                                            [formControlName]="control.key"
                                            [ngClass]="validate(control.value, control.key)">
                                     <c-form-feedback>{{ getGenericFeedback( control.key )}}</c-form-feedback>
                                 </c-input-group>
-                                <div class="form-group"
-                                     *ngIf="getAdapterSetting(control.key).template.options">
-                                    <c-input-group class="select-wrapper"
-                                                   *ngIf="!getAdapterSetting(control.key).template.dynamic; else dynamicSelect">
-                                            <span cInputGroupText [cTooltip]="getAdapterSetting(control.key).template.description" class="input-group-text" tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description"
-                                                  cTooltipPlacement="left">
+                                <ng-container *ngIf="getAdapterSetting(control.key).template.options">
+                                    <c-input-group class="has-validation" *ngIf="!getAdapterSetting(control.key).template.dynamic; else dynamicSelect">
+                                            <span cInputGroupText [cTooltip]="getAdapterSetting(control.key).template.description" cTooltipPlacement="left">
                                                 {{control.key}}
                                             </span>
 
@@ -226,7 +218,7 @@
                                         <c-form-feedback>{{ getGenericFeedback( control.key ) }}</c-form-feedback>
                                     </c-input-group>
                                     <ng-template #dynamicSelect>
-                                        <c-input-group class="select-wrapper select-dynamic">
+                                        <c-input-group class="has-validation">
                                             <label cInputGroupText [cTooltip]="getAdapterSetting(control.key).template.description" cTooltipPlacement="left"
                                                    [for]="control.key">{{getAdapterSetting( control.key ).template.nameAlias}}</label>
 
@@ -239,7 +231,7 @@
                                             <c-form-feedback>{{ getGenericFeedback( (control.key) ) }}</c-form-feedback>
                                         </c-input-group>
                                     </ng-template>
-                                </div>
+                                </ng-container>
                                 <c-input-group *ngIf="getAdapterSetting(control.key).template.fileNames">
                                     <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSetting(control.key).template.description">{{control.key}}</span>
                                     <span cFormText style="position: relative; text-align: left; white-space: nowrap; overflow: hidden"></span>
@@ -250,10 +242,10 @@
 
                                     <c-form-feedback>{{ getGenericFeedback( control.key )}}</c-form-feedback>
                                 </c-input-group>
-                            </div>
-                        </div>
+                            </ng-container>
+                        </ng-container>
                     </form>
-                </div>
+                </c-container>
             </ng-template>
 
             <ng-template #secure>
@@ -280,7 +272,7 @@
                 Save
             </button>
             <button cButton color="primary" *ngIf="(activeMode | async)&& !handshaking" type="submit" (click)="deploy()"
-                    [disabled]="!availableAdapterUniqueNameForm?.valid || !editingAvailableAdapterForm?.valid || deploying || handshaking">
+                    [disabled]="!editingAvailableAdapterForm?.valid || deploying || handshaking">
                 <span *ngIf="!deploying && !handshaking">Deploy</span>
                 <c-spinner size="sm" *ngIf="deploying || handshaking" role="status">
                     <span class="sr-only">{{ handshaking ? 'Security checking...' : 'Loading...' }}</span>
