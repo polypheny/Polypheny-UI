@@ -2,18 +2,17 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../services/crud.service';
-import {NamespaceType, Namespace} from '../../models/ui-request.model';
-import {FormGroup, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {SidebarNode} from '../../models/sidebar-node.model';
+import {Namespace, NamespaceType} from '../../models/ui-request.model';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {RelationalResult} from '../../components/data-view/models/result-set.model';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
-import {StoreModel} from '../adapters/adapter.model';
 import {CatalogService} from '../../services/catalog.service';
 import {NamespaceModel} from '../../models/catalog.model';
 import {filter, map} from 'rxjs/operators';
+import {AdapterModel} from '../adapters/adapter.model';
 
 @Component({
   selector: 'app-schema-editing',
@@ -43,7 +42,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   dropSubmitted = false;
   createNamespaceFeedback = 'Name is invalid';
   private subscriptions = new Subscription();
-  stores: StoreModel[];
+  stores: AdapterModel[];
   graphStore: string;
 
   public readonly NamespaceType = NamespaceType;
@@ -212,7 +211,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
   getStores() {
     this._crud.getStores().subscribe({
-      next: (res: StoreModel[]) => {
+      next: (res: AdapterModel[]) => {
         this.stores = res;
       }, error: err => {
         console.log(err);

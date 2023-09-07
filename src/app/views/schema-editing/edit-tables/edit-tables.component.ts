@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnDestroy, OnInit, QueryList, Renderer2, ViewChild, ViewChildren} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, QueryList, Renderer2, ViewChildren} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -12,7 +12,6 @@ import {
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {StoreModel} from '../../adapters/adapter.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {BehaviorSubject, Subscription} from 'rxjs';
 import {DbTable} from '../../uml/uml.model';
@@ -20,6 +19,7 @@ import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.servi
 import {CatalogService} from '../../../services/catalog.service';
 import {EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {filter, mergeMap} from 'rxjs/operators';
+import {AdapterModel} from '../../adapters/adapter.model';
 
 const INITIAL_TYPE = 'BIGINT';
 
@@ -39,7 +39,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   counter = 0;
   newColumns = new Map<number, UiColumnDefinition>();
   newTableName = '';
-  stores: StoreModel[];
+  stores: AdapterModel[];
   selectedStore;
   creatingTable = false;
 
@@ -121,7 +121,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   getStores() {
     this._crud.getStores().subscribe({
       next: res => {
-        this.stores = <StoreModel[]>res;
+        this.stores = <AdapterModel[]>res;
       }, error: err => {
         console.log(err);
       }

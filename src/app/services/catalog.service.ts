@@ -1,13 +1,30 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {AdapterTemplateModel, AllocationColumnModel, AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, AssetsModel, CatalogState, ColumnModel, ConstraintModel, EntityModel, EntityType, FieldModel, IdEntity, KeyModel, LogicalSnapshotModel, NamespaceModel} from '../models/catalog.model';
+import {
+  AdapterTemplateModel,
+  AllocationColumnModel,
+  AllocationEntityModel,
+  AllocationPartitionModel,
+  AllocationPlacementModel,
+  AssetsModel,
+  CatalogState,
+  ColumnModel,
+  ConstraintModel,
+  EntityModel,
+  EntityType,
+  FieldModel,
+  IdEntity,
+  KeyModel,
+  LogicalSnapshotModel,
+  NamespaceModel
+} from '../models/catalog.model';
 import {NamespaceType} from '../models/ui-request.model';
 import {SidebarNode} from '../models/sidebar-node.model';
 import {BehaviorSubject, combineLatestWith, Observable, Subject} from 'rxjs';
 import {DbmsTypesService} from './dbms-types.service';
 import {map} from 'rxjs/operators';
-import {AdapterModel, AdapterType, SourceModel, StoreModel} from '../views/adapters/adapter.model';
+import {AdapterModel, AdapterType} from '../views/adapters/adapter.model';
 
 @Injectable({
   providedIn: 'root'
@@ -321,10 +338,10 @@ export class CatalogService {
     });
   }
 
-  getStores(): BehaviorSubject<StoreModel[]> {
+  getStores(): BehaviorSubject<AdapterModel[]> {
     return this.wrapBehaviorSubject(() => Array.from(this.adapters.value.values()).filter(a => {
       return a.type === AdapterType.STORE;
-    }).map(a => <StoreModel>a));
+    }));
   }
 
   getAdapterTemplate(adapterName: string, type: AdapterType): BehaviorSubject<AdapterTemplateModel> {

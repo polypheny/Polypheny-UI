@@ -1,17 +1,17 @@
-<ng-container [ngSwitch]="currentRoute">
+<ng-container [ngSwitch]="currentRoute()">
 
     <!-- availableAdapters -->
-    <c-row *ngSwitchCase="['addStore','addSource'].includes( currentRoute|async ) ? currentRoute : ''">
+    <c-row *ngSwitchCase="['addStore','addSource'].includes(currentRoute()) ? currentRoute() : ''">
         <c-col>
             <h2>Adapters</h2>
         </c-col>
     </c-row>
-    <c-row class="row" *ngSwitchCase="['addStore','addSource'].includes( currentRoute | async ) ? currentRoute : ''">
+    <c-row class="row" *ngSwitchCase="['addStore','addSource'].includes(currentRoute()) ? currentRoute() : ''">
         <button cButton color="primary" class="btn-circle topRight" [routerLink]="['./../']">
             <i class="fa fa-close"></i>
         </button>
 
-        <c-col *ngIf="availableAdapters | async">
+        <c-col *ngIf="availableAdapters()">
             <table cTable size="sm" hover bordered id="adapter-table">
                 <thead>
                 <tr>
@@ -22,7 +22,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let adapter of availableAdapters | async">
+                <tr *ngFor="let adapter of availableAdapters()">
                     <td class="center">
                         <ng-container *ngIf="getLogo(adapter.adapterName).startsWith('assets/')">
                             <img [src]="getLogo(adapter.adapterName)" alt="">
@@ -99,7 +99,8 @@
             </c-col>
         </c-row>
         <c-row class="adapters">
-            <ng-container *ngTemplateOutlet="adapterTemplate; context:{adapters: (stores|async), type: 'store'}"></ng-container>
+            <ng-container
+                    *ngTemplateOutlet="adapterTemplate; context:{adapters: stores(), type: 'store'}"></ng-container>
         </c-row>
     </div>
     <div *ngSwitchDefault>
@@ -110,7 +111,7 @@
         </c-row>
         <c-row class="adapters">
             <ng-container
-                    *ngTemplateOutlet="adapterTemplate; context:{adapters: (sources|async), type: 'source'}"></ng-container>
+                    *ngTemplateOutlet="adapterTemplate; context:{adapters: sources(), type: 'source'}"></ng-container>
         </c-row>
     </div>
 </ng-container>
@@ -119,7 +120,7 @@
 <c-modal class="fade" role="dialog" *ngIf="modalActive" [visible]="modalActive" aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (visibleChange)="onVisibilityChange()">
     <c-modal-content>
         <c-modal-header>
-            <h4 cModalTitle>{{(activeMode | async) ? "Settings" : "Deployment Mode"}}</h4>
+            <h4 cModalTitle>{{activeMode() ? "Settings" : "Deployment Mode"}}</h4>
             <button (click)="modalActive = false" cButtonClose></button>
         </c-modal-header>
 
@@ -177,10 +178,10 @@
         </c-modal-body>
 
         <!-- Form for deploying -->
-        <c-modal-body *ngIf="(adapter | async)">
-            <div *ngIf="!(activeMode | async); else options">
-                <button cButton size="lg" color="primary" *ngFor="let mode of (adapter | async).modes" class="me-1 btn-block"
-                        (click)="activeMode.next(mode)">{{mode}}</button>
+        <c-modal-body *ngIf="adapter()">
+            <div *ngIf="!activeMode(); else options">
+                <button cButton size="lg" color="primary" *ngFor="let mode of adapter().modes" class="me-1 btn-block"
+                        (click)="activeMode.set(mode)">{{mode}}</button>
             </div>
 
             <ng-template #options>
@@ -271,7 +272,7 @@
             <button cButton color="primary" *ngIf="editingAdapterForm" type="submit" (click)="saveAdapterSettings()" [disabled]="!editingAdapterForm?.valid">
                 Save
             </button>
-            <button cButton color="primary" *ngIf="(activeMode | async)&& !handshaking" type="submit" (click)="deploy()"
+            <button cButton color="primary" *ngIf="activeMode() && !handshaking" type="submit" (click)="deploy()"
                     [disabled]="!editingAvailableAdapterForm?.valid || deploying || handshaking">
                 <span *ngIf="!deploying && !handshaking">Deploy</span>
                 <c-spinner size="sm" *ngIf="deploying || handshaking" role="status">

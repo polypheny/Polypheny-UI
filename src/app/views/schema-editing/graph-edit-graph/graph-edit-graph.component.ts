@@ -6,13 +6,13 @@ import {CrudService} from '../../../services/crud.service';
 import {PolyType, RelationalResult} from '../../../components/data-view/models/result-set.model';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {StoreModel} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
-import {BehaviorSubject, combineLatest, concatMap, forkJoin, Observable, Subscription} from 'rxjs';
+import {BehaviorSubject, combineLatest, Subscription} from 'rxjs';
 import {AllocationPlacementModel, GraphModel, NamespaceModel} from '../../../models/catalog.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {filter, map, mergeMap} from 'rxjs/operators';
+import {filter, mergeMap} from 'rxjs/operators';
 import {Method} from '../../../models/ui-request.model';
+import {AdapterModel} from '../../adapters/adapter.model';
 
 @Component({
   selector: 'app-graph-edit',
@@ -44,9 +44,9 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
 
 
   //data placement handling
-  readonly stores: BehaviorSubject<StoreModel[]> = new BehaviorSubject([]);
-  readonly addableStores: BehaviorSubject<StoreModel[]> = new BehaviorSubject([]);
-  selectedStore: StoreModel;
+  readonly stores: BehaviorSubject<AdapterModel[]> = new BehaviorSubject([]);
+  readonly addableStores: BehaviorSubject<AdapterModel[]> = new BehaviorSubject([]);
+  selectedStore: AdapterModel;
   readonly placements: BehaviorSubject<AllocationPlacementModel[]> = new BehaviorSubject([]);
   isAddingPlacement = false;
 

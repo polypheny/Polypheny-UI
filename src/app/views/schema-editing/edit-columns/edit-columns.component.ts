@@ -3,16 +3,40 @@ import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
-import {FieldType, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, RelationalResult, TableConstraint, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
+import {
+  FieldType,
+  IndexModel,
+  ModifyPartitionRequest,
+  PartitionFunctionModel,
+  PartitioningRequest,
+  PolyType,
+  RelationalResult,
+  TableConstraint,
+  UiColumnDefinition
+} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest, Method} from '../../../models/ui-request.model';
+import {
+  ColumnRequest,
+  ConstraintRequest,
+  EditTableRequest,
+  MaterializedRequest,
+  Method
+} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {MaterializedInfos, PlacementType, StoreModel} from '../../adapters/adapter.model';
+import {AdapterModel, MaterializedInfos, PlacementType} from '../../adapters/adapter.model';
 import {BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, Subscription} from 'rxjs';
 import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, ConstraintModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
+import {
+  AllocationEntityModel,
+  AllocationPartitionModel,
+  AllocationPlacementModel,
+  ConstraintModel,
+  EntityType,
+  NamespaceModel,
+  TableModel
+} from '../../../models/catalog.model';
 import {filter, map, mergeMap} from 'rxjs/operators';
 
 const INITIAL_TYPE = 'BIGINT';
@@ -68,7 +92,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   indexes: RelationalResult;
   newIndexCols = new Map<string, boolean>();
-  selectedStoreForIndex: StoreModel;
+  selectedStoreForIndex: AdapterModel;
   newIndexForm: UntypedFormGroup;
   indexSubmitted = false;
   proposedIndexName = 'indexName';
@@ -77,9 +101,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   materializedInfo: BehaviorSubject<[]> = new BehaviorSubject<[]>([]);
 
   //data placement handling
-  readonly stores: BehaviorSubject<StoreModel[]> = new BehaviorSubject<StoreModel[]>([]);
-  availableStoresForIndexes: BehaviorSubject<StoreModel[]> = new BehaviorSubject([]);
-  selectedStore: StoreModel;
+  readonly stores: BehaviorSubject<AdapterModel[]> = new BehaviorSubject<AdapterModel[]>([]);
+  availableStoresForIndexes: BehaviorSubject<AdapterModel[]> = new BehaviorSubject([]);
+  selectedStore: AdapterModel;
   readonly placements: BehaviorSubject<AllocationPlacementModel[]> = new BehaviorSubject([]);
   readonly partitions: BehaviorSubject<AllocationPartitionModel[]> = new BehaviorSubject([]);
   readonly allocations: BehaviorSubject<AllocationEntityModel[]> = new BehaviorSubject([]);
@@ -579,9 +603,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSelectingIndexStore(store: StoreModel) {
+  onSelectingIndexStore(store: AdapterModel) {
     this.selectedStoreForIndex = store;
-    this.newIndexForm.controls['method'].setValue(store.availableIndexMethods[0].name);
+    this.newIndexForm.controls['method'].setValue(store.settings.get('availableIndexMethods')[0]);
   }
 
   getAvailableStoresForIndexes() {
@@ -589,11 +613,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         map(e => !!e),
         mergeMap(e =>
             this._catalog.getAvailableStoresForIndexes(this.entity.value.id))).subscribe({
-      next: (stores: StoreModel[]) => {
+      next: (stores: AdapterModel[]) => {
         this.availableStoresForIndexes.next(stores);
         if (stores?.length > 0) {
           this.selectedStoreForIndex = this.availableStoresForIndexes[0];
-          this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.availableIndexMethods[0].name);
+          this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.settings.get('availableIndexMethods').value[0]);
         } else {
           this.selectedStoreForIndex = null;
         }
@@ -606,7 +630,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   }
 
-  getAddableStores(): Observable<StoreModel[]> {
+  getAddableStores(): Observable<AdapterModel[]> {
     return forkJoin([
       this.stores,
       this.placements.pipe(map(placements => placements.map(p => p.adapterId)))])
@@ -647,7 +671,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     const preselect = this._catalog.getAllocColumns(placement.id).value;
     this.placementMethod = method;
     if (placement != null) {
-      store = <StoreModel>this._catalog.getAdapter(placement.adapterId).value;
+      store = <AdapterModel>this._catalog.getAdapter(placement.adapterId).value;
       this.selectedStore = store;
     }
     if (!this.selectedStore) {
@@ -707,7 +731,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   dropPlacement(adapterId: number) {
-    const store = <StoreModel>this._catalog.getAdapter(adapterId).value;
+    const store = <AdapterModel>this._catalog.getAdapter(adapterId).value;
     this._crud.addDropPlacement(this.namespace.value.id, this.entity.value.id, store.id, Method.DROP).subscribe({
       next: (res: RelationalResult) => {
         if (res.error) {
@@ -833,7 +857,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   initPartitioningModal(adapterId: number) {
-    const store = <StoreModel>this._catalog.getAdapter(adapterId).value;
+    const store = <AdapterModel>this._catalog.getAdapter(adapterId).value;
     this.partitionsToModify = [];
     for (const [i, partition] of this.partitions.value.entries()) {
       /*this.partitionsToModify.push({

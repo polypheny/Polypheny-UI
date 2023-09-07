@@ -6,12 +6,12 @@ import {EntityMeta, RelationalResult, Result} from '../../../components/data-vie
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {StoreModel} from '../../adapters/adapter.model';
 import {BehaviorSubject, Subscription} from 'rxjs';
 import {DbTable} from '../../uml/uml.model';
 import {CollectionModel, EntityType, NamespaceModel} from '../../../models/catalog.model';
 import {CatalogService} from '../../../services/catalog.service';
 import {filter, map, mergeMap} from 'rxjs/operators';
+import {AdapterModel} from '../../adapters/adapter.model';
 
 @Component({
   selector: 'app-document-edit-collections',
@@ -52,7 +52,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
   readonly collections: BehaviorSubject<Collection[]> = new BehaviorSubject<Collection[]>([]);
   readonly currentRoute: BehaviorSubject<string> = new BehaviorSubject<string>(this._route.snapshot.paramMap.get('id'));
 
-  readonly stores: BehaviorSubject<StoreModel[]> = new BehaviorSubject<StoreModel[]>([]);
+  readonly stores: BehaviorSubject<AdapterModel[]> = new BehaviorSubject([]);
   newCollectionName: string;
   selectedStore;
   creatingCollection = false;

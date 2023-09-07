@@ -27,11 +27,11 @@ import {WebSocket} from '../../services/webSocket';
 import {HttpEventType} from '@angular/common/http';
 import * as $ from 'jquery';
 import {Table} from '../../views/schema-editing/edit-tables/edit-tables.component';
-import {StoreModel} from '../../views/adapters/adapter.model';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
 import {UntypedFormGroup} from '@angular/forms';
 import {CatalogService} from '../../services/catalog.service';
 import {TableModel} from '../../models/catalog.model';
+import {AdapterModel} from '../../views/adapters/adapter.model';
 
 export class ViewInformation {
   freshness: string;
@@ -133,7 +133,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
   ];
   timeUniteSelected = 'minutes';
   intervalSelected = 10;
-  stores: StoreModel[];
+  stores: AdapterModel[];
   storeOptions: Array<String>;
   storeSelected: string;
   chooseNameForView: UntypedFormGroup;
@@ -793,7 +793,7 @@ export class DataViewComponent implements OnInit, OnDestroy, OnChanges {
 
   getStores() {
     this._crud.getStores().subscribe({
-      next: (res: StoreModel[]) => {
+      next: (res: AdapterModel[]) => {
         this.stores = res;
         this.storeOptions = this.stores.map(s => s.name);
         this.storeSelected = this.stores[0]['uniqueName'];

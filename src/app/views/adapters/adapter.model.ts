@@ -1,14 +1,14 @@
-import {AvailableIndexMethod, ResultException} from '../../components/data-view/models/result-set.model';
-import {AdapterSettingValueModel, AdapterSettingModel, IdEntity, DeployMode} from '../../models/catalog.model';
+import {ResultException} from '../../components/data-view/models/result-set.model';
+import {AdapterSettingValueModel, DeployMode, IdEntity} from '../../models/catalog.model';
 
 export class AdapterModel extends IdEntity {
   readonly adapterName: string;
-  readonly settings: AdapterSettingValueModel[];
+  readonly settings: Map<string, AdapterSettingValueModel>;
   readonly persistent: boolean;
   readonly type: AdapterType;
   readonly mode: DeployMode;
 
-  constructor(uniqueName: string, adapterName: string, settings: AdapterSettingValueModel[], persistent: boolean, type: AdapterType, deployMode: DeployMode) {
+  constructor(uniqueName: string, adapterName: string, settings: Map<string, AdapterSettingValueModel>, persistent: boolean, type: AdapterType, deployMode: DeployMode) {
     super(-1, uniqueName);
     this.adapterName = adapterName;
     this.settings = settings;
@@ -16,14 +16,6 @@ export class AdapterModel extends IdEntity {
     this.type = type;
     this.mode = deployMode;
   }
-}
-
-export interface SourceModel extends AdapterModel {
-  readOnly: boolean;
-}
-
-export interface StoreModel extends AdapterModel {
-  availableIndexMethods: AvailableIndexMethod[];
 }
 
 export enum AdapterType {
@@ -41,7 +33,7 @@ export interface AdapterInformation {
 
 
 export interface Placements {
-  stores: StoreModel[];
+  stores: AdapterModel[];
   exception: ResultException;
   isPartitioned: boolean;
   partitionNames: string[];

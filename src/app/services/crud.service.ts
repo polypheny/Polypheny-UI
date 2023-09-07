@@ -6,7 +6,9 @@ import {
     IndexModel,
     ModifyPartitionRequest,
     PartitionFunctionModel,
-    PartitioningRequest, PathAccessRequest, PlacementMeta
+    PartitioningRequest,
+    PathAccessRequest,
+    PlacementMeta
 } from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
@@ -18,13 +20,13 @@ import {
     ExploreTable,
     GraphRequest,
     MaterializedRequest,
+    Method,
     MonitoringRequest,
+    Namespace,
     QueryRequest,
     RelAlgRequest,
-    Namespace,
-    SchemaRequest,
     StatisticRequest,
-    TableRequest, Method
+    TableRequest
 } from '../models/ui-request.model';
 import {DockerSettings} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
@@ -529,9 +531,10 @@ export class CrudService {
         return this._http.get(`${this.httpUrl}/getAvailableSources`);
     }
 
-    addAdapter(fd: FormData) {
-        return this._http.post(`${this.httpUrl}/addAdapter`, fd);
+    addAdapter(adapter: AdapterModel) {
+        return this._http.post(`${this.httpUrl}/addAdapter`, adapter, this.httpOptions);
     }
+
 
     pathAccess(req: PathAccessRequest) {
         return this._http.post( `${this.httpUrl}/pathAccess`, req );

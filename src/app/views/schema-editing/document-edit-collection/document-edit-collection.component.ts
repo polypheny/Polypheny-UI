@@ -8,7 +8,7 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
 import {Method} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {AdapterModel, Placements, StoreModel} from '../../adapters/adapter.model';
+import {AdapterModel} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {BehaviorSubject, combineLatest, Subscription} from 'rxjs';
 import {CatalogService} from '../../../services/catalog.service';
@@ -48,8 +48,8 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
 
 
   //data placement handling
-  stores: BehaviorSubject<StoreModel[]> = new BehaviorSubject<StoreModel[]>([]);
-  addableStores: BehaviorSubject<StoreModel[]> = new BehaviorSubject<StoreModel[]>([]);
+  stores: BehaviorSubject<AdapterModel[]> = new BehaviorSubject([]);
+  addableStores: BehaviorSubject<AdapterModel[]> = new BehaviorSubject([]);
   selectedStore: AdapterModel;
   placementMethod: Method;
   isAddingPlacement = false;
