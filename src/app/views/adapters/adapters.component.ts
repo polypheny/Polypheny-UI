@@ -329,7 +329,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       if (!setting) {
         continue;
       }
-        console.log(setting);
+
         if (!setting.current) {
             setting.current = new AdapterSettingValueModel(k, null);
         }
@@ -349,6 +349,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
         deploy.settings.set(k, setting.current);
     }
+      console.log(deploy);
 
     if (deploy.settings.hasOwnProperty('method') && deploy.settings['method'].defaultValue === 'link') {
       // secure deploy

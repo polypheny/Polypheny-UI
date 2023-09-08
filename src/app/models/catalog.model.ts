@@ -150,11 +150,11 @@ export interface AdapterSettingModel {
 }
 
 export class AdapterSettingValueModel {
-  key: string;
+  name: string;
   value: string;
 
-  constructor(key: string, value: string) {
-    this.key = key;
+  constructor(name: string, value: string) {
+    this.name = name;
     this.value = value;
   }
 }
