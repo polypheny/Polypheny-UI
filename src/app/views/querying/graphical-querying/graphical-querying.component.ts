@@ -366,11 +366,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     return '"' + k.split('.').join('"."') + '"';
   }
 
-    async generateSQL() {
-        this.whereCounter = 0;
-        this.andCounter = 0;
-        this.orderByCounter = 0;
-        let filteredInfos = '';
+  async generateSQL() {
+    this.whereCounter = 0;
+    this.andCounter = 0;
+    this.orderByCounter = 0;
+    let filteredInfos = '';
 
     if (this.columns.size === 0) {
       this.editorGenerated.setCode('');
@@ -493,15 +493,16 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
     if (this.schemas.get(treeElement.getSchema()) === undefined) {
       this.schemas.set(treeElement.getSchema(), treeElement.getSchema());
-      this._crud.getUml(new EditTableRequest(treeElement.getSchema())).subscribe(
-          res => {
-            const uml = <Uml>res;
-            this.umlData.set(treeElement.getSchema(), uml);
-            this.generateJoinConditions();
-          }, err => {
-            this._toast.error('Could not get foreign keys of the schema ' + treeElement.getSchema());
-          }
-      );
+      this._crud.getUml(new EditTableRequest(treeElement.getSchema())).subscribe({
+        next: (uml: Uml) => {
+          this.umlData.set(treeElement.getSchema(), uml);
+          this.generateJoinConditions();
+        }
+        ,
+        error: err => {
+          this._toast.error('Could not get foreign keys of the schema ' + treeElement.getSchema());
+        }
+      });
     } else {
       this.generateJoinConditions();
     }

@@ -47,13 +47,14 @@ import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-e
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
 import {
+  BadgeComponent,
   BorderDirective, ButtonCloseDirective, ButtonDirective, ButtonGroupComponent,
   CardBodyComponent,
   CardComponent,
   CardFooterComponent,
   CardHeaderComponent,
   ColComponent, ColDirective,
-  ContainerComponent, DropdownComponent, DropdownDividerDirective, DropdownItemDirective, DropdownMenuDirective, DropdownToggleDirective, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormFeedbackComponent, FormSelectDirective, FormTextDirective,
+  ContainerComponent, DropdownComponent, DropdownDividerDirective, DropdownItemDirective, DropdownMenuDirective, DropdownToggleDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormFeedbackComponent, FormSelectDirective, FormTextDirective,
   GutterDirective,
   HeaderComponent, InputGroupComponent, InputGroupTextDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalDialogComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective,
   RowComponent, RowDirective, SpinnerComponent, TableDirective, TooltipDirective
@@ -119,7 +120,9 @@ import {
     DropdownDividerDirective,
     TooltipDirective,
     SpinnerComponent,
-    NgOptimizedImage
+    NgOptimizedImage,
+    BadgeComponent,
+    FormCheckComponent
   ],
     declarations: [
         EditColumnsComponent,

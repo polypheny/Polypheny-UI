@@ -4,26 +4,20 @@
         <h5>Graphical Querying</h5>
         <p>Select columns from the left sidebar to get started. If needed, you can edit the generated SQL code.</p>
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text">select</span>
-            </div>
+        <c-input-group class="mb-3">
+            <span class="input-group-text">select</span>
             <div class="form-control" id="selectBox"></div>
-        </div>
+        </c-input-group>
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text">from</span>
-            </div>
+        <c-input-group class="mb-3">
+            <span class="input-group-text">from</span>
             <div class="form-control" id="fromBox">
                 <span *ngFor="let t of tables | keyvalue" class="badge badge-secondary dbTable">{{t.key}}test</span>
             </div>
-        </div>
+        </c-input-group>
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text">join<br>conditions</span>
-            </div>
+        <c-input-group class="mb-3">
+            <span class="input-group-text">join<br>conditions</span>
             <div class="form-control" id="joinConditionBox">
                 <ng-container *ngFor="let con of joinConditions | keyvalue">
                     <input type="checkbox" [(ngModel)]="con.value.active" [id]="con.key"
@@ -31,7 +25,7 @@
                         [for]="con.key">&nbsp;{{con.value.condition}}</label><br>
                 </ng-container>
             </div>
-        </div>
+        </c-input-group>
 
         <h5>Generated query</h5>
         <p>Edit your code if needed. Your changes will be overwritten, as soon as you add or remove a column in the
@@ -54,18 +48,18 @@
             <h5>Query Result</h5>
         </div>
 
-        <div class="card " *ngIf="resultSet" id="result-graphical">
+        <c-card class="card " *ngIf="resultSet" id="result-graphical">
 
-            <div class="card-header">
+            <c-header class="card-header">
                 <span>{{resultSet.query}}</span>
                 <span class="badge pull-right"
                       [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
             <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
             <ng-container *ngIf="resultSet.error">!</ng-container>
             </span>
-            </div>
+            </c-header>
 
-            <div class="card-body" style="padding-bottom: 0.25rem">
+            <c-card-body style="padding-bottom: 0.25rem">
                 <div class="text-danger" *ngIf="resultSet && resultSet.error">
                     <strong>Error:</strong>
                     <p class="mb-3">{{resultSet.error}}</p>
@@ -85,8 +79,8 @@
                                        (executeView)="executeView($event)"></app-data-view>
                     </c-col>
                 </c-row>
-            </div>
-        </div>
+            </c-card-body>
+        </c-card>
 
     </c-col>
 

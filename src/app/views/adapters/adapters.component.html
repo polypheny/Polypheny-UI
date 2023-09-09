@@ -6,7 +6,7 @@
             <h2>Adapters</h2>
         </c-col>
     </c-row>
-    <c-row class="row" *ngSwitchCase="['addStore','addSource'].includes(currentRoute()) ? currentRoute() : ''">
+    <c-row *ngSwitchCase="['addStore','addSource'].includes(currentRoute()) ? currentRoute() : ''">
         <button cButton color="primary" class="btn-circle topRight" [routerLink]="['./../']">
             <i class="fa fa-close"></i>
         </button>
@@ -44,15 +44,13 @@
 
     <!-- template for current stores and sources, it is called below -->
     <ng-template #adapterTemplate let-adapters="adapters" let-type="type">
-        <c-col lg="6" class="col-lg-6 fixed-width" *ngFor="let adapter of adapters">
-
+        <c-col xs="4" class="fixed-width" *ngFor="let adapter of adapters">
             <c-card class="fixed-height">
                 <c-card-header class="card-header-adapter">
                     <p>{{adapter.name}}</p>
-                    <span *ngIf="adapter.deployMode === DeployMode.DOCKER" class="badge badge-primary">Docker</span>
-                    <span *ngIf="adapter.deployMode === DeployMode.REMOTE" class="badge badge-primary bg-green">Remote</span>
-                    <span *ngIf="adapter.deployMode === DeployMode.EMBEDDED"
-                          class="badge badge-dark">Embedded</span>
+                    <c-badge *ngIf="adapter.mode === DeployMode.DOCKER" color="primary">Docker</c-badge>
+                    <c-badge *ngIf="adapter.mode === DeployMode.REMOTE" color="success">Remote</c-badge>
+                    <c-badge *ngIf="adapter.mode === DeployMode.EMBEDDED" color="info">Embedded</c-badge>
                 </c-card-header>
                 <c-card-body>
                     <img *ngIf="getLogo(adapter.adapterName).startsWith('assets/')" [src]="getLogo(adapter.adapterName)"
@@ -92,13 +90,13 @@
     </ng-template>
 
     <!-- show current stores and sources -->
-    <div *ngSwitchDefault>
+    <div *ngSwitchDefault class="mb-3">
         <c-row>
             <c-col size="12">
                 <h2>Stores</h2>
             </c-col>
         </c-row>
-        <c-row class="adapters">
+        <c-row class="adapters" [gutter]="3">
             <ng-container
                     *ngTemplateOutlet="adapterTemplate; context:{adapters: stores(), type: 'store'}"></ng-container>
         </c-row>
@@ -109,7 +107,7 @@
                 <h2>Sources</h2>
             </c-col>
         </c-row>
-        <c-row class="adapters">
+        <c-row class="adapters" [gutter]="3">
             <ng-container
                     *ngTemplateOutlet="adapterTemplate; context:{adapters: sources(), type: 'source'}"></ng-container>
         </c-row>
@@ -179,9 +177,11 @@
 
         <!-- Form for deploying -->
         <c-modal-body *ngIf="adapter()">
-            <div *ngIf="!activeMode(); else options">
-                <button cButton size="lg" color="primary" *ngFor="let mode of adapter().modes" class="me-1 btn-block"
-                        (click)="activeMode.set(mode)">{{mode}}</button>
+            <div *ngIf="!activeMode(); else options" cRow [gutter]="3">
+                <c-col *ngFor="let mode of adapter().modes" xs="12" class="text-center">
+                    <button cButton size="lg" color="primary" class="btn-block"
+                            (click)="activeMode.set(mode)">{{mode}}</button>
+                </c-col>
             </div>
 
             <ng-template #options>
@@ -201,11 +201,11 @@
                                     <input cFormControl type="text" [id]="control.key"
                                            [formControlName]="control.key"
                                            [ngClass]="validate(control.value, control.key)">
-                                    <c-form-feedback>{{ getGenericFeedback( control.key )}}</c-form-feedback>
+                                    <c-form-feedback>{{getGenericFeedback( control.key )}}</c-form-feedback>
                                 </c-input-group>
                                 <ng-container *ngIf="getAdapterSetting(control.key).template.options">
                                     <c-input-group class="has-validation" *ngIf="!getAdapterSetting(control.key).template.dynamic; else dynamicSelect">
-                                            <span cInputGroupText [cTooltip]="getAdapterSetting(control.key).template.description" cTooltipPlacement="left">
+                                            <span cInputGroupText [cTooltip]="getAdapterSetting(control.key).template.description" [cTooltipVisible]="!!getAdapterSetting(control.key).template.description" cTooltipPlacement="left">
                                                 {{control.key}}
                                             </span>
 
@@ -216,11 +216,11 @@
                                             <option *ngFor="let option of getAdapterSetting(control.key).template.options"
                                                     [value]="option">{{option}}</option>
                                         </select>
-                                        <c-form-feedback>{{ getGenericFeedback( control.key ) }}</c-form-feedback>
+                                        <c-form-feedback>{{getGenericFeedback( control.key ) }}</c-form-feedback>
                                     </c-input-group>
                                     <ng-template #dynamicSelect>
                                         <c-input-group class="has-validation">
-                                            <label cInputGroupText [cTooltip]="getAdapterSetting(control.key).template.description" cTooltipPlacement="left"
+                                            <label cInputGroupText [cTooltip]="getAdapterSetting(control.key).template.description" [cTooltipVisible]="!!getAdapterSetting(control.key).template.description" cTooltipPlacement="left"
                                                    [for]="control.key">{{getAdapterSetting( control.key ).template.nameAlias}}</label>
 
                                             <select cSelect [id]="control.key"
@@ -234,7 +234,7 @@
                                     </ng-template>
                                 </ng-container>
                                 <c-input-group *ngIf="getAdapterSetting(control.key).template.fileNames">
-                                    <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSetting(control.key).template.description">{{control.key}}</span>
+                                    <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSetting(control.key).template.description" [cTooltipVisible]="!!getAdapterSetting(control.key).template.description">{{control.key}}</span>
                                     <span cFormText style="position: relative; text-align: left; white-space: nowrap; overflow: hidden"></span>
                                     <input type="file" multiple style="display: none" [id]="control.key"
                                            [ngClass]="validate(control.value, control.key)"

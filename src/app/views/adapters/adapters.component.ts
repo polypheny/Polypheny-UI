@@ -1,27 +1,27 @@
 import {Component, computed, effect, Injector, OnDestroy, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {AdapterModel, AdapterType} from './adapter.model';
+import {AdapterModel, AdapterType, PolyMap} from './adapter.model';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {
-    AbstractControl,
-    FormGroup,
-    UntypedFormArray,
-    UntypedFormBuilder,
-    UntypedFormControl,
-    UntypedFormGroup,
-    ValidatorFn,
-    Validators
+  AbstractControl,
+  FormGroup,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
+  ValidatorFn,
+  Validators
 } from '@angular/forms';
 import {PathAccessRequest, RelationalResult} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
 import {filter, map} from 'rxjs/operators';
 import {
-    AdapterSettingModel,
-    AdapterSettingValueModel,
-    AdapterTemplateModel,
-    DeployMode
+  AdapterSettingModel,
+  AdapterSettingValueModel,
+  AdapterTemplateModel,
+  DeployMode
 } from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 
@@ -44,26 +44,26 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       private injector: Injector
   ) {
     this._left.close();
-      this.availableAdapters = computed(() => {
-          console.log(this.currentRoute());
-          const route = this.currentRoute();
-          return this._catalog.getAdapterTemplates().value.filter(a => a.adapterType === this.getMatchingAdapterType());
-      });
+    this.availableAdapters = computed(() => {
+      console.log(this.currentRoute());
+      const route = this.currentRoute();
+      return this._catalog.getAdapterTemplates().value.filter(a => a.adapterType === this.getMatchingAdapterType());
+    });
   }
 
-    readonly stores: WritableSignal<AdapterModel[]> = signal([]);
-    readonly sources: WritableSignal<AdapterModel[]> = signal([]);
-    readonly availableAdapters: Signal<AdapterTemplateModel[]>;
-    readonly currentRoute: WritableSignal<String> = signal(null);
+  readonly stores: WritableSignal<AdapterModel[]> = signal([]);
+  readonly sources: WritableSignal<AdapterModel[]> = signal([]);
+  readonly availableAdapters: Signal<AdapterTemplateModel[]>;
+  readonly currentRoute: WritableSignal<String> = signal(null);
   private subscriptions = new Subscription();
 
-    readonly adapter: WritableSignal<Adapter> = signal(null);
+  readonly adapter: WritableSignal<Adapter> = signal(null);
   editingAdapterForm: FormGroup;
   deletingAdapter;
   deletingInProgress: AdapterModel[];
 
   editingAvailableAdapterForm: UntypedFormGroup;
-    readonly activeMode: WritableSignal<DeployMode> = signal(null);
+  readonly activeMode: WritableSignal<DeployMode> = signal(null);
   settingHeaders: string[];
 
   fileLabel = 'Choose File';
@@ -96,10 +96,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     this.subscribeAdapters();
     this.subscribeActiveChange();
 
-      this.currentRoute.set(this._route.snapshot.paramMap.get('action'));
-      console.log(this.currentRoute());
+    this.currentRoute.set(this._route.snapshot.paramMap.get('action'));
+    console.log(this.currentRoute());
     const sub = this._route.params.subscribe(params => {
-        this.currentRoute.set(params['action']);
+      this.currentRoute.set(params['action']);
     });
     this.subscriptions.add(sub);
   }
@@ -112,8 +112,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     this._catalog.adapters.pipe(
         filter(a => !!a),
         map(adapters => Array.from(adapters.values()).sort((a, b) => (a.name > b.name) ? 1 : -1))).subscribe(adapters => {
-        this.sources.set(adapters.filter(a => a.type === AdapterType.SOURCE));
-        this.stores.set(adapters.filter(a => a.type === AdapterType.STORE));
+      this.sources.set(adapters.filter(a => a.type === AdapterType.SOURCE));
+      this.stores.set(adapters.filter(a => a.type === AdapterType.STORE));
     });
 
 
@@ -121,15 +121,15 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
   subscribeActiveChange() {
 
-      effect(() => {
-          const mode = this.activeMode();
-          const adapter = this.adapter();
-          if (!mode || !adapter) {
-              return;
-          }
+    effect(() => {
+      const mode = this.activeMode();
+      const adapter = this.adapter();
+      if (!mode || !adapter) {
+        return;
+      }
       const fc = {};
 
-          for (const setting of adapter.settings.values()) {
+      for (const setting of adapter.settings.values()) {
         const validators = [];
         if (setting.template.required) {
           validators.push(Validators.required);
@@ -146,21 +146,21 @@ export class AdaptersComponent implements OnInit, OnDestroy {
           fc[setting.template.name] = new UntypedFormControl(val, validators);
         }
       }
-          fc['uniqueName'] = new UntypedFormControl(this.getDefaultUniqueName(), [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores(), ...this.sources()])]);
+      fc['uniqueName'] = new UntypedFormControl(this.getDefaultUniqueName(), [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores(), ...this.sources()])]);
 
-          if (adapter.task === Task.DEPLOY) {
+      if (adapter.task === Task.DEPLOY) {
         this.editingAvailableAdapterForm = new UntypedFormGroup(fc);
       } else {
         this.editingAdapterForm = new UntypedFormGroup(fc);
       }
 
-      }, {injector: this.injector});
+    }, {injector: this.injector});
   }
 
   private getMatchingAdapterType() {
-      if (this.currentRoute() === 'addStore') {
+    if (this.currentRoute() === 'addStore') {
       return AdapterType.STORE;
-      } else if (this.currentRoute() === 'addSource') {
+    } else if (this.currentRoute() === 'addSource') {
       return AdapterType.SOURCE;
     }
     return null;
@@ -170,10 +170,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     if (this.modalActive) {
       return;
     }
-      this.adapter.set(null);
+    this.adapter.set(null);
     this.editingAdapterForm = null;
     this.editingAvailableAdapterForm = null;
-      this.activeMode.set(null);
+    this.activeMode.set(null);
     this.settingHeaders = null;
     this.fileLabel = 'Choose File';
   }
@@ -181,7 +181,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   initAdapterSettingsModal(adapter: AdapterModel) {
     const allSettings = this._catalog.getAdapterTemplate(adapter.adapterName, adapter.type).value;
 
-      this.adapter.set(Adapter.from(allSettings, adapter, Task.CHANGE));
+    this.adapter.set(Adapter.from(allSettings, adapter, Task.CHANGE));
 
     this.handshaking = false;
     this.modalActive = true;
@@ -217,9 +217,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
   getDefaultUniqueName(): string {
     if (this.adapter !== undefined) {
-        const base = this.adapter().adapterName.toLowerCase(); // + "_"; // TODO: re-enable underscores when graph namespaces work with it
+      const base = this.adapter().adapterName.toLowerCase(); // + "_"; // TODO: re-enable underscores when graph namespaces work with it
       let max_i = 0;
-        for (const store of this.stores()) {
+      for (const store of this.stores()) {
         if (store.name.startsWith(base)) {
           const suffix = store.name.slice(base.length);
           const i = parseInt(suffix, 10);
@@ -228,7 +228,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
           }
         }
       }
-        for (const store of this.sources()) {
+      for (const store of this.sources()) {
         if (store.name.startsWith(base)) {
           const suffix = store.name.slice(base.length);
           const i = parseInt(suffix, 10);
@@ -243,15 +243,15 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   async initDeployModal(adapter: AdapterTemplateModel) {
-      this.activeMode.set(null);
+    this.activeMode.set(null);
     // if we only have one mode we directly set it
     if (adapter.modes.length === 0) {
-        this.activeMode.set(DeployMode.ALL);
+      this.activeMode.set(DeployMode.ALL);
     } else if (adapter.modes.length === 1) {
-        this.activeMode.set(adapter.modes[0]);
+      this.activeMode.set(adapter.modes[0]);
     }
 
-      this.adapter.set(Adapter.from(adapter, null, Task.DEPLOY));
+    this.adapter.set(Adapter.from(adapter, null, Task.DEPLOY));
 
     this.modalActive = true;
   }
@@ -314,14 +314,14 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   getAdapterSetting(key: string | unknown): MergedSetting {
-      return this.adapter().settings.get(<string>key);
+    return this.adapter().settings.get(<string>key);
   }
 
   deploy() {
     if (!this.editingAvailableAdapterForm.valid) {
       return;
     }
-      const deploy = new AdapterModel(this.editingAvailableAdapterForm.controls['uniqueName'].value, this.adapter().adapterName, new Map(), this.adapter().persistent, this.adapter().type, this.activeMode());
+    const deploy = new AdapterModel(this.editingAvailableAdapterForm.controls['uniqueName'].value, this.adapter().adapterName, new PolyMap(), this.adapter().persistent, this.adapter().type, this.activeMode());
     const fd: FormData = new FormData();
 
     for (const [k, v] of Object.entries(this.editingAvailableAdapterForm.controls)) {
@@ -330,9 +330,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         continue;
       }
 
-        if (!setting.current) {
-            setting.current = new AdapterSettingValueModel(k, null);
-        }
+      if (!setting.current) {
+        setting.current = new AdapterSettingValueModel(k, null);
+      }
 
       if (setting.template.fileNames) {
         const fileNames = [];
@@ -347,9 +347,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         setting.current.value = v.value;
       }
 
-        deploy.settings.set(k, setting.current);
+      deploy.settings.set(k, setting.current);
     }
-      console.log(deploy);
+    console.log(deploy);
 
     if (deploy.settings.hasOwnProperty('method') && deploy.settings['method'].defaultValue === 'link') {
       // secure deploy
@@ -369,14 +369,14 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     } else {
       // normal deploy
-        this.startDeploying(deploy);
+      this.startDeploying(deploy);
     }
 
   }
 
   continueSecureDeploy() {
     this.handshaking = false;
-      this.startDeploying(this.data.deploy);
+    this.startDeploying(this.data.deploy);
   }
 
   createSecureFile() {
@@ -393,9 +393,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }, 0);
   }
 
-    private startDeploying(deploy: AdapterModel) {
+  private startDeploying(deploy: AdapterModel) {
+
     this.deploying = true;
-        this._crud.addAdapter(deploy).subscribe({
+    this._crud.addAdapter(deploy).subscribe({
       next: (result: RelationalResult) => {
         if (!result.error) {
           this._toast.success('Deployed "' + deploy.name + '"', result.query);
@@ -404,6 +405,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
           this._toast.exception(result, 'Could not deploy adapter');
         }
         this.modalActive = false;
+        this._catalog.updateIfNecessary();
       },
       error: err => {
         this._toast.error('Could not deploy adapter');
@@ -500,7 +502,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   private validateControl(form: UntypedFormControl, key: string) {
-      if ((key === 'port' || key === 'instanceId') && this.activeMode() === DeployMode.DOCKER) {
+    if ((key === 'port' || key === 'instanceId') && this.activeMode() === DeployMode.DOCKER) {
       if (this.editingAvailableAdapterForm.valid) {
         return 'is-valid';
       } else {
@@ -550,6 +552,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
     this.subgroups.set(<string>key, (<AbstractControl>value).value);
   }
+
+  protected readonly fetch = fetch;
 }
 
 // see https://angular.io/guide/form-validation#custom-validators
@@ -593,9 +597,9 @@ class Adapter {
     const settings: Map<string, MergedSetting> = new Map();
 
     for (const template of adapter.defaultSettings) {
-        const temp = current === null ? null : current.settings.get(template.name);
-      const val = new MergedSetting(template, new AdapterSettingValueModel( template.name, null ));
-        val.current = temp;
+      const temp = current === null ? null : current.settings.get(template.name);
+      const val = new MergedSetting(template, new AdapterSettingValueModel(template.name, null));
+      val.current = temp;
 
       settings.set(template.name, val);
     }
@@ -608,6 +612,7 @@ class MergedSetting {
   current: AdapterSettingValueModel;
 
   constructor(template: AdapterSettingModel, current: AdapterSettingValueModel) {
+    console.log(template);
     this.template = template;
     this.current = current;
   }

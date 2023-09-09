@@ -58,7 +58,7 @@
                         <small class="time">{{h.value.displayTime()}}</small>
                         <small class="time">{{h.value.fromNow()}}</small>
                     </div>
-                    <div>{{_util.limitedString(h.value.query)}}</div>
+                    <div>{{_util.limitedString( h.value.query )}}</div>
                     <span class="btn btn-sm btn-light del-hist-item"
                           [ngClass]="{'cui-trash': confirmDeletingHistory!==h.key, 'fa fa-warning':confirmDeletingHistory===h.key}"
                           (mouseout)="confirmDeletingHistory=null" (click)="deleteHistoryItem(h.key, $event)"></span>
@@ -70,31 +70,38 @@
 
 
         <c-col class="col-lg-8 mb-3" [hidden]="showingAnalysis">
-            <div class="custom-control custom-checkbox custom-control-inline">
-                <input type="checkbox" class="custom-control-input" id="checkbox1" [(ngModel)]="analyzeQuery">
-                <label class="custom-control-label" for="checkbox1">analyze query</label>
-            </div>
-            <div class="custom-control custom-checkbox custom-control-inline">
-                <input type="checkbox" class="custom-control-input" id="checkbox3" [(ngModel)]="useCache">
-                <label class="custom-control-label" for="checkbox3">use cache</label>
-            </div>
-            <div class="custom-control custom-checkbox custom-control-inline">
-                <input type="checkbox" class="custom-control-input" id="checkbox2" [(ngModel)]="saveInHistory">
-                <label class="custom-control-label" for="checkbox2">save in history</label>
-            </div>
-            <div *ngIf="!loading" class="pull-right">
-                <button type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
-                <select class="form-control btn pull-right mr-1 border bg-white" [(ngModel)]="lang">
-                    <option value="cypher">CYPHER</option>
-                    <option value="sql">SQL</option>
-                    <option value="mql">MQL</option>
-                    <option value="cql">CQL</option>
-                    <option value="pig">PIG</option>
-                </select>
-            </div>
-            <button *ngIf="loading" type="submit"
-                    class="btn btn-primary progress-bar-striped progress-bar-animated pull-right" disabled>Loading
-            </button>
+            <c-row>
+
+                <c-form-check cCol class="col-auto">
+                    <input cFormCheckInput type="checkbox" id="checkbox1" [(ngModel)]="analyzeQuery">
+                    <label cFormCheckLabel for="checkbox1">analyze query</label>
+                </c-form-check>
+
+                <c-form-check cCol class="col-auto">
+                    <input cFormCheckInput type="checkbox" id="checkbox3" [(ngModel)]="useCache">
+                    <label cFormCheckLabel for="checkbox3">use cache</label>
+                </c-form-check>
+
+                <c-form-check cCol class="col-auto">
+                    <input cFormCheckInput type="checkbox" id="checkbox2" [(ngModel)]="saveInHistory">
+                    <label cFormCheckLabel for="checkbox2">save in history</label>
+                </c-form-check>
+
+
+                <c-input-group cCol>
+                    <select class="form-control btn pull-right mr-1 border bg-white" [(ngModel)]="lang" *ngIf="!loading">
+                        <option value="cypher">CYPHER</option>
+                        <option value="sql">SQL</option>
+                        <option value="mql">MQL</option>
+                        <option value="cql">CQL</option>
+                        <option value="pig">PIG</option>
+                    </select>
+                    <button *ngIf="!loading" cButton type="submit" color="primary" (click)="submitQuery()">Execute</button>
+                    <button *ngIf="loading" type="submit" cButton color="primary"
+                            class="progress-bar-striped progress-bar-animated align-self-end" disabled>Loading
+                    </button>
+                </c-input-group>
+            </c-row>
         </c-col>
     </c-row>
 

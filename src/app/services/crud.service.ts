@@ -532,6 +532,7 @@ export class CrudService {
     }
 
     addAdapter(adapter: AdapterModel) {
+        console.log(JSON.stringify(adapter));
         return this._http.post(`${this.httpUrl}/addAdapter`, adapter, this.httpOptions);
     }
 

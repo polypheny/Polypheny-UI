@@ -3,12 +3,12 @@ import {AdapterSettingValueModel, DeployMode, IdEntity} from '../../models/catal
 
 export class AdapterModel extends IdEntity {
   readonly adapterName: string;
-  readonly settings: Map<string, AdapterSettingValueModel>;
+  readonly settings: PolyMap<string, AdapterSettingValueModel>;
   readonly persistent: boolean;
   readonly type: AdapterType;
   readonly mode: DeployMode;
 
-  constructor(uniqueName: string, adapterName: string, settings: Map<string, AdapterSettingValueModel>, persistent: boolean, type: AdapterType, deployMode: DeployMode) {
+  constructor(uniqueName: string, adapterName: string, settings: PolyMap<string, AdapterSettingValueModel>, persistent: boolean, type: AdapterType, deployMode: DeployMode) {
     super(-1, uniqueName);
     this.adapterName = adapterName;
     this.settings = settings;
@@ -16,7 +16,9 @@ export class AdapterModel extends IdEntity {
     this.type = type;
     this.mode = deployMode;
   }
+
 }
+
 
 export enum AdapterType {
   STORE = 'STORE',
@@ -53,7 +55,8 @@ export interface MaterializedInfos {
 
 
 export enum PlacementType {
-  MANUAL = 'MANUAL', AUTOMATIC = 'AUTOMATIC'
+  MANUAL = 'MANUAL',
+  AUTOMATIC = 'AUTOMATIC'
 }
 
 export enum PartitionType {
@@ -62,4 +65,11 @@ export enum PartitionType {
   LIST,
   HASH,
   ROUNDROBIN
+}
+
+
+export class PolyMap<K, V> extends Map<K, V> {
+  public toJSON() {
+    return Object.fromEntries(this.entries());
+  }
 }
