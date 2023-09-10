@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, signal, ViewChild, WritableSignal} from '@angular/core';
 import {UntypedFormBuilder} from '@angular/forms';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import {CrudService} from '../../../services/crud.service';
@@ -19,6 +19,7 @@ import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
 import {CatalogService} from '../../../services/catalog.service';
+import {NamespaceModel} from '../../../models/catalog.model';
 
 class Namespace {
   name: string;
@@ -55,9 +56,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   showSearch = false;
   historySearchQuery = '';
   confirmDeletingHistory;
-  activeNamespaceId: number;
-  activeNamespaceName: string;
-  namespaces: string[] = [];
+  readonly activeNamespace: WritableSignal<NamespaceModel> = signal(null);
+  readonly namespaces: WritableSignal<NamespaceModel[]> = signal([]);
 
   tableConfig: TableConfig = {
     create: false,
@@ -67,17 +67,14 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     search: false,
     exploring: false
   };
-  private existingNamespaces: string[];
   showNamespaceConfig: boolean;
 
   constructor(
-      private formBuilder: UntypedFormBuilder,
       private _crud: CrudService,
       private _leftSidebar: LeftSidebarService,
       private _breadcrumb: BreadcrumbService,
       private _settings: WebuiSettingsService,
       public _util: UtilService,
-      public modalService: BsModalService,
       public _toast: ToasterService,
       public _catalog: CatalogService
   ) {
@@ -100,29 +97,32 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     QueryHistory.fromJson(localStorage.getItem(this.LOCAL_STORAGE_HISTORY_KEY), this.history);
     this._breadcrumb.hide();
 
-    this.updateExistingNamespaces();
+    this.subscribeNamespace();
     this.loadAndSetNamespaceDB();
   }
 
-  private updateExistingNamespaces() {
-    this._catalog.getSchemaTree('views/querying/console/', false, 1).subscribe(
-        (namespaces: Namespace[]) => {
-          this.namespaces = namespaces.map(n => n.name);
-          this.loadAndSetNamespaceDB();
-        }
-    );
+  private subscribeNamespace() {
+    this._catalog.namespaces.pipe().subscribe(n => {
+      this.namespaces.set(Array.from(n.values()));
+      this.loadAndSetNamespaceDB();
+    });
   }
 
   private loadAndSetNamespaceDB() {
-    let db = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
-    if (db === null || (this.namespaces && this.namespaces.length > 0 && !this.namespaces.includes(db))) {
-      if (this.namespaces && this.namespaces.length > 0) {
-        db = this.namespaces[0];
+    let namespaceName = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
+    if (namespaceName === null || (this.namespaces && this.namespaces.length > 0 && (this.namespaces().filter(n => n.name === namespaceName).length === 0))) {
+      if (this.namespaces && this.namespaces().length > 0) {
+        namespaceName = this.namespaces[0];
       } else {
-        db = 'public';
+        namespaceName = 'public';
       }
     }
-    this.setDefaultDB(db);
+    const namespace = this._catalog.getNamespaceFromName(namespaceName).value;
+    console.log(namespace);
+    this.activeNamespace.set(namespace);
+
+
+    this.storeNamespace(namespaceName);
   }
 
   ngOnDestroy() {
@@ -146,22 +146,21 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     if (this.usesAdvancedConsole(this.lang)) { // maybe adjust
       const matchGraph = code.toLowerCase().match('use graph [a-zA-Z][a-zA-Z0-1]*');
       if (matchGraph !== null && matchGraph.length >= 0) {
-        const database = matchGraph[matchGraph.length - 1].replace('use ', '');
-        this.setDefaultDB(database);
+        const namespace = matchGraph[matchGraph.length - 1].replace('use ', '');
+        this.activeNamespace.set(this._catalog.getNamespaceFromName(namespace).value);
       }
 
       const match = code.toLowerCase().match('use [a-zA-Z][a-zA-Z0-1]*');
       if (match !== null && match.length >= 0) {
-        const database = match[match.length - 1].replace('use ', '');
-        if (database !== 'placement') {
-          this.setDefaultDB(database);
+        const namespace = match[match.length - 1].replace('use ', '');
+        if (namespace !== 'placement') {
+          this.activeNamespace.set(this._catalog.getNamespaceFromName(namespace).value);
         }
       }
 
 
       if (code.match('show db')) {
         this._catalog.updateIfNecessary().subscribe(catalog => {
-          this.existingNamespaces = catalog.getNamespaceNames().value;
           this.loading = false;
         });
         return;
@@ -178,7 +177,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     this.queryAnalysis = null;
 
     this.loading = true;
-    if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.lang, this.activeNamespaceId))) {
+    if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.lang, this.activeNamespace().id))) {
       this.loading = false;
       this.resultSets = [new RelationalResult('Could not establish a connection with the server.')];
     }
@@ -378,19 +377,11 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   }
 
   parse(code: string) {
-    console.log(code);
     const formatted = JSON.stringify(JSON.parse('[' + code + ']'), null, 4);
     return formatted.substring(1, formatted.length - 1);
   }
 
-  private setDefaultDB(name: string) {
-    name = name.trim();
-    if (!this.namespaces.includes(name)) {
-      this.namespaces.push(name);
-    }
-
-    this.activeNamespaceId = this._catalog.getNamespaceFromName(name).value.id;
-    this.activeNamespaceName = name;
+  private storeNamespace(name: string) {
     localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
   }
 
@@ -425,7 +416,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     this.showNamespaceConfig = !this.showNamespaceConfig;
   }
 
-  changedDefaultDB() {
-    this.setDefaultDB(this.activeNamespaceName);
+  changedDefaultDB(n) {
+    this.activeNamespace.set(n);
   }
 }

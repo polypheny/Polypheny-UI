@@ -1,10 +1,10 @@
-<div class="text-center" *ngIf="!resultSet || !resultSet.data || resultSet.data.length == 0">
+<div class="text-center" *ngIf="!result || !result.data || result.data.length == 0">
     <span class="text-danger">(no data to show)</span>
 </div>
 
-<div class="card-wrapper" *ngIf="resultSet">
-    <div class="card" *ngFor="let d1 of resultSet.data; let i = index" (dblclick)="triggerEditing(i)"
-         [ngClass]="{'editing': i===editing, 'json-card': resultSet.namespaceType === 'DOCUMENT'}">
+<div class="card-wrapper" *ngIf="result">
+    <div class="card" *ngFor="let d1 of result.data; let i = index" (dblclick)="triggerEditing(i)"
+         [ngClass]="{'editing': i===editing, 'json-card': result.namespaceType === 'DOCUMENT'}">
         <a *ngIf="config.update && i !== editing" [routerLink]="[]" class="edit-card btn btn-outline-secondary btn-sm"
            (click)="triggerEditing(i)"><i class="cui-pencil"></i></a>
         <a *ngIf="config.update && i !== editing" [routerLink]="[]" class="delete-card btn btn-outline-secondary btn-sm"
@@ -12,7 +12,7 @@
                 [ngClass]="{ 'cui-trash': i!==confirm, 'fa': i===confirm, 'fa-warning': i===confirm}"></i></a>
         <ul class="list-group list-group-flush">
             <!-- load MM types first -->
-            <ng-container *ngFor="let h of resultSet.header; let j = index">
+            <ng-container *ngFor="let h of result.header; let j = index">
                 <li *ngIf="(d1[j] || i === editing) && showFirst(h.dataType)" class="list-group-item"
                     [ngClass]="{'multimedia': i !== editing}">
                     <ng-container *ngIf="i !== editing">
@@ -33,7 +33,7 @@
             </ng-container>
 
             <!-- then load all non-MM data -->
-            <ng-container *ngFor="let h of resultSet.header; let j = index">
+            <ng-container *ngFor="let h of result.header; let j = index">
                 <li *ngIf="(d1[j] || i === editing) && !showFirst(h.dataType)" class="list-group-item">
                     <ng-container *ngIf="i !== editing">
                         <ng-container [ngSwitch]="removeNull(h.dataType)">
@@ -90,12 +90,12 @@
     </div>
 
     <div class="card" *ngIf="config.create && showInsertCard"
-         [ngClass]="{'json-card': resultSet.namespaceType === 'DOCUMENT'}">
+         [ngClass]="{'json-card': result.namespaceType === 'DOCUMENT'}">
         <div class="card-header">
             Insert data
         </div>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item" *ngFor="let h of resultSet.header">
+            <li class="list-group-item" *ngFor="let h of result.header">
                 <app-input *ngIf="namespaceType.toLowerCase() === 'relational' || h.name === '_id'" [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"
                            (valueChange)="inputChange(h.name, $event)"
@@ -129,7 +129,7 @@
 
 <c-row class="row">
     <c-col class="col-lg-12">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="resultSet.highestPage > 1">
+        <nav aria-label="Page navigation" class="float-right" *ngIf="result.highestPage > 1">
             <ul class="pagination">
                 <li *ngFor="let p of pagination" class="page-item"
                     [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">

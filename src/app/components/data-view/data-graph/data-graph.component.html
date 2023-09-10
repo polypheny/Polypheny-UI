@@ -1,5 +1,5 @@
 
-<div class="text-center" *ngIf="!resultSet || !resultSet.data || resultSet.data.length == 0">
+<div class="text-center" *ngIf="!result || !result.data || result.data.length == 0">
     <span class="text-danger">(no data to show)</span>
 </div>
 
@@ -44,7 +44,7 @@
             Insert data
         </div>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item" *ngFor="let h of resultSet.header">
+            <li class="list-group-item" *ngFor="let h of result.header">
                 <app-input *ngIf="namespaceType.toLowerCase() === 'relational' || h.name === '_id'" [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"
                            (valueChange)="inputChange(h.name, $event)"
@@ -79,7 +79,7 @@
 
 <c-row class="row">
     <c-col class="col-lg-12">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="resultSet.highestPage > 1">
+        <nav aria-label="Page navigation" class="float-right" *ngIf="result.highestPage > 1">
             <ul class="pagination">
                 <li *ngFor="let p of pagination" class="page-item"
                     [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">

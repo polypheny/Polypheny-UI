@@ -57,12 +57,12 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
      * @param move +1 to move to the right, -1 to move to the left
      */
     changeSlide(move: number): void {
-        if (this.loadingPage || !this.resultSet || !this.resultSet.data) {
+        if (this.loadingPage || !this.result || !this.result.data) {
             return;
         }
         if (move === 1) {
-            if (this.currentSlide === this.resultSet.data.length - 1 && this.resultSet.currentPage < this.resultSet.highestPage) {
-                this.resultSet.currentPage++;
+            if (this.currentSlide === this.result.data.length - 1 && this.result.currentPage < this.result.highestPage) {
+                this.result.currentPage++;
                 this.loadingPage = true;
                 //subscribe before the getTable call
                 this.resultSetEvent.pipe(first()).subscribe(() => {
@@ -70,15 +70,15 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
                     this.loadingPage = false;
                 });
                 this.getTable();
-            } else if (this.currentSlide !== this.resultSet.data.length - 1) {
+            } else if (this.currentSlide !== this.result.data.length - 1) {
                 this.currentSlide++;
             }
         } else if (move === -1) {
-            if (this.currentSlide === 0 && this.resultSet.currentPage !== 1) {
-                this.resultSet.currentPage--;
+            if (this.currentSlide === 0 && this.result.currentPage !== 1) {
+                this.result.currentPage--;
                 this.loadingPage = true;
                 this.resultSetEvent.pipe(first()).subscribe(() => {
-                    this.currentSlide = this.resultSet.data.length - 1;
+                    this.currentSlide = this.result.data.length - 1;
                     this.loadingPage = false;
                 });
                 this.getTable();
