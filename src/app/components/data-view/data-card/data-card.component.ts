@@ -8,6 +8,7 @@ import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 import {CatalogService} from '../../../services/catalog.service';
+import {QueryLanguage} from '../models/result-set.model';
 
 @Component({
     selector: 'app-data-card',
@@ -48,4 +49,6 @@ export class DataCardComponent extends DataViewComponent implements OnInit {
         this.editing = null;
         this.showInsertCard = true;
     }
+
+    protected readonly QueryLanguage = QueryLanguage;
 }

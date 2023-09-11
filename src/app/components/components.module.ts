@@ -4,20 +4,23 @@ import {GraphComponent} from './graph/graph.component';
 import {NgChartsModule} from 'ng2-charts';
 
 import {
-  BgColorDirective,
-  BreadcrumbComponent as BreadCrumb, ButtonDirective,
-  ColComponent,
-  FormControlDirective,
-  InputGroupComponent,
-  InputGroupTextDirective,
-  ProgressBarComponent,
-  ProgressComponent,
-  RowComponent, SpinnerComponent,
-  ToastBodyComponent,
-  ToastCloseDirective,
-  ToastComponent,
-  ToasterComponent,
-  ToastHeaderComponent
+    BgColorDirective,
+    BreadcrumbComponent as BreadCrumb,
+    ButtonDirective,
+    ColComponent,
+    FormControlDirective,
+    InputGroupComponent,
+    InputGroupTextDirective,
+    ProgressBarComponent,
+    ProgressComponent,
+    RowComponent,
+    SpinnerComponent,
+    TableDirective,
+    ToastBodyComponent,
+    ToastCloseDirective,
+    ToastComponent,
+    ToasterComponent,
+    ToastHeaderComponent
 } from '@coreui/angular';
 
 import {BreadcrumbComponent} from './breadcrumb/breadcrumb.component';
@@ -51,7 +54,7 @@ import {JsonEditorComponent} from './json/json-editor.component';
 import {JsonElemComponent} from './json/json-elem/json-elem.component';
 import {DataGraphComponent} from './data-view/data-graph/data-graph.component';
 import {DatesPipeModule} from './data-view/shared-module';
-import { LoadingScreenComponent } from './loading-screen/loading-screen.component';
+import {LoadingScreenComponent} from './loading-screen/loading-screen.component';
 import {DockereditComponent} from './dockeredit/dockeredit.component';
 import {DockerhandshakeComponent} from './dockerhandshake/dockerhandshake.component';
 import {DockernewComponent} from './dockernew/dockernew.component';
@@ -63,40 +66,40 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
 //import 'hammerjs';
 
 @NgModule({
-  imports: [
-    //AppRoutingModule,
-    RouterModule,
-    CommonModule,
-    NgChartsModule,
-    TypeaheadModule.forRoot(),
-    TabsModule.forRoot(),
-    ToasterComponent,
-    ToastBodyComponent,
-    ToastHeaderComponent,
-    ProgressbarModule,
-    // forms
-    FormsModule, ReactiveFormsModule,
-    CollapseModule,
-    TooltipModule,
-    ProgressbarModule.forRoot(),
-    ExplainVisualizerModule,
-    ModalModule.forRoot(),
-    CarouselModule,
-    NgxJsonViewerModule,
-    DatesPipeModule,
-    ToastComponent,
-    BgColorDirective,
-    TreeModule,
-    RowComponent,
-    ColComponent,
-    InputGroupComponent,
-    FormControlDirective,
-    InputGroupTextDirective,
-    ProgressBarComponent,
-    ProgressComponent,
-    ToastCloseDirective,
-    BreadCrumb, SpinnerComponent, ButtonDirective
-  ],
+    imports: [
+        //AppRoutingModule,
+        RouterModule,
+        CommonModule,
+        NgChartsModule,
+        TypeaheadModule.forRoot(),
+        TabsModule.forRoot(),
+        ToasterComponent,
+        ToastBodyComponent,
+        ToastHeaderComponent,
+        ProgressbarModule,
+        // forms
+        FormsModule, ReactiveFormsModule,
+        CollapseModule,
+        TooltipModule,
+        ProgressbarModule.forRoot(),
+        ExplainVisualizerModule,
+        ModalModule.forRoot(),
+        CarouselModule,
+        NgxJsonViewerModule,
+        DatesPipeModule,
+        ToastComponent,
+        BgColorDirective,
+        TreeModule,
+        RowComponent,
+        ColComponent,
+        InputGroupComponent,
+        FormControlDirective,
+        InputGroupTextDirective,
+        ProgressBarComponent,
+        ProgressComponent,
+        ToastCloseDirective,
+        BreadCrumb, SpinnerComponent, ButtonDirective, TableDirective
+    ],
     declarations: [
         BreadcrumbComponent,
         DynamicFormsComponent,

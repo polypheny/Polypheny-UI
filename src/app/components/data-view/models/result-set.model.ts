@@ -59,6 +59,7 @@ export class DocumentResult extends Result<string, FieldDefinition> {
 
 export enum QueryLanguage {
   MQL = 'mql',
+  MONGO = 'mongo',
   SQL = 'sql',
   CYPHER = 'cypher',
   CQL = 'cql'

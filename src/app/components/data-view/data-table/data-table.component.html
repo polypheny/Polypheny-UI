@@ -1,25 +1,32 @@
-<div *ngIf="combinedResult() && !combinedResult().data && !combinedResult().error && creatingView">Successfully created View {{this.newViewName }}.</div>
-<div *ngIf="combinedResult() && !combinedResult().data && !combinedResult().error && !creatingView">data-table: nothing to show.</div>
-<div class="text-danger mb-3" *ngIf="combinedResult() && combinedResult().error && !combinedResult().header">{{combinedResult().error}}</div>
+<div *ngIf="combinedResult() && !combinedResult().data && !combinedResult().error && creatingView">Successfully created
+    View {{this.newViewName }}.
+</div>
+<div *ngIf="combinedResult() && !combinedResult().data && !combinedResult().error && !creatingView">data-table: nothing
+    to show.
+</div>
+<div class="text-danger mb-3"
+     *ngIf="combinedResult() && combinedResult().error && !combinedResult().header">{{combinedResult().error}}</div>
 
 
 <c-row *ngIf="combinedResult() && combinedResult().header">
-    <c-col class="col-lg-12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': config.exploring }">
-        <table class="table table-hover table-sm table-bordered"
+    <c-col [lg]="12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': config.exploring }">
+        <table cTable hover bordered small
                [ngClass]="{'loading': loading, 'table-striped': !config.exploring || exploreSet}" id="data-table"
                [attr.data-table]="combinedResult().entityName">
             <thead>
             <tr>
-                <ng-container *ngFor="let h of combinedResult().header">
-                    <th>
+                <ng-container *ngIf="namespaceType() !== NamespaceType.DOCUMENT">
+                    <ng-container *ngFor="let h of combinedResult().header">
+                        <th>
                         <span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body"
                               [ngClass]="{'pk': h.primary}">{{ h.name }}</span>
-                        <a *ngIf="config.sort && canOrder(h) && h.name !== '_data'" [routerLink]="[]"
-                           [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}"
-                           (click)="sortTable(h.sort)">
-                            <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
-                        </a>
-                    </th>
+                            <a *ngIf="config.sort && canOrder(h) && h.name !== '_data'" [routerLink]="[]"
+                               [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}"
+                               (click)="sortTable(h.sort)">
+                                <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
+                            </a>
+                        </th>
+                    </ng-container>
                 </ng-container>
                 <th class="delete" *ngIf="config.delete">
                     <!--<i class="cui-trash"></i>-->
@@ -60,7 +67,6 @@
                         <progressbar *ngIf="uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)"
                                      [animate]="true" [value]="100" [striped]="true" type="primary"
                                      class="file-progress"></progressbar>
-                        <!--<progressbar *ngIf="uploadProgress > -1" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="uploadProgress === 100 || uploadProgress === 0" type="primary" class="file-progress"></progressbar>-->
                     </td>
                 </ng-container>
                 <!-- table which shows resultSet  -->
@@ -82,17 +88,19 @@
                             <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)"
                                  style="max-height:200px; max-width: 300px"/>
                             <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)"
-                                       [type]="combinedResult().header[j].dataType" [style]="{width: '300px'}"></app-media>
+                                       [type]="combinedResult().header[j].dataType"
+                                       [style]="{width: '300px'}"></app-media>
                             <app-media *ngSwitchCase="'AUDIO'" [src]="getFileLink(d2)"
-                                       [type]="combinedResult().header[j].dataType" [style]="{width: '300px'}"></app-media>
+                                       [type]="combinedResult().header[j].dataType"
+                                       [style]="{width: '300px'}"></app-media>
                             <app-json-text
-                                    *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH'] | multipleSwitch: removeNull(combinedResult().header[j].dataType)"
+                                    *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType'] | multipleSwitch: removeNull(combinedResult().header[j].dataType)"
                                     [text]="d2"></app-json-text>
                             <app-json-text *ngSwitchCase="'ANY'" [text]="d2"></app-json-text>
                             <app-expandable-text *ngSwitchDefault [text]="d2"></app-expandable-text>
                         </ng-container>
                     </td>
-                    <td *ngIf="config.exploring && asExploreResult(null).classificationInfo == 'ClassificationPossible'">
+                    <!--<td *ngIf="config.exploring && asExploreResult(null).classificationInfo == 'ClassificationPossible'"> // todo dl inject via plugin
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'true'}">
                                 <input type="radio" class="form-control" name="choose" value="true" id="true"
@@ -113,17 +121,19 @@
                         </div>
                     </td>
                     <td class="delete" *ngIf="config.update || config.delete">
-                        <i *ngIf="config.delete" [ngClass]="{ 'cui-trash': i!==confirm, 'fa fa-warning': i===confirm }"
+                        <i *ngIf="config.delete" [ngClass]="{ 'cli-trash': i!==confirm, 'fa fa-warning': i===confirm }"
                            (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"></i>
-                    </td>
+                    </td>-->
                 </ng-container>
             </tr>
             <tr *ngIf="!combinedResult().data || combinedResult().data.length === 0">
-                <td *ngIf="!combinedResult().error" [attr.colspan]="combinedResult().header.length+1" style="text-align: center"
+                <td *ngIf="!combinedResult().error" [attr.colspan]="combinedResult().header.length+1"
+                    style="text-align: center"
                     class="text-danger">(no data to show)
                 </td>
-                <td *ngIf="combinedResult().error" [attr.colspan]="combinedResult().header.length+1" style="text-align: center"
-                    class="text-danger">error while filtering table
+                <td *ngIf="combinedResult().error" [attr.colspan]="combinedResult().header.length+1"
+                    style="text-align: center"
+                    class="text-danger">error while filtering entity
                 </td>
             </tr>
             <tr *ngIf="config.create" id="insertRow">
@@ -256,7 +266,8 @@
                     <a class="c-header-nav-link active view-title" aria-current="page" (click)="viewOptions ='view'">View</a>
                 </li>
                 <li class="c-header-nav-item">
-                    <a class="c-header-nav-link view-title" aria-current="page" (click)="viewOptions = 'materialized-view'">Materialized
+                    <a class="c-header-nav-link view-title" aria-current="page"
+                       (click)="viewOptions = 'materialized-view'">Materialized
                         View</a>
                 </li>
             </ul>

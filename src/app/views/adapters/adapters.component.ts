@@ -83,6 +83,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
   readonly _name: string = 'uniqueName';
 
+  protected readonly fetch = fetch;
+
 
   readonly positionOrder = () => {
     return (a, b) => {
@@ -552,8 +554,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
     this.subgroups.set(<string>key, (<AbstractControl>value).value);
   }
-
-  protected readonly fetch = fetch;
 }
 
 // see https://angular.io/guide/form-validation#custom-validators
@@ -619,6 +619,6 @@ class MergedSetting {
 }
 
 enum Task {
-  DEPLOY,
-  CHANGE
+  DEPLOY = 'DEPLOY',
+  CHANGE = 'CHANGE'
 }
