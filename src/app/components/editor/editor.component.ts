@@ -9,9 +9,8 @@ import 'ace-builds/src-noconflict/mode-pig';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import {CrudService} from '../../services/crud.service';
-import {SchemaRequest} from '../../models/ui-request.model';
 import {SidebarNode} from '../../models/sidebar-node.model';
-import {CatalogService} from "../../services/catalog.service";
+import {CatalogService} from '../../services/catalog.service';
 
 @Component({
     selector: 'app-editor',
@@ -27,14 +26,14 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
     private codeEditor: ace.Ace.Editor;
     @Input() readonly ? = false;
     @Input() theme ? = 'tomorrow';
-    @Input() lang ? = 'pgsql';
+    @Input() language ? = 'pgsql';
     @Input() initOptions ?: { [key: string]: any };
     @Input() autocomplete ? = true;
     @Input() useParentHeight ? = true;
     @Input() code ?;
 
     suggestions: string[] = [];
-    private readonly supportedLangs = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig'];
+    private readonly supportedLanguages = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig'];
 
     constructor(
         private _crud: CrudService,
@@ -172,8 +171,8 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
      * Otherwise, sql is used.
      */
     updateLanguage() {
-        if (this.supportedLangs.includes(this.lang)) {
-            this.codeEditor.getSession().setMode('ace/mode/' + this.lang);
+        if (this.supportedLanguages.includes(this.language)) {
+            this.codeEditor.getSession().setMode('ace/mode/' + this.language);
         } else {
             this.codeEditor.getSession().setMode('ace/mode/sql');
 

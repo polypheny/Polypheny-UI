@@ -54,7 +54,7 @@
                 <span>{{resultSet.query}}</span>
                 <span class="badge pull-right"
                       [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
-            <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
+            <ng-container *ngIf="!resultSet.error">{{resultSet.affectedTuples}}</ng-container>
             <ng-container *ngIf="resultSet.error">!</ng-container>
             </span>
             </c-header>

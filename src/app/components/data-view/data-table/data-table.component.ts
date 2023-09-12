@@ -107,7 +107,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
         this.result.header = savedResultHead;
         this.result.data = result.data;
         this.result.query = result.query;
-        this.combinedResult().affectedTuples = result.affectedRows;
+        this.combinedResult().affectedTuples = result.affectedTuples;
         this.result.highestPage = result.highestPage;
 
         //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)

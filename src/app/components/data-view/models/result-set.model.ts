@@ -23,6 +23,7 @@ export class Result<D, H extends FieldDefinition | UiColumnDefinition> {
   hasMore: boolean;
   currentPage: number;
   highestPage: number;
+  affectedTuples: number;
 }
 
 
@@ -31,13 +32,12 @@ export class RelationalResult extends Result<string[], UiColumnDefinition> {
   tableId: number;
   tables: string[];
   error: string;
-  affectedRows: number;
   type: EntityType;//"table" or "view"
 
   constructor(error: string, affectedRows = 0) {
     super();
     this.error = error;
-    this.affectedRows = affectedRows;
+    this.affectedTuples = affectedRows;
   }
 }
 

@@ -1,10 +1,10 @@
-import {Component, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CrudService} from '../../../services/crud.service';
 import {ToasterService} from '../../toast-exposer/toaster.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {DataViewComponent} from '../data-view.component';
+import {CombinedResult, DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 import * as d3 from 'd3';
@@ -16,7 +16,7 @@ import {CatalogService} from '../../../services/catalog.service';
 
 class Edge {
   id: string;
-  labels: string[];
+  labels: PolyList;
   properties: any[];
   source: string;
   target: string;
@@ -24,8 +24,14 @@ class Edge {
 
 class Node {
   id: string;
-  labels: string[];
-  properties: any[];
+  labels: PolyList;
+  properties: Map<string, any>;
+}
+
+
+class PolyList{
+  size: number;
+  instance: any[];
 }
 
 
@@ -67,7 +73,7 @@ class Detail {
   templateUrl: './data-graph.component.html',
   styleUrls: ['./data-graph.component.scss']
 })
-export class DataGraphComponent extends DataViewComponent implements OnInit, OnChanges {
+export class DataGraphComponent extends DataViewComponent {
   private hidden: string[];
   private update: () => void;
   private graph: Graph;
@@ -90,6 +96,17 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
     this.initWebsocket();
   }
 
+  @Input() set result(result: CombinedResult) {
+    console.log(result);
+    if (!result) {
+      return;
+    }
+
+    this.graphLoading = true;
+    d3.select('.svg-responsive').remove();
+    this.getGraph(result);
+  }
+
   showInsertCard = false;
   jsonValid = false;
   public graphLoading = false;
@@ -108,8 +125,6 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
   private afterInit = false;
 
   private static filterEdges(hidden: any[], d: Edge, p: any) {
-    //console.log(hidden);
-
     const source = !p.afterInit ? d.source : d.source['id'];
     const target = !p.afterInit ? d.target : d.target['id'];
 
@@ -130,23 +145,9 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
     return false;
   }
 
-  ngOnInit(): void {
-    // this.graphLoading = true;
-    // this.getGraph(this.resultSet);
-  }
-
-
-  ngOnChanges(changes: SimpleChanges): void {
-    //this.graphLoading = true;
-    if (changes.hasOwnProperty('resultSet')) {
-      this.graphLoading = true;
-      d3.select('.svg-responsive').remove();
-      this.getGraph(changes['resultSet']['currentValue']);
-    }
-
-  }
 
   private renderGraph(graph: Graph) {
+    console.log(graph)
 
     const size = 20;
     const overlaySize = 30;
@@ -318,7 +319,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
         if (d.labels.length === 0) {
           return '';
         } else {
-          return d.labels[0].toUpperCase();
+          return d.labels.instance[0].toUpperCase();
         }
 
       });
@@ -478,11 +479,11 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
       p.labels = new Set();
 
       for (const e of graph.edges) {
-        e.labels.forEach(l => p.labels.add(l));
+        e.labels.instance.forEach(l => p.labels.add(l));
       }
 
       for (const n of graph.nodes) {
-        n.labels.forEach(l => p.labels.add(l));
+        n.labels.instance.forEach(l => p.labels.add(l));
       }
 
       p.labels = Array.from(p.labels);
@@ -495,7 +496,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
       .append('circle')
       .attr('r', size)
       .attr('fill', d => {
-        const i = p.labels.indexOf(d.labels[0]);
+        const i = p.labels.indexOf(d.labels.instance[0]);
         return p.color(p.ratio * i);
       })
       .on('click', action)
@@ -609,51 +610,51 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
   }
 
   initWebsocket() {
-    const sub = this.webSocket.onMessage().subscribe(
-        res => {
-          const unparsedGraph: string = <string>res;
-          this.graphLoading = false;
-          this.renderGraph(Graph.from(unparsedGraph['nodes'], unparsedGraph['edges']));
+    const sub = this.webSocket.onMessage().subscribe({
+      next: res => {
+        const unparsedGraph: string = <string>res;
+        this.graphLoading = false;
+        this.renderGraph(Graph.from(unparsedGraph['nodes'], unparsedGraph['edges']));
 
-        }, err => {
-          this._toast.error('Could not load the data.');
-          console.log(err);
-        }
-    );
+      },
+      error: err => {
+        this._toast.error('Could not load the data.');
+        console.log(err);
+      }
+    });
     this.subscriptions.add(sub);
   }
 
-  getGraph(resultSet: GraphResult) {
+  getGraph(graphResult: GraphResult) {
     const nodeIds: Set<string> = new Set();
     const edgeIds: Set<string> = new Set();
-
     let i = -1;
-    for (const dbColumn of resultSet.header) {
+    for (const dbColumn of graphResult.header) {
       i++;
       if (!dbColumn.dataType.toLowerCase().includes('node') && !dbColumn.dataType.toLowerCase().includes('edge')) {
         continue;
       }
 
       if (dbColumn.dataType.toLowerCase().includes('node')) {
-        resultSet.data.forEach(d => {
+        graphResult.data.forEach(d => {
           nodeIds.add(JSON.parse(d[i])['id']);
         });
       }
 
       if (dbColumn.dataType.toLowerCase().includes('edge')) {
-        resultSet.data.forEach(d => {
+        graphResult.data.forEach(d => {
           edgeIds.add(JSON.parse(d[i])['id']);
         });
       }
 
       if (dbColumn.dataType.toLowerCase().includes('path')) {
         this.isPath = true;
-        resultSet.data.forEach(d => {
+        graphResult.data.forEach(d => {
           for (const el of JSON.parse(d[i]).path) {
-            if (el.type === 'NODE') {
+            if (el.type.includes('NODE')) {
               nodeIds.add(el.id);
             }
-            if (el.type === 'EDGE') {
+            if (el.type.includes('EDGE')) {
               edgeIds.add(el.id);
             }
           }
@@ -664,17 +665,19 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
       this.initialEdgeIds = Array.from(edgeIds);
     }
 
+    console.log(graphResult);
 
-    if (resultSet.namespaceType === NamespaceType.GRAPH) {
+    if (graphResult.namespaceType === NamespaceType.GRAPH) {
       // is native
-      if (!this._crud.getGraph(this.webSocket, new GraphRequest(resultSet.namespaceId, nodeIds, edgeIds))) {
+      if (!this._crud.getGraph(this.webSocket, new GraphRequest(graphResult.namespaceId, nodeIds, edgeIds))) {
         // is printed every time console.log('Could not retrieve the graphical representation of the graph.');
       } else {
         this.graphLoading = true;
       }
     } else {
+
       this.graphLoading = false;
-      const graph = Graph.from(resultSet.data.map(r => r.map(n => JSON.parse(n)).reduce((a, v) => ({
+      const graph = Graph.from(graphResult.data.map(r => r.map(n => JSON.parse(n)).reduce((a, v) => ({
         ...a['id'],
         [v]: v
       }))), []);

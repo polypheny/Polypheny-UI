@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, signal, ViewChild, WritableSignal} from '@angular/core';
+import {Component, Inject, OnDestroy, OnInit, signal, ViewChild, WritableSignal} from '@angular/core';
 import {UntypedFormBuilder} from '@angular/forms';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import {CrudService} from '../../../services/crud.service';
@@ -12,7 +12,7 @@ import {InformationObject, InformationPage} from '../../../models/information-pa
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {Subscription} from 'rxjs';
+import {BehaviorSubject, Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
 import {WebSocket} from '../../../services/webSocket';
 import {BsModalService} from 'ngx-bootstrap/modal';
@@ -37,7 +37,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   @ViewChild('historySearchInput') historySearchInput;
 
   history: Map<string, QueryHistory> = new Map<string, QueryHistory>();
-  readonly MAX_HISTORY = 50;//maximum items in history
+  readonly MAX_HISTORY = 50; //maximum items in history
   private readonly LOCAL_STORAGE_HISTORY_KEY = 'query-history';
   private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
 
@@ -51,12 +51,12 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   websocket: WebSocket;
   private subscriptions = new Subscription();
   loading = false;
-  lang = 'sql';
+  readonly language: WritableSignal<string> = signal('sql');
   saveInHistory = true;
   showSearch = false;
   historySearchQuery = '';
   confirmDeletingHistory;
-  readonly activeNamespace: WritableSignal<NamespaceModel> = signal(null);
+  readonly activeNamespace: WritableSignal<string> = signal(null);
   readonly namespaces: WritableSignal<NamespaceModel[]> = signal([]);
 
   tableConfig: TableConfig = {
@@ -110,6 +110,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
   private loadAndSetNamespaceDB() {
     let namespaceName = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
+    console.log(namespaceName);
     if (namespaceName === null || (this.namespaces && this.namespaces.length > 0 && (this.namespaces().filter(n => n.name === namespaceName).length === 0))) {
       if (this.namespaces && this.namespaces().length > 0) {
         namespaceName = this.namespaces[0];
@@ -117,10 +118,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         namespaceName = 'public';
       }
     }
-    const namespace = this._catalog.getNamespaceFromName(namespaceName).value;
-    console.log(namespace);
-    this.activeNamespace.set(namespace);
-
+    if (!namespaceName){
+      return;
+    }
+    this.activeNamespace.set(namespaceName);
 
     this.storeNamespace(namespaceName);
   }
@@ -141,20 +142,20 @@ export class ConsoleComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.saveInHistory) {
-      this.addToHistory(code, this.lang);
+      this.addToHistory(code, this.language());
     }
-    if (this.usesAdvancedConsole(this.lang)) { // maybe adjust
+    if (this.usesAdvancedConsole(this.language())) { // maybe adjust
       const matchGraph = code.toLowerCase().match('use graph [a-zA-Z][a-zA-Z0-1]*');
       if (matchGraph !== null && matchGraph.length >= 0) {
         const namespace = matchGraph[matchGraph.length - 1].replace('use ', '');
-        this.activeNamespace.set(this._catalog.getNamespaceFromName(namespace).value);
+        this.activeNamespace.set(namespace);
       }
 
       const match = code.toLowerCase().match('use [a-zA-Z][a-zA-Z0-1]*');
       if (match !== null && match.length >= 0) {
         const namespace = match[match.length - 1].replace('use ', '');
         if (namespace !== 'placement') {
-          this.activeNamespace.set(this._catalog.getNamespaceFromName(namespace).value);
+          this.activeNamespace.set(namespace);
         }
       }
 
@@ -177,7 +178,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     this.queryAnalysis = null;
 
     this.loading = true;
-    if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.lang, this.activeNamespace().id))) {
+    const id = this._catalog.getNamespaceFromName(this.activeNamespace()).value.id;
+    if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.language(), id))) {
       this.loading = false;
       this.resultSets = [new RelationalResult('Could not establish a connection with the server.')];
     }
@@ -204,7 +206,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   }
 
   applyHistory(query: string, lang: string, run: boolean) {
-    this.lang = lang;
+    this.language.set(lang);
     this.codeEditor.setCode(query);
     if (run) {
       this.submitQuery();
@@ -417,6 +419,11 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   }
 
   changedDefaultDB(n) {
+    console.log(n);
     this.activeNamespace.set(n);
+  }
+
+  setLanguage(language) {
+    this.language.set(language);
   }
 }

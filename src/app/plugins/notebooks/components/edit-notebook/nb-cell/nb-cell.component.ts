@@ -213,7 +213,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
                 && (<CellDisplayDataOutput>o).data['application/json']);
             if (output) {
                 const jsonResult = <RelationalResult>(output.data['application/json']);
-                if (jsonResult.affectedRows > this.MAX_RESULT_SIZE && jsonResult.data?.length >= this.MAX_RESULT_SIZE) {
+                if (jsonResult.affectedTuples > this.MAX_RESULT_SIZE && jsonResult.data?.length >= this.MAX_RESULT_SIZE) {
                     this.resultIsTooLong = true;
                     jsonResult.data = jsonResult.data.slice(0, this.MAX_RESULT_SIZE);
                 } else {

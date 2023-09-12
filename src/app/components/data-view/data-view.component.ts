@@ -1,28 +1,5 @@
-import {
-    Component,
-    computed,
-    effect,
-    EventEmitter,
-    Input,
-    OnDestroy,
-    Output,
-    Signal,
-    signal,
-    TemplateRef,
-    ViewChild,
-    WritableSignal
-} from '@angular/core';
-import {
-    DataPresentationType,
-    DocumentResult,
-    FieldDefinition,
-    GraphResult,
-    QueryLanguage,
-    RelationalResult,
-    Result,
-    ResultException,
-    UiColumnDefinition
-} from './models/result-set.model';
+import {Component, computed, EventEmitter, Input, OnDestroy, Output, Signal, signal, TemplateRef, ViewChild, WritableSignal} from '@angular/core';
+import {DataPresentationType, DocumentResult, FieldDefinition, GraphResult, QueryLanguage, RelationalResult, Result, ResultException, UiColumnDefinition} from './models/result-set.model';
 import {TableConfig} from './data-table/table-config';
 import {CrudService} from '../../services/crud.service';
 import {ToastDuration, ToasterService} from '../toast-exposer/toaster.service';
@@ -84,10 +61,6 @@ export class DataViewComponent implements OnDestroy {
     ) {
         this.webSocket = new WebSocket(_settings);
         this.initWebsocket();
-
-        effect(() => {
-            console.log(this.combinedResult());
-        });
     }
 
     @Input() set result(result: Result<any, any>) {
@@ -96,21 +69,19 @@ export class DataViewComponent implements OnDestroy {
         }
         console.log(result);
 
-        switch (result.language) {
-            case QueryLanguage.SQL:
-            case QueryLanguage.CQL:
+        switch (result.namespaceType) {
+            case NamespaceType.RELATIONAL:
                 this.combinedResult.set(CombinedResult.fromRelational(<RelationalResult>result));
                 this.presentationType = DataPresentationType.TABLE;
                 break;
-            case QueryLanguage.MONGO:
-            case QueryLanguage.MQL:
+            case NamespaceType.DOCUMENT:
                 this.combinedResult.set(CombinedResult.fromDocument(<DocumentResult>result));
                 this.presentationType = DataPresentationType.CARD;
-                console.log('up');
                 break;
-            case QueryLanguage.CYPHER:
+            case NamespaceType.GRAPH:
                 this.combinedResult.set(CombinedResult.fromGraph(<GraphResult>result));
-                if (result.header.filter(h => h.dataType === 'GRAPH').length > 0) {
+
+                if (result.header.filter(h => h.dataType.includes('NODE') || h.dataType.includes('EDGE')).length > 0) {
                     this.presentationType = DataPresentationType.GRAPH;
                 }
 
@@ -477,7 +448,7 @@ export class DataViewComponent implements OnDestroy {
                     emitResult.emit(result);
                     if (result.error) {
                         this._toast.exception(result, 'Could not insert the data', 'insert error');
-                    } else if (result.affectedRows === 1) {
+                    } else if (result.affectedTuples === 1) {
                         $('.insert-input').val('');
                         this.insertValues.clear();
                         this.buildInsertObject();
@@ -602,13 +573,13 @@ export class DataViewComponent implements OnDestroy {
                 } else if (res.type === HttpEventType.Response) {
                     this.uploadProgress = -1;
                     const result = <RelationalResult>res.body;
-                    if (result.affectedRows) {
+                    if (result.affectedTuples) {
                         this.getTable();
                         let rows = ' rows';
-                        if (result.affectedRows === 1) {
+                        if (result.affectedTuples === 1) {
                             rows = ' row';
                         }
-                        this._toast.success('Updated ' + result.affectedRows + rows, result.query, 'update', ToastDuration.SHORT);
+                        this._toast.success('Updated ' + result.affectedTuples + rows, result.query, 'update', ToastDuration.SHORT);
                     } else if (result.error) {
                         this._toast.exception(result, 'Could not update this row');
                     }
@@ -893,7 +864,7 @@ export class CombinedResult {
         res.hasMore = relational.hasMore;
         res.entityId = relational.tableId;
         res.entityName = relational.table;
-        res.affectedTuples = relational.affectedRows;
+        res.affectedTuples = relational.affectedTuples;
         res.language = relational.language;
 
         console.log(res);
