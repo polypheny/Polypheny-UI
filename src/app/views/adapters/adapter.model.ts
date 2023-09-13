@@ -1,4 +1,4 @@
-import {ResultException} from '../../components/data-view/models/result-set.model';
+import {IndexMethodModel, ResultException} from '../../components/data-view/models/result-set.model';
 import {AdapterSettingValueModel, DeployMode, IdEntity} from '../../models/catalog.model';
 
 export class AdapterModel extends IdEntity {
@@ -7,6 +7,7 @@ export class AdapterModel extends IdEntity {
   readonly persistent: boolean;
   readonly type: AdapterType;
   readonly mode: DeployMode;
+  readonly indexMethods: IndexMethodModel[];
 
   constructor(uniqueName: string, adapterName: string, settings: PolyMap<string, AdapterSettingValueModel>, persistent: boolean, type: AdapterType, deployMode: DeployMode) {
     super(-1, uniqueName);

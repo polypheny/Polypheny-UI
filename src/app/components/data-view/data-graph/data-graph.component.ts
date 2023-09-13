@@ -147,14 +147,12 @@ export class DataGraphComponent extends DataViewComponent {
 
 
   private renderGraph(graph: Graph) {
-    console.log(graph)
 
     const size = 20;
     const overlaySize = 30;
     const overlayStroke = 3;
     const textSize = 13;
     const linkSize = 9;
-    //const data = this.resultSet.data;
 
     this.graph = graph;
 
@@ -166,8 +164,6 @@ export class DataGraphComponent extends DataViewComponent {
       }
     }
 
-
-    //const graph = this.getGraph(this.resultSet);
 
 
     const width = 600;

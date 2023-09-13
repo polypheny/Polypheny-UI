@@ -1,14 +1,17 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, Input, OnDestroy, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TableConfig} from '../../components/data-view/data-table/table-config';
 import {CrudService} from '../../services/crud.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
-import {DocumentResult, GraphResult, RelationalResult} from '../../components/data-view/models/result-set.model';
+import {DocumentResult, GraphResult, RelationalResult, Result} from '../../components/data-view/models/result-set.model';
 import {NamespaceType, TableRequest} from '../../models/ui-request.model';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {WebSocket} from '../../services/webSocket';
 import {EntityType} from '../../models/catalog.model';
+import {CatalogService} from '../../services/catalog.service';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-table-view',
@@ -18,9 +21,9 @@ import {EntityType} from '../../models/catalog.model';
 export class TableViewComponent implements OnInit, OnDestroy {
 
   @Input()
-  tableId = -1;
+  entityId = -1;
   currentPage = 1;
-  resultSet: RelationalResult;
+  result: Result<any, any>;
   tableConfig: TableConfig = {
     create: true,
     search: true,
@@ -29,6 +32,8 @@ export class TableViewComponent implements OnInit, OnDestroy {
     delete: true,
     exploring: false
   };
+  fullName: WritableSignal<string> = signal('');
+  currentRoute: Signal<string> = signal('');
   loading: boolean;
   private subscriptions = new Subscription();
   webSocket: WebSocket;
@@ -38,9 +43,12 @@ export class TableViewComponent implements OnInit, OnDestroy {
       private _router: Router,
       private _crud: CrudService,
       private _sidebar: LeftSidebarService,
-      private _settings: WebuiSettingsService
+      private _settings: WebuiSettingsService,
+      private _catalog: CatalogService
   ) {
     this.webSocket = new WebSocket(_settings);
+
+    this.currentRoute = toSignal(this._route.params.pipe(map(p => <string>p['id'])));
   }
 
   ngOnInit() {
@@ -55,8 +63,8 @@ export class TableViewComponent implements OnInit, OnDestroy {
     } else {
       this.currentPage = 1;
     }
-    if (this.resultSet) {
-      this.resultSet.currentPage = this.currentPage;
+    if (this.result) {
+      this.result.currentPage = this.currentPage;
     }
 
     this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);
@@ -70,30 +78,40 @@ export class TableViewComponent implements OnInit, OnDestroy {
     );
     this.subscriptions.add(sub);
 
+
     //listen to parameter changes
     this._route.params.subscribe((params) => {
-      this.tableId = params['id'];
+      this.fullName.set(params['id']);
+      console.log(params['id']);
+      const namespaceEntityName = this.fullName().split('\\.');
+      this.entityId = this._catalog.getEntityFromName(namespaceEntityName[0], namespaceEntityName[1])?.value?.id;
+
+      if (!this.entityId) {
+        return;
+      }
+
       if (this._route.snapshot.paramMap.get('page')) {
         this.currentPage = +this._route.snapshot.paramMap.get('page');
       } else {
         this.currentPage = 1;
       }
-      if (this.resultSet) {
-        this.resultSet.currentPage = this.currentPage;
+      if (this.result) {
+        this.result.currentPage = this.currentPage;
       }
       this.getTable();
+
+
     });
   }
 
   initWebsocket() {
     const sub = this.webSocket.onMessage().subscribe({
-      next: res => {
-        this.resultSet = <RelationalResult>res;
+      next: (result: Result<any, any>) => {
         //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
-        if (+this._route.snapshot.paramMap.get('page') > this.resultSet.highestPage) {
-          this._router.navigate(['/views/data-table/' + this.tableId + '/' + this.resultSet.highestPage]);
+        if (+this._route.snapshot.paramMap.get('page') > this.result.highestPage) {
+          this._router.navigate(['/views/data-table/' + this.entityId + '/' + this.result.highestPage]);
         }
-        if (this.resultSet.type === EntityType.ENTITY || this.resultSet.namespaceType === NamespaceType.DOCUMENT) {
+        if (this._catalog.getEntity(this.entityId).value.entityType === EntityType.ENTITY) {
           this.tableConfig.create = true;
           this.tableConfig.update = true;
           this.tableConfig.delete = true;
@@ -106,22 +124,22 @@ export class TableViewComponent implements OnInit, OnDestroy {
       }, error: err => {
         console.log(err);
         this.loading = false;
-        this.resultSet = new RelationalResult('Server is not available');
+        this.result = new RelationalResult('Server is not available');
       }
     });
     this.subscriptions.add(sub);
   }
 
   getTable() {
-    if (this.tableId) {
+    if (this.entityId) {
       this.loading = true;
-      const req = new TableRequest(this.tableId, this.currentPage);
+      const req = new TableRequest(this.entityId, this.currentPage);
       if (!this._crud.getTable(this.webSocket, req)) {
-        this.resultSet = new RelationalResult('Could not establish a connection with the server.');
+        this.result = new RelationalResult('Could not establish a connection with the server.');
         this.loading = false;
       }
     } else {
-      this.resultSet = null;
+      this.result = null;
       this._sidebar.reset();
     }
 

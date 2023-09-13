@@ -426,7 +426,7 @@
                         <div class="form-group" *ngIf="selectedStoreForIndex != null">
                             <label for="indexMethod">Method</label>
                             <select id="indexMethod" class="form-control form-control-sm" formControlName="method">
-                                <option *ngFor="let m of selectedStoreForIndex.availableIndexMethods"
+                                <option *ngFor="let m of selectedStoreForIndex.indexMethods"
                                         [value]="m.name">{{m.displayName}}</option>
                             </select>
                         </div>

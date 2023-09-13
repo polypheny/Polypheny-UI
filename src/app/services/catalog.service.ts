@@ -1,24 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {
-  AdapterTemplateModel,
-  AllocationColumnModel,
-  AllocationEntityModel,
-  AllocationPartitionModel,
-  AllocationPlacementModel,
-  AssetsModel,
-  CatalogState,
-  ColumnModel,
-  ConstraintModel,
-  EntityModel,
-  EntityType,
-  FieldModel,
-  IdEntity,
-  KeyModel,
-  LogicalSnapshotModel,
-  NamespaceModel
-} from '../models/catalog.model';
+import {AdapterTemplateModel, AllocationColumnModel, AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, AssetsModel, CatalogState, ColumnModel, ConstraintModel, EntityModel, EntityType, FieldModel, IdEntity, KeyModel, LogicalSnapshotModel, NamespaceModel} from '../models/catalog.model';
 import {NamespaceType} from '../models/ui-request.model';
 import {SidebarNode} from '../models/sidebar-node.model';
 import {BehaviorSubject, combineLatestWith, Observable, Subject} from 'rxjs';
@@ -138,8 +121,8 @@ export class CatalogService {
   }
 
 
-  getEntity(tableId: number): BehaviorSubject<EntityModel> {
-    return this.wrapBehaviorSubject(() => this.entities.value.get(tableId));
+  getEntity(entityId: number): BehaviorSubject<EntityModel> {
+    return this.wrapBehaviorSubject(() => this.entities.value.get(entityId));
   }
 
   getNamespaceNames(): BehaviorSubject<string[]> {
@@ -334,7 +317,7 @@ export class CatalogService {
   getAvailableStoresForIndexes(entityId: number): BehaviorSubject<AdapterModel[]> {
     return this.wrapBehaviorSubject(() => {
       const adapterIds = Array.from(this.placements.value.values()).map(p => p.adapterId);
-      return Array.from(this.adapters.value.values()).filter(a => adapterIds.includes(a.id));
+      return Array.from(this.adapters.value.values()).filter(a => adapterIds.includes(a.id)).filter(a => a.type === AdapterType.STORE);
     });
   }
 

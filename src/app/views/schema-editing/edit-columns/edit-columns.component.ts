@@ -132,7 +132,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   protected readonly Method = Method;
 
   ngOnInit() {
-
     this._route.params.subscribe(route => {
       this.currentRoute.next(route['id']);
     });
@@ -579,7 +578,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   }
 
   subscribeIndexes() {
-    const sub = combineLatest([this.namespace, this.entity]).pipe(mergeMap(pair => this._crud.getIndexes(new EditTableRequest(pair[0].id, pair[1].id)))).subscribe({
+    const sub = combineLatest([this.namespace, this.entity])
+    .pipe(
+        filter(pair => !!pair[0] && !!pair[1]),
+        mergeMap(pair => this._crud.getIndexes(new EditTableRequest(pair[0].id, pair[1].id)))).subscribe({
       next: (res: RelationalResult) => {
         this.indexes = res;
       }, error: err => {
@@ -594,8 +596,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     const availableStores = this.availableStoresForIndexes;
     if (availableStores.value?.length > 0) {
       this.selectedStoreForIndex = availableStores[0];
-      if (availableStores[0].availableIndexMethods && availableStores[0].availableIndexMethods.length > 0) {
-        this.newIndexForm.controls['method'].setValue(availableStores[0].availableIndexMethods[0].name);
+      if (availableStores[0].indexMethods && availableStores[0].indexMethods.length > 0) {
+        this.newIndexForm.controls['method'].setValue(availableStores[0].indexMethods[0].name);
       }
     } else {
       this.selectedStoreForIndex = null;
@@ -605,19 +607,20 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   onSelectingIndexStore(store: AdapterModel) {
     this.selectedStoreForIndex = store;
-    this.newIndexForm.controls['method'].setValue(store.settings.get('availableIndexMethods')[0]);
+    this.newIndexForm.controls['method'].setValue(store.indexMethods[0]);
   }
 
   getAvailableStoresForIndexes() {
     this.entity.pipe(
-        map(e => !!e),
+        filter(e => !!e),
         mergeMap(e =>
-            this._catalog.getAvailableStoresForIndexes(this.entity.value.id))).subscribe({
+            this._catalog.getAvailableStoresForIndexes(this.entity.value.id)),
+        filter(s => !!s)).subscribe({
       next: (stores: AdapterModel[]) => {
         this.availableStoresForIndexes.next(stores);
         if (stores?.length > 0) {
           this.selectedStoreForIndex = this.availableStoresForIndexes[0];
-          this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.settings.get('availableIndexMethods').value[0]);
+          this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.indexMethods[0]);
         } else {
           this.selectedStoreForIndex = null;
         }

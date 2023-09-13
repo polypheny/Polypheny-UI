@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
 import {RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {ColumnRequest, EditTableRequest} from '../../../models/ui-request.model';
@@ -42,8 +42,8 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   editingCol: string;
   placements: BehaviorSubject<AllocationPlacementModel[]> = new BehaviorSubject<AllocationPlacementModel[]>([]);
   subscriptions = new Subscription();
-  foreignKeys: ForeignKey[] = [];
-  underlyingTables: {};
+  foreignKeys: WritableSignal<ForeignKey[]> = signal([]);
+  underlyingTables: WritableSignal<{}> = signal(null);
 
   public readonly EntityType = EntityType;
 
@@ -87,7 +87,6 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         const primaries: number[] = this._catalog.getPrimaryKey(c.entityId)?.value?.columnIds || [];
         return UiColumnDefinition.fromModel(c, primaries);
       }));
-
     });
   }
 
@@ -171,7 +170,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
   }
 
   subscribeUml() {
-    this.foreignKeys = [];
+    this.foreignKeys.set([]);
     /*const t = this.tableId.split('\.');
     this.schema = t[0];
     if (!this.schema) {
@@ -192,7 +191,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                     } else {
                       fks.set(v.fkName, v);
                     }
-                    this.foreignKeys = [...fks.values()];
+                    this.foreignKeys.set([...fks.values()]);
                   }
                 });
               },

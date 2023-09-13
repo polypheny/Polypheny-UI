@@ -303,7 +303,7 @@ export class PlacementMeta extends EntityMeta {
   }
 }
 
-export class AvailableIndexMethod {
+export class IndexMethodModel {
   name: string;
   displayName: string;
 }

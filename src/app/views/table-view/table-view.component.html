@@ -1,8 +1,8 @@
-<ng-container *ngIf="tableId">
-    <h5>{{tableId}}</h5>
+<ng-container *ngIf="entityId">
+    <h5>{{ fullName() }}</h5>
     <br>
 </ng-container>
 <a routerLink="." class="btn btn-light btn-circle" [ngClass]="{'rotating': loading}" id="reload-btn"
    (click)="getTable()"><i class="icon-reload"></i></a>
-<app-data-view [result]="resultSet" [loading]="loading" [config]="tableConfig" [entityId]="tableId"></app-data-view>
-<p *ngIf="!tableId">Please select an entity in the left sidebar to view its data.</p>
+<app-data-view [result]="result" [loading]="loading" [config]="tableConfig" [entityId]="entityId"></app-data-view>
+<p *ngIf="!entityId">Please select an entity in the left sidebar to view its data.</p>
