@@ -6,7 +6,7 @@ import {ToastDuration, ToasterService} from '../toast-exposer/toaster.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {DeleteRequest, NamespaceType, QueryRequest, TableRequest} from '../../models/ui-request.model';
+import {DeleteRequest, NamespaceType, QueryRequest, EntityRequest} from '../../models/ui-request.model';
 import {PaginationElement} from './models/pagination-element.model';
 import {SortState} from './models/sort-state.model';
 import * as Plyr from 'plyr';
@@ -61,6 +61,14 @@ export class DataViewComponent implements OnDestroy {
     ) {
         this.webSocket = new WebSocket(_settings);
         this.initWebsocket();
+
+        this.tables = computed(() => {
+            const cat = this._catalog.listener();
+            const entities = this._catalog.getEntities(null);
+            return entities.filter(e => e.namespaceType === NamespaceType.RELATIONAL)
+                .map(n => Table.fromModel(<TableModel>n))
+                .sort((a, b) => a.name.localeCompare(b.name));
+        });
     }
 
     @Input() set result(result: Result<any, any>) {
@@ -98,8 +106,8 @@ export class DataViewComponent implements OnDestroy {
     protected focusId: string;
 
     @Input() config: TableConfig;
-    @Input() entityId?: number;
-    @Input() loading?: boolean;
+    @Input() entityId?: Signal<number>;
+    @Input() loading?: WritableSignal<boolean>;
     @ViewChild('createView', {static: false}) public createView: TemplateRef<any>;
     @ViewChild('viewEditor', {static: false}) viewEditor;
     @Output() viewEditorCode = new EventEmitter();
@@ -136,7 +144,7 @@ export class DataViewComponent implements OnDestroy {
     exploringShowView = false;
     creatingView = false;
     newViewName = '';
-    tables: BehaviorSubject<Table[]> = new BehaviorSubject([]);
+    readonly tables: Signal<Table[]>;
     gotTables = false;
     namespaceType: Signal<NamespaceType> = computed(() => this.combinedResult()?.namespaceType);
     viewOptions = 'view';
@@ -174,7 +182,7 @@ export class DataViewComponent implements OnDestroy {
 
     documentListener() {
         const self = this;
-        $(document).on('click', function (e) {
+        $(document).on('click', e => {
             if ($(e.target).parents('.editing').length === 0) {
                 //don't close editing row during upload
                 if (self.uploadProgress < 0) {
@@ -191,7 +199,7 @@ export class DataViewComponent implements OnDestroy {
 
                 //go to the highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
                 if (+this._route.snapshot.paramMap.get('page') > this.result.highestPage) {
-                    this._router.navigate(['/views/data-table/' + this.entityId + '/' + this.result.highestPage]);
+                    this._router.navigate(['/views/data-table/' + this.entityId + '/' + this.result.highestPage]).then(r => null);
                 }
                 this.setPagination();
                 this.editing = -1;
@@ -232,15 +240,15 @@ export class DataViewComponent implements OnDestroy {
         return obj;
     }
 
-    getTable() {
+    getEntityData() {
         const filterObj = this.mapToObject(this.filter);
         const sortState = {};
         this.result.header.forEach((h) => {
             this.sortStates.set(h.name, h.sort);
             sortState[h.name] = h.sort;
         });
-        const request = new TableRequest(this.entityId, this.result.currentPage, filterObj, sortState);
-        if (!this._crud.getTable(this.webSocket, request)) {
+        const request = new EntityRequest(this.entityId(), this._catalog.getEntity(this.entityId()).namespaceId, this.result.currentPage, filterObj, sortState);
+        if (!this._crud.getEntityData(this.webSocket, request)) {
             this.result = new RelationalResult('Could not establish a connection with the server.');
         }
     }
@@ -268,7 +276,7 @@ export class DataViewComponent implements OnDestroy {
                 if (result.error) {
                     this._toast.exception(result, 'Could not delete this row:');
                 } else {
-                    this.getTable();
+                    this.getEntityData();
                 }
             }, error: err => {
                 this._toast.error('Could not delete this row.');
@@ -290,11 +298,11 @@ export class DataViewComponent implements OnDestroy {
             return;
         }
         const neighbors = 1;//from active page, show n neighbors to the left and n neighbors to the right.
-        this.pagination.push(new PaginationElement().withPage(this.entityId, Math.max(1, activePage - 1)).withLabel('<'));
+        this.pagination.push(new PaginationElement().withPage(this.entityId(), Math.max(1, activePage - 1)).withLabel('<'));
         if (activePage === 1) {
-            this.pagination.push(new PaginationElement().withPage(this.entityId, 1).setActive());
+            this.pagination.push(new PaginationElement().withPage(this.entityId(), 1).setActive());
         } else {
-            this.pagination.push(new PaginationElement().withPage(this.entityId, 1));
+            this.pagination.push(new PaginationElement().withPage(this.entityId(), 1));
         }
         if (activePage - neighbors > 2) {
             this.pagination.push(new PaginationElement().withLabel('..').setDisabled());
@@ -303,9 +311,9 @@ export class DataViewComponent implements OnDestroy {
         let counter = Math.max(2, activePage - neighbors);
         while (counter <= activePage + neighbors && counter <= highestPage) {
             if (counter === activePage) {
-                this.pagination.push(new PaginationElement().withPage(this.entityId, counter).setActive());
+                this.pagination.push(new PaginationElement().withPage(this.entityId(), counter).setActive());
             } else {
-                this.pagination.push(new PaginationElement().withPage(this.entityId, counter));
+                this.pagination.push(new PaginationElement().withPage(this.entityId(), counter));
             }
             counter++;
         }
@@ -314,16 +322,16 @@ export class DataViewComponent implements OnDestroy {
             if (counter + neighbors < highestPage) {
                 this.pagination.push(new PaginationElement().withLabel('..').setDisabled());
             }
-            this.pagination.push(new PaginationElement().withPage(this.entityId, highestPage));
+            this.pagination.push(new PaginationElement().withPage(this.entityId(), highestPage));
         }
-        this.pagination.push(new PaginationElement().withPage(this.entityId, Math.min(highestPage, activePage + 1)).withLabel('>'));
+        this.pagination.push(new PaginationElement().withPage(this.entityId(), Math.min(highestPage, activePage + 1)).withLabel('>'));
 
         return this.pagination;
     }
 
     paginate(p: PaginationElement) {
         this.result.currentPage = p.page;
-        this.getTable();
+        this.getEntityData();
     }
 
     /**
@@ -452,7 +460,7 @@ export class DataViewComponent implements OnDestroy {
                         $('.insert-input').val('');
                         this.insertValues.clear();
                         this.buildInsertObject();
-                        this.getTable();
+                        this.getEntityData();
                     }
                 }
             },
@@ -466,14 +474,14 @@ export class DataViewComponent implements OnDestroy {
     }
 
     private adjustDocument(method: 'ADD' | 'MODIFY' | 'DELETE', initialData: string = '') {
-        const entity = this._catalog.getEntity(this.entityId);
+        const entity = this._catalog.getEntity(this.entityId());
         switch (method) {
             case 'ADD':
                 const data = this.insertValues.get('d');
-                const add = `db.${entity.value.name}.insert(${data})`;
+                const add = `db.${entity.name}.insert(${data})`;
                 this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.result.namespaceId));
                 this.insertValues.clear();
-                this.getTable();
+                this.getEntityData();
                 break;
             case 'MODIFY':
                 const values = new Map<string, string>();//previous values
@@ -484,19 +492,19 @@ export class DataViewComponent implements OnDestroy {
                 const updated = this.updateValues.get('d');
                 const parsed = JSON.parse(updated);
                 if (parsed.hasOwnProperty('_id')) {
-                    const modify = `db.${entity.value.name}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;
+                    const modify = `db.${entity.name}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;
                     this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.result.namespaceId));
                     this.insertValues.clear();
-                    this.getTable();
+                    this.getEntityData();
                 }
                 break;
             case 'DELETE':
                 const parsedDelete = JSON.parse(initialData);
                 if (parsedDelete.hasOwnProperty('_id')) {
-                    const modify = `db.${entity.value.name}.deleteMany({"_id": "${parsedDelete['_id']}" })`;
+                    const modify = `db.${entity.name}.deleteMany({"_id": "${parsedDelete['_id']}" })`;
                     this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.result.namespaceId));
                     this.insertValues.clear();
-                    this.getTable();
+                    this.getEntityData();
                 }
                 break;
         }
@@ -574,7 +582,7 @@ export class DataViewComponent implements OnDestroy {
                     this.uploadProgress = -1;
                     const result = <RelationalResult>res.body;
                     if (result.affectedTuples) {
-                        this.getTable();
+                        this.getEntityData();
                         let rows = ' rows';
                         if (result.affectedTuples === 1) {
                             rows = ' row';
@@ -596,7 +604,7 @@ export class DataViewComponent implements OnDestroy {
         this.getStores();
         this.showView = null;
         this.viewOptions = 'view';
-        this.getAllTables();
+        //this.getAllTables();
         this.modalRefCreateView = this.modalService.show(createView);
         this.query = sqlQuery;
 
@@ -718,7 +726,7 @@ export class DataViewComponent implements OnDestroy {
             this._toast.warn('Please provide a valid name for the new view. The new view was not created.', 'invalid view name', ToastDuration.INFINITE);
             return false;
         }
-        if (this.tables.value.filter((t) => t.name === this.newViewName).length > 0) {
+        if (this.tables().filter((t) => t.name === this.newViewName).length > 0) {
             this._toast.warn('A table or view with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
             return false;
         }
@@ -729,7 +737,7 @@ export class DataViewComponent implements OnDestroy {
         const regex = this._crud.getValidationRegex();
         if (name === '') {
             return '';
-        } else if (regex.test(name) && name.length <= 100 && this.tables.value.filter((t) => t.name === name).length === 0) {
+        } else if (regex.test(name) && name.length <= 100 && this.tables().filter((t) => t.name === name).length === 0) {
             this.creatingView = true;
             return 'is-valid';
         } else {
@@ -738,52 +746,18 @@ export class DataViewComponent implements OnDestroy {
         }
     }
 
-    getAllTables() {
-        //not possible to use public.table therefore schema always null
-
-        this._catalog.getEntities(null).subscribe(entities => {
-            this.tables.next(entities.filter(e => e.namespaceType === NamespaceType.RELATIONAL)
-                .map(n => Table.fromModel(<TableModel>n))
-                .sort((a, b) => a.name.localeCompare(b.name)));
-        });
-
-
-        /*if (!this.gotTables) {
-            this._crud.getTables(new EditTableRequest(null)).subscribe(
-                res => {
-                    const result = <DbTable[]>res;
-                    this.tables = [];
-                    for (const t of result) {
-                        this.tables.push(new Table(t));
-                    }
-                    this.tables = this.tables.sort((a, b) => a.name.localeCompare(b.name));
-                }, err => {
-                    this._toast.error('could not retrieve list of tables');
-                    console.log(err);
-                }
-            );
-            this.gotTables = true;
-        }*/
-    }
-
     getStores() {
-        this._crud.getStores().subscribe({
-            next: (res: AdapterModel[]) => {
-                this.stores = res;
-                this.storeOptions = this.stores.map(s => s.name);
-                this.storeSelected = this.stores[0]['uniqueName'];
-
-            }, error: err => {
-                console.log(err);
-            }
-        });
+        const stores = this._catalog.getStores();
+        this.stores = stores;
+        this.storeOptions = this.stores.map(s => s.name);
+        this.storeSelected = this.stores[0]['uniqueName'];
     }
 
 
     executeCreateView(code: string) {
-        this.loading = true;
+        this.loading.set(true);
         if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, 'sql', null))) {
-            this.loading = false;
+            this.loading.set(false);
             this.result = new RelationalResult('Could not establish a connection with the server.');
         }
     }

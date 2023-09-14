@@ -47,7 +47,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     this.availableAdapters = computed(() => {
       console.log(this.currentRoute());
       const route = this.currentRoute();
-      return this._catalog.getAdapterTemplates().value.filter(a => a.adapterType === this.getMatchingAdapterType());
+      return this._catalog.getAdapterTemplates().filter(a => a.adapterType === this.getMatchingAdapterType());
     });
   }
 
@@ -181,7 +181,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
   }
 
   initAdapterSettingsModal(adapter: AdapterModel) {
-    const allSettings = this._catalog.getAdapterTemplate(adapter.adapterName, adapter.type).value;
+    const allSettings = this._catalog.getAdapterTemplate(adapter.adapterName, adapter.type);
 
     this.adapter.set(Adapter.from(allSettings, adapter, Task.CHANGE));
 

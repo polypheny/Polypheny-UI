@@ -5,7 +5,7 @@
     </c-col>
 
     <c-col class="col-lg-12">
-        <table class="table table-hover table-striped" id="sourceTable" *ngIf="entity | async">
+        <table class="table table-hover table-striped" id="sourceTable" *ngIf="entity()">
             <thead>
             <tr>
                 <th class="small-col">PK</th>
@@ -14,12 +14,12 @@
                 <th>Type</th>
                 <th>Collection</th>
                 <th>Parameters</th>
-                <th *ngIf="(entity| async).entityType !== EntityType.VIEW ">Default</th>
+                <th *ngIf="entity().entityType !== EntityType.VIEW ">Default</th>
                 <th class="small-col"></th>
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let col of columns | async; let i = index"
+            <tr *ngFor="let col of columns(); let i = index"
                 [ngClass]="{'editing': editingCol === col.physicalName}">
                 <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
                 <td>
@@ -30,12 +30,12 @@
                                    *ngIf="editingCol === col.physicalName"
                                    style="max-width: 200px">
                         <input type="text" cFormControl [placeholder]="col.name" autofocus
-                               (keyup.enter)="renameColumn(columnNameInput, col, columnNameInput.value, entity.value.entityType)"
+                               (keyup.enter)="renameColumn(columnNameInput, col, columnNameInput.value, entity().entityType)"
                                #columnNameInput>
 
                         <button cButton size="sm" color="primary"
                                 [disabled]="!validTableName(columnNameInput.value)"
-                                (click)="renameColumn(columnNameInput,col,columnNameInput.value,entity.value.entityType)">rename
+                                (click)="renameColumn(columnNameInput,col,columnNameInput.value,entity().entityType)">rename
                         </button>
 
                     </c-input-group>
@@ -50,9 +50,9 @@
                     <span class="parameter" *ngIf="col.dimension !== -1">dimension: {{col.dimension}}</span>
                     <span class="parameter" *ngIf="col.cardinality !== -1">cardinality: {{col.cardinality}}</span>
                 </td>
-                <td *ngIf="placements != null && (entity | async)?.entityType !== EntityType.VIEW">{{col.defaultValue}}</td>
+                <td *ngIf="placements != null && entity()?.entityType !== EntityType.VIEW">{{col.defaultValue}}</td>
                 <th class="small-col">
-                    <app-delete-confirm *ngIf="(placements != null && (entity | async)?.entityType !== EntityType.VIEW)"
+                    <app-delete-confirm *ngIf="(placements != null && entity()?.entityType !== EntityType.VIEW)"
                                         (delete)="dropColumn(col)"></app-delete-confirm>
                 </th>
             </tr>
@@ -91,7 +91,7 @@
                         <span class="parameter" *ngIf="col.dimension">dimension: {{col.dimension}}</span>
                         <span class="parameter" *ngIf="col.cardinality">cardinality: {{col.cardinality}}</span>
                     </td>
-                    <td class="testing" [hidden]="!(placements != null && (entity | async)?.entityType !== EntityType.VIEW)">
+                    <td class="testing" [hidden]="!(placements != null && entity()?.entityType !== EntityType.VIEW)">
                         <input type="text" class="form-control form-control-sm" placeholder="default value"
                                style="max-width: 250px" #newDefault
                                (keyup.enter)="addColumn(col, newName.value, newDefault.value)">
@@ -132,7 +132,7 @@
         </table>
     </c-col>
 
-    <c-col class="col-lg-12" *ngIf="(entity | async)?.entityType !== EntityType.VIEW">
+    <c-col class="col-lg-12" *ngIf="entity()?.entityType !== EntityType.VIEW">
         <hr>
         <h5>Source</h5>
 
@@ -144,7 +144,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let store of getAdapters() | async">
+            <tr *ngFor="let store of getAdapters()()">
                 <td>{{store.name}}</td>
                 <td>{{store.adapterName}}</td>
             </tr>
@@ -154,7 +154,7 @@
     </c-col>
 
 
-    <c-col class="col-lg-12" *ngIf="placements != null && (entity | async)?.entityType === EntityType.VIEW">
+    <c-col class="col-lg-12" *ngIf="placements != null && entity()?.entityType === EntityType.VIEW">
         <hr>
         <h5>Underlying Tables</h5>
 

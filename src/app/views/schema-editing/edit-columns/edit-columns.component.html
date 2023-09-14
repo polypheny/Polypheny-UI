@@ -1,13 +1,12 @@
-<app-edit-source-columns *ngIf="isEntityType(EntityType.SOURCE) | async"></app-edit-source-columns>
-<c-row *ngIf="!(isEntityType(EntityType.SOURCE) | async)">
 
+<c-row >
     <c-col>
-        <h5 *ngIf="isEntityType(EntityType.MATERIALIZED_VIEW) | async">Materialized View: {{(entity|async).name}}</h5>
-        <h5 *ngIf="!( isEntityType(EntityType.MATERIALIZED_VIEW) | async )">{{(entity|async).name}}</h5>
-        <span *ngIf="!(entity | async)">Please select a table in the left sidebar to edit its columns.</span>
+        <h5 *ngIf="entity()?.entityType === EntityType.MATERIALIZED_VIEW">Materialized View: {{entity()?.name}}</h5>
+        <h5 *ngIf="entity()?.entityType !== EntityType.MATERIALIZED_VIEW">{{entity()?.name}}</h5>
+        <span *ngIf="!entity()">Please select a table in the left sidebar to edit its columns.</span>
 
-        <p *ngIf="oldColumns | async">Double click on a row in the table below to edit the table column.</p>
-        <table class="table table-hover table-striped" *ngIf="entity | async" id="dbColumnTable">
+        <p *ngIf="oldColumns()">Double click on a row in the table below to edit the table column.</p>
+        <table class="table table-hover table-striped" *ngIf="entity()" id="dbColumnTable">
             <thead>
             <tr>
                 <th class="pk">PK</th>
@@ -22,9 +21,9 @@
             </thead>
             <tbody>
 
-            <tr *ngFor="let col of getArray((oldColumns | async).values()); let i = index" (dblclick)="editCol(i, col, $event)"
+            <tr *ngFor="let col of getArray(oldColumns()?.values()); let i = index" (dblclick)="editCol(i, col, $event)"
                 [ngClass]="{'editing': i === editColumn}">
-                <ng-container *ngIf="i === editColumn && !(isEntityType(EntityType.MATERIALIZED_VIEW) | async)"
+                <ng-container *ngIf="i === editColumn && !entity()?.entityType === EntityType.MATERIALIZED_VIEW"
                               [formGroup]="updateColumn">
                     <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
                     <td>
@@ -55,7 +54,7 @@
                         <c-input-group sizing="sm" class="mt-1"
                                        *ngIf="_types.supportsPrecision(updateColumn.controls['dataType'].value)">
 
-                            <span cInputGroupText>{{_types.precisionPlaceholder( updateColumn.controls['dataType'].value )}}</span>
+                            <span cInputGroupText>{{_types.precisionPlaceholder(updateColumn.controls['dataType'].value)}}</span>
                             <input cFormControl type="number"
                                    [placeholder]="_types.precisionPlaceholder(updateColumn.controls['dataType'].value)"
                                    formControlName="precision" id="precision"
@@ -81,7 +80,7 @@
 
                         <!-- cardinality -->
                         <c-input-group sizing="sm" class="mt-1"
-                             *ngIf="updateColumn.controls['collectionsType'].value === 'ARRAY'">
+                                       *ngIf="updateColumn.controls['collectionsType'].value === 'ARRAY'">
                             <span cInputGroupText>cardinality</span>
                             <input type="number" placeholder="cardinality" formControlName="cardinality"
                                    cFormControl id="updateCard"
@@ -127,7 +126,7 @@
                     </td>
                 </ng-container>
 
-                <ng-container *ngIf="i === editColumn && (isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
+                <ng-container *ngIf="i === editColumn && entity()?.entityType === EntityType.MATERIALIZED_VIEW">
                     <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
                     <td>
                         <div class="form-group">
@@ -142,7 +141,7 @@
                     <td>{{col.dataType}}</td>
                     <td>{{col.collectionsType}}</td>
                     <td>
-                        <span *ngIf="col.precision">{{_types.precisionPlaceholder( col.dataType )}}
+                        <span *ngIf="col.precision">{{_types.precisionPlaceholder(col.dataType)}}
                             : {{col.precision}}</span>
                         <span *ngIf="col.scale">scale: {{col.scale}}</span>
                         <span *ngIf="col.dimension">dimension: {{col.dimension}}</span>
@@ -164,7 +163,7 @@
                     <td>{{col.dataType}}</td>
                     <td>{{col.collectionsType}}</td>
                     <td>
-                        <span *ngIf="col.precision">{{_types.precisionPlaceholder( col.dataType )}}
+                        <span *ngIf="col.precision">{{_types.precisionPlaceholder(col.dataType)}}
                             : {{col.precision}}</span>
                         <span *ngIf="col.scale">scale: {{col.scale}}</span>
                         <span *ngIf="col.dimension !== -1">dimension: {{col.dimension}}</span>
@@ -177,10 +176,11 @@
                 </ng-container>
             </tr>
 
-            <tr *ngIf="!(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
+            <tr *ngIf="entity()?.entityType !== EntityType.MATERIALIZED_VIEW">
                 <td class="pk"></td>
                 <td>
-                    <input cFormControl type="text" class="form-control form-control-sm" name="columnName" placeholder="column name"
+                    <input cFormControl type="text" class="form-control form-control-sm" name="columnName"
+                           placeholder="column name"
                            [(ngModel)]="createColumn.name" [ngClass]="columnValidation(createColumn.name)">
                 </td>
                 <td>
@@ -205,7 +205,7 @@
                                    *ngIf="_types.supportsPrecision(createColumn.dataType)">
                         <div class="input-group-prepend">
                             <label for="createPrecision"
-                                   class="input-group-text">{{_types.precisionPlaceholder( createColumn.dataType )}}</label>
+                                   class="input-group-text">{{_types.precisionPlaceholder(createColumn.dataType)}}</label>
                         </div>
                         <input type="number" [placeholder]="_types.precisionPlaceholder(createColumn.dataType)"
                                class="form-control form-control-sm" id="createPrecision"
@@ -228,7 +228,8 @@
                     <!-- cardinality -->
                     <c-input-group sizing="sm" class="mt-1" *ngIf="createColumn.collectionsType === 'ARRAY'">
                         <span cInputGroupText>cardinality</span>
-                        <input cFormControl id="createCard" type="number" placeholder="dimension" [(ngModel)]="createColumn.cardinality">
+                        <input cFormControl id="createCard" type="number" placeholder="dimension"
+                               [(ngModel)]="createColumn.cardinality">
                     </c-input-group>
 
                 </td>
@@ -244,7 +245,8 @@
                                     *ngSwitchCase="_types.booleanTypes().includes( createColumn.dataType.toLowerCase() ) ? createColumn.dataType.toLowerCase() : ''">
                                 <div class="form-check form-check-inline">
                                     <span *ngIf="createColumn.defaultValue === null" class="form-check-label disabled">null&nbsp;</span>
-                                    <span *ngIf="createColumn.defaultValue === true" class="form-check-label">true&nbsp;</span>
+                                    <span *ngIf="createColumn.defaultValue === true"
+                                          class="form-check-label">true&nbsp;</span>
                                     <span *ngIf="createColumn.defaultValue === false" class="form-check-label">false&nbsp;</span>
                                     <input cFormCheckInput type="checkbox" class="form-check-input"
                                            [(ngModel)]="createColumn.defaultValue" [id]="'default'+createColumn.name"
@@ -272,7 +274,7 @@
 
     </c-col>
 
-    <c-col class="col-lg-12" *ngIf="!(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
+    <c-col class="col-lg-12" *ngIf="entity()?.entityType !== EntityType.MATERIALIZED_VIEW">
         <hr>
         <h5>Constraints</h5>
         <c-row>
@@ -288,7 +290,8 @@
                                        [(ngModel)]="c.primary">
                                 <label class="form-check-label" [for]="'pkcol'+j">{{c.name}}</label>
                             </div>
-                            <button cButton size="sm" color="primary" class="add-constraint" (click)="updatePrimaryKey()">update
+                            <button cButton size="sm" color="primary" class="add-constraint"
+                                    (click)="updatePrimaryKey()">update
                             </button>
                         </div>
                     </c-card-body>
@@ -309,7 +312,8 @@
                             </div>
                         </div>
                         <div class="constraint-columns">
-                            <div class="form-check form-check-inline" *ngFor="let c of oldColumns | async | value; let j = index">
+                            <div class="form-check form-check-inline"
+                                 *ngFor="let c of oldColumns()| value; let j = index">
                                 <input type="checkbox" class="form-check-input" [id]="'uqcol'+j" [(ngModel)]="c.unique">
                                 <label class="form-check-label" [for]="'uqcol'+j">{{c.name}}</label>
                             </div>
@@ -323,15 +327,16 @@
         <table cTable class="table table-hover table-striped" *ngIf="constraints && constraints > 0">
             <thead>
             <tr>
-                <th *ngFor="let h of constraints | async">{{h.name}}</th>
+                <th *ngFor="let h of constraints()">{{h.name}}</th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let constraint of constraints | async; let i = index">
-                <td *ngFor="let d2 of getColumnsOfKey(constraint)| async">{{d2}}</td>
+            <tr *ngFor="let constraint of constraints(); let i = index">
+                <td *ngFor="let d2 of getColumnsOfKey(constraint)()">{{d2}}</td>
                 <td class="delete">
-                    <app-delete-confirm *ngIf="constraint.type !== 'PRIMARY KEY'" (delete)="dropConstraint(constraint.id)"></app-delete-confirm>
+                    <app-delete-confirm *ngIf="constraint.type !== 'PRIMARY KEY'"
+                                        (delete)="dropConstraint(constraint.id)"></app-delete-confirm>
                 </td>
             </tr>
             </tbody>
@@ -339,7 +344,7 @@
     </c-col>
 
     <c-col size="12"
-           *ngIf="foreignKeys && foreignKeys.length > 0 && !(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
+           *ngIf="foreignKeys && foreignKeys.length > 0 && entity()?.entityType !== EntityType.MATERIALIZED_VIEW ">
         <hr>
         <h5>Foreign key</h5>
         <table class="table table-hover table-striped">
@@ -370,7 +375,7 @@
         </table>
     </c-col>
 
-    <c-col size="12" *ngIf="(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
+    <c-col size="12" *ngIf="entity()?.entityType === EntityType.MATERIALIZED_VIEW">
         <hr>
         <h5>Freshness</h5>
         <table class="table table-hover table-striped">
@@ -384,10 +389,10 @@
             </thead>
             <tbody>
             <tr>
-                <td>{{getOrNull( 0 ) | async}}</td>
-                <td>{{getOrNull( 1 ) | async}}</td>
-                <td>{{getOrNull( 2 ) | async}}</td>
-                <td>{{getOrNull( 3 ) | async}}</td>
+                <td>{{getOrNull(0) | async}}</td>
+                <td>{{getOrNull(1) | async}}</td>
+                <td>{{getOrNull(2) | async}}</td>
+                <td>{{getOrNull(3) | async}}</td>
             </tr>
             </tbody>
         </table>
@@ -414,12 +419,12 @@
                             <div class="invalid-feedback">invalid name</div>
                         </div>
                         <div class="form-group"
-                             *ngIf="(availableStoresForIndexes | async).length > 0">
+                             *ngIf="availableStoresForIndexes().length > 0">
                             <label for="storeName">Location</label>
                             <select name="storeName" id="storeName" class="form-control form-control-sm"
                                     [ngModel]="selectedStoreForIndex" (ngModelChange)="onSelectingIndexStore($event)"
                                     [ngModelOptions]="{standalone: true}">
-                                <option *ngFor="let store of (availableStoresForIndexes | async)"
+                                <option *ngFor="let store of availableStoresForIndexes()"
                                         [ngValue]="store">{{store.name}}</option>
                             </select>
                         </div>
@@ -440,7 +445,7 @@
                         </div>
                         <button cButton type="submit" class="btn btn-primary btn-sm"
                                 [ngClass]="{'progress-bar-striped progress-bar-animated': addingIndex}"
-                                [disabled]="addingIndex || !availableStoresForIndexes || (availableStoresForIndexes | async)?.length == 0">
+                                [disabled]="addingIndex || !availableStoresForIndexes || availableStoresForIndexes()?.length == 0">
                             create
                         </button>
                     </div>
@@ -470,20 +475,21 @@
         <div class="mb-3" style="position: relative">
             <h5 style="display: inline">Data placements</h5>
             <div class="btn-group btn-group-sm" id="placementBtnGroup"
-                 *ngIf="(getAddableStores() | async)?.length > 0">
-                <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="(stores | async).length>3">
+                 *ngIf="getAddableStores()()?.length > 0">
+                <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="stores().length > 3">
                     <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
                         <span *ngIf="!selectedStore">Select store</span>
                         <span *ngIf="selectedStore">{{selectedStore.name}}</span>
                         <span class="caret"></span>
                     </button>
                     <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-                        <ng-container *ngFor="let store of getAddableStores() | async">
+                        <ng-container *ngFor="let store of getAddableStores()()">
                             <li role="menuitem"><a class="dropdown-item" [routerLink]="[]"
                                                    (click)="selectedStore = store">{{store.name}}</a></li>
                         </ng-container>
-                        <li *ngIf="(getAddableStores()|async).length === 0" role="menuitem"><a class="dropdown-item disabled"
-                                                                                               [routerLink]="[]">no stores
+                        <li *ngIf="getAddableStores()().length === 0" role="menuitem"><a
+                                class="dropdown-item disabled"
+                                [routerLink]="[]">no stores
                             available</a></li>
                     </ul>
                 </div>
@@ -501,12 +507,12 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let placement of placements | async; let i = index">
-                <td>{{ (_catalog.getAdapter( placement.adapterId ) | async)?.name}}</td>
-                <td>{{(_catalog.getAdapter( placement.adapterId ) | async)?.adapterName}}</td>
+            <tr *ngFor="let placement of placements(); let i = index">
+                <td>{{ _catalog.getAdapter(placement.adapterId)()?.name}}</td>
+                <td>{{ _catalog.getAdapter(placement.adapterId)()?.adapterName}}</td>
                 <td>
-                    <ng-container *ngFor="let p of _catalog.getAllocColumns(placement.id) | async; let isLast = last">
-                        <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{ _catalog.getAllocColumn( p.id )}}</span>{{isLast ? '' : ', '}}
+                    <ng-container *ngFor="let p of _catalog.getAllocColumns(placement.id)(); let isLast = last">
+                        <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{ _catalog.getAllocColumn(p.id)}}</span>{{isLast ? '' : ', '}}
                     </ng-container>
                     <button cButton size="sm" class="cui-pencil ml-2 modify-placement-btn"
                             (click)="initPlacementModal(Method.MODIFY, placement)"></button>
@@ -543,7 +549,7 @@
             </button>-->
         </div>
 
-        <c-card class="card" *ngIf="!isPartitioned() && !(isEntityType(EntityType.MATERIALIZED_VIEW) | async)">
+        <c-card class="card" *ngIf="!isPartitioned() && ! entity()?.entityType !== EntityType.MATERIALIZED_VIEW">
             <c-card-header>Horizontal partitioning</c-card-header>
             <c-card-body>
                 <p>This table is not yet horizontally partitioned.</p>
@@ -561,11 +567,12 @@
                                name="numPartitions" required [(ngModel)]="partitioningRequest.numPartitions">
                         <!--<div class="invalid-feedback">invalid name</div>-->
                     </div>
-                    <div class="form-group" *ngIf="oldColumns | async">
+                    <div class="form-group" *ngIf="oldColumns()">
                         <label for="partitionCol">Column</label>
                         <select name="partitionCol" id="partitionCol" class="form-control form-control-sm"
                                 [(ngModel)]="partitioningRequest.column">
-                            <option *ngFor="let col of oldColumns | async | value" [value]="col.name">{{col.name}}</option>
+                            <option *ngFor="let col of oldColumns() | value"
+                                    [value]="col.name">{{col.name}}</option>
                         </select>
                     </div>
 
@@ -580,7 +587,7 @@
 
 </c-row>
 
-<c-modal *ngIf="!(isEntityType(EntityType.SOURCE) | async)" [visible]="placementModal" id="placementModal">
+<c-modal *ngIf="entity()?.entityType !== EntityType.SOURCE" [visible]="placementModal" id="placementModal">
     <form [formGroup]="columnPlacement" *ngIf="columnPlacement">
         <c-modal-content>
             <c-modal-header>
@@ -595,7 +602,7 @@
                         [routerLink]="[]" class="text-muted" (click)="selectAllColumns(false)">deselect all</a>
                 </div>
                 <div class="form-group">
-                    <div *ngFor="let col of oldColumns | async | keyvalue" class="form-check form-check-inline">
+                    <div *ngFor="let col of oldColumns() | keyvalue" class="form-check form-check-inline">
                         <input type="checkbox" class="form-check-input" [id]="'colPlacement'+col"
                                [formControlName]="col.value.name">
                         <label [for]="'colPlacement'+col.value.name" class="form-check-label">{{col.value.name}}</label>
@@ -619,7 +626,7 @@
     </form>
 </c-modal>
 
-<c-modal *ngIf="!(isEntityType(EntityType.SOURCE) | async)" [visible]="partitioningModal" class="modal fade"
+<c-modal *ngIf="entity()?.entityType !== isEntityType(EntityType.SOURCE)" [visible]="partitioningModal" class="modal fade"
          tabindex="-1" role="dialog"
          aria-labelledby="myModalLabel" aria-hidden="true">
     <!--<form [formGroup]="columnPlacement" *ngIf="columnPlacement">-->
@@ -648,7 +655,9 @@
                       *ngIf="!validatePartitionModification()">Please select at least one partition</span>
             </c-modal-body>
             <c-modal-footer>
-                <button cButton color="secondary" type="button" class="float-left" (click)="partitioningModal = false">Close</button>
+                <button cButton color="secondary" type="button" class="float-left" (click)="partitioningModal = false">
+                    Close
+                </button>
                 <button cButton color="primary" type="submit" (click)="modifyPartitioning()"
                         [disabled]="!validatePartitionModification()">Modify
                 </button>

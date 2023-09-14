@@ -59,6 +59,7 @@ import {
   HeaderComponent, InputGroupComponent, InputGroupTextDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalDialogComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective,
   RowComponent, RowDirective, SpinnerComponent, TableDirective, TooltipDirective
 } from '@coreui/angular';
+import {EditEntityComponent} from './schema-editing/edit-entity/edit-entity.component';
 
 
 @NgModule({
@@ -152,6 +153,7 @@ import {
         SearchFilterPipe,
         FileUploaderComponent,
         DockerconfigComponent,
+        EditEntityComponent,
     ],
     exports: [
         ExploreByExampleComponent

@@ -10,7 +10,7 @@
         </span>
     </c-input-group>
 
-    <div class="w-100 text-center flex-grow-1 d-flex align-items-center" *ngIf="(this._catalog.state | async ) !== CatalogState.UP_TO_DATE">
+    <div class="w-100 text-center flex-grow-1 d-flex align-items-center" *ngIf="this._catalog.state() !== CatalogState.UP_TO_DATE">
         <c-spinner aria-hidden="true" size="xl" class="mx-auto"></c-spinner>
     </div>
     <div *ngIf="buttons.length > 0" class="btn-group" role="group">
@@ -23,7 +23,7 @@
     <span *ngIf="error">
         {{error}}
     </span>
-    <div id="tree-inner-wrapper" [classList]=" (this._catalog.state | async ) === CatalogState.UP_TO_DATE ? 'flex-grow-1' : 'flex-grow-0' ">
+    <div id="tree-inner-wrapper" [classList]="this._catalog.state() === CatalogState.UP_TO_DATE ? 'flex-grow-1' : 'flex-grow-0' ">
 
         <tree-root [nodes]="nodes" [options]="options" [class]="{'no-children': !hasChildren(nodes)}" #tree>
             <ng-template #treeNodeWrapperTemplate let-index="index" let-node>

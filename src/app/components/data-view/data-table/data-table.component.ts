@@ -139,7 +139,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     if (e.keyCode === 27) { //esc
       $('.table-filter').val('');
       this.filter.clear();
-      this.getTable();
+      this.getEntityData();
       return;
     }
     if (col.collectionsType || col.dataType.includes('ARRAY')) {
@@ -150,7 +150,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
       this.filter.set(col.name, filterVal);
     }
     this.focusId = 'search-' + col.name;
-    this.getTable();
+    this.getEntityData();
   }
 
   paginate(p: PaginationElement) {
@@ -158,7 +158,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     if (this.config.exploring) {
       this.getExploreTables();
     } else {
-      this.getTable();
+      this.getEntityData();
     }
   }
 
@@ -175,7 +175,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
         s.sorting = false;
       }
     }
-    this.getTable();
+    this.getEntityData();
   }
 
   /**
@@ -455,7 +455,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
       return;
     }
 
-    if (this.tables.value.filter((t) => t.name === this.newViewName).length > 0) {
+    if (this.tables().filter((t) => t.name === this.newViewName).length > 0) {
       this._toast.warn('A table or view with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
       return;
     }

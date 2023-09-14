@@ -69,7 +69,7 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
                     this.currentSlide = 0;
                     this.loadingPage = false;
                 });
-                this.getTable();
+                this.getEntityData();
             } else if (this.currentSlide !== this.result.data.length - 1) {
                 this.currentSlide++;
             }
@@ -81,7 +81,7 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
                     this.currentSlide = this.result.data.length - 1;
                     this.loadingPage = false;
                 });
-                this.getTable();
+                this.getEntityData();
             } else if (this.currentSlide !== 0) {
                 this.currentSlide--;
             }

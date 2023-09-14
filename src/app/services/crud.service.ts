@@ -26,7 +26,7 @@ import {
     QueryRequest,
     RelAlgRequest,
     StatisticRequest,
-    TableRequest
+    EntityRequest
 } from '../models/ui-request.model';
 import {DockerSettings} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
@@ -66,7 +66,7 @@ export class CrudService {
     // workarounds:
     // https://stackoverflow.com/questions/44613069/angular4-routerlink-inside-innerhtml-turned-to-lowercase
 
-    getTable(socket: WebSocket, data: TableRequest): boolean {
+    getEntityData(socket: WebSocket, data: EntityRequest): boolean {
         return socket.sendMessage(data);
     }
 
@@ -193,11 +193,11 @@ export class CrudService {
     /**
      * Get the columns of a DataSource
      */
-    getDataSourceColumns(request: TableRequest) {
+    getDataSourceColumns(request: EntityRequest) {
         return this._http.post(`${this.httpUrl}/getDataSourceColumns`, request, this.httpOptions);
     }
 
-    getAvailableSourceColumns(request: TableRequest) {
+    getAvailableSourceColumns(request: EntityRequest) {
         return this._http.post(`${this.httpUrl}/getAvailableSourceColumns`, request, this.httpOptions);
     }
 
@@ -326,7 +326,7 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/getGraphPlacements`, meta, this.httpOptions);
     }
 
-    getUnderlyingTable(request: TableRequest) {
+    getUnderlyingTable(request: EntityRequest) {
         return this._http.post(`${this.httpUrl}/getUnderlyingTable`, request, this.httpOptions);
     }
 

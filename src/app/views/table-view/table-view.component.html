@@ -1,8 +1,10 @@
-<ng-container *ngIf="entityId">
+<ng-container *ngIf="fullName()">
     <h5>{{ fullName() }}</h5>
     <br>
 </ng-container>
-<a routerLink="." class="btn btn-light btn-circle" [ngClass]="{'rotating': loading}" id="reload-btn"
-   (click)="getTable()"><i class="icon-reload"></i></a>
-<app-data-view [result]="result" [loading]="loading" [config]="tableConfig" [entityId]="entityId"></app-data-view>
-<p *ngIf="!entityId">Please select an entity in the left sidebar to view its data.</p>
+<button cButton color="light" class="btn-circle" [ngClass]="{'rotating': loading}" id="reload-btn"
+        (click)="getEntityData()">
+    <i class="icon-reload"></i>
+</button>
+<app-data-view [result]="result" [loading]="loading" [config]="entityConfig" [entityId]="entityId"></app-data-view>
+<p *ngIf="!entityId()">Please select an entity in the left sidebar to view its data.</p>

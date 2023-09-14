@@ -1,4 +1,4 @@
-import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, HostListener, Input, OnDestroy, OnInit, Signal, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
@@ -8,7 +8,7 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {BehaviorSubject, combineLatest, Subscription} from 'rxjs';
-import {AllocationPlacementModel, GraphModel, NamespaceModel} from '../../../models/catalog.model';
+import {AllocationPlacementModel, GraphModel, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {CatalogService} from '../../../services/catalog.service';
 import {filter, mergeMap} from 'rxjs/operators';
 import {Method} from '../../../models/ui-request.model';
@@ -30,13 +30,22 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
       public _types: DbmsTypesService,
       private _catalog: CatalogService
   ) {
-    this.subscribeStores();
-    this.subscribeAddableStores();
-    this.subscribePlacements();
+
   }
 
-  readonly entity: BehaviorSubject<GraphModel> = new BehaviorSubject(null);
-  readonly namespace: BehaviorSubject<NamespaceModel> = new BehaviorSubject<NamespaceModel>(null);
+  @Input()
+  readonly entity: Signal<TableModel>;
+  @Input()
+  readonly namespace: Signal<NamespaceModel>;
+  @Input()
+  readonly currentRoute: Signal<string>;
+
+  @Input()
+  readonly placements: Signal<AllocationPlacementModel[]>;
+  @Input()
+  readonly stores: Signal<AdapterModel[]>;
+  @Input()
+  readonly addableStores: Signal<AdapterModel[]>;
 
   types: PolyType[] = [];
   editColumn = -1;
@@ -44,10 +53,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
 
 
   //data placement handling
-  readonly stores: BehaviorSubject<AdapterModel[]> = new BehaviorSubject([]);
-  readonly addableStores: BehaviorSubject<AdapterModel[]> = new BehaviorSubject([]);
   selectedStore: AdapterModel;
-  readonly placements: BehaviorSubject<AllocationPlacementModel[]> = new BehaviorSubject([]);
   isAddingPlacement = false;
 
 
@@ -60,17 +66,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
   protected readonly Method = Method;
 
   ngOnInit() {
-    const sub = this._route.params.subscribe((params) => {
-      this._catalog.getNamespaceFromName(params['id']).pipe(filter(n => !!n)).subscribe(n => {
-        this.namespace.next(n);
-      });
 
-      this._catalog.getEntityFromName(params['id'], params['id']).pipe(filter(e => !!e)).subscribe(e => {
-        this.entity.next(e);
-      });
-    });
-
-    this.subscriptions.add(sub);
   }
 
   ngOnDestroy() {
@@ -88,17 +84,6 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
   }
 
 
-  subscribeAddableStores() {
-    return combineLatest([this.stores, this.placements]).pipe(
-        filter(pair => !!pair[0] && !!pair[1])).subscribe(
-        pair => {
-          //hide stores that are already part of the placement
-          const adapterIds = pair[1].map(p => p.adapterId);
-          this.addableStores.next(pair[0].filter(s => !adapterIds.includes(s.id)));
-        }
-    );
-  }
-
 
   modifyPlacement(method: Method, store = null) {
     if (store != null) {
@@ -108,7 +93,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
       return;
     }
     this.isAddingPlacement = true;
-    this._crud.addDropGraphPlacement(this.entity.value.id, this.entity.value.name, this.selectedStore.id, method).subscribe(res => {
+    this._crud.addDropGraphPlacement(this.entity().id, this.entity().name, this.selectedStore.id, method).subscribe(res => {
       const result = <RelationalResult>res;
       if (result.error) {
         this._toast.exception(result);
@@ -137,18 +122,4 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     }
   }
 
-  private subscribePlacements() {
-    combineLatest([this.entity, this.namespace])
-    .pipe(
-        filter(pair => !!pair[0] && !!pair[1]))
-    .pipe(mergeMap(pair => {
-      return this._catalog.getPlacements(pair[0].id);
-    })).subscribe(placements => this.placements.next(placements));
-  }
-
-  private subscribeStores() {
-    this._catalog.getStores().subscribe(stores => {
-      this.stores.next(stores);
-    });
-  }
 }

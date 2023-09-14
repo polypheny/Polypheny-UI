@@ -6,6 +6,7 @@ import {EntityType} from './catalog.model';
 export class UIRequest {
   requestType = 'UIRequest';
   entityId: number;
+  namespaceId: number;
   currentPage: number;
   data: Map<string, string>;
   filter: Map<string, string>;
@@ -14,12 +15,13 @@ export class UIRequest {
 }
 
 
-export class TableRequest extends UIRequest {
-  requestType = 'TableRequest';
+export class EntityRequest extends UIRequest {
+  requestType = 'EntityRequest';
 
-  constructor(entityId: number, currentPage: number, filter: any = null, sortState: any = null) {
+  constructor(entityId: number, namespaceId: number, currentPage: number, filter: any = null, sortState: any = null) {
     super();
     this.entityId = entityId;
+    this.namespaceId = namespaceId;
     this.currentPage = currentPage;
     this.filter = filter;
     this.sortState = sortState;

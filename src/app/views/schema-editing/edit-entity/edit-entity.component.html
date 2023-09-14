@@ -1,0 +1,55 @@
+<ng-container>
+    <ng-container
+            *ngIf="currentRoute().includes('.') && namespace()?.namespaceType === NamespaceType.RELATIONAL && !isStatistic()">
+        <app-edit-columns
+                *ngIf="entity()?.entityType !== EntityType.SOURCE"
+                [currentRoute]="currentRoute"
+                [namespace]="namespace"
+                [entity]="entity"
+                [stores]="stores"
+                [addableStores]="addableStores"
+                [placements]="placements"></app-edit-columns>
+        <app-edit-source-columns
+                *ngIf="entity()?.entityType === EntityType.SOURCE"
+                [currentRoute]="currentRoute"
+                [namespace]="namespace"
+                [entity]="entity"
+                [stores]="stores"
+                [addableStores]="addableStores"
+                [placements]="placements"></app-edit-source-columns>
+    </ng-container>
+
+    <app-edit-tables
+            [currentRoute]="currentRoute"
+            [namespace]="namespace"
+            [entity]="entity"
+            [stores]="stores"
+            [addableStores]="addableStores"
+            [placements]="placements"
+            *ngIf="!currentRoute().includes('.') && namespace()?.namespaceType === NamespaceType.RELATIONAL && !isStatistic()"></app-edit-tables>
+    <app-document-edit-collections
+            [currentRoute]="currentRoute"
+            [namespace]="namespace"
+            [entity]="entity"
+            [stores]="stores"
+            [addableStores]="addableStores"
+            [placements]="placements"
+            *ngIf="!currentRoute().includes('.') && namespace()?.namespaceType === NamespaceType.DOCUMENT && !isStatistic()"></app-document-edit-collections>
+    <app-document-edit-collection
+            [currentRoute]="currentRoute"
+            [namespace]="namespace"
+            [entity]="entity"
+            [stores]="stores"
+            [addableStores]="addableStores"
+            [placements]="placements"
+            *ngIf="currentRoute().includes('.') && namespace()?.namespaceType === NamespaceType.DOCUMENT && !isStatistic() "></app-document-edit-collection>
+    <app-graph-edit
+            [currentRoute]="currentRoute"
+            [namespace]="namespace"
+            [entity]="entity"
+            [stores]="stores"
+            [addableStores]="addableStores"
+            [placements]="placements"
+            *ngIf="namespace()?.namespaceType === NamespaceType.GRAPH  && !isStatistic()"></app-graph-edit>
+</ng-container>
+

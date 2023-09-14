@@ -1,4 +1,6 @@
 import {Component, OnInit} from '@angular/core';
+import {SidebarService} from '@coreui/angular';
+import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 
 @Component({
     selector: 'app-about',
@@ -7,10 +9,13 @@ import {Component, OnInit} from '@angular/core';
 })
 export class AboutComponent implements OnInit {
 
-    constructor() {
+    constructor(
+        private _sidebar: LeftSidebarService
+    ) {
     }
 
     ngOnInit() {
+        this._sidebar.hide();
     }
 
 }
