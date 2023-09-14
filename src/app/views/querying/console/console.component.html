@@ -62,9 +62,10 @@
                         <small class="time">{{h.value.fromNow()}}</small>
                     </div>
                     <div>{{_util.limitedString( h.value.query )}}</div>
-                    <span class="btn btn-sm btn-light del-hist-item"
-                          [ngClass]="{'cui-trash': confirmDeletingHistory!==h.key, 'fa fa-warning':confirmDeletingHistory===h.key}"
-                          (mouseout)="confirmDeletingHistory=null" (click)="deleteHistoryItem(h.key, $event)"></span>
+
+                    <button cButton color="light" size="sm" class="del-hist-item"
+                            [ngClass]="confirmDeletingHistory === h.key ? 'cil-warning' : 'cil-trash'"
+                            (mouseout)="confirmDeletingHistory = null" (click)="deleteHistoryItem(h.key, $event)"></button>
                     <!-- see https://stackoverflow.com/questions/44669340/how-to-truncate-text-in-angular2 -->
                     <!--{{h.value.query}}-->
                 </li>
@@ -91,15 +92,15 @@
 
 
                 <c-input-group cCol>
-                    <select class="form-control btn pull-right mr-1 border bg-white" [ngModel]="language()" (ngModelChange)="setLanguage($event)" *ngIf="!loading">
+                    <select class="form-control btn pull-right mr-1 border bg-white" [ngModel]="language()" (ngModelChange)="setLanguage($event)" *ngIf="!loading()">
                         <option value="cypher">CYPHER</option>
                         <option value="sql">SQL</option>
                         <option value="mql">MQL</option>
                         <option value="cql">CQL</option>
                         <option value="pig">PIG</option>
                     </select>
-                    <button *ngIf="!loading" cButton type="submit" color="primary" (click)="submitQuery()">Execute</button>
-                    <button *ngIf="loading" type="submit" cButton color="primary"
+                    <button *ngIf="!loading()" cButton type="submit" color="primary" (click)="submitQuery()">Execute</button>
+                    <button *ngIf="loading()" type="submit" cButton color="primary"
                             class="progress-bar-striped progress-bar-animated align-self-end" disabled>Loading
                     </button>
                 </c-input-group>

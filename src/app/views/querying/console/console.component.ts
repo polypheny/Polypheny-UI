@@ -2,7 +2,7 @@ import {Component, Inject, OnDestroy, OnInit, signal, ViewChild, WritableSignal}
 import {UntypedFormBuilder} from '@angular/forms';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import {CrudService} from '../../../services/crud.service';
-import {RelationalResult} from '../../../components/data-view/models/result-set.model';
+import {RelationalResult, Result} from '../../../components/data-view/models/result-set.model';
 import {QueryHistory} from './query-history.model';
 import {KeyValue} from '@angular/common';
 import {QueryRequest} from '../../../models/ui-request.model';
@@ -41,7 +41,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   private readonly LOCAL_STORAGE_HISTORY_KEY = 'query-history';
   private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
 
-  resultSets: RelationalResult[];
+  resultSets: Result<any, any>[];
   collapsed: boolean[];
   queryAnalysis: InformationPage;
   analyzeQuery = true;
@@ -50,7 +50,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   showingAnalysis = false;
   websocket: WebSocket;
   private subscriptions = new Subscription();
-  loading = false;
+  readonly loading: WritableSignal<boolean> = signal(false);
   readonly language: WritableSignal<string> = signal('sql');
   saveInHistory = true;
   showSearch = false;
@@ -118,7 +118,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         namespaceName = 'public';
       }
     }
-    if (!namespaceName){
+    if (!namespaceName) {
       return;
     }
     this.activeNamespace.set(namespaceName);
@@ -162,7 +162,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
       if (code.match('show db')) {
         this._catalog.updateIfNecessary().subscribe(catalog => {
-          this.loading = false;
+          this.loading.set(false);
         });
         return;
       }
@@ -177,10 +177,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
     this.queryAnalysis = null;
 
-    this.loading = true;
+    this.loading.set(true);
     const id = this._catalog.getNamespaceFromName(this.activeNamespace()).id;
     if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.language(), id))) {
-      this.loading = false;
+      this.loading.set(false);
       this.resultSets = [new RelationalResult('Could not establish a connection with the server.')];
     }
   }
@@ -274,7 +274,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     const sub = this.websocket.onMessage().subscribe({
       next: msg => {
-
         //if msg contains nodes of the sidebar
         if (Array.isArray(msg) && msg[0].hasOwnProperty('routerLink')) {
           const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
@@ -301,19 +300,14 @@ export class ConsoleComponent implements OnInit, OnDestroy {
           } else {
             this._leftSidebar.close();
           }
-        }
 
-
-        // array of ResultSets
-        else if (Array.isArray(msg) && (msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedRows') || msg[0].hasOwnProperty('error'))) {
-          this.loading = false;
-          this.resultSets = <RelationalResult[]>msg;
+        } else if (Array.isArray(msg) && (msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error'))) { // array of ResultSets
+          this.loading.set(false);
+          this.resultSets = <Result<any, any>[]>msg;
           this.collapsed = new Array(this.resultSets.length);
           this.collapsed.fill(false);
-        }
 
-        //if msg contains a notification of a changed information object
-        else if (msg.hasOwnProperty('type')) {
+        } else if (msg.hasOwnProperty('type')) { //if msg contains a notification of a changed information object
           const iObj = <InformationObject>msg;
           if (this.queryAnalysis) {
             const group = this.queryAnalysis.groups[iObj.groupId];

@@ -107,7 +107,7 @@ export class DataViewComponent implements OnDestroy {
 
     @Input() config: TableConfig;
     @Input() entityId?: Signal<number>;
-    @Input() loading?: WritableSignal<boolean>;
+    @Input() loading: WritableSignal<boolean>;
     @ViewChild('createView', {static: false}) public createView: TemplateRef<any>;
     @ViewChild('viewEditor', {static: false}) viewEditor;
     @Output() viewEditorCode = new EventEmitter();
@@ -137,7 +137,7 @@ export class DataViewComponent implements OnDestroy {
     player: Plyr;
     webSocket: WebSocket;
     subscriptions = new Subscription();
-    resultSetEvent = new EventEmitter<Result<any, any>>();
+    resultEvent = new EventEmitter<Result<any, any>>();
     modalRefCreateView: BsModalRef;
     viewName = 'viewname';
     query: string;
@@ -196,7 +196,6 @@ export class DataViewComponent implements OnDestroy {
         const sub = this.webSocket.onMessage().subscribe({
             next: res => {
                 this.result = <Result<any, any>>res;
-
                 //go to the highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
                 if (+this._route.snapshot.paramMap.get('page') > this.result.highestPage) {
                     this._router.navigate(['/views/data-table/' + this.entityId + '/' + this.result.highestPage]).then(r => null);
@@ -212,7 +211,7 @@ export class DataViewComponent implements OnDestroy {
                     this.config.update = false;
                     this.config.delete = false;
                 }
-                this.resultSetEvent.emit(this.result);
+                this.resultEvent.emit(this.result);
                 // if we had a focus set we render it in the next DOM update
                 if (this.focusId != null) {
                     setTimeout(_ => {

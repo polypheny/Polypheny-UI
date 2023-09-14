@@ -11,7 +11,7 @@
 <c-row *ngIf="combinedResult() && combinedResult().header">
     <c-col [lg]="12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': config.exploring }">
         <table cTable hover bordered small
-               [ngClass]="{'loading': loading, 'table-striped': !config.exploring || exploreSet}" id="data-table"
+               [ngClass]="{'loading': loading(), 'table-striped': !config.exploring || exploreSet}" id="data-table"
                [attr.data-table]="combinedResult().entityName">
             <thead>
             <tr>

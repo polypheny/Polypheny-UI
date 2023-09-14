@@ -65,7 +65,7 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
                 this.result.currentPage++;
                 this.loadingPage = true;
                 //subscribe before the getTable call
-                this.resultSetEvent.pipe(first()).subscribe(() => {
+                this.resultEvent.pipe(first()).subscribe(() => {
                     this.currentSlide = 0;
                     this.loadingPage = false;
                 });
@@ -77,7 +77,7 @@ export class DataCarouselComponent extends DataViewComponent implements OnInit {
             if (this.currentSlide === 0 && this.result.currentPage !== 1) {
                 this.result.currentPage--;
                 this.loadingPage = true;
-                this.resultSetEvent.pipe(first()).subscribe(() => {
+                this.resultEvent.pipe(first()).subscribe(() => {
                     this.currentSlide = this.result.data.length - 1;
                     this.loadingPage = false;
                 });

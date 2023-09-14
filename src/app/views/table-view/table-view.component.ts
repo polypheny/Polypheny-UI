@@ -19,7 +19,7 @@ import {toSignal} from '@angular/core/rxjs-interop';
 })
 export class TableViewComponent implements OnInit, OnDestroy {
 
-    entityId: Signal<number>;
+    readonly entityId: Signal<number>;
     readonly entity: Signal<EntityModel>;
     currentPage = 1;
     result: Result<any, any>;
@@ -111,8 +111,11 @@ export class TableViewComponent implements OnInit, OnDestroy {
     initWebsocket() {
         const sub = this.webSocket.onMessage().subscribe({
             next: (result: Result<any, any>) => {
-                //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
-                if (+this._route.snapshot.paramMap.get('page') > this.result.highestPage) {
+                if (!result) {
+                    return;
+                }
+                //go to the highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
+                if (+this._route.snapshot.paramMap.get('page') > this.result?.highestPage) {
                     this._router.navigate(['/views/data-table/' + this.entityId + '/' + this.result.highestPage]);
                 }
                 if (this._catalog.getEntity(this.entityId()).entityType === EntityType.ENTITY) {
@@ -124,6 +127,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
                     this.entityConfig.update = false;
                     this.entityConfig.delete = false;
                 }
+                this.result = result;
                 this.loading.set(false);
             }, error: err => {
                 console.log(err);

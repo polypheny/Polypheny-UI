@@ -2,7 +2,7 @@
     <h5>{{ fullName() }}</h5>
     <br>
 </ng-container>
-<button cButton color="light" class="btn-circle" [ngClass]="{'rotating': loading}" id="reload-btn"
+<button cButton color="light" class="btn-circle" [ngClass]="{'rotating': loading()}" id="reload-btn"
         (click)="getEntityData()">
     <i class="icon-reload"></i>
 </button>
