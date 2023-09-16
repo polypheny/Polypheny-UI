@@ -1,13 +1,13 @@
 <div id="tree-outer-wrapper" class="schema-editing d-flex flex-column h-100 w-auto gap-2">
 
     <c-input-group>
-        <span cInputGroupText id="basic-addon1" *ngIf="isExpandAndCollapseShown()">
+        <button cButton color="light" cInputGroupText id="basic-addon1" *ngIf="isExpandAndCollapseShown()">
             <span (click)="collapseAll()" id="collapse"><i class="fa fa-compress"></i></span>
-        </span>
+        </button>
         <input cFormControl type="text" placeholder="search" id="search-tree">
-        <span cInputGroupText *ngIf="isExpandAndCollapseShown()">
+        <button cButton color="light" cInputGroupText *ngIf="isExpandAndCollapseShown()">
             <span (click)="expandAll()" id="expand"><i class="fa fa-expand"></i></span>
-        </span>
+        </button>
     </c-input-group>
 
     <div class="w-100 text-center flex-grow-1 d-flex align-items-center" *ngIf="this._catalog.state() !== CatalogState.UP_TO_DATE">

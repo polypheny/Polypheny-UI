@@ -26,6 +26,8 @@ import {UnsavedChangesGuard} from './services/unsaved-changes.guard';
 import {NbPolyOutputComponent} from './components/edit-notebook/nb-poly-output/nb-poly-output.component';
 import {SafeHtmlPipe} from './services/safe-html.pipe';
 import {TreeModule} from '@ali-hm/angular-tree-component';
+import {BadgeComponent, ButtonCloseDirective, ButtonDirective, ButtonGroupComponent, CardBodyComponent, CardComponent, CardFooterComponent, CardHeaderComponent, ColComponent, ContainerComponent, FormControlDirective, FormSelectDirective, InputGroupComponent, InputGroupTextDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalDialogComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, RowComponent} from "@coreui/angular";
+import {IconDirective} from "@coreui/icons-angular";
 
 
 @NgModule({
@@ -44,8 +46,8 @@ import {TreeModule} from '@ali-hm/angular-tree-component';
                 deps: [WebuiSettingsService]
             }
         }),
-        TreeModule, 
-        NgxJsonViewerModule
+        TreeModule,
+        NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent
     ],
     declarations: [
         NotebooksComponent,

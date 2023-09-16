@@ -158,28 +158,28 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
             this.columns.set(treeElement.id, treeElement);
         }
 
-        if (this.tables.get(treeElement.getTable()) !== undefined) {
-            this.tables.set(treeElement.getTable(), this.tables.get(treeElement.getTable()) + 1);
+        if (this.tables.get(treeElement.getEntity()) !== undefined) {
+            this.tables.set(treeElement.getEntity(), this.tables.get(treeElement.getEntity()) + 1);
         } else {
-            this.tables.set(treeElement.getTable(), 1);
+            this.tables.set(treeElement.getEntity(), 1);
         }
 
-        if (this.schemas.get(treeElement.getSchema()) === undefined) {
-            this.schemas.set(treeElement.getSchema(), treeElement.getSchema());
-            this._crud.getUml(new EditTableRequest(treeElement.getSchema())).subscribe({
+        if (this.schemas.get(treeElement.getNamespace()) === undefined) {
+            this.schemas.set(treeElement.getNamespace(), treeElement.getNamespace());
+            this._crud.getUml(new EditTableRequest(this._catalog.getNamespaceFromName(treeElement.getNamespace()).id)).subscribe({
                 next: res => {
                     const uml = <Uml>res;
-                    this.umlData.set(treeElement.getSchema(), uml);
+                    this.umlData.set(treeElement.getNamespace(), uml);
                     this.generateJoinConditions();
                 },
                 error: err => {
-                    this._toast.error('Could not get foreign keys of the schema ' + treeElement.getSchema());
+                    this._toast.error('Could not get foreign keys of the schema ' + treeElement.getNamespace());
                 }
             });
         } else {
             this.generateJoinConditions();
         }
-        $('#selectBox').append(`<div class="btn btn-secondary btn-sm dbCol" data-id="${treeElement.id}">${treeElement.getColumn()} <span class="del">&times;</span></div>`).sortable('refresh');
+        $('#selectBox').append(`<div class="btn btn-secondary btn-sm dbCol" data-id="${treeElement.id}">${treeElement.getField()} <span class="del">&times;</span></div>`).sortable('refresh');
     }
 
 

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, signal, TemplateRef, ViewChild, ViewEncapsulation, WritableSignal} from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
@@ -30,9 +30,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   @ViewChild('editorGenerated', {static: false}) editorGenerated;
   @ViewChild('createViewModal', {static: false}) public createViewModal: TemplateRef<any>;
   generatedSQL;
-  resultSet: RelationalResult;
+  result: RelationalResult;
   selectedColumn = {};
-  loading = false;
+  loading: WritableSignal<boolean> = signal(false);
   modalRefCreateView: BsModalRef;
   whereCounter = 0;
   orderByCounter = 0;
@@ -42,13 +42,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   private readonly webSocket: WebSocket;
 
   //fields for the graphical query generation
-  schemas = new Map<string, string>();//schemaName, schemaName
-  tables = new Map<string, number>();//tableName, number of columns of this table
-  columns = new Map<string, SidebarNode>();//columnId, columnName
+  namespaces = new Map<string, string>();//schemaName, schemaName
+  entities = new Map<string, number>();//tableName, number of columns of this table
+  fields = new Map<string, SidebarNode>();//columnId, columnName
   umlData = new Map<string, Uml>();//schemaName, uml
   joinConditions = new Map<string, JoinCondition>();
   showCreateView = false;
   viewEditorCode = '';
+  readonly selects: WritableSignal<{ name: string, id: string }[]> = signal([]);
 
   constructor(
       private _crud: CrudService,
@@ -92,11 +93,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.webSocket.onMessage().subscribe({
       next: res => {
         const result = <RelationalResult>res;
-        this.resultSet = result[0];
-        this.loading = false;
+        this.result = result[0];
+        this.loading.set(false);
       }, error: err => {
         this._toast.error('Unknown error on the server.');
-        this.loading = false;
+        this.loading.set(false);
       }
     });
   }
@@ -154,19 +155,16 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     });
   }
 
-  removeCol(colId
-                :
-                string
-  ) {
+  removeCol(colId: string) {
     const data = colId.split('.');
     const tableId = data[0] + '.' + data[1];
-    const tableCounter = this.tables.get(tableId);
+    const tableCounter = this.entities.get(tableId);
     if (tableCounter === 1) {
-      this.tables.delete(tableId);
+      this.entities.delete(tableId);
     } else {
-      this.tables.set(tableId, tableCounter - 1);
+      this.entities.set(tableId, tableCounter - 1);
     }
-    this.columns.delete(colId);
+    this.fields.delete(colId);
 
     $(`#selectBox [data-id="${colId}"]`).remove();
     this._leftSidebar.setInactive(colId);
@@ -174,22 +172,14 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.generateSQL();
   }
 
-  userInput(fSet
-                :
-                Object
-  ) {
+  userInput(fSet: Object) {
     if (fSet instanceof FilteredUserInput) {
       this.filteredUserSet = fSet;
     }
     this.generateSQL();
   }
 
-  checkboxMultipAlphabetic(col
-                               :
-                               string, checked
-                               :
-                               [string]
-  ) {
+  checkboxMultiAlphabetic(col: string, checked: [string]) {
     const checkbox = [];
     checked.forEach(val => {
       checkbox.push('\'' + val.replace('check', '') + '\'');
@@ -202,12 +192,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
   }
 
-  checkboxMultipNumeric(col
-                            :
-                            string, checked
-                            :
-                            [string]
-  ) {
+  checkboxMultipNumeric(col: string, checked: [string]) {
     const checkbox = [];
     checked.forEach(val => {
       checkbox.push(val.replace('check', ''));
@@ -219,19 +204,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  minMax(col
-             :
-             string, minMax
-  ) {
+  minMax(col: string, minMax) {
     return (this.connectWheres() + col + ' BETWEEN ' + minMax[0] + ' AND ' + minMax[1]);
   }
 
-  startingWith(col
-                   :
-                   string, firstLetters
-                   :
-                   string
-  ) {
+  startingWith(col: string, firstLetters: string) {
     if (firstLetters.includes('*')) {
       return (this.connectWheres() + col + ' LIKE ' + '\'' + firstLetters.replace(new RegExp('\\*', 'g'), '%') + '\'');
     } else {
@@ -240,30 +217,18 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
   }
 
-  sorting(col
-              :
-              string, sort
-              :
-              string
-  ) {
-    return (this.connectOrderby() + col + ' ' + sort);
+  sorting(col: string, sort: string) {
+    return (this.connectOrderBy() + col + ' ' + sort);
   }
 
-  sortingAggregate(col
-                       :
-                       string, sort
-                       :
-                       string, aggregate
-                       :
-                       string
-  ) {
-    return (this.connectOrderby() + aggregate + '(' + col + ') ' + sort);
+  sortingAggregate(col: string, sort: string, aggregate: string) {
+    return (this.connectOrderBy() + aggregate + '(' + col + ') ' + sort);
   }
 
   /**
    * adds everything selected in the filterset to two arrays in order to add in the generated query
    */
-  processfilterSet() {
+  processFilterSet() {
     const whereSql = [];
     const orderBySql = [];
     const groupBy = [];
@@ -344,7 +309,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       });
       if (checkboxSQLAlphabetic) {
         Object.keys(checkboxSQLAlphabetic).forEach(col => {
-          whereSql.push(this.checkboxMultipAlphabetic(this.wrapInParetheses(col), checkboxSQLAlphabetic[col]));
+          whereSql.push(this.checkboxMultiAlphabetic(this.wrapInParetheses(col), checkboxSQLAlphabetic[col]));
         });
       }
       if (checkboxSQLNumerical) {
@@ -366,13 +331,13 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     return '"' + k.split('.').join('"."') + '"';
   }
 
-  async generateSQL() {
+  generateSQL() {
     this.whereCounter = 0;
     this.andCounter = 0;
     this.orderByCounter = 0;
     let filteredInfos = '';
 
-    if (this.columns.size === 0) {
+    if (this.fields.size === 0) {
       this.editorGenerated.setCode('');
       return;
     }
@@ -380,8 +345,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     let sql = 'SELECT ';
     const cols = [];
     const filterCols = [];
-    $('#selectBox').find('.dbCol').each((i, el) => {
-      const name = $(el).attr('data-id');
+    for (const select of this.selects()) {
+      const name = select.name;
       let id = '"' + name.split('.').join('"."') + '"';
       if (this.filteredUserSet) {
         Object.keys(this.filteredUserSet).forEach(col => {
@@ -394,15 +359,16 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             }
           }
         });
-      }
 
-      cols.push(id);
-      filterCols.push(name);
-    });
+        cols.push(id);
+        filterCols.push(name);
+      }
+    }
+
     sql += cols.join(', ');
     sql += '\nFROM ';
     const tables = [];
-    this.tables.forEach((v, k) => {
+    this.entities.forEach((v, k) => {
       tables.push('"' + k.split('.').join('"."') + '"');
     });
     sql += tables.join(', ');
@@ -423,7 +389,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     //to only show filters for selected tables/cols
     this.selectedCol(filterCols);
 
-    filteredInfos = await this.processfilterSet();
+    filteredInfos = this.processFilterSet();
     let finalized: string;
 
     finalized = sql + filteredInfos;
@@ -432,10 +398,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.editorGenerated.setCode(finalized);
   }
 
-  selectedCol(col
-                  :
-                  {}
-  ) {
+  selectedCol(col: {}) {
     this.selectedColumn = {
       column: col
     };
@@ -444,7 +407,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   /*
    * to select correct keyword ORDER BY Comma
    */
-  connectOrderby() {
+  connectOrderBy() {
     if (this.orderByCounter === 0) {
       this.orderByCounter += 1;
       return '\nORDER BY ';
@@ -466,11 +429,11 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   executeQuery() {
-    this.loading = true;
+    this.loading.set(true);
     const code = this.editorGenerated.getCode();
     if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, 'sql', null))) {
-      this.loading = false;
-      this.resultSet = new RelationalResult('Could not establish a connection with the server.');
+      this.loading.set(false);
+      this.result = new RelationalResult('Could not establish a connection with the server.');
     }
   }
 
@@ -478,42 +441,40 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   addCol(data) {
     const treeElement = new SidebarNode(data.id, data.name, null, null);
 
-    if (this.columns.get(treeElement.id) !== undefined) {
+    if (this.fields.get(treeElement.id)) {
       //skip if already in select list
       return;
     } else {
-      this.columns.set(treeElement.id, treeElement);
+      this.fields.set(treeElement.id, treeElement);
     }
 
-    if (this.tables.get(treeElement.getTable()) !== undefined) {
-      this.tables.set(treeElement.getTable(), this.tables.get(treeElement.getTable()) + 1);
+    if (this.entities.get(treeElement.getEntity())) {
+      this.entities.set(treeElement.getEntity(), this.entities.get(treeElement.getEntity()) + 1);
     } else {
-      this.tables.set(treeElement.getTable(), 1);
+      this.entities.set(treeElement.getEntity(), 1);
     }
 
-    if (this.schemas.get(treeElement.getSchema()) === undefined) {
-      this.schemas.set(treeElement.getSchema(), treeElement.getSchema());
-      this._crud.getUml(new EditTableRequest(treeElement.getSchema())).subscribe({
+    if (!this.namespaces.get(treeElement.getNamespace())) {
+      this.namespaces.set(treeElement.getNamespace(), treeElement.getNamespace());
+      this._crud.getUml(new EditTableRequest(this._catalog.getNamespaceFromName(treeElement.getNamespace()).id)).subscribe({
         next: (uml: Uml) => {
-          this.umlData.set(treeElement.getSchema(), uml);
+          this.umlData.set(treeElement.getNamespace(), uml);
           this.generateJoinConditions();
         }
         ,
         error: err => {
-          this._toast.error('Could not get foreign keys of the schema ' + treeElement.getSchema());
+          this._toast.error('Could not get foreign keys of the schema ' + treeElement.getNamespace());
         }
       });
     } else {
       this.generateJoinConditions();
     }
-    $('#selectBox').append(`<div class="btn btn-secondary btn-sm dbCol" data-id="${treeElement.id}">${treeElement.getColumn()} <span class="del">&times;</span></div>`).sortable('refresh');
+    this.selects.update(selects => [...selects, {name: treeElement.getField(), id: treeElement.id}]);
+    //$('#selectBox').append(`<button cButton color="secondary" size="sm" class="dbCol" data-id="${treeElement.id}">${treeElement.getField()}<span class="del">&times;</span></button>`).sortable('refresh');
     this.generateSQL();
   }
 
-  toggleCondition(con
-                      :
-                      JoinCondition
-  ) {
+  toggleCondition(con: JoinCondition) {
     con.toggle();
     this.generateSQL();
   }
@@ -527,29 +488,27 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       uml.foreignKeys.forEach((fk: ForeignKey, key2) => {
         const fkId = fk.sourceSchema + '.' + fk.sourceTable + '.' + fk.sourceColumn;
         const pkId = fk.targetSchema + '.' + fk.targetTable + '.' + fk.targetColumn;
-        if (this.tables.get(fk.targetSchema + '.' + fk.targetTable) !== undefined &&
-            this.tables.get(fk.sourceSchema + '.' + fk.sourceTable) !== undefined) {
+        if (this.entities.get(fk.targetSchema + '.' + fk.targetTable) !== undefined &&
+            this.entities.get(fk.sourceSchema + '.' + fk.sourceTable) !== undefined) {
           this.joinConditions.set(fkId + pkId, new JoinCondition(this.wrapInParetheses(fkId) + ' = ' + this.wrapInParetheses(pkId)));
         }
       });
     });
   }
 
-  createView(info
-                 :
-                 ViewInformation
-  ) {
+  createView(info: ViewInformation) {
     this.editorGenerated.setCode(info.fullQuery);
   }
 
-  executeView(info
-                  :
-                  ViewInformation
-  ) {
+  executeView(info: ViewInformation) {
     this.editorGenerated.setCode(info.fullQuery);
     this.executeQuery();
   }
 
+  removeSelect(field: { name: string; id: string }) {
+    console.log(field);
+    this.selects.update(selects => selects.filter(s => s === field));
+  }
 }
 
 class JoinCondition {

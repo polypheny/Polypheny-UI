@@ -7,7 +7,6 @@
 <div class="text-danger mb-3"
      *ngIf="combinedResult() && combinedResult().error && !combinedResult().header">{{combinedResult().error}}</div>
 
-
 <c-row *ngIf="combinedResult() && combinedResult().header">
     <c-col [lg]="12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': config.exploring }">
         <table cTable hover bordered small
@@ -143,7 +142,7 @@
                                (enter)="insertRow()"></app-input>
                 </td>
                 <td *ngIf="config.update || config.delete">
-                    <button id="addColumnBtn" class="btn btn-primary" (click)="insertRow()"
+                    <button cButton color="primary" id="addColumnBtn" (click)="insertRow()"
                             *ngIf="uploadProgress === -1 || editing !== -1">+
                     </button>
                     <progressbar
@@ -172,28 +171,28 @@
                 </li>
             </ul>
         </nav>
-        <button id="resetClassification" class="btn btn-primary" type="button"
+        <button cButton color="primary" id="resetClassification" type="button"
                 *ngIf="config.exploring && asExploreResult(null).classificationInfo == 'ClassificationPossible' "
                 (click)="resetExporationData()">Reset
         </button>
-        <button id="startClassification" class="btn btn-primary" type="button"
+        <button cButton color="primary" id="startClassification" type="button"
                 *ngIf="config.exploring && asExploreResult(null).classificationInfo == 'ClassificationPossible' && ((this.initalClassifiation && this.getSelected() > 7 ) || (!this.initalClassifiation))"
                 (click)="startClassification()">Start Classification
         </button>
-        <button id="showDecisionTree" type="button" class="btn btn-primary"
+        <button cButton color="primary" id="showDecisionTree" type="button"
                 *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && combinedResult().data"
                 (click)="openDecisionTree(decisionTree)">Show Decision Tree
         </button>
-        <button id="showSQL" type="button" class="btn btn-primary"
+        <button cButton color="primary" id="showSQL" type="button"
                 *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && asExploreResult(null).isConvertedToSql"
                 (click)="openSQL(sql)">Show SQL Statement
         </button>
-        <button id="sendClassification" type="button" class="btn btn-primary"
+        <button cButton color="primary" id="sendClassification" type="button"
                 *ngIf="config.exploring && asExploreResult(null).classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined "
                 (click)="sendChosenCols()">Execute
         </button>
 
-        <button id="createView" type="button" class="btn btn-primary" tooltip="create view"
+        <button id="createView" cButton color="primary" type="button" tooltip="create view"
                 *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && asExploreResult(null).isConvertedToSql"
                 (click)="createViewButton(createViewExample)"> Create View
         </button>
@@ -267,23 +266,22 @@
                 </li>
                 <li class="c-header-nav-item">
                     <a class="c-header-nav-link view-title" aria-current="page"
-                       (click)="viewOptions = 'materialized-view'">Materialized
-                        View</a>
+                       (click)="viewOptions = 'materialized-view'">Materialized View</a>
                 </li>
             </ul>
-            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRefCreateView.hide()">
+            <button cButton type="button" class="close pull-right" aria-label="Close" (click)="modalRefCreateView.hide()">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
         <div class="modal-body" id="modal-body-view">
-            <div class="tab-pane active" id="view-tab" *ngIf="viewOptions==='view'">
+            <div class="tab-pane active" id="view-tab" *ngIf="viewOptions === 'view'">
                 <div class="form-group">
                     <label for="viewName" class="mb-2">Please enter a name for the view:</label>
                     <div class="d-flex justify-content-between">
                         <input type="text" class="form-control " id="viewName" placeholder="view name"
                                [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)"
                                (keyup.enter)="executeViewExample(createdSQL)">
-                        <button type="submit" class="btn btn-primary ml-2" [disabled]="!creatingView ? 'disabled': null"
+                        <button cButton color="primary" type="submit" class="ml-2" [disabled]="!creatingView ? 'disabled': null"
                                 (click)="executeViewExample(createdSQL)">execute
                         </button>
                     </div>
@@ -321,7 +319,7 @@
                 </div>
 
                 <div>
-                    <div *ngIf="freshnessSelected === 'INTERVAL'">
+                    <div *ngIf="freshnessSelected === Freshness.INTERVAL">
                         <div class="form-group">
                             <label for="freshnessInterval" class="mb-2">Select update Interval:</label>
                             <input type="text" id="freshnessInterval" placeholder="number" class="form-control mb-2"
@@ -332,19 +330,19 @@
                         </div>
 
                     </div>
-                    <div *ngIf="freshnessSelected === 'UPDATE'">
+                    <div *ngIf="freshnessSelected === Freshness.UPDATE">
                         <div class="form-group">
                             <label for="freshnessUpdate" class="mb-2">Select update Interval:</label>
                             <input type="text" id="freshnessUpdate" placeholder="number" class="form-control mb-2"
                                    [(ngModel)]="intervalSelected">
                         </div>
                     </div>
-                    <div *ngIf="freshnessSelected === 'MANUAL'">
+                    <div *ngIf="freshnessSelected === Freshness.MANUAL">
 
                     </div>
                 </div>
 
-                <button class="btn btn-primary"
+                <button cButton color="primary"
                         [disabled]="!creatingView ? 'disabled': null" (click)="submitCreateViewExample(createdSQL)">
                     execute
                 </button>

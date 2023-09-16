@@ -1,4 +1,4 @@
-import {Component, Inject, OnDestroy, OnInit, signal, ViewChild, WritableSignal} from '@angular/core';
+import {Component, Inject, OnDestroy, OnInit, Signal, signal, ViewChild, WritableSignal} from '@angular/core';
 import {UntypedFormBuilder} from '@angular/forms';
 import {TableConfig} from '../../../components/data-view/data-table/table-config';
 import {CrudService} from '../../../services/crud.service';
@@ -41,7 +41,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   private readonly LOCAL_STORAGE_HISTORY_KEY = 'query-history';
   private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
 
-  resultSets: Result<any, any>[];
+  results: WritableSignal<Result<any, any>[]> = signal([]);
   collapsed: boolean[];
   queryAnalysis: InformationPage;
   analyzeQuery = true;
@@ -76,11 +76,12 @@ export class ConsoleComponent implements OnInit, OnDestroy {
       private _settings: WebuiSettingsService,
       public _util: UtilService,
       public _toast: ToasterService,
-      public _catalog: CatalogService
+      public _catalog: CatalogService,
+      private _sidebar: LeftSidebarService
   ) {
 
     this.websocket = new WebSocket(_settings);
-
+    this._sidebar.close();
     // @ts-ignore
     if (window.Cypress) {
       (<any>window).executeQuery = (query: string) => {
@@ -112,8 +113,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     let namespaceName = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
     console.log(namespaceName);
     if (namespaceName === null || (this.namespaces && this.namespaces.length > 0 && (this.namespaces().filter(n => n.name === namespaceName).length === 0))) {
-      if (this.namespaces && this.namespaces().length > 0) {
-        namespaceName = this.namespaces[0];
+      if (this.namespaces() && this.namespaces().length > 0) {
+        namespaceName = this.namespaces()[0].name;
       } else {
         namespaceName = 'public';
       }
@@ -181,7 +182,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     const id = this._catalog.getNamespaceFromName(this.activeNamespace()).id;
     if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.language(), id))) {
       this.loading.set(false);
-      this.resultSets = [new RelationalResult('Could not establish a connection with the server.')];
+      this.results.set([new RelationalResult('Could not establish a connection with the server.')]);
     }
   }
 
@@ -274,6 +275,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     const sub = this.websocket.onMessage().subscribe({
       next: msg => {
+        console.log(msg);
         //if msg contains nodes of the sidebar
         if (Array.isArray(msg) && msg[0].hasOwnProperty('routerLink')) {
           const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
@@ -301,11 +303,12 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             this._leftSidebar.close();
           }
 
-        } else if (Array.isArray(msg) && (msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error'))) { // array of ResultSets
+        } else if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSets
           this.loading.set(false);
-          this.resultSets = <Result<any, any>[]>msg;
-          this.collapsed = new Array(this.resultSets.length);
+          this.results.set(<Result<any, any>[]>msg);
+          this.collapsed = new Array(this.results.length);
           this.collapsed.fill(false);
+          console.log(this.results);
 
         } else if (msg.hasOwnProperty('type')) { //if msg contains a notification of a changed information object
           const iObj = <InformationObject>msg;

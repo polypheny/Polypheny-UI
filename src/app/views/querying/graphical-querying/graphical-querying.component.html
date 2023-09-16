@@ -1,4 +1,4 @@
-<c-row class="row" style="position: relative;">
+<c-row style="position: relative;">
     <c-col class="col-lg-12 col-sm-12" style="margin-bottom: 1em;">
 
         <h5>Graphical Querying</h5>
@@ -6,13 +6,15 @@
 
         <c-input-group class="mb-3">
             <span class="input-group-text">select</span>
-            <div class="form-control" id="selectBox"></div>
+            <div class="form-control" id="selectBox">
+                <button *ngFor="let field of selects()" cButton color="secondary" size="sm" class="dbCol">{{field.name}}<span (click)="removeSelect(field)" class="del">&times;</span></button>
+            </div>
         </c-input-group>
 
         <c-input-group class="mb-3">
             <span class="input-group-text">from</span>
             <div class="form-control" id="fromBox">
-                <span *ngFor="let t of tables | keyvalue" class="badge badge-secondary dbTable">{{t.key}}test</span>
+                <c-badge color="secondary" *ngFor="let t of entities | keyvalue" class="dbTable">{{t.key}}test</c-badge>
             </div>
         </c-input-group>
 
@@ -40,42 +42,43 @@
                                 (filteredUserInputChange)="userInput($event)"></app-refinement-options>
 
 
-        <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
-        <button *ngIf="loading" class="btn btn-primary mb-3" disabled>Loading</button>
+        <button cButton color="primary" *ngIf="!loading()" (click)="executeQuery()">Execute</button>
+        <button cButton color="primary" *ngIf="loading()" class="mb-3" disabled>Loading</button>
 
-        <div *ngIf="resultSet">
+        <div *ngIf="result">
             <hr>
             <h5>Query Result</h5>
         </div>
 
-        <c-card class="card " *ngIf="resultSet" id="result-graphical">
+        <c-card *ngIf="result" id="result-graphical">
 
-            <c-header class="card-header">
-                <span>{{resultSet.query}}</span>
-                <span class="badge pull-right"
-                      [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
-            <ng-container *ngIf="!resultSet.error">{{resultSet.affectedTuples}}</ng-container>
-            <ng-container *ngIf="resultSet.error">!</ng-container>
-            </span>
+            <c-header>
+                <span>{{result.query}}</span>
+                <c-badge class="pull-right"
+                         [color]="result.error ? 'danger' : 'secondary'">
+                    <ng-container *ngIf="!result.error">{{result.affectedTuples}}</ng-container>
+                    <ng-container *ngIf="result.error">!</ng-container>
+                </c-badge>
             </c-header>
 
             <c-card-body style="padding-bottom: 0.25rem">
-                <div class="text-danger" *ngIf="resultSet && resultSet.error">
+                <div class="text-danger" *ngIf="result && result.error">
                     <strong>Error:</strong>
-                    <p class="mb-3">{{resultSet.error}}</p>
+                    <p class="mb-3">{{result.error}}</p>
                 </div>
 
                 <div class="query-info">
-                    <p *ngIf="resultSet && !resultSet.data && !resultSet.error" class="mb-3">
+                    <p *ngIf="result && !result.data && !result.error" class="mb-3">
                         <i>Successfully executed</i>
                     </p>
                 </div>
 
-                <c-row class="row" *ngIf="resultSet && resultSet.data">
+                <c-row class="row" *ngIf="result && result.data">
                     <c-col class="col-lg-12">
-                        <app-data-view [result]="resultSet"
+                        <app-data-view [result]="result"
                                        [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}"
-                                       [loading]="loading" (viewEditorCode)="createView($event)"
+                                       [loading]="loading"
+                                       (viewEditorCode)="createView($event)"
                                        (executeView)="executeView($event)"></app-data-view>
                     </c-col>
                 </c-row>

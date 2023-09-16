@@ -1,4 +1,4 @@
-import {TreeModel, TreeNode} from "@ali-hm/angular-tree-component";
+import {TreeModel, TreeNode} from '@ali-hm/angular-tree-component';
 
 
 export class SidebarNode {
@@ -65,15 +65,15 @@ export class SidebarNode {
     this.children = children;
   }
 
-  getSchema() {
+  getNamespace():string {
     return this.id.split('.')[0];
   }
 
-  getTable() {
+  getEntity():string {
     return this.id.split('.')[0] + '.' + this.id.split('.')[1];
   }
 
-  getColumn() {
+  getField():string {
     return this.id.split('.')[2];
   }
 
