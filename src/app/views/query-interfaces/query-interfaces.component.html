@@ -1,18 +1,18 @@
-
 <ng-container [ngSwitch]="route">
 
     <!-- availableQueryInterfaces -->
-    <c-row class="row" *ngSwitchCase="'add'">
+    <c-row *ngSwitchCase="'add'">
         <c-col class="col-lg-12">
             <h2>Available Query Interfaces</h2>
         </c-col>
     </c-row>
-    <c-row class="row" *ngSwitchCase="'add'">
-        <button class="btn btn-circle btn-primary topRight" [routerLink]="['./../']"><i class="fa fa-close"></i>
+    <c-row *ngSwitchCase="'add'">
+        <button cButton color="primary" class="btn-circle topRight" [routerLink]="['./../']">
+            <i class="fa fa-close"></i>
         </button>
 
         <c-col class="col-lg-12" *ngIf="availableQueryInterfaces">
-            <table class="table table-hover table-sm table-bordered table-striped" id="aqi-table">
+            <table cTable hover bordered size="sm" striped class="table-hover" id="aqi-table">
                 <thead>
                 <tr>
                     <th>Name</th>
@@ -25,7 +25,7 @@
                     <td><strong>{{aQI.name}}</strong></td>
                     <td>{{aQI.description}}</td>
                     <td class="center">
-                        <button class="btn btn-sm btn-primary" (click)="initAvailableQISettings(aQI)">Add</button>
+                        <button cButton color="primary" size="sm" (click)="initAvailableQISettings(aQI)">Add</button>
                     </td>
                 </tr>
                 </tbody>
@@ -34,51 +34,52 @@
     </c-row>
 
     <!-- queryInterfaces -->
-    <c-row class="row" *ngSwitchDefault>
+    <c-row *ngSwitchDefault>
         <c-col class="col-lg-12">
             <h2>Query Interfaces</h2>
         </c-col>
     </c-row>
-    <c-row class="row" *ngSwitchDefault id="queryInterfaces">
-        <button class="btn btn-circle btn-primary topRight" [routerLink]="['./add']"><i class="fa fa-plus"></i></button>
+    <c-row *ngSwitchDefault id="queryInterfaces" [gutter]="2">
+        <button cButton color="primary" class="btn-circle topRight" [routerLink]="['./add']">
+            <i class="fa fa-plus"></i>
+        </button>
         <c-col class="col-lg-6 fixed-width" *ngFor="let queryInterface of queryInterfaces">
-
-            <div class="card fixed-height">
-                <div class="card-header">
+            <c-card class="fixed-height">
+                <c-card-header>
                     {{queryInterface.uniqueName}}
-                </div>
-                <div class="card-body">
+                </c-card-header>
+                <c-card-body>
 
                     <span class="mb-2">Type: {{queryInterface.interfaceType}}</span>
                     <span class="mb-0" *ngIf="queryInterface.supportsDdl">
-            <span class="fa fa-cubes"></span>
-            Supports schema changes<!--DDL-->
-          </span>
+                        <span class="fa fa-cubes"></span>
+                        Supports schema changes<!--DDL-->
+                    </span>
                     <!--<span class="mb-0" *ngIf="!queryInterface.supportsDdl">
                       <span class="fa fa-lock"></span>
                       schema-read-only
                     </span>-->
                     <span class="mb-0" *ngIf="queryInterface.supportsDml">
-            <span class="icon-pencil"></span>
-            Supports data manipulation<!--DML-->
-          </span>
+                        <span class="icon-pencil"></span>
+                        Supports data manipulation<!--DML-->
+                    </span>
                     <!--<span class="mb-0" *ngIf="!queryInterface.supportsDml">
                       <span class="fa fa-eye"></span>
                       data-read-only
                     </span>-->
 
-                </div>
-                <div class="card-footer bg-transparent">
-                    <button class="btn btn-danger" (click)="removeQueryInterface(queryInterface)"
+                </c-card-body>
+                <c-card-footer class=" bg-transparent">
+                    <button cButton color="danger" (click)="removeQueryInterface(queryInterface)"
                             (mouseleave)="deletingQI = undefined">
-                        <i class="cui-trash"
-                           [ngClass]="{'cui-trash': queryInterface !== deletingQI, 'fa fa-warning': queryInterface === deletingQI}"></i>
+                        <i class="cui-trash text-white"
+                           [ngClass]="{'cil-trash': queryInterface !== deletingQI, 'fa fa-warning': queryInterface === deletingQI}"></i>
                     </button>
-                    <button class="btn btn-primary pull-right" (click)="initQueryInterfaceSettings(queryInterface)">
+                    <button cButton color="primary" class="pull-right" (click)="initQueryInterfaceSettings(queryInterface)">
                         Configure
                     </button>
-                </div>
-            </div>
+                </c-card-footer>
+            </c-card>
 
         </c-col>
     </c-row>
@@ -86,96 +87,81 @@
 </ng-container>
 
 
-<div bsModal #QISettingsModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true" id="editUserModal" (onHide)="onCloseModal()">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Settings</h4>
-                <button type="button" class="close" (click)="QISettingsModal.hide()" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+<c-modal bsModal #QISettingsModal="bs-modal" class="fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true" id="editUserModal" (onHide)="onCloseModal()">
+    <c-modal-content>
+        <c-modal-header>
+            <h4 cModalTitle>Settings</h4>
+            <button cButtonClose type="button" class="close" (click)="QISettingsModal.hide()" aria-label="Close"></button>
+        </c-modal-header>
 
-            <!-- queryInterfaces -->
-            <div class="modal-body" *ngIf="editingQI && editingQI.availableSettings">
-                <form [formGroup]="editingQIForm" autocomplete="off">
-                    <div class="form-group" *ngFor="let control of editingQIForm.controls | keyvalue">
-                        <div class="input-group" *ngIf="!getAvailableQISetting(editingQI, control.key).options">
-                            <div class="input-group-prepend">
-                                <label [for]="control.key" class="input-group-text">{{control.key}}</label>
-                            </div>
-                            <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
-                                   [ngClass]="validate(editingQIForm, control.key)" (keyup.enter)="saveQISettings()">
-                            <div class="invalid-feedback">required</div>
-                        </div>
-                        <div class="form-group" *ngIf="getAvailableQISetting(editingQI, control.key).options">
-                            <div class="input-group select-wrapper">
-                                <div class="input-group-prepend">
-                                    <label class="input-group-text" [for]="control.key">{{control.key}}</label>
-                                </div>
-                                <select [id]="control.key" class="form-control" [formControlName]="control.key">
-                                    <option *ngFor="let option of getAvailableQISetting(editingQI, control.key).options"
-                                            [value]="option">{{option}}</option>
-                                </select>
-                            </div>
-                        </div>
+        <!-- queryInterfaces -->
+        <c-modal-body *ngIf="editingQI && editingQI.availableSettings">
+            <form [formGroup]="editingQIForm" autocomplete="off">
+                <div class="form-group" *ngFor="let control of editingQIForm.controls | keyvalue">
+                    <c-input-group *ngIf="!getAvailableQISetting(editingQI, control.key).options">
+                        <span cInputGroupText>{{control.key}}</span>
+                        <input cFormControl type="text" [id]="control.key" [formControlName]="control.key"
+                               [ngClass]="validate(editingQIForm, control.key)" (keyup.enter)="saveQISettings()">
+                        <c-form-feedback>required</c-form-feedback>
+                    </c-input-group>
+                    <div class="form-group" *ngIf="getAvailableQISetting(editingQI, control.key).options">
+                        <c-input-group class="select-wrapper">
+                            <span cInputGroupText>{{control.key}}</span>
+                            <select cSelect [id]="control.key" [formControlName]="control.key">
+                                <option *ngFor="let option of getAvailableQISetting(editingQI, control.key).options"
+                                        [value]="option">{{option}}</option>
+                            </select>
+                        </c-input-group>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
+        </c-modal-body>
 
-            <!-- availableQueryInterfaces -->
-            <div class="modal-body" *ngIf="editingAvailableQI && editingAvailableQI.availableSettings">
-                <form [formGroup]="availableQIUniqueNameForm" (ngSubmit)="addQueryInterface()" autocomplete="off">
-                    <div class="form-group">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <label for="aqiUniqueName" class="input-group-text">Query Interface Name</label>
-                            </div>
-                            <input type="text" class="form-control" id="aqiUniqueName" formControlName="uniqueName"
-                                   [ngClass]="validate(availableQIUniqueNameForm, 'uniqueName')">
-                            <div class="invalid-feedback">{{getFeedback()}}</div>
-                        </div>
-                    </div>
-                </form>
-                <form [formGroup]="editingAvailableQIForm" (ngSubmit)="addQueryInterface()" autocomplete="off">
-                    <div class="form-group" *ngFor="let control of editingAvailableQIForm.controls | keyvalue">
-                        <div class="input-group"
-                             *ngIf="!getAvailableQISetting(editingAvailableQI, control.key).options">
-                            <div class="input-group-prepend">
-                                <label [for]="control.key" class="input-group-text">{{control.key}}</label>
-                            </div>
-                            <input type="text" class="form-control" [id]="control.key" [formControlName]="control.key"
-                                   [ngClass]="validate(editingAvailableQIForm, control.key)">
-                            <div class="invalid-feedback">required</div>
-                        </div>
-                        <div class="form-group" *ngIf="getAvailableQISetting(editingAvailableQI, control.key).options">
-                            <div class="input-group select-wrapper">
-                                <div class="input-group-prepend">
-                                    <label class="input-group-text" [for]="control.key">{{control.key}}</label>
-                                </div>
-                                <select [id]="control.key" class="form-control" [formControlName]="control.key"
-                                        class="form-control">
-                                    <option *ngFor="let option of getAvailableQISetting(editingAvailableQI, control.key).options"
-                                            [value]="option">{{option}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
+        <!-- availableQueryInterfaces -->
+        <c-modal-body *ngIf="editingAvailableQI && editingAvailableQI.availableSettings">
+            <form [formGroup]="availableQIUniqueNameForm" (ngSubmit)="addQueryInterface()" autocomplete="off">
+                <div class="form-group">
+                    <c-input-group>
+                        <span cInputGroupText>Query Interface Name</span>
+                        <input cFormControl type="text" formControlName="uniqueName"
+                               [ngClass]="validate(availableQIUniqueNameForm, 'uniqueName')">
+                        <c-form-feedback>{{getFeedback()}}</c-form-feedback>
+                    </c-input-group>
+                </div>
+            </form>
+            <form [formGroup]="editingAvailableQIForm" (ngSubmit)="addQueryInterface()" autocomplete="off">
+                <div class="form-group" *ngFor="let control of editingAvailableQIForm.controls | keyvalue">
+                    <c-input-group *ngIf="!getAvailableQISetting(editingAvailableQI, control.key).options">
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" style="position: absolute; left: 1rem;"
-                        (click)="QISettingsModal.hide()">Close
-                </button>
-                <button *ngIf="editingQI" type="submit" class="btn btn-primary" (click)="saveQISettings()"
-                        [disabled]="!editingQIForm.valid">Save
-                </button>
-                <button *ngIf="editingAvailableQI" type="submit" class="btn btn-primary" (click)="addQueryInterface()"
-                        [disabled]="!editingAvailableQIForm.valid || !availableQIUniqueNameForm.valid">Add
-                </button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div>
+                        <span class="input-group-text">{{control.key}}</span>
+                        <input cFormControl type="text" [id]="control.key" [formControlName]="control.key"
+                               [ngClass]="validate(editingAvailableQIForm, control.key)">
+                        <c-form-feedback>required</c-form-feedback>
+                    </c-input-group>
+                    <div class="form-group" *ngIf="getAvailableQISetting(editingAvailableQI, control.key).options">
+                        <c-input-group class="select-wrapper">
+                            <span cInputGroupText>{{control.key}}</span>
+                            <select cSelect [id]="control.key" class="form-control" [formControlName]="control.key">
+                                <option *ngFor="let option of getAvailableQISetting(editingAvailableQI, control.key).options"
+                                        [value]="option">{{option}}</option>
+                            </select>
+                        </c-input-group>
+                    </div>
+                </div>
+            </form>
+        </c-modal-body>
+
+        <c-modal-footer>
+            <button cButton color="secondary" type="button" style="position: absolute; left: 1rem;"
+                    (click)="QISettingsModal.hide()">Close
+            </button>
+            <button cButton color="primary" *ngIf="editingQI" type="submit" (click)="saveQISettings()"
+                    [disabled]="!editingQIForm.valid">Save
+            </button>
+            <button cButton color="primary" *ngIf="editingAvailableQI" type="submit" (click)="addQueryInterface()"
+                    [disabled]="!editingAvailableQIForm.valid || !availableQIUniqueNameForm.valid">Add
+            </button>
+        </c-modal-footer>
+    </c-modal-content><!-- /.modal-content -->
+</c-modal>

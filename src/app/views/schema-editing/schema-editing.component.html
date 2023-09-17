@@ -36,14 +36,13 @@
                             </select>
                         </c-input-group>
                         <c-input-group class="mb-3" *ngIf="this.createForm.get('type').value === 'graph'">
-                            <label class="input-group-text" for="namespace-type">Store</label>
-                            <select class="form-control" formControlName="stores" id="graph-store" cSelect>
-                                <option *ngFor="let store of stores"
-                                        value="{{ store.uniqueName }}">{{store.uniqueName}}</option>
+                            <label cInputGroupText for="namespace-type">Store</label>
+                            <select formControlName="stores" id="graph-store" cSelect>
+                                <option *ngFor="let store of stores()" value="{{ store.name }}">{{store.name}}</option>
                             </select>
                         </c-input-group>
                         <c-input-group class="mb-0 justify-content-end">
-                            <button cButton type="submit" class="btn btn-primary"
+                            <button cButton type="submit" color="primary"
                                     [ngClass]="{'progress-bar-striped progress-bar-animated': createSubmitted}"
                                     [disabled]="createSubmitted || !createForm.valid">Create
                             </button>
@@ -60,8 +59,8 @@
                 </c-card-header>
                 <c-card-body>
                     <form [formGroup]="dropForm" (submit)="dropNamespace()" cForm cRow class="needs-validation" [validated]="false">
-                        <c-input-group  class="mb-3 has-validation" cCol>
-                            <span id="namespaceNameDrop" cInputGroupText >Name</span>
+                        <c-input-group class="mb-3 has-validation" cCol>
+                            <span id="namespaceNameDrop" cInputGroupText>Name</span>
                             <input type="text"
                                    formControlName="name"
                                    aria-describedby="namespaceNameDrop"

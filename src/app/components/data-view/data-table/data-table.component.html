@@ -1,25 +1,19 @@
-<div *ngIf="combinedResult() && !combinedResult().data && !combinedResult().error && creatingView">Successfully created
-    View {{this.newViewName }}.
-</div>
-<div *ngIf="combinedResult() && !combinedResult().data && !combinedResult().error && !creatingView">data-table: nothing
-    to show.
-</div>
 <div class="text-danger mb-3"
-     *ngIf="combinedResult() && combinedResult().error && !combinedResult().header">{{combinedResult().error}}</div>
+     *ngIf="result() && result().error && !result().header">{{result().error}}</div>
 
-<c-row *ngIf="combinedResult() && combinedResult().header">
-    <c-col [lg]="12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': config.exploring }">
+<c-row *ngIf="result() && result().header">
+    <c-col [lg]="12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': entityConfig.exploring }">
         <table cTable hover bordered small
-               [ngClass]="{'loading': loading(), 'table-striped': !config.exploring || exploreSet}" id="data-table"
-               [attr.data-table]="combinedResult().entityName">
+               [ngClass]="{'loading': loading(), 'table-striped': !entityConfig.exploring || exploreSet}" id="data-table"
+               [attr.data-table]="result().entityName">
             <thead>
             <tr>
-                <ng-container *ngIf="namespaceType() !== NamespaceType.DOCUMENT">
-                    <ng-container *ngFor="let h of combinedResult().header">
+                <ng-container *ngIf="result()?.namespaceType !== NamespaceType.DOCUMENT">
+                    <ng-container *ngFor="let h of result().header">
                         <th>
                         <span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body"
                               [ngClass]="{'pk': h.primary}">{{ h.name }}</span>
-                            <a *ngIf="config.sort && canOrder(h) && h.name !== '_data'" [routerLink]="[]"
+                            <a *ngIf="false && entityConfig.sort && canOrder(h) && h.name !== '_data'" [routerLink]="[]"
                                [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}"
                                (click)="sortTable(h.sort)">
                                 <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
@@ -27,37 +21,37 @@
                         </th>
                     </ng-container>
                 </ng-container>
-                <th class="delete" *ngIf="config.delete">
+                <th class="delete" *ngIf="entityConfig.delete">
                     <!--<i class="cui-trash"></i>-->
                 </th>
             </tr>
             </thead>
             <tbody>
-            <tr *ngIf="config.search">
-                <td *ngFor="let h of combinedResult().header">
+            <tr *ngIf="entityConfig.search">
+                <td *ngFor="let h of result().header">
                     <input *ngIf="_types.isNumeric(h.dataType) && !h.collectionsType" type="number"
                            class="form-control form-control-sm table-filter" placeholder="search"
                            [id]="'search-' + h.name" [attr.data-col]="h.name" [value]="h.filter"
                            (keyup)="filterTable($event, filter1.value, h)" #filter1>
-                    <input *ngIf="( ! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType) && !_types.isDocument(combinedResult().namespaceType) && !_types.isGraph(combinedResult().namespaceType)) || h.collectionsType"
+                    <input *ngIf="( ! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType) && !_types.isDocument(result().namespaceType) && !_types.isGraph(result().namespaceType)) || h.collectionsType"
                            type="text" class="form-control form-control-sm table-filter" placeholder="search"
                            [attr.data-col]="h.name" [id]="'search-' + h.name" [value]="h.filter"
                            (keyup)="filterTable($event, filter2.value, h)" #filter2
                            [ngClass]="isValidFilter(filter2.value,h)">
                 </td>
-                <td *ngIf="config.update || config.delete"></td>
+                <td *ngIf="entityConfig.update || entityConfig.delete"></td>
             </tr>
-            <tr *ngFor="let d1 of combinedResult().data; let i = index"
+            <tr *ngFor="let d1 of result().data; let i = index"
                 [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
                 <ng-container *ngIf="editing === i">
                     <td *ngFor="let d2 of d1; let j = index">
-                        <app-input class="editing" [header]="combinedResult().header[j]"
-                                   [value]="updateValues.get(combinedResult().header[j].name)"
-                                   (valueChange)="newUpdateValue(combinedResult().header[j].name, $event)"
+                        <app-input class="editing" [header]="result().header[j]"
+                                   [value]="updateValues.get(result().header[j].name)"
+                                   (valueChange)="newUpdateValue(result().header[j].name, $event)"
                                    (enter)="updateRow()" [attr.data-before]="d2"
-                                   [attr.data-col]="combinedResult().header[j].name"></app-input>
+                                   [attr.data-col]="result().header[j].name"></app-input>
                     </td>
-                    <td *ngIf="config.update || config.delete">
+                    <td *ngIf="entityConfig.update || entityConfig.delete">
                         <button *ngIf="uploadProgress === -1" class="btn btn-primary" id="editColSave"
                                 (click)="updateRow()"><i class="fa fa-save"></i></button>
                         <progressbar *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0"
@@ -71,7 +65,7 @@
                 <!-- table which shows resultSet  -->
                 <ng-container *ngIf="editing !== i">
                     <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
-                        <ng-container [ngSwitch]="removeNull(combinedResult().header[j].dataType)" *ngIf="d2">
+                        <ng-container [ngSwitch]="removeNull(result().header[j].dataType)" *ngIf="d2">
                             <ng-container *ngSwitchCase="'FILE'">
                                 <a *ngIf="downloadingIthRow !== i" [routerLink]="[]" class="download"
                                    (click)="getFile(d2, i)" download><span class="cui-cloud-download"></span></a>
@@ -87,13 +81,13 @@
                             <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)"
                                  style="max-height:200px; max-width: 300px"/>
                             <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)"
-                                       [type]="combinedResult().header[j].dataType"
+                                       [type]="result().header[j].dataType"
                                        [style]="{width: '300px'}"></app-media>
                             <app-media *ngSwitchCase="'AUDIO'" [src]="getFileLink(d2)"
-                                       [type]="combinedResult().header[j].dataType"
+                                       [type]="result().header[j].dataType"
                                        [style]="{width: '300px'}"></app-media>
                             <app-json-text
-                                    *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType'] | multipleSwitch: removeNull(combinedResult().header[j].dataType)"
+                                    *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType'] | multipleSwitch: removeNull(result().header[j].dataType)"
                                     [text]="d2"></app-json-text>
                             <app-json-text *ngSwitchCase="'ANY'" [text]="d2"></app-json-text>
                             <app-expandable-text *ngSwitchDefault [text]="d2"></app-expandable-text>
@@ -125,23 +119,23 @@
                     </td>-->
                 </ng-container>
             </tr>
-            <tr *ngIf="!combinedResult().data || combinedResult().data.length === 0">
-                <td *ngIf="!combinedResult().error" [attr.colspan]="combinedResult().header.length+1"
+            <tr *ngIf="!result().data || result().data.length === 0">
+                <td *ngIf="!result().error" [attr.colspan]="result().header.length+1"
                     style="text-align: center"
                     class="text-danger">(no data to show)
                 </td>
-                <td *ngIf="combinedResult().error" [attr.colspan]="combinedResult().header.length+1"
+                <td *ngIf="result().error" [attr.colspan]="result().header.length+1"
                     style="text-align: center"
                     class="text-danger">error while filtering entity
                 </td>
             </tr>
-            <tr *ngIf="config.create" id="insertRow">
-                <td *ngFor="let h of combinedResult().header">
+            <tr *ngIf="entityConfig.create" id="insertRow">
+                <td *ngFor="let h of result().header">
                     <app-input [header]="h" [value]="insertValues.get(h.name)"
                                (valueChange)="inputChange(h.name, $event)"
                                (enter)="insertRow()"></app-input>
                 </td>
-                <td *ngIf="config.update || config.delete">
+                <td *ngIf="entityConfig.update || entityConfig.delete">
                     <button cButton color="primary" id="addColumnBtn" (click)="insertRow()"
                             *ngIf="uploadProgress === -1 || editing !== -1">+
                     </button>
@@ -161,9 +155,9 @@
     </c-col>
 </c-row>
 
-<c-row class="row" *ngIf="combinedResult()">
+<c-row class="row" *ngIf="result()">
     <c-col class="col-lg-12">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="combinedResult().highestPage > 1">
+        <nav aria-label="Page navigation" class="float-right" *ngIf="result().highestPage > 1">
             <ul class="pagination">
                 <li *ngFor="let p of pagination" class="page-item"
                     [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">
@@ -171,16 +165,16 @@
                 </li>
             </ul>
         </nav>
-        <button cButton color="primary" id="resetClassification" type="button"
-                *ngIf="config.exploring && asExploreResult(null).classificationInfo == 'ClassificationPossible' "
-                (click)="resetExporationData()">Reset
+        <!--<button cButton color="primary" id="resetClassification" type="button"
+                *ngIf="entityConfig.exploring && asExploreResult(null).classificationInfo == 'ClassificationPossible' "
+                (click)="resetExplorationData()">Reset
         </button>
         <button cButton color="primary" id="startClassification" type="button"
                 *ngIf="config.exploring && asExploreResult(null).classificationInfo == 'ClassificationPossible' && ((this.initalClassifiation && this.getSelected() > 7 ) || (!this.initalClassifiation))"
                 (click)="startClassification()">Start Classification
         </button>
         <button cButton color="primary" id="showDecisionTree" type="button"
-                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && combinedResult().data"
+                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && result().data"
                 (click)="openDecisionTree(decisionTree)">Show Decision Tree
         </button>
         <button cButton color="primary" id="showSQL" type="button"
@@ -195,7 +189,7 @@
         <button id="createView" cButton color="primary" type="button" tooltip="create view"
                 *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && asExploreResult(null).isConvertedToSql"
                 (click)="createViewButton(createViewExample)"> Create View
-        </button>
+        </button>-->
     </c-col>
 </c-row>
 
@@ -257,99 +251,3 @@
 </div>
 
 
-<ng-template #createViewExample>
-    <div class="modal-content">
-        <div class="modal-header">
-            <ul class="nav">
-                <li class="c-header-nav-item">
-                    <a class="c-header-nav-link active view-title" aria-current="page" (click)="viewOptions ='view'">View</a>
-                </li>
-                <li class="c-header-nav-item">
-                    <a class="c-header-nav-link view-title" aria-current="page"
-                       (click)="viewOptions = 'materialized-view'">Materialized View</a>
-                </li>
-            </ul>
-            <button cButton type="button" class="close pull-right" aria-label="Close" (click)="modalRefCreateView.hide()">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body" id="modal-body-view">
-            <div class="tab-pane active" id="view-tab" *ngIf="viewOptions === 'view'">
-                <div class="form-group">
-                    <label for="viewName" class="mb-2">Please enter a name for the view:</label>
-                    <div class="d-flex justify-content-between">
-                        <input type="text" class="form-control " id="viewName" placeholder="view name"
-                               [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)"
-                               (keyup.enter)="executeViewExample(createdSQL)">
-                        <button cButton color="primary" type="submit" class="ml-2" [disabled]="!creatingView ? 'disabled': null"
-                                (click)="executeViewExample(createdSQL)">execute
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-pane" id="materialized-view-tab" *ngIf="viewOptions==='materialized-view'">
-
-
-                <div class="form-group">
-                    <label for="materializedViewName" class="mb-2">Name:</label>
-                    <div class="d-flex justify-content-between">
-
-                        <input type="text" id="materializedViewName" placeholder="view name" class="form-control"
-                               [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)">
-                    </div>
-                </div>
-
-
-                <div class="form-group">
-                    <label for="storeSelection">Store:</label>
-                    <select class="custom-select mb-2" id="storeSelection" [(ngModel)]=" storeSelected">
-                        <option *ngFor="let storeOption of storeOptions"
-                                [ngValue]="storeOption">{{storeOption}}</option>
-                    </select>
-                </div>
-
-
-                <div class="form-group">
-                    <label for="freshnessSelection">Freshness Type:</label>
-                    <select class="custom-select mb-2" id="freshnessSelection" [(ngModel)]=" freshnessSelected">
-                        <option *ngFor="let freshnessOption of Freshness"
-                                [ngValue]="freshnessOption">{{freshnessOption}}</option>
-                    </select>
-                </div>
-
-                <div>
-                    <div *ngIf="freshnessSelected === Freshness.INTERVAL">
-                        <div class="form-group">
-                            <label for="freshnessInterval" class="mb-2">Select update Interval:</label>
-                            <input type="text" id="freshnessInterval" placeholder="number" class="form-control mb-2"
-                                   [(ngModel)]="intervalSelected">
-                            <select class="custom-select mb-2" [(ngModel)]="timeUniteSelected">
-                                <option *ngFor="let timeUnit of TimeUnits" [ngValue]="timeUnit">{{timeUnit}}</option>
-                            </select>
-                        </div>
-
-                    </div>
-                    <div *ngIf="freshnessSelected === Freshness.UPDATE">
-                        <div class="form-group">
-                            <label for="freshnessUpdate" class="mb-2">Select update Interval:</label>
-                            <input type="text" id="freshnessUpdate" placeholder="number" class="form-control mb-2"
-                                   [(ngModel)]="intervalSelected">
-                        </div>
-                    </div>
-                    <div *ngIf="freshnessSelected === Freshness.MANUAL">
-
-                    </div>
-                </div>
-
-                <button cButton color="primary"
-                        [disabled]="!creatingView ? 'disabled': null" (click)="submitCreateViewExample(createdSQL)">
-                    execute
-                </button>
-
-            </div>
-        </div>
-
-    </div>
-
-</ng-template>

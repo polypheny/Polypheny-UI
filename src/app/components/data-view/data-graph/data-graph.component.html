@@ -1,5 +1,5 @@
 
-<div class="text-center" *ngIf="!combinedResult() || !combinedResult().data || combinedResult().data.length == 0">
+<div class="text-center" *ngIf="!result() || !result().data || result().data.length == 0">
     <span class="text-danger">(no data to show)</span>
 </div>
 
@@ -38,22 +38,22 @@
         </div>
     </div>
 
-    <div *ngIf="config.create && !showInsertCard" (click)="showInsert()">
+    <div *ngIf="entityConfig.create && !showInsertCard" (click)="showInsert()">
         <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
     </div>
 
-    <div class="card" *ngIf="config.create && showInsertCard">
+    <div class="card" *ngIf="entityConfig.create && showInsertCard">
         <div class="card-header">
             Insert data
         </div>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item" *ngFor="let h of combinedResult().header">
-                <app-input *ngIf="namespaceType === NamespaceType.RELATIONAL || h.name === '_id'" [header]="h"
+            <li class="list-group-item" *ngFor="let h of result().header">
+                <app-input *ngIf="result()?.namespaceType === NamespaceType.RELATIONAL || h.name === '_id'" [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"
                            (valueChange)="inputChange(h.name, $event)"
                            (enter)="insertRow()"></app-input>
                 <app-json-editor (validChange)="setJsonValid($event)"
-                                 *ngIf="this.namespaceType() === NamespaceType.DOCUMENT && h.name !== '_id'"
+                                 *ngIf="result()?.namespaceType === NamespaceType.DOCUMENT && h.name !== '_id'"
                                  [empty]="true"
                                  [json]="insertValues.get(h.name)"
                                  (valueChange)="inputChange(h.name, $event)"></app-json-editor>
@@ -70,7 +70,7 @@
                         (click)="showInsertCard = false">cancel
                 </button>
                 <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-primary btn-sm float-right"
-                        [disabled]="this.namespaceType() === NamespaceType.DOCUMENT && !jsonValid"
+                        [disabled]="result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid"
                         (click)="insertRow()">
                     save
                 </button>
@@ -80,9 +80,9 @@
 
 </div>
 
-<c-row class="row" *ngIf="combinedResult()">
+<c-row class="row" *ngIf="result()">
     <c-col class="col-lg-12">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="combinedResult().highestPage > 1">
+        <nav aria-label="Page navigation" class="float-right" *ngIf="result().highestPage > 1">
             <ul class="pagination">
                 <li *ngFor="let p of pagination" class="page-item"
                     [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">

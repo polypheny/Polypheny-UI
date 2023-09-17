@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {TableConfig} from '../../../../../components/data-view/data-table/table-config';
+import {EntityConfig} from '../../../../../components/data-view/data-table/entity-config';
 import {Result} from '../../../../../components/data-view/models/result-set.model';
 
 @Component({
@@ -13,7 +13,7 @@ export class NbPolyOutputComponent implements OnInit {
     @Input() resultVariable: string;
     @Input() resultIsTooLong: boolean;
 
-    tableConfig: TableConfig = {
+    tableConfig: EntityConfig = {
         create: false,
         update: false,
         delete: false,

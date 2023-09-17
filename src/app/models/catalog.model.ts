@@ -1,6 +1,6 @@
 import {NamespaceType} from './ui-request.model';
 import {PolyType} from '../components/data-view/models/result-set.model';
-import {AdapterModel, AdapterType, PlacementType} from '../views/adapters/adapter.model';
+import {AdapterModel, AdapterType, PartitionType, PlacementType} from '../views/adapters/adapter.model';
 
 export enum CatalogState {
   INIT,
@@ -102,6 +102,7 @@ export interface AllocationEntityModel extends IdEntity {
 export interface AllocationPlacementModel extends IdEntity {
   logicalEntityId: number;
   adapterId: number;
+  partitionType: PartitionType;
 }
 
 export interface AllocationPartitionModel extends IdEntity {

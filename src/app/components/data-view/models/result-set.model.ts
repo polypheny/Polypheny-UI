@@ -9,6 +9,8 @@ import {NamespaceType} from '../../../models/ui-request.model';
 export interface FieldDefinition {
   name: string;
   dataType: string;
+  nullable: boolean;
+  defaultValue: string;
 }
 
 export class Result<D, H extends FieldDefinition | UiColumnDefinition> {
@@ -182,6 +184,7 @@ export class DashboardData {
 export class UiColumnDefinition implements FieldDefinition {
   //for both
   name: string;
+  id: number;
   physicalName: string;
 
   //for the data-table
@@ -204,7 +207,19 @@ export class UiColumnDefinition implements FieldDefinition {
   as: string;
 
   constructor(
-      name: string, primary: boolean = null, nullable: boolean = null, type: string = null, collectionsType: string = null, precision: number = null, scale: number, defaultValue: string = null, dimension: number = -1, cardinality: number = -1, as = null) {
+      id: number,
+      name: string,
+      primary: boolean = null,
+      nullable: boolean = null,
+      type: string = null,
+      collectionsType: string = null,
+      precision: number = null,
+      scale: number,
+      defaultValue: string = null,
+      dimension: number = -1,
+      cardinality: number = -1,
+      as = null) {
+    this.id = id;
     this.name = name;
     this.primary = primary;
     this.nullable = nullable;
@@ -220,6 +235,7 @@ export class UiColumnDefinition implements FieldDefinition {
 
   static fromModel(column: ColumnModel, primaries: number[]) {
     return new UiColumnDefinition(
+        column.id,
         column.name,
         primaries.includes(column.id),
         column.nullable,

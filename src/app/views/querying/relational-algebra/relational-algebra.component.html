@@ -36,12 +36,14 @@
             </app-node>
         </ng-container>
 
-        <div class="btn-circle btn btn-primary" id="run" (click)="clickRun($event)"><i class="fa fa-play"></i></div>
+        <button cButton color="primary" class="btn-circle" id="run" (click)="clickRun($event)">
+            <i class="fa fa-play"></i>
+        </button>
         <div id="menu-top-left">
-            <div class="btn-group">
-                <a [routerLink]="[]" class="btn btn-light btn-sm" (click)="exportTree()">export</a>
-                <a [routerLink]="[]" class="btn btn-light btn-sm" (click)="importTree()">import</a>
-            </div>
+            <c-button-group>
+                <button cButton color="light" size="sm" (click)="exportTree()">export</button>
+                <button cButton color="light" size="sm" (click)="importTree()">import</button>
+            </c-button-group>
             <!--
             <div class="analyze-query">
                 <input type="checkbox" class="analyze-query-input mr-1" id="analyzeQuery" [checked]="analyzeQuery"
@@ -70,18 +72,17 @@
 </c-row>
 
 
-<div class="card " *ngIf="resultSet && !showingAnalysis " id="result-relational">
-
-    <div class="card-header ">
+<c-card *ngIf="resultSet && !showingAnalysis " id="result-relational">
+    <c-card-header>
         <span>{{resultSet.query}}</span>
         <span class="badge pull-right" *ngIf="resultSet.error"
               [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
             <!--<ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>-->
             <ng-container *ngIf="resultSet.error">!</ng-container>
             </span>
-    </div>
+    </c-card-header>
 
-    <div class="card-body" style="padding-bottom: 0.25rem">
+    <c-card-body style="padding-bottom: 0.25rem">
         <div class="text-danger" *ngIf="resultSet && resultSet.error">
             <strong>Error:</strong>
             <p class="mb-3">{{resultSet.error}}</p>
@@ -93,13 +94,13 @@
             </p>
         </div>
 
-        <c-row class="row" *ngIf="resultSet && resultSet.data" [hidden]="showingAnalysis">
+        <c-row *ngIf="resultSet && resultSet.data" [hidden]="showingAnalysis">
             <c-col class="col-lg-12">
                 <app-data-view [result]="resultSet"
                                [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: false}"
                                (executeView)="createView($event)"></app-data-view>
             </c-col>
         </c-row>
-    </div>
+    </c-card-body>
 
-</div>
+</c-card>

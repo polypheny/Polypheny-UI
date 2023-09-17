@@ -19,7 +19,7 @@ import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {Subscription} from 'rxjs';
-import {TableConfig} from '../../../components/data-view/data-table/table-config';
+import {EntityConfig} from '../../../components/data-view/data-table/entity-config';
 import {WebSocket} from '../../../services/webSocket';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {InformationService} from '../../../services/information.service';
@@ -68,7 +68,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     showView = false;
     viewCode = '';
 
-    tableConfig: TableConfig = {
+    tableConfig: EntityConfig = {
         create: false,
         update: false,
         delete: false,

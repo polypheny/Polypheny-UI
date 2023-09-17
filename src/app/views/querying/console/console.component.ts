@@ -1,6 +1,6 @@
 import {Component, Inject, OnDestroy, OnInit, Signal, signal, ViewChild, WritableSignal} from '@angular/core';
 import {UntypedFormBuilder} from '@angular/forms';
-import {TableConfig} from '../../../components/data-view/data-table/table-config';
+import {EntityConfig} from '../../../components/data-view/data-table/entity-config';
 import {CrudService} from '../../../services/crud.service';
 import {RelationalResult, Result} from '../../../components/data-view/models/result-set.model';
 import {QueryHistory} from './query-history.model';
@@ -59,7 +59,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   readonly activeNamespace: WritableSignal<string> = signal(null);
   readonly namespaces: WritableSignal<NamespaceModel[]> = signal([]);
 
-  tableConfig: TableConfig = {
+  tableConfig: EntityConfig = {
     create: false,
     update: false,
     delete: false,

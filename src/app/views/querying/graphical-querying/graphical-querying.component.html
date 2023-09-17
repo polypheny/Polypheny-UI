@@ -5,7 +5,7 @@
         <p>Select columns from the left sidebar to get started. If needed, you can edit the generated SQL code.</p>
 
         <c-input-group class="mb-3">
-            <span class="input-group-text">select</span>
+            <span cInputGroupText>select</span>
             <div class="form-control" id="selectBox">
                 <button *ngFor="let field of selects()" cButton color="secondary" size="sm" class="dbCol">{{field.name}}<span (click)="removeSelect(field)" class="del">&times;</span></button>
             </div>
@@ -14,7 +14,7 @@
         <c-input-group class="mb-3">
             <span class="input-group-text">from</span>
             <div class="form-control" id="fromBox">
-                <c-badge color="secondary" *ngFor="let t of entities | keyvalue" class="dbTable">{{t.key}}test</c-badge>
+                <button cButton color="secondary" size="sm" disabled *ngFor="let entity of entities | keyvalue" class="dbTable">{{entity.key}}test</button>
             </div>
         </c-input-group>
 
@@ -22,9 +22,9 @@
             <span class="input-group-text">join<br>conditions</span>
             <div class="form-control" id="joinConditionBox">
                 <ng-container *ngFor="let con of joinConditions | keyvalue">
-                    <input type="checkbox" [(ngModel)]="con.value.active" [id]="con.key"
-                           (click)="toggleCondition(con.value)"><label
-                        [for]="con.key">&nbsp;{{con.value.condition}}</label><br>
+                    <input type="checkbox" [(ngModel)]="con.value.active" [id]="con.key" (click)="toggleCondition(con.value)">
+                    <label [for]="con.key">&nbsp;{{con.value.condition}}</label>
+                    <br>
                 </ng-container>
             </div>
         </c-input-group>
@@ -38,8 +38,7 @@
         <div></div>
 
 
-        <app-refinement-options [choosenTables]="selectedColumn"
-                                (filteredUserInputChange)="userInput($event)"></app-refinement-options>
+        <app-refinement-options [choosenTables]="selectedColumn" (filteredUserInputChange)="userInput($event)"></app-refinement-options>
 
 
         <button cButton color="primary" *ngIf="!loading()" (click)="executeQuery()">Execute</button>
@@ -51,11 +50,9 @@
         </div>
 
         <c-card *ngIf="result" id="result-graphical">
-
             <c-header>
                 <span>{{result.query}}</span>
-                <c-badge class="pull-right"
-                         [color]="result.error ? 'danger' : 'secondary'">
+                <c-badge class="pull-right" [color]="result.error ? 'danger' : 'secondary'">
                     <ng-container *ngIf="!result.error">{{result.affectedTuples}}</ng-container>
                     <ng-container *ngIf="result.error">!</ng-container>
                 </c-badge>

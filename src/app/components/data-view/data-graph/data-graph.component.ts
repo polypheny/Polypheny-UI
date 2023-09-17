@@ -1,18 +1,9 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {CrudService} from '../../../services/crud.service';
-import {ToasterService} from '../../toast-exposer/toaster.service';
-import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {BsModalService} from 'ngx-bootstrap/modal';
-import {CombinedResult, DataViewComponent} from '../data-view.component';
-import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
+import {Component, effect, Input, WritableSignal} from '@angular/core';
+import {CombinedResult} from '../data-view.component';
 import * as d3 from 'd3';
 import {GraphResult} from '../models/result-set.model';
 import {GraphRequest, NamespaceType} from '../../../models/ui-request.model';
-import {WebSocket} from '../../../services/webSocket';
-import {Subscription} from 'rxjs';
-import {CatalogService} from '../../../services/catalog.service';
+import {DataTemplateComponent} from '../data-template/data-template.component';
 
 class Edge {
   id: string;
@@ -29,7 +20,7 @@ class Node {
 }
 
 
-class PolyList{
+class PolyList {
   size: number;
   instance: any[];
 }
@@ -73,39 +64,28 @@ class Detail {
   templateUrl: './data-graph.component.html',
   styleUrls: ['./data-graph.component.scss']
 })
-export class DataGraphComponent extends DataViewComponent {
+export class DataGraphComponent extends DataTemplateComponent {
   private hidden: string[];
   private update: () => void;
   private graph: Graph;
   public isLimited: boolean;
 
-  constructor(
-      public _crud: CrudService,
-      public _toast: ToasterService,
-      public _route: ActivatedRoute,
-      public _router: Router,
-      public _types: DbmsTypesService,
-      public _settings: WebuiSettingsService,
-      public _sidebar: LeftSidebarService,
-      public _catalog: CatalogService,
-      public modalService: BsModalService
-  ) {
-    super(_crud, _toast, _route, _router, _types, _settings, _sidebar, _catalog, modalService);
-    this.subscriptions = new Subscription();
-    this.webSocket = new WebSocket(_settings);
+  constructor() {
+    super();
     this.initWebsocket();
+
+    effect(() => {
+      const result = this.result();
+      if (!result) {
+        return;
+      }
+
+      this.graphLoading = true;
+      d3.select('.svg-responsive').remove();
+      this.getGraph(result);
+    });
   }
 
-  @Input() set result(result: CombinedResult) {
-    console.log(result);
-    if (!result) {
-      return;
-    }
-
-    this.graphLoading = true;
-    d3.select('.svg-responsive').remove();
-    this.getGraph(result);
-  }
 
   showInsertCard = false;
   jsonValid = false;
@@ -163,7 +143,6 @@ export class DataGraphComponent extends DataViewComponent {
         this.hidden.push(n.id);
       }
     }
-
 
 
     const width = 600;
@@ -707,4 +686,6 @@ export class DataGraphComponent extends DataViewComponent {
     }
     this.update();
   }
+
+  protected readonly NamespaceType = NamespaceType;
 }

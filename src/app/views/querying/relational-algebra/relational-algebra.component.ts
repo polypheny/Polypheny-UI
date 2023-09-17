@@ -105,7 +105,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
   ngAfterViewInit() {
     this.initDraggable();
-    //to suppress expressionchangedafterithasbeencheckederror
     //todo find solution without timeout
     setTimeout(() => this.initSidebar(), 200);
   }
@@ -115,7 +114,7 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
       new SidebarNode('operatorHeading', 'operators', '', '').asSeparator()
     ];
     for (const op of Object.keys(LogicalOperator)) {
-      nodes.push(LogicalOperatorUtil.operatorToSidbearNode(LogicalOperator[op]));
+      nodes.push(LogicalOperatorUtil.operatorToSidebarNode(LogicalOperator[op]));
     }
     this.sidebarNodes = nodes;
     this._leftSidebar.setNodes(nodes);

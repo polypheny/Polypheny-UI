@@ -27,7 +27,7 @@ import {NbPolyOutputComponent} from './components/edit-notebook/nb-poly-output/n
 import {SafeHtmlPipe} from './services/safe-html.pipe';
 import {TreeModule} from '@ali-hm/angular-tree-component';
 import {BadgeComponent, ButtonCloseDirective, ButtonDirective, ButtonGroupComponent, CardBodyComponent, CardComponent, CardFooterComponent, CardHeaderComponent, ColComponent, ContainerComponent, FormControlDirective, FormSelectDirective, InputGroupComponent, InputGroupTextDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalDialogComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, RowComponent} from "@coreui/angular";
-import {IconDirective} from "@coreui/icons-angular";
+import {IconDirective} from '@coreui/icons-angular';
 
 
 @NgModule({

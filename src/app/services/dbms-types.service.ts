@@ -17,7 +17,7 @@ export class DbmsTypesService {
     this.fetchFkActions();
   }
 
-  private numericArray = ['int2', 'int4', 'int8', 'integer', 'bigint', 'smallint', 'float', 'float4', 'float8', 'double'];
+  private numericArray = ['int2', 'int4', 'int8', 'integer', 'bigint', 'smallint', 'float', 'float4', 'float8', 'double', 'bigint'];
   private booleanArray = ['bool', 'boolean'];
   private dateTimeArray = ['date', 'time', 'timestamp'];
   private multimediaArray = ['file', 'image', 'video', 'audio'];

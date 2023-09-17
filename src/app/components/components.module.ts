@@ -8,7 +8,7 @@ import {
   BreadcrumbComponent as BreadCrumb,
   ButtonDirective, CardBodyComponent, CardComponent, CardFooterComponent, CardHeaderComponent,
   ColComponent,
-  FormControlDirective,
+  FormControlDirective, FormFeedbackComponent,
   InputGroupComponent,
   InputGroupTextDirective,
   ProgressBarComponent,
@@ -42,7 +42,6 @@ import {ModalModule} from 'ngx-bootstrap/modal';
 import {TabsModule} from 'ngx-bootstrap/tabs';
 import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 import {DataCardComponent} from './data-view/data-card/data-card.component';
-import {DataCarouselComponent} from './data-view/data-carousel/data-carousel.component';
 import {CarouselModule} from 'ngx-bootstrap/carousel';
 import {DataViewComponent} from './data-view/data-view.component';
 import {MediaComponent} from './data-view/media/media.component';
@@ -98,7 +97,7 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
     ProgressBarComponent,
     ProgressComponent,
     ToastCloseDirective,
-    BreadCrumb, SpinnerComponent, ButtonDirective, TableDirective, CardComponent, CardHeaderComponent, CardBodyComponent, CardFooterComponent
+    BreadCrumb, SpinnerComponent, ButtonDirective, TableDirective, CardComponent, CardHeaderComponent, CardBodyComponent, CardFooterComponent, FormFeedbackComponent
   ],
     declarations: [
         BreadcrumbComponent,
@@ -115,7 +114,6 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
         DataCardComponent,
         DataTableComponent,
         DataGraphComponent,
-        DataCarouselComponent,
         MediaComponent,
         DeleteConfirmComponent,
         ExpandableTextComponent,
@@ -134,7 +132,6 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
         DataViewComponent,
         DataTableComponent,
         DataCardComponent,
-        DataCarouselComponent,
         DynamicFormsComponent,
         GraphComponent,
         LeftSidebarComponent,

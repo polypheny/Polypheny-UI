@@ -8,7 +8,7 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {BehaviorSubject, combineLatest, Subscription} from 'rxjs';
-import {AllocationPlacementModel, GraphModel, NamespaceModel, TableModel} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, GraphModel, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {CatalogService} from '../../../services/catalog.service';
 import {filter, mergeMap} from 'rxjs/operators';
 import {Method} from '../../../models/ui-request.model';
@@ -42,6 +42,10 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
 
   @Input()
   readonly placements: Signal<AllocationPlacementModel[]>;
+  @Input()
+  readonly partitions: Signal<AllocationPartitionModel[]>;
+  @Input()
+  readonly allocations: Signal<AllocationEntityModel[]>;
   @Input()
   readonly stores: Signal<AdapterModel[]>;
   @Input()

@@ -1,4 +1,4 @@
-export interface TableConfig {
+export interface EntityConfig {
     create: boolean;
     update: boolean;
     delete: boolean;

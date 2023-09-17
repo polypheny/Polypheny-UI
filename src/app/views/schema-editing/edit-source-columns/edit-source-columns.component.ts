@@ -9,7 +9,7 @@ import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {ForeignKey} from '../../../views/uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {AllocationPlacementModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {AdapterModel} from '../../adapters/adapter.model';
 import {toSignal} from '@angular/core/rxjs-interop';
 
@@ -77,6 +77,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
     @Input()
     readonly placements: Signal<AllocationPlacementModel[]>;
+    @Input()
+    readonly partitions: Signal<AllocationPartitionModel[]>;
+    @Input()
+    readonly allocations: Signal<AllocationEntityModel[]>;
     @Input()
     readonly stores: Signal<AdapterModel[]>;
     @Input()
@@ -163,7 +167,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     }
 
     addColumn(col: UiColumnDefinition, newName: string, newDefault: string) {
-        const request = new ColumnRequest(this.entity().id, null, new UiColumnDefinition(col.physicalName, null, null, col.dataType, '', null, null, newDefault, -1, -1, newName));
+        const request = new ColumnRequest(this.entity().id, null, new UiColumnDefinition(-1, col.name, null, null, col.dataType, '', null, null, newDefault, -1, -1, newName));
         this._crud.addColumn(request).subscribe({
             next: res => {
                 const result = <RelationalResult>res;

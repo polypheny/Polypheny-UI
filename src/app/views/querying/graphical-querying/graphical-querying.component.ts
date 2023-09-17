@@ -55,10 +55,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       private _crud: CrudService,
       private _leftSidebar: LeftSidebarService,
       private _toast: ToasterService,
-      private _router: Router,
       private _settings: WebuiSettingsService,
       private _catalog: CatalogService,
-      public modalService: BsModalService
   ) {
     this.webSocket = new WebSocket(_settings);
     this.initWebSocket();
@@ -110,6 +108,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
               this.addCol(node.data);
               node.setIsActive(true, true);
             } else if (node.isActive && node.isLeaf) {
+
               node.setIsActive(false, true);
               this.removeCol(node.data.id);
 
@@ -143,21 +142,13 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       containment: 'parent',
       tolerance: 'pointer'
     });
-
-    $('#selectBox').on('click', 'div span.del', function () {
-      const id = $(this).parent().attr('data-id');
-      self.removeCol(id);
-
-      //deletes the selection if nothing is choosen
-      if (self.selectedColumn['column'].toString() === id) {
-        self.selectedCol([]);
-      }
-    });
   }
 
   removeCol(colId: string) {
+
     const data = colId.split('.');
     const tableId = data[0] + '.' + data[1];
+
     const tableCounter = this.entities.get(tableId);
     if (tableCounter === 1) {
       this.entities.delete(tableId);
@@ -166,7 +157,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
     this.fields.delete(colId);
 
-    $(`#selectBox [data-id="${colId}"]`).remove();
+    //$(`#selectBox [data-id="${colId}"]`).remove();
+    this.selects.update(selects => selects.filter( s => s.id !== colId));
+
     this._leftSidebar.setInactive(colId);
     this.generateJoinConditions(); // re-generate join conditions
     this.generateSQL();
@@ -192,7 +185,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
   }
 
-  checkboxMultipNumeric(col: string, checked: [string]) {
+  checkboxMultiNumeric(col: string, checked: [string]) {
     const checkbox = [];
     checked.forEach(val => {
       checkbox.push(val.replace('check', ''));
@@ -242,28 +235,28 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
 
           if (el['minMax']) {
             if (!(el['minMax'].toString() === el['startMinMax'].toString())) {
-              whereSql.push(this.minMax(this.wrapInParetheses(col), el['minMax']));
+              whereSql.push(this.minMax(this.wrapInParenthesis(col), el['minMax']));
             }
           }
 
           if (el['startsWith']) {
-            whereSql.push(this.startingWith(this.wrapInParetheses(col), el['startsWith']));
+            whereSql.push(this.startingWith(this.wrapInParenthesis(col), el['startsWith']));
           }
 
           if (el['sorting'] && (el['sorting'] === 'ASC' || el['sorting'] === 'DESC')) {
             if (el['aggregate'] && !(el['aggregate'] === 'OFF')) {
-              orderBySql.push(this.sortingAggregate(this.wrapInParetheses(col), el['sorting'], el['aggregate']));
+              orderBySql.push(this.sortingAggregate(this.wrapInParenthesis(col), el['sorting'], el['aggregate']));
             } else {
-              orderBySql.push(this.sorting(this.wrapInParetheses(col), el['sorting']));
+              orderBySql.push(this.sorting(this.wrapInParenthesis(col), el['sorting']));
             }
 
           }
 
           if (!el['aggregate'] || el['aggregate'] === 'OFF') {
             if (!groupBy || !groupBy.length) {
-              groupBy.push('\nGROUP BY ' + this.wrapInParetheses(col));
+              groupBy.push('\nGROUP BY ' + this.wrapInParenthesis(col));
             } else {
-              groupBy.push(' , ' + this.wrapInParetheses(col));
+              groupBy.push(' , ' + this.wrapInParenthesis(col));
             }
           }
 
@@ -309,12 +302,12 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       });
       if (checkboxSQLAlphabetic) {
         Object.keys(checkboxSQLAlphabetic).forEach(col => {
-          whereSql.push(this.checkboxMultiAlphabetic(this.wrapInParetheses(col), checkboxSQLAlphabetic[col]));
+          whereSql.push(this.checkboxMultiAlphabetic(this.wrapInParenthesis(col), checkboxSQLAlphabetic[col]));
         });
       }
       if (checkboxSQLNumerical) {
         Object.keys(checkboxSQLNumerical).forEach(col => {
-          whereSql.push(this.checkboxMultipNumeric(this.wrapInParetheses(col), checkboxSQLNumerical[col]));
+          whereSql.push(this.checkboxMultiNumeric(this.wrapInParenthesis(col), checkboxSQLNumerical[col]));
         });
       }
       if (flag) {
@@ -327,7 +320,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  wrapInParetheses(k) {
+  wrapInParenthesis(k) {
     return '"' + k.split('.').join('"."') + '"';
   }
 
@@ -346,7 +339,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     const cols = [];
     const filterCols = [];
     for (const select of this.selects()) {
-      const name = select.name;
+      const name = select.id;
       let id = '"' + name.split('.').join('"."') + '"';
       if (this.filteredUserSet) {
         Object.keys(this.filteredUserSet).forEach(col => {
@@ -359,12 +352,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
             }
           }
         });
-
-        cols.push(id);
-        filterCols.push(name);
       }
+      cols.push(id);
+      filterCols.push(name);
     }
-
     sql += cols.join(', ');
     sql += '\nFROM ';
     const tables = [];
@@ -490,7 +481,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         const pkId = fk.targetSchema + '.' + fk.targetTable + '.' + fk.targetColumn;
         if (this.entities.get(fk.targetSchema + '.' + fk.targetTable) !== undefined &&
             this.entities.get(fk.sourceSchema + '.' + fk.sourceTable) !== undefined) {
-          this.joinConditions.set(fkId + pkId, new JoinCondition(this.wrapInParetheses(fkId) + ' = ' + this.wrapInParetheses(pkId)));
+          this.joinConditions.set(fkId + pkId, new JoinCondition(this.wrapInParenthesis(fkId) + ' = ' + this.wrapInParenthesis(pkId)));
         }
       });
     });
@@ -506,8 +497,8 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   removeSelect(field: { name: string; id: string }) {
-    console.log(field);
-    this.selects.update(selects => selects.filter(s => s === field));
+    this.selects.update(selects => selects.filter(s => s.id !== field.id));
+    this.removeCol(field.id);
   }
 }
 

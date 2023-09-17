@@ -22,6 +22,8 @@ import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {Subscription} from 'rxjs';
 import {DbTable} from '../../uml/uml.model';
 import {
+    AllocationEntityModel,
+    AllocationPartitionModel,
     AllocationPlacementModel,
     CollectionModel,
     EntityType,
@@ -90,6 +92,10 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 
     @Input()
     readonly placements: Signal<AllocationPlacementModel[]>;
+    @Input()
+    readonly partitions: Signal<AllocationPartitionModel[]>;
+    @Input()
+    readonly allocations: Signal<AllocationEntityModel[]>;
     @Input()
     readonly stores: Signal<AdapterModel[]>;
     @Input()

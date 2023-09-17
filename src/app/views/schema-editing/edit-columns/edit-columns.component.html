@@ -1,5 +1,4 @@
-
-<c-row >
+<c-row>
     <c-col>
         <h5 *ngIf="entity()?.entityType === EntityType.MATERIALIZED_VIEW">Materialized View: {{entity()?.name}}</h5>
         <h5 *ngIf="entity()?.entityType !== EntityType.MATERIALIZED_VIEW">{{entity()?.name}}</h5>
@@ -54,7 +53,7 @@
                         <c-input-group sizing="sm" class="mt-1"
                                        *ngIf="_types.supportsPrecision(updateColumn.controls['dataType'].value)">
 
-                            <span cInputGroupText>{{_types.precisionPlaceholder(updateColumn.controls['dataType'].value)}}</span>
+                            <span cInputGroupText>{{_types.precisionPlaceholder( updateColumn.controls['dataType'].value )}}</span>
                             <input cFormControl type="number"
                                    [placeholder]="_types.precisionPlaceholder(updateColumn.controls['dataType'].value)"
                                    formControlName="precision" id="precision"
@@ -141,7 +140,7 @@
                     <td>{{col.dataType}}</td>
                     <td>{{col.collectionsType}}</td>
                     <td>
-                        <span *ngIf="col.precision">{{_types.precisionPlaceholder(col.dataType)}}
+                        <span *ngIf="col.precision">{{_types.precisionPlaceholder( col.dataType )}}
                             : {{col.precision}}</span>
                         <span *ngIf="col.scale">scale: {{col.scale}}</span>
                         <span *ngIf="col.dimension">dimension: {{col.dimension}}</span>
@@ -163,7 +162,7 @@
                     <td>{{col.dataType}}</td>
                     <td>{{col.collectionsType}}</td>
                     <td>
-                        <span *ngIf="col.precision">{{_types.precisionPlaceholder(col.dataType)}}
+                        <span *ngIf="col.precision">{{_types.precisionPlaceholder( col.dataType )}}
                             : {{col.precision}}</span>
                         <span *ngIf="col.scale">scale: {{col.scale}}</span>
                         <span *ngIf="col.dimension !== -1">dimension: {{col.dimension}}</span>
@@ -205,7 +204,7 @@
                                    *ngIf="_types.supportsPrecision(createColumn.dataType)">
                         <div class="input-group-prepend">
                             <label for="createPrecision"
-                                   class="input-group-text">{{_types.precisionPlaceholder(createColumn.dataType)}}</label>
+                                   class="input-group-text">{{_types.precisionPlaceholder( createColumn.dataType )}}</label>
                         </div>
                         <input type="number" [placeholder]="_types.precisionPlaceholder(createColumn.dataType)"
                                class="form-control form-control-sm" id="createPrecision"
@@ -389,10 +388,10 @@
             </thead>
             <tbody>
             <tr>
-                <td>{{getOrNull(0) | async}}</td>
-                <td>{{getOrNull(1) | async}}</td>
-                <td>{{getOrNull(2) | async}}</td>
-                <td>{{getOrNull(3) | async}}</td>
+                <td>{{getOrNull( 0 ) | async}}</td>
+                <td>{{getOrNull( 1 ) | async}}</td>
+                <td>{{getOrNull( 2 ) | async}}</td>
+                <td>{{getOrNull( 3 ) | async}}</td>
             </tr>
             </tbody>
         </table>
@@ -470,33 +469,32 @@
         </table>
     </c-col>
 
-    <c-col *ngIf="placements">
+    <c-col *ngIf="placements" lg="12">
         <hr>
         <div class="mb-3" style="position: relative">
-            <h5 style="display: inline">Data placements</h5>
-            <div class="btn-group btn-group-sm" id="placementBtnGroup"
-                 *ngIf="getAddableStores()()?.length > 0">
-                <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="stores().length > 3">
+            <h5 style="display: inline">Placements</h5>
+            <c-button-group size="sm" id="placementBtnGroup" *ngIf="addableStores()?.length > 0">
+                <c-button-group size="sm" dropdown placement="top right" [dropup]="stores().length > 3">
                     <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
                         <span *ngIf="!selectedStore">Select store</span>
                         <span *ngIf="selectedStore">{{selectedStore.name}}</span>
                         <span class="caret"></span>
                     </button>
                     <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-                        <ng-container *ngFor="let store of getAddableStores()()">
-                            <li role="menuitem"><a class="dropdown-item" [routerLink]="[]"
-                                                   (click)="selectedStore = store">{{store.name}}</a></li>
+                        <ng-container *ngFor="let store of addableStores()">
+                            <li role="menuitem">
+                                <a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = store">{{store.name}}</a>
+                            </li>
                         </ng-container>
-                        <li *ngIf="getAddableStores()().length === 0" role="menuitem"><a
-                                class="dropdown-item disabled"
-                                [routerLink]="[]">no stores
-                            available</a></li>
+                        <li *ngIf="addableStores().length === 0" role="menuitem">
+                            <a class="dropdown-item disabled" [routerLink]="[]">no stores available</a>
+                        </li>
                     </ul>
-                </div>
-                <button class="btn btn-primary btn-sm" (click)="initPlacementModal(Method.ADD, null)">add</button>
-            </div>
+                </c-button-group>
+                <button cButton color="primary" size="sm" (click)="initPlacementModal(Method.ADD, null)">add</button>
+            </c-button-group>
         </div>
-        <table class="table table-hover table-striped" cTable>
+        <table cTable hover striped>
             <thead>
             <tr>
                 <th>Store</th>
@@ -508,48 +506,48 @@
             </thead>
             <tbody>
             <tr *ngFor="let placement of placements(); let i = index">
-                <td>{{ _catalog.getAdapter(placement.adapterId)()?.name}}</td>
-                <td>{{ _catalog.getAdapter(placement.adapterId)()?.adapterName}}</td>
+                <td>{{ _catalog.getAdapter( placement.adapterId )?.name}}</td>
+                <td>{{ _catalog.getAdapter( placement.adapterId )?.adapterName}}</td>
                 <td>
-                    <ng-container *ngFor="let p of _catalog.getAllocColumns(placement.id)(); let isLast = last">
-                        <span [ngClass]="{'font-weight-bold':p.placementType === 'MANUAL'}">{{ _catalog.getAllocColumn(p.id)}}</span>{{isLast ? '' : ', '}}
+                    <ng-container *ngFor="let p of _catalog.getAllocColumns(placement.id); let isLast = last">
+                        <span [ngClass]="{'font-weight-bold':p.placementType === PlacementType.MANUAL}">
+                            {{ _catalog.getLogicalColumn( p.id ).name}}
+                        </span>
+                        {{isLast ? '' : ', '}}
                     </ng-container>
-                    <button cButton size="sm" class="cui-pencil ml-2 modify-placement-btn"
+                    <button cButton size="sm" class="cil-pencil ms-2 modify-placement-btn"
                             (click)="initPlacementModal(Method.MODIFY, placement)"></button>
                 </td>
-                <!--<td>
-                    <span *ngIf="!store.partitionKeys || store.partitionKeys.length === 0"
-                          class="font-italic">none</span>
-                    <ng-container *ngFor="let pKey of store.partitionKeys; let isLast = last">
-                        <span>{{placements.partitionNames[pKey]}}</span>{{isLast ? '' : ', '}}
+                <td>
+                    <ng-container *ngIf="_catalog.getAllocsOfPlacement(placement.logicalEntityId, placement.id, placement.adapterId) as partitions">
+                        <span *ngIf="partitions.length === 0" class="font-italic">none</span>
+                        <ng-container *ngFor="let partition of partitions; let isLast = last">
+                            <span>{{partition.name}}</span>{{isLast ? '' : ', '}}
+                        </ng-container>
+                        <button cButton size="sm" class="cil-pencil ms-2 modify-placement-btn"
+                                (click)="initPartitioningModal( placement.adapterId, partitions )"></button>
                     </ng-container>
-                    <span class="cui-pencil ml-2 btn btn-sm modify-placement-btn"
-                          (click)="initPartitioningModal( placement.adapterId )"></span>
-                </td>-->
+                </td>
                 <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
-                <!--<ng-container *ngIf="(placements | async).length > 1">
-                    <td class="delete">
-                        <app-delete-confirm (delete)="dropPlacement( placement.adapterId )"></app-delete-confirm>
-                    </td>
-                </ng-container>-->
+                <td class="delete" *ngIf="placements().length > 1">
+                    <app-delete-confirm (delete)="dropPlacement( placement.id )"></app-delete-confirm>
+                </td>
                 <!-- don't show delete icon if there is only one placement --->
-                <!-- <ng-container *ngIf="placements.stores.length < 2">
-                    <td></td>
-                </ng-container>-->
+                <td *ngIf="placements().length < 2"></td>
             </tr>
             </tbody>
         </table>
 
         <div class="mb-3" style="display: flex; justify-content: space-between;" *ngIf="isPartitioned()">
-            <!-- <span>PartitionType: {{placements.stores[0].partitionType}}</span>
-            <button class="btn btn-warning btn-sm" (click)="mergePartitions()">
+            <span>PartitionType: {{placements()[0]?.partitionType}}</span>
+            <button cButton size="sm" color="warning" (click)="mergePartitions()">
                 merge partitions
                 <span *ngIf="isMergingPartitions" class="spinner-border spinner-border-sm" role="status"
                       aria-hidden="true"></span>
-            </button>-->
+            </button>
         </div>
 
-        <c-card class="card" *ngIf="!isPartitioned() && ! entity()?.entityType !== EntityType.MATERIALIZED_VIEW">
+        <c-card *ngIf="!isPartitioned() && entity()?.entityType !== EntityType.MATERIALIZED_VIEW">
             <c-card-header>Horizontal partitioning</c-card-header>
             <c-card-body>
                 <p>This table is not yet horizontally partitioned.</p>
@@ -565,14 +563,12 @@
                         <label for="numPartitions">Number of partitions </label>
                         <input id="numPartitions" type="number" autocomplete="off" class="form-control form-control-sm"
                                name="numPartitions" required [(ngModel)]="partitioningRequest.numPartitions">
-                        <!--<div class="invalid-feedback">invalid name</div>-->
                     </div>
                     <div class="form-group" *ngIf="oldColumns()">
                         <label for="partitionCol">Column</label>
                         <select name="partitionCol" id="partitionCol" class="form-control form-control-sm"
                                 [(ngModel)]="partitioningRequest.column">
-                            <option *ngFor="let col of oldColumns() | value"
-                                    [value]="col.name">{{col.name}}</option>
+                            <option *ngFor="let col of oldColumns() | value" [value]="col.name">{{col.name}}</option>
                         </select>
                     </div>
 
@@ -603,7 +599,8 @@
                 </div>
                 <div class="form-group">
                     <div *ngFor="let col of oldColumns() | keyvalue" class="form-check form-check-inline">
-                        <input type="checkbox" class="form-check-input" [id]="'colPlacement'+col"
+                        <input type="checkbox" class="form-check-input" [id]="'colPlacement' + col"
+                               [value]="col.value.id"
                                [formControlName]="col.value.name">
                         <label [for]="'colPlacement'+col.value.name" class="form-check-label">{{col.value.name}}</label>
                     </div>
@@ -705,11 +702,12 @@
             </table>
         </c-modal-body>
         <c-modal-footer>
-            <button type="button" class="btn btn-secondary float-left" (click)="partitionFunctionModal = false">
+            <button cButton color="secondary" type="button" class="float-left" (click)="partitionFunctionModal = false">
                 Close
             </button>
-            <button type="submit" class="btn btn-primary" (click)="partitionTable()" [disabled]="">Partition
+            <button cButton color="primary" type="submit" (click)="partitionTable()" [disabled]="">
+                Partition
             </button>
         </c-modal-footer>
-    </c-modal-content><!-- /.modal-content -->
+    </c-modal-content>
 </c-modal>

@@ -36,7 +36,7 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   @Input() header: UiColumnDefinition | FieldDefinition;
-  @Input() value;
+  @Input() value: any;
   @Input() showLabel? = false;
   @Output() valueChange = new EventEmitter();
   @Output() enter = new EventEmitter();
@@ -44,7 +44,7 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChild('flatpickr', {static: false}) flatpickrElement: ElementRef;
   @ViewChild('fileInput', {static: false}) fileInput: ElementRef;
   flatpickrObj;
-  inputFileName = 'Choose file';
+  inputFileName = 'Choose File';
   randomId;
 
   private static validateJSON(val) {

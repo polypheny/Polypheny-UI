@@ -1,5 +1,5 @@
-<span *ngIf="!combinedResult() && loading()">Loading data...</span>
-<div id="mode_wrapper" class="mb-2" *ngIf="combinedResult()">
+<span *ngIf="!result() && loading()">Loading data...</span>
+<div id="mode_wrapper" class="mb-2" *ngIf="result() && !result().error">
     <div class="d-flex justify-content-between">
         <div>
             <button cButton color="light" *ngIf="showCreateView()" class="viewButton" tooltip="create view"
@@ -14,14 +14,14 @@
             <button cButton color="light" class="mx-1" (click)="presentationType = presentationTypes.CARD"
                     [class.active]="presentationType === presentationTypes.CARD"
                     tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
-            <button cButton color="light" class="mx-1" [hidden]="!combinedResult() || deactivateGraphButton(combinedResult())"
+            <button cButton color="light" class="mx-1" [hidden]="!result() || !result().error || deactivateGraphButton(result())"
                     (click)="presentationType = presentationTypes.GRAPH"
                     [class.active]="presentationType === presentationTypes.GRAPH"
                     tooltip="graph" placement="top" delay="200"><i class="fa fa-code-fork"></i></button>
         </div>
         <div>
             <button cButton color="light" *ngIf="showCreateView()" class="viewButton" tooltip="create view"
-                    (click)="openCreateView(createView, combinedResult().query)">
+                    (click)="openCreateView()">
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </button>
         </div>
@@ -30,30 +30,18 @@
 </div>
 
 
-<ng-container [ngSwitch]="presentationType">
+<ng-container [ngSwitch]="presentationType" *ngIf="result() && loading ">
     <ng-container *ngSwitchCase="presentationTypes.TABLE">
         <app-data-table
-                *ngIf="combinedResult()"
-                [result]="combinedResult()"
-                [config]="config"
-                [entityId]="entityId"
-                [loading]="loading"></app-data-table>
+                [inputResult]="result()"></app-data-table>
     </ng-container>
     <ng-container *ngSwitchCase="presentationTypes.CARD">
         <app-data-card
-                *ngIf="combinedResult()"
-                [result]="combinedResult()"
-                [loading]="loading"
-                [entityId]="entityId"
-                [config]="config"></app-data-card>
+                [inputResult]="result()"></app-data-card>
     </ng-container>
     <ng-container *ngSwitchCase="presentationTypes.GRAPH">
         <app-data-graph
-                *ngIf="combinedResult()"
-                [result]="combinedResult()"
-                [loading]="loading"
-                [entityId]="entityId"
-                [config]="config"></app-data-graph>
+                [inputResult]="result()"></app-data-graph>
     </ng-container>
 </ng-container>
 
@@ -209,3 +197,101 @@
 
     </div>
 </ng-template>-->
+
+
+
+<ng-template #createViewExample>
+    <div class="modal-content">
+        <div class="modal-header">
+            <ul class="nav">
+                <li class="c-header-nav-item">
+                    <a class="c-header-nav-link active view-title" aria-current="page" (click)="viewOptions ='view'">View</a>
+                </li>
+                <li class="c-header-nav-item">
+                    <a class="c-header-nav-link view-title" aria-current="page"
+                       (click)="viewOptions = 'materialized-view'">Materialized View</a>
+                </li>
+            </ul>
+            <button cButton type="button" class="close pull-right" aria-label="Close" (click)="modalRefCreateView.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="modal-body-view">
+            <div class="tab-pane active" id="view-tab" *ngIf="viewOptions === 'view'">
+                <div class="form-group">
+                    <label for="viewName" class="mb-2">Please enter a name for the view:</label>
+                    <div class="d-flex justify-content-between">
+                        <input type="text" class="form-control " id="viewName" placeholder="view name"
+                               [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)"
+                               (keyup.enter)="submitView()">
+                        <button cButton color="primary" type="submit" class="ml-2" [disabled]="!creatingView ? 'disabled': null"
+                                (click)="submitView()">execute
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="materialized-view-tab" *ngIf="viewOptions==='materialized-view'">
+
+
+                <div class="form-group">
+                    <label for="materializedViewName" class="mb-2">Name:</label>
+                    <div class="d-flex justify-content-between">
+
+                        <input type="text" id="materializedViewName" placeholder="view name" class="form-control"
+                               [(ngModel)]="newViewName" [ngClass]="createTableValidation(newViewName)">
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="storeSelection">Store:</label>
+                    <select class="custom-select mb-2" id="storeSelection" [(ngModel)]=" storeSelected">
+                        <option *ngFor="let storeOption of storeOptions"
+                                [ngValue]="storeOption">{{storeOption}}</option>
+                    </select>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="freshnessSelection">Freshness Type:</label>
+                    <select class="custom-select mb-2" id="freshnessSelection" [(ngModel)]=" freshnessSelected">
+                        <option *ngFor="let freshnessOption of Freshness"
+                                [ngValue]="freshnessOption">{{freshnessOption}}</option>
+                    </select>
+                </div>
+
+                <div>
+                    <div *ngIf="freshnessSelected === Freshness.INTERVAL">
+                        <div class="form-group">
+                            <label for="freshnessInterval" class="mb-2">Select update Interval:</label>
+                            <input type="text" id="freshnessInterval" placeholder="number" class="form-control mb-2"
+                                   [(ngModel)]="intervalSelected">
+                            <select class="custom-select mb-2" [(ngModel)]="timeUniteSelected">
+                                <option *ngFor="let timeUnit of TimeUnits" [ngValue]="timeUnit">{{timeUnit}}</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div *ngIf="freshnessSelected === Freshness.UPDATE">
+                        <div class="form-group">
+                            <label for="freshnessUpdate" class="mb-2">Select update Interval:</label>
+                            <input type="text" id="freshnessUpdate" placeholder="number" class="form-control mb-2"
+                                   [(ngModel)]="intervalSelected">
+                        </div>
+                    </div>
+                    <div *ngIf="freshnessSelected === Freshness.MANUAL">
+
+                    </div>
+                </div>
+
+                <button cButton color="primary" [disabled]="!creatingView ? 'disabled': null" (click)="submitView()">
+                    execute
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+
+</ng-template>
