@@ -2,9 +2,10 @@
      *ngIf="result() && result().error && !result().header">{{result().error}}</div>
 
 <c-row *ngIf="result() && result().header">
-    <c-col [lg]="12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': entityConfig.exploring }">
+    <c-col [lg]="12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': entityConfig().exploring }">
         <table cTable hover bordered small
-               [ngClass]="{'loading': loading(), 'table-striped': !entityConfig.exploring || exploreSet}" id="data-table"
+               [striped]="!entityConfig().exploring || exploreSet"
+               [ngClass]="{'loading': loading()}" id="data-table"
                [attr.data-table]="result().entityName">
             <thead>
             <tr>
@@ -13,7 +14,7 @@
                         <th>
                         <span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body"
                               [ngClass]="{'pk': h.primary}">{{ h.name }}</span>
-                            <a *ngIf="false && entityConfig.sort && canOrder(h) && h.name !== '_data'" [routerLink]="[]"
+                            <a *ngIf="false && entityConfig().sort && canOrder(h) && h.name !== '_data'" [routerLink]="[]"
                                [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}"
                                (click)="sortTable(h.sort)">
                                 <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
@@ -21,13 +22,13 @@
                         </th>
                     </ng-container>
                 </ng-container>
-                <th class="delete" *ngIf="entityConfig.delete">
+                <th class="delete" *ngIf="entityConfig().delete">
                     <!--<i class="cui-trash"></i>-->
                 </th>
             </tr>
             </thead>
             <tbody>
-            <tr *ngIf="entityConfig.search">
+            <tr *ngIf="entityConfig().search">
                 <td *ngFor="let h of result().header">
                     <input *ngIf="_types.isNumeric(h.dataType) && !h.collectionsType" type="number"
                            class="form-control form-control-sm table-filter" placeholder="search"
@@ -39,7 +40,7 @@
                            (keyup)="filterTable($event, filter2.value, h)" #filter2
                            [ngClass]="isValidFilter(filter2.value,h)">
                 </td>
-                <td *ngIf="entityConfig.update || entityConfig.delete"></td>
+                <td *ngIf="entityConfig.update || entityConfig().delete"></td>
             </tr>
             <tr *ngFor="let d1 of result().data; let i = index"
                 [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
@@ -51,7 +52,7 @@
                                    (enter)="updateRow()" [attr.data-before]="d2"
                                    [attr.data-col]="result().header[j].name"></app-input>
                     </td>
-                    <td *ngIf="entityConfig.update || entityConfig.delete">
+                    <td *ngIf="entityConfig.update || entityConfig().delete">
                         <button *ngIf="uploadProgress === -1" class="btn btn-primary" id="editColSave"
                                 (click)="updateRow()"><i class="fa fa-save"></i></button>
                         <progressbar *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0"
@@ -62,13 +63,13 @@
                                      class="file-progress"></progressbar>
                     </td>
                 </ng-container>
-                <!-- table which shows resultSet  -->
+                <!-- table which shows results  -->
                 <ng-container *ngIf="editing !== i">
                     <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
                         <ng-container [ngSwitch]="removeNull(result().header[j].dataType)" *ngIf="d2">
                             <ng-container *ngSwitchCase="'FILE'">
                                 <a *ngIf="downloadingIthRow !== i" [routerLink]="[]" class="download"
-                                   (click)="getFile(d2, i)" download><span class="cui-cloud-download"></span></a>
+                                   (click)="getFile(d2, i)" download><span class="cil-cloud-download"></span></a>
                                 <progressbar
                                         *ngIf="downloadingIthRow === i && downloadProgress > -1 && downloadProgress !== 0 && downloadProgress !== 100"
                                         [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress"
@@ -129,14 +130,14 @@
                     class="text-danger">error while filtering entity
                 </td>
             </tr>
-            <tr *ngIf="entityConfig.create" id="insertRow">
+            <tr *ngIf="entityConfig().create" id="insertRow">
                 <td *ngFor="let h of result().header">
                     <app-input [header]="h" [value]="insertValues.get(h.name)"
                                (valueChange)="inputChange(h.name, $event)"
-                               (enter)="insertRow()"></app-input>
+                               (enter)="insertTuple()"></app-input>
                 </td>
-                <td *ngIf="entityConfig.update || entityConfig.delete">
-                    <button cButton color="primary" id="addColumnBtn" (click)="insertRow()"
+                <td *ngIf="entityConfig.update || entityConfig().delete">
+                    <button cButton color="primary" id="addColumnBtn" (click)="insertTuple()"
                             *ngIf="uploadProgress === -1 || editing !== -1">+
                     </button>
                     <progressbar

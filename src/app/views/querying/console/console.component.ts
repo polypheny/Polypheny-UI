@@ -59,7 +59,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   readonly activeNamespace: WritableSignal<string> = signal(null);
   readonly namespaces: WritableSignal<NamespaceModel[]> = signal([]);
 
-  tableConfig: EntityConfig = {
+  entityConfig: EntityConfig = {
     create: false,
     update: false,
     delete: false,

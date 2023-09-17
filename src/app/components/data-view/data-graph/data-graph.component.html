@@ -1,4 +1,3 @@
-
 <div class="text-center" *ngIf="!result() || !result().data || result().data.length == 0">
     <span class="text-danger">(no data to show)</span>
 </div>
@@ -19,17 +18,17 @@
                         <p><strong>{{entry.key}}: </strong>{{entry.value}}</p>
                     </div>
                 </c-card-body>
-                <c-card-footer class="card-footer text-muted">
+                <c-card-footer class="text-muted">
                     <button cButton color="primary" (click)="showProperties = false"><span
                             class="cui-arrow-thick-from-left"></span></button>
                 </c-card-footer>
             </c-card>
         </div>
         <div class="graph-bottom d-flex justify-content-start pl-1 pb-1">
-            <button cButton color="primary" (click)="center()"><span class="cui-center-focus pr-1"></span>
+            <button cButton color="primary" (click)="center()"><span class="cil-center-focus pr-1"></span>
                 Refocus
             </button>
-            <button cButton color="primary" class="me-1" (click)="reset()"><span class="cui-reload pr-1"></span>
+            <button cButton color="primary" class="me-1" (click)="reset()"><span class="cil-reload pr-1"></span>
                 Reset
             </button>
         </div>
@@ -38,11 +37,11 @@
         </div>
     </div>
 
-    <div *ngIf="entityConfig.create && !showInsertCard" (click)="showInsert()">
-        <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
+    <div *ngIf="entityConfig().create && !showInsertCard" (click)="showInsert()">
+        <button cButton color="primary" class="toggle-insert"><i class="fa fa-plus"></i></button>
     </div>
 
-    <div class="card" *ngIf="entityConfig.create && showInsertCard">
+    <div class="card" *ngIf="entityConfig().create && showInsertCard">
         <div class="card-header">
             Insert data
         </div>
@@ -51,7 +50,7 @@
                 <app-input *ngIf="result()?.namespaceType === NamespaceType.RELATIONAL || h.name === '_id'" [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"
                            (valueChange)="inputChange(h.name, $event)"
-                           (enter)="insertRow()"></app-input>
+                           (enter)="insertTuple()"></app-input>
                 <app-json-editor (validChange)="setJsonValid($event)"
                                  *ngIf="result()?.namespaceType === NamespaceType.DOCUMENT && h.name !== '_id'"
                                  [empty]="true"
@@ -71,7 +70,7 @@
                 </button>
                 <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-primary btn-sm float-right"
                         [disabled]="result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid"
-                        (click)="insertRow()">
+                        (click)="insertTuple()">
                     save
                 </button>
             </li>
@@ -83,12 +82,11 @@
 <c-row class="row" *ngIf="result()">
     <c-col class="col-lg-12">
         <nav aria-label="Page navigation" class="float-right" *ngIf="result().highestPage > 1">
-            <ul class="pagination">
-                <li *ngFor="let p of pagination" class="page-item"
-                    [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">
-                    <a class="page-link" (click)="paginate(p)" [routerLink]="[]">{{p.label}}</a>
+            <c-pagination>
+                <li cPageItem *ngFor="let p of pagination" [active]="p.active" [disabled]="p.disabled">
+                    <a cPageLink (click)="paginate(p)" [routerLink]="[]">{{ p.label }}</a>
                 </li>
-            </ul>
+            </c-pagination>
         </nav>
     </c-col>
 </c-row>

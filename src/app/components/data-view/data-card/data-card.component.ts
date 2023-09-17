@@ -17,13 +17,11 @@ export class DataCardComponent extends DataTemplateComponent implements OnInit {
   showInsertCard = false;
   jsonValid = false;
 
-  protected readonly QueryLanguage = QueryLanguage;
-
   protected readonly NamespaceType = NamespaceType;
 
   ngOnInit(): void {
     super.ngOnInit();
-    if (this.entityConfig && this.entityConfig.create) {
+    if (this.entityConfig && this.entityConfig().create) {
       this.buildInsertObject();
     }
     this.setPagination();

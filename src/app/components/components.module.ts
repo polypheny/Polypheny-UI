@@ -10,7 +10,7 @@ import {
   ColComponent,
   FormControlDirective, FormFeedbackComponent,
   InputGroupComponent,
-  InputGroupTextDirective,
+  InputGroupTextDirective, ListGroupDirective, ListGroupItemDirective, PageItemDirective, PageLinkDirective, PaginationComponent,
   ProgressBarComponent,
   ProgressComponent,
   RowComponent,
@@ -97,7 +97,7 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
     ProgressBarComponent,
     ProgressComponent,
     ToastCloseDirective,
-    BreadCrumb, SpinnerComponent, ButtonDirective, TableDirective, CardComponent, CardHeaderComponent, CardBodyComponent, CardFooterComponent, FormFeedbackComponent
+    BreadCrumb, SpinnerComponent, ButtonDirective, TableDirective, CardComponent, CardHeaderComponent, CardBodyComponent, CardFooterComponent, FormFeedbackComponent, ListGroupDirective, ListGroupItemDirective, PaginationComponent, PageItemDirective, PageLinkDirective
   ],
     declarations: [
         BreadcrumbComponent,

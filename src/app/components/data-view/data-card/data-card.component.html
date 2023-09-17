@@ -3,20 +3,20 @@
 </div>
 
 <div class="card-wrapper" *ngIf="result()">
-    <div class="card" *ngFor="let d1 of result().data; let i = index" (dblclick)="triggerEditing(i)"
+    <c-card *ngFor="let d1 of result().data; let i = index" (dblclick)="triggerEditing(i)"
          [ngClass]="{'editing': i===editing, 'json-card': result().namespaceType === NamespaceType.DOCUMENT}">
-        <a cButton size="sm" *ngIf="entityConfig.update && i !== editing" [routerLink]="[]"
-           class="edit-card btn-outline-secondary"
-           (click)="triggerEditing(i)"><i class="cui-pencil"></i></a>
-        <a cButton size="sm" *ngIf="entityConfig.update && i !== editing" [routerLink]="[]"
-           class="delete-card btn-outline-secondary"
+        <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig.update && i !== editing" [routerLink]="[]"
+           class="edit-card"
+           (click)="triggerEditing(i)"><i class="cil-pencil"></i></a>
+        <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig.update && i !== editing" [routerLink]="[]"
+           class="delete-card"
            (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"><i
-                [ngClass]="{ 'cui-trash': i!==confirm, 'fa': i===confirm, 'fa-warning': i===confirm}"></i></a>
-        <ul class="list-group list-group-flush">
+                [ngClass]="{ 'cil-trash': i!==confirm, 'fa': i===confirm, 'fa-warning': i===confirm}"></i></a>
+        <ul cListGroup flush>
             <!-- load MM types first -->
 
             <ng-container *ngFor="let h of result().header; let j = index">
-                <li *ngIf="(d1[j] || i === editing) && showFirst(h.dataType)" class="list-group-item"
+                <li cListGroupItem *ngIf="(d1[j] || i === editing) && showFirst(h.dataType)"
                     [ngClass]="{'multimedia': i !== editing}">
                     <ng-container *ngIf="i !== editing">
                         <ng-container [ngSwitch]="h.dataType">
@@ -38,7 +38,7 @@
 
             <!-- then load all non-MM data -->
             <ng-container *ngFor="let h of result().header; let j = index">
-                <li *ngIf="(d1[j] || i === editing) && !showFirst(h.dataType)" class="list-group-item">
+                <li cListGroupItem *ngIf="(d1[j] || i === editing) && !showFirst(h.dataType)">
                     <ng-container *ngIf="i !== editing">
                         <ng-container [ngSwitch]="removeNull(h.dataType)">
                             <ng-container *ngSwitchCase="'FILE'">
@@ -73,7 +73,7 @@
                 </li>
             </ng-container>
 
-            <li class="list-group-item" *ngIf="i === editing" style="display: flex; justify-content: space-between;">
+            <li cListGroupItem *ngIf="i === editing" style="display: flex; justify-content: space-between;">
                 <progressbar *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0"
                              [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false"
                              type="primary"></progressbar>
@@ -89,29 +89,29 @@
             </li>
 
         </ul>
+    </c-card>
+
+    <div *ngIf="entityConfig().create && !showInsertCard" (click)="showInsert()">
+        <button cButton color="primary" class="toggle-insert"><i class="fa fa-plus"></i></button>
     </div>
 
-    <div *ngIf="entityConfig.create && !showInsertCard" (click)="showInsert()">
-        <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
-    </div>
-
-    <div class="card" *ngIf="entityConfig.create && showInsertCard"
+    <c-card *ngIf="entityConfig().create && showInsertCard"
          [ngClass]="{'json-card': result()?.namespaceType === NamespaceType.DOCUMENT}">
-        <div class="card-header">
+        <c-card-header>
             Insert data
-        </div>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item" *ngFor="let h of result().header">
+        </c-card-header>
+        <ul cListGroup flush>
+            <li cListGroupItem *ngFor="let h of result().header">
                 <app-input *ngIf="result()?.namespaceType === NamespaceType.RELATIONAL || h.name === '_id'" [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"
                            (valueChange)="inputChange(h.name, $event)"
-                           (enter)="insertRow()"></app-input>
+                           (enter)="insertTuple()"></app-input>
                 <app-json-editor (validChange)="setJsonValid($event)"
                                  *ngIf="result()?.namespaceType === NamespaceType.DOCUMENT" [empty]="true"
                                  [json]="insertValues.get(h.name)"
                                  (valueChange)="inputChange(h.name, $event)"></app-json-editor>
             </li>
-            <li class="list-group-item">
+            <li cListGroupItem>
                 <progressbar
                         *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0"
                         [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false"
@@ -125,12 +125,12 @@
                 <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1 || editing !== -1"
                         class="float-right"
                         [disabled]="result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid"
-                        (click)="insertRow()">
+                        (click)="insertTuple()">
                     save
                 </button>
             </li>
         </ul>
-    </div>
+    </c-card>
 
 </div>
 

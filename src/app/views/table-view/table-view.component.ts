@@ -18,7 +18,6 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
       if (!this.entity()) {
         return;
       }
-      console.log(this.entity());
 
       untracked(() => {
         this.getEntityData();

@@ -74,8 +74,8 @@ export class CrudService {
         return socket.sendMessage(data);
     }
 
-    insertRow(formData: FormData) {
-        return this._http.post(`${this.httpUrl}/insertRow`, formData, {reportProgress: true, observe: 'events'});
+    insertTuple(formData: FormData) {
+        return this._http.post(`${this.httpUrl}/insertTuple`, formData, {reportProgress: true, observe: 'events'});
     }
 
     /**

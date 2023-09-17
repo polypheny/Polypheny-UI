@@ -38,14 +38,22 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   protected readonly _types: DbmsTypesService = inject(DbmsTypesService);
 
   protected readonly webSocket: WebSocket;
-  protected readonly entityConfig: EntityConfig = {
+
+  @Input() set inputConfig(config: EntityConfig) {
+    if (!config) {
+      return;
+    }
+    this.entityConfig.set(config);
+  }
+
+  protected readonly entityConfig: WritableSignal<EntityConfig> = signal({
     create: true,
     search: true,
     sort: true,
     update: true,
     delete: true,
     exploring: false
-  };
+  });
   protected readonly currentRoute: WritableSignal<string> = signal(this._route.snapshot.paramMap.get('id'));
   protected readonly routeParams = toSignal(this._route.params);
   protected readonly entity: Signal<EntityModel>;
@@ -123,7 +131,6 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
 
     //listen to parameter changes
     this._route.params.subscribe((params) => {
-
       this.currentPage.set(+this._route.snapshot.paramMap.get('page') || 1);
 
       this.result?.update(res => {
@@ -156,15 +163,20 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         }
         this.editing = -1;
         this.buildInsertObject();
-        if (this.entity().entityType === EntityType.ENTITY) {
-          this.entityConfig.create = true;
-          this.entityConfig.update = true;
-          this.entityConfig.delete = true;
-        } else {
-          this.entityConfig.create = false;
-          this.entityConfig.update = false;
-          this.entityConfig.delete = false;
-        }
+
+        this.entityConfig.mutate(conf => {
+          if (this.entity().entityType === EntityType.ENTITY) {
+            conf.create = true;
+            conf.update = true;
+            conf.delete = true;
+          } else {
+            conf.create = false;
+            conf.update = false;
+            conf.delete = false;
+          }
+          return conf;
+        });
+
         this.result.set(CombinedResult.from(result));
         this.loading.set(false);
       }, error: err => {
@@ -380,7 +392,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     this.insertDirty.set(name, true);
   }
 
-  insertRow() {
+  insertTuple() {
     if (this.result().namespaceType === NamespaceType.DOCUMENT) {
       this.adjustDocument('ADD');
       return;
@@ -398,10 +410,11 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         formData.append(k, value);
       }
     });
-    formData.append('tableId', String(this.result().entityName));
+    formData.append('entityId', String(this.entity().id));
     this.uploadProgress = 100;//show striped progressbar
     const emitResult = new EventEmitter<RelationalResult>();
-    this._crud.insertRow(formData).subscribe({
+    console.log(formData);
+    this._crud.insertTuple(formData).subscribe({
       next: res => {
         if (res.type && res.type === HttpEventType.UploadProgress) {
           this.uploadProgress = Math.round(100 * res.loaded / res.total);
@@ -466,12 +479,11 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   }
 
   buildInsertObject() {
-    if (this.entityConfig && !this.entityConfig.create || !this.result()) {
+    if (this.entityConfig && !this.entityConfig().create || !this.result()) {
       return;
     }
     this.insertValues.clear();
     this.insertDirty.clear();
-    console.log(this.result());
 
     if (this.result().header) {
       for (const g of this.result().header) {
@@ -497,7 +509,6 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         }
       }
     }
-    console.log(this.insertValues);
   }
 
 

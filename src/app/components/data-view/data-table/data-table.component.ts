@@ -119,8 +119,10 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
 
 
   ngOnInit() {
+    console.log(this.entity());
+    console.log(this.entityConfig());
     super.ngOnInit();
-    console.log(this.entityConfig);
+    console.log(this.entityConfig());
   }
 
   /**

@@ -33,15 +33,18 @@
 <ng-container [ngSwitch]="presentationType" *ngIf="result() && loading ">
     <ng-container *ngSwitchCase="presentationTypes.TABLE">
         <app-data-table
-                [inputResult]="result()"></app-data-table>
+                [inputResult]="result()"
+                [inputConfig]="config"></app-data-table>
     </ng-container>
     <ng-container *ngSwitchCase="presentationTypes.CARD">
         <app-data-card
-                [inputResult]="result()"></app-data-card>
+                [inputResult]="result()"
+                [inputConfig]="config"></app-data-card>
     </ng-container>
     <ng-container *ngSwitchCase="presentationTypes.GRAPH">
         <app-data-graph
-                [inputResult]="result()"></app-data-graph>
+                [inputResult]="result()"
+                [inputConfig]="config"></app-data-graph>
     </ng-container>
 </ng-container>
 
