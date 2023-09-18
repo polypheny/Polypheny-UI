@@ -62,14 +62,14 @@ export class DbmsTypesService {
    * Fetch available actions for foreign key constraints
    */
   private fetchFkActions() {
-    this._crud.getFkActions().subscribe(
-        res => {
-          this.foreignKeyActions.next(res);
-          this.fetchedFkActions = res;
-        }, err => {
-          this._toast.error('Could not retrieve DBMS foreign key actions.');
-        }
-    );
+    this._crud.getFkActions().subscribe({
+      next: res => {
+        this.foreignKeyActions.next(res);
+        this.fetchedFkActions = res;
+      }, error: err => {
+        this._toast.error('Could not retrieve DBMS foreign key actions.');
+      }
+    });
   }
 
   /**

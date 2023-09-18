@@ -164,16 +164,16 @@ export class CrudService {
      * delete a row from a table
      * @param request UIRequest
      */
-    deleteRow(request: DeleteRequest) {
-        return this._http.post(`${this.httpUrl}/deleteRow`, request, this.httpOptions);
+    deleteTuple(request: DeleteRequest) {
+        return this._http.post(`${this.httpUrl}/deleteTuple`, request, this.httpOptions);
     }
 
     /**
      * Update a row from a table
      * @param formData Data in the form of a FormData
      */
-    updateRow(formData: FormData) {
-        return this._http.post(`${this.httpUrl}/updateRow`, formData, {reportProgress: true, observe: 'events'});
+    updateTuple(formData: FormData) {
+        return this._http.post(`${this.httpUrl}/updateTuple`, formData, {reportProgress: true, observe: 'events'});
     }
 
     /**

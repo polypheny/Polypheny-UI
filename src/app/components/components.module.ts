@@ -5,17 +5,17 @@ import {NgChartsModule} from 'ng2-charts';
 
 import {
   BgColorDirective,
-  BreadcrumbComponent as BreadCrumb,
-  ButtonDirective, CardBodyComponent, CardComponent, CardFooterComponent, CardHeaderComponent,
+  BreadcrumbComponent as BreadCrumb, ButtonCloseDirective,
+  ButtonDirective, ButtonGroupComponent, CardBodyComponent, CardComponent, CardFooterComponent, CardHeaderComponent,
   ColComponent,
   FormControlDirective, FormFeedbackComponent,
   InputGroupComponent,
-  InputGroupTextDirective, ListGroupDirective, ListGroupItemDirective, PageItemDirective, PageLinkDirective, PaginationComponent,
+  InputGroupTextDirective, ListGroupDirective, ListGroupItemDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalHeaderComponent, PageItemDirective, PageLinkDirective, PaginationComponent,
   ProgressBarComponent,
   ProgressComponent,
   RowComponent,
   SpinnerComponent,
-  TableDirective,
+  TableDirective, TextColorDirective,
   ToastBodyComponent,
   ToastCloseDirective,
   ToastComponent,
@@ -97,7 +97,7 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
     ProgressBarComponent,
     ProgressComponent,
     ToastCloseDirective,
-    BreadCrumb, SpinnerComponent, ButtonDirective, TableDirective, CardComponent, CardHeaderComponent, CardBodyComponent, CardFooterComponent, FormFeedbackComponent, ListGroupDirective, ListGroupItemDirective, PaginationComponent, PageItemDirective, PageLinkDirective
+    BreadCrumb, SpinnerComponent, ButtonDirective, TableDirective, CardComponent, CardHeaderComponent, CardBodyComponent, CardFooterComponent, FormFeedbackComponent, ListGroupDirective, ListGroupItemDirective, PaginationComponent, PageItemDirective, PageLinkDirective, TextColorDirective, ModalComponent, ModalContentComponent, ModalHeaderComponent, ModalBodyComponent, ButtonCloseDirective, ButtonGroupComponent
   ],
     declarations: [
         BreadcrumbComponent,

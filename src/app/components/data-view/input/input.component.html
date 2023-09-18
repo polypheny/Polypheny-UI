@@ -9,8 +9,7 @@
                    [disabled]="value === null && header.nullable === true" #inputElement
                    [ngClass]="validate(inputElement)?.cssClass" (keyup)="onValueChange(inputElement.value, $event)">
 
-            <button cButton size="sm"
-                    *ngIf="header.nullable"
+            <button cButton size="sm" *ngIf="header.nullable"
                     [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}"
                     (click)="onValueChange( triggerNull(value), inputElement )">null
             </button>

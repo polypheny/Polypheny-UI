@@ -67,6 +67,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
       return;
     }
     this.result.set(CombinedResult.from(result));
+    console.log(this.result());
   }
 
   pagination: PaginationElement[] = [];
@@ -281,20 +282,20 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
       rowMap.set(this.result().header[key].name, val);
     });
     const row = this.mapToObject(rowMap);
-    const request = new DeleteRequest(this.result().entityId, row);
+    const request = new DeleteRequest(this.entity()?.id, row);
     const emitResult = new EventEmitter<RelationalResult>();
-    this._crud.deleteRow(request).subscribe({
+    this._crud.deleteTuple(request).subscribe({
       next: (result: RelationalResult) => {
         emitResult.emit(result);
         if (result.error) {
-          this._toast.exception(result, 'Could not delete this row:');
+          this._toast.exception(result, 'Could not delete this tuple:');
         } else {
           this.getEntityData();
         }
       }, error: err => {
-        this._toast.error('Could not delete this row.');
+        this._toast.error('Could not delete this tuple.');
         console.log(err);
-        emitResult.emit(new RelationalResult('Could not delete this row.'));
+        emitResult.emit(new RelationalResult('Could not delete this tuple.'));
       }
     });
     return emitResult;
@@ -516,7 +517,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     this.updateValues.set(key, val);
   }
 
-  updateRow() {
+  updateTuple() {
     if (this.result().namespaceType === NamespaceType.DOCUMENT) {
       this.adjustDocument('MODIFY');
       return;
@@ -528,7 +529,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
       i++;
     }
     const formData = new FormData();
-    formData.append('tableId', this.result().entityName);
+    formData.append('entityId', String(this.entity()?.id));
     formData.append('oldValues', JSON.stringify(this.mapToObject(oldValues)));
     for (const [k, v] of this.updateValues) {
       if (v === undefined) {
@@ -544,7 +545,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     }
     this.uploadProgress = 100;//show striped progressbar
     //const req = new UpdateRequest(this.resultSet.table, this.mapToObject(this.updateValues), this.mapToObject(oldValues));
-    this._crud.updateRow(formData).subscribe({
+    this._crud.updateTuple(formData).subscribe({
       next: res => {
         if (res.type && res.type === HttpEventType.UploadProgress) {
           this.uploadProgress = Math.round(100 * res.loaded / res.total);
@@ -553,13 +554,13 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
           const result = <RelationalResult>res.body;
           if (result.affectedTuples) {
             this.getEntityData();
-            let rows = ' rows';
+            let rows = ' tuples';
             if (result.affectedTuples === 1) {
-              rows = ' row';
+              rows = ' tuple';
             }
             this._toast.success('Updated ' + result.affectedTuples + rows, result.query, 'update', ToastDuration.SHORT);
           } else if (result.error) {
-            this._toast.exception(result, 'Could not update this row');
+            this._toast.exception(result, 'Could not update this tuple');
           }
         }
       },

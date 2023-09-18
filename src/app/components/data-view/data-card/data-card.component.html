@@ -29,7 +29,7 @@
                     </ng-container>
                     <ng-container *ngIf="i === editing">
                         <app-input [header]="h" [showLabel]="true" [value]="updateValues.get(h.name)"
-                                   (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateRow()"
+                                   (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateTuple()"
                                    [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
                     </ng-container>
                 </li>
@@ -63,7 +63,7 @@
                     <ng-container *ngIf="i === editing">
                         <app-input *ngIf="result()?.namespaceType === NamespaceType.RELATIONAL"
                                    [header]="h" [showLabel]="h.name !== '_data' " [value]="updateValues.get(h.name)"
-                                   (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateRow()"
+                                   (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateTuple()"
                                    [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
                         <app-json-editor (validChange)="setJsonValid($event)"
                                          *ngIf="result()?.namespaceType === NamespaceType.DOCUMENT"
@@ -82,7 +82,7 @@
                 <button cButton color="light" size="sm" *ngIf="uploadProgress === -1" (click)="editing = -1">
                     cancel
                 </button>
-                <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1" (click)="updateRow()"
+                <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1" (click)="updateTuple()"
                         [disabled]="result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid">
                     save
                 </button>

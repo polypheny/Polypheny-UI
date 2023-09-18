@@ -93,14 +93,12 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   triggerNull(value) {
+    console.log(value);
     if (value !== null) {
       return null;
     }
-    if (!(this.header instanceof UiColumnDefinition)) {
-      return null;
-    }
 
-    if (this.header.collectionsType) {
+    if ((this.header instanceof UiColumnDefinition) && this.header.collectionsType) {
       return '';
     } else if (this._types.isNumeric(this.header.dataType)) {
       return 0;
@@ -113,7 +111,8 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  onValueChange(newVal, event = null) {
+  onValueChange(newVal:any, event = null) {
+    console.log(newVal);
     this.valueChange.emit(newVal);
     if (event !== null && event.keyCode === 13) {
       this.enter.emit(true);
