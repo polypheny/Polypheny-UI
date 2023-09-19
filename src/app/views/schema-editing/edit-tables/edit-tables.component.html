@@ -3,7 +3,7 @@
     <p>Type the name of a table into the text-fields to perform these actions.</p>
 </ng-container>-->
 
-<table class="table table-hover table-striped" *ngIf="tables">
+<table cTable [hover]="true" [striped]="true" *ngIf="tables">
     <thead>
     <tr>
         <th>Table</th>
@@ -181,7 +181,7 @@
                                            (click)="selectedStore = null">auto</a>
                                     </li>
                                     <li class="dropdown-divider"></li>
-                                    <li role="menuitem" *ngFor="let store of stores">
+                                    <li role="menuitem" *ngFor="let store of stores()">
                                         <a class="dropdown-item" [routerLink]="[]"
                                            (click)="selectedStore = store.name">{{store.name}}</a>
                                     </li>

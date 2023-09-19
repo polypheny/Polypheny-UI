@@ -1,5 +1,5 @@
 import {
-  Component,
+  Component, computed,
   effect,
   ElementRef,
   Input,
@@ -8,7 +8,7 @@ import {
   QueryList,
   Renderer2,
   signal,
-  Signal,
+  Signal, untracked,
   ViewChildren,
   WritableSignal
 } from '@angular/core';
@@ -46,9 +46,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   types: PolyType[] = [];
 
   @Input()
-  readonly entity?: Signal<TableModel>;
+  readonly entity: Signal<TableModel>;
   @Input()
-  readonly namespace?: Signal<NamespaceModel>;
+  readonly namespace: Signal<NamespaceModel>;
   @Input()
   readonly currentRoute: Signal<string>;
 
@@ -63,7 +63,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   @Input()
   readonly addableStores: Signal<AdapterModel[]>;
 
-  readonly tables: WritableSignal<Table[]> = signal([]);
+  readonly tables: Signal<Table[]>; //= signal([]);
 
   counter = 0;
   newColumns = new Map<number, UiColumnDefinition>();
@@ -94,17 +94,17 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         return;
       }
       if (this.editOpen && !this.inputGroup.get(0).nativeElement.contains(e.target)) {
-        this.tables.update(tables => tables.map(t => {
+        this.tables().map(t => {
           t.editing = false;
           return t;
-        }));
+        });
         this.editOpen = false;
       } else {
         this.editOpen = true;
       }
     });
 
-    effect(() => {
+    this.tables = computed(() => {
       const catalog = this._catalog.listener();
       if (!this.namespace) {
         return;
@@ -114,8 +114,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         return;
       }
       const entities = this._catalog.getEntities(namespace.id);
-      this.tables.set(entities.map(e => Table.fromModel(<TableModel>e)).sort((a, b) => a.name.localeCompare(b.name)));
-    }, {allowSignalWrites: true});
+      return entities.map(e => Table.fromModel(<TableModel>e)).sort((a, b) => a.name.localeCompare(b.name));
+    });
   }
 
   ngOnInit() {

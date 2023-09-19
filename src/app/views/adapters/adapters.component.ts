@@ -43,16 +43,24 @@ export class AdaptersComponent implements OnInit, OnDestroy {
       private _left: LeftSidebarService,
       private injector: Injector
   ) {
-    this._left.close();
     this.availableAdapters = computed(() => {
       console.log(this.currentRoute());
       const route = this.currentRoute();
       return this._catalog.getAdapterTemplates().filter(a => a.adapterType === this.getMatchingAdapterType());
     });
+
+    this.stores = computed(() => {
+      this._catalog.listener();
+      return this._catalog.getStores();
+    });
+    this.sources = computed(() => {
+      this._catalog.listener();
+      return this._catalog.getSources();
+    });
   }
 
-  readonly stores: WritableSignal<AdapterModel[]> = signal([]);
-  readonly sources: WritableSignal<AdapterModel[]> = signal([]);
+  readonly stores: Signal<AdapterModel[]>;
+  readonly sources: Signal<AdapterModel[]>;
   readonly availableAdapters: Signal<AdapterTemplateModel[]>;
   readonly currentRoute: WritableSignal<String> = signal(null);
   private subscriptions = new Subscription();
@@ -94,8 +102,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
+    this._left.close();
     this.deletingInProgress = [];
-    this.subscribeAdapters();
     this.subscribeActiveChange();
 
     this.currentRoute.set(this._route.snapshot.paramMap.get('action'));
@@ -108,17 +116,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
-  }
-
-  subscribeAdapters() {
-    this._catalog.adapters.pipe(
-        filter(a => !!a),
-        map(adapters => Array.from(adapters.values()).sort((a, b) => (a.name > b.name) ? 1 : -1))).subscribe(adapters => {
-      this.sources.set(adapters.filter(a => a.type === AdapterType.SOURCE));
-      this.stores.set(adapters.filter(a => a.type === AdapterType.STORE));
-    });
-
-
   }
 
   subscribeActiveChange() {

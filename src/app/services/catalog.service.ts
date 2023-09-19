@@ -166,7 +166,7 @@ export class CatalogService {
   private buildSchemaTree(routerLinkRoot: string, views: boolean, depth: number, schemaEdit: boolean, dataModels: NamespaceType[]): SidebarNode[] {
     const nodes: SidebarNode[] = [];
     for (const namespace of this.namespaces.value.values()) {
-      const namespaceNode = new SidebarNode(namespace.name, namespace.name, this.getNamespaceIcon(namespace.namespaceType), '');
+      const namespaceNode = new SidebarNode(namespace.name, namespace.name, this.getNamespaceIcon(namespace.namespaceType) + ' me-1', '');
 
       if (depth > 1) {
         switch (namespace.namespaceType) {
@@ -199,7 +199,7 @@ export class CatalogService {
       } else if (collection.entityType === EntityType.VIEW) {
         icon = this.assets.VIEW_ICON;
       }
-      const collectionTree = new SidebarNode(namespace.name + '.' + collection.name, collection.name, icon, routerLinkRoot);
+      const collectionTree = new SidebarNode(namespace.name + '.' + collection.name, collection.name, icon + ' me-1', routerLinkRoot);
 
       nodes.push(collectionTree);
     }
@@ -222,7 +222,7 @@ export class CatalogService {
           break;
       }
 
-      const tableNode = new SidebarNode(namespace.name + '.' + table.name, table.name, icon, routerLinkRoot + namespace.name + '.' + table.name);
+      const tableNode = new SidebarNode(namespace.name + '.' + table.name, table.name, icon + ' me-1', routerLinkRoot + namespace.name + '.' + table.name);
 
       if (depth > 2) {
         const columns = Array.from(this.snapshot.fields.values()).filter(f => f.entityId === table.id);
@@ -323,6 +323,12 @@ export class CatalogService {
     });
   }
 
+  getSources() {
+    return Array.from(this.adapters.value.values()).filter(a => {
+      return a.type === AdapterType.SOURCE;
+    });
+  }
+
   getAdapterTemplate(adapterName: string, type: AdapterType): AdapterTemplateModel {
     return this.adapterTemplates.value.get([adapterName, type]);
   }
@@ -354,4 +360,6 @@ export class CatalogService {
   getEntityFromIdName(namespaceId: number, entityName: string) {
     return Array.from(this.entities.value.values()).filter(e => e.namespaceId === namespaceId && e.name === entityName)[0];
   }
+
+
 }

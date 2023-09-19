@@ -72,7 +72,7 @@
                 <c-card-footer class=" bg-transparent">
                     <button cButton color="danger" (click)="removeQueryInterface(queryInterface)"
                             (mouseleave)="deletingQI = undefined">
-                        <i class="cui-trash text-white"
+                        <i class="cil-trash text-white"
                            [ngClass]="{'cil-trash': queryInterface !== deletingQI, 'fa fa-warning': queryInterface === deletingQI}"></i>
                     </button>
                     <button cButton color="primary" class="pull-right" (click)="initQueryInterfaceSettings(queryInterface)">
@@ -98,7 +98,7 @@
         <!-- queryInterfaces -->
         <c-modal-body *ngIf="editingQI && editingQI.availableSettings">
             <form [formGroup]="editingQIForm" autocomplete="off">
-                <div class="form-group" *ngFor="let control of editingQIForm.controls | keyvalue">
+                <div cCol class="form-group" *ngFor="let control of editingQIForm.controls | keyvalue">
                     <c-input-group *ngIf="!getAvailableQISetting(editingQI, control.key).options">
                         <span cInputGroupText>{{control.key}}</span>
                         <input cFormControl type="text" [id]="control.key" [formControlName]="control.key"

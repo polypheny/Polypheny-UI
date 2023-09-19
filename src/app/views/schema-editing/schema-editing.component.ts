@@ -34,6 +34,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
       this.currentRoute.set(route['id']);
     });
     this.namespace = computed(() => {
+      const catalog = this._catalog.listener();
       const route = this.currentRoute();
       if (!route) {
         return this.namespace();

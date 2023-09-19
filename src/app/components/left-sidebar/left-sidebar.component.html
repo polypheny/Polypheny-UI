@@ -28,7 +28,6 @@
             <ng-template #treeNodeWrapperTemplate let-index="index" let-node>
                 <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
                     <tree-node-expander [ngClass]="{'hidden-expander': node.data.children.length === 0}" [node]="node">
-                        <i class="fa fa-plus"></i>
                     </tree-node-expander>
                     <div class="node-content-wrapper"
                          [class.node-content-wrapper-active]="node.isActive"

@@ -17,6 +17,23 @@ import {AdapterModel} from '../../adapters/adapter.model';
 
 export class EditEntityComponent {
 
+  @Input()
+  readonly currentRoute: Signal<string>;
+
+  readonly entity: Signal<CollectionModel>;
+  readonly namespace: Signal<NamespaceModel>;
+  readonly placements: Signal<AllocationPlacementModel[]>;
+  readonly partitions: Signal<AllocationPartitionModel[]>;
+  readonly allocations: Signal<AllocationEntityModel[]>;
+  readonly stores: Signal<AdapterModel[]>;
+  readonly addableStores: Signal<AdapterModel[]>;
+
+
+  protected readonly NamespaceType = NamespaceType;
+
+  protected readonly EntityType = EntityType;
+
+
   constructor(
       private _route: ActivatedRoute,
       private _leftSidebar: LeftSidebarService,
@@ -88,21 +105,6 @@ export class EditEntityComponent {
     });
   }
 
-  @Input()
-  readonly currentRoute: Signal<string>;
-
-  readonly entity: Signal<CollectionModel>;
-  readonly namespace: Signal<NamespaceModel>;
-  readonly placements: Signal<AllocationPlacementModel[]>;
-  readonly partitions: Signal<AllocationPartitionModel[]>;
-  readonly allocations: Signal<AllocationEntityModel[]>;
-  readonly stores: Signal<AdapterModel[]>;
-  readonly addableStores: Signal<AdapterModel[]>;
-
-
-  protected readonly NamespaceType = NamespaceType;
-
-  protected readonly EntityType = EntityType;
 
   isStatistic() {
     return this._router.url.includes('statistics');
