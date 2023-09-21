@@ -597,9 +597,10 @@ class Adapter {
     public static from(adapter: AdapterTemplateModel, current: AdapterModel | null, task: Task): Adapter {
         const settings: Map<string, MergedSetting> = new Map();
 
-        for (const template of adapter.defaultSettings) {
+        for (const template of adapter.settings) {
+            const def = adapter.defaultSettings.filter(s => template.name === s.name)[0]?.value;
             const temp = current === null ? null : current.settings.get(template.name);
-            const val = new MergedSetting(template, new AdapterSettingValueModel(template.name, null));
+            const val = new MergedSetting(template, new AdapterSettingValueModel(template.name, def));
             val.current = temp;
 
             settings.set(template.name, val);
