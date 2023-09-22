@@ -121,7 +121,7 @@ export interface AllocationColumnModel extends IdEntity {
 export interface AdapterTemplateModel {
   adapterName: string;
   adapterType: AdapterType;
-  defaultSettings: AdapterSettingModel[];
+    settings: AdapterSettingModel[];
   description: string;
   modes: DeployMode[];
   persistent: boolean;

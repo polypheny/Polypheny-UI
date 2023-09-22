@@ -97,7 +97,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         return (a, b) => {
             return a.position - b.position;
         };
-    };
+    }
 
 
     ngOnInit() {
@@ -597,7 +597,7 @@ class Adapter {
     public static from(adapter: AdapterTemplateModel, current: AdapterModel | null, task: Task): Adapter {
         const settings: Map<string, MergedSetting> = new Map();
 
-        for (const template of adapter.defaultSettings) {
+        for (const template of adapter.settings) {
             const temp = current === null ? null : current.settings.get(template.name);
             const val = new MergedSetting(template, new AdapterSettingValueModel(template.name, null));
             val.current = temp;

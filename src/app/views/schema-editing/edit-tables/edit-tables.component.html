@@ -170,12 +170,12 @@
                     <div class="btn-group float-right">
                         <c-dropdown direction="center">
                             <button cButton cDropdownToggle type="button" class="btn btn-light">
-                                <span *ngIf="!selectedStore">Select store</span><span
-                                    *ngIf="selectedStore">{{selectedStore}}</span> <span
-                                    class="caret"></span>
+                                <span *ngIf="!selectedStore">Select store</span>
+                                <span *ngIf="selectedStore">{{selectedStore}}</span>
+                                <span class="caret"></span>
                             </button>
                             <ul cDropdownMenu>
-                                <ng-container *ngIf="stores && stores.length > 0">
+                                <ng-container *ngIf="stores()?.length > 0">
                                     <li role="menuitem">
                                         <a class="dropdown-item"
                                            (click)="selectedStore = null">auto</a>
@@ -186,7 +186,7 @@
                                            (click)="selectedStore = store.name">{{store.name}}</a>
                                     </li>
                                 </ng-container>
-                                <li *ngIf="stores && stores.length === 0" role="menuitem">
+                                <li *ngIf="stores()?.length === 0" role="menuitem">
                                     <a class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
                             </ul>
                         </c-dropdown>
