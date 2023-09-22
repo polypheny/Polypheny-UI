@@ -61,7 +61,7 @@
 
                     <span *ngIf="adapter.dataReadOnly"><span class="fa fa-eye"></span> read-only</span>
                     <span *ngIf="adapter.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
-                    <span *ngIf="adapter.settings.hasOwnProperty('host') && adapter.settings.hasOwnProperty('port')">{{adapter.settings['host']}}
+                    <span *ngIf="adapter.settings.hasOwnProperty('host') && adapter.settings.hasOwnProperty('port')">{{adapter.settings['host'].value}}
                         <span *ngIf="adapter.settings['mode'] === 'remote'">: {{adapter.settings['port']}}</span>
                     </span>
                 </c-card-body>

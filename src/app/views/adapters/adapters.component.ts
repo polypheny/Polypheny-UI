@@ -599,7 +599,7 @@ class Adapter {
 
         for (const template of adapter.settings) {
             const temp = current === null ? null : current.settings.get(template.name);
-            const val = new MergedSetting(template, new AdapterSettingValueModel(template.name, null));
+            const val = new MergedSetting(template, new AdapterSettingValueModel(template.name, template.defaultValue));
             val.current = temp;
 
             settings.set(template.name, val);
