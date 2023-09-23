@@ -68,7 +68,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   counter = 0;
   newColumns = new Map<number, UiColumnDefinition>();
   newTableName = '';
-  selectedStore;
+  selectedStore: AdapterModel;
   creatingTable = false;
 
   editOpen = false;
@@ -246,7 +246,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       this._toast.warn('Please make sure all column names are valid. The new table was not created.', 'invalid column name', ToastDuration.INFINITE);
       return;
     }
-    const request = new EditTableRequest(this.namespace().id, null, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore);
+    const request = new EditTableRequest(this.namespace().id, null, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore?.id);
     this.creatingTable = true;
     this._crud.createTable(request).subscribe({
       next: (result: RelationalResult) => {

@@ -179,8 +179,7 @@
         <c-modal-body *ngIf="adapter()">
             <div *ngIf="!activeMode(); else options" cRow [gutter]="3">
                 <c-col *ngFor="let mode of adapter().modes" xs="12" class="text-center">
-                    <button cButton size="lg" color="primary" class="btn-block"
-                            (click)="setMode(mode)">{{mode}}</button>
+                    <button cButton size="lg" color="primary" class="btn-block" (click)="setMode(mode)">{{mode}}</button>
                 </c-col>
             </div>
 
