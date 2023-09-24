@@ -55,12 +55,6 @@
                     <td *ngIf="entityConfig.update || entityConfig().delete">
                         <button cButton color="primary" *ngIf="uploadProgress === -1" id="editColSave"
                                 (click)="updateTuple()"><i class="fa fa-save"></i></button>
-                        <progressbar *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0"
-                                     [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress"
-                                     [striped]="false" type="primary" class="file-progress"></progressbar>
-                        <progressbar *ngIf="uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)"
-                                     [animate]="true" [value]="100" [striped]="true" type="primary"
-                                     class="file-progress"></progressbar>
                     </td>
                 </ng-container>
                 <!-- table which shows results  -->
@@ -115,7 +109,7 @@
                         </div>
                     </td>-->
                     <td class="delete" *ngIf="entityConfig().update || entityConfig().delete">
-                        <button cButton color="danger" cTextColor="white" *ngIf="entityConfig().delete" [ngClass]="{ 'cil-trash': i !== confirm, 'cil-warning': i === confirm }"
+                        <button cButton color="danger" size="sm" cTextColor="white" *ngIf="entityConfig().delete" [ngClass]="{ 'cil-trash': i !== confirm, 'cil-warning': i === confirm }"
                            (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"></button>
                     </td>
                 </ng-container>
