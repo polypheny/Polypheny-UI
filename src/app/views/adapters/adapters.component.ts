@@ -466,34 +466,34 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     getLogo(adapterName: string) {
         const path = 'assets/dbms-logos/';
-        switch (adapterName) {
-            case 'CSV':
+        switch (adapterName.toLowerCase()) {
+            case 'csv':
                 return path + 'csv.png';
-            case 'HSQLDB':
+            case 'hsqldb':
                 return path + 'hsqldb.png';
-            case 'PostgreSQL':
+            case 'postgresql':
                 return path + 'postgres.svg';
-            case 'MonetDB':
+            case 'monetdb':
                 return path + 'monetdb.png';
-            case 'Cassandra':
+            case 'cassandra':
                 return path + 'cassandra.png';
-            case 'Cottontail-DB':
+            case 'cottontail':
                 return path + 'cottontaildb.png';
-            case 'File':
+            case 'file':
                 return 'fa fa-file-image-o';
-            case 'MySQL':
+            case 'mysql':
                 return path + 'mysql.png';
-            case 'QFS':
+            case 'qfs':
                 return 'fa fa-folder-open-o';
-            case 'MongoDB':
+            case 'mongodb':
                 return path + 'mongodb.png';
-            case 'Ethereum':
+            case 'ethereum':
                 return path + 'ethereum.png';
-            case 'Neo4j':
+            case 'neo4j':
                 return path + 'neo4j.png';
-            case 'Excel':
+            case 'excel':
                 return path + 'xls.png';
-            case 'GoogleSheets':
+            case 'googlesheets':
                 return path + 'google.png';
             default:
                 return 'fa fa-database';
