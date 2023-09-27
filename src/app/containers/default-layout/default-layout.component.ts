@@ -50,7 +50,7 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
     }
 
     getConnectionClass() {
-        return this._information.connected ? 'connected' : 'disconnected';
+        return this._information.connected ? 'success' : 'danger';
     }
 
     exploreByExampleEnabled() {
@@ -60,5 +60,13 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
 
     toggleDropdown() {
         console.log('enter');
+    }
+
+    getConnectionText() {
+        return this._information.connected ? 'Connected' : 'Disconnected';
+    }
+
+    isConnected() {
+        return this._information.connected;
     }
 }

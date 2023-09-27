@@ -97,11 +97,8 @@
                     </a>
                 </c-nav-item>
 
-
+                <c-avatar [hidden]="isConnected()" size="md" color="secondary" [status]="getConnectionClass()" class="cil-warning" [tooltip]="getConnectionText()"></c-avatar>
                 <ul class="c-header-nav navbar-nav ml-auto"></ul>
-                <div id="connection-status" [ngClass]="getConnectionClass()" [tooltip]="getConnectionClass()"
-                     container="body"
-                     placement="left"></div>
             </c-header-nav>
         </c-container>
     </c-header>

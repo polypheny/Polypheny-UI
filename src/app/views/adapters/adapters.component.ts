@@ -478,6 +478,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             case 'cassandra':
                 return path + 'cassandra.png';
             case 'cottontail':
+            case 'cottontail-db':
                 return path + 'cottontaildb.png';
             case 'file':
                 return 'fa fa-file-image-o';
