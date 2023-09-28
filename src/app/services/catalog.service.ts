@@ -1,4 +1,4 @@
-import {Injectable, signal, Signal, WritableSignal} from '@angular/core';
+import {effect, Injectable, signal, untracked, WritableSignal} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {
@@ -25,6 +25,8 @@ import {BehaviorSubject, combineLatestWith, Observable, Subject} from 'rxjs';
 import {DbmsTypesService} from './dbms-types.service';
 import {map} from 'rxjs/operators';
 import {AdapterModel, AdapterType} from '../views/adapters/adapter.model';
+import {AuthService} from './auth.service';
+import {WebSocket} from './webSocket';
 
 @Injectable({
   providedIn: 'root'
@@ -59,16 +61,38 @@ export class CatalogService {
   constructor(
       private _http: HttpClient,
       private _settings: WebuiSettingsService,
-      private _types: DbmsTypesService
+      private _types: DbmsTypesService,
+      private _auth: AuthService
   ) {
     this.state.set(CatalogState.LOADING);
+
+    effect(() => {
+      const id = this._auth.id();
+      if (!id) {
+        return;
+      }
+      untracked(() => {
+        this.initWebsocket(id, this._auth.websocket);
+      });
+    });
+
 
     this.updateIfNecessary().pipe(combineLatestWith(this.updateAssets()), combineLatestWith(_types.getTypes())).subscribe(() => {
       this.state.set(CatalogState.UP_TO_DATE);
     });
   }
 
+  private initWebsocket(id: string, websocket: WebSocket) {
+    websocket.onMessage().subscribe({
+      next: msg => {
+        console.log(msg);
+      }
+    });
+  }
+
   updateSnapshot(): Observable<CatalogService> {
+
+
     return this._http.get(`${this.httpUrl}/getSnapshot`).pipe(map((snapshot: LogicalSnapshotModel) => {
       this.snapshot = snapshot;
       console.log(this.snapshot);
