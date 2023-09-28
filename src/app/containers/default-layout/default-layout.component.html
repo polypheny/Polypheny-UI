@@ -97,7 +97,7 @@
                     </a>
                 </c-nav-item>
 
-                <c-avatar [hidden]="isConnected()" size="md" color="secondary" [status]="getConnectionClass()" class="cil-warning" [tooltip]="getConnectionText()"></c-avatar>
+                <c-avatar [hidden]="isConnected()" size="md" color="secondary" [status]="getConnectionClass()" [class]="connectionSymbol" (mouseenter)="connectionSymbol = 'cil-warning'" (mouseleave)="connectionSymbol = 'cil-sync'" [tooltip]="getConnectionText()"></c-avatar>
                 <ul class="c-header-nav navbar-nav ml-auto"></ul>
             </c-header-nav>
         </c-container>

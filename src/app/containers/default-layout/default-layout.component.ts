@@ -19,6 +19,7 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
     public element: HTMLElement;
     showRight = false;
     icons = freeSet;
+    connectionSymbol = 'cil-warning';
 
     constructor(
         public _sidebar: LeftSidebarService,

@@ -336,6 +336,13 @@ export class RegisterRequest extends RequestModel {
     type = 'RegisterRequest';
     source: string;
     payload: string;
+
+
+    constructor(source: string, payload: string) {
+        super();
+        this.source = source;
+        this.payload = payload;
+    }
 }
 
 
