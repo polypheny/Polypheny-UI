@@ -134,7 +134,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 } else {
                     this._toast.success('The source column was dropped');
                 }
-                this._catalog.updateIfNecessary();
+                //this._catalog.updateIfNecessary();
             }, error: err => {
                 console.log(err);
             }
@@ -158,7 +158,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 }
                 this.editingCol = undefined;
                 input.value = '';
-                this._catalog.updateIfNecessary();
+                //this._catalog.updateIfNecessary();
             }, error: err => {
                 this._toast.error('Could not rename the column "' + oldCol.name + '" to "' + newName + '"');
                 console.log(err);
@@ -176,7 +176,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 } else {
                     this._toast.success('Added column "' + newName + '"');
                 }
-                this._catalog.updateIfNecessary();
+                //this._catalog.updateIfNecessary();
                 this.editingCol = undefined;
             }, error: err => {
                 this._toast.error('Could not add the column "' + newName + '"');

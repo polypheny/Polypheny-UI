@@ -128,7 +128,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     }
 
     onReconnect() {
-        this._catalog.updateIfNecessary();
+        //this._catalog.updateIfNecessary();
         this._leftSidebar.setSchema(this._router, '/views/schema-editing/', false, 2, true);
     }
 
@@ -173,7 +173,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
                 if (result.error) {
                     this._toast.exception(result, 'Could not ' + action + ' the table ' + collection + ':');
                 } else {
-                    this._catalog.updateIfNecessary();
+                    //this._catalog.updateIfNecessary();
                     let toastAction = 'Truncated';
                     if (action === Method.DROP) {
                         toastAction = 'Dropped';
@@ -217,7 +217,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
                     this.selectedStore = null;
                     this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
                 }
-                this._catalog.updateIfNecessary();
+                //this._catalog.updateIfNecessary();
             }, error: err => {
                 this._toast.error('Could not generate collection');
                 console.log(err);
@@ -234,7 +234,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
                     this._toast.exception(r);
                 } else {
                     this._toast.success('Renamed table ' + table.name + ' to ' + table.newName);
-                    this._catalog.updateIfNecessary();
+                    //this._catalog.updateIfNecessary();
                     this._leftSidebar.setSchema(this._router, '/views/schema-editing/', false, 2, true);
                 }
             }, error: err => {

@@ -116,7 +116,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
               } else if (this.placementMethod === Method.MODIFY) {
                 this._toast.success('Modified placement on store ' + this.selectedStore.name, result.query, 'Modified placement');
               }
-              this._catalog.updateIfNecessary();
+              //this._catalog.updateIfNecessary();
             }
             this.selectedStore = null;
           }, error: err => {

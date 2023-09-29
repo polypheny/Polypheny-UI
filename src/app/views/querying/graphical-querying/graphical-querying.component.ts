@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, signal, TemplateRef, ViewChild, ViewEncapsulation, WritableSignal} from '@angular/core';
+import {AfterViewInit, Component, effect, OnDestroy, OnInit, signal, TemplateRef, untracked, ViewChild, ViewEncapsulation, WritableSignal} from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
@@ -60,16 +60,17 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   ) {
     this.webSocket = new WebSocket(_settings);
     this.initWebSocket();
+    this.initSchema();
   }
 
   ngOnInit() {
     this._leftSidebar.open();
-    this.initSchema();
+
     this.initGraphicalQuerying();
     const sub = this._crud.onReconnection().subscribe(
         b => {
           if (b) {
-            this.initSchema();
+
           }
         }
     );
@@ -101,34 +102,35 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   }
 
   initSchema() {
-    this._catalog.getSchemaTree('views/graphical-querying/', true, 3, false, [NamespaceType.RELATIONAL]).subscribe(
-        (schemaTemp: SidebarNode[]) => {
-          const nodeAction = (tree, node, $event) => {
-            if (!node.isActive && node.isLeaf) {
-              this.addCol(node.data);
-              node.setIsActive(true, true);
-            } else if (node.isActive && node.isLeaf) {
+    effect(() => {
+      const catalog = this._catalog.listener();
+      untracked(() => {
+        const nodeAction = (tree, node, $event) => {
+          if (!node.isActive && node.isLeaf) {
+            this.addCol(node.data);
+            node.setIsActive(true, true);
+          } else if (node.isActive && node.isLeaf) {
 
-              node.setIsActive(false, true);
-              this.removeCol(node.data.id);
+            node.setIsActive(false, true);
+            this.removeCol(node.data.id);
 
-              //deletes the selection if nothing is choosen
-              if (this.selectedColumn['column'].toString() === node.data.id) {
-                this.selectedCol([]);
-              }
+            //deletes the selection if nothing is choosen
+            if (this.selectedColumn['column'].toString() === node.data.id) {
+              this.selectedCol([]);
             }
-          };
-
-          const schema = [];
-          for (const s of schemaTemp) {
-            const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
-            schema.push(node);
           }
+        };
 
-          this._leftSidebar.setNodes(schema);
-          this._leftSidebar.open();
+        const schema = [];
+        for (const s of catalog.getSchemaTree('views/graphical-querying/', true, 3, false, [NamespaceType.RELATIONAL])) {
+          const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
+          schema.push(node);
         }
-    );
+
+        this._leftSidebar.setNodes(schema);
+        this._leftSidebar.open();
+      });
+    });
   }
 
   initGraphicalQuerying() {
@@ -158,7 +160,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     this.fields.delete(colId);
 
     //$(`#selectBox [data-id="${colId}"]`).remove();
-    this.selects.update(selects => selects.filter( s => s.id !== colId));
+    this.selects.update(selects => selects.filter(s => s.id !== colId));
 
     this._leftSidebar.setInactive(colId);
     this.generateJoinConditions(); // re-generate join conditions

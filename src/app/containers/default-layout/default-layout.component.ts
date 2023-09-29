@@ -70,4 +70,8 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
     isConnected() {
         return this._information.connected;
     }
+
+    reconnect() {
+        console.log('reconnecting');
+    }
 }

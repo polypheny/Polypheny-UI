@@ -1,10 +1,10 @@
 import {
   AfterViewInit,
-  Component,
+  Component, effect,
   ElementRef,
   HostBinding,
   OnDestroy,
-  OnInit,
+  OnInit, untracked,
   ViewChild,
   ViewEncapsulation
 } from '@angular/core';
@@ -81,13 +81,33 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     this.socketOn = false;
     this.webSocket = new WebSocket(_settings);
     this.initWebsocket();
+
+    effect(() => {
+      const catalog = this._catalog.listener();
+
+      untracked(() => {
+        const autocomplete = {schemas: []};
+        for (const schema of catalog.getSchemaTree('', true, 3)) {
+          autocomplete.schemas.push(schema.name);
+          autocomplete[schema.name] = {tables: []};
+          for (const table of schema.children[0].children) {
+            autocomplete[schema.name].tables.push([table.name, table.tableType]);
+            autocomplete[schema.name][table.name] = {columns: []};
+            for (const col of table.children) {
+              autocomplete[schema.name][table.name].columns.push(col.name);
+            }
+          }
+        }
+        this.autocomplete = autocomplete;
+      });
+    });
   }
 
 
   ngOnInit() {
     this._leftSidebar.open();
     this.getOperators();
-    this.getAutocomplete();
+
     const sub1 = this._RsToRa.change.subscribe(run => {
       this.makeSocketConnection();
     });
@@ -96,7 +116,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         b => {
           if (b) {
             this.getOperators();
-            this.getAutocomplete();
           }
         }
     );
@@ -295,28 +314,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     .map(key => LogicalOperator[key]);
   }
 
-  /**
-   * Make a REST request to retrieve all schemas, tables and columns.
-   * Rearrange data to an object that can be used for the autocompletion
-   */
-  getAutocomplete() {
-    this._catalog.getSchemaTree('', true, 3).subscribe(
-        (schemaTree: SidebarNode[]) => {
-          const autocomplete = {schemas: []};
-          for (const schema of schemaTree) {
-            autocomplete.schemas.push(schema.name);
-            autocomplete[schema.name] = {tables: []};
-            for (const table of schema.children[0].children) {
-              autocomplete[schema.name].tables.push([table.name, table.tableType]);
-              autocomplete[schema.name][table.name] = {columns: []};
-              for (const col of table.children) {
-                autocomplete[schema.name][table.name].columns.push(col.name);
-              }
-            }
-          }
-          this.autocomplete = autocomplete;
-        });
-  }
 
   /**
    * The the topmost node and perform a bottomUp iteration to setup the autocomplete for all nodes

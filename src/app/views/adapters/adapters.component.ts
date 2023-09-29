@@ -205,7 +205,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                     this._toast.success('Updated adapter settings');
                 }
                 this.modalActive = false;
-                this._catalog.updateIfNecessary();
+                // this._catalog.updateIfNecessary();
             },
             error: err => {
                 this._toast.error('Could not update adapter settings');
@@ -404,7 +404,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                     this._toast.exception(result, 'Could not deploy adapter');
                 }
                 this.modalActive = false;
-                this._catalog.updateIfNecessary();
+                // this._catalog.updateIfNecessary();
             },
             error: err => {
                 this._toast.error('Could not deploy adapter');
@@ -430,7 +430,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                     }
                     this.deletingInProgress = this.deletingInProgress.filter(el => el !== adapter);
                     this.deletingAdapter = undefined;
-                    this._catalog.updateIfNecessary();
+                    // this._catalog.updateIfNecessary();
                 }, error: err => {
                     this._toast.error('Could not remove adapter', 'server error');
                     console.log(err);

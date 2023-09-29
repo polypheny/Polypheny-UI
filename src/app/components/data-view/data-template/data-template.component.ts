@@ -95,6 +95,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     });
 
     this.entity = computed(() => {
+      console.log("uped");
       const catalog = this._catalog.listener();
       if (!this.currentRoute || !this.currentRoute()) {
         return null;

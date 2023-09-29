@@ -1,4 +1,4 @@
-import {effect, Injectable, signal, untracked, WritableSignal} from '@angular/core';
+import {effect, Injectable, Signal, signal, untracked, WritableSignal} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {
@@ -42,21 +42,21 @@ export class CatalogService {
   private assets: AssetsModel;
 
   private snapshot: LogicalSnapshotModel;
-  public readonly namespaces: BehaviorSubject<Map<number, NamespaceModel>> = new BehaviorSubject(new Map<number, NamespaceModel>());
-  public readonly namespacesNames: BehaviorSubject<Map<string, NamespaceModel>> = new BehaviorSubject(new Map<string, NamespaceModel>());
-  public readonly entities: BehaviorSubject<Map<number, EntityModel>> = new BehaviorSubject(new Map<number, EntityModel>());
-  public readonly fields: BehaviorSubject<Map<number, FieldModel>> = new BehaviorSubject(new Map<number, FieldModel>());
-  public readonly fieldNames: BehaviorSubject<Map<string, FieldModel>> = new BehaviorSubject(new Map<string, FieldModel>());
-  public readonly keys: BehaviorSubject<Map<number, KeyModel>> = new BehaviorSubject(new Map<number, KeyModel>());
-  public readonly constraints: BehaviorSubject<Map<number, ConstraintModel>> = new BehaviorSubject(new Map<number, ConstraintModel>());
+  public readonly namespaces: WritableSignal<Map<number, NamespaceModel>> = signal(new Map<number, NamespaceModel>());
+  public readonly namespacesNames: WritableSignal<Map<string, NamespaceModel>> = signal(new Map<string, NamespaceModel>());
+  public readonly entities: WritableSignal<Map<number, EntityModel>> = signal(new Map<number, EntityModel>());
+  public readonly fields: WritableSignal<Map<number, FieldModel>> = signal(new Map<number, FieldModel>());
+  public readonly fieldNames: WritableSignal<Map<string, FieldModel>> = signal(new Map<string, FieldModel>());
+  public readonly keys: WritableSignal<Map<number, KeyModel>> = signal(new Map<number, KeyModel>());
+  public readonly constraints: WritableSignal<Map<number, ConstraintModel>> = signal(new Map<number, ConstraintModel>());
 
-  public readonly placements: BehaviorSubject<Map<number, AllocationPlacementModel>> = new BehaviorSubject(new Map<number, AllocationPlacementModel>());
-  public readonly partitions: BehaviorSubject<Map<number, AllocationPartitionModel>> = new BehaviorSubject(new Map<number, AllocationPartitionModel>());
-  public readonly allocations: BehaviorSubject<Map<number, AllocationEntityModel>> = new BehaviorSubject(new Map<number, AllocationEntityModel>());
-  public readonly allocationColumns: BehaviorSubject<Map<number, AllocationColumnModel>> = new BehaviorSubject(new Map());
+  public readonly placements: WritableSignal<Map<number, AllocationPlacementModel>> = signal(new Map<number, AllocationPlacementModel>());
+  public readonly partitions: WritableSignal<Map<number, AllocationPartitionModel>> = signal(new Map<number, AllocationPartitionModel>());
+  public readonly allocations: WritableSignal<Map<number, AllocationEntityModel>> = signal(new Map<number, AllocationEntityModel>());
+  public readonly allocationColumns: WritableSignal<Map<number, AllocationColumnModel>> = signal(new Map());
 
-  public readonly adapters: BehaviorSubject<Map<number, AdapterModel>> = new BehaviorSubject(new Map());
-  public readonly adapterTemplates: BehaviorSubject<Map<[string, AdapterType], AdapterTemplateModel>> = new BehaviorSubject(new Map<[string, AdapterType], AdapterTemplateModel>());
+  public readonly adapters: WritableSignal<Map<number, AdapterModel>> = signal(new Map());
+  public readonly adapterTemplates: WritableSignal<Map<[string, AdapterType], AdapterTemplateModel>> = signal(new Map<[string, AdapterType], AdapterTemplateModel>());
 
   constructor(
       private _http: HttpClient,
@@ -84,43 +84,45 @@ export class CatalogService {
 
   private initWebsocket(id: string, websocket: WebSocket) {
     websocket.onMessage().subscribe({
-      next: msg => {
-        console.log(msg);
+      next: (snapshot: LogicalSnapshotModel) => {
+        console.log(snapshot);
+        this.updateSnapshot(snapshot);
       }
     });
   }
 
-  updateSnapshot(): Observable<CatalogService> {
-
-
+  getSnapshot(): Observable<CatalogService> {
     return this._http.get(`${this.httpUrl}/getSnapshot`).pipe(map((snapshot: LogicalSnapshotModel) => {
-      this.snapshot = snapshot;
-      console.log(this.snapshot);
-
-      this.namespaces.next(this.toIdMap(snapshot.namespaces));
-      this.namespacesNames.next(this.toNameMap(snapshot.namespaces));
-      this.entities.next(this.toIdMap(this.snapshot.entities));
-      this.fields.next(this.toIdMap(this.snapshot.fields));
-      this.fieldNames.next(this.toNameMap(this.snapshot.fields));
-      this.keys.next(this.toIdMap(this.snapshot.keys));
-      this.constraints.next(this.toIdMap(this.snapshot.constraints));
-      this.placements.next(this.toIdMap(this.snapshot.placements));
-      this.partitions.next(this.toIdMap(this.snapshot.partitions));
-      this.allocations.next(this.toIdMap(this.snapshot.allocations));
-      this.allocationColumns.next(this.toIdMap(this.snapshot.allocColumns));
-      this.adapters.next(this.toIdMap(this.snapshot.adapters));
-      this.adapterTemplates.next(new Map(this.snapshot.adapterTemplates.map(t => [[t.adapterName, t.adapterType], t])));
-
-      this.listener.set(this); // notify
-
+      this.updateSnapshot(snapshot);
       return this;
     }));
+  }
+
+  private updateSnapshot(snapshot: LogicalSnapshotModel) {
+    this.snapshot = snapshot;
+    console.log(this.snapshot);
+
+    this.namespaces.set(this.toIdMap(snapshot.namespaces));
+    this.namespacesNames.set(this.toNameMap(snapshot.namespaces));
+    this.entities.set(this.toIdMap(this.snapshot.entities));
+    this.fields.set(this.toIdMap(this.snapshot.fields));
+    this.fieldNames.set(this.toNameMap(this.snapshot.fields));
+    this.keys.set(this.toIdMap(this.snapshot.keys));
+    this.constraints.set(this.toIdMap(this.snapshot.constraints));
+    this.placements.set(this.toIdMap(this.snapshot.placements));
+    this.partitions.set(this.toIdMap(this.snapshot.partitions));
+    this.allocations.set(this.toIdMap(this.snapshot.allocations));
+    this.allocationColumns.set(this.toIdMap(this.snapshot.allocColumns));
+    this.adapters.set(this.toIdMap(this.snapshot.adapters));
+    this.adapterTemplates.set(new Map(this.snapshot.adapterTemplates.map(t => [[t.adapterName, t.adapterType], t])));
+
+    this.listener.set(this); // notify
   }
 
   updateIfNecessary(): Observable<CatalogService> {
     const sub: Subject<CatalogService> = new Subject();
     this._http.get(`${this.httpUrl}/getCurrentSnapshot`).subscribe((id: number) => {
-      this.updateSnapshot().subscribe(() => {
+      this.getSnapshot().subscribe(() => {
         sub.next(this);
       });
     });
@@ -128,16 +130,7 @@ export class CatalogService {
   }
 
   getSchemaTree(routerLinkRoot: string, views: boolean, depth: number, schemaEdit?: boolean, dataModels: NamespaceType[] = [NamespaceType.RELATIONAL, NamespaceType.DOCUMENT, NamespaceType.GRAPH]) {
-    return new Observable<SidebarNode[]>(observer => {
-      this.updateIfNecessary().subscribe(() => {
-        observer.next(this.buildSchemaTree(routerLinkRoot, views, depth, schemaEdit, dataModels));
-      });
-
-      return {
-        unsubscribe() {
-        }
-      };
-    });
+    return this.buildSchemaTree(routerLinkRoot, views, depth, schemaEdit, dataModels);
 
   }
 
@@ -151,36 +144,36 @@ export class CatalogService {
 
 
   getEntity(entityId: number): EntityModel {
-    return this.entities.value.get(entityId);
+    return this.entities().get(entityId);
   }
 
   getNamespaceNames(): string[] {
-    return Array.from(this.namespaces.value.values()).map(n => n.name);
+    return Array.from(this.namespaces().values()).map(n => n.name);
   }
 
   getNamespaceFromName(name: string): NamespaceModel {
-    return this.namespacesNames.value.get(name);
+    return this.namespacesNames().get(name);
   }
 
   getNamespaceFromId(id: number): NamespaceModel {
-    return this.namespaces.value.get(id);
+    return this.namespaces().get(id);
   }
 
   getNamespaces(): NamespaceModel[] {
-    return Array.from(this.namespaces.value.values());
+    return Array.from(this.namespaces().values());
   }
 
   getEntityFromName(namespace: string, name: string): EntityModel {
-    const namespaces = Array.from(this.namespaces.value.values()).filter(n => n.caseSensitive ? n.name === namespace : n.name.toLowerCase() === namespace.toLowerCase());
+    const namespaces = Array.from(this.namespaces().values()).filter(n => n.caseSensitive ? n.name === namespace : n.name.toLowerCase() === namespace.toLowerCase());
     if (namespaces.length === 0) {
       return null;
     }
-    return Array.from(this.entities.value.values()).filter(e => e.namespaceId === namespaces[0].id && e.name === name)[0];
+    return Array.from(this.entities().values()).filter(e => e.namespaceId === namespaces[0].id && e.name === name)[0];
   }
 
   getFullEntityName(entityId: number): String {
-    const entity = this.entities.value.get(entityId);
-    const namespace = this.namespaces.value.get(entity.namespaceId);
+    const entity = this.entities().get(entityId);
+    const namespace = this.namespaces().get(entity.namespaceId);
     return namespace.name + '.' + entity.name;
   }
 
@@ -189,7 +182,7 @@ export class CatalogService {
 
   private buildSchemaTree(routerLinkRoot: string, views: boolean, depth: number, schemaEdit: boolean, dataModels: NamespaceType[]): SidebarNode[] {
     const nodes: SidebarNode[] = [];
-    for (const namespace of this.namespaces.value.values()) {
+    for (const namespace of this.namespaces().values()) {
       const namespaceNode = new SidebarNode(namespace.name, namespace.name, this.getNamespaceIcon(namespace.namespaceType) + ' me-1', '');
 
       if (depth > 1) {
@@ -213,7 +206,7 @@ export class CatalogService {
 
   private attachDocumentTree(namespace: NamespaceModel, namespaceNode: SidebarNode, routerLinkRoot: string, depth: number, views: boolean) {
     const nodes: SidebarNode[] = [];
-    const collections: EntityModel[] = Array.from(this.entities.value.values()).filter(e => e.namespaceId === namespace.id);
+    const collections: EntityModel[] = Array.from(this.entities().values()).filter(e => e.namespaceId === namespace.id);
 
     for (const collection of collections) {
 
@@ -232,7 +225,7 @@ export class CatalogService {
 
   private attachRelationalTree(namespace: NamespaceModel, namespaceNode: SidebarNode, routerLinkRoot: string, depth: number, views: boolean) {
     const nodes: SidebarNode[] = [];
-    const tables: EntityModel[] = Array.from(this.entities.value.values()).filter(t => t.namespaceId === namespace.id);
+    const tables: EntityModel[] = Array.from(this.entities().values()).filter(t => t.namespaceId === namespace.id);
     for (const table of tables) {
       let icon = this.assets.TABLE_ICON;
 
@@ -285,84 +278,83 @@ export class CatalogService {
   }
 
   getEntities(namespaceId: number): EntityModel[] {
-    return Array.from(this.entities.value.values()).filter(n => n.namespaceId === namespaceId);
+    return Array.from(this.entities().values()).filter(n => n.namespaceId === namespaceId);
   }
 
   getColumns(entityId: number): ColumnModel[] {
-    return Array.from(this.fields.value.values()).filter(f => f.entityId === entityId).map(f => <ColumnModel>f);
+    return Array.from(this.fields().values()).filter(f => f.entityId === entityId).map(f => <ColumnModel>f);
   }
 
   getPrimaryKey(entityId: number): KeyModel {
-    return Array.from(this.keys.value.values()).filter(k => k.isPrimary && k.entityId === entityId)[0];
+    return Array.from(this.keys().values()).filter(k => k.isPrimary && k.entityId === entityId)[0];
   }
 
   getKey(keyId: number): KeyModel {
-    return this.keys.value.get(keyId);
+    return this.keys().get(keyId);
   }
 
   getKeys(entityId: number): KeyModel[] {
-    return Array.from(this.keys.value.values()).filter(k => k.entityId === entityId);
+    return Array.from(this.keys().values()).filter(k => k.entityId === entityId);
   }
 
   getConstraint(constraintId: number): ConstraintModel {
-    return this.constraints.value.get(constraintId);
+    return this.constraints().get(constraintId);
   }
 
   getConstraints(entityId: number): ConstraintModel[] {
-    const constraints = Array.from(this.constraints.value.values());
-    const keys = Array.from(this.keys.value.values()).filter(k => k.entityId === entityId).map(k => k.id);
+    const constraints = Array.from(this.constraints().values());
+    const keys = Array.from(this.keys().values()).filter(k => k.entityId === entityId).map(k => k.id);
     return constraints.filter(c => keys.includes(c.keyId));
   }
 
   getPlacements(entityId: number): AllocationPlacementModel[] {
-    return Array.from(this.placements.value.values()).filter(p => p.logicalEntityId === entityId);
+    return Array.from(this.placements().values()).filter(p => p.logicalEntityId === entityId);
   }
 
   getPartitions(entityId: number): AllocationPartitionModel[] {
-    console.log(this.partitions.value);
-    return Array.from(this.partitions.value.values()).filter(p => p.logicalEntityId === entityId);
+    return Array.from(this.partitions().values()).filter(p => p.logicalEntityId === entityId);
   }
 
 
   getAllocColumns(placemenId: number): AllocationColumnModel[] {
-    return Array.from(this.allocationColumns.value.values()).filter(a => a.placementId === placemenId);
+    return Array.from(this.allocationColumns().values()).filter(a => a.placementId === placemenId);
   }
 
   getAllocColumn(id: number): AllocationColumnModel {
-    return Array.from(this.allocationColumns.value.values()).filter(c => c.id === id)[0];
+    return Array.from(this.allocationColumns().values()).filter(c => c.id === id)[0];
   }
 
   getAdapter(adapterId: number) {
-    return this.adapters.value.get(adapterId);
+    return this.adapters().get(adapterId);
   }
 
   getAvailableStoresForIndexes(entityId: number): AdapterModel[] {
-    const adapterIds = Array.from(this.placements.value.values()).map(p => p.adapterId);
-    return Array.from(this.adapters.value.values()).filter(a => adapterIds.includes(a.id)).filter(a => a.type === AdapterType.STORE);
+    const adapterIds = Array.from(this.placements().values()).map(p => p.adapterId);
+    return Array.from(this.adapters().values()).filter(a => adapterIds.includes(a.id)).filter(a => a.type === AdapterType.STORE);
   }
 
   getStores(): AdapterModel[] {
-    return Array.from(this.adapters.value.values()).filter(a => {
+    return Array.from(this.adapters().values()).filter(a => {
       return a.type === AdapterType.STORE;
     });
   }
 
   getSources() {
-    return Array.from(this.adapters.value.values()).filter(a => {
+    return Array.from(this.adapters().values()).filter(a => {
       return a.type === AdapterType.SOURCE;
     });
   }
 
   getAdapterTemplate(adapterName: string, type: AdapterType): AdapterTemplateModel {
-    return this.adapterTemplates.value.get([adapterName, type]);
+    return this.adapterTemplates().get([adapterName, type]);
   }
 
   getAdapterTemplates() {
-    return Array.from(this.adapterTemplates.value.values());
+    return Array.from(this.adapterTemplates().values());
   }
 
   getLogicalField(id: number) {
-    return Array.from(this.fields.value.values()).filter(f => f.id === id)[0];
+    return Array.from(this.fields().values()).filter(f => f.id === id)[0];
   }
 
   getLogicalColumn(id: number) {
@@ -371,18 +363,18 @@ export class CatalogService {
   }
 
   getAllocsOfPlacement(logicalId: number, allocId: number, adapterId: number): AllocationPartitionModel[] {
-    const partitions = Array.from(this.partitions.value.values()).filter(p => p.logicalEntityId === logicalId);
-    const allocPartitionIds = Array.from(this.allocations.value.values()).filter(a => a.id === allocId).map(a => a.partitionId);
+    const partitions = Array.from(this.partitions().values()).filter(p => p.logicalEntityId === logicalId);
+    const allocPartitionIds = Array.from(this.allocations().values()).filter(a => a.id === allocId).map(a => a.partitionId);
 
     return partitions.filter(p => allocPartitionIds.includes(p.id));
   }
 
   getAllocations(logicalEntityId: number) {
-    return Array.from(this.allocations.value.values()).filter(a => a.logicalEntityId === logicalEntityId);
+    return Array.from(this.allocations().values()).filter(a => a.logicalEntityId === logicalEntityId);
   }
 
   getEntityFromIdName(namespaceId: number, entityName: string) {
-    return Array.from(this.entities.value.values()).filter(e => e.namespaceId === namespaceId && e.name === entityName)[0];
+    return Array.from(this.entities().values()).filter(e => e.namespaceId === namespaceId && e.name === entityName)[0];
   }
 
 

@@ -108,7 +108,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
       } else if (method === Method.DROP) {
         this._toast.success('Dropped placement on store ' + this.selectedStore.name, result.query, 'Dropped placement');
       }
-      this._catalog.updateIfNecessary();
+      //this._catalog.updateIfNecessary();
 
     }).add(() => {
       this.isAddingPlacement = false;

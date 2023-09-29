@@ -1,4 +1,4 @@
-import {Component, Inject, OnDestroy, OnInit, Signal, signal, ViewChild, WritableSignal} from '@angular/core';
+import {Component, effect, Inject, OnDestroy, OnInit, Signal, signal, untracked, ViewChild, WritableSignal} from '@angular/core';
 import {UntypedFormBuilder} from '@angular/forms';
 import {EntityConfig} from '../../../components/data-view/data-table/entity-config';
 import {CrudService} from '../../../services/crud.service';
@@ -91,6 +91,14 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     this.initWebsocket();
+
+    effect(() =>{
+      const namespace = this._catalog.namespaces();
+      untracked(() => {
+        this.namespaces.set(Array.from(namespace.values()));
+        this.loadAndSetNamespaceDB();
+      });
+    });
   }
 
 
@@ -98,15 +106,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     QueryHistory.fromJson(localStorage.getItem(this.LOCAL_STORAGE_HISTORY_KEY), this.history);
     this._breadcrumb.hide();
 
-    this.subscribeNamespace();
     this.loadAndSetNamespaceDB();
-  }
-
-  private subscribeNamespace() {
-    this._catalog.namespaces.pipe().subscribe(n => {
-      this.namespaces.set(Array.from(n.values()));
-      this.loadAndSetNamespaceDB();
-    });
   }
 
   private loadAndSetNamespaceDB() {

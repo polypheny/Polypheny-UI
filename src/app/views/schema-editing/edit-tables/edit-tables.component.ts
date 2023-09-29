@@ -136,7 +136,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   }
 
   onReconnect() {
-    this._catalog.updateIfNecessary();
+    //this._catalog.updateIfNecessary();
     this.getTypeInfo();
     this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
   }
@@ -186,7 +186,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
           }
           this._toast.success(toastAction + type + request.table);
-          this._catalog.updateIfNecessary();
+          //this._catalog.updateIfNecessary();
         }
       }, error: err => {
         this._toast.error('Could not ' + action + type + table + ' due to an unknown error');
@@ -261,7 +261,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this.selectedStore = null;
           this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
         }
-        this._catalog.updateIfNecessary();
+        //this._catalog.updateIfNecessary();
       }, error: err => {
         this._toast.error('Could not generate table');
         console.log(err);
@@ -278,7 +278,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
           this._toast.exception(r);
         } else {
           this._toast.success('Renamed' + type + table.name + ' to ' + table.newName);
-          this._catalog.updateIfNecessary();
+          //this._catalog.updateIfNecessary();
           this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
         }
       }, error: err => {

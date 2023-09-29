@@ -1,4 +1,4 @@
-import {Component, computed, OnDestroy, OnInit, signal, Signal, WritableSignal} from '@angular/core';
+import {Component, computed, effect, OnDestroy, OnInit, signal, Signal, untracked, WritableSignal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../services/crud.service';
@@ -52,6 +52,14 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
       const catalog = this._catalog.listener();
       return catalog.getStores();
     });
+
+    effect(() => {
+      const catalog = this._catalog.listener();
+      untracked(() => {
+        this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false, true);
+      });
+
+    });
   }
 
   readonly currentRoute: WritableSignal<string> = signal(this._route.snapshot.paramMap.get('id'));//either the name of a table (schemaName.tableName) or of a schema (schemaName)
@@ -70,7 +78,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   public readonly NamespaceType = NamespaceType;
 
   ngOnInit() {
-    this.getSchema();
+    //this.getSchema();
     this.initForms();
     this._route.params.subscribe((ev) => {
       this.setBreadCrumb();
@@ -146,7 +154,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
             this._toast.exception(res);
           } else {
             this._toast.success('Created namespace ' + val.name);
-            this.getSchema();
+            //this.getSchema();
           }
           this.resetForm('createForm');
         }, error: err => {
@@ -168,7 +176,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
             this._toast.exception(res);
           } else {
             this._toast.success('Dropped namespace ' + val.name);
-            this.getSchema();
+            //this.getSchema();
           }
           this.resetForm('dropForm');
         }, error: err => {

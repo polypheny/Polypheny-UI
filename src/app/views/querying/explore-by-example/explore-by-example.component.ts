@@ -1,10 +1,10 @@
 import {
-    Component,
+    Component, effect,
     EventEmitter,
     OnDestroy,
     OnInit,
     Output,
-    TemplateRef,
+    TemplateRef, untracked,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
@@ -87,6 +87,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         private _catalog: CatalogService,
         private modalService: BsModalService) {
         this.websocket = new WebSocket(_settings);
+        this.initSchema();
     }
 
 
@@ -96,7 +97,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
         const sub = this._crud.onReconnection().subscribe(
             b => {
                 if (b) {
-                    this.initSchema();
+                    //this.initSchema();
                 }
             }
         );
@@ -110,8 +111,9 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
     }
 
     initSchema() {
-        this._catalog.getSchemaTree('views/graphical-querying/', true, 3, false, [NamespaceType.RELATIONAL]).subscribe(
-            (schemaTemp: SidebarNode[]) => {
+        effect(() => {
+            const catalog = this._catalog.listener();
+            untracked(() => {
                 const nodeAction = (tree, node, $event) => {
                     if (!node.isActive && node.isLeaf) {
                         this.addCol(node.data);
@@ -124,15 +126,16 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
                 };
 
                 const schema = [];
-                for (const s of schemaTemp) {
+                for (const s of catalog.getSchemaTree('views/graphical-querying/', true, 3, false, [NamespaceType.RELATIONAL])) {
                     const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
                     schema.push(node);
                 }
 
                 this._leftSidebar.setNodes(schema);
                 this._leftSidebar.open();
-            }
-        );
+            });
+        });
+
     }
 
     removeCol(colId: string) {

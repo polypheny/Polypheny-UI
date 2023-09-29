@@ -335,7 +335,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this._crud.updateColumn(req).subscribe({
       next: (res: RelationalResult) => {
         this.editColumn = -1;
-        this._catalog.updateIfNecessary();
+        //this._catalog.updateIfNecessary();
         if (res.error) {
           this._toast.exception(res, 'Could not update column:');
         } else {
@@ -381,7 +381,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this._crud.updateColumn(req).subscribe({
       next: (res: RelationalResult) => {
         this.editColumn = -1;
-        this._catalog.updateIfNecessary();
+        //this._catalog.updateIfNecessary();
         if (res.error) {
           this._toast.exception(res, 'Could not update column:');
           console.log(res);
@@ -418,7 +418,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this._crud.addColumn(req).subscribe({
       next: (res: RelationalResult) => {
         if (res.error === undefined) {
-          this._catalog.updateIfNecessary();
+          //this._catalog.updateIfNecessary();
           this.createColumn.name = '';
           this.createColumn.nullable = true;
           this.createColumn.dataType = INITIAL_TYPE;
@@ -439,7 +439,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
   dropColumn(col: UiColumnDefinition) {
     this._crud.dropColumn(new ColumnRequest(this.entity().id, col)).subscribe({
       next: (result: RelationalResult) => {
-        this._catalog.updateIfNecessary();
+        //this._catalog.updateIfNecessary();
         //this.getPlacementsAndPartitions();
         this.confirm = -1;
         if (result.error) {
@@ -488,7 +488,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         if (result.error) {
           this._toast.exception(result, null, 'constraint error');
         } else {
-          this._catalog.updateIfNecessary();
+          //this._catalog.updateIfNecessary();
           this.getUml();
         }
       }, error: err => {
@@ -509,7 +509,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       next: (res: RelationalResult) => {
         if (!res.error) {
           this._toast.success('The primary key was updated.', res.query, 'updated primary key');
-          this._catalog.updateIfNecessary();
+          //this._catalog.updateIfNecessary();
           //this.getPlacementsAndPartitions();
         } else {
           this._toast.exception(res, null, 'primary key error', ToastDuration.INFINITE);
@@ -550,7 +550,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this._crud.addUniqueConstraint(constraintRequest).subscribe({
       next: (res: RelationalResult) => {
         if (!res.error) {
-          this._catalog.updateIfNecessary();
+          //this._catalog.updateIfNecessary();
           this._toast.success('The unique constraint was successfully created', res.query, 'added constraint');
           this.uniqueConstraintName = '';
           this.getGeneratedNames();
@@ -716,7 +716,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
           } else if (this.placementMethod === 'MODIFY') {
             this._toast.success('Modified placement on store ' + this.selectedStore.name, res.query, 'Modified placement');
           }
-          this._catalog.updateIfNecessary();
+          //this._catalog.updateIfNecessary();
         }
         this.selectedStore = null;
       }, error: err => {
@@ -886,7 +886,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     this._crud.dropIndex(new IndexModel(this.namespace().id, this.entity().id, index, null, null, null)).subscribe({
       next: (res: RelationalResult) => {
         if (!res.error) {
-          this._catalog.updateIfNecessary();
+          //this._catalog.updateIfNecessary();
         } else {
           this._toast.exception(res, 'Could not drop index:');
         }
@@ -914,7 +914,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       this._crud.createIndex(index).subscribe({
         next: (res: RelationalResult) => {
           if (!res.error) {
-            this._catalog.updateIfNecessary();
+            //this._catalog.updateIfNecessary();
             this.getGeneratedNames();
             this.newIndexForm.reset({name: '', method: ''});
             this.initNewIndexValues();
