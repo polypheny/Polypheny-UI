@@ -49,8 +49,9 @@ export class AuthService {
 
     });
 
-    this.websocket.reconnecting.subscribe(con =>{
-      console.log("rcon");
+    this.websocket.reconnecting.subscribe(con => {
+      const req = new RegisterRequest(id, null);
+      this.websocket.sendMessage(req);
     });
 
     const msg = new RegisterRequest(id, null);

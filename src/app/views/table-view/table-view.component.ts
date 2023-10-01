@@ -41,7 +41,6 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
           if (b) {
             //this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);
             this.getEntityData();
-            console.log("reconnect")
           }
         }
     );
