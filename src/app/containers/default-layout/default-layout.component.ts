@@ -17,7 +17,6 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
     public sidebarMinimized = true;
     private changes: MutationObserver;
     public element: HTMLElement;
-    showRight = false;
     icons = freeSet;
     connectionSymbol = 'cil-warning';
 
@@ -72,6 +71,7 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
     }
 
     reconnect() {
+        this._information.manualReconnect();
         console.log('reconnecting');
     }
 }

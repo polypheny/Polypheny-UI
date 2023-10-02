@@ -15,21 +15,21 @@ export class WebuiSettingsService {
         this.host = location.hostname;
 
         // tslint:disable:no-unused-expression
-        new Setting(this.settings, 'webUI.port', '8080');
-        new Setting(this.settings, 'configServer.port', '8081');
-        new Setting(this.settings, 'informationServer.port', '8082');
+        new Setting(this.settings, 'webUI.port', '7659');
+        new Setting(this.settings, 'configServer.prefix', '/config/v1');
+        new Setting(this.settings, 'informationServer.prefix', '/info/v1');
         new Setting(this.settings, 'httpServer.port', '13137');
         new Setting(this.settings, 'websocketGestureRecognition.ip:port', 'localhost:4999/index.php');
-        new Setting(this.settings, 'reconnection.timeout', '5000');
+        new Setting(this.settings, 'reconnection.timeout', '500');
 
         this.connections.set('config.rest',
-            'http://' + this.host + ':' + localStorage.getItem('configServer.port'));
+            'http://' + this.host + ':' + localStorage.getItem('webUI.port') + localStorage.getItem('configServer.prefix'));
         this.connections.set('config.socket',
-            'ws://' + this.host + ':' + localStorage.getItem('configServer.port') + '/configWebSocket');
+            'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/config');
         this.connections.set('information.rest',
-            'http://' + this.host + ':' + localStorage.getItem('informationServer.port'));
+            'http://' + this.host + ':' + localStorage.getItem('webUI.port') + localStorage.getItem('information.prefix'));
         this.connections.set('information.socket',
-            'ws://' + this.host + ':' + localStorage.getItem('informationServer.port') + '/informationWebSocket');
+            'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/info');
         this.connections.set('crud.rest',
             'http://' + this.host + ':' + localStorage.getItem('webUI.port'));
         this.connections.set('crud.socket',

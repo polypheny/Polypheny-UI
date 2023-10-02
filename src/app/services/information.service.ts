@@ -18,6 +18,7 @@ export class InformationService {
     public socket;
     httpUrl = this._settings.getConnection('information.rest');
     httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
+    reconnetor;
 
     getPage(pageId: string) {
         return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
@@ -62,11 +63,15 @@ export class InformationService {
             err => {
                 //this.reconnected.emit(false);
                 this.connected = false;
-                setTimeout(() => {
-                    this.initWebSocket();
-                }, +this._settings.getSetting('reconnection.timeout'));
+                this.startReconnecting();
             }
         );
+    }
+
+    private startReconnecting() {
+        this.reconnetor = setTimeout(() => {
+            this.initWebSocket();
+        }, +this._settings.getSetting('reconnection.timeout'));
     }
 
     socketSend(msg: string) {
@@ -83,6 +88,13 @@ export class InformationService {
 
     onReconnection() {
         return this.reconnected;
+    }
+
+    manualReconnect() {
+        if (this.reconnetor) {
+            clearTimeout(this.reconnetor);
+        }
+        this.startReconnecting();
     }
 
 }

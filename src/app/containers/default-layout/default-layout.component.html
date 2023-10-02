@@ -14,33 +14,38 @@
             <c-header-nav class="ms-auto">
                 <c-nav-item>
                     <a cNavLink [routerLink]="['/views/monitoring']" routerLinkActive="active">
-                        <i class="fa fa-area-chart"></i><span class="ms-1">Monitoring</span>
+                        <i class="fa fa-area-chart"></i>
+                        <span class="ms-1">Monitoring</span>
                     </a>
                 </c-nav-item>
                 <c-nav-item>
                     <a cNavLink [routerLink]="['/views/config']" routerLinkActive="active">
                         <!--tooltip="Dynamic Form" placement="bottom"-->
-                        <i class="icon-settings"></i><span class="ms-1">Config</span>
+                        <i class="icon-settings"></i>
+                        <span class="ms-1">Config</span>
                     </a>
                 </c-nav-item>
 
                 <c-nav-item>
                     <a cNavLink [routerLink]="['/views/schema-editing']" routerLinkActive="active"
                        (click)="_sidebar.reset()">
-                        <i class="fa fa-cubes"></i><span class="ms-1">Schema</span>
+                        <i class="fa fa-cubes"></i>
+                        <span class="ms-1">Schema</span>
                     </a>
                 </c-nav-item>
 
                 <c-nav-item>
                     <a cNavLink [routerLink]="['/views/data-table']" routerLinkActive="active">
-                        <i class="fa fa-table"></i><span class="ms-1">Data</span>
+                        <i class="fa fa-table"></i>
+                        <span class="ms-1">Data</span>
                     </a>
                 </c-nav-item>
 
                 <c-dropdown alignment="start">
 
                     <a cHeaderToggler cDropdownToggle cNavLink routerLinkActive="active" class="fs-6">
-                        <i class="fa fa-keyboard-o"></i><span class="ms-1">Query</span>
+                        <i class="fa fa-keyboard-o"></i>
+                        <span class="ms-1">Query</span>
                     </a>
 
 
@@ -48,25 +53,29 @@
                         <li>
                             <a cDropdownItem class="mb-1" [routerLink]="['/views/querying/console']"
                                routerLinkActive="active">
-                                <i class="fa fa-keyboard-o"></i><span class="ms-1">Console</span>
+                                <i class="fa fa-keyboard-o"></i>
+                                <span class="ms-1">Console</span>
                             </a>
                         </li>
                         <li>
                             <a cDropdownItem class="mb-1" [routerLink]="['/views/querying/graphical-querying']"
                                routerLinkActive="active">
-                                <i class="icon-pencil"></i><span class="ms-1">Graphical Querying</span>
+                                <i class="icon-pencil"></i>
+                                <span class="ms-1">Graphical Querying</span>
                             </a>
                         </li>
                         <li>
                             <a cDropdownItem class="mb-1" [routerLink]="['/views/querying/relational-algebra']"
                                routerLinkActive="active">
-                                <i class="fa fa-cubes"></i><span class="ms-1">Plan Builder</span>
+                                <i class="fa fa-cubes"></i>
+                                <span class="ms-1">Plan Builder</span>
                             </a>
                         </li>
                         <li>
                             <a cDropdownItem class="mb-1" *ngIf="exploreByExampleEnabled()"
                                [routerLink]="['/views/querying/explore-by-example']" routerLinkActive="active">
-                                <i class="fa fa-magic"></i><span class="ms-1">Explore by Example</span>
+                                <i class="fa fa-magic"></i>
+                                <span class="ms-1">Explore by Example</span>
                             </a>
                         </li>
                     </ul>
@@ -74,29 +83,26 @@
 
                 <c-nav-item>
                     <a cNavLink [routerLink]="['/views/adapters']" routerLinkActive="active">
-                        <i class="fa fa-database"></i><span class="ms-1">Adapters</span>
+                        <i class="fa fa-database"></i>
+                        <span class="ms-1">Adapters</span>
                     </a>
                 </c-nav-item>
 
                 <c-nav-item>
                     <a cNavLink [routerLink]="['/views/notebooks']" routerLinkActive="active">
-                        <i class="fa fa-book"></i><span class="ms-1">Notebooks</span>
+                        <i class="fa fa-book"></i>
+                        <span class="ms-1">Notebooks</span>
                     </a>
                 </c-nav-item>
 
                 <c-nav-item>
                     <a cNavLink [routerLink]="['/views/queryInterfaces']" routerLinkActive="active">
-                        <i class="fa fa-exchange"></i><span class="ms-1">Interfaces</span>
+                        <i class="fa fa-exchange"></i>
+                        <span class="ms-1">Interfaces</span>
                     </a>
                 </c-nav-item>
 
                 <c-avatar role="button" [hidden]="isConnected()" size="md" color="secondary" (click)="reconnect()" [status]="getConnectionClass()" [class]="connectionSymbol" (mouseenter)="connectionSymbol = 'cil-sync'" (mouseleave)="connectionSymbol = 'cil-warning'" [tooltip]="getConnectionText()"></c-avatar>
-
-                <c-nav-item>
-                    <a cNavLink (click)="showRight = !showRight">
-                        <svg [cIcon]="icons.cilHamburgerMenu" title="Sidebar Toggle"></svg>
-                    </a>
-                </c-nav-item>
 
             </c-header-nav>
         </c-container>
@@ -127,8 +133,5 @@
                 </c-footer>
             </div>
         </div>
-        <c-sidebar id="right" size="xl" [visible]="showRight" class="sidebar-end position-relative p-3">
-            <app-right-sidebar></app-right-sidebar>
-        </c-sidebar>
     </div>
 </div>
