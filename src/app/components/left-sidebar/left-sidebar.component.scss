@@ -57,4 +57,16 @@
   margin-right: 1px;
 }
 
+.sidebar-toggle{
+  position: absolute;
+  top: 0;
+  background-color: #3c4b64;
+  transition: right .2s;
+  right: -16px;
+
+  &:hover{
+    right: -30px;
+    transition: right .2s;
+  }
+}
 

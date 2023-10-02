@@ -1,5 +1,5 @@
 <div id="tree-outer-wrapper" class="schema-editing d-flex flex-column h-100 w-auto gap-2">
-
+    <button cButton class="sidebar-toggle text-white rounded-start-0 rounded-end border-0" size="sm" [class.collapsed]="!_sidebar.isVisible()" [class]="_sidebar.isVisible() ? 'cil-arrow-thick-to-left': 'cil-arrow-thick-to-right'" (click)="_sidebar.toggle()"></button>
     <c-input-group>
         <button cButton color="light" cInputGroupText id="basic-addon1" *ngIf="isExpandAndCollapseShown()">
             <span (click)="collapseAll()" id="collapse"><i class="fa fa-compress"></i></span>

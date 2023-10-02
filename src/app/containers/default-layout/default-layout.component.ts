@@ -18,7 +18,8 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
     private changes: MutationObserver;
     public element: HTMLElement;
     icons = freeSet;
-    connectionSymbol = 'cil-warning';
+    hover = false;
+
 
     constructor(
         public _sidebar: LeftSidebarService,
@@ -49,7 +50,7 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
         this.changes.disconnect();
     }
 
-    getConnectionClass() {
+    getConnectedColor() {
         return this._information.connected ? 'success' : 'danger';
     }
 
@@ -73,5 +74,9 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
     reconnect() {
         this._information.manualReconnect();
         console.log('reconnecting');
+    }
+
+    getConnectedSymbol() {
+        return this._information.connected ? 'cil-check': ( this.hover ? 'cil-sync' : 'cil-warning');
     }
 }

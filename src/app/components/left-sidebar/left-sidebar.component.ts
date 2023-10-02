@@ -18,7 +18,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
     constructor(
         _router: Router,
-        private _sidebar: LeftSidebarService,
+        public _sidebar: LeftSidebarService,
         public _catalog: CatalogService
     ) {
         this.router = _router;

@@ -16,8 +16,8 @@ export class WebuiSettingsService {
 
         // tslint:disable:no-unused-expression
         new Setting(this.settings, 'webUI.port', '7659');
-        new Setting(this.settings, 'configServer.prefix', '/config/v1');
-        new Setting(this.settings, 'informationServer.prefix', '/info/v1');
+        new Setting(this.settings, 'config.prefix', '/config/v1');
+        new Setting(this.settings, 'information.prefix', '/info/v1');
         new Setting(this.settings, 'httpServer.port', '13137');
         new Setting(this.settings, 'websocketGestureRecognition.ip:port', 'localhost:4999/index.php');
         new Setting(this.settings, 'reconnection.timeout', '500');
