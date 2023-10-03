@@ -1,14 +1,18 @@
 <div id="tree-outer-wrapper" class="schema-editing d-flex flex-column h-100 w-auto gap-2">
-    <button cButton class="sidebar-toggle text-white rounded-start-0 rounded-end border-0" size="sm" [class.collapsed]="!_sidebar.isVisible()" [class]="_sidebar.isVisible() ? 'cil-arrow-thick-to-left': 'cil-arrow-thick-to-right'" (click)="_sidebar.toggle()"></button>
-    <c-input-group>
-        <button cButton color="light" cInputGroupText id="basic-addon1" *ngIf="isExpandAndCollapseShown()">
-            <span (click)="collapseAll()" id="collapse"><i class="fa fa-compress"></i></span>
-        </button>
-        <input cFormControl type="text" placeholder="search" id="search-tree">
-        <button cButton color="light" cInputGroupText *ngIf="isExpandAndCollapseShown()">
-            <span (click)="expandAll()" id="expand"><i class="fa fa-expand"></i></span>
-        </button>
-    </c-input-group>
+    <div class="d-flex">
+
+        <c-input-group>
+            <button cButton color="light" cInputGroupText id="basic-addon1" *ngIf="isExpandAndCollapseShown()">
+                <span (click)="collapseAll()" id="collapse"><i class="fa fa-compress"></i></span>
+            </button>
+            <input cFormControl type="text" placeholder="search" id="search-tree">
+            <button cButton color="light" cInputGroupText *ngIf="isExpandAndCollapseShown()">
+                <span (click)="expandAll()" id="expand"><i class="fa fa-expand"></i></span>
+            </button>
+        </c-input-group>
+
+        <button cButton class="sidebar-toggle text-white border-0" size="sm" [class.open]="_sidebar.isVisible()" [class]="_sidebar.isVisible() ? 'cil-x': 'cil-menu'" (click)="_sidebar.toggle()"></button>
+    </div>
 
     <div class="w-100 text-center flex-grow-1 d-flex align-items-center" *ngIf="this._catalog.state() !== CatalogState.UP_TO_DATE">
         <c-spinner aria-hidden="true" size="xl" class="mx-auto"></c-spinner>

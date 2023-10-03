@@ -59,13 +59,17 @@
 
 .sidebar-toggle{
   position: absolute;
-  top: 0;
+  top: 1rem;
   background-color: #3c4b64;
   transition: right .2s;
-  right: -16px;
+  right: -50px;
 
-  &:hover{
-    right: -30px;
+  &.open{
+    right: -10px;
+    top: 0.1rem;
+    display: inline-block;
+    width: auto;
+    position: relative;
     transition: right .2s;
   }
 }

@@ -21,7 +21,7 @@ import {HttpClientModule} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
 import {
   AvatarComponent,
-  BreadcrumbComponent,
+  BreadcrumbComponent, ButtonCloseDirective, ButtonDirective,
   ColComponent,
   ContainerComponent,
   DropdownComponent,
@@ -35,7 +35,7 @@ import {
   HeaderDividerComponent,
   HeaderNavComponent,
   HeaderTextComponent,
-  HeaderTogglerDirective,
+  HeaderTogglerDirective, ModalBodyComponent, ModalComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective,
   NavItemComponent,
   NavLinkDirective,
   ProgressBarComponent,
@@ -121,7 +121,14 @@ import {IconDirective} from '@coreui/icons-angular';
     ProgressBarComponent,
     ToastCloseDirective,
     ToasterComponent,
-    AvatarComponent
+    AvatarComponent,
+    ModalComponent,
+    ModalHeaderComponent,
+    ModalBodyComponent,
+    ModalFooterComponent,
+    ModalTitleDirective,
+    ButtonCloseDirective,
+    ButtonDirective
   ],
     declarations: [
         AppComponent,
