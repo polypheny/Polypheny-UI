@@ -192,7 +192,7 @@
                 <option *ngFor="let instance of instances" [value]="instance.id">{{instance.alias}}</option>
             </select>
             <div *ngIf="instances.length === 0" class="alert alert-info mt-3">
-                To add a Docker instance go to Config > Docker.
+                To add a Docker instance go to Config &gt; Docker.
             </div>
             <div *ngIf="instances.length > 0" class="alert alert-warning mt-3">
                 The Jupyter image is very large, it might take some time to download.
@@ -200,7 +200,7 @@
         </c-modal-body>
         <c-modal-footer>
             <button cButton color="secondary" type="button" (click)="startContainerModal.hide()">Cancel</button>
-            <button cButton color="success" type="button" (click)="createContainer(+(selectedInstance.value))" [disabled]="creating">
+            <button cButton color="success" type="button" (click)="createContainer(+(selectedInstance.value))" [disabled]="creating || instances.length === 0">
                 <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true" *ngIf="creating"></span>
                 <span>Start</span>
             </button>
