@@ -60,6 +60,7 @@ export class EditEntityComponent {
         return null;
       }
       const splits = this.currentRoute().split('\.');
+
       return this._catalog.getEntityFromName(splits[0], splits[1]);
     });
 

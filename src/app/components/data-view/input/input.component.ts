@@ -93,7 +93,6 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   triggerNull(value) {
-    console.log(value);
     if (value !== null) {
       return null;
     }

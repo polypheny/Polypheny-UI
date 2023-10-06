@@ -83,7 +83,7 @@ export class DockereditComponent implements OnInit, OnDestroy {
                     this.timeoutId = null;
                     if (this.handshake.status === 'SUCCESS') {
                         this.handshake = null;
-                        this._toast.success("Successfully updated docker instance '" + this.alias + "'");
+                        this._toast.success('Successfully updated docker instance \'' + this.alias + '\'');
                     }
                 }
             },

@@ -25,26 +25,20 @@ export class InformationManagerComponent implements OnInit {
     }
 
     getCardClass(color) {
-        let card = '';
         switch (color) {
             case 'BLUE':
-                card = 'bg-primary';
-                break;
+                return 'bg-primary';
             case 'LIGHTBLUE':
-                card = 'bg-info';
-                break;
+                return 'bg-info';
             case 'YELLOW':
-                card = 'bg-warning';
-                break;
+                return 'bg-warning';
             case 'RED':
-                card = 'bg-danger';
-                break;
+                return 'bg-danger';
             case 'GREEN':
-                card = 'bg-success';
-                break;
+                return 'bg-success';
+            default:
+                return '';
         }
-        card = card + ' card';
-        return card;
     }
 
     /** order groups within a page, respectively information-elements within a group

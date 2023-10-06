@@ -148,7 +148,6 @@ export class DataViewComponent implements OnDestroy {
   }
 
   deactivateGraphButton(result: Result<any, any>) {
-    console.log(result);
     return result.namespaceType === NamespaceType.GRAPH || !this.containsGraphObject(result);
   }
 

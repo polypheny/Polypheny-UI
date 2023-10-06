@@ -34,7 +34,7 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
       @Inject(DOCUMENT) _document?: any,
   ) {
 
-    this.changes = new MutationObserver((mutations) => {
+    this.changes = new MutationObserver(() => {
       this.sidebarMinimized = _document.body.classList.contains('sidebar-minimized');
     });
     this.element = _document.body;

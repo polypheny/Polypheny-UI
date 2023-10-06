@@ -1,24 +1,20 @@
 <ng-container *ngIf="!li.type">
-    <div class="card-body">
-        {{li.label}}
-    </div>
+    {{li.label}}
 </ng-container>
 
 <ng-container *ngIf="li.type">
 
     <ng-container *ngIf="li.type == 'InformationLink'">
-        <div class="card-body">
-            <a [routerLink]="li.routerLink">{{li.label}}</a>
-        </div>
+        <a [routerLink]="li.routerLink">{{li.label}}</a>
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationHtml'">
-        <div class="card-body" [innerHTML]="li.html"></div>
+        <div [innerHTML]="li.html"></div>
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationTable'">
         <div class="table-wrapper">
-            <table class="table table-responsive-sm">
+            <table cTable class="table table-responsive-sm">
                 <thead>
                 <tr>
                     <th *ngFor="let l of li.labels">{{l}}</th>
@@ -34,26 +30,24 @@
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationCode'">
-        <div class="card-body" [ngStyle]="{'height': getCodeHeight()}">
+        <div [ngStyle]="{'height': getCodeHeight()}">
             <app-editor [readonly]="true" [language]="li.language" [code]="li.code"></app-editor>
         </div>
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationProgress'">
-        <div class="card-body">
-            <div class="clearfix">
-                <div class="float-left">
-                    <strong>{{li.label}}</strong>
-                </div>
-                <div class="float-right">
-                    <small class="text-muted">{{displayProgressValue(li)}}</small>
-                </div>
+        <div class="clearfix">
+            <div class="float-left">
+                <strong>{{li.label}}</strong>
             </div>
-            <div class="progress progress-xs">
-                <progressbar [type]="getProgressColor(li)" [value]="li.value" [max]="li.max || 100"
-                             [animate]="true">{{li.value}}%
-                </progressbar>
+            <div class="float-right">
+                <small class="text-muted">{{displayProgressValue( li )}}</small>
             </div>
+        </div>
+        <div class="progress progress-xs">
+            <progressbar [type]="getProgressColor(li)" [value]="li.value" [max]="li.max || 100"
+                         [animate]="true">{{li.value}}%
+            </progressbar>
         </div>
     </ng-container>
 
@@ -64,41 +58,35 @@
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationQueryPlan' && li.queryPlan">
-        <div class="card-body">
-            <app-plan-view [query]="''" [planObject]="li.queryPlan"></app-plan-view>
-        </div>
+        <app-plan-view [query]="''" [planObject]="li.queryPlan"></app-plan-view>
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationAction'">
-        <div class="card-body">
-            <div class="form-row" *ngIf="li.parameters">
-                <c-col class="input-group col-md-6 mb-2"
-                     *ngFor="let p of li.parameters | keyvalue; let i=index; trackBy:trackBy">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text">{{p.key}}</div>
-                    </div>
-                    <input type="text" class="form-control" [(ngModel)]="li.parameters[p.key]">
-                </c-col>
-            </div>
-            <button class="btn btn-primary" (click)="executeInformationAction(li)"
-                    [disabled]="executingInformationAction"
-                    tooltip="Warning: Not all parameters are set!" placement="auto" triggers=""
-                    #tooltip="bs-tooltip" (mouseenter)="parameterWarning(li, tooltip)" (mouseleave)="tooltip.hide()">
+        <div class="form-row" *ngIf="li.parameters">
+            <c-input-group class="col-md-6 mb-2"
+                           *ngFor="let p of li.parameters | keyvalue; let i=index; trackBy:trackBy">
+                <div cInputGroupText>{{p.key}}</div>
+                <input cFormControl type="text" [(ngModel)]="li.parameters[p.key]">
+            </c-input-group>
+        </div>
+        <button cButton color="primary" (click)="executeInformationAction(li)"
+                [disabled]="executingInformationAction"
+                tooltip="Warning: Not all parameters are set!" placement="auto" triggers=""
+                #tooltip="bs-tooltip" (mouseenter)="parameterWarning(li, tooltip)" (mouseleave)="tooltip.hide()">
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
               *ngIf="executingInformationAction"></span>
-                {{li.label}}
-            </button>
-        </div>
+            {{li.label}}
+        </button>
     </ng-container>
 
     <div class="InformationDuration" *ngIf="li.type === 'InformationDuration'">
         <div [ngClass]="{'duration': li.isChild || showTotalDuration(li), 'isParent': !li.isChild}">
             <strong *ngIf="showTotalDuration(li)">
-                total time: {{displayTime(li.duration)}}
+                total time: {{displayTime( li.duration )}}
             </strong>
             <br *ngIf="showTotalDuration(li) && li.name">
             <span class="durationText" [ngClass]="{'text-danger': li.limit && li.duration > li.limit}" *ngIf="li.name">
-        {{li.name}}: {{displayTime(li.duration)}}
+        {{li.name}}: {{displayTime( li.duration )}}
       </span>
             <div class="progress" *ngIf="!li.noProgressBar && li.children && li.children.length > 1">
                 <div
@@ -107,8 +95,7 @@
                         [ngClass]="getDurationColor(i)"
                         [tooltip]="c.name"
                         container="body"
-                        [ngStyle]="{width: getProgressWidth(li, c)+'%'}"
-                >&nbsp;
+                        [ngStyle]="{width: getProgressWidth(li, c)+'%'}">&nbsp;
                 </div>
             </div>
             <div class="duration" *ngFor="let duration of li.children ">
@@ -118,7 +105,7 @@
                 <br *ngIf="showTotalDuration(castDuration(duration)) && duration.name">
                 <span class="durationText"
                       [ngClass]="{'text-danger': duration.limit && duration.duration > duration.limit}">
-          {{duration.name}}: {{displayTime(duration.duration)}}
+          {{duration.name}}: {{displayTime( duration.duration )}}
         </span>
                 <div class="progress"
                      *ngIf="!duration.noProgressBar && duration.children && duration.children.length > 1">
@@ -128,8 +115,7 @@
                             [ngClass]="getDurationColor(i)"
                             [tooltip]="c.name"
                             container="body"
-                            [ngStyle]="{width: getProgressWidth(duration, c)+'%'}"
-                    >&nbsp;
+                            [ngStyle]="{width: getProgressWidth(duration, c)+'%'}">&nbsp;
                     </div>
                 </div>
                 <app-render-item *ngFor="let d of duration.children" [li]="castDuration(d)"></app-render-item>
@@ -138,14 +124,14 @@
     </div>
 
     <ng-container *ngIf="li.type == 'InformationStacktrace'">
-        <div class="card-body exception" *ngIf="li.exception">
+        <div class="exception" *ngIf="li.exception">
             <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: li.exception}"></ng-container>
         </div>
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationKeyValue'">
-        <div class="card-body" *ngIf="li.keyValuePairs">
-            <table class="table table-sm table-bordered table-striped mb-0">
+        <div *ngIf="li.keyValuePairs">
+            <table cTable class="table-sm table-bordered table-striped mb-0">
                 <tbody>
                 <tr *ngFor="let p of li.keyValuePairs | keyvalue">
                     <td>{{p.key}}</td>
@@ -157,9 +143,7 @@
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationText'">
-        <div class="card-body" *ngIf="li.text">
-            <p>{{li.text}}</p>
-        </div>
+        <p>{{li.text}}</p>
     </ng-container>
 
 </ng-container>

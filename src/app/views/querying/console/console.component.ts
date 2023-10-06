@@ -109,7 +109,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
   private loadAndSetNamespaceDB() {
     let namespaceName = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
-    console.log(namespaceName);
+
     if (namespaceName === null || (this.namespaces && this.namespaces.length > 0 && (this.namespaces().filter(n => n.name === namespaceName).length === 0))) {
       if (this.namespaces() && this.namespaces().length > 0) {
         namespaceName = this.namespaces()[0].name;
@@ -254,7 +254,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
       const split = node.data.routerLink.split('/');
       const analyzerId = split[0];
       const analyzerPage = split[1];
-      if (analyzerId !== undefined && analyzerPage !== undefined) {
+      if (analyzerId && analyzerPage) {
         this._crud.getAnalyzerPage(analyzerId, analyzerPage).subscribe({
           next: res => {
             this.queryAnalysis = <InformationPage>res;
@@ -293,6 +293,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
           }
 
           sidebarNodes.unshift(new SidebarNode('console', 'console', 'fa fa-keyboard-o').setAction(nodeBehavior));
+
           this._leftSidebar.setNodes(sidebarNodes);
           if (sidebarNodes.length > 0) {
             this._leftSidebar.open();

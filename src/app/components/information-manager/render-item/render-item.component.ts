@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Duration, InformationObject, InformationResponse} from '../../../models/information-page.model';
 import {InformationService} from '../../../services/information.service';
 import {ToasterService} from '../../toast-exposer/toaster.service';
+import {ProgressbarType} from "ngx-bootstrap/progressbar";
 
 @Component({
   selector: 'app-render-item',
@@ -31,7 +32,7 @@ export class RenderItemComponent implements OnInit {
     }
   }
 
-  getProgressColor(li) {
+  getProgressColor(li): ProgressbarType {
     const col = li.color || 'dynamic';
     switch (col) {
       case 'BLUE':
@@ -42,8 +43,6 @@ export class RenderItemComponent implements OnInit {
         return 'warning';
       case 'RED':
         return 'danger';
-      case 'BLACK':
-        return 'dark';
       case 'DYNAMIC':
         if (li.value === undefined) {
           return 'info';
@@ -70,12 +69,13 @@ export class RenderItemComponent implements OnInit {
     if (!this.li.code) {
       return '20px';
     } else {
+
       const match = this.li.code.match(/\n/g);
       let numberOfLines = 1;
       if (Array.isArray(match)) {
         numberOfLines = this.li.code.match(/\n/g).length;
       }
-
+      console.log(numberOfLines * 16 + 60 + 'px');
       return numberOfLines * 16 + 60 + 'px';
     }
   }

@@ -15,8 +15,8 @@
         <div class="custom-control-inline breadcrumb" id="zoom-wrapper">
             <div class="custom-control" *ngIf="_breadcrumb._showZoom">
                 Zoom: {{zoom}}
-                <button class="btn btn-light" (click)="zoomOut()">-</button>
-                <button class="btn btn-light" style="margin-left:0.5em;" (click)="zoomIn()">+</button>
+                <button cButton color="light" (click)="zoomOut()">-</button>
+                <button cButton color="light" style="margin-left:0.5em;" (click)="zoomIn()">+</button>
                 <span>  </span>
             </div>
         </div>
@@ -24,15 +24,14 @@
     <c-col class="col-md-6" *ngIf="breadcrumbs[0].name == 'Schema'">
         <div class="custom-control-inline breadcrumb breadcrumb-menu-right" id="statistics-wrapper">
             <div class="custom-control" *ngIf="_breadcrumb.getTableId()">
-                <button class="btn btn-light"
-                        [routerLink]=" '/views/schema-editing/' + _breadcrumb.getTableId() + '/statistics-column'">
+                <button cButton color="light" [routerLink]=" '/views/schema-editing/' + _breadcrumb.getTableId() + '/statistics-column'">
                     Statistics
                 </button>
 
             </div>
             <div class="custom-control"
                  *ngIf="_breadcrumb.getNamespaceName() && _breadcrumb.isRelational() && !_breadcrumb.getTableId()">
-                <button class="btn btn-light" [routerLink]=" '/views/uml/' + _breadcrumb.getNamespaceName()">
+                <button cButton color="light" [routerLink]=" '/views/uml/' + _breadcrumb.getNamespaceName()">
                     UML
                 </button>
             </div>

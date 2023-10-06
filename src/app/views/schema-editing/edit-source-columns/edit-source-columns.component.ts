@@ -55,6 +55,11 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         });
 
         this.columns = computed(() => {
+            const catalog = this._catalog.listener();
+            if (!this.entity){
+                return [];
+            }
+
             const entity = this.entity();
             if (!entity) {
                 return this.columns();

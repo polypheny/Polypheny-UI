@@ -7,8 +7,8 @@ import {
   BgColorDirective,
   BreadcrumbComponent as BreadCrumb, ButtonCloseDirective,
   ButtonDirective, ButtonGroupComponent, CardBodyComponent, CardComponent, CardFooterComponent, CardHeaderComponent,
-  ColComponent,
-  FormControlDirective, FormFeedbackComponent,
+  ColComponent, ColDirective,
+  FormControlDirective, FormFeedbackComponent, GutterDirective,
   InputGroupComponent,
   InputGroupTextDirective, ListGroupDirective, ListGroupItemDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalFooterComponent, ModalHeaderComponent, NavComponent, NavItemComponent, NavLinkDirective, PageItemDirective, PageLinkDirective, PaginationComponent,
   ProgressBarComponent,
@@ -97,7 +97,7 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
     ProgressBarComponent,
     ProgressComponent,
     ToastCloseDirective,
-    BreadCrumb, SpinnerComponent, ButtonDirective, TableDirective, CardComponent, CardHeaderComponent, CardBodyComponent, CardFooterComponent, FormFeedbackComponent, ListGroupDirective, ListGroupItemDirective, PaginationComponent, PageItemDirective, PageLinkDirective, TextColorDirective, ModalComponent, ModalContentComponent, ModalHeaderComponent, ModalBodyComponent, ButtonCloseDirective, ButtonGroupComponent, NavComponent, NavItemComponent, NavLinkDirective, TabContentComponent, TabPaneComponent, TabContentRefDirective, ModalFooterComponent
+    BreadCrumb, SpinnerComponent, ButtonDirective, TableDirective, CardComponent, CardHeaderComponent, CardBodyComponent, CardFooterComponent, FormFeedbackComponent, ListGroupDirective, ListGroupItemDirective, PaginationComponent, PageItemDirective, PageLinkDirective, TextColorDirective, ModalComponent, ModalContentComponent, ModalHeaderComponent, ModalBodyComponent, ButtonCloseDirective, ButtonGroupComponent, NavComponent, NavItemComponent, NavLinkDirective, TabContentComponent, TabPaneComponent, TabContentRefDirective, ModalFooterComponent, GutterDirective, ColDirective
   ],
     declarations: [
         BreadcrumbComponent,

@@ -15,7 +15,7 @@ export class WebSocket {
       if (this.connected) {
         this.socket.next('keepalive');
       }
-    }, 10_000);
+    }, +this._settings.getSetting('reconnection.timeout'));
   }
 
   private initWebSocket(reconnect: boolean) {

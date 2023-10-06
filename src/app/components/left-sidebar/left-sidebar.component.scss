@@ -27,6 +27,16 @@
   text-align: center;
 }
 
+.separator, .separator .sidebarIcon {
+  background: transparent !important;
+  color: #6c757d !important; /* from bootstrap .text-muted */
+  font-size: 0.75em;
+  text-transform: uppercase;
+  box-shadow: none;
+  cursor: default;
+  margin-top: 1em;
+}
+
 .schema-button {
   margin-left: 1rem;
 

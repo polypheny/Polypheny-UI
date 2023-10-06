@@ -8,6 +8,7 @@ import {SyntaxHighlightService} from './services/syntax-highlight.service';
 import {HelpService} from './services/help.service';
 import {ColorService} from './services/color.service';
 import {FormsModule} from '@angular/forms';
+import {ButtonCloseDirective} from "@coreui/angular";
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import {FormsModule} from '@angular/forms';
   ],
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    ButtonCloseDirective
   ],
   providers: [
     PlanService,

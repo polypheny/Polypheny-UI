@@ -36,7 +36,7 @@ import {
 } from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {AdapterModel, PlacementType} from '../../adapters/adapter.model';
-import {BehaviorSubject, Subscription} from 'rxjs';
+import {Subscription} from 'rxjs';
 import {ForeignKey, Uml} from '../../../views/uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
 import {
@@ -77,10 +77,15 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     this.oldColumns = computed(() => {
       const catalog = this._catalog.listener();
-      if (!this.entity || !this.entity()) {
+      if (!this.entity) {
         return new Map();
       }
-      const columns = this._catalog.getColumns(this.entity().id);
+
+      const entity = this.entity();
+      if (!entity) {
+        return new Map();
+      }
+      const columns = this._catalog.getColumns(entity.id);
       if (!columns) {
         return new Map();
       }
@@ -162,19 +167,27 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
   }
 
-  @Input()
-  readonly entity: Signal<TableModel>;
+  readonly entity: WritableSignal<TableModel> = signal(null);
+
+  @Input() set entityIn(entity: TableModel) {
+    this.entity.set(entity);
+  }
+
   @Input()
   readonly namespace: Signal<NamespaceModel>;
+
   @Input()
   readonly currentRoute: Signal<string>;
 
   @Input()
   readonly placements: Signal<AllocationPlacementModel[]>;
+
   @Input()
   readonly partitions: Signal<AllocationPartitionModel[]>;
+
   @Input()
   readonly allocations: Signal<AllocationEntityModel[]>;
+
   @Input()
   readonly stores: Signal<AdapterModel[]>;
 

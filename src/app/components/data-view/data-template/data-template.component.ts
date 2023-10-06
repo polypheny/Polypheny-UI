@@ -80,7 +80,6 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
       return;
     }
     this.result.set(CombinedResult.from(result));
-    console.log(this.result());
   }
 
   pagination: PaginationElement[] = [];
