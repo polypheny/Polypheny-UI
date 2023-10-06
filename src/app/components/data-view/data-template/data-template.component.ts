@@ -1,10 +1,23 @@
-import {Component, computed, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Signal, signal, TemplateRef, untracked, WritableSignal} from '@angular/core';
-import {DataPresentationType, QueryLanguage, RelationalResult, Result, UiColumnDefinition} from '../models/result-set.model';
+import {
+  Component,
+  computed,
+  effect,
+  EventEmitter,
+  inject,
+  Input,
+  OnDestroy,
+  OnInit,
+  Signal,
+  signal,
+  untracked,
+  WritableSignal
+} from '@angular/core';
+import {RelationalResult, Result, UiColumnDefinition} from '../models/result-set.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {CatalogService} from '../../../services/catalog.service';
 import {EntityModel, EntityType} from '../../../models/catalog.model';
 import {WebSocket} from '../../../services/webSocket';
-import {CombinedResult, DataViewComponent, Freshness, TimeUnits, ViewInformation, ViewType} from '../data-view.component';
+import {CombinedResult} from '../data-view.component';
 import {EntityConfig} from '../data-table/entity-config';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Subscription} from 'rxjs';
@@ -95,7 +108,6 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     });
 
     this.entity = computed(() => {
-      console.log("uped");
       const catalog = this._catalog.listener();
       if (!this.currentRoute || !this.currentRoute()) {
         return null;

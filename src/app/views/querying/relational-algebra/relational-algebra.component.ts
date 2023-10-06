@@ -1,10 +1,12 @@
 import {
   AfterViewInit,
-  Component, effect,
+  Component,
+  effect,
   ElementRef,
   HostBinding,
   OnDestroy,
-  OnInit, untracked,
+  OnInit,
+  untracked,
   ViewChild,
   ViewEncapsulation
 } from '@angular/core';
@@ -18,7 +20,6 @@ import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
 import {SvgLine} from '../../uml/uml.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
-import {WebSocketService} from '../../../services/web-socket.service';
 import {RightSidebarToRelationalalgebraService} from '../../../services/right-sidebar-to-relationalalgebra.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {InformationPage} from '../../../models/information-page.model';
@@ -70,7 +71,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
   constructor(
       private _crud: CrudService,
       private _toast: ToasterService,
-      private _webSocketService: WebSocketService,
       private _RsToRa: RightSidebarToRelationalalgebraService,
       private _leftSidebar: LeftSidebarService,
       private _breadcrumb: BreadcrumbService,
@@ -108,10 +108,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     this._leftSidebar.open();
     this.getOperators();
 
-    const sub1 = this._RsToRa.change.subscribe(run => {
-      this.makeSocketConnection();
-    });
-    this.subscriptions.add(sub1);
     const sub2 = this.webSocket.reconnecting.subscribe(
         b => {
           if (b) {
@@ -742,28 +738,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
       }
 
-    }
-  }
-
-  /**
-   * Establishes the socket connection to the Query by Gesture Bridge and listens to incoming data.
-   *
-   */
-  public makeSocketConnection() {
-    this._webSocketService.startConnection();
-    if (this.socketOn) {
-      this.socketOn = false;
-    } else {
-      const sub = this._webSocketService.listen('my_message').subscribe((data) => {
-        if (data.toString() === 'delete') {
-          this.deleteAll();
-        }
-        if (data.toString().startsWith('{')) {
-          this.parseJson(data);
-        }
-      });
-      this.subscriptions.add(sub);
-      this.socketOn = true;
     }
   }
 

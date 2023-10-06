@@ -1,5 +1,4 @@
-import {Component, effect, Inject, OnDestroy, OnInit, Signal, signal, untracked, ViewChild, WritableSignal} from '@angular/core';
-import {UntypedFormBuilder} from '@angular/forms';
+import {Component, effect, OnDestroy, OnInit, signal, untracked, ViewChild, WritableSignal} from '@angular/core';
 import {EntityConfig} from '../../../components/data-view/data-table/entity-config';
 import {CrudService} from '../../../services/crud.service';
 import {RelationalResult, Result} from '../../../components/data-view/models/result-set.model';
@@ -12,10 +11,9 @@ import {InformationObject, InformationPage} from '../../../models/information-pa
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {BehaviorSubject, Subscription} from 'rxjs';
+import {Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
 import {WebSocket} from '../../../services/webSocket';
-import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
 import {CatalogService} from '../../../services/catalog.service';
@@ -275,7 +273,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     const sub = this.websocket.onMessage().subscribe({
       next: msg => {
-        console.log(msg);
         //if msg contains nodes of the sidebar
         if (Array.isArray(msg) && msg[0].hasOwnProperty('routerLink')) {
           const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
@@ -308,7 +305,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
           this.results.set(<Result<any, any>[]>msg);
           this.collapsed = new Array(this.results.length);
           this.collapsed.fill(false);
-          console.log(this.results);
 
         } else if (msg.hasOwnProperty('type')) { //if msg contains a notification of a changed information object
           const iObj = <InformationObject>msg;
