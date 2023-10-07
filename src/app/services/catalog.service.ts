@@ -1,27 +1,10 @@
-import {effect, Injectable, Signal, signal, untracked, WritableSignal} from '@angular/core';
+import {effect, Injectable, signal, untracked, WritableSignal} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {
-  AdapterTemplateModel,
-  AllocationColumnModel,
-  AllocationEntityModel,
-  AllocationPartitionModel,
-  AllocationPlacementModel,
-  AssetsModel,
-  CatalogState,
-  ColumnModel,
-  ConstraintModel,
-  EntityModel,
-  EntityType,
-  FieldModel,
-  IdEntity,
-  KeyModel,
-  LogicalSnapshotModel,
-  NamespaceModel
-} from '../models/catalog.model';
+import {AdapterTemplateModel, AllocationColumnModel, AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, AssetsModel, CatalogState, ColumnModel, ConstraintModel, EntityModel, EntityType, FieldModel, IdEntity, KeyModel, LogicalSnapshotModel, NamespaceModel} from '../models/catalog.model';
 import {NamespaceType} from '../models/ui-request.model';
 import {SidebarNode} from '../models/sidebar-node.model';
-import {BehaviorSubject, combineLatestWith, Observable, Subject} from 'rxjs';
+import {combineLatestWith, Observable, Subject} from 'rxjs';
 import {DbmsTypesService} from './dbms-types.service';
 import {map} from 'rxjs/operators';
 import {AdapterModel, AdapterType} from '../views/adapters/adapter.model';
@@ -117,6 +100,7 @@ export class CatalogService {
     this.adapterTemplates.set(new Map(this.snapshot.adapterTemplates.map(t => [[t.adapterName, t.adapterType], t])));
 
     this.listener.set(this); // notify
+    this.state.set(CatalogState.UP_TO_DATE);
   }
 
   updateIfNecessary(): Observable<CatalogService> {
