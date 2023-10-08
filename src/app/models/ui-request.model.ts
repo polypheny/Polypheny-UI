@@ -10,7 +10,7 @@ export class RequestModel {
 
 export abstract class UIRequest extends RequestModel {
     entityId: number;
-    namespaceId: number;
+    namespace: string;
     currentPage: number;
     data: Map<string, string>;
     filter: Map<string, string>;
@@ -22,10 +22,10 @@ export abstract class UIRequest extends RequestModel {
 export class EntityRequest extends UIRequest {
     type = 'EntityRequest';
 
-    constructor(entityId: number, namespaceId: number, currentPage: number, filter: any = null, sortState: any = null) {
+    constructor(entityId: number, namespace: string, currentPage: number, filter: any = null, sortState: any = null) {
         super();
         this.entityId = entityId;
-        this.namespaceId = namespaceId;
+        this.namespace = namespace;
         this.currentPage = currentPage;
         this.filter = filter;
         this.sortState = sortState;
