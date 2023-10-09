@@ -23,7 +23,7 @@ export class WebuiSettingsService {
     new Setting(this.settings, 'reconnection.timeout', '500');
 
     this.connections.set('config.rest',
-        'http://' + this.host + ':' + localStorage.getItem('webUI.port') + localStorage.getItem('configServer.prefix'));
+        'http://' + this.host + ':' + localStorage.getItem('webUI.port') + localStorage.getItem('config.prefix'));
     this.connections.set('config.socket',
         'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/config');
     this.connections.set('information.rest',
