@@ -32,11 +32,8 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
   ) {
     super();
 
-
   }
 
-  @Input() exploreSet?: ExploreSet;
-  @Input() exploreId?: number;
   @ViewChild('decisionTree', {static: false}) public decisionTree: TemplateRef<any>;
   @ViewChild('sql', {static: false}) public sql: TemplateRef<any>;
   @ViewChild('editorGenerated', {static: false}) editorGenerated;
@@ -53,9 +50,9 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
 
   columns = [];
   userInput = {};
-  exploreDataCounter = 0;
 
   @Output() showViewExploring = new EventEmitter();
+
 
   protected readonly Freshness = Freshness;
   protected readonly TimeUnits = TimeUnits;
@@ -122,53 +119,6 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
     super.ngOnInit();
   }
 
-  /**
-   * Pagination for Explore-by-Example
-   */
-
-  /*getExploreTables() {
-
-    if (this.isExploringData) {
-      this.prepareClassifiedData();
-    }
-    const savedResultHead = this.result().header;
-    this._crud.getExploreTables(new ExploreTable(this.asExploreResult(this.combinedResult()).explorerId, this.result().header as UiColumnDefinition[], this.result().currentPage)).subscribe({
-      next: res => {
-        const result = <RelationalResult>res;
-
-        if (this.asExploreResult(this.combinedResult()).includesClassificationInfo) {
-          this.userInput = {};
-          this.prepareUserInput(this.asExploreResult(this.combinedResult()).classifiedData);
-        }
-        this.result().header = savedResultHead;
-        this.result().data = result.data;
-        this.result().query = result.query;
-        this.result().affectedTuples = result.affectedTuples;
-        this.result().highestPage = result.highestPage;
-
-        //go to highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
-        if (+this._route.snapshot.paramMap.get('page') > this.result().highestPage) {
-          this._router.navigate(['/views/data-table/' + this.entity().name + '/' + this.result().highestPage]);
-        }
-        this.setPagination();
-        this.editing = -1;
-        if (result.type === EntityType.ENTITY) {
-          this.entityConfig.create = true;
-          this.entityConfig.update = true;
-          this.entityConfig.delete = true;
-        } else {
-          this.entityConfig.create = false;
-          this.entityConfig.update = false;
-          this.entityConfig.delete = false;
-        }
-
-      },
-      error: err => {
-        this._toast.error('Could not load the data.');
-        console.log(err);
-      }
-    });
-  }*/
 
   filterTable(e, filterVal, col: UiColumnDefinition) {
     this.result().currentPage = 1;
@@ -214,54 +164,6 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
     this.getEntityData();
   }
 
-  /**
-   * Reset button within Explore-by-Example, resets actual Pagination Page
-   */
-  resetExplorationData() {
-    this.exploreDataCounter = 0;
-    this.userInput = [];
-    this.exploreSet = undefined;
-  }
-
-  /**
-   * Prepares labeled user data for Explore-by-Example
-   */
-  prepareClassifiedData() {
-    this.cData.forEach(value => {
-      if (!this.classifiedData) {
-        this.classifiedData = [];
-      }
-      this.classifiedData.forEach(val => {
-        if (val.slice(0, -1).toString() === value.slice(0, -1).toString() && value.slice(-1).toString() !== '?') {
-          this.classifiedData.splice(this.classifiedData.indexOf(val));
-        }
-      });
-      this.classifiedData.push(value);
-    });
-  }
-
-  /**
-   * Prepares data from backend in order to show data with correct colors and buttons
-   * @param dataAfterClassification
-   */
-  prepareUserInput(dataAfterClassification) {
-
-    for (let i = 0; i < dataAfterClassification.length; i++) {
-      let data = '';
-      const label = [];
-      for (let j = 0; j < dataAfterClassification[i].length; j++) {
-        if (dataAfterClassification[i][j] === 'true' || dataAfterClassification[i][j] === 'false') {
-          data += (dataAfterClassification[i][j]);
-        } else {
-          label.push(dataAfterClassification[i][j].split('\'').join(''));
-
-        }
-      }
-      this.userInput[label.join(',').toString()] = data;
-
-    }
-  }
-
   isValidArray(val: string): boolean {
     if (val.startsWith('[') && val.endsWith(']')) {
       try {
@@ -285,150 +187,6 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
     }
   }
 
-  /**
-   * Send Classification for Explore-by-Example
-   * Preparse tree to be shown in frontend
-   */
-
-  /*sendClassificationData() { // todo dl inject via plugin
-    this.prepareClassifiedData();
-    this._crud.exploreUserInput(new Exploration(this.exploreId, this.result().header as UiColumnDefinition[], this.classifiedData)).subscribe({
-      next: res => {
-        //this._toast.success('Classification successful');
-        this.initalClassifiation = false;
-        this.finalresult = false;
-        if (this.tutorialMode) {
-          this.openTutorial(this.tutorial);
-        }
-        this.exploreSet = <ExploreSet>res;
-        this.exploreId = this.asExploreResult(this.combinedResult()).explorerId;
-        // this.openModal(this.template);
-        this.userInput = {};
-        this.cData = [];
-        this.exploreDataCounter = 0;
-
-        this.prepareUserInput(this.exploreSet.dataAfterClassification);
-
-        let tree = <string>this.exploreSet.graph;
-
-        const digraph = dot.read(tree);
-        const nodes = digraph.nodes().join('; ');
-
-        const treeArray = tree.split(' shape=box style=filled ').join('').split('{');
-
-        if (treeArray.length > 1) {
-          tree = treeArray[0] + '{ ' + nodes.toString() + '; ' + treeArray[1];
-        }
-
-        const treeGraph = dot.read(tree);
-        const render = new dagreD3.render();
-
-        const svg = d3.select('svg#tree'),
-            svgGroup = svg.append('g');
-
-        render(d3.select('svg#tree g'), treeGraph);
-
-        const xCenterOffset = (svg.attr('width') - treeGraph.graph().width) / 2;
-        svgGroup.attr('transform', 'translate(' + xCenterOffset + ',20');
-        svg.attr('height', treeGraph.graph().height + 1);
-        svg.attr('width', treeGraph.graph().width + 1);
-
-
-      }, error: err => {
-        this._toast.error(('Classification Failed'));
-        console.log(err);
-
-      }
-    });
-  }
-
-  exploreData() {
-    this.isExploringData = true;
-    this.cData = cloneDeep(this.result().data);
-    this.cData.forEach(value => {
-      if (this.userInput) {
-        let count = 0;
-        Object.keys(this.userInput).forEach(val => {
-          if (this.userInput[val] !== '?' && val === value.toString()) {
-            value.push(this.userInput[val]);
-            count += 1;
-          }
-        });
-
-        if (count === 0) {
-          value.push('?');
-        }
-      }
-    });
-    this.exploreDataCounter++;
-  }*/
-
-
-  openTutorial(tutorial: TemplateRef<any>) {
-    this.modalRefTutorial = this.modalService.show(tutorial);
-  }
-
-  openDecisionTree(decisionTree: TemplateRef<any>) {
-    this.modalRefDecision = this.modalService.show(decisionTree);
-    const finalTree = $('.hidden-layer').clone().removeClass('hidden-layer');
-    finalTree.appendTo('#modal-body-tree');
-  }
-
-  openSQL(sql: TemplateRef<any>) {
-    this.modalRef = this.modalService.show(sql);
-  }
-
-
-  /**
-   * Final Request for final result Explore-by-Example
-   */
-  /*sendChosenCols() { // todo dl via injection
-    this._crud.classifyData(new ClassifyRequest(this.exploreId, this.result().header as UiColumnDefinition[], this.classifiedData, this.cPage)).subscribe({
-      next: res => {
-        //this._toast.success('Final Result');
-        this.finalresult = true;
-        this.userInput = {};
-        this.classifiedData = [];
-        this.result.set(CombinedResult.fromRelational(<RelationalResult>res));
-        this.exploreId = this.asExploreResult(this.combinedResult()).explorerId;
-        if (this.result().query) {
-          this.createdSQL = this.result().query;
-        }
-        this.setPagination();
-        this.showViewExploring.emit(true);
-      },
-      error: err => {
-        this._toast.error(('Error showing final Result'));
-        console.log(err);
-      }
-    });
-  }*/
-
-
-  /*async startClassification() {
-    await this.exploreData();
-    this.sendClassificationData();
-  }*/
-
-  getSelected() {
-    const values = Object.values(this.userInput);
-    return values.filter((el, i, a) => {
-      return el !== '?';
-    }).length;
-  }
-
-  displayRowItem(data: string, col: UiColumnDefinition) {
-    if (data == null) {
-      return '';
-    } else if (!col) {
-      return data;
-    } else {
-      if (data.length > 1000) {
-        return data.slice(0, 1000) + '...';
-      }
-    }
-    return data;
-  }
 
   getTooltip(col: UiColumnDefinition): string {
     if (!col) {

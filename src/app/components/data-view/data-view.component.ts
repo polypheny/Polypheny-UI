@@ -1,4 +1,4 @@
-import {Component, computed, effect, EventEmitter, Input, OnDestroy, Signal, signal, WritableSignal} from '@angular/core';
+import {Component, computed, effect, EventEmitter, Input, OnDestroy, Signal, signal, untracked, WritableSignal} from '@angular/core';
 import {DataPresentationType, DocumentResult, FieldDefinition, GraphResult, QueryLanguage, RelationalResult, Result, ResultException, UiColumnDefinition} from './models/result-set.model';
 import {EntityConfig} from './data-table/entity-config';
 import {CrudService} from '../../services/crud.service';
@@ -67,25 +67,28 @@ export class DataViewComponent implements OnDestroy {
     });
 
     effect(() => {
-      if (!this.result || !this.result() || !this.result().error) {
+      if (!this.result || !this.result()) {
         return;
       }
 
-      const result = this.result();
-      switch (result.namespaceType) {
-        case NamespaceType.DOCUMENT:
-          this.presentationType = DataPresentationType.CARD;
-          break;
-        case NamespaceType.RELATIONAL:
-          this.presentationType = DataPresentationType.TABLE;
-          break;
-        case NamespaceType.GRAPH:
-          this.presentationType = DataPresentationType.GRAPH;
-          break;
-      }
+      untracked(() => {
+        switch (this.result().namespaceType) {
+          case NamespaceType.DOCUMENT:
+            this.presentationType.set(DataPresentationType.CARD);
+            break;
+          case NamespaceType.RELATIONAL:
+            this.presentationType.set(DataPresentationType.TABLE);
+            break;
+          case NamespaceType.GRAPH:
+            this.presentationType.set(DataPresentationType.GRAPH);
+            break;
+        }
+      });
+
     });
   }
 
+  readonly result: WritableSignal<CombinedResult> = signal(null);
 
   @Input()
   set inputResult(result: Result<any, any>) {
@@ -95,17 +98,15 @@ export class DataViewComponent implements OnDestroy {
     this.result.set(CombinedResult.from(result));
   }
 
-  readonly result: WritableSignal<CombinedResult> = signal(null);
+
 
   @Input() entity?: Signal<EntityModel>;
   @Input() config: EntityConfig;
   @Input() loading: WritableSignal<boolean>;
-  @Input() exploreId?: number;
-  @Input() tutorialMode: boolean;
 
   //combinedResult: WritableSignal<CombinedResult> = signal(null);
 
-  presentationType: DataPresentationType = DataPresentationType.TABLE;
+  presentationType: WritableSignal<DataPresentationType> = signal(DataPresentationType.TABLE);
   presentationTypes: typeof DataPresentationType = DataPresentationType;
 
   player: Plyr;
@@ -152,11 +153,9 @@ export class DataViewComponent implements OnDestroy {
   }
 
   containsGraphObject(result: Result<any, any>) {
-    const includes = result.header.map(d => d.dataType.toLowerCase().includes('graph') || d.dataType.toLowerCase().includes('node'));
+    const includes = result.header.map(d => d.dataType.toLowerCase().includes('graphtype') || d.dataType.toLowerCase().includes('node'));
     return includes.includes(true);
   }
-
-
 
 
   openCreateView() {
@@ -301,7 +300,7 @@ export class DataViewComponent implements OnDestroy {
     const regex = this._crud.getValidationRegex();
     if (name === '') {
       return '';
-    } else if (regex.test(name) && name.length <= 100 && !this._catalog.getEntityFromIdName( this.entity().namespaceId, name)) {
+    } else if (regex.test(name) && name.length <= 100 && !this._catalog.getEntityFromIdName(this.entity().namespaceId, name)) {
       this.creatingView = true;
       return 'is-valid';
     } else {
@@ -420,7 +419,7 @@ export enum ViewType {
 
 export class CombinedResult {
   namespaceType: NamespaceType;
-  namespaceId: number;
+  namespace: string;
   query: string;
   data: string[][];
   header: FieldDefinition[] | UiColumnDefinition[];
@@ -440,7 +439,7 @@ export class CombinedResult {
     const res = new CombinedResult();
     res.header = relational.header;
     res.data = relational.data;
-    res.namespaceId = relational.namespaceId;
+    res.namespace = relational.namespace;
     res.namespaceType = relational.namespaceType;
     res.currentPage = relational.currentPage;
     res.highestPage = relational.highestPage;
@@ -459,7 +458,7 @@ export class CombinedResult {
     const res = new CombinedResult();
     res.header = doc.header;
     res.data = doc.data.map(t => new Array(t));
-    res.namespaceId = doc.namespaceId;
+    res.namespace = doc.namespace;
     res.namespaceType = doc.namespaceType;
     res.currentPage = doc.currentPage;
     res.highestPage = doc.highestPage;
@@ -473,7 +472,7 @@ export class CombinedResult {
     const res = new CombinedResult();
     res.header = graph.header;
     res.data = graph.data;
-    res.namespaceId = graph.namespaceId;
+    res.namespace = graph.namespace;
     res.namespaceType = graph.namespaceType;
     res.currentPage = graph.currentPage;
     res.highestPage = graph.highestPage;

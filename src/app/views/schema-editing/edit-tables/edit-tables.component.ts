@@ -90,7 +90,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
       private _render: Renderer2
   ) {
     this._render.listen('document', 'click', (e: Event) => {
-      if (this.inputGroup.length === 0) {
+      if (!this.inputGroup || this.inputGroup.length === 0) {
         return;
       }
       if (this.editOpen && !this.inputGroup.get(0).nativeElement.contains(e.target)) {

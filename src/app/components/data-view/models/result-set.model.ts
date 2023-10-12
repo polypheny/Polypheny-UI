@@ -15,7 +15,7 @@ export interface FieldDefinition {
 
 export class Result<D, H extends FieldDefinition | UiColumnDefinition> {
   namespaceType: NamespaceType;
-  namespaceId: number;
+  namespace: string;
   query: string;
   data: D[];
   header: H[];

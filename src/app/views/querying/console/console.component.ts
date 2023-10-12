@@ -177,8 +177,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     this.queryAnalysis = null;
 
     this.loading.set(true);
-    const id = this._catalog.getNamespaceFromName(this.activeNamespace()).id;
-    if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.language(), id))) {
+    if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.language(), this.activeNamespace()))) {
       this.loading.set(false);
       this.results.set([new RelationalResult('Could not establish a connection with the server.')]);
     }

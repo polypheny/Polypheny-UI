@@ -4,35 +4,37 @@
         <!--<div class="input-group-text px-1" type="button" (click)="removeColumn(asString(index))"><i class="cui-grid"></i></div>-->
 
         <div (mouseleave)="setMenuShow(false)" (mouseenter)="menuEnter()">
-            <button [disabled]="length === 1 && isValue()" class="btn"
-                    [class]="length === 1 && isValue() ? 'opaque' : ''" (click)="setMenuShow(true)" type="button"><i
-                    class="cui-window-maximize"></i></button>
+            <button cButton [disabled]="length === 1 && isValue()"
+                    [class]="length === 1 && isValue() ? 'opaque' : ''" (click)="setMenuShow(true)" type="button">
+                <i class="cil-window-maximize"></i>
+            </button>
             <ul *ngIf="show" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false)">
                 <li>
-                    <div class="dropdown-item" (click)="removeColumn(asString(index))"><i class="cui-trash"></i>Remove
+                    <div class="dropdown-item" (click)="removeColumn(asString(index))">
+                        <i class="cil-trash"></i>Remove
                     </div>
                 </li>
                 <li *ngIf="!isValue()">
-                    <div class="dropdown-item" (click)="addInitialColumn(asString(index), 0)"><i class="cui-plus"></i>Add
-                        Key-Value
+                    <div class="dropdown-item" (click)="addInitialColumn(asString(index), 0)">
+                        <i class="cil-plus"></i>Add Key-Value
                     </div>
                 </li>
                 <li *ngIf="!isValue()">
-                    <div class="dropdown-item" (click)="addInitialColumn(asString(index), 1)"><i class="cui-plus"></i>Add
-                        Key-Object
+                    <div class="dropdown-item" (click)="addInitialColumn(asString(index), 1)">
+                        <i class="cil-plus"></i>Add Key-Object
                     </div>
                 </li>
                 <li *ngIf="index !== 0 && index !== length - 1">
                     <hr class="dropdown-divider">
                 </li>
                 <li *ngIf="index !== 0">
-                    <div class="dropdown-item" (click)="upColumn(asString(index))"><i class="cui-chevron-top"></i>Move
-                        Up
+                    <div class="dropdown-item" (click)="upColumn(asString(index))">
+                        <i class="cil-chevron-top"></i>Move Up
                     </div>
                 </li>
                 <li *ngIf="index !== length - 1">
-                    <div class="dropdown-item" (click)="downColumn(asString(index))"><i class="cui-chevron-bottom"></i>Move
-                        Down
+                    <div class="dropdown-item" (click)="downColumn(asString(index))">
+                        <i class="cil-chevron-bottom"></i>Move Down
                     </div>
                 </li>
             </ul>

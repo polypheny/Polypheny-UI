@@ -147,6 +147,10 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   createNamespace() {
     if (this.createForm.valid && this.createNamespaceValidation(this.createForm.controls['name'].value) === 'is-valid') {
       const val = this.createForm.value;
+      if (val.name.trim() === '') {
+        return;
+      }
+
       this.createSubmitted = true;
       this._crud.createOrDropNamespace(new Namespace(val.name, NamespaceType[val.type.toUpperCase()], val.stores).setCreate(true)).subscribe({
         next: (res: RelationalResult) => {

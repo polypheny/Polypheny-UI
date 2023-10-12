@@ -57,7 +57,6 @@ export class CrudService {
     public connected = false;
     private reconnected = new EventEmitter<boolean>();
     private httpUrl = this._settings.getConnection('crud.rest');
-    private langUrl = this._settings.getConnection('httpServer.rest');
     private httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
     private socket;
 
@@ -342,7 +341,7 @@ export class CrudService {
     /**
      * Add or drop a placement
      */
-    addDropGraphPlacement(graphId: number, graph: string, store: number, method: Method) {
+    addDropGraphPlacement(graph: string, store: number, method: Method) {
         let code: string;
         switch (method) {
             case Method.ADD:
@@ -352,15 +351,15 @@ export class CrudService {
                 code = `DROP PLACEMENT OF ${graph} ON STORE ${store}`;
                 break;
         }
-        const request = new QueryRequest(code, false, true, 'cypher', graphId);
+        const request = new QueryRequest(code, false, true, 'cypher', graph);
 
-        return this._http.post(`${this.langUrl}/cypher`, request, this.httpOptions);
+        return this.anyQueryBlocking( request );
     }
 
     /**
      * Add or drop a placement
      */
-    addDropCollectionPlacement(namespaceId: number, collection: string, store: string, method: Method ) {
+    addDropCollectionPlacement(namespace: string, collection: string, store: string, method: Method ) {
         let code: string;
         switch (method) {
             case 'ADD':
@@ -370,8 +369,8 @@ export class CrudService {
                 code = `db.${collection}.deletePlacement( "${store}" )`;
                 break;
         }
-        const request = new QueryRequest(code, false, true, 'cypher', namespaceId);
-        return this._http.post(`${this.langUrl}/mql`, request, this.httpOptions);
+        const request = new QueryRequest(code, false, true, 'cypher', namespace);
+        return this.anyQueryBlocking( request );
     }
 
 

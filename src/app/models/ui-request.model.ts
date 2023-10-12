@@ -67,16 +67,16 @@ export class QueryRequest extends UIRequest {
     query: string;
     analyze: boolean;
     language: string;
-    namespaceId: number;
+    namespace: string;
     cache: boolean;
 
-    constructor(query: string, analyze: boolean, cache: boolean, lang: string, namespaceId: number) {
+    constructor(query: string, analyze: boolean, cache: boolean, lang: string, namespace: string) {
         super();
         this.query = query;
         this.analyze = analyze;
         this.cache = cache;
         this.language = lang;
-        this.namespaceId = namespaceId;
+        this.namespace = namespace;
         return this;
     }
 }
@@ -87,8 +87,8 @@ export class GraphRequest extends QueryRequest {
     private nodeIds: string[];
     private edgeIds: string[];
 
-    constructor(namespaceId: number, nodeIds: Set<string>, edgeIds: Set<string>) {
-        super('MATCH * RETURN *', false, false, 'CYPHER', namespaceId);
+    constructor(namespace: string, nodeIds: Set<string>, edgeIds: Set<string>) {
+        super('MATCH * RETURN *', false, false, 'CYPHER', namespace);
         this.nodeIds = Array.from(nodeIds);
         this.edgeIds = Array.from(edgeIds);
     }

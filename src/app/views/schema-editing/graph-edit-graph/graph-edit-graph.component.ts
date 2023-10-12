@@ -1,4 +1,4 @@
-import {Component, HostListener, Input, OnDestroy, OnInit, Signal, ViewChild} from '@angular/core';
+import {Component, effect, HostListener, Input, OnDestroy, OnInit, Signal, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
@@ -70,7 +70,6 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
   protected readonly Method = Method;
 
   ngOnInit() {
-
   }
 
   ngOnDestroy() {
@@ -97,7 +96,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
       return;
     }
     this.isAddingPlacement = true;
-    this._crud.addDropGraphPlacement(this.entity().id, this.entity().name, this.selectedStore.id, method).subscribe(res => {
+    this._crud.addDropGraphPlacement(this.entity().name, this.selectedStore.id, method).subscribe(res => {
       const result = <RelationalResult>res;
       if (result.error) {
         this._toast.exception(result);

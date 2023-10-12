@@ -106,7 +106,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
       return;
     }
     this.isAddingPlacement = true;
-    this._crud.addDropCollectionPlacement(this.namespace().id, this.entity().name, this.selectedStore.name, this.placementMethod).subscribe({
+    this._crud.addDropCollectionPlacement(this.namespace().name, this.entity().name, this.selectedStore.name, this.placementMethod).subscribe({
           next: (result: RelationalResult) => {
             if (result.error) {
               this._toast.exception(result);

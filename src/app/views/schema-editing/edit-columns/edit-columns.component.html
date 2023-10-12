@@ -316,14 +316,14 @@
                                 <input type="checkbox" class="form-check-input" [id]="'uqcol'+j" [(ngModel)]="c.unique">
                                 <label class="form-check-label" [for]="'uqcol'+j">{{c.name}}</label>
                             </div>
-                            <button class="btn btn-sm btn-primary add-constraint" (click)="addUniqueConstraint()">add
+                            <button cButton size="sm" color="primary" class="add-constraint" (click)="addUniqueConstraint()">add
                             </button>
                         </div>
                     </c-card-body>
                 </c-card>
             </c-col>
         </c-row>
-        <table cTable class="table table-hover table-striped" *ngIf="constraints && constraints > 0">
+        <table cTable hover="true" striped="true"  *ngIf="constraints && constraints > 0">
             <thead>
             <tr>
                 <th *ngFor="let h of constraints()">{{h.name}}</th>
@@ -346,7 +346,7 @@
            *ngIf="foreignKeys && foreignKeys.length > 0 && entity()?.entityType !== EntityType.MATERIALIZED_VIEW ">
         <hr>
         <h5>Foreign key</h5>
-        <table class="table table-hover table-striped">
+        <table cTable hover="true" striped="true">
             <thead>
             <tr>
                 <th>FK Name</th>

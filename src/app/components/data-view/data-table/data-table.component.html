@@ -4,7 +4,7 @@
 <c-row *ngIf="result() && result().header">
     <c-col [lg]="12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': entityConfig().exploring }">
         <table cTable hover bordered small
-               [striped]="!entityConfig().exploring || exploreSet"
+               [striped]="true"
                [ngClass]="{'loading': loading()}" id="data-table"
                [attr.data-table]="result().entityName">
             <thead>
@@ -82,32 +82,12 @@
                                        [type]="result().header[j].dataType"
                                        [style]="{width: '300px'}"></app-media>
                             <app-json-text
-                                    *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType'] | multipleSwitch: removeNull(result().header[j].dataType)"
+                                    *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType', 'GraphType'] | multipleSwitch: removeNull(result().header[j].dataType)"
                                     [text]="d2"></app-json-text>
                             <app-json-text *ngSwitchCase="'ANY'" [text]="d2"></app-json-text>
                             <app-expandable-text *ngSwitchDefault [text]="d2"></app-expandable-text>
                         </ng-container>
                     </td>
-                    <!--<td *ngIf="config.exploring && asExploreResult(null).classificationInfo == 'ClassificationPossible'"> // todo dl inject via plugin
-                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                            <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'true'}">
-                                <input type="radio" class="form-control" name="choose" value="true" id="true"
-                                       autocomplete="off"
-                                       (click)="this.userInput[d1] = 'true'"> true
-                            </label>
-                            <label class="btn btn-secondary active"
-                                   [ngClass]="{'active' : userInput[d1] === '?' || userInput[d1] === undefined }">
-                                <input type="radio" class="form-control" name="choose" value="?" id="ignored"
-                                       autocomplete="off" checked
-                                       (click)="this.userInput[d1] = '?'"> N/A
-                            </label>
-                            <label class="btn btn-secondary" [ngClass]="{'active' : userInput[d1] === 'false'}">
-                                <input type="radio" class="form-control" name="choose" value="false" id="false"
-                                       autocomplete="off"
-                                       (click)="this.userInput[d1] = 'false'; exploreData()"> false
-                            </label>
-                        </div>
-                    </td>-->
                     <td class="delete" *ngIf="entityConfig().update || entityConfig().delete">
                         <button cButton color="danger" size="sm" cTextColor="white" *ngIf="entityConfig().delete" [ngClass]="{ 'cil-trash': i !== confirm, 'cil-warning': i === confirm }"
                            (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"></button>

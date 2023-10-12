@@ -20,7 +20,6 @@ export class CatalogService {
   public state: WritableSignal<CatalogState> = signal(CatalogState.INIT);
 
   private httpUrl = this._settings.getConnection('crud.rest');
-  private httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
   private assets: AssetsModel;
 
@@ -148,7 +147,8 @@ export class CatalogService {
   }
 
   getEntityFromName(namespace: string, name: string): EntityModel {
-    const namespaces = Array.from(this.namespaces().values()).filter(n => n.caseSensitive ? n.name === namespace : n.name.toLowerCase() === namespace.toLowerCase());
+    const namespaces = Array.from(this.namespaces().values()).filter(n => (n.caseSensitive ? n.name === namespace : n.name.toLowerCase() === namespace.toLowerCase())
+        || n.namespaceType === NamespaceType.GRAPH && name === n.name || namespace === n.name);
     if (namespaces.length === 0) {
       return null;
     }
@@ -195,12 +195,15 @@ export class CatalogService {
     for (const collection of collections) {
 
       let icon = this.getNamespaceIcon(collection.namespaceType);
-      if (collection.entityType === EntityType.SOURCE) {
-        icon = this.assets.SOURCE_ICON;
-      } else if (collection.entityType === EntityType.VIEW) {
-        icon = this.assets.VIEW_ICON;
+      switch (collection.entityType) {
+        case EntityType.SOURCE:
+          icon = this.assets.SOURCE_ICON;
+          break;
+        case EntityType.VIEW:
+          icon = this.assets.VIEW_ICON;
+          break;
       }
-      const collectionTree = new SidebarNode(namespace.name + '.' + collection.name, collection.name, icon + ' me-1', routerLinkRoot);
+      const collectionTree = new SidebarNode(namespace.name + '.' + collection.name, collection.name, icon + ' me-1', routerLinkRoot + namespace.name + '.' + collection.name);
 
       nodes.push(collectionTree);
     }

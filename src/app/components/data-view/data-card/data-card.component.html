@@ -136,7 +136,7 @@
 
 <c-row>
     <c-col [lg]="12">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="result().highestPage > 1">
+        <nav aria-label="Page navigation" class="float-right" *ngIf="result()?.highestPage > 1">
             <ul class="pagination">
                 <li *ngFor="let p of pagination" class="page-item"
                     [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">

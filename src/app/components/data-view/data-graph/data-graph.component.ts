@@ -65,10 +65,6 @@ class Detail {
   styleUrls: ['./data-graph.component.scss']
 })
 export class DataGraphComponent extends DataTemplateComponent {
-  private hidden: string[];
-  private update: () => void;
-  private graph: Graph;
-  public isLimited: boolean;
 
   constructor() {
     super();
@@ -85,6 +81,10 @@ export class DataGraphComponent extends DataTemplateComponent {
       this.getGraph(result);
     });
   }
+  private hidden: string[];
+  private update: () => void;
+  private graph: Graph;
+  public isLimited: boolean;
 
 
   showInsertCard = false;
@@ -103,6 +103,8 @@ export class DataGraphComponent extends DataTemplateComponent {
   private isPath: boolean;
   private initialEdgeIds: string[];
   private afterInit = false;
+
+  protected readonly NamespaceType = NamespaceType;
 
   private static filterEdges(hidden: any[], d: Edge, p: any) {
     const source = !p.afterInit ? d.source : d.source['id'];
@@ -644,7 +646,7 @@ export class DataGraphComponent extends DataTemplateComponent {
 
     if (graphResult.namespaceType === NamespaceType.GRAPH) {
       // is native
-      if (!this._crud.getGraph(this.webSocket, new GraphRequest(graphResult.namespaceId, nodeIds, edgeIds))) {
+      if (!this._crud.getGraph(this.webSocket, new GraphRequest(graphResult.namespace, nodeIds, edgeIds))) {
         // is printed every time console.log('Could not retrieve the graphical representation of the graph.');
       } else {
         this.graphLoading = true;
@@ -686,6 +688,4 @@ export class DataGraphComponent extends DataTemplateComponent {
     }
     this.update();
   }
-
-  protected readonly NamespaceType = NamespaceType;
 }

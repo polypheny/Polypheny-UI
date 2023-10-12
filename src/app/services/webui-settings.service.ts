@@ -19,7 +19,6 @@ export class WebuiSettingsService {
     new Setting(this.settings, 'webUI.port', '7659');
     new Setting(this.settings, 'config.prefix', '/config/v1');
     new Setting(this.settings, 'information.prefix', '/info/v1');
-    new Setting(this.settings, 'httpServer.port', '13137');
     new Setting(this.settings, 'reconnection.timeout', '500');
 
     this.connections.set('config.rest',
@@ -35,8 +34,6 @@ export class WebuiSettingsService {
     this.connections.set('crud.socket',
         'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/webSocket');
     this.connections.set('main.socket', 'http://' + this.host + ':' + localStorage.getItem('webUI.port'));
-    this.connections.set('httpServer.rest',
-        'http://' + this.host + ':' + localStorage.getItem('httpServer.port'));
     this.connections.set('notebooks.rest',
         'http://' + this.host + ':' + localStorage.getItem('webUI.port') + '/notebooks');
     this.connections.set('notebooks.socket',

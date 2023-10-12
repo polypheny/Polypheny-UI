@@ -116,6 +116,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         return null;
       }
       const splits = route.split('.');
+
       return catalog.getEntityFromName(splits[0], splits[1]);
     });
 
@@ -166,6 +167,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   protected initWebsocket() {
     const sub = this.webSocket.onMessage().subscribe({
       next: (result: Result<any, any>) => {
+        console.log(result);
         if (!result) {
           return;
         }
@@ -458,9 +460,10 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     const entity = this.entity();
     switch (method) {
       case 'ADD':
-        const data = this.insertValues.get('d');
+        const data = JSON.stringify(Object.fromEntries(this.insertValues));
+        console.log(data);
         const add = `db.${entity.name}.insert(${data})`;
-        this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.result().namespaceId));
+        this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.result().namespace));
         this.insertValues.clear();
         this.getEntityData();
         break;
@@ -474,7 +477,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         const parsed = JSON.parse(updated);
         if (parsed.hasOwnProperty('_id')) {
           const modify = `db.${entity.name}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;
-          this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.result().namespaceId));
+          this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.result().namespace));
           this.insertValues.clear();
           this.getEntityData();
         }
@@ -483,7 +486,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         const parsedDelete = JSON.parse(initialData);
         if (parsedDelete.hasOwnProperty('_id')) {
           const modify = `db.${entity.name}.deleteMany({"_id": "${parsedDelete['_id']}" })`;
-          this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.result().namespaceId));
+          this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.result().namespace));
           this.insertValues.clear();
           this.getEntityData();
         }

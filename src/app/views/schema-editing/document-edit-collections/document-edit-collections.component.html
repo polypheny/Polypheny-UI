@@ -1,6 +1,6 @@
 <c-row>
     <c-col xs="12">
-        <table cTable striped="true" hover="true" *ngIf="collections | async">
+        <table cTable striped="true" hover="true" *ngIf="collections()">
             <thead>
             <tr>
                 <th>Collection</th>
@@ -9,7 +9,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let collection of collections | async; let i = index" [ngClass]="{'table-warning':collection.export}"
+            <tr *ngFor="let collection of collections(); let i = index" [ngClass]="{'table-warning':collection.export}"
                 [class.editing]="collection.editing">
                 <td>
                     <span *ngIf="!collection.editing">
@@ -68,16 +68,16 @@
                         </button>
 
                         <ul cDropdownMenu>
-                            <ng-container *ngIf="(stores|async).length > 0">
+                            <ng-container *ngIf="stores()?.length > 0">
                                 <li>
                                     <button cDropdownItem (click)="selectedStore = null">auto</button>
                                 </li>
                                 <li cDropdownDivider></li>
-                                <li role="menuitem" *ngFor="let store of (stores | async)">
+                                <li role="menuitem" *ngFor="let store of stores()">
                                     <button cDropdownItem (click)="selectedStore = store.name">{{store.name}}</button>
                                 </li>
                             </ng-container>
-                            <li *ngIf="(stores|async).length === 0" role="menuitem">
+                            <li *ngIf="stores().length === 0" role="menuitem">
                                 <button cDropdownItem disabled>no stores available</button>
                             </li>
                         </ul>
