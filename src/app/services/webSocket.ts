@@ -35,6 +35,7 @@ export class WebSocket {
         this.msgSubject.next(msg);
       },
       error: err => {
+        console.log(err);
         this.connected.next( false );
         setTimeout(() => {
           this.initWebSocket(true);

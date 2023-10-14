@@ -1,10 +1,10 @@
 <ng-container>
-    <div class="input-group mb-1">
-        <div *ngFor="let x of fakeArray(indent)" class="input-group-text px-2 bg-white border-0"></div>
+    <c-input-group class="mt-2" sizing="sm">
+        <div cInputGroupText *ngFor="let x of fakeArray(indent)" class="px-2 bg-white border-0"></div>
         <!--<div class="input-group-text px-1" type="button" (click)="removeColumn(asString(index))"><i class="cui-grid"></i></div>-->
 
         <div (mouseleave)="setMenuShow(false)" (mouseenter)="menuEnter()">
-            <button cButton [disabled]="length === 1 && isValue()"
+            <button size="sm" cButton [disabled]="length === 1 && isValue()"
                     [class]="length === 1 && isValue() ? 'opaque' : ''" (click)="setMenuShow(true)" type="button">
                 <i class="cil-window-maximize"></i>
             </button>
@@ -39,14 +39,14 @@
                 </li>
             </ul>
         </div>
-        <input type="text" [(ngModel)]="el.key" (change)="changeHappened()" (ngModelChange)="inputChanged()"
+        <input type="text" sizing="sm" [(ngModel)]="el.key" (change)="changeHappened()" (ngModelChange)="inputChanged()"
                [class]="isSelfValid() && !isDuplicate ? '' : ' is-invalid'" aria-label="First name"
-               class="form-control json-editor-key" placeholder="key">
-        <span *ngIf="!isObject(el.value)" class="input-group-text bg-white border-0 px-1">:</span>
-        <input *ngIf="!isObject(el.value)" type="text" [(ngModel)]="el.value" (change)="changeHappened()"
-               aria-label="Last name" class="form-control json-editor-val" placeholder="value">
-        <div class="invalid-feedback text-right">{{ isDuplicate ? dupKeyError : '' }}</div>
-    </div>
+               cFormControl class="json-editor-key" placeholder="key">
+        <span *ngIf="!isObject(el.value)" cInputGroupText class="">:</span>
+        <input cFormControl *ngIf="!isObject(el.value)" sizing="sm" type="text" [(ngModel)]="el.value" (change)="changeHappened()"
+               aria-label="Last name" class="json-editor-val" placeholder="value">
+        <c-form-feedback class="text-right">{{ isDuplicate ? dupKeyError : '' }}</c-form-feedback>
+    </c-input-group>
     <ng-container *ngIf="isObject(el.value)">
         <app-json-elem class="mt-1"
                        *ngFor="let el2 of el.value; let i=index"

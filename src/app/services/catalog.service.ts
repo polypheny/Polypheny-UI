@@ -1,5 +1,5 @@
 import {effect, Injectable, signal, untracked, WritableSignal} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {AdapterTemplateModel, AllocationColumnModel, AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, AssetsModel, CatalogState, ColumnModel, ConstraintModel, EntityModel, EntityType, FieldModel, IdEntity, KeyModel, LogicalSnapshotModel, NamespaceModel} from '../models/catalog.model';
 import {NamespaceType} from '../models/ui-request.model';
@@ -148,11 +148,12 @@ export class CatalogService {
 
   getEntityFromName(namespace: string, name: string): EntityModel {
     const namespaces = Array.from(this.namespaces().values()).filter(n => (n.caseSensitive ? n.name === namespace : n.name.toLowerCase() === namespace.toLowerCase())
-        || n.namespaceType === NamespaceType.GRAPH && name === n.name || namespace === n.name);
+        || n.namespaceType === NamespaceType.GRAPH && name.toLowerCase() === n.name.toLowerCase() || namespace.toLowerCase() === n.name.toLowerCase());
     if (namespaces.length === 0) {
       return null;
     }
-    return Array.from(this.entities().values()).filter(e => e.namespaceId === namespaces[0].id && e.name === name)[0];
+
+    return Array.from(this.entities().values()).filter(e => e.namespaceId === namespaces[0].id && e.name === name || (e.namespaceType === NamespaceType.GRAPH && namespace.toLowerCase() === e.name.toLowerCase()))[0];
   }
 
   getFullEntityName(entityId: number): String {

@@ -100,7 +100,7 @@
         <c-card-header>
             Insert data
         </c-card-header>
-        <ul cListGroup flush>
+        <ul cListGroup flush="true">
             <li cListGroupItem *ngFor="let h of result().header">
                 <app-input *ngIf="result()?.namespaceType === NamespaceType.RELATIONAL || h.name === '_id'" [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"

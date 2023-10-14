@@ -1,17 +1,4 @@
-import {
-  Component,
-  computed,
-  effect,
-  EventEmitter,
-  inject,
-  Input,
-  OnDestroy,
-  OnInit,
-  Signal,
-  signal,
-  untracked,
-  WritableSignal
-} from '@angular/core';
+import {Component, computed, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Signal, signal, untracked, WritableSignal} from '@angular/core';
 import {RelationalResult, Result, UiColumnDefinition} from '../models/result-set.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {CatalogService} from '../../../services/catalog.service';
@@ -25,7 +12,7 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
 import {PaginationElement} from '../models/pagination-element.model';
-import {DeleteRequest, EntityRequest, NamespaceType, QueryRequest} from '../../../models/ui-request.model';
+import {DeleteRequest, EntityRequest, Method, NamespaceType, QueryRequest} from '../../../models/ui-request.model';
 import {ToastDuration, ToasterService} from '../../toast-exposer/toaster.service';
 import {SortState} from '../models/sort-state.model';
 import {HttpEventType} from '@angular/common/http';
@@ -287,7 +274,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.result().namespaceType === NamespaceType.DOCUMENT) {
-      this.adjustDocument('DELETE', values[0]);
+      this.adjustDocument(Method.DROP, values[0]);
       return;
     }
 
@@ -409,7 +396,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
 
   insertTuple() {
     if (this.result().namespaceType === NamespaceType.DOCUMENT) {
-      this.adjustDocument('ADD');
+      this.adjustDocument(Method.ADD);
       return;
     }
     const formData = new FormData();
@@ -456,24 +443,24 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     return emitResult;
   }
 
-  private adjustDocument(method: 'ADD' | 'MODIFY' | 'DELETE', initialData: string = '') {
+  private adjustDocument(method: Method, initialData: string = '') {
     const entity = this.entity();
     switch (method) {
-      case 'ADD':
-        const data = JSON.stringify(Object.fromEntries(this.insertValues));
-        console.log(data);
+      case Method.ADD:
+        const data = this.insertValues.get('_id');
         const add = `db.${entity.name}.insert(${data})`;
+
         this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.result().namespace));
         this.insertValues.clear();
         this.getEntityData();
         break;
-      case 'MODIFY':
+      case Method.MODIFY:
         const values = new Map<string, string>();//previous values
         for (let i = 0; i < this.result().header.length; i++) {
           values.set(this.result().header[i].name, this.result().data[this.editing][i]);
           i++;
         }
-        const updated = this.updateValues.get('d');
+        const updated = this.updateValues.get('_id');
         const parsed = JSON.parse(updated);
         if (parsed.hasOwnProperty('_id')) {
           const modify = `db.${entity.name}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;
@@ -482,7 +469,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
           this.getEntityData();
         }
         break;
-      case 'DELETE':
+      case Method.DROP:
         const parsedDelete = JSON.parse(initialData);
         if (parsedDelete.hasOwnProperty('_id')) {
           const modify = `db.${entity.name}.deleteMany({"_id": "${parsedDelete['_id']}" })`;
@@ -534,7 +521,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
 
   updateTuple() {
     if (this.result().namespaceType === NamespaceType.DOCUMENT) {
-      this.adjustDocument('MODIFY');
+      this.adjustDocument(Method.MODIFY);
       return;
     }
 

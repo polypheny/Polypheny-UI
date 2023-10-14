@@ -9,20 +9,22 @@
     </c-row>
     <c-row class="card-columns" [ngStyle]="getZoom()" [gutter]="2">
         <ng-container *ngFor="let item of data.groups | keyvalue : order">
-            <c-card cCol [className]="getCardClass(item.value.color)" >
-                <c-card-header>
-                    {{item.value.name}}
-                    <button cButton color="secondary" class="btn-circle refreshGroup"
-                            [ngClass]="{'rotating': refreshingGroup[item.value.id]}"
-                            (click)="refreshGroup(item.value.id)"
-                            *ngIf="item.value.refreshable"><i class="icon-reload"></i></button>
-                </c-card-header>
-                <ng-container *ngFor="let li of item.value.informationObjects | keyvalue : order">
-                    <c-card-body>
-                        <app-render-item [li]="li.value"></app-render-item>
-                    </c-card-body>
-                </ng-container>
-            </c-card>
+            <c-col>
+                <c-card [className]="getCardClass(item.value.color)">
+                    <c-card-header>
+                        {{item.value.name}}
+                        <button cButton color="secondary" class="btn-circle refreshGroup"
+                                [ngClass]="{'rotating': refreshingGroup[item.value.id]}"
+                                (click)="refreshGroup(item.value.id)"
+                                *ngIf="item.value.refreshable"><i class="icon-reload"></i></button>
+                    </c-card-header>
+                    <ng-container *ngFor="let li of item.value.informationObjects | keyvalue : order">
+                        <c-card-body>
+                            <app-render-item [li]="li.value"></app-render-item>
+                        </c-card-body>
+                    </ng-container>
+                </c-card>
+            </c-col>
         </ng-container>
     </c-row>
 </ng-container>

@@ -396,6 +396,13 @@ export class DataViewComponent implements OnDestroy {
   submitView() {
 
   }
+
+  showAny():boolean {
+    if ( this.namespaceType() === NamespaceType.RELATIONAL || this.namespaceType() === NamespaceType.DOCUMENT ) {
+      return false;
+    }
+    return true;
+  }
 }
 
 export enum Freshness {

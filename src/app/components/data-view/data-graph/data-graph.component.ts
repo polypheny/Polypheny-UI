@@ -5,59 +5,6 @@ import {GraphResult} from '../models/result-set.model';
 import {GraphRequest, NamespaceType} from '../../../models/ui-request.model';
 import {DataTemplateComponent} from '../data-template/data-template.component';
 
-class Edge {
-  id: string;
-  labels: PolyList;
-  properties: any[];
-  source: string;
-  target: string;
-}
-
-class Node {
-  id: string;
-  labels: PolyList;
-  properties: Map<string, any>;
-}
-
-
-class PolyList {
-  size: number;
-  instance: any[];
-}
-
-
-class Graph {
-  nodes: Node[];
-  edges: Edge[];
-  selfEdges: Edge[];
-
-  public static from(n: any, e: any): Graph {
-    const nodes = <Node[]>Object.values(n);
-    const edges = <Edge[]>Object.values(e).filter(d => d['source'] !== d['target']);
-
-    return new Graph(nodes, edges);
-  }
-
-  constructor(nodes: Node[], edges: Edge[]) {
-
-    this.nodes = nodes;
-    this.edges = edges;
-    this.selfEdges = edges.filter(d => d['source'] === d['target']);
-  }
-
-}
-
-class Detail {
-  constructor(d) {
-    this.id = d.id;
-    this.properties = d.properties;
-    this.labels = d.labels;
-  }
-
-  id: string;
-  properties: {};
-  labels: string[];
-}
 
 @Component({
   selector: 'app-data-graph',
@@ -81,6 +28,7 @@ export class DataGraphComponent extends DataTemplateComponent {
       this.getGraph(result);
     });
   }
+
   private hidden: string[];
   private update: () => void;
   private graph: Graph;
@@ -129,6 +77,13 @@ export class DataGraphComponent extends DataTemplateComponent {
 
 
   private renderGraph(graph: Graph) {
+    if (!this.initialIds) {
+      this.initialIds = new Set(graph.nodes.map(n => n.id));
+    }
+
+    if (!this.initialEdgeIds) {
+      this.initialEdgeIds = graph.edges.map(e => e.id);
+    }
 
     const size = 20;
     const overlaySize = 30;
@@ -152,6 +107,8 @@ export class DataGraphComponent extends DataTemplateComponent {
     const height = 325;
     this.height = height;
 
+    d3
+    .select('#chart-area > *').remove();
 
     const svg = d3
     .select('#chart-area')
@@ -296,7 +253,7 @@ export class DataGraphComponent extends DataTemplateComponent {
         if (d.labels.length === 0) {
           return '';
         } else {
-          return d.labels.instance[0].toUpperCase();
+          return d.labels[0].toUpperCase();
         }
 
       });
@@ -456,11 +413,11 @@ export class DataGraphComponent extends DataTemplateComponent {
       p.labels = new Set();
 
       for (const e of graph.edges) {
-        e.labels.instance.forEach(l => p.labels.add(l));
+        e.labels.forEach(l => p.labels.add(l));
       }
 
       for (const n of graph.nodes) {
-        n.labels.instance.forEach(l => p.labels.add(l));
+        n.labels.forEach(l => p.labels.add(l));
       }
 
       p.labels = Array.from(p.labels);
@@ -473,7 +430,7 @@ export class DataGraphComponent extends DataTemplateComponent {
       .append('circle')
       .attr('r', size)
       .attr('fill', d => {
-        const i = p.labels.indexOf(d.labels.instance[0]);
+        const i = p.labels.indexOf(d.labels[0]);
         return p.color(p.ratio * i);
       })
       .on('click', action)
@@ -606,14 +563,19 @@ export class DataGraphComponent extends DataTemplateComponent {
     const nodeIds: Set<string> = new Set();
     const edgeIds: Set<string> = new Set();
     let i = -1;
+    console.log("graph");
     for (const dbColumn of graphResult.header) {
+      console.log(dbColumn);
       i++;
       if (!dbColumn.dataType.toLowerCase().includes('node') && !dbColumn.dataType.toLowerCase().includes('edge')) {
         continue;
       }
+      console.log("here")
+      console.log(graphResult);
 
       if (dbColumn.dataType.toLowerCase().includes('node')) {
         graphResult.data.forEach(d => {
+          console.log(d);
           nodeIds.add(JSON.parse(d[i])['id']);
         });
       }
@@ -642,9 +604,10 @@ export class DataGraphComponent extends DataTemplateComponent {
       this.initialEdgeIds = Array.from(edgeIds);
     }
 
-    console.log(graphResult);
 
-    if (graphResult.namespaceType === NamespaceType.GRAPH) {
+    console.log(this.initialIds);
+
+    if (!graphResult.header.map(h => h.dataType.toLowerCase()).includes('graph')) {
       // is native
       if (!this._crud.getGraph(this.webSocket, new GraphRequest(graphResult.namespace, nodeIds, edgeIds))) {
         // is printed every time console.log('Could not retrieve the graphical representation of the graph.');
@@ -658,6 +621,7 @@ export class DataGraphComponent extends DataTemplateComponent {
         ...a['id'],
         [v]: v
       }))), []);
+
       this.renderGraph(graph);
     }
 
@@ -688,4 +652,59 @@ export class DataGraphComponent extends DataTemplateComponent {
     }
     this.update();
   }
+}
+
+
+class Edge {
+  id: string;
+  labels: any[];
+  properties: any[];
+  direction: string;
+  source: string;
+  target: string;
+}
+
+class Node {
+  id: string;
+  labels: any[];
+  properties: Map<string, any>;
+}
+
+
+class PolyList {
+  size: number;
+  instance: any[];
+}
+
+class Graph {
+  nodes: Node[];
+  edges: Edge[];
+  selfEdges: Edge[];
+
+  public static from(n: any, e: any): Graph {
+    const nodes = <Node[]>Object.values(n);
+    const edges = <Edge[]>Object.values(e).filter(d => d['source'] !== d['target']);
+
+    return new Graph(nodes, edges);
+  }
+
+  constructor(nodes: Node[], edges: Edge[]) {
+
+    this.nodes = nodes;
+    this.edges = edges;
+    this.selfEdges = edges.filter(d => d['source'] === d['target']);
+  }
+
+}
+
+class Detail {
+  constructor(d) {
+    this.id = d.id;
+    this.properties = d.properties;
+    this.labels = d.labels;
+  }
+
+  id: string;
+  properties: {};
+  labels: string[];
 }
