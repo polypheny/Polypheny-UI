@@ -22,8 +22,8 @@
 
             <tr *ngFor="let col of getArray(oldColumns()?.values()); let i = index" (dblclick)="editCol(i, col, $event)"
                 [ngClass]="{'editing': i === editColumn}">
-                <ng-container *ngIf="i === editColumn && !entity()?.entityType === EntityType.MATERIALIZED_VIEW"
-                              [formGroup]="updateColumn">
+                <ng-container *ngIf="i === editColumn && entity()?.entityType !== EntityType.MATERIALIZED_VIEW"
+                              [formGroup]="updateColumn" (keyup.enter)="saveCol()">
                     <td class="pk"><i class="icon-key" *ngIf="col.primary"></i></td>
                     <td>
                         <input cFormControl sizing="sm" type="text" formControlName="name"
@@ -111,7 +111,7 @@
                                        class="form-control form-control-sm" formControlName="defaultValue">
                             </ng-container>
                             <div class="input-group-append">
-                                <button class="btn btn-sm"
+                                <button cButton size="sm"
                                         [ngClass]="{'btn-primary': updateColumn.controls['defaultValue'].value === null, 'btn-light': updateColumn.controls['defaultValue'].value !== null}"
                                         (click)="triggerDefaultNull()">null
                                 </button>
@@ -120,7 +120,7 @@
                     </td>
 
                     <td>
-                        <button class="btn btn-primary" (click)="saveCol()"><i class="fa fa-save editColSave"></i>
+                        <button cButton color="primary" (click)="saveCol()"><i class="fa fa-save editColSave"></i>
                         </button>
                     </td>
                 </ng-container>

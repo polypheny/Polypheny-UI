@@ -363,6 +363,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
 
   saveCol() {
+    console.log(this.updateColumn);
     if (!this._crud.nameIsValid(this.updateColumn.controls['name'].value)) {
       this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
       return;
@@ -372,9 +373,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
       return;
     }
     const oldColumn = this.oldColumns().get(this.updateColumn.controls['oldName'].value);
+    console.log(oldColumn);
     const newColumn = new UiColumnDefinition(
-        this.updateColumn.controls['name'].value,
         null,
+        this.updateColumn.controls['name'].value,
+        oldColumn.primary,
         this.updateColumn.controls['nullable'].value,
         this.updateColumn.controls['dataType'].value,
         this.updateColumn.controls['collectionsType'].value,

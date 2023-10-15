@@ -18,7 +18,7 @@ export class InformationService {
     public socket;
     httpUrl = this._settings.getConnection('information.rest');
     httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
-    reconnetor;
+    reconnetor: number;
 
     getPage(pageId: string) {
         return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
@@ -69,6 +69,9 @@ export class InformationService {
     }
 
     private startReconnecting() {
+        if (this.reconnetor) {
+            clearTimeout(this.reconnetor);
+        }
         this.reconnetor = setTimeout(() => {
             this.initWebSocket();
         }, +this._settings.getSetting('reconnection.timeout'));
@@ -94,7 +97,7 @@ export class InformationService {
         if (this.reconnetor) {
             clearTimeout(this.reconnetor);
         }
-        this.startReconnecting();
+        this.initWebSocket();
     }
 
 }
