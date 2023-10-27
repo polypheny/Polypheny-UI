@@ -1,42 +1,44 @@
 <ng-container>
-    <c-toast-header [closeButton]="true" [class]="(toast|async)?.type">
-        <strong class="mr-auto" [ngClass]="{'hasGeneratedQuery': (toast | async)?.generatedQuery}"
-                (click)="copyGeneratedQuery(toast.value)">
-            {{(toast | async)?.title}}
-            <i class="fa fa-code" *ngIf="(toast | async)?.generatedQuery"></i>
-        </strong>
-    </c-toast-header>
-    <c-toast-body #t [cToastClose]="t.toast" class="text-bg-light">
+    <div class="p-3">
+        <c-toast-header [closeButton]="true" [class]="(toast|async)?.type">
+            <strong class="mr-auto" [ngClass]="{'hasGeneratedQuery': (toast | async)?.generatedQuery}"
+                    (click)="copyGeneratedQuery(toast.value)">
+                {{(toast | async)?.title}}
+                <i class="fa fa-code" *ngIf="(toast | async)?.generatedQuery"></i>
+            </strong>
+        </c-toast-header>
+        <c-toast-body #t [cToastClose]="t.toast" class="text-bg-light">
 
-        <div class="toast-body" (click)="showStackTraceModal(toast.value)">
-            {{(toast | async)?.message}}
-        </div>
-        <ng-content></ng-content>
-        <c-progress thin>
-            <c-progress-bar [value]="25*(t.toast?.clock ?? 1)"></c-progress-bar>
-        </c-progress>
-    </c-toast-body>
+            <div (click)="showStackTraceModal(toast.value)">
+                {{(toast | async)?.message}}
+            </div>
+            <ng-content></ng-content>
+            <c-progress thin="true">
+                <c-progress-bar [value]="25*(t.toast?.clock ?? 1)"></c-progress-bar>
+            </c-progress>
+        </c-toast-body>
+    </div>
 </ng-container>
 
 <div #stackTraceModal="bs-modal" aria-hidden="true" aria-labelledby="myModalLabel" bsModal class="modal fade"
      role="dialog" tabindex="-1" id="stackTraceModal">
     <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
         <div class="modal-content bg-warning">
-            <div class="modal-header">
+            <c-modal-header class="modal-header">
                 <h5>Exception</h5>
-            </div>
-            <div class="modal-body text-muted" *ngIf="exception">
+            </c-modal-header>
+            <c-modal-body class="text-muted" *ngIf="exception">
                 <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: exception}"></ng-container>
-            </div>
+            </c-modal-body>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="stackTraceModal.hide()">Close</button>
+                <button cButton type="button" color="secondary" (click)="stackTraceModal.hide()">Close</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div>
 
 <ng-template #exceptionTemplate let-e="e">
-    <ng-container *ngIf="e">
+    <ng-container *ngIf="e" class="p-3">
         <ng-container>
             <c-toast-header [closeButton]="true">
                 <toast-sample-icon></toast-sample-icon>

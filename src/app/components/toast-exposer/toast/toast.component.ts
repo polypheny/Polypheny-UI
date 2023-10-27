@@ -1,12 +1,11 @@
-import {ChangeDetectorRef, Component, ElementRef, forwardRef, Input, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, forwardRef, Input, Renderer2, ViewChild} from '@angular/core';
 import {Toast} from '../toaster.model';
 import {KeyValue} from '@angular/common';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {ResultException} from '../../data-view/models/result-set.model';
-import {UtilService} from '../../../services/util.service';
 
-import {ToastBodyComponent, ToastComponent as ToastParent, ToasterService} from '@coreui/angular';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {ToastComponent as ToastParent, ToasterService} from '@coreui/angular';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
   selector: 'app-toast',
