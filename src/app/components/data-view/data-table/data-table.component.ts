@@ -1,13 +1,13 @@
-import {Component, effect, EventEmitter, Input, OnInit, Output, TemplateRef, untracked, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
-import {ClassifyRequest, Exploration, ExploreTable, NamespaceType} from '../../../models/ui-request.model';
+import {NamespaceType} from '../../../models/ui-request.model';
 import {PaginationElement} from '../models/pagination-element.model';
-import {ExploreSet, RelationalResult, UiColumnDefinition} from '../models/result-set.model';
+import {UiColumnDefinition} from '../models/result-set.model';
 import {SortDirection, SortState} from '../models/sort-state.model';
 import {CrudService} from '../../../services/crud.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {CombinedResult, DataViewComponent, Freshness, TimeUnits} from '../data-view.component';
+import {Freshness, TimeUnits} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 import {CatalogService} from '../../../services/catalog.service';
@@ -114,6 +114,9 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
   }*/
   protected readonly NamespaceType = NamespaceType;
 
+  trackByFn(index: any, item: any) {
+    return index;
+  }
 
   ngOnInit() {
     super.ngOnInit();

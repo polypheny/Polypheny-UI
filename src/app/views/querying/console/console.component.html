@@ -31,8 +31,8 @@
             </div>
         </c-col>
         <c-col class="col-lg-4 col-md-4 col-sm-12 mb-3">
-            <ul class="list-group" id="history">
-                <li id="history-item-head" class="list-group-item header">
+            <ul class="list-group" id="history-header">
+                <li id="history-item-head" class="list-group-item header px-3">
                     <div>History</div>
                     <div>
                         <button cButton color="primary" size="sm" (click)="openHistorySearch()"
@@ -49,6 +49,8 @@
                            [hidden]="!showSearch"></i>
                     </div>
                 </li>
+            </ul>
+            <ul class="list-group" id="history">
                 <li class="list-group-item empty"
                     *ngIf="(history | searchFilter:historySearchQuery).size == 0">(empty)
                 </li>

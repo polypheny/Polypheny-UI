@@ -4,25 +4,8 @@
             <c-row class="row">
                 <c-col class="mx-auto col-md-4">
                     <div class="card-group">
-                        <div class="card p-4">
-
-                            <!--<div class="card-body" style="padding: 0 1.25rem;">
-                              <div id="historyWrapper"  dropdown #dropdown="bs-dropdown" placement="bottom right" [autoClose]="true" style="position: relative;">
-                                <button id="showHistory" class="btn btn-outline-info dropdown-toggle" dropdownToggle aria-controls="dropdown-basic"><i class="fa fa-history"></i></button>
-                                <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
-                                    role="menu" aria-labelledby="button-basic">
-                                  <li role="menuitem"><a class="dropdown-item" href="#">Action</a></li>
-                                  <li role="menuitem"><a class="dropdown-item" href="#">Another action</a></li>
-                                  <li role="menuitem"><a class="dropdown-item" href="#">Something else here</a></li>
-                                  <li class="divider dropdown-divider"></li>
-                                  <li role="menuitem"><a class="dropdown-item" href="#">Separated link</a>
-                                  </li>
-                                </ul>
-                              </div>
-                            </div>-->
-
-                            <div class="card-body">
-
+                        <c-card class="p-4">
+                            <c-card-body>
                                 <div class="btn-group float-right" dropdown>
                                     <!--<button class="btn btn-primary fa fa-save"></button>-->
                                     <button class="btn btn-primary dropdown-toggle p-2" dropdownToggle type="button"
@@ -35,7 +18,10 @@
 
                                     <div class="dropdown-menu dropdown-menu-right text-center" id="loginDropdown"
                                          *dropdownMenu>
-                                        <h6 class="dropdown-header"><i class="cui-star"></i> favorites</h6>
+                                        <h6 class="dropdown-header">
+                                            <i class="cui-star">
+
+                                            </i> favorites</h6>
                                         <a class="dropdown-item" *ngFor="let f of favorites" href="#"
                                            (click)="applyHistory(f)" [routerLink]="[]">
                                             <i class="cui-trash text-danger" (click)="deleteFavorite()"></i>{{f.server}}
@@ -98,8 +84,8 @@
                                         </c-col>
                                     </c-row>
                                 </form>
-                            </div>
-                        </div>
+                            </c-card-body>
+                        </c-card>
                     </div>
                 </c-col>
             </c-row>

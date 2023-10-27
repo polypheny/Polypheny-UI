@@ -19,38 +19,7 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
 import {NgChartsModule} from 'ng2-charts';
 import {HttpClientModule} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
-import {
-  AvatarComponent,
-  BreadcrumbComponent, ButtonCloseDirective, ButtonDirective,
-  ColComponent,
-  ContainerComponent,
-  DropdownComponent,
-  DropdownItemDirective,
-  DropdownMenuDirective,
-  DropdownToggleDirective,
-  FooterComponent,
-  GutterDirective,
-  HeaderBrandComponent,
-  HeaderComponent,
-  HeaderDividerComponent,
-  HeaderNavComponent,
-  HeaderTextComponent,
-  HeaderTogglerDirective, ModalBodyComponent, ModalComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective,
-  NavItemComponent,
-  NavLinkDirective,
-  ProgressBarComponent,
-  ProgressComponent,
-  RowComponent,
-  SidebarComponent,
-  SidebarNavComponent,
-  SidebarToggleDirective,
-  SidebarTogglerComponent,
-  ToastBodyComponent,
-  ToastCloseDirective,
-  ToastComponent,
-  ToasterComponent,
-  ToastHeaderComponent
-} from '@coreui/angular';
+import {AvatarComponent, BreadcrumbComponent, ButtonCloseDirective, ButtonDirective, CardBodyComponent, CardComponent, ColComponent, ContainerComponent, DropdownComponent, DropdownItemDirective, DropdownMenuDirective, DropdownToggleDirective, FooterComponent, GutterDirective, HeaderBrandComponent, HeaderComponent, HeaderDividerComponent, HeaderNavComponent, HeaderTextComponent, HeaderTogglerDirective, ModalBodyComponent, ModalComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, NavItemComponent, NavLinkDirective, ProgressBarComponent, ProgressComponent, RowComponent, SidebarComponent, SidebarNavComponent, SidebarToggleDirective, SidebarTogglerComponent, ToastBodyComponent, ToastCloseDirective, ToastComponent, ToasterComponent, ToastHeaderComponent} from '@coreui/angular';
 import {DefaultLayoutComponent} from './containers/default-layout';
 import {P404Component} from './views/error/404.component';
 import {P500Component} from './views/error/500.component';
@@ -128,7 +97,9 @@ import {IconDirective} from '@coreui/icons-angular';
     ModalFooterComponent,
     ModalTitleDirective,
     ButtonCloseDirective,
-    ButtonDirective
+    ButtonDirective,
+    CardComponent,
+    CardBodyComponent
   ],
     declarations: [
         AppComponent,
