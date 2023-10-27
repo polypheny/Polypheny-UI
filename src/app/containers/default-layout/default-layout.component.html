@@ -1,9 +1,11 @@
 <div class="min-vh-100 max-vh-100 wrapper d-flex flex-column overflow-hidden">
     <c-header position="fixed" class="position-sticky w-100 z-3">
         <c-container class="h-100 align-content-center" fluid>
-            <c-header-brand [routerLink]="'/'"><img ngSrc="assets/img/brand/logo.svg" alt="Polypheny Logo" height="50" width="200"></c-header-brand>
+            <c-header-brand [routerLink]="'/'">
+                <img ngSrc="assets/img/brand/logo.svg" alt="Polypheny Logo" height="50" width="200">
+            </c-header-brand>
 
-            <c-header-nav class="ms-auto">
+            <c-header-nav class="ms-auto gap-2">
                 <c-nav-item>
                     <a cNavLink [routerLink]="['/views/monitoring']" routerLinkActive="active">
                         <i class="fa fa-area-chart"></i>
@@ -128,10 +130,10 @@
     </div>
 </div>
 
-<c-modal
-        [visible]="modal()"
-        [keyboard]="false"
-        [transition]="false"
+<c-modal [visible]="modal()"
+        [keyboard]="true"
+        [transition]="true"
+         (visibleChange)="handleModalChange($event)"
         id="modalStatic">
     <c-modal-header>
         <h5 cModalTitle>Connection Settings</h5>

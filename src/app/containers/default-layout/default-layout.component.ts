@@ -7,6 +7,7 @@ import {CrudService} from '../../services/crud.service';
 import {PluginService} from '../../services/plugin.service';
 import {freeSet} from '@coreui/icons';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
+import {$e} from "codelyzer/angular/styles/chars";
 
 @Component({
   selector: 'app-dashboard',
@@ -85,5 +86,9 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
 
   openSettings() {
     this.modal.set(true);
+  }
+
+  handleModalChange($event: boolean) {
+    this.modal.set($event);
   }
 }

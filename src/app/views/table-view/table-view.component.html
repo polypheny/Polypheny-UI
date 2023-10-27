@@ -5,5 +5,7 @@
 <button cButton color="light" class="btn-circle" [ngClass]="{'rotating': loading()}" id="reload-btn" (click)="reload()" *ngIf="entity()">
     <i class="icon-reload"></i>
 </button>
-<app-data-view [inputResult]="result()" [loading]="loading" [config]="entityConfig()" [entity]="entity"></app-data-view>
+<div class="w-100">
+    <app-data-view class="w-100 overflow-x-auto" [inputResult]="result()" [loading]="loading" [config]="entityConfig()" [entity]="entity"></app-data-view>
+</div>
 <p *ngIf="!entity()">Please select an entity in the left sidebar to view its data.</p>

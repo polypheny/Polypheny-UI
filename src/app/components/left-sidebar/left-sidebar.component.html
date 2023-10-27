@@ -33,7 +33,7 @@
                 <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
                     <tree-node-expander [ngClass]="{'hidden-expander': node.data.children.length === 0}" [node]="node">
                     </tree-node-expander>
-                    <div class="node-content-wrapper"
+                    <div class="node-content-wrapper w-100"
                          [class.node-content-wrapper-active]="node.isActive"
                          [class.node-content-wrapper-focused]="false"
                          [class.separator]="node.data.isSeparator"
@@ -57,12 +57,10 @@
 
 
     <div *ngIf="needsButton()" class="schema-editing-wrapper">
-        <div class="border-top my-3 "></div>
-        <p class="namespace-button node-content-wrapper" id="namespaceText" [routerLink]="'/views/schema-editing/'">
+        <div class="border-top my-3"></div>
+        <a cNavLink id="namespaceText" class="pe-auto link-light text-white" [routerLink]="'/views/schema-editing/'">
             <i class="fa fa-pencil" aria-hidden="true"></i>
-            <span class="ms-1"> Manage Namespaces</span>
-        </p>
+            <span class="ms-1">Manage Namespaces</span>
+        </a>
     </div>
-
-
 </div>

@@ -12,14 +12,7 @@
         </c-breadcrumb>
     </c-col>
     <c-col class="col-md-6" *ngIf="breadcrumbs[0].name != 'Schema'">
-        <div class="custom-control-inline breadcrumb" id="zoom-wrapper">
-            <div class="custom-control" *ngIf="_breadcrumb._showZoom">
-                Zoom: {{zoom}}
-                <button cButton color="light" (click)="zoomOut()">-</button>
-                <button cButton color="light" style="margin-left:0.5em;" (click)="zoomIn()">+</button>
-                <span>  </span>
-            </div>
-        </div>
+
     </c-col>
     <c-col class="col-md-6" *ngIf="breadcrumbs[0].name == 'Schema'">
         <div class="custom-control-inline breadcrumb breadcrumb-menu-right" id="statistics-wrapper">
