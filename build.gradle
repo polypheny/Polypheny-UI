@@ -1,6 +1,14 @@
 
+plugins {
+  id "java"
+  id "maven-publish"
+  id "com.github.node-gradle.node" version "7.0.1"
+}
+
+
 group 'org.polypheny'
-description = "The user interface for Polypheny-DB"
+description = 'The user interface for Polypheny-DB'
+
 
 def versionMajor = 1
 def versionMinor = 0
@@ -8,37 +16,8 @@ def versionQualifier = "-SNAPSHOT"
 version = versionMajor + "." + versionMinor + versionQualifier
 
 
-buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-		classpath "com.github.node-gradle:gradle-node-plugin:3.0.1"
-    }
-}
-
-
-repositories {
-
-}
-
-
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-apply plugin: 'com.github.node-gradle.node'
-
-
-
-dependencies {
-
-}
-
-
 node {
-  version = '18.17.1'
+  version = '20.9.0'
   //npmVersion = '6.14.11'
   download = true
 }
