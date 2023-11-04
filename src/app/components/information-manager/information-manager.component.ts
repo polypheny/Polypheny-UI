@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, computed, HostListener, Input, OnInit, signal, untracked, ViewEncapsulation} from '@angular/core';
 import {InformationPage} from '../../models/information-page.model';
 import {KeyValue} from '@angular/common';
 import {InformationService} from '../../services/information.service';
@@ -12,13 +12,30 @@ import {InformationService} from '../../services/information.service';
 export class InformationManagerComponent implements OnInit {
 
     @Input() data: InformationPage;
-    @Input() zoom;
     refreshingPage = false;
     refreshingGroup = [];
+    width = signal(1080);
+    zoom = computed(() => {
+        if (this.width() < 1200 || this.data.fullWidth) {
+            return 12;
+        } else {
+            return 4;
+        }
+    });
+
+    @HostListener('window:resize', ['$event'])
+    onResize(event?) {
+        untracked(() => {
+            this.width.set(window.innerWidth);
+        });
+    }
+
+
 
     constructor(
         private _information: InformationService
     ) {
+        this.onResize();
     }
 
     ngOnInit() {
@@ -56,14 +73,6 @@ export class InformationManagerComponent implements OnInit {
             out = -1;
         }
         return out;
-    }
-
-    getZoom() {
-        if (this.data.fullWidth) {
-            return {'column-count': 1};
-        } else {
-            return {'column-count': this.zoom};
-        }
     }
 
     refreshPage() {

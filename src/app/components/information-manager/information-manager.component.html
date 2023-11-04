@@ -7,9 +7,9 @@
                (click)="refreshPage()" id="refreshPage"><i class="icon-reload"></i></a>
         </c-col>
     </c-row>
-    <c-row class="card-columns" [ngStyle]="getZoom()" [gutter]="2">
+    <c-row [gutter]="4">
         <ng-container *ngFor="let item of data.groups | keyvalue : order">
-            <c-col>
+            <c-col [md]="zoom()">
                 <c-card [className]="getCardClass(item.value.color)">
                     <c-card-header>
                         {{item.value.name}}

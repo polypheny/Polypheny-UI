@@ -21,7 +21,7 @@
             <div class="form-check form-check-inline switch-wrapper">
                 <span cInputGroupText *ngIf="showLabel">{{header.name}}</span>
                 <label class="switch switch-label switch-pill switch-outline-primary-alt switch-sm"
-                       [ngClass]="{'ml-3':!showLabel}">
+                       [ngClass]="{'ms-3':!showLabel}">
                     <input type="checkbox" class="switch-input" [id]="'insertRow'+header.name"
                            [checked]="value === true"
                            [disabled]="value === null && header.nullable === true"

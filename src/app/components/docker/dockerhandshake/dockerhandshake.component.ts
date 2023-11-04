@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {Handshake} from '../../models/docker.model';
-import {UtilService} from '../../services/util.service';
+import {Handshake} from '../../../models/docker.model';
+import {UtilService} from '../../../services/util.service';
 
 @Component({
     selector: 'app-dockerhandshake',

@@ -1,8 +1,7 @@
 
 <app-information-manager *ngIf="data" [data]="data" [zoom]="_breadcrumb.getMasonryZoom()"></app-information-manager>
 
-<app-dashboard
-        *ngIf="_breadcrumb.breadcrumbs && _breadcrumb.breadcrumbs.getValue().length === 1 && _breadcrumb.breadcrumbs.getValue()[0].name === 'Dashboard'"></app-dashboard>
+<app-dashboard *ngIf="_breadcrumb.breadcrumbs && _breadcrumb.breadcrumbs.getValue().length === 1 && _breadcrumb.breadcrumbs.getValue()[0].name === 'Dashboard'"></app-dashboard>
 
 
 <!--

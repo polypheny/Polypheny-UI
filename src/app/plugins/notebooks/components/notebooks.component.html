@@ -147,7 +147,7 @@
         <c-modal-footer>
             <button cButton color="secondary" type="button" (click)="createSessionModal.hide()">Close</button>
             <div>
-                <button cButton type="button" color="primary" variant="outline" class="mr-2"
+                <button cButton type="button" color="primary" variant="outline" class="me-2"
                         *ngIf="createSessionForm.get('canManage').value"
                         (click)="openManagePage(createSessionForm.get('path').value)">
                     Manage File

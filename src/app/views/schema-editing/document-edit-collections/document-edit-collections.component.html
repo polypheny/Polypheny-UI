@@ -14,7 +14,7 @@
                 <td>
                     <span *ngIf="!collection.editing">
                       {{collection.name}}
-                        <i class="cil-pencil edit-table-name ml-2" (click)="collection.editing = !collection.editing"></i>
+                        <i class="cil-pencil edit-table-name ms-2" (click)="collection.editing = !collection.editing"></i>
                     </span>
                     <c-input-group sizing="sm" *ngIf="collection.editing" tabindex="-1" style="max-width: 200px" #editing>
                         <input cFormControl type="text" placeholder="newName"

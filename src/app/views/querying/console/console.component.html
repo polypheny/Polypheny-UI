@@ -94,7 +94,7 @@
 
 
                 <c-input-group cCol>
-                    <select class="form-control btn pull-right mr-1 border bg-white" [ngModel]="language()" (ngModelChange)="setLanguage($event)" *ngIf="!loading()">
+                    <select class="form-control btn pull-right me-1 border bg-white" [ngModel]="language()" (ngModelChange)="setLanguage($event)" *ngIf="!loading()">
                         <option value="cypher">CYPHER</option>
                         <option value="sql">SQL</option>
                         <option value="mql">MQL</option>
@@ -116,7 +116,7 @@
             <div id="collapse-btn-wrapper">
                 <button cButton color="light" size="sm" (click)="collapseAll(true)" tooltip="expand all" container="body"
                         placement="top" delay="500"><i class="fa fa-expand"></i></button>
-                <button cButton color="light" size="sm" class="ml-1" (click)="collapseAll(false)" tooltip="collapse all"
+                <button cButton color="light" size="sm" class="ms-1" (click)="collapseAll(false)" tooltip="collapse all"
                         container="body" placement="top" delay="500"><i class="fa fa-compress"></i></button>
             </div>
         </c-col>

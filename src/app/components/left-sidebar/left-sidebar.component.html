@@ -3,11 +3,15 @@
 
         <c-input-group>
             <button cButton color="light" cInputGroupText id="basic-addon1" *ngIf="isExpandAndCollapseShown()">
-                <span (click)="collapseAll()" id="collapse"><i class="fa fa-compress"></i></span>
+                <span (click)="collapseAll()" id="collapse">
+                    <i class="fa fa-compress"></i>
+                </span>
             </button>
             <input cFormControl type="text" placeholder="search" id="search-tree">
             <button cButton color="light" cInputGroupText *ngIf="isExpandAndCollapseShown()">
-                <span (click)="expandAll()" id="expand"><i class="fa fa-expand"></i></span>
+                <span (click)="expandAll()" id="expand">
+                    <i class="fa fa-expand"></i>
+                </span>
             </button>
         </c-input-group>
 

@@ -1,7 +1,7 @@
 <ng-container>
     <div class="p-3">
         <c-toast-header [closeButton]="true" [class]="(toast|async)?.type">
-            <strong class="mr-auto" [ngClass]="{'hasGeneratedQuery': (toast | async)?.generatedQuery}"
+            <strong class="me-auto" [ngClass]="{'hasGeneratedQuery': (toast | async)?.generatedQuery}"
                     (click)="copyGeneratedQuery(toast.value)">
                 {{(toast | async)?.title}}
                 <i class="fa fa-code" *ngIf="(toast | async)?.generatedQuery"></i>

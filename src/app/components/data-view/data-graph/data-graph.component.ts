@@ -1,5 +1,4 @@
-import {Component, effect, Input, WritableSignal} from '@angular/core';
-import {CombinedResult} from '../data-view.component';
+import {Component, effect} from '@angular/core';
 import * as d3 from 'd3';
 import {GraphResult} from '../models/result-set.model';
 import {GraphRequest, NamespaceType} from '../../../models/ui-request.model';
@@ -181,8 +180,6 @@ export class DataGraphComponent extends DataTemplateComponent {
 
 
     const restart = (p: any) => {
-
-
       const hidden = p.hidden;
 
       g.exit().remove();

@@ -1,7 +1,7 @@
-import {Component, EventEmitter, Input, OnInit, OnDestroy, Output} from '@angular/core';
-import {DockerInstance, DockerSetupResponse, Handshake, HandshakeAndInstance} from '../../models/docker.model';
-import {CrudService} from '../../services/crud.service';
-import {ToasterService} from '../toast-exposer/toaster.service';
+import {Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
+import {DockerInstance, DockerSetupResponse, Handshake, HandshakeAndInstance} from '../../../models/docker.model';
+import {CrudService} from '../../../services/crud.service';
+import {ToasterService} from '../../toast-exposer/toaster.service';
 
 @Component({
   selector: 'app-dockernew',

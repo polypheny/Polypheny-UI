@@ -5,17 +5,47 @@ import {NgChartsModule} from 'ng2-charts';
 
 import {
   BgColorDirective,
-  BreadcrumbComponent as BreadCrumb, ButtonCloseDirective,
-  ButtonDirective, ButtonGroupComponent, CardBodyComponent, CardComponent, CardFooterComponent, CardHeaderComponent,
-  ColComponent, ColDirective, DropdownDividerDirective, DropdownItemDirective, DropdownMenuDirective, DropdownToggleDirective,
-  FormControlDirective, FormFeedbackComponent, GutterDirective,
+  BreadcrumbComponent as BreadCrumb,
+  ButtonCloseDirective,
+  ButtonDirective,
+  ButtonGroupComponent,
+  CardBodyComponent,
+  CardComponent,
+  CardFooterComponent,
+  CardHeaderComponent,
+  ColComponent,
+  ColDirective,
+  DropdownDividerDirective,
+  DropdownItemDirective,
+  DropdownMenuDirective,
+  DropdownToggleDirective,
+  FormControlDirective,
+  FormFeedbackComponent,
+  GutterDirective,
   InputGroupComponent,
-  InputGroupTextDirective, ListGroupDirective, ListGroupItemDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalFooterComponent, ModalHeaderComponent, NavComponent, NavItemComponent, NavLinkDirective, PageItemDirective, PageLinkDirective, PaginationComponent,
+  InputGroupTextDirective,
+  ListGroupDirective,
+  ListGroupItemDirective,
+  ModalBodyComponent,
+  ModalComponent,
+  ModalContentComponent,
+  ModalFooterComponent,
+  ModalHeaderComponent,
+  NavComponent,
+  NavItemComponent,
+  NavLinkDirective,
+  PageItemDirective,
+  PageLinkDirective,
+  PaginationComponent,
   ProgressBarComponent,
   ProgressComponent,
   RowComponent,
-  SpinnerComponent, TabContentComponent, TabContentRefDirective,
-  TableDirective, TabPaneComponent, TextColorDirective,
+  SpinnerComponent,
+  TabContentComponent,
+  TabContentRefDirective,
+  TableDirective,
+  TabPaneComponent,
+  TextColorDirective,
   ToastBodyComponent,
   ToastCloseDirective,
   ToastComponent,
@@ -54,10 +84,10 @@ import {JsonElemComponent} from './json/json-elem/json-elem.component';
 import {DataGraphComponent} from './data-view/data-graph/data-graph.component';
 import {DatesPipeModule} from './data-view/shared-module';
 import {LoadingScreenComponent} from './loading-screen/loading-screen.component';
-import {DockereditComponent} from './dockeredit/dockeredit.component';
-import {DockerhandshakeComponent} from './dockerhandshake/dockerhandshake.component';
-import {DockernewComponent} from './dockernew/dockernew.component';
-import {DockersettingsComponent} from './dockersettings/dockersettings.component';
+import {DockereditComponent} from './docker/dockeredit/dockeredit.component';
+import {DockerhandshakeComponent} from './docker/dockerhandshake/dockerhandshake.component';
+import {DockernewComponent} from './docker/dockernew/dockernew.component';
+import {DockersettingsComponent} from './docker/dockersettings/dockersettings.component';
 import {TreeModule} from '@ali-hm/angular-tree-component';
 import {ToastExposerComponent} from './toast-exposer/toast-exposer.component';
 import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';

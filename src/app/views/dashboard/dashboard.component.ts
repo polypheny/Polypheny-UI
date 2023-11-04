@@ -75,29 +75,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.max = 0;
         this._crud.getDashboardDiagram(new MonitoringRequest(interval)).subscribe(
             res => {
+                console.log(res);
                 this.dashboardInformation = <DashboardData>res;
 
                 if (this.dashboardInformation != null || this.diagramCounter > 120) {
                     clearInterval(this.digramInterval);
                     Object.entries(this.dashboardInformation).forEach(
                         ([key, value]) => {
+                            const left = +Object.keys(value)[0];
+                            const right = +Object.values(value)[0];
+
                             this.labels.push(key);
 
-                            this.dataWorkload.push(value.right);
-                            this.dataDql.push(value.left);
+                            this.dataWorkload.push(right);
+                            this.dataDql.push(left);
 
                             //find min and max between Workload and Query Information
-                            if (this.min > value.right) {
-                                this.min = value.right;
+                            if (this.min > right) {
+                                this.min = right;
                             }
-                            if (this.max < value.right) {
-                                this.max = value.right;
+                            if (this.max < right) {
+                                this.max = right;
                             }
-                            if (this.min > value.left) {
-                                this.min = value.left;
+                            if (this.min > left) {
+                                this.min = left;
                             }
-                            if (this.max < value.left) {
-                                this.max = value.left;
+                            if (this.max < left) {
+                                this.max = left;
                             }
                         }
                     );

@@ -3,7 +3,7 @@
         <c-col md="9">
             <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                 <button cButton color="danger" variant="outline" class="me-4 flex-grow-0" (click)="closeNotebookModal.show()">Close</button>
-                <c-button-group size="sm" class="mr-2" role="group" aria-label="Save">
+                <c-button-group size="sm" class="me-2" role="group" aria-label="Save">
                     <button cButton color="light" type="button" (click)="uploadNotebook()"
                             onclick="this.blur();" tooltip="Save notebook (S)" container="body">
                         <i class="fa fa-save"></i>
@@ -110,7 +110,7 @@
                     </c-button-group>
                 </c-button-group>
 
-                <c-button-group size="sm" class="mr-2" role="group" aria-label="Execution">
+                <c-button-group size="sm" class="me-2" role="group" aria-label="Execution">
                     <button cButton color="light" type="button" (click)="executeSelected(true)"
                             onclick="this.blur();" tooltip="Run selected cell and advance (Shift + Enter)" container="body">
                         <i class="fa fa-play"></i>
@@ -129,7 +129,7 @@
                     </button>
                 </c-button-group>
 
-                <c-button-group size="sm" class="mr-2" role="group" aria-label="Insert">
+                <c-button-group size="sm" class="me-2" role="group" aria-label="Insert">
                     <button cButton color="light" type="button"
                             (click)="insertCell(selectedCell.id, true, false)"
                             onclick="this.blur();" tooltip="Insert cell below (B)" container="body"
@@ -138,7 +138,7 @@
                     </button>
                 </c-button-group>
                 <c-button-group>
-                    <select class="form-select btn pull-right mr-1 bg-light px-1" aria-label="Select Cell Type"
+                    <select class="form-select btn pull-right me-1 bg-light px-1" aria-label="Select Cell Type"
                             (change)="onTypeChange($event)"
                             [(ngModel)]="selectedCellType">
                         <option value="code">Code</option>
@@ -152,12 +152,9 @@
         <c-col md="3" class="col-md-3 text-right">
             <button cButton color="light" type="button" style="white-space: nowrap"
                     (click)="openChangeSessionModal.emit({name: name, path: path})">
-                <span class="mr-2">{{kernelSpec?.spec?.display_name || 'No kernel'}}</span>
-                <c-badge color="primary" class="badge badge-pill badge-primary"
-                         [ngClass]="{'badge-success': nb?.kernelStatus === 'idle',
-                              'badge-danger': !nb || nb?.kernelStatus === 'unknown',
-                              'badge-primary': nb?.kernelStatus === 'busy',
-                              'badge-secondary': nb?.kernelStatus === 'starting'}">
+                <span class="me-2">{{kernelSpec?.spec?.display_name || 'No kernel'}}</span>
+                <c-badge class="badge badge-pill"
+                         [color]="nb?.kernelStatus === 'idle' ? 'success': (!nb || nb?.kernelStatus === 'unknown' ? 'danger' : (nb?.kernelStatus === 'busy' ? 'primary' : (nb?.kernelStatus === 'starting' ? 'secondary' : 'primary')))">
                     {{nb?.kernelStatus || 'unknown'}}
                 </c-badge>
             </button>
@@ -194,7 +191,7 @@
                         <div class="nb-drag-handle" cdkDragHandle></div>
                     </app-nb-cell>
                     <div *cdkDragPreview class="drop-preview">
-                        <span class="text-secondary mr-4" *ngIf="cell.cell_type === 'code'">[ ]:</span>
+                        <span class="text-secondary me-4" *ngIf="cell.cell_type === 'code'">[ ]:</span>
                         <span>{{getPreviewText( cell )}}</span>
                     </div>
                     <div class="example-custom-placeholder bg-primary" *cdkDragPlaceholder></div>

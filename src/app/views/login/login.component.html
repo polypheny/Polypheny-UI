@@ -19,12 +19,12 @@
                                     <div class="dropdown-menu dropdown-menu-right text-center" id="loginDropdown"
                                          *dropdownMenu>
                                         <h6 class="dropdown-header">
-                                            <i class="cui-star">
+                                            <i class="cil-star">
 
                                             </i> favorites</h6>
                                         <a class="dropdown-item" *ngFor="let f of favorites" href="#"
                                            (click)="applyHistory(f)" [routerLink]="[]">
-                                            <i class="cui-trash text-danger" (click)="deleteFavorite()"></i>{{f.server}}
+                                            <i class="cil-trash text-danger" (click)="deleteFavorite()"></i>{{f.server}}
                                             :{{f.port}}</a>
 
                                         <a class="dropdown-item" href="#" (click)="saveNewFavorite(loginForm)"

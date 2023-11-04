@@ -1,43 +1,36 @@
 <c-container>
     <c-row [gutter]="2">
         <c-col xs="12">
-            <c-card class="card">
-                <c-card-header class="card-header">
+            <c-card>
+                <c-card-header>
                     <div class="card-header-button">
                         <div class="card-header-title">Workload</div>
 
-                        <div class="btn-group selectInverval" dropdown>
-                            <button id="button-basic" dropdownToggle type="button" class="btn dropdown-toggle"
-                                    aria-controls="dropdown-basic">
-                                Time Interval: {{this.selectIntervalDisplay}}<span class="caret"></span>
+                        <c-dropdown class="btn-group selectInverval" dropdown>
+                            <button size="sm" cButton cDropdownToggle>
+                                Time Interval: {{this.selectIntervalDisplay}}
                             </button>
-                            <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
-                                role="menu" aria-labelledby="button-basic">
-                                <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('all')">All</a>
-                                </li>
-                                <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('60')">1
-                                    hour</a>
-                                </li>
-                                <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('30')">30
-                                    minutes</a>
-                                </li>
-                                <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('15')">15
-                                    minutes</a>
-                                </li>
-                                <li role="menuitem"><a class="dropdown-item" (click)="setSelectInterval('5')">5
-                                    minutes</a>
-                                </li>
+                            <ul cDropdownMenu>
+                                <li><a cDropdownItem (click)="setSelectInterval('all')">All</a></li>
+                                <li><a cDropdownItem (click)="setSelectInterval('60')">1 hour</a></li>
+                                <li><a cDropdownItem (click)="setSelectInterval('30')">30 minutes</a></li>
+                                <li><a cDropdownItem (click)="setSelectInterval('15')">15 minutes</a></li>
+                                <li><a cDropdownItem (click)="setSelectInterval('5')">5 minutes</a></li>
                             </ul>
-                        </div>
+                        </c-dropdown>
                     </div>
                 </c-card-header>
-                <c-card-body class="card-body">
-
-
+                <c-card-body>
                     <div *ngIf="dashboardInformation != null && diagram.length > 0">
-                        <app-graph [data]="diagram" [labels]="labels" [colorList]="colorList" [chartType]="line"
+                        <app-graph [data]="diagram"
+                                   [labels]="labels"
+                                   [colorList]="colorList"
+                                   [chartType]="line"
                                    [min]="min"
-                                   [maintainAspectRatio]="false" [max]="max" [xLabel]="xLabel" [yLabel]="yLabel"
+                                   [maintainAspectRatio]="false"
+                                   [max]="max"
+                                   [xLabel]="xLabel"
+                                   [yLabel]="yLabel"
                                    class="dashboard-diagram"></app-graph>
                     </div>
 
@@ -57,15 +50,15 @@
             </c-card>
         </c-col>
         <c-col xs="6">
-            <div class="card" style="min-height: 153px">
-                <div class="card-header">
+            <c-card style="min-height: 153px">
+                <c-card-header>
                     <span>General Information</span>
-                </div>
-                <div class="card-body">
+                </c-card-header>
+                <c-card-body>
 
                     <div *ngIf="dashboardSet != null">
                         <h5>Adapter Information</h5>
-                        <table class="table table-hover table-striped">
+                        <table cTable hover="true" striped="true">
 
                             <thead>
                             <tr>
@@ -87,7 +80,7 @@
                         </table>
 
                         <h5>Schema Information</h5>
-                        <table class="table table-hover table-striped">
+                        <table cTable hover="true" striped="true">
 
                             <thead>
                             <tr>
@@ -121,18 +114,18 @@
                         </div>
                     </div>
 
-                </div>
-            </div>
+                </c-card-body>
+            </c-card>
         </c-col>
         <c-col xs="6">
-            <div class="card" style="min-height: 153px">
-                <div class="card-header">
+            <c-card style="min-height: 153px">
+                <c-card-header class="card-header">
                     <span>Workload Information</span>
-                </div>
-                <div class="card-body">
+                </c-card-header>
+                <c-card-body>
 
                     <div *ngIf="dashboardSet != null">
-                        <table class="table table-hover table-striped">
+                        <table cTable hover="true" striped="true">
 
                             <thead>
                             <tr>
@@ -165,10 +158,8 @@
                             <span class="sr-only">Loading...</span>
                         </div>
                     </div>
-
-
-                </div>
-            </div>
+                </c-card-body>
+            </c-card>
         </c-col>
     </c-row>
 </c-container>

@@ -15,34 +15,36 @@
         </div>
     </c-row>
 
-    <div class="card-columns" [ngStyle]="{'column-count': 6}">
-        <div *ngFor="let instance of instances">
-            <div class="card">
-                <div class="card-header">
-                    {{ instance.alias }}
-                    <div *ngIf="instance.connected" class="badge badge-success pull-right">connected</div>
-                    <div *ngIf="!instance.connected" class="badge badge-danger pull-right">not connected</div>
-                </div>
+    <c-row [gutter]="3">
+        <ng-container *ngFor="let instance of instances">
+            <c-col [md]="6">
+                <c-card>
+                    <c-card-header>
+                        {{ instance.alias }}
+                        <c-badge color="success" *ngIf="instance.connected" class="pull-right">connected</c-badge>
+                        <c-badge color="danger" *ngIf="!instance.connected" class="pull-right">not connected</c-badge>
+                    </c-card-header>
 
-                <div class="card-body">
-                    Host: {{ instance.host }}<br>
-                    <div *ngIf="instance.numberOfContainers !== -1">{{ instance.numberOfContainers }} {{ instance.numberOfContainers != 1 ? 'containers' : 'container' }} deployed</div>
-                </div>
+                    <c-card-body>
+                        Host: {{ instance.host }}<br>
+                        <div *ngIf="instance.numberOfContainers !== -1">{{ instance.numberOfContainers }} {{ instance.numberOfContainers != 1 ? 'containers' : 'container' }} deployed</div>
+                    </c-card-body>
 
-                <div class="card-footer bg-transparent">
-                    <button class="btn btn-danger" (click)="removeDockerInstance(instance);">Delete</button>
-                    <button class="btn btn-primary pull-right" (click)="showModal(instance.id)">Edit</button>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <c-card-footer class="bg-transparent">
+                        <button cButton color="danger" (click)="removeDockerInstance(instance);">Delete</button>
+                        <button cButton color="primary" class="pull-right" (click)="showModal(instance.id)">Edit</button>
+                    </c-card-footer>
+                </c-card>
+            </c-col>
+        </ng-container>
+    </c-row>
 
-    <div class="row">
-        <div class="col">
-            <button class="btn btn-success mr-2" (click)="showModal(-1)">Add new instance</button>
-            <button class="btn btn-primary" (click)="showSettingsModal()">Global Settings</button>
-        </div>
-    </div>
+    <c-row class="mt-2">
+        <c-col>
+            <button cButton color="success" class="me-2" (click)="showModal(-1)">Add New Instance</button>
+            <button cButton color="primary" (click)="showSettingsModal()">Global Settings</button>
+        </c-col>
+    </c-row>
 </ng-container>
 
 <div *ngIf="error !== null" class="alert alert-danger">

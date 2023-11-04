@@ -54,7 +54,7 @@ export class GraphComponent implements OnInit, OnChanges {
             }
         },
         scales: {
-            yAxes: [{
+            y: {
                 scaleLabel: {
                     display: false,
                     labelString: ''
@@ -64,13 +64,13 @@ export class GraphComponent implements OnInit, OnChanges {
                     //suggestedMin: 0,
                     //suggestedMax: 0
                 }
-            }],
-            xAxes: [{
+            },
+            x: {
                 scaleLabel: {
                     display: false,
                     labelString: ''
                 }
-            }]
+            }
         }
     };
 
@@ -109,6 +109,7 @@ export class GraphComponent implements OnInit, OnChanges {
      * other variables depend on it
      */
     ngOnChanges(changes: SimpleChanges) {
+        console.log(changes);
         if (changes['chartType']) {
             this.setChartType(changes['chartType'].currentValue);
         }
@@ -118,8 +119,8 @@ export class GraphComponent implements OnInit, OnChanges {
         if (changes['labels']) {
             this._labels = this.mapLabel(changes['labels'].currentValue);
         }
-        if (changes['colorList']) {
-            this._colorList = changes['colorList'].currentValue;
+        if (changes['colors']) {
+            this._colorList = changes['colors'].currentValue;
         }
         if (changes['min']) {
             this._min = changes['min'].currentValue;
@@ -156,8 +157,8 @@ export class GraphComponent implements OnInit, OnChanges {
         }
         this._chartType = chartType;
         const showAxes = ['bar', 'line'].includes(this._chartType);
-        this.options.scales.xAxes[0].display = showAxes;
-        this.options.scales.yAxes[0].display = showAxes;
+        this.options.scales.x.display = showAxes;
+        this.options.scales.y.display = showAxes;
     }
 
     mapData(data) {
@@ -181,19 +182,19 @@ export class GraphComponent implements OnInit, OnChanges {
     updateOptions() {
         if (['line', 'bar'].includes(this._chartType)) {
             if (this._min) {
-                this.options.scales.yAxes[0].ticks.suggestedMin = this._min;
+                this.options.scales.y.ticks.suggestedMin = this._min;
             }
             if (this._max) {
-                this.options.scales.yAxes[0].ticks.suggestedMax = this._max;
+                this.options.scales.y.ticks.suggestedMax = this._max;
             }
         }
         if (this._xLabel) {
-            this.options.scales.xAxes[0].scaleLabel.display = true;
-            this.options.scales.xAxes[0].scaleLabel.labelString = this._xLabel;
+            this.options.scales.x.scaleLabel.display = true;
+            this.options.scales.x.scaleLabel.labelString = this._xLabel;
         }
         if (this._yLabel) {
-            this.options.scales.yAxes[0].scaleLabel.display = true;
-            this.options.scales.yAxes[0].scaleLabel.labelString = this._yLabel;
+            this.options.scales.y.scaleLabel.display = true;
+            this.options.scales.y.scaleLabel.labelString = this._yLabel;
         }
     }
 

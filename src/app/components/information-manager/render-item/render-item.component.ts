@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Duration, InformationObject, InformationResponse} from '../../../models/information-page.model';
 import {InformationService} from '../../../services/information.service';
 import {ToasterService} from '../../toast-exposer/toaster.service';
-import {ProgressbarType} from "ngx-bootstrap/progressbar";
+import {ProgressbarType} from 'ngx-bootstrap/progressbar';
 
 @Component({
   selector: 'app-render-item',

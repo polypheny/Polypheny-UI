@@ -72,7 +72,7 @@
 
             <c-card-footer class="bg-transparent">
                 <div class="pull-right">
-                    <button cButton color="danger" variant="outline" class="mr-2" *ngIf="hasUnusedSessions"
+                    <button cButton color="danger" variant="outline" class="me-2" *ngIf="hasUnusedSessions"
                             (click)="terminateUnusedSessionsModal.show()">
                         Shut Down Unused
                     </button>
@@ -201,7 +201,7 @@
         <c-modal-footer>
             <button cButton color="secondary" type="button" (click)="startContainerModal.hide()">Cancel</button>
             <button cButton color="success" type="button" (click)="createContainer(+(selectedInstance.value))" [disabled]="creating || instances.length === 0">
-                <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true" *ngIf="creating"></span>
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" *ngIf="creating"></span>
                 <span>Start</span>
             </button>
         </c-modal-footer>

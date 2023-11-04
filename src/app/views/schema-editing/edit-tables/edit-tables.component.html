@@ -17,7 +17,7 @@
         <td>
             <span *ngIf="!table.editing">
               {{table.name}}
-                <i class="cil-pencil edit-table-name ml-2" (click)="table.editing = !table.editing"></i>
+                <i class="cil-pencil edit-table-name ms-2" (click)="table.editing = !table.editing"></i>
             </span>
 
             <c-input-group sizing="sm" *ngIf="table.editing" style="max-width: 200px" [class.editings]="table.editing" #editing>
@@ -159,7 +159,7 @@
                     </c-input-group>
                 </td>
                 <td>
-                    <i class="cui-trash del" (click)="removeNewColumn(col.key)"></i>
+                    <i class="cil-trash del" (click)="removeNewColumn(col.key)"></i>
                 </td>
             </tr>
             <tr>

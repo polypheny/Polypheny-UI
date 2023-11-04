@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
@@ -193,4 +193,5 @@ export interface DockerInstance {
   host: string;
   alias: string;
   connected: boolean;
+  numberOfContainers: number;
 }
