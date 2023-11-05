@@ -185,33 +185,11 @@ export class MonitoringRequest extends UIRequest {
     }
 }
 
-export class SchemaTypeRequest extends UIRequest {
-    constructor() {
-        super();
-        return this;
-    }
-
-}
-
 export class DeleteRequest extends UIRequest {
     constructor(entityId: number, data: any) {
         super();
         this.entityId = entityId;
         this.data = data;
-    }
-}
-
-/**
- * @param tableId name of the table
- * @param data the new values for the row that should be updated
- * @param filter the previous values of the row, to find the row that should be updated
- */
-export class UpdateRequest extends UIRequest {
-    constructor(entityId: number, data: any, filter: any) {
-        super();
-        this.entityId = entityId;
-        this.data = data;
-        this.filter = filter;
     }
 }
 

@@ -1,4 +1,4 @@
-<div class="min-vh-100 max-vh-100 wrapper d-flex flex-column overflow-hidden">
+<div class="min-vh-100 max-vh-100 wrapper d-flex flex-column overflow-hidden w-100">
     <c-header position="fixed" class="position-sticky w-100 z-3">
         <c-container class="h-100 align-content-center" fluid>
             <c-header-brand [routerLink]="'/'">
@@ -107,7 +107,7 @@
             <app-left-sidebar class="flex-grow-1"></app-left-sidebar>
         </c-sidebar>
 
-        <div class="body position-relative w-auto flex-grow-1 d-flex flex-column">
+        <div class="body position-relative w-auto flex-grow-1 d-flex flex-column w-100 overflow-x-hidden">
             <app-toast-exposer></app-toast-exposer>
             <c-container>
                 <app-breadcrumb-main></app-breadcrumb-main>

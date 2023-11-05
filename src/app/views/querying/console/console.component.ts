@@ -19,11 +19,6 @@ import {ViewInformation} from '../../../components/data-view/data-view.component
 import {CatalogService} from '../../../services/catalog.service';
 import {NamespaceModel} from '../../../models/catalog.model';
 
-class Namespace {
-  name: string;
-  id: string;
-}
-
 @Component({
   selector: 'app-console',
   templateUrl: './console.component.html',

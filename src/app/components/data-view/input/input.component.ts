@@ -1,15 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-  ViewChild
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {FieldDefinition, UiColumnDefinition} from '../models/result-set.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as $ from 'jquery';
@@ -103,7 +92,6 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   onValueChange(newVal:any, event = null) {
-    console.log(newVal);
     this.valueChange.emit(newVal);
     if (event !== null && event.keyCode === 13) {
       this.enter.emit(true);

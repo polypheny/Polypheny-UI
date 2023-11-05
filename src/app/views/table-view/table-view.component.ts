@@ -1,4 +1,4 @@
-import {Component, computed, effect, Injector, Input, OnDestroy, OnInit, Signal, untracked} from '@angular/core';
+import {Component, computed, effect, OnDestroy, OnInit, Signal, untracked} from '@angular/core';
 import {DataTemplateComponent} from '../../components/data-view/data-template/data-template.component';
 
 @Component({
@@ -9,6 +9,12 @@ import {DataTemplateComponent} from '../../components/data-view/data-template/da
 export class TableViewComponent extends DataTemplateComponent implements OnInit, OnDestroy {
 
   readonly fullName: Signal<string>;
+  reload = () => { // we can preserve the "this" context
+    if (!this.entity()) {
+      return;
+    }
+    this.getEntityData();
+  }
 
   constructor() {
     super();
@@ -55,11 +61,4 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
     this.webSocket.close();
   }
 
-  reload() {
-    if (!this.entity()){
-      return;
-    }
-
-    this.getEntityData();
-  }
 }

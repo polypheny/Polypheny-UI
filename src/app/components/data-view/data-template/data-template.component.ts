@@ -114,6 +114,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
       }
       untracked(() => {
         this.buildInsertObject();
+        this.setPagination();
       });
     });
   }
@@ -154,7 +155,6 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   protected initWebsocket() {
     const sub = this.webSocket.onMessage().subscribe({
       next: (result: Result<any, any>) => {
-        console.log(result);
         if (!result) {
           return;
         }
@@ -211,7 +211,13 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     const entityId = entity.id;
 
     const neighbors = 1;//from active page, show n neighbors to the left and n neighbors to the right.
-    this.pagination.push(new PaginationElement().withPage(entityId, Math.max(1, activePage - 1)).withLabel('<'));
+    const prev = new PaginationElement().withPage(entityId, Math.max(1, activePage - 1)).withLabel('<');
+
+    if (activePage === 1) {
+      prev.setDisabled();
+    }
+
+    this.pagination.push(prev);
     if (activePage === 1) {
       this.pagination.push(new PaginationElement().withPage(entityId, 1).setActive());
     } else {
@@ -237,7 +243,12 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
       }
       this.pagination.push(new PaginationElement().withPage(entityId, highestPage));
     }
-    this.pagination.push(new PaginationElement().withPage(entityId, Math.min(highestPage, activePage + 1)).withLabel('>'));
+    const next = new PaginationElement().withPage(entityId, Math.min(highestPage, activePage + 1)).withLabel('>');
+    if (activePage === highestPage) {
+      next.setDisabled();
+    }
+
+    this.pagination.push(next);
 
     return this.pagination;
   }

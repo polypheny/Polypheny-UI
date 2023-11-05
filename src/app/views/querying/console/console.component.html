@@ -150,9 +150,7 @@
                         <c-row class="col-lg-12 result-wrapper" *ngIf="result && result.data">
                             <app-data-view [inputResult]="result"
                                            [config]="entityConfig"
-                                           [loading]="loading"
-                                           (viewEditorCode)="createView($event)"
-                                           (executeView)="executeView($event)"></app-data-view>
+                                           [loading]="loading"></app-data-view>
                             <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="result.hasMore">
                                 Only {{result.data.length}} rows are being displayed. To fetch more rows, please specify a LIMIT clause.</p>
                         </c-row>
@@ -165,7 +163,6 @@
     <app-information-manager
             *ngIf="queryAnalysis"
             [data]="queryAnalysis"
-            [zoom]="_breadcrumb.getMasonryZoom()"
             [hidden]="!showingAnalysis"></app-information-manager>
 </c-container>
 

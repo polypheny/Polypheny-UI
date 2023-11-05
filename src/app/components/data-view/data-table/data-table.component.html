@@ -136,43 +136,19 @@
             </tbody>
         </table>
     </c-col>
+
 </c-row>
 
-<c-row class="row" *ngIf="result()">
-    <c-col class="col-lg-12">
+<c-row class="row my-4" *ngIf="result()">
+    <c-col class="col">
         <nav aria-label="Page navigation" class="float-right" *ngIf="result().highestPage > 1">
-            <c-pagination>
-                <li *ngFor="let p of pagination" class="page-item" cPageItem
-                    [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">
-                    <a cPageItem (click)="paginate(p)" [routerLink]="[]">{{p.label}}</a>
+            <c-pagination align="center">
+                <li *ngFor="let p of pagination" class="page-item pe-auto" cPageItem
+                    [disabled]="p.disabled" [active]="p.active">
+                    <a cPageLink class="pe-auto page-link" [style.cursor]="p.active || p.disabled ? 'inherit' : 'pointer'" (click)="paginate(p)" [routerLink]>{{p.label}}</a>
                 </li>
             </c-pagination>
         </nav>
-        <!--<button cButton color="primary" id="resetClassification" type="button"
-                *ngIf="entityConfig.exploring && asExploreResult(null).classificationInfo == 'ClassificationPossible' "
-                (click)="resetExplorationData()">Reset
-        </button>
-        <button cButton color="primary" id="startClassification" type="button"
-                *ngIf="config.exploring && asExploreResult(null).classificationInfo == 'ClassificationPossible' && ((this.initalClassifiation && this.getSelected() > 7 ) || (!this.initalClassifiation))"
-                (click)="startClassification()">Start Classification
-        </button>
-        <button cButton color="primary" id="showDecisionTree" type="button"
-                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && result().data"
-                (click)="openDecisionTree(decisionTree)">Show Decision Tree
-        </button>
-        <button cButton color="primary" id="showSQL" type="button"
-                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && asExploreResult(null).isConvertedToSql"
-                (click)="openSQL(sql)">Show SQL Statement
-        </button>
-        <button cButton color="primary" id="sendClassification" type="button"
-                *ngIf="config.exploring && asExploreResult(null).classificationInfo == 'ClassificationPossible' && this.exploreSet !== undefined "
-                (click)="sendChosenCols()">Execute
-        </button>
-
-        <button id="createView" cButton color="primary" type="button" tooltip="create view"
-                *ngIf="config.exploring && this.exploreSet !== undefined && config.exploring && this.finalresult && asExploreResult(null).isConvertedToSql"
-                (click)="createViewButton(createViewExample)"> Create View
-        </button>-->
     </c-col>
 </c-row>
 

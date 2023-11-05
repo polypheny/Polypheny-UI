@@ -23,7 +23,12 @@
               "chart.js",
               "graphlib-dot",
               "dagre-d3",
-              "ansi_up"
+              "ansi_up",
+              "ace-builds",
+              "mobx",
+              "flatpickr",
+              "plyr",
+              "moment"
             ],
             "outputPath": "dist",
             "index": "src/index.html",

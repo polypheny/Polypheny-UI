@@ -144,11 +144,8 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
 
   paginate(p: PaginationElement) {
     this.result().currentPage = p.page;
-    /*if (this.entityConfig.exploring) {
-      this.getExploreTables();
-    } else {*/
+    this.currentPage.set(p.page);
     this.getEntityData();
-    //}
   }
 
   sortTable(s: SortState) {

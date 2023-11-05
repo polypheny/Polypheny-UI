@@ -91,6 +91,7 @@ import {DockersettingsComponent} from './docker/dockersettings/dockersettings.co
 import {TreeModule} from '@ali-hm/angular-tree-component';
 import {ToastExposerComponent} from './toast-exposer/toast-exposer.component';
 import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
+import {ReloadButtonComponent} from "../views/util/reload-button/reload-button.component";
 
 //import 'hammerjs';
 
@@ -127,7 +128,40 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
     ProgressBarComponent,
     ProgressComponent,
     ToastCloseDirective,
-    BreadCrumb, SpinnerComponent, ButtonDirective, TableDirective, CardComponent, CardHeaderComponent, CardBodyComponent, CardFooterComponent, FormFeedbackComponent, ListGroupDirective, ListGroupItemDirective, PaginationComponent, PageItemDirective, PageLinkDirective, TextColorDirective, ModalComponent, ModalContentComponent, ModalHeaderComponent, ModalBodyComponent, ButtonCloseDirective, ButtonGroupComponent, NavComponent, NavItemComponent, NavLinkDirective, TabContentComponent, TabPaneComponent, TabContentRefDirective, ModalFooterComponent, GutterDirective, ColDirective, DropdownMenuDirective, DropdownItemDirective, DropdownDividerDirective, DropdownToggleDirective
+    BreadCrumb,
+    SpinnerComponent,
+    ButtonDirective,
+    TableDirective,
+    CardComponent,
+    CardHeaderComponent,
+    CardBodyComponent,
+    CardFooterComponent,
+    FormFeedbackComponent,
+    ListGroupDirective,
+    ListGroupItemDirective,
+    PaginationComponent,
+    PageItemDirective,
+    PageLinkDirective,
+    TextColorDirective,
+    ModalComponent,
+    ModalContentComponent,
+    ModalHeaderComponent,
+    ModalBodyComponent,
+    ButtonCloseDirective,
+    ButtonGroupComponent,
+    NavComponent,
+    NavItemComponent,
+    NavLinkDirective,
+    TabContentComponent,
+    TabPaneComponent,
+    TabContentRefDirective,
+    ModalFooterComponent,
+    GutterDirective,
+    ColDirective,
+    DropdownMenuDirective,
+    DropdownItemDirective,
+    DropdownDividerDirective,
+    DropdownToggleDirective
   ],
     declarations: [
         BreadcrumbComponent,
@@ -156,6 +190,7 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
         DockersettingsComponent,
         ToastExposerComponent,
         Toast,
+      ReloadButtonComponent
     ],
     exports: [
         BreadcrumbComponent,
@@ -179,6 +214,7 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
         DockersettingsComponent,
         ToastExposerComponent,
         Toast,
+      ReloadButtonComponent
     ]
 })
 export class ComponentsModule {

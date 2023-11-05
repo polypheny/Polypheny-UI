@@ -2,9 +2,7 @@
     <h5>{{ fullName() }}</h5>
     <br>
 </ng-container>
-<button cButton color="light" class="btn-circle" [ngClass]="{'rotating': loading()}" id="reload-btn" (click)="reload()" *ngIf="entity()">
-    <i class="icon-reload"></i>
-</button>
+<app-reload-button [loading]="loading()" [condition]="entity()" [action]="this.reload"></app-reload-button>
 <div class="w-100">
     <app-data-view class="w-100 overflow-x-auto" [inputResult]="result()" [loading]="loading" [config]="entityConfig()" [entity]="entity"></app-data-view>
 </div>
