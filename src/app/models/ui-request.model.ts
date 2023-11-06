@@ -77,6 +77,7 @@ export class QueryRequest extends UIRequest {
         this.cache = cache;
         this.language = lang;
         this.namespace = namespace;
+        this.currentPage = 1;
         return this;
     }
 }
