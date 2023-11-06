@@ -95,8 +95,9 @@
                     </a>
                 </c-nav-item>
 
-                <c-avatar role="button" size="md" color="secondary" (click)="isConnected() ? openSettings() :reconnect()" [status]="getConnectedColor()" [class]="getConnectedSymbol()" (mouseenter)="hover.set(true)" (mouseleave)="hover.set(false)" [tooltip]="getConnectionText()"></c-avatar>
-
+                <c-avatar role="button" size="md" color="secondary" (click)="openSettings()"
+                          [status]="getConnectedColor()" class="cil-settings" (mouseenter)="hover.set(true)"
+                          (mouseleave)="hover.set(false)" [tooltip]="getConnectionText()"></c-avatar>
             </c-header-nav>
         </c-container>
     </c-header>
@@ -139,7 +140,7 @@
         <button (click)="modal.set(false)" cButtonClose></button>
     </c-modal-header>
     <c-modal-body>
-        <app-right-sidebar></app-right-sidebar>
+        <app-right-sidebar [reload]="reconnect"></app-right-sidebar>
     </c-modal-body>
 
 </c-modal>

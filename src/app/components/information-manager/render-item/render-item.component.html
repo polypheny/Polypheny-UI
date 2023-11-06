@@ -80,7 +80,8 @@
     </ng-container>
 
     <div class="InformationDuration" *ngIf="li.type === 'InformationDuration'">
-        <div [ngClass]="{'duration': li.isChild || showTotalDuration(li), 'isParent': !li.isChild}">
+
+    <div [ngClass]="{'duration': li.isChild || showTotalDuration(li), 'isParent': !li.isChild}">
             <strong *ngIf="showTotalDuration(li)">
                 total time: {{displayTime( li.duration )}}
             </strong>
