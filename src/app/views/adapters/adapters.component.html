@@ -12,7 +12,7 @@
         </button>
 
         <c-col *ngIf="availableAdapters()">
-            <table cTable size="sm" hover bordered id="adapter-table">
+            <table cTable size="sm" hover="true" bordered="true" id="adapter-table">
                 <thead>
                 <tr>
                     <th>Logo</th>
@@ -72,7 +72,7 @@
                            [ngClass]="{'cil-trash': adapter !== deletingAdapter, 'cil-warning': adapter === deletingAdapter}"></i>
                         <c-spinner *ngIf="isDeleting(adapter)" size="sm" cBorder color="light" role="status"></c-spinner>
                     </button>
-                    <button cButton color="primary" class="pull-right" (click)="initAdapterSettingsModal(adapter)">
+                    <button cButton color="primary" class="pull-right" (click)="initAdapterSettingsConfigureModal(adapter)">
                         Configure
                     </button>
                 </c-card-footer>
@@ -124,7 +124,7 @@
 
         <!-- Edit adapter settings -->
         <c-modal-body *ngIf="editingAdapterForm">
-            <form [formGroup]="editingAdapterForm" autocomplete="off" (ngSubmit)="saveAdapterSettings()">
+            <form [formGroup]="editingAdapterForm" autocomplete="off" (ngSubmit)="saveAdapterSettings()" cRow [gutter]="{gy:2}">
                 <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
                     <ng-container *ngIf="getAdapterSetting(control.key)">
                         <c-input-group *ngIf="!getAdapterSetting(control.key).template.options && !getAdapterSetting(control.key).template.fileNames">
@@ -136,7 +136,7 @@
                                    [ngClass]="validate(editingAdapterForm, control.key)">
                             <c-form-feedback>required</c-form-feedback>
                         </c-input-group>
-                        <div class="form-group" *ngIf="getAdapterSetting(control.key)[0].options">
+                        <div class="form-group" *ngIf="getAdapterSetting(control.key).template.options">
                             <c-input-group class="select-wrapper" *ngIf="!getAdapterSetting(control.key).template.dynamic; else editDynamic">
                                         <span cInputGroupText cTooltipPlacement="left" [cTooltip]="getAdapterSetting(control.key).template.description">
                                             {{control.key}}
@@ -176,7 +176,7 @@
         </c-modal-body>
 
         <!-- Form for deploying -->
-        <c-modal-body *ngIf="adapter()">
+        <c-modal-body *ngIf="adapter() && !editingAdapterForm">
             <div *ngIf="!activeMode(); else options" cRow [gutter]="3">
                 <c-col *ngFor="let mode of adapter().modes" xs="12" class="text-center">
                     <button cButton size="lg" color="primary" class="btn-block" (click)="setMode(mode)">{{mode}}</button>
@@ -271,7 +271,7 @@
             <button cButton color="primary" *ngIf="editingAdapterForm" type="submit" (click)="saveAdapterSettings()" [disabled]="!editingAdapterForm?.valid">
                 Save
             </button>
-            <button cButton color="primary" *ngIf="activeMode() && !handshaking" type="submit" (click)="deploy()"
+            <button cButton color="primary" *ngIf="activeMode() && !handshaking && adapter().task != Task.CHANGE" type="submit" (click)="deploy()"
                     [disabled]="!editingAvailableAdapterForm?.valid || deploying || handshaking">
                 <span *ngIf="!deploying && !handshaking">Deploy</span>
                 <c-spinner size="sm" *ngIf="deploying || handshaking" role="status">

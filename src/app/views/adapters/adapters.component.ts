@@ -3,25 +3,11 @@ import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AdapterModel, AdapterType, PolyMap} from './adapter.model';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
-import {
-    AbstractControl,
-    FormGroup,
-    UntypedFormArray,
-    UntypedFormBuilder,
-    UntypedFormControl,
-    UntypedFormGroup,
-    ValidatorFn,
-    Validators
-} from '@angular/forms';
+import {AbstractControl, FormGroup, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {PathAccessRequest, RelationalResult} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
-import {
-    AdapterSettingModel,
-    AdapterSettingValueModel,
-    AdapterTemplateModel,
-    DeployMode
-} from '../../models/catalog.model';
+import {AdapterSettingModel, AdapterSettingValueModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 
 @Component({
@@ -92,6 +78,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     protected readonly fetch = fetch;
 
+    protected readonly AdapterModel = AdapterModel;
+
 
     readonly positionOrder = () => {
         return (a, b) => {
@@ -144,12 +132,13 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                     fc[setting.template.name] = new UntypedFormControl(val, validators);
                 }
             }
-            fc['uniqueName'] = new UntypedFormControl(this.getDefaultUniqueName(), [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores(), ...this.sources()])]);
 
             if (adapter.task === Task.DEPLOY) {
+                fc['uniqueName'] = new UntypedFormControl(this.getDefaultUniqueName(), [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores(), ...this.sources()])]);
                 this.editingAvailableAdapterForm = new UntypedFormGroup(fc);
                 this.editingAvailableAdapterForm.controls['mode'].setValue(this.activeMode().toLowerCase());
             } else {
+                fc['uniqueName'] = new UntypedFormControl(adapter.uniqueName, [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores(), ...this.sources()].filter(a => a.name !== adapter.uniqueName))]);
                 this.editingAdapterForm = new UntypedFormGroup(fc);
             }
 
@@ -177,10 +166,12 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.fileLabel = 'Choose File';
     }
 
-    initAdapterSettingsModal(adapter: AdapterModel) {
+    initAdapterSettingsConfigureModal(adapter: AdapterModel) {
         const allSettings = this._catalog.getAdapterTemplate(adapter.adapterName, adapter.type);
 
-        this.adapter.set(Adapter.from(allSettings, adapter, Task.CHANGE));
+        const current = Adapter.from(allSettings, adapter, Task.CHANGE);
+        this.adapter.set(current);
+        this.activeMode.set(current.modes[0]);
 
         this.handshaking = false;
         this.modalActive = true;
@@ -556,6 +547,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     setMode(mode: DeployMode) {
         this.activeMode.set(mode);
     }
+
+    protected readonly Task = Task;
 }
 
 // see https://angular.io/guide/form-validation#custom-validators
@@ -599,7 +592,7 @@ class Adapter {
         const settings: Map<string, MergedSetting> = new Map();
 
         for (const template of adapter.settings) {
-            const temp = current === null ? null : current.settings.get(template.name);
+            const temp = current === null ? null : current.settings[template.name];
             const val = new MergedSetting(template, new AdapterSettingValueModel(template.name, template.defaultValue));
             val.current = temp;
 
@@ -614,7 +607,6 @@ class MergedSetting {
     current: AdapterSettingValueModel;
 
     constructor(template: AdapterSettingModel, current: AdapterSettingValueModel) {
-        console.log(template);
         this.template = template;
         this.current = current;
     }

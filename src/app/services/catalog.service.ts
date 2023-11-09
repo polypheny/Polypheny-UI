@@ -38,7 +38,7 @@ export class CatalogService {
   public readonly allocationColumns: WritableSignal<Map<number, AllocationColumnModel>> = signal(new Map());
 
   public readonly adapters: WritableSignal<Map<number, AdapterModel>> = signal(new Map());
-  public readonly adapterTemplates: WritableSignal<Map<[string, AdapterType], AdapterTemplateModel>> = signal(new Map<[string, AdapterType], AdapterTemplateModel>());
+  public readonly adapterTemplates: WritableSignal<Map<string, AdapterTemplateModel>> = signal(new Map<string, AdapterTemplateModel>()); // typescript uses by reference comparisons, so this is necessary
 
   constructor(
       private _http: HttpClient,
@@ -96,7 +96,7 @@ export class CatalogService {
     this.allocations.set(this.toIdMap(this.snapshot.allocations));
     this.allocationColumns.set(this.toIdMap(this.snapshot.allocColumns));
     this.adapters.set(this.toIdMap(this.snapshot.adapters));
-    this.adapterTemplates.set(new Map(this.snapshot.adapterTemplates.map(t => [[t.adapterName, t.adapterType], t])));
+    this.adapterTemplates.set(new Map(this.snapshot.adapterTemplates.map(t => [t.adapterName + '_' + t.adapterType, t])));
 
     this.listener.set(this); // notify
     this.state.set(CatalogState.UP_TO_DATE);
@@ -334,7 +334,7 @@ export class CatalogService {
   }
 
   getAdapterTemplate(adapterName: string, type: AdapterType): AdapterTemplateModel {
-    return this.adapterTemplates().get([adapterName, type]);
+    return this.adapterTemplates().get(adapterName + '_' + type);
   }
 
   getAdapterTemplates() {

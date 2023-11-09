@@ -3,16 +3,17 @@ import {AdapterSettingValueModel, DeployMode, IdEntity} from '../../models/catal
 
 export class AdapterModel extends IdEntity {
   readonly adapterName: string;
-  readonly settings: PolyMap<string, AdapterSettingValueModel>;
+  readonly settings: Map<string, AdapterSettingValueModel>;
   readonly persistent: boolean;
   readonly type: AdapterType;
   readonly mode: DeployMode;
   readonly indexMethods: IndexMethodModel[];
 
-  constructor(uniqueName: string, adapterName: string, settings: PolyMap<string, AdapterSettingValueModel>, persistent: boolean, type: AdapterType, deployMode: DeployMode) {
+  constructor(uniqueName: string, adapterName: string, settings: Map<string, AdapterSettingValueModel>, persistent: boolean, type: AdapterType, deployMode: DeployMode) {
     super(-1, uniqueName);
     this.adapterName = adapterName;
     this.settings = settings;
+    console.log(settings);
     this.persistent = persistent;
     this.type = type;
     this.mode = deployMode;
