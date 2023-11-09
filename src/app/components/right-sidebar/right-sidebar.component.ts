@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Setting, WebuiSettingsService} from '../../services/webui-settings.service';
 import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
 import {RightSidebarToRelationalalgebraService} from '../../services/right-sidebar-to-relationalalgebra.service';
@@ -10,6 +10,8 @@ import {RightSidebarToRelationalalgebraService} from '../../services/right-sideb
 })
 export class RightSidebarComponent implements OnInit {
 
+    @Input()
+    reload: () => void;
     settings: Map<string, Setting> = this._settings.getSettings();
     form: UntypedFormGroup;
 

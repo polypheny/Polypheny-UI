@@ -1,7 +1,7 @@
 <c-nav variant="underline">
     <c-nav-item>
         <a [active]="true" [cTabContent]="tabContent" [routerLink] [tabPaneIdx]="0" cNavLink>
-            Settings
+            Host Parameters
         </a>
     </c-nav-item>
 </c-nav>
@@ -23,6 +23,7 @@
             <div class="aside-options">
                 <button cButton color="primary" type="submit">save</button>
                 <button cButton color="danger" class="float-right ms-2" (click)="resetSettings()">reset</button>
+                <button cButton color="primary" class="ms-2" (click)="reload()">reload</button>
             </div>
 
         </form>

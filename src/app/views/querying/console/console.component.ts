@@ -251,6 +251,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
       if (analyzerId && analyzerPage) {
         this._crud.getAnalyzerPage(analyzerId, analyzerPage).subscribe({
           next: res => {
+              console.log(res);
             this.queryAnalysis = <InformationPage>res;
             this.showingAnalysis = true;
             this._breadcrumb.setBreadcrumbs([new BreadcrumbItem(node.data.name)]);
