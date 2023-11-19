@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, Input, OnInit, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
 import {NamespaceType} from '../../../models/ui-request.model';
 import {PaginationElement} from '../models/pagination-element.model';
@@ -7,11 +7,10 @@ import {SortDirection, SortState} from '../models/sort-state.model';
 import {CrudService} from '../../../services/crud.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {Freshness, TimeUnits} from '../data-view.component';
-import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 import {CatalogService} from '../../../services/catalog.service';
 import {DataTemplateComponent} from '../data-template/data-template.component';
+import {WebuiSettingsService} from "../../../services/webui-settings.service";
 
 
 @Component({
@@ -50,13 +49,6 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
 
   columns = [];
   userInput = {};
-
-  @Output() showViewExploring = new EventEmitter();
-
-
-  protected readonly Freshness = Freshness;
-  protected readonly TimeUnits = TimeUnits;
-
 
   /*createViewButton(createViewExample) {
     this.modalRefCreateView = this.modalService.show(createViewExample);
@@ -124,7 +116,7 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
 
 
   filterTable(e, filterVal, col: UiColumnDefinition) {
-    this.result().currentPage = 1;
+    this.$result().currentPage = 1;
     if (e.keyCode === 27) { //esc
       $('.table-filter').val('');
       this.filter.clear();
@@ -143,7 +135,7 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
   }
 
   paginate(p: PaginationElement) {
-    this.result().currentPage = p.page;
+    this.$result().currentPage = p.page;
     this.currentPage.set(p.page);
     this.getEntityData();
   }

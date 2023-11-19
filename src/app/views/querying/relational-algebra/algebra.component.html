@@ -1,0 +1,103 @@
+<c-row class="h-100 p-3 pt-5" style="padding-bottom: 1em;">
+
+    <c-col class="col-12" *ngIf="queryAnalysis">
+        <app-information-manager [data]="queryAnalysis"
+                                 [hidden]="!showingAnalysis"></app-information-manager>
+    </c-col>
+
+    <c-col>
+        <div class="col-12 h-100" id="drop" cdkDropList cdkDropListSortingDisabled #dropArea
+             (treeDrop)="treeDrop($event)"
+             [hidden]="showingAnalysis">
+        <ng-container *ngFor="let n of nodes | keyvalue; trackBy: trackNode">
+            <app-node [node]="n.value"
+                      class="position-relative"
+                      [ngStyle]="{'top': n.value.$top()+'px', 'left':n.value.$left()+'px', 'z-index': n.value.zIndex}"
+                      (autocompleteChanged)="setAutocomplete()"
+                      [cdkDragFreeDragPosition]="{x: n.value.$left(), y: n.value.$top()}"
+                      (cdkDragStarted)="dragStart($event, n.value)"
+                      (cdkDragMoved)="draggingNode($event, n.value)"
+                      (cdkDragEnded)="savePos($event, n.value)"
+                      cdkDrag
+                      cdkDragBoundary="#drop">
+
+                <c-card-header class="drag-handle" cdkDragHandle>
+                    {{n.value.class}}
+                    <span>
+                        &nbsp;(
+                        <span *ngIf="n.value.relAlgSymbol" [innerHTML]="n.value.relAlgSymbol"></span>
+                        <span *ngIf="!n.value.relAlgSymbol"><i [ngClass]="n.value.icon"></i></span>
+                        )
+                    </span>
+                    <span class="del float-right" (click)="deleteNode(n.value)">
+                        <i class="cil-trash"></i>
+                    </span>
+                </c-card-header>
+            </app-node>
+        </ng-container>
+
+            <button cButton color="primary" id="run" (click)="clickRun($event)">
+            <i class="fa fa-play"></i>
+        </button>
+        <div id="menu-top-left">
+            <c-button-group>
+                <button cButton color="light" size="sm" (click)="exportTree()">export</button>
+                <button cButton color="light" size="sm" (click)="importTree()">import</button>
+            </c-button-group>
+        </div>
+
+            <svg id="line" width="100%" height="100%">
+            <marker id="arrowhead"
+                    viewBox="0 0 10 10" refX="0" refY="5"
+                    markerUnits="strokeWidth"
+                    markerWidth="5"
+                    markerHeight="5"
+                    orient="auto">
+                <path d="M 0,0 l 10,5 l -10,5 z"/>
+            </marker>
+                <line *ngIf="temporalLine"
+                      [attr.x1]="temporalLine.x1"
+                      [attr.y1]="temporalLine.y1"
+                  [attr.x2]="temporalLine.x2"
+                  [attr.y2]="temporalLine.y2" marker-end="url(#arrowhead)"></line>
+            <line *ngFor="let conn of connections | keyvalue" [attr.x1]="getX1(conn.value.source)"
+                  [attr.y1]="getY1(conn.value.source)" [attr.x2]="getX2(conn.value.target)"
+                  [attr.y2]="getY2(conn.value.target)" marker-end="url(#arrowhead)"></line>
+        </svg>
+        </div>
+    </c-col>
+</c-row>
+
+
+<c-card class="mb-3" *ngIf="$result() && !showingAnalysis " id="alg-result">
+    <c-card-header>
+        <span>{{$result().query}}</span>
+        <span class="badge pull-right" *ngIf="$result().error"
+              [ngClass]="{'badge-secondary': !$result().error, 'badge-danger': $result().error}">
+            <ng-container *ngIf="$result().error">!</ng-container>
+            </span>
+    </c-card-header>
+
+    <c-card-body>
+        <div class="text-danger" *ngIf="$result() && $result().error">
+            <strong>Error:</strong>
+            <p class="mb-3">{{$result().error}}</p>
+        </div>
+
+        <div class="query-info">
+            <p *ngIf="$result() && !$result().data && !$result().error" class="mb-3">
+                <i>Successfully executed</i>
+            </p>
+        </div>
+
+        <c-row *ngIf="$result() && $result().data" [hidden]="showingAnalysis">
+            <c-col lg="lg">
+                <app-data-view [result]="$result()"
+                               [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: false}"
+                               [loading]="$loading()"
+                               [viewQueryConsumer]="createView"></app-data-view>
+            </c-col>
+        </c-row>
+    </c-card-body>
+
+</c-card>

@@ -1,5 +1,5 @@
 import {AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
-import {Node} from '../relational-algebra.model';
+import {AlgType, Node} from '../algebra.model';
 import {SortDirection, SortState} from '../../../../components/data-view/models/sort-state.model';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 
@@ -14,7 +14,7 @@ export class NodeComponent implements OnInit, AfterViewChecked {
     constructor() {
     }
 
-    @ViewChild('nodeEle', {static: false}) public nodeEle: ElementRef;
+    @ViewChild('nodeEle', {read: ElementRef}) public nodeEle: ElementRef;
     @Input() node: Node;
     @Output() autocompleteChanged = new EventEmitter();
     public highlighted = 'node1';
@@ -24,31 +24,31 @@ export class NodeComponent implements OnInit, AfterViewChecked {
     }
 
     ngAfterViewChecked() {
-        this.node.setHeight(this.nodeEle.nativeElement.offsetHeight);
-        this.node.setWidth(this.nodeEle.nativeElement.offsetWidth);
+        this.node.height = this.nodeEle.nativeElement.offsetHeight;
+        this.node.width = this.nodeEle.nativeElement.offsetWidth;
     }
 
     addSortColumn() {
         this.node.sortColumns.push(new SortState());
-        this.node.setHeight(this.node.getHeight() + 35);
+        this.node.height += 35;
     }
 
     addProjectionColumn() {
         this.node.fields.push('');
-        this.node.setHeight(this.node.getHeight() + 35);
+        this.node.height += 35;
     }
 
     removeSortColumn(index: number) {
         if (this.node.sortColumns.length > 1) {
             this.node.sortColumns.splice(index, 1);
-            this.node.setHeight(this.node.getHeight() - 35);
+            this.node.height -= 35;
         }
     }
 
     removeProjectionColumn(index: number) {
         if (this.node.fields.length > 1) {
             this.node.fields.splice(index, 1);
-            this.node.setHeight(this.node.getHeight() - 35);
+            this.node.height -= 35;
         } else {
             this.node.fields[0] = '';
         }
@@ -68,17 +68,17 @@ export class NodeComponent implements OnInit, AfterViewChecked {
     }
 
     getAcCols(): string[] {
-        return [...this.node.getAcColumns()];
+        return [...this.node.acColumns];
     }
 
     getAcTableCols(): string[] {
-        return [...this.node.getAcTableColumns()];
+        return [...this.node.acTableColumns];
     }
 
     autocompleteChange() {
         if (this.node.initialNames.includes(this.node.tableName)) {
             const index = this.node.initialNames.indexOf(this.node.tableName);
-            this.node.setTableType(this.node.tableTypes[index]);
+            this.node.tableType = this.node.tableTypes[index];
             this.isView = this.node.tableTypes[index] === 'VIEW';
 
         }
@@ -90,4 +90,5 @@ export class NodeComponent implements OnInit, AfterViewChecked {
     }
 
 
+    protected readonly AlgType = AlgType;
 }

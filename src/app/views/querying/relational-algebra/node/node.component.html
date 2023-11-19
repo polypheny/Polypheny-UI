@@ -1,19 +1,19 @@
-<div class="card node" [id]="node.id" #nodeEle>
+<c-card class="node" [id]="node.id" #nodeEle>
     <div class="in"></div>
     <div class="out"></div>
 
     <ng-content></ng-content>
     <ng-container [ngSwitch]="node.type">
-        <li class="param list-group-item" *ngSwitchCase="'Scan'">
+        <li class="param list-group-item" *ngSwitchCase="AlgType.Scan">
             <div class="param-wrapper">
-                <label *ngIf="!isView" for="{{node.id}}tableName">Table</label>
+                <label *ngIf="!isView" for="{{node.id}}tableName">Entity</label>
                 <label *ngIf="isView" for="{{node.id}}tableName">View</label>
                 <ng-autocomplete
                         id="{{node.id}}tableName"
                         [data]="node.autocomplete"
                         [(ngModel)]="node.tableName"
                         (inputChanged)="autocompleteChange()"
-                        placeHolder="schema.table"
+                        cPlaceholder="entity.field"
                         [searchKeyword]="node.tableName"
                         [itemTemplate]="itemTemplate"
                         (click)="autocompleteChange()"
@@ -21,7 +21,7 @@
             </div>
         </li>
 
-        <ng-container *ngSwitchCase="'Join'">
+        <ng-container *ngSwitchCase="AlgType.Join">
             <li class="param list-group-item">
                 <div class="param-wrapper">
                     <label for="{{node.id}}join">Join Type</label>
@@ -55,7 +55,7 @@
                             id="{{node.id}}col1"
                             [data]="getAcTableCols()"
                             [(ngModel)]="node.col1"
-                            placeHolder="table.column"
+                            cPlaceholder="entity.field"
                             [searchKeyword]="node.col1"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -68,7 +68,7 @@
                             id="{{node.id}}col2"
                             [data]="getAcTableCols()"
                             [(ngModel)]="node.col2"
-                            placeHolder="table.column"
+                            cPlaceholder="entity.field"
                             [searchKeyword]="node.col2"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -76,7 +76,7 @@
             </li>
         </ng-container>
 
-        <ng-container *ngSwitchCase="'Filter'">
+        <ng-container *ngSwitchCase="AlgType.Filter">
             <li class="param list-group-item">
                 <div class="param-wrapper">
                     <label for="{{node.id}}operator">Operator</label>
@@ -97,7 +97,7 @@
                             id="{{node.id}}filterField"
                             [data]="getAcTableCols()"
                             [(ngModel)]="node.field"
-                            placeHolder="table.column"
+                            cPlaceholder="entity.field"
                             [searchKeyword]="node.field"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -112,9 +112,9 @@
             </li>
         </ng-container>
 
-        <ng-container *ngSwitchCase="'Project'">
+        <ng-container *ngSwitchCase="AlgType.Project">
             <li class="param list-group-item" style="text-align: center">
-                <a [routerLink]="[]" class="text-secondary" (click)="addProjectionColumn()">+ add column</a>
+                <a [routerLink]="[]" class="text-secondary" (click)="addProjectionColumn()">+ add field</a>
             </li>
             <li class="list-group-item">
                 <div class="param-wrapper sort-wrapper"
@@ -123,17 +123,17 @@
                             [data]="node.autocomplete"
                             [(ngModel)]="node.fields[index]"
                             (inputChanged)="autocompleteChange()"
-                            placeHolder="table.column"
+                            cPlaceholder="entity.field"
                             [searchKeyword]="node.fields[index]"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
-                    <i class="fa fa-close sort-remove" (click)="removeProjectionColumn( field.key )"></i>
+                    <i class="fa fa-close sort-remove" (click)="removeProjectionColumn( +field.key )"></i>
                 </div>
             </li>
         </ng-container>
 
 
-        <ng-container *ngSwitchCase="'Aggregate'">
+        <ng-container *ngSwitchCase="AlgType.Aggregate">
             <li class="param list-group-item">
                 <div class="param-wrapper">
                     <label for="{{node.id}}groupBy">Group By</label>
@@ -142,7 +142,7 @@
                             [data]="getAcCols()"
                             [(ngModel)]="node.groupBy"
                             (inputChanged)="autocompleteChange()"
-                            placeHolder="column"
+                            cPlaceholder="field"
                             [searchKeyword]="node.groupBy"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -169,7 +169,7 @@
                             [data]="getAcTableCols()"
                             [(ngModel)]="node.field"
                             (inputChanged)="autocompleteChange()"
-                            placeHolder="table.column"
+                            cPlaceholder="entity.field"
                             [searchKeyword]="node.field"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -184,7 +184,7 @@
             </li>
         </ng-container>
 
-        <ng-container *ngSwitchCase="'Sort'">
+        <ng-container *ngSwitchCase="AlgType.Aggregate">
             <li class="param list-group-item" style="text-align: center">
                 <a [routerLink]="[]" (click)="addSortColumn()" class="text-secondary">+ add column</a>
             </li>
@@ -196,18 +196,18 @@
                     <ng-autocomplete
                             [data]="getAcTableCols()"
                             [(ngModel)]="col.value.column"
-                            placeHolder="table.column"
+                            cPlaceholder="entity.field"
                             [searchKeyword]="col.value.column"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
                     <a [routerLink]="[]" class="btn btn-light btn-sm sort-direction"
                        (click)="toggleDirection(col.value)">{{col.value.direction}}</a>
-                    <i class="fa fa-close sort-remove" (click)="removeSortColumn( col.key )"></i>
+                    <i class="fa fa-close sort-remove" (click)="removeSortColumn( +col.key )"></i>
                 </div>
             </li>
         </ng-container>
 
-        <li class="param list-group-item" *ngSwitchCase="'Union'">
+        <li class="param list-group-item" *ngSwitchCase="AlgType.Union">
             <div class="param-wrapper">
                 <label for="{{node.id}}unionAll">union all</label>
                 <input type="checkbox" id="{{node.id}}unionAll" name="all"
@@ -215,7 +215,7 @@
             </div>
         </li>
 
-        <li class="param list-group-item" *ngSwitchCase="'Minus'">
+        <li class="param list-group-item" *ngSwitchCase="AlgType.Minus">
             <div class="param-wrapper">
                 <label for="{{node.id}}exceptAll">except all</label>
                 <input type="checkbox" id="{{node.id}}exceptAll" name="all"
@@ -223,7 +223,7 @@
             </div>
         </li>
 
-        <li class="param list-group-item" *ngSwitchCase="'Intersect'">
+        <li class="param list-group-item" *ngSwitchCase="AlgType.Intersect">
             <div class="param-wrapper">
                 <label for="{{node.id}}intersectAll">intersect all</label>
                 <input type="checkbox" id="{{node.id}}intersectAll" name="all"
@@ -232,7 +232,7 @@
         </li>
 
     </ng-container>
-</div>
+</c-card>
 
 <!-- autocomplete templates -->
 <ng-template #itemTemplate let-item>

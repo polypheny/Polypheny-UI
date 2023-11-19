@@ -103,9 +103,9 @@
     </c-header>
 
 
-    <div class="wrapper position-relative h-100 d-flex flex-grow-1">
+    <div class="wrapper position-relative h-100 d-flex flex-grow-1 overflow-y-auto">
         <c-sidebar id="left" [visible]="this._left.isVisible()" size="lg" class="position-relative p-3">
-            <app-left-sidebar class="flex-grow-1"></app-left-sidebar>
+            <app-left-sidebar class="flex-grow-1 h-100"></app-left-sidebar>
         </c-sidebar>
 
         <div class="body position-relative w-auto flex-grow-1 d-flex flex-column w-100 overflow-x-hidden">
@@ -117,9 +117,11 @@
 
             <!-- Main content -->
             <div class="overflow-y-auto flex-grow-1 d-flex flex-column bg-body">
-                <c-container class="flex-grow-1 gy-2">
-                    <c-row [gutter]="2">
-                        <router-outlet></router-outlet>
+                <c-container class="flex-grow-1 gy-2 overflow-y-auto">
+                    <c-row class="h-100 align-content-start" [gutter]="2">
+                        <c-col class="h-100">
+                            <router-outlet></router-outlet>
+                        </c-col>
                     </c-row>
                 </c-container>
                 <c-footer>

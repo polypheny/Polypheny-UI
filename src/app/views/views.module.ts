@@ -15,12 +15,14 @@ import {EditTablesComponent} from './schema-editing/edit-tables/edit-tables.comp
 import {MonitoringComponent} from './monitoring/monitoring.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
-import {RelationalAlgebraComponent} from './querying/relational-algebra/relational-algebra.component';
+import {AlgebraComponent} from './querying/relational-algebra/algebra.component';
 import {QueryingComponent} from './querying/querying.component';
 import {NodeComponent} from './querying/relational-algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import {AdaptersComponent} from './adapters/adapters.component';
-import {RefinementOptionsComponent} from './querying/graphical-querying/refinement-options/refinement-options.component';
+import {
+    RefinementOptionsComponent
+} from './querying/graphical-querying/refinement-options/refinement-options.component';
 import {ExploreByExampleComponent} from './querying/explore-by-example/explore-by-example.component';
 import {AboutComponent} from './about/about.component';
 import {ButtonsModule} from 'ngx-bootstrap/buttons';
@@ -34,79 +36,130 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 import {EditSourceColumnsComponent} from './schema-editing/edit-source-columns/edit-source-columns.component';
 import {SearchFilterPipe, ValuePipe} from '../pipes/pipes';
-import {DocumentEditCollectionsComponent} from './schema-editing/document-edit-collections/document-edit-collections.component';
-import {DocumentEditCollectionComponent} from './schema-editing/document-edit-collection/document-edit-collection.component';
+import {
+    DocumentEditCollectionsComponent
+} from './schema-editing/document-edit-collections/document-edit-collections.component';
+import {
+    DocumentEditCollectionComponent
+} from './schema-editing/document-edit-collection/document-edit-collection.component';
 import {StatisticsColumnComponent} from './schema-editing/statistics-column/statistics-column.component';
 import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-edit-graph.component';
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
-import {BadgeComponent, BorderDirective, ButtonCloseDirective, ButtonDirective, ButtonGroupComponent, CardBodyComponent, CardComponent, CardFooterComponent, CardHeaderComponent, ColComponent, ColDirective, ContainerComponent, DropdownComponent, DropdownDividerDirective, DropdownItemDirective, DropdownMenuDirective, DropdownToggleDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormFeedbackComponent, FormSelectDirective, FormTextDirective, GutterDirective, HeaderComponent, InputGroupComponent, InputGroupTextDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalDialogComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective, RowComponent, RowDirective, SpinnerComponent, TableDirective, TooltipDirective} from '@coreui/angular';
-import {EditEntityComponent} from './schema-editing/edit-entity/edit-entity.component';
-
-
-@NgModule({
-  imports: [
-    //AppModule,
-    CommonModule,
-    ViewsRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ButtonsModule.forRoot(),
-    CollapseModule,
-    ComponentsModule,
-    TypeaheadModule,
-    // coreui / bootstrap
-    TooltipModule.forRoot(),
-    BsDropdownModule,
-    DragDropModule,
-    ModalModule.forRoot(),
-    AutocompleteLibModule,
-    ProgressbarModule,
-    PopoverModule,
-    RowComponent,
-    ColComponent,
-    ContainerComponent,
-    CardComponent,
-    CardHeaderComponent,
-    CardBodyComponent,
-    GutterDirective,
-    HeaderComponent,
-    CardFooterComponent,
+import {
+    BadgeComponent,
     BorderDirective,
-    InputGroupComponent,
+    ButtonCloseDirective,
+    ButtonDirective,
+    ButtonGroupComponent,
+    CardBodyComponent,
+    CardComponent,
+    CardFooterComponent,
+    CardHeaderComponent,
+    ColComponent,
+    ColDirective,
+    ContainerComponent,
+    DropdownComponent,
+    DropdownDividerDirective,
+    DropdownItemDirective,
+    DropdownMenuDirective,
+    DropdownToggleDirective,
+    FormCheckComponent,
+    FormCheckInputDirective,
+    FormCheckLabelDirective,
+    FormControlDirective,
     FormDirective,
     FormFeedbackComponent,
-    InputGroupTextDirective,
-    FormControlDirective,
-    RowDirective,
-    ColDirective,
     FormSelectDirective,
-    ButtonDirective,
-    TableDirective,
-    FormCheckLabelDirective,
-    FormCheckInputDirective,
-    DropdownComponent,
-    DropdownToggleDirective,
-    DropdownMenuDirective,
     FormTextDirective,
+    GutterDirective,
+    HeaderComponent,
+    InputGroupComponent,
+    InputGroupTextDirective,
+    ModalBodyComponent,
     ModalComponent,
     ModalContentComponent,
     ModalDialogComponent,
-    ModalHeaderComponent,
-    ModalBodyComponent,
     ModalFooterComponent,
+    ModalHeaderComponent,
     ModalTitleDirective,
-    ButtonCloseDirective,
     ModalToggleDirective,
-    ButtonGroupComponent,
-    DropdownItemDirective,
-    DropdownDividerDirective,
-    TooltipDirective,
+    PlaceholderDirective,
+    RowComponent,
+    RowDirective,
     SpinnerComponent,
-    NgOptimizedImage,
-    BadgeComponent,
-    FormCheckComponent
-  ],
+    TableDirective,
+    TooltipDirective
+} from '@coreui/angular';
+import {EditEntityComponent} from './schema-editing/edit-entity/edit-entity.component';
+import {TreeModule} from "@ali-hm/angular-tree-component";
+
+
+@NgModule({
+    imports: [
+        //AppModule,
+        CommonModule,
+        ViewsRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ButtonsModule.forRoot(),
+        CollapseModule,
+        ComponentsModule,
+        TypeaheadModule,
+        // coreui / bootstrap
+        TooltipModule.forRoot(),
+        BsDropdownModule,
+        DragDropModule,
+        ModalModule.forRoot(),
+        AutocompleteLibModule,
+        ProgressbarModule,
+        PopoverModule,
+        RowComponent,
+        ColComponent,
+        ContainerComponent,
+        CardComponent,
+        CardHeaderComponent,
+        CardBodyComponent,
+        GutterDirective,
+        HeaderComponent,
+        CardFooterComponent,
+        BorderDirective,
+        InputGroupComponent,
+        FormDirective,
+        FormFeedbackComponent,
+        InputGroupTextDirective,
+        FormControlDirective,
+        RowDirective,
+        ColDirective,
+        FormSelectDirective,
+        ButtonDirective,
+        TableDirective,
+        FormCheckLabelDirective,
+        FormCheckInputDirective,
+        DropdownComponent,
+        DropdownToggleDirective,
+        DropdownMenuDirective,
+        FormTextDirective,
+        ModalComponent,
+        ModalContentComponent,
+        ModalDialogComponent,
+        ModalHeaderComponent,
+        ModalBodyComponent,
+        ModalFooterComponent,
+        ModalTitleDirective,
+        ButtonCloseDirective,
+        ModalToggleDirective,
+        ButtonGroupComponent,
+        DropdownItemDirective,
+        DropdownDividerDirective,
+        TooltipDirective,
+        SpinnerComponent,
+        NgOptimizedImage,
+        BadgeComponent,
+        FormCheckComponent,
+        TreeModule,
+        PlaceholderDirective
+    ],
     declarations: [
         EditColumnsComponent,
         FormGeneratorComponent,
@@ -121,7 +174,7 @@ import {EditEntityComponent} from './schema-editing/edit-entity/edit-entity.comp
         GraphEditGraphComponent,
         MonitoringComponent,
         DashboardComponent,
-        RelationalAlgebraComponent,
+        AlgebraComponent,
         QueryingComponent,
         NodeComponent,
         AdaptersComponent,

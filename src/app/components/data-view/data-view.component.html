@@ -1,5 +1,5 @@
-<span *ngIf="!result() && loading()">Loading data...</span>
-<div id="mode_wrapper" class="mb-2" *ngIf="result() && !result().error">
+<span *ngIf="!$result() && $loading()">Loading data...</span>
+<div id="mode_wrapper" class="mb-2" *ngIf="$result() && !$result().error">
     <div class="d-flex justify-content-between">
         <div>
             <button cButton color="light" *ngIf="showCreateView()" class="viewButton" tooltip="create view"
@@ -9,23 +9,23 @@
         </div>
         <div *ngIf="showAny()">
             <button cButton color="light"
-                    lass="mx-1"
-                    (click)="presentationType.set(presentationTypes.TABLE)"
-                    [class.active]="presentationType() === presentationTypes.TABLE"
+                    class="mx-1"
+                    (click)="$presentationType.set(presentationTypes.TABLE)"
+                    [class.active]="$presentationType() === presentationTypes.TABLE"
                     tooltip="table" placement="top" delay="200"><i class="fa fa-table"></i></button>
-            <button cButton color="light" class="mx-1" [hidden]="namespaceType() !== NamespaceType.DOCUMENT"
-                    (click)="presentationType.set(presentationTypes.CARD)"
-                    [class.active]="presentationType() === presentationTypes.CARD"
+            <button cButton color="light" class="mx-1" [hidden]="$namespaceType() !== NamespaceType.DOCUMENT"
+                    (click)="$presentationType.set(presentationTypes.CARD)"
+                    [class.active]="$presentationType() === presentationTypes.CARD"
                     tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
             <button cButton color="light" class="mx-1"
-                    [hidden]="namespaceType() !== NamespaceType.GRAPH"
-                    (click)="presentationType.set(presentationTypes.GRAPH)"
-                    [class.active]="presentationType() === presentationTypes.GRAPH"
+                    [hidden]="$namespaceType() !== NamespaceType.GRAPH"
+                    (click)="$presentationType.set(presentationTypes.GRAPH)"
+                    [class.active]="$presentationType() === presentationTypes.GRAPH"
                     tooltip="graph" placement="top" delay="200"><i class="fa fa-code-fork"></i></button>
         </div>
         <div>
             <button cButton color="light" *ngIf="showCreateView()" class="viewButton" tooltip="create view"
-                    (click)="openCreateView()">
+                    (click)="view.openCreateView(this.$result())">
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </button>
         </div>
@@ -33,21 +33,23 @@
     </div>
 </div>
 
-
-<ng-container [ngSwitch]="presentationType()" *ngIf="result() && loading ">
+<ng-container [ngSwitch]="$presentationType()" *ngIf="$result() && !$loading()">
     <ng-container *ngSwitchCase="presentationTypes.TABLE">
         <app-data-table
-                [inputResult]="result()"
+                [result]="$result()"
                 [inputConfig]="config"></app-data-table>
     </ng-container>
     <ng-container *ngSwitchCase="presentationTypes.CARD">
         <app-data-card
-                [inputResult]="result()"
+                [result]="$result()"
                 [inputConfig]="config"></app-data-card>
     </ng-container>
     <ng-container *ngSwitchCase="presentationTypes.GRAPH">
         <app-data-graph
-                [inputResult]="result()"
+                [result]="$result()"
                 [inputConfig]="config"></app-data-graph>
     </ng-container>
 </ng-container>
+
+<poly-create-view (viewQueryConsumer)="viewQueryConsumer.emit($event)"></poly-create-view>
+

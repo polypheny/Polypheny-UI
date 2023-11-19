@@ -15,7 +15,6 @@ Polypheny-UI supports a wide range of features including:
 * Execute arbitrary queries
 * Analyze query execution
 * Graphically build query plans
-* Import and export data from [Polypheny-Hub](https://github.com/polypheny/Polypheny-Hub)
 * Explore-by-example based data exploration
 
 

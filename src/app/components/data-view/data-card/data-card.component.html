@@ -1,10 +1,10 @@
-<div class="text-center" *ngIf="!result() || !result().data || result().data.length == 0">
+<div class="text-center" *ngIf="!$result() || !$result().data || $result().data.length == 0">
     <span class="text-danger">(no data to show)</span>
 </div>
 
-<div class="card-wrapper" *ngIf="result()">
-    <c-card *ngFor="let d1 of result().data; let i = index" (dblclick)="triggerEditing(i)"
-         [ngClass]="{'editing': i===editing, 'json-card': result().namespaceType === NamespaceType.DOCUMENT}">
+<div class="card-wrapper" *ngIf="$result()">
+    <c-card *ngFor="let d1 of $result().data; let i = index" (dblclick)="triggerEditing(i)"
+            [ngClass]="{'editing': i===editing, 'json-card': $result().namespaceType === NamespaceType.DOCUMENT}">
         <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig.update && i !== editing" [routerLink]="[]"
            class="edit-card"
            (click)="triggerEditing(i)"><i class="cil-pencil"></i></a>
@@ -15,7 +15,7 @@
         <ul cListGroup flush>
             <!-- load MM types first -->
 
-            <ng-container *ngFor="let h of result().header; let j = index">
+            <ng-container *ngFor="let h of $result().header; let j = index">
                 <li cListGroupItem *ngIf="(d1[j] || i === editing) && showFirst(h.dataType)"
                     [ngClass]="{'multimedia': i !== editing}">
                     <ng-container *ngIf="i !== editing">
@@ -37,7 +37,7 @@
 
 
             <!-- then load all non-MM data -->
-            <ng-container *ngFor="let h of result().header; let j = index">
+            <ng-container *ngFor="let h of $result().header; let j = index">
                 <li cListGroupItem *ngIf="(d1[j] || i === editing) && !showFirst(h.dataType)">
                     <ng-container *ngIf="i !== editing">
                         <ng-container [ngSwitch]="removeNull(h.dataType)">
@@ -61,12 +61,12 @@
                         </ng-container>
                     </ng-container>
                     <ng-container *ngIf="i === editing">
-                        <app-input *ngIf="result()?.namespaceType === NamespaceType.RELATIONAL"
+                        <app-input *ngIf="$result()?.namespaceType === NamespaceType.RELATIONAL"
                                    [header]="h" [showLabel]="h.name !== '_data' " [value]="updateValues.get(h.name)"
                                    (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateTuple()"
                                    [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
                         <app-json-editor (validChange)="setJsonValid($event)"
-                                         *ngIf="result()?.namespaceType === NamespaceType.DOCUMENT"
+                                         *ngIf="$result()?.namespaceType === NamespaceType.DOCUMENT"
                                          [json]="updateValues.get(h.name)"
                                          (valueChange)="newUpdateValue(h.name, $event)"></app-json-editor>
                     </ng-container>
@@ -83,7 +83,7 @@
                     cancel
                 </button>
                 <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1" (click)="updateTuple()"
-                        [disabled]="result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid">
+                        [disabled]="$result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid">
                     save
                 </button>
             </li>
@@ -96,18 +96,19 @@
     </div>
 
     <c-card *ngIf="entityConfig().create && showInsertCard"
-         [ngClass]="{'json-card': result()?.namespaceType === NamespaceType.DOCUMENT}">
+            [ngClass]="{'json-card': $result()?.namespaceType === NamespaceType.DOCUMENT}">
         <c-card-header>
             Insert data
         </c-card-header>
         <ul cListGroup flush="true">
-            <li cListGroupItem *ngFor="let h of result().header">
-                <app-input *ngIf="result()?.namespaceType === NamespaceType.RELATIONAL || h.name === '_id'" [header]="h"
+            <li cListGroupItem *ngFor="let h of $result().header">
+                <app-input *ngIf="$result()?.namespaceType === NamespaceType.RELATIONAL || h.name === '_id'"
+                           [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"
                            (valueChange)="inputChange(h.name, $event)"
                            (enter)="insertTuple()"></app-input>
                 <app-json-editor (validChange)="setJsonValid($event)"
-                                 *ngIf="result()?.namespaceType === NamespaceType.DOCUMENT" [empty]="true"
+                                 *ngIf="$result()?.namespaceType === NamespaceType.DOCUMENT" [empty]="true"
                                  [json]="insertValues.get(h.name)"
                                  (valueChange)="inputChange(h.name, $event)"></app-json-editor>
             </li>
@@ -124,7 +125,7 @@
                 </button>
                 <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1 || editing !== -1"
                         class="float-right"
-                        [disabled]="result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid"
+                        [disabled]="$result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid"
                         (click)="insertTuple()">
                     save
                 </button>
@@ -136,7 +137,7 @@
 
 <c-row>
     <c-col [lg]="12">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="result()?.highestPage > 1">
+        <nav aria-label="Page navigation" class="float-right" *ngIf="$result()?.highestPage > 1">
             <ul class="pagination">
                 <li *ngFor="let p of pagination" class="page-item"
                     [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">
@@ -148,6 +149,6 @@
 </c-row>
 
 <ng-template #json let-h='h' let-d1='d1' let-j='j'>
-    <span *ngIf="result()?.namespaceType !== NamespaceType.DOCUMENT" class="key">{{ h.name }} </span>
+    <span *ngIf="$result()?.namespaceType !== NamespaceType.DOCUMENT" class="key">{{ h.name }} </span>
     <app-json-text [text]="d1[j]"></app-json-text>
 </ng-template>

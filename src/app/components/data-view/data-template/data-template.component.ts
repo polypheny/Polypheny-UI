@@ -1,10 +1,22 @@
-import {Component, computed, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Signal, signal, untracked, WritableSignal} from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  EventEmitter,
+  inject,
+  Input,
+  OnDestroy,
+  OnInit,
+  Signal,
+  signal,
+  untracked,
+  WritableSignal
+} from '@angular/core';
 import {RelationalResult, Result, UiColumnDefinition} from '../models/result-set.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {CatalogService} from '../../../services/catalog.service';
 import {EntityModel, EntityType} from '../../../models/catalog.model';
 import {WebSocket} from '../../../services/webSocket';
-import {CombinedResult} from '../data-view.component';
 import {EntityConfig} from '../data-table/entity-config';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Subscription} from 'rxjs';
@@ -18,6 +30,7 @@ import {SortState} from '../models/sort-state.model';
 import {HttpEventType} from '@angular/common/http';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as $ from 'jquery';
+import {CombinedResult} from "../data-view.model";
 
 const INITIAL_TYPE = 'BIGINT';
 
@@ -58,15 +71,16 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   protected readonly routeParams = toSignal(this._route.params);
   protected readonly entity: Signal<EntityModel>;
 
-  protected readonly result: WritableSignal<CombinedResult> = signal(null);
+  protected readonly $result: WritableSignal<CombinedResult> = signal(null);
   protected readonly loading: WritableSignal<boolean> = signal(false);
   protected readonly subscriptions = new Subscription();
 
-  @Input() set inputResult(result: Result<any, any>) {
+  @Input() set result(result: Result<any, any>) {
+    console.log("in")
     if (!result) {
       return;
     }
-    this.result.set(CombinedResult.from(result));
+    this.$result.set(CombinedResult.from(result));
   }
 
   pagination: PaginationElement[] = [];
@@ -109,7 +123,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
 
     // to get the correct insert defaults
     effect(() => {
-      if (!this.result || !this.result() || this.result().error) {
+      if (!this.$result || !this.$result() || this.$result().error) {
         return;
       }
       untracked(() => {
@@ -127,15 +141,15 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
 
     this.currentPage.set(+this._route.snapshot.paramMap.get('page') || 1);
 
-    if (this.result && this.result()) {
-      this.result().currentPage = this.currentPage();
+    if (this.$result && this.$result()) {
+      this.$result().currentPage = this.currentPage();
     }
 
     //listen to parameter changes
     this._route.params.subscribe((params) => {
       this.currentPage.set(+this._route.snapshot.paramMap.get('page') || 1);
 
-      this.result?.update(res => {
+      this.$result?.update(res => {
         if (!res) {
           return res;
         }
@@ -160,8 +174,8 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         }
 
         //go to the highest page if you are "lost" (if you are on a page that is higher than the highest possible page)
-        if (this.result && +this._route.snapshot.paramMap.get('page') > this.result()?.highestPage) {
-          this._router.navigate(['/views/data-table/' + this.entity()?.name + '/' + this.result().highestPage]).then(null);
+        if (this.$result && +this._route.snapshot.paramMap.get('page') > this.$result()?.highestPage) {
+          this._router.navigate(['/views/data-table/' + this.entity()?.name + '/' + this.$result().highestPage]).then(null);
         }
         this.editing = -1;
         this.buildInsertObject();
@@ -179,12 +193,12 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
           return conf;
         });
 
-        this.result.set(CombinedResult.from(result));
+        this.$result.set(CombinedResult.from(result));
         this.loading.set(false);
       }, error: err => {
         console.log(err);
         this.loading.set(false);
-        this.result.set(CombinedResult.fromRelational(new RelationalResult('Server is not available')));
+        this.$result.set(CombinedResult.fromRelational(new RelationalResult('Server is not available')));
       }
     });
     this.subscriptions.add(sub);
@@ -195,11 +209,11 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   }
 
   setPagination() {
-    if (!this.result()) {
+    if (!this.$result()) {
       return;
     }
-    const activePage = this.result().currentPage;
-    const highestPage = this.result().highestPage;
+    const activePage = this.$result().currentPage;
+    const highestPage = this.$result().highestPage;
     this.pagination = [];
     if (highestPage < 2) {
       return;
@@ -254,20 +268,20 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   }
 
   paginate(p: PaginationElement) {
-    this.result().currentPage = p.page;
+    this.$result().currentPage = p.page;
     this.getEntityData();
   }
 
   public getEntityData() {
     const filterObj = this.mapToObject(this.filter);
     const sortState = {};
-    this.result()?.header?.forEach((h: UiColumnDefinition) => {
+    this.$result()?.header?.forEach((h: UiColumnDefinition) => {
       this.sortStates.set(h.name, h.sort);
       sortState[h.name] = h.sort;
     });
     const request = new EntityRequest(this.entity()?.id, this._catalog.getNamespaceFromId(this.entity()?.namespaceId).name, this.currentPage(), filterObj, sortState);
     if (!this._crud.getEntityData(this.webSocket, request)) {
-      this.result.set(CombinedResult.fromRelational(new RelationalResult('Could not establish a connection with the server.')));
+      this.$result.set(CombinedResult.fromRelational(new RelationalResult('Could not establish a connection with the server.')));
     }
   }
 
@@ -284,14 +298,14 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
       this.confirm = i;
       return;
     }
-    if (this.result().namespaceType === NamespaceType.DOCUMENT) {
+    if (this.$result().namespaceType === NamespaceType.DOCUMENT) {
       this.adjustDocument(Method.DROP, values[0]);
       return;
     }
 
     const rowMap = new Map<string, string>();
     values.forEach((val, key) => {
-      rowMap.set(this.result().header[key].name, val);
+      rowMap.set(this.$result().header[key].name, val);
     });
     const row = this.mapToObject(rowMap);
     const request = new DeleteRequest(this.entity()?.id, row);
@@ -361,20 +375,20 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     }
     if (this.entityConfig.update) {
       this.updateValues.clear();
-      this.result().data[i].forEach((v, k) => {
-        if (this.result().header[k].dataType === 'bool') {
-          this.updateValues.set(this.result().header[k].name, this.getBoolean(v));
+      this.$result().data[i].forEach((v, k) => {
+        if (this.$result().header[k].dataType === 'bool') {
+          this.updateValues.set(this.$result().header[k].name, this.getBoolean(v));
         }
             //assign multimedia types: null if the item is NULL, else undefined
         //null items will be submitted and updated, undefined items will not be part of the UPDATE statement
-        else if (this._types.isMultimedia(this.result().header[k].dataType)) {
+        else if (this._types.isMultimedia(this.$result().header[k].dataType)) {
           if (v === null) {
-            this.updateValues.set(this.result().header[k].name, null);
+            this.updateValues.set(this.$result().header[k].name, null);
           } else {
-            this.updateValues.set(this.result().header[k].name, undefined);
+            this.updateValues.set(this.$result().header[k].name, undefined);
           }
         } else {
-          this.updateValues.set(this.result().header[k].name, v);
+          this.updateValues.set(this.$result().header[k].name, v);
         }
       });
       this.editing = i;
@@ -406,7 +420,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   }
 
   insertTuple() {
-    if (this.result().namespaceType === NamespaceType.DOCUMENT) {
+    if (this.$result().namespaceType === NamespaceType.DOCUMENT) {
       this.adjustDocument(Method.ADD);
       return;
     }
@@ -461,21 +475,21 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         const data = this.insertValues.get('_id');
         const add = `db.${entity.name}.insert(${data})`;
 
-        this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.result().namespace));
+        this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.$result().namespace));
         this.insertValues.clear();
         this.getEntityData();
         break;
       case Method.MODIFY:
         const values = new Map<string, string>();//previous values
-        for (let i = 0; i < this.result().header.length; i++) {
-          values.set(this.result().header[i].name, this.result().data[this.editing][i]);
+        for (let i = 0; i < this.$result().header.length; i++) {
+          values.set(this.$result().header[i].name, this.$result().data[this.editing][i]);
           i++;
         }
         const updated = this.updateValues.get('_id');
         const parsed = JSON.parse(updated);
         if (parsed.hasOwnProperty('_id')) {
           const modify = `db.${entity.name}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;
-          this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.result().namespace));
+          this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.$result().namespace));
           this.insertValues.clear();
           this.getEntityData();
         }
@@ -484,7 +498,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         const parsedDelete = JSON.parse(initialData);
         if (parsedDelete.hasOwnProperty('_id')) {
           const modify = `db.${entity.name}.deleteMany({"_id": "${parsedDelete['_id']}" })`;
-          this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.result().namespace));
+          this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.$result().namespace));
           this.insertValues.clear();
           this.getEntityData();
         }
@@ -493,14 +507,14 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   }
 
   buildInsertObject() {
-    if (this.entityConfig && !this.entityConfig().create || !this.result()) {
+    if (this.entityConfig && !this.entityConfig().create || !this.$result()) {
       return;
     }
     this.insertValues.clear();
     this.insertDirty.clear();
 
-    if (this.result().header) {
-      for (const g of this.result().header) {
+    if (this.$result().header) {
+      for (const g of this.$result().header) {
         //set insertDirty
         if (!g.nullable && g.dataType !== 'serial' && g.defaultValue === undefined) {
           //set dirty if not nullable, so it will be submitted, except if it has autoincrement (dataType 'serial') or a default value
@@ -531,14 +545,14 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   }
 
   updateTuple() {
-    if (this.result().namespaceType === NamespaceType.DOCUMENT) {
+    if (this.$result().namespaceType === NamespaceType.DOCUMENT) {
       this.adjustDocument(Method.MODIFY);
       return;
     }
 
     const oldValues = new Map<string, string>();//previous values
-    for (let i = 0; i < this.result().header.length; i++) {
-      oldValues.set(this.result().header[i].name, this.result().data[this.editing][i]);
+    for (let i = 0; i < this.$result().header.length; i++) {
+      oldValues.set(this.$result().header[i].name, this.$result().data[this.editing][i]);
       i++;
     }
     const formData = new FormData();

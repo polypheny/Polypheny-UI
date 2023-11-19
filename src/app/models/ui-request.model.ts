@@ -1,6 +1,6 @@
 import {SortState} from '../components/data-view/models/sort-state.model';
 import {TableConstraint, UiColumnDefinition} from '../components/data-view/models/result-set.model';
-import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
+import {Node} from '../views/querying/relational-algebra/algebra.model';
 import {EntityType} from './catalog.model';
 
 export class RequestModel {

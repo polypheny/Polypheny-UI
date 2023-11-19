@@ -17,7 +17,7 @@ export class DataGraphComponent extends DataTemplateComponent {
     this.initWebsocket();
 
     effect(() => {
-      const result = this.result();
+      const result = this.$result();
       if (!result) {
         return;
       }

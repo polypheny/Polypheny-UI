@@ -4,7 +4,7 @@ import {ActivatedRoute} from '@angular/router';
 @Component({
     selector: 'app-querying',
     templateUrl: './querying.component.html',
-    styleUrls: ['./querying.component.scss']
+    styleUrls: ['./querying.component.scss'],
 })
 export class QueryingComponent implements OnInit {
 

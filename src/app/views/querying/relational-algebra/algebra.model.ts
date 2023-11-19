@@ -1,5 +1,6 @@
 import {SortState} from '../../../components/data-view/models/sort-state.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
+import {signal, WritableSignal} from "@angular/core";
 
 export enum LogicalOperator {
     Scan = 'RelScan',
@@ -27,7 +28,7 @@ export enum LogicalOperator {
 
 export class LogicalOperatorUtil {
     static operatorToSidebarNode(operator: LogicalOperator): SidebarNode {
-        let sidebarNode:SidebarNode;
+        let sidebarNode: SidebarNode;
         switch (operator) {
             case LogicalOperator.Scan:
                 sidebarNode = new SidebarNode('operator_' + operator, operator, 'fa fa-database', null, true);
@@ -69,6 +70,28 @@ export interface Connection {
     target: Node;
 }
 
+export type AlgNodeModel = {
+    name: string;
+    inputs: number;
+    icon: string;
+    symbol: string;
+    type: AlgType;
+}
+
+export enum AlgType {
+    Join = 'Join',
+    Filter = 'Filter',
+    Project = 'Project',
+    Scan = 'Scan',
+    Aggregate = 'Aggregate',
+    Union = 'Union',
+    Sort = 'Sort',
+    Minus = 'Minus',
+    Modify = 'Modify',
+    ModifyCollect = 'ModifyCollect',
+    Intersect = 'Intersect',
+}
+
 export class Node {
     children: Node[] = [];
     inputCount = 0;
@@ -77,6 +100,7 @@ export class Node {
     width: number;
     icon: string;
     relAlgSymbol: string;
+    class: string;
 
     //autocomplete
     autocomplete: string[];
@@ -120,13 +144,17 @@ export class Node {
     //additional information needed for Views
     tableTypes: String[];
     initialNames: String[];
+    public $left: WritableSignal<number>;
+    public $top: WritableSignal<number>;
 
     constructor(
         public id: string,
-        public type: LogicalOperator,
-        public left: number,
-        public top: number
+        public type: AlgType,
+        left: number,
+        top: number
     ) {
+        this.$left = signal(left);
+        this.$top = signal(top);
         this.dragging = false;
     }
 
@@ -145,120 +173,22 @@ export class Node {
             }
         }
         //make sure, it is in the working area
-        if (n.left > width) {
-            n.left = width - 260;
+        if (n.$left() > width) {
+            n.$left.set(width - 260);
         }
-        if (n.top > height) {
-            n.top = height - 100;
+        if (n.$top() > height) {
+            n.$top.set(height - 100);
         }
 
         return n;
     }
 
-    getId() {
-        return this.id;
-    }
-
-    getChildren() {
-        return this.children;
-    }
-
-    setChildren(nodes: Node[]) {
-        this.children = nodes;
-    }
-
-    setInputCount(inputCount: number) {
-        this.inputCount = inputCount;
-    }
-
     clone() {
-        const n = new Node(this.id, this.type, this.left, this.top);
+        const n = new Node(this.id, this.type, this.$left(), this.$top());
         for (const [key, val] of Object.entries(this)) {
             n[key] = val;
         }
         return n;
     }
 
-    setDragging(isDragging: boolean) {
-        this.dragging = isDragging;
-    }
-
-    isDragging() {
-        return this.dragging;
-    }
-
-    getWidth() {
-        return this.width;
-    }
-
-    setWidth(w: number) {
-        this.width = w;
-    }
-
-    getHeight() {
-        return this.height;
-    }
-
-    setHeight(h: number) {
-        this.height = h;
-    }
-
-    setAutocomplete(autocomplete: string[]) {
-        this.autocomplete = autocomplete;
-    }
-
-    getAcSchema() {
-        return this.acSchema;
-    }
-
-    setAcSchema(s: Set<string>) {
-        this.acSchema = s;
-    }
-
-    getAcTable() {
-        return this.acTable;
-    }
-
-    setAcTable(t: Set<string>) {
-        this.acTable = t;
-    }
-
-    getAcColumns() {
-        return this.acColumns;
-    }
-
-    setAcColumns(c: Set<string>) {
-        this.acColumns = c;
-    }
-
-    getAcTableColumns() {
-        return this.acTableColumns;
-    }
-
-    setAcTableColumns(tc: Set<string>) {
-        this.acTableColumns = tc;
-    }
-
-    setIcon(icon: string) {
-        this.icon = icon;
-        return this;
-    }
-
-    setRelAlgSymbol(symbol: string) {
-        this.relAlgSymbol = symbol;
-        return this;
-    }
-
-    setTableType(type: String) {
-        this.tableType = type;
-    }
-
-    setTypeList(ac: String[]) {
-        this.tableTypes = ac;
-    }
-
-    allName(ac: String[]) {
-        this.initialNames = ac;
-
-    }
 }

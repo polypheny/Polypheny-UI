@@ -1,4 +1,4 @@
-<div id="tree-outer-wrapper" class="schema-editing d-flex flex-column h-100 w-auto gap-2">
+<div id="tree-outer-wrapper" class="schema-editing d-flex flex-column h-100 w-100 gap-2 overflow-x-hidden">
     <div class="d-flex">
 
         <c-input-group>
@@ -31,8 +31,10 @@
     <span *ngIf="error">
         {{error}}
     </span>
-    <div id="tree-inner-wrapper" [classList]="this._catalog.state() === CatalogState.UP_TO_DATE ? 'flex-grow-1' : 'flex-grow-0' ">
-        <tree-root [nodes]="nodes" [options]="options" [class]="{'no-children': !hasChildren(nodes)}" #tree>
+    <div id="tree-inner-wrapper"
+         [classList]="this._catalog.state() === CatalogState.UP_TO_DATE ? 'flex-grow-1 overflow-y-hidden h-100' : 'flex-grow-0' ">
+        <tree-root class="h-100 overflow-y-auto" [nodes]="nodes" [options]="options"
+                   [class]="{'no-children': !hasChildren(nodes)}" #tree>
             <ng-template #treeNodeWrapperTemplate let-index="index" let-node>
                 <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
                     <tree-node-expander [ngClass]="{'hidden-expander': node.data.children.length === 0}" [node]="node">

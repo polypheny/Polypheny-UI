@@ -17,6 +17,7 @@ import {
     DeleteRequest,
     EditCollectionRequest,
     EditTableRequest,
+    EntityRequest,
     ExploreTable,
     GraphRequest,
     MaterializedRequest,
@@ -25,17 +26,18 @@ import {
     Namespace,
     QueryRequest,
     RelAlgRequest,
-    StatisticRequest,
-    EntityRequest
+    StatisticRequest
 } from '../models/ui-request.model';
 import {DockerSettings} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {AdapterModel} from '../views/adapters/adapter.model';
 import {QueryInterface} from '../views/query-interfaces/query-interfaces.model';
-import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
+import {AlgNodeModel, Node} from '../views/querying/relational-algebra/algebra.model';
 import {WebSocket} from './webSocket';
 import {Observable} from 'rxjs';
+import {map} from "rxjs/operators";
+
 
 @Injectable({
     providedIn: 'root'
@@ -316,7 +318,7 @@ export class CrudService {
      * Get data placement information
      */
     getCollectionPlacements(namespaceId: number, entityId: number, fields: number[]) {
-      const meta = new EntityMeta(namespaceId, entityId, null, fields);
+        const meta = new EntityMeta(namespaceId, entityId, null, fields);
         return this._http.post(`${this.httpUrl}/getCollectionPlacements`, meta, this.httpOptions);
     }
 
@@ -353,13 +355,13 @@ export class CrudService {
         }
         const request = new QueryRequest(code, false, true, 'cypher', graph);
 
-        return this.anyQueryBlocking( request );
+        return this.anyQueryBlocking(request);
     }
 
     /**
      * Add or drop a placement
      */
-    addDropCollectionPlacement(namespace: string, collection: string, store: string, method: Method ) {
+    addDropCollectionPlacement(namespace: string, collection: string, store: string, method: Method) {
         let code: string;
         switch (method) {
             case 'ADD':
@@ -370,7 +372,7 @@ export class CrudService {
                 break;
         }
         const request = new QueryRequest(code, false, true, 'cypher', namespace);
-        return this.anyQueryBlocking( request );
+        return this.anyQueryBlocking(request);
     }
 
 
@@ -402,7 +404,7 @@ export class CrudService {
      * and a list of all the foreign keys of a schema
      */
     getUml(request: EditTableRequest): Observable<Uml> {
-        return <Observable<Uml>> this._http.post(`${this.httpUrl}/getUml`, request, this.httpOptions);
+        return <Observable<Uml>>this._http.post(`${this.httpUrl}/getUml`, request, this.httpOptions);
     }
 
     /**
@@ -462,7 +464,7 @@ export class CrudService {
     /**
      * Execute a relational algebra
      */
-    executeRelAlg(socket: WebSocket, relAlg: Node, cache: boolean, analyzeQuery, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?: string, timeUnit?: string) {
+    executeAlg(socket: WebSocket, relAlg: Node, cache: boolean, analyzeQuery, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?: string, timeUnit?: string) {
         let request;
         if (createView) {
             if (tableType === 'MATERIALIZED') {
@@ -537,7 +539,7 @@ export class CrudService {
 
 
     pathAccess(req: PathAccessRequest) {
-        return this._http.post( `${this.httpUrl}/pathAccess`, req );
+        return this._http.post(`${this.httpUrl}/pathAccess`, req);
     }
 
     removeAdapter(storeId: string) {
@@ -558,6 +560,13 @@ export class CrudService {
 
     updateQueryInterfaceSettings(request: QueryInterface) {
         return this._http.post(`${this.httpUrl}/updateQueryInterfaceSettings`, request, this.httpOptions);
+    }
+
+    getAlgebraNodes() {
+        return this._http.get(`${this.httpUrl}/getAlgebraNodes`)
+            .pipe(map(algs => new Map(Object.entries(algs)
+                .sort()
+                .map(([k, v], i) => [k, v as AlgNodeModel[]]))));
     }
 
     removeQueryInterface(queryInterfaceId: string) {
@@ -596,7 +605,13 @@ export class CrudService {
     }
 
     addDockerInstance(host: string, alias: string, registry: string, communicationPort: number, handshakePort: number, proxyPort: number) {
-        return this._http.post(`${this.httpUrl}/addDockerInstance`, {'host': host, 'alias': alias, 'communicationPort': communicationPort, 'handshakePort': handshakePort, 'proxyPort': proxyPort, }, this.httpOptions);
+        return this._http.post(`${this.httpUrl}/addDockerInstance`, {
+            'host': host,
+            'alias': alias,
+            'communicationPort': communicationPort,
+            'handshakePort': handshakePort,
+            'proxyPort': proxyPort,
+        }, this.httpOptions);
     }
 
     testDockerInstance(id: number) {
@@ -612,7 +627,12 @@ export class CrudService {
     }
 
     updateDockerInstance(id: number, hostname: string, alias: string, registry: string) {
-        return this._http.post(`${this.httpUrl}/updateDockerInstance`, {'id': id.toString(), 'hostname': hostname, 'alias': alias, 'registry': registry}, this.httpOptions);
+        return this._http.post(`${this.httpUrl}/updateDockerInstance`, {
+            'id': id.toString(),
+            'hostname': hostname,
+            'alias': alias,
+            'registry': registry
+        }, this.httpOptions);
     }
 
     reconnectToDockerInstance(id: number) {
@@ -703,7 +723,6 @@ export class CrudService {
 
         return this._http.post(`${this.httpUrl}/loadPlugins`, formData);
     }
-
 
 
 }

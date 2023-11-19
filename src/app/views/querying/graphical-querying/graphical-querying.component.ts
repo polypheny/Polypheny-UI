@@ -1,4 +1,15 @@
-import {AfterViewInit, Component, effect, OnDestroy, OnInit, signal, TemplateRef, untracked, ViewChild, ViewEncapsulation, WritableSignal} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  effect,
+  OnDestroy,
+  OnInit,
+  signal,
+  untracked,
+  ViewChild,
+  ViewEncapsulation,
+  WritableSignal
+} from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
@@ -10,11 +21,10 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 import {EditTableRequest, NamespaceType, QueryRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
-import {Router} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {WebSocket} from '../../../services/webSocket';
-import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
+import {BsModalRef} from 'ngx-bootstrap/modal';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
 import {CatalogService} from '../../../services/catalog.service';
 
@@ -28,7 +38,6 @@ import {CatalogService} from '../../../services/catalog.service';
 export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('editorGenerated', {static: false}) editorGenerated;
-  @ViewChild('createViewModal', {static: false}) public createViewModal: TemplateRef<any>;
   generatedSQL;
   result: RelationalResult;
   selectedColumn = {};
@@ -91,7 +100,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   initWebSocket() {
     this.webSocket.onMessage().subscribe({
       next: res => {
+        console.log(res);
         const result = <RelationalResult>res;
+        console.log(result)
         this.result = result[0];
         this.loading.set(false);
       }, error: err => {

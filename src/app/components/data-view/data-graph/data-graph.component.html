@@ -1,4 +1,4 @@
-<div class="text-center" *ngIf="!result() || !result().data || result().data.length == 0">
+<div class="text-center" *ngIf="!$result() || !$result().data || $result().data.length == 0">
     <span class="text-danger">(no data to show)</span>
 </div>
 
@@ -42,13 +42,14 @@
             Insert data
         </c-card-header>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item" *ngFor="let h of result().header">
-                <app-input *ngIf="result()?.namespaceType === NamespaceType.RELATIONAL || h.name === '_id'" [header]="h"
+            <li class="list-group-item" *ngFor="let h of $result().header">
+                <app-input *ngIf="$result()?.namespaceType === NamespaceType.RELATIONAL || h.name === '_id'"
+                           [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"
                            (valueChange)="inputChange(h.name, $event)"
                            (enter)="insertTuple()"></app-input>
                 <app-json-editor (validChange)="setJsonValid($event)"
-                                 *ngIf="result()?.namespaceType === NamespaceType.DOCUMENT && h.name !== '_id'"
+                                 *ngIf="$result()?.namespaceType === NamespaceType.DOCUMENT && h.name !== '_id'"
                                  [empty]="true"
                                  [json]="insertValues.get(h.name)"
                                  (valueChange)="inputChange(h.name, $event)"></app-json-editor>
@@ -65,7 +66,7 @@
                         (click)="showInsertCard = false">cancel
                 </button>
                 <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1 || editing !== -1" class="float-right"
-                        [disabled]="result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid"
+                        [disabled]="$result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid"
                         (click)="insertTuple()">
                     save
                 </button>
@@ -75,9 +76,9 @@
 
 </div>
 
-<c-row class="row" *ngIf="result()">
+<c-row class="row" *ngIf="$result()">
     <c-col class="col-lg-12">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="result().highestPage > 1">
+        <nav aria-label="Page navigation" class="float-right" *ngIf="$result().highestPage > 1">
             <c-pagination>
                 <li cPageItem *ngFor="let p of pagination" [active]="p.active" [disabled]="p.disabled">
                     <a cPageLink (click)="paginate(p)" [routerLink]="[]">{{ p.label }}</a>

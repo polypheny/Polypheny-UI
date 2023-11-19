@@ -4,6 +4,7 @@
 </ng-container>
 <app-reload-button [loading]="loading()" [condition]="entity()" [action]="this.reload"></app-reload-button>
 <div class="w-100">
-    <app-data-view class="w-100 overflow-x-auto" [inputResult]="result()" [loading]="loading" [config]="entityConfig()" [entity]="entity"></app-data-view>
+    <app-data-view class="w-100 overflow-x-auto" [result]="$result()" [loading]="loading()" [config]="entityConfig()"
+                   [$entity]="entity"></app-data-view>
 </div>
 <p *ngIf="!entity()">Please select an entity in the left sidebar to view its data.</p>

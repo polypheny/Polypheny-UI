@@ -322,6 +322,11 @@ export class PlacementMeta extends EntityMeta {
 export class IndexMethodModel {
   name: string;
   displayName: string;
+
+  constructor(name: string, displayName: string) {
+    this.name = name;
+    this.displayName = displayName;
+  }
 }
 
 /**
@@ -414,5 +419,7 @@ export class ModifyPartitionRequest {
  * How a ResultSet should be displayed
  */
 export enum DataPresentationType {
-  TABLE, CAROUSEL, CARD, GRAPH
+  TABLE = 'TABLE',
+  CARD = 'CARD',
+  GRAPH = 'GRAPH'
 }

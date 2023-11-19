@@ -1,11 +1,11 @@
-<c-row>
+<c-row *ngIf="entity()">
     <c-col>
         <h5 *ngIf="entity()?.entityType === EntityType.MATERIALIZED_VIEW">Materialized View: {{entity()?.name}}</h5>
         <h5 *ngIf="entity()?.entityType !== EntityType.MATERIALIZED_VIEW">{{entity()?.name}}</h5>
         <span *ngIf="!entity()">Please select a table in the left sidebar to edit its columns.</span>
 
         <p *ngIf="oldColumns()">Double click on a row in the table below to edit the table column.</p>
-        <table class="table table-hover table-striped" *ngIf="entity()" id="dbColumnTable">
+        <table cTable hover striped *ngIf="entity()" id="dbColumnTable">
             <thead>
             <tr>
                 <th class="pk">PK</th>
@@ -451,15 +451,17 @@
                 </form>
             </c-card-body>
         </c-card>
-        <table class="table table-hover table-striped" *ngIf="indexes && indexes.data.length > 0">
+        <table class="table table-hover table-striped" *ngIf="indexHeaders().length > 0">
             <thead>
             <tr>
-                <th *ngFor="let h of indexes.header">{{h.name}}</th>
+                <th *ngFor="let header of indexHeaders()">
+                    {{header}}
+                </th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let d1 of indexes.data; let i = index">
+            <tr *ngFor="let d1 of indexDefinitions(); let i = index">
                 <td *ngFor="let d2 of d1">{{d2}}</td>
                 <td class="delete">
                     <app-delete-confirm *ngIf="d1[4] != 'FUNCTIONAL'" (delete)="dropIndex(d1[0])"></app-delete-confirm>

@@ -1,16 +1,16 @@
 <div class="text-danger mb-3"
-     *ngIf="result() && result().error && !result().header">{{result().error}}</div>
+     *ngIf="$result() && $result().error && !$result().header">{{$result().error}}</div>
 
-<c-row *ngIf="result() && result().header">
+<c-row *ngIf="$result() && $result().header">
     <c-col [lg]="12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': entityConfig().exploring }">
         <table cTable hover bordered small
                [striped]="true"
                [ngClass]="{'loading': loading()}" id="data-table"
-               [attr.data-table]="result().entityName">
+               [attr.data-table]="$result().entityName">
             <thead>
             <tr>
-                <ng-container *ngIf="result()?.namespaceType !== NamespaceType.DOCUMENT">
-                    <ng-container *ngFor="let h of result().header">
+                <ng-container *ngIf="$result()?.namespaceType !== NamespaceType.DOCUMENT">
+                    <ng-container *ngFor="let h of $result().header">
                         <th>
                         <span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body"
                               [ngClass]="{'pk': h.primary}">{{ h.name }}</span>
@@ -29,7 +29,7 @@
             </thead>
             <tbody>
             <tr *ngIf="entityConfig().search">
-                <td *ngFor="let h of result().header; trackBy:trackByFn">
+                <td *ngFor="let h of $result().header; trackBy:trackByFn">
                     <input *ngIf="_types.isNumeric(h.dataType) && !h.collectionsType"
                            type="number"
                            cFormControl
@@ -38,7 +38,7 @@
                            placeholder="search"
                            [id]="'search-' + h.name" [attr.data-col]="h.name" [value]="h.filter"
                            (keyup)="filterTable($event, filter1.value, h)" #filter1>
-                    <input *ngIf="( ! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType) && !_types.isDocument(result().namespaceType) && !_types.isGraph(result().namespaceType)) || h.collectionsType"
+                    <input *ngIf="( ! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType) && !_types.isDocument($result().namespaceType) && !_types.isGraph($result().namespaceType)) || h.collectionsType"
                            type="text"
                            cFormControl sizing="sm"
                            class="table-filter"
@@ -52,15 +52,15 @@
                 </td>
                 <td *ngIf="entityConfig().update || entityConfig().delete"></td>
             </tr>
-            <tr *ngFor="let d1 of result().data; let i = index"
+            <tr *ngFor="let d1 of $result().data; let i = index"
                 [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
                 <ng-container *ngIf="editing === i">
                     <td *ngFor="let d2 of d1; let j = index">
-                        <app-input class="editing" [header]="result().header[j]"
-                                   [value]="updateValues.get(result().header[j].name)"
-                                   (valueChange)="newUpdateValue(result().header[j].name, $event)"
+                        <app-input class="editing" [header]="$result().header[j]"
+                                   [value]="updateValues.get($result().header[j].name)"
+                                   (valueChange)="newUpdateValue($result().header[j].name, $event)"
                                    (enter)="updateTuple()" [attr.data-before]="d2"
-                                   [attr.data-col]="result().header[j].name"></app-input>
+                                   [attr.data-col]="$result().header[j].name"></app-input>
                     </td>
                     <td *ngIf="entityConfig.update || entityConfig().delete">
                         <button cButton color="primary" *ngIf="uploadProgress === -1" id="editColSave"
@@ -70,7 +70,7 @@
                 <!-- table which shows results  -->
                 <ng-container *ngIf="editing !== i">
                     <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
-                        <ng-container [ngSwitch]="removeNull(result().header[j].dataType)" *ngIf="d2">
+                        <ng-container [ngSwitch]="removeNull($result().header[j].dataType)" *ngIf="d2">
                             <ng-container *ngSwitchCase="'FILE'">
                                 <a *ngIf="downloadingIthRow !== i" [routerLink]="[]" class="download"
                                    (click)="getFile(d2, i)" download><span class="cil-cloud-download"></span></a>
@@ -86,13 +86,13 @@
                             <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)"
                                  style="max-height:200px; max-width: 300px"/>
                             <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)"
-                                       [type]="result().header[j].dataType"
+                                       [type]="$result().header[j].dataType"
                                        [style]="{width: '300px'}"></app-media>
                             <app-media *ngSwitchCase="'AUDIO'" [src]="getFileLink(d2)"
-                                       [type]="result().header[j].dataType"
+                                       [type]="$result().header[j].dataType"
                                        [style]="{width: '300px'}"></app-media>
                             <app-json-text
-                                    *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType', 'GraphType'] | multipleSwitch: removeNull(result().header[j].dataType)"
+                                    *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType', 'GraphType'] | multipleSwitch: removeNull($result().header[j].dataType)"
                                     [text]="d2"></app-json-text>
                             <app-json-text *ngSwitchCase="'ANY'" [text]="d2"></app-json-text>
                             <app-expandable-text *ngSwitchDefault [text]="d2"></app-expandable-text>
@@ -104,16 +104,16 @@
                     </td>
                 </ng-container>
             </tr>
-            <tr *ngIf="!result().data || result().data.length === 0">
-                <td *ngIf="!result().error" [attr.colspan]="result().header.length+1"
+            <tr *ngIf="!$result().data || $result().data.length === 0">
+                <td *ngIf="!$result().error" [attr.colspan]="$result().header.length+1"
                     class="text-danger text-center">(no data to show)
                 </td>
-                <td *ngIf="result().error" [attr.colspan]="result().header.length+1"
+                <td *ngIf="$result().error" [attr.colspan]="$result().header.length+1"
                     class="text-danger text-center">error while filtering entity
                 </td>
             </tr>
             <tr *ngIf="entityConfig().create" id="insertRow">
-                <td *ngFor="let h of result().header">
+                <td *ngFor="let h of $result().header">
                     <app-input [header]="h" [value]="insertValues.get(h.name)"
                                (valueChange)="inputChange(h.name, $event)"
                                (enter)="insertTuple()"></app-input>
@@ -139,9 +139,9 @@
 
 </c-row>
 
-<c-row class="row my-4" *ngIf="result()">
+<c-row class="row my-4" *ngIf="$result()">
     <c-col class="col">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="result().highestPage > 1">
+        <nav aria-label="Page navigation" class="float-right" *ngIf="$result().highestPage > 1">
             <c-pagination align="center">
                 <li *ngFor="let p of pagination" class="page-item pe-auto" cPageItem
                     [disabled]="p.disabled" [active]="p.active">
@@ -152,53 +152,5 @@
     </c-col>
 </c-row>
 
-
-<ng-template #decisionTree>
-    <c-modal-content>
-        <c-modal-header class="modal-header">
-            <h4 cModalTitle class="pull-left">Decision Tree</h4>
-            <button cButtonClose class="close pull-right" aria-label="Close" (click)="modalRefDecision.hide()"></button>
-        </c-modal-header>
-        <c-modal-body id="modal-body-tree">
-            The decision tree shows how the data has been classified.
-        </c-modal-body>
-    </c-modal-content>
-</ng-template>
-
-<ng-template #sql>
-    <c-modal-content>
-        <c-modal-header >
-            <h4 cModalTitle class="pull-left">SQL Statement</h4>
-            <button cButtonClose type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()"></button>
-        </c-modal-header>
-        <c-modal-body id="modal-body-SQL">
-            <div id="example-wrapper" style="height: 150px">
-                <app-editor #editorGenerated [code]="createdSQL"></app-editor>
-            </div>
-        </c-modal-body>
-    </c-modal-content>
-</ng-template>
-
-<ng-template #tutorial>
-    <c-modal-content>
-        <c-modal-header class="modal-header">
-            <h4 cModalTitle class="pull-left">Check Classification</h4>
-            <button cButtonClose type="button" class="close pull-right" aria-label="Close" (click)="modalRefTutorial.hide()"></button>
-        </c-modal-header>
-        <c-modal-body id="modal-body-tutorial">
-            Now a classifier has been created, if it is not as wished it can be changed by changing "true" and "false".
-            Otherwise the final dataset can be created with "Execute".
-        </c-modal-body>
-    </c-modal-content>
-</ng-template>
-
-
-<div class="hidden-layer">
-    <div class="scaling-svg-container">
-        <svg id="tree" xmlns="http://www.w3.org/2000/svg" class="scaling-svg" viewBox="auto">
-            <g/>
-        </svg>
-    </div>
-</div>
 
 

@@ -3,7 +3,7 @@
             *ngIf="currentRoute().includes('.') && namespace()?.namespaceType === NamespaceType.RELATIONAL && !isStatistic()">
         <app-edit-columns
                 *ngIf="entity()?.entityType !== EntityType.SOURCE"
-                [currentRoute]="currentRoute"
+                [route]="currentRoute()"
                 [namespace]="namespace"
                 [entityIn]="entity()"
                 [stores]="stores"
