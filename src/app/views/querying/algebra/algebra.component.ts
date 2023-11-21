@@ -139,7 +139,7 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
     static toSidebarNode(nodeModel: AlgNodeModel): SidebarNode {
         const node = new SidebarNode('operator_' + nodeModel.name, nodeModel.name, nodeModel.icon, null, true);
         if (nodeModel.symbol) {
-            node.setRelAlgSymbol(nodeModel.symbol);
+            node.setAlgSymbol(nodeModel.symbol);
         }
         return node;
     }
@@ -233,7 +233,7 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
         const name = e.element.data.name;
         const alg = this.$algs().get(name);
         const node = new Node(id, e.element.data.name, x, y);
-        node.relAlgSymbol = e.element.data.relAlgSymbol;
+        node.algSymbol = e.element.data.algSymbol;
         node.icon = e.element.data.icon;
         node.inputCount = alg.inputs;
         node.type = alg.type;
@@ -280,7 +280,6 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
                 const dropContainer = $('svg#line');
                 const x = e.pageX - dropContainer.offset().left;
                 const y = e.pageY - dropContainer.offset().top;
-                console.log(dropContainer.offset().top)
                 self.temporalLine.x2 = x;
                 self.temporalLine.y2 = y;
             }
@@ -471,26 +470,26 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
         return getNode();
     }
 
+    // bottom node (start)
     getX1(s: Node) {
         if (s === undefined) {
             return;
         }
         if (s.dragging && this.draggingNodeX !== undefined) {
-            return this.draggingNodeX + s.width / 2;
-        } else {
-            return s.$left() + s.width / 2;
+            return this.draggingNodeX + s.width / 2 + 50;
         }
+        return s.$left() + s.width / 2;
     }
 
+    // bottom node (end)
     getX2(t: Node) {
         if (t === undefined) {
             return;
         }
         if (t.dragging && this.draggingNodeX !== undefined) {
             return this.draggingNodeX + t.width / 2;
-        } else {
-            return t.$left() + t.width / 2;
         }
+        return t.$left() + t.width / 2;
     }
 
     getY1(s: Node) {
@@ -498,10 +497,9 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
             return;
         }
         if (s.dragging && this.draggingNodeY !== undefined) {
-            return this.draggingNodeY;
-        } else {
-            return s.$top();
+            return this.draggingNodeY - 28;
         }
+        return s.$top() - 16;
     }
 
     getY2(t: Node) {
@@ -509,10 +507,9 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
             return;
         }
         if (t.dragging && this.draggingNodeY !== undefined) {
-            return this.draggingNodeY + t.height + 5;
-        } else {
-            return t.$top() + t.height + 5;
+            return this.draggingNodeY;
         }
+        return t.$top() + t.height - 5;
     }
 
     clickRun(event) {
@@ -609,14 +606,14 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
         return node;
     }
 
-    private readonly $bg = $('.bg-body');
 
     /**
      * Set temporal values when dragging a node
      */
     dragStart(e, node: Node) {
-        this.scrollTop = this.$bg.scrollTop();
-        this.scrollLeft = this.$bg.scrollLeft();
+        const $bg = $("#wrapper");
+        this.scrollTop = $bg.scrollTop();
+        this.scrollLeft = $bg.scrollLeft();
         this.nodes.get(node.id).dragging = true;
     }
 
@@ -624,20 +621,24 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
      * Set temporal values when dragging a node
      */
     draggingNode(e, node: Node) {
-        this.draggingNodeX = node.$left() + e.distance.x + this.$bg.scrollLeft() - this.scrollLeft;
-        this.draggingNodeY = node.$top() + e.distance.y + this.$bg.scrollTop() - this.scrollTop;
+        const $bg = $("#wrapper");
+
+        this.draggingNodeX = node.$left() + e.distance.x + $bg.scrollLeft() - this.scrollLeft;
+        this.draggingNodeY = node.$top() + e.distance.y + $bg.scrollTop() - this.scrollTop;
     }
 
     /**
      * Save the position of a node when it was moved
      */
     savePos(e, node: Node) {
+        const $bg = $("#drop");
         this.nodes.get(node.id).dragging = false;
         const nodeElement = $('#' + node.id);
         const nodeWidth = nodeElement.width();
         const nodeHeight = nodeElement.height();
-        const scrollTopDistance = this.$bg.scrollTop() - this.scrollTop;
-        const scrollLeftDistance = this.$bg.scrollLeft() - this.scrollLeft;
+        const scrollTopDistance = $bg.scrollTop() - this.scrollTop;
+        const scrollLeftDistance = $bg.scrollLeft() - this.scrollLeft;
+        console.log(node.$left() + e.distance.x + scrollLeftDistance)
         node.$left.set(Math.max(0, Math.min(node.$left() + e.distance.x + scrollLeftDistance, this.dropArea.nativeElement.offsetWidth - nodeWidth - 4)));
         node.$top.set(Math.max(0, Math.min(node.$top() + e.distance.y + scrollTopDistance, this.dropArea.nativeElement.offsetHeight - nodeHeight - 4)));
         this.draggingNodeX = null;
@@ -647,9 +648,8 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
     trackNode(index: number, e: KeyValue<string, Node>) {
         if (e.value.id) {
             return e.value.id;
-        } else {
-            return 1;
         }
+        return 1;
     }
 
     /**

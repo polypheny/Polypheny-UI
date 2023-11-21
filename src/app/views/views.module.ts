@@ -15,9 +15,9 @@ import {EditTablesComponent} from './schema-editing/edit-tables/edit-tables.comp
 import {MonitoringComponent} from './monitoring/monitoring.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
-import {AlgebraComponent} from './querying/relational-algebra/algebra.component';
+import {AlgebraComponent} from './querying/algebra/algebra.component';
 import {QueryingComponent} from './querying/querying.component';
-import {NodeComponent} from './querying/relational-algebra/node/node.component';
+import {NodeComponent} from './querying/algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import {AdaptersComponent} from './adapters/adapters.component';
 import {

@@ -14,18 +14,17 @@ export class NodeComponent implements OnInit, AfterViewChecked {
     constructor() {
     }
 
-    @ViewChild('nodeEle', {read: ElementRef}) public nodeEle: ElementRef;
+    @ViewChild('element', {read: ElementRef}) public element: ElementRef;
     @Input() node: Node;
     @Output() autocompleteChanged = new EventEmitter();
-    public highlighted = 'node1';
 
     ngOnInit() {
 
     }
 
     ngAfterViewChecked() {
-        this.node.height = this.nodeEle.nativeElement.offsetHeight;
-        this.node.width = this.nodeEle.nativeElement.offsetWidth;
+        this.node.height = this.element.nativeElement.offsetHeight;
+        this.node.width = this.element.nativeElement.offsetWidth;
     }
 
     addSortColumn() {
@@ -60,11 +59,7 @@ export class NodeComponent implements OnInit, AfterViewChecked {
     }
 
     toggleDirection(col: SortState) {
-        if (col.direction === SortDirection.DESC) {
-            col.direction = SortDirection.ASC;
-        } else {
-            col.direction = SortDirection.DESC;
-        }
+        col.direction = col.direction === SortDirection.DESC ? SortDirection.ASC : SortDirection.DESC;
     }
 
     getAcCols(): string[] {

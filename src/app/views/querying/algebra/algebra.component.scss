@@ -7,15 +7,15 @@
 }
 
 #drop {
-  border: 1px solid #c8ced3;
-  border-radius: 0.25rem;
-  //height: 1000px;
+  height: 1000px;
 }
 
 #drop .node, .cdk-drag-preview .node {
   position: absolute;
   min-width: 260px;
   z-index: 1;
+  left: 0;
+  top: 0;
 
   .in, .out {
     position: absolute;
@@ -104,12 +104,12 @@ svg {
   pointer-events: none;
 }
 
-#run {
-  position: absolute;
-  top: 0.5em;
-  right: 1em;
-  cursor: pointer;
-  z-index: 2;
+.r-0 {
+  right: 2rem;
+}
+
+.t-0 {
+  top: 1rem;
 }
 
 #result-wrapper {
@@ -117,11 +117,6 @@ svg {
   padding-right: 0;
 }
 
-#menu-top-left {
-  position: absolute;
-  top: 1em;
-  left: 1em;
-}
 
 /* autocomplete package */
 .ng-autocomplete {

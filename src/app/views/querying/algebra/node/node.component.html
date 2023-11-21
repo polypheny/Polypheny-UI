@@ -1,4 +1,4 @@
-<c-card class="node" [id]="node.id" #nodeEle>
+<c-card class="node" [id]="node.id" #element>
     <div class="in"></div>
     <div class="out"></div>
 
@@ -13,7 +13,7 @@
                         [data]="node.autocomplete"
                         [(ngModel)]="node.tableName"
                         (inputChanged)="autocompleteChange()"
-                        cPlaceholder="entity.field"
+                        placeholder="entity.field"
                         [searchKeyword]="node.tableName"
                         [itemTemplate]="itemTemplate"
                         (click)="autocompleteChange()"
@@ -55,7 +55,7 @@
                             id="{{node.id}}col1"
                             [data]="getAcTableCols()"
                             [(ngModel)]="node.col1"
-                            cPlaceholder="entity.field"
+                            placeholder="entity.field"
                             [searchKeyword]="node.col1"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -68,7 +68,7 @@
                             id="{{node.id}}col2"
                             [data]="getAcTableCols()"
                             [(ngModel)]="node.col2"
-                            cPlaceholder="entity.field"
+                            placeholder="entity.field"
                             [searchKeyword]="node.col2"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -97,7 +97,7 @@
                             id="{{node.id}}filterField"
                             [data]="getAcTableCols()"
                             [(ngModel)]="node.field"
-                            cPlaceholder="entity.field"
+                            placeholder="entity.field"
                             [searchKeyword]="node.field"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -123,7 +123,7 @@
                             [data]="node.autocomplete"
                             [(ngModel)]="node.fields[index]"
                             (inputChanged)="autocompleteChange()"
-                            cPlaceholder="entity.field"
+                            placeholder="entity.field"
                             [searchKeyword]="node.fields[index]"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -142,7 +142,7 @@
                             [data]="getAcCols()"
                             [(ngModel)]="node.groupBy"
                             (inputChanged)="autocompleteChange()"
-                            cPlaceholder="field"
+                            placeholder="field"
                             [searchKeyword]="node.groupBy"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -169,7 +169,7 @@
                             [data]="getAcTableCols()"
                             [(ngModel)]="node.field"
                             (inputChanged)="autocompleteChange()"
-                            cPlaceholder="entity.field"
+                            placeholder="entity.field"
                             [searchKeyword]="node.field"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
@@ -196,12 +196,12 @@
                     <ng-autocomplete
                             [data]="getAcTableCols()"
                             [(ngModel)]="col.value.column"
-                            cPlaceholder="entity.field"
+                            placeholder="entity.field"
                             [searchKeyword]="col.value.column"
                             [itemTemplate]="itemTemplate"
                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
-                    <a [routerLink]="[]" class="btn btn-light btn-sm sort-direction"
-                       (click)="toggleDirection(col.value)">{{col.value.direction}}</a>
+                    <button cButton color="light" size="sm" class="sort-direction"
+                            (click)="toggleDirection(col.value)">{{col.value.direction}}</button>
                     <i class="fa fa-close sort-remove" (click)="removeSortColumn( +col.key )"></i>
                 </div>
             </li>

@@ -33,7 +33,7 @@ import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {AdapterModel} from '../views/adapters/adapter.model';
 import {QueryInterface} from '../views/query-interfaces/query-interfaces.model';
-import {AlgNodeModel, Node} from '../views/querying/relational-algebra/algebra.model';
+import {AlgNodeModel, Node} from '../views/querying/algebra/algebra.model';
 import {WebSocket} from './webSocket';
 import {Observable} from 'rxjs';
 import {map} from "rxjs/operators";

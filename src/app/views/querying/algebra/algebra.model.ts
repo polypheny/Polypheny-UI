@@ -12,18 +12,6 @@ export enum LogicalOperator {
     Sort = 'Sort',
     Union = 'Union',
     Intersect = 'Intersect'
-
-    /*
-    Calc,
-    Correlate,
-    Exchange,
-    Match,
-    SortExchange,
-    TableFunctionScan,
-    TableModify,
-    Values,
-    Window
-    */
 }
 
 export class LogicalOperatorUtil {
@@ -34,13 +22,13 @@ export class LogicalOperatorUtil {
                 sidebarNode = new SidebarNode('operator_' + operator, operator, 'fa fa-database', null, true);
                 break;
             case LogicalOperator.Join:
-                sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setRelAlgSymbol('&#8904;');
+                sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setAlgSymbol('&#8904;');
                 break;
             case LogicalOperator.Filter:
-                sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setRelAlgSymbol('&sigma;');
+                sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setAlgSymbol('&sigma;');
                 break;
             case LogicalOperator.Project:
-                sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setRelAlgSymbol('&pi;');
+                sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setAlgSymbol('&pi;');
                 break;
             case LogicalOperator.Aggregate:
                 sidebarNode = new SidebarNode('operator_' + operator, operator, 'fa fa-plus-circle', null, true);
@@ -49,13 +37,13 @@ export class LogicalOperatorUtil {
                 sidebarNode = new SidebarNode('operator_' + operator, operator, 'fa fa-arrows-v', null, true);
                 break;
             case LogicalOperator.Union:
-                sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setRelAlgSymbol('&cup;');
+                sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setAlgSymbol('&cup;');
                 break;
             case LogicalOperator.Minus:
                 sidebarNode = new SidebarNode('operator_' + operator, operator, 'fa fa-minus-circle', null, true);
                 break;
             case LogicalOperator.Intersect:
-                sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setRelAlgSymbol('&cap;');
+                sidebarNode = new SidebarNode('operator_' + operator, operator, null, null, true).setAlgSymbol('&cap;');
                 break;
             default:
                 sidebarNode = new SidebarNode('operator_' + operator, operator, 'fa fa-arrows', null, true);
@@ -99,7 +87,7 @@ export class Node {
     height: number;
     width: number;
     icon: string;
-    relAlgSymbol: string;
+    algSymbol: string;
     class: string;
 
     //autocomplete

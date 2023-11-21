@@ -51,9 +51,10 @@
                          [treeAllowDrop]="node.allowDrop"
                          [treeDrag]="node"
                          [treeDragEnabled]="node.allowDrag()">
-                        <span *ngIf="node.data.icon" class="me-1" [ngClass]="[node.data.icon, 'sidebarIcon']"></span>
-                        <span *ngIf="node.data.relAlgSymbol" [innerHTML]="node.data.relAlgSymbol"
-                              class="relAlgSymbol"></span>
+                        <span *ngIf="node.data.icon" class="algSymbol"
+                              [ngClass]="[node.data.icon, 'sidebarIcon']"></span>
+                        <span *ngIf="node.data.algSymbol" [innerHTML]="node.data.algSymbol"
+                              class="algSymbol"></span>
                         <span class="title" [innerHTML]="node.data.name"></span>
                     </div>
                 </div>

@@ -6,7 +6,7 @@ export class SidebarNode {
   name: string;
   tableType: string;
   icon: string;
-  relAlgSymbol: string;
+  algSymbol: string;
   routerLink: any;
   label: string;
   allowRouting = true;
@@ -116,8 +116,8 @@ export class SidebarNode {
     return this.autoActive;
   }
 
-  setRelAlgSymbol(symbol: string) {
-    this.relAlgSymbol = symbol;
+  setAlgSymbol(symbol: string) {
+    this.algSymbol = symbol;
     this.icon = null;
     return this;
   }
