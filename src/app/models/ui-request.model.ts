@@ -208,9 +208,9 @@ export class SchemaRequest extends UIRequest {
      */
     showTable: boolean;
     schemaEdit: boolean;
-    dataModels: NamespaceType[];
+    dataModels: DataModel[];
 
-    constructor(routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: NamespaceType[] = [NamespaceType.RELATIONAL, NamespaceType.DOCUMENT, NamespaceType.GRAPH]) {
+    constructor(routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: DataModel[] = [DataModel.RELATIONAL, DataModel.DOCUMENT, DataModel.GRAPH]) {
         super();
         this.routerLinkRoot = routerLinkRoot;
         this.views = views;
@@ -244,7 +244,7 @@ export class MaterializedRequest extends UIRequest {
     }
 }
 
-export enum NamespaceType {
+export enum DataModel {
     DOCUMENT = 'DOCUMENT',
     RELATIONAL = 'RELATIONAL',
     GRAPH = 'GRAPH'

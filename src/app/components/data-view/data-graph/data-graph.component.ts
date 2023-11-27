@@ -1,7 +1,7 @@
 import {Component, effect} from '@angular/core';
 import * as d3 from 'd3';
 import {GraphResult} from '../models/result-set.model';
-import {GraphRequest, NamespaceType} from '../../../models/ui-request.model';
+import {DataModel, GraphRequest} from '../../../models/ui-request.model';
 import {DataTemplateComponent} from '../data-template/data-template.component';
 
 
@@ -51,7 +51,7 @@ export class DataGraphComponent extends DataTemplateComponent {
   private initialEdgeIds: string[];
   private afterInit = false;
 
-  protected readonly NamespaceType = NamespaceType;
+    protected readonly NamespaceType = DataModel;
 
   private static filterEdges(hidden: any[], d: Edge, p: any) {
     const source = !p.afterInit ? d.source : d.source['id'];

@@ -1,4 +1,4 @@
-import {NamespaceType} from './ui-request.model';
+import {DataModel} from './ui-request.model';
 import {PolyType} from '../components/data-view/models/result-set.model';
 import {AdapterModel, AdapterType, PartitionType, PlacementType} from '../views/adapters/adapter.model';
 
@@ -21,13 +21,13 @@ export class IdEntity {
 
 // tslint:disable-next-line:no-empty-interface
 export class NamespaceModel extends IdEntity {
-  namespaceType: NamespaceType;
+  dataModel: DataModel;
   caseSensitive: boolean;
 }
 
 export class EntityModel extends IdEntity {
   namespaceId: number;
-  namespaceType: NamespaceType;
+  dataModel: DataModel;
   entityType: EntityType;
   modifiable: boolean;
 }
@@ -183,9 +183,9 @@ export interface AssetsModel {
 //// REQUESTS
 export class NamespaceRequest {
 
-  dataModels: NamespaceType[] = null;
+  dataModels: DataModel[] = null;
 
-  constructor(dataModels: NamespaceType[] = null) {
+  constructor(dataModels: DataModel[] = null) {
     this.dataModels = dataModels;
   }
 }

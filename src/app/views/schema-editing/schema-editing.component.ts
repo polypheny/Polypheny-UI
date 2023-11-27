@@ -2,16 +2,15 @@ import {Component, computed, effect, OnDestroy, OnInit, signal, Signal, untracke
 import {ActivatedRoute, Router} from '@angular/router';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../services/crud.service';
-import {Namespace, NamespaceType} from '../../models/ui-request.model';
+import {DataModel, Namespace} from '../../models/ui-request.model';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {RelationalResult} from '../../components/data-view/models/result-set.model';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
-import {BehaviorSubject, Observable, Subscription} from 'rxjs';
+import {Subscription} from 'rxjs';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {CatalogService} from '../../services/catalog.service';
 import {NamespaceModel} from '../../models/catalog.model';
-import {filter, map} from 'rxjs/operators';
 import {AdapterModel} from '../adapters/adapter.model';
 
 @Component({
@@ -75,7 +74,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
   readonly stores: Signal<AdapterModel[]>;
   graphStore: string;
 
-  public readonly NamespaceType = NamespaceType;
+    public readonly NamespaceType = DataModel;
 
   ngOnInit() {
     //this.getSchema();
@@ -152,7 +151,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
       }
 
       this.createSubmitted = true;
-      this._crud.createOrDropNamespace(new Namespace(val.name, NamespaceType[val.type.toUpperCase()], val.stores).setCreate(true)).subscribe({
+        this._crud.createOrDropNamespace(new Namespace(val.name, DataModel[val.type.toUpperCase()], val.stores).setCreate(true)).subscribe({
         next: (res: RelationalResult) => {
           if (res.error) {
             this._toast.exception(res);

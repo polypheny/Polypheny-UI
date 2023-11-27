@@ -4,7 +4,7 @@
 
 <div class="card-wrapper" *ngIf="$result()">
     <c-card *ngFor="let d1 of $result().data; let i = index" (dblclick)="triggerEditing(i)"
-            [ngClass]="{'editing': i===editing, 'json-card': $result().namespaceType === NamespaceType.DOCUMENT}">
+            [ngClass]="{'editing': i===editing, 'json-card': $result().dataModel === DataModel.DOCUMENT}">
         <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig.update && i !== editing" [routerLink]="[]"
            class="edit-card"
            (click)="triggerEditing(i)"><i class="cil-pencil"></i></a>
@@ -61,12 +61,12 @@
                         </ng-container>
                     </ng-container>
                     <ng-container *ngIf="i === editing">
-                        <app-input *ngIf="$result()?.namespaceType === NamespaceType.RELATIONAL"
+                        <app-input *ngIf="$result()?.dataModel === DataModel.RELATIONAL"
                                    [header]="h" [showLabel]="h.name !== '_data' " [value]="updateValues.get(h.name)"
                                    (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateTuple()"
                                    [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
                         <app-json-editor (validChange)="setJsonValid($event)"
-                                         *ngIf="$result()?.namespaceType === NamespaceType.DOCUMENT"
+                                         *ngIf="$result()?.dataModel === DataModel.DOCUMENT"
                                          [json]="updateValues.get(h.name)"
                                          (valueChange)="newUpdateValue(h.name, $event)"></app-json-editor>
                     </ng-container>
@@ -83,7 +83,7 @@
                     cancel
                 </button>
                 <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1" (click)="updateTuple()"
-                        [disabled]="$result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid">
+                        [disabled]="$result()?.dataModel === DataModel.DOCUMENT && !jsonValid">
                     save
                 </button>
             </li>
@@ -96,19 +96,19 @@
     </div>
 
     <c-card *ngIf="entityConfig().create && showInsertCard"
-            [ngClass]="{'json-card': $result()?.namespaceType === NamespaceType.DOCUMENT}">
+            [ngClass]="{'json-card': $result()?.dataModel === DataModel.DOCUMENT}">
         <c-card-header>
             Insert data
         </c-card-header>
         <ul cListGroup flush="true">
             <li cListGroupItem *ngFor="let h of $result().header">
-                <app-input *ngIf="$result()?.namespaceType === NamespaceType.RELATIONAL || h.name === '_id'"
+                <app-input *ngIf="$result()?.dataModel === DataModel.RELATIONAL || h.name === '_id'"
                            [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"
                            (valueChange)="inputChange(h.name, $event)"
                            (enter)="insertTuple()"></app-input>
                 <app-json-editor (validChange)="setJsonValid($event)"
-                                 *ngIf="$result()?.namespaceType === NamespaceType.DOCUMENT" [empty]="true"
+                                 *ngIf="$result()?.dataModel === DataModel.DOCUMENT" [empty]="true"
                                  [json]="insertValues.get(h.name)"
                                  (valueChange)="inputChange(h.name, $event)"></app-json-editor>
             </li>
@@ -125,7 +125,7 @@
                 </button>
                 <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1 || editing !== -1"
                         class="float-right"
-                        [disabled]="$result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid"
+                        [disabled]="$result()?.dataModel === DataModel.DOCUMENT && !jsonValid"
                         (click)="insertTuple()">
                     save
                 </button>
@@ -149,6 +149,6 @@
 </c-row>
 
 <ng-template #json let-h='h' let-d1='d1' let-j='j'>
-    <span *ngIf="$result()?.namespaceType !== NamespaceType.DOCUMENT" class="key">{{ h.name }} </span>
+    <span *ngIf="$result()?.dataModel !== DataModel.DOCUMENT" class="key">{{ h.name }} </span>
     <app-json-text [text]="d1[j]"></app-json-text>
 </ng-template>

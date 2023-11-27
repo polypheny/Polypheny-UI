@@ -8,14 +8,14 @@ import {
     signal,
     ViewEncapsulation,
     WritableSignal
-} from "@angular/core";
-import {Freshness, TimeUnits, ViewType} from "../data-view.model";
-import {AdapterModel} from "../../../views/adapters/adapter.model";
-import {CatalogService} from "../../../services/catalog.service";
-import {ViewInformation} from "../data-view.component";
-import {ToastDuration, ToasterService} from "../../toast-exposer/toaster.service";
-import {NamespaceType} from "../../../models/ui-request.model";
-import {Result} from "../models/result-set.model";
+} from '@angular/core';
+import {Freshness, TimeUnits, ViewType} from '../data-view.model';
+import {AdapterModel} from '../../../views/adapters/adapter.model';
+import {CatalogService} from '../../../services/catalog.service';
+import {ViewInformation} from '../data-view.component';
+import {ToastDuration, ToasterService} from '../../toast-exposer/toaster.service';
+import {DataModel} from '../../../models/ui-request.model';
+import {Result} from '../models/result-set.model';
 
 @Component({
     selector: 'poly-create-view',
@@ -78,7 +78,7 @@ export class ViewComponent {
             info.tableType = 'VIEW';
 
             if (this.$type() === ViewType.MATERIALIZED) {
-                if (this.$result().namespaceType === NamespaceType.DOCUMENT) {
+                if (this.$result().dataModel === DataModel.DOCUMENT) {
                     this._toast.error('Materialized views are not yet supported for document queries.');
                     return;
                 }
@@ -97,7 +97,7 @@ export class ViewComponent {
     }
 
     private getViewQuery() {
-        if (this.$result().namespaceType === NamespaceType.DOCUMENT) {
+        if (this.$result().dataModel === DataModel.DOCUMENT) {
             let source;
             let pipeline;
 

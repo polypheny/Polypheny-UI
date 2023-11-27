@@ -1,8 +1,25 @@
 import {effect, Injectable, signal, untracked, WritableSignal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {AdapterTemplateModel, AllocationColumnModel, AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, AssetsModel, CatalogState, ColumnModel, ConstraintModel, EntityModel, EntityType, FieldModel, IdEntity, KeyModel, LogicalSnapshotModel, NamespaceModel} from '../models/catalog.model';
-import {NamespaceType} from '../models/ui-request.model';
+import {
+  AdapterTemplateModel,
+  AllocationColumnModel,
+  AllocationEntityModel,
+  AllocationPartitionModel,
+  AllocationPlacementModel,
+  AssetsModel,
+  CatalogState,
+  ColumnModel,
+  ConstraintModel,
+  EntityModel,
+  EntityType,
+  FieldModel,
+  IdEntity,
+  KeyModel,
+  LogicalSnapshotModel,
+  NamespaceModel
+} from '../models/catalog.model';
+import {DataModel} from '../models/ui-request.model';
 import {SidebarNode} from '../models/sidebar-node.model';
 import {combineLatestWith, Observable, Subject} from 'rxjs';
 import {DbmsTypesService} from './dbms-types.service';
@@ -112,7 +129,7 @@ export class CatalogService {
     return sub.pipe();
   }
 
-  getSchemaTree(routerLinkRoot: string, views: boolean, depth: number, schemaEdit?: boolean, dataModels: NamespaceType[] = [NamespaceType.RELATIONAL, NamespaceType.DOCUMENT, NamespaceType.GRAPH]) {
+    getSchemaTree(routerLinkRoot: string, views: boolean, depth: number, schemaEdit?: boolean, dataModels: DataModel[] = [DataModel.RELATIONAL, DataModel.DOCUMENT, DataModel.GRAPH]) {
     return this.buildSchemaTree(routerLinkRoot, views, depth, schemaEdit, dataModels);
 
   }
@@ -148,12 +165,12 @@ export class CatalogService {
 
   getEntityFromName(namespace: string, name: string): EntityModel {
     const namespaces = Array.from(this.namespaces().values()).filter(n => (n.caseSensitive ? n.name === namespace : n.name.toLowerCase() === namespace.toLowerCase())
-        || n.namespaceType === NamespaceType.GRAPH && name.toLowerCase() === n.name.toLowerCase() || namespace.toLowerCase() === n.name.toLowerCase());
+        || n.dataModel === DataModel.GRAPH && name.toLowerCase() === n.name.toLowerCase() || namespace.toLowerCase() === n.name.toLowerCase());
     if (namespaces.length === 0) {
       return null;
     }
 
-    return Array.from(this.entities().values()).filter(e => e.namespaceId === namespaces[0].id && e.name === name || (e.namespaceType === NamespaceType.GRAPH && namespace.toLowerCase() === e.name.toLowerCase()))[0];
+      return Array.from(this.entities().values()).filter(e => e.namespaceId === namespaces[0].id && e.name === name || (e.dataModel === DataModel.GRAPH && namespace.toLowerCase() === e.name.toLowerCase()))[0];
   }
 
   getFullEntityName(entityId: number): String {
@@ -165,20 +182,20 @@ export class CatalogService {
   //// UTIL
 
 
-  private buildSchemaTree(routerLinkRoot: string, views: boolean, depth: number, schemaEdit: boolean, dataModels: NamespaceType[]): SidebarNode[] {
+    private buildSchemaTree(routerLinkRoot: string, views: boolean, depth: number, schemaEdit: boolean, dataModels: DataModel[]): SidebarNode[] {
     const nodes: SidebarNode[] = [];
     for (const namespace of this.namespaces().values()) {
-      const namespaceNode = new SidebarNode(namespace.name, namespace.name, this.getNamespaceIcon(namespace.namespaceType) + ' me-1', '');
+        const namespaceNode = new SidebarNode(namespace.name, namespace.name, this.getNamespaceIcon(namespace.dataModel) + ' me-1', '');
 
       if (depth > 1) {
-        switch (namespace.namespaceType) {
-          case NamespaceType.DOCUMENT:
+          switch (namespace.dataModel) {
+              case DataModel.DOCUMENT:
             this.attachDocumentTree(namespace, namespaceNode, routerLinkRoot, depth, views);
             break;
-          case NamespaceType.RELATIONAL:
+              case DataModel.RELATIONAL:
             this.attachRelationalTree(namespace, namespaceNode, routerLinkRoot, depth, views);
             break;
-          case NamespaceType.GRAPH:
+              case DataModel.GRAPH:
             namespaceNode.routerLink = routerLinkRoot + '' + namespace.name;
             break;
         }
@@ -195,7 +212,7 @@ export class CatalogService {
 
     for (const collection of collections) {
 
-      let icon = this.getNamespaceIcon(collection.namespaceType);
+        let icon = this.getNamespaceIcon(collection.dataModel);
       switch (collection.entityType) {
         case EntityType.SOURCE:
           icon = this.assets.SOURCE_ICON;
@@ -254,13 +271,13 @@ export class CatalogService {
     }));
   }
 
-  private getNamespaceIcon(namespaceType: NamespaceType): string {
-    switch (namespaceType) {
-      case NamespaceType.DOCUMENT:
+    private getNamespaceIcon(dataModel: DataModel): string {
+        switch (dataModel) {
+            case DataModel.DOCUMENT:
         return this.assets.DOCUMENT_ICON;
-      case NamespaceType.RELATIONAL:
+            case DataModel.RELATIONAL:
         return this.assets.RELATIONAL_ICON;
-      case NamespaceType.GRAPH:
+            case DataModel.GRAPH:
         return this.assets.GRAPH_ICON;
     }
   }

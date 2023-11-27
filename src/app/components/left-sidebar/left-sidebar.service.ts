@@ -4,7 +4,7 @@ import {BehaviorSubject} from 'rxjs';
 import {InformationService} from '../../services/information.service';
 import {ConfigService} from '../../services/config.service';
 import {CrudService} from '../../services/crud.service';
-import {NamespaceType} from '../../models/ui-request.model';
+import {DataModel} from '../../models/ui-request.model';
 import {JavaPage, SidebarNode} from '../../models/sidebar-node.model';
 import {Router} from '@angular/router';
 import {BreadcrumbItem} from '../breadcrumb/breadcrumb-item';
@@ -44,7 +44,7 @@ export class LeftSidebarService {
   private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   private resetSubject = new BehaviorSubject<boolean>(false);
   private topButtonSubject = new BehaviorSubject<SidebarButton[]>([]);
-  namespaceType: string;
+    dataModel: string;
   selectedNodeId: any;
 
 
@@ -176,7 +176,7 @@ export class LeftSidebarService {
   /**
    * Retrieve a schemaTree using the _crud service and apply it to the left sidebar
    */
-  setSchema(_router: Router, routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: NamespaceType[] = [NamespaceType.RELATIONAL, NamespaceType.DOCUMENT, NamespaceType.GRAPH]) {
+  setSchema(_router: Router, routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: DataModel[] = [DataModel.RELATIONAL, DataModel.DOCUMENT, DataModel.GRAPH]) {
 
     this.error.next(null);
     const schema = [];
@@ -192,7 +192,7 @@ export class LeftSidebarService {
         if (node.data.routerLink !== '') {
           const rLink = [node.data.routerLink];
           const rname = [node.data.id];
-          if (node.data.children.length === 0 && node.data.namespaceType !== NamespaceType.GRAPH) {
+            if (node.data.children.length === 0 && node.data.dataModel !== DataModel.GRAPH) {
             const url = ['/views/schema-editing/'];
             const fullChildLink = (url.concat(rname));
             this._breadcrumb.setBreadcrumbsSchema([

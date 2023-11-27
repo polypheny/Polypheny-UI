@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {QueryLanguage} from '../models/result-set.model';
 import {DataTemplateComponent} from '../data-template/data-template.component';
-import {NamespaceType} from '../../../models/ui-request.model';
+import {DataModel} from '../../../models/ui-request.model';
 
 @Component({
   selector: 'app-data-card',
@@ -17,7 +16,7 @@ export class DataCardComponent extends DataTemplateComponent implements OnInit {
   showInsertCard = false;
   jsonValid = false;
 
-  protected readonly NamespaceType = NamespaceType;
+  protected readonly DataModel = DataModel;
 
   ngOnInit(): void {
     super.ngOnInit();

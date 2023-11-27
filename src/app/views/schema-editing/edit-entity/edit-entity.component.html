@@ -1,6 +1,6 @@
 <ng-container>
     <ng-container
-            *ngIf="currentRoute().includes('.') && namespace()?.namespaceType === NamespaceType.RELATIONAL && !isStatistic()">
+            *ngIf="currentRoute().includes('.') && namespace()?.dataModel === NamespaceType.RELATIONAL && !isStatistic()">
         <app-edit-columns
                 *ngIf="entity()?.entityType !== EntityType.SOURCE"
                 [route]="currentRoute()"
@@ -32,7 +32,7 @@
             [placements]="placements"
             [partitions]="partitions"
             [allocations]="allocations"
-            *ngIf="!currentRoute().includes('.') && namespace()?.namespaceType === NamespaceType.RELATIONAL && !isStatistic()"></app-edit-tables>
+            *ngIf="!currentRoute().includes('.') && namespace()?.dataModel === NamespaceType.RELATIONAL && !isStatistic()"></app-edit-tables>
     <app-document-edit-collections
             [currentRoute]="currentRoute"
             [namespace]="namespace"
@@ -42,7 +42,7 @@
             [placements]="placements"
             [partitions]="partitions"
             [allocations]="allocations"
-            *ngIf="!currentRoute().includes('.') && namespace()?.namespaceType === NamespaceType.DOCUMENT && !isStatistic()"></app-document-edit-collections>
+            *ngIf="!currentRoute().includes('.') && namespace()?.dataModel === NamespaceType.DOCUMENT && !isStatistic()"></app-document-edit-collections>
     <app-document-edit-collection
             [currentRoute]="currentRoute"
             [namespace]="namespace"
@@ -52,7 +52,7 @@
             [placements]="placements"
             [partitions]="partitions"
             [allocations]="allocations"
-            *ngIf="currentRoute().includes('.') && namespace()?.namespaceType === NamespaceType.DOCUMENT && !isStatistic() "></app-document-edit-collection>
+            *ngIf="currentRoute().includes('.') && namespace()?.dataModel === NamespaceType.DOCUMENT && !isStatistic() "></app-document-edit-collection>
     <app-graph-edit
             [currentRoute]="currentRoute"
             [namespace]="namespace"
@@ -62,6 +62,6 @@
             [placements]="placements"
             [partitions]="partitions"
             [allocations]="allocations"
-            *ngIf="namespace()?.namespaceType === NamespaceType.GRAPH  && !isStatistic()"></app-graph-edit>
+            *ngIf="namespace()?.dataModel === NamespaceType.GRAPH  && !isStatistic()"></app-graph-edit>
 </ng-container>
 

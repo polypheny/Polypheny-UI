@@ -9,7 +9,7 @@
                [attr.data-table]="$result().entityName">
             <thead>
             <tr>
-                <ng-container *ngIf="$result()?.namespaceType !== NamespaceType.DOCUMENT">
+                <ng-container *ngIf="$result()?.dataModel !== NamespaceType.DOCUMENT">
                     <ng-container *ngFor="let h of $result().header">
                         <th>
                         <span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body"
@@ -38,7 +38,7 @@
                            placeholder="search"
                            [id]="'search-' + h.name" [attr.data-col]="h.name" [value]="h.filter"
                            (keyup)="filterTable($event, filter1.value, h)" #filter1>
-                    <input *ngIf="( ! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType) && !_types.isDocument($result().namespaceType) && !_types.isGraph($result().namespaceType)) || h.collectionsType"
+                    <input *ngIf="( ! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType) && !_types.isDocument($result().dataModel) && !_types.isGraph($result().dataModel)) || h.collectionsType"
                            type="text"
                            cFormControl sizing="sm"
                            class="table-filter"

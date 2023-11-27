@@ -13,7 +13,7 @@ export class BreadcrumbService implements OnInit, OnDestroy {
     zoom: number;
     _showZoom = true;
     tableName = null;
-    namespaceType = null;
+    dataModel = null;
 
     routerId;
 
@@ -107,14 +107,14 @@ export class BreadcrumbService implements OnInit, OnDestroy {
     }
 
     isRelational() {
-        return this.namespaceType != null && this.namespaceType === 'relational';
+        return this.dataModel != null && this.dataModel === 'relational';
     }
 
-    setNamespaceType(namespaceType: string) {
-        if (!namespaceType) {
-            this.namespaceType = null;
+    setNamespaceType(dataModel: string) {
+        if (!dataModel) {
+            this.dataModel = null;
             return;
         }
-        this.namespaceType = namespaceType.toLowerCase();
+        this.dataModel = dataModel.toLowerCase();
     }
 }

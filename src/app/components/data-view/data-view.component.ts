@@ -19,7 +19,7 @@ import {ToasterService} from '../toast-exposer/toaster.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {NamespaceType} from '../../models/ui-request.model';
+import {DataModel} from '../../models/ui-request.model';
 import * as Plyr from 'plyr';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
@@ -29,8 +29,8 @@ import {Table} from '../../views/schema-editing/edit-tables/edit-tables.componen
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
 import {CatalogService} from '../../services/catalog.service';
 import {EntityModel, TableModel} from '../../models/catalog.model';
-import {CombinedResult} from "./data-view.model";
-import {ViewComponent} from "./view/view.component";
+import {CombinedResult} from './data-view.model';
+import {ViewComponent} from './view/view.component';
 
 export class ViewInformation {
   freshness: string;
@@ -74,7 +74,7 @@ export class DataViewComponent implements OnDestroy {
     this.$tables = computed(() => {
       const catalog = this._catalog.listener();
       const entities = this._catalog.getEntities(null);
-      return entities.filter(e => e.namespaceType === NamespaceType.RELATIONAL)
+        return entities.filter(e => e.dataModel === DataModel.RELATIONAL)
       .map(n => Table.fromModel(<TableModel>n))
       .sort((a, b) => a.name.localeCompare(b.name));
     });
@@ -85,14 +85,14 @@ export class DataViewComponent implements OnDestroy {
       }
 
       untracked(() => {
-        switch (this.$result().namespaceType) {
-          case NamespaceType.DOCUMENT:
+          switch (this.$result().dataModel) {
+              case DataModel.DOCUMENT:
             this.$presentationType.set(DataPresentationType.CARD);
             break;
-          case NamespaceType.RELATIONAL:
+              case DataModel.RELATIONAL:
             this.$presentationType.set(DataPresentationType.TABLE);
             break;
-          case NamespaceType.GRAPH:
+              case DataModel.GRAPH:
             this.$presentationType.set(DataPresentationType.GRAPH);
             break;
           default:
@@ -148,9 +148,9 @@ export class DataViewComponent implements OnDestroy {
 
   readonly $tables: Signal<Table[]>;
   gotTables = false;
-  $namespaceType: Signal<NamespaceType> = computed(() => this.$result()?.namespaceType);
+    $dataModel: Signal<DataModel> = computed(() => this.$result()?.dataModel);
 
-  protected readonly NamespaceType = NamespaceType;
+    protected readonly NamespaceType = DataModel;
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
@@ -170,8 +170,8 @@ export class DataViewComponent implements OnDestroy {
   }
 
   checkModelAndLanguage() {
-    return (this.$result().namespaceType === NamespaceType.DOCUMENT && this.$result().language === QueryLanguage.MQL) ||
-        (this.$result().namespaceType === NamespaceType.RELATIONAL && this.$result().language === QueryLanguage.SQL);
+      return (this.$result().dataModel === DataModel.DOCUMENT && this.$result().language === QueryLanguage.MQL) ||
+          (this.$result().dataModel === DataModel.RELATIONAL && this.$result().language === QueryLanguage.SQL);
   }
 
   showCreateView() {
@@ -184,7 +184,7 @@ export class DataViewComponent implements OnDestroy {
   }
 
   showAny():boolean {
-    if (this.$namespaceType() === NamespaceType.RELATIONAL || this.$namespaceType() === NamespaceType.DOCUMENT) {
+      if (this.$dataModel() === DataModel.RELATIONAL || this.$dataModel() === DataModel.DOCUMENT) {
       return false;
     }
     return true;

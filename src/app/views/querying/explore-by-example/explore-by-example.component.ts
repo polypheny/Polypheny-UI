@@ -1,15 +1,17 @@
 import {
-    Component, effect,
+    Component,
+    effect,
     EventEmitter,
     OnDestroy,
     OnInit,
     Output,
-    TemplateRef, untracked,
+    TemplateRef,
+    untracked,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 import * as $ from 'jquery';
-import {EditTableRequest, NamespaceType, QueryExplorationRequest} from '../../../models/ui-request.model';
+import {DataModel, EditTableRequest, QueryExplorationRequest} from '../../../models/ui-request.model';
 import {CrudService} from '../../../services/crud.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {RelationalExploreResult} from '../../../components/data-view/models/result-set.model';
@@ -126,7 +128,7 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
                 };
 
                 const schema = [];
-                for (const s of catalog.getSchemaTree('views/graphical-querying/', true, 3, false, [NamespaceType.RELATIONAL])) {
+                for (const s of catalog.getSchemaTree('views/graphical-querying/', true, 3, false, [DataModel.RELATIONAL])) {
                     const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
                     schema.push(node);
                 }

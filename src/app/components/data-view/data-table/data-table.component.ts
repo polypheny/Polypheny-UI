@@ -1,6 +1,6 @@
 import {Component, Input, OnInit, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as $ from 'jquery';
-import {NamespaceType} from '../../../models/ui-request.model';
+import {DataModel} from '../../../models/ui-request.model';
 import {PaginationElement} from '../models/pagination-element.model';
 import {UiColumnDefinition} from '../models/result-set.model';
 import {SortDirection, SortState} from '../models/sort-state.model';
@@ -10,7 +10,7 @@ import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 import {CatalogService} from '../../../services/catalog.service';
 import {DataTemplateComponent} from '../data-template/data-template.component';
-import {WebuiSettingsService} from "../../../services/webui-settings.service";
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
 
 
 @Component({
@@ -104,7 +104,7 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
   asExploreResult(resultSet: RelationalExploreResult) {
     return <RelationalExploreResult>resultSet;
   }*/
-  protected readonly NamespaceType = NamespaceType;
+    protected readonly NamespaceType = DataModel;
 
   trackByFn(index: any, item: any) {
     return index;

@@ -18,7 +18,7 @@ import {CrudService} from '../../../services/crud.service';
 import {FilteredUserInput, RelationalResult} from '../../../components/data-view/models/result-set.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
-import {EditTableRequest, NamespaceType, QueryRequest} from '../../../models/ui-request.model';
+import {DataModel, EditTableRequest, QueryRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
 import {Subscription} from 'rxjs';
@@ -133,7 +133,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         };
 
         const schema = [];
-        for (const s of catalog.getSchemaTree('views/graphical-querying/', true, 3, false, [NamespaceType.RELATIONAL])) {
+          for (const s of catalog.getSchemaTree('views/graphical-querying/', true, 3, false, [DataModel.RELATIONAL])) {
           const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
           schema.push(node);
         }

@@ -1,6 +1,6 @@
 import {SortState} from './sort-state.model';
 import {ColumnModel, EntityType} from '../../../models/catalog.model';
-import {NamespaceType} from '../../../models/ui-request.model';
+import {DataModel} from '../../../models/ui-request.model';
 
 /**
  * model for the result of a query coming from the server
@@ -14,7 +14,7 @@ export interface FieldDefinition {
 }
 
 export class Result<D, H extends FieldDefinition | UiColumnDefinition> {
-  namespaceType: NamespaceType;
+  dataModel: DataModel;
   namespace: string;
   query: string;
   data: D[];

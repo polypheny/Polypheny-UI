@@ -1,4 +1,4 @@
-import {NamespaceType} from "../../models/ui-request.model";
+import {DataModel} from '../../models/ui-request.model';
 import {
     DocumentResult,
     FieldDefinition,
@@ -8,8 +8,8 @@ import {
     Result,
     ResultException,
     UiColumnDefinition
-} from "./models/result-set.model";
-import {EntityType} from "../../models/catalog.model";
+} from './models/result-set.model';
+import {EntityType} from '../../models/catalog.model';
 
 export enum Freshness {
     UPDATE = 'UPDATE',
@@ -31,7 +31,7 @@ export enum ViewType {
 }
 
 export class CombinedResult {
-    namespaceType: NamespaceType;
+    dataModel: DataModel;
     namespace: string;
     query: string;
     data: string[][];
@@ -53,7 +53,7 @@ export class CombinedResult {
         res.header = relational.header;
         res.data = relational.data;
         res.namespace = relational.namespace;
-        res.namespaceType = relational.namespaceType;
+        res.dataModel = relational.dataModel;
         res.currentPage = relational.currentPage;
         res.highestPage = relational.highestPage;
         res.type = relational.type;
@@ -73,7 +73,7 @@ export class CombinedResult {
         res.header = doc.header;
         res.data = doc.data.map(t => new Array(t));
         res.namespace = doc.namespace;
-        res.namespaceType = doc.namespaceType;
+        res.dataModel = doc.dataModel;
         res.currentPage = doc.currentPage;
         res.highestPage = doc.highestPage;
         res.error = doc.error;
@@ -88,7 +88,7 @@ export class CombinedResult {
         res.header = graph.header;
         res.data = graph.data;
         res.namespace = graph.namespace;
-        res.namespaceType = graph.namespaceType;
+        res.dataModel = graph.dataModel;
         res.currentPage = graph.currentPage;
         res.highestPage = graph.highestPage;
         res.error = graph.error;
@@ -103,12 +103,12 @@ export class CombinedResult {
             return result;
         }
 
-        switch (result.namespaceType) {
-            case NamespaceType.DOCUMENT:
+        switch (result.dataModel) {
+            case DataModel.DOCUMENT:
                 return CombinedResult.fromDocument(result);
-            case NamespaceType.RELATIONAL:
+            case DataModel.RELATIONAL:
                 return CombinedResult.fromRelational(result as RelationalResult);
-            case NamespaceType.GRAPH:
+            case DataModel.GRAPH:
                 return CombinedResult.fromGraph(result);
             default:
                 return CombinedResult.fromRelational(result as RelationalResult);

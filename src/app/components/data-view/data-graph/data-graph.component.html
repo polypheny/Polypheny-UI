@@ -43,13 +43,13 @@
         </c-card-header>
         <ul class="list-group list-group-flush">
             <li class="list-group-item" *ngFor="let h of $result().header">
-                <app-input *ngIf="$result()?.namespaceType === NamespaceType.RELATIONAL || h.name === '_id'"
+                <app-input *ngIf="$result()?.dataModel === NamespaceType.RELATIONAL || h.name === '_id'"
                            [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"
                            (valueChange)="inputChange(h.name, $event)"
                            (enter)="insertTuple()"></app-input>
                 <app-json-editor (validChange)="setJsonValid($event)"
-                                 *ngIf="$result()?.namespaceType === NamespaceType.DOCUMENT && h.name !== '_id'"
+                                 *ngIf="$result()?.dataModel === NamespaceType.DOCUMENT && h.name !== '_id'"
                                  [empty]="true"
                                  [json]="insertValues.get(h.name)"
                                  (valueChange)="inputChange(h.name, $event)"></app-json-editor>
@@ -66,7 +66,7 @@
                         (click)="showInsertCard = false">cancel
                 </button>
                 <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1 || editing !== -1" class="float-right"
-                        [disabled]="$result()?.namespaceType === NamespaceType.DOCUMENT && !jsonValid"
+                        [disabled]="$result()?.dataModel === NamespaceType.DOCUMENT && !jsonValid"
                         (click)="insertTuple()">
                     save
                 </button>

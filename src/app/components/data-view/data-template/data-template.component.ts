@@ -24,13 +24,13 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
 import {PaginationElement} from '../models/pagination-element.model';
-import {DeleteRequest, EntityRequest, Method, NamespaceType, QueryRequest} from '../../../models/ui-request.model';
+import {DataModel, DeleteRequest, EntityRequest, Method, QueryRequest} from '../../../models/ui-request.model';
 import {ToastDuration, ToasterService} from '../../toast-exposer/toaster.service';
 import {SortState} from '../models/sort-state.model';
 import {HttpEventType} from '@angular/common/http';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as $ from 'jquery';
-import {CombinedResult} from "../data-view.model";
+import {CombinedResult} from '../data-view.model';
 
 const INITIAL_TYPE = 'BIGINT';
 
@@ -298,7 +298,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
       this.confirm = i;
       return;
     }
-    if (this.$result().namespaceType === NamespaceType.DOCUMENT) {
+      if (this.$result().dataModel === DataModel.DOCUMENT) {
       this.adjustDocument(Method.DROP, values[0]);
       return;
     }
@@ -420,7 +420,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   }
 
   insertTuple() {
-    if (this.$result().namespaceType === NamespaceType.DOCUMENT) {
+      if (this.$result().dataModel === DataModel.DOCUMENT) {
       this.adjustDocument(Method.ADD);
       return;
     }
@@ -545,7 +545,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   }
 
   updateTuple() {
-    if (this.$result().namespaceType === NamespaceType.DOCUMENT) {
+      if (this.$result().dataModel === DataModel.DOCUMENT) {
       this.adjustDocument(Method.MODIFY);
       return;
     }

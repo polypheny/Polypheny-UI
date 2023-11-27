@@ -5,8 +5,15 @@ import {CrudService} from '../../../services/crud.service';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {CatalogService} from '../../../services/catalog.service';
-import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityModel, EntityType, NamespaceModel} from '../../../models/catalog.model';
-import {NamespaceType} from '../../../models/ui-request.model';
+import {
+  AllocationEntityModel,
+  AllocationPartitionModel,
+  AllocationPlacementModel,
+  EntityModel,
+  EntityType,
+  NamespaceModel
+} from '../../../models/catalog.model';
+import {DataModel} from '../../../models/ui-request.model';
 import {AdapterModel} from '../../adapters/adapter.model';
 
 @Component({
@@ -29,7 +36,7 @@ export class EditEntityComponent {
   readonly addableStores: Signal<AdapterModel[]>;
 
 
-  protected readonly NamespaceType = NamespaceType;
+    protected readonly NamespaceType = DataModel;
 
   protected readonly EntityType = EntityType;
 
@@ -62,7 +69,7 @@ export class EditEntityComponent {
 
       const splits = this.currentRoute().split('\.');
 
-      if (this.namespace && this.namespace() && this.namespace().namespaceType === NamespaceType.GRAPH){
+        if (this.namespace && this.namespace() && this.namespace().dataModel === DataModel.GRAPH) {
         return this._catalog.getEntityFromName(splits[0], splits[0]);
       }
 

@@ -198,11 +198,11 @@ export class DbmsTypesService {
     }
   }
 
-  isDocument(namespaceType: string) {
-    return namespaceType.toLowerCase() === 'document';
+    isDocument(dataModel: string) {
+        return dataModel.toLowerCase() === 'document';
   }
 
-  isGraph(namespaceType: string) {
-    return namespaceType.toLowerCase() === 'graph';
+    isGraph(dataModel: string) {
+        return dataModel.toLowerCase() === 'graph';
   }
 }
