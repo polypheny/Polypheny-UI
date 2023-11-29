@@ -135,15 +135,17 @@
 
 </div>
 
-<c-row>
-    <c-col [lg]="12">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="$result()?.highestPage > 1">
-            <ul class="pagination">
-                <li *ngFor="let p of pagination" class="page-item"
-                    [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">
-                    <a class="page-link" (click)="paginate(p)" [routerLink]="[]">{{p.label}}</a>
+<c-row class="my-4" *ngIf="$result()">
+    <c-col class="col">
+        <nav aria-label="Page navigation" class="float-right" *ngIf="$result().highestPage > 1">
+            <c-pagination align="center">
+                <li *ngFor="let p of pagination" class="page-item pe-auto" cPageItem
+                    [disabled]="p.disabled" [active]="p.active">
+                    <a cPageLink class="pe-auto page-link"
+                       [style.cursor]="p.active || p.disabled ? 'inherit' : 'pointer'" (click)="paginate(p)"
+                       [routerLink]>{{p.label}}</a>
                 </li>
-            </ul>
+            </c-pagination>
         </nav>
     </c-col>
 </c-row>
