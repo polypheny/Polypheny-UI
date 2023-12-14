@@ -1,6 +1,7 @@
 import {SortState} from './sort-state.model';
 import {ColumnModel, EntityType} from '../../../models/catalog.model';
 import {DataModel} from '../../../models/ui-request.model';
+import {Pair} from '../../json/json-editor.component';
 
 /**
  * model for the result of a query coming from the server
@@ -98,8 +99,8 @@ export class SelectedColSet {
 
 export class DashboardSet {
 
-  availableAdapter: {};
-  availableSchemas: {};
+  availableAdapter: { string: Pair };
+  availableNamespaces: {};
   catalogPersistent: boolean;
   numberOfCommits: number;
   numberOfRollbacks: number;

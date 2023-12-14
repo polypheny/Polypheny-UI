@@ -90,9 +90,9 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr *ngFor="let obj of this.dashboardSet.availableSchemas | keyvalue">
-                                <td>{{obj.value.left}}</td>
-                                <td>{{obj.value.right}}</td>
+                            <tr *ngFor="let obj of this.dashboardSet.availableNamespaces | keyvalue">
+                                <td>{{ obj.key }}</td>
+                                <td>{{ obj.value }}</td>
                                 <th></th>
                             </tr>
                             </tbody>
@@ -119,7 +119,7 @@
         </c-col>
         <c-col xs="6">
             <c-card style="min-height: 153px">
-                <c-card-header class="card-header">
+                <c-card-header>
                     <span>Workload Information</span>
                 </c-card-header>
                 <c-card-body>
@@ -131,8 +131,8 @@
                             <tr>
                                 <th>Commits</th>
                                 <th>Rollbacks</th>
-                                <th># of DML</th>
-                                <th># of DQL</th>
+                                <th>DMLs</th>
+                                <th>DQLs</th>
                                 <th></th>
                             </tr>
                             </thead>

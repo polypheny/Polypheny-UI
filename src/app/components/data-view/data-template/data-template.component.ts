@@ -76,7 +76,6 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
   protected readonly subscriptions = new Subscription();
 
   @Input() set result(result: Result<any, any>) {
-    console.log("in")
     if (!result) {
       return;
     }

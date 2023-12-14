@@ -130,6 +130,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this._crud.getDashboardInformation(new StatisticRequest()).subscribe(
             res => {
                 this.dashboardSet = <DashboardSet>res;
+                console.log(this.dashboardSet);
                 if (this.dashboardSet != null || this.infoCounter > 120) {
                     clearInterval(this.informationInterval);
                 }
