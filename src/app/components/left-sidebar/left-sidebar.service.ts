@@ -117,7 +117,7 @@ export class LeftSidebarService {
   listConfigManagerPages() {
     return this._configService.getPageList().subscribe({
       next: res => {
-        this.nodes.next(this.mapPages(res, 'config'));
+        this.nodes.next([new SidebarNode(0, "Backup", null, "/views/config/backup", false, false, false), ...this.mapPages(res, 'config')]);
         this.error.next(null);
       }
       ,

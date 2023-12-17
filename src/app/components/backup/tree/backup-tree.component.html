@@ -1,0 +1,6 @@
+<div class="backup-tree">
+    <ng-container *ngFor="let element of backup.elements">
+        <app-backup-item [element]="element" [indention]="0" [modifiable]="modifiable" [allSchema]="doSchema()"
+                         [allData]="doData()" [allConfig]="doConfig()"></app-backup-item>
+    </ng-container>
+</div>

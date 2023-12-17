@@ -1,0 +1,24 @@
+<c-card>
+    <ul class="backups" cListGroup>
+        <ng-container *ngFor="let backup of $backups()">
+            <button [class.bg-info-subtle]="current() === backup" cListGroupItem class="backup d-flex flex-column"
+                    (click)="this.current.set(backup)">
+                <div class="d-flex">
+                    <c-input-group>
+                        <label>{{backup.timestamp}}</label>
+                    </c-input-group>
+                    <button *ngIf="current() === backup" cButton color="danger" (click)="deleteBackup(current())">delete
+                    </button>
+                </div>
+                <span class="additiona" *ngIf="current() === backup">
+                    <hr>
+                    <app-backup-tree class="mt-2" [backup]="backup"></app-backup-tree>
+                    <hr>
+                    <button cButton color="primary" (click)="restoreBackup(current())">initialize restore</button>
+
+                </span>
+            </button>
+        </ng-container>
+    </ul>
+
+</c-card>

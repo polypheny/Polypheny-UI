@@ -1,0 +1,33 @@
+<div class="backup-element">
+    <div [style.margin-left]="indention+'rem'">
+        <div *ngIf="modifiable" [style.margin-left]="(indention)+'rem'">
+            <input [ngModel]="isSelected()" (ngModelChange)="setBox(isSelected, $event)" type="checkbox"/>
+            <label class="ps-1 fw-bold">{{element.initialName}}</label>
+            <i *ngIf="!$open()" class="cil-caret-bottom small" (click)="toggle()"></i>
+            <i *ngIf="$open()" class="cil-caret-top small" (click)="toggle()"></i>
+        </div>
+        <div *ngIf="modifiable && this.$open()">
+            <div class="d-flex">
+                <input [ngModel]="doSchema()" (ngModelChange)="setBox(doSchema, $event)" type="checkbox"/>
+                <div class="ps-1">Schema</div>
+            </div>
+            <div class="d-flex">
+                <input [ngModel]="doData()" (ngModelChange)="setBox(doData, $event)" type="checkbox"/>
+                <div class="ps-1">Data</div>
+            </div>
+            <div class="d-flex">
+                <input [ngModel]="doConfig()" (ngModelChange)="setBox(doConfig, $event)" type="checkbox"/>
+                <div class="ps-1">Storage Configuration</div>
+            </div>
+        </div>
+        <div *ngIf="!modifiable" class="d-flex align-items-center align-content-center py-1">
+            <i *ngIf="indention !== 0" class="cil-caret-right pe-1" (click)="toggle()"></i>
+            <p class="m-0 fw-bold">{{element.initialName}}</p>
+        </div>
+    </div>
+
+    <ng-container *ngFor="let element of element.children">
+        <app-backup-item [indention]="(+indention+1)" [element]="element" [modifiable]="modifiable"
+                         [allSchema]="doSchema()" [allData]="doData()" [allConfig]="doConfig()"></app-backup-item>
+    </ng-container>
+</div>

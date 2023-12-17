@@ -221,7 +221,7 @@ import {ViewComponent} from "./data-view/view/view.component";
         DockersettingsComponent,
         ToastExposerComponent,
         Toast,
-      ReloadButtonComponent
+        ReloadButtonComponent
     ]
 })
 export class ComponentsModule {

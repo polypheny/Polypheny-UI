@@ -1,0 +1,81 @@
+<div id="backup">
+    <h2 class="mb-3">Backups</h2>
+    <ng-container>
+        <app-backup-overview></app-backup-overview>
+
+        <button class="mt-5" cButton (click)="startBackup()">Create Backup</button>
+    </ng-container>
+
+</div>
+
+<c-modal scrollable
+         [visible]="$isRestoring()"
+         [keyboard]="false"
+         [transition]="false"
+         backdrop="static"
+         id="modalRestore">
+    <c-modal-header>
+        <h5 cModalTitle>Restoring {{this.currentRestore?.timestamp}}</h5>
+        <button cButtonClose (click)="$isRestoring.set(false)"></button>
+    </c-modal-header>
+    <c-modal-body>
+        <div class="d-flex">
+            <input type="checkbox" [ngModel]="allSchema()" (ngModelChange)="allSchema.set($event)">
+            <p class="m-0 ps-1">Schema</p>
+        </div>
+        <div class="d-flex">
+            <input type="checkbox" [ngModel]="allData()" (ngModelChange)="allData.set($event)">
+            <p class="m-0 ps-1">Data</p>
+        </div>
+        <div class="d-flex">
+            <input type="checkbox" [ngModel]="allConfig()" (ngModelChange)="allConfig.set($event)">
+            <p class="m-0 ps-1">Storage Configuration</p>
+        </div>
+
+        <hr>
+        <ng-container *ngIf="currentRestore">
+            <app-backup-tree modifiable="true" [backup]="currentRestore" [allSchema]="allSchema()" [allData]="allData()"
+                             [allConfig]="allConfig()"></app-backup-tree>
+        </ng-container>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="primary" (click)="restoreBackup()">Restore</button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal scrollable
+         [visible]="$isBackingUp()"
+         [keyboard]="false"
+         [transition]="false"
+         backdrop="static"
+         id="modalBackup">
+    <c-modal-header>
+        <h5 cModalTitle>Backup</h5>
+        <button cButtonClose (click)="$isBackingUp.set(false)"></button>
+    </c-modal-header>
+    <c-modal-body>
+        <div class="d-flex">
+            <input type="checkbox" [ngModel]="allSchema()" (ngModelChange)="allSchema.set($event)">
+            <p class="m-0 ps-1">Schema</p>
+        </div>
+        <div class="d-flex">
+            <input type="checkbox" [ngModel]="allData()" (ngModelChange)="allData.set($event)">
+            <p class="m-0 ps-1">Data</p>
+        </div>
+        <div class="d-flex">
+            <input type="checkbox" [ngModel]="allConfig()" (ngModelChange)="allConfig.set($event)">
+            <p class="m-0 ps-1">Storage Configuration</p>
+        </div>
+
+        <hr>
+        <ng-container *ngIf="currentBackup">
+            <ng-container *ngFor="let element of currentBackup">
+                <app-backup-item [element]="element" indention="0" modifiable="true" [allSchema]="allSchema()"
+                                 [allData]="allData()" [allConfig]="allConfig()"></app-backup-item>
+            </ng-container>
+        </ng-container>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="primary" (click)="createBackup()">Backup</button>
+    </c-modal-footer>
+</c-modal>
