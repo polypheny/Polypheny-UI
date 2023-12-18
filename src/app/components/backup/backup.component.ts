@@ -1,7 +1,7 @@
-import {Component, effect, inject, signal, untracked, WritableSignal} from "@angular/core";
-import {BackupService} from "../../services/backup.service";
-import {ElementModel, ManifestModel} from "../../models/backup.model";
-import {BackupOverviewComponent} from "./overview/backup-overview.component";
+import {Component, effect, inject, signal, untracked, WritableSignal} from '@angular/core';
+import {BackupService} from '../../services/backup.service';
+import {ElementModel, ManifestModel, StatusModel} from '../../models/backup.model';
+import {BackupOverviewComponent} from './overview/backup-overview.component';
 import {
     ButtonCloseDirective,
     ButtonDirective,
@@ -10,13 +10,13 @@ import {
     ModalFooterComponent,
     ModalHeaderComponent,
     ModalTitleDirective
-} from "@coreui/angular";
-import {LeftSidebarService} from "../left-sidebar/left-sidebar.service";
-import {NgForOf, NgIf} from "@angular/common";
-import {ToasterService} from "../toast-exposer/toaster.service";
-import {BackupTreeComponent} from "./tree/backup-tree.component";
-import {BackupItemComponent} from "./item/backup-item.component";
-import {FormsModule} from "@angular/forms";
+} from '@coreui/angular';
+import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
+import {NgForOf, NgIf} from '@angular/common';
+import {ToasterService} from '../toast-exposer/toaster.service';
+import {BackupTreeComponent} from './tree/backup-tree.component';
+import {BackupItemComponent} from './item/backup-item.component';
+import {FormsModule} from '@angular/forms';
 
 @Component({
     selector: 'app-backup',
@@ -68,8 +68,8 @@ export class BackupComponent {
             this.currentRestore = restore;
             untracked(() => {
                 this.$isRestoring.set(true);
-            })
-        })
+            });
+        });
 
         effect(() => {
             const backup = this._backup.$currentBackup();
@@ -79,8 +79,8 @@ export class BackupComponent {
             this.currentBackup = backup;
             untracked(() => {
                 this.$isBackingUp.set(true);
-            })
-        })
+            });
+        });
 
         effect(() => {
             const schema = this.allSchema();
@@ -90,8 +90,8 @@ export class BackupComponent {
             untracked(() => {
                 this.allData.set(false);
                 this.allConfig.set(false);
-            })
-        })
+            });
+        });
 
         effect(() => {
             const data = this.allData();
@@ -100,30 +100,45 @@ export class BackupComponent {
             }
             untracked(() => {
                 this.allConfig.set(false);
-            })
-        })
+            });
+        });
 
     }
 
     createBackup() {
-        this._backup.createBackup(this.currentBackup);
-        this.currentBackup = null;
+        this._backup.createBackup(this.currentBackup).subscribe({
+            next: (res: StatusModel) => {
+                console.log(res);
+                this.currentBackup = null;
+            },
+            error: () => {
+                this._toast.error('Error on creating backup');
+            }
+        });
+
     }
 
     restoreBackup() {
-        this._backup.restoreBackup(this.currentRestore);
-        this.currentBackup = null;
+        this._backup.restoreBackup(this.currentRestore).subscribe({
+            next: (res: StatusModel) => {
+                console.log(res);
+                this.currentRestore = null;
+            },
+            error: () => {
+                this._toast.error('Error on restoring backup');
+            }
+        });
     }
 
     startBackup() {
         this._backup.getCurrentStructure().subscribe({
             next: (res: ElementModel[]) => {
-                console.log(res)
+                console.log(res);
                 this._backup.$currentBackup.set(res);
             },
             error: () => {
-                this._toast.error("Error on retrieving current structure")
+                this._toast.error('Error on retrieving current structure');
             }
-        })
+        });
     }
 }

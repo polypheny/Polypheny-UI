@@ -2,7 +2,7 @@
     <div [style.margin-left]="indention+'rem'">
         <div *ngIf="modifiable" [style.margin-left]="(indention)+'rem'">
             <input [ngModel]="isSelected()" (ngModelChange)="setBox(isSelected, $event)" type="checkbox"/>
-            <label class="ps-1 fw-bold">{{element.initialName}}</label>
+            <label class="ps-1 fw-bold m-0">{{ element.initialName }}</label>
             <i *ngIf="!$open()" class="cil-caret-bottom small" (click)="toggle()"></i>
             <i *ngIf="$open()" class="cil-caret-top small" (click)="toggle()"></i>
         </div>
@@ -20,7 +20,7 @@
                 <div class="ps-1">Storage Configuration</div>
             </div>
         </div>
-        <div *ngIf="!modifiable" class="d-flex align-items-center align-content-center py-1">
+        <div *ngIf="!modifiable" class="d-flex align-items-center align-content-center">
             <i *ngIf="indention !== 0" class="cil-caret-right pe-1" (click)="toggle()"></i>
             <p class="m-0 fw-bold">{{element.initialName}}</p>
         </div>

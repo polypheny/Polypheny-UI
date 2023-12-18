@@ -1,7 +1,7 @@
-import {inject, Injectable, signal, WritableSignal} from "@angular/core";
-import {ElementModel, ManifestModel} from "../models/backup.model";
-import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {WebuiSettingsService} from "./webui-settings.service";
+import {inject, Injectable, signal, WritableSignal} from '@angular/core';
+import {ElementModel, ManifestModel} from '../models/backup.model';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {WebuiSettingsService} from './webui-settings.service';
 
 @Injectable({
     providedIn: 'root'
@@ -35,7 +35,7 @@ export class BackupService {
     }
 
     public createBackup(elements: ElementModel[]) {
-        return this._http.post(`${this.httpUrl}/crateBackup`, elements, this.httpOptions);
+        return this._http.post(`${this.httpUrl}/createBackup`, elements, this.httpOptions);
     }
 
     public getCurrentStructure() {

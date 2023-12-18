@@ -1,10 +1,10 @@
-import {Component, effect, inject, Input, signal, untracked, WritableSignal} from "@angular/core";
-import {BackupService} from "../../../services/backup.service";
-import {ElementModel} from "../../../models/backup.model";
-import {NgForOf, NgIf, NgStyle} from "@angular/common";
-import {FormCheckComponent, FormCheckInputDirective} from "@coreui/angular";
-import {IconDirective} from "@coreui/icons-angular";
-import {FormsModule} from "@angular/forms";
+import {Component, effect, inject, Input, signal, untracked, WritableSignal} from '@angular/core';
+import {BackupService} from '../../../services/backup.service';
+import {ElementModel} from '../../../models/backup.model';
+import {NgForOf, NgIf, NgStyle} from '@angular/common';
+import {FormCheckComponent, FormCheckInputDirective} from '@coreui/angular';
+import {IconDirective} from '@coreui/icons-angular';
+import {FormsModule} from '@angular/forms';
 
 @Component({
     selector: 'app-backup-item',
@@ -23,7 +23,7 @@ import {FormsModule} from "@angular/forms";
 })
 export class BackupItemComponent {
 
-    _backup: BackupService = inject(BackupService)
+    _backup: BackupService = inject(BackupService);
 
     $open: WritableSignal<boolean> = signal(false);
 
@@ -66,15 +66,15 @@ export class BackupItemComponent {
             if (doSchema) {
                 untracked(() => {
                     this.isSelected.set(true);
-                })
+                });
                 return;
             }
             untracked(() => {
                 this.isSelected.set(false);
                 this.doData.set(false);
                 this.doConfig.set(false);
-            })
-        })
+            });
+        });
 
         effect(() => {
             const doData = this.doData();
@@ -83,8 +83,8 @@ export class BackupItemComponent {
             }
             untracked(() => {
                 this.doConfig.set(false);
-            })
-        })
+            });
+        });
 
         effect(() => {
             const isSelected = this.isSelected();
@@ -95,8 +95,8 @@ export class BackupItemComponent {
                 this.doSchema.set(false);
                 this.doData.set(false);
                 this.doConfig.set(false);
-            })
-        })
+            });
+        });
 
         effect(() => {
             if (!this.element) {
@@ -114,15 +114,15 @@ export class BackupItemComponent {
                     this.parent.children = this.parent.children.filter(e => e !== this.element);
                 }
             }
-        })
+        });
 
     }
 
     toggle() {
-        this.$open.set(!this.$open())
+        this.$open.set(!this.$open());
     }
 
-    setBox(signal: WritableSignal<boolean>, $event: boolean) {
-        signal.set($event)
+    setBox($signal: WritableSignal<boolean>, $event: boolean) {
+        $signal.set($event);
     }
 }
