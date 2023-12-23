@@ -58,8 +58,8 @@ task generatePom(group: 'publishing', dependsOn: "generatePomFileFor${project.na
 
 
 task licenseReport(type: NpxTask) {
-  command = 'license-checker'
-  args = ['--json']
+  command = 'license-checker-rseidelsohn'
+  args = ['--json', '--production', '--files', 'build/reports/licenses/files', '--out', 'build/reports/licenses/licenseReport.json']
 }
 
 
