@@ -16,10 +16,10 @@ export class DockernewComponent implements OnInit, OnDestroy {
   communicationPort: number;
   handshakePort: number;
   proxyPort: number;
-  aliasModified = false;
-  dockerSetupResult: DockerSetupResponse = null;
   handshake: Handshake = null;
   timeoutId: number = null;
+  aliasModified = false;
+  dockerSetupResult: DockerSetupResponse = null;
 
   @Output() done = new EventEmitter<DockerInstance[]>();
 

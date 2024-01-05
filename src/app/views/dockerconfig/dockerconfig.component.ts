@@ -19,9 +19,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
   autoConnectRunning = false;
   timeoutId: number = null;
   modalId: number = null;
-
-  @ViewChild('dockerConfigModal', {static: false}) public dockerConfigModal: ModalDirective;
-  @ViewChild('dockerSettingsModal', {static: false}) public dockerSettingsModal: ModalDirective;
+  activeModal: null | 'add_edit' | 'settings' = null;
 
   constructor(
       private _breadcrumb: BreadcrumbService,
@@ -138,7 +136,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
 
   showModal(id: number) {
     this.modalId = id;
-    this.dockerConfigModal.show();
+    this.activeModal = 'add_edit';
   }
 
   closeModal(newlist: DockerInstance[]) {
@@ -155,16 +153,16 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
     } else {
       this.updateList();
     }
-    this.dockerConfigModal.hide();
+    this.activeModal = null;
     this.modalId = null;
   }
 
   showSettingsModal() {
-    this.dockerSettingsModal.show();
+    this.activeModal = 'settings';
   }
 
   closeSettingsModal() {
-    this.dockerSettingsModal.hide();
+    this.activeModal = null;
     this.updateList();
   }
 }

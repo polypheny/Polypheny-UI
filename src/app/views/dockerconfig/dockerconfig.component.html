@@ -50,14 +50,13 @@
 <div *ngIf="error !== null" class="alert alert-danger">
     Cannot load list of docker instances: {{ error }}
 </div>
-
-<div bsModal #dockerConfigModal="bs-modal" id="addNewInstance" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Add/Edit a docker instance" aria-hidden="true">
+<c-modal class="fade" role="dialog" *ngIf="activeModal === 'add_edit'" [visible]="activeModal === 'add_edit'" aria-labelledby="Add/Edit a Docker instance" aria-hidden="true" id="addNewInstance">
     <div *ngIf="modalId !== null">
         <app-dockernew *ngIf="modalId === -1" (done)="closeModal($event)"></app-dockernew>
         <app-dockeredit *ngIf="modalId >= 0" [id]="modalId" (done)="closeModal($event)"></app-dockeredit>
     </div>
-</div>
+</c-modal>
 
-<div bsModal #dockerSettingsModal="bs-modal" id="dockerSettings" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Edit docker settings" aria-hidden="true">
+<c-modal class="fade" role="dialog" *ngIf="activeModal === 'settings'" [visible]="activeModal === 'settings'" aria-labelledby="Edit global Docker settings" aria-hidden="true" id="dockerSettings">
     <app-dockersettings (done)="closeSettingsModal()"></app-dockersettings>
-</div>
+</c-modal>
