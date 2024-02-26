@@ -10,7 +10,7 @@ group 'org.polypheny'
 description = 'The user interface for Polypheny-DB'
 
 
-def versionMajor = 1
+def versionMajor = 2
 def versionMinor = 0
 def versionQualifier = "-SNAPSHOT"
 version = versionMajor + "." + versionMinor + versionQualifier

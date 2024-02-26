@@ -1,9 +1,9 @@
-name: Publish to DBIS Nexus
+name: Publish refactor to DBIS Nexus
 
 on:
   push:
     branches:
-      - master
+      - refactor
 
 jobs:
   publish:
@@ -27,6 +27,6 @@ jobs:
           password: ${{ secrets.DBIS_NEXUS_PASSWORD }}
           format: maven2
           repository: maven-snapshots
-          coordinates: groupId=org.polypheny artifactId=polypheny-ui version=1.0-SNAPSHOT
+          coordinates: groupId=org.polypheny artifactId=polypheny-ui version=2.0-SNAPSHOT
           assets: extension=jar
-          filename: ./build/libs/polypheny-ui-1.0-SNAPSHOT.jar
+          filename: ./build/libs/polypheny-ui-2.0-SNAPSHOT.jar
