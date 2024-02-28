@@ -106,18 +106,18 @@
         "serve": {
           "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
-            "browserTarget": "ng:build"
+            "buildTarget": "ng:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "ng:build:production"
+              "buildTarget": "ng:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ng:build"
+            "buildTarget": "ng:build"
           }
         },
         "test": {

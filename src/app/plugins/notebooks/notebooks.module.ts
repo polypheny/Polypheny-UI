@@ -13,7 +13,7 @@ import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {NbCellComponent} from './components/edit-notebook/nb-cell/nb-cell.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
-import {MarkdownModule, MarkedOptions, MarkedRenderer} from 'ngx-markdown';
+import {MarkdownModule, MARKED_OPTIONS, MarkedRenderer} from 'ngx-markdown';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
 import {NbInputEditorComponent} from './components/edit-notebook/nb-input-editor/nb-input-editor.component';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
@@ -22,7 +22,31 @@ import {UnsavedChangesGuard} from './services/unsaved-changes.guard';
 import {NbPolyOutputComponent} from './components/edit-notebook/nb-poly-output/nb-poly-output.component';
 import {SafeHtmlPipe} from './services/safe-html.pipe';
 import {TreeModule} from '@ali-hm/angular-tree-component';
-import {BadgeComponent, BgColorDirective, ButtonCloseDirective, ButtonDirective, ButtonGroupComponent, CardBodyComponent, CardComponent, CardFooterComponent, CardHeaderComponent, ColComponent, ContainerComponent, FormControlDirective, FormSelectDirective, InputGroupComponent, InputGroupTextDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalDialogComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, RowComponent} from "@coreui/angular";
+import {
+    BadgeComponent,
+    BgColorDirective,
+    ButtonCloseDirective,
+    ButtonDirective,
+    ButtonGroupComponent,
+    CardBodyComponent,
+    CardComponent,
+    CardFooterComponent,
+    CardHeaderComponent,
+    ColComponent,
+    ContainerComponent,
+    FormControlDirective,
+    FormSelectDirective,
+    InputGroupComponent,
+    InputGroupTextDirective,
+    ModalBodyComponent,
+    ModalComponent,
+    ModalContentComponent,
+    ModalDialogComponent,
+    ModalFooterComponent,
+    ModalHeaderComponent,
+    ModalTitleDirective,
+    RowComponent
+} from "@coreui/angular";
 import {IconDirective} from '@coreui/icons-angular';
 
 
@@ -37,7 +61,7 @@ import {IconDirective} from '@coreui/icons-angular';
     TooltipModule,
     MarkdownModule.forRoot({
       markedOptions: {
-        provide: MarkedOptions,
+          provide: MARKED_OPTIONS,
         useFactory: markedOptionsFactory,
         deps: [WebuiSettingsService]
       }

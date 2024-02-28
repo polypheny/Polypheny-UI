@@ -1,4 +1,15 @@
-import {Component, computed, Injector, Input, OnDestroy, OnInit, Signal, signal, WritableSignal} from '@angular/core';
+import {
+    Component,
+    computed,
+    Injector,
+    Input,
+    OnDestroy,
+    OnInit,
+    Signal,
+    signal,
+    untracked,
+    WritableSignal
+} from '@angular/core';
 import {RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {ColumnRequest, EditTableRequest} from '../../../models/ui-request.model';
@@ -9,7 +20,14 @@ import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {ForeignKey} from '../../../views/uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
+import {
+    AllocationEntityModel,
+    AllocationPartitionModel,
+    AllocationPlacementModel,
+    EntityType,
+    NamespaceModel,
+    TableModel
+} from '../../../models/catalog.model';
 import {AdapterModel} from '../../adapters/adapter.model';
 import {toSignal} from '@angular/core/rxjs-interop';
 
@@ -35,28 +53,30 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             if (!namespace || !entity) {
                 return this.foreignKeys();
             }
-            const uml = toSignal(this._crud.getUml(new EditTableRequest(namespace.id)), {injector: this.injector})();
-            if (!uml) {
-                return [];
-            }
-            const fks = new Map<string, ForeignKey>();
-            uml.foreignKeys.forEach((v, k) => {
-                if ((v.sourceSchema + '.' + v.sourceTable) === this._catalog.getFullEntityName(entity.id)) {
-                    if (fks.has(v.fkName)) {
-                        const fk = fks.get(v.fkName);
-                        fk.targetColumn = fk.targetColumn + ', ' + v.targetColumn;
-                        fk.sourceColumn = fk.sourceColumn + ', ' + v.sourceColumn;
-                    } else {
-                        fks.set(v.fkName, v);
-                    }
-                    return [...fks.values()];
+            untracked(() => {
+                const uml = toSignal(this._crud.getUml(new EditTableRequest(namespace.id)), {injector: this.injector})();
+                if (!uml) {
+                    return [];
                 }
-            });
+                const fks = new Map<string, ForeignKey>();
+                uml.foreignKeys.forEach((v, k) => {
+                    if ((v.sourceSchema + '.' + v.sourceTable) === this._catalog.getFullEntityName(entity.id)) {
+                        if (fks.has(v.fkName)) {
+                            const fk = fks.get(v.fkName);
+                            fk.targetColumn = fk.targetColumn + ', ' + v.targetColumn;
+                            fk.sourceColumn = fk.sourceColumn + ', ' + v.sourceColumn;
+                        } else {
+                            fks.set(v.fkName, v);
+                        }
+                        return [...fks.values()];
+                    }
+                });
+            })
         });
 
         this.columns = computed(() => {
             const catalog = this._catalog.listener();
-            if (!this.entity){
+            if (!this.entity) {
                 return [];
             }
 

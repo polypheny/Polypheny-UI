@@ -34,7 +34,9 @@
                 <span cInputGroupText cTooltipPlacement="left" cTooltip="Is Polypheny connected to this instance?">
                     Connected
                 </span>
-                <input id="idField" [class]="'form-control ' + (connected === true ? 'our-bg-success-subtle' : connected === false ? 'our-bg-danger-subtle' : '')" type="text" name="connected" [(ngModel)]="connected" readonly="true">
+                <input id="isConnetedFild"
+                       [class]="'form-control ' + (connected === true ? 'our-bg-success-subtle' : connected === false ? 'our-bg-danger-subtle' : '')"
+                       type="text" name="connected" [(ngModel)]="connected" readonly="true">
             </c-input-group>
 
             <details>

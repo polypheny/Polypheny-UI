@@ -1,9 +1,9 @@
 import {Component, effect} from '@angular/core';
-import * as d3 from 'd3';
 import {GraphResult} from '../models/result-set.model';
 import {DataModel, GraphRequest} from '../../../models/ui-request.model';
 import {DataTemplateComponent} from '../data-template/data-template.component';
 
+const d3 = await import("d3")
 
 @Component({
   selector: 'app-data-graph',

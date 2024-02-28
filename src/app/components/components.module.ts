@@ -55,7 +55,8 @@ import {
     ToastCloseDirective,
     ToastComponent,
     ToasterComponent,
-    ToastHeaderComponent
+    ToastHeaderComponent,
+    TooltipDirective
 } from '@coreui/angular';
 
 import {BreadcrumbComponent} from './breadcrumb/breadcrumb.component';
@@ -167,7 +168,7 @@ import {ViewComponent} from "./data-view/view/view.component";
         DropdownMenuDirective,
         DropdownItemDirective,
         DropdownDividerDirective,
-        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective
+        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective
     ],
     declarations: [
         BreadcrumbComponent,

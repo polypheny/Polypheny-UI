@@ -2,5 +2,8 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 module.exports = {
     plugins: [
         new BundleAnalyzerPlugin({analyzerMode: "json" })
-    ]
+    ],
+    experiments: {
+        topLevelAwait: true
+    }
 };
