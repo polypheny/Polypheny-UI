@@ -1,15 +1,4 @@
-import {
-    Component,
-    computed,
-    Injector,
-    Input,
-    OnDestroy,
-    OnInit,
-    Signal,
-    signal,
-    untracked,
-    WritableSignal
-} from '@angular/core';
+import {Component, computed, Injector, Input, OnDestroy, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {ColumnRequest, EditTableRequest} from '../../../models/ui-request.model';
@@ -29,7 +18,6 @@ import {
     TableModel
 } from '../../../models/catalog.model';
 import {AdapterModel} from '../../adapters/adapter.model';
-import {toSignal} from '@angular/core/rxjs-interop';
 
 @Component({
     selector: 'app-edit-source-columns',
@@ -53,13 +41,13 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             if (!namespace || !entity) {
                 return this.foreignKeys();
             }
-            untracked(() => {
-                const uml = toSignal(this._crud.getUml(new EditTableRequest(namespace.id)), {injector: this.injector})();
-                if (!uml) {
-                    return [];
-                }
-                const fks = new Map<string, ForeignKey>();
-                uml.foreignKeys.forEach((v, k) => {
+
+            const uml = this._crud.getUml(new EditTableRequest(namespace.id));
+            if (!uml) {
+                return [];
+            }
+            const fks = new Map<string, ForeignKey>();
+            uml.subscribe(res => res.foreignKeys.forEach((v, k) => {
                     if ((v.sourceSchema + '.' + v.sourceTable) === this._catalog.getFullEntityName(entity.id)) {
                         if (fks.has(v.fkName)) {
                             const fk = fks.get(v.fkName);
@@ -70,8 +58,8 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                         }
                         return [...fks.values()];
                     }
-                });
-            })
+                })
+            );
         });
 
         this.columns = computed(() => {
