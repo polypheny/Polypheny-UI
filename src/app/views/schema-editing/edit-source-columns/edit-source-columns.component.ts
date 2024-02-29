@@ -131,7 +131,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     }
 
     dropColumn(col: UiColumnDefinition) {
-        this._crud.dropColumn(new ColumnRequest(this.entity().id, col)).subscribe({
+        console.log(col);
+        const oldColumn = new ColumnRequest(this.entity().id, col);
+        console.log(oldColumn);
+        this._crud.dropColumn(oldColumn).subscribe({
             next: (res: RelationalResult) => {
                 if (res.error) {
                     this._toast.exception(res);

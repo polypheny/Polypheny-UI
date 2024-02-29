@@ -26,7 +26,6 @@ export class FileUploaderComponent implements OnInit {
 
   onFileSelected(event: Event) {
     this.files = Array.from((event.target as HTMLInputElement).files);
-    console.log(this.files);
   }
 
   loadPlugins() {

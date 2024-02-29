@@ -114,7 +114,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub);
   }
 
-  private loadPage() {
+  protected loadPage() {
     if (!this.pageId) {
       this._config.getPageList().subscribe({
         next: res => {

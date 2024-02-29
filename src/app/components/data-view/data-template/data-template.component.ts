@@ -439,7 +439,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         formData.append('entityId', String(this.entity().id));
         this.uploadProgress = 100;//show striped progressbar
         const emitResult = new EventEmitter<RelationalResult>();
-        console.log(formData);
+
         this._crud.insertTuple(formData).subscribe({
             next: res => {
                 if (res.type && res.type === HttpEventType.UploadProgress) {

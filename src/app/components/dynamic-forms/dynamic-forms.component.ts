@@ -55,8 +55,6 @@ export class DynamicFormsComponent implements OnInit {
     onSubmit(form, e) {
         // e.target.classList.add('was-validated');
         this.submitted = true;
-        console.log(form);
-        console.log(this.form);
     }
 
     inputValidation(key) {

@@ -38,11 +38,10 @@ export class AuthService {
     });
 
     this.websocket.onMessage().subscribe((res: RequestModel) => {
-      console.log(res);
       switch (res.type) {
         case 'RegisterRequest':
           const register = res as RegisterRequest;
-          console.log(res);
+
           this.id.set(register.source);
           this.status.set(ConnectionStatus.CONNECTED);
       }

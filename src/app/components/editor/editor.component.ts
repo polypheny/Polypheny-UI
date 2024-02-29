@@ -1,4 +1,15 @@
-import {AfterViewInit, Component, effect, ElementRef, Input, OnChanges, OnInit, SimpleChanges, untracked, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  effect,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  untracked,
+  ViewChild
+} from '@angular/core';
 import * as ace from 'ace-builds'; // ace module ..
 import 'ace-builds/src-noconflict/mode-sql';
 import 'ace-builds/src-noconflict/mode-pgsql';
@@ -54,7 +65,6 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
     if (changes.lang && !changes.lang.firstChange) {
       this.updateLanguage();
     }

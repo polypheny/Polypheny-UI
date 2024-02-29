@@ -433,12 +433,8 @@ export class CrudService {
         );
     }
 
-    /*socketSend( msg: string ) {
-      this.socket.next(msg);
-    }*/
 
     anyQueryBlocking(queryRequest: QueryRequest) {
-        console.log(queryRequest);
         return this._http.post(`${this.httpUrl}/anyQuery`, queryRequest, this.httpOptions);
     }
 
@@ -533,7 +529,6 @@ export class CrudService {
     }
 
     addAdapter(adapter: AdapterModel) {
-        console.log(JSON.stringify(adapter));
         return this._http.post(`${this.httpUrl}/createAdapter`, adapter, this.httpOptions);
     }
 

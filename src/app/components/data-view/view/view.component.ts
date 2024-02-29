@@ -88,7 +88,6 @@ export class ViewComponent {
             }
 
             info.fullQuery = fullQuery;
-            console.log(fullQuery);
 
             this.viewQueryConsumer.emit(info);
 

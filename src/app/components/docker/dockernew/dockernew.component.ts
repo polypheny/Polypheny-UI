@@ -132,7 +132,6 @@ export class DockernewComponent implements OnInit, OnDestroy {
   }
 
   success(instances: DockerInstance[]) {
-    console.log(instances);
     this._toast.success('Successfully added docker instance "' + this.alias + '"');
     this.done.emit(instances);
   }

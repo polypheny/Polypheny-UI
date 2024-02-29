@@ -109,12 +109,10 @@ export class DataViewComponent implements OnDestroy {
 
   @Input()
   set result(result: Result<any, any>) {
-    console.log(result);
     if (!result) {
       return;
     }
     this.$result.set(CombinedResult.from(result));
-    console.log(this.$result());
   }
 
 

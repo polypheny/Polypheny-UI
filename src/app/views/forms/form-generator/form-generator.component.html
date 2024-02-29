@@ -8,8 +8,8 @@
                         class="fa fa-save"></i></button>
                 <button #submitButton type="submit" class="btn btn-circle btn-primary save-configs d-none"><i
                         class="fa fa-save"></i></button>
-                <h1 *ngIf="formObj.title">{{formObj.title}}</h1>
-                <p *ngIf="formObj.description">{{formObj.description}}</p>
+                <h1 *ngIf="formObj.title">{{ formObj.title }}</h1>
+                <p *ngIf="formObj.description">{{ formObj.description }}</p>
             </c-col>
         </c-row>
         <c-row class="card-columns" [xs]="_breadcrumb.getMasonryZoom()">
@@ -18,9 +18,9 @@
                     <c-card class="form-group">
                         <c-header [ngClass]="{'card-header': !formObj.fullWidth}">
                             <div style="width: 100%;">
-                                <span>{{group.value.title}}</span>
+                                <span>{{ group.value.title }}</span>
                                 <ng-container *ngIf="group.value.description">
-                                    <small>{{group.value.description}}</small>
+                                    <small>{{ group.value.description }}</small>
                                 </ng-container>
                             </div>
                         </c-header>
@@ -43,7 +43,7 @@
                                             <small id="help-text"
                                                    *ngIf="config.value.requiresRestart && config.value.oldValue != null"
                                                    class="form-text text-success restart-info">
-                                                value until restart: {{config.value.oldValue}}
+                                                value until restart: {{ config.value.oldValue }}
                                             </small>
                                         </ng-container>
                                         <ng-container #numberCase *ngSwitchCase="'NUMBER'">
@@ -54,29 +54,26 @@
                                             <small id="help-number"
                                                    *ngIf="config.value.requiresRestart && config.value.oldValue != null"
                                                    class="form-text text-success restart-info ">
-                                                value until restart: {{config.value.oldValue}}
+                                                value until restart: {{ config.value.oldValue }}
                                             </small>
 
                                         </ng-container>
 
                                         <ng-container #booleanCase *ngSwitchCase="'BOOLEAN'">
-                                            <div class="checkbox-wrapper">
-                                                <br>
-                                                <label [class]="'switch switch-label switch-pill switch-sm switch-primary'">
-                                                    <input [formControlName]="config.value.key" [id]="config.value.key"
-                                                           [ngModel]="config.value.value" type="checkbox"
-                                                           class="form-control switch-input"
+                                            <div class="d-flex w-50 justify-content-center align-items-center">
+                                                <c-form-check sizing="xl" class="" switch="true">
+                                                    <input cFormCheckInput type="checkbox"
+                                                           [formControlName]="config.value.key"
+                                                           [id]="config.value.key"
+                                                           [value]="config.value.value"
                                                            [ngClass]="inputValidation(config.value.key)">
-                                                    <span class="switch-slider" data-checked="✓"
-                                                          data-unchecked="✕"></span>
-                                                </label>
+                                                </c-form-check>
                                             </div>
                                             <small id="help-checkbox"
                                                    *ngIf="config.value.requiresRestart && config.value.oldValue != null"
                                                    class="form-text text-success restart-info">
-                                                value until restart: {{config.value.oldValue}}
+                                                value until restart: {{ config.value.oldValue }}
                                             </small>
-
                                         </ng-container>
                                         <ng-container #listCase *ngSwitchCase="'LIST'">
                                             <!-- List of ConfigString -->
@@ -141,7 +138,8 @@
                                                                                      *ngIf="el.isSystemComponent">system
                                                                             </c-badge>
                                                                             <c-badge color="primary" class="me-1"
-                                                                                     *ngFor="let category of el.categories">{{category}}</c-badge>
+                                                                                     *ngFor="let category of el.categories">{{ category }}
+                                                                            </c-badge>
                                                                         </div>
                                                                     </c-col>
                                                                 </c-row>
@@ -150,12 +148,14 @@
                                                                 <a target="_blank"
                                                                    [href]=" el.url ? el.url : 'https://polypheny.com' "><small
                                                                         class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
-                                                                <button cButton color="info" [disabled]="el.isSystemComponent"
+                                                                <button cButton color="info"
+                                                                        [disabled]="el.isSystemComponent"
                                                                         (click)="deactivatePlugin(el, config.value.key)"
                                                                         *ngIf="el.status === 'ACTIVE' && !el.isSystemComponent">
                                                                     Deactivate
                                                                 </button>
-                                                                <button cButton color="primary" [disabled]="el.isSystemComponent"
+                                                                <button cButton color="primary"
+                                                                        [disabled]="el.isSystemComponent"
                                                                         (click)="activatePlugin(el, config.value.key)"
                                                                         *ngIf="el.status === 'LOADED' && !el.isSystemComponent">
                                                                     Activate
@@ -174,12 +174,13 @@
                                                     [value]="config.value.value" class="form-control"
                                                     [ngClass]="inputValidation(config.value.key)">
                                                 <option *ngFor="let c of config.value.values"
-                                                        [value]="c">{{classOrEnumName( c )}}</option>
+                                                        [value]="c">{{ classOrEnumName(c) }}
+                                                </option>
                                             </select>
                                             <small id="help-enum"
                                                    *ngIf="config.value.requiresRestart && config.value.oldValue != null"
                                                    class="form-text text-success restart-info">
-                                                value until restart: {{config.value.oldValue}}
+                                                value until restart: {{ config.value.oldValue }}
                                             </small>
                                         </ng-container>
 
@@ -190,13 +191,13 @@
                                                     <label><input type="checkbox"
                                                                   [checked]="config.value.value.includes(c)"
                                                                   style="margin-right:0.5em" #cb
-                                                                  (change)="handleClassList(config.value.key, c, cb.checked)">{{classOrEnumName( c )}}
+                                                                  (change)="handleClassList(config.value.key, c, cb.checked)">{{ classOrEnumName(c) }}
                                                     </label>
                                                 </div>
                                                 <small id="help-checkboxes"
                                                        *ngIf="config.value.requiresRestart && config.value.oldValue != null"
                                                        class="form-text text-success restart-info">
-                                                    value until restart: {{config.value.oldValue}}
+                                                    value until restart: {{ config.value.oldValue }}
                                                 </small>
                                             </div>
                                         </ng-container>
@@ -228,21 +229,22 @@
 </ng-container>
 
 <ng-container *ngIf="pageNotFound">
-    <p class="text-danger">Page with id "{{pageId}}" does not exist or could not be loaded.</p>
+    <p class="text-danger">Page with id "{{ pageId }}" does not exist or could not be loaded.</p>
 </ng-container>
 <ng-container *ngIf="!formObj && !form && pageList">
     Choose a page to display configs:<br><br>
     <c-row>
         <c-col>
             <button cButton *ngFor="let page of pageList | keyvalue" class="pageLink mb-1"
-                    [routerLink]="''+page.value.id">{{page.value.name}}</button>
+                    [routerLink]="''+page.value.id">{{ page.value.name }}
+            </button>
         </c-col>
     </c-row>
 </ng-container>
 <ng-container *ngIf="serverError">
     <p class="text-danger">
         Server not responding:<br>
-        {{serverError.name}}: {{serverError.message}}
+        {{ serverError.name }}: {{ serverError.message }}
     </p>
 </ng-container>
 

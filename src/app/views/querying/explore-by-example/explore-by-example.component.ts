@@ -253,8 +253,6 @@ export class ExploreByExampleComponent implements OnInit, OnDestroy {
             sql += '\nWHERE ' + joinConditions.join(' AND ');
         }
 
-
-        //console.log('sql: ' + sql);
         this.sendSQL(sql);
     }
 

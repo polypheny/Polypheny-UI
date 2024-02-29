@@ -84,7 +84,6 @@ export class CatalogService {
     private initWebsocket(id: string, websocket: WebSocket) {
         websocket.onMessage().subscribe({
             next: (snapshot: LogicalSnapshotModel) => {
-                console.log(snapshot);
                 this.updateSnapshot(snapshot);
             }
         });
@@ -99,7 +98,6 @@ export class CatalogService {
 
     private updateSnapshot(snapshot: LogicalSnapshotModel) {
         this.snapshot = snapshot;
-        console.log(this.snapshot);
 
         this.namespaces.set(this.toIdMap(snapshot.namespaces));
         this.namespacesNames.set(this.toNameMap(snapshot.namespaces));
