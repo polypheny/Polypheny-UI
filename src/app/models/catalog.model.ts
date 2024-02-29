@@ -88,6 +88,11 @@ export interface KeyModel extends IdEntity {
   isPrimary: boolean;
 }
 
+export interface ForeignKeyModel extends KeyModel {
+  referencedIds: number[];
+  referencedEntityId: number;
+}
+
 export interface ConstraintModel extends IdEntity {
   keyId: number;
   type: string;

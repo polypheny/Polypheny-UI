@@ -1,16 +1,14 @@
 import {
-  Component, computed,
-  effect,
+  Component,
+  computed,
   ElementRef,
   Input,
   OnDestroy,
   OnInit,
   QueryList,
   Renderer2,
-  signal,
-  Signal, untracked,
-  ViewChildren,
-  WritableSignal
+  Signal,
+  ViewChildren
 } from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest} from '../../../models/ui-request.model';
@@ -30,7 +28,14 @@ import {Subscription} from 'rxjs';
 import {DbTable} from '../../uml/uml.model';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {CatalogService} from '../../../services/catalog.service';
-import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
+import {
+  AllocationEntityModel,
+  AllocationPartitionModel,
+  AllocationPlacementModel,
+  EntityType,
+  NamespaceModel,
+  TableModel
+} from '../../../models/catalog.model';
 import {AdapterModel} from '../../adapters/adapter.model';
 
 const INITIAL_TYPE = 'BIGINT';
@@ -361,7 +366,6 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         }
     );
   }
-
 }
 
 export class Table {

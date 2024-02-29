@@ -1,7 +1,7 @@
 import {Component, computed, Injector, Input, OnDestroy, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
-import {ColumnRequest, EditTableRequest} from '../../../models/ui-request.model';
+import {ColumnRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
@@ -14,6 +14,7 @@ import {
     AllocationPartitionModel,
     AllocationPlacementModel,
     EntityType,
+    ForeignKeyModel,
     NamespaceModel,
     TableModel
 } from '../../../models/catalog.model';
@@ -36,31 +37,20 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     ) {
 
         this.foreignKeys = computed(() => {
+            const catalog = this._catalog.listener();
             const namespace = this.namespace();
             const entity = this.entity();
             if (!namespace || !entity) {
                 return this.foreignKeys();
             }
 
-            const uml = this._crud.getUml(new EditTableRequest(namespace.id));
-            if (!uml) {
-                return [];
-            }
-            const fks = new Map<string, ForeignKey>();
-            uml.subscribe(res => res.foreignKeys.forEach((v, k) => {
-                    if ((v.sourceSchema + '.' + v.sourceTable) === this._catalog.getFullEntityName(entity.id)) {
-                        if (fks.has(v.fkName)) {
-                            const fk = fks.get(v.fkName);
-                            fk.targetColumn = fk.targetColumn + ', ' + v.targetColumn;
-                            fk.sourceColumn = fk.sourceColumn + ', ' + v.sourceColumn;
-                        } else {
-                            fks.set(v.fkName, v);
-                        }
-                        return [...fks.values()];
-                    }
-                })
-            );
+            const fks = new Map<string, ForeignKeyModel>();
+            _catalog.getKeys(entity.id).filter(k => !k.isPrimary).map(k => <ForeignKeyModel>k).forEach(k => {
+                fks.set(catalog.getConstraintName(k.id), k);
+                return [...fks.values()];
+            });
         });
+
 
         this.columns = computed(() => {
             const catalog = this._catalog.listener();
@@ -100,10 +90,11 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     readonly addableStores: Signal<AdapterModel[]>;
 
     readonly columns: Signal<UiColumnDefinition[]>;
+    readonly foreignKeys: Signal<ForeignKey[]>;
     errorMsg: string;
     editingCol: string;
     subscriptions = new Subscription();
-    foreignKeys: Signal<ForeignKey[]>;
+
     underlyingTables: WritableSignal<{}> = signal(null);
 
     public readonly EntityType = EntityType;
@@ -211,6 +202,6 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     }
 
     getAdapters(): Signal<AdapterModel[]> {
-        return computed(() => this.placements()?.map(a => this._catalog.getAdapter(a.adapterId)));
+        return computed(() => this.placements()?.map(a => this._catalog.getAdapter(a.adapterId)).filter(a => a));
     }
 }
