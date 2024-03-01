@@ -14,7 +14,7 @@ export class DockerhandshakeComponent implements OnInit {
     @Output() redo = new EventEmitter<void>();
 
     constructor(
-        private _util: UtilService,
+        protected _util: UtilService,
     ) { }
 
     ngOnInit(): void {

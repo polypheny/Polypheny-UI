@@ -7,8 +7,8 @@
     </c-row>
 
     <c-row *ngIf="status.available && (!status.connected || autoConnectRunning)" class="pb-3">
-        <div class="col">
-            <button class="btn btn-success" (click)="autoDocker()" [disabled]="status.running || autoConnectRunning">
+        <div cCol>
+            <button cButton color="success" (click)="autoDocker()" [disabled]="status.running || autoConnectRunning">
                 <div *ngIf="status.running || autoConnectRunning" class="spinner-border spinner-border-sm" role="status"></div>
                 Autoconnect to localhost
             </button>

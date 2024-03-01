@@ -3,11 +3,25 @@ import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AdapterModel, AdapterType, PolyMap} from './adapter.model';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
-import {AbstractControl, FormGroup, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators} from '@angular/forms';
+import {
+    AbstractControl,
+    FormGroup,
+    UntypedFormArray,
+    UntypedFormBuilder,
+    UntypedFormControl,
+    UntypedFormGroup,
+    ValidatorFn,
+    Validators
+} from '@angular/forms';
 import {PathAccessRequest, RelationalResult} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
-import {AdapterSettingModel, AdapterSettingValueModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
+import {
+    AdapterSettingModel,
+    AdapterSettingValueModel,
+    AdapterTemplateModel,
+    DeployMode
+} from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 
 @Component({
@@ -36,6 +50,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
         this.stores = computed(() => {
             this._catalog.listener();
+            console.log(this._catalog.getStores())
             return this._catalog.getStores();
         });
         this.sources = computed(() => {
@@ -94,7 +109,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.subscribeActiveChange();
 
         this.currentRoute.set(this._route.snapshot.paramMap.get('action'));
-        console.log(this.currentRoute());
+
         const sub = this._route.params.subscribe(params => {
             this.currentRoute.set(params['action']);
         });
@@ -395,7 +410,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                     this._toast.exception(result, 'Could not deploy adapter');
                 }
                 this.modalActive = false;
-                // this._catalog.updateIfNecessary();
             },
             error: err => {
                 this._toast.error('Could not deploy adapter');

@@ -1,10 +1,9 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
-import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-dockerconfig',
@@ -48,16 +47,16 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
 
   updateList() {
     this._crud.getDockerInstances().subscribe({
-      next: res => {
-        this.instances = <DockerInstance[]>res;
+      next: (res: DockerInstance[]) => {
+        this.instances = res;
       },
       error: err => {
         console.log(err);
       },
     });
     this._crud.getAutoDockerStatus().subscribe({
-      next: res => {
-        this.status = <AutoDockerStatus>res;
+      next: (res: AutoDockerStatus) => {
+        this.status = res;
       },
       error: err => {
         console.log(err);
