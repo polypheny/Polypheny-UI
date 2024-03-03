@@ -28,6 +28,7 @@ import {
     ButtonCloseDirective,
     ButtonDirective,
     ButtonGroupComponent,
+    ButtonToolbarComponent,
     CardBodyComponent,
     CardComponent,
     CardFooterComponent,
@@ -45,30 +46,31 @@ import {
     ModalFooterComponent,
     ModalHeaderComponent,
     ModalTitleDirective,
-    RowComponent
+    RowComponent,
+    TooltipDirective
 } from "@coreui/angular";
 import {IconDirective} from '@coreui/icons-angular';
 
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule, ReactiveFormsModule,
-    ComponentsModule,
-    DragDropModule,
-    ModalModule.forRoot(),
-    BsDropdownModule,
-    TooltipModule,
-    MarkdownModule.forRoot({
-      markedOptions: {
-          provide: MARKED_OPTIONS,
-        useFactory: markedOptionsFactory,
-        deps: [WebuiSettingsService]
-      }
-    }),
-    TreeModule,
-    NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective
-  ],
+    imports: [
+        CommonModule,
+        FormsModule, ReactiveFormsModule,
+        ComponentsModule,
+        DragDropModule,
+        ModalModule.forRoot(),
+        BsDropdownModule,
+        TooltipModule,
+        MarkdownModule.forRoot({
+            markedOptions: {
+                provide: MARKED_OPTIONS,
+                useFactory: markedOptionsFactory,
+                deps: [WebuiSettingsService]
+            }
+        }),
+        TreeModule,
+        NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective, ButtonToolbarComponent, TooltipDirective
+    ],
     declarations: [
         NotebooksComponent,
         ManageNotebookComponent,

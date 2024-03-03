@@ -1,11 +1,11 @@
-<c-container class="mt-3">
+<c-container class="mt-3 pt-1">
     <c-row class="no-gutters nb-toolbar">
         <c-col md="9">
-            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <c-button-toolbar role="group" aria-label="Toolbar with button groups">
                 <button cButton color="danger" variant="outline" class="me-4 flex-grow-0" (click)="closeNotebookModal.show()">Close</button>
                 <c-button-group size="sm" class="me-2" role="group" aria-label="Save">
                     <button cButton color="light" type="button" (click)="uploadNotebook()"
-                            onclick="this.blur();" tooltip="Save notebook (S)" container="body">
+                            onclick="this.blur();" cTooltip="Save notebook (S)">
                         <i class="fa fa-save"></i>
                     </button>
                 </c-button-group>
@@ -19,8 +19,8 @@
                         </button>
                         <div class="dropdown-menu dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
                             <a class="dropdown-item" (click)="trustNotebook()"
-                               tooltip="Trust HTML output of all code cells. Trust resets after reloading a notebook and is usually set when a cell is executed"
-                               container="body" placement="right">
+                               cTooltip="Trust HTML output of all code cells. Trust resets after reloading a notebook and is usually set when a cell is executed"
+                            >
                                 <span>Trust Notebook</span>
                             </a>
                             <a class="dropdown-item" (click)="renameNotebookModal.show()">
@@ -36,8 +36,8 @@
                                 <span>Download</span>
                             </a>
                             <a class="dropdown-item" (click)="exportNotebook()"
-                               tooltip="Download the notebook with all query-cells transformed to regular code-cells"
-                               container="body" placement="right">
+                               cTooltip="Download the notebook with all query-cells transformed to regular code-cells"
+                            >
                                 <span>Export</span>
                             </a>
                             <a class="dropdown-item" (click)="deleteNotebookModal.show()">
@@ -53,8 +53,8 @@
                         </button>
                         <div class="dropdown-menu dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
                             <a class="dropdown-item" (click)="toggleExpansion()"
-                               tooltip="Toggle the ability to expand '${var_name}' by its value. Use with care, as this can lead to unwanted query injections!"
-                               placement="right">
+                               cTooltip="Toggle the ability to expand '${var_name}' by its value. Use with care, as this can lead to unwanted query injections!"
+                            >
                             <span>
                                 <i class="fa" [ngClass]="{'fa-square-o': !expand, 'fa-check-square-o': expand}"></i>
                                 Variable Expansion
@@ -112,19 +112,19 @@
 
                 <c-button-group size="sm" class="me-2" role="group" aria-label="Execution">
                     <button cButton color="light" type="button" (click)="executeSelected(true)"
-                            onclick="this.blur();" tooltip="Run selected cell and advance (Shift + Enter)" container="body">
+                            onclick="this.blur()" cTooltip="Run selected cell and advance (Shift + Enter)">
                         <i class="fa fa-play"></i>
                     </button>
                     <button cButton color="light" type="button" (click)="interruptKernel()"
-                            onclick="this.blur();" tooltip="Interrupt" container="body">
+                            onclick="this.blur()" cTooltip="Interrupt">
                         <i class="fa fa-stop"></i>
                     </button>
                     <button cButton color="light" type="button" (click)="requestRestart(false)"
-                            onclick="this.blur();" tooltip="Restart" container="body">
+                            onclick="this.blur()" cTooltip="Restart">
                         <i class="fa fa-rotate-right"></i>
                     </button>
                     <button cButton color="light" type="button" (click)="requestRestart(true)"
-                            onclick="this.blur();" tooltip="Restart & run all" container="body">
+                            onclick="this.blur()" cTooltip="Restart & run all">
                         <i class="fa fa-forward"></i>
                     </button>
                 </c-button-group>
@@ -132,7 +132,7 @@
                 <c-button-group size="sm" class="me-2" role="group" aria-label="Insert">
                     <button cButton color="light" type="button"
                             (click)="insertCell(selectedCell.id, true, false)"
-                            onclick="this.blur();" tooltip="Insert cell below (B)" container="body"
+                            onclick="this.blur();" cTooltip="Insert cell below (B)"
                             [disabled]="inserting">
                         <i class="fa fa-plus"></i>
                     </button>
@@ -147,7 +147,7 @@
                         <option value="raw">Raw</option>
                     </select>
                 </c-button-group>
-            </div>
+            </c-button-toolbar>
         </c-col>
         <c-col md="3" class="col-md-3 text-right">
             <button cButton color="light" type="button" style="white-space: nowrap"

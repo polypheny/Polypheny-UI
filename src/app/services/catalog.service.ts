@@ -90,8 +90,12 @@ export class CatalogService {
     }
 
     getSnapshot(): Observable<CatalogService> {
-        return this._http.get(`${this.httpUrl}/getSnapshot`).pipe(map((snapshot: LogicalSnapshotModel) => {
-            this.updateSnapshot(snapshot);
+        return this._http.post(`${this.httpUrl}/getSnapshot`, this.snapshot ? this.snapshot.id : -1).pipe(map((snapshot: LogicalSnapshotModel) => {
+            console.log(snapshot);
+            if (snapshot) {
+                this.updateSnapshot(snapshot);
+            }
+
             return this;
         }));
     }

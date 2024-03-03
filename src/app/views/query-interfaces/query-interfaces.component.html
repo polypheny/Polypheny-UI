@@ -97,8 +97,8 @@
 
         <!-- queryInterfaces -->
         <c-modal-body *ngIf="editingQI && editingQI.availableSettings">
-            <form [formGroup]="editingQIForm" autocomplete="off">
-                <div cCol class="form-group" *ngFor="let control of editingQIForm.controls | keyvalue">
+            <form [formGroup]="editingQIForm" autocomplete="off" cRow [gutter]="{gy:2}">
+                <div class="form-group" *ngFor="let control of editingQIForm.controls | keyvalue">
                     <c-input-group *ngIf="!getAvailableQISetting(editingQI, control.key).options">
                         <span cInputGroupText>{{control.key}}</span>
                         <input cFormControl type="text" [id]="control.key" [formControlName]="control.key"
@@ -119,8 +119,9 @@
         </c-modal-body>
 
         <!-- availableQueryInterfaces -->
-        <c-modal-body *ngIf="editingAvailableQI && editingAvailableQI.availableSettings">
-            <form [formGroup]="availableQIUniqueNameForm" (ngSubmit)="addQueryInterface()" autocomplete="off">
+        <c-modal-body *ngIf="editingAvailableQI && editingAvailableQI.availableSettings" cRow [gutter]="{gy:2}">
+            <form [formGroup]="availableQIUniqueNameForm" (ngSubmit)="addQueryInterface()" autocomplete="off" cRow
+                  [gutter]="{gy:2}">
                 <div class="form-group">
                     <c-input-group>
                         <span cInputGroupText>Query Interface Name</span>
@@ -130,7 +131,8 @@
                     </c-input-group>
                 </div>
             </form>
-            <form [formGroup]="editingAvailableQIForm" (ngSubmit)="addQueryInterface()" autocomplete="off">
+            <form [formGroup]="editingAvailableQIForm" (ngSubmit)="addQueryInterface()" autocomplete="off" cRow
+                  [gutter]="{gy:2}">
                 <div class="form-group" *ngFor="let control of editingAvailableQIForm.controls | keyvalue">
                     <c-input-group *ngIf="!getAvailableQISetting(editingAvailableQI, control.key).options">
 
