@@ -44,22 +44,6 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
                 });
             }
         );
-        this._crud.getAdapterNames().subscribe(
-            (res:any[]) =>{
-                res.forEach(element=> {
-                    this.suggestions.push(element);
-                });
-                
-            }
-        );
-        this._crud.getQueryInterfaceNames().subscribe(
-        (res :any[]) =>{
-            res.forEach(element=>{
-                this.suggestions.push(element);
-            });
-        }
-        );
-    
     }
 
     ngOnInit() {
