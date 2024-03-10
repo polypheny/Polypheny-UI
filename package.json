@@ -52,10 +52,12 @@
     "ng2-charts": "^2.3.2",
     "ngx-bootstrap": "^5.6.1",
     "ngx-json-viewer": "^3.0.2",
+    "ngx-lightbox": "^2.6.2",
     "ngx-markdown": "^10.1.1",
     "ngx-perfect-scrollbar": "^8.0.0",
     "ngx-plyr": "^4.0.0",
     "plyr": "^3.6.3",
+    "prismjs": "1.29.0",
     "rxjs": "^6.5.5",
     "rxjs-compat": "^6.5.5",
     "sass": "^1.26.3",
@@ -65,8 +67,7 @@
     "ts-md5": "^1.2.7",
     "tslib": "^2.4.1",
     "uuid": "^9.0.0",
-    "zone.js": "~0.10.2",
-    "prismjs": "1.29.0"
+    "zone.js": "~0.10.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1002.3",

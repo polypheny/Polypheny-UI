@@ -1,146 +1,290 @@
 <app-toast></app-toast>
-<div class="text-center" *ngIf="!resultSet || !resultSet.data || resultSet.data.length == 0">
-    <span class="text-danger">(no data to show)</span>
+<div
+  class="text-center"
+  *ngIf="!resultSet || !resultSet.data || resultSet.data.length == 0"
+>
+  <span class="text-danger">(no data to show)</span>
 </div>
 
 <div class="card-wrapper" *ngIf="resultSet">
-    <div class="card" *ngFor="let d1 of resultSet.data; let i = index" (dblclick)="triggerEditing(i)"
-         [ngClass]="{'editing': i===editing, 'json-card': resultSet.namespaceType === 'DOCUMENT'}">
-        <a *ngIf="config.update && i !== editing" [routerLink]="[]" class="edit-card btn btn-outline-secondary btn-sm"
-           (click)="triggerEditing(i)"><i class="cui-pencil"></i></a>
-        <a *ngIf="config.update && i !== editing" [routerLink]="[]" class="delete-card btn btn-outline-secondary btn-sm"
-           (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"><i
-                [ngClass]="{ 'cui-trash': i!==confirm, 'fa': i===confirm, 'fa-warning': i===confirm}"></i></a>
-        <ul class="list-group list-group-flush">
-            <!-- load MM types first -->
-            <ng-container *ngFor="let h of resultSet.header; let j = index">
-                <li *ngIf="(d1[j] || i === editing) && showFirst(h.dataType)" class="list-group-item"
-                    [ngClass]="{'multimedia': i !== editing}">
-                    <ng-container *ngIf="i !== editing">
-                        <ng-container [ngSwitch]="h.dataType">
-                            <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d1[j])"/>
-                            <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d1[j])"
-                                       [type]="h.dataType"></app-media>
-                            <app-media *ngSwitchCase="'AUDIO'" [src]="getFileLink(d1[j])"
-                                       [type]="h.dataType"></app-media>
-                        </ng-container>
-                    </ng-container>
-                    <ng-container *ngIf="i === editing">
-                        <app-input [header]="h" [showLabel]="true" [value]="updateValues.get(h.name)"
-                                   (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateRow()"
-                                   [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
-                    </ng-container>
-                </li>
+  <div
+    class="card"
+    *ngFor="let d1 of resultSet.data; let i = index"
+    (dblclick)="triggerEditing(i)"
+    [ngClass]="{
+      editing: i === editing,
+      'json-card': resultSet.namespaceType === 'DOCUMENT'
+    }"
+  >
+    <a
+      *ngIf="config.update && i !== editing"
+      [routerLink]="[]"
+      class="edit-card btn btn-outline-secondary btn-sm"
+      (click)="triggerEditing(i)"
+      ><i class="cui-pencil"></i
+    ></a>
+    <a
+      *ngIf="config.update && i !== editing"
+      [routerLink]="[]"
+      class="delete-card btn btn-outline-secondary btn-sm"
+      (click)="deleteRow(d1, i)"
+      (mouseleave)="confirm = -1"
+      ><i
+        [ngClass]="{
+          'cui-trash': i !== confirm,
+          fa: i === confirm,
+          'fa-warning': i === confirm
+        }"
+      ></i
+    ></a>
+    <ul class="list-group list-group-flush">
+      <!-- load MM types first -->
+      <ng-container *ngFor="let h of resultSet.header; let j = index">
+        <li
+          *ngIf="(d1[j] || i === editing) && showFirst(h.dataType)"
+          class="list-group-item"
+          [ngClass]="{ multimedia: i !== editing }"
+        >
+          <ng-container *ngIf="i !== editing">
+            <ng-container [ngSwitch]="h.dataType">
+              <img
+                *ngSwitchCase="'IMAGE'"
+                [src]="getFileLink(d1[j])"
+                (click)="openLightbox(i)"
+              />
+              <app-media
+                *ngSwitchCase="'VIDEO'"
+                [src]="getFileLink(d1[j])"
+                [type]="h.dataType"
+                (click)="openLightbox(i)"
+              ></app-media>
+              <app-media
+                *ngSwitchCase="'AUDIO'"
+                [src]="getFileLink(d1[j])"
+                [type]="h.dataType"
+              ></app-media>
             </ng-container>
+          </ng-container>
+          <ng-container *ngIf="i === editing">
+            <app-input
+              [header]="h"
+              [showLabel]="true"
+              [value]="updateValues.get(h.name)"
+              (valueChange)="newUpdateValue(h.name, $event)"
+              (enter)="updateRow()"
+              [attr.data-before]="d1[j]"
+              [attr.data-col]="h.name"
+            ></app-input>
+          </ng-container>
+        </li>
+      </ng-container>
 
-            <!-- then load all non-MM data -->
-            <ng-container *ngFor="let h of resultSet.header; let j = index">
-                <li *ngIf="(d1[j] || i === editing) && !showFirst(h.dataType)" class="list-group-item">
-                    <ng-container *ngIf="i !== editing">
-                        <ng-container [ngSwitch]="removeNull(h.dataType)">
-                            <ng-container *ngSwitchCase="'FILE'">
-                                <span class="key">{{h.name}}:</span>
-                                <a class="download val" [href]="getFileLink(d1[j])" download><span
-                                        class="cui-cloud-download"></span></a>
-                            </ng-container>
-                            <ng-container
-                                    *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH'] | multipleSwitch: removeNull(h.dataType)">
-                                <ng-container *ngTemplateOutlet="json; context: {d1: d1, h: h, j: j}"></ng-container>
-                            </ng-container>
-                            <ng-container *ngSwitchCase="'ANY'">
-                                <span *ngIf="h.name !== '_data'" class="key">{{ h.name }} </span>
-                                <app-json-text [text]="d1[j]"></app-json-text>
-                            </ng-container>
-                            <ng-container *ngSwitchDefault>
-                                <span class="key">{{h.name}}: </span>
-                                <app-expandable-text [text]="d1[j]"></app-expandable-text>
-                            </ng-container>
-                        </ng-container>
-                    </ng-container>
-                    <ng-container *ngIf="i === editing">
-                        <app-input *ngIf="this.schemaType.toLowerCase() === 'relational' || h.name === '_id'"
-                                   [header]="h" [showLabel]="h.name !== '_data' " [value]="updateValues.get(h.name)"
-                                   (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateRow()"
-                                   [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
-                        <app-json-editor (validChange)="setJsonValid($event)"
-                                         *ngIf="this.schemaType.toLowerCase() === 'document'"
-                                         [json]="updateValues.get(h.name)"
-                                         (valueChange)="newUpdateValue(h.name, $event)"></app-json-editor>
-                    </ng-container>
-                </li>
+      <!-- then load all non-MM data -->
+      <ng-container *ngFor="let h of resultSet.header; let j = index">
+        <li
+          *ngIf="(d1[j] || i === editing) && !showFirst(h.dataType)"
+          class="list-group-item"
+        >
+          <ng-container *ngIf="i !== editing">
+            <ng-container [ngSwitch]="removeNull(h.dataType)">
+              <ng-container *ngSwitchCase="'FILE'">
+                <span class="key">{{ h.name }}:</span>
+                <a class="download val" [href]="getFileLink(d1[j])" download
+                  ><span class="cui-cloud-download"></span
+                ></a>
+              </ng-container>
+              <ng-container
+                *ngSwitchCase="
+                  ['JSON', 'DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH']
+                    | multipleSwitch : removeNull(h.dataType)
+                "
+              >
+                <ng-container
+                  *ngTemplateOutlet="json; context: { d1: d1, h: h, j: j }"
+                ></ng-container>
+              </ng-container>
+              <ng-container *ngSwitchCase="'ANY'">
+                <span *ngIf="h.name !== '_data'" class="key"
+                  >{{ h.name }}
+                </span>
+                <app-json-text [text]="d1[j]"></app-json-text>
+              </ng-container>
+              <ng-container *ngSwitchDefault>
+                <span class="key">{{ h.name }}: </span>
+                <app-expandable-text [text]="d1[j]"></app-expandable-text>
+              </ng-container>
             </ng-container>
+          </ng-container>
+          <ng-container *ngIf="i === editing">
+            <app-input
+              *ngIf="
+                this.schemaType.toLowerCase() === 'relational' ||
+                h.name === '_id'
+              "
+              [header]="h"
+              [showLabel]="h.name !== '_data'"
+              [value]="updateValues.get(h.name)"
+              (valueChange)="newUpdateValue(h.name, $event)"
+              (enter)="updateRow()"
+              [attr.data-before]="d1[j]"
+              [attr.data-col]="h.name"
+            ></app-input>
+            <app-json-editor
+              (validChange)="setJsonValid($event)"
+              *ngIf="this.schemaType.toLowerCase() === 'document'"
+              [json]="updateValues.get(h.name)"
+              (valueChange)="newUpdateValue(h.name, $event)"
+            ></app-json-editor>
+          </ng-container>
+        </li>
+      </ng-container>
 
-            <li class="list-group-item" *ngIf="i === editing" style="display: flex; justify-content: space-between;">
-                <progressbar *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0"
-                             [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false"
-                             type="primary"></progressbar>
-                <progressbar *ngIf="uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)"
-                             [animate]="true" [value]="100" [striped]="true" type="primary"></progressbar>
-                <button *ngIf="uploadProgress === -1" class="btn btn-light btn-sm" (click)="editing = -1">cancel
-                </button>
-                <button *ngIf="uploadProgress === -1" class="btn btn-primary btn-sm" (click)="updateRow()"
-                        [disabled]="this.schemaType.toLowerCase() === 'document' && !jsonValid">save
-                </button>
-            </li>
+      <li
+        class="list-group-item"
+        *ngIf="i === editing"
+        style="display: flex; justify-content: space-between"
+      >
+        <progressbar
+          *ngIf="
+            uploadProgress > -1 &&
+            uploadProgress !== 100 &&
+            uploadProgress !== 0
+          "
+          [animate]="true"
+          [value]="uploadProgress === 0 ? 100 : uploadProgress"
+          [striped]="false"
+          type="primary"
+        ></progressbar>
+        <progressbar
+          *ngIf="
+            uploadProgress > -1 &&
+            (uploadProgress === 100 || uploadProgress === 0)
+          "
+          [animate]="true"
+          [value]="100"
+          [striped]="true"
+          type="primary"
+        ></progressbar>
+        <button
+          *ngIf="uploadProgress === -1"
+          class="btn btn-light btn-sm"
+          (click)="editing = -1"
+        >
+          cancel
+        </button>
+        <button
+          *ngIf="uploadProgress === -1"
+          class="btn btn-primary btn-sm"
+          (click)="updateRow()"
+          [disabled]="
+            this.schemaType.toLowerCase() === 'document' && !jsonValid
+          "
+        >
+          save
+        </button>
+      </li>
+    </ul>
+  </div>
 
-        </ul>
-    </div>
+  <div *ngIf="config.create && !showInsertCard" (click)="showInsert()">
+    <button class="btn btn-primary toggle-insert">
+      <i class="fa fa-plus"></i>
+    </button>
+  </div>
 
-    <div *ngIf="config.create && !showInsertCard" (click)="showInsert()">
-        <button class="btn btn-primary toggle-insert"><i class="fa fa-plus"></i></button>
-    </div>
-
-    <div class="card" *ngIf="config.create && showInsertCard"
-         [ngClass]="{'json-card': resultSet.namespaceType === 'DOCUMENT'}">
-        <div class="card-header">
-            Insert data
-        </div>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item" *ngFor="let h of resultSet.header">
-                <app-input *ngIf="schemaType.toLowerCase() === 'relational' || h.name === '_id'" [header]="h"
-                           [showLabel]="true" [value]="insertValues.get(h.name)"
-                           (valueChange)="inputChange(h.name, $event)"
-                           (enter)="insertRow()"></app-input>
-                <app-json-editor (validChange)="setJsonValid($event)"
-                                 *ngIf="this.schemaType.toLowerCase() === 'document'" [empty]="true"
-                                 [json]="insertValues.get(h.name)"
-                                 (valueChange)="inputChange(h.name, $event)"></app-json-editor>
-            </li>
-            <li class="list-group-item">
-                <progressbar
-                        *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0"
-                        [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false"
-                        type="primary"></progressbar>
-                <progressbar
-                        *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)"
-                        [animate]="true" [value]="100" [striped]="true" type="primary"></progressbar>
-                <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-light btn-sm"
-                        (click)="showInsertCard = false">cancel
-                </button>
-                <button *ngIf="uploadProgress === -1 || editing !== -1" class="btn btn-primary btn-sm float-right"
-                        [disabled]="this.schemaType.toLowerCase() === 'document' && !jsonValid" (click)="insertRow()">
-                    save
-                </button>
-            </li>
-        </ul>
-    </div>
-
+  <div
+    class="card"
+    *ngIf="config.create && showInsertCard"
+    [ngClass]="{ 'json-card': resultSet.namespaceType === 'DOCUMENT' }"
+  >
+    <div class="card-header">Insert data</div>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item" *ngFor="let h of resultSet.header">
+        <app-input
+          *ngIf="schemaType.toLowerCase() === 'relational' || h.name === '_id'"
+          [header]="h"
+          [showLabel]="true"
+          [value]="insertValues.get(h.name)"
+          (valueChange)="inputChange(h.name, $event)"
+          (enter)="insertRow()"
+        ></app-input>
+        <app-json-editor
+          (validChange)="setJsonValid($event)"
+          *ngIf="this.schemaType.toLowerCase() === 'document'"
+          [empty]="true"
+          [json]="insertValues.get(h.name)"
+          (valueChange)="inputChange(h.name, $event)"
+        ></app-json-editor>
+      </li>
+      <li class="list-group-item">
+        <progressbar
+          *ngIf="
+            editing === -1 &&
+            uploadProgress > -1 &&
+            uploadProgress !== 100 &&
+            uploadProgress !== 0
+          "
+          [animate]="true"
+          [value]="uploadProgress === 0 ? 100 : uploadProgress"
+          [striped]="false"
+          type="primary"
+        ></progressbar>
+        <progressbar
+          *ngIf="
+            editing === -1 &&
+            uploadProgress > -1 &&
+            (uploadProgress === 100 || uploadProgress === 0)
+          "
+          [animate]="true"
+          [value]="100"
+          [striped]="true"
+          type="primary"
+        ></progressbar>
+        <button
+          *ngIf="uploadProgress === -1 || editing !== -1"
+          class="btn btn-light btn-sm"
+          (click)="showInsertCard = false"
+        >
+          cancel
+        </button>
+        <button
+          *ngIf="uploadProgress === -1 || editing !== -1"
+          class="btn btn-primary btn-sm float-right"
+          [disabled]="
+            this.schemaType.toLowerCase() === 'document' && !jsonValid
+          "
+          (click)="insertRow()"
+        >
+          save
+        </button>
+      </li>
+    </ul>
+  </div>
 </div>
 
 <div class="row">
-    <div class="col-lg-12">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="resultSet.highestPage > 1">
-            <ul class="pagination">
-                <li *ngFor="let p of pagination" class="page-item"
-                    [ngClass]="{ 'disabled': p.disabled, 'active': p.active }">
-                    <a class="page-link" (click)="paginate(p)" [routerLink]="[]">{{p.label}}</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
+  <div class="col-lg-12">
+    <nav
+      aria-label="Page navigation"
+      class="float-right"
+      *ngIf="resultSet.highestPage > 1"
+    >
+      <ul class="pagination">
+        <li
+          *ngFor="let p of pagination"
+          class="page-item"
+          [ngClass]="{ disabled: p.disabled, active: p.active }"
+        >
+          <a class="page-link" (click)="paginate(p)" [routerLink]="[]">{{
+            p.label
+          }}</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </div>
 
-<ng-template #json let-h='h' let-d1='d1' let-j='j'>
-    <span class="key">{{ h.name }} </span>
-    <app-json-text [text]="d1[j]"></app-json-text>
+<ng-template #json let-h="h" let-d1="d1" let-j="j">
+  <span class="key">{{ h.name }} </span>
+  <app-json-text [text]="d1[j]"></app-json-text>
 </ng-template>

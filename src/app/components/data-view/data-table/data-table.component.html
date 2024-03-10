@@ -78,9 +78,9 @@
                                         [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress"
                                         [striped]="true" type="primary" class="file-progress"></progressbar>
                             </ng-container>
-                            <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)"
+                            <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)"(click)="openLightbox(i)"
                                  style="max-height:200px; max-width: 300px"/>
-                            <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)"
+                            <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2) " (click)="openLightbox(i)"
                                        [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>
                             <app-media *ngSwitchCase="'AUDIO'" [src]="getFileLink(d2)"
                                        [type]="resultSet.header[j].dataType" [style]="{width: '300px'}"></app-media>

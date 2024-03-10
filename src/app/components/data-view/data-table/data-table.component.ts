@@ -16,6 +16,8 @@ import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {DataViewComponent} from '../data-view.component';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
+import { Lightbox , LightboxConfig } from "ngx-lightbox";
+
 
 
 @Component({
@@ -31,7 +33,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     @ViewChild('sql', {static: false}) public sql: TemplateRef<any>;
     @ViewChild('editorGenerated', {static: false}) editorGenerated;
     @ViewChild('tutorial', {static: false}) public tutorial: TemplateRef<any>;
-
+    
     classifiedData: string[][];
     isExploringData = false;
     cData: string[][];
@@ -50,6 +52,8 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
     tableColor = '#FFFFFF';
     exploreDataCounter = 0;
     labled = [];
+    album = [];
+
 
     @Output() showViewExploring = new EventEmitter();
 
@@ -62,6 +66,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
         public _settings: WebuiSettingsService,
         public _sidebar: LeftSidebarService,
         public modalService: BsModalService,
+        public  lightbox: Lightbox, public _lightboxConfig: LightboxConfig
     ) {
         super(_crud, _toast, _route, _router, _types, _settings, _sidebar, modalService);
         this.initWebsocket();
@@ -79,6 +84,7 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
         if (this.config && this.config.create) {
             this.buildInsertObject();
         }
+        this.loadAlbum();
 
     }
 
@@ -481,5 +487,39 @@ export class DataTableComponent extends DataViewComponent implements OnInit {
         this.gotTables = false;
 
     }
+
+    loadAlbum(){     
+    for (var i = 0; i < this.resultSet.data.length; i++) {
+        for (var j = 0; j < this.resultSet.header.length; j++) {
+        if (
+            this.resultSet.header[j].dataType === "IMAGE" ||
+            this.resultSet.header[j].dataType === "VIDEO"
+        ) {
+            var info = "";
+            // Concatenate information from all rows as caption
+            for (var dataIndex = 0; dataIndex< this.resultSet.header.length; dataIndex++) {
+            // Skip the row being used as the image source
+            if (dataIndex !== j) {
+            
+                info +=  this.resultSet.header[dataIndex].name + " :  " +this.resultSet.data[i][dataIndex] + " , "; 
+            }
+            }
+
+            const image = {
+            src: this.getFileLink(this.resultSet.data[i][j]),
+            caption: info, 
+            thumb: ""
+            };
+            this.album.push(image);
+        }
+        }
+    }
+    console.log(this.album);
+
+    }
+     openLightbox(i: number): void {
+    this.lightbox.open(this.album , i);
+  }
+
 
 }
