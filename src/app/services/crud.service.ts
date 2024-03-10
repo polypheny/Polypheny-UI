@@ -69,6 +69,14 @@ export class CrudService {
     getSchema(request: SchemaRequest) {
         return this._http.post(`${this.httpUrl}/getSchemaTree`, request, this.httpOptions);
     }
+    getAdapterNames ()
+    {
+        return this._http.get(`${this.httpUrl}/getAdpaterNames` ,this.httpOptions);
+    }
+    getQueryInterfaceNames()
+    {
+        return this._http.get(`${this.httpUrl}/getQueryInterfaceNames`, this.httpOptions);
+    }
 
     getGraph(socket: WebSocket, data: GraphRequest): boolean {
         return socket.sendMessage(data);
