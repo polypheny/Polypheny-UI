@@ -30,6 +30,8 @@ import {Subscription} from 'rxjs';
 import {WebSocket} from '../../../services/webSocket';
 import {UtilService} from '../../../services/util.service';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
+import {ModalDirective} from 'ngx-bootstrap/modal';
+import { FormGroup,Validators ,FormControl} from '@angular/forms';
 
 @Component({
     selector: 'app-relational-algebra',
@@ -41,6 +43,10 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
 
     @ViewChild('dropArea', {static: false}) dropArea: ElementRef;
     @HostBinding('class.is-open')
+    @ViewChild('importModal', {static: false}) public importModal: ModalDirective;
+    
+    submitted: boolean = false;
+    importTextForm:FormGroup;
     resultSet: ResultSet;
     private counter = 0;
     public connections = new Map<string, Connection>();
@@ -100,8 +106,19 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
             }
         );
         this.subscriptions.add(sub2);
+        this.importTextForm = new FormGroup({
+            importText: new FormControl('', [Validators.required, this.jsonValidator()])        });
     }
-
+    jsonValidator() {
+        return (control: FormControl): {[key: string]: any} | null => {
+          try {
+            JSON.parse(control.value);
+          } catch (error) {
+            return { invalidJson: true };
+          }
+          return null;
+        };
+      }
     ngAfterViewInit() {
         this.initDraggable();
         //to suppress expressionchangedafterithasbeencheckederror
@@ -632,8 +649,32 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     /**
      * Import a tree in the JSON format
      */
+    validate(form: FormGroup, key) {
+        if(this.submitted){
+            if (form.controls[key].valid) {
+                return 'is-valid';
+            } else {
+                return 'is-invalid';
+            }
+        }
+    }
+    getFeedback() {
+        const errors = this.importTextForm.controls['importText'].errors;        if (errors) {
+            if (errors.required) {
+                return 'missing unique name';
+            } 
+            if (errors.invalidJson) {
+                return 'invalid JSON format';
+              }
+        }
+        return '';
+    }
     importTree() {
-        const input = prompt('Please paste your plan here.');
+        this.submitted = true; 
+        if (!this.importTextForm.valid) {
+            return;
+        }
+        const input = this.importTextForm.controls["importText"].value
         if (input === null || input === '') {
             return;
         }
@@ -657,9 +698,32 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
             }
             this.connections = importedConnections;
         }
+        this.importModal.hide()
         this.setAutocomplete();
     }
+    openImportModal(){
+        this.submitted=false;
+        this.importModal.show()
 
+    }
+    closeImportModal(){
+        this.importModal.hide()
+
+    }
+    handleFileInput(event: any): void {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = reader.result as string;
+          // Assuming you want to populate the textarea with the content of the JSON file
+          this.importTextForm.patchValue({
+            importText: content
+          });
+          // Trigger importTree() method to process the imported JSON
+          this.importTree();
+        };
+        reader.readAsText(file);
+      }
     /**
      * Imports a Query Plan from a file.
      * Not necessary anymore - still left in the code, could be useful some time
