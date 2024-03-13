@@ -15,6 +15,7 @@ import {
     CardHeaderComponent,
     ColComponent,
     ColDirective,
+    ContainerComponent,
     DropdownComponent,
     DropdownDividerDirective,
     DropdownItemDirective,
@@ -97,8 +98,8 @@ import {DockersettingsComponent} from './docker/dockersettings/dockersettings.co
 import {TreeModule} from '@ali-hm/angular-tree-component';
 import {ToastExposerComponent} from './toast-exposer/toast-exposer.component';
 import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
-import {ReloadButtonComponent} from "../views/util/reload-button/reload-button.component";
-import {ViewComponent} from "./data-view/view/view.component";
+import {ReloadButtonComponent} from '../views/util/reload-button/reload-button.component';
+import {ViewComponent} from './data-view/view/view.component';
 
 //import 'hammerjs';
 
@@ -168,7 +169,7 @@ import {ViewComponent} from "./data-view/view/view.component";
         DropdownMenuDirective,
         DropdownItemDirective,
         DropdownDividerDirective,
-        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective
+        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective, ContainerComponent
     ],
     declarations: [
         BreadcrumbComponent,

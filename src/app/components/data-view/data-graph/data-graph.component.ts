@@ -3,7 +3,7 @@ import {GraphResult} from '../models/result-set.model';
 import {DataModel, GraphRequest} from '../../../models/ui-request.model';
 import {DataTemplateComponent} from '../data-template/data-template.component';
 
-const d3 = await import("d3")
+const d3 = await import('d3');
 
 @Component({
   selector: 'app-data-graph',
@@ -560,15 +560,13 @@ export class DataGraphComponent extends DataTemplateComponent {
     const nodeIds: Set<string> = new Set();
     const edgeIds: Set<string> = new Set();
     let i = -1;
-    console.log("graph");
+
     for (const dbColumn of graphResult.header) {
       console.log(dbColumn);
       i++;
       if (!dbColumn.dataType.toLowerCase().includes('node') && !dbColumn.dataType.toLowerCase().includes('edge')) {
         continue;
       }
-      console.log("here")
-      console.log(graphResult);
 
       if (dbColumn.dataType.toLowerCase().includes('node')) {
         graphResult.data.forEach(d => {

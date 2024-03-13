@@ -153,6 +153,7 @@ export interface AdapterSettingModel {
   fileNames: string[];
   dynamic: boolean;
   position: number;
+  appliesTo: DeployMode[];
 }
 
 export class AdapterSettingValueModel {

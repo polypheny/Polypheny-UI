@@ -1,14 +1,14 @@
 import {
-  AfterViewInit,
-  Component,
-  effect,
-  OnDestroy,
-  OnInit,
-  signal,
-  untracked,
-  ViewChild,
-  ViewEncapsulation,
-  WritableSignal
+    AfterViewInit,
+    Component,
+    effect,
+    OnDestroy,
+    OnInit,
+    signal,
+    untracked,
+    ViewChild,
+    ViewEncapsulation,
+    WritableSignal
 } from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
@@ -100,9 +100,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   initWebSocket() {
     this.webSocket.onMessage().subscribe({
       next: res => {
-        console.log(res);
         const result = <RelationalResult>res;
-        console.log(result)
         this.result = result[0];
         this.loading.set(false);
       }, error: err => {

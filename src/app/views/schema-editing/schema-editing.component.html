@@ -3,7 +3,7 @@
     <app-edit-entity [currentRoute]="currentRoute"></app-edit-entity>
 </div>
 
-<ng-container *ngIf="currentRoute()?.trim() === ''">
+<ng-container class="pt-3" *ngIf="currentRoute()?.trim() === ''">
     <h1>Namespaces</h1>
     <p>Select an item from the left sidebar to edit its entities.</p>
 

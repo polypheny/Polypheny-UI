@@ -2,7 +2,7 @@
     <c-col>
         <h5 *ngIf="entity()?.entityType === EntityType.MATERIALIZED_VIEW">Materialized View: {{entity()?.name}}</h5>
         <h5 *ngIf="entity()?.entityType !== EntityType.MATERIALIZED_VIEW">{{entity()?.name}}</h5>
-        <span *ngIf="!entity()">Please select a table in the left sidebar to edit its columns.</span>
+        <span *ngIf="!entity()">Please select an entity in the left sidebar to edit its columns.</span>
 
         <p *ngIf="oldColumns()">Double click on a row in the table below to edit the table column.</p>
         <table cTable hover striped *ngIf="entity()" id="dbColumnTable">

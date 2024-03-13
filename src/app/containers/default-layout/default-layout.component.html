@@ -110,10 +110,8 @@
 
         <div class="body position-relative w-auto flex-grow-1 d-flex flex-column w-100 overflow-x-hidden">
             <app-toast-exposer></app-toast-exposer>
-            <c-container>
-                <app-breadcrumb-main></app-breadcrumb-main>
-            </c-container>
-            <c-header-divider></c-header-divider>
+
+            <app-breadcrumb-main></app-breadcrumb-main>
 
             <!-- Main content -->
             <div class="overflow-y-auto flex-grow-1 d-flex flex-column bg-body">
@@ -125,7 +123,7 @@
                     </c-row>
                 </c-container>
                 <c-footer>
-                    <a class="text-muted" [routerLink]="['/views/about']">About Polypheny</a>
+                    <a class="text-muted text-decoration-none" [routerLink]="['/views/about']">About Polypheny</a>
                 </c-footer>
             </div>
         </div>
@@ -133,10 +131,10 @@
 </div>
 
 <c-modal [visible]="modal()"
-        [keyboard]="true"
-        [transition]="true"
+         [keyboard]="true"
+         [transition]="true"
          (visibleChange)="handleModalChange($event)"
-        id="modalStatic">
+         id="modalStatic">
     <c-modal-header>
         <h5 cModalTitle>Connection Settings</h5>
         <button (click)="modal.set(false)" cButtonClose></button>

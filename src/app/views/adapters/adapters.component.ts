@@ -50,9 +50,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
         this.stores = computed(() => {
             this._catalog.listener();
-            console.log(this._catalog.getStores())
             return this._catalog.getStores();
         });
+
         this.sources = computed(() => {
             this._catalog.listener();
             return this._catalog.getSources();
@@ -94,6 +94,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     protected readonly fetch = fetch;
 
     protected readonly AdapterModel = AdapterModel;
+
+    protected readonly Task = Task;
 
 
     readonly positionOrder = () => {
@@ -411,7 +413,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 }
                 this.modalActive = false;
             },
-            error: err => {
+            error: _err => {
                 this._toast.error('Could not deploy adapter');
             }
         }).add(() => this.deploying = false);
@@ -562,7 +564,26 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.activeMode.set(mode);
     }
 
-    protected readonly Task = Task;
+    isSettingDisplayed(key: string) {
+        const setting = this.getAdapterSetting(key);
+
+        if (setting.template.subOf && !this.subIsActive(setting.template.subOf)) {
+            // parent is inactive
+            return false;
+        }
+
+        if (this.activeMode()) {
+            if (key === 'mode') {
+                return false;
+            } else if (setting.template.appliesTo.includes(DeployMode.ALL)) {
+                return true;
+            } else if (setting.template.appliesTo.includes(this.activeMode())) {
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
 }
 
 // see https://angular.io/guide/form-validation#custom-validators

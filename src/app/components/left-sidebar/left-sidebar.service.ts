@@ -31,6 +31,7 @@ export class LeftSidebarService {
       private _breadcrumb: BreadcrumbService,
       public _catalog: CatalogService
   ) {
+
     this.nodes.subscribe(nodes => {
       if (this.selectedNodeId && !nodes.some(node => node.id === this.selectedNodeId)) {
         this.selectedNodeId = null;
@@ -44,7 +45,7 @@ export class LeftSidebarService {
   private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   private resetSubject = new BehaviorSubject<boolean>(false);
   private topButtonSubject = new BehaviorSubject<SidebarButton[]>([]);
-    dataModel: string;
+  dataModel: string;
   selectedNodeId: any;
 
 
@@ -177,7 +178,6 @@ export class LeftSidebarService {
    * Retrieve a schemaTree using the _crud service and apply it to the left sidebar
    */
   setSchema(_router: Router, routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: DataModel[] = [DataModel.RELATIONAL, DataModel.DOCUMENT, DataModel.GRAPH]) {
-
     this.error.next(null);
     const schema = [];
     this.router = _router;

@@ -194,7 +194,7 @@
                             <c-form-feedback>{{getFeedback( editingAvailableAdapterForm )}}</c-form-feedback>
                         </c-input-group>
                         <ng-container *ngFor="let control of editingAvailableAdapterForm.controls | keyvalue: positionOrder()">
-                            <ng-container *ngIf=" control.key !== 'uniqueName' && ( !getAdapterSetting(control.key).template.subOf || subIsActive( getAdapterSetting(control.key).template.subOf))">
+                            <ng-container *ngIf=" control.key !== 'uniqueName' && isSettingDisplayed(control.key)">
                                 <c-input-group class="has-validation" *ngIf="!getAdapterSetting(control.key).template.options && !getAdapterSetting(control.key).template.fileNames">
                                     <span cInputGroupText [cTooltip]="getAdapterSetting(control.key).template.description" cTooltipPlacement="left">{{control.key}}</span>
                                     <input cFormControl type="text" [id]="control.key"
@@ -213,7 +213,8 @@
                                                 [formControlName]="control.key"
                                                 (change)="onChange(control.key,control.value)">
                                             <option *ngFor="let option of getAdapterSetting(control.key).template.options"
-                                                    [value]="option">{{option}}</option>
+                                                    [value]="option">{{ option }}
+                                            </option>
                                         </select>
                                         <c-form-feedback>{{getGenericFeedback( control.key ) }}</c-form-feedback>
                                     </c-input-group>

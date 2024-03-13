@@ -105,19 +105,21 @@ export class CatalogService {
 
         this.namespaces.set(this.toIdMap(snapshot.namespaces));
         this.namespacesNames.set(this.toNameMap(snapshot.namespaces));
-        this.entities.set(this.toIdMap(this.snapshot.entities));
-        this.fields.set(this.toIdMap(this.snapshot.fields));
-        this.fieldNames.set(this.toNameMap(this.snapshot.fields));
-        this.keys.set(this.toIdMap(this.snapshot.keys));
-        this.constraints.set(this.toIdMap(this.snapshot.constraints));
-        this.placements.set(this.toIdMap(this.snapshot.placements));
-        this.partitions.set(this.toIdMap(this.snapshot.partitions));
-        this.allocations.set(this.toIdMap(this.snapshot.allocations));
-        this.allocationColumns.set(this.toIdMap(this.snapshot.allocColumns));
-        this.adapters.set(this.toIdMap(this.snapshot.adapters));
-        this.adapterTemplates.set(new Map(this.snapshot.adapterTemplates.map(t => [t.adapterName + '_' + t.adapterType, t])));
+        this.entities.set(this.toIdMap(snapshot.entities));
+        this.fields.set(this.toIdMap(snapshot.fields));
+        this.fieldNames.set(this.toNameMap(snapshot.fields));
+        this.keys.set(this.toIdMap(snapshot.keys));
+        this.constraints.set(this.toIdMap(snapshot.constraints));
+        this.placements.set(this.toIdMap(snapshot.placements));
+        this.partitions.set(this.toIdMap(snapshot.partitions));
+        this.allocations.set(this.toIdMap(snapshot.allocations));
+        this.allocationColumns.set(this.toIdMap(snapshot.allocColumns));
+        this.adapters.set(this.toIdMap(snapshot.adapters));
+        this.adapterTemplates.set(new Map(snapshot.adapterTemplates.map(t => [t.adapterName + '_' + t.adapterType, t])));
 
-        this.listener.set(this); // notify
+        this.listener.set(null); // force notify
+        this.listener.set(this);
+
         this.state.set(CatalogState.UP_TO_DATE);
     }
 
@@ -135,6 +137,7 @@ export class CatalogService {
         return this.buildSchemaTree(routerLinkRoot, views, depth, schemaEdit, dataModels);
 
     }
+
 
     private toIdMap<T extends IdEntity>(idEntities: T[]) {
         return new Map(idEntities.map(n => [n.id, n]));
