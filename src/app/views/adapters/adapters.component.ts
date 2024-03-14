@@ -403,7 +403,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     private startDeploying(deploy: AdapterModel) {
 
         this.deploying = true;
-        this._crud.addAdapter(deploy).subscribe({
+        this._crud.createAdapter(deploy).subscribe({
             next: (result: RelationalResult) => {
                 if (!result.error) {
                     this._toast.success('Deployed "' + deploy.name + '"', result.query);

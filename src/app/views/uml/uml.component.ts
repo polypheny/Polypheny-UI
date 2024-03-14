@@ -291,7 +291,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     const fk: ForeignKey = new ForeignKey(-1, this.constraintName, this.schema, this.sourceTable, this.sourceCol, this.targetTable, this.targetCol)
     .updateAction(this.fkForm.value.update).deleteAction(this.fkForm.value.delete);
 
-    this._crud.addForeignKey(fk).subscribe({
+    this._crud.createForeignKey(fk).subscribe({
       next: res => {
         this.closeModal();
         const result = <RelationalResult>res;

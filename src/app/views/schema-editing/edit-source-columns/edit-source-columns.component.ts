@@ -175,7 +175,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
     addColumn(col: UiColumnDefinition, newName: string, newDefault: string) {
         const request = new ColumnRequest(this.entity().id, null, new UiColumnDefinition(-1, col.name, null, null, col.dataType, '', null, null, newDefault, -1, -1, newName));
-        this._crud.addColumn(request).subscribe({
+        this._crud.createColumn(request).subscribe({
             next: res => {
                 const result = <RelationalResult>res;
                 if (result.error) {

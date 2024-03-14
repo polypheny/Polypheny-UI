@@ -217,8 +217,8 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/getMaterializedInfo`, materializedRequest, this.httpOptions);
     }
 
-    addColumn(columnRequest: ColumnRequest) {
-        return this._http.post(`${this.httpUrl}/addColumn`, columnRequest, this.httpOptions);
+    createColumn(columnRequest: ColumnRequest) {
+        return this._http.post(`${this.httpUrl}/createColumn`, columnRequest, this.httpOptions);
     }
 
     dropColumn(columnRequest: ColumnRequest) {
@@ -274,15 +274,15 @@ export class CrudService {
     /**
      * Add a primary key to a table
      */
-    addPrimaryKey(request: ConstraintRequest) {
-        return this._http.post(`${this.httpUrl}/addPrimaryKey`, request, this.httpOptions);
+    createPrimaryKey(request: ConstraintRequest) {
+        return this._http.post(`${this.httpUrl}/createPrimaryKey`, request, this.httpOptions);
     }
 
     /**
      * Add a unique constraint to a table
      */
-    addUniqueConstraint(request: ConstraintRequest) {
-        return this._http.post(`${this.httpUrl}/addUniqueConstraint`, request, this.httpOptions);
+    createUniqueConstraint(request: ConstraintRequest) {
+        return this._http.post(`${this.httpUrl}/createUniqueConstraint`, request, this.httpOptions);
     }
 
     /**
@@ -453,8 +453,8 @@ export class CrudService {
     /**
      * Add a foreign key (in the Uml view)
      */
-    addForeignKey(fk: ForeignKey) {
-        return this._http.post(`${this.httpUrl}/addForeignKey`, fk, this.httpOptions);
+    createForeignKey(fk: ForeignKey) {
+        return this._http.post(`${this.httpUrl}/createForeignKey`, fk, this.httpOptions);
     }
 
     /**
@@ -528,7 +528,7 @@ export class CrudService {
         return this._http.get(`${this.httpUrl}/getAvailableSources`);
     }
 
-    addAdapter(adapter: AdapterModel) {
+    createAdapter(adapter: AdapterModel) {
         return this._http.post(`${this.httpUrl}/createAdapter`, adapter, this.httpOptions);
     }
 
@@ -549,8 +549,8 @@ export class CrudService {
         return this._http.get(`${this.httpUrl}/getAvailableQueryInterfaces`);
     }
 
-    addQueryInterface(request: any) {
-        return this._http.post(`${this.httpUrl}/addQueryInterface`, request, this.httpOptions);
+    createQueryInterface(request: any) {
+        return this._http.post(`${this.httpUrl}/createQueryInterface`, request, this.httpOptions);
     }
 
     updateQueryInterfaceSettings(request: QueryInterface) {

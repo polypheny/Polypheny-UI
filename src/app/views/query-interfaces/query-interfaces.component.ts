@@ -198,7 +198,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
     for (const [k, v] of Object.entries(this.editingAvailableQIForm.controls)) {
       deploy.currentSettings[k] = v.value;
     }
-    this._crud.addQueryInterface(deploy).subscribe({
+    this._crud.createQueryInterface(deploy).subscribe({
       next: res => {
         const result = <RelationalResult>res;
         if (!result.error) {

@@ -445,7 +445,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             this.createColumn.scale = null;
         }
         const req = new ColumnRequest(this.entity().id, null, this.createColumn);
-        this._crud.addColumn(req).subscribe({
+        this._crud.createColumn(req).subscribe({
             next: (res: RelationalResult) => {
                 if (res.error === undefined) {
                     //this._catalog.updateIfNecessary();
@@ -535,7 +535,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             }
         });
         const constraintRequest = new ConstraintRequest(this.entity().id, pk);
-        this._crud.addPrimaryKey(constraintRequest).subscribe({
+        this._crud.createPrimaryKey(constraintRequest).subscribe({
             next: (res: RelationalResult) => {
                 if (!res.error) {
                     this._toast.success('The primary key was updated.', res.query, 'updated primary key');
@@ -577,7 +577,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             return;
         }
         const constraintRequest = new ConstraintRequest(this.entity().id, constraint);
-        this._crud.addUniqueConstraint(constraintRequest).subscribe({
+        this._crud.createUniqueConstraint(constraintRequest).subscribe({
             next: (res: RelationalResult) => {
                 if (!res.error) {
                     //this._catalog.updateIfNecessary();
