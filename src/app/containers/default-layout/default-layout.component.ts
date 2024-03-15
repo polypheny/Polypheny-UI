@@ -67,7 +67,7 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
   }
 
   getConnectionText() {
-    return this._information.connected ? 'Connected to ' + this._settings.getConnection('crud.rest') : 'Disconnected';
+    return this._information.connected ? 'Connected to<br><span class="text-success">' + this._settings.getConnection('crud.rest') + '</span>' : '<span class="text-warning">Disconnected</span>';
   }
 
   isConnected() {

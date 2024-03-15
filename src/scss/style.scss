@@ -35,6 +35,10 @@
   white-space: pre-wrap;
 }
 
+.entity-name-input {
+  max-width: 250px;
+}
+
 /* rotating btn-circle */
 .rotating {
   -webkit-animation: rotating 2s linear infinite;

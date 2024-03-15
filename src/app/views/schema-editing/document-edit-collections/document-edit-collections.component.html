@@ -1,6 +1,6 @@
 <c-row>
     <c-col xs="12">
-        <table cTable striped="true" hover="true" *ngIf="collections()">
+        <table cTable striped="true" hover="true" *ngIf="collections() && collections().length > 0">
             <thead>
             <tr>
                 <th>Collection</th>
@@ -43,12 +43,14 @@
                         <input type="text" class="form-control form-control-sm" placeholder="drop {{collection.name}}"
                                [(ngModel)]="collection.drop" (keyup.enter)="sendRequest(Method.DROP, collection)">
                         <div class="input-group-append">
-                            <button class="btn btn-sm" [ngClass]="dropTruncateClass(Method.DROP, collection)" type="button"
+                            <button cButton size="sm" [ngClass]="dropTruncateClass(Method.DROP, collection)"
+                                    type="button"
                                     (click)="sendRequest(Method.DROP, collection)">drop
                             </button>
                         </div>
                     </div>
                 </td>
+                <td></td>
             </tr>
             </tbody>
         </table>
@@ -58,34 +60,36 @@
     <br><br>
     <c-col xs="12">
         <h5>Create New Collection</h5>
-        <table cTable striped="true">
+        <table cTable class="border-top">
             <tbody>
             <tr>
                 <td>
-                    <c-dropdown direction="dropup">
-                        <button cButton cDropdownToggle type="button" class="btn btn-light dropdown-toggle">
-                            {{selectedStore ? selectedStore : 'Select store'}}
-                        </button>
-
-                        <ul cDropdownMenu>
-                            <ng-container *ngIf="stores()?.length > 0">
-                                <li>
-                                    <button cDropdownItem (click)="selectedStore = null">auto</button>
-                                </li>
-                                <li cDropdownDivider></li>
-                                <li role="menuitem" *ngFor="let store of stores()">
-                                    <button cDropdownItem (click)="selectedStore = store.name">{{store.name}}</button>
-                                </li>
-                            </ng-container>
-                            <li *ngIf="stores().length === 0" role="menuitem">
-                                <button cDropdownItem disabled>no stores available</button>
-                            </li>
-                        </ul>
-                    </c-dropdown>
-                </td>
-                <td>
                     <c-input-group class="justify-content-end">
-                        <input cFormControl type="text" style="max-width: 300px;" [(ngModel)]="newCollectionName">
+                        <c-dropdown direction="dropup" role="button-group">
+                            <button cButton color="light" cDropdownToggle type="button"
+                                    class="text-black dropdown-toggle">
+                                {{ selectedStore ? selectedStore : 'Select store' }}
+                            </button>
+
+                            <ul cDropdownMenu>
+                                <ng-container *ngIf="stores()?.length > 0">
+                                    <li>
+                                        <button cDropdownItem (click)="selectedStore = null">auto</button>
+                                    </li>
+                                    <li cDropdownDivider></li>
+                                    <li role="menuitem" *ngFor="let store of stores()">
+                                        <button cDropdownItem (click)="selectedStore = store.name">{{ store.name }}
+                                        </button>
+                                    </li>
+                                </ng-container>
+                                <li *ngIf="stores().length === 0" role="menuitem">
+                                    <button cDropdownItem disabled>no stores available</button>
+                                </li>
+                            </ul>
+                        </c-dropdown>
+
+                        <input cFormControl type="text" class="entity-name-input" placeholder="collection name"
+                               [(ngModel)]="newCollectionName">
                         <button (click)="createCollection()" cButton>Create Collection</button>
                     </c-input-group>
                 </td>

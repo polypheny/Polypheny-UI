@@ -3,6 +3,7 @@
         <c-col class="col-md-12">
             <h1 *ngIf="data.name">{{data.name}}</h1>
             <p *ngIf="data.description">{{data.description}}</p>
+            <br *ngIf="!data.description">
             <app-reload-button [loading]="refreshingPage" [condition]="data.refreshable" [action]="refreshPage"></app-reload-button>
         </c-col>
     </c-row>

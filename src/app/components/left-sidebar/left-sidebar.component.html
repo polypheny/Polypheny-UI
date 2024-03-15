@@ -14,16 +14,17 @@
                 </span>
             </button>
         </c-input-group>
-
-        <button cButton class="sidebar-toggle text-white border-0" size="sm" [class.open]="_sidebar.isVisible()" [class]="_sidebar.isVisible() ? 'cil-x': 'cil-menu'" (click)="_sidebar.toggle()"></button>
+        <button cButton class="sidebar-toggle text-white border-0 cil-menu" *ngIf="!_sidebar.isVisible()" size="sm"
+                (click)="_sidebar.toggle()"></button>
+        <button cButton class="sidebar-toggle text-white border-0 open cil-x" (click)="_sidebar.toggle()"></button>
     </div>
 
     <div class="w-100 text-center flex-grow-1 d-flex align-items-center" *ngIf="this._catalog.state() !== CatalogState.UP_TO_DATE">
         <c-spinner aria-hidden="true" size="xl" class="mx-auto"></c-spinner>
     </div>
-    <c-button-group *ngIf="buttons.length > 0" role="group">
-        <button cButton *ngFor="let item of buttons" type="button" [class.btn-secondary]="!item.isOutline"
-                [class.btn-outline-secondary]="item.isOutline" (click)="item.clickEvent($event)" onclick="this.blur();">
+    <c-button-group *ngIf="buttons.length > 0" role="group" class="ps-0">
+        <button cButton color="light" [variant]="item.isOutline ? 'outline' : undefined" *ngFor="let item of buttons"
+                type="button" (click)="item.clickEvent($event)" onclick="this.blur();">
             {{ item.name }}
         </button>
     </c-button-group>

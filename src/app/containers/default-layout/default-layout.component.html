@@ -97,7 +97,10 @@
 
                 <c-avatar role="button" size="md" color="secondary" (click)="openSettings()"
                           [status]="getConnectedColor()" class="cil-settings" (mouseenter)="hover.set(true)"
-                          (mouseleave)="hover.set(false)" [tooltip]="getConnectionText()"></c-avatar>
+                          (mouseleave)="hover.set(false)" [cTooltip]="tooltipContent"></c-avatar>
+                <ng-template #tooltipContent>
+                    <div [innerHtml]="getConnectionText()"></div>
+                </ng-template>
             </c-header-nav>
         </c-container>
     </c-header>

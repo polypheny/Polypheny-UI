@@ -29,7 +29,7 @@
 
 .separator, .separator .sidebarIcon {
   background: transparent !important;
-  color: #6c757d !important; /* from bootstrap .text-muted */
+  //color: #6c757d !important; /* from bootstrap .text-muted */
   font-size: 0.75em;
   text-transform: uppercase;
   box-shadow: none;
@@ -70,9 +70,9 @@
 .sidebar-toggle{
   position: absolute;
   top: 1rem;
-  background-color: #3c4b64;
   transition: right .2s;
   right: -50px;
+  background-color: #3c4b64;
 
   &.open{
     right: -10px;
@@ -80,7 +80,8 @@
     display: inline-block;
     width: auto;
     position: relative;
-    transition: right .2s;
+    //transition: right .2s;
+    background-color: #3c4b64;
   }
 }
 

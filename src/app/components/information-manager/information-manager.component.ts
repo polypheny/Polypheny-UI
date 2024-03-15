@@ -61,7 +61,7 @@ export class InformationManagerComponent implements OnInit {
     /** order groups within a page, respectively information-elements within a group
      * items with lower order value are rendered first, then this with higher values, then thows where uiOrder is null ( -> 0)
      */
-    private order(a: KeyValue<string, any>, b: KeyValue<string, any>) {
+    public order(a: KeyValue<string, any>, b: KeyValue<string, any>) {
         let out = 0;
         if (a.value.uiOrder !== 0 && b.value.uiOrder === 0) {
             out = -1;

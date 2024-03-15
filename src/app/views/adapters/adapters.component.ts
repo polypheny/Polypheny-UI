@@ -171,8 +171,13 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         return null;
     }
 
-    onVisibilityChange() {
+    onVisibilityChange(status: boolean) {
+
         if (this.modalActive) {
+            if (!status) {
+                this.modalActive = false;
+            }
+
             return;
         }
         this.adapter.set(null);

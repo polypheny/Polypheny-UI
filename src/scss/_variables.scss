@@ -3,4 +3,11 @@ $aside-menu-width: 350px;
 
 $primary: #27aae1;
 
+.btn {
+  --cui-btn-color: white;
+}
+
+.btn-primary {
+  color: white !important;
+}
 

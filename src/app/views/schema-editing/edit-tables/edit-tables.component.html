@@ -1,9 +1,4 @@
-<!--<ng-container *ngIf="schema && tables">
-    <h5>Tables in <i>{{schema}}</i> [{{schemaType}}]</h5>
-    <p>Type the name of a table into the text-fields to perform these actions.</p>
-</ng-container>-->
-
-<table cTable [hover]="true" [striped]="true" *ngIf="tables">
+<table cTable [hover]="true" [striped]="true" *ngIf="tables() && tables().length > 0">
     <thead>
     <tr>
         <th>Table</th>
@@ -55,7 +50,7 @@
     </tbody>
 </table>
 
-<hr>
+<br>
 
 <c-row>
     <br><br>
@@ -163,15 +158,16 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="5">
+                <td colspan="3">
                     <button class="btn btn-light" (click)="addNewColumn()">add column</button>
                 </td>
-                <td>
-                    <div class="btn-group float-right">
-                        <c-dropdown direction="center">
-                            <button cButton cDropdownToggle type="button" class="btn btn-light">
+                <td colspan="4">
+                    <c-input-group class="d-flex justify-content-end">
+
+                        <c-dropdown direction="center" variant="btn-group">
+                            <button cButton cDropdownToggle type="button" class="btn btn-light text-black">
                                 <span *ngIf="!selectedStore">Select store</span>
-                                <span *ngIf="selectedStore">{{selectedStore.name}}</span>
+                                <span *ngIf="selectedStore">{{ selectedStore.name }}</span>
                                 <span class="caret"></span>
                             </button>
                             <ul cDropdownMenu>
@@ -183,30 +179,29 @@
                                     <li class="dropdown-divider"></li>
                                     <li role="menuitem" *ngFor="let store of stores()">
                                         <a class="dropdown-item" [routerLink]="[]"
-                                           (click)="selectedStore = store">{{store.name}}</a>
+                                           (click)="selectedStore = store">{{ store.name }}</a>
                                     </li>
                                 </ng-container>
                                 <li *ngIf="stores()?.length === 0" role="menuitem">
                                     <a class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
                             </ul>
                         </c-dropdown>
-                    </div>
-                </td>
-                <td colspan="2">
-                    <c-input-group class="d-flex justify-content-end">
-                        <input type="text" placeholder="table name" cFormControl style="max-width: 200px;"
+
+                        <input type="text" placeholder="table name" class="entity-name-input" cFormControl
                                [(ngModel)]="newTableName" [ngClass]="createTableValidation(newTableName)"
                                (keyup.enter)="createTable()" [tabIndex]="newColumns.size+1">
 
-                        <button class="btn btn-primary"
+                        <button
+                                color="primary"
                                 cButton
                                 [ngClass]="{'progress-bar-striped progress-bar-animated': creatingTable}"
                                 [disabled]="creatingTable" (click)="createTable()" [tabIndex]="newColumns.size+2">
-                            create table
+                            Create Table
                         </button>
 
                     </c-input-group>
                 </td>
+                <td></td>
             </tr>
             </tbody>
         </table>
