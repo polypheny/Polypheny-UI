@@ -5,10 +5,12 @@
 <div class="card-wrapper" *ngIf="$result()">
     <c-card *ngFor="let d1 of $result().data; let i = index" (dblclick)="triggerEditing(i)"
             [ngClass]="{'editing': i===editing, 'json-card': $result().dataModel === DataModel.DOCUMENT}">
-        <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig.update && i !== editing" [routerLink]="[]"
+        <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig.update && i !== editing"
+           [routerLink]="[]"
            class="edit-card"
            (click)="triggerEditing(i)"><i class="cil-pencil"></i></a>
-        <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig.update && i !== editing" [routerLink]="[]"
+        <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig.update && i !== editing"
+           [routerLink]="[]"
            class="delete-card"
            (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"><i
                 [ngClass]="{ 'cil-trash': i!==confirm, 'fa': i===confirm, 'fa-warning': i===confirm}"></i></a>
@@ -42,7 +44,7 @@
                     <ng-container *ngIf="i !== editing">
                         <ng-container [ngSwitch]="removeNull(h.dataType)">
                             <ng-container *ngSwitchCase="'FILE'">
-                                <span class="key">{{h.name}}:</span>
+                                <span class="key">{{ h.name }}:</span>
                                 <a class="download val" [href]="getFileLink(d1[j])" download><span
                                         class="cil-cloud-download"></span></a>
                             </ng-container>
@@ -55,7 +57,7 @@
                                 <app-json-text [text]="d1[j]"></app-json-text>
                             </ng-container>
                             <ng-container *ngSwitchDefault>
-                                <span class="key">{{h.name}}: </span>
+                                <span class="key">{{ h.name }}: </span>
                                 <app-expandable-text [text]="d1[j]"></app-expandable-text>
                             </ng-container>
                         </ng-container>
@@ -74,11 +76,17 @@
             </ng-container>
 
             <li cListGroupItem *ngIf="i === editing" style="display: flex; justify-content: space-between;">
-                <progressbar *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0"
-                             [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false"
-                             type="primary"></progressbar>
-                <progressbar *ngIf="uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)"
-                             [animate]="true" [value]="100" [striped]="true" type="primary"></progressbar>
+                <c-progress *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0">
+                    <c-progress-bar
+                            [animated]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress"
+                            variant="striped"
+                            color="primary"></c-progress-bar>
+                </c-progress>
+                <c-progress *ngIf="uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)">
+                    <c-progress-bar
+                            [animated]="true" [value]="100" color="primary"></c-progress-bar>
+                </c-progress>
+
                 <button cButton color="light" size="sm" *ngIf="uploadProgress === -1" (click)="editing = -1">
                     cancel
                 </button>
@@ -98,11 +106,11 @@
     <c-card *ngIf="entityConfig().create && showInsertCard"
             [ngClass]="{'json-card': $result()?.dataModel === DataModel.DOCUMENT}">
         <c-card-header>
-            Insert data
+            Insert Data
         </c-card-header>
         <ul cListGroup flush="true">
             <li cListGroupItem *ngFor="let h of $result().header">
-                <app-input *ngIf="$result()?.dataModel === DataModel.RELATIONAL || h.name === '_id'"
+                <app-input *ngIf="$result()?.dataModel === DataModel.RELATIONAL"
                            [header]="h"
                            [showLabel]="true" [value]="insertValues.get(h.name)"
                            (valueChange)="inputChange(h.name, $event)"
@@ -113,13 +121,16 @@
                                  (valueChange)="inputChange(h.name, $event)"></app-json-editor>
             </li>
             <li cListGroupItem>
-                <progressbar
-                        *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0"
-                        [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false"
-                        type="primary"></progressbar>
-                <progressbar
-                        *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)"
-                        [animate]="true" [value]="100" [striped]="true" type="primary"></progressbar>
+                <c-progress
+                        *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0">
+                    <c-progress-bar [animated]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress"
+                                    variant="striped"
+                                    color="primary"></c-progress-bar>
+                </c-progress>
+                <c-progress
+                        *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)">
+                    <c-progress-bar [animated]="true" [value]="100" variant="striped" color="primary"></c-progress-bar>
+                </c-progress>
                 <button cButton color="light" size="sm" *ngIf="uploadProgress === -1 || editing !== -1"
                         (click)="showInsertCard = false">cancel
                 </button>
@@ -143,7 +154,7 @@
                     [disabled]="p.disabled" [active]="p.active">
                     <a cPageLink class="pe-auto page-link"
                        [style.cursor]="p.active || p.disabled ? 'inherit' : 'pointer'" (click)="paginate(p)"
-                       [routerLink]>{{p.label}}</a>
+                       [routerLink]>{{ p.label }}</a>
                 </li>
             </c-pagination>
         </nav>

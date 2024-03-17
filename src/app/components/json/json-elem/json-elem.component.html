@@ -1,44 +1,43 @@
 <ng-container>
     <c-input-group class="mt-2" sizing="sm">
         <div cInputGroupText *ngFor="let x of fakeArray(indent)" class="px-2 bg-white border-0"></div>
-        <!--<div class="input-group-text px-1" type="button" (click)="removeColumn(asString(index))"><i class="cui-grid"></i></div>-->
 
-        <div (mouseleave)="setMenuShow(false)" (mouseenter)="menuEnter()">
-            <button size="sm" cButton [disabled]="length === 1 && isValue()"
-                    [class]="length === 1 && isValue() ? 'opaque' : ''" (click)="setMenuShow(true)" type="button">
+        <c-dropdown variant="btn-group">
+            <button cDropdownToggle size="sm" variant="ghost" cButton [disabled]="length === 1 && isValue()"
+                    [class.opacity-25]="length === 1 && isValue()" (click)="setMenuShow(true)" type="button">
                 <i class="cil-window-maximize"></i>
             </button>
-            <ul *ngIf="show" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false)">
+            <ul cDropdownMenu>
                 <li>
-                    <div class="dropdown-item" (click)="removeColumn(asString(index))">
+                    <div cDropdownItem (click)="removeColumn(asString(index))">
                         <i class="cil-trash"></i>Remove
                     </div>
                 </li>
                 <li *ngIf="!isValue()">
-                    <div class="dropdown-item" (click)="addInitialColumn(asString(index), 0)">
+                    <div cDropdownItem (click)="addInitialColumn(asString(index), 0)">
                         <i class="cil-plus"></i>Add Key-Value
                     </div>
                 </li>
                 <li *ngIf="!isValue()">
-                    <div class="dropdown-item" (click)="addInitialColumn(asString(index), 1)">
+                    <div cDropdownItem (click)="addInitialColumn(asString(index), 1)">
                         <i class="cil-plus"></i>Add Key-Object
                     </div>
                 </li>
                 <li *ngIf="index !== 0 && index !== length - 1">
-                    <hr class="dropdown-divider">
+                    <hr cDropdownDivider>
                 </li>
                 <li *ngIf="index !== 0">
-                    <div class="dropdown-item" (click)="upColumn(asString(index))">
+                    <div cDropdownItem (click)="upColumn(asString(index))">
                         <i class="cil-chevron-top"></i>Move Up
                     </div>
                 </li>
                 <li *ngIf="index !== length - 1">
-                    <div class="dropdown-item" (click)="downColumn(asString(index))">
+                    <div cDropdownItem (click)="downColumn(asString(index))">
                         <i class="cil-chevron-bottom"></i>Move Down
                     </div>
                 </li>
             </ul>
-        </div>
+        </c-dropdown>
         <input type="text" sizing="sm" [(ngModel)]="el.key" (change)="changeHappened()" (ngModelChange)="inputChanged()"
                [class]="isSelfValid() && !isDuplicate ? '' : ' is-invalid'" aria-label="First name"
                cFormControl class="json-editor-key" placeholder="key">
@@ -50,7 +49,7 @@
     <ng-container *ngIf="isObject(el.value)">
         <app-json-elem class="mt-1"
                        *ngFor="let el2 of el.value; let i=index"
-                       [el]="el2"
+                       [el]="asPair(el2)"
                        [type]="getType(el2)"
                        [length]="el.value.length"
                        [indent]="indent + 1"

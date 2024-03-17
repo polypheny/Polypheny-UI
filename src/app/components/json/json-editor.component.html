@@ -10,24 +10,27 @@
                        (add)="addColumn($event)"
                        (validChanged)="validChanged()"></app-json-elem>
     </form>
-    <div class="input-group justify-content-center mt-3">
-        <div (mouseleave)="setMenuShow(false)" (mouseenter)="menuEnter()">
-            <button cButton size="sm" variant="outline" color="primary" (click)="setMenuShow(true)" type="button">
-                <i class="cil-plus"></i>
-            </button>
-            <ul *ngIf="show" class="dropdown-menu json-dropdown" (mouseleave)="setMenuShow(false)">
-                <li>
-                    <div class="dropdown-item" (click)="addMainColumn(0)">
-                        <i class="cil-plus"></i>Add Key-Value
-                    </div>
-                </li>
-                <li>
-                    <div class="dropdown-item" (click)="addMainColumn(1)">
-                        <i class="cil-plus"></i>Add Key-Object
-                    </div>
-                </li>
-            </ul>
-        </div>
+    <div class="justify-content-center d-flex">
+        <c-input-group>
+            <c-dropdown class="mx-auto" variant="btn-group" direction="center">
+                <button class="mt-3" cButton cDropdownToggle size="sm" variant="ghost" color="primary" type="button"
+                        [caret]="false">
+                    <i class="cil-plus"></i>
+                </button>
+                <ul cDropdownMenu>
+                    <li>
+                        <a cDropdownItem (click)="addMainColumn(0)">
+                            <i class="cil-plus"></i>Add Key-Value
+                        </a>
+                    </li>
+                    <li>
+                        <a cDropdownItem (click)="addMainColumn(1)">
+                            <i class="cil-plus"></i>Add Key-Object
+                        </a>
+                    </li>
+                </ul>
+            </c-dropdown>
+        </c-input-group>
     </div>
 </div>
 

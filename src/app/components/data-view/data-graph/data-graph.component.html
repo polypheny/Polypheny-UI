@@ -8,14 +8,14 @@
         <div *ngIf="showProperties" class="graph-properties">
             <c-card class="card text-center h-100">
                 <c-card-header>
-                    {{detail.id}}
+                    {{ detail.id }}
                 </c-card-header>
                 <c-card-body>
                     <span *ngFor="let label of detail.labels" class="badge badge-pill"
-                          [style]="{ 'background-color': getLabelColor(label) }">{{label}}</span>
+                          [style]="{ 'background-color': getLabelColor(label) }">{{ label }}</span>
                     <div class="my-2"></div>
                     <div *ngFor="let entry of detail.properties | keyvalue">
-                        <p><strong>{{entry.key}}: </strong>{{entry.value}}</p>
+                        <p><strong>{{ entry.key }}: </strong>{{ entry.value }}</p>
                     </div>
                 </c-card-body>
                 <c-card-footer class="text-muted">
@@ -39,7 +39,7 @@
 
     <c-card *ngIf="entityConfig().create && showInsertCard">
         <c-card-header class="card-header">
-            Insert data
+            Insert Data
         </c-card-header>
         <ul class="list-group list-group-flush">
             <li class="list-group-item" *ngFor="let h of $result().header">
@@ -54,18 +54,23 @@
                                  [json]="insertValues.get(h.name)"
                                  (valueChange)="inputChange(h.name, $event)"></app-json-editor>
             </li>
-            <li class="list-group-item">
-                <progressbar
-                        *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0"
-                        [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false"
-                        type="primary"></progressbar>
-                <progressbar
-                        *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)"
-                        [animate]="true" [value]="100" [striped]="true" type="primary"></progressbar>
+            <li cListGroupItem>
+                <c-progress
+                        *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0">
+                    <c-progress-bar
+                            [animated]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" variant="striped"
+                            color="primary"></c-progress-bar>
+                </c-progress>
+                <c-progress
+                        *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)">
+                    <c-progress-bar
+                            [animated]="true" [value]="100" variant="striped" color="primary"></c-progress-bar>
+                </c-progress>
                 <button cButton size="sm" color="light" *ngIf="uploadProgress === -1 || editing !== -1"
                         (click)="showInsertCard = false">cancel
                 </button>
-                <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1 || editing !== -1" class="float-right"
+                <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1 || editing !== -1"
+                        class="float-right"
                         [disabled]="$result()?.dataModel === NamespaceType.DOCUMENT && !jsonValid"
                         (click)="insertTuple()">
                     save

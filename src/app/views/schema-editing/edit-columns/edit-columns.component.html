@@ -611,8 +611,10 @@
             </c-modal-body>
             <c-modal-footer style="position: relative">
                 <div class="progress-wrapper" *ngIf="isAddingPlacement">
-                    <progressbar type="info" [value]="0" [max]="100"
-                                 class="progress progress-bar progress-bar-striped progress-bar-animated"></progressbar>
+                    <c-progress>
+                        <c-progress-bar [animated]="true" color="info" [value]="0" [max]="100"
+                                        class="progress progress-bar progress-bar-striped progress-bar-animated"></c-progress-bar>
+                    </c-progress>
                 </div>
                 <button type="button" class="btn btn-secondary float-left" (click)="placementModal = false"
                         [disabled]="isAddingPlacement">Close

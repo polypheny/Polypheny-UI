@@ -1,5 +1,6 @@
 <div class="text-danger mb-3"
-     *ngIf="$result() && $result().error && !$result().header">{{$result().error}}</div>
+     *ngIf="$result() && $result().error && !$result().header">{{ $result().error }}
+</div>
 
 <c-row *ngIf="$result() && $result().header">
     <c-col [lg]="12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': entityConfig().exploring }">
@@ -14,7 +15,8 @@
                         <th>
                         <span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body"
                               [ngClass]="{'pk': h.primary}">{{ h.name }}</span>
-                            <a *ngIf="false && entityConfig().sort && canOrder(h) && h.name !== '_data'" [routerLink]="[]"
+                            <a *ngIf="false && entityConfig().sort && canOrder(h) && h.name !== '_data'"
+                               [routerLink]="[]"
                                [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}"
                                (click)="sortTable(h.sort)">
                                 <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
@@ -74,14 +76,16 @@
                             <ng-container *ngSwitchCase="'FILE'">
                                 <a *ngIf="downloadingIthRow !== i" [routerLink]="[]" class="download"
                                    (click)="getFile(d2, i)" download><span class="cil-cloud-download"></span></a>
-                                <progressbar
-                                        *ngIf="downloadingIthRow === i && downloadProgress > -1 && downloadProgress !== 0 && downloadProgress !== 100"
-                                        [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress"
-                                        type="primary" class="file-progress"></progressbar>
-                                <progressbar
-                                        *ngIf="downloadingIthRow === i && downloadProgress > -1 && (downloadProgress === 100 || downloadProgress === 0)"
-                                        [animate]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress"
-                                        [striped]="true" type="primary" class="file-progress"></progressbar>
+                                <c-progress>
+                                    <c-progress-bar
+                                            *ngIf="downloadingIthRow === i && downloadProgress > -1 && downloadProgress !== 0 && downloadProgress !== 100"
+                                            [animated]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress"
+                                            variant="striped" color="primary" class="file-progress"></c-progress-bar>
+                                    <c-progress-bar
+                                            *ngIf="downloadingIthRow === i && downloadProgress > -1 && (downloadProgress === 100 || downloadProgress === 0)"
+                                            [animated]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress"
+                                            variant="striped" color="primary" class="file-progress"></c-progress-bar>
+                                </c-progress>
                             </ng-container>
                             <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)"
                                  style="max-height:200px; max-width: 300px"/>
@@ -99,8 +103,9 @@
                         </ng-container>
                     </td>
                     <td class="delete" *ngIf="entityConfig().update || entityConfig().delete">
-                        <button cButton color="danger" size="sm" cTextColor="white" *ngIf="entityConfig().delete" [ngClass]="{ 'cil-trash': i !== confirm, 'cil-warning': i === confirm }"
-                           (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"></button>
+                        <button cButton color="danger" size="sm" cTextColor="white" *ngIf="entityConfig().delete"
+                                [ngClass]="{ 'cil-trash': i !== confirm, 'cil-warning': i === confirm }"
+                                (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"></button>
                     </td>
                 </ng-container>
             </tr>
@@ -122,15 +127,19 @@
                     <button cButton color="primary" id="addColumnBtn" (click)="insertTuple()"
                             *ngIf="uploadProgress === -1 || editing !== -1">+
                     </button>
-                    <progressbar
-                            *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 0 && uploadProgress !== 100"
-                            [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="false"
-                            type="primary" class="file-progress"></progressbar>
-                    <progressbar
-                            *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)"
-                            [animate]="true" [value]="100" [striped]="true" type="primary"
-                            class="file-progress"></progressbar>
-                    <!--<progressbar *ngIf="editing === -1 && uploadProgress > -1" [animate]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" [striped]="uploadProgress === 100 || uploadProgress === 0" type="primary" class="file-progress"></progressbar>-->
+                    <c-progress
+                            *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 0 && uploadProgress !== 100">
+                        <c-progress-bar
+                                [animated]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress"
+                                variant="striped"
+                                color="primary" class="file-progress"></c-progress-bar>
+                    </c-progress>
+                    <c-progress
+                            *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)">
+                        <c-progress-bar
+                                [animated]="true" [value]="100" color="primary"
+                                class="file-progress"></c-progress-bar>
+                    </c-progress>
                 </td>
             </tr>
             </tbody>
@@ -145,7 +154,9 @@
             <c-pagination align="center">
                 <li *ngFor="let p of pagination" class="page-item pe-auto" cPageItem
                     [disabled]="p.disabled" [active]="p.active">
-                    <a cPageLink class="pe-auto page-link" [style.cursor]="p.active || p.disabled ? 'inherit' : 'pointer'" (click)="paginate(p)" [routerLink]>{{p.label}}</a>
+                    <a cPageLink class="pe-auto page-link"
+                       [style.cursor]="p.active || p.disabled ? 'inherit' : 'pointer'" (click)="paginate(p)"
+                       [routerLink]>{{ p.label }}</a>
                 </li>
             </c-pagination>
         </nav>

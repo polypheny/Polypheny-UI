@@ -2,7 +2,7 @@
 
     <c-col class="col-lg-12">
 
-        <h5>{{entity()?.name}}</h5>
+        <h5>{{ entity()?.name }}</h5>
         <span *ngIf="!entity()">Please select a graph in the left sidebar to edit its columns.</span>
 
     </c-col>
@@ -16,13 +16,14 @@
                 <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="stores().length > 3">
                     <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
                         <span *ngIf="!selectedStore">Select store</span>
-                        <span *ngIf="selectedStore">{{selectedStore.name}}</span>
+                        <span *ngIf="selectedStore">{{ selectedStore.name }}</span>
                         <span class="caret"></span>
                     </button>
                     <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
                         <ng-container *ngFor="let store of addableStores()">
                             <li role="menuitem">
-                                <a class="dropdown-item" [routerLink]="[]" (click)="selectedStore = store">{{store.name}}</a>
+                                <a class="dropdown-item" [routerLink]="[]"
+                                   (click)="selectedStore = store">{{ store.name }}</a>
                             </li>
                         </ng-container>
                         <li *ngIf="addableStores()?.length === 0" role="menuitem">
@@ -32,9 +33,11 @@
                 </div>
                 <button cButton size="sm" color="primary" (click)="modifyPlacement(Method.ADD)">add</button>
             </div>
-            <progressbar *ngIf="isAddingPlacement"
-                         class="progress progress-bar progress-bar-striped progress-bar-animated mt-2" [value]="0"
-                         [max]="1"></progressbar>
+            <c-progress>
+                <c-progress-bar *ngIf="isAddingPlacement" [animated]="true" variant="striped"
+                                class="progress progress-bar mt-2" [value]="0"
+                                [max]="1"></c-progress-bar>
+            </c-progress>
         </div>
         <table cTable hover="true" striped="true">
             <thead>
@@ -46,8 +49,8 @@
             </thead>
             <tbody>
             <tr *ngFor="let placement of placements() ; let i = index">
-                <td>{{ _catalog.getAdapter(placement.adapterId)?.name}}</td>
-                <td>{{ _catalog.getAdapter(placement.adapterId)?.adapterName}}</td>
+                <td>{{ _catalog.getAdapter(placement.adapterId)?.name }}</td>
+                <td>{{ _catalog.getAdapter(placement.adapterId)?.adapterName }}</td>
                 <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
                 <ng-container *ngIf="placements()?.length > 1">
                     <td class="delete">

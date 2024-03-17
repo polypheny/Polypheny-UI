@@ -1,7 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output,} from '@angular/core';
 
 
-
 @Component({
     selector: 'app-json-editor',
     templateUrl: './json-editor.component.html',
@@ -10,8 +9,6 @@ import {Component, EventEmitter, Input, OnInit, Output,} from '@angular/core';
 
 export class JsonEditorComponent implements OnInit {
     @Output() valid: boolean;
-    dupblKeyError = 'Document has duplicate key.';
-
     constructor() {
         this.data = [];
     }

@@ -85,6 +85,8 @@ import {
     ModalTitleDirective,
     ModalToggleDirective,
     PlaceholderDirective,
+    ProgressBarComponent,
+    ProgressComponent,
     RowComponent,
     RowDirective,
     SpinnerComponent,
@@ -158,7 +160,9 @@ import {TreeModule} from "@ali-hm/angular-tree-component";
         BadgeComponent,
         FormCheckComponent,
         TreeModule,
-        PlaceholderDirective
+        PlaceholderDirective,
+        ProgressComponent,
+        ProgressBarComponent
     ],
     declarations: [
         EditColumnsComponent,
