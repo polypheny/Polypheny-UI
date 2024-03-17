@@ -1,14 +1,15 @@
 import {
-    AfterViewInit,
-    Component,
-    effect,
-    OnDestroy,
-    OnInit,
-    signal,
-    untracked,
-    ViewChild,
-    ViewEncapsulation,
-    WritableSignal
+  AfterViewInit,
+  Component,
+  effect,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  untracked,
+  ViewChild,
+  ViewEncapsulation,
+  WritableSignal
 } from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
@@ -22,7 +23,6 @@ import {DataModel, EditTableRequest, QueryRequest} from '../../../models/ui-requ
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {ForeignKey, Uml} from '../../uml/uml.model';
 import {Subscription} from 'rxjs';
-import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {WebSocket} from '../../../services/webSocket';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
@@ -56,18 +56,15 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
   fields = new Map<string, SidebarNode>();//columnId, columnName
   umlData = new Map<string, Uml>();//schemaName, uml
   joinConditions = new Map<string, JoinCondition>();
-  showCreateView = false;
-  viewEditorCode = '';
   readonly selects: WritableSignal<{ name: string, id: string }[]> = signal([]);
 
-  constructor(
-      private _crud: CrudService,
-      private _leftSidebar: LeftSidebarService,
-      private _toast: ToasterService,
-      private _settings: WebuiSettingsService,
-      private _catalog: CatalogService,
-  ) {
-    this.webSocket = new WebSocket(_settings);
+  private readonly _crud = inject(CrudService);
+  private readonly _leftSidebar = inject(LeftSidebarService);
+  private readonly _toast = inject(ToasterService);
+  private readonly _catalog = inject(CatalogService);
+
+  constructor() {
+    this.webSocket = new WebSocket();
     this.initWebSocket();
     this.initSchema();
   }
@@ -472,7 +469,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
       this.generateJoinConditions();
     }
     this.selects.update(selects => [...selects, {name: treeElement.getField(), id: treeElement.id}]);
-    //$('#selectBox').append(`<button cButton color="secondary" size="sm" class="dbCol" data-id="${treeElement.id}">${treeElement.getField()}<span class="del">&times;</span></button>`).sortable('refresh');
+
     this.generateSQL();
   }
 

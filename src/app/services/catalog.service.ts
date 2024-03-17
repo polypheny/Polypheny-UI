@@ -1,4 +1,4 @@
-import {effect, Injectable, signal, untracked, WritableSignal} from '@angular/core';
+import {effect, inject, Injectable, signal, untracked, WritableSignal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {
@@ -33,6 +33,11 @@ import {WebSocket} from './webSocket';
 })
 export class CatalogService {
 
+    private readonly _http = inject(HttpClient);
+    private readonly _settings = inject(WebuiSettingsService);
+    private readonly _auth = inject(AuthService);
+    private readonly _types = inject(DbmsTypesService);
+
     public listener: WritableSignal<CatalogService> = signal(this);
     public state: WritableSignal<CatalogState> = signal(CatalogState.INIT);
 
@@ -57,12 +62,7 @@ export class CatalogService {
     public readonly adapters: WritableSignal<Map<number, AdapterModel>> = signal(new Map());
     public readonly adapterTemplates: WritableSignal<Map<string, AdapterTemplateModel>> = signal(new Map<string, AdapterTemplateModel>()); // typescript uses by reference comparisons, so this is necessary
 
-    constructor(
-        private _http: HttpClient,
-        private _settings: WebuiSettingsService,
-        private _types: DbmsTypesService,
-        private _auth: AuthService
-    ) {
+    constructor() {
         this.state.set(CatalogState.LOADING);
 
         effect(() => {
@@ -76,7 +76,7 @@ export class CatalogService {
         });
 
 
-        this.updateIfNecessary().pipe(combineLatestWith(this.updateAssets()), combineLatestWith(_types.getTypes())).subscribe(() => {
+        this.updateIfNecessary().pipe(combineLatestWith(this.updateAssets()), combineLatestWith(this._types.getTypes())).subscribe(() => {
             this.state.set(CatalogState.UP_TO_DATE);
         });
     }
@@ -145,15 +145,6 @@ export class CatalogService {
 
     private toNameMap<T extends IdEntity>(idEntities: T[]) {
         return new Map(idEntities.map(n => [n.name, n]));
-    }
-
-
-    getEntity(entityId: number): EntityModel {
-        return this.entities().get(entityId);
-    }
-
-    getNamespaceNames(): string[] {
-        return Array.from(this.namespaces().values()).map(n => n.name);
     }
 
     getNamespaceFromName(name: string): NamespaceModel {

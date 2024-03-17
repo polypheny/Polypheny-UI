@@ -1,4 +1,4 @@
-import {EventEmitter, Injectable} from '@angular/core';
+import {EventEmitter, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpUrlEncodingCodec} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {
@@ -43,15 +43,15 @@ import {map} from "rxjs/operators";
     providedIn: 'root'
 })
 export class CrudService {
+    private readonly _http = inject(HttpClient);
+    private readonly _settings = inject(WebuiSettingsService);
+
     private enabledPlugins: [string] = null;
     private enabledRequestFired: number = null;
     private REQUEST_DELAY: number = 1000 * 20;
 
 
-    constructor(
-        private _http: HttpClient,
-        private _settings: WebuiSettingsService
-    ) {
+    constructor() {
         this.initWebSocket();
         setInterval(() => this.socket.next('keepalive'), 10_000);
     }

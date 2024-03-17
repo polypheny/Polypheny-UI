@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {FilteredUserInput, StatisticSet} from '../../../../components/data-view/models/result-set.model';
 import {StatisticRequest} from '../../../../models/ui-request.model';
 import {CrudService} from '../../../../services/crud.service';
@@ -12,6 +12,9 @@ import {ToasterService} from '../../../../components/toast-exposer/toaster.servi
 
 export class RefinementOptionsComponent implements OnInit {
 
+  private readonly _crud = inject(CrudService);
+  private readonly _toast = inject(ToasterService);
+
   activeHeaders: {};
   statisticSet: StatisticSet;
   filteredUserInput: FilteredUserInput;
@@ -20,10 +23,7 @@ export class RefinementOptionsComponent implements OnInit {
   active: String;
   @Output() filteredUserInputChange = new EventEmitter();
 
-  constructor(
-      private _crud: CrudService,
-      private _toast: ToasterService
-  ) {
+  constructor() {
   }
 
   ngOnInit() {

@@ -1,6 +1,6 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NotebooksSidebarService} from '../../services/notebooks-sidebar.service';
-import {Content, FileContent, KernelSpec, KernelSpecs, SessionResponse} from '../../models/notebooks-response.model';
+import {Content, KernelSpec, KernelSpecs, SessionResponse} from '../../models/notebooks-response.model';
 import {NotebooksService} from '../../services/notebooks.service';
 import {Router} from '@angular/router';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
@@ -16,6 +16,13 @@ import {ToasterService} from '../../../../components/toast-exposer/toaster.servi
     styleUrls: ['./manage-notebook.component.scss']
 })
 export class ManageNotebookComponent implements OnInit, OnDestroy {
+
+    private readonly _router = inject(Router);
+    private readonly _sidebar = inject(NotebooksSidebarService);
+    private readonly _content = inject(NotebooksContentService);
+    private readonly _notebooks = inject(NotebooksService);
+    private readonly _toast = inject(ToasterService);
+    public readonly _util = inject(UtilService);
 
     metadata: Content;
     private parentPath: string;
@@ -37,13 +44,7 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     @ViewChild('createKernelModal', {static: false}) public createKernelModal: ModalDirective;
     private subscriptions = new Subscription();
 
-    constructor(
-        private _router: Router,
-        private _sidebar: NotebooksSidebarService,
-        private _content: NotebooksContentService,
-        private _notebooks: NotebooksService,
-        private _toast: ToasterService,
-        public _util: UtilService,) {
+    constructor() {
     }
 
     ngOnInit(): void {

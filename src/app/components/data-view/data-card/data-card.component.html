@@ -49,7 +49,7 @@
                                         class="cil-cloud-download"></span></a>
                             </ng-container>
                             <ng-container
-                                    *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType'] | multipleSwitch: removeNull(h.dataType)">
+                                    *ngSwitchCase="['JSON', 'DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType'] | multipleSwitch: removeNull(h.dataType)">
                                 <ng-container *ngTemplateOutlet="json; context: {d1: d1, h: h, j: j}"></ng-container>
                             </ng-container>
                             <ng-container *ngSwitchCase="'ANY'">

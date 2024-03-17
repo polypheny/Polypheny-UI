@@ -1,9 +1,11 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {NotebooksService} from './notebooks.service';
 import {BehaviorSubject, forkJoin, interval, Observable, of, Subject, Subscription} from 'rxjs';
 import {
     Content,
-    DirectoryContent, FileContent, KernelSpec,
+    DirectoryContent,
+    FileContent,
+    KernelSpec,
     KernelSpecs,
     NotebookContent,
     SessionResponse
@@ -11,11 +13,11 @@ import {
 import {UrlSegment} from '@angular/router';
 import {mergeMap, switchMap, tap} from 'rxjs/operators';
 import {Notebook} from '../models/notebook.model';
-import {SchemaRequest} from '../../../models/ui-request.model';
-import {CrudService} from '../../../services/crud.service';
 
 @Injectable()
 export class NotebooksContentService {
+
+    private readonly _notebooks = inject(NotebooksService);
 
     private _path: string;
     private _pathSegments: string[];
@@ -40,8 +42,7 @@ export class NotebooksContentService {
     private readonly LOCAL_STORAGE_PREFERRED_SESSIONS_KEY = 'notebooks-preferred-sessions';
     private namespaces = new BehaviorSubject<string[]>([]);
 
-    constructor(private _notebooks: NotebooksService,
-                private _crud: CrudService) {
+    constructor() {
         this.updateExistingNamespaces();
         this.updateAvailableKernels();
         this.updateSessions();

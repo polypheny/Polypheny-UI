@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {Handshake} from '../../../models/docker.model';
 import {UtilService} from '../../../services/util.service';
 
@@ -9,13 +9,14 @@ import {UtilService} from '../../../services/util.service';
 })
 export class DockerhandshakeComponent implements OnInit {
 
+    public readonly _util = inject(UtilService);
+
     @Input() handshake: Handshake;
     @Output() cancel = new EventEmitter<void>();
     @Output() redo = new EventEmitter<void>();
 
-    constructor(
-        protected _util: UtilService,
-    ) { }
+    constructor() {
+    }
 
     ngOnInit(): void {
     }

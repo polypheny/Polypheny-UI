@@ -1,6 +1,6 @@
 <c-row>
-    <c-col xs="12">
-        <table cTable striped="true" hover="true" *ngIf="collections() && collections().length > 0">
+    <c-col xs="12" class="mb-3" *ngIf="collections() && collections().length > 0">
+        <table cTable striped="true" hover="true">
             <thead>
             <tr>
                 <th>Collection</th>
@@ -54,6 +54,7 @@
             </tr>
             </tbody>
         </table>
+
     </c-col>
 
 
@@ -65,7 +66,7 @@
             <tr>
                 <td>
                     <c-input-group class="justify-content-end">
-                        <c-dropdown direction="dropup" role="button-group">
+                        <c-dropdown direction="dropup" variant="btn-group">
                             <button cButton color="light" cDropdownToggle type="button"
                                     class="text-black dropdown-toggle">
                                 {{ selectedStore ? selectedStore : 'Select store' }}

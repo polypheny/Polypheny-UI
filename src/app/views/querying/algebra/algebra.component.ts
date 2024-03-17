@@ -5,6 +5,7 @@ import {
     effect,
     ElementRef,
     HostBinding,
+    inject,
     OnDestroy,
     OnInit,
     Signal,
@@ -24,7 +25,6 @@ import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
 import {SvgLine} from '../../uml/uml.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
-import {RightSidebarToRelationalalgebraService} from '../../../services/right-sidebar-to-relationalalgebra.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {InformationPage} from '../../../models/information-page.model';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
@@ -44,6 +44,14 @@ import {KeyValue} from "@angular/common";
     encapsulation: ViewEncapsulation.None
 })
 export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
+
+    private readonly _crud = inject(CrudService);
+    private readonly _toast = inject(ToasterService);
+    private readonly _leftSidebar = inject(LeftSidebarService);
+    private readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _settings = inject(WebuiSettingsService);
+    private readonly _catalog = inject(CatalogService);
+    private readonly _util = inject(UtilService);
 
     @ViewChild('dropArea', {read: ElementRef}) dropArea: ElementRef;
     @HostBinding('class.is-open')
@@ -69,25 +77,14 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
     socketOn: boolean;
 
     analyzeQuery = true;
-
-    private lastNode = null;
     private cache = true;
     private $algModels: WritableSignal<Map<string, AlgNodeModel[]>> = signal(new Map<string, AlgNodeModel[]>());
     private $algs: Signal<Map<string, AlgNodeModel>>;
     public $loading: WritableSignal<boolean> = signal(false);
 
-    constructor(
-        private _crud: CrudService,
-        private _toast: ToasterService,
-        private _RsToRa: RightSidebarToRelationalalgebraService,
-        private _leftSidebar: LeftSidebarService,
-        private _breadcrumb: BreadcrumbService,
-        private _settings: WebuiSettingsService,
-        private _catalog: CatalogService,
-        private _util: UtilService
-    ) {
+    constructor() {
         this.socketOn = false;
-        this.webSocket = new WebSocket(_settings);
+        this.webSocket = new WebSocket();
         this.initWebsocket();
 
         this.$algs = computed(() => {

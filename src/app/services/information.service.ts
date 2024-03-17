@@ -1,4 +1,4 @@
-import {EventEmitter, Injectable} from '@angular/core';
+import {EventEmitter, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {webSocket} from 'rxjs/webSocket';
 import {WebuiSettingsService} from './webui-settings.service';
@@ -8,8 +8,10 @@ import {InformationObject} from '../models/information-page.model';
     providedIn: 'root'
 })
 export class InformationService {
+    private readonly _http = inject(HttpClient);
+    private readonly _settings = inject(WebuiSettingsService);
 
-    constructor(private _http: HttpClient, private _settings: WebuiSettingsService) {
+    constructor() {
         this.initWebSocket();
     }
 

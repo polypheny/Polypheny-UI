@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NotebooksService} from '../../services/notebooks.service';
 import {NotebooksContentService} from '../../services/notebooks-content.service';
 import {interval, Subscription} from 'rxjs';
@@ -19,6 +19,10 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
   @ViewChild('destroyContainerModal') public destroyContainerModal: ModalDirective;
   @ViewChild('startContainerModal') public startContainerModal: ModalDirective;
 
+    private readonly _notebooks = inject(NotebooksService);
+    private readonly _content = inject(NotebooksContentService);
+    private readonly _toast = inject(ToasterService);
+
   icons = {cilReload, cilTrash, cilMediaPlay};
   private subscriptions = new Subscription();
   sessions: SessionResponse[] = [];
@@ -32,9 +36,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
   sessionSubscription = null;
   instances = [];
 
-  constructor(private _notebooks: NotebooksService,
-              private _content: NotebooksContentService,
-              private _toast: ToasterService) {
+    constructor() {
   }
 
   ngOnInit(): void {

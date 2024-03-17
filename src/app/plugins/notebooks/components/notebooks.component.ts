@@ -1,6 +1,5 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NotebooksService} from '../services/notebooks.service';
-import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {
     ActivatedRoute,
     ActivatedRouteSnapshot,
@@ -33,6 +32,15 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
     @ViewChild('createSessionModal') public createSessionModal: ModalDirective;
     @ViewChild('editNotebook') public editNotebook: EditNotebookComponent;
     @ViewChild('fileInput') fileInput: ElementRef;
+
+    private readonly _router = inject(Router);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _notebooks = inject(NotebooksService);
+    private readonly _toast = inject(ToasterService);
+    private readonly _loading = inject(LoadingScreenService);
+    public readonly _sidebar = inject(NotebooksSidebarService);
+    public readonly _content = inject(NotebooksContentService);
+
     createFileForm: FormGroup;
     uploadFileForm: FormGroup;
     createSessionForm: FormGroup;
@@ -44,15 +52,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
     creating = false;
     loading = false;
 
-    constructor(
-        private _router: Router,
-        private _route: ActivatedRoute,
-        private _notebooks: NotebooksService,
-        public _sidebar: NotebooksSidebarService,
-        public _content: NotebooksContentService,
-        private _toast: ToasterService,
-        private _settings: WebuiSettingsService,
-        private _loading: LoadingScreenService) {
+    constructor() {
     }
 
     ngOnInit(): void {

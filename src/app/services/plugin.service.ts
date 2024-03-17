@@ -1,7 +1,7 @@
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {CrudService} from './crud.service';
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {PluginEntity} from '../models/ui-request.model';
 
 @Injectable({
@@ -9,19 +9,17 @@ import {PluginEntity} from '../models/ui-request.model';
 })
 export class PluginService {
 
+    private readonly _http = inject(HttpClient);
+    private readonly _settings = inject(WebuiSettingsService);
+    private readonly _crud = inject(CrudService)
+
     private httpUrl = this._settings.getConnection('crud.rest');
 
     private infoUrl = this._settings.getConnection('information.rest');
 
     private httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
-    constructor(
-        private _http: HttpClient,
-        private _settings: WebuiSettingsService,
-        private _crud: CrudService
-    ) {
-
-
+    constructor() {
     }
 
 

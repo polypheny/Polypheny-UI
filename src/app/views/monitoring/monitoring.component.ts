@@ -1,5 +1,5 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {InformationService} from '../../services/information.service';
 import {InformationObject, InformationPage} from '../../models/information-page.model';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
@@ -15,6 +15,12 @@ import {Subscription} from 'rxjs';
 })
 export class MonitoringComponent implements OnInit, OnDestroy {
 
+    private readonly _information = inject(InformationService);
+    private readonly _route = inject(ActivatedRoute);
+    public readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _sidebar = inject(LeftSidebarService);
+    private readonly _settings = inject(WebuiSettingsService);
+
   data;
   routerId;
   pageList: InformationPage[];
@@ -22,14 +28,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
   pageNotFound = false;
   private subscriptions = new Subscription();
 
-  constructor(
-      private _information: InformationService,
-      private _router: Router,
-      private _route: ActivatedRoute,
-      public _breadcrumb: BreadcrumbService,
-      private _sidebar: LeftSidebarService,
-      private _settings: WebuiSettingsService
-  ) {
+    constructor() {
   }
 
   ngOnInit() {

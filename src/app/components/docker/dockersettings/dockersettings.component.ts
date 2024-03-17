@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
 import {DockerSettings} from '../../../models/docker.model';
 import {CrudService} from '../../../services/crud.service';
 
@@ -9,14 +9,14 @@ import {CrudService} from '../../../services/crud.service';
 })
 export class DockersettingsComponent implements OnInit {
 
+    private readonly _crud = inject(CrudService);
+
   registry: string;
   modified = false;
 
   @Output() done = new EventEmitter<void>();
 
-  constructor(
-      private _crud: CrudService,
-  ) {
+    constructor() {
   }
 
   loadValues(settings: DockerSettings) {

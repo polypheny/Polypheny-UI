@@ -1,4 +1,15 @@
-import {Component, computed, effect, Injector, OnDestroy, OnInit, Signal, signal, WritableSignal} from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    Injector,
+    OnDestroy,
+    OnInit,
+    Signal,
+    signal,
+    WritableSignal
+} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AdapterModel, AdapterType, PolyMap} from './adapter.model';
@@ -31,17 +42,15 @@ import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.ser
 })
 export class AdaptersComponent implements OnInit, OnDestroy {
 
+    private readonly _crud = inject(CrudService);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _router = inject(Router);
+    private readonly _toast = inject(ToasterService);
+    private readonly _fb = inject(UntypedFormBuilder);
+    private readonly _catalog = inject(CatalogService);
+    private readonly _left = inject(LeftSidebarService);
 
-    constructor(
-        private _crud: CrudService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _toast: ToasterService,
-        private _fb: UntypedFormBuilder,
-        private _catalog: CatalogService,
-        private _left: LeftSidebarService,
-        private injector: Injector
-    ) {
+    constructor(private injector: Injector) {
         this.availableAdapters = computed(() => {
             console.log(this.currentRoute());
             const route = this.currentRoute();

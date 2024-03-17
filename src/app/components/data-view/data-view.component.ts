@@ -3,6 +3,7 @@ import {
   computed,
   effect,
   EventEmitter,
+  inject,
   Input,
   OnDestroy,
   Output,
@@ -18,7 +19,6 @@ import {CrudService} from '../../services/crud.service';
 import {ToasterService} from '../toast-exposer/toaster.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../services/dbms-types.service';
-import {BsModalService} from 'ngx-bootstrap/modal';
 import {DataModel} from '../../models/ui-request.model';
 import * as Plyr from 'plyr';
 import {Subscription} from 'rxjs';
@@ -57,19 +57,18 @@ export class ViewInformation {
   styleUrls: ['./data-view.component.scss']
 })
 export class DataViewComponent implements OnDestroy {
+  public readonly _crud = inject(CrudService);
+  public readonly _toast = inject(ToasterService);
+  public readonly _route = inject(ActivatedRoute);
+  public readonly _router = inject(Router);
+  public readonly _types = inject(DbmsTypesService);
+  public readonly _settings = inject(WebuiSettingsService);
+  public readonly _sidebar = inject(LeftSidebarService);
+  public readonly _catalog = inject(CatalogService);
 
-  constructor(
-      public _crud: CrudService,
-      public _toast: ToasterService,
-      public _route: ActivatedRoute,
-      public _router: Router,
-      public _types: DbmsTypesService,
-      public _settings: WebuiSettingsService,
-      public _sidebar: LeftSidebarService,
-      public _catalog: CatalogService,
-      public modalService: BsModalService
-  ) {
-    this.webSocket = new WebSocket(_settings);
+
+  constructor() {
+    this.webSocket = new WebSocket();
 
     this.$tables = computed(() => {
       const catalog = this._catalog.listener();
@@ -139,25 +138,18 @@ export class DataViewComponent implements OnDestroy {
   player: Plyr;
   webSocket: WebSocket;
   subscriptions = new Subscription();
-  resultEvent = new EventEmitter<Result<any, any>>();
 
   query: string;
-  exploringShowView = false;
 
   readonly $tables: Signal<Table[]>;
-  gotTables = false;
-    $dataModel: Signal<DataModel> = computed(() => this.$result()?.dataModel);
+  $dataModel: Signal<DataModel> = computed(() => this.$result()?.dataModel);
 
-    protected readonly NamespaceType = DataModel;
+  protected readonly NamespaceType = DataModel;
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
     this.webSocket.close();
   }
-
-
-
-
 
 
   isDMLResult() {
@@ -182,14 +174,9 @@ export class DataViewComponent implements OnDestroy {
   }
 
   showAny():boolean {
-      if (this.$dataModel() === DataModel.RELATIONAL || this.$dataModel() === DataModel.DOCUMENT) {
-      return false;
-    }
-    return true;
+    return !(this.$dataModel() === DataModel.RELATIONAL || this.$dataModel() === DataModel.DOCUMENT);
+
   }
 
-  handleModalChange($event: boolean) {
-    
-  }
 }
 

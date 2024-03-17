@@ -1,8 +1,7 @@
-import {Component, OnDestroy, OnInit,} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit,} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {MonitoringRequest, StatisticRequest} from '../../models/ui-request.model';
 import {DashboardData, DashboardSet} from '../../components/data-view/models/result-set.model';
-import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {CatalogService} from '../../services/catalog.service';
 
 
@@ -14,6 +13,9 @@ import {CatalogService} from '../../services/catalog.service';
 
 
 export class DashboardComponent implements OnInit, OnDestroy {
+    public readonly _crud = inject(CrudService);
+    public readonly _catalog = inject(CatalogService);
+
     dataWorkload = [];
     dataDql = [];
     labels = [];
@@ -27,18 +29,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dashboardInformation: DashboardData;
     xLabel: string;
     yLabel: string;
-    maintainAspectRatio = false;
     digramInterval: number;
     informationInterval: number;
     infoCounter: number;
     diagramCounter: number;
     selectIntervalDisplay = 'All';
 
-    constructor(
-        public _crud: CrudService,
-        private _breadcrumb: BreadcrumbService,
-        public _catalog: CatalogService
-    ) {
+    constructor() {
     }
 
     ngOnInit() {

@@ -1,4 +1,4 @@
-import {Component, computed, Injector, Input, OnDestroy, OnInit, Signal, signal, WritableSignal} from '@angular/core';
+import {Component, computed, inject, Input, OnDestroy, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {ColumnRequest} from '../../../models/ui-request.model';
@@ -27,14 +27,13 @@ import {AdapterModel} from '../../adapters/adapter.model';
 })
 export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
-    constructor(
-        private _crud: CrudService,
-        private _route: ActivatedRoute,
-        private _toast: ToasterService,
-        public _types: DbmsTypesService,
-        public _catalog: CatalogService,
-        private injector: Injector
-    ) {
+    private readonly _crud = inject(CrudService);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _toast = inject(ToasterService);
+    public readonly _types = inject(DbmsTypesService);
+    public readonly _catalog = inject(CatalogService);
+
+    constructor() {
 
         this.foreignKeys = computed(() => {
             const catalog = this._catalog.listener();
@@ -45,7 +44,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             }
 
             const fks = new Map<string, ForeignKeyModel>();
-            _catalog.getKeys(entity.id).filter(k => !k.isPrimary).map(k => <ForeignKeyModel>k).forEach(k => {
+            this._catalog.getKeys(entity.id).filter(k => !k.isPrimary).map(k => <ForeignKeyModel>k).forEach(k => {
                 fks.set(catalog.getConstraintName(k.id), k);
                 return [...fks.values()];
             });
@@ -155,6 +154,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         }
         const newCol = Object.assign({}, oldCol);
         newCol.name = newName;
+        console.log(newCol)
         const request = new ColumnRequest(this.entity().id, oldCol, newCol, true, tableType);
         this._crud.updateColumn(request).subscribe({
             next: (res: RelationalResult) => {

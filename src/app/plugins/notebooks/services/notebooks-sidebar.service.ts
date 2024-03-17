@@ -6,13 +6,20 @@ import {SidebarNode} from '../../../models/sidebar-node.model';
 import {SidebarButton} from '../../../models/sidebar-button.model';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {Subject, Subscription} from 'rxjs';
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {NotebooksContentService} from './notebooks-content.service';
 import {LoadingScreenService} from '../../../components/loading-screen/loading-screen.service';
 import {ToasterService} from "../../../components/toast-exposer/toaster.service";
 
 @Injectable()
 export class NotebooksSidebarService {
+
+    private readonly _notebooks = inject(NotebooksService);
+    private readonly _content = inject(NotebooksContentService);
+    private readonly _leftSidebar = inject(LeftSidebarService);
+    private readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _toast = inject(ToasterService);
+    private readonly _loading = inject(LoadingScreenService);
 
     private _baseUrl = 'views/';
 
@@ -27,12 +34,7 @@ export class NotebooksSidebarService {
     private notebookClickedSubject = new Subject<[any, any, any]>(); // tree, node, $event
     private subscriptions = new Subscription();
 
-    constructor(private _notebooks: NotebooksService,
-                private _content: NotebooksContentService,
-                private _leftSidebar: LeftSidebarService,
-                private _breadcrumb: BreadcrumbService,
-                private _toast: ToasterService,
-                private _loading: LoadingScreenService) {
+    constructor() {
     }
 
     private update() {

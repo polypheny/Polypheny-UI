@@ -1,4 +1,15 @@
-import {Component, computed, effect, OnDestroy, OnInit, signal, Signal, untracked, WritableSignal} from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+    Signal,
+    untracked,
+    WritableSignal
+} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../services/crud.service';
@@ -20,15 +31,15 @@ import {AdapterModel} from '../adapters/adapter.model';
 })
 export class SchemaEditingComponent implements OnInit, OnDestroy {
 
-    constructor(
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _leftSidebar: LeftSidebarService,
-        private _breadcrumb: BreadcrumbService,
-        private _crud: CrudService,
-        private _toast: ToasterService,
-        private _catalog: CatalogService
-    ) {
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _router = inject(Router);
+    private readonly _leftSidebar = inject(LeftSidebarService);
+    private readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _crud = inject(CrudService);
+    private readonly _toast = inject(ToasterService);
+    private readonly _catalog = inject(CatalogService);
+
+    constructor() {
 
         this._route.params.subscribe(route => {
             this.currentRoute.set(route['id']);

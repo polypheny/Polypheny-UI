@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, inject, OnDestroy, OnInit, Output} from '@angular/core';
 import {DockerInstance, DockerSetupResponse, Handshake, HandshakeAndInstance} from '../../../models/docker.model';
 import {CrudService} from '../../../services/crud.service';
 import {ToasterService} from '../../toast-exposer/toaster.service';
@@ -9,6 +9,9 @@ import {ToasterService} from '../../toast-exposer/toaster.service';
   styleUrls: ['./dockernew.component.scss']
 })
 export class DockernewComponent implements OnInit, OnDestroy {
+
+    private readonly _crud = inject(CrudService);
+    private readonly _toast = inject(ToasterService);
 
   host: string;
   alias: string;
@@ -23,10 +26,7 @@ export class DockernewComponent implements OnInit, OnDestroy {
 
   @Output() done = new EventEmitter<DockerInstance[]>();
 
-  constructor(
-      private _crud: CrudService,
-      private _toast: ToasterService,
-  ) {
+    constructor() {
   }
 
   ngOnInit(): void {

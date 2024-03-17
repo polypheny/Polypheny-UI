@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 
 @Component({
@@ -8,11 +8,11 @@ import {ActivatedRoute} from '@angular/router';
 })
 export class QueryingComponent implements OnInit {
 
+    private readonly _route = inject(ActivatedRoute);
+
     public route = 'console';
 
-    constructor(
-        private _route: ActivatedRoute
-    ) {
+    constructor() {
     }
 
     ngOnInit() {

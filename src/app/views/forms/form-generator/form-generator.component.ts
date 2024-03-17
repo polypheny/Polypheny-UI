@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConfigService} from '../../../services/config.service';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
@@ -19,32 +19,30 @@ import {PluginStatus} from '../../../models/ui-request.model';
 
 export class FormGeneratorComponent implements OnInit, OnDestroy {
 
+    private readonly _config = inject(ConfigService);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _sidebar = inject(LeftSidebarService);
+    public readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _toast = inject(ToasterService);
+    private readonly _settings = inject(WebuiSettingsService);
+
     @ViewChild('submitButton') submitButton: ElementRef;
 
     formObj: JavaUiPage;
     submitted = false;
     form: UntypedFormGroup;
-    //toasts:Toast[] = [];
+
     pageId = '';
     pageNotFound = false;
-    pageList;//wenn man nicht auf einer gewissen Seite ist und alle Pages als links aufgelisted werden sollen.
-    serverError;//wenn der Server nicht antwortet
+    pageList;
+    serverError;
     private subscriptions = new Subscription();
     fileName: string;
 
-    constructor(
-        private _config: ConfigService,
-        private _route: ActivatedRoute,
-        private _sidebar: LeftSidebarService,
-        public _breadcrumb: BreadcrumbService,
-        private _toast: ToasterService,
-        private _settings: WebuiSettingsService
-    ) {
-
+    constructor() {
         this.pageId = this._route.snapshot.paramMap.get('page') || '';
 
-        //this.loadPage();//is already called by ngOnInit() -> onHashChange()
-        _sidebar.listConfigManagerPages();
+        this._sidebar.listConfigManagerPages();
     }
 
     ngOnInit() {

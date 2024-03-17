@@ -186,7 +186,6 @@ export class UiColumnDefinition implements FieldDefinition {
   //for both
   name: string;
   id: number;
-  physicalName: string;
 
   //for the data-table
   sort: SortState;

@@ -1,16 +1,18 @@
-import {Component, effect, HostListener, Input, OnDestroy, OnInit, Signal, ViewChild} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {Component, HostListener, inject, Input, OnDestroy, OnInit, Signal, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
-import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
 import {PolyType, RelationalResult} from '../../../components/data-view/models/result-set.model';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {ModalDirective} from 'ngx-bootstrap/modal';
-import {BehaviorSubject, combineLatest, Subscription} from 'rxjs';
-import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, GraphModel, NamespaceModel, TableModel} from '../../../models/catalog.model';
-import {CatalogService} from '../../../services/catalog.service';
-import {filter, mergeMap} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
+import {
+  AllocationEntityModel,
+  AllocationPartitionModel,
+  AllocationPlacementModel,
+  NamespaceModel,
+  TableModel
+} from '../../../models/catalog.model';
 import {Method} from '../../../models/ui-request.model';
 import {AdapterModel} from '../../adapters/adapter.model';
 
@@ -22,14 +24,11 @@ import {AdapterModel} from '../../adapters/adapter.model';
 
 export class GraphEditGraphComponent implements OnInit, OnDestroy {
 
-  constructor(
-      private _route: ActivatedRoute,
-      private _leftSidebar: LeftSidebarService,
-      public _crud: CrudService,
-      private _toast: ToasterService,
-      public _types: DbmsTypesService,
-      private _catalog: CatalogService
-  ) {
+    public readonly _crud = inject(CrudService);
+    public readonly _types = inject(DbmsTypesService);
+    private readonly _toast = inject(ToasterService);
+
+    constructor() {
 
   }
 

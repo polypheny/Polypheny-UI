@@ -101,7 +101,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
 
 
     protected constructor() {
-        this.webSocket = new WebSocket(this._settings);
+        this.webSocket = new WebSocket();
         this._route.params.subscribe(route => {
             this.currentRoute.set(route['id']);
         });

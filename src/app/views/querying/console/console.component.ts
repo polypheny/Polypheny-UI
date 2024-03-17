@@ -1,4 +1,14 @@
-import {Component, effect, OnDestroy, OnInit, signal, untracked, ViewChild, WritableSignal} from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  untracked,
+  ViewChild,
+  WritableSignal
+} from '@angular/core';
 import {EntityConfig} from '../../../components/data-view/data-table/entity-config';
 import {CrudService} from '../../../services/crud.service';
 import {RelationalResult, Result} from '../../../components/data-view/models/result-set.model';
@@ -25,6 +35,15 @@ import {NamespaceModel} from '../../../models/catalog.model';
   styleUrls: ['./console.component.scss']
 })
 export class ConsoleComponent implements OnInit, OnDestroy {
+
+    private readonly _crud = inject(CrudService);
+    private readonly _leftSidebar = inject(LeftSidebarService);
+    private readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _settings = inject(WebuiSettingsService);
+    public readonly _util = inject(UtilService);
+    public readonly _toast = inject(ToasterService);
+    public readonly _catalog = inject(CatalogService);
+    private readonly _sidebar = inject(LeftSidebarService);
 
   @ViewChild('editor', {static: false}) codeEditor;
   @ViewChild('historySearchInput') historySearchInput;
@@ -62,18 +81,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   };
   showNamespaceConfig: boolean;
 
-  constructor(
-      private _crud: CrudService,
-      private _leftSidebar: LeftSidebarService,
-      private _breadcrumb: BreadcrumbService,
-      private _settings: WebuiSettingsService,
-      public _util: UtilService,
-      public _toast: ToasterService,
-      public _catalog: CatalogService,
-      private _sidebar: LeftSidebarService
-  ) {
-
-    this.websocket = new WebSocket(_settings);
+    constructor() {
+        this.websocket = new WebSocket();
     this._sidebar.close();
     // @ts-ignore
     if (window.Cypress) {

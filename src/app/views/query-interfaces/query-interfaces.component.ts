@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {Subscription} from 'rxjs';
 import {AbstractControl, UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators} from '@angular/forms';
@@ -21,6 +21,12 @@ import {LeftSidebarService} from "../../components/left-sidebar/left-sidebar.ser
 })
 export class QueryInterfacesComponent implements OnInit, OnDestroy {
 
+    private readonly _crud = inject(CrudService);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _router = inject(Router);
+    private readonly _toast = inject(ToasterService);
+    private readonly _sidebar = inject(LeftSidebarService);
+
   queryInterfaces: QueryInterface[];
   availableQueryInterfaces: QueryInterfaceInformation[];
   route: String;
@@ -37,13 +43,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
 
   @ViewChild('QISettingsModal', {static: false}) public QISettingsModal: ModalDirective;
 
-  constructor(
-      private _crud: CrudService,
-      private _route: ActivatedRoute,
-      private _router: Router,
-      private _toast: ToasterService,
-      private _sidebar: LeftSidebarService
-  ) {
+    constructor() {
 
   }
 

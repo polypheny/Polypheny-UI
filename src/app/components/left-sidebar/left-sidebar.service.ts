@@ -1,9 +1,7 @@
-import {Injectable, Input, signal, WritableSignal} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {inject, Injectable, Input, signal, WritableSignal} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {InformationService} from '../../services/information.service';
 import {ConfigService} from '../../services/config.service';
-import {CrudService} from '../../services/crud.service';
 import {DataModel} from '../../models/ui-request.model';
 import {JavaPage, SidebarNode} from '../../models/sidebar-node.model';
 import {Router} from '@angular/router';
@@ -19,18 +17,16 @@ import {CatalogService} from '../../services/catalog.service';
 //docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarService {
 
+    private readonly _informationService = inject(InformationService);
+    private readonly _configService = inject(ConfigService);
+    private readonly _breadcrumb = inject(BreadcrumbService);
+    public readonly _catalog = inject(CatalogService);
+
   @Input() schemaEdit: boolean;
   router: Router;
   public readonly isVisible: WritableSignal<boolean> = signal(true);
 
-  constructor(
-      private _http: HttpClient,
-      private _informationService: InformationService,
-      private _configService: ConfigService,
-      private _crud: CrudService,
-      private _breadcrumb: BreadcrumbService,
-      public _catalog: CatalogService
-  ) {
+    constructor() {
 
     this.nodes.subscribe(nodes => {
       if (this.selectedNodeId && !nodes.some(node => node.id === this.selectedNodeId)) {

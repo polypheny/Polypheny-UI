@@ -1,4 +1,4 @@
-import {EventEmitter, Injectable} from '@angular/core';
+import {EventEmitter, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {webSocket} from 'rxjs/webSocket';
 import {WebuiSettingsService} from './webui-settings.service';
@@ -8,13 +8,16 @@ import {WebuiSettingsService} from './webui-settings.service';
 })
 export class ConfigService {
 
+    private readonly _http = inject(HttpClient);
+    private readonly _settings = inject(WebuiSettingsService);
+
     private socket;
     public connected = false;
     private reconnected = new EventEmitter<boolean>();
     httpUrl;
     httpOptions;
 
-    constructor(private _http: HttpClient, private _settings: WebuiSettingsService) {
+    constructor() {
         this.initWebSocket();
         this.httpUrl = this._settings.getConnection('config.rest');
         this.httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};

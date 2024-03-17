@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   ElementRef,
+  inject,
   Input,
   OnDestroy,
   OnInit,
@@ -12,7 +13,7 @@ import {
 } from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest} from '../../../models/ui-request.model';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {
   EntityMeta,
   PolyType,
@@ -46,6 +47,16 @@ const INITIAL_TYPE = 'BIGINT';
   styleUrls: ['./edit-tables.component.scss']
 })
 export class EditTablesComponent implements OnInit, OnDestroy {
+
+    public readonly _crud = inject(CrudService);
+    public readonly _types = inject(DbmsTypesService);
+    public readonly _catalog = inject(CatalogService);
+    public readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _toast = inject(ToasterService);
+    private readonly _router = inject(Router);
+    private readonly _leftSidebar = inject(LeftSidebarService);
+    private readonly _settings = inject(WebuiSettingsService);
+    private readonly _render = inject(Renderer2);
 
   @ViewChildren('editing', {read: ElementRef}) inputGroup: QueryList<ElementRef>;
   types: PolyType[] = [];
@@ -82,18 +93,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   exportProgress = 0.0;
   private subscriptions = new Subscription();
 
-  constructor(
-      public _crud: CrudService,
-      private _route: ActivatedRoute,
-      private _toast: ToasterService,
-      private _router: Router,
-      private _leftSidebar: LeftSidebarService,
-      public _types: DbmsTypesService,
-      private _settings: WebuiSettingsService,
-      private _catalog: CatalogService,
-      public _breadcrumb: BreadcrumbService,
-      private _render: Renderer2
-  ) {
+    constructor() {
     this._render.listen('document', 'click', (e: Event) => {
       if (!this.inputGroup || this.inputGroup.length === 0) {
         return;

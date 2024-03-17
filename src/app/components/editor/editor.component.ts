@@ -3,6 +3,7 @@ import {
   Component,
   effect,
   ElementRef,
+  inject,
   Input,
   OnChanges,
   OnInit,
@@ -19,7 +20,6 @@ import 'ace-builds/src-noconflict/mode-markdown';
 import 'ace-builds/src-noconflict/mode-pig';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
-import {CrudService} from '../../services/crud.service';
 import {SidebarNode} from '../../models/sidebar-node.model';
 import {CatalogService} from '../../services/catalog.service';
 
@@ -32,6 +32,8 @@ import {CatalogService} from '../../services/catalog.service';
 //ace editor: see: https://medium.com/@ofir3322/create-an-online-ide-with-angular-6-nodejs-part-1-163a939a7929
 
 export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
+
+    public readonly _catalog = inject(CatalogService);
 
   @ViewChild('editor', {static: false}) codeEditorElmRef: ElementRef;
   private codeEditor: ace.Ace.Editor;
@@ -46,9 +48,7 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
   suggestions: string[] = [];
   private readonly supportedLanguages = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig'];
 
-  constructor(
-      private _crud: CrudService,
-      private _catalog: CatalogService) {
+    constructor() {
     effect(() => {
       const catalog = this._catalog.listener();
       untracked(() => {

@@ -20,14 +20,14 @@
             </thead>
             <tbody>
             <tr *ngFor="let col of columns(); let i = index"
-                [ngClass]="{'editing': editingCol === col.physicalName}">
+                [ngClass]="{'editing': editingCol === col.name}">
                 <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
                 <td>
-                    <span *ngIf="editingCol !== col.physicalName">{{col.name}}</span>
-                    <i *ngIf="editingCol !== col.physicalName" class="cil-pencil rename ms-2"
-                       (click)="editingCol = col.physicalName"></i>
+                    <span *ngIf="editingCol !== col.name">{{ col.name }}</span>
+                    <i *ngIf="editingCol !== col.name" class="cil-pencil rename ms-2"
+                       (click)="editingCol = col.name"></i>
                     <c-input-group sizing="sm"
-                                   *ngIf="editingCol === col.physicalName"
+                                   *ngIf="editingCol === col.name"
                                    style="max-width: 200px">
                         <input type="text" cFormControl [placeholder]="col.name" autofocus
                                (keyup.enter)="renameColumn(columnNameInput, col, columnNameInput.value, entity().entityType)"
@@ -57,8 +57,8 @@
                 </th>
             </tr>
             <tr *ngFor="let col of getAddableColumns() | async" class="hidden-col"
-                [ngClass]="{'editing': editingCol === col.physicalName}">
-                <ng-container *ngIf="editingCol !== col.physicalName">
+                [ngClass]="{'editing': editingCol === col.name}">
+                <ng-container *ngIf="editingCol !== col.name">
                     <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
                     <td>{{col.name}}</td>
                     <td><i class="fa fa-check" *ngIf="col.nullable"></i></td>

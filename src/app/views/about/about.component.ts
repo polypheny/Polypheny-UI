@@ -1,5 +1,4 @@
-import {Component, OnInit} from '@angular/core';
-import {SidebarService} from '@coreui/angular';
+import {Component, inject, OnInit} from '@angular/core';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 
 @Component({
@@ -9,9 +8,9 @@ import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.ser
 })
 export class AboutComponent implements OnInit {
 
-    constructor(
-        private _sidebar: LeftSidebarService
-    ) {
+    private readonly _sidebar = inject(LeftSidebarService);
+
+    constructor() {
     }
 
     ngOnInit() {

@@ -23,7 +23,6 @@ import {AdaptersComponent} from './adapters/adapters.component';
 import {
     RefinementOptionsComponent
 } from './querying/graphical-querying/refinement-options/refinement-options.component';
-import {ExploreByExampleComponent} from './querying/explore-by-example/explore-by-example.component';
 import {AboutComponent} from './about/about.component';
 import {ButtonsModule} from 'ngx-bootstrap/buttons';
 import {CollapseModule} from 'ngx-bootstrap/collapse';
@@ -183,7 +182,6 @@ import {TreeModule} from "@ali-hm/angular-tree-component";
         NodeComponent,
         AdaptersComponent,
         RefinementOptionsComponent,
-        ExploreByExampleComponent,
         AboutComponent,
         QueryInterfacesComponent,
         EditSourceColumnsComponent,
@@ -195,7 +193,6 @@ import {TreeModule} from "@ali-hm/angular-tree-component";
         EditEntityComponent,
     ],
   exports: [
-    ExploreByExampleComponent,
   ]
 })
 export class ViewsModule {

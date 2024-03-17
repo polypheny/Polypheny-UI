@@ -1,9 +1,13 @@
 import {
-    Component, EventEmitter, HostListener,
+    Component,
+    EventEmitter,
+    HostListener,
+    inject,
     Input,
     OnChanges,
     OnDestroy,
-    OnInit, Output,
+    OnInit,
+    Output,
     QueryList,
     SimpleChanges,
     ViewChild,
@@ -17,7 +21,6 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {NotebooksContentService} from '../../services/notebooks-content.service';
 import {EMPTY, Observable, Subject, Subscription, timer} from 'rxjs';
 import {NotebooksWebSocket} from '../../services/notebooks-webSocket';
-import {WebuiSettingsService} from '../../../../services/webui-settings.service';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {NbCellComponent} from './nb-cell/nb-cell.component';
@@ -25,7 +28,6 @@ import {CellType, NotebookWrapper} from './notebook-wrapper';
 import {delay, mergeMap, take, tap} from 'rxjs/operators';
 import {LoadingScreenService} from '../../../../components/loading-screen/loading-screen.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {CrudService} from '../../../../services/crud.service';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 
 @Component({
@@ -34,6 +36,14 @@ import {ToasterService} from '../../../../components/toast-exposer/toaster.servi
     styleUrls: ['./edit-notebook.component.scss']
 })
 export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
+    private readonly _notebooks = inject(NotebooksService);
+    public readonly _sidebar = inject(NotebooksSidebarService);
+    private readonly _content = inject(NotebooksContentService);
+    private readonly _toast = inject(ToasterService);
+    private readonly _router = inject(Router);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _loading = inject(LoadingScreenService);
+
     @Input() sessionId: string;
     @Output() openChangeSessionModal = new EventEmitter<{ name: string, path: string }>();
     path: string;
@@ -65,16 +75,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     inserting = false;
     closeNbSubject: Subject<boolean>;
 
-    constructor(
-        private _notebooks: NotebooksService,
-        public _sidebar: NotebooksSidebarService,
-        private _content: NotebooksContentService,
-        private _toast: ToasterService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-        private _settings: WebuiSettingsService,
-        private _loading: LoadingScreenService,
-        private _crud: CrudService) {
+    constructor() {
     }
 
     ngOnInit(): void {
@@ -166,7 +167,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this._content.getNotebookContent(this.path, this.nb == null).subscribe(res => {
             if (res) {
                 this.nb = new NotebookWrapper(res, this.busyCellIds,
-                    new NotebooksWebSocket(this._settings, this.session.kernel.id),
+                    new NotebooksWebSocket(this.session.kernel.id),
                     id => this.getCellComponent(id)?.renderMd(),
                     (id, output) => this.getCellComponent(id)?.renderError(output),
                     (id, output) => this.getCellComponent(id)?.renderStream(output),

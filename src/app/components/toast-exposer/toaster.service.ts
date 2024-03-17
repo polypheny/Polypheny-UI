@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {RelationalResult, Result} from '../data-view/models/result-set.model';
+import {Result} from '../data-view/models/result-set.model';
 import {Subject} from 'rxjs';
 import {Toast} from './toaster.model';
 
@@ -9,8 +9,6 @@ import {Toast} from './toaster.model';
 export class ToasterService {
 
     public toasts: Subject<Toast> = new Subject<Toast>();
-
-    //public toastEvent: BehaviorSubject<Map<Date, Toast>> = new BehaviorSubject<Map<Date, Toast>>( new Map<Date, Toast>() );
 
     constructor() {
     }

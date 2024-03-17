@@ -1,20 +1,19 @@
 import {
-  Component, computed,
-  effect,
+  Component,
+  computed,
   ElementRef,
+  inject,
   Input,
   OnDestroy,
   OnInit,
   QueryList,
   Renderer2,
-  signal,
   Signal,
-  ViewChildren,
-  WritableSignal
+  ViewChildren
 } from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {Method, QueryRequest} from '../../../models/ui-request.model';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {EntityMeta, RelationalResult, Result} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
@@ -40,16 +39,15 @@ import {AdapterModel} from '../../adapters/adapter.model';
 })
 export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 
-  constructor(
-      public _crud: CrudService,
-      private _route: ActivatedRoute,
-      private _toast: ToasterService,
-      private _router: Router,
-      private _leftSidebar: LeftSidebarService,
-      public _types: DbmsTypesService,
-      public _catalog: CatalogService,
-      private _render: Renderer2
-  ) {
+    public readonly _crud = inject(CrudService);
+    public readonly _types = inject(DbmsTypesService);
+    public readonly _catalog = inject(CatalogService);
+    private readonly _toast = inject(ToasterService);
+    private readonly _router = inject(Router);
+    private readonly _leftSidebar = inject(LeftSidebarService);
+    private readonly _render = inject(Renderer2);
+
+    constructor() {
     this._render.listen('document', 'click', (e: Event) => {
       if (!this.inputGroup || this.inputGroup.length === 0) {
         return;

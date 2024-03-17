@@ -1,7 +1,5 @@
-import {effect, Injectable, signal, WritableSignal} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {effect, inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {WebuiSettingsService} from './webui-settings.service';
-import {DbmsTypesService} from './dbms-types.service';
 import {WebSocket} from './webSocket';
 import {RegisterRequest, RequestModel} from '../models/ui-request.model';
 
@@ -10,17 +8,14 @@ import {RegisterRequest, RequestModel} from '../models/ui-request.model';
   providedIn: 'root'
 })
 export class AuthService {
+    private readonly _settings = inject(WebuiSettingsService);
+
   public readonly id: WritableSignal<string> = signal(null);
-  private httpUrl = this._settings.getConnection('crud.rest');
   private readonly status: WritableSignal<ConnectionStatus> = signal(ConnectionStatus.INITIAL);
   public websocket: WebSocket;
 
-  constructor(
-      private _http: HttpClient,
-      private _settings: WebuiSettingsService,
-      private _types: DbmsTypesService,
-  ) {
-    this.websocket = new WebSocket(_settings);
+    constructor() {
+        this.websocket = new WebSocket();
     this.initWebsocket();
   }
 

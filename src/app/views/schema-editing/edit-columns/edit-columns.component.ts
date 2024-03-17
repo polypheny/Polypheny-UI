@@ -3,6 +3,7 @@ import {
     computed,
     effect,
     HostListener,
+    inject,
     Injector,
     Input,
     OnDestroy,
@@ -11,9 +12,7 @@ import {
     Signal,
     WritableSignal
 } from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
 import * as $ from 'jquery';
-import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
 import {
     FieldType,
@@ -66,13 +65,12 @@ const INITIAL_TYPE = 'BIGINT';
 
 export class EditColumnsComponent implements OnInit, OnDestroy {
 
+    public readonly _crud = inject(CrudService);
+    public readonly _types = inject(DbmsTypesService);
+    public readonly _catalog = inject(CatalogService);
+    private readonly _toast = inject(ToasterService);
+
     constructor(
-        private _route: ActivatedRoute,
-        private _leftSidebar: LeftSidebarService,
-        public _crud: CrudService,
-        private _toast: ToasterService,
-        public _types: DbmsTypesService,
-        public _catalog: CatalogService,
         private injector: Injector
     ) {
         this.newIndexForm = new UntypedFormGroup({

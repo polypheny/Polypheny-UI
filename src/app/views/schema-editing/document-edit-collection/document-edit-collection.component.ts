@@ -1,7 +1,5 @@
-import {Component, computed, HostListener, Input, OnDestroy, OnInit, Signal, ViewChild} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {Component, HostListener, inject, Input, OnDestroy, OnInit, Signal, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
-import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
 import {PolyType, RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
@@ -12,7 +10,13 @@ import {AdapterModel} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../../services/catalog.service';
-import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, NamespaceModel, TableModel} from '../../../models/catalog.model';
+import {
+  AllocationEntityModel,
+  AllocationPartitionModel,
+  AllocationPlacementModel,
+  NamespaceModel,
+  TableModel
+} from '../../../models/catalog.model';
 
 @Component({
   selector: 'app-document-edit-collection',
@@ -22,14 +26,12 @@ import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementMode
 
 export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
 
-  constructor(
-      private _route: ActivatedRoute,
-      private _leftSidebar: LeftSidebarService,
-      public _crud: CrudService,
-      private _toast: ToasterService,
-      public _types: DbmsTypesService,
-      public _catalog: CatalogService
-  ) {
+    public readonly _crud = inject(CrudService);
+    public readonly _types = inject(DbmsTypesService);
+    public readonly _catalog = inject(CatalogService);
+    private readonly _toast = inject(ToasterService);
+
+    constructor() {
 
   }
 

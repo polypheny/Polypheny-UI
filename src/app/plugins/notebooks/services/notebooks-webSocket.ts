@@ -3,13 +3,17 @@ import {webSocket} from 'rxjs/webSocket';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import * as uuid from 'uuid';
 import {KernelMsg} from '../models/kernel-response.model';
+import {inject} from "@angular/core";
 
 export class NotebooksWebSocket {
+
+    public readonly _settings = inject(WebuiSettingsService);
+
     private socket;
     connected = false;
     private msgSubject = new Subject<KernelMsg>();
 
-    constructor(private _settings: WebuiSettingsService, kernelId: string) {
+    constructor(kernelId: string) {
         this.initWebSocket(kernelId);
     }
 

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit} from '@angular/core';
 import {PluginService} from '../../../../services/plugin.service';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 
@@ -8,6 +8,9 @@ import {ToasterService} from '../../../../components/toast-exposer/toaster.servi
   styleUrls: ['./file-uploader.component.scss']
 })
 export class FileUploaderComponent implements OnInit {
+    public readonly _plugin = inject(PluginService);
+    public readonly _toast = inject(ToasterService);
+
   public files: File[];
 
   public isLoading = false;
@@ -15,10 +18,7 @@ export class FileUploaderComponent implements OnInit {
 
   @Input() loadPage: () => void;
 
-  constructor(
-      public _plugin: PluginService,
-      public _toast: ToasterService,
-  ) {
+    constructor() {
   }
 
   ngOnInit(): void {

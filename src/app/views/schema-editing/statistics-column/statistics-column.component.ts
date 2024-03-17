@@ -1,10 +1,8 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {StatisticColumnSet, StatisticTableSet} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {StatisticRequest} from '../../../models/ui-request.model';
-import {ActivatedRoute, Router} from '@angular/router';
 import {Subscription} from 'rxjs';
-import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 
 @Component({
@@ -14,6 +12,8 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 })
 export class StatisticsColumnComponent implements OnInit, OnDestroy {
 
+    private readonly _crud = inject(CrudService);
+    private readonly _toast = inject(ToasterService);
 
   subscriptions = new Subscription();
   entityId: number;
@@ -22,13 +22,7 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
   numericalStatisticSet: StatisticColumnSet;
   temporalStatisticSet: StatisticColumnSet;
 
-  constructor(
-      private _crud: CrudService,
-      private _route: ActivatedRoute,
-      private _leftSidebar: LeftSidebarService,
-      private _router: Router,
-      private _toast: ToasterService
-  ) {
+    constructor() {
   }
 
   ngOnInit(): void {

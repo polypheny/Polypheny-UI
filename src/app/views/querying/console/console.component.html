@@ -143,8 +143,7 @@
                 </c-card-footer>
 
                 <div [id]="'collapse'+i" class="collapse show" data-parent="#accordion">
-                    <c-card-body
-                            [collapse]="collapsed !== undefined && !collapsed[i] && results().length !== 1">
+                    <c-card-body [collapse]="collapsed !== undefined && !collapsed[i] && results().length !== 1">
                         <div class="text-danger" *ngIf="result && result.error">
                             <strong>Error:</strong>
                             <p class="mb-3">{{result.error}}</p>

@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
@@ -12,6 +12,11 @@ import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 })
 export class DockerconfigComponent implements OnInit, OnDestroy {
 
+    private readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _crud = inject(CrudService);
+    private readonly _sidebar = inject(LeftSidebarService);
+    private readonly _toast = inject(ToasterService);
+
   instances: DockerInstance[];
   error: string = null;
   status: AutoDockerStatus = {available: false, connected: false, running: false, message: ''};
@@ -20,13 +25,8 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
   modalId: number = null;
   activeModal: null | 'add_edit' | 'settings' = null;
 
-  constructor(
-      private _breadcrumb: BreadcrumbService,
-      private _crud: CrudService,
-      private _sidebar: LeftSidebarService,
-      private _toast: ToasterService,
-  ) {
-    _sidebar.listConfigManagerPages();
+    constructor() {
+        this._sidebar.listConfigManagerPages();
   }
 
   ngOnInit(): void {

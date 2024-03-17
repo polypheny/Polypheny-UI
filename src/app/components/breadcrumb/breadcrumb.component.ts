@@ -1,53 +1,53 @@
-import {Component, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal} from '@angular/core';
 import {BreadcrumbService} from './breadcrumb.service';
 
 @Component({
-  selector: 'app-breadcrumb-main',
-  templateUrl: './breadcrumb.component.html',
-  styleUrls: ['./breadcrumb.component.scss']
+    selector: 'app-breadcrumb-main',
+    templateUrl: './breadcrumb.component.html',
+    styleUrls: ['./breadcrumb.component.scss']
 })
 export class BreadcrumbComponent implements OnInit {
 
-  breadcrumbs: BreadcrumbItem[] = [];
-  zoom;
-  hidden = signal(true);
+    breadcrumbs: BreadcrumbItem[] = [];
+    zoom;
+    hidden = signal(true);
 
-  routerId;
+    routerId;
 
-  constructor(
-      public _breadcrumb: BreadcrumbService,
-  ) {
-  }
+    private readonly _breadcrumb = inject(BreadcrumbService);
 
-  ngOnInit() {
+    constructor() {
+    }
 
-    this.routerId = this._breadcrumb.routerId;
-    this.zoom = this._breadcrumb.getZoom();
+    ngOnInit() {
 
-    this._breadcrumb.getBreadcrumbs().subscribe(breadcrumbs => {
-      this.breadcrumbs = breadcrumbs;
-      this.hidden.set(breadcrumbs.length <= 0);
-    });
-  }
+        this.routerId = this._breadcrumb.routerId;
+        this.zoom = this._breadcrumb.getZoom();
 
-  zoomIn() {
-    this.zoom = this._breadcrumb.zoomIn();
-  }
+        this._breadcrumb.getBreadcrumbs().subscribe(breadcrumbs => {
+            this.breadcrumbs = breadcrumbs;
+            this.hidden.set(breadcrumbs.length <= 0);
+        });
+    }
 
-  zoomOut() {
-    this.zoom = this._breadcrumb.zoomOut();
-  }
+    zoomIn() {
+        this.zoom = this._breadcrumb.zoomIn();
+    }
+
+    zoomOut() {
+        this.zoom = this._breadcrumb.zoomOut();
+    }
 
 }
 
 class BreadcrumbItem {
-  name: string;
-  routerLink?: any;
+    name: string;
+    routerLink?: any;
 
-  constructor(name: string, routerLink?: any) {
-    this.name = name;
-    if (routerLink) {
-      this.routerLink = routerLink;
+    constructor(name: string, routerLink?: any) {
+        this.name = name;
+        if (routerLink) {
+            this.routerLink = routerLink;
+        }
     }
-  }
 }

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, inject, OnInit, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
 import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
@@ -16,23 +16,23 @@ import {CatalogState} from '../../models/catalog.model';
 //docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
-    constructor(
-        _router: Router,
-        public _sidebar: LeftSidebarService,
-        public _catalog: CatalogService
-    ) {
-        this.router = _router;
+    private readonly _router = inject(Router);
+    public readonly _sidebar = inject(LeftSidebarService);
+    public readonly _catalog = inject(CatalogService);
+
+    constructor() {
+        this.router = this._router;
         //this.nodes = nodes;
         this.options = {
             actionMapping: {
                 mouse: {
                     click: (tree, node, $event) => {
-                        _sidebar.selectedNodeId = node.data.id;
+                        this._sidebar.selectedNodeId = node.data.id;
                         if (node.data.action !== null) {
                             node.data.action(tree, node, $event);
                         }
                         if (node.data.routerLink && node.data.allowRouting) {
-                            _router.navigate([node.data.routerLink]).then(r => null);
+                            this._router.navigate([node.data.routerLink]).then(r => null);
                         }
                         if (node.data.isAutoExpand()) {
                             node.toggleExpanded();
@@ -56,7 +56,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
             }
         };
 
-        _sidebar.getError().subscribe(
+        this._sidebar.getError().subscribe(
             error => {
                 this.error = error;
             }
