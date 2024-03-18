@@ -66,6 +66,15 @@ export class CrudService {
         return socket.sendMessage(data);
     }
 
+     getAdapterNames ()
+    {
+        return this._http.get(`${this.httpUrl}/getAdpaterNames` ,this.httpOptions);
+    }
+    getQueryInterfaceNames()
+    {
+        return this._http.get(`${this.httpUrl}/getQueryInterfaceNames`, this.httpOptions);
+    }
+
     getSchema(request: SchemaRequest) {
         return this._http.post(`${this.httpUrl}/getSchemaTree`, request, this.httpOptions);
     }
