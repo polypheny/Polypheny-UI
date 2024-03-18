@@ -19,9 +19,9 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
   @ViewChild('destroyContainerModal') public destroyContainerModal: ModalDirective;
   @ViewChild('startContainerModal') public startContainerModal: ModalDirective;
 
-    private readonly _notebooks = inject(NotebooksService);
-    private readonly _content = inject(NotebooksContentService);
-    private readonly _toast = inject(ToasterService);
+  private readonly _notebooks = inject(NotebooksService);
+  private readonly _content = inject(NotebooksContentService);
+  private readonly _toast = inject(ToasterService);
 
   icons = {cilReload, cilTrash, cilMediaPlay};
   private subscriptions = new Subscription();
@@ -36,7 +36,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
   sessionSubscription = null;
   instances = [];
 
-    constructor() {
+  constructor() {
   }
 
   ngOnInit(): void {

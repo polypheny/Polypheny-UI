@@ -1,16 +1,4 @@
-import {
-  Component,
-  computed,
-  ElementRef,
-  inject,
-  Input,
-  OnDestroy,
-  OnInit,
-  QueryList,
-  Renderer2,
-  Signal,
-  ViewChildren
-} from '@angular/core';
+import {Component, computed, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, Renderer2, Signal, ViewChildren} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {Method, QueryRequest} from '../../../models/ui-request.model';
 import {Router} from '@angular/router';
@@ -20,15 +8,7 @@ import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {Subscription} from 'rxjs';
 import {DbTable} from '../../uml/uml.model';
-import {
-  AllocationEntityModel,
-  AllocationPartitionModel,
-  AllocationPlacementModel,
-  CollectionModel,
-  EntityType,
-  NamespaceModel,
-  TableModel
-} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, CollectionModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {CatalogService} from '../../../services/catalog.service';
 import {AdapterModel} from '../../adapters/adapter.model';
 
@@ -39,15 +19,15 @@ import {AdapterModel} from '../../adapters/adapter.model';
 })
 export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 
-    public readonly _crud = inject(CrudService);
-    public readonly _types = inject(DbmsTypesService);
-    public readonly _catalog = inject(CatalogService);
-    private readonly _toast = inject(ToasterService);
-    private readonly _router = inject(Router);
-    private readonly _leftSidebar = inject(LeftSidebarService);
-    private readonly _render = inject(Renderer2);
+  public readonly _crud = inject(CrudService);
+  public readonly _types = inject(DbmsTypesService);
+  public readonly _catalog = inject(CatalogService);
+  private readonly _toast = inject(ToasterService);
+  private readonly _router = inject(Router);
+  private readonly _leftSidebar = inject(LeftSidebarService);
+  private readonly _render = inject(Renderer2);
 
-    constructor() {
+  constructor() {
     this._render.listen('document', 'click', (e: Event) => {
       if (!this.inputGroup || this.inputGroup.length === 0) {
         return;

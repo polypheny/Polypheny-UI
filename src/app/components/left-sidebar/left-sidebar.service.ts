@@ -17,16 +17,16 @@ import {CatalogService} from '../../services/catalog.service';
 //docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarService {
 
-    private readonly _informationService = inject(InformationService);
-    private readonly _configService = inject(ConfigService);
-    private readonly _breadcrumb = inject(BreadcrumbService);
-    public readonly _catalog = inject(CatalogService);
+  private readonly _informationService = inject(InformationService);
+  private readonly _configService = inject(ConfigService);
+  private readonly _breadcrumb = inject(BreadcrumbService);
+  public readonly _catalog = inject(CatalogService);
 
   @Input() schemaEdit: boolean;
   router: Router;
   public readonly isVisible: WritableSignal<boolean> = signal(true);
 
-    constructor() {
+  constructor() {
 
     this.nodes.subscribe(nodes => {
       if (this.selectedNodeId && !nodes.some(node => node.id === this.selectedNodeId)) {
@@ -188,7 +188,7 @@ export class LeftSidebarService {
         if (node.data.routerLink !== '') {
           const rLink = [node.data.routerLink];
           const rname = [node.data.id];
-            if (node.data.children.length === 0 && node.data.dataModel !== DataModel.GRAPH) {
+          if (node.data.children.length === 0 && node.data.dataModel !== DataModel.GRAPH) {
             const url = ['/views/schema-editing/'];
             const fullChildLink = (url.concat(rname));
             this._breadcrumb.setBreadcrumbsSchema([

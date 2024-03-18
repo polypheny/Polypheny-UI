@@ -10,13 +10,7 @@ import {AdapterModel} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../../services/catalog.service';
-import {
-  AllocationEntityModel,
-  AllocationPartitionModel,
-  AllocationPlacementModel,
-  NamespaceModel,
-  TableModel
-} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, NamespaceModel, TableModel} from '../../../models/catalog.model';
 
 @Component({
   selector: 'app-document-edit-collection',
@@ -26,12 +20,12 @@ import {
 
 export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
 
-    public readonly _crud = inject(CrudService);
-    public readonly _types = inject(DbmsTypesService);
-    public readonly _catalog = inject(CatalogService);
-    private readonly _toast = inject(ToasterService);
+  public readonly _crud = inject(CrudService);
+  public readonly _types = inject(DbmsTypesService);
+  public readonly _catalog = inject(CatalogService);
+  private readonly _toast = inject(ToasterService);
 
-    constructor() {
+  constructor() {
 
   }
 

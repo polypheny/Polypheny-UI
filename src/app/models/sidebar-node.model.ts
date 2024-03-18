@@ -16,7 +16,7 @@ export class SidebarNode {
   allowDropTo = false;
   children: SidebarNode[] = [];
   isSeparator = false;
-    dataModel: string;
+  dataModel: string;
   action: (tree, node, $event) => any = null;
   private dropAction: (tree: TreeModel, node: TreeNode, $event: any, {from, to}: { from: any; to: any }) => any = null;
   private autoExpand = true;
@@ -65,15 +65,15 @@ export class SidebarNode {
     this.children = children;
   }
 
-  getNamespace():string {
+  getNamespace(): string {
     return this.id.split('.')[0];
   }
 
-  getEntity():string {
+  getEntity(): string {
     return this.id.split('.')[0] + '.' + this.id.split('.')[1];
   }
 
-  getField():string {
+  getField(): string {
     return this.id.split('.')[2];
   }
 
@@ -87,7 +87,7 @@ export class SidebarNode {
     return this;
   }
 
-  setDropAction(action: (tree:TreeModel, node:TreeNode, $event:any, {from, to}) => any) {
+  setDropAction(action: (tree: TreeModel, node: TreeNode, $event: any, {from, to}) => any) {
     this.dropAction = action;
     return this;
 

@@ -9,14 +9,14 @@ import {CrudService} from '../../../services/crud.service';
 })
 export class DockersettingsComponent implements OnInit {
 
-    private readonly _crud = inject(CrudService);
+  private readonly _crud = inject(CrudService);
 
   registry: string;
   modified = false;
 
   @Output() done = new EventEmitter<void>();
 
-    constructor() {
+  constructor() {
   }
 
   loadValues(settings: DockerSettings) {

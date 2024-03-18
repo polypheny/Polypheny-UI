@@ -51,7 +51,7 @@ export class DataGraphComponent extends DataTemplateComponent {
   private initialEdgeIds: string[];
   private afterInit = false;
 
-    protected readonly NamespaceType = DataModel;
+  protected readonly NamespaceType = DataModel;
 
   private static filterEdges(hidden: any[], d: Edge, p: any) {
     const source = !p.afterInit ? d.source : d.source['id'];

@@ -1,16 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  effect,
-  inject,
-  OnDestroy,
-  OnInit,
-  signal,
-  untracked,
-  ViewChild,
-  ViewEncapsulation,
-  WritableSignal
-} from '@angular/core';
+import {AfterViewInit, Component, effect, inject, OnDestroy, OnInit, signal, untracked, ViewChild, ViewEncapsulation, WritableSignal} from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
@@ -128,7 +116,7 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
         };
 
         const schema = [];
-          for (const s of catalog.getSchemaTree('views/graphical-querying/', true, 3, false, [DataModel.RELATIONAL])) {
+        for (const s of catalog.getSchemaTree('views/graphical-querying/', true, 3, false, [DataModel.RELATIONAL])) {
           const node = SidebarNode.fromJson(s, {allowRouting: false, autoActive: false, action: nodeAction});
           schema.push(node);
         }

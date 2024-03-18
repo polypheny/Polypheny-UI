@@ -8,8 +8,8 @@ import {ToasterService} from '../../../../components/toast-exposer/toaster.servi
   styleUrls: ['./file-uploader.component.scss']
 })
 export class FileUploaderComponent implements OnInit {
-    public readonly _plugin = inject(PluginService);
-    public readonly _toast = inject(ToasterService);
+  public readonly _plugin = inject(PluginService);
+  public readonly _toast = inject(ToasterService);
 
   public files: File[];
 
@@ -18,7 +18,7 @@ export class FileUploaderComponent implements OnInit {
 
   @Input() loadPage: () => void;
 
-    constructor() {
+  constructor() {
   }
 
   ngOnInit(): void {

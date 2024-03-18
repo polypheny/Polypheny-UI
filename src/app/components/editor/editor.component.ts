@@ -1,16 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  effect,
-  ElementRef,
-  inject,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  untracked,
-  ViewChild
-} from '@angular/core';
+import {AfterViewInit, Component, effect, ElementRef, inject, Input, OnChanges, OnInit, SimpleChanges, untracked, ViewChild} from '@angular/core';
 import * as ace from 'ace-builds'; // ace module ..
 import 'ace-builds/src-noconflict/mode-sql';
 import 'ace-builds/src-noconflict/mode-pgsql';
@@ -33,7 +21,7 @@ import {CatalogService} from '../../services/catalog.service';
 
 export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
 
-    public readonly _catalog = inject(CatalogService);
+  public readonly _catalog = inject(CatalogService);
 
   @ViewChild('editor', {static: false}) codeEditorElmRef: ElementRef;
   private codeEditor: ace.Ace.Editor;
@@ -48,7 +36,7 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
   suggestions: string[] = [];
   private readonly supportedLanguages = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig'];
 
-    constructor() {
+  constructor() {
     effect(() => {
       const catalog = this._catalog.listener();
       untracked(() => {

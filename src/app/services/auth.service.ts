@@ -8,14 +8,14 @@ import {RegisterRequest, RequestModel} from '../models/ui-request.model';
   providedIn: 'root'
 })
 export class AuthService {
-    private readonly _settings = inject(WebuiSettingsService);
+  private readonly _settings = inject(WebuiSettingsService);
 
   public readonly id: WritableSignal<string> = signal(null);
   private readonly status: WritableSignal<ConnectionStatus> = signal(ConnectionStatus.INITIAL);
   public websocket: WebSocket;
 
-    constructor() {
-        this.websocket = new WebSocket();
+  constructor() {
+    this.websocket = new WebSocket();
     this.initWebsocket();
   }
 

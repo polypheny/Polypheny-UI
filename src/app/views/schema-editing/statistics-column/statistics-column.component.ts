@@ -12,8 +12,8 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 })
 export class StatisticsColumnComponent implements OnInit, OnDestroy {
 
-    private readonly _crud = inject(CrudService);
-    private readonly _toast = inject(ToasterService);
+  private readonly _crud = inject(CrudService);
+  private readonly _toast = inject(ToasterService);
 
   subscriptions = new Subscription();
   entityId: number;
@@ -22,7 +22,7 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
   numericalStatisticSet: StatisticColumnSet;
   temporalStatisticSet: StatisticColumnSet;
 
-    constructor() {
+  constructor() {
   }
 
   ngOnInit(): void {

@@ -6,12 +6,7 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {RelationalResult} from '../../components/data-view/models/result-set.model';
-import {
-  QueryInterface,
-  QueryInterfaceInformation,
-  QueryInterfaceInformationRequest,
-  QueryInterfaceSetting
-} from './query-interfaces.model';
+import {QueryInterface, QueryInterfaceInformation, QueryInterfaceInformationRequest, QueryInterfaceSetting} from './query-interfaces.model';
 import {LeftSidebarService} from "../../components/left-sidebar/left-sidebar.service";
 
 @Component({
@@ -21,11 +16,11 @@ import {LeftSidebarService} from "../../components/left-sidebar/left-sidebar.ser
 })
 export class QueryInterfacesComponent implements OnInit, OnDestroy {
 
-    private readonly _crud = inject(CrudService);
-    private readonly _route = inject(ActivatedRoute);
-    private readonly _router = inject(Router);
-    private readonly _toast = inject(ToasterService);
-    private readonly _sidebar = inject(LeftSidebarService);
+  private readonly _crud = inject(CrudService);
+  private readonly _route = inject(ActivatedRoute);
+  private readonly _router = inject(Router);
+  private readonly _toast = inject(ToasterService);
+  private readonly _sidebar = inject(LeftSidebarService);
 
   queryInterfaces: QueryInterface[];
   availableQueryInterfaces: QueryInterfaceInformation[];
@@ -43,7 +38,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
 
   @ViewChild('QISettingsModal', {static: false}) public QISettingsModal: ModalDirective;
 
-    constructor() {
+  constructor() {
 
   }
 

@@ -8,10 +8,10 @@ import {from} from 'rxjs';
   providedIn: 'root'
 })
 export class DbmsTypesService {
-    private readonly _crud = inject(CrudService);
-    private readonly _toast = inject(ToasterService);
+  private readonly _crud = inject(CrudService);
+  private readonly _toast = inject(ToasterService);
 
-    constructor() {
+  constructor() {
     this.fetchTypes();
     this.fetchFkActions();
   }
@@ -197,11 +197,11 @@ export class DbmsTypesService {
     }
   }
 
-    isDocument(dataModel: string) {
-        return dataModel.toLowerCase() === 'document';
+  isDocument(dataModel: string) {
+    return dataModel.toLowerCase() === 'document';
   }
 
-    isGraph(dataModel: string) {
-        return dataModel.toLowerCase() === 'graph';
+  isGraph(dataModel: string) {
+    return dataModel.toLowerCase() === 'graph';
   }
 }

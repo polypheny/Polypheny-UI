@@ -2,14 +2,14 @@
  * models if and how a column is supposed to be sorted
  */
 export class SortState {
-    direction: SortDirection = SortDirection.DESC;
-    sorting = false;
-    //for the PlanBuilder
-    column: string;
+  direction: SortDirection = SortDirection.DESC;
+  sorting = false;
+  //for the PlanBuilder
+  column: string;
 
-    constructor() {
-        this.column = '';
-    }
+  constructor() {
+    this.column = '';
+  }
 }
 
 /**
@@ -17,28 +17,28 @@ export class SortState {
  */
 export enum SortDirection {
 
-    /**
-     * ascending
-     */
-    ASC = 'ASC',
+  /**
+   * ascending
+   */
+  ASC = 'ASC',
 
-    /**
-     * descending
-     */
-    DESC = 'DESC'
+  /**
+   * descending
+   */
+  DESC = 'DESC'
 }
 
 export class InputValidation {
-    cssClass;
+  cssClass;
 
-    constructor(
-        public valid: boolean,
-        public message: string = null,
-    ) {
-        if (valid) {
-            this.cssClass = 'is-valid';
-        } else {
-            this.cssClass = 'is-invalid';
-        }
+  constructor(
+      public valid: boolean,
+      public message: string = null,
+  ) {
+    if (valid) {
+      this.cssClass = 'is-valid';
+    } else {
+      this.cssClass = 'is-invalid';
     }
+  }
 }

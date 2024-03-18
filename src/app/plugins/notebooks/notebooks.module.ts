@@ -22,94 +22,68 @@ import {UnsavedChangesGuard} from './services/unsaved-changes.guard';
 import {NbPolyOutputComponent} from './components/edit-notebook/nb-poly-output/nb-poly-output.component';
 import {SafeHtmlPipe} from './services/safe-html.pipe';
 import {TreeModule} from '@ali-hm/angular-tree-component';
-import {
-    BadgeComponent,
-    BgColorDirective,
-    ButtonCloseDirective,
-    ButtonDirective,
-    ButtonGroupComponent,
-    ButtonToolbarComponent,
-    CardBodyComponent,
-    CardComponent,
-    CardFooterComponent,
-    CardHeaderComponent,
-    ColComponent,
-    ContainerComponent,
-    FormControlDirective,
-    FormSelectDirective,
-    InputGroupComponent,
-    InputGroupTextDirective,
-    ModalBodyComponent,
-    ModalComponent,
-    ModalContentComponent,
-    ModalDialogComponent,
-    ModalFooterComponent,
-    ModalHeaderComponent,
-    ModalTitleDirective,
-    RowComponent,
-    TooltipDirective
-} from "@coreui/angular";
+import {BadgeComponent, BgColorDirective, ButtonCloseDirective, ButtonDirective, ButtonGroupComponent, ButtonToolbarComponent, CardBodyComponent, CardComponent, CardFooterComponent, CardHeaderComponent, ColComponent, ContainerComponent, FormControlDirective, FormSelectDirective, InputGroupComponent, InputGroupTextDirective, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalDialogComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, RowComponent, TooltipDirective} from "@coreui/angular";
 import {IconDirective} from '@coreui/icons-angular';
 
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule, ReactiveFormsModule,
-        ComponentsModule,
-        DragDropModule,
-        ModalModule.forRoot(),
-        BsDropdownModule,
-        TooltipModule,
-        MarkdownModule.forRoot({
-            markedOptions: {
-                provide: MARKED_OPTIONS,
-                useFactory: markedOptionsFactory,
-                deps: [WebuiSettingsService]
-            }
-        }),
-        TreeModule,
-        NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective, ButtonToolbarComponent, TooltipDirective
-    ],
-    declarations: [
-        NotebooksComponent,
-        ManageNotebookComponent,
-        EditNotebookComponent,
-        NotebooksDashboardComponent,
-        NbCellComponent,
-        NbInputEditorComponent,
-        NbOutputDataComponent,
-        NbPolyOutputComponent,
-        SafeHtmlPipe
-    ],
-    exports: [
-        NotebooksComponent
-    ],
-    providers: [
-        NotebooksSidebarService,
-        NotebooksContentService,
-        UnsavedChangesGuard
-    ]
+  imports: [
+    CommonModule,
+    FormsModule, ReactiveFormsModule,
+    ComponentsModule,
+    DragDropModule,
+    ModalModule.forRoot(),
+    BsDropdownModule,
+    TooltipModule,
+    MarkdownModule.forRoot({
+      markedOptions: {
+        provide: MARKED_OPTIONS,
+        useFactory: markedOptionsFactory,
+        deps: [WebuiSettingsService]
+      }
+    }),
+    TreeModule,
+    NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective, ButtonToolbarComponent, TooltipDirective
+  ],
+  declarations: [
+    NotebooksComponent,
+    ManageNotebookComponent,
+    EditNotebookComponent,
+    NotebooksDashboardComponent,
+    NbCellComponent,
+    NbInputEditorComponent,
+    NbOutputDataComponent,
+    NbPolyOutputComponent,
+    SafeHtmlPipe
+  ],
+  exports: [
+    NotebooksComponent
+  ],
+  providers: [
+    NotebooksSidebarService,
+    NotebooksContentService,
+    UnsavedChangesGuard
+  ]
 })
 export class NotebooksModule {
 }
 
 // https://stackoverflow.com/questions/69218645/dynamic-configuration-for-angular-module-imports
 export function markedOptionsFactory(_settings: WebuiSettingsService) {
-    const renderer = new MarkedRenderer();
+  const renderer = new MarkedRenderer();
 
-    renderer.blockquote = (text: string) => {
-        return '<blockquote class="blockquote"><p>' + text + '</p></blockquote>';
-    };
+  renderer.blockquote = (text: string) => {
+    return '<blockquote class="blockquote"><p>' + text + '</p></blockquote>';
+  };
 
-    const defaultLinkRenderer = renderer.link.bind(renderer);
-    renderer.link = (href, title, text) => {
-        const link = defaultLinkRenderer(href, title, text);
-        return link.startsWith('<a') ? '<a target="_blank"' + link.slice(2) : link;
-    };
+  const defaultLinkRenderer = renderer.link.bind(renderer);
+  renderer.link = (href, title, text) => {
+    const link = defaultLinkRenderer(href, title, text);
+    return link.startsWith('<a') ? '<a target="_blank"' + link.slice(2) : link;
+  };
 
-    return {
-        renderer: renderer,
-        baseUrl: _settings.getConnection('notebooks.file') + '/notebooks/'
-    };
+  return {
+    renderer: renderer,
+    baseUrl: _settings.getConnection('notebooks.file') + '/notebooks/'
+  };
 }

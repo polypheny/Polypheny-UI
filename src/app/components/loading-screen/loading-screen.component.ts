@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {LoadingScreenService} from './loading-screen.service';
 
 @Component({
@@ -10,7 +10,8 @@ export class LoadingScreenComponent implements OnInit {
 
   show = false;
 
-  constructor(private _loading: LoadingScreenService) { }
+  constructor(private _loading: LoadingScreenService) {
+  }
 
   ngOnInit(): void {
     this._loading.onVisibilityChange().subscribe(res => this.show = res);

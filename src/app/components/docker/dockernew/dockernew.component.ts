@@ -10,8 +10,8 @@ import {ToasterService} from '../../toast-exposer/toaster.service';
 })
 export class DockernewComponent implements OnInit, OnDestroy {
 
-    private readonly _crud = inject(CrudService);
-    private readonly _toast = inject(ToasterService);
+  private readonly _crud = inject(CrudService);
+  private readonly _toast = inject(ToasterService);
 
   host: string;
   alias: string;
@@ -26,7 +26,7 @@ export class DockernewComponent implements OnInit, OnDestroy {
 
   @Output() done = new EventEmitter<DockerInstance[]>();
 
-    constructor() {
+  constructor() {
   }
 
   ngOnInit(): void {

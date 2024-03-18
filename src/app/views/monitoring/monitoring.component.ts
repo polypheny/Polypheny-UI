@@ -15,11 +15,11 @@ import {Subscription} from 'rxjs';
 })
 export class MonitoringComponent implements OnInit, OnDestroy {
 
-    private readonly _information = inject(InformationService);
-    private readonly _route = inject(ActivatedRoute);
-    public readonly _breadcrumb = inject(BreadcrumbService);
-    private readonly _sidebar = inject(LeftSidebarService);
-    private readonly _settings = inject(WebuiSettingsService);
+  private readonly _information = inject(InformationService);
+  private readonly _route = inject(ActivatedRoute);
+  public readonly _breadcrumb = inject(BreadcrumbService);
+  private readonly _sidebar = inject(LeftSidebarService);
+  private readonly _settings = inject(WebuiSettingsService);
 
   data;
   routerId;
@@ -28,7 +28,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
   pageNotFound = false;
   private subscriptions = new Subscription();
 
-    constructor() {
+  constructor() {
   }
 
   ngOnInit() {

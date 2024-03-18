@@ -12,10 +12,10 @@ import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 })
 export class DockerconfigComponent implements OnInit, OnDestroy {
 
-    private readonly _breadcrumb = inject(BreadcrumbService);
-    private readonly _crud = inject(CrudService);
-    private readonly _sidebar = inject(LeftSidebarService);
-    private readonly _toast = inject(ToasterService);
+  private readonly _breadcrumb = inject(BreadcrumbService);
+  private readonly _crud = inject(CrudService);
+  private readonly _sidebar = inject(LeftSidebarService);
+  private readonly _toast = inject(ToasterService);
 
   instances: DockerInstance[];
   error: string = null;
@@ -25,8 +25,8 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
   modalId: number = null;
   activeModal: null | 'add_edit' | 'settings' = null;
 
-    constructor() {
-        this._sidebar.listConfigManagerPages();
+  constructor() {
+    this._sidebar.listConfigManagerPages();
   }
 
   ngOnInit(): void {

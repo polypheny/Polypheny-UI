@@ -1,26 +1,8 @@
-import {
-  Component,
-  computed,
-  ElementRef,
-  inject,
-  Input,
-  OnDestroy,
-  OnInit,
-  QueryList,
-  Renderer2,
-  Signal,
-  ViewChildren
-} from '@angular/core';
+import {Component, computed, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, Renderer2, Signal, ViewChildren} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest} from '../../../models/ui-request.model';
 import {Router} from '@angular/router';
-import {
-  EntityMeta,
-  PolyType,
-  RelationalResult,
-  Status,
-  UiColumnDefinition
-} from '../../../components/data-view/models/result-set.model';
+import {EntityMeta, PolyType, RelationalResult, Status, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -29,14 +11,7 @@ import {Subscription} from 'rxjs';
 import {DbTable} from '../../uml/uml.model';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {CatalogService} from '../../../services/catalog.service';
-import {
-  AllocationEntityModel,
-  AllocationPartitionModel,
-  AllocationPlacementModel,
-  EntityType,
-  NamespaceModel,
-  TableModel
-} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {AdapterModel} from '../../adapters/adapter.model';
 
 const INITIAL_TYPE = 'BIGINT';
@@ -48,15 +23,15 @@ const INITIAL_TYPE = 'BIGINT';
 })
 export class EditTablesComponent implements OnInit, OnDestroy {
 
-    public readonly _crud = inject(CrudService);
-    public readonly _types = inject(DbmsTypesService);
-    public readonly _catalog = inject(CatalogService);
-    public readonly _breadcrumb = inject(BreadcrumbService);
-    private readonly _toast = inject(ToasterService);
-    private readonly _router = inject(Router);
-    private readonly _leftSidebar = inject(LeftSidebarService);
-    private readonly _settings = inject(WebuiSettingsService);
-    private readonly _render = inject(Renderer2);
+  public readonly _crud = inject(CrudService);
+  public readonly _types = inject(DbmsTypesService);
+  public readonly _catalog = inject(CatalogService);
+  public readonly _breadcrumb = inject(BreadcrumbService);
+  private readonly _toast = inject(ToasterService);
+  private readonly _router = inject(Router);
+  private readonly _leftSidebar = inject(LeftSidebarService);
+  private readonly _settings = inject(WebuiSettingsService);
+  private readonly _render = inject(Renderer2);
 
   @ViewChildren('editing', {read: ElementRef}) inputGroup: QueryList<ElementRef>;
   types: PolyType[] = [];
@@ -93,7 +68,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
   exportProgress = 0.0;
   private subscriptions = new Subscription();
 
-    constructor() {
+  constructor() {
     this._render.listen('document', 'click', (e: Event) => {
       if (!this.inputGroup || this.inputGroup.length === 0) {
         return;

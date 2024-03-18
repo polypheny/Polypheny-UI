@@ -1,14 +1,4 @@
-import {
-  Component,
-  effect,
-  inject,
-  OnDestroy,
-  OnInit,
-  signal,
-  untracked,
-  ViewChild,
-  WritableSignal
-} from '@angular/core';
+import {Component, effect, inject, OnDestroy, OnInit, signal, untracked, ViewChild, WritableSignal} from '@angular/core';
 import {EntityConfig} from '../../../components/data-view/data-table/entity-config';
 import {CrudService} from '../../../services/crud.service';
 import {RelationalResult, Result} from '../../../components/data-view/models/result-set.model';
@@ -36,14 +26,14 @@ import {NamespaceModel} from '../../../models/catalog.model';
 })
 export class ConsoleComponent implements OnInit, OnDestroy {
 
-    private readonly _crud = inject(CrudService);
-    private readonly _leftSidebar = inject(LeftSidebarService);
-    private readonly _breadcrumb = inject(BreadcrumbService);
-    private readonly _settings = inject(WebuiSettingsService);
-    public readonly _util = inject(UtilService);
-    public readonly _toast = inject(ToasterService);
-    public readonly _catalog = inject(CatalogService);
-    private readonly _sidebar = inject(LeftSidebarService);
+  private readonly _crud = inject(CrudService);
+  private readonly _leftSidebar = inject(LeftSidebarService);
+  private readonly _breadcrumb = inject(BreadcrumbService);
+  private readonly _settings = inject(WebuiSettingsService);
+  public readonly _util = inject(UtilService);
+  public readonly _toast = inject(ToasterService);
+  public readonly _catalog = inject(CatalogService);
+  private readonly _sidebar = inject(LeftSidebarService);
 
   @ViewChild('editor', {static: false}) codeEditor;
   @ViewChild('historySearchInput') historySearchInput;
@@ -81,8 +71,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   };
   showNamespaceConfig: boolean;
 
-    constructor() {
-        this.websocket = new WebSocket();
+  constructor() {
+    this.websocket = new WebSocket();
     this._sidebar.close();
     // @ts-ignore
     if (window.Cypress) {
@@ -94,7 +84,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     this.initWebsocket();
 
-    effect(() =>{
+    effect(() => {
       const namespace = this._catalog.namespaces();
       untracked(() => {
         this.namespaces.set(Array.from(namespace.values()));
@@ -260,7 +250,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
       if (analyzerId && analyzerPage) {
         this._crud.getAnalyzerPage(analyzerId, analyzerPage).subscribe({
           next: res => {
-              console.log(res);
+            console.log(res);
             this.queryAnalysis = <InformationPage>res;
             this.showingAnalysis = true;
             this._breadcrumb.setBreadcrumbs([new BreadcrumbItem(node.data.name)]);

@@ -1,18 +1,4 @@
-import {
-  Component,
-  computed,
-  effect,
-  EventEmitter,
-  inject,
-  Input,
-  OnDestroy,
-  Output,
-  Signal,
-  signal,
-  untracked,
-  ViewChild,
-  WritableSignal
-} from '@angular/core';
+import {Component, computed, effect, EventEmitter, inject, Input, OnDestroy, Output, Signal, signal, untracked, ViewChild, WritableSignal} from '@angular/core';
 import {DataPresentationType, QueryLanguage, Result} from './models/result-set.model';
 import {EntityConfig} from './data-table/entity-config';
 import {CrudService} from '../../services/crud.service';
@@ -73,7 +59,7 @@ export class DataViewComponent implements OnDestroy {
     this.$tables = computed(() => {
       const catalog = this._catalog.listener();
       const entities = this._catalog.getEntities(null);
-        return entities.filter(e => e.dataModel === DataModel.RELATIONAL)
+      return entities.filter(e => e.dataModel === DataModel.RELATIONAL)
       .map(n => Table.fromModel(<TableModel>n))
       .sort((a, b) => a.name.localeCompare(b.name));
     });
@@ -84,14 +70,14 @@ export class DataViewComponent implements OnDestroy {
       }
 
       untracked(() => {
-          switch (this.$result().dataModel) {
-              case DataModel.DOCUMENT:
+        switch (this.$result().dataModel) {
+          case DataModel.DOCUMENT:
             this.$presentationType.set(DataPresentationType.CARD);
             break;
-              case DataModel.RELATIONAL:
+          case DataModel.RELATIONAL:
             this.$presentationType.set(DataPresentationType.TABLE);
             break;
-              case DataModel.GRAPH:
+          case DataModel.GRAPH:
             this.$presentationType.set(DataPresentationType.GRAPH);
             break;
           default:
@@ -160,8 +146,8 @@ export class DataViewComponent implements OnDestroy {
   }
 
   checkModelAndLanguage() {
-      return (this.$result().dataModel === DataModel.DOCUMENT && this.$result().language === QueryLanguage.MQL) ||
-          (this.$result().dataModel === DataModel.RELATIONAL && this.$result().language === QueryLanguage.SQL);
+    return (this.$result().dataModel === DataModel.DOCUMENT && this.$result().language === QueryLanguage.MQL) ||
+        (this.$result().dataModel === DataModel.RELATIONAL && this.$result().language === QueryLanguage.SQL);
   }
 
   showCreateView() {
@@ -173,7 +159,7 @@ export class DataViewComponent implements OnDestroy {
         && this.checkModelAndLanguage();
   }
 
-  showAny():boolean {
+  showAny(): boolean {
     return !(this.$dataModel() === DataModel.RELATIONAL || this.$dataModel() === DataModel.DOCUMENT);
 
   }

@@ -11,7 +11,7 @@ import {BehaviorSubject} from 'rxjs';
   selector: 'app-toast',
   templateUrl: './toast.component.html',
   styleUrls: ['./toast.component.scss'],
-  providers: [{ provide: ToastParent, useExisting: forwardRef(() => ToastComponent) }]
+  providers: [{provide: ToastParent, useExisting: forwardRef(() => ToastComponent)}]
 })
 export class ToastComponent extends ToastParent {
 
@@ -20,9 +20,9 @@ export class ToastComponent extends ToastParent {
 
   exception: ResultException;
   @ViewChild('stackTraceModal', {static: false}) public stackTraceModal: ModalDirective;
-  
+
   public toast: BehaviorSubject<Toast> = new BehaviorSubject<Toast>(null);
-  
+
   constructor(
       public override hostElement: ElementRef,
       public override renderer: Renderer2,
@@ -30,9 +30,9 @@ export class ToastComponent extends ToastParent {
       public override changeDetectorRef: ChangeDetectorRef) {
     super(hostElement, renderer, toasterService, changeDetectorRef);
   }
-  
-  
-  ngOnInit( ): void {
+
+
+  ngOnInit(): void {
   }
 
   /**

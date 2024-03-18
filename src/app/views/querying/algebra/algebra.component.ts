@@ -1,20 +1,4 @@
-import {
-    AfterViewInit,
-    Component,
-    computed,
-    effect,
-    ElementRef,
-    HostBinding,
-    inject,
-    OnDestroy,
-    OnInit,
-    Signal,
-    signal,
-    untracked,
-    ViewChild,
-    ViewEncapsulation,
-    WritableSignal
-} from '@angular/core';
+import {AfterViewInit, Component, computed, effect, ElementRef, HostBinding, inject, OnDestroy, OnInit, Signal, signal, untracked, ViewChild, ViewEncapsulation, WritableSignal} from '@angular/core';
 import {AlgNodeModel, AlgType, Connection, Node} from './algebra.model';
 import {RelationalResult, Result} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
@@ -400,18 +384,18 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
                 const cols = new Set<string>();
                 const tableCols = new Set<string>();
                 this.autocomplete.schemas
-                    .filter(namespace => getNode().acSchema.has(namespace))
-                    .forEach((v1, i1) => {
-                        this.autocomplete[v1].tables
-                            .filter((v) => getNode().acTable.has(v[0]))
-                            .forEach((v2, i2) => {
-                                ac.push(v1 + '.' + v2[0]);
-                                this.autocomplete[v1][v2[0]].columns.forEach((v3, i3) => {
-                                    cols.add(v3);
-                                    tableCols.add(v2[0] + '.' + v3);
-                                });
-                            });
+                .filter(namespace => getNode().acSchema.has(namespace))
+                .forEach((v1, i1) => {
+                    this.autocomplete[v1].tables
+                    .filter((v) => getNode().acTable.has(v[0]))
+                    .forEach((v2, i2) => {
+                        ac.push(v1 + '.' + v2[0]);
+                        this.autocomplete[v1][v2[0]].columns.forEach((v3, i3) => {
+                            cols.add(v3);
+                            tableCols.add(v2[0] + '.' + v3);
+                        });
                     });
+                });
                 getNode().autocomplete = ac;
                 getNode().acColumns = cols;
                 getNode().acTableColumns = tableCols;
