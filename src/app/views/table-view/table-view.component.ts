@@ -2,63 +2,63 @@ import {Component, computed, effect, OnDestroy, OnInit, Signal, untracked} from 
 import {DataTemplateComponent} from '../../components/data-view/data-template/data-template.component';
 
 @Component({
-  selector: 'app-table-view',
-  templateUrl: './table-view.component.html',
-  styleUrls: ['./table-view.component.scss']
+    selector: 'app-table-view',
+    templateUrl: './table-view.component.html',
+    styleUrls: ['./table-view.component.scss']
 })
 export class TableViewComponent extends DataTemplateComponent implements OnInit, OnDestroy {
 
-  readonly fullName: Signal<string>;
-  reload = () => { // we can preserve the "this" context
-    if (!this.entity()) {
-      return;
-    }
-    this.getEntityData();
-  }
-
-  constructor() {
-    super();
-    this.fullName = computed(() => <string>this.routeParams()['id']);
-
-    effect(() => {
-      if (!this.entity()) {
-        return;
-      }
-
-      untracked(() => {
-        this.getEntityData();
-      });
-    });
-
-    effect(() => {
-      const catalog = this._catalog.listener();
-      untracked(() => {
-        this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);
-      });
-    });
-  }
-
-  ngOnInit() {
-    super.ngOnInit();
-
-    //this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);
-    const sub = this.webSocket.reconnecting.subscribe(
-        b => {
-          if (b) {
-            //this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);
-            this.getEntityData();
-          }
+    readonly fullName: Signal<string>;
+    reload = () => { // we can preserve the "this" context
+        if (!this.entity()) {
+            return;
         }
-    );
-    this.subscriptions.add(sub);
+        this.getEntityData();
+    };
 
-  }
+    constructor() {
+        super();
+        this.fullName = computed(() => <string>this.routeParams()['id']);
+
+        effect(() => {
+            if (!this.entity()) {
+                return;
+            }
+
+            untracked(() => {
+                this.getEntityData();
+            });
+        });
+
+        effect(() => {
+            const catalog = this._catalog.listener();
+            untracked(() => {
+                this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);
+            });
+        });
+    }
+
+    ngOnInit() {
+        super.ngOnInit();
+
+        //this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);
+        const sub = this.webSocket.reconnecting.subscribe(
+            b => {
+                if (b) {
+                    //this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);
+                    this.getEntityData();
+                }
+            }
+        );
+        this.subscriptions.add(sub);
+
+    }
 
 
-  ngOnDestroy() {
-    this._sidebar.close();
-    this.subscriptions.unsubscribe();
-    this.webSocket.close();
-  }
+    ngOnDestroy() {
+        this._sidebar.close();
+        this.subscriptions.unsubscribe();
+        this.webSocket.close();
+    }
 
 }

@@ -6,46 +6,46 @@ import {Subscription} from 'rxjs';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 
 @Component({
-  selector: 'app-statistics-column',
-  templateUrl: './statistics-column.component.html',
-  styleUrls: ['./statistics-column.component.scss']
+    selector: 'app-statistics-column',
+    templateUrl: './statistics-column.component.html',
+    styleUrls: ['./statistics-column.component.scss']
 })
 export class StatisticsColumnComponent implements OnInit, OnDestroy {
 
-  private readonly _crud = inject(CrudService);
-  private readonly _toast = inject(ToasterService);
+    private readonly _crud = inject(CrudService);
+    private readonly _toast = inject(ToasterService);
 
-  subscriptions = new Subscription();
-  entityId: number;
-  statisticSet: StatisticTableSet;
-  alphabeticStatisticSet: StatisticColumnSet;
-  numericalStatisticSet: StatisticColumnSet;
-  temporalStatisticSet: StatisticColumnSet;
+    subscriptions = new Subscription();
+    entityId: number;
+    statisticSet: StatisticTableSet;
+    alphabeticStatisticSet: StatisticColumnSet;
+    numericalStatisticSet: StatisticColumnSet;
+    temporalStatisticSet: StatisticColumnSet;
 
-  constructor() {
-  }
+    constructor() {
+    }
 
-  ngOnInit(): void {
-    this.getTableStatistics(this.entityId);
-  }
+    ngOnInit(): void {
+        this.getTableStatistics(this.entityId);
+    }
 
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
+    }
 
-  getTableStatistics(entityId: number) {
-    this._crud.getTableStatistics(new StatisticRequest(entityId)).subscribe({
-      next: (res: StatisticTableSet) => {
-        this.statisticSet = res;
-        this.alphabeticStatisticSet = this.statisticSet.alphabeticColumn;
-        this.numericalStatisticSet = this.statisticSet.numericalColumn;
-        this.temporalStatisticSet = this.statisticSet.temporalColumn;
-      }, error: err => {
-        this._toast.warn('There are no statistics for this entity.');
+    getTableStatistics(entityId: number) {
+        this._crud.getTableStatistics(new StatisticRequest(entityId)).subscribe({
+            next: (res: StatisticTableSet) => {
+                this.statisticSet = res;
+                this.alphabeticStatisticSet = this.statisticSet.alphabeticColumn;
+                this.numericalStatisticSet = this.statisticSet.numericalColumn;
+                this.temporalStatisticSet = this.statisticSet.temporalColumn;
+            }, error: err => {
+                this._toast.warn('There are no statistics for this entity.');
 
-      }
-    });
-  }
+            }
+        });
+    }
 
 
 }

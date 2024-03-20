@@ -2,28 +2,28 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class LoadingScreenService {
 
-  private isLoading = new BehaviorSubject<boolean>(false);
+    private isLoading = new BehaviorSubject<boolean>(false);
 
-  constructor() {
-  }
+    constructor() {
+    }
 
-  show() {
-    this.isLoading.next(true);
-  }
+    show() {
+        this.isLoading.next(true);
+    }
 
-  hide() {
-    this.isLoading.next(false);
-  }
+    hide() {
+        this.isLoading.next(false);
+    }
 
-  onVisibilityChange() {
-    return this.isLoading;
-  }
+    onVisibilityChange() {
+        return this.isLoading;
+    }
 
-  isShown() {
-    return this.isLoading.getValue();
-  }
+    isShown() {
+        return this.isLoading.getValue();
+    }
 }

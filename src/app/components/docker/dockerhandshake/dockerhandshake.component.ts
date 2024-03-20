@@ -3,29 +3,29 @@ import {Handshake} from '../../../models/docker.model';
 import {UtilService} from '../../../services/util.service';
 
 @Component({
-  selector: 'app-dockerhandshake',
-  templateUrl: './dockerhandshake.component.html',
-  styleUrls: ['./dockerhandshake.component.scss']
+    selector: 'app-dockerhandshake',
+    templateUrl: './dockerhandshake.component.html',
+    styleUrls: ['./dockerhandshake.component.scss']
 })
 export class DockerhandshakeComponent implements OnInit {
 
-  public readonly _util = inject(UtilService);
+    public readonly _util = inject(UtilService);
 
-  @Input() handshake: Handshake;
-  @Output() cancel = new EventEmitter<void>();
-  @Output() redo = new EventEmitter<void>();
+    @Input() handshake: Handshake;
+    @Output() cancel = new EventEmitter<void>();
+    @Output() redo = new EventEmitter<void>();
 
-  constructor() {
-  }
+    constructor() {
+    }
 
-  ngOnInit(): void {
-  }
+    ngOnInit(): void {
+    }
 
-  cancelHandshake() {
-    this.cancel.emit();
-  }
+    cancelHandshake() {
+        this.cancel.emit();
+    }
 
-  redoHandshake() {
-    this.redo.emit();
-  }
+    redoHandshake() {
+        this.redo.emit();
+    }
 }

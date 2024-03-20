@@ -1,4 +1,20 @@
-import {AfterViewInit, Component, computed, effect, ElementRef, HostBinding, inject, OnDestroy, OnInit, Signal, signal, untracked, ViewChild, ViewEncapsulation, WritableSignal} from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    computed,
+    effect,
+    ElementRef,
+    HostBinding,
+    inject,
+    OnDestroy,
+    OnInit,
+    Signal,
+    signal,
+    untracked,
+    ViewChild,
+    ViewEncapsulation,
+    WritableSignal
+} from '@angular/core';
 import {AlgNodeModel, AlgType, Connection, Node} from './algebra.model';
 import {RelationalResult, Result} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
@@ -19,7 +35,7 @@ import {WebSocket} from '../../../services/webSocket';
 import {UtilService} from '../../../services/util.service';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
 import {CatalogService} from '../../../services/catalog.service';
-import {KeyValue} from "@angular/common";
+import {KeyValue} from '@angular/common';
 
 @Component({
     selector: 'app-algebra',
@@ -79,7 +95,7 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
             }
             return map;
-        })
+        });
 
         effect(() => {
             const catalog = this._catalog.listener();
@@ -113,8 +129,8 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.sidebarNodes = nodes;
                 this._leftSidebar.setNodes(nodes);
                 this._leftSidebar.open();
-            })
-        })
+            });
+        });
     }
 
     static toSidebarNode(nodeModel: AlgNodeModel): SidebarNode {
@@ -384,18 +400,18 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
                 const cols = new Set<string>();
                 const tableCols = new Set<string>();
                 this.autocomplete.schemas
-                .filter(namespace => getNode().acSchema.has(namespace))
-                .forEach((v1, i1) => {
-                    this.autocomplete[v1].tables
-                    .filter((v) => getNode().acTable.has(v[0]))
-                    .forEach((v2, i2) => {
-                        ac.push(v1 + '.' + v2[0]);
-                        this.autocomplete[v1][v2[0]].columns.forEach((v3, i3) => {
-                            cols.add(v3);
-                            tableCols.add(v2[0] + '.' + v3);
-                        });
+                    .filter(namespace => getNode().acSchema.has(namespace))
+                    .forEach((v1, i1) => {
+                        this.autocomplete[v1].tables
+                            .filter((v) => getNode().acTable.has(v[0]))
+                            .forEach((v2, i2) => {
+                                ac.push(v1 + '.' + v2[0]);
+                                this.autocomplete[v1][v2[0]].columns.forEach((v3, i3) => {
+                                    cols.add(v3);
+                                    tableCols.add(v2[0] + '.' + v3);
+                                });
+                            });
                     });
-                });
                 getNode().autocomplete = ac;
                 getNode().acColumns = cols;
                 getNode().acTableColumns = tableCols;
@@ -592,7 +608,7 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
      * Set temporal values when dragging a node
      */
     dragStart(e, node: Node) {
-        const $bg = $("#wrapper");
+        const $bg = $('#wrapper');
         this.scrollTop = $bg.scrollTop();
         this.scrollLeft = $bg.scrollLeft();
         this.nodes.get(node.id).dragging = true;
@@ -602,7 +618,7 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
      * Set temporal values when dragging a node
      */
     draggingNode(e, node: Node) {
-        const $bg = $("#wrapper");
+        const $bg = $('#wrapper');
 
         this.draggingNodeX = node.$left() + e.distance.x + $bg.scrollLeft() - this.scrollLeft;
         this.draggingNodeY = node.$top() + e.distance.y + $bg.scrollTop() - this.scrollTop;
@@ -612,14 +628,14 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
      * Save the position of a node when it was moved
      */
     savePos(e, node: Node) {
-        const $bg = $("#drop");
+        const $bg = $('#drop');
         this.nodes.get(node.id).dragging = false;
         const nodeElement = $('#' + node.id);
         const nodeWidth = nodeElement.width();
         const nodeHeight = nodeElement.height();
         const scrollTopDistance = $bg.scrollTop() - this.scrollTop;
         const scrollLeftDistance = $bg.scrollLeft() - this.scrollLeft;
-        console.log(node.$left() + e.distance.x + scrollLeftDistance)
+        console.log(node.$left() + e.distance.x + scrollLeftDistance);
         node.$left.set(Math.max(0, Math.min(node.$left() + e.distance.x + scrollLeftDistance, this.dropArea.nativeElement.offsetWidth - nodeWidth - 4)));
         node.$top.set(Math.max(0, Math.min(node.$top() + e.distance.y + scrollTopDistance, this.dropArea.nativeElement.offsetHeight - nodeHeight - 4)));
         this.draggingNodeX = null;

@@ -8,6 +8,6 @@ import {BrowserDynamicTestingModule, platformBrowserDynamicTesting} from '@angul
 getTestBed().initTestEnvironment(
     BrowserDynamicTestingModule,
     platformBrowserDynamicTesting(), {
-    teardown: { destroyAfterEach: false }
-}
+        teardown: {destroyAfterEach: false}
+    }
 );

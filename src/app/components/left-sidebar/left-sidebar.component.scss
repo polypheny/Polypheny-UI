@@ -67,14 +67,14 @@
   margin-right: 1px;
 }
 
-.sidebar-toggle{
+.sidebar-toggle {
   position: absolute;
   top: 1rem;
   transition: right .2s;
   right: -50px;
   background-color: #3c4b64;
 
-  &.open{
+  &.open {
     right: -10px;
     top: 0.1rem;
     display: inline-block;
@@ -85,11 +85,11 @@
   }
 }
 
-.toggle-children-placeholder{
+.toggle-children-placeholder {
   width: 13px !important;
 }
 
-.node-content-wrapper:hover{
+.node-content-wrapper:hover {
   background: #ebedef;
   color: #3d434a;
 }

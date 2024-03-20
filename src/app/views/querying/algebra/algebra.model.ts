@@ -1,6 +1,6 @@
 import {SortState} from '../../../components/data-view/models/sort-state.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
-import {signal, WritableSignal} from "@angular/core";
+import {signal, WritableSignal} from '@angular/core';
 
 export enum LogicalOperator {
     Scan = 'RelScan',

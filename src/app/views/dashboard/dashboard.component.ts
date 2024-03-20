@@ -6,156 +6,156 @@ import {CatalogService} from '../../services/catalog.service';
 
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+    selector: 'app-dashboard',
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.scss']
 })
 
 
 export class DashboardComponent implements OnInit, OnDestroy {
-  public readonly _crud = inject(CrudService);
-  public readonly _catalog = inject(CatalogService);
+    public readonly _crud = inject(CrudService);
+    public readonly _catalog = inject(CatalogService);
 
-  dataWorkload = [];
-  dataDql = [];
-  labels = [];
-  colorList = [];
-  line = 'line';
-  min = 0;
-  max = 0;
-  diagram = [];
+    dataWorkload = [];
+    dataDql = [];
+    labels = [];
+    colorList = [];
+    line = 'line';
+    min = 0;
+    max = 0;
+    diagram = [];
 
-  dashboardSet: DashboardSet;
-  dashboardInformation: DashboardData;
-  xLabel: string;
-  yLabel: string;
-  digramInterval: number;
-  informationInterval: number;
-  infoCounter: number;
-  diagramCounter: number;
-  selectIntervalDisplay = 'All';
+    dashboardSet: DashboardSet;
+    dashboardInformation: DashboardData;
+    xLabel: string;
+    yLabel: string;
+    digramInterval: number;
+    informationInterval: number;
+    infoCounter: number;
+    diagramCounter: number;
+    selectIntervalDisplay = 'All';
 
-  constructor() {
-  }
-
-  ngOnInit() {
-    this.infoCounter = 0;
-    this.diagramCounter = 0;
-
-    this.getDiagram('all');
-    this.getDashboardInformation();
-    this.checkIfInformationAvailable();
-
-  }
-
-  ngOnDestroy() {
-    clearInterval(this.digramInterval);
-    clearInterval(this.informationInterval);
-  }
-
-
-  private checkIfInformationAvailable() {
-    if (this.dashboardInformation == null) {
-      this.digramInterval = setInterval(this.getDiagram.bind(this), 1000);
+    constructor() {
     }
-    if (this.dashboardSet == null) {
-      this.informationInterval = setInterval(this.getDashboardInformation.bind(this), 1000);
+
+    ngOnInit() {
+        this.infoCounter = 0;
+        this.diagramCounter = 0;
+
+        this.getDiagram('all');
+        this.getDashboardInformation();
+        this.checkIfInformationAvailable();
+
     }
-  }
+
+    ngOnDestroy() {
+        clearInterval(this.digramInterval);
+        clearInterval(this.informationInterval);
+    }
 
 
-  getDiagram(interval: string) {
-    this.dataWorkload = [];
-    this.dataDql = [];
-    this.labels = [];
-    this.min = 0;
-    this.max = 0;
-    this._crud.getDashboardDiagram(new MonitoringRequest(interval)).subscribe(
-        res => {
-          console.log(res);
-          this.dashboardInformation = <DashboardData>res;
+    private checkIfInformationAvailable() {
+        if (this.dashboardInformation == null) {
+            this.digramInterval = setInterval(this.getDiagram.bind(this), 1000);
+        }
+        if (this.dashboardSet == null) {
+            this.informationInterval = setInterval(this.getDashboardInformation.bind(this), 1000);
+        }
+    }
 
-          if (this.dashboardInformation != null || this.diagramCounter > 120) {
-            clearInterval(this.digramInterval);
-            Object.entries(this.dashboardInformation).forEach(
-                ([key, value]) => {
-                  const left = +Object.keys(value)[0];
-                  const right = +Object.values(value)[0];
 
-                  this.labels.push(key);
+    getDiagram(interval: string) {
+        this.dataWorkload = [];
+        this.dataDql = [];
+        this.labels = [];
+        this.min = 0;
+        this.max = 0;
+        this._crud.getDashboardDiagram(new MonitoringRequest(interval)).subscribe(
+            res => {
+                console.log(res);
+                this.dashboardInformation = <DashboardData>res;
 
-                  this.dataWorkload.push(right);
-                  this.dataDql.push(left);
+                if (this.dashboardInformation != null || this.diagramCounter > 120) {
+                    clearInterval(this.digramInterval);
+                    Object.entries(this.dashboardInformation).forEach(
+                        ([key, value]) => {
+                            const left = +Object.keys(value)[0];
+                            const right = +Object.values(value)[0];
 
-                  //find min and max between Workload and Query Information
-                  if (this.min > right) {
-                    this.min = right;
-                  }
-                  if (this.max < right) {
-                    this.max = right;
-                  }
-                  if (this.min > left) {
-                    this.min = left;
-                  }
-                  if (this.max < left) {
-                    this.max = left;
-                  }
+                            this.labels.push(key);
+
+                            this.dataWorkload.push(right);
+                            this.dataDql.push(left);
+
+                            //find min and max between Workload and Query Information
+                            if (this.min > right) {
+                                this.min = right;
+                            }
+                            if (this.max < right) {
+                                this.max = right;
+                            }
+                            if (this.min > left) {
+                                this.min = left;
+                            }
+                            if (this.max < left) {
+                                this.max = left;
+                            }
+                        }
+                    );
                 }
-            );
-          }
-          this.diagramCounter++;
-        }
-    );
+                this.diagramCounter++;
+            }
+        );
 
-    this.diagram = [{
-      label: 'DML',
-      borderColor: 'rgb(255, 99, 132)',
-      data: this.dataWorkload,
-    },
-      {
-        label: 'DQL',
-        borderColor: 'rgb(18,105,199)',
-        data: this.dataDql
-      }];
+        this.diagram = [{
+            label: 'DML',
+            borderColor: 'rgb(255, 99, 132)',
+            data: this.dataWorkload,
+        },
+            {
+                label: 'DQL',
+                borderColor: 'rgb(18,105,199)',
+                data: this.dataDql
+            }];
 
-    this.xLabel = 'Time';
-    this.yLabel = 'Number of Statements';
+        this.xLabel = 'Time';
+        this.yLabel = 'Number of Statements';
 
-  }
-
-  getDashboardInformation() {
-    this._crud.getDashboardInformation(new StatisticRequest()).subscribe(
-        res => {
-          this.dashboardSet = <DashboardSet>res;
-          console.log(this.dashboardSet);
-          if (this.dashboardSet != null || this.infoCounter > 120) {
-            clearInterval(this.informationInterval);
-          }
-          this.infoCounter++;
-        }
-    );
-  }
-
-  public setSelectInterval(interval: string) {
-    if (interval === 'all') {
-      this.selectIntervalDisplay = 'All';
-    }
-    const numberInterval = Number(interval);
-
-    if (isNaN(numberInterval)) {
-      this.selectIntervalDisplay = 'All';
-    } else {
-      this.selectIntervalDisplay = this.getIntervalString(numberInterval);
     }
 
-    this.getDiagram(interval);
-  }
+    getDashboardInformation() {
+        this._crud.getDashboardInformation(new StatisticRequest()).subscribe(
+            res => {
+                this.dashboardSet = <DashboardSet>res;
+                console.log(this.dashboardSet);
+                if (this.dashboardSet != null || this.infoCounter > 120) {
+                    clearInterval(this.informationInterval);
+                }
+                this.infoCounter++;
+            }
+        );
+    }
 
-  private getIntervalString(numberInterval: number): string {
-    const hours = Math.floor(numberInterval / 60);
+    public setSelectInterval(interval: string) {
+        if (interval === 'all') {
+            this.selectIntervalDisplay = 'All';
+        }
+        const numberInterval = Number(interval);
 
-    const minutes = numberInterval % 60;
+        if (isNaN(numberInterval)) {
+            this.selectIntervalDisplay = 'All';
+        } else {
+            this.selectIntervalDisplay = this.getIntervalString(numberInterval);
+        }
 
-    return (hours > 0 ? ('' + hours + (hours === 1 ? ' hour' : ' hours')) : '') + (minutes > 0 ? ('' + minutes + (minutes === 1 ? ' minute' : ' minutes')) : '');
-  }
+        this.getDiagram(interval);
+    }
+
+    private getIntervalString(numberInterval: number): string {
+        const hours = Math.floor(numberInterval / 60);
+
+        const minutes = numberInterval % 60;
+
+        return (hours > 0 ? ('' + hours + (hours === 1 ? ' hour' : ' hours')) : '') + (minutes > 0 ? ('' + minutes + (minutes === 1 ? ' minute' : ' minutes')) : '');
+    }
 }
