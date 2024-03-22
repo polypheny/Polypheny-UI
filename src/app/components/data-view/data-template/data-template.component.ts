@@ -279,6 +279,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
             sortState[h.name] = h.sort;
         });
         const request = new EntityRequest(this.entity()?.id, this._catalog.getNamespaceFromId(this.entity()?.namespaceId).name, this.currentPage(), filterObj, sortState);
+
         if (!this._crud.getEntityData(this.webSocket, request)) {
             this.$result.set(CombinedResult.fromRelational(new RelationalResult('Could not establish a connection with the server.')));
         }

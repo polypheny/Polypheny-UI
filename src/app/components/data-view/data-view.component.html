@@ -2,7 +2,7 @@
 <div id="mode_wrapper" class="mb-2" *ngIf="$result() && !$result().error">
     <div class="d-flex justify-content-between">
         <div>
-            <button cButton color="light" *ngIf="showCreateView()" class="viewButton" tooltip="create view"
+            <button cButton color="light" *ngIf="showCreateView()" class="viewButton" tooltip="Create View"
                     [style.display]="'none'">
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </button>
@@ -24,7 +24,7 @@
                     tooltip="graph" placement="top" delay="200"><i class="fa fa-code-fork"></i></button>
         </div>
         <div>
-            <button cButton color="light" *ngIf="showCreateView()" class="viewButton" tooltip="create view"
+            <button cButton color="light" *ngIf="showCreateView()" class="viewButton" tooltip="Create View"
                     (click)="view.openCreateView(this.$result())">
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </button>

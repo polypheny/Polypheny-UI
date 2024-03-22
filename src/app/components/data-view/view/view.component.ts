@@ -26,6 +26,22 @@ import {Result} from '../models/result-set.model';
 })
 export class ViewComponent {
 
+
+    constructor() {
+        this.$stores = computed(() => {
+            const listener = this._catalog.listener();
+            return this._catalog.getStores();
+        });
+
+        this.$freshnessMerged = computed(() => {
+            if (this.$freshness() === Freshness.INTERVAL) {
+                return this.$time() + ' ' + this.$unit();
+            }
+            return '' + this.$updates();
+        });
+
+    }
+
     @Output()
     viewQueryConsumer = new EventEmitter<ViewInformation>();
 
@@ -53,19 +69,7 @@ export class ViewComponent {
     protected readonly TimeUnits = TimeUnits;
 
 
-    constructor() {
-        this.$stores = computed(() => {
-            const listener = this._catalog.listener();
-            return this._catalog.getStores();
-        });
-
-        this.$freshnessMerged = computed(() => {
-            if (this.$freshness() === Freshness.INTERVAL) {
-                return this.$time() + ' ' + this.$unit();
-            }
-            return '' + this.$updates();
-        });
-    }
+    protected readonly DataModel = DataModel;
 
 
     openCreateView(result: Result<any, any>) {
@@ -101,43 +105,9 @@ export class ViewComponent {
 
     private getViewQuery() {
         if (this.$result().dataModel === DataModel.DOCUMENT) {
-            let source;
-            let pipeline;
+            const query = this.getDocumentQuery();
 
-            const temp = this.$query().trim().split('.');
-            if (temp[0] === 'db') {
-                temp.shift(); // remove db
-            }
-            source = temp[0];
-            if (temp[0].includes('getCollection(')) {
-                source = source
-                    .replace('getCollection(', '')
-                    .replace(')', '');
-            }
-            temp.shift(); // remove collection
-            temp[0] = temp[0].replace('aggregate(', '').replace('find(', '');
-            temp[temp.length - 1] = temp[temp.length - 1].slice(0, -1); // remove last bracket
-
-            if (this.$query().includes('.aggregate(')) {
-
-                pipeline = temp.join('.');
-            } else if (this.$query().includes('.find(')) {
-                const json = JSON.parse('[' + temp.join('.') + ']');
-
-                pipeline = '[';
-                if (json.length > 0) {
-                    pipeline += `{ "$match": ${JSON.stringify(json[0])} }`;
-                }
-                if (json.length > 1) {
-                    pipeline += `, { "$project": ${JSON.stringify(json[1])} }`;
-                }
-                pipeline += ']';
-            } else {
-                this._toast.error('This query cannot be used to create a view.');
-                return;
-            }
-
-            return `db.createView(\n\t"${this.$viewName()}",\n\t"${source.replace('"', '')}",\n\t${pipeline}\n)`;
+            return `db.createView(\n\t"${this.$viewName()}",\n\t"${query[0]}",\n\t${query[1]}\n)`;
         } else {
             if (this.$query().startsWith('\n')) {
                 this.$query.set(this.$query().replace('\n', ''));
@@ -192,8 +162,50 @@ export class ViewComponent {
     }
 
     handleModalChange($event: boolean) {
+        if (!$event && !this.$showView()) {
+            this.$showView.set(false);
+        }
+    }
 
+    getEntityName() {
+        return this.$query().split('.')[1];
     }
 
 
+    protected getDocumentQuery(): [source: string, pipeline: string] {
+        const temp = this.$query().trim().split('.');
+        if (temp[0] === 'db') {
+            temp.shift(); // remove db
+        }
+        let source = temp[0];
+        if (temp[0].includes('getCollection(')) {
+            source = source
+                .replace('getCollection(', '')
+                .replace(')', '');
+        }
+        temp.shift(); // remove collection
+        temp[0] = temp[0].replace('aggregate(', '').replace('find(', '');
+        temp[temp.length - 1] = temp[temp.length - 1].slice(0, -1); // remove last bracket
+
+        let pipeline;
+        if (this.$query().includes('.aggregate(')) {
+
+            pipeline = temp.join('.');
+        } else if (this.$query().includes('.find(')) {
+            const json = JSON.parse('[' + temp.join('.') + ']');
+
+            pipeline = '[';
+            if (json.length > 0) {
+                pipeline += `{ "$match": ${JSON.stringify(json[0])} }`;
+            }
+            if (json.length > 1) {
+                pipeline += `, { "$project": ${JSON.stringify(json[1])} }`;
+            }
+            pipeline += ']';
+        } else {
+            this._toast.error('This query cannot be used to create a view.');
+            return;
+        }
+        return [source.replace('"', ''), pipeline];
+    }
 }

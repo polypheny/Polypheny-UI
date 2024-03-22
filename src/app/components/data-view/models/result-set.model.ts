@@ -17,6 +17,7 @@ export interface FieldDefinition {
 export class Result<D, H extends FieldDefinition | UiColumnDefinition> {
     dataModel: DataModel;
     namespace: string;
+    queryType: QueryType;
     query: string;
     data: D[];
     header: H[];
@@ -66,6 +67,12 @@ export enum QueryLanguage {
     SQL = 'sql',
     CYPHER = 'cypher',
     CQL = 'cql'
+}
+
+export enum QueryType {
+    DDL = 'DDL',
+    DML = 'DML',
+    DQL = 'DQL'
 }
 
 

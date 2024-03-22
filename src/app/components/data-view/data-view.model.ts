@@ -4,6 +4,7 @@ import {
     FieldDefinition,
     GraphResult,
     QueryLanguage,
+    QueryType,
     RelationalResult,
     Result,
     ResultException,
@@ -34,6 +35,7 @@ export class CombinedResult {
     dataModel: DataModel;
     namespace: string;
     query: string;
+    queryType: QueryType;
     data: string[][];
     header: FieldDefinition[] | UiColumnDefinition[];
     exception: ResultException;
@@ -57,6 +59,7 @@ export class CombinedResult {
         res.currentPage = relational.currentPage;
         res.highestPage = relational.highestPage;
         res.type = relational.type;
+        res.queryType = relational.queryType;
         res.error = relational.error;
         res.hasMore = relational.hasMore;
         res.entityId = relational.tableId;
@@ -80,6 +83,8 @@ export class CombinedResult {
         res.hasMore = doc.hasMore;
         res.language = doc.language;
         res.query = doc.query;
+        res.queryType = doc.queryType;
+
         return res;
     }
 
@@ -95,6 +100,8 @@ export class CombinedResult {
         res.hasMore = graph.hasMore;
         res.language = graph.language;
         res.query = graph.query;
+        res.queryType = graph.queryType;
+
         return res;
     }
 

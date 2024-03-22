@@ -13,7 +13,7 @@ import {
     ViewChild,
     WritableSignal
 } from '@angular/core';
-import {DataPresentationType, QueryLanguage, Result} from './models/result-set.model';
+import {DataPresentationType, QueryLanguage, QueryType, Result} from './models/result-set.model';
 import {EntityConfig} from './data-table/entity-config';
 import {CrudService} from '../../services/crud.service';
 import {ToasterService} from '../toast-exposer/toaster.service';
@@ -152,15 +152,12 @@ export class DataViewComponent implements OnDestroy {
     }
 
 
-    isDMLResult() {
-        return this.$result()
-            && this.$result().affectedTuples === 1
-            && this.$result().header[0].dataType === 'BIGINT'
-            && this.$result().header[0].name === 'ROWCOUNT';
+    isQueryType(queryTypes: QueryType[]) {
+        return this.$result() && queryTypes.includes(this.$result().queryType);
     }
 
     checkModelAndLanguage() {
-        return (this.$result().dataModel === DataModel.DOCUMENT && this.$result().language === QueryLanguage.MQL) ||
+        return (this.$result().dataModel === DataModel.DOCUMENT && [QueryLanguage.MQL, QueryLanguage.MONGO].includes(this.$result().language)) ||
             (this.$result().dataModel === DataModel.RELATIONAL && this.$result().language === QueryLanguage.SQL);
     }
 
@@ -168,8 +165,9 @@ export class DataViewComponent implements OnDestroy {
         return !this.config.hideCreateView
             && this.$result().data
             && !(this._router.url.startsWith('/views/data-table/'))
-            && !this.isDMLResult()
+            && !this.isQueryType([QueryType.DDL, QueryType.DML])
             && this.$result().language !== QueryLanguage.CQL
+            && this.$result().language !== QueryLanguage.CYPHER
             && this.checkModelAndLanguage();
     }
 

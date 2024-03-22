@@ -4,19 +4,29 @@
          (visibleChange)="handleModalChange($event)"
          id="modalStatic">
     <c-modal-header>
-        <h5 cModalTitle>Create View</h5>
+        <h5 cModalTitle>Create {{ !$result() ? "" : $result().dataModel | titlecase }} View</h5>
         <button (click)="$showView.set(false)" cButtonClose></button>
     </c-modal-header>
     <c-modal-body *ngIf="$result()">
         <div cRow [gutter]="3">
             <c-col>
                 <div class=" p-3 font-monospace rounded-2 bg-light">
-                    <p>CREATE <span
-                            class="text-primary">{{$type() == ViewType.MATERIALIZED ? ViewType.MATERIALIZED : '' }}</span>
-                        VIEW <span class="text-primary">{{$viewName()}}</span> AS (<br>{{$result().query}})
-                        <span *ngIf="$type()=== ViewType.MATERIALIZED">ON STORE {{$store()}}</span>
-                        <span *ngIf="($freshness() === Freshness.INTERVAL || $freshness() === Freshness.UPDATE) && $type() === ViewType.MATERIALIZED">FRESHNESS <span
-                                class="text-primary">{{$freshness()}} {{$freshnessMerged()}}</span></span></p>
+                    @if ($result().dataModel == DataModel.RELATIONAL) {
+                        <p>CREATE <span
+                                class="text-primary">{{ $type() == ViewType.MATERIALIZED ? ViewType.MATERIALIZED : '' }}</span>
+                            VIEW <span class="text-primary">{{ $viewName() }}</span> AS (<br>{{ $result().query }})
+                            <span *ngIf="$type()=== ViewType.MATERIALIZED">ON STORE {{ $store() }}</span>
+                            <span *ngIf="($freshness() === Freshness.INTERVAL || $freshness() === Freshness.UPDATE) && $type() === ViewType.MATERIALIZED">FRESHNESS <span
+                                    class="text-primary">{{ $freshness() }} {{ $freshnessMerged() }}</span></span>
+                        </p>
+                    } @else if ($result().dataModel == DataModel.DOCUMENT) {
+                        <p>db.createView( <span class="text-primary">{{ $viewName() }}</span> ,<span
+                                class="text-primary">{{ getEntityName() }}</span> ,</p>
+                        <p class="ms-2"> {{ getDocumentQuery()[1] }}</p>
+                        <p>)</p>
+                    } @else {
+                        <p>This data model is not supported for view creation.</p>
+                    }
                 </div>
             </c-col>
             <c-input-group>
@@ -25,22 +35,24 @@
                 </span>
                 <input cFormControl #name [value]="$viewName()" (input)="$viewName.set(name.value)">
             </c-input-group>
-            <c-input-group>
+            @if ($result().dataModel == DataModel.RELATIONAL) {
+                <c-input-group>
                 <span cInputGroupText>
                     ViewType
                 </span>
-                <select cSelect #type [ngModel]="$type()" (change)="$type.set(ViewType[type.value])">
-                    <option [value]="ViewType.VIEW" selected>{{ViewType.VIEW}}</option>
-                    <option [value]="ViewType.MATERIALIZED">{{ViewType.MATERIALIZED}}</option>
-                </select>
-            </c-input-group>
+                    <select cSelect #type [ngModel]="$type()" (change)="$type.set(ViewType[type.value])">
+                        <option [value]="ViewType.VIEW" selected>{{ ViewType.VIEW }}</option>
+                        <option [value]="ViewType.MATERIALIZED">{{ ViewType.MATERIALIZED }}</option>
+                    </select>
+                </c-input-group>
+            }
             <c-input-group *ngIf="$type() === ViewType.MATERIALIZED">
                 <span cInputGroupText>
                     Store
                 </span>
                 <select cSelect #store [ngModel]="$store()" (change)="$store.set(getStore(store.value))">
                     <option *ngFor="let store of $stores()">
-                        {{store.name}} - {{store.adapterName}}
+                        {{ store.name }} - {{ store.adapterName }}
                     </option>
                 </select>
             </c-input-group>
@@ -51,7 +63,7 @@
                 <select cSelect #freshness [ngModel]="$freshness()"
                         (change)="$freshness.set(Freshness[freshness.value])">
                     <option *ngFor="let freshness of Freshness | keyvalue">
-                        {{freshness.value}}
+                        {{ freshness.value }}
                     </option>
                 </select>
             </c-input-group>
@@ -62,7 +74,7 @@
                 <input cFormControl type="number" #time [valueAsNumber]="$time()" (input)="$time.set(+time.value)">
                 <select cSelect #unit [ngModel]="$unit()" (change)="$unit.set(TimeUnits[unit.value])">
                     <option *ngFor="let unit of TimeUnits | keyvalue">
-                        {{unit.value}}
+                        {{ unit.value }}
                     </option>
                 </select>
             </c-input-group>

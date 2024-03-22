@@ -1,5 +1,5 @@
 <c-container>
-    <c-row [gutter]="2">
+    <c-row [gutter]="3">
         <c-col xs="12">
             <c-card>
                 <c-card-header>
@@ -71,8 +71,8 @@
                             <tbody>
                             <tr *ngFor="let obj of this.dashboardSet.availableAdapter | keyvalue">
                                 <td>{{obj.key}}</td>
-                                <td>{{obj.value.left}}</td>
-                                <td>{{obj.value.right}}</td>
+                                <td>{{ obj.value.left | titlecase }}</td>
+                                <td>{{ obj.value.right | titlecase }}</td>
                                 <th></th>
                             </tr>
                             </tbody>
@@ -92,7 +92,7 @@
                             <tbody>
                             <tr *ngFor="let obj of this.dashboardSet.availableNamespaces | keyvalue">
                                 <td>{{ obj.key }}</td>
-                                <td>{{ obj.value }}</td>
+                                <td>{{ obj.value | titlecase }}</td>
                                 <th></th>
                             </tr>
                             </tbody>

@@ -27,6 +27,7 @@ import {
     CardBodyComponent,
     CardComponent,
     ColComponent,
+    CollapseDirective,
     ContainerComponent,
     DropdownComponent,
     DropdownItemDirective,
@@ -45,6 +46,10 @@ import {
     ModalFooterComponent,
     ModalHeaderComponent,
     ModalTitleDirective,
+    NavbarBrandDirective,
+    NavbarComponent,
+    NavbarNavComponent,
+    NavbarTogglerDirective,
     NavItemComponent,
     NavLinkDirective,
     ProgressBarComponent,
@@ -141,7 +146,12 @@ import {IconDirective} from '@coreui/icons-angular';
         ButtonDirective,
         CardComponent,
         CardBodyComponent,
-        TooltipDirective
+        TooltipDirective,
+        NavbarTogglerDirective,
+        NavbarComponent,
+        CollapseDirective,
+        NavbarBrandDirective,
+        NavbarNavComponent
     ],
     declarations: [
         AppComponent,
