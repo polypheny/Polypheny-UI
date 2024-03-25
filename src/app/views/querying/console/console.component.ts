@@ -101,6 +101,15 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 this.loadAndSetNamespaceDB();
             });
         });
+
+        effect(() => {
+            const res = this.results();
+
+            untracked(() => {
+                this.collapsed = new Array(res.length);
+                this.collapsed.fill(false);
+            })
+        });
     }
 
 
@@ -308,8 +317,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 } else if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSets
                     this.loading.set(false);
                     this.results.set(<Result<any, any>[]>msg);
-                    this.collapsed = new Array(this.results.length);
-                    this.collapsed.fill(false);
 
                 } else if (msg.hasOwnProperty('type')) { //if msg contains a notification of a changed information object
                     const iObj = <InformationObject>msg;
@@ -386,6 +393,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     toggleCollapsed(i: number) {
+        console.log(i)
         if (this.collapsed !== undefined && this.collapsed[i] !== undefined) {
             this.collapsed[i] = !this.collapsed[i];
         }

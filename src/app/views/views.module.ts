@@ -57,6 +57,7 @@ import {
     CardHeaderComponent,
     ColComponent,
     ColDirective,
+    CollapseDirective,
     ContainerComponent,
     DropdownComponent,
     DropdownDividerDirective,
@@ -161,7 +162,8 @@ import {TreeModule} from '@ali-hm/angular-tree-component';
         TreeModule,
         PlaceholderDirective,
         ProgressComponent,
-        ProgressBarComponent
+        ProgressBarComponent,
+        CollapseDirective
     ],
     declarations: [
         EditColumnsComponent,

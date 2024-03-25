@@ -131,8 +131,8 @@
             </div>
         </c-col>
         <c-col class="col-lg-12 mb-3" [ngClass]="{'accordion': results() && results().length > 1}" id="results">
-            <c-card *ngFor="let result of results(); let i = index;">
-                <c-card-footer
+            <c-card class="mb-1" *ngFor="let result of results(); let i = index;">
+                <c-card-header
                         [ngClass]="{'pointer': results().length > 1, 'open': collapsed !== undefined && collapsed[i]}"
                         (click)="toggleCollapsed(i)">
                     <span>{{result.query}}</span>
@@ -140,33 +140,33 @@
                         <ng-container *ngIf="!result.error">{{result.affectedTuples}}</ng-container>
                         <ng-container *ngIf="result.error">!</ng-container>
                     </c-badge>
-                </c-card-footer>
-
-                <div [id]="'collapse'+i" class="collapse show" data-parent="#accordion">
-                    <c-card-body [collapse]="collapsed !== undefined && !collapsed[i] && results().length !== 1">
-                        <div class="text-danger" *ngIf="result && result.error">
-                            <strong>Error:</strong>
-                            <p class="mb-3">{{result.error}}</p>
-                        </div>
-
-                        <div class="query-info">
-                            <p *ngIf="result && !result.data && !result.error" class="mb-3">
-                                <i>Successfully executed</i>
-                            </p>
-                        </div>
+                </c-card-header>
 
 
-                        <c-row class="col-lg-12 result-wrapper" *ngIf="result && result.data">
-                            <app-data-view [result]="result"
-                                           [config]="entityConfig"
-                                           [loading]="loading()"
-                                           (viewQueryConsumer)="createView($event)"></app-data-view>
-                            <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="result.hasMore">
-                                Only {{result.data.length}} rows are being displayed. To fetch more rows, please specify
-                                a LIMIT clause.</p>
-                        </c-row>
-                    </c-card-body>
-                </div>
+                <c-card-body [visible]="!(collapsed !== undefined && !collapsed[i] && results().length !== 1)"
+                             cCollapse>
+                    <div class="text-danger" *ngIf="result && result.error">
+                        <strong>Error:</strong>
+                        <p class="mb-3">{{ result.error }}</p>
+                    </div>
+
+                    <div class="query-info">
+                        <p *ngIf="result && !result.data && !result.error" class="mb-3">
+                            <i>Successfully executed</i>
+                        </p>
+                    </div>
+
+
+                    <c-row class="col-lg-12 result-wrapper" *ngIf="result && result.data">
+                        <app-data-view [result]="result"
+                                       [config]="entityConfig"
+                                       [loading]="loading()"
+                                       (viewQueryConsumer)="createView($event)"></app-data-view>
+                        <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="result.hasMore">
+                            Only {{ result.data.length }} rows are being displayed. To fetch more rows, please specify
+                            a LIMIT clause.</p>
+                    </c-row>
+                </c-card-body>
             </c-card>
         </c-col>
     </c-row>

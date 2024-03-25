@@ -47,7 +47,6 @@ export class ViewInformation {
         this.tableType = tableType;
         this.newViewName = newViewName;
     }
-
 }
 
 
@@ -84,6 +83,12 @@ export class DataViewComponent implements OnDestroy {
             }
 
             untracked(() => {
+                if (this.$result().queryType == QueryType.DML || this.$result().queryType == QueryType.DDL) {
+                    // we use the same for dmls and ddls independent data models
+                    this.$presentationType.set(DataPresentationType.TABLE);
+                    return
+                }
+
                 switch (this.$result().dataModel) {
                     case DataModel.DOCUMENT:
                         this.$presentationType.set(DataPresentationType.CARD);
@@ -176,5 +181,7 @@ export class DataViewComponent implements OnDestroy {
 
     }
 
+    protected readonly QueryLanguage = QueryLanguage;
+    protected readonly QueryType = QueryType;
 }
 

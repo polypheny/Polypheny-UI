@@ -132,7 +132,6 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         });
     }
 
-
     ngOnInit() {
         this._sidebar.open();
         //listen to results

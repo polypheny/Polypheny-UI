@@ -3,7 +3,7 @@ import {GraphResult} from '../models/result-set.model';
 import {DataModel, GraphRequest} from '../../../models/ui-request.model';
 import {DataTemplateComponent} from '../data-template/data-template.component';
 
-const d3 = await import('d3');
+import * as d3 from "d3";
 
 @Component({
     selector: 'app-data-graph',
@@ -37,19 +37,19 @@ export class DataGraphComponent extends DataTemplateComponent {
     showInsertCard = false;
     jsonValid = false;
     public graphLoading = false;
-    private initialIds: Set<string>;
+
     showProperties = false;
     detail: Detail;
-    private height: number;
-    private width: number;
+
     private zoom: any;
-    private subElement: any;
     private labels: string[];
     private ratio: number;
     private color: any;
-    private isPath: boolean;
+
+    private initialNodeIds: Set<string>;
+    private initialNodes: Set<Node>;
     private initialEdgeIds: string[];
-    private afterInit = false;
+
 
     protected readonly NamespaceType = DataModel;
 
@@ -74,10 +74,11 @@ export class DataGraphComponent extends DataTemplateComponent {
         return false;
     }
 
-
     private renderGraph(graph: Graph) {
-        if (!this.initialIds) {
-            this.initialIds = new Set(graph.nodes.map(n => n.id));
+        graph.nodes = Array.from(this.initialNodes); // normally this does nothing, but for cross model queries this ensures that the initial nodes are present (different ids)
+
+        if (!this.initialNodeIds) {
+            this.initialNodeIds = new Set(graph.nodes.map(n => n.id));
         }
 
         if (!this.initialEdgeIds) {
@@ -95,19 +96,15 @@ export class DataGraphComponent extends DataTemplateComponent {
         this.hidden = [];
 
         for (const n of graph.nodes) {
-            if (!this.initialIds.has(n.id)) {
+            if (!this.initialNodeIds.has(n.id)) {
                 this.hidden.push(n.id);
             }
         }
 
-
         const width = 600;
-        this.width = width;
         const height = 325;
-        this.height = height;
 
-        d3
-            .select('#chart-area > *').remove();
+        d3.select('#chart-area > *').remove();
 
         const svg = d3
             .select('#chart-area')
@@ -122,13 +119,13 @@ export class DataGraphComponent extends DataTemplateComponent {
 
         const g = svg.append('g');
 
-        const zoom_actions = () => {
-            g.attr('transform', d3.event.transform);
+        const zoom_actions = (event) => {
+            g.attr('transform', event.transform);
         };
 
         this.zoom = d3.zoom()
             .on('zoom', zoom_actions)
-            .filter(() => !d3.event.button); // fix for windows trackpad zooming
+            .filter((event) => !event.button); // fix for windows trackpad zooming
 
         this.zoom(svg);
 
@@ -136,7 +133,7 @@ export class DataGraphComponent extends DataTemplateComponent {
         // Add "forces" to the simulation here
         const simulation = d3.forceSimulation()
             .force('center', d3.forceCenter(width / 2, height / 2))
-            .force('charge', d3.forceManyBody().strength(-this.initialIds.size))
+            .force('charge', d3.forceManyBody().strength(-this.initialNodeIds.size))
             .force('collide', d3.forceCollide(100).strength(0.9).radius(40))
             .force('link', d3.forceLink().id(d => d.id).distance(160));
 
@@ -150,9 +147,9 @@ export class DataGraphComponent extends DataTemplateComponent {
         };
 
         // Change the value of alpha, so things move around when we drag a node
-        const onDragStart = d => {
+        const onDragStart = (event, d) => {
             action(d);
-            if (!d3.event.active) {
+            if (!event.active) {
                 simulation.alphaTarget(0.8).restart();
             }
             d.fx = d.x;
@@ -160,14 +157,14 @@ export class DataGraphComponent extends DataTemplateComponent {
         };
 
         // Fix the position of the node that we are looking at
-        const onDrag = d => {
-            d.fx = d3.event.x;
-            d.fy = d3.event.y;
+        const onDrag = (event, d) => {
+            d.fx = event.x;
+            d.fy = event.y;
         };
 
         // Let the node do what it wants again once we've looked at it
-        const onDragEnd = d => {
-            if (!d3.event.active) {
+        const onDragEnd = (event, d) => {
+            if (!event.active) {
                 simulation.alphaTarget(0);
             }
             d.fx = null;
@@ -499,7 +496,7 @@ export class DataGraphComponent extends DataTemplateComponent {
         activate();
 
 
-//	general update pattern for updating the graph
+        //	general update pattern for updating the graph
         this.update = () => {
             g.selectAll('*').remove();
             restart(this);
@@ -531,7 +528,7 @@ export class DataGraphComponent extends DataTemplateComponent {
         const reset = () => {
             this.hidden = [];
         };
-        this.afterInit = true;
+
     }
 
     center() {
@@ -562,16 +559,21 @@ export class DataGraphComponent extends DataTemplateComponent {
         let i = -1;
 
         for (const dbColumn of graphResult.header) {
-            console.log(dbColumn);
             i++;
             if (!dbColumn.dataType.toLowerCase().includes('node') && !dbColumn.dataType.toLowerCase().includes('edge')) {
                 continue;
             }
 
+            this.initialNodes = new Set();
             if (dbColumn.dataType.toLowerCase().includes('node')) {
                 graphResult.data.forEach(d => {
-                    console.log(d);
-                    nodeIds.add(JSON.parse(d[i])['id']);
+
+                    const node = JSON.parse(d[i]);
+                    const id = node['id'];
+                    if (!nodeIds.has(id)) {
+                        nodeIds.add(id);
+                        this.initialNodes.add(node)
+                    }
                 });
             }
 
@@ -582,7 +584,6 @@ export class DataGraphComponent extends DataTemplateComponent {
             }
 
             if (dbColumn.dataType.toLowerCase().includes('path')) {
-                this.isPath = true;
                 graphResult.data.forEach(d => {
                     for (const el of JSON.parse(d[i]).path) {
                         if (el.type.includes('NODE')) {
@@ -595,12 +596,10 @@ export class DataGraphComponent extends DataTemplateComponent {
                 });
             }
 
-            this.initialIds = nodeIds;
+            this.initialNodeIds = nodeIds;
             this.initialEdgeIds = Array.from(edgeIds);
         }
 
-
-        console.log(this.initialIds);
 
         if (!graphResult.header.map(h => h.dataType.toLowerCase()).includes('graph')) {
             // is native
@@ -610,7 +609,6 @@ export class DataGraphComponent extends DataTemplateComponent {
                 this.graphLoading = true;
             }
         } else {
-
             this.graphLoading = false;
             const graph = Graph.from(graphResult.data.map(r => r.map(n => JSON.parse(n)).reduce((a, v) => ({
                 ...a['id'],
@@ -641,7 +639,7 @@ export class DataGraphComponent extends DataTemplateComponent {
         this.hidden = [];
 
         for (const n of this.graph.nodes) {
-            if (!this.initialIds.has(n.id)) {
+            if (!this.initialNodeIds.has(n.id)) {
                 this.hidden.push(n.id);
             }
         }
