@@ -268,6 +268,10 @@ export class CatalogService {
     }
 
     private getNamespaceIcon(dataModel: DataModel): string {
+        if (!this.assets) {
+            this.updateIfNecessary();
+            return "";
+        }
         switch (dataModel) {
             case DataModel.DOCUMENT:
                 return this.assets.DOCUMENT_ICON;

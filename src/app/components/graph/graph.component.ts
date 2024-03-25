@@ -109,6 +109,7 @@ export class GraphComponent implements OnInit, OnChanges {
      * other variables depend on it
      */
     ngOnChanges(changes: SimpleChanges) {
+        console.log(changes)
         if (changes['chartType']) {
             this.setChartType(changes['chartType'].currentValue);
         }
