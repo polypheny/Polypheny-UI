@@ -1,4 +1,4 @@
-<c-container class="mt-3 pt-1">
+<c-container class="mt-3 pt-1 px-3">
     <c-row class="no-gutters nb-toolbar">
         <c-col md="9">
             <c-button-toolbar role="group" aria-label="Toolbar with button groups">
@@ -162,7 +162,7 @@
     </c-row>
 </c-container>
 
-<div class="nb-scroll" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
+<div class="nb-scroll px-3" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
     <h1 class="nb-title">{{name}}</h1>
     <div class="nb-background mt-4 pt-4">
         <ng-container *ngIf="nb">

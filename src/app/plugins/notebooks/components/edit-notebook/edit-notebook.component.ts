@@ -29,6 +29,7 @@ import {delay, mergeMap, take, tap} from 'rxjs/operators';
 import {LoadingScreenService} from '../../../../components/loading-screen/loading-screen.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
+import {WebuiSettingsService} from "../../../../services/webui-settings.service";
 
 @Component({
     selector: 'app-edit-notebook',
@@ -39,10 +40,13 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     private readonly _notebooks = inject(NotebooksService);
     public readonly _sidebar = inject(NotebooksSidebarService);
     private readonly _content = inject(NotebooksContentService);
+
     private readonly _toast = inject(ToasterService);
     private readonly _router = inject(Router);
     private readonly _route = inject(ActivatedRoute);
     private readonly _loading = inject(LoadingScreenService);
+
+    private readonly _settings = inject(WebuiSettingsService);
 
     @Input() sessionId: string;
     @Output() openChangeSessionModal = new EventEmitter<{ name: string, path: string }>();
@@ -91,22 +95,24 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.sessionId) {
             // Handle changes to sessionId
-            this._notebooks.getSession(this.sessionId).subscribe(session => {
-                this.session = session;
-                this.path = this._notebooks.getPathFromSession(session);
-                this.name = this._notebooks.getNameFromSession(session);
-                const urlPath = 'notebooks/' + this._route.snapshot.url.map(segment => decodeURIComponent(segment.toString())).join('/');
-                if (this.path !== urlPath) {
-                    this.closeEdit(true);
-                    return;
+            this._notebooks.getSession(this.sessionId).subscribe({
+                next: session => {
+                    this.session = session;
+                    this.path = this._notebooks.getPathFromSession(session);
+                    this.name = this._notebooks.getNameFromSession(session);
+                    const urlPath = 'notebooks/' + this._route.snapshot.url.map(segment => decodeURIComponent(segment.toString())).join('/');
+                    if (this.path !== urlPath) {
+                        this.closeEdit(true);
+                        return;
+                    }
+                    if (!this.renameNotebookModal.isShown) {
+                        this.renameNotebookForm.patchValue({name: this.name});
+                    }
+                    this._content.setPreferredSessionId(this.path, this.sessionId);
+                    this.loadNotebook();
+                }, error: () => {
+                    this.closeEdit();
                 }
-                if (!this.renameNotebookModal.isShown) {
-                    this.renameNotebookForm.patchValue({name: this.name});
-                }
-                this._content.setPreferredSessionId(this.path, this.sessionId);
-                this.loadNotebook();
-            }, () => {
-                this.closeEdit();
             });
         }
     }
@@ -165,9 +171,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this.nb = null;
         }
         this._content.getNotebookContent(this.path, this.nb == null).subscribe(res => {
+
             if (res) {
                 this.nb = new NotebookWrapper(res, this.busyCellIds,
-                    new NotebooksWebSocket(this.session.kernel.id),
+                    new NotebooksWebSocket(this.session.kernel.id, this._settings),
                     id => this.getCellComponent(id)?.renderMd(),
                     (id, output) => this.getCellComponent(id)?.renderError(output),
                     (id, output) => this.getCellComponent(id)?.renderStream(output),
