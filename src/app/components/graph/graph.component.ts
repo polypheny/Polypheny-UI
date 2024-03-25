@@ -21,8 +21,6 @@ export class GraphComponent implements OnInit, OnChanges {
     _colorList;
     @Input() colorList: Array<string>;
 
-    //@Input() config?:any;
-
     _min: number;
     @Input() min: number;
 
@@ -60,9 +58,6 @@ export class GraphComponent implements OnInit, OnChanges {
                     labelString: ''
                 },
                 ticks: {
-                    //values are set by updateOptions()
-                    //suggestedMin: 0,
-                    //suggestedMax: 0
                 }
             },
             x: {
@@ -109,7 +104,6 @@ export class GraphComponent implements OnInit, OnChanges {
      * other variables depend on it
      */
     ngOnChanges(changes: SimpleChanges) {
-        console.log(changes)
         if (changes['chartType']) {
             this.setChartType(changes['chartType'].currentValue);
         }
@@ -217,7 +211,7 @@ export class GraphComponent implements OnInit, OnChanges {
                 return this.arr[this.nextIndex - 1];
             }
         }
-    });
+    })
 
 }
 

@@ -83,11 +83,11 @@
 
         </c-col>
         <c-col size="1" [lg]="6" class="fixed-height fixed-width add-adapter-wrapper">
-            <button cButton color="primary" *ngIf="type === 'source'" class="add-adapter"
+            <button cButton color="primary" *ngIf="type === 'source'" class="add-btn"
                     [routerLink]="['./addSource']">
                 <i class="fa fa-plus"></i>
             </button>
-            <button cButton color="primary" *ngIf="type === 'store'" class="add-adapter" [routerLink]="['./addStore']">
+            <button cButton color="primary" *ngIf="type === 'store'" class="add-btn" [routerLink]="['./addStore']">
                 <i class="fa fa-plus"></i>
             </button>
         </c-col>

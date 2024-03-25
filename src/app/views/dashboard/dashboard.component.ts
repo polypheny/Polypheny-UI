@@ -72,16 +72,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.max = 0;
         this._crud.getDashboardDiagram(new MonitoringRequest(interval)).subscribe(
             res => {
-                console.log(res);
                 this.dashboardInformation = <DashboardData>res;
 
                 if (this.dashboardInformation != null || this.diagramCounter > 120) {
                     clearInterval(this.diagramInterval);
-                    console.log(this.dashboardInformation)
-                    Object.entries(this.dashboardInformation).forEach(
-                        ([key, {"left": dql, "right": dml}]) => {
 
-                            this.labels.push(key);
+                    Object.entries(this.dashboardInformation).forEach(
+                        ([key, {'left': dql, 'right': dml}]) => {
+                            const timestamp = key && key.length > 10 ? key.substring(0, key.length - 10) : key;
+                            this.labels.push(timestamp);
                             this.dataDml.push(dml);
                             this.dataDql.push(dql);
 

@@ -29,12 +29,17 @@
 
 .separator, .separator .sidebarIcon {
   background: transparent !important;
-  //color: #6c757d !important; /* from bootstrap .text-muted */
   font-size: 0.75em;
   text-transform: uppercase;
   box-shadow: none;
   cursor: default;
-  margin-top: 1em;
+  margin-top: 2em;
+  font-weight: bold;
+
+  &:hover {
+    background: transparent;
+    color: white !important;
+  }
 }
 
 .schema-button {

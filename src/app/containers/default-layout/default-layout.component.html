@@ -1,10 +1,10 @@
 <div class="min-vh-100 max-vh-100 wrapper d-flex flex-column overflow-hidden w-100">
-    <c-navbar class="position-sticky w-100 z-3" expand="lg">
+    <c-navbar class="position-sticky w-100 z-3 border-bottom" expand="lg">
         <c-container fluid>
             <a [routerLink]="'/'" cNavbarBrand>
                 <img ngSrc="assets/img/brand/logo.svg" alt="Polypheny Logo" height="50" width="200">
             </a>
-            <div class="ms-auto justify-content-end" #collapseRef="cCollapse" navbar cCollapse>
+            <div class="ms-auto justify-content-end me-3" #collapseRef="cCollapse" navbar cCollapse>
                 <c-navbar-nav>
                     <c-nav-item>
                         <a cNavLink [routerLink]="['/views/monitoring']" routerLinkActive="active">
