@@ -40,37 +40,25 @@
             <br>
         </c-col>
     </c-row>
-    <c-row *ngSwitchDefault id="queryInterfaces" [gutter]="2">
-        <button cButton color="primary" class="btn-circle topRight" [routerLink]="['./add']">
-            <i class="fa fa-plus"></i>
-        </button>
-        <c-col class="col-lg-6 fixed-width" *ngFor="let queryInterface of queryInterfaces">
+    <c-row *ngSwitchDefault id="queryInterfaces" [gutter]="4">
+        <c-col [lg]="6" class="fixed-width" *ngFor="let queryInterface of queryInterfaces">
             <c-card class="fixed-height">
                 <c-card-header>
                     {{queryInterface.uniqueName}}
                 </c-card-header>
                 <c-card-body>
-
                     <span class="mb-2">Type: {{queryInterface.interfaceType}}</span>
                     <span class="mb-0" *ngIf="queryInterface.supportsDdl">
                         <span class="fa fa-cubes"></span>
                         Supports schema changes<!--DDL-->
                     </span>
-                    <!--<span class="mb-0" *ngIf="!queryInterface.supportsDdl">
-                      <span class="fa fa-lock"></span>
-                      schema-read-only
-                    </span>-->
+
                     <span class="mb-0" *ngIf="queryInterface.supportsDml">
                         <span class="icon-pencil"></span>
                         Supports data manipulation<!--DML-->
                     </span>
-                    <!--<span class="mb-0" *ngIf="!queryInterface.supportsDml">
-                      <span class="fa fa-eye"></span>
-                      data-read-only
-                    </span>-->
-
                 </c-card-body>
-                <c-card-footer class=" bg-transparent">
+                <c-card-footer class="bg-transparent">
                     <button cButton color="danger" (click)="removeQueryInterface(queryInterface)"
                             (mouseleave)="deletingQI = undefined">
                         <i class="cil-trash text-white"
@@ -81,8 +69,14 @@
                     </button>
                 </c-card-footer>
             </c-card>
-
         </c-col>
+
+        <c-col size="1" class="fixed-height">
+            <button cButton color="primary" style="margin-top: 90px" [routerLink]="['./add']">
+                <i class="fa fa-plus"></i>
+            </button>
+        </c-col>
+
     </c-row>
 
 </ng-container>

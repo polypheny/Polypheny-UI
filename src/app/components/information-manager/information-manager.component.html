@@ -1,14 +1,15 @@
-<ng-container *ngIf="data">
-    <c-row *ngIf="data.name || data.description">
+<ng-container *ngIf="$data()">
+    <c-row *ngIf="$data().name || $data().description">
         <c-col class="col-md-12">
-            <h1 *ngIf="data.name">{{data.name}}</h1>
-            <p *ngIf="data.description">{{data.description}}</p>
-            <br *ngIf="!data.description">
-            <app-reload-button [loading]="refreshingPage" [condition]="data.refreshable" [action]="refreshPage"></app-reload-button>
+            <h1 *ngIf="$data().name">{{ $data().name }}</h1>
+            <p *ngIf="$data().description">{{ $data().description }}</p>
+            <br *ngIf="!$data().description">
+            <app-reload-button [loading]="refreshingPage" [condition]="$data().refreshable"
+                               [action]="refreshPage"></app-reload-button>
         </c-col>
     </c-row>
     <c-row [gutter]="4">
-        <ng-container *ngFor="let item of data.groups | keyvalue : order">
+        <ng-container *ngFor="let item of $data().groups | keyvalue : order">
             <c-col [md]="zoom()">
                 <c-card [className]="getCardClass(item.value.color)">
                     <c-card-header>

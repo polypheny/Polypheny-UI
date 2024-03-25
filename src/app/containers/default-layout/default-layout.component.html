@@ -12,12 +12,6 @@
                             <span class="ms-1">Monitoring</span>
                         </a>
                     </c-nav-item>
-                    <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/config']" routerLinkActive="active">
-                            <i class="icon-settings"></i>
-                            <span class="ms-1">Config</span>
-                        </a>
-                    </c-nav-item>
 
                     <c-nav-item>
                         <a cNavLink [routerLink]="['/views/schema-editing']" routerLinkActive="active"
@@ -75,13 +69,6 @@
                     </c-dropdown>
 
                     <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/adapters']" routerLinkActive="active">
-                            <i class="fa fa-database"></i>
-                            <span class="ms-1">Adapters</span>
-                        </a>
-                    </c-nav-item>
-
-                    <c-nav-item>
                         <a cNavLink [routerLink]="['/views/notebooks']" routerLinkActive="active">
                             <i class="fa fa-book"></i>
                             <span class="ms-1">Notebooks</span>
@@ -89,9 +76,23 @@
                     </c-nav-item>
 
                     <c-nav-item>
+                        <a cNavLink [routerLink]="['/views/adapters']" routerLinkActive="active">
+                            <i class="fa fa-database"></i>
+                            <span class="ms-1">Adapters</span>
+                        </a>
+                    </c-nav-item>
+
+                    <c-nav-item>
                         <a cNavLink [routerLink]="['/views/queryInterfaces']" routerLinkActive="active">
                             <i class="fa fa-exchange"></i>
                             <span class="ms-1">Interfaces</span>
+                        </a>
+                    </c-nav-item>
+
+                    <c-nav-item>
+                        <a cNavLink [routerLink]="['/views/config']" routerLinkActive="active">
+                            <i class="icon-settings"></i>
+                            <span class="ms-1">Config</span>
                         </a>
                     </c-nav-item>
 

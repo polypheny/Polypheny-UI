@@ -4,9 +4,10 @@
     <form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form" #formElement cForm>
         <c-row id="form-generator-main">
             <c-col md="12">
-                <button *ngIf="form.dirty" type="submit" class="btn btn-circle btn-primary save-configs"><i
+                <button *ngIf="form.dirty" type="submit" cButton color="primary" class="btn-circle mt-2 save-configs"><i
                         class="fa fa-save"></i></button>
-                <button #submitButton type="submit" class="btn btn-circle btn-primary save-configs d-none"><i
+                <button #submitButton type="submit" cButton color="primary"
+                        class="btn-primary mt-2 save-configs d-none"><i
                         class="fa fa-save"></i></button>
                 <h1 *ngIf="formObj.title">{{ formObj.title }}</h1>
                 <p *ngIf="formObj.description">{{ formObj.description }}</p>
@@ -24,7 +25,6 @@
                                 </ng-container>
                             </div>
                         </c-header>
-                        <!--<p>{{group.value.description}}</p>-->
                         <c-card-body>
                             <ng-container
                                     *ngFor="let config of group.value.configs | keyvalue: orderConfigs; let nth = index">

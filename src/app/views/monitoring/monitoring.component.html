@@ -1,21 +1,4 @@
-
-<app-information-manager *ngIf="data" [data]="data" [zoom]="_breadcrumb.getMasonryZoom()"></app-information-manager>
+<app-information-manager *ngIf="data" [data]="data"></app-information-manager>
 
 <app-dashboard *ngIf="_breadcrumb.breadcrumbs && _breadcrumb.breadcrumbs.getValue().length === 1 && _breadcrumb.breadcrumbs.getValue()[0].name === 'Dashboard'"></app-dashboard>
 
-
-<!--
-<ng-container *ngIf="pageNotFound">
-  <p class="text-danger">This page does not exist or could not be loaded.</p>
-</ng-container>
-<ng-container *ngIf="!data && pageList">
-  Choose a page to display information:<br><br>
-  <button *ngFor="let page of pageList | keyvalue" class="btn btn-light pageLink" [routerLink]="'/views/monitoring/'+page.value.id">{{page.value.name}}</button>
-</ng-container>
-<ng-container *ngIf="serverError">
-  <p class="text-danger">
-    Server not responding:<br>
-    {{serverError.name}}: {{serverError.message}}
-  </p>
-</ng-container>
--->

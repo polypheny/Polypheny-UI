@@ -45,7 +45,7 @@
 
     <!-- template for current stores and sources, it is called below -->
     <ng-template #adapterTemplate let-adapters="adapters" let-type="type">
-        <c-col xs="4" class="fixed-width" *ngFor="let adapter of adapters">
+        <c-col [lg]="6" class="fixed-width" *ngFor="let adapter of adapters">
             <c-card class="fixed-height">
                 <c-card-header class="card-header-adapter">
                     <p>{{ adapter.name }}</p>
@@ -82,7 +82,7 @@
             </c-card>
 
         </c-col>
-        <c-col size="6" class="col-lg-6 fixed-height add-adapter-wrapper">
+        <c-col size="1" [lg]="6" class="fixed-height fixed-width add-adapter-wrapper">
             <button cButton color="primary" *ngIf="type === 'source'" class="add-adapter"
                     [routerLink]="['./addSource']">
                 <i class="fa fa-plus"></i>

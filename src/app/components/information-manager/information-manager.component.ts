@@ -11,15 +11,20 @@ import {InformationService} from '../../services/information.service';
 })
 export class InformationManagerComponent implements OnInit {
 
-    @Input() data: InformationPage;
+    $data = signal(null);
+
+    @Input() set data(data: InformationPage) {
+        this.$data.set(data);
+    }
+
     refreshingPage = false;
     refreshingGroup = [];
     width = signal(1080);
     zoom = computed(() => {
-        if (this.width() < 1200 || this.data.fullWidth) {
+        if (this.width() < 1200 || this.$data().fullWidth) {
             return 12;
         } else {
-            return 4;
+            return 6;
         }
     });
 
@@ -76,7 +81,7 @@ export class InformationManagerComponent implements OnInit {
 
     refreshPage() {
         this.refreshingPage = true;
-        this._information.refreshPage(this.data.id).subscribe().add(() => this.refreshingPage = false);
+        this._information.refreshPage(this.$data().id).subscribe().add(() => this.refreshingPage = false);
     }
 
     refreshGroup(id: string) {
