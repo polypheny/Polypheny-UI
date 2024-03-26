@@ -138,7 +138,7 @@
                 <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
                     <ng-container *ngIf="getAdapterSetting(control.key)">
                         <c-input-group
-                                *ngIf="!getAdapterSetting(control.key).template.options && !getAdapterSetting(control.key).template.fileNames">
+                                *ngIf="!getAdapterSetting(control.key).template.options && getAdapterSetting(control.key).template.type.toLowerCase() !== 'directory'">
                             <span cInputGroupText cTooltipPlacement="left"
                                   [cTooltip]="getAdapterSetting(control.key).template.description">
                                 {{ control.key }}
@@ -175,7 +175,9 @@
                                 </c-input-group>
                             </ng-template>
                         </div>
-                        <c-input-group *ngIf="getAdapterSetting(control.key).template.fileNames">
+                        <c-input-group
+                                *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
+                            test
                             <span cInputGroupText cTooltipPlacement="left"
                                   [cTooltip]="getAdapterSetting(control.key).template.description">{{ control.key }}</span>
                             <span cFormText *ngIf="!getAdapterSetting(control.key).template.modifiable" disabled></span>
@@ -185,7 +187,7 @@
                                 </span>
                             <input cFormControl type="file" multiple style="display: none" [id]="control.key"
                                    [ngClass]="validate(editingAdapterForm, control.key)"
-                                   (change)="onFileChange($event, editingAdapterForm, control.key)">
+                                   (change)="onFileChange($event, control.key)">
                             <c-form-feedback>required</c-form-feedback>
                         </c-input-group>
                     </ng-container>
@@ -218,7 +220,7 @@
                                 *ngFor="let control of editingAvailableAdapterForm.controls | keyvalue: positionOrder()">
                             <ng-container *ngIf=" control.key !== 'uniqueName' && isSettingDisplayed(control.key)">
                                 <c-input-group class="has-validation"
-                                               *ngIf="!getAdapterSetting(control.key).template.options && !getAdapterSetting(control.key).template.fileNames">
+                                               *ngIf="!getAdapterSetting(control.key).template.options && getAdapterSetting(control.key).template.type.toLowerCase() !== 'directory'">
                                     <span cInputGroupText
                                           [cTooltip]="getAdapterSetting(control.key).template.description"
                                           cTooltipPlacement="left">{{ control.key }}</span>
@@ -262,21 +264,14 @@
                                                         [value]="option">{{ getAdapterSetting(control.key).template.alias[option] }}
                                                 </option>
                                             </select>
-                                            <c-form-feedback>{{ getGenericFeedback((control.key)) }}</c-form-feedback>
+                                            <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
                                         </c-input-group>
                                     </ng-template>
                                 </ng-container>
-                                <c-input-group *ngIf="getAdapterSetting(control.key).template.fileNames">
-                                    <span cInputGroupText cTooltipPlacement="left"
-                                          [cTooltip]="getAdapterSetting(control.key).template.description"
-                                          [cTooltipVisible]="!!getAdapterSetting(control.key).template.description">{{ control.key }}</span>
-                                    <span cFormText
-                                          style="position: relative; text-align: left; white-space: nowrap; overflow: hidden"></span>
-                                    <input type="file" multiple style="display: none" [id]="control.key"
-                                           [ngClass]="validate(control.value, control.key)"
-                                           (change)="onFileChange($event, editingAvailableAdapterForm, control.key)">
-                                    {{ fileLabel }}
-
+                                <c-input-group
+                                        *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
+                                    <label cInputGroupText>{{ control.key }}</label>
+                                    <input cFormControl type="file" (change)="onFileChange($event, control.key)"/>
                                     <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
                                 </c-input-group>
                             </ng-container>

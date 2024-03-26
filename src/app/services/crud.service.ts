@@ -60,6 +60,7 @@ export class CrudService {
     private reconnected = new EventEmitter<boolean>();
     private httpUrl = this._settings.getConnection('crud.rest');
     private httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
+    private httpOptionsPart = {headers: new HttpHeaders({'Content-Type': 'multipart/form-data'})};
     private socket;
 
     // rendering routerLinks from string might not be possible:7
@@ -529,8 +530,9 @@ export class CrudService {
         return this._http.get(`${this.httpUrl}/getAvailableSources`);
     }
 
-    createAdapter(adapter: AdapterModel) {
-        return this._http.post(`${this.httpUrl}/createAdapter`, adapter, this.httpOptions);
+    createAdapter(adapter: AdapterModel, formdata: FormData) {
+        formdata.set("body", JSON.stringify(adapter))
+        return this._http.post(`${this.httpUrl}/createAdapter`, formdata);
     }
 
 

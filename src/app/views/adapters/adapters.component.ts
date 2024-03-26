@@ -17,7 +17,6 @@ import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {
     AbstractControl,
     FormGroup,
-    UntypedFormArray,
     UntypedFormBuilder,
     UntypedFormControl,
     UntypedFormGroup,
@@ -106,6 +105,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     protected readonly Task = Task;
 
+    private readonly files = new Map<string, File>();
+
 
     readonly positionOrder = () => {
         return (a, b) => {
@@ -141,13 +142,14 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             }
             const fc = {};
 
+
             for (const setting of adapter.settings.values()) {
                 const validators = [];
                 if (setting.template.required) {
                     validators.push(Validators.required);
                 }
                 let val = setting.template.defaultValue;
-                if (setting.template.fileNames) {
+                if (setting.template.type.toLowerCase() === 'directory') {
                     fc[setting.template.name] = this._fb.array([]);
                 } else {
                     if (setting.template.options) {
@@ -265,6 +267,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     async initDeployModal(adapter: AdapterTemplateModel) {
         this.activeMode.set(null);
+
         // if we only have one mode we directly set it
         if (adapter.modes.length === 0) {
             this.activeMode.set(DeployMode.ALL);
@@ -277,22 +280,21 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.modalActive = true;
     }
 
-    onFileChange(event, form: UntypedFormGroup, key) {
+    onFileChange(event, key) {
+
         const files = event.target.files;
-        if (files) {
-            const fileNames = [];
-            const arr = form.controls[key] as UntypedFormArray;
-            arr.clear();
-            for (let i = 0; i < files.length; i++) {
-                fileNames.push(files.item(i)._name);
-                arr.push(this._fb.control(files.item(i)));
-            }
-            this.fileLabel = fileNames.join(', ');
-        } else {
-            const arr = form.controls[key] as UntypedFormArray;
-            arr.clear();
-            this.fileLabel = 'Choose File';
+        if (!files) {
+            return;
         }
+        const fileNames = [];
+        const setting = this.getAdapterSetting(key);
+        setting.template.fileNames = [];
+        for (let file of files) {
+            fileNames.push(file.name);
+            this.files.set(file.name, file);
+            setting.template.fileNames.push(file.name)
+        }
+
     }
 
     getFeedback(form: UntypedFormGroup) {
@@ -355,22 +357,19 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 setting.current = new AdapterSettingValueModel(k, null);
             }
 
-            if (setting.template.fileNames) {
+            if (setting.template.type.toLowerCase() === "directory") {
                 const fileNames = [];
-                const arr = v as UntypedFormArray;
-                for (let i = 0; i < arr.length; i++) {
-                    const file = arr.at(i).value as File;
-                    fd.append(file.name, file);
-                    fileNames.push(file.name);
+
+                for (let fileName of setting.template.fileNames) {
+                    fd.append(fileName, this.files.get(fileName));
                 }
-                setting.current.value = fileNames.toString();
+                setting.current.value = JSON.stringify(setting.template.fileNames);
             } else {
                 setting.current.value = v.value;
             }
 
             deploy.settings.set(k, setting.current);
         }
-        console.log(deploy);
 
         if (deploy.settings.hasOwnProperty('method') && deploy.settings['method'].defaultValue === 'link') {
             // secure deploy
@@ -383,21 +382,21 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                     this.data = {data: fd, deploy: deploy};
                     if (!id || id.trim() === '') {
                         // file is already placed
-                        this.continueSecureDeploy();
+                        this.continueSecureDeploy(fd);
                     }
                 }
             );
 
         } else {
             // normal deploy
-            this.startDeploying(deploy);
+            this.startDeploying(deploy, fd);
         }
 
     }
 
-    continueSecureDeploy() {
+    continueSecureDeploy(formdata: FormData = new FormData()) {
         this.handshaking = false;
-        this.startDeploying(this.data.deploy);
+        this.startDeploying(this.data.deploy, formdata);
     }
 
     createSecureFile() {
@@ -414,10 +413,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         }, 0);
     }
 
-    private startDeploying(deploy: AdapterModel) {
-
+    private startDeploying(deploy: AdapterModel, formdata: FormData) {
+        console.log(deploy)
         this.deploying = true;
-        this._crud.createAdapter(deploy).subscribe({
+        this._crud.createAdapter(deploy, formdata).subscribe({
             next: (result: RelationalResult) => {
                 if (!result.error) {
                     this._toast.success('Deployed "' + deploy.name + '"', result.query);
@@ -559,10 +558,13 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
             const setting = this.getAdapterSetting(keys[0]);
 
-            this.subgroups.set(keys[0], setting[1].value);
+            if (setting && setting.template) {
+                this.subgroups.set(keys[0], setting.template.defaultValue);
+            } else {
+                return false;
+            }
 
         }
-
 
         return this.subgroups.has(keys[0]) && this.subgroups.get(keys[0]) === keys[1];
     }
@@ -598,6 +600,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         }
         return true;
     }
+
 }
 
 // see https://angular.io/guide/form-validation#custom-validators
@@ -623,6 +626,7 @@ class Adapter {
     mode: DeployMode;
     task: Task;
     type: AdapterType;
+    settings: Map<string, MergedSetting>;
 
     constructor(uniqueName: string, adapterName: string, persistent: boolean, modes: DeployMode[], type: AdapterType, settings: Map<string, MergedSetting>, task: Task) {
         this.uniqueName = uniqueName;
@@ -634,8 +638,6 @@ class Adapter {
         this.type = type;
     }
 
-
-    settings: Map<string, MergedSetting>;
 
     public static from(adapter: AdapterTemplateModel, current: AdapterModel | null, task: Task): Adapter {
         const settings: Map<string, MergedSetting> = new Map();

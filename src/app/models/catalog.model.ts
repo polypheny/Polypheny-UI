@@ -141,6 +141,7 @@ export enum DeployMode {
 
 export interface AdapterSettingModel {
     subOf: string;
+    type: string;
     name: string;
     nameAlias: string;
     alias: any;
