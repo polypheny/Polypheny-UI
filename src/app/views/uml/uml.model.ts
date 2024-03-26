@@ -1,4 +1,5 @@
-import {DbColumn} from '../../components/data-view/models/result-set.model';
+import {UiColumnDefinition} from '../../components/data-view/models/result-set.model';
+import {EntityType} from '../../models/catalog.model';
 
 export class Uml {
     constructor(
@@ -11,15 +12,16 @@ export class Uml {
 export class DbTable {
     tableName: string;
     schema: string;
-    columns: DbColumn[];
+    columns: UiColumnDefinition[];
     primaryKeyFields: string[];
     uniqueColumns: string[];
     modifiable: boolean;
-    tableType: string;
+    tableType: EntityType;
 }
 
 export class ForeignKey {
     fkName: string;
+    id: number;
 
     targetSchema: string;
     targetTable: string;
@@ -32,7 +34,8 @@ export class ForeignKey {
     onUpdate: string;
     onDelete: string;
 
-    constructor(fkName: string, schema: string, fkTable: string, fkCol: string, pkTable: string, pkCol: string) {
+    constructor(id: number, fkName: string, schema: string, fkTable: string, fkCol: string, pkTable: string, pkCol: string) {
+        this.id = id;
         this.fkName = fkName;
         this.targetSchema = schema;
         this.sourceSchema = schema;

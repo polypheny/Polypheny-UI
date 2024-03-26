@@ -52,7 +52,7 @@ export class PlanService {
     ACTUAL_COST_PROP = '*Actual Cost';
     ACTUAL_CPU_PROP = 'Actual Cpu';
     PLANNER_ESTIMATE_FACTOR = '*Planner Row Estimate Factor';
-    PLANNER_ESIMATE_DIRECTION = '*Planner Row Estimate Direction';
+    PLANNER_ESTIMATE_DIRECTION = '*Planner Row Estimate Direction';
 
     CTE_SCAN_PROP = 'CTE Scan';
     CTE_NAME_PROP = 'CTE Name';
@@ -66,8 +66,8 @@ export class PlanService {
     private _maxDuration = 0;
     private _maxCpu = 0;
 
-    getPlans(): Array<IPlan> {
-        const plans: Array<IPlan> = [];
+    getPlans(): IPlan[] {
+        const plans: IPlan[] = [];
 
         for (const i in localStorage) {
             if (_.startsWith(i, this.PEV_PLAN_TAG)) {
@@ -214,13 +214,13 @@ export class PlanService {
     // invloved in this node
     calculatePlannerEstimate(node) {
         node[this.PLANNER_ESTIMATE_FACTOR] = node[this.ROW_COUNT] / node[this.ACTUAL_ROWS_PROP];
-        node[this.PLANNER_ESIMATE_DIRECTION] = EstimateDirection.under;
+        node[this.PLANNER_ESTIMATE_DIRECTION] = EstimateDirection.under;
         if (node[this.ROW_COUNT] === node[this.ACTUAL_ROWS_PROP]) {
-            node[this.PLANNER_ESIMATE_DIRECTION] = EstimateDirection.equal;
+            node[this.PLANNER_ESTIMATE_DIRECTION] = EstimateDirection.equal;
         }
 
         if (node[this.PLANNER_ESTIMATE_FACTOR] < 1) {
-            node[this.PLANNER_ESIMATE_DIRECTION] = EstimateDirection.over;
+            node[this.PLANNER_ESTIMATE_DIRECTION] = EstimateDirection.over;
             node[this.PLANNER_ESTIMATE_FACTOR] = node[this.ACTUAL_ROWS_PROP] / node[this.ROW_COUNT];
         }
     }

@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 
 import {GraphicalQueryingComponent} from './graphical-querying.component';
 
@@ -6,7 +6,7 @@ describe('GraphicalQueryingComponent', () => {
     let component: GraphicalQueryingComponent;
     let fixture: ComponentFixture<GraphicalQueryingComponent>;
 
-    beforeEach(async(() => {
+    beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [GraphicalQueryingComponent]
         })

@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
-import * as hljs from 'highlightjs';
 import * as _ from 'lodash';
+import hljs from 'highlight.js';
 
 @Injectable({
     providedIn: 'root'
@@ -11,9 +11,9 @@ export class SyntaxHighlightService {
 
     highlight(code: string, keyItems: Array<string>) {
         hljs.registerLanguage('sql', LANG_SQL);
-        hljs.configure({
+        /*hljs.configure({
             tabReplace: '    '
-        });
+        });*/
 
         // prior to syntax highlighting, we want to tag key items in the raw code. making the
         // query upper case and ensuring that all comma separated values have a space

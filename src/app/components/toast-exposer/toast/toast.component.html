@@ -1,0 +1,56 @@
+<ng-container>
+    <div class="p-3">
+        <c-toast-header [closeButton]="true" [class]="(toast|async)?.type">
+            <strong class="me-auto" [ngClass]="{'hasGeneratedQuery': (toast | async)?.generatedQuery}"
+                    (click)="copyGeneratedQuery(toast.value)">
+                {{(toast | async)?.title}}
+                <i class="fa fa-code" *ngIf="(toast | async)?.generatedQuery"></i>
+            </strong>
+        </c-toast-header>
+        <c-toast-body #t [cToastClose]="t.toast" class="text-bg-light">
+
+            <div (click)="showStackTraceModal(toast.value)">
+                {{(toast | async)?.message}}
+            </div>
+            <ng-content></ng-content>
+            <c-progress thin="true">
+                <c-progress-bar [value]="25*(t.toast?.clock ?? 1)"></c-progress-bar>
+            </c-progress>
+        </c-toast-body>
+    </div>
+</ng-container>
+
+<div #stackTraceModal="bs-modal" aria-hidden="true" aria-labelledby="myModalLabel" bsModal class="modal fade"
+     role="dialog" tabindex="-1" id="stackTraceModal">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content bg-warning">
+            <c-modal-header class="modal-header">
+                <h5>Exception</h5>
+            </c-modal-header>
+            <c-modal-body class="text-muted" *ngIf="exception">
+                <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: exception}"></ng-container>
+            </c-modal-body>
+            <div class="modal-footer">
+                <button cButton type="button" color="secondary" (click)="stackTraceModal.hide()">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+<ng-template #exceptionTemplate let-e="e">
+    <ng-container *ngIf="e" class="p-3">
+        <ng-container>
+            <c-toast-header [closeButton]="true">
+                <toast-sample-icon></toast-sample-icon>
+                <strong>{{e.message}}</strong>
+            </c-toast-header>
+            <c-toast-body #toast [cToastClose]="toast.toast">
+                <p class="mb-1">This is a dynamic toast no {{toast.toast?.index}} {{toast.toast?.clock}}</p>
+                <ng-content></ng-content>
+                <c-progress thin>
+                    <c-progress-bar [value]="25*(toast.toast?.clock ?? 1)"></c-progress-bar>
+                </c-progress>
+            </c-toast-body>
+        </ng-container>
+    </ng-container>
+</ng-template>

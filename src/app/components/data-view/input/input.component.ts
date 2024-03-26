@@ -3,6 +3,7 @@ import {
     Component,
     ElementRef,
     EventEmitter,
+    inject,
     Input,
     OnChanges,
     OnInit,
@@ -10,7 +11,7 @@ import {
     SimpleChanges,
     ViewChild
 } from '@angular/core';
-import {DbColumn} from '../models/result-set.model';
+import {FieldDefinition, UiColumnDefinition} from '../models/result-set.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as $ from 'jquery';
 import flatpickr from 'flatpickr';
@@ -29,8 +30,14 @@ function getObjectId() {
 })
 export class InputComponent implements OnInit, OnChanges, AfterViewInit {
 
-    @Input() header: DbColumn;
-    @Input() value;
+    public readonly _types = inject(DbmsTypesService);
+
+    constructor() {
+        this.randomId = Math.floor((Math.random() * 10e8));
+    }
+
+    @Input() header: UiColumnDefinition | FieldDefinition;
+    @Input() value: any;
     @Input() showLabel? = false;
     @Output() valueChange = new EventEmitter();
     @Output() enter = new EventEmitter();
@@ -38,25 +45,25 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
     @ViewChild('flatpickr', {static: false}) flatpickrElement: ElementRef;
     @ViewChild('fileInput', {static: false}) fileInput: ElementRef;
     flatpickrObj;
-    inputFileName = 'Choose file';
+    inputFileName = 'Choose File';
     randomId;
 
-    constructor(
-        public _types: DbmsTypesService
-    ) {
-        this.randomId = Math.floor((Math.random() * 10e8));
+    private static validateJSON(val) {
+        let doc = val.replace(/NumberDecimal\("[0-9.]*"\)/g, '0');
+        doc = doc.replace(/[0-9a-zA-Z.]+[*\/+-]+[0-9a-zA-Z.]+/g, '0');
+        if (doc === '') {
+            return new InputValidation(false, 'Non-valid document');
+        }
+        try {
+            doc = JSON.parse(doc);
+        } catch (Exception) {
+            return new InputValidation(false, 'Non-valid document');
+        }
+        return new InputValidation(true);
     }
 
     ngOnInit() {
-        if (this.header.name === '_id') {
-            // defer this to next JavaScript cycle so it is rendered correctly
-            setTimeout(() => {
-                if (this.value === '') {
-                    this.value = getObjectId();
-                    this.valueChange.emit(this.value);
-                }
-            });
-        }
+
     }
 
     ngAfterViewInit() {
@@ -81,22 +88,22 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
     triggerNull(value) {
         if (value !== null) {
             return null;
+        }
+
+        if ((this.header instanceof UiColumnDefinition) && this.header.collectionsType) {
+            return '';
+        } else if (this._types.isNumeric(this.header.dataType)) {
+            return 0;
+        } else if (this._types.isBoolean(this.header.dataType)) {
+            return false;
+        } else if (this._types.isMultimedia(this.header.dataType)) {
+            return null;
         } else {
-            if (this.header.collectionsType) {
-                return '';
-            } else if (this._types.isNumeric(this.header.dataType)) {
-                return 0;
-            } else if (this._types.isBoolean(this.header.dataType)) {
-                return false;
-            } else if (this._types.isMultimedia(this.header.dataType)) {
-                return null;
-            } else {
-                return '';
-            }
+            return '';
         }
     }
 
-    onValueChange(newVal, event = null) {
+    onValueChange(newVal: any, event = null) {
         this.valueChange.emit(newVal);
         if (event !== null && event.keyCode === 13) {
             this.enter.emit(true);
@@ -108,6 +115,10 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
         if (!val) {
             return;
         }
+        if (!(this.header instanceof UiColumnDefinition)) {
+            return null;
+        }
+
         if (this.header.collectionsType) {
             return this.validateArray(val);
         } else if (this._types.isNumeric(this.header.dataType)) {
@@ -120,26 +131,16 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
         }
     }
 
-    private static validateJSON(val) {
-        let doc = val.replace(/NumberDecimal\("[0-9.]*"\)/g, '0');
-        doc = doc.replace(/[0-9a-zA-Z.]+[*\/+-]+[0-9a-zA-Z.]+/g, '0');
-        if (doc === '') {
-            return new InputValidation(false, 'Non-valid document');
-        }
-        try {
-            doc = JSON.parse(doc);
-        } catch (Exception) {
-            return new InputValidation(false, 'Non-valid document');
-        }
-        return new InputValidation(true);
-    }
-
     private validateArray(val) {
         if (val.startsWith('[') && val.endsWith(']')) {
             if (!this._types.isNumeric(this.header.dataType)) {
                 //don't make further checks on non-numeric arrays
                 return;
             }
+            if (!(this.header instanceof UiColumnDefinition)) {
+                return null;
+            }
+
             try {
                 const parsed = JSON.parse(val);
                 if (!Array.isArray(parsed)) {

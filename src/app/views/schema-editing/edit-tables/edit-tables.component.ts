@@ -1,18 +1,43 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    Input,
+    OnDestroy,
+    OnInit,
+    QueryList,
+    Renderer2,
+    Signal,
+    ViewChildren
+} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
-import {EditTableRequest, SchemaRequest} from '../../../models/ui-request.model';
-import {ActivatedRoute, Router} from '@angular/router';
-import {DbColumn, Index, PolyType, ResultSet, Status} from '../../../components/data-view/models/result-set.model';
-import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
+import {EditTableRequest} from '../../../models/ui-request.model';
+import {Router} from '@angular/router';
+import {
+    EntityMeta,
+    PolyType,
+    RelationalResult,
+    Status,
+    UiColumnDefinition
+} from '../../../components/data-view/models/result-set.model';
+import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {Store} from '../../adapters/adapter.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
-import * as $ from 'jquery';
 import {DbTable} from '../../uml/uml.model';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
+import {CatalogService} from '../../../services/catalog.service';
+import {
+    AllocationEntityModel,
+    AllocationPartitionModel,
+    AllocationPlacementModel,
+    EntityType,
+    NamespaceModel,
+    TableModel
+} from '../../../models/catalog.model';
+import {AdapterModel} from '../../adapters/adapter.model';
 
 const INITIAL_TYPE = 'BIGINT';
 
@@ -23,55 +48,85 @@ const INITIAL_TYPE = 'BIGINT';
 })
 export class EditTablesComponent implements OnInit, OnDestroy {
 
+    public readonly _crud = inject(CrudService);
+    public readonly _types = inject(DbmsTypesService);
+    public readonly _catalog = inject(CatalogService);
+    public readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _toast = inject(ToasterService);
+    private readonly _router = inject(Router);
+    private readonly _leftSidebar = inject(LeftSidebarService);
+    private readonly _settings = inject(WebuiSettingsService);
+    private readonly _render = inject(Renderer2);
+
+    @ViewChildren('editing', {read: ElementRef}) inputGroup: QueryList<ElementRef>;
     types: PolyType[] = [];
-    schema: string;
-    schemaType: string;
-    tables: TableModel[] = [];
+
+    @Input()
+    readonly entity: Signal<TableModel>;
+    @Input()
+    readonly namespace: Signal<NamespaceModel>;
+    @Input()
+    readonly currentRoute: Signal<string>;
+
+    @Input()
+    readonly placements: Signal<AllocationPlacementModel[]>;
+    @Input()
+    readonly partitions: Signal<AllocationPartitionModel[]>;
+    @Input()
+    readonly allocations: Signal<AllocationEntityModel[]>;
+    @Input()
+    readonly stores: Signal<AdapterModel[]>;
+    @Input()
+    readonly addableStores: Signal<AdapterModel[]>;
+
+    readonly tables: Signal<Table[]>; //= signal([]);
 
     counter = 0;
-    newColumns = new Map<number, DbColumn>();
+    newColumns = new Map<number, UiColumnDefinition>();
     newTableName = '';
-    stores: Store[];
-    selectedStore;
+    selectedStore: AdapterModel;
     creatingTable = false;
 
-    //export table
-    showExportButton = false;
-    exportProgress = 0.0;
-    uploading = false;
-    private subscriptions = new Subscription();
-    exportForm = new FormGroup({
-        name: new FormControl('', Validators.required),
-        description: new FormControl(''),
-        pub: new FormControl(0, Validators.required),
-        createPrimaryKeys: new FormControl(true, Validators.required),
-        addDefaultValue: new FormControl(true, Validators.required)
-    });
+    editOpen = false;
 
-    constructor(
-        public _crud: CrudService,
-        private _route: ActivatedRoute,
-        private _toast: ToastService,
-        private _router: Router,
-        private _leftSidebar: LeftSidebarService,
-        public _types: DbmsTypesService,
-        private _settings: WebuiSettingsService,
-        public _breadcrumb: BreadcrumbService
-    ) {
+    //export table
+    exportProgress = 0.0;
+    private subscriptions = new Subscription();
+
+    constructor() {
+        this._render.listen('document', 'click', (e: Event) => {
+            if (!this.inputGroup || this.inputGroup.length === 0) {
+                return;
+            }
+            if (this.editOpen && !this.inputGroup.get(0).nativeElement.contains(e.target)) {
+                this.tables().map(t => {
+                    t.editing = false;
+                    return t;
+                });
+                this.editOpen = false;
+            } else {
+                this.editOpen = true;
+            }
+        });
+
+        this.tables = computed(() => {
+            const catalog = this._catalog.listener();
+            if (!this.namespace) {
+                return;
+            }
+            const namespace = this.namespace();
+            if (!namespace) {
+                return;
+            }
+            const entities = this._catalog.getEntities(namespace.id);
+            return entities.map(e => Table.fromModel(<TableModel>e)).sort((a, b) => a.name.localeCompare(b.name));
+        });
     }
 
     ngOnInit() {
-        this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
-        this.schema = this._route.snapshot.paramMap.get('id');
-        const sub1 = this._route.params.subscribe((params) => {
-            this.schema = params['id'];
-            this.getSchemaType();
-            this.getTables();
-        });
-        this.subscriptions.add(sub1);
-        this.getTables();
+        this.newColumns.set(this.counter++, new UiColumnDefinition(-1, '', true, false, INITIAL_TYPE, '', null, null));
         this.getTypeInfo();
-        this.getStores();
+
         this.initSocket();
         const sub2 = this._crud.onReconnection().subscribe((b) => {
             if (b) {
@@ -79,74 +134,24 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             }
         });
         this.subscriptions.add(sub2);
-        this.documentListener();
     }
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
-        $(document).off('click');
     }
 
     onReconnect() {
-        this.getTables();
+        //this._catalog.updateIfNecessary();
         this.getTypeInfo();
-        this.getStores();
-        this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
+        this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
     }
 
-    documentListener() {
-        const self = this;
-        $(document).on('click', function (e) {
-            if ($(e.target).hasClass('edit-table-name')) {
-                return;
-            }
-            if ($(e.target).parents('.editing').length === 0) {
-                self.tables.forEach((t) => t.editing = false);
-            }
-        });
-    }
-
-    getTables() {
-        this._crud.getTables(new EditTableRequest(this.schema)).subscribe(
-            res => {
-                const result = <DbTable[]>res;
-                this.tables = [];
-                for (const t of result) {
-                    this.tables.push(new TableModel(t));
-                }
-                this.tables = this.tables.sort((a, b) => a.name.localeCompare(b.name));
-            }, err => {
-                this._toast.error('could not retrieve list of tables');
-                console.log(err);
-            }
-        );
-    }
-
-    getStores() {
-        this._crud.getStores().subscribe(
-            res => {
-                this.stores = <Store[]>res;
-            }, err => {
-                console.log(err);
-            });
-    }
-
-    getSchemaType() {
-        this._crud.getTypeSchemas().subscribe(
-            res => {
-                this.schemaType = res[this.schema];
-                this._breadcrumb.setNamespaceType(this.schemaType);
-            }, error => {
-                console.log(error);
-            }
-        );
-    }
 
     /**
      * get the right class for the 'drop' and 'truncate' buttons
      * enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
      */
-    dropTruncateClass(action: string, table: TableModel) {
+    dropTruncateClass(action: string, table: Table) {
         if (action === 'drop' && (table.drop === table.name || table.drop === 'drop ' + table.name)) {
             return 'btn-danger';
         } else if (action === 'truncate' && (table.truncate === table.name || table.truncate === 'truncate ' + table.name)) {
@@ -158,40 +163,41 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     /**
      * send a request to either drop or truncate a table
      */
-    sendRequest(action, table: TableModel) {
+    sendDropTruncateRequest(action, table: Table) {
         let request;
         let type: string;
         if (this.dropTruncateClass(action, table) === 'btn-danger') {
-            if (table.tableType !== 'VIEW') {
-                request = new EditTableRequest(this.schema, table.name, action);
+            if (table.tableType !== EntityType.VIEW) {
+                request = new EditTableRequest(this.namespace().id, table.id, null, action);
+                console.log(request);
                 type = ' the Table ';
             } else {
-                request = new EditTableRequest(this.schema, table.name, action, null, null, 'VIEW');
+                request = new EditTableRequest(this.namespace().id, table.id, null, action, null, null, EntityType.VIEW);
                 type = ' the View ';
             }
 
         } else {
             return;
         }
-        this._crud.dropTruncateTable(request).subscribe(
-            res => {
-                const result = <ResultSet>res;
+        this._crud.dropTruncateTable(request).subscribe({
+            next: (result: RelationalResult) => {
+
                 if (result.error) {
                     this._toast.exception(result, 'Could not ' + action + type + table + ':');
                 } else {
                     let toastAction = 'Truncated';
                     if (request.getAction() === 'drop') {
                         toastAction = 'Dropped';
-                        this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
+                        this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
                     }
                     this._toast.success(toastAction + type + request.table);
-                    this.getTables();
+                    //this._catalog.updateIfNecessary();
                 }
-            }, err => {
+            }, error: err => {
                 this._toast.error('Could not ' + action + type + table + ' due to an unknown error');
                 console.log(err);
             }
-        );
+        });
     }
 
     createTable() {
@@ -203,11 +209,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             this._toast.warn('Please provide a valid name for the new table. The new table was not created.', 'invalid table name', ToastDuration.INFINITE);
             return;
         }
-        if (this.tables.filter((t) => {
-            if (this.schemaType.toLowerCase() === 'relational') {
-                return t.name.toLowerCase() === this.newTableName.toLowerCase();
-            }
-            return t.name === this.newTableName;
+        if (this.tables().filter((t) => {
+            return this.namespace().caseSensitive ? t.name === this.newTableName : t.name.toLowerCase() === this.newTableName.toLowerCase();
         }).length > 0) {
             this._toast.warn('A table with this name already exists. Please choose another name.', 'invalid table name', ToastDuration.INFINITE);
             return;
@@ -235,6 +238,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
                 valid = false;
                 return;
             }
+
             if (v.primary) {
                 hasPk = true;
             }
@@ -247,70 +251,62 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             this._toast.warn('Please make sure all column names are valid. The new table was not created.', 'invalid column name', ToastDuration.INFINITE);
             return;
         }
-        const request = new EditTableRequest(this.schema, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore);
+        const request = new EditTableRequest(this.namespace().id, null, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore?.id);
         this.creatingTable = true;
-        this._crud.createTable(request).subscribe(
-            res => {
-                const result = <ResultSet>res;
+        this._crud.createTable(request).subscribe({
+            next: (result: RelationalResult) => {
                 if (result.error) {
                     this._toast.exception(result, 'Could not generate table:');
                 } else {
-                    this._toast.success('Generated table ' + request.table, result.generatedQuery);
+                    this._toast.success('Generated table ' + request.entityName, result.query);
                     this.newColumns.clear();
                     this.counter = 0;
-                    this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
+                    this.newColumns.set(this.counter++, new UiColumnDefinition(-1, '', true, false, INITIAL_TYPE, '', null, null));
                     this.newTableName = '';
                     this.selectedStore = null;
-                    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
+                    this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
                 }
-                this.getTables();
-            }, err => {
+                //this._catalog.updateIfNecessary();
+            }, error: err => {
                 this._toast.error('Could not generate table');
                 console.log(err);
             }
-        ).add(() => this.creatingTable = false);
+        }).add(() => this.creatingTable = false);
     }
 
-    renameTable(table: TableModel) {
-        const t = new Index(this.schema, table.name, table.newName, null, null, null);
-        let type;
-        if (table.tableType === 'VIEW') {
-            type = ' View ';
-        } else {
-            type = ' Table ';
-        }
-        this._crud.renameTable(t).subscribe(
-            res => {
-                const r = <ResultSet>res;
+    rename(table: Table) {
+        const meta = new EntityMeta(this.namespace().id, table.id, table.newName, []);
+        const type = table.tableType === EntityType.VIEW ? ' View ' : ' Table ';
+        this._crud.renameTable(meta).subscribe({
+            next: (r: RelationalResult) => {
                 if (r.exception) {
                     this._toast.exception(r);
                 } else {
                     this._toast.success('Renamed' + type + table.name + ' to ' + table.newName);
-                    this.getTables();
-                    this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false), this._router);
+                    //this._catalog.updateIfNecessary();
+                    this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
                 }
-            }, err => {
+            }, error: err => {
                 this._toast.error('Could not rename the' + type + table.name);
                 console.log(err);
             }
-        );
+        });
     }
 
     /**
      * Check if the new table name is valid
      */
-    canRename(table: TableModel) {
+    canRename(table: Table) {
         //table.name !== table.newName  not necessary, since the filter will catch it as well
-        return this.tables.filter((t) => t.name === table.newName).length === 0 &&
+        return this.tables().filter((t) => t.name === table.newName).length === 0 &&
             this._crud.nameIsValid(table.newName);
     }
 
     initSocket() {
         const sub = this._crud.onSocketEvent().subscribe(
-            msg => {
-                const s = <Status>msg;
-                if (s.context === 'tableExport') {
-                    this.exportProgress = s.status;
+            (msg: Status) => {
+                if (msg.context === 'tableExport') {
+                    this.exportProgress = msg.status;
                 }
             }, err => {
                 setTimeout(() => {
@@ -324,11 +320,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         const regex = this._crud.getValidationRegex();
         if (name === '') {
             return '';
-        } else if (regex.test(name) && name.length <= 100 && this.tables.filter((t) => {
-            if (this.schemaType.toLowerCase() === 'relational') {
-                return t.name.toLowerCase() === name.toLowerCase();
-            }
-            return t.name === name;
+        } else if (regex.test(name) && name.length <= 100 && this.tables().filter((t) => {
+            return this.namespace().caseSensitive ? t.name === name : t.name.toLowerCase() === name.toLowerCase();
         }).length === 0) {
             return 'is-valid';
         } else {
@@ -337,21 +330,21 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }
 
     addNewColumn() {
-        this.newColumns.set(this.counter++, new DbColumn('', false, true, INITIAL_TYPE, '', null, null));
+        this.newColumns.set(this.counter++, new UiColumnDefinition(-1, '', false, true, INITIAL_TYPE, '', null, null));
     }
 
     removeNewColumn(i: number) {
         if (this.newColumns.size === 1) {
             this.counter = 0;
             this.newColumns.clear();
-            this.newColumns.set(this.counter++, new DbColumn('', true, false, INITIAL_TYPE, '', null, null));
+            this.newColumns.set(this.counter++, new UiColumnDefinition(-1, '', true, false, INITIAL_TYPE, '', null, null));
         } else {
             //don't change the counter here!
             this.newColumns.delete(i);
         }
     }
 
-    triggerDefaultNull(col: DbColumn) {
+    triggerDefaultNull(col: UiColumnDefinition) {
         if (col.defaultValue === null) {
             if (this._types.isNumeric(col.dataType)) {
                 col.defaultValue = 0;
@@ -373,10 +366,10 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             }
         );
     }
-
 }
 
-export class TableModel {
+export class Table {
+    id: number;
     name: string;
     truncate = '';
     drop = '';
@@ -384,12 +377,23 @@ export class TableModel {
     editing = false;
     newName: string;
     modifiable: boolean;
-    tableType: string;
+    tableType: EntityType;
 
-    constructor(table: DbTable) {
-        this.name = table.tableName;
-        this.newName = table.tableName;
-        this.modifiable = table.modifiable;
-        this.tableType = table.tableType;
+    constructor(id: number, name: string, newName: string, modifiable: boolean, entityType: EntityType) {
+        this.id = id;
+        this.name = name;
+        this.newName = newName;
+        this.modifiable = modifiable;
+        this.tableType = entityType;
     }
+
+    static fromDb(table: DbTable) {
+        return new Table(null, table.tableName, table.tableName, table.modifiable, table.tableType);
+    }
+
+    static fromModel(table: TableModel) {
+        return new Table(table.id, table.name, table.name, table.modifiable, table.entityType);
+    }
+
 }
+

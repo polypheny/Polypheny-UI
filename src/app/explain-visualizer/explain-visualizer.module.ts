@@ -8,32 +8,34 @@ import {SyntaxHighlightService} from './services/syntax-highlight.service';
 import {HelpService} from './services/help.service';
 import {ColorService} from './services/color.service';
 import {FormsModule} from '@angular/forms';
+import {ButtonCloseDirective} from '@coreui/angular';
 
 @NgModule({
-  declarations: [
-    PlanNodeComponent,
-    PlanViewComponent,
-    MomentDatePipe,
-    DurationPipe,
-    DurationUnitPipe
-  ],
-  imports: [
-    CommonModule,
-    FormsModule
-  ],
-  providers: [
-    PlanService,
-    SyntaxHighlightService,
-    HelpService,
-    ColorService
-  ],
-  exports: [
-    PlanNodeComponent,
-    MomentDatePipe,
-    DurationPipe,
-    DurationUnitPipe,
-    PlanViewComponent
-  ]
+    declarations: [
+        PlanNodeComponent,
+        PlanViewComponent,
+        MomentDatePipe,
+        DurationPipe,
+        DurationUnitPipe
+    ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ButtonCloseDirective
+    ],
+    providers: [
+        PlanService,
+        SyntaxHighlightService,
+        HelpService,
+        ColorService
+    ],
+    exports: [
+        PlanNodeComponent,
+        MomentDatePipe,
+        DurationPipe,
+        DurationUnitPipe,
+        PlanViewComponent
+    ]
 })
 export class ExplainVisualizerModule {
 }

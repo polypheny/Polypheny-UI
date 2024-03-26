@@ -9,8 +9,12 @@
       "projectType": "application",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
+            "customWebpackConfig": {
+              "path": "./webpack.config.js",
+              "replaceDuplicatePlugins": true
+            },
             "allowedCommonJsDependencies": [
               "lodash",
               "jquery",
@@ -19,9 +23,13 @@
               "chart.js",
               "graphlib-dot",
               "dagre-d3",
-              "ansi_up"
+              "ansi_up",
+              "ace-builds",
+              "mobx",
+              "flatpickr",
+              "plyr",
+              "moment"
             ],
-            "aot": true,
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -31,14 +39,17 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/@coreui/coreui/scss/coreui.scss",
+              "./node_modules/@coreui/coreui/scss/coreui.scss",
               "./node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/@coreui/icons/css/free.css",
-              "node_modules/flag-icon-css/css/flag-icon.css",
+              "node_modules/flag-icons/css/flag-icons.css",
               "node_modules/font-awesome/css/font-awesome.css",
               "node_modules/simple-line-icons/css/simple-line-icons.css",
               "src/scss/style.scss",
               "node_modules/flatpickr/dist/flatpickr.min.css",
               "node_modules/plyr/dist/plyr.css",
+              "node_modules/@ali-hm/angular-tree-component/css/angular-tree-component.css",
               "node_modules/katex/dist/katex.min.css",
               "node_modules/prismjs/themes/prism-okaidia.css"
             ],
@@ -48,18 +59,24 @@
               ]
             },
             "scripts": [
-              "node_modules/chart.js/dist/Chart.min.js",
-              "node_modules/katex/dist/katex.min.js",
-              "node_modules/prismjs/prism.js",
-              "node_modules/prismjs/components/prism-css.min.js",
-              "node_modules/prismjs/components/prism-cypher.min.js",
-              "node_modules/prismjs/components/prism-python.min.js",
-              "node_modules/prismjs/components/prism-sql.min.js",
-              "node_modules/prismjs/components/prism-java.min.js",
-              "node_modules/prismjs/components/prism-mongodb.min.js",
-              "node_modules/prismjs/components/prism-bash.min.js",
-              "node_modules/prismjs/components/prism-markdown.min.js"
-            ]
+              "node_modules/chart.js/dist/chart.min.js",
+                "node_modules/katex/dist/katex.min.js",
+                "node_modules/prismjs/prism.js",
+                "node_modules/prismjs/components/prism-css.min.js",
+                "node_modules/prismjs/components/prism-cypher.min.js",
+                "node_modules/prismjs/components/prism-python.min.js",
+                "node_modules/prismjs/components/prism-sql.min.js",
+                "node_modules/prismjs/components/prism-java.min.js",
+                "node_modules/prismjs/components/prism-mongodb.min.js",
+                "node_modules/prismjs/components/prism-bash.min.js",
+                "node_modules/prismjs/components/prism-markdown.min.js"
+            ],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -72,9 +89,7 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
-              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
@@ -85,23 +100,24 @@
                 }
               ]
             }
-          }
+          },
+          "defaultConfiguration": ""
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
-            "browserTarget": "ng:build"
+            "buildTarget": "ng:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "ng:build:production"
+              "buildTarget": "ng:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ng:build"
+            "buildTarget": "ng:build"
           }
         },
         "test": {
@@ -112,11 +128,11 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "scripts": [
-              "node_modules/chart.js/dist/Chart.min.js"
+              "node_modules/chart.js/dist/chart.min.js"
             ],
             "styles": [
               "./node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/flag-icon-css/css/flag-icon.css",
+              "node_modules/flag-icons/css/flag-icon.css",
               "node_modules/font-awesome/css/font-awesome.css",
               "node_modules/simple-line-icons/css/simple-line-icons.css",
               "src/scss/style.scss"
@@ -129,18 +145,6 @@
             "assets": [
               "src/assets",
               "src/favicon.ico"
-            ]
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "src/tsconfig.app.json",
-              "src/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
             ]
           }
         }
@@ -157,22 +161,10 @@
             "protractorConfig": "./protractor.conf.js",
             "devServerTarget": "ng:serve"
           }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "e2e/tsconfig.e2e.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
         }
       }
     }
   },
-  "defaultProject": "ng",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",
@@ -184,7 +176,6 @@
       "skipTests": true
     },
     "@schematics/angular:module": {
-      "skipTests": true
     },
     "@schematics/angular:service": {
       "skipTests": true

@@ -1,9 +1,11 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {NotebooksService} from './notebooks.service';
 import {BehaviorSubject, forkJoin, interval, Observable, of, Subject, Subscription} from 'rxjs';
 import {
     Content,
-    DirectoryContent, FileContent, KernelSpec,
+    DirectoryContent,
+    FileContent,
+    KernelSpec,
     KernelSpecs,
     NotebookContent,
     SessionResponse
@@ -11,11 +13,11 @@ import {
 import {UrlSegment} from '@angular/router';
 import {mergeMap, switchMap, tap} from 'rxjs/operators';
 import {Notebook} from '../models/notebook.model';
-import {SchemaRequest} from '../../../models/ui-request.model';
-import {CrudService} from '../../../services/crud.service';
 
 @Injectable()
 export class NotebooksContentService {
+
+    private readonly _notebooks = inject(NotebooksService);
 
     private _path: string;
     private _pathSegments: string[];
@@ -40,8 +42,7 @@ export class NotebooksContentService {
     private readonly LOCAL_STORAGE_PREFERRED_SESSIONS_KEY = 'notebooks-preferred-sessions';
     private namespaces = new BehaviorSubject<string[]>([]);
 
-    constructor(private _notebooks: NotebooksService,
-                private _crud: CrudService) {
+    constructor() {
         this.updateExistingNamespaces();
         this.updateAvailableKernels();
         this.updateSessions();
@@ -71,13 +72,13 @@ export class NotebooksContentService {
             res => {
                 this.updateDirectory(<DirectoryContent>res);
             },
-            () => this.invalidLocationSubject.next()
-        ).add(() => this.contentChange.next());
+            () => this.invalidLocationSubject.next(null)
+        ).add(() => this.contentChange.next(null));
     }
 
     private updateMetadata(res: Content) {
         if (res == null) {
-            this.invalidLocationSubject.next();
+            this.invalidLocationSubject.next(null);
             return;
         }
         this._type = res.type;
@@ -105,7 +106,7 @@ export class NotebooksContentService {
 
     updateAvailableKernels() {
         this._notebooks.getKernelspecs().subscribe(res => this.kernelSpecs.next(res),
-            () => this.serverUnreachableSubject.next());
+            () => this.serverUnreachableSubject.next(null));
     }
 
     updateSessions() {
@@ -123,7 +124,7 @@ export class NotebooksContentService {
             },
             () => {
                 this.sessions.next([]);
-                this.serverUnreachableSubject.next();
+                this.serverUnreachableSubject.next(null);
             }
         );
     }
@@ -351,15 +352,15 @@ export class NotebooksContentService {
 
 
     private updateExistingNamespaces() {
-        this._crud.getSchema(new SchemaRequest('views/notebooks/', false, 1, false)).subscribe(
+        /*this._crud.get(new SchemaRequest('views/notebooks/', false, 1, false)).subscribe(
             res => {
                 const names = [];
                 for (const namespace of <any[]>res) {
                     names.push(namespace?.name);
                 }
                 this.namespaces.next(names);
-            }
-        );
+            }todo dl
+        );*/
     }
 
     /**

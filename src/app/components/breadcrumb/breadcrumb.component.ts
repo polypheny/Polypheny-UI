@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit, signal} from '@angular/core';
 import {BreadcrumbService} from './breadcrumb.service';
 
 @Component({
@@ -10,13 +10,13 @@ export class BreadcrumbComponent implements OnInit {
 
     breadcrumbs: BreadcrumbItem[] = [];
     zoom;
-    hidden = true;
+    hidden = signal(true);
 
     routerId;
 
-    constructor(
-        public _breadcrumb: BreadcrumbService,
-    ) {
+    private readonly _breadcrumb = inject(BreadcrumbService);
+
+    constructor() {
     }
 
     ngOnInit() {
@@ -26,7 +26,7 @@ export class BreadcrumbComponent implements OnInit {
 
         this._breadcrumb.getBreadcrumbs().subscribe(breadcrumbs => {
             this.breadcrumbs = breadcrumbs;
-            this.hidden = breadcrumbs.length <= 0;
+            this.hidden.set(breadcrumbs.length <= 0);
         });
     }
 

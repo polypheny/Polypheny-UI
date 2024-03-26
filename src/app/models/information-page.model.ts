@@ -39,7 +39,7 @@ export interface InformationObject extends Duration {
     //graph:
     data?: any;
     labels?: string[];
-    colorList?: string[];
+    colors?: string[];
     graphType?: string;
     //debugger
     queryPlan: string;

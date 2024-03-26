@@ -1,10 +1,11 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NotebooksService} from '../../services/notebooks.service';
 import {NotebooksContentService} from '../../services/notebooks-content.service';
-import {ToastService} from '../../../../components/toast/toast.service';
 import {interval, Subscription} from 'rxjs';
 import {SessionResponse, StatusResponse} from '../../models/notebooks-response.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
+import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
+import {cilMediaPlay, cilReload, cilTrash} from '@coreui/icons';
 
 @Component({
     selector: 'app-notebooks-dashboard',
@@ -18,7 +19,11 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     @ViewChild('destroyContainerModal') public destroyContainerModal: ModalDirective;
     @ViewChild('startContainerModal') public startContainerModal: ModalDirective;
 
+    private readonly _notebooks = inject(NotebooksService);
+    private readonly _content = inject(NotebooksContentService);
+    private readonly _toast = inject(ToasterService);
 
+    icons = {cilReload, cilTrash, cilMediaPlay};
     private subscriptions = new Subscription();
     sessions: SessionResponse[] = [];
     hasUnusedSessions = false;
@@ -31,21 +36,19 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     sessionSubscription = null;
     instances = [];
 
-    constructor(private _notebooks: NotebooksService,
-                private _content: NotebooksContentService,
-                private _toast: ToastService) {
+    constructor() {
     }
 
     ngOnInit(): void {
         this.getServerStatus();
-        this._notebooks.getDockerInstances().subscribe(
-            res => {
+        this._notebooks.getDockerInstances().subscribe({
+            next: res => {
                 this.instances = <[]>res;
             },
-            err => {
+            error: err => {
                 console.log(err);
             }
-        );
+        });
         this.getPluginStatus();
 
         const sub = interval(10000).subscribe(() => {
@@ -97,80 +100,83 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
             .replace(/\//g, '/\u200B')); // zero-width space => allow soft line breaks after '/'
         this.isPreferredSession = this.sessions.map((s, i) =>
             this._content.getPreferredSessionId(paths[i]) === s.id
-                                                   );
+        );
     }
 
     showStartContainerModal() {
-        this._notebooks.getDockerInstances().subscribe(
-            res => {
+        this._notebooks.getDockerInstances().subscribe({
+            next: res => {
                 this.instances = <[]>res;
             },
-            err => {
+            error: err => {
                 console.log(err);
             }
-        );
+        });
     }
 
     createContainer(id: number) {
         this.creating = true;
-        this._notebooks.createContainer(id).subscribe(
-            res => {
+        this._notebooks.createContainer(id).subscribe({
+            next: res => {
                 this.startContainerModal.hide();
                 this.creating = false;
             },
-            err => {
+            error: err => {
                 this.creating = false;
                 console.log(err);
             }
-        ).add(() => this.getServerStatus());
+        }).add(() => this.getServerStatus());
     }
 
     destroyContainer() {
-        this._notebooks.destroyContainer().subscribe(
-            res => this.destroyContainerModal.hide(),
-            err => console.log(err),
-        ).add(() => this.getServerStatus());
+        this._notebooks.destroyContainer().subscribe({
+            next: res => this.destroyContainerModal.hide(),
+            error: err => console.log(err),
+        }).add(() => this.getServerStatus());
     }
 
     restartContainer() {
         this.serverStatus = null;
         this.restartContainerModal.hide();
-        this._notebooks.restartContainer().subscribe(
-            res => {
+        this._notebooks.restartContainer().subscribe({
+            next: res => {
                 this._toast.success('Successfully restarted the container.');
                 this._content.updateSessions();
                 this._content.update();
             },
-            err => {
+            error: err => {
                 this._toast.error('An error occurred while restarting the container!');
-            }).add(() => this.getServerStatus());
+            }
+        }).add(() => this.getServerStatus());
     }
 
     getPluginStatus() {
-        this._notebooks.getPluginStatus().subscribe(
-            () => {
+        this._notebooks.getPluginStatus().subscribe({
+            next: res => {
                 this.pluginLoaded = true;
-            }, () => {
+            }, error: () => {
                 this.pluginLoaded = false;
                 this._content.setAutoUpdate(false);
                 this.subscriptions.unsubscribe();
-            });
+            }
+        });
     }
 
     getServerStatus() {
-        this._notebooks.getStatus().subscribe(
-            res => {
-                this.serverStatus = res
+        this._notebooks.getStatus().subscribe({
+            next: res => {
+                this.serverStatus = res;
                 this._content.updateAvailableKernels();
                 this._content.updateSessions();
                 this.subscribeToSessionChanges();
             },
-            () => {
+            error: () => {
                 this.serverStatus = null;
                 this.unsubscribeFromSessionChanges();
                 this._content.setAutoUpdate(false);
                 this.getPluginStatus();
-            });
+            }
+        });
     }
 
 }

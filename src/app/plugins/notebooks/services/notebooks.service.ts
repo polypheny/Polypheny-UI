@@ -4,8 +4,10 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {
     Content,
     KernelResponse,
-    KernelSpecs, NotebookContent,
-    SessionResponse, StatusResponse
+    KernelSpecs,
+    NotebookContent,
+    SessionResponse,
+    StatusResponse
 } from '../models/notebooks-response.model';
 import {Notebook} from '../models/notebook.model';
 import * as uuid from 'uuid';

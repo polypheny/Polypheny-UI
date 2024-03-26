@@ -1,28 +1,11 @@
-<div class="app-body">
-    <main class="main d-flex align-items-center">
-        <div class="container">
-            <div class="row">
-                <div class="mx-auto col-md-4">
+<div class="c-app-body">
+    <main class="c-main d-flex align-items-center">
+        <c-container class="container">
+            <c-row class="row">
+                <c-col class="mx-auto col-md-4">
                     <div class="card-group">
-                        <div class="card p-4">
-
-                            <!--<div class="card-body" style="padding: 0 1.25rem;">
-                              <div id="historyWrapper"  dropdown #dropdown="bs-dropdown" placement="bottom right" [autoClose]="true" style="position: relative;">
-                                <button id="showHistory" class="btn btn-outline-info dropdown-toggle" dropdownToggle aria-controls="dropdown-basic"><i class="fa fa-history"></i></button>
-                                <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
-                                    role="menu" aria-labelledby="button-basic">
-                                  <li role="menuitem"><a class="dropdown-item" href="#">Action</a></li>
-                                  <li role="menuitem"><a class="dropdown-item" href="#">Another action</a></li>
-                                  <li role="menuitem"><a class="dropdown-item" href="#">Something else here</a></li>
-                                  <li class="divider dropdown-divider"></li>
-                                  <li role="menuitem"><a class="dropdown-item" href="#">Separated link</a>
-                                  </li>
-                                </ul>
-                              </div>
-                            </div>-->
-
-                            <div class="card-body">
-
+                        <c-card class="p-4">
+                            <c-card-body>
                                 <div class="btn-group float-right" dropdown>
                                     <!--<button class="btn btn-primary fa fa-save"></button>-->
                                     <button class="btn btn-primary dropdown-toggle p-2" dropdownToggle type="button"
@@ -35,17 +18,20 @@
 
                                     <div class="dropdown-menu dropdown-menu-right text-center" id="loginDropdown"
                                          *dropdownMenu>
-                                        <h6 class="dropdown-header"><i class="cui-star"></i> favorites</h6>
+                                        <h6 class="dropdown-header">
+                                            <i class="cil-star">
+
+                                            </i> favorites</h6>
                                         <a class="dropdown-item" *ngFor="let f of favorites" href="#"
-                                           (click)="applyHistory(f)" [routerLink]="">
-                                            <i class="cui-trash text-danger" (click)="deleteFavorite()"></i>{{f.server}}
+                                           (click)="applyHistory(f)" [routerLink]="[]">
+                                            <i class="cil-trash text-danger" (click)="deleteFavorite()"></i>{{f.server}}
                                             :{{f.port}}</a>
 
                                         <a class="dropdown-item" href="#" (click)="saveNewFavorite(loginForm)"
-                                           [routerLink]="">save this login</a>
+                                           [routerLink]="[]">save this login</a>
                                         <h6 class="dropdown-header"><i class="fa fa-history"></i> history</h6>
                                         <a class="dropdown-item" *ngFor="let h of history" href="#"
-                                           (click)="applyHistory(h)" [routerLink]="">{{h.server}}:{{h.port}}</a>
+                                           (click)="applyHistory(h)" [routerLink]="[]">{{h.server}}:{{h.port}}</a>
                                     </div>
                                 </div>
 
@@ -87,22 +73,22 @@
                                         <input type="password" class="form-control" placeholder="password"
                                                autocomplete="current-password">
                                     </div>
-                                    <div class="row">
-                                        <div class="col-6">
+                                    <c-row class="row">
+                                        <c-col class="col-6">
                                             <button type="submit" class="btn btn-primary px-4">Login</button>
-                                        </div>
-                                        <div class="col-6 text-right">
+                                        </c-col>
+                                        <c-col class="col-6 text-right">
                                             <button type="button" class="btn btn-link px-0" (click)="testConnection()">
                                                 Test connection
                                             </button>
-                                        </div>
-                                    </div>
+                                        </c-col>
+                                    </c-row>
                                 </form>
-                            </div>
-                        </div>
+                            </c-card-body>
+                        </c-card>
                     </div>
-                </div>
-            </div>
-        </div>
+                </c-col>
+            </c-row>
+        </c-container>
     </main>
 </div>

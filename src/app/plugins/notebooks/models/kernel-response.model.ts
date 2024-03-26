@@ -1,4 +1,3 @@
-
 // Based on the Jupyter message specification v5.4
 // https://jupyter-client.readthedocs.io/en/stable/messaging.html
 import {CellDisplayDataOutput, CellErrorOutput, CellExecuteResultOutput} from './notebook.model';

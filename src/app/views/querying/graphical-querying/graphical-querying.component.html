@@ -1,37 +1,33 @@
-<div class="row" style="position: relative;">
-    <div class="col-lg-12 col-sm-12" style="margin-bottom: 1em;">
+<c-row class="w-100" style="position: relative;">
+    <c-col class="col-lg-12 col-sm-12" style="margin-bottom: 1em;">
 
         <h5>Graphical Querying</h5>
         <p>Select columns from the left sidebar to get started. If needed, you can edit the generated SQL code.</p>
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text">select</span>
+        <c-input-group class="mb-3">
+            <span cInputGroupText>select</span>
+            <div class="form-control" id="selectBox">
+                <button *ngFor="let field of selects()" cButton color="secondary" size="sm" class="dbCol">{{field.name}}<span (click)="removeSelect(field)" class="del">&times;</span></button>
             </div>
-            <div class="form-control" id="selectBox"></div>
-        </div>
+        </c-input-group>
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text">from</span>
-            </div>
+        <c-input-group class="mb-3">
+            <span class="input-group-text">from</span>
             <div class="form-control" id="fromBox">
-                <span *ngFor="let t of tables | keyvalue" class="badge badge-secondary dbTable">{{t.key}}test</span>
+                <button cButton color="secondary" size="sm" disabled *ngFor="let entity of entities | keyvalue" class="dbTable">{{entity.key}}test</button>
             </div>
-        </div>
+        </c-input-group>
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text">join<br>conditions</span>
-            </div>
+        <c-input-group class="mb-3">
+            <span class="input-group-text">join<br>conditions</span>
             <div class="form-control" id="joinConditionBox">
                 <ng-container *ngFor="let con of joinConditions | keyvalue">
-                    <input type="checkbox" [(ngModel)]="con.value.active" [id]="con.key"
-                           (click)="toggleCondition(con.value)"><label
-                        [for]="con.key">&nbsp;{{con.value.condition}}</label><br>
+                    <input type="checkbox" [(ngModel)]="con.value.active" [id]="con.key" (click)="toggleCondition(con.value)">
+                    <label [for]="con.key">&nbsp;{{con.value.condition}}</label>
+                    <br>
                 </ng-container>
             </div>
-        </div>
+        </c-input-group>
 
         <h5>Generated query</h5>
         <p>Edit your code if needed. Your changes will be overwritten, as soon as you add or remove a column in the
@@ -42,58 +38,55 @@
         <div></div>
 
 
-        <app-refinement-options [choosenTables]="selectedColumn"
-                                (filteredUserInputChange)="userInput($event)"></app-refinement-options>
+        <app-refinement-options [choosenTables]="selectedColumn" (filteredUserInputChange)="userInput($event)"></app-refinement-options>
 
 
-        <button *ngIf="!loading" class="btn btn-primary" (click)="executeQuery()">Execute</button>
-        <button *ngIf="loading" class="btn btn-primary mb-3" disabled>Loading</button>
+        <button cButton color="primary" *ngIf="!loading()" (click)="executeQuery()">Execute</button>
+        <button cButton color="primary" *ngIf="loading()" class="mb-3" disabled>Loading</button>
 
-        <div *ngIf="resultSet">
+        <div *ngIf="result">
             <hr>
             <h5>Query Result</h5>
         </div>
 
-        <div class="card " *ngIf="resultSet" id="result-graphical">
+        <c-card *ngIf="result" id="result-graphical">
+            <c-header>
+                <span>{{result.query}}</span>
+                <c-badge class="pull-right" [color]="result.error ? 'danger' : 'secondary'">
+                    <ng-container *ngIf="!result.error">{{result.affectedTuples}}</ng-container>
+                    <ng-container *ngIf="result.error">!</ng-container>
+                </c-badge>
+            </c-header>
 
-            <div class="card-header">
-                <span>{{resultSet.generatedQuery}}</span>
-                <span class="badge pull-right"
-                      [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
-            <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
-            <ng-container *ngIf="resultSet.error">!</ng-container>
-            </span>
-            </div>
-
-            <div class="card-body" style="padding-bottom: 0.25rem">
-                <div class="text-danger" *ngIf="resultSet && resultSet.error">
+            <c-card-body style="padding-bottom: 0.25rem">
+                <div class="text-danger" *ngIf="result && result.error">
                     <strong>Error:</strong>
-                    <p class="mb-3">{{resultSet.error}}</p>
+                    <p class="mb-3">{{result.error}}</p>
                 </div>
 
                 <div class="query-info">
-                    <p *ngIf="resultSet && !resultSet.data && !resultSet.error" class="mb-3">
+                    <p *ngIf="result && !result.data && !result.error" class="mb-3">
                         <i>Successfully executed</i>
                     </p>
                 </div>
 
-                <div class="row" *ngIf="resultSet && resultSet.data">
-                    <div class="col-lg-12">
-                        <app-data-view [resultSet]="resultSet"
+                <c-row *ngIf="result && result.data">
+                    <c-col class="col-lg-12">
+                        <app-data-view [result]="result"
                                        [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}"
-                                       [loading]="loading" (viewEditorCode)="createView($event)"
-                                       (executeView)="executeView($event)"></app-data-view>
-                    </div>
-                </div>
-            </div>
-        </div>
+                                       [loading]="loading()"
+                                       (viewQueryConsumer)="executeView($event)"></app-data-view>
+                    </c-col>
+                </c-row>
+            </c-card-body>
+        </c-card>
 
-    </div>
+    </c-col>
 
-</div>
+</c-row>
 
 
-<div class="col-lg-12" id="results">
+<c-col class="col-lg-12" id="results">
 
-</div>
+</c-col>
 

@@ -8,7 +8,7 @@ export class PaginationElement {
     disabled = false;
     routerLink: string;
 
-    withPage(tableId: string, page: number) {
+    withPage(tableId: number, page: number) {
         this.page = page;
         this.label = page.toString();
         this.routerLink = '/views/data-table/' + tableId + '/' + page;

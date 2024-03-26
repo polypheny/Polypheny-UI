@@ -1,16 +1,28 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+    Signal,
+    untracked,
+    WritableSignal
+} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../services/crud.service';
-import {Schema, SchemaRequest} from '../../models/ui-request.model';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {SidebarNode} from '../../models/sidebar-node.model';
-import {ResultSet} from '../../components/data-view/models/result-set.model';
-import {ToastService} from '../../components/toast/toast.service';
+import {DataModel, Namespace} from '../../models/ui-request.model';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {RelationalResult} from '../../components/data-view/models/result-set.model';
+import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {Subscription} from 'rxjs';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
-import {Store} from '../adapters/adapter.model';
+import {CatalogService} from '../../services/catalog.service';
+import {NamespaceModel} from '../../models/catalog.model';
+import {AdapterModel} from '../adapters/adapter.model';
 
 @Component({
     selector: 'app-schema-editing',
@@ -19,44 +31,80 @@ import {Store} from '../adapters/adapter.model';
 })
 export class SchemaEditingComponent implements OnInit, OnDestroy {
 
-    routeParam: string;//either the name of a table (schemaName.tableName) or of a schema (schemaName)
-    createForm: FormGroup;
-    dropForm: FormGroup;
-    schemas: SidebarNode[];
-    createSubmitted = false;
-    dropSubmitted = false;
-    createSchemaFeedback = 'Schema namespace is invalid';
-    private subscriptions = new Subscription();
-    schemaType: any;
-    stores: Store[];
-    graphStore: string;
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _router = inject(Router);
+    private readonly _leftSidebar = inject(LeftSidebarService);
+    private readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _crud = inject(CrudService);
+    private readonly _toast = inject(ToasterService);
+    private readonly _catalog = inject(CatalogService);
 
-    constructor(
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _leftSidebar: LeftSidebarService,
-        private _breadcrumb: BreadcrumbService,
-        private _crud: CrudService,
-        private _toast: ToastService
-    ) {
+    constructor() {
+
+        this._route.params.subscribe(route => {
+            this.currentRoute.set(route['id']);
+        });
+        this.namespace = computed(() => {
+
+            const catalog = this._catalog.listener();
+            const route = this.currentRoute();
+            if (!route) {
+                return null;
+            }
+            const namespaceName = route.split('\.')[0];
+            return this._catalog.getNamespaceFromName(namespaceName);
+        });
+
+        this.namespaces = computed(() => {
+            const catalog = this._catalog.listener();
+            return this._catalog.getNamespaces();
+        });
+
+        this.stores = computed(() => {
+            const catalog = this._catalog.listener();
+            return catalog.getStores();
+        });
+
+        effect(() => {
+            const catalog = this._catalog.listener();
+
+            untracked(() => {
+                this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false, true);
+            });
+        });
     }
 
+
+    readonly currentRoute: WritableSignal<string> = signal(this._route.snapshot.paramMap.get('id'));//either the name of a table (schemaName.tableName) or of a schema (schemaName)
+    readonly namespace: Signal<NamespaceModel>;
+
+    createForm: UntypedFormGroup;
+    dropForm: UntypedFormGroup;
+    namespaces: Signal<NamespaceModel[]>;
+    createSubmitted = false;
+    dropSubmitted = false;
+    createNamespaceFeedback = 'Name is invalid';
+    private subscriptions = new Subscription();
+    readonly stores: Signal<AdapterModel[]>;
+    graphStore: string;
+
+    public readonly NamespaceType = DataModel;
+
     ngOnInit() {
-        this.getRouteParam();
-        this.getSchema();
+        //this.getSchema();
         this.initForms();
-        this.getStores();
         this._route.params.subscribe((ev) => {
-            this.getSchemaType();
             this.setBreadCrumb();
         });
         const sub = this._crud.onReconnection().subscribe(
             b => {
-                this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false, true), this._router);
+                this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false, true);
             }
         );
+
         this.subscriptions.add(sub);
     }
+
 
     setBreadCrumb() {
         const url = this._router.url.replace('/views/schema-editing/', '');
@@ -78,48 +126,20 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         this._breadcrumb.hide();
     }
 
-    getRouteParam() {
-        this.routeParam = this._route.snapshot.paramMap.get('id');
-        this._route.params.subscribe((params) => {
-            this.routeParam = params['id'];
-        });
-    }
-
     public getSchema() {
-        this._leftSidebar.setSchema(new SchemaRequest('/views/schema-editing/', true, 2, false, true), this._router);
-        this._crud.getSchema(new SchemaRequest('/views/schema-editing/', true, 2, false, true)).subscribe(
-            res => {
-                this.schemas = <SidebarNode[]>res;
-            }, err => {
-                console.log(err);
-            }
-        );
+        this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false, true);
     }
 
-    getSchemaType() {
-        if (!this.routeParam) {
-            return;
-        }
-        const schema = this.routeParam.split('.')[0];
-        this._crud.getTypeSchemas().subscribe(
-            res => {
-                this.schemaType = res[schema];
-                this._leftSidebar.schemaType = res[schema];
-            }, error => {
-                console.log(error);
-            }
-        );
-    }
 
     initForms() {
-        this.createForm = new FormGroup({
-            name: new FormControl('', this._crud.getNameValidator(true)),
-            type: new FormControl('relational', Validators.required),
-            stores: new FormControl('hsqldb'),
+        this.createForm = new UntypedFormGroup({
+            name: new UntypedFormControl('', this._crud.getNameValidator(true)),
+            type: new UntypedFormControl('relational', Validators.required),
+            stores: new UntypedFormControl('hsqldb'),
         });
-        this.dropForm = new FormGroup({
-            name: new FormControl('', Validators.required),
-            cascade: new FormControl()
+        this.dropForm = new UntypedFormGroup({
+            name: new UntypedFormControl('', Validators.required),
+            cascade: new UntypedFormControl()
         });
     }
 
@@ -137,73 +157,74 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         }
     }
 
-    createSchema() {
-        if (this.createForm.valid && this.createSchemaValidation(this.createForm.controls['name'].value) === 'is-valid') {
+    createNamespace() {
+        if (this.createForm.valid && this.createNamespaceValidation(this.createForm.controls['name'].value) === 'is-valid') {
             const val = this.createForm.value;
+            if (val.name.trim() === '') {
+                return;
+            }
+
             this.createSubmitted = true;
-            this._crud.createOrDropSchema(new Schema(val.name, val.type, val.stores).setCreate(true)).subscribe(
-                res => {
-                    const result = <ResultSet>res;
-                    if (result.error) {
-                        this._toast.exception(result);
+            this._crud.createOrDropNamespace(new Namespace(val.name, DataModel[val.type.toUpperCase()], val.stores).setCreate(true)).subscribe({
+                next: (res: RelationalResult) => {
+                    if (res.error) {
+                        this._toast.exception(res);
                     } else {
                         this._toast.success('Created namespace ' + val.name);
-                        this.getSchema();
+                        //this.getSchema();
                     }
                     this.resetForm('createForm');
-                }, err => {
+                }, error: err => {
                     this._toast.error('An unknown error occurred on the server');
                 }
-            ).add(() => this.createSubmitted = false);
+            }).add(() => this.createSubmitted = false);
         } else {
-            this._toast.warn(this.createSchemaFeedback, 'cannot create');
+            this._toast.warn(this.createNamespaceFeedback, 'cannot create');
         }
     }
 
-    dropSchema() {
+    dropNamespace() {
         if (this.dropForm.valid && this.getValidationClass(this.dropForm.controls['name'].value) === 'is-valid') {
             const val = this.dropForm.value;
             this.dropSubmitted = true;
-            this._crud.createOrDropSchema(new Schema(val.name, val.type, this.graphStore).setDrop(true).setCascade(val.cascade)).subscribe(
-                res => {
-                    const result = <ResultSet>res;
-                    if (result.error) {
-                        this._toast.exception(result);
+            this._crud.createOrDropNamespace(new Namespace(val.name, val.type, this.graphStore).setDrop(true).setCascade(val.cascade)).subscribe({
+                next: (res: RelationalResult) => {
+                    if (res.error) {
+                        this._toast.exception(res);
                     } else {
                         this._toast.success('Dropped namespace ' + val.name);
-                        this.getSchema();
+                        //this.getSchema();
                     }
                     this.resetForm('dropForm');
-                }, err => {
+                }, error: err => {
                     this._toast.error('An unknown error occurred on the server');
                 }
-            ).add(() => this.dropSubmitted = false);
+            }).add(() => this.dropSubmitted = false);
         } else {
             this._toast.warn('This namespace does not exist', 'cannot drop');
         }
-
     }
 
     getValidationClass(val) {
         if (val === '') {
             return '';
-        } else if (this.schemas.filter((o) => o.name === val).length > 0) {
+        } else if (this.namespaces().filter((o) => o.name === val).length > 0) {
             return 'is-valid';
         } else {
             return 'is-invalid';
         }
     }
 
-    createSchemaValidation(name) {
+    createNamespaceValidation(name) {
         if (name === '') {
             return '';
         }
-        if (this.schemas) {
-            if (this.schemas.filter((o) => o.name === name).length > 0) {
-                this.createSchemaFeedback = 'Namespace name is already taken';
+        if (this.namespaces) {
+            if (this.namespaces().filter((o) => o.name === name).length > 0) {
+                this.createNamespaceFeedback = 'Namespace name is already taken';
                 return 'is-invalid';
             } else {
-                this.createSchemaFeedback = 'Namespace name is invalid';
+                this.createNamespaceFeedback = 'Namespace name is invalid';
             }
         }
         const regex = this._crud.getNamespaceValidationRegex();
@@ -214,16 +235,8 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         }
     }
 
-    getStores() {
-        this._crud.getStores().subscribe(
-            res => {
-                this.stores = <Store[]>res;
-            }, err => {
-                console.log(err);
-            });
-    }
-
     isStatistic() {
         return this._router.url.includes('statistics');
     }
+
 }

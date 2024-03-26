@@ -1,4 +1,16 @@
-import {AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    effect,
+    ElementRef,
+    inject,
+    Input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    untracked,
+    ViewChild
+} from '@angular/core';
 import * as ace from 'ace-builds'; // ace module ..
 import 'ace-builds/src-noconflict/mode-sql';
 import 'ace-builds/src-noconflict/mode-pgsql';
@@ -8,9 +20,8 @@ import 'ace-builds/src-noconflict/mode-markdown';
 import 'ace-builds/src-noconflict/mode-pig';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
-import {CrudService} from '../../services/crud.service';
-import {SchemaRequest} from '../../models/ui-request.model';
 import {SidebarNode} from '../../models/sidebar-node.model';
+import {CatalogService} from '../../services/catalog.service';
 
 @Component({
     selector: 'app-editor',
@@ -22,28 +33,31 @@ import {SidebarNode} from '../../models/sidebar-node.model';
 
 export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
 
+    public readonly _catalog = inject(CatalogService);
+
     @ViewChild('editor', {static: false}) codeEditorElmRef: ElementRef;
     private codeEditor: ace.Ace.Editor;
     @Input() readonly ? = false;
     @Input() theme ? = 'tomorrow';
-    @Input() lang ? = 'pgsql';
+    @Input() language ? = 'pgsql';
     @Input() initOptions ?: { [key: string]: any };
     @Input() autocomplete ? = true;
     @Input() useParentHeight ? = true;
     @Input() code ?;
 
     suggestions: string[] = [];
-    private readonly supportedLangs = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig'];
+    private readonly supportedLanguages = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig'];
 
-    constructor(private _crud: CrudService) {
-        this._crud.getSchema(new SchemaRequest('', true, 3, true)).subscribe(
-            res => {
-                const map = this.computeSuggestions(<SidebarNode[]>res);
+    constructor() {
+        effect(() => {
+            const catalog = this._catalog.listener();
+            untracked(() => {
+                const map = this.computeSuggestions(this._catalog.getSchemaTree('', true, 3));
                 map.forEach((v, k) => {
                     this.suggestions.push(v);
                 });
-            }
-        );
+            });
+        });
     }
 
     ngOnInit() {
@@ -169,8 +183,8 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
      * Otherwise, sql is used.
      */
     updateLanguage() {
-        if (this.supportedLangs.includes(this.lang)) {
-            this.codeEditor.getSession().setMode('ace/mode/' + this.lang);
+        if (this.supportedLanguages.includes(this.language)) {
+            this.codeEditor.getSession().setMode('ace/mode/' + this.language);
         } else {
             this.codeEditor.getSession().setMode('ace/mode/sql');
 

@@ -1,96 +1,90 @@
-<app-toast></app-toast>
-<app-statistics-column *ngIf="routeParam && isStatistic()"></app-statistics-column>
-<app-edit-columns
-        *ngIf="routeParam && routeParam.includes('.') && schemaType != null && schemaType.toLowerCase() == 'relational' && !isStatistic()"></app-edit-columns>
-<app-edit-tables
-        *ngIf="routeParam && !routeParam.includes('.') && schemaType != null && schemaType.toLowerCase() == 'relational'  && !isStatistic()"></app-edit-tables>
-<app-document-edit-collections
-        *ngIf="routeParam && !routeParam.includes('.') &&  schemaType !=null && ( schemaType.toLowerCase() == 'document') && !isStatistic()"></app-document-edit-collections>
-<app-document-edit-collection
-        *ngIf="routeParam && routeParam.includes('.') && schemaType !=null && (schemaType.toLowerCase() == 'document')  && !isStatistic()"></app-document-edit-collection>
-<app-graph-edit
-        *ngIf="routeParam && schemaType != null && (schemaType.toLowerCase() == 'graph')  && !isStatistic()"></app-graph-edit>
-<ng-container *ngIf="!routeParam">
-    <h1>Namespaces</h1>
-    <p>Select an item from the left sidebar to edit its entities.</p>
+<div *ngIf="currentRoute()">
+    <app-statistics-column *ngIf="isStatistic()"></app-statistics-column>
+    <app-edit-entity [currentRoute]="currentRoute"></app-edit-entity>
+</div>
 
-    <div class="row">
-        <div class="col-lg-6 fixed-width">
-            <div class="card">
-                <div class="card-header">
+<c-container class="pt-3 px-3" *ngIf="currentRoute()?.trim() === ''">
+    <c-row>
+        <h1>Namespaces</h1>
+        <p>Select an item from the left sidebar to edit its entities.</p>
+        <br>
+    </c-row>
+
+
+    <c-row>
+        <c-col lg="6" class="fixed-width">
+            <c-card>
+                <c-card-header>
                     <span class="mb-0">Create Namespace</span>
-                </div>
-                <div class="card-body">
-                    <form *ngIf="createForm" [formGroup]="createForm" (submit)="createSchema()">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <label for="schemaNameCreate2" class="input-group-text">Name</label>
-                            </div>
-                            <input type="text" id="schemaNameCreate2" autocomplete="off" class="form-control"
+                </c-card-header>
+                <c-card-body>
+                    <form *ngIf="createForm" [formGroup]="createForm" (ngSubmit)="createNamespace()" cForm cRow class="needs-validation" [validated]="false">
+                        <c-input-group class="mb-3 has-validation" cCol>
+                            <span cInputGroupText id="namespaceNameCreate2">Name</span>
+                            <input aria-describedby="NamespaceNameCreate2"
+                                   autocomplete="off"
+                                   cFormControl
                                    formControlName="name"
-                                   [ngClass]="createSchemaValidation(createForm.controls['name'].value)"
+                                   [ngClass]="createNamespaceValidation(createForm.controls['name'].value)"
+                                   required
+                                   type="text"
                                    placeholder="namespace name">
-                            <div class="invalid-feedback">{{createSchemaFeedback}}</div>
-                        </div>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <label class="input-group-text" for="schema-type">Type</label>
-                            </div>
-                            <select class="form-control" formControlName="type" id="schema-type">
+                            <c-form-feedback valid="false">{{createNamespaceFeedback}}</c-form-feedback>
+                        </c-input-group>
+                        <c-input-group class="mb-3">
+                            <label cInputGroupText for="namespace-type">Type</label>
+                            <select id="namespace-type" formControlName="type" cSelect>
                                 <option value="relational">relational</option>
                                 <option value="document">document</option>
                                 <option value="graph">graph</option>
                             </select>
-                        </div>
-                        <div class="input-group mb-3" *ngIf="this.createForm.get('type').value === 'graph'">
-                            <div class="input-group-prepend">
-                                <label class="input-group-text" for="schema-type">Store</label>
-                            </div>
-                            <select class="form-control" formControlName="stores" id="graph-store">
-                                <option *ngFor="let store of stores"
-                                        value="{{ store.uniqueName }}">{{store.uniqueName}}</option>
+                        </c-input-group>
+                        <c-input-group class="mb-3" *ngIf="this.createForm.get('type').value === 'graph'">
+                            <label cInputGroupText for="namespace-type">Store</label>
+                            <select formControlName="stores" id="graph-store" cSelect>
+                                <option *ngFor="let store of stores()" value="{{ store.name }}">{{store.name}}</option>
                             </select>
-                        </div>
-                        <div class="form-group mb-0">
-                            <button type="submit" class="btn btn-primary float-right"
+                        </c-input-group>
+                        <c-input-group class="mb-0 justify-content-end">
+                            <button cButton type="submit" color="primary"
                                     [ngClass]="{'progress-bar-striped progress-bar-animated': createSubmitted}"
-                                    [disabled]="createSubmitted">Create
+                                    [disabled]="createSubmitted || !createForm.valid">Create
                             </button>
-                        </div>
+                        </c-input-group>
                     </form>
-                </div>
-            </div>
-        </div>
+                </c-card-body>
+            </c-card>
+        </c-col>
 
-        <div class="col-lg-6 fixed-width">
-            <div class="card">
-                <div class="card-header">
+        <c-col lg="6" class="fixed-width">
+            <c-card>
+                <c-card-header>
                     <span class="mb-0">Drop Namespace</span>
-                </div>
-                <div class="card-body">
-                    <form [formGroup]="dropForm" (submit)="dropSchema()">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <label for="schemaNameDrop" class="input-group-text">Name</label>
-                            </div>
-                            <input type="text" class="form-control" formControlName="name" id="schemaNameDrop"
-                                   placeholder="namespace name" autocomplete="off"
+                </c-card-header>
+                <c-card-body>
+                    <form [formGroup]="dropForm" (submit)="dropNamespace()" cForm cRow class="needs-validation" [validated]="false">
+                        <c-input-group class="mb-3 has-validation" cCol>
+                            <span id="namespaceNameDrop" cInputGroupText>Name</span>
+                            <input type="text"
+                                   formControlName="name"
+                                   aria-describedby="namespaceNameDrop"
+                                   cFormControl
+                                   placeholder="namespace name"
+                                   autocomplete="off"
+                                   class="has-validation"
                                    [ngClass]="getValidationClass(dropForm.controls['name'].value)">
-                            <div class="invalid-feedback">This namespace does not exist</div>
-                        </div>
-                        <!--<div class="form-check checkbox">
-                            <input type="checkbox" id="cascade" class="form-check-input" formControlName="cascade">
-                            <label for="cascade" class="form-check-label">cascade</label>
-                        </div>-->
-                        <div class="form-group mb-0">
-                            <button type="submit" class="btn btn-danger float-right"
+                            <c-form-feedback valid="false">This namespace does not exist</c-form-feedback>
+                        </c-input-group>
+                        <c-input-group class="mb-0 justify-content-end">
+                            <button color="danger" type="submit"
                                     [ngClass]="{'progress-bar-striped progress-bar-animated': dropSubmitted}"
-                                    [disabled]="dropSubmitted">Drop
+                                    [disabled]="dropSubmitted"
+                                    cButton>Drop
                             </button>
-                        </div>
+                        </c-input-group>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</ng-container>
+                </c-card-body>
+            </c-card>
+        </c-col>
+    </c-row>
+</c-container>

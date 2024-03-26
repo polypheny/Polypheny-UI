@@ -37,12 +37,6 @@
   height: calc(1.5em + 0.75rem) !important;
 }
 
-.list-wrapper {
-  position: relative;
-  flex: 1 1 auto;
-  padding-bottom: 0 !important;
-  display: block;
-}
 
 .list-add-wrapper {
   justify-content: center;
@@ -50,10 +44,6 @@
   display: flex;
 }
 
-.list-input-wrapper {
-  width: 100%;
-  margin-bottom: 0;
-}
 
 .switch {
   position: absolute;
@@ -202,4 +192,9 @@
   display: grid;
   grid-template-columns: 1fr min-content;
   align-items: center;
+}
+
+
+.form-check-input {
+  width: 60px;
 }

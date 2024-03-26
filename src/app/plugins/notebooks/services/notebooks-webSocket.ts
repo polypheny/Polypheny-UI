@@ -5,12 +5,16 @@ import * as uuid from 'uuid';
 import {KernelMsg} from '../models/kernel-response.model';
 
 export class NotebooksWebSocket {
+
+    private readonly _settings;
+
     private socket;
     connected = false;
     private msgSubject = new Subject<KernelMsg>();
 
-    constructor(private _settings: WebuiSettingsService, kernelId: string) {
-        this.initWebSocket(kernelId);
+    constructor(kernelId: string, settings: WebuiSettingsService) {
+        this._settings = settings;
+        this.initWebSocket(kernelId,);
     }
 
     private initWebSocket(kernelId: string) {

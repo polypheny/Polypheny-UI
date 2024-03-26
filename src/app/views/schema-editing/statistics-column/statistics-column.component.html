@@ -1,6 +1,6 @@
-<div class="row">
+<c-row class="row">
 
-    <div class="col-lg-12">
+    <c-col class="col-lg-12">
         <div class="card" *ngIf="statisticSet != null">
             <div class="card-header">Entity statistics of {{tableId}}</div>
             <div class="card-body">
@@ -43,9 +43,9 @@
                 </table>
             </div>
         </div>
-    </div>
+    </c-col>
 
-    <div class="col-lg-12">
+    <c-col class="col-lg-12">
         <div class="card" *ngIf="statisticSet != null">
             <div class="card-header">Column statistics of {{tableId}}</div>
             <div class="card-body">
@@ -118,6 +118,6 @@
             </div>
 
         </div>
-    </div>
+    </c-col>
 
-</div>
+</c-row>

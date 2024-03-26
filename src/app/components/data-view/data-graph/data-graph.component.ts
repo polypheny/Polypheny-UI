@@ -1,113 +1,59 @@
-import {Component, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {CrudService} from '../../../services/crud.service';
-import {ToastService} from '../../toast/toast.service';
-import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {BsModalService} from 'ngx-bootstrap/modal';
-import {DataViewComponent} from '../data-view.component';
-import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
-import * as d3 from 'd3';
-import {ResultSet} from '../models/result-set.model';
-import {DataModels, GraphRequest} from '../../../models/ui-request.model';
-import {WebSocket} from '../../../services/webSocket';
-import {Subscription} from 'rxjs';
+import {Component, effect} from '@angular/core';
+import {GraphResult} from '../models/result-set.model';
+import {DataModel, GraphRequest} from '../../../models/ui-request.model';
+import {DataTemplateComponent} from '../data-template/data-template.component';
 
-class Edge {
-    id: string;
-    labels: string[];
-    properties: any[];
-    source: string;
-    target: string;
-}
-
-class Node {
-    id: string;
-    labels: string[];
-    properties: any[];
-}
-
-
-class Graph {
-    nodes: Node[];
-    edges: Edge[];
-    selfEdges: Edge[];
-
-    public static from(n: any, e: any): Graph {
-        const nodes = <Node[]>Object.values(n);
-        const edges = <Edge[]>Object.values(e).filter(d => d['source'] !== d['target']);
-
-        return new Graph(nodes, edges);
-    }
-
-    constructor(nodes: Node[], edges: Edge[]) {
-
-        this.nodes = nodes;
-        this.edges = edges;
-        this.selfEdges = edges.filter(d => d['source'] === d['target']);
-    }
-
-}
-
-class Detail {
-    constructor(d) {
-        this.id = d.id;
-        this.properties = d.properties;
-        this.labels = d.labels;
-    }
-
-    id: string;
-    properties: {};
-    labels: string[];
-}
+import * as d3 from "d3";
 
 @Component({
     selector: 'app-data-graph',
     templateUrl: './data-graph.component.html',
     styleUrls: ['./data-graph.component.scss']
 })
-export class DataGraphComponent extends DataViewComponent implements OnInit, OnChanges {
+export class DataGraphComponent extends DataTemplateComponent {
+
+    constructor() {
+        super();
+        this.initWebsocket();
+
+        effect(() => {
+            const result = this.$result();
+            if (!result) {
+                return;
+            }
+
+            this.graphLoading = true;
+            d3.select('.svg-responsive').remove();
+            this.getGraph(result);
+        });
+    }
+
     private hidden: string[];
     private update: () => void;
     private graph: Graph;
     public isLimited: boolean;
 
-    constructor(
-        public _crud: CrudService,
-        public _toast: ToastService,
-        public _route: ActivatedRoute,
-        public _router: Router,
-        public _types: DbmsTypesService,
-        public _settings: WebuiSettingsService,
-        public _sidebar: LeftSidebarService,
-        public modalService: BsModalService
-    ) {
-        super(_crud, _toast, _route, _router, _types, _settings, _sidebar, modalService);
-        this.subscriptions = new Subscription();
-        this.webSocket = new WebSocket(_settings);
-        this.initWebsocket();
-    }
 
     showInsertCard = false;
     jsonValid = false;
     public graphLoading = false;
-    private initialIds: Set<string>;
+
     showProperties = false;
     detail: Detail;
-    private height: number;
-    private width: number;
+
     private zoom: any;
-    private subElement: any;
     private labels: string[];
     private ratio: number;
     private color: any;
-    private isPath: boolean;
+
+    private initialNodeIds: Set<string>;
+    private initialNodes: Set<Node>;
     private initialEdgeIds: string[];
-    private afterInit = false;
+
+
+    protected readonly NamespaceType = DataModel;
 
     private static filterEdges(hidden: any[], d: Edge, p: any) {
-        //console.log(hidden);
-
         const source = !p.afterInit ? d.source : d.source['id'];
         const target = !p.afterInit ? d.target : d.target['id'];
 
@@ -128,50 +74,37 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
         return false;
     }
 
-    ngOnInit(): void {
-        // this.graphLoading = true;
-        // this.getGraph(this.resultSet);
-    }
+    private renderGraph(graph: Graph) {
+        graph.nodes = Array.from(this.initialNodes); // normally this does nothing, but for cross model queries this ensures that the initial nodes are present (different ids)
 
-
-    ngOnChanges(changes: SimpleChanges): void {
-        //this.graphLoading = true;
-        if (changes.hasOwnProperty('resultSet')) {
-            this.graphLoading = true;
-            d3.select('.svg-responsive').remove();
-            this.getGraph(changes['resultSet']['currentValue']);
+        if (!this.initialNodeIds) {
+            this.initialNodeIds = new Set(graph.nodes.map(n => n.id));
         }
 
-    }
-
-    private renderGraph(graph: Graph) {
+        if (!this.initialEdgeIds) {
+            this.initialEdgeIds = graph.edges.map(e => e.id);
+        }
 
         const size = 20;
         const overlaySize = 30;
         const overlayStroke = 3;
         const textSize = 13;
         const linkSize = 9;
-        //const data = this.resultSet.data;
 
         this.graph = graph;
 
         this.hidden = [];
 
         for (const n of graph.nodes) {
-            if (!this.initialIds.has(n.id)) {
+            if (!this.initialNodeIds.has(n.id)) {
                 this.hidden.push(n.id);
             }
         }
 
-
-        //const graph = this.getGraph(this.resultSet);
-
-
         const width = 600;
-        this.width = width;
         const height = 325;
-        this.height = height;
 
+        d3.select('#chart-area > *').remove();
 
         const svg = d3
             .select('#chart-area')
@@ -186,13 +119,13 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
 
         const g = svg.append('g');
 
-        const zoom_actions = () => {
-            g.attr('transform', d3.event.transform);
+        const zoom_actions = (event) => {
+            g.attr('transform', event.transform);
         };
 
         this.zoom = d3.zoom()
             .on('zoom', zoom_actions)
-            .filter(() => !d3.event.button); // fix for windows trackpad zooming
+            .filter((event) => !event.button); // fix for windows trackpad zooming
 
         this.zoom(svg);
 
@@ -200,7 +133,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
         // Add "forces" to the simulation here
         const simulation = d3.forceSimulation()
             .force('center', d3.forceCenter(width / 2, height / 2))
-            .force('charge', d3.forceManyBody().strength(-this.initialIds.size))
+            .force('charge', d3.forceManyBody().strength(-this.initialNodeIds.size))
             .force('collide', d3.forceCollide(100).strength(0.9).radius(40))
             .force('link', d3.forceLink().id(d => d.id).distance(160));
 
@@ -214,9 +147,9 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
         };
 
         // Change the value of alpha, so things move around when we drag a node
-        const onDragStart = d => {
+        const onDragStart = (event, d) => {
             action(d);
-            if (!d3.event.active) {
+            if (!event.active) {
                 simulation.alphaTarget(0.8).restart();
             }
             d.fx = d.x;
@@ -224,14 +157,14 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
         };
 
         // Fix the position of the node that we are looking at
-        const onDrag = d => {
-            d.fx = d3.event.x;
-            d.fy = d3.event.y;
+        const onDrag = (event, d) => {
+            d.fx = event.x;
+            d.fy = event.y;
         };
 
         // Let the node do what it wants again once we've looked at it
-        const onDragEnd = d => {
-            if (!d3.event.active) {
+        const onDragEnd = (event, d) => {
+            if (!event.active) {
                 simulation.alphaTarget(0);
             }
             d.fx = null;
@@ -244,8 +177,6 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
 
 
         const restart = (p: any) => {
-
-
             const hidden = p.hidden;
 
             g.exit().remove();
@@ -565,7 +496,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
         activate();
 
 
-//	general update pattern for updating the graph
+        //	general update pattern for updating the graph
         this.update = () => {
             g.selectAll('*').remove();
             restart(this);
@@ -597,7 +528,7 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
         const reset = () => {
             this.hidden = [];
         };
-        this.afterInit = true;
+
     }
 
     center() {
@@ -607,80 +538,86 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
     }
 
     initWebsocket() {
-        const sub = this.webSocket.onMessage().subscribe(
-            res => {
+        const sub = this.webSocket.onMessage().subscribe({
+            next: res => {
                 const unparsedGraph: string = <string>res;
                 this.graphLoading = false;
                 this.renderGraph(Graph.from(unparsedGraph['nodes'], unparsedGraph['edges']));
 
-            }, err => {
+            },
+            error: err => {
                 this._toast.error('Could not load the data.');
                 console.log(err);
             }
-        );
+        });
         this.subscriptions.add(sub);
     }
 
-    getGraph(resultSet: ResultSet) {
+    getGraph(graphResult: GraphResult) {
         const nodeIds: Set<string> = new Set();
         const edgeIds: Set<string> = new Set();
-
         let i = -1;
-        for (const dbColumn of resultSet.header) {
+
+        for (const dbColumn of graphResult.header) {
             i++;
             if (!dbColumn.dataType.toLowerCase().includes('node') && !dbColumn.dataType.toLowerCase().includes('edge')) {
                 continue;
             }
 
+            this.initialNodes = new Set();
             if (dbColumn.dataType.toLowerCase().includes('node')) {
-                resultSet.data.forEach(d => {
-                    nodeIds.add(JSON.parse(d[i])['id']);
+                graphResult.data.forEach(d => {
+
+                    const node = JSON.parse(d[i]);
+                    const id = node['id'];
+                    if (!nodeIds.has(id)) {
+                        nodeIds.add(id);
+                        this.initialNodes.add(node)
+                    }
                 });
             }
 
             if (dbColumn.dataType.toLowerCase().includes('edge')) {
-                resultSet.data.forEach(d => {
+                graphResult.data.forEach(d => {
                     edgeIds.add(JSON.parse(d[i])['id']);
                 });
             }
 
             if (dbColumn.dataType.toLowerCase().includes('path')) {
-                this.isPath = true;
-                resultSet.data.forEach(d => {
+                graphResult.data.forEach(d => {
                     for (const el of JSON.parse(d[i]).path) {
-                        if (el.type === 'NODE') {
+                        if (el.type.includes('NODE')) {
                             nodeIds.add(el.id);
                         }
-                        if (el.type === 'EDGE') {
+                        if (el.type.includes('EDGE')) {
                             edgeIds.add(el.id);
                         }
                     }
                 });
             }
 
-            this.initialIds = nodeIds;
+            this.initialNodeIds = nodeIds;
             this.initialEdgeIds = Array.from(edgeIds);
         }
 
 
-        this._crud.getTypeSchemas().subscribe(res => {
-            const model = <DataModels>res[resultSet.namespaceName];
-            if (model === DataModels.GRAPH) {
-                // is native
-                if (!this._crud.getGraph(this.webSocket, new GraphRequest(resultSet.namespaceName, nodeIds, edgeIds))) {
-                    // is printed every time console.log('Could not retrieve the graphical representation of the graph.');
-                } else {
-                    this.graphLoading = true;
-                }
+        if (!graphResult.header.map(h => h.dataType.toLowerCase()).includes('graph')) {
+            // is native
+            if (!this._crud.getGraph(this.webSocket, new GraphRequest(graphResult.namespace, nodeIds, edgeIds))) {
+                // is printed every time console.log('Could not retrieve the graphical representation of the graph.');
             } else {
-                this.graphLoading = false;
-                const graph = Graph.from(resultSet.data.map(r => r.map(n => JSON.parse(n)).reduce((a, v) => ({
-                    ...a['id'],
-                    [v]: v
-                }))), []);
-                this.renderGraph(graph);
+                this.graphLoading = true;
             }
-        });
+        } else {
+            this.graphLoading = false;
+            const graph = Graph.from(graphResult.data.map(r => r.map(n => JSON.parse(n)).reduce((a, v) => ({
+                ...a['id'],
+                [v]: v
+            }))), []);
+
+            this.renderGraph(graph);
+        }
+
 
     }
 
@@ -702,10 +639,65 @@ export class DataGraphComponent extends DataViewComponent implements OnInit, OnC
         this.hidden = [];
 
         for (const n of this.graph.nodes) {
-            if (!this.initialIds.has(n.id)) {
+            if (!this.initialNodeIds.has(n.id)) {
                 this.hidden.push(n.id);
             }
         }
         this.update();
     }
+}
+
+
+class Edge {
+    id: string;
+    labels: any[];
+    properties: any[];
+    direction: string;
+    source: string;
+    target: string;
+}
+
+class Node {
+    id: string;
+    labels: any[];
+    properties: Map<string, any>;
+}
+
+
+class PolyList {
+    size: number;
+    instance: any[];
+}
+
+class Graph {
+    nodes: Node[];
+    edges: Edge[];
+    selfEdges: Edge[];
+
+    public static from(n: any, e: any): Graph {
+        const nodes = <Node[]>Object.values(n);
+        const edges = <Edge[]>Object.values(e).filter(d => d['source'] !== d['target']);
+
+        return new Graph(nodes, edges);
+    }
+
+    constructor(nodes: Node[], edges: Edge[]) {
+
+        this.nodes = nodes;
+        this.edges = edges;
+        this.selfEdges = edges.filter(d => d['source'] === d['target']);
+    }
+
+}
+
+class Detail {
+    constructor(d) {
+        this.id = d.id;
+        this.properties = d.properties;
+        this.labels = d.labels;
+    }
+
+    id: string;
+    properties: {};
+    labels: string[];
 }

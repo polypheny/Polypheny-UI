@@ -1,8 +1,8 @@
-import {Component, OnDestroy, OnInit,} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit,} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {MonitoringRequest, StatisticRequest} from '../../models/ui-request.model';
 import {DashboardData, DashboardSet} from '../../components/data-view/models/result-set.model';
-import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
+import {CatalogService} from '../../services/catalog.service';
 
 
 @Component({
@@ -13,7 +13,10 @@ import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service'
 
 
 export class DashboardComponent implements OnInit, OnDestroy {
-    dataWorkload = [];
+    public readonly _crud = inject(CrudService);
+    public readonly _catalog = inject(CatalogService);
+
+    dataDml = [];
     dataDql = [];
     labels = [];
     colorList = [];
@@ -26,17 +29,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dashboardInformation: DashboardData;
     xLabel: string;
     yLabel: string;
-    maintainAspectRatio = false;
-    digramInterval: number;
+    diagramInterval: number;
     informationInterval: number;
     infoCounter: number;
     diagramCounter: number;
     selectIntervalDisplay = 'All';
 
-    constructor(
-        public _crud: CrudService,
-        private _breadcrumb: BreadcrumbService
-    ) {
+    constructor() {
     }
 
     ngOnInit() {
@@ -46,17 +45,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.getDiagram('all');
         this.getDashboardInformation();
         this.checkIfInformationAvailable();
+
     }
 
     ngOnDestroy() {
-        clearInterval(this.digramInterval);
+        clearInterval(this.diagramInterval);
         clearInterval(this.informationInterval);
     }
 
 
     private checkIfInformationAvailable() {
         if (this.dashboardInformation == null) {
-            this.digramInterval = setInterval(this.getDiagram.bind(this), 1000);
+            this.diagramInterval = setInterval(this.getDiagram.bind(this), 1000);
         }
         if (this.dashboardSet == null) {
             this.informationInterval = setInterval(this.getDashboardInformation.bind(this), 1000);
@@ -65,7 +65,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 
     getDiagram(interval: string) {
-        this.dataWorkload = [];
+        this.dataDml = [];
         this.dataDql = [];
         this.labels = [];
         this.min = 0;
@@ -75,26 +75,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.dashboardInformation = <DashboardData>res;
 
                 if (this.dashboardInformation != null || this.diagramCounter > 120) {
-                    clearInterval(this.digramInterval);
-                    Object.entries(this.dashboardInformation).forEach(
-                        ([key, value]) => {
-                            this.labels.push(key);
+                    clearInterval(this.diagramInterval);
 
-                            this.dataWorkload.push(value.right);
-                            this.dataDql.push(value.left);
+                    Object.entries(this.dashboardInformation).forEach(
+                        ([key, {'left': dql, 'right': dml}]) => {
+                            const timestamp = key && key.length > 10 ? key.substring(0, key.length - 10) : key;
+                            this.labels.push(timestamp);
+                            this.dataDml.push(dml);
+                            this.dataDql.push(dql);
 
                             //find min and max between Workload and Query Information
-                            if (this.min > value.right) {
-                                this.min = value.right;
+                            if (this.min > dml) {
+                                this.min = dml;
                             }
-                            if (this.max < value.right) {
-                                this.max = value.right;
+                            if (this.max < dml) {
+                                this.max = dml;
                             }
-                            if (this.min > value.left) {
-                                this.min = value.left;
+                            if (this.min > dql) {
+                                this.min = dql;
                             }
-                            if (this.max < value.left) {
-                                this.max = value.left;
+                            if (this.max < dql) {
+                                this.max = dql;
                             }
                         }
                     );
@@ -103,11 +104,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         );
 
-        this.diagram = [{
-            label: 'DML',
-            borderColor: 'rgb(255, 99, 132)',
-            data: this.dataWorkload,
-        },
+        this.diagram = [
+            {
+                label: 'DML',
+                borderColor: 'rgb(255, 99, 132)',
+                data: this.dataDml,
+            },
             {
                 label: 'DQL',
                 borderColor: 'rgb(18,105,199)',
@@ -123,6 +125,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this._crud.getDashboardInformation(new StatisticRequest()).subscribe(
             res => {
                 this.dashboardSet = <DashboardSet>res;
+
                 if (this.dashboardSet != null || this.infoCounter > 120) {
                     clearInterval(this.informationInterval);
                 }

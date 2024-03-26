@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
+import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 
 @Component({
     selector: 'app-about',
@@ -7,10 +8,13 @@ import {Component, OnInit} from '@angular/core';
 })
 export class AboutComponent implements OnInit {
 
+    private readonly _sidebar = inject(LeftSidebarService);
+
     constructor() {
     }
 
     ngOnInit() {
+        this._sidebar.hide();
     }
 
 }

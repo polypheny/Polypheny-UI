@@ -1,171 +1,168 @@
-<div class="row no-gutters nb-toolbar">
-    <div class="col-md-9">
-        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-            <button class="btn btn-outline-danger mr-4" (click)="closeNotebookModal.show()">Close</button>
-            <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Save">
-                <button type="button" class="btn btn-light" (click)="uploadNotebook()"
-                        onclick="this.blur();" tooltip="Save notebook (S)" container="body">
-                    <i class="fa fa-save"></i>
-                </button>
-            </div>
-
-            <div class="btn-group btn-group-sm mr-2" role="group" aria-label="File Run Kernel">
-                <div class="btn-group" dropdown triggers="mouseover" #dropdownFile="bs-dropdown"
-                     (mouseleave)="dropdownFile.hide()">
-                    <button id="drop-file-btn" dropdownToggle type="button" class="btn btn-light dropdown-toggle"
-                            aria-controls="dropdown-menu" onclick="this.blur();">
-                        File
+<c-container class="mt-3 pt-1 px-3">
+    <c-row class="no-gutters nb-toolbar">
+        <c-col md="9">
+            <c-button-toolbar role="group" aria-label="Toolbar with button groups">
+                <button cButton color="danger" variant="outline" class="me-4 flex-grow-0" (click)="closeNotebookModal.show()">Close</button>
+                <c-button-group size="sm" class="me-2" role="group" aria-label="Save">
+                    <button cButton color="light" type="button" (click)="uploadNotebook()"
+                            onclick="this.blur();" cTooltip="Save notebook (S)">
+                        <i class="fa fa-save"></i>
                     </button>
-                    <div class="dropdown-menu  dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
-                        <a class="dropdown-item" (click)="trustNotebook()"
-                           tooltip="Trust HTML output of all code cells. Trust resets after reloading a notebook and is usually set when a cell is executed"
-                           container="body" placement="right">
-                            <span>Trust Notebook</span>
-                        </a>
-                        <a class="dropdown-item" (click)="renameNotebookModal.show()">
-                            <span>Rename</span>
-                        </a>
-                        <a class="dropdown-item" (click)="duplicateNotebook()">
-                            <span>Duplicate</span>
-                        </a>
-                        <a class="dropdown-item" (click)="uploadNotebook()">
-                            <span>Save</span>
-                        </a>
-                        <a class="dropdown-item" (click)="downloadNotebook()">
-                            <span>Download</span>
-                        </a>
-                        <a class="dropdown-item" (click)="exportNotebook()"
-                           tooltip="Download the notebook with all query-cells transformed to regular code-cells"
-                           container="body" placement="right">
-                            <span>Export</span>
-                        </a>
-                        <a class="dropdown-item" (click)="deleteNotebookModal.show()">
-                            <span>Delete</span>
-                        </a>
-                    </div>
-                </div>
+                </c-button-group>
 
-                <div class="btn-group" dropdown triggers="mouseover" #dropdownRun="bs-dropdown"
-                     (mouseleave)="dropdownRun.hide()">
-                    <button id="drop-run-btn" dropdownToggle type="button" class="btn btn-light dropdown-toggle"
-                            aria-controls="dropdown-menu" onclick="this.blur();">
-                        Run
-                    </button>
-                    <div class="dropdown-menu  dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
-                        <a class="dropdown-item" (click)="toggleExpansion()"
-                           tooltip="Toggle the ability to expand '${var_name}' by its value. Use with care, as this can lead to unwanted query injections!"
-                           placement="right">
+                <c-button-group size="sm" class="me-2" role="group" aria-label="File Run Kernel">
+                    <c-button-group dropdown triggers="mouseover" #dropdownFile="bs-dropdown"
+                                    (mouseleave)="dropdownFile.hide()">
+                        <button cButton color="light" id="drop-file-btn" dropdownToggle type="button" class="dropdown-toggle"
+                                aria-controls="dropdown-menu" onclick="this.blur();">
+                            File
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
+                            <a class="dropdown-item" (click)="trustNotebook()"
+                               cTooltip="Trust HTML output of all code cells. Trust resets after reloading a notebook and is usually set when a cell is executed"
+                            >
+                                <span>Trust Notebook</span>
+                            </a>
+                            <a class="dropdown-item" (click)="renameNotebookModal.show()">
+                                <span>Rename</span>
+                            </a>
+                            <a class="dropdown-item" (click)="duplicateNotebook()">
+                                <span>Duplicate</span>
+                            </a>
+                            <a class="dropdown-item" (click)="uploadNotebook()">
+                                <span>Save</span>
+                            </a>
+                            <a class="dropdown-item" (click)="downloadNotebook()">
+                                <span>Download</span>
+                            </a>
+                            <a class="dropdown-item" (click)="exportNotebook()"
+                               cTooltip="Download the notebook with all query-cells transformed to regular code-cells"
+                            >
+                                <span>Export</span>
+                            </a>
+                            <a class="dropdown-item" (click)="deleteNotebookModal.show()">
+                                <span>Delete</span>
+                            </a>
+                        </div>
+                    </c-button-group>
+
+                    <c-button-group dropdown triggers="mouseover" #dropdownRun="bs-dropdown" (mouseleave)="dropdownRun.hide()">
+                        <button cButton color="light" id="drop-run-btn" dropdownToggle type="button" class="dropdown-toggle"
+                                aria-controls="dropdown-menu" onclick="this.blur();">
+                            Run
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
+                            <a class="dropdown-item" (click)="toggleExpansion()"
+                               cTooltip="Toggle the ability to expand '${var_name}' by its value. Use with care, as this can lead to unwanted query injections!"
+                            >
                             <span>
                                 <i class="fa" [ngClass]="{'fa-square-o': !expand, 'fa-check-square-o': expand}"></i>
                                 Variable Expansion
                             </span>
-                        </a>
-                        <a class="dropdown-item" (click)="executeSelected(true)">
-                            <span>Run Selected Cell</span>
-                        </a>
-                        <a class="dropdown-item" (click)="executeAll()">
-                            <span>Run All Cells</span>
-                        </a>
-                        <a class="dropdown-item" (click)="executeAboveSelected()">
-                            <span>Run All Above Selected Cell</span>
-                        </a>
-                        <a class="dropdown-item" (click)="executeSelectedAndBelow()">
-                            <span>Run Selected Cell and All Below</span>
-                        </a>
-                        <a class="dropdown-item" (click)="renderMdCells()">
-                            <span>Render All Markdown Cells</span>
-                        </a>
-                        <a class="dropdown-item" (click)="clearSelectedOutput()">
-                            <span>Clear Output</span>
-                        </a>
-                        <a class="dropdown-item" (click)="clearAllOutputs()">
-                            <span>Clear All Outputs</span>
-                        </a>
-                    </div>
-                </div>
+                            </a>
+                            <a class="dropdown-item" (click)="executeSelected(true)">
+                                <span>Run Selected Cell</span>
+                            </a>
+                            <a class="dropdown-item" (click)="executeAll()">
+                                <span>Run All Cells</span>
+                            </a>
+                            <a class="dropdown-item" (click)="executeAboveSelected()">
+                                <span>Run All Above Selected Cell</span>
+                            </a>
+                            <a class="dropdown-item" (click)="executeSelectedAndBelow()">
+                                <span>Run Selected Cell and All Below</span>
+                            </a>
+                            <a class="dropdown-item" (click)="renderMdCells()">
+                                <span>Render All Markdown Cells</span>
+                            </a>
+                            <a class="dropdown-item" (click)="clearSelectedOutput()">
+                                <span>Clear Output</span>
+                            </a>
+                            <a class="dropdown-item" (click)="clearAllOutputs()">
+                                <span>Clear All Outputs</span>
+                            </a>
+                        </div>
+                    </c-button-group>
 
-                <div class="btn-group" dropdown triggers="mouseover" #dropdownKernel="bs-dropdown"
-                     (mouseleave)="dropdownKernel.hide()">
-                    <button id="drop-kernel-btn" dropdownToggle type="button" class="btn btn-light dropdown-toggle"
-                            aria-controls="dropdown-menu" onclick="this.blur();">
-                        Kernel
+                    <c-button-group dropdown triggers="mouseover" #dropdownKernel="bs-dropdown"
+                                    (mouseleave)="dropdownKernel.hide()">
+                        <button cButton color="light" id="drop-kernel-btn" dropdownToggle type="button" class="dropdown-toggle"
+                                aria-controls="dropdown-menu" onclick="this.blur();">
+                            Kernel
+                        </button>
+                        <div class="dropdown-menu  dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
+                            <a class="dropdown-item" (click)="interruptKernel()">
+                                <span>Interrupt Kernel</span>
+                            </a>
+                            <a class="dropdown-item" (click)="requestRestart(false)">
+                                <span>Restart Kernel</span>
+                            </a>
+                            <a class="dropdown-item" (click)="requestRestart(true)">
+                                <span>Restart Kernel and Run All Cells</span>
+                            </a>
+                            <a class="dropdown-item" (click)="terminateKernelModal.show()">
+                                <span>Shut Down Kernel</span>
+                            </a>
+                            <a class="dropdown-item" (click)="terminateAllKernelsModal.show()">
+                                <span>Shut Down All Kernels</span>
+                            </a>
+                        </div>
+                    </c-button-group>
+                </c-button-group>
+
+                <c-button-group size="sm" class="me-2" role="group" aria-label="Execution">
+                    <button cButton color="light" type="button" (click)="executeSelected(true)"
+                            onclick="this.blur()" cTooltip="Run selected cell and advance (Shift + Enter)">
+                        <i class="fa fa-play"></i>
                     </button>
-                    <div class="dropdown-menu  dropdown-menu-left" *dropdownMenu style="margin-top: -1px;">
-                        <a class="dropdown-item" (click)="interruptKernel()">
-                            <span>Interrupt Kernel</span>
-                        </a>
-                        <a class="dropdown-item" (click)="requestRestart(false)">
-                            <span>Restart Kernel</span>
-                        </a>
-                        <a class="dropdown-item" (click)="requestRestart(true)">
-                            <span>Restart Kernel and Run All Cells</span>
-                        </a>
-                        <a class="dropdown-item" (click)="terminateKernelModal.show()">
-                            <span>Shut Down Kernel</span>
-                        </a>
-                        <a class="dropdown-item" (click)="terminateAllKernelsModal.show()">
-                            <span>Shut Down All Kernels</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+                    <button cButton color="light" type="button" (click)="interruptKernel()"
+                            onclick="this.blur()" cTooltip="Interrupt">
+                        <i class="fa fa-stop"></i>
+                    </button>
+                    <button cButton color="light" type="button" (click)="requestRestart(false)"
+                            onclick="this.blur()" cTooltip="Restart">
+                        <i class="fa fa-rotate-right"></i>
+                    </button>
+                    <button cButton color="light" type="button" (click)="requestRestart(true)"
+                            onclick="this.blur()" cTooltip="Restart & run all">
+                        <i class="fa fa-forward"></i>
+                    </button>
+                </c-button-group>
 
-            <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Execution">
-                <button type="button" class="btn btn-light" (click)="executeSelected(true)"
-                        onclick="this.blur();" tooltip="Run selected cell and advance (Shift + Enter)" container="body">
-                    <i class="fa fa-play"></i>
-                </button>
-                <button type="button" class="btn btn-light" (click)="interruptKernel()"
-                        onclick="this.blur();" tooltip="Interrupt" container="body">
-                    <i class="fa fa-stop"></i>
-                </button>
-                <button type="button" class="btn btn-light" (click)="requestRestart(false)"
-                        onclick="this.blur();" tooltip="Restart" container="body">
-                    <i class="fa fa-rotate-right"></i>
-                </button>
-                <button type="button" class="btn btn-light" (click)="requestRestart(true)"
-                        onclick="this.blur();" tooltip="Restart & run all" container="body">
-                    <i class="fa fa-forward"></i>
-                </button>
-            </div>
+                <c-button-group size="sm" class="me-2" role="group" aria-label="Insert">
+                    <button cButton color="light" type="button"
+                            (click)="insertCell(selectedCell.id, true, false)"
+                            onclick="this.blur();" cTooltip="Insert cell below (B)"
+                            [disabled]="inserting">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                </c-button-group>
+                <c-button-group>
+                    <select class="form-select btn pull-right me-1 bg-light px-1" aria-label="Select Cell Type"
+                            (change)="onTypeChange($event)"
+                            [(ngModel)]="selectedCellType">
+                        <option value="code">Code</option>
+                        <option value="markdown">Markdown</option>
+                        <option value="poly">Query</option>
+                        <option value="raw">Raw</option>
+                    </select>
+                </c-button-group>
+            </c-button-toolbar>
+        </c-col>
+        <c-col md="3" class="col-md-3 text-right">
+            <button cButton color="light" type="button" style="white-space: nowrap"
+                    (click)="openChangeSessionModal.emit({name: name, path: path})">
+                <span class="me-2">{{kernelSpec?.spec?.display_name || 'No kernel'}}</span>
+                <c-badge class="badge badge-pill"
+                         [color]="nb?.kernelStatus === 'idle' ? 'success': (!nb || nb?.kernelStatus === 'unknown' ? 'danger' : (nb?.kernelStatus === 'busy' ? 'primary' : (nb?.kernelStatus === 'starting' ? 'secondary' : 'primary')))">
+                    {{nb?.kernelStatus || 'unknown'}}
+                </c-badge>
+            </button>
+        </c-col>
+    </c-row>
+</c-container>
 
-            <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Insert">
-                <button type="button" class="btn btn-light"
-                        (click)="insertCell(selectedCell.id, true, false)"
-                        onclick="this.blur();" tooltip="Insert cell below (B)" container="body"
-                        [disabled]="inserting">
-                    <i class="fa fa-plus"></i>
-                </button>
-            </div>
-
-            <select class="form-select btn pull-right mr-1 bg-light px-1" aria-label="Select Cell Type"
-                    (change)="onTypeChange($event)"
-                    [(ngModel)]="selectedCellType">
-                <option value="code">Code</option>
-                <option value="markdown">Markdown</option>
-                <option value="poly">Query</option>
-                <option value="raw">Raw</option>
-            </select>
-
-        </div>
-    </div>
-    <div class="col-md-3 text-right">
-        <button type="button" class="btn btn-light" style="white-space: nowrap"
-                (click)="openChangeSessionModal.emit({name: name, path: path})">
-            <span class="mr-2">{{kernelSpec?.spec?.display_name || 'No kernel'}}</span>
-            <span class="badge badge-pill badge-primary"
-                  [ngClass]="{'badge-success': nb?.kernelStatus === 'idle',
-                              'badge-danger': !nb || nb?.kernelStatus === 'unknown',
-                              'badge-primary': nb?.kernelStatus === 'busy',
-                              'badge-secondary': nb?.kernelStatus === 'starting'}">
-                {{nb?.kernelStatus || 'unknown'}}
-            </span>
-        </button>
-    </div>
-</div>
-
-
-<div class="nb-scroll" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
+<div class="nb-scroll px-3" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
     <h1 class="nb-title">{{name}}</h1>
     <div class="nb-background mt-4 pt-4">
         <ng-container *ngIf="nb">
@@ -194,8 +191,8 @@
                         <div class="nb-drag-handle" cdkDragHandle></div>
                     </app-nb-cell>
                     <div *cdkDragPreview class="drop-preview">
-                        <span class="text-secondary mr-4" *ngIf="cell.cell_type === 'code'">[ ]:</span>
-                        <span>{{getPreviewText(cell)}}</span>
+                        <span class="text-secondary me-4" *ngIf="cell.cell_type === 'code'">[ ]:</span>
+                        <span>{{getPreviewText( cell )}}</span>
                     </div>
                     <div class="example-custom-placeholder bg-primary" *cdkDragPlaceholder></div>
                 </div>
@@ -207,217 +204,188 @@
 <ng-template #elseNoSession>
     <h1 class="nb-title">The Selected Kernel No Longer Exists</h1>
     <p>You can either close the notebook (you can save your changes if you want), or start a new kernel</p>
-    <button type="button" class="btn btn-primary" style="white-space: nowrap"
+    <button cButton color="primary" type="button" style="white-space: nowrap"
             (click)="openChangeSessionModal.emit({name: name, path: path})">
         Create New Kernel
     </button>
-    <button type="button" class="btn btn-primary ml-4" style="white-space: nowrap"
+    <button cButton color="primary" type="button" class="ms-4" style="white-space: nowrap"
             (click)="closeNotebookModal.show()">
         Close Notebook
     </button>
 </ng-template>
 
 
-<div bsModal #deleteNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
-     aria-labelledby="deleteNotebookModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Delete Notebook</h4>
-                <button type="button" class="close" (click)="deleteNotebookModal.hide()" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+<c-modal bsModal #deleteNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+         aria-labelledby="deleteNotebookModal" aria-hidden="true">
+    <c-modal-content>
+        <c-modal-header>
+            <h4 cModalTitle>Delete Notebook</h4>
+            <button cButtonClose type="button" class="close" (click)="deleteNotebookModal.hide()" aria-label="Close"></button>
+        </c-modal-header>
 
-            <div class="modal-body">
-                <p>Are you sure you want to delete this notebook?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="deleteNotebookModal.hide()">Cancel</button>
-                <button type="button" class="btn btn-danger" (click)="deleteNotebook()"
-                        [disabled]="deleting">
-                    <span *ngIf="!deleting">Delete</span>
-                    <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+        <c-modal-body>
+            <p>Are you sure you want to delete this notebook?</p>
+        </c-modal-body>
+        <c-modal-footer>
+            <button cButton color="secondary" type="button" (click)="deleteNotebookModal.hide()">Cancel</button>
+            <button cButton color="danger" type="button" (click)="deleteNotebook()"
+                    [disabled]="deleting">
+                <span *ngIf="!deleting">Delete</span>
+                <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status"></span>
+            </button>
+        </c-modal-footer>
+    </c-modal-content>
+</c-modal>
 
-<div bsModal #overwriteNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
-     aria-labelledby="deleteNotebookModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Notebook Changed</h4>
-                <button type="button" class="close" (click)="overwriteNotebookModal.hide()" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>There is a conflict between this version of the notebook and the one stored on disk.
-                    Are you sure you want to overwrite it with your version? Alternatively, you can discard your changes
-                    and revert to the version on disk.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="overwriteNotebookModal.hide()">Cancel</button>
-                <button type="button" class="btn btn-secondary" (click)="revertNotebook()" [disabled]="overwriting">
-                    <span *ngIf="!overwriting">Revert</span>
-                    <span *ngIf="overwriting" class="spinner-border spinner-border-sm" role="status"></span>
-                </button>
-                <button type="button" class="btn btn-danger" (click)="overwriteNotebook()"
-                        [disabled]="overwriting">
-                    <span *ngIf="!overwriting">Overwrite</span>
-                    <span *ngIf="overwriting" class="spinner-border spinner-border-sm" role="status"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+<c-modal bsModal #overwriteNotebookModal="bs-modal" tabindex="-1" role="dialog"
+         aria-labelledby="deleteNotebookModal" aria-hidden="true">
+    <c-modal-content>
+        <c-modal-header>
+            <h4 cModalTitle>Notebook Changed</h4>
+            <button cButtonClose type="button" class="close" (click)="overwriteNotebookModal.hide()" aria-label="Close">
+            </button>
+        </c-modal-header>
+        <c-modal-body>
+            <p>There is a conflict between this version of the notebook and the one stored on disk.
+                Are you sure you want to overwrite it with your version? Alternatively, you can discard your changes
+                and revert to the version on disk.</p>
+        </c-modal-body>
+        <c-modal-footer>
+            <button cButton color="secondary" type="button" (click)="overwriteNotebookModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="revertNotebook()" [disabled]="overwriting">
+                <span *ngIf="!overwriting">Revert</span>
+                <span *ngIf="overwriting" class="spinner-border spinner-border-sm" role="status"></span>
+            </button>
+            <button cButton color="danger" type="button" (click)="overwriteNotebook()"
+                    [disabled]="overwriting">
+                <span *ngIf="!overwriting">Overwrite</span>
+                <span *ngIf="overwriting" class="spinner-border spinner-border-sm" role="status"></span>
+            </button>
+        </c-modal-footer>
+    </c-modal-content>
+</c-modal>
 
-<div bsModal #restartKernelModal="bs-modal" class="modal" tabindex="-1" role="dialog"
-     aria-labelledby="restartKernelModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Restart Kernel</h4>
-                <button type="button" class="close" (click)="restartKernelModal.hide()" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+<c-modal bsModal #restartKernelModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+         aria-labelledby="restartKernelModal" aria-hidden="true">
+    <c-modal-content>
+        <c-modal-header>
+            <h4 cModalTitle>Restart Kernel</h4>
+            <button cButtonClose type="button" (click)="restartKernelModal.hide()" aria-label="Close"></button>
+        </c-modal-header>
 
-            <div class="modal-body">
-                <p>Are you sure you want to restart the kernel? All variables will be lost.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="restartKernelModal.hide()">Cancel</button>
-                <button type="button" class="btn btn-danger" (click)="restartKernel()"
-                        [disabled]="deleting">Restart
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+        <c-modal-body class="modal-body">
+            <p>Are you sure you want to restart the kernel? All variables will be lost.</p>
+        </c-modal-body>
+        <c-modal-footer>
+            <button cButton color="secondary" type="button" (click)="restartKernelModal.hide()">Cancel</button>
+            <button cButton color="danger" type="button" (click)="restartKernel()"
+                    [disabled]="deleting">Restart
+            </button>
+        </c-modal-footer>
+    </c-modal-content>
+</c-modal>
 
-<div bsModal #renameNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
-     aria-labelledby="renameNotebookModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Rename File</h4>
-                <button type="button" class="close" (click)="renameNotebookModal.hide()" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+<c-modal bsModal #renameNotebookModal="bs-modal" tabindex="-1" role="dialog"
+         aria-labelledby="renameNotebookModal" aria-hidden="true">
+    <c-modal-content>
+        <c-modal-header>
+            <h4 cModalTitle>Rename File</h4>
+            <button cButtonClose type="button" (click)="renameNotebookModal.hide()" aria-label="Close"></button>
+        </c-modal-header>
 
-            <div class="modal-body">
-                <form [formGroup]="renameNotebookForm" autocomplete="off" (submit)="rename()">
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <label for="renameNotebook-name" class="input-group-text">Name</label>
-                        </div>
-                        <input type="text" id="renameNotebook-name" autocomplete="off" class="form-control col-sm-10"
-                               formControlName="name">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="renameNotebookModal.hide()">Close</button>
-                <button type="submit" class="btn btn-primary pull-right" (click)="rename()"
-                        [disabled]="!renameNotebookForm.valid">Rename
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+        <c-modal-body>
+            <form [formGroup]="renameNotebookForm" autocomplete="off" (submit)="rename()">
+                <c-input-group class="mb-3">
+                    <label for="renameNotebook-name" class="input-group-text">Name</label>
+                    <input type="text" id="renameNotebook-name" autocomplete="off" class="form-control col-sm-10"
+                           formControlName="name">
+                </c-input-group>
+            </form>
+        </c-modal-body>
+        <c-modal-footer>
+            <button cButton color="secondary" type="button" (click)="renameNotebookModal.hide()">Close</button>
+            <button cButton color="primary" type="submit" class="pull-right" (click)="rename()"
+                    [disabled]="!renameNotebookForm.valid">Rename
+            </button>
+        </c-modal-footer>
+    </c-modal-content>
+</c-modal>
 
-<div bsModal #closeNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
-     aria-labelledby="terminateKernelModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Close Notebook</h4>
-                <button type="button" class="close" (click)="closeNotebookCancelled()" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+<c-modal bsModal #closeNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+         aria-labelledby="terminateKernelModal" aria-hidden="true">
+    <c-modal-content>
+        <c-modal-header>
+            <h4 cModalTitle>Close Notebook</h4>
+            <button cButtonClose type="button" class="close" (click)="closeNotebookCancelled()" aria-label="Close"></button>
+        </c-modal-header>
 
-            <div class="modal-body">
-                <form [formGroup]="closeNotebookForm" autocomplete="off">
-                    <p>You are about to close this notebook. Unsaved changes will be lost.</p>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" formControlName="saveChanges"
-                               id="saveChanges-chkbx">
-                        <label class="form-check-label" for="saveChanges-chkbx">
-                            Save Changes (overwriting the file on disk)
-                        </label>
-                    </div>
-                    <div class="form-check" *ngIf="session">
-                        <input class="form-check-input" type="checkbox" formControlName="shutDown"
-                               id="shutDown-chkbx">
-                        <label class="form-check-label" for="shutDown-chkbx">
-                            Shut Down Kernel
-                        </label>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="closeNotebookCancelled()">Cancel</button>
-                <button type="submit" class="btn btn-primary" (click)="closeNotebookSubmitted()" [disabled]="deleting">
-                    {{closeNotebookForm.get("shutDown").value && session ? 'Close & Shut Down' : 'Close'}}
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+        <c-modal-body>
+            <form [formGroup]="closeNotebookForm" autocomplete="off">
+                <p>You are about to close this notebook. Unsaved changes will be lost.</p>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" formControlName="saveChanges"
+                           id="saveChanges-chkbx">
+                    <label class="form-check-label" for="saveChanges-chkbx">
+                        Save Changes (overwriting the file on disk)
+                    </label>
+                </div>
+                <div class="form-check" *ngIf="session">
+                    <input class="form-check-input" type="checkbox" formControlName="shutDown"
+                           id="shutDown-chkbx">
+                    <label class="form-check-label" for="shutDown-chkbx">
+                        Shut Down Kernel
+                    </label>
+                </div>
+            </form>
+        </c-modal-body>
+        <c-modal-footer>
+            <button cButton color="secondary" type="button" (click)="closeNotebookCancelled()">Cancel</button>
+            <button cButton color="primary" type="submit" (click)="closeNotebookSubmitted()" [disabled]="deleting">
+                {{closeNotebookForm.get( "shutDown" ).value && session ? 'Close & Shut Down' : 'Close'}}
+            </button>
+        </c-modal-footer>
+    </c-modal-content>
+</c-modal>
 
-<div bsModal #terminateKernelModal="bs-modal" class="modal" tabindex="-1" role="dialog"
-     aria-labelledby="terminateKernelModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Shut Down Kernel and Close Notebook</h4>
-                <button type="button" class="close" (click)="terminateKernelModal.hide()" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+<c-modal bsModal #terminateKernelModal="bs-modal" tabindex="-1" role="dialog"
+         aria-labelledby="terminateKernelModal" aria-hidden="true">
 
-            <div class="modal-body">
-                <p>Are you sure you want to shut this kernel down and close the notebook? All variables will be
-                    lost.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="terminateKernelModal.hide()">Cancel</button>
-                <button type="button" class="btn btn-danger" (click)="closeAndTerminate(false)"
-                        [disabled]="deleting">Shut Down
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+    <c-modal-content>
+        <c-modal-header>
+            <h4 cModalTitle>Shut Down Kernel and Close Notebook</h4>
+            <button cButtonClose type="button" (click)="terminateKernelModal.hide()" aria-label="Close"></button>
+        </c-modal-header>
 
-<div bsModal #terminateAllKernelsModal="bs-modal" class="modal" tabindex="-1" role="dialog"
-     aria-labelledby="terminateAllKernelsModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Shut Down All Kernels and Close Notebook</h4>
-                <button type="button" class="close" (click)="terminateAllKernelsModal.hide()" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+        <c-modal-body>
+            <p>Are you sure you want to shut this kernel down and close the notebook? All variables will be
+                lost.</p>
+        </c-modal-body>
+        <c-modal-footer>
+            <button cButton color="secondary" type="button" (click)="terminateKernelModal.hide()">Cancel</button>
+            <button cButton color="danger" type="button" (click)="closeAndTerminate(false)"
+                    [disabled]="deleting">Shut Down
+            </button>
+        </c-modal-footer>
+    </c-modal-content>
+</c-modal>
 
-            <div class="modal-body">
-                <p>Are you sure you want to shut down all running kernels of this notebook? Unsaved changes are
-                    lost!</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="terminateAllKernelsModal.hide()">Cancel
-                </button>
-                <button type="button" class="btn btn-danger" (click)="closeAndTerminate(true)"
-                        [disabled]="deleting">Shut Down All
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+<c-modal bsModal #terminateAllKernelsModal="bs-modal" tabindex="-1" role="dialog"
+         aria-labelledby="terminateAllKernelsModal" aria-hidden="true">
+    <c-modal-content>
+        <c-modal-header>
+            <h4 cModalTitle>Shut Down All Kernels and Close Notebook</h4>
+            <button cButtonClose type="button" (click)="terminateAllKernelsModal.hide()" aria-label="Close"></button>
+        </c-modal-header>
+
+        <c-modal-body>
+            <p>Are you sure you want to shut down all running kernels of this notebook? Unsaved changes are
+                lost!</p>
+        </c-modal-body>
+        <c-modal-footer>
+            <button cButton color="secondary" type="button" (click)="terminateAllKernelsModal.hide()">Cancel</button>
+            <button cButton color="danger" type="button" (click)="closeAndTerminate(true)"
+                    [disabled]="deleting">Shut Down All
+            </button>
+        </c-modal-footer>
+    </c-modal-content>
+</c-modal>

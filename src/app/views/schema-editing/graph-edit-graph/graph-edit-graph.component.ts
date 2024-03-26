@@ -1,14 +1,20 @@
-import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {Component, HostListener, inject, Input, OnDestroy, OnInit, Signal, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
-import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
-import {PolyType, ResultSet} from '../../../components/data-view/models/result-set.model';
-import {ToastService} from '../../../components/toast/toast.service';
+import {PolyType, RelationalResult} from '../../../components/data-view/models/result-set.model';
+import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {GraphPlacements, Store} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {Subscription} from 'rxjs';
+import {
+    AllocationEntityModel,
+    AllocationPartitionModel,
+    AllocationPlacementModel,
+    NamespaceModel,
+    TableModel
+} from '../../../models/catalog.model';
+import {Method} from '../../../models/ui-request.model';
+import {AdapterModel} from '../../adapters/adapter.model';
 
 @Component({
     selector: 'app-graph-edit',
@@ -18,18 +24,39 @@ import {Subscription} from 'rxjs';
 
 export class GraphEditGraphComponent implements OnInit, OnDestroy {
 
-    graphId: string;
+    public readonly _crud = inject(CrudService);
+    public readonly _types = inject(DbmsTypesService);
+    private readonly _toast = inject(ToasterService);
 
-    resultSet: ResultSet;
+    constructor() {
+
+    }
+
+    @Input()
+    readonly entity: Signal<TableModel>;
+    @Input()
+    readonly namespace: Signal<NamespaceModel>;
+    @Input()
+    readonly currentRoute: Signal<string>;
+
+    @Input()
+    readonly placements: Signal<AllocationPlacementModel[]>;
+    @Input()
+    readonly partitions: Signal<AllocationPartitionModel[]>;
+    @Input()
+    readonly allocations: Signal<AllocationEntityModel[]>;
+    @Input()
+    readonly stores: Signal<AdapterModel[]>;
+    @Input()
+    readonly addableStores: Signal<AdapterModel[]>;
+
     types: PolyType[] = [];
     editColumn = -1;
     confirm = -1;
 
 
     //data placement handling
-    stores: Store[];
-    selectedStore: Store;
-    dataPlacements: GraphPlacements;
+    selectedStore: AdapterModel;
     isAddingPlacement = false;
 
 
@@ -39,19 +66,9 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
     @ViewChild('partitionFunctionModal', {static: false}) public partitionFunctionModal: ModalDirective;
 
-    constructor(
-        private _route: ActivatedRoute,
-        private _leftSidebar: LeftSidebarService,
-        public _crud: CrudService,
-        private _toast: ToastService,
-        public _types: DbmsTypesService
-    ) {
-    }
+    protected readonly Method = Method;
 
     ngOnInit() {
-        this.getGraphId();
-        this.getStores();
-        this.getPlacements();
     }
 
     ngOnDestroy() {
@@ -68,48 +85,8 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
         }
     }
 
-    getGraphId() {
-        this.graphId = this._route.snapshot.paramMap.get('id');
-        const sub = this._route.params.subscribe((params) => {
-            this.graphId = params['id'];
-            this.getStores();
-            this.getPlacements();
-        });
-        this.subscriptions.add(sub);
-    }
 
-
-    getStores() {
-        this._crud.getStores().subscribe(
-            res => {
-                this.stores = <Store[]>res;
-            }, err => {
-                console.log(err);
-            });
-    }
-
-    getAddableStores(): Store[] {
-        if (!this.stores) {
-            return [];
-        }
-        return this.stores.filter((s: Store) => {
-            //hide stores that are already part of the placement
-            if (this.dataPlacements && this.dataPlacements.stores && this.dataPlacements.stores.length > 0) {
-                let showStore = true;
-                for (const store of this.dataPlacements.stores) {
-                    if (store.uniqueName === s.uniqueName) {
-                        showStore = false;
-                    }
-                }
-                return showStore;
-            } else {
-                return true;
-            }
-        });
-    }
-
-
-    modifyPlacement(method: 'ADD' | 'DROP', store = null) {
+    modifyPlacement(method: Method, store = null) {
         if (store != null) {
             this.selectedStore = store;
         }
@@ -117,18 +94,19 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
             return;
         }
         this.isAddingPlacement = true;
-        this._crud.addDropGraphPlacement(this.graphId, this.selectedStore.uniqueName, method).subscribe(res => {
-            const result = <ResultSet>res;
+        this._crud.addDropGraphPlacement(this.entity().name, this.selectedStore.id, method).subscribe(res => {
+            const result = <RelationalResult>res;
             if (result.error) {
                 this._toast.exception(result);
-            } else {
-                if (method === 'ADD') {
-                    this._toast.success('Added placement on store ' + this.selectedStore.uniqueName, result.generatedQuery, 'Added placement');
-                } else if (method === 'DROP') {
-                    this._toast.success('Dropped placement on store ' + this.selectedStore.uniqueName, result.generatedQuery, 'Dropped placement');
-                }
-                this.getPlacements();
+                return;
             }
+            if (method === Method.ADD) {
+                this._toast.success('Added placement on store ' + this.selectedStore.name, result.query, 'Added placement');
+            } else if (method === Method.DROP) {
+                this._toast.success('Dropped placement on store ' + this.selectedStore.name, result.query, 'Dropped placement');
+            }
+            //this._catalog.updateIfNecessary();
+
         }).add(() => {
             this.isAddingPlacement = false;
         });
@@ -143,21 +121,6 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
         } else {
             return 'is-valid';
         }
-    }
-
-    private getPlacements() {
-        this._crud.getGraphPlacements(this.graphId).subscribe(res => {
-            this.dataPlacements = <GraphPlacements>res;
-            // This happens when we switch the namespace to a non-graph one on the sidebar,
-            // because it takes time for the parent component to replace us with the correct one.
-            //if (this.dataPlacements.exception) {
-            //    // @ts-ignore
-            //    this._toast.exception({
-            //        error: this.dataPlacements.exception.detailMessage,
-            //        exception: this.dataPlacements.exception
-            //    });
-            //}
-        });
     }
 
 }

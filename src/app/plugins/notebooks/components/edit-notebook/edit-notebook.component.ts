@@ -1,9 +1,13 @@
 import {
-    Component, EventEmitter, HostListener,
+    Component,
+    EventEmitter,
+    HostListener,
+    inject,
     Input,
     OnChanges,
     OnDestroy,
-    OnInit, Output,
+    OnInit,
+    Output,
     QueryList,
     SimpleChanges,
     ViewChild,
@@ -12,13 +16,11 @@ import {
 import {KernelSpec, NotebookContent, SessionResponse} from '../../models/notebooks-response.model';
 import {NotebooksService} from '../../services/notebooks.service';
 import {NotebooksSidebarService} from '../../services/notebooks-sidebar.service';
-import {ToastService} from '../../../../components/toast/toast.service';
 import {NotebookCell} from '../../models/notebook.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NotebooksContentService} from '../../services/notebooks-content.service';
 import {EMPTY, Observable, Subject, Subscription, timer} from 'rxjs';
 import {NotebooksWebSocket} from '../../services/notebooks-webSocket';
-import {WebuiSettingsService} from '../../../../services/webui-settings.service';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {NbCellComponent} from './nb-cell/nb-cell.component';
@@ -26,7 +28,8 @@ import {CellType, NotebookWrapper} from './notebook-wrapper';
 import {delay, mergeMap, take, tap} from 'rxjs/operators';
 import {LoadingScreenService} from '../../../../components/loading-screen/loading-screen.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {CrudService} from '../../../../services/crud.service';
+import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
+import {WebuiSettingsService} from "../../../../services/webui-settings.service";
 
 @Component({
     selector: 'app-edit-notebook',
@@ -34,6 +37,17 @@ import {CrudService} from '../../../../services/crud.service';
     styleUrls: ['./edit-notebook.component.scss']
 })
 export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
+    private readonly _notebooks = inject(NotebooksService);
+    public readonly _sidebar = inject(NotebooksSidebarService);
+    private readonly _content = inject(NotebooksContentService);
+
+    private readonly _toast = inject(ToasterService);
+    private readonly _router = inject(Router);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _loading = inject(LoadingScreenService);
+
+    private readonly _settings = inject(WebuiSettingsService);
+
     @Input() sessionId: string;
     @Output() openChangeSessionModal = new EventEmitter<{ name: string, path: string }>();
     path: string;
@@ -65,16 +79,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     inserting = false;
     closeNbSubject: Subject<boolean>;
 
-    constructor(
-        private _notebooks: NotebooksService,
-        public _sidebar: NotebooksSidebarService,
-        private _content: NotebooksContentService,
-        private _toast: ToastService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-        private _settings: WebuiSettingsService,
-        private _loading: LoadingScreenService,
-        private _crud: CrudService) {
+    constructor() {
     }
 
     ngOnInit(): void {
@@ -90,22 +95,24 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.sessionId) {
             // Handle changes to sessionId
-            this._notebooks.getSession(this.sessionId).subscribe(session => {
-                this.session = session;
-                this.path = this._notebooks.getPathFromSession(session);
-                this.name = this._notebooks.getNameFromSession(session);
-                const urlPath = 'notebooks/' + this._route.snapshot.url.map(segment => decodeURIComponent(segment.toString())).join('/');
-                if (this.path !== urlPath) {
-                    this.closeEdit(true);
-                    return;
+            this._notebooks.getSession(this.sessionId).subscribe({
+                next: session => {
+                    this.session = session;
+                    this.path = this._notebooks.getPathFromSession(session);
+                    this.name = this._notebooks.getNameFromSession(session);
+                    const urlPath = 'notebooks/' + this._route.snapshot.url.map(segment => decodeURIComponent(segment.toString())).join('/');
+                    if (this.path !== urlPath) {
+                        this.closeEdit(true);
+                        return;
+                    }
+                    if (!this.renameNotebookModal.isShown) {
+                        this.renameNotebookForm.patchValue({name: this.name});
+                    }
+                    this._content.setPreferredSessionId(this.path, this.sessionId);
+                    this.loadNotebook();
+                }, error: () => {
+                    this.closeEdit();
                 }
-                if (!this.renameNotebookModal.isShown) {
-                    this.renameNotebookForm.patchValue({name: this.name});
-                }
-                this._content.setPreferredSessionId(this.path, this.sessionId);
-                this.loadNotebook();
-            }, () => {
-                this.closeEdit();
             });
         }
     }
@@ -164,9 +171,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this.nb = null;
         }
         this._content.getNotebookContent(this.path, this.nb == null).subscribe(res => {
+
             if (res) {
                 this.nb = new NotebookWrapper(res, this.busyCellIds,
-                    new NotebooksWebSocket(this._settings, this.session.kernel.id),
+                    new NotebooksWebSocket(this.session.kernel.id, this._settings),
                     id => this.getCellComponent(id)?.renderMd(),
                     (id, output) => this.getCellComponent(id)?.renderError(output),
                     (id, output) => this.getCellComponent(id)?.renderStream(output),

@@ -1,59 +1,59 @@
 <h2>{{metadata.name}}</h2>
-<div class="row">
-    <div class="col-lg-4 fixed-width">
-        <div class="card">
-            <div class="card-header">
+<c-row class="row">
+    <c-col class="col-lg-4 fixed-width">
+        <c-card>
+            <c-card-header>
                 <span class="mb-0">Manage {{metadata.type.charAt(0).toUpperCase() + metadata.type.slice(1)}}</span>
-            </div>
-            <div class="card-body">
+            </c-card-header>
+            <c-card-body>
                 <p *ngIf="metadata.type!=='directory'">Size: {{_util.humanFileSize(metadata.size)}}</p>
                 <p>Created: {{metadata.created  | date: 'yyyy-MM-dd HH:mm:SS'}}</p>
                 <p>Last modified: {{metadata.last_modified  | date: 'yyyy-MM-dd HH:mm:SS'}}</p>
-            </div>
-            <div class="card-footer bg-transparent">
+            </c-card-body>
+            <c-card-footer class="bg-transparent">
                 <div class="pull-right" role="group">
-                    <button class="btn btn-primary mr-2" (click)="renameFileModal.show()">Rename</button>
-                    <button class="btn btn-secondary mr-2" *ngIf="metadata.type!=='directory'"
+                    <button cButton color="primary" class="me-2" (click)="renameFileModal.show()">Rename</button>
+                    <button cButton color="secondary" class=" me-2" *ngIf="metadata.type!=='directory'"
                             (click)="duplicateFile()">Duplicate
                     </button>
-                    <button class="btn btn-secondary" *ngIf="metadata.type!=='directory'"
-                            (click)="downloadFile()"><span class="cui-cloud-download"></span>
+                    <button cButton color="secondary" *ngIf="metadata.type!=='directory'" (click)="downloadFile()">
+                        <span class="cil-cloud-download"></span>
                     </button>
                 </div>
-                <div class="row">
-                    <button class="btn btn-danger" (click)="deleteFile()" (mouseleave)="resetDeleteConfirm()">
-                        <i [ngClass]="{'cui-trash': !confirmingDeletion, 'fa fa-warning': confirmingDeletion}"></i>
+                <c-row>
+                    <button cButton color="danger" (click)="deleteFile()" (mouseleave)="resetDeleteConfirm()">
+                        <i [ngClass]="{'cil-trash': !confirmingDeletion, 'fa fa-warning': confirmingDeletion}"></i>
                     </button>
-                </div>
-            </div>
-        </div>
-    </div>
+                </c-row>
+            </c-card-footer>
+        </c-card>
+    </c-col>
     <ng-container *ngIf="metadata.type==='notebook'">
-        <div class="col-lg-4 fixed-width">
-            <div class="card">
-                <div class="card-header">
+        <c-col class="col-lg-4 fixed-width">
+            <c-card>
+                <c-card-header>
                     <span class="mb-0">Execution</span>
-                </div>
-                <div class="card-body">
+                </c-card-header>
+                <c-card-body>
                     <b>Status: {{statusText}}</b>
                     <p></p>
-                </div>
-                <div class="card-footer bg-transparent">
-                    <button class="btn btn-danger" [disabled]="sessions.length === 0"
+                </c-card-body>
+                <c-card-footer class="bg-transparent">
+                    <button cButton color="danger" [disabled]="sessions.length === 0"
                             (click)="terminateSessionModal.show()">
                         Shut Down
                     </button>
                     <div class="pull-right" role="group">
-                        <button class="btn btn-outline-primary mr-2" (click)="connectSessionModal.show()"
+                        <button cButton variant="outline" color="primary" class="me-2" (click)="connectSessionModal.show()"
                                 *ngIf="sessions.length > 0">Connect
                         </button>
-                        <button class="btn btn-primary" (click)="createKernelModal.show()" [disabled]="availableKernels.length === 0">Open</button>
+                        <button cButton color="primary" (click)="createKernelModal.show()" [disabled]="availableKernels.length === 0">Open</button>
                     </div>
-                </div>
-            </div>
-        </div>
+                </c-card-footer>
+            </c-card>
+        </c-col>
     </ng-container>
-</div>
+</c-row>
 
 <div bsModal #renameFileModal="bs-modal" class="modal" tabindex="-1" role="dialog"
      aria-labelledby="renameFileModal" aria-hidden="true">
