@@ -71,9 +71,9 @@ export class NodeComponent implements OnInit, AfterViewChecked {
     }
 
     autocompleteChange() {
-        if (this.node.initialNames.includes(this.node.tableName)) {
-            const index = this.node.initialNames.indexOf(this.node.tableName);
-            this.node.tableType = this.node.tableTypes[index];
+        if (this.node.initialNames.includes(this.node.entityName)) {
+            const index = this.node.initialNames.indexOf(this.node.entityName);
+            this.node.entityType = this.node.tableTypes[index];
             this.isView = this.node.tableTypes[index] === 'VIEW';
 
         }

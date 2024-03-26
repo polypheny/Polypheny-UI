@@ -100,8 +100,8 @@ export class Node {
 
     //parameters:
     //Scan
-    tableName: string;
-    tableType: String;
+    entityName: string;
+    entityType: String;
 
     //Join
     join = 'INNER';

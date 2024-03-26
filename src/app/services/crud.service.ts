@@ -458,7 +458,7 @@ export class CrudService {
     }
 
     /**
-     * Execute a relational algebra
+     * Execute an algebra expression
      */
     executeAlg(socket: WebSocket, relAlg: Node, cache: boolean, analyzeQuery, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?: string, timeUnit?: string) {
         let request;
@@ -470,6 +470,7 @@ export class CrudService {
             }
         } else {
             request = new RelAlgRequest(relAlg, cache, analyzeQuery);
+            console.log(request)
         }
         return socket.sendMessage(request);
     }

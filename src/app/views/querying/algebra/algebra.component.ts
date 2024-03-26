@@ -385,13 +385,13 @@ export class AlgebraComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         if (node.type === AlgType.Scan) {
-            if (node.tableName === undefined || !node.tableName.includes('\.')) {
+            if (node.entityName === undefined || !node.entityName.includes('\.')) {
                 getNode().acSchema.clear();
                 getNode().acTable.clear();
-                getNode().acSchema.add(node.tableName);
+                getNode().acSchema.add(node.entityName);
 
             } else { // node.tableName.includes('\.')
-                const tN = node.tableName.split('\.');
+                const tN = node.entityName.split('\.');
                 getNode().acSchema.clear();
                 getNode().acSchema.add(tN[0]);
                 getNode().acTable.clear();

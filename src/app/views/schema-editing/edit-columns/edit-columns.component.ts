@@ -769,7 +769,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 } else {
                     this._toast.success('Dropped placement on store ' + store.name, res.query, 'Dropped placement');
                     //this.getPlacementsAndPartitions();
-                    this.getAvailableStoresForIndexes();
+                    //this.getAvailableStoresForIndexes();
                 }
             }, error: err => {
                 this._toast.error('Could not drop placement on store ' + store.name, 'Error');

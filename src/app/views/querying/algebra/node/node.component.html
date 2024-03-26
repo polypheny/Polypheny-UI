@@ -11,10 +11,10 @@
                 <ng-autocomplete
                         id="{{node.id}}tableName"
                         [data]="node.autocomplete"
-                        [(ngModel)]="node.tableName"
+                        [(ngModel)]="node.entityName"
                         (inputChanged)="autocompleteChange()"
                         placeholder="entity.field"
-                        [searchKeyword]="node.tableName"
+                        [searchKeyword]="node.entityName"
                         [itemTemplate]="itemTemplate"
                         (click)="autocompleteChange()"
                         [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
