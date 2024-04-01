@@ -1,7 +1,10 @@
 #operatorList .rel-op:hover {
   background: rgba(0, 0, 0, 0.05);
 }
-
+.row{
+  height: calc(100vh - 130px);
+  position: relative;
+}
 .rel-op {
   cursor: grab;
 }
@@ -9,7 +12,7 @@
 #drop {
   border: 1px solid #c8ced3;
   border-radius: 0.25rem;
-  height: 1000px;
+  width: auto;
 }
 
 #drop .node, .cdk-drag-preview .node {
@@ -106,7 +109,7 @@ svg {
 #run {
   position: absolute;
   top: 1em;
-  right: 1em;
+  right: 7em;
   cursor: pointer;
   z-index: 2;
 }

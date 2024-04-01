@@ -180,7 +180,6 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         );
         this.subscriptions.add(sub);
     }
-
     treeDrop(e) {
         const id = 'node' + this.counter++;
         const x = Math.max(0, Math.min(this.dropArea.nativeElement.offsetWidth - 270, e.event.offsetX));
@@ -590,6 +589,25 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
     draggingNode(e, node: Node) {
         this.draggingNodeX = node.left + e.distance.x + document.documentElement.scrollLeft - this.scrollLeft;
         this.draggingNodeY = node.top + e.distance.y + document.documentElement.scrollTop - this.scrollTop;
+        // get max left on all nodes to take as ref to make the board bigger or not
+        let maxX=0
+        let maxY=0
+        for (const [key, value] of this.nodes.entries()) {
+            maxX=Math.max(maxX,value.left)
+            maxY=Math.max(maxY,value.top)
+        }
+        // check if the draging node has max left or right to make the board bigger or not
+        if(this.draggingNodeX >=maxX)
+        {
+            this.dropArea.nativeElement.style.minWidth = (this.draggingNodeX+node.width+400)+ 'px';
+
+        }
+
+        if(this.draggingNodeY >=maxY)
+        {
+            this.dropArea.nativeElement.style.minHeight = (this.draggingNodeY+node.height+400)+ 'px';
+
+        }
     }
 
     /**
@@ -602,10 +620,17 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         const nodeHeight = $(nodeElement).height();
         const scrollTopDistance = document.documentElement.scrollTop - this.scrollTop;
         const scrollLeftDistance = document.documentElement.scrollLeft - this.scrollLeft;
-        node.left = Math.max(0, Math.min(node.left + e.distance.x + scrollLeftDistance, this.dropArea.nativeElement.offsetWidth - nodeWidth - 4));
-        node.top = Math.max(0, Math.min(node.top + e.distance.y + scrollTopDistance, this.dropArea.nativeElement.offsetHeight - nodeHeight - 4));
+        // node.left = Math.max(0, Math.min(node.left + e.distance.x + scrollLeftDistance, this.dropArea.nativeElement.offsetWidth - nodeWidth - 4));
+        // node.top = Math.max(0, Math.min(node.top + e.distance.y + scrollTopDistance, this.dropArea.nativeElement.offsetHeight - nodeHeight - 4));
+        
+        node.left=Math.max(0,node.left + e.distance.x + scrollLeftDistance);
+        node.top= Math.max(0,node.top + e.distance.y + scrollTopDistance);
+        
+        console.log("ces")
+        console.log(node.top)
         this.draggingNodeX = undefined;
         this.draggingNodeY = undefined;
+
     }
 
     trackNode(index: number, n: Node) {
@@ -640,9 +665,16 @@ export class RelationalAlgebraComponent implements OnInit, AfterViewInit, OnDest
         const inputObj = JSON.parse(input);
         if (inputObj.nodes) {
             const importedNodes = new Map<string, Node>();
+            let maxX=0
+            let maxY=0
             for (const [k, v] of Object.entries(inputObj.nodes)) {
                 importedNodes.set(v[0], Node.fromJson(v[1], this.dropArea.nativeElement.offsetWidth, this.dropArea.nativeElement.offsetHeight));
+                maxX=Math.max(maxX,v[1].left)
+                maxY=Math.max(maxY,v[1].top)
             }
+            this.dropArea.nativeElement.style.minWidth = (maxX+400)+ 'px';
+            this.dropArea.nativeElement.style.minHeight = (maxY+400)+ 'px';
+
             this.nodes = importedNodes;
             this.counter = importedNodes.size;
         }
