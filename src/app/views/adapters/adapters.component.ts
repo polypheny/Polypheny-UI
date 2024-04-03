@@ -484,41 +484,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         }
     }
 
-    getLogo(adapterName: string) {
-        const path = 'assets/dbms-logos/';
-        switch (adapterName.toLowerCase()) {
-            case 'csv':
-                return path + 'csv.png';
-            case 'hsqldb':
-                return path + 'hsqldb.png';
-            case 'postgresql':
-                return path + 'postgres.svg';
-            case 'monetdb':
-                return path + 'monetdb.png';
-            case 'cassandra':
-                return path + 'cassandra.png';
-            case 'cottontail':
-            case 'cottontail-db':
-                return path + 'cottontaildb.png';
-            case 'file':
-                return 'fa fa-file-image-o';
-            case 'mysql':
-                return path + 'mysql.png';
-            case 'qfs':
-                return 'fa fa-folder-open-o';
-            case 'mongodb':
-                return path + 'mongodb.png';
-            case 'ethereum':
-                return path + 'ethereum.png';
-            case 'neo4j':
-                return path + 'neo4j.png';
-            case 'excel':
-                return path + 'xls.png';
-            case 'googlesheets':
-                return path + 'google.png';
-            default:
-                return 'fa fa-database';
-        }
+    getLogo(adapterLogo: string) {
+        return `${this._catalog.getHttpUrl()}/${adapterLogo}`;
     }
 
     private validateControl(form: UntypedFormControl, key: string) {

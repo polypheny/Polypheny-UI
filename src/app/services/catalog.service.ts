@@ -387,5 +387,7 @@ export class CatalogService {
         return Array.from(this.entities().values()).filter(e => e.namespaceId === namespaceId && e.name === entityName)[0];
     }
 
-
+    getHttpUrl() {
+        return this.httpUrl;
+    }
 }
