@@ -95,7 +95,7 @@ export interface ForeignKeyModel extends KeyModel {
 
 export interface ConstraintModel extends IdEntity {
     keyId: number;
-    type: string;
+    type: ConstraintType;
 }
 
 export interface AllocationEntityModel extends IdEntity {
@@ -172,6 +172,12 @@ export enum EntityType {
     SOURCE = 'SOURCE',
     VIEW = 'VIEW',
     MATERIALIZED_VIEW = 'MATERIALIZED_VIEW'
+}
+
+export enum ConstraintType {
+    UNIQUE = 'UNIQUE',
+    PRIMARY = 'PRIMARY',
+    FOREIGN = 'FOREIGN'
 }
 
 //// UTIL
