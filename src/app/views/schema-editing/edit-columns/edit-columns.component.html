@@ -337,7 +337,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                    @for (constraint of constraints(); track constraint.id; let i = $index) {
+                    @for (constraint of constraints(); track constraint.keyId; let i = $index) {
                         <tr>
                             <td>{{ constraint.name }}</td>
                             <th>{{ constraint.type }}</th>

@@ -313,6 +313,7 @@ export class CatalogService {
 
     getConstraints(entityId: number): ConstraintModel[] {
         const constraints = Array.from(this.constraints().values());
+        console.log(constraints)
         const keys = Array.from(this.keys().values()).filter(k => k.entityId === entityId).map(k => k.id);
         return constraints.filter(c => keys.includes(c.keyId));
     }

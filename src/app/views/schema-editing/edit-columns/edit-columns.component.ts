@@ -126,7 +126,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 return [];
             }
 
-
             return catalog.getConstraints(this.entity().id) || [];
         });
 
