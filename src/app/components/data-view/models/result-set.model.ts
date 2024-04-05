@@ -1,6 +1,6 @@
 import {SortState} from './sort-state.model';
 import {ColumnModel, EntityType} from '../../../models/catalog.model';
-import {DataModel} from '../../../models/ui-request.model';
+import {DataModel, Method} from '../../../models/ui-request.model';
 import {Pair} from '../../json/json-editor.component';
 
 /**
@@ -304,25 +304,43 @@ export class IndexModel {
 }
 
 export class EntityMeta {
+    namespaceId: number;
+    entityId: number;
+    entityName: string;
+    fields: number[];
+
     constructor(
         namespaceId: number,
         entityId: number,
         entityName: string,
         fields: number[] = []
     ) {
+        this.namespaceId = namespaceId;
+        this.entityId = entityId;
+        this.entityName = entityName;
+        this.fields = fields;
     }
 }
 
-export class PlacementMeta extends EntityMeta {
+export class PlacementFieldsModel {
+    namespaceId: number;
+    entityId: number;
+    adapterName: string;
+    method: Method;
+    fieldNames: string[];
+
     constructor(
         namespaceId: number,
         entityId: number,
-        entityName: string,
-        private adapterId: number,
-        private method: string,
-        fields: number[]
+        adapterName: string,
+        method: Method,
+        fieldNames: string[]
     ) {
-        super(namespaceId, entityId, entityName, fields);
+        this.namespaceId = namespaceId;
+        this.entityId = entityId;
+        this.adapterName = adapterName;
+        this.method = method;
+        this.fieldNames = fieldNames;
     }
 }
 
@@ -421,6 +439,7 @@ export class ModifyPartitionRequest {
     ) {
     }
 }
+
 
 /**
  * How a ResultSet should be displayed

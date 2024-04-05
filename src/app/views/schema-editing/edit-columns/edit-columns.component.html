@@ -535,16 +535,16 @@
                     <td>{{ _catalog.getAdapter(placement.adapterId)?.name }}</td>
                     <td>{{ _catalog.getAdapter(placement.adapterId)?.adapterName }}</td>
                     <td>
-                        <ng-container *ngFor="let p of _catalog.getAllocColumns(placement.id); let isLast = last">
-                        <span [ngClass]="{'font-weight-bold':p.placementType === PlacementType.MANUAL}">
-                            {{ _catalog.getLogicalColumn(p.id).name }}
-                        </span>
-                            {{ isLast ? '' : ', ' }}
-                        </ng-container>
+                        @for (p of _catalog.getAllocColumns(placement.id); track p.id; let isLast = $last) {
+                            <span [ngClass]="{'font-weight-bold':p.placementType === PlacementType.MANUAL}">
+                                {{ _catalog.getLogicalColumn(p.id).name }}
+                            </span> {{ isLast ? '' : ', ' }}
+                        }
                         <button cButton size="sm" class="cil-pencil ms-2 modify-placement-btn"
                                 (click)="initPlacementModal(Method.MODIFY, placement)"></button>
                     </td>
                     <td>
+
                         <ng-container
                                 *ngIf="_catalog.getAllocsOfPlacement(placement.logicalEntityId, placement.id, placement.adapterId) as partitions">
                             <span *ngIf="partitions.length === 0" class="font-italic">none</span>
@@ -554,10 +554,11 @@
                             <button cButton size="sm" class="cil-pencil ms-2 modify-placement-btn"
                                     (click)="initPartitioningModal( placement.adapterId, partitions )"></button>
                         </ng-container>
+
                     </td>
                     <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
                     <td class="delete" *ngIf="placements().length > 1">
-                        <app-delete-confirm (delete)="dropPlacement( placement.id )"></app-delete-confirm>
+                        <app-delete-confirm (delete)="dropPlacement( placement.adapterId )"></app-delete-confirm>
                     </td>
                     <!-- don't show delete icon if there is only one placement --->
                     <td *ngIf="placements().length < 2"></td>
@@ -630,31 +631,32 @@
                             [routerLink]="[]" class="text-muted" (click)="selectAllColumns(false)">deselect all</a>
                     </div>
                     <div class="form-group">
-                        <div *ngFor="let col of oldColumns() | keyvalue" class="form-check form-check-inline">
-                            <input type="checkbox" class="form-check-input" [id]="'colPlacement' + col"
-                                   [value]="col.value.id"
-                                   [formControlName]="col.value.name">
-                            <label [for]="'colPlacement'+col.value.name"
-                                   class="form-check-label">{{ col.value.name }}</label>
-                        </div>
+                        @for (col of oldColumns(); track col[1].name) {
+                            <div class="form-check form-check-inline">
+                                <input type="checkbox" class="form-check-input"
+                                       [id]="col[1].name"
+                                       [value]="col[1].name"
+                                       [formControlName]="col[1].name">
+                                <label [for]="col[1].name" class="form-check-label">{{ col[1].name }}</label>
+                            </div>
+                        }
                     </div>
 
                 </c-modal-body>
                 <c-modal-footer style="position: relative">
                     <div class="progress-wrapper" *ngIf="isAddingPlacement">
                         <c-progress>
-                            <c-progress-bar [animated]="true" color="info" [value]="0" [max]="100"
-                                            class="progress progress-bar progress-bar-striped progress-bar-animated"></c-progress-bar>
+                            <c-progress-bar [animated]="true" color="info" [value]="0" [max]="100"></c-progress-bar>
                         </c-progress>
                     </div>
-                    <button type="button" class="btn btn-secondary float-left" (click)="placementModal = false"
+                    <button cButton color="secondary" type="button" class="float-left" (click)="placementModal = false"
                             [disabled]="isAddingPlacement">Close
                     </button>
-                    <button type="submit" class="btn btn-primary" (click)="addPlacement()"
+                    <button cButton color="primary" type="submit" (click)="addPlacement()"
                             [disabled]="isAddingPlacement">{{ placementMethod | titlecase }} placement
                     </button>
                 </c-modal-footer>
-            </c-modal-content><!-- /.modal-content -->
+            </c-modal-content>
         </form>
     </c-modal>
 }

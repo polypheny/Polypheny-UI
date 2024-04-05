@@ -57,7 +57,7 @@ export class CatalogService {
     public readonly placements: WritableSignal<Map<number, AllocationPlacementModel>> = signal(new Map<number, AllocationPlacementModel>());
     public readonly partitions: WritableSignal<Map<number, AllocationPartitionModel>> = signal(new Map<number, AllocationPartitionModel>());
     public readonly allocations: WritableSignal<Map<number, AllocationEntityModel>> = signal(new Map<number, AllocationEntityModel>());
-    public readonly allocationColumns: WritableSignal<Map<number, AllocationColumnModel>> = signal(new Map());
+    public readonly allocationColumns: WritableSignal<Map<number, AllocationColumnModel[]>> = signal(new Map());
 
     public readonly adapters: WritableSignal<Map<number, AdapterModel>> = signal(new Map());
     public readonly adapterTemplates: WritableSignal<Map<string, AdapterTemplateModel>> = signal(new Map<string, AdapterTemplateModel>()); // typescript uses by reference comparisons, so this is necessary
@@ -115,7 +115,7 @@ export class CatalogService {
         this.placements.set(this.toIdMap(snapshot.placements));
         this.partitions.set(this.toIdMap(snapshot.partitions));
         this.allocations.set(this.toIdMap(snapshot.allocations));
-        this.allocationColumns.set(this.toIdMap(snapshot.allocColumns));
+        this.allocationColumns.set(this.toIdListMap(snapshot.allocColumns, alloc => alloc.placementId));
         this.adapters.set(this.toIdMap(snapshot.adapters));
         this.adapterTemplates.set(new Map(snapshot.adapterTemplates.map(t => [t.adapterName + '_' + t.adapterType, t])));
 
@@ -143,6 +143,19 @@ export class CatalogService {
 
     private toIdMap<T extends IdEntity>(idEntities: T[]) {
         return new Map(idEntities.map(n => [n.id, n]));
+    }
+
+    private toIdListMap<T extends IdEntity, D>(idEntities: T[], extract: (entity: T) => D) {
+        const map = new Map();
+        for (let idEntity of idEntities) {
+            const id = extract(idEntity);
+            if (!map.has(id)) {
+                map.set(id, [])
+            }
+            map.set(id, [idEntity, ...map.get(id)]);
+        }
+
+        return map;
     }
 
     private toNameMap<T extends IdEntity>(idEntities: T[]) {
@@ -315,7 +328,6 @@ export class CatalogService {
 
     getConstraints(entityId: number): ConstraintModel[] {
         const constraints = Array.from(this.constraints().values());
-        console.log(constraints)
         const keys = Array.from(this.keys().values()).filter(k => k.entityId === entityId).map(k => k.id);
         return constraints.filter(c => keys.includes(c.keyId));
     }
@@ -330,11 +342,7 @@ export class CatalogService {
 
 
     getAllocColumns(placemenId: number): AllocationColumnModel[] {
-        return Array.from(this.allocationColumns().values()).filter(a => a.placementId === placemenId);
-    }
-
-    getAllocColumn(id: number): AllocationColumnModel {
-        return Array.from(this.allocationColumns().values()).filter(c => c.id === id)[0];
+        return Array.from(this.allocationColumns().get(placemenId));
     }
 
     getAdapter(adapterId: number) {

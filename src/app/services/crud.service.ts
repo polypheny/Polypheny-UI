@@ -8,7 +8,7 @@ import {
     PartitionFunctionModel,
     PartitioningRequest,
     PathAccessRequest,
-    PlacementMeta
+    PlacementFieldsModel
 } from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
@@ -336,9 +336,10 @@ export class CrudService {
     /**
      * Add or drop a placement
      */
-    addDropPlacement(namespaceId: number, entityId: number, storeId: number, method: Method, columns = []) {
-        const meta = new PlacementMeta(namespaceId, entityId, null, storeId, method, columns);
-        return this._http.post(`${this.httpUrl}/addDropPlacement`, meta, this.httpOptions);
+    addDropPlacement(namespaceId: number, entityId: number, adapterName: string, method: Method, columns: string[] = []) {
+        const placementFieldsModel = new PlacementFieldsModel(namespaceId, entityId, adapterName, method, columns);
+
+        return this._http.post(`${this.httpUrl}/addDropPlacement`, placementFieldsModel, this.httpOptions);
     }
 
     /**

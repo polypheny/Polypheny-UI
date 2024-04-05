@@ -388,7 +388,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
 
     saveCol() {
-        console.log(this.updateColumn);
         if (!this._crud.nameIsValid(this.updateColumn.controls['name'].value)) {
             this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
             return;
@@ -398,7 +397,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             return;
         }
         const oldColumn = this.oldColumns().get(this.updateColumn.controls['oldName'].value);
-        console.log(oldColumn);
+
         const newColumn = new UiColumnDefinition(
             null,
             this.updateColumn.controls['name'].value,
@@ -692,20 +691,21 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     initPlacementModal(method: Method, placement: AllocationPlacementModel) {
-        let store;
-        const preselect = this._catalog.getAllocColumns(placement.id);
+        const preselect = placement ? this._catalog.getAllocColumns(placement.id) : [];
         this.placementMethod = method;
 
-        store = <AdapterModel>this._catalog.getAdapter(placement.adapterId);
-        this.selectedStore = store;
+        if (placement) {
+            this.selectedStore = this._catalog.getAdapter(placement.adapterId);
+        }
 
         if (!this.selectedStore) {
             return;
         }
         this.columnPlacement = new UntypedFormGroup({});
+
         this.oldColumns().forEach((v, k) => {
             let state = true;
-            if (preselect.length > 0 && !preselect.some(e => e.name === v.name && e.placementType === PlacementType.MANUAL)) {
+            if (preselect.length > 0 && !preselect.some(e => e.id === v.id)) {
                 state = false;
             }
             this.columnPlacement.addControl(v.name, new UntypedFormControl(state));
@@ -731,17 +731,16 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             }
         }
         this.isAddingPlacement = true;
-        this._crud.addDropPlacement(this.namespace().id, this.entity().id, this.selectedStore.id, this.placementMethod, cols).subscribe({
+        this._crud.addDropPlacement(this.namespace().id, this.entity().id, this.selectedStore.name, this.placementMethod, cols).subscribe({
             next: (res: RelationalResult) => {
                 if (res.error) {
                     this._toast.exception(res);
                 } else {
-                    if (this.placementMethod === 'ADD') {
+                    if (this.placementMethod === Method.ADD) {
                         this._toast.success('Added placement on store ' + this.selectedStore.name, res.query, 'Added placement');
-                    } else if (this.placementMethod === 'MODIFY') {
+                    } else if (this.placementMethod === Method.MODIFY) {
                         this._toast.success('Modified placement on store ' + this.selectedStore.name, res.query, 'Modified placement');
                     }
-                    //this._catalog.updateIfNecessary();
                 }
                 this.selectedStore = null;
             }, error: err => {
@@ -755,7 +754,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     dropPlacement(adapterId: number) {
         const store = <AdapterModel>this._catalog.getAdapter(adapterId);
-        this._crud.addDropPlacement(this.namespace().id, this.entity().id, store.id, Method.DROP).subscribe({
+        this._crud.addDropPlacement(this.namespace().id, this.entity().id, store.name, Method.DROP).subscribe({
             next: (res: RelationalResult) => {
                 if (res.error) {
                     this._toast.exception(res);
@@ -863,7 +862,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 if (!res.error) {
                     this.partitioningModal = false;
                     this._toast.success('Modified partitions');
-                    console.log(res.query);
                 } else {
                     this._toast.exception(res);
                     console.log(res.query);
@@ -877,8 +875,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     initPartitioningModal(adapterId: number, partitions: AllocationPartitionModel[]) {
         const store = <AdapterModel>this._catalog.getAdapter(adapterId);
         this.partitionsToModify = [];
-
-        console.log(this.partitions());
 
         const selectedPartId = partitions.map(p => p.id);
         for (const [i, partition] of this.partitions().entries()) {
@@ -929,7 +925,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
         if (this.newIndexForm.valid && newCols.length > 0 && this.selectedStoreForIndex != null) {
             const i = this.newIndexForm.value;
-            console.log(i.method);
             const index = new IndexModel(this.namespace().id, this.entity().id, i.name, this.selectedStoreForIndex.name, i.method, newCols);
             this.addingIndex = true;
             this._crud.createIndex(index).subscribe({
