@@ -84,7 +84,9 @@ export class CatalogService {
     private initWebsocket(id: string, websocket: WebSocket) {
         websocket.onMessage().subscribe({
             next: (snapshot: LogicalSnapshotModel) => {
-                this.updateSnapshot(snapshot);
+                if (snapshot) {
+                    this.updateSnapshot(snapshot);
+                }
             }
         });
     }

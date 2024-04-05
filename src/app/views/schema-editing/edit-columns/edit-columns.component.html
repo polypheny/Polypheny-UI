@@ -341,7 +341,7 @@
                         <tr>
                             <td>{{ constraint.name }}</td>
                             <th>{{ constraint.type }}</th>
-                            <td *ngFor="let d2 of getColumnsOfKey(constraint)()">{{ d2 }}</td>
+                            <td>{{ getColumnsOfKey(constraint)() }}</td>
                             <td class="delete">
                                 @if (constraint.type !== ConstraintType.PRIMARY) {
                                     <app-delete-confirm (delete)="dropConstraint(constraint.id)"></app-delete-confirm>

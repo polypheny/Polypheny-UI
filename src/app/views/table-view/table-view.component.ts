@@ -42,11 +42,9 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
     ngOnInit() {
         super.ngOnInit();
 
-        //this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);
         const sub = this.webSocket.reconnecting.subscribe(
             b => {
                 if (b) {
-                    //this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);
                     this.getEntityData();
                 }
             }
