@@ -106,9 +106,16 @@ export class ViewComponent {
 
             if (doExecute) {
                 this.executeQuery(fullQuery)
-                    .then(() => {
-                        this.$showView.set(false);
-                        this._toast.success((this.$type() === ViewType.MATERIALIZED ? 'Materialized View "' : 'View "') + this.$viewName() + '" has been created successfully.', "Successfully Created View");
+                    .then(res => {
+                        if (res && res[0] && res[0].hasOwnProperty('error')) {
+                            this._toast.error(res[0]['error'])
+                            this.$showView.set(false);
+                        } else {
+                            this.$showView.set(false);
+                            this._toast.success((this.$type() === ViewType.MATERIALIZED ? 'Materialized View "' : 'View "') + this.$viewName() + '" has been created successfully.', "Successfully Created View");
+                        }
+
+
                     }).catch(reason => {
                         this._toast.error(reason)
                         this.$showView.set(false);
