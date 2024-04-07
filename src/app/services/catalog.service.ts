@@ -103,6 +103,10 @@ export class CatalogService {
     }
 
     private updateSnapshot(snapshot: LogicalSnapshotModel) {
+        if (snapshot && (this.snapshot && this.snapshot.id === snapshot.id)) {
+            return;
+        }
+
         this.snapshot = snapshot;
 
         this.namespaces.set(this.toIdMap(snapshot.namespaces));

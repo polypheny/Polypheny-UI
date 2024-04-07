@@ -141,7 +141,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this._leftSidebar.close();
         this.subscriptions.unsubscribe();
-        this.websocket.close();
+        this.websocket.close(); // closes the websocket to the information manager so cleanup info pages
         this._breadcrumb.hide();
         window.onbeforeunload = null;
         window.onkeydown = null;
