@@ -1,6 +1,5 @@
 <div id="tree-outer-wrapper" class="schema-editing d-flex flex-column h-100 w-100 gap-2 overflow-x-hidden">
     <div class="d-flex">
-
         <c-input-group>
             <button cButton color="light" cInputGroupText id="basic-addon1" *ngIf="isExpandAndCollapseShown()">
                 <span (click)="collapseAll()" id="collapse">
@@ -14,12 +13,15 @@
                 </span>
             </button>
         </c-input-group>
-        <button cButton class="sidebar-toggle text-white border-0 cil-menu" *ngIf="!_sidebar.isVisible()" size="sm"
-                (click)="_sidebar.toggle()"></button>
-        <button cButton class="sidebar-toggle text-white border-0 open cil-x" (click)="_sidebar.toggle()"></button>
+        @if (sidebarAvailable()) {
+            <button cButton class="sidebar-toggle text-white border-0 cil-menu" *ngIf="!_sidebar.isVisible()" size="sm"
+                    (click)="_sidebar.toggle()"></button>
+            <button cButton class="sidebar-toggle text-white border-0 open cil-x" (click)="_sidebar.toggle()"></button>
+        }
     </div>
 
-    <div class="w-100 text-center flex-grow-1 d-flex align-items-center" *ngIf="this._catalog.state() !== CatalogState.UP_TO_DATE">
+    <div class="w-100 text-center flex-grow-1 d-flex align-items-center"
+         *ngIf="this._catalog.state() !== CatalogState.UP_TO_DATE">
         <c-spinner aria-hidden="true" size="xl" class="mx-auto"></c-spinner>
     </div>
     <c-button-group *ngIf="buttons.length > 0" role="group" class="ps-0">
@@ -30,7 +32,7 @@
     </c-button-group>
 
     <span *ngIf="error">
-        {{error}}
+        {{ error }}
     </span>
     <div id="tree-inner-wrapper"
          [classList]="this._catalog.state() === CatalogState.UP_TO_DATE ? 'flex-grow-1 overflow-y-hidden h-100' : 'flex-grow-0' ">

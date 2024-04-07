@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, inject, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, computed, inject, OnInit, Signal, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
 import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
@@ -19,6 +19,8 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
     private readonly _router = inject(Router);
     public readonly _sidebar = inject(LeftSidebarService);
     public readonly _catalog = inject(CatalogService);
+
+    public readonly sidebarAvailable: Signal<boolean>;
 
     constructor() {
         this.router = this._router;
@@ -61,6 +63,10 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
                 this.error = error;
             }
         );
+
+        this.sidebarAvailable = computed(() => {
+            return this.buttons.length > 0 || this.error || this.nodes.length > 0
+        })
     }
 
     static readonly EXPAND_SHOWN_ROUTES: String[] = [
