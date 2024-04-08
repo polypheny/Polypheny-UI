@@ -1,0 +1,32 @@
+name: Publish refactor to DBIS Nexus
+
+on:
+  push:
+    branches:
+      - refactor
+
+jobs:
+  publish:
+    if: ${{ github.repository_owner == 'polypheny' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+      - name: Build with Gradle
+        run: ./gradlew --no-daemon build generatePom
+      - name: Publish JAR to DBIS Nexus
+        uses: sonatype-nexus-community/nexus-repo-github-action@master
+        with:
+          serverUrl: https://dbis-nexus.dmi.unibas.ch/
+          username: ${{ secrets.DBIS_NEXUS_USERNAME }}
+          password: ${{ secrets.DBIS_NEXUS_PASSWORD }}
+          format: maven2
+          repository: maven-snapshots
+          coordinates: groupId=org.polypheny artifactId=polypheny-ui version=2.0-SNAPSHOT
+          assets: extension=jar
+          filename: ./build/libs/polypheny-ui-2.0-SNAPSHOT.jar

@@ -1,23 +1,22 @@
-import {EventEmitter, Injectable} from '@angular/core';
+import {EventEmitter, inject, Injectable} from '@angular/core';
 import {CrudService} from './crud.service';
 import {PolyType} from '../components/data-view/models/result-set.model';
-import {ToastService} from '../components/toast/toast.service';
+import {ToasterService} from '../components/toast-exposer/toaster.service';
 import {from} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class DbmsTypesService {
+    private readonly _crud = inject(CrudService);
+    private readonly _toast = inject(ToasterService);
 
-    constructor(
-        private _crud: CrudService,
-        private _toast: ToastService
-    ) {
+    constructor() {
         this.fetchTypes();
         this.fetchFkActions();
     }
 
-    private numericArray = ['int2', 'int4', 'int8', 'integer', 'bigint', 'smallint', 'float', 'float4', 'float8', 'double'];
+    private numericArray = ['int2', 'int4', 'int8', 'integer', 'bigint', 'smallint', 'float', 'float4', 'float8', 'double', 'bigint'];
     private booleanArray = ['bool', 'boolean'];
     private dateTimeArray = ['date', 'time', 'timestamp'];
     private multimediaArray = ['file', 'image', 'video', 'audio'];
@@ -34,10 +33,9 @@ export class DbmsTypesService {
      * Fetches all supported data types of the DBMS.
      */
     private fetchTypes() {
-        this._crud.getTypeInfo().subscribe(
-            res => {
-                const result = <PolyType[]>res;
-                if (result == undefined) {
+        this._crud.getTypeInfo().subscribe({
+            next: (result: PolyType[]) => {
+                if (!result) {
                     this._toast.error('Could not retrieve DBMS types.');
                     return;
                 }
@@ -52,10 +50,10 @@ export class DbmsTypesService {
                 });
                 this.types.next(result);
                 this._types = result;
-            }, err => {
+            }, error: err => {
                 this._toast.error('Could not retrieve DBMS types.');
             }
-        );
+        });
 
     }
 
@@ -63,14 +61,14 @@ export class DbmsTypesService {
      * Fetch available actions for foreign key constraints
      */
     private fetchFkActions() {
-        this._crud.getFkActions().subscribe(
-            res => {
+        this._crud.getFkActions().subscribe({
+            next: res => {
                 this.foreignKeyActions.next(res);
                 this.fetchedFkActions = res;
-            }, err => {
+            }, error: err => {
                 this._toast.error('Could not retrieve DBMS foreign key actions.');
             }
-        );
+        });
     }
 
     /**
@@ -88,7 +86,7 @@ export class DbmsTypesService {
      * @return EventEmitter with the available DBMS data types
      */
     getTypes() {
-        this.fetchTypes();
+        this.fetchTypes(); //this was not even finished for the return
         return this.types;
     }
 
@@ -199,11 +197,11 @@ export class DbmsTypesService {
         }
     }
 
-    isDocument(namespaceType: string) {
-        return namespaceType.toLowerCase() === 'document';
+    isDocument(dataModel: string) {
+        return dataModel.toLowerCase() === 'document';
     }
 
-    isGraph(namespaceType: string) {
-        return namespaceType.toLowerCase() === 'graph';
+    isGraph(dataModel: string) {
+        return dataModel.toLowerCase() === 'graph';
     }
 }

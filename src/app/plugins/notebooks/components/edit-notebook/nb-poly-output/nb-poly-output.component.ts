@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ResultSet} from '../../../../../components/data-view/models/result-set.model';
-import {TableConfig} from '../../../../../components/data-view/data-table/table-config';
+import {EntityConfig} from '../../../../../components/data-view/data-table/entity-config';
+import {Result} from '../../../../../components/data-view/models/result-set.model';
 
 @Component({
     selector: 'app-db-poly-output',
@@ -9,11 +9,11 @@ import {TableConfig} from '../../../../../components/data-view/data-table/table-
 })
 export class NbPolyOutputComponent implements OnInit {
 
-    @Input() resultSet: ResultSet;
+    @Input() resultSet: Result<any, any>;
     @Input() resultVariable: string;
     @Input() resultIsTooLong: boolean;
 
-    tableConfig: TableConfig = {
+    tableConfig: EntityConfig = {
         create: false,
         update: false,
         delete: false,

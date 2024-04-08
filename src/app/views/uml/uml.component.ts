@@ -1,13 +1,13 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CrudService} from '../../services/crud.service';
-import {DataModels, EditTableRequest, SchemaRequest} from '../../models/ui-request.model';
+import {DataModel, EditTableRequest} from '../../models/ui-request.model';
 import {DbTable, ForeignKey, SvgLine, Uml} from './uml.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
-import {FormBuilder} from '@angular/forms';
-import {ToastDuration, ToastService} from '../../components/toast/toast.service';
-import {DbColumn, ResultSet} from '../../components/data-view/models/result-set.model';
+import {UntypedFormBuilder} from '@angular/forms';
+import {ToastDuration, ToasterService} from '../../components/toast-exposer/toaster.service';
+import {RelationalResult, UiColumnDefinition} from '../../components/data-view/models/result-set.model';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -19,6 +19,14 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 })
 
 export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
+
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _router = inject(Router);
+    public readonly _crud = inject(CrudService);
+    private readonly _leftSidebar = inject(LeftSidebarService);
+    private readonly _formBuilder = inject(UntypedFormBuilder);
+    private readonly _toast = inject(ToasterService);
+    private readonly _dbmsTypes = inject(DbmsTypesService);
 
     uml: Uml;
     temporalLine: SvgLine;
@@ -50,15 +58,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     schemaType = '';
 
 
-    constructor(
-        private _route: ActivatedRoute,
-        private _router: Router,
-        public _crud: CrudService,
-        private _leftSidebar: LeftSidebarService,
-        private _formBuilder: FormBuilder,
-        private _toast: ToastService,
-        private _dbmsTypes: DbmsTypesService
-    ) {
+    constructor() {
         this._dbmsTypes.getFkActions().subscribe(
             types => {
                 this.fkActions = types;
@@ -82,12 +82,12 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
         const sub = this._crud.onReconnection().subscribe(
             b => {
                 if (b) {
-                    this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', false, 1, true, false, [DataModels.RELATIONAL]), this._router);
+                    this._leftSidebar.setSchema(this._router, '/views/uml/', false, 1, true, false, [DataModel.RELATIONAL]);
                 }
             }
         );
         this.subscriptions.add(sub);
-        this._leftSidebar.setSchema(new SchemaRequest('/views/uml/', true, 1, true, false, [DataModels.RELATIONAL]), this._router);
+        this._leftSidebar.setSchema(this._router, '/views/uml/', true, 1, true, false, [DataModel.RELATIONAL]);
     }
 
     ngAfterViewInit() {
@@ -108,34 +108,33 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
             this._leftSidebar.reset();
             return;
         }
-        this._crud.getUml(new EditTableRequest(this.schema)).subscribe(
-            res => {
+        this._crud.getUml(new EditTableRequest(this.schema)).subscribe({
+            next: (uml: Uml) => {
                 this.errorMsg = null;
-                const uml: Uml = <Uml>res;
                 this.uml = new Uml(uml.tables, uml.foreignKeys);
                 this.mapConnections();
-            }, err => {
+            }, error: err => {
                 this.errorMsg = 'Could not connect with the server.';
             }
-        );
+        });
     }
 
     getGeneratedNames() {
-        this._crud.getGeneratedNames().subscribe(
-            res => {
-                const names = <ResultSet>res;
+        this._crud.getGeneratedNames().subscribe({
+            next: res => {
+                const names = <RelationalResult>res;
                 if (!names.error) {
                     this.proposedConstraintName = names.data[0][1];
                 } else {
                     console.log(names.error);
                 }
-            }, err => {
+            }, error: err => {
                 console.log(err);
             }
-        );
+        });
     }
 
-    getColumnClass(table: DbTable, col: DbColumn) {
+    getColumnClass(table: DbTable, col: UiColumnDefinition) {
         if (table.primaryKeyFields.indexOf(col.name) > -1) {
             return 'bg-primary pk';
         } else if (table.uniqueColumns.indexOf(col.name) > -1) {
@@ -289,17 +288,17 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
             this._toast.warn(this._crud.invalidNameMessage('constraint'), 'invalid constraint name', ToastDuration.INFINITE);
             return;
         }
-        const fk: ForeignKey = new ForeignKey(this.constraintName, this.schema, this.sourceTable, this.sourceCol, this.targetTable, this.targetCol)
+        const fk: ForeignKey = new ForeignKey(-1, this.constraintName, this.schema, this.sourceTable, this.sourceCol, this.targetTable, this.targetCol)
             .updateAction(this.fkForm.value.update).deleteAction(this.fkForm.value.delete);
 
-        this._crud.addForeignKey(fk).subscribe(
-            res => {
+        this._crud.createForeignKey(fk).subscribe({
+            next: res => {
                 this.closeModal();
-                const result = <ResultSet>res;
+                const result = <RelationalResult>res;
                 if (result.error) {
                     this._toast.exception(result, null, null, ToastDuration.INFINITE);
-                } else if (result.affectedRows === 1) {
-                    this._toast.success('new foreign key was created', result.generatedQuery);
+                } else if (result.affectedTuples === 1) {
+                    this._toast.success('new foreign key was created', result.query);
                     // this.getUml();
                     // this.connectTables();
                     const fkTable = fk.sourceTable.substr(fk.sourceTable.indexOf('.') + 1, fk.sourceTable.length);
@@ -311,11 +310,11 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.constraintName = '';
                     this.getGeneratedNames();
                 }
-            }, err => {
+            }, error: err => {
                 this.closeModal();
                 this._toast.error('An unknown error occurred on the server');
             }
-        );
+        });
     }
 
 }

@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {FilteredUserInput, StatisticSet} from '../../../../components/data-view/models/result-set.model';
 import {StatisticRequest} from '../../../../models/ui-request.model';
 import {CrudService} from '../../../../services/crud.service';
-import {ToastService} from '../../../../components/toast/toast.service';
+import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 
 @Component({
     selector: 'app-refinement-options',
@@ -12,6 +12,9 @@ import {ToastService} from '../../../../components/toast/toast.service';
 
 export class RefinementOptionsComponent implements OnInit {
 
+    private readonly _crud = inject(CrudService);
+    private readonly _toast = inject(ToasterService);
+
     activeHeaders: {};
     statisticSet: StatisticSet;
     filteredUserInput: FilteredUserInput;
@@ -20,10 +23,7 @@ export class RefinementOptionsComponent implements OnInit {
     active: String;
     @Output() filteredUserInputChange = new EventEmitter();
 
-    constructor(
-        private _crud: CrudService,
-        private _toast: ToastService
-    ) {
+    constructor() {
     }
 
     ngOnInit() {
@@ -63,14 +63,14 @@ export class RefinementOptionsComponent implements OnInit {
      * get filter statistics form data sets
      */
     getStatistic() {
-        this._crud.allStatistics(new StatisticRequest()).subscribe(
-            res => {
+        this._crud.allStatistics(new StatisticRequest()).subscribe({
+            next: res => {
                 this.prepareStatisticSet(<StatisticSet>res);
                 this.stylingSet = res;
-            }, err => {
+            }, error: err => {
                 this._toast.error('Unknown error on the server.');
             }
-        );
+        });
     }
 
     /**

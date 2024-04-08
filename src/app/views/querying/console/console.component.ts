@@ -1,11 +1,20 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {FormBuilder} from '@angular/forms';
-import {TableConfig} from '../../../components/data-view/data-table/table-config';
+import {
+    Component,
+    effect,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+    untracked,
+    ViewChild,
+    WritableSignal
+} from '@angular/core';
+import {EntityConfig} from '../../../components/data-view/data-table/entity-config';
 import {CrudService} from '../../../services/crud.service';
-import {ResultSet} from '../../../components/data-view/models/result-set.model';
+import {RelationalResult, Result} from '../../../components/data-view/models/result-set.model';
 import {QueryHistory} from './query-history.model';
 import {KeyValue} from '@angular/common';
-import {QueryRequest, SchemaRequest} from '../../../models/ui-request.model';
+import {QueryRequest} from '../../../models/ui-request.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {InformationObject, InformationPage} from '../../../models/information-page.model';
@@ -15,14 +24,10 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
 import {WebSocket} from '../../../services/webSocket';
-import {BsModalService} from 'ngx-bootstrap/modal';
-import {ToastService} from '../../../components/toast/toast.service';
+import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {ViewInformation} from '../../../components/data-view/data-view.component';
-
-class Namespace {
-    name: string;
-    id: string;
-}
+import {CatalogService} from '../../../services/catalog.service';
+import {NamespaceModel} from '../../../models/catalog.model';
 
 @Component({
     selector: 'app-console',
@@ -31,15 +36,24 @@ class Namespace {
 })
 export class ConsoleComponent implements OnInit, OnDestroy {
 
+    private readonly _crud = inject(CrudService);
+    private readonly _leftSidebar = inject(LeftSidebarService);
+    private readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _settings = inject(WebuiSettingsService);
+    public readonly _util = inject(UtilService);
+    public readonly _toast = inject(ToasterService);
+    public readonly _catalog = inject(CatalogService);
+    private readonly _sidebar = inject(LeftSidebarService);
+
     @ViewChild('editor', {static: false}) codeEditor;
     @ViewChild('historySearchInput') historySearchInput;
 
     history: Map<string, QueryHistory> = new Map<string, QueryHistory>();
-    readonly MAX_HISTORY = 50;//maximum items in history
+    readonly MAX_HISTORY = 50; //maximum items in history
     private readonly LOCAL_STORAGE_HISTORY_KEY = 'query-history';
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
 
-    resultSets: ResultSet[];
+    results: WritableSignal<Result<any, any>[]> = signal([]);
     collapsed: boolean[];
     queryAnalysis: InformationPage;
     analyzeQuery = true;
@@ -48,16 +62,16 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     showingAnalysis = false;
     websocket: WebSocket;
     private subscriptions = new Subscription();
-    loading = false;
-    lang = 'sql';
+    readonly loading: WritableSignal<boolean> = signal(false);
+    readonly language: WritableSignal<string> = signal('sql');
     saveInHistory = true;
     showSearch = false;
     historySearchQuery = '';
     confirmDeletingHistory;
-    activeNamespace: string;
-    namespaces = [];
+    readonly activeNamespace: WritableSignal<string> = signal(null);
+    readonly namespaces: WritableSignal<NamespaceModel[]> = signal([]);
 
-    tableConfig: TableConfig = {
+    entityConfig: EntityConfig = {
         create: false,
         update: false,
         delete: false,
@@ -65,22 +79,11 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         search: false,
         exploring: false
     };
-    private existingNamespaces: String[];
     showNamespaceConfig: boolean;
 
-    constructor(
-        private formBuilder: FormBuilder,
-        private _crud: CrudService,
-        private _leftSidebar: LeftSidebarService,
-        private _breadcrumb: BreadcrumbService,
-        private _settings: WebuiSettingsService,
-        public _util: UtilService,
-        public modalService: BsModalService,
-        public _toast: ToastService
-    ) {
-
-        this.websocket = new WebSocket(_settings);
-
+    constructor() {
+        this.websocket = new WebSocket();
+        this._sidebar.close();
         // @ts-ignore
         if (window.Cypress) {
             (<any>window).executeQuery = (query: string) => {
@@ -90,6 +93,23 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         }
 
         this.initWebsocket();
+
+        effect(() => {
+            const namespace = this._catalog.namespaces();
+            untracked(() => {
+                this.namespaces.set(Array.from(namespace.values()));
+                this.loadAndSetNamespaceDB();
+            });
+        });
+
+        effect(() => {
+            const res = this.results();
+
+            untracked(() => {
+                this.collapsed = new Array(res.length);
+                this.collapsed.fill(false);
+            })
+        });
     }
 
 
@@ -97,39 +117,31 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         QueryHistory.fromJson(localStorage.getItem(this.LOCAL_STORAGE_HISTORY_KEY), this.history);
         this._breadcrumb.hide();
 
-        this.updateExistingNamespaces();
         this.loadAndSetNamespaceDB();
     }
 
-    private updateExistingNamespaces() {
-        this._crud.getSchema(new SchemaRequest('views/querying/console/', false, 1, false)).subscribe(
-            res => {
-                this.namespaces = [];
-                for (const namespace of <Namespace[]>res) {
-                    this.namespaces.push(namespace.name);
-                }
-
-                this.loadAndSetNamespaceDB();
-            }
-        );
-    }
-
     private loadAndSetNamespaceDB() {
-        let db = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
-        if (db === null || (this.namespaces && this.namespaces.length > 0 && !this.namespaces.includes(db))) {
-            if (this.namespaces && this.namespaces.length > 0) {
-                db = this.namespaces[0];
+        let namespaceName = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
+
+        if (namespaceName === null || (this.namespaces && this.namespaces.length > 0 && (this.namespaces().filter(n => n.name === namespaceName).length === 0))) {
+            if (this.namespaces() && this.namespaces().length > 0) {
+                namespaceName = this.namespaces()[0].name;
             } else {
-                db = 'public';
+                namespaceName = 'public';
             }
         }
-        this.setDefaultDB(db);
+        if (!namespaceName) {
+            return;
+        }
+        this.activeNamespace.set(namespaceName);
+
+        this.storeNamespace(namespaceName);
     }
 
     ngOnDestroy() {
         this._leftSidebar.close();
         this.subscriptions.unsubscribe();
-        this.websocket.close();
+        this.websocket.close(); // closes the websocket to the information manager so cleanup info pages
         this._breadcrumb.hide();
         window.onbeforeunload = null;
         window.onkeydown = null;
@@ -142,32 +154,27 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             return;
         }
         if (this.saveInHistory) {
-            this.addToHistory(code, this.lang);
+            this.addToHistory(code, this.language());
         }
-        if (this.usesAdvancedConsole(this.lang)) { // maybe adjust
+        if (this.usesAdvancedConsole(this.language())) { // maybe adjust
             const matchGraph = code.toLowerCase().match('use graph [a-zA-Z][a-zA-Z0-1]*');
             if (matchGraph !== null && matchGraph.length >= 0) {
-                const database = matchGraph[matchGraph.length - 1].replace('use ', '');
-                this.setDefaultDB(database);
+                const namespace = matchGraph[matchGraph.length - 1].replace('use ', '');
+                this.activeNamespace.set(namespace);
             }
 
             const match = code.toLowerCase().match('use [a-zA-Z][a-zA-Z0-1]*');
             if (match !== null && match.length >= 0) {
-                const database = match[match.length - 1].replace('use ', '');
-                if (database !== 'placement') {
-                    this.setDefaultDB(database);
+                const namespace = match[match.length - 1].replace('use ', '');
+                if (namespace !== 'placement') {
+                    this.activeNamespace.set(namespace);
                 }
             }
 
 
             if (code.match('show db')) {
-                this._crud.getDocumentDatabases().subscribe(res => {
-                    this.existingNamespaces = [];
-                    for (const entry of (<ResultSet>res).data) {
-                        this.existingNamespaces.push(entry[0]);
-                    }
-                    this.loading = false;
-                    this.resultSets = [<ResultSet>res];
+                this._catalog.updateIfNecessary().subscribe(catalog => {
+                    this.loading.set(false);
                 });
                 return;
             }
@@ -182,10 +189,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         }
         this.queryAnalysis = null;
 
-        this.loading = true;
-        if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.lang, this.activeNamespace))) {
-            this.loading = false;
-            this.resultSets = [new ResultSet('Could not establish a connection with the server.', code)];
+        this.loading.set(true);
+        if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.language(), this.activeNamespace()))) {
+            this.loading.set(false);
+            this.results.set([new RelationalResult('Could not establish a connection with the server.')]);
         }
     }
 
@@ -210,7 +217,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     applyHistory(query: string, lang: string, run: boolean) {
-        this.lang = lang;
+        this.language.set(lang);
         this.codeEditor.setCode(query);
         if (run) {
             this.submitQuery();
@@ -259,9 +266,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             const split = node.data.routerLink.split('/');
             const analyzerId = split[0];
             const analyzerPage = split[1];
-            if (analyzerId !== undefined && analyzerPage !== undefined) {
-                this._crud.getAnalyzerPage(analyzerId, analyzerPage).subscribe(
-                    res => {
+            if (analyzerId && analyzerPage) {
+                this._crud.getAnalyzerPage(analyzerId, analyzerPage).subscribe({
+                    next: res => {
+                        console.log(res);
                         this.queryAnalysis = <InformationPage>res;
                         this.showingAnalysis = true;
                         this._breadcrumb.setBreadcrumbs([new BreadcrumbItem(node.data.name)]);
@@ -269,16 +277,15 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                             this._breadcrumb.hideZoom();
                         }
                         node.setIsActive(true);
-                    }, err => {
+                    }, error: err => {
                         console.log(err);
                     }
-                );
+                });
             }
         };
 
-        const sub = this.websocket.onMessage().subscribe(
-            msg => {
-
+        const sub = this.websocket.onMessage().subscribe({
+            next: msg => {
                 //if msg contains nodes of the sidebar
                 if (Array.isArray(msg) && msg[0].hasOwnProperty('routerLink')) {
                     const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
@@ -299,25 +306,19 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                     }
 
                     sidebarNodes.unshift(new SidebarNode('console', 'console', 'fa fa-keyboard-o').setAction(nodeBehavior));
+
                     this._leftSidebar.setNodes(sidebarNodes);
                     if (sidebarNodes.length > 0) {
                         this._leftSidebar.open();
                     } else {
                         this._leftSidebar.close();
                     }
-                }
 
+                } else if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSets
+                    this.loading.set(false);
+                    this.results.set(<Result<any, any>[]>msg);
 
-                // array of ResultSets
-                else if (Array.isArray(msg) && (msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedRows') || msg[0].hasOwnProperty('error'))) {
-                    this.loading = false;
-                    this.resultSets = <ResultSet[]>msg;
-                    this.collapsed = new Array(this.resultSets.length);
-                    this.collapsed.fill(false);
-                }
-
-                //if msg contains a notification of a changed information object
-                else if (msg.hasOwnProperty('type')) {
+                } else if (msg.hasOwnProperty('type')) { //if msg contains a notification of a changed information object
                     const iObj = <InformationObject>msg;
                     if (this.queryAnalysis) {
                         const group = this.queryAnalysis.groups[iObj.groupId];
@@ -327,12 +328,13 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                     }
                 }
             },
-            err => {
+            error: err => {
                 //this._leftSidebar.setError('Lost connection with the server.');
                 setTimeout(() => {
                     this.initWebsocket();
                 }, +this._settings.getSetting('reconnection.timeout'));
-            });
+            }
+        });
         this.subscriptions.add(sub);
     }
 
@@ -382,22 +384,16 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     parse(code: string) {
-        console.log(code);
         const formatted = JSON.stringify(JSON.parse('[' + code + ']'), null, 4);
         return formatted.substring(1, formatted.length - 1);
     }
 
-    private setDefaultDB(name: string) {
-        name = name.trim();
-        if (!this.namespaces.includes(name)) {
-            this.namespaces.push(name);
-        }
-
-        this.activeNamespace = name;
+    private storeNamespace(name: string) {
         localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
     }
 
     toggleCollapsed(i: number) {
+        console.log(i)
         if (this.collapsed !== undefined && this.collapsed[i] !== undefined) {
             this.collapsed[i] = !this.collapsed[i];
         }
@@ -428,7 +424,12 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.showNamespaceConfig = !this.showNamespaceConfig;
     }
 
-    changedDefaultDB() {
-        this.setDefaultDB(this.activeNamespace);
+    changedDefaultDB(n) {
+        console.log(n);
+        this.activeNamespace.set(n);
+    }
+
+    setLanguage(language) {
+        this.language.set(language);
     }
 }

@@ -1,21 +1,22 @@
-import {Subject} from 'rxjs';
-import {EventEmitter} from '@angular/core';
+import {BehaviorSubject, Subject} from 'rxjs';
+import {inject} from '@angular/core';
 import {WebuiSettingsService} from './webui-settings.service';
-import {webSocket} from 'rxjs/webSocket';
+import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
 
 export class WebSocket {
-    private socket;
-    connected = false;
-    private msgSubject = new Subject();
-    private reconnected = new EventEmitter<boolean>();
+    public readonly _settings = inject(WebuiSettingsService);
+    private socket: WebSocketSubject<string>;
+    public readonly connected = new BehaviorSubject(false);
+    private readonly msgSubject: Subject<any> = new Subject();
+    public readonly reconnecting = new Subject<boolean>();
 
-    constructor(private _settings: WebuiSettingsService) {
+    constructor() {
         this.initWebSocket(false);
         setInterval(() => {
             if (this.connected) {
                 this.socket.next('keepalive');
             }
-        }, 10_000);
+        }, +this._settings.getSetting('reconnection.timeout'));
     }
 
     private initWebSocket(reconnect: boolean) {
@@ -23,37 +24,34 @@ export class WebSocket {
             url: this._settings.getConnection('crud.socket'),
             openObserver: {
                 next: (n) => {
-                    this.connected = true;
+                    this.connected.next(true);
                     if (reconnect) {
-                        this.reconnected.emit(true);
+                        this.reconnecting.next(true);
                     }
                 }
             }
         });
-        this.socket.subscribe(
-            msg => {
+        this.socket.subscribe({
+            next: msg => {
                 this.msgSubject.next(msg);
             },
-            err => {
-                this.connected = false;
+            error: err => {
+                console.log(err);
+                this.connected.next(false);
                 setTimeout(() => {
                     this.initWebSocket(true);
                 }, +this._settings.getSetting('reconnection.timeout'));
             }
-        );
+        });
     }
 
     sendMessage(obj: any): boolean {
         this.socket.next(obj);
-        return this.connected;
+        return this.connected.value;
     }
 
     onMessage() {
-        return this.msgSubject.pipe();
-    }
-
-    onReconnect() {
-        return this.reconnected;
+        return this.msgSubject;
     }
 
     close() {

@@ -1,7 +1,5 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NotebooksService} from '../services/notebooks.service';
-import {ToastService} from '../../../components/toast/toast.service';
-import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {
     ActivatedRoute,
     ActivatedRouteSnapshot,
@@ -20,6 +18,7 @@ import {KernelSpec, KernelSpecs, SessionResponse} from '../models/notebooks-resp
 import {LoadingScreenService} from '../../../components/loading-screen/loading-screen.service';
 import {ComponentCanDeactivate} from '../services/unsaved-changes.guard';
 import {EditNotebookComponent} from './edit-notebook/edit-notebook.component';
+import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 
 @Component({
     selector: 'app-notebooks',
@@ -33,6 +32,15 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
     @ViewChild('createSessionModal') public createSessionModal: ModalDirective;
     @ViewChild('editNotebook') public editNotebook: EditNotebookComponent;
     @ViewChild('fileInput') fileInput: ElementRef;
+
+    private readonly _router = inject(Router);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _notebooks = inject(NotebooksService);
+    private readonly _toast = inject(ToasterService);
+    private readonly _loading = inject(LoadingScreenService);
+    public readonly _sidebar = inject(NotebooksSidebarService);
+    public readonly _content = inject(NotebooksContentService);
+
     createFileForm: FormGroup;
     uploadFileForm: FormGroup;
     createSessionForm: FormGroup;
@@ -44,15 +52,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
     creating = false;
     loading = false;
 
-    constructor(
-        private _router: Router,
-        private _route: ActivatedRoute,
-        private _notebooks: NotebooksService,
-        public _sidebar: NotebooksSidebarService,
-        public _content: NotebooksContentService,
-        private _toast: ToastService,
-        private _settings: WebuiSettingsService,
-        private _loading: LoadingScreenService) {
+    constructor() {
     }
 
     ngOnInit(): void {
@@ -171,15 +171,15 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
 
             this._content.getSpecifiedKernel(path).pipe(
                 mergeMap(res => {
-                    if (res) {
-                        return this.startAndOpenNotebook(name, path, res.name);
-                    }
+                        if (res) {
+                            return this.startAndOpenNotebook(name, path, res.name);
+                        }
 
-                    this._loading.hide();
-                    this.openCreateSessionModal(name, path);
-                    return EMPTY;
-                }
-                        )
+                        this._loading.hide();
+                        this.openCreateSessionModal(name, path);
+                        return EMPTY;
+                    }
+                )
             ).subscribe(
                 res => {
                 },
@@ -274,19 +274,19 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
         let name = fileName;
         this._notebooks.createFileWithExtension(this._content.directoryPath, val.type, ext).pipe(
             mergeMap(res => {
-                if (val.name === '') {
-                    name = res.name;
-                    path = res.path;
-                    return of({});
+                    if (val.name === '') {
+                        name = res.name;
+                        path = res.path;
+                        return of({});
+                    }
+                    return this._notebooks.moveFile(res.path, path);
                 }
-                return this._notebooks.moveFile(res.path, path);
-            }
-                    ), mergeMap(res => {
-                        if (val.type !== 'notebook') {
-                            return EMPTY;
-                        }
-                        return this.startAndOpenNotebook(name, path, val.kernel);
-                    })
+            ), mergeMap(res => {
+                if (val.type !== 'notebook') {
+                    return EMPTY;
+                }
+                return this.startAndOpenNotebook(name, path, val.kernel);
+            })
         ).subscribe(res => {
         }, err => {
             this._toast.error(err.error.message, `Creation of '${fileName}' failed`);
@@ -349,10 +349,10 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
     private startAndOpenNotebook(name: string, path: string, kernel: string): Observable<SessionResponse> {
         return this._notebooks.createSession(name, path, kernel, true).pipe(
             tap(res => {
-                this._content.addSession(res);
-                this.openSession(res.id, path);
-            }
-               )
+                    this._content.addSession(res);
+                    this.openSession(res.id, path);
+                }
+            )
         );
     }
 

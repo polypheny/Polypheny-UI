@@ -1,7 +1,7 @@
 // Override Boostrap variables
 @import "../variables";
 @import "~bootstrap/scss/mixins";
-@import "~@coreui/coreui/scss/variables";
+@import "../node_modules/@coreui/coreui/scss/variables";
 
 @font-face {
   font-family: 'FontAwesome';

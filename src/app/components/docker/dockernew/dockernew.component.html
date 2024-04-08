@@ -1,0 +1,88 @@
+<c-modal-content>
+    <c-modal-header>
+        <h4 cModalTitle>Add new instance</h4>
+        <button (click)="cancel()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        <div *ngIf="dockerSetupResult !== null && dockerSetupResult.error !== ''" class="alert alert-danger">
+            {{ dockerSetupResult.error }}
+        </div>
+        <form cRow [gutter]="{gy:2}">
+            <c-input-group>
+                <span cInputGroupText cTooltipPlacement="left" cTooltip="IP/Hostname of the machine with Docker running">
+                    Host
+                </span>
+                <input cFormControl type="text" id="hostField"
+                       name="host" (input)="hostInput()"
+                       [(ngModel)]="host" [disabled]="handshake !== null"
+                       required>
+            </c-input-group>
+
+            <c-input-group>
+                <span cInputGroupText cTooltipPlacement="left" cTooltip="Alias to use for this machine within Polypheny">
+                    Alias
+                </span>
+                <input cFormControl type="text" id="aliasField"
+                       name="alias" (input)="aliasInput()"
+                       [(ngModel)]="alias" [disabled]="handshake !== null"
+                       required>
+            </c-input-group>
+
+            <details>
+                <summary>Advanced settings</summary>
+                <c-input-group>
+                    <span cInputGroupText cTooltipPlacement="left" cTooltip="Registry to pull containers from">
+                        Registry
+                    </span>
+                    <input cFormControl type="text" id="registryField"
+                           name="registry"
+                           [(ngModel)]="registry" [disabled]="handshake !== null"
+                           required
+                           placeholder="Use global default">
+                    <div class="form-text">Leave empty to use the default registry for this Polypheny instance</div>
+                </c-input-group>
+
+                <c-input-group>
+                    <span cInputGroupText cTooltipPlacement="left" cTooltip="Port for communication">
+                        Communication Port
+                    </span>
+                    <input cFormControl type="number" id="communicationPortField"
+                           min="1" max="65535"
+                           name="communicationPort"
+                           [(ngModel)]="communicationPort" [disabled]="handshake !== null"
+                           placeholder="7001">
+                </c-input-group>
+                <div class="form-text">Leave empty to use the default port</div>
+
+                <c-input-group>
+                    <span cInputGroupText cTooltipPlacement="left" cTooltip="Port for handshake">
+                        Handshake Port
+                    </span>
+                    <input cFormControl type="number" id="handshakePortField"
+                           min="1" max="65535"
+                           name="handshakePort"
+                           [(ngModel)]="handshakePort" [disabled]="handshake !== null"
+                           placeholder="7002">
+                </c-input-group>
+                <div class="form-text">Leave empty to use the default port</div>
+
+                <c-input-group>
+                    <span cInputGroupText cTooltipPlacement="left" cTooltip="Port for proxy">
+                        Proxy Port
+                    </span>
+                    <input cFormControl type="number" id="proxyPortField"
+                           min="1" max="65535"
+                           name="proxyPort"
+                           [(ngModel)]="proxyPort" [disabled]="handshake !== null"
+                           placeholder="7003">
+                </c-input-group>
+                <div class="form-text">Leave empty to use the default port</div>
+            </details>
+        </form>
+        <app-dockerhandshake *ngIf="handshake !== null" (cancel)="cancelHandshake()" (redo)="redoHandshake()" [handshake]="handshake"></app-dockerhandshake>
+    </c-modal-body>
+    <c-modal-footer>
+        <input cButton color="success" class="me-2" (click)="addDockerInstance()" type="submit" value="Add" [disabled]="handshake !== null">
+        <button cButton color="secondary" (click)="cancel()">Cancel</button>
+    </c-modal-footer>
+</c-modal-content>

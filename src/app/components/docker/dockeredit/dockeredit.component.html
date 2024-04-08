@@ -1,0 +1,103 @@
+<c-modal-content>
+    <c-modal-header>
+        <h4 class="modal-title">Edit instance</h4>
+        <button (click)="emitDone()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        <form cRow [gutter]="{gy:2}">
+            <c-input-group>
+                <span cInputGroupText cTooltipPlacement="left" cTooltip="Internal ID of this Dockerinstance">
+                    ID
+                </span>
+                <input cFormControl type="text" id="idField" name="id" [(ngModel)]="id" readonly="true">
+            </c-input-group>
+
+            <c-input-group>
+                <span cInputGroupText cTooltipPlacement="left" cTooltip="IP/Hostname of the machine with Docker running">
+                    Host
+                </span>
+                <input cFormControl type="text" id="hostField"
+                       name="host" (input)="modified = true"
+                       [(ngModel)]="host" required>
+            </c-input-group>
+
+            <c-input-group>
+                <span cInputGroupText cTooltipPlacement="left" cTooltip="Alias to use for this machine within Polypheny">
+                    Alias
+                </span>
+                <input cFormControl type="text" id="aliasField"
+                       name="alias" (input)="modified = true"
+                       [(ngModel)]="alias" required>
+            </c-input-group>
+
+            <c-input-group>
+                <span cInputGroupText cTooltipPlacement="left" cTooltip="Is Polypheny connected to this instance?">
+                    Connected
+                </span>
+                <input id="isConnetedFild"
+                       [class]="'form-control ' + (connected === true ? 'our-bg-success-subtle' : connected === false ? 'our-bg-danger-subtle' : '')"
+                       type="text" name="connected" [(ngModel)]="connected" readonly="true">
+            </c-input-group>
+
+            <details>
+                <summary>Advanced settings</summary>
+                <c-input-group>
+                    <span cInputGroupText cTooltipPlacement="left" cTooltip="Registry to pull containers from">
+                        Registry
+                    </span>
+                    <input cFormControl type="text" id="registryField"
+                           name="registry"
+                           [(ngModel)]="registry" [disabled]="handshake !== null"
+                           required
+                           placeholder="Use global default">
+                    <div class="form-text">Leave empty to use the default registry for this Polypheny instance</div>
+                </c-input-group>
+
+                <c-input-group>
+                    <span cInputGroupText cTooltipPlacement="left" cTooltip="Port for communication">
+                        Communication Port
+                    </span>
+                    <input cFormControl type="number" id="communicationPortField"
+                           min="1" max="65535"
+                           name="communicationPort"
+                           [(ngModel)]="communicationPort" [disabled]="handshake !== null"
+                           placeholder="7001">
+                </c-input-group>
+                <div class="form-text">Leave empty to use the default port</div>
+
+                <c-input-group>
+                    <span cInputGroupText cTooltipPlacement="left" cTooltip="Port for handshake">
+                        Handshake Port
+                    </span>
+                    <input cFormControl type="number" id="handshakePortField"
+                           min="1" max="65535"
+                           name="handshakePort"
+                           [(ngModel)]="handshakePort" [disabled]="handshake !== null"
+                           placeholder="7002">
+                </c-input-group>
+                <div class="form-text">Leave empty to use the default port</div>
+
+                <c-input-group>
+                    <span cInputGroupText cTooltipPlacement="left" cTooltip="Port for proxy">
+                        Proxy Port
+                    </span>
+                    <input cFormControl type="number" id="proxyPortField"
+                           min="1" max="65535"
+                           name="proxyPort"
+                           [(ngModel)]="proxyPort" [disabled]="handshake !== null"
+                           placeholder="7003">
+                </c-input-group>
+                <div class="form-text">Leave empty to use the default port</div>
+            </details>
+        </form>
+        <app-dockerhandshake *ngIf="handshake !== null" [handshake]="handshake"></app-dockerhandshake>
+
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="success" class="me-2" (click)="updateDockerInstance()" [disabled]="!modified || updateLock || handshake !== null">Save</button>
+        <button cButton color="primary" class="me-2" (click)="testConnection();" [disabled]="updateLock || handshake !== null">Test Connectivity</button>
+        <button cButton color="primary" *ngIf="!connected && handshake === null" class="me-2" (click)="reconnectToDockerInstance()" [disabled]="updateLock || handshake !== null">Reconnect</button>
+        <button cButton color="danger" class="me-2" (click)="removeDockerInstance();" [disabled]="lock || handshake !== null">Delete</button>
+
+    </c-modal-footer>
+</c-modal-content>

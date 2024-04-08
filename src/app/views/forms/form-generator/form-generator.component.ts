@@ -1,15 +1,14 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConfigService} from '../../../services/config.service';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {KeyValue} from '@angular/common';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
-import {ToastDuration, ToastService} from '../../../components/toast/toast.service';
+import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
-import {isEqual} from 'lodash';
 import {PluginStatus} from '../../../models/ui-request.model';
 
 @Component({
@@ -20,32 +19,30 @@ import {PluginStatus} from '../../../models/ui-request.model';
 
 export class FormGeneratorComponent implements OnInit, OnDestroy {
 
+    private readonly _config = inject(ConfigService);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _sidebar = inject(LeftSidebarService);
+    public readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _toast = inject(ToasterService);
+    private readonly _settings = inject(WebuiSettingsService);
+
     @ViewChild('submitButton') submitButton: ElementRef;
 
     formObj: JavaUiPage;
     submitted = false;
-    form: FormGroup;
-    //toasts:Toast[] = [];
+    form: UntypedFormGroup;
+
     pageId = '';
     pageNotFound = false;
-    pageList;//wenn man nicht auf einer gewissen Seite ist und alle Pages als links aufgelisted werden sollen.
-    serverError;//wenn der Server nicht antwortet
+    pageList;
+    serverError;
     private subscriptions = new Subscription();
     fileName: string;
 
-    constructor(
-        private _config: ConfigService,
-        private _route: ActivatedRoute,
-        private _sidebar: LeftSidebarService,
-        private _breadcrumb: BreadcrumbService,
-        private _toast: ToastService,
-        private _settings: WebuiSettingsService
-    ) {
-
+    constructor() {
         this.pageId = this._route.snapshot.paramMap.get('page') || '';
 
-        //this.loadPage();//is already called by ngOnInit() -> onHashChange()
-        _sidebar.listConfigManagerPages();
+        this._sidebar.listConfigManagerPages();
     }
 
     ngOnInit() {
@@ -81,7 +78,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
                     c.value = update.value;
                 } else {//has been edited
                     //if incoming value is different. use lodash.isEqual for arrays and == comparator for values
-                    if ((Array.isArray(update.value) && !isEqual(this.form.controls[c.key].value, update.value)) ||
+                    if ((Array.isArray(update.value) && JSON.stringify(this.form.controls[c.key].value) !== JSON.stringify(update.value)) ||
                         (!Array.isArray(update.value) && this.form.controls[c.key].value !== update.value)) {
                         this._toast.warn(
                             'The setting with id ' + c.key + ' has been changed to the new value "' + update.value + '" by the server. If you save, these changes will be overwritten.',
@@ -90,7 +87,6 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
                         c.value = update.value;
                     }
                 }
-                //console.log('updating from Websocket:'+JSON.stringify(update));
             } else {
                 //console.log('could not update from WebSocket');
             }
@@ -115,20 +111,20 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         this.subscriptions.add(sub);
     }
 
-    private loadPage() {
+    protected loadPage() {
         if (!this.pageId) {
-            this._config.getPageList().subscribe(
-                res => {
+            this._config.getPageList().subscribe({
+                next: res => {
                     this.pageList = res;
                     this.serverError = null;
                     this.pageNotFound = false;
-                }, err => {
+                }, error: err => {
                     this.serverError = err;
                 }
-            );
+            });
         } else {
-            this._config.getPage(this.pageId).subscribe(
-                res => {
+            this._config.getPage(this.pageId).subscribe({
+                next: res => {
                     if (res == null) {
                         this.onPageNotFound();
                         return;
@@ -143,10 +139,10 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
                     this.pageNotFound = false;
                     this.serverError = null;
                 },
-                err => {
+                error: err => {
                     this.serverError = err;
                 }
-            );
+            });
         }
     }
 
@@ -171,17 +167,17 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
                         initValue = config.value;
                     }
                 }
-                formGroup[cKey] = new FormControl(initValue,
+                formGroup[cKey] = new UntypedFormControl(initValue,
                     this.mapValidators(this.formObj.groups[gKey].configs[cKey]));
             }
         }
-        this.form = new FormGroup(formGroup);
+        this.form = new UntypedFormGroup(formGroup);
     }
 
     /** order groups within a page.
      * groups with lower order value are rendered first
      */
-    private orderGroups(a: KeyValue<string, any>, b: KeyValue<string, any>) {
+    public orderGroups(a: KeyValue<string, any>, b: KeyValue<string, any>) {
         let out = 0;
         if (a.value.order !== 0 && b.value.order === 0) {
             out = -1;
@@ -198,7 +194,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     /** order configs within a group.
      * configs with lower webUiOrder value are rendered first
      */
-    private orderConfigs(a: KeyValue<string, any>, b: KeyValue<string, any>) {
+    public orderConfigs(a: KeyValue<string, any>, b: KeyValue<string, any>) {
         let out = 0;
         if (a.value.webUiOrder > b.value.webUiOrder) {
             out = 1;
@@ -270,7 +266,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
 
     onSubmit(form, e, error: () => {} = null) {
         this.submitted = true;
-        //console.log(this.form);
+
         if (this.form.valid) {
             const changes = {};
             for (const c of Object.keys(this.form.controls)) {
@@ -278,31 +274,33 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
                     changes[c] = this.form.controls[c].value;
                 }
             }
-            this._config.saveChanges(changes).subscribe(res => {
-                //console.log(res);
-                interface Feedback {
-                    success?: number;
-                    warning?: string;
-                }
+            this._config.saveChanges(changes).subscribe({
+                next: res => {
+                    interface Feedback {
+                        success?: boolean;
+                        message?: string;
+                    }
 
-                const f: Feedback = <Feedback>res;
-                //console.log(f);
-                if (f.success) {
-                    this._toast.success('Saved changes.', null, null, ToastDuration.SHORT);
-                    this.loadPage();// reload config-page after updating a config, because it can lead to additional groups or elements
-                } else {
-                    this._toast.warn(f.warning, null, ToastDuration.INFINITE);
-                    console.log(f);
+                    const f: Feedback = <Feedback>res;
+                    //console.log(f);
+                    if (f.success) {
+                        this._toast.success('Saved changes.', null, null, ToastDuration.SHORT);
+                        this.loadPage();// reload config-page after updating a config, because it can lead to additional groups or elements
+                    } else {
+                        this._toast.warn(f.message, 'Invalid changes.', ToastDuration.INFINITE);
+                        console.log(f);
+                        if (error != null) {
+                            error();
+                        }
+                    }
+                    this.form.markAsPristine();
+                },
+                error: err => {
+                    console.log(err);
+                    this._toast.error('an error occurred on the server');
                     if (error != null) {
                         error();
                     }
-                }
-                this.form.markAsPristine();
-            }, err => {
-                console.log(err);
-                this._toast.error('an error occurred on the server');
-                if (error != null) {
-                    error();
                 }
             });
         } else {

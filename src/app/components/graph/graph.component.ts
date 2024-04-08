@@ -1,6 +1,5 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {CustomTooltips} from '@coreui/coreui-plugin-chartjs-custom-tooltips';
-import {hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities';
+import {hexToRgba} from '@coreui/utils';
 
 @Component({
     selector: 'app-graph',
@@ -21,8 +20,6 @@ export class GraphComponent implements OnInit, OnChanges {
 
     _colorList;
     @Input() colorList: Array<string>;
-
-    //@Input() config?:any;
 
     _min: number;
     @Input() min: number;
@@ -45,7 +42,6 @@ export class GraphComponent implements OnInit, OnChanges {
         maintainAspectRatio: true,
         tooltips: {
             enabled: false,
-            custom: CustomTooltips
         },
         layout: {
             padding: {
@@ -56,23 +52,20 @@ export class GraphComponent implements OnInit, OnChanges {
             }
         },
         scales: {
-            yAxes: [{
+            y: {
                 scaleLabel: {
                     display: false,
                     labelString: ''
                 },
                 ticks: {
-                    //values are set by updateOptions()
-                    //suggestedMin: 0,
-                    //suggestedMax: 0
                 }
-            }],
-            xAxes: [{
+            },
+            x: {
                 scaleLabel: {
                     display: false,
                     labelString: ''
                 }
-            }]
+            }
         }
     };
 
@@ -120,8 +113,8 @@ export class GraphComponent implements OnInit, OnChanges {
         if (changes['labels']) {
             this._labels = this.mapLabel(changes['labels'].currentValue);
         }
-        if (changes['colorList']) {
-            this._colorList = changes['colorList'].currentValue;
+        if (changes['colors']) {
+            this._colorList = changes['colors'].currentValue;
         }
         if (changes['min']) {
             this._min = changes['min'].currentValue;
@@ -158,8 +151,8 @@ export class GraphComponent implements OnInit, OnChanges {
         }
         this._chartType = chartType;
         const showAxes = ['bar', 'line'].includes(this._chartType);
-        this.options.scales.xAxes[0].display = showAxes;
-        this.options.scales.yAxes[0].display = showAxes;
+        this.options.scales.x.display = showAxes;
+        this.options.scales.y.display = showAxes;
     }
 
     mapData(data) {
@@ -183,19 +176,19 @@ export class GraphComponent implements OnInit, OnChanges {
     updateOptions() {
         if (['line', 'bar'].includes(this._chartType)) {
             if (this._min) {
-                this.options.scales.yAxes[0].ticks.suggestedMin = this._min;
+                this.options.scales.y.ticks.suggestedMin = this._min;
             }
             if (this._max) {
-                this.options.scales.yAxes[0].ticks.suggestedMax = this._max;
+                this.options.scales.y.ticks.suggestedMax = this._max;
             }
         }
         if (this._xLabel) {
-            this.options.scales.xAxes[0].scaleLabel.display = true;
-            this.options.scales.xAxes[0].scaleLabel.labelString = this._xLabel;
+            this.options.scales.x.scaleLabel.display = true;
+            this.options.scales.x.scaleLabel.labelString = this._xLabel;
         }
         if (this._yLabel) {
-            this.options.scales.yAxes[0].scaleLabel.display = true;
-            this.options.scales.yAxes[0].scaleLabel.labelString = this._yLabel;
+            this.options.scales.y.scaleLabel.display = true;
+            this.options.scales.y.scaleLabel.labelString = this._yLabel;
         }
     }
 
@@ -203,7 +196,7 @@ export class GraphComponent implements OnInit, OnChanges {
         nextIndex: 0,
         arr,
         next() {
-            if (this.arr.length == 0) {
+            if (this.arr.length === 0) {
                 return '#000000';
             }
             if (this.nextIndex >= (this.arr.length)) {
@@ -212,13 +205,13 @@ export class GraphComponent implements OnInit, OnChanges {
             return this.arr[this.nextIndex++];
         },
         lastUsed() {
-            if (this.nextIndex == 0) {
+            if (this.nextIndex === 0) {
                 return this.arr[0];
             } else {
                 return this.arr[this.nextIndex - 1];
             }
         }
-    });
+    })
 
 }
 

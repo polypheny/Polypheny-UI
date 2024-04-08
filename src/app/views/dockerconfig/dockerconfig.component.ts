@@ -1,10 +1,9 @@
-import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
-import {ToastService} from '../../components/toast/toast.service';
+import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
-import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({
     selector: 'app-dockerconfig',
@@ -13,29 +12,27 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 })
 export class DockerconfigComponent implements OnInit, OnDestroy {
 
+    private readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _crud = inject(CrudService);
+    private readonly _sidebar = inject(LeftSidebarService);
+    private readonly _toast = inject(ToasterService);
+
     instances: DockerInstance[];
     error: string = null;
     status: AutoDockerStatus = {available: false, connected: false, running: false, message: ''};
-    autoConnectRunning: boolean = false;
+    autoConnectRunning = false;
     timeoutId: number = null;
     modalId: number = null;
+    activeModal: null | 'add_edit' | 'settings' = null;
 
-    @ViewChild('dockerConfigModal', {static: false}) public dockerConfigModal: ModalDirective;
-    @ViewChild('dockerSettingsModal', {static: false}) public dockerSettingsModal: ModalDirective;
-
-    constructor(
-        private _breadcrumb: BreadcrumbService,
-        private _crud: CrudService,
-        private _sidebar: LeftSidebarService,
-        private _toast: ToastService,
-    ) {
-        _sidebar.listConfigManagerPages();
+    constructor() {
+        this._sidebar.listConfigManagerPages();
     }
 
     ngOnInit(): void {
         this.updateList();
         this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Config', '/views/config/'),
-                                         new BreadcrumbItem('Docker')]);
+            new BreadcrumbItem('Docker')]);
         this._breadcrumb.hideZoom();
         this._sidebar.open();
     }
@@ -49,22 +46,22 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
     }
 
     updateList() {
-        this._crud.getDockerInstances().subscribe(
-            res => {
-                this.instances = <DockerInstance[]>res;
+        this._crud.getDockerInstances().subscribe({
+            next: (res: DockerInstance[]) => {
+                this.instances = res;
             },
-            err => {
+            error: err => {
                 console.log(err);
             },
-        );
-        this._crud.getAutoDockerStatus().subscribe(
-            res => {
-                this.status = <AutoDockerStatus>res;
+        });
+        this._crud.getAutoDockerStatus().subscribe({
+            next: (res: AutoDockerStatus) => {
+                this.status = res;
             },
-            err => {
+            error: err => {
                 console.log(err);
             }
-        );
+        });
     }
 
     autoDocker() {
@@ -72,14 +69,14 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
         this.status.message = 'Sending start command...';
         this._toast.info('Sending start command...');
         this.timeoutId = setTimeout(() => this.updateAutoDockerStatus(), 500);
-        this._crud.doAutoHandshake().subscribe(
-            res => {
+        this._crud.doAutoHandshake().subscribe({
+            next: res => {
                 this.autoConnectRunning = false;
                 if (this.timeoutId !== null) {
                     clearTimeout(this.timeoutId);
                     this.timeoutId = null;
                 }
-                const autoDockerResult = <AutoDockerResult> res;
+                const autoDockerResult = <AutoDockerResult>res;
                 if (autoDockerResult.success) {
                     this._toast.success('Connected to local docker instance');
                 } else {
@@ -88,11 +85,11 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
                 this.status = autoDockerResult.status;
                 this.instances = autoDockerResult.instances;
             },
-            err => {
+            error: err => {
                 this.autoConnectRunning = false;
                 console.log(err);
             }
-        );
+        });
     }
 
     updateAutoDockerStatus() {
@@ -100,8 +97,8 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
             return;
         }
 
-        this._crud.getAutoDockerStatus().subscribe(
-            res => {
+        this._crud.getAutoDockerStatus().subscribe({
+            next: res => {
                 if (this.timeoutId === null) {
                     return;
                 }
@@ -112,59 +109,59 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
                 this.status = status;
                 this.timeoutId = setTimeout(() => this.updateAutoDockerStatus(), 500);
             },
-            err => {
+            error: err => {
                 console.log(err);
             }
-        );
+        });
     }
 
     removeDockerInstance(instance: DockerInstance) {
-        this._crud.removeDockerInstance(instance.id).subscribe(
-            res => {
+        this._crud.removeDockerInstance(instance.id).subscribe({
+            next: res => {
                 const d = <DockerRemoveResponse>res;
                 if (d.error === '') {
-                    this._toast.success("Deleted docker instance '" + instance.alias + "'");
+                    this._toast.success('Deleted docker instance ' + instance.alias + '\'');
                 } else {
                     this._toast.error(d.error);
                 }
                 this.instances = d.instances;
                 this.status = d.status;
             },
-            err => {
+            error: err => {
                 console.log(err);
             }
-        );
+        });
     }
 
     showModal(id: number) {
         this.modalId = id;
-        this.dockerConfigModal.show();
+        this.activeModal = 'add_edit';
     }
 
     closeModal(newlist: DockerInstance[]) {
         if (newlist !== undefined) {
             this.instances = newlist;
-            this._crud.getAutoDockerStatus().subscribe(
-                res => {
-                    this.status = <AutoDockerStatus>res;
+            this._crud.getAutoDockerStatus().subscribe({
+                next: (res: AutoDockerStatus) => {
+                    this.status = res;
                 },
-                err => {
+                error: err => {
                     console.log(err);
                 }
-            );
+            });
         } else {
             this.updateList();
         }
-        this.dockerConfigModal.hide();
+        this.activeModal = null;
         this.modalId = null;
     }
 
     showSettingsModal() {
-        this.dockerSettingsModal.show();
+        this.activeModal = 'settings';
     }
 
     closeSettingsModal() {
-        this.dockerSettingsModal.hide();
+        this.activeModal = null;
         this.updateList();
     }
 }
@@ -193,4 +190,5 @@ export interface DockerInstance {
     host: string;
     alias: string;
     connected: boolean;
+    numberOfContainers: number;
 }
