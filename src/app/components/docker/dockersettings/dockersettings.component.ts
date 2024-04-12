@@ -11,7 +11,7 @@ export class DockersettingsComponent implements OnInit {
 
     private readonly _crud = inject(CrudService);
 
-    registry: string;
+    defaultRegistry: string;
     modified = false;
 
     @Output() done = new EventEmitter<void>();
@@ -20,18 +20,18 @@ export class DockersettingsComponent implements OnInit {
     }
 
     loadValues(settings: DockerSettings) {
-        this.registry = settings.registry;
+        this.defaultRegistry = settings.defaultRegistry;
         this.modified = false;
     }
 
     toDockerSettings(): DockerSettings {
-        return {'registry': this.registry};
+        return {'defaultRegistry': this.defaultRegistry};
     }
 
     ngOnInit(): void {
         this._crud.getDockerSettings().subscribe({
                 next: res => {
-                    this.loadValues(<DockerSettings>res);
+                    this.loadValues(res);
                 },
                 error: err => {
                     console.log(err);
@@ -43,7 +43,7 @@ export class DockersettingsComponent implements OnInit {
     saveSettings() {
         this._crud.changeDockerSettings(this.toDockerSettings()).subscribe({
             next: res => {
-                this.loadValues(<DockerSettings>res);
+                this.loadValues(res);
                 this.close();
             },
             error: err => {
