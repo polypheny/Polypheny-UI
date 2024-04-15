@@ -1,9 +1,9 @@
 <div *ngIf="handshake.status === 'NOT_RUNNING' || handshake.status === 'FAILED'" class="pt-3">
-    <div *ngIf="handshake.lastErrorMessage != ''" class="alert alert-danger">
+    <div *ngIf="handshake.lastErrorMessage !== ''" class="alert alert-danger">
         <strong>Connection attempt failed:</strong>
         {{ handshake.lastErrorMessage }}
     </div>
-    <button class="btn btn-primary" (click)="redoHandshake()">Try again</button>
+    <button cButton (click)="redoHandshake()">Try again</button>
 </div>
 
 <div *ngIf="handshake.status === 'RUNNING' || handshake.status === 'NOT_RUNNING'" class="pt-3">

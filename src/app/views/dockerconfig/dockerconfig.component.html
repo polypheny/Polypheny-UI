@@ -17,7 +17,7 @@
 
                     <c-card-body>
                         Host: {{ instance.host.hostname }}<br>
-                        <div *ngIf="instance.numberOfContainers !== -1">{{ instance.numberOfContainers }} {{ instance.numberOfContainers != 1 ? 'containers' : 'container' }} deployed</div>
+                        <div *ngIf="instance.numberOfContainers !== -1">{{ instance.numberOfContainers }} {{ instance.numberOfContainers !== 1 ? 'containers' : 'container' }} deployed</div>
                     </c-card-body>
 
                     <c-card-footer class="bg-transparent">
@@ -32,7 +32,7 @@
         </div>
     </c-row>
     <c-row *ngIf="instances === undefined">
-        <c-spinner></c-spinner> Loading instances...
+        <c-spinner></c-spinner>&nbsp;&nbsp;Loading instances...
     </c-row>
 
     <c-row class="mt-2">

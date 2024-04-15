@@ -78,7 +78,6 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
     autoDocker() {
         this.autoConnectRunning = true;
         this.status.status = 'Sending start command...';
-        //this._toast.info('Sending start command...');
         this.timeoutId = setTimeout(() => this.updateAutoDockerStatus(), 500);
         this._crud.doAutoHandshake().subscribe({
             next: res => {
