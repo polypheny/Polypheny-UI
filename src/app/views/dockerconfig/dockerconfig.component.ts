@@ -147,6 +147,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
         this.modalInstanceId = id;
         this.activeModal = 'add_edit';
     }
+
     showHandshake(handshake: HandshakeInfo) {
         this.modalInstanceId = null;
         this.modalHandshake = handshake;
@@ -165,35 +166,6 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
                 this.updateList();
             },
         });
-    }
-
-    removeHandshake(handshake: HandshakeInfo) {
-        this._crud.deleteHandshake(handshake.id).subscribe({
-            next: res => {
-                this.handshakes = res;
-            },
-            error: err => {
-                console.log(err);
-            },
-        });
-    }
-
-    isActive(handshake: HandshakeInfo): boolean {
-        const state = handshake.status;
-        return state === 'STARTING' || state === 'RUNNING' || state == 'NOT_RUNNING';
-    }
-    getColor(handshake: HandshakeInfo): string {
-        const state = handshake.status;
-        if (state === 'STARTING' || state === 'NOT_RUNNING' || state === 'RUNNING') {
-            return 'primary';
-        }
-        if (state === 'SUCCESS') {
-            return 'success';
-        }
-        if (state === 'CANCELLED') {
-            return 'secondary';
-        }
-        return 'danger';
     }
 
     closeModal(newlist: DockerInstanceInfo[]) {

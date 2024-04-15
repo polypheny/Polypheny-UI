@@ -5,7 +5,7 @@
             <p>Docker related settings and configurations.</p>
         </c-col>
     </c-row>
-    <c-row *ngIf="instances !== undefined" [gutter]="3">
+    <c-row *ngIf="instances !== undefined || handshakes.length > 0" [gutter]="3">
         <ng-container *ngFor="let instance of instances">
             <c-col [md]="3">
                 <c-card>
@@ -27,7 +27,27 @@
                 </c-card>
             </c-col>
         </ng-container>
-        <div *ngIf="instances.length === 0">
+        <ng-container *ngFor="let handshake of handshakes">
+            <c-col [md]="3">
+                <c-card>
+                    <c-card-header>
+                        {{ handshake.host.alias }}
+                        <c-badge color="warning" class="pull-right">draft</c-badge>
+                    </c-card-header>
+
+                    <c-card-body>
+                        Host: {{ handshake.host.hostname }}<br>
+                    </c-card-body>
+
+                    <c-card-footer class="bg-transparent">
+                        <button cButton color="danger" (click)="cancelHandshake(handshake);">Delete</button>
+                        <button cButton color="primary" class="pull-right" (click)="showHandshake(handshake)">Show</button>
+                    </c-card-footer>
+                </c-card>
+            </c-col>
+        </ng-container>
+
+        <div *ngIf="instances.length === 0 && handshakes.length === 0">
             No connections yet!
         </div>
     </c-row>
@@ -45,31 +65,6 @@
             </button>
 
         </c-col>
-    </c-row>
-
-    <h4 *ngIf="handshakes.length > 0" class="mt-4">Handshakes</h4>
-    <c-row class="mt-2" [gutter]="3">
-        <ng-container *ngFor="let handshake of handshakes">
-            <c-col [md]="3">
-                <c-card>
-                    <c-card-header>
-                        {{ handshake.host.alias }}
-                        <c-badge [color]="getColor(handshake)" class="pull-right">{{handshake.status}}</c-badge>
-                    </c-card-header>
-
-                    <c-card-body>
-                        Host: {{ handshake.host.hostname }}<br>
-                        <span *ngIf="!isActive(handshake) || handshake.status ==='NOT_RUNNING'">{{ handshake.lastErrorMessage }}</span>
-                    </c-card-body>
-
-                    <c-card-footer class="bg-transparent">
-                        <button *ngIf="isActive(handshake)" cButton color="danger" class="" (click)="cancelHandshake(handshake)">Cancel</button>
-                        <button *ngIf="!isActive(handshake)" cButton color="secondary" class="" (click)="removeHandshake(handshake)">Clear</button>
-                        <button *ngIf="isActive(handshake)" cButton color="primary" class="pull-right" (click)="showHandshake(handshake)">Show</button>
-                    </c-card-footer>
-                </c-card>
-            </c-col>
-        </ng-container>
     </c-row>
 </ng-container>
 
