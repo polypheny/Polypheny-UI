@@ -163,6 +163,7 @@
                                 </select>
                             </c-input-group>
                             <!--dynamic select, which use ids internally-->
+                            <!-- Unused
                             <ng-template #editDynamic>
                                 <c-input-group class="select-wrapper">
                                     <span cInputGroupText cTooltipPlacement="left"
@@ -173,7 +174,7 @@
                                         </option>
                                     </select>
                                 </c-input-group>
-                            </ng-template>
+                            </ng-template> -->
                         </div>
                         <c-input-group
                                 *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
@@ -244,11 +245,12 @@
                                                 [formControlName]="control.key"
                                                 (change)="onChange(control.key,control.value)">
                                             <option *ngFor="let option of getAdapterSetting(control.key).template.options"
-                                                    [value]="option">{{ option }}
+                                                    [value]="option">{{ getAdapterSetting(control.key).template.alias[option] }}
                                             </option>
                                         </select>
                                         <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
                                     </c-input-group>
+                                    <!-- Unused
                                     <ng-template #dynamicSelect>
                                         <c-input-group class="has-validation">
                                             <label cInputGroupText
@@ -266,7 +268,7 @@
                                             </select>
                                             <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
                                         </c-input-group>
-                                    </ng-template>
+                                    </ng-template> -->
                                 </ng-container>
                                 <c-input-group
                                         *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
