@@ -149,8 +149,7 @@
                             <c-form-feedback>required</c-form-feedback>
                         </c-input-group>
                         <div class="form-group" *ngIf="getAdapterSetting(control.key).template.options">
-                            <c-input-group class="select-wrapper"
-                                           *ngIf="!getAdapterSetting(control.key).template.dynamic; else editDynamic">
+                            <c-input-group class="select-wrapper">
                                         <span cInputGroupText cTooltipPlacement="left"
                                               [cTooltip]="getAdapterSetting(control.key).template.description">
                                             {{ control.key }}
@@ -162,19 +161,6 @@
                                     </option>
                                 </select>
                             </c-input-group>
-                            <!--dynamic select, which use ids internally-->
-                            <!-- Unused
-                            <ng-template #editDynamic>
-                                <c-input-group class="select-wrapper">
-                                    <span cInputGroupText cTooltipPlacement="left"
-                                          [cTooltip]="getAdapterSetting(control.key).template.description"></span>
-                                    <select cSelect [id]="control.key" [formControlName]="control.key">
-                                        <option *ngFor="let option of getAdapterSetting(control.key).template.options"
-                                                [value]="option">{{ getAdapterSetting(control.key).template.alias[option] }}
-                                        </option>
-                                    </select>
-                                </c-input-group>
-                            </ng-template> -->
                         </div>
                         <c-input-group
                                 *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
@@ -231,8 +217,7 @@
                                     <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
                                 </c-input-group>
                                 <ng-container *ngIf="getAdapterSetting(control.key).template.options">
-                                    <c-input-group class="has-validation"
-                                                   *ngIf="!getAdapterSetting(control.key).template.dynamic; else dynamicSelect">
+                                    <c-input-group class="has-validation">
                                             <span cInputGroupText
                                                   [cTooltip]="getAdapterSetting(control.key).template.description"
                                                   [cTooltipVisible]="!!getAdapterSetting(control.key).template.description"
@@ -250,25 +235,6 @@
                                         </select>
                                         <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
                                     </c-input-group>
-                                    <!-- Unused
-                                    <ng-template #dynamicSelect>
-                                        <c-input-group class="has-validation">
-                                            <label cInputGroupText
-                                                   [cTooltip]="getAdapterSetting(control.key).template.description"
-                                                   [cTooltipVisible]="!!getAdapterSetting(control.key).template.description"
-                                                   cTooltipPlacement="left"
-                                                   [for]="control.key">{{ getAdapterSetting(control.key).template.nameAlias }}</label>
-
-                                            <select cSelect [id]="control.key"
-                                                    [ngClass]="validate(control.value, control.key)"
-                                                    [formControlName]="control.key">
-                                                <option *ngFor="let option of getAdapterSetting(control.key).template.options"
-                                                        [value]="option">{{ getAdapterSetting(control.key).template.alias[option] }}
-                                                </option>
-                                            </select>
-                                            <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
-                                        </c-input-group>
-                                    </ng-template> -->
                                 </ng-container>
                                 <c-input-group
                                         *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
