@@ -140,11 +140,11 @@ export enum DeployMode {
 }
 
 export interface AdapterSettingModel {
-    subOf: string;
     type: string;
+    subOf: string;
     name: string;
     nameAlias: string;
-    alias: any;
+    alias: Map<string, string>;
     description: string;
     defaultValue: string;
     canBeNull: boolean;
@@ -202,5 +202,3 @@ export class NamespaceRequest {
         this.dataModels = dataModels;
     }
 }
-
-

@@ -1,20 +1,24 @@
 <c-modal-content>
     <c-modal-header>
-        <h4 cModalTitle>Add new instance</h4>
-        <button (click)="cancel()" cButtonClose></button>
+        <h4 cModalTitle>{{ isNew() ? 'Connect to Docker instance' : 'Edit instance' }}</h4>
+        <button (click)="close()" cButtonClose></button>
     </c-modal-header>
     <c-modal-body>
-        <div *ngIf="dockerSetupResult !== null && dockerSetupResult.error !== ''" class="alert alert-danger">
-            {{ dockerSetupResult.error }}
-        </div>
         <form cRow [gutter]="{gy:2}">
+            <c-input-group *ngIf="!isNew()">
+                <span cInputGroupText cTooltipPlacement="left" cTooltip="Internal ID of this Dockerinstance">
+                    ID
+                </span>
+                <input cFormControl type="text" id="idField" name="id" [(ngModel)]="id" readonly="true">
+            </c-input-group>
+
             <c-input-group>
                 <span cInputGroupText cTooltipPlacement="left" cTooltip="IP/Hostname of the machine with Docker running">
                     Host
                 </span>
                 <input cFormControl type="text" id="hostField"
-                       name="host" (input)="hostInput()"
-                       [(ngModel)]="host" [disabled]="handshake !== null"
+                       name="hostname" (input)="hostInput()"
+                       [(ngModel)]="hostname" [disabled]="lock"
                        required>
             </c-input-group>
 
@@ -24,19 +28,27 @@
                 </span>
                 <input cFormControl type="text" id="aliasField"
                        name="alias" (input)="aliasInput()"
-                       [(ngModel)]="alias" [disabled]="handshake !== null"
+                       [(ngModel)]="alias" [disabled]="lock"
                        required>
             </c-input-group>
 
-            <details>
+            <c-input-group *ngIf="!isNew()">
+                <span cInputGroupText cTooltipPlacement="left" cTooltip="Is Polypheny connected to this instance?">
+                    Connected
+                </span>
+                <input id="idField" [class]="'form-control ' + (connected === true ? 'bg-success-subtle' : connected === false ? 'bg-danger-subtle' : 'bg-secondary-subtle')" type="text" name="connected" [(ngModel)]="connected" readonly="true">
+                <button cButton class="cil-reload" (click)="pingInstance()" [disabled]="lock"></button>
+            </c-input-group>
+
+            <details #advanced>
                 <summary>Advanced settings</summary>
                 <c-input-group>
                     <span cInputGroupText cTooltipPlacement="left" cTooltip="Registry to pull containers from">
                         Registry
                     </span>
                     <input cFormControl type="text" id="registryField"
-                           name="registry"
-                           [(ngModel)]="registry" [disabled]="handshake !== null"
+                           name="registry" (input)="modified = true"
+                           [(ngModel)]="registry" [disabled]="lock"
                            required
                            placeholder="Use global default">
                     <div class="form-text">Leave empty to use the default registry for this Polypheny instance</div>
@@ -49,7 +61,7 @@
                     <input cFormControl type="number" id="communicationPortField"
                            min="1" max="65535"
                            name="communicationPort"
-                           [(ngModel)]="communicationPort" [disabled]="handshake !== null"
+                           [(ngModel)]="communicationPort" [disabled]="!isNew() || lock"
                            placeholder="7001">
                 </c-input-group>
                 <div class="form-text">Leave empty to use the default port</div>
@@ -61,7 +73,7 @@
                     <input cFormControl type="number" id="handshakePortField"
                            min="1" max="65535"
                            name="handshakePort"
-                           [(ngModel)]="handshakePort" [disabled]="handshake !== null"
+                           [(ngModel)]="handshakePort" [disabled]="!isNew() || lock"
                            placeholder="7002">
                 </c-input-group>
                 <div class="form-text">Leave empty to use the default port</div>
@@ -73,16 +85,19 @@
                     <input cFormControl type="number" id="proxyPortField"
                            min="1" max="65535"
                            name="proxyPort"
-                           [(ngModel)]="proxyPort" [disabled]="handshake !== null"
+                           [(ngModel)]="proxyPort" [disabled]="!isNew() || lock"
                            placeholder="7003">
                 </c-input-group>
                 <div class="form-text">Leave empty to use the default port</div>
             </details>
         </form>
-        <app-dockerhandshake *ngIf="handshake !== null" (cancel)="cancelHandshake()" (redo)="redoHandshake()" [handshake]="handshake"></app-dockerhandshake>
+        <app-dockerhandshake *ngIf="handshake !== null" (cancel)="cancelHandshake()" (redo)="restartHandshake()" [handshake]="handshake"></app-dockerhandshake>
     </c-modal-body>
     <c-modal-footer>
-        <input cButton color="success" class="me-2" (click)="addDockerInstance()" type="submit" value="Add" [disabled]="handshake !== null">
-        <button cButton color="secondary" (click)="cancel()">Cancel</button>
+        <input cButton *ngIf="isNew()" color="success" class="me-2" (click)="addDockerInstance()" type="submit" value="Add" [disabled]="lock">
+        <button cButton *ngIf="!isNew()" color="success" class="me-2" (click)="updateDockerInstance()" [disabled]="!modified || lock">Save</button>
+        <button cButton color="primary" *ngIf="!connected && handshake === null" class="me-2" (click)="reconnectToDockerInstance()" [disabled]="lock">Reconnect</button>
+        <!--<button cButton color="danger" class="me-2" (click)="removeDockerInstance();" [disabled]="lock || handshake !== null">Delete</button>-->
+        <button cButton color="secondary" (click)="close()">Close</button>
     </c-modal-footer>
 </c-modal-content>

@@ -91,15 +91,14 @@ import {JsonElemComponent} from './json/json-elem/json-elem.component';
 import {DataGraphComponent} from './data-view/data-graph/data-graph.component';
 import {DatesPipeModule} from './data-view/shared-module';
 import {LoadingScreenComponent} from './loading-screen/loading-screen.component';
-import {DockereditComponent} from './docker/dockeredit/dockeredit.component';
 import {DockerhandshakeComponent} from './docker/dockerhandshake/dockerhandshake.component';
-import {DockernewComponent} from './docker/dockernew/dockernew.component';
 import {DockersettingsComponent} from './docker/dockersettings/dockersettings.component';
 import {TreeModule} from '@ali-hm/angular-tree-component';
 import {ToastExposerComponent} from './toast-exposer/toast-exposer.component';
 import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
 import {ReloadButtonComponent} from '../views/util/reload-button/reload-button.component';
 import {ViewComponent} from './data-view/view/view.component';
+import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.component';
 
 //import 'hammerjs';
 
@@ -192,14 +191,13 @@ import {ViewComponent} from './data-view/view/view.component';
         JsonTextComponent,
         JsonElemComponent,
         LoadingScreenComponent,
-        DockereditComponent,
         DockerhandshakeComponent,
-        DockernewComponent,
         DockersettingsComponent,
         ToastExposerComponent,
         Toast,
         ReloadButtonComponent,
-        ViewComponent
+        ViewComponent,
+        DockerInstanceComponent,
     ],
     exports: [
         BreadcrumbComponent,
@@ -217,13 +215,12 @@ import {ViewComponent} from './data-view/view/view.component';
         EditorComponent,
         DeleteConfirmComponent,
         LoadingScreenComponent,
-        DockereditComponent,
         DockerhandshakeComponent,
-        DockernewComponent,
         DockersettingsComponent,
         ToastExposerComponent,
         Toast,
-        ReloadButtonComponent
+        ReloadButtonComponent,
+        DockerInstanceComponent,
     ]
 })
 export class ComponentsModule {
