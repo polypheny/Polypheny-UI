@@ -63,6 +63,10 @@
         <app-plan-view [query]="''" [planObject]="li.queryPlan"></app-plan-view>
     </ng-container>
 
+    <ng-container *ngIf="li.type == 'InformationPolyAlg' && li.jsonPolyAlg">
+        <app-polyalg-viewer [planObject]="li.jsonPolyAlg" [planType]="li.planType"></app-polyalg-viewer>
+    </ng-container>
+
     <ng-container *ngIf="li.type == 'InformationAction'">
         <div class="form-row" *ngIf="li.parameters">
             <c-input-group class="col-md-6 mb-2"

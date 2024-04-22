@@ -18,6 +18,7 @@
     "@angular/common": "^17.2.3",
     "@angular/compiler": "^17.2.3",
     "@angular/core": "^17.2.3",
+    "@angular/elements": "^17.2.3",
     "@angular/forms": "^17.2.3",
     "@angular/platform-browser": "^17.2.3",
     "@angular/platform-browser-dynamic": "^17.2.3",
@@ -66,7 +67,13 @@
     "ts-helpers": "^1.1.2",
     "ts-md5": "^1.2.7",
     "uuid": "^9.0.0",
-    "zone.js": "~0.14.4"
+    "zone.js": "~0.14.4",
+    "rete": "^2.0.3",
+    "rete-angular-plugin": "^2.1.1",
+    "rete-connection-plugin": "^2.0.1",
+    "rete-auto-arrange-plugin": "^2.0.1",
+    "rete-area-plugin": "^2.0.4",
+    "rete-render-utils": "^2.0.2"
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "^17.0.1",
