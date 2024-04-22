@@ -99,6 +99,7 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
 import {ReloadButtonComponent} from '../views/util/reload-button/reload-button.component';
 import {ViewComponent} from './data-view/view/view.component';
 import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.component';
+import {PolyalgViewerComponent} from "./polyalg/polyalg-viewer/polyalg-viewer.component";
 
 //import 'hammerjs';
 
@@ -168,7 +169,7 @@ import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.co
         DropdownMenuDirective,
         DropdownItemDirective,
         DropdownDividerDirective,
-        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective, ContainerComponent
+        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective, ContainerComponent, PolyalgViewerComponent
     ],
     declarations: [
         BreadcrumbComponent,
