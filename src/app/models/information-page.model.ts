@@ -44,6 +44,7 @@ export interface InformationObject extends Duration {
     //debugger
     queryPlan: string;
     //polyalg
+    polyAlg: string;
     jsonPolyAlg: string;
     planType: "LOGICAL" | "ROUTED" | "PHYSICAL";
     //code

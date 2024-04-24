@@ -73,7 +73,8 @@
     "rete-connection-plugin": "^2.0.1",
     "rete-auto-arrange-plugin": "^2.0.1",
     "rete-area-plugin": "^2.0.4",
-    "rete-render-utils": "^2.0.2"
+    "rete-render-utils": "^2.0.2",
+    "rete-readonly-plugin": "^2.0.1"
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "^17.0.1",

@@ -1,0 +1,8 @@
+<div class="param-wrapper">
+    <label for="bool" *ngIf="data.name"><strong>{{data.name}}</strong></label>
+    <div class="form-check form-switch align-self-center">
+        <input type="checkbox" role="switch" id="bool" name="arg" (pointerdown)="$event.stopPropagation()"
+               [disabled]="data.readonly"
+               class="form-check-input">
+    </div>
+</div>

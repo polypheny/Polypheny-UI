@@ -20,9 +20,7 @@ import {QueryingComponent} from './querying/querying.component';
 import {NodeComponent} from './querying/algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import {AdaptersComponent} from './adapters/adapters.component';
-import {
-    RefinementOptionsComponent
-} from './querying/graphical-querying/refinement-options/refinement-options.component';
+import {RefinementOptionsComponent} from './querying/graphical-querying/refinement-options/refinement-options.component';
 import {AboutComponent} from './about/about.component';
 import {ButtonsModule} from 'ngx-bootstrap/buttons';
 import {CollapseModule} from 'ngx-bootstrap/collapse';
@@ -35,12 +33,8 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 import {EditSourceColumnsComponent} from './schema-editing/edit-source-columns/edit-source-columns.component';
 import {SearchFilterPipe, ValuePipe} from '../pipes/pipes';
-import {
-    DocumentEditCollectionsComponent
-} from './schema-editing/document-edit-collections/document-edit-collections.component';
-import {
-    DocumentEditCollectionComponent
-} from './schema-editing/document-edit-collection/document-edit-collection.component';
+import {DocumentEditCollectionsComponent} from './schema-editing/document-edit-collections/document-edit-collections.component';
+import {DocumentEditCollectionComponent} from './schema-editing/document-edit-collection/document-edit-collection.component';
 import {StatisticsColumnComponent} from './schema-editing/statistics-column/statistics-column.component';
 import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-edit-graph.component';
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
@@ -95,6 +89,7 @@ import {
 } from '@coreui/angular';
 import {EditEntityComponent} from './schema-editing/edit-entity/edit-entity.component';
 import {TreeModule} from '@ali-hm/angular-tree-component';
+import {PolyalgComponent} from "./querying/polyalg/polyalg.component";
 
 
 @NgModule({
@@ -193,6 +188,7 @@ import {TreeModule} from '@ali-hm/angular-tree-component';
         FileUploaderComponent,
         DockerconfigComponent,
         EditEntityComponent,
+        PolyalgComponent
     ],
     exports: []
 })

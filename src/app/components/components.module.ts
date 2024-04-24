@@ -100,6 +100,16 @@ import {ReloadButtonComponent} from '../views/util/reload-button/reload-button.c
 import {ViewComponent} from './data-view/view/view.component';
 import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.component';
 import {PolyalgViewerComponent} from "./polyalg/polyalg-viewer/polyalg-viewer.component";
+import {AlgNodeComponent} from "./polyalg/algnode/alg-node.component";
+import {ReteModule} from "rete-angular-plugin/17";
+import {EntityArgComponent} from "./polyalg/controls/entity-arg/entity-arg.component";
+import {AutocompleteLibModule} from "angular-ng-autocomplete";
+import {ListArgComponent} from "./polyalg/controls/list-arg/list-arg.component";
+import {RexArgComponent} from './polyalg/controls/rex-arg/rex-arg.component';
+import {StringArgComponent} from './polyalg/controls/string-arg/string-arg.component';
+import {BooleanArgComponent} from './polyalg/controls/boolean-arg/boolean-arg.component';
+import {CustomSocketComponent} from './polyalg/custom-socket/custom-socket.component';
+import {CustomConnectionComponent} from './polyalg/custom-connection/custom-connection.component';
 
 //import 'hammerjs';
 
@@ -169,7 +179,7 @@ import {PolyalgViewerComponent} from "./polyalg/polyalg-viewer/polyalg-viewer.co
         DropdownMenuDirective,
         DropdownItemDirective,
         DropdownDividerDirective,
-        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective, ContainerComponent, PolyalgViewerComponent
+        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective, ContainerComponent, PolyalgViewerComponent, ReteModule, AutocompleteLibModule
     ],
     declarations: [
         BreadcrumbComponent,
@@ -199,6 +209,14 @@ import {PolyalgViewerComponent} from "./polyalg/polyalg-viewer/polyalg-viewer.co
         ReloadButtonComponent,
         ViewComponent,
         DockerInstanceComponent,
+        AlgNodeComponent,
+        EntityArgComponent,
+        ListArgComponent,
+        RexArgComponent,
+        StringArgComponent,
+        BooleanArgComponent,
+        CustomSocketComponent,
+        CustomConnectionComponent
     ],
     exports: [
         BreadcrumbComponent,
