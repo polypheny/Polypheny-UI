@@ -8,7 +8,7 @@ import {
     PartitionFunctionModel,
     PartitioningRequest,
     PathAccessRequest,
-    PlacementMeta
+    PlacementFieldsModel
 } from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
@@ -28,7 +28,7 @@ import {
     RelAlgRequest,
     StatisticRequest
 } from '../models/ui-request.model';
-import {DockerSettings} from '../models/docker.model';
+import {CreateDockerResponse, AutoDockerResult, AutoDockerStatus, DockerInstanceInfo, DockerSettings, HandshakeInfo, InstancesAndAutoDocker, UpdateDockerResponse} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {AdapterModel} from '../views/adapters/adapter.model';
@@ -104,9 +104,9 @@ export class CrudService {
             if ((this.enabledRequestFired + this.REQUEST_DELAY) < today) {
                 this.enabledRequestFired = today;
                 this._http.get(`${this.httpUrl}/getEnabledPlugins`, this.httpOptions)
-                    .subscribe(res => {
-                        this.enabledPlugins = <[string]>res;
-                    });
+                .subscribe(res => {
+                    this.enabledPlugins = <[string]>res;
+                });
             }
             return [];
         }
@@ -336,9 +336,10 @@ export class CrudService {
     /**
      * Add or drop a placement
      */
-    addDropPlacement(namespaceId: number, entityId: number, storeId: number, method: Method, columns = []) {
-        const meta = new PlacementMeta(namespaceId, entityId, null, storeId, method, columns);
-        return this._http.post(`${this.httpUrl}/addDropPlacement`, meta, this.httpOptions);
+    addDropPlacement(namespaceId: number, entityId: number, adapterName: string, method: Method, columns: string[] = []) {
+        const placementFieldsModel = new PlacementFieldsModel(namespaceId, entityId, adapterName, method, columns);
+
+        return this._http.post(`${this.httpUrl}/addDropPlacement`, placementFieldsModel, this.httpOptions);
     }
 
     /**
@@ -562,9 +563,9 @@ export class CrudService {
 
     getAlgebraNodes() {
         return this._http.get(`${this.httpUrl}/getAlgebraNodes`)
-            .pipe(map(algs => new Map(Object.entries(algs)
-                .sort()
-                .map(([k, v], i) => [k, v as AlgNodeModel[]]))));
+        .pipe(map(algs => new Map(Object.entries(algs)
+        .sort()
+        .map(([k, v], i) => [k, v as AlgNodeModel[]]))));
     }
 
     removeQueryInterface(queryInterfaceId: string) {
@@ -602,31 +603,28 @@ export class CrudService {
         });
     }
 
-    addDockerInstance(host: string, alias: string, registry: string, communicationPort: number, handshakePort: number, proxyPort: number) {
-        return this._http.post(`${this.httpUrl}/addDockerInstance`, {
-            'host': host,
+    createDockerInstance(hostname: string, alias: string, registry: string, communicationPort: number, handshakePort: number, proxyPort: number) {
+        return this._http.post<CreateDockerResponse>(`${this.httpUrl}/docker/instances/create`, {
+            'hostname': hostname,
             'alias': alias,
+            'registry': registry,
             'communicationPort': communicationPort,
             'handshakePort': handshakePort,
             'proxyPort': proxyPort,
         }, this.httpOptions);
     }
 
-    testDockerInstance(id: number) {
-        return this._http.post(`${this.httpUrl}/testDockerInstance/${id}`, null, this.httpOptions);
+    getDockerInstances() {
+        return this._http.get<DockerInstanceInfo[]>(`${this.httpUrl}/docker/instances`);
     }
 
     getDockerInstance(id: number) {
-        return this._http.get(`${this.httpUrl}/getDockerInstance/${id}`);
-    }
-
-    getDockerInstances() {
-        return this._http.get(`${this.httpUrl}/getDockerInstances`);
+        return this._http.get<DockerInstanceInfo>(`${this.httpUrl}/docker/instances/${id}`);
     }
 
     updateDockerInstance(id: number, hostname: string, alias: string, registry: string) {
-        return this._http.post(`${this.httpUrl}/updateDockerInstance`, {
-            'id': id.toString(),
+        return this._http.patch<UpdateDockerResponse>(`${this.httpUrl}/docker/instances/${id}`, {
+            'id': id,
             'hostname': hostname,
             'alias': alias,
             'registry': registry
@@ -634,39 +632,51 @@ export class CrudService {
     }
 
     reconnectToDockerInstance(id: number) {
-        return this._http.post(`${this.httpUrl}/reconnectToDockerInstance`, {'id': id.toString()}, this.httpOptions);
+        return this._http.post<HandshakeInfo>(`${this.httpUrl}/docker/instances/${id}/reconnect`, null, this.httpOptions);
+    }
+
+    pingDockerInstance(id: number) {
+        return this._http.post(`${this.httpUrl}/docker/instances/${id}/ping`, null, this.httpOptions);
     }
 
     removeDockerInstance(id: number) {
-        return this._http.post(`${this.httpUrl}/removeDockerInstance`, {'id': id.toString()}, this.httpOptions);
+        return this._http.delete<InstancesAndAutoDocker>(`${this.httpUrl}/docker/instances/${id}`);
     }
 
     getAutoDockerStatus() {
-        return this._http.get(`${this.httpUrl}/getAutoDockerStatus`);
+        return this._http.get<AutoDockerStatus>(`${this.httpUrl}/docker/auto`);
     }
 
     doAutoHandshake() {
-        return this._http.post(`${this.httpUrl}/doAutoHandshake`, '', this.httpOptions);
+        return this._http.post<AutoDockerResult>(`${this.httpUrl}/docker/auto`, null, this.httpOptions);
     }
 
-    startHandshake(hostname: string) {
-        return this._http.post(`${this.httpUrl}/startHandshake`, hostname, this.httpOptions);
+    getHandshakes() {
+        return this._http.get<HandshakeInfo[]>(`${this.httpUrl}/docker/handshakes`);
     }
 
-    getHandshake(hostname: string) {
-        return this._http.get(`${this.httpUrl}/getHandshake/${new HttpUrlEncodingCodec().encodeKey(hostname)}`);
+    getHandshake(id: number) {
+        return this._http.get<HandshakeInfo>(`${this.httpUrl}/docker/handshakes/${id}`);
     }
 
-    cancelHandshake(hostname: string) {
-        return this._http.post(`${this.httpUrl}/cancelHandshake`, hostname, this.httpOptions);
+    restartHandshake(id: number) {
+        return this._http.post<HandshakeInfo>(`${this.httpUrl}/docker/handshakes/${id}/restart`, null, this.httpOptions);
+    }
+
+    cancelHandshake(id: number) {
+        return this._http.post(`${this.httpUrl}/docker/handshakes/${id}/cancel`, null, this.httpOptions);
+    }
+
+    deleteHandshake(id: number) {
+        return this._http.delete<HandshakeInfo[]>(`${this.httpUrl}/docker/handshakes/${id}`);
     }
 
     getDockerSettings() {
-        return this._http.get(`${this.httpUrl}/getDockerSettings/`);
+        return this._http.get<DockerSettings>(`${this.httpUrl}/docker/settings`);
     }
 
     changeDockerSettings(settings: DockerSettings) {
-        return this._http.post(`${this.httpUrl}/changeDockerSettings`, settings, this.httpOptions);
+        return this._http.patch<DockerSettings>(`${this.httpUrl}/docker/settings`, settings, this.httpOptions);
     }
 
     getNameValidator(required: boolean = false) {

@@ -14,8 +14,10 @@ import {AdapterModel} from '../../../views/adapters/adapter.model';
 import {CatalogService} from '../../../services/catalog.service';
 import {ViewInformation} from '../data-view.component';
 import {ToastDuration, ToasterService} from '../../toast-exposer/toaster.service';
-import {DataModel} from '../../../models/ui-request.model';
+import {DataModel, QueryRequest} from '../../../models/ui-request.model';
 import {Result} from '../models/result-set.model';
+import {CrudService} from "../../../services/crud.service";
+import {firstValueFrom} from "rxjs";
 
 @Component({
     selector: 'poly-create-view',
@@ -28,6 +30,7 @@ export class ViewComponent {
 
 
     constructor() {
+
         this.$stores = computed(() => {
             const listener = this._catalog.listener();
             return this._catalog.getStores();
@@ -47,6 +50,7 @@ export class ViewComponent {
 
     private readonly _catalog = inject(CatalogService);
     private readonly _toast = inject(ToasterService);
+    private readonly _crud = inject(CrudService);
 
     public readonly $query: WritableSignal<string> = signal('');
     public readonly $showView: WritableSignal<boolean> = signal(false);
@@ -79,6 +83,7 @@ export class ViewComponent {
     }
 
     createViewCode(doExecute: boolean) {
+
         if (this.checkIfPossible()) {
             const info = new ViewInformation(this.$type(), this.$viewName());
             info.initialQuery = this.$query();
@@ -99,8 +104,35 @@ export class ViewComponent {
 
             this.viewQueryConsumer.emit(info);
 
+            if (doExecute) {
+                this.executeQuery(fullQuery)
+                    .then(res => {
+                        if (res && res[0] && res[0].hasOwnProperty('error')) {
+                            this._toast.error(res[0]['error'])
+                            this.$showView.set(false);
+                        } else {
+                            this.$showView.set(false);
+                            this._toast.success((this.$type() === ViewType.MATERIALIZED ? 'Materialized View "' : 'View "') + this.$viewName() + '" has been created successfully.', "Successfully Created View");
+                        }
+
+
+                    }).catch(reason => {
+                        this._toast.error(reason)
+                        this.$showView.set(false);
+                    }
+                )
+                return;
+            } else {
+                this._toast.success('Query for view ' + this.$viewName() + ' has been inserted into editor.', "Query Inserted");
+            }
             this.$showView.set(false);
         }
+    }
+
+    executeQuery(fullQuery: string) {
+        const request = new QueryRequest(fullQuery, false, true, this.$result().dataModel == DataModel.RELATIONAL ? 'sql' : 'mql', 'public');
+
+        return firstValueFrom(this._crud.anyQueryBlocking(request));
     }
 
     private getViewQuery() {
@@ -120,8 +152,7 @@ export class ViewComponent {
         if (this.$query().startsWith('\n')) {
             this.$query.set(this.$query().replace('\n', ''));
         }
-        let query = `CREATE MATERIALIZED VIEW ${this.$viewName()} AS\n${this.$query()}\nON STORE ${this.$stores}\nFRESHNESS ${this.$freshness()}`;
-
+        let query = `CREATE MATERIALIZED VIEW ${this.$viewName()} AS\n${this.$query()}\nON STORE ${this.$store().name}\nFRESHNESS ${this.$freshness()}`;
 
         info.stores = this.$store().name;
         info.freshness = this.$freshnessMerged();
@@ -207,5 +238,10 @@ export class ViewComponent {
             return;
         }
         return [source.replace('"', ''), pipeline];
+    }
+
+    setStore(name: string) {
+        const store = this._catalog.getStores().filter(s => s.name === name)[0];
+        this.$store.set(store);
     }
 }

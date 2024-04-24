@@ -45,6 +45,7 @@ import {
     AllocationPartitionModel,
     AllocationPlacementModel,
     ConstraintModel,
+    ConstraintType,
     DeployMode,
     EntityModel,
     EntityType,
@@ -125,7 +126,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 return [];
             }
 
-
             return catalog.getConstraints(this.entity().id) || [];
         });
 
@@ -158,7 +158,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 return;
             }
 
-            this.getAvailableStoresForIndexes();
             this.getUml();
 
             const entity = this.entity();
@@ -168,10 +167,24 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 }
             }
 
-            this.subscribeIndexes();
-
             this.initNewIndexValues();
         });
+
+        this.subscribeIndexes();
+
+        effect(() => {
+            if (!this.availableStoresForIndexes || !this.availableStoresForIndexes()) {
+                return;
+            }
+            const stores = this.availableStoresForIndexes();
+
+            if (stores?.length > 0) {
+                this.selectedStoreForIndex = stores[0];
+                this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.indexMethods[0]);
+            } else {
+                this.selectedStoreForIndex = null;
+            }
+        }, {injector: this.injector});
 
     }
 
@@ -375,7 +388,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
 
     saveCol() {
-        console.log(this.updateColumn);
         if (!this._crud.nameIsValid(this.updateColumn.controls['name'].value)) {
             this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
             return;
@@ -385,7 +397,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             return;
         }
         const oldColumn = this.oldColumns().get(this.updateColumn.controls['oldName'].value);
-        console.log(oldColumn);
+
         const newColumn = new UiColumnDefinition(
             null,
             this.updateColumn.controls['name'].value,
@@ -510,13 +522,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
 
-    dropConstraint(constraintId: number) {
-        this._crud.dropConstraint(new ConstraintRequest(this.entity().id, new TableConstraint(constraintId))).subscribe({
+    dropConstraint(id: number) {
+        const constraint = this._catalog.getConstraint(id);
+        this._crud.dropConstraint(new ConstraintRequest(this.entity().id, new TableConstraint(id, constraint.name, constraint.type))).subscribe({
             next: (result: RelationalResult) => {
                 if (result.error) {
                     this._toast.exception(result, null, 'constraint error');
                 } else {
-                    //this._catalog.updateIfNecessary();
                     this.getUml();
                 }
             }, error: err => {
@@ -537,8 +549,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             next: (res: RelationalResult) => {
                 if (!res.error) {
                     this._toast.success('The primary key was updated.', res.query, 'updated primary key');
-                    //this._catalog.updateIfNecessary();
-                    //this.getPlacementsAndPartitions();
                 } else {
                     this._toast.exception(res, null, 'primary key error', ToastDuration.INFINITE);
                 }
@@ -578,7 +588,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this._crud.createUniqueConstraint(constraintRequest).subscribe({
             next: (res: RelationalResult) => {
                 if (!res.error) {
-                    //this._catalog.updateIfNecessary();
                     this._toast.success('The unique constraint was successfully created', res.query, 'added constraint');
                     this.uniqueConstraintName = '';
                     this.getGeneratedNames();
@@ -681,37 +690,22 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.newIndexForm.controls['method'].setValue(store.indexMethods[0]);
     }
 
-    getAvailableStoresForIndexes() {
-        effect(() => {
-            if (!this.availableStoresForIndexes || !this.availableStoresForIndexes()) {
-                return;
-            }
-            const stores = this.availableStoresForIndexes();
-
-            if (stores?.length > 0) {
-                this.selectedStoreForIndex = stores[0];
-                this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.indexMethods[0]);
-            } else {
-                this.selectedStoreForIndex = null;
-            }
-        }, {injector: this.injector});
-    }
-
     initPlacementModal(method: Method, placement: AllocationPlacementModel) {
-        let store;
-        const preselect = this._catalog.getAllocColumns(placement.id);
+        const preselect = placement ? this._catalog.getAllocColumns(placement.id) : [];
         this.placementMethod = method;
 
-        store = <AdapterModel>this._catalog.getAdapter(placement.adapterId);
-        this.selectedStore = store;
+        if (placement) {
+            this.selectedStore = this._catalog.getAdapter(placement.adapterId);
+        }
 
         if (!this.selectedStore) {
             return;
         }
         this.columnPlacement = new UntypedFormGroup({});
+
         this.oldColumns().forEach((v, k) => {
             let state = true;
-            if (preselect.length > 0 && !preselect.some(e => e.name === v.name && e.placementType === PlacementType.MANUAL)) {
+            if (preselect.length > 0 && !preselect.some(e => e.id === v.id)) {
                 state = false;
             }
             this.columnPlacement.addControl(v.name, new UntypedFormControl(state));
@@ -732,23 +726,21 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     addPlacement() {
         const cols = [];
         for (const [k, v] of Object.entries(this.columnPlacement.value)) {
-            //const v = this.columnPlacement.value[k];
             if (v) {
                 cols.push(k);
             }
         }
         this.isAddingPlacement = true;
-        this._crud.addDropPlacement(this.namespace().id, this.entity().id, this.selectedStore.id, this.placementMethod, cols).subscribe({
+        this._crud.addDropPlacement(this.namespace().id, this.entity().id, this.selectedStore.name, this.placementMethod, cols).subscribe({
             next: (res: RelationalResult) => {
                 if (res.error) {
                     this._toast.exception(res);
                 } else {
-                    if (this.placementMethod === 'ADD') {
+                    if (this.placementMethod === Method.ADD) {
                         this._toast.success('Added placement on store ' + this.selectedStore.name, res.query, 'Added placement');
-                    } else if (this.placementMethod === 'MODIFY') {
+                    } else if (this.placementMethod === Method.MODIFY) {
                         this._toast.success('Modified placement on store ' + this.selectedStore.name, res.query, 'Modified placement');
                     }
-                    //this._catalog.updateIfNecessary();
                 }
                 this.selectedStore = null;
             }, error: err => {
@@ -762,14 +754,12 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     dropPlacement(adapterId: number) {
         const store = <AdapterModel>this._catalog.getAdapter(adapterId);
-        this._crud.addDropPlacement(this.namespace().id, this.entity().id, store.id, Method.DROP).subscribe({
+        this._crud.addDropPlacement(this.namespace().id, this.entity().id, store.name, Method.DROP).subscribe({
             next: (res: RelationalResult) => {
                 if (res.error) {
                     this._toast.exception(res);
                 } else {
                     this._toast.success('Dropped placement on store ' + store.name, res.query, 'Dropped placement');
-                    //this.getPlacementsAndPartitions();
-                    //this.getAvailableStoresForIndexes();
                 }
             }, error: err => {
                 this._toast.error('Could not drop placement on store ' + store.name, 'Error');
@@ -829,7 +819,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                     console.log(res.query);
                 } else {
                     this._toast.success('Partitioned table', res.query);
-                    //this.getPlacementsAndPartitions();
                 }
                 this.partitionFunctionModal = false;
             }, error: err => {
@@ -847,7 +836,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 const result = <RelationalResult>res;
                 if (!result.error) {
                     this._toast.success('Merged partitions ');
-                    //this.getPlacementsAndPartitions();
                 } else {
                     this._toast.exception(result);
                 }
@@ -874,8 +862,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 if (!res.error) {
                     this.partitioningModal = false;
                     this._toast.success('Modified partitions');
-                    //this.getPlacementsAndPartitions();
-                    console.log(res.query);
                 } else {
                     this._toast.exception(res);
                     console.log(res.query);
@@ -889,8 +875,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     initPartitioningModal(adapterId: number, partitions: AllocationPartitionModel[]) {
         const store = <AdapterModel>this._catalog.getAdapter(adapterId);
         this.partitionsToModify = [];
-
-        console.log(this.partitions());
 
         const selectedPartId = partitions.map(p => p.id);
         for (const [i, partition] of this.partitions().entries()) {
@@ -941,13 +925,12 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
         if (this.newIndexForm.valid && newCols.length > 0 && this.selectedStoreForIndex != null) {
             const i = this.newIndexForm.value;
-            console.log(i.method);
             const index = new IndexModel(this.namespace().id, this.entity().id, i.name, this.selectedStoreForIndex.name, i.method, newCols);
             this.addingIndex = true;
             this._crud.createIndex(index).subscribe({
                 next: (res: RelationalResult) => {
                     if (!res.error) {
-                        //this._catalog.updateIfNecessary();
+
                         this.getGeneratedNames();
                         this.newIndexForm.reset({name: '', method: ''});
                         this.initNewIndexValues();
@@ -1023,12 +1006,14 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         return this.materializedInfo()[index] || null;
     }
 
-    getColumnsOfKey(constraint: ConstraintModel): Signal<number[]> {
-        return computed(() => this._catalog.getKey(constraint.keyId).columnIds);
+    getColumnsOfKey(constraint: ConstraintModel): Signal<string[]> {
+        return computed(() => this._catalog.getKey(constraint.keyId).columnIds.map(id => this._catalog.getLogicalColumn(id).name));
 
     }
 
     getArray(values: IterableIterator<UiColumnDefinition>) {
         return Array.from(values);
     }
+
+    protected readonly ConstraintType = ConstraintType;
 }

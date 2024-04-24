@@ -95,7 +95,7 @@ export interface ForeignKeyModel extends KeyModel {
 
 export interface ConstraintModel extends IdEntity {
     keyId: number;
-    type: string;
+    type: ConstraintType;
 }
 
 export interface AllocationEntityModel extends IdEntity {
@@ -140,11 +140,11 @@ export enum DeployMode {
 }
 
 export interface AdapterSettingModel {
-    subOf: string;
     type: string;
+    subOf: string;
     name: string;
     nameAlias: string;
-    alias: any;
+    alias: Map<string, string>;
     description: string;
     defaultValue: string;
     canBeNull: boolean;
@@ -174,6 +174,12 @@ export enum EntityType {
     MATERIALIZED_VIEW = 'MATERIALIZED_VIEW'
 }
 
+export enum ConstraintType {
+    UNIQUE = 'UNIQUE',
+    PRIMARY = 'PRIMARY',
+    FOREIGN = 'FOREIGN'
+}
+
 //// UTIL
 
 export interface AssetsModel {
@@ -196,5 +202,3 @@ export class NamespaceRequest {
         this.dataModels = dataModels;
     }
 }
-
-

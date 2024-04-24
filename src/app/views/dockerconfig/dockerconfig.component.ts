@@ -4,6 +4,7 @@ import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
+import {AutoDockerStatus, DockerInstanceInfo, HandshakeInfo} from '../../models/docker.model';
 
 @Component({
     selector: 'app-dockerconfig',
@@ -17,12 +18,14 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
     private readonly _sidebar = inject(LeftSidebarService);
     private readonly _toast = inject(ToasterService);
 
-    instances: DockerInstance[];
+    instances: DockerInstanceInfo[];
     error: string = null;
-    status: AutoDockerStatus = {available: false, connected: false, running: false, message: ''};
+    status: AutoDockerStatus = {available: false, connected: false, running: false, status: ''};
+    handshakes: HandshakeInfo[] = [];
     autoConnectRunning = false;
     timeoutId: number = null;
-    modalId: number = null;
+    modalInstanceId: number = null;
+    modalHandshake: HandshakeInfo = null;
     activeModal: null | 'add_edit' | 'settings' = null;
 
     constructor() {
@@ -32,7 +35,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.updateList();
         this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Config', '/views/config/'),
-            new BreadcrumbItem('Docker')]);
+                                         new BreadcrumbItem('Docker')]);
         this._breadcrumb.hideZoom();
         this._sidebar.open();
     }
@@ -47,7 +50,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
 
     updateList() {
         this._crud.getDockerInstances().subscribe({
-            next: (res: DockerInstance[]) => {
+            next: res => {
                 this.instances = res;
             },
             error: err => {
@@ -55,8 +58,16 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
             },
         });
         this._crud.getAutoDockerStatus().subscribe({
-            next: (res: AutoDockerStatus) => {
+            next: res => {
                 this.status = res;
+            },
+            error: err => {
+                console.log(err);
+            }
+        });
+        this._crud.getHandshakes().subscribe({
+            next: res => {
+                this.handshakes = res;
             },
             error: err => {
                 console.log(err);
@@ -66,8 +77,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
 
     autoDocker() {
         this.autoConnectRunning = true;
-        this.status.message = 'Sending start command...';
-        this._toast.info('Sending start command...');
+        this.status.status = 'Sending start command...';
         this.timeoutId = setTimeout(() => this.updateAutoDockerStatus(), 500);
         this._crud.doAutoHandshake().subscribe({
             next: res => {
@@ -76,18 +86,22 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
                     clearTimeout(this.timeoutId);
                     this.timeoutId = null;
                 }
-                const autoDockerResult = <AutoDockerResult>res;
-                if (autoDockerResult.success) {
-                    this._toast.success('Connected to local docker instance');
-                } else {
-                    this._toast.error('Failed to connect to local docker instance');
-                }
+                const autoDockerResult = res;
+                this._toast.success('Connected to local docker instance');
                 this.status = autoDockerResult.status;
                 this.instances = autoDockerResult.instances;
             },
             error: err => {
                 this.autoConnectRunning = false;
+                if (this.timeoutId !== null) {
+                    clearTimeout(this.timeoutId);
+                    this.timeoutId = null;
+                }
+                // This makes the animation stop quickly while we do an update of everyting afterwards
+                this.status.running = false;
+                this._toast.error(err.error);
                 console.log(err);
+                this.updateList();
             }
         });
     }
@@ -96,18 +110,18 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
         if (this.timeoutId === null) {
             return;
         }
-
         this._crud.getAutoDockerStatus().subscribe({
             next: res => {
                 if (this.timeoutId === null) {
                     return;
                 }
-                const status = <AutoDockerStatus>res;
-                if (this.status.message !== status.message) {
-                    this._toast.info(status.message);
+                if (this.status.status !== res.status) {
+                    console.log(res);
+                    console.log(res.status);
+                    this._toast.info(res.status);
                 }
-                this.status = status;
-                this.timeoutId = setTimeout(() => this.updateAutoDockerStatus(), 500);
+                this.status = res;
+                this.timeoutId = setTimeout(() => this.updateAutoDockerStatus(), 10);
             },
             error: err => {
                 console.log(err);
@@ -115,34 +129,50 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
         });
     }
 
-    removeDockerInstance(instance: DockerInstance) {
+    removeDockerInstance(instance: DockerInstanceInfo) {
         this._crud.removeDockerInstance(instance.id).subscribe({
             next: res => {
-                const d = <DockerRemoveResponse>res;
-                if (d.error === '') {
-                    this._toast.success('Deleted docker instance ' + instance.alias + '\'');
-                } else {
-                    this._toast.error(d.error);
-                }
-                this.instances = d.instances;
-                this.status = d.status;
+                this._toast.success("Deleted Docker instance '" + instance.host.alias + "'");
+                this.instances = res.instances;
+                this.status = res.status;
             },
             error: err => {
                 console.log(err);
+                this._toast.error(err.error);
             }
         });
     }
 
     showModal(id: number) {
-        this.modalId = id;
+        this.modalInstanceId = id;
         this.activeModal = 'add_edit';
     }
 
-    closeModal(newlist: DockerInstance[]) {
+    showHandshake(handshake: HandshakeInfo) {
+        this.modalInstanceId = null;
+        this.modalHandshake = handshake;
+        this.activeModal = 'add_edit';
+    }
+
+    cancelHandshake(handshake: HandshakeInfo) {
+        this._crud.cancelHandshake(handshake.id).subscribe({
+            next: res => {
+                this.updateList();
+                this._toast.success(`Canceled handshake with ${handshake.host.alias}`);
+            },
+            error: err => {
+                console.log(err);
+                this._toast.error(err.error);
+                this.updateList();
+            },
+        });
+    }
+
+    closeModal(newlist: DockerInstanceInfo[]) {
         if (newlist !== undefined) {
             this.instances = newlist;
             this._crud.getAutoDockerStatus().subscribe({
-                next: (res: AutoDockerStatus) => {
+                next: res => {
                     this.status = res;
                 },
                 error: err => {
@@ -153,7 +183,8 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
             this.updateList();
         }
         this.activeModal = null;
-        this.modalId = null;
+        this.modalInstanceId = null;
+        this.modalHandshake = null;
     }
 
     showSettingsModal() {
@@ -164,31 +195,11 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
         this.activeModal = null;
         this.updateList();
     }
-}
 
-export interface AutoDockerStatus {
-    available: boolean;
-    connected: boolean;
-    running: boolean;
-    message: string;
-}
-
-export interface AutoDockerResult {
-    success: boolean;
-    status: AutoDockerStatus;
-    instances: DockerInstance[];
-}
-
-export interface DockerRemoveResponse {
-    error: string;
-    instances: DockerInstance[];
-    status: AutoDockerStatus;
-}
-
-export interface DockerInstance {
-    id: number;
-    host: string;
-    alias: string;
-    connected: boolean;
-    numberOfContainers: number;
+    onVisibleChange(visible: boolean) {
+        if (!visible && this.activeModal !== null ) {
+            this.activeModal = null;
+            this.updateList();
+        }
+    }
 }

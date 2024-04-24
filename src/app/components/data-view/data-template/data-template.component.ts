@@ -116,7 +116,6 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
                 return null;
             }
             const splits = route.split('.');
-
             return catalog.getEntityFromName(splits[0], splits[1]);
         });
 
