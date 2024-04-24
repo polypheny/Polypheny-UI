@@ -15,8 +15,9 @@
                         <p>CREATE <span
                                 class="text-primary">{{ $type() == ViewType.MATERIALIZED ? ViewType.MATERIALIZED : '' }}</span>
                             VIEW <span class="text-primary">{{ $viewName() }}</span> AS (<br>{{ $result().query }})
-                            <span *ngIf="$type()=== ViewType.MATERIALIZED">ON STORE {{ $store() }}</span>
-                            <span *ngIf="($freshness() === Freshness.INTERVAL || $freshness() === Freshness.UPDATE) && $type() === ViewType.MATERIALIZED">FRESHNESS <span
+                            <span *ngIf="$type()=== ViewType.MATERIALIZED">ON STORE <span
+                                    class="text-primary">{{ $store()?.name }}</span> </span>
+                            <span *ngIf="($freshness() === Freshness.INTERVAL || $freshness() === Freshness.UPDATE) && $type() === ViewType.MATERIALIZED"> FRESHNESS <span
                                     class="text-primary">{{ $freshness() }} {{ $freshnessMerged() }}</span></span>
                         </p>
                     } @else if ($result().dataModel == DataModel.DOCUMENT) {
@@ -41,8 +42,8 @@
                     ViewType
                 </span>
                     <select cSelect #type [ngModel]="$type()" (change)="$type.set(ViewType[type.value])">
-                        <option [value]="ViewType.VIEW" selected>{{ ViewType.VIEW }}</option>
-                        <option [value]="ViewType.MATERIALIZED">{{ ViewType.MATERIALIZED }}</option>
+                        <option [value]="ViewType.VIEW" selected>{{ ViewType.VIEW | titlecase }}</option>
+                        <option [value]="ViewType.MATERIALIZED">{{ ViewType.MATERIALIZED | titlecase }}</option>
                     </select>
                 </c-input-group>
             }
@@ -50,10 +51,12 @@
                 <span cInputGroupText>
                     Store
                 </span>
-                <select cSelect #store [ngModel]="$store()" (change)="$store.set(getStore(store.value))">
-                    <option *ngFor="let store of $stores()">
-                        {{ store.name }} - {{ store.adapterName }}
-                    </option>
+                <select cSelect #store [ngModel]="$store()?.name" (change)="setStore(store.value)">
+                    @for (store of $stores(); track store.id) {
+                        <option [value]="store.name">
+                            {{ store.name }}
+                        </option>
+                    }
                 </select>
             </c-input-group>
             <c-input-group *ngIf="$type() === ViewType.MATERIALIZED">
@@ -86,9 +89,14 @@
                        (input)="$updates.set(+updates.value)">
             </c-input-group>
 
-            <button cButton (click)="createViewCode(true)">
-                Create
-            </button>
+            <c-col class="d-flex justify-content-end">
+                <button cButton color="light" (click)="createViewCode(false)">
+                    Insert Query
+                </button>
+                <button cButton class="ms-3" (click)="createViewCode(true)">
+                    Create View
+                </button>
+            </c-col>
         </div>
     </c-modal-body>
 
