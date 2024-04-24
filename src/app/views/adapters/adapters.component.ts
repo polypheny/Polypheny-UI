@@ -485,7 +485,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
 
     getLogo(adapterLogo: string) {
-        return `${this._catalog.getHttpUrl()}/${adapterLogo}`;
+        return `${this._catalog.getHttpUrl()}/public/${adapterLogo}`;
     }
 
     private validateControl(form: UntypedFormControl, key: string) {
