@@ -1,0 +1,23 @@
+<label for="argList"><strong>{{data.name}}</strong></label>
+<ul cListGroup [ngSwitch]="data.value.innerType" id="argList">
+    <li cListGroupItem *ngFor="let child of data.children" class="p-2">
+
+        <div *ngIf="!data.readonly" class="text-end remove-element">
+            <i class="fa fa-close"></i>
+        </div>
+        <ng-container *ngSwitchCase="'REX'">
+            <app-rex-arg [data]="child"></app-rex-arg>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'STRING'">
+            <app-string-arg [data]="child"></app-string-arg>
+        </ng-container>
+
+        <ng-container *ngSwitchDefault>
+            <p>{{child}}</p>
+        </ng-container>
+    </li>
+    <li *ngIf="!data.readonly" cListGroupItem color="success" (click)="data.addElement()" (pointerdown)="$event.stopPropagation()">
+        Add element
+    </li>
+</ul>

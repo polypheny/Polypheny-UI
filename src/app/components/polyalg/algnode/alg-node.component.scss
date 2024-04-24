@@ -1,0 +1,87 @@
+@use "sass:math";
+@import "scss/style.scss";
+
+$node-width: 350px;
+$socket-margin: 6px;
+$socket-size: 16px;
+
+
+:host {
+  display: block;
+  background: white;
+  border: 4px solid $dark;
+  border-radius: 4px;
+  cursor: pointer;
+  //box-sizing: border-box;
+  width: $node-width !important;
+  height: auto !important;
+  padding-bottom: 6px;
+  position: relative;
+  user-select: none;
+
+  .title-wrapper {
+    margin: -4px;
+    border-radius: 4px 4px 0 0;
+  }
+
+  &:hover {
+    border-color: $primary;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+
+    .title-wrapper {
+      background-color: $primary !important;
+    }
+  }
+
+  &.selected {
+    border-color: $primary;
+
+    .title-wrapper {
+      background-color: $primary !important;
+    }
+  }
+
+  .output {
+    text-align: right;
+  }
+
+  .input {
+    text-align: left;
+  }
+
+  .output-socket {
+    text-align: right;
+    margin-right: -20px;
+    display: inline-block;
+  }
+
+  .input-socket {
+    text-align: left;
+    margin-left: -20px;
+    display: inline-block;
+  }
+
+  .input-title,
+  .output-title {
+    vertical-align: middle;
+    color: white;
+    display: inline-block;
+    font-family: sans-serif;
+    font-size: 14px;
+    margin: $socket-margin;
+    line-height: $socket-size;
+  }
+
+  .input-control {
+    z-index: 1;
+    width: calc(100% - #{$socket-size + 2*$socket-margin});
+    vertical-align: middle;
+    display: inline-block;
+  }
+
+  .control {
+    padding: $socket-margin math.div($socket-size, 2) + $socket-margin;
+  }
+
+
+}
