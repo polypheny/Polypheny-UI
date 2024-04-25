@@ -12,6 +12,8 @@ import {getControl} from './controls/arg-control-utils';
 import {CustomSocketComponent} from './custom-socket/custom-socket.component';
 import {CustomConnection, CustomConnectionComponent} from './custom-connection/custom-connection.component';
 import {ReadonlyPlugin} from 'rete-readonly-plugin';
+import {ConnectionPathPlugin, Transformers} from 'rete-connection-path-plugin';
+import {getDOMSocketPosition} from 'rete-render-utils';
 
 type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes>;
@@ -22,9 +24,14 @@ export async function createEditor(container: HTMLElement, injector: Injector, n
     const socket = new ClassicPreset.Socket('socket');
     const editor = new NodeEditor<Schemes>();
     const area = new AreaPlugin<Schemes, AreaExtra>(container);
-    const connection = new ConnectionPlugin<Schemes, AreaExtra>();
+    const connection = new ConnectionPlugin<Schemes, AreaExtra>;
     const render = new AngularPlugin<Schemes, AreaExtra>({injector});
     const arrange = new AutoArrangePlugin<Schemes>();
+    const pathPlugin = new ConnectionPathPlugin({
+        transformer: () => (
+            (p) => Transformers.classic({vertical: true})(p.reverse())
+        )
+    });
 
     AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
         accumulating: AreaExtensions.accumulateOnCtrl()
@@ -47,7 +54,12 @@ export async function createEditor(container: HTMLElement, injector: Injector, n
             socket() {
                 return CustomSocketComponent;
             }
-        }
+        },
+        socketPositionWatcher: getDOMSocketPosition({
+            offset({x, y}, nodeId, side, key) {
+                return {x, y};
+            },
+        })
     }));
 
     connection.addPreset(ConnectionPresets.classic.setup());
@@ -66,6 +78,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, n
     area.use(readonlyPlugin.area);
     area.use(render);
     area.use(arrange);
+    render.use(pathPlugin);
 
     AreaExtensions.simpleNodesOrder(area);
     addCustomBackground(area);
@@ -79,7 +92,13 @@ export async function createEditor(container: HTMLElement, injector: Injector, n
         await editor.addConnection(c);
     }
 
-    await arrange.layout({applier, options: {'elk.direction': 'RIGHT', 'elk.alignment': 'RIGHT'}}); // https://github.com/retejs/rete/issues/697
+    await arrange.layout({
+        applier, options: {
+            'algorithm': 'mrtree',
+            'elk.direction': 'RIGHT',
+            'elk.topdownLayout': 'true',
+        }
+    }); // https://github.com/retejs/rete/issues/697
 
     AreaExtensions.zoomAt(area, editor.getNodes());
 
