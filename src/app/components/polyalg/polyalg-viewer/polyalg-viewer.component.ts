@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, ElementRef, Injector, Input, ViewChild} from '@angular/core';
-import {createEditor} from "../alg-editor";
-import {PlanNode} from "../models/polyalg-plan.model";
-import {CardBodyComponent, CardComponent} from "@coreui/angular";
+import {createEditor} from '../alg-editor';
+import {PlanNode} from '../models/polyalg-plan.model';
+import {CardBodyComponent, CardComponent} from '@coreui/angular';
 
 @Component({
     selector: 'app-polyalg-viewer',
@@ -16,8 +16,8 @@ import {CardBodyComponent, CardComponent} from "@coreui/angular";
 export class PolyalgViewerComponent implements AfterViewInit{
     @Input() polyAlg: string;
     @Input() planObject: string;
-    @Input() planType: "LOGICAL" | "ROUTED" | "PHYSICAL";
-    @ViewChild("rete") container!: ElementRef;
+    @Input() planType: 'LOGICAL' | 'ROUTED' | 'PHYSICAL';
+    @ViewChild('rete') container!: ElementRef;
 
     constructor(private injector: Injector) {}
 

@@ -1,6 +1,6 @@
 import {Component, Input, Type} from '@angular/core';
-import {StringArg} from "../../models/polyalg-plan.model";
-import {ArgControl} from "../arg-control";
+import {StringArg} from '../../models/polyalg-plan.model';
+import {ArgControl} from '../arg-control';
 
 @Component({
   selector: 'app-string-arg',
