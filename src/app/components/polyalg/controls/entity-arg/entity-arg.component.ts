@@ -1,6 +1,6 @@
 import {Component, Input, Type} from '@angular/core';
-import {EntityArg} from "../../models/polyalg-plan.model";
-import {ArgControl} from "../arg-control";
+import {EntityArg} from '../../models/polyalg-plan.model';
+import {ArgControl} from '../arg-control';
 
 @Component({
   selector: 'app-entity-arg',

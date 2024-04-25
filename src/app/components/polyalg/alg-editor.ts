@@ -1,17 +1,17 @@
-import {Injector} from "@angular/core";
-import {ClassicPreset, GetSchemes, NodeEditor} from "rete";
-import {AreaExtensions, AreaPlugin} from "rete-area-plugin";
-import {ConnectionPlugin, Presets as ConnectionPresets} from "rete-connection-plugin";
-import {AngularArea2D, AngularPlugin, Presets} from "rete-angular-plugin/17";
-import {PlanNode} from "./models/polyalg-plan.model";
-import {ArrangeAppliers, AutoArrangePlugin, Presets as ArrangePresets} from "rete-auto-arrange-plugin";
-import {AlgNode, AlgNodeComponent} from "./algnode/alg-node.component";
-import {addCustomBackground} from "./algnode/background";
-import {ArgControl} from "./controls/arg-control";
-import {getControl} from "./controls/arg-control-utils";
-import {CustomSocketComponent} from "./custom-socket/custom-socket.component";
-import {CustomConnection, CustomConnectionComponent} from "./custom-connection/custom-connection.component";
-import {ReadonlyPlugin} from "rete-readonly-plugin";
+import {Injector} from '@angular/core';
+import {ClassicPreset, GetSchemes, NodeEditor} from 'rete';
+import {AreaExtensions, AreaPlugin} from 'rete-area-plugin';
+import {ConnectionPlugin, Presets as ConnectionPresets} from 'rete-connection-plugin';
+import {AngularArea2D, AngularPlugin, Presets} from 'rete-angular-plugin/17';
+import {PlanNode} from './models/polyalg-plan.model';
+import {ArrangeAppliers, AutoArrangePlugin, Presets as ArrangePresets} from 'rete-auto-arrange-plugin';
+import {AlgNode, AlgNodeComponent} from './algnode/alg-node.component';
+import {addCustomBackground} from './algnode/background';
+import {ArgControl} from './controls/arg-control';
+import {getControl} from './controls/arg-control-utils';
+import {CustomSocketComponent} from './custom-socket/custom-socket.component';
+import {CustomConnection, CustomConnectionComponent} from './custom-connection/custom-connection.component';
+import {ReadonlyPlugin} from 'rete-readonly-plugin';
 
 type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes>;
@@ -19,7 +19,7 @@ type AreaExtra = AngularArea2D<Schemes>;
 export async function createEditor(container: HTMLElement, injector: Injector, node: PlanNode, readonly: boolean) {
     const readonlyPlugin = new ReadonlyPlugin<Schemes>();
 
-    const socket = new ClassicPreset.Socket("socket");
+    const socket = new ClassicPreset.Socket('socket');
     const editor = new NodeEditor<Schemes>();
     const area = new AreaPlugin<Schemes, AreaExtra>(container);
     const connection = new ConnectionPlugin<Schemes, AreaExtra>();
@@ -102,12 +102,12 @@ export async function createEditor(container: HTMLElement, injector: Injector, n
 }
 
 function addNode(socket: ClassicPreset.Socket, node: PlanNode, readonly: boolean): [AlgNode[], CustomConnection<AlgNode>[]] {
-    const nodes = []
-    const connections = []
+    const nodes = [];
+    const connections = [];
     const algNode = new AlgNode(node.opName, node.inputs.length);
-    algNode.addOutput("out", new ClassicPreset.Output(socket));
+    algNode.addOutput('out', new ClassicPreset.Output(socket));
 
-    let heights = {};
+    const heights = {};
     for (const [key, arg] of Object.entries(node.arguments)) {
         const c = getControl(key, arg, readonly);
         heights[key] = c.getHeight();
@@ -122,7 +122,7 @@ function addNode(socket: ClassicPreset.Socket, node: PlanNode, readonly: boolean
         connections.push(...childConnections);
 
         algNode.addInput(i.toString(), new ClassicPreset.Input(socket));
-        connections.push(new CustomConnection(childNode, "out", algNode, i.toString()));
+        connections.push(new CustomConnection(childNode, 'out', algNode, i.toString()));
     }
     nodes.push(algNode);
     return [nodes, connections];

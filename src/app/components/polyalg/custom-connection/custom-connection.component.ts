@@ -1,7 +1,7 @@
 import {Component, Input} from '@angular/core';
-import {ClassicPreset} from "rete";
-import Popper from "popper.js";
-import {AlgNode} from "../algnode/alg-node.component";
+import {ClassicPreset} from 'rete';
+import Popper from 'popper.js';
+import {AlgNode} from '../algnode/alg-node.component';
 import Position = Popper.Position;
 
 @Component({
@@ -15,9 +15,9 @@ import Position = Popper.Position;
 })
 export class CustomConnectionComponent {
   @Input() data!: ClassicPreset.Connection<ClassicPreset.Node, ClassicPreset.Node>;
-  @Input() start: Position
-  @Input() end: Position
-  @Input() path: string
+  @Input() start: Position;
+  @Input() end: Position;
+  @Input() path: string;
 
 }
 
