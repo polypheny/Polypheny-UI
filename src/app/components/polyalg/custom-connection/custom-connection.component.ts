@@ -14,7 +14,7 @@ import Position = Popper.Position;
   styleUrl: './custom-connection.component.scss'
 })
 export class CustomConnectionComponent {
-  @Input() data!: ClassicPreset.Connection<ClassicPreset.Node, ClassicPreset.Node>;
+  @Input() data!: CustomConnection<AlgNode>;
   @Input() start: Position;
   @Input() end: Position;
   @Input() path: string;

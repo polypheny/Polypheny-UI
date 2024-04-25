@@ -9,7 +9,7 @@ export class CustomSocketComponent implements OnChanges {
     @Input() data!: any;
     @Input() rendered!: any;
 
-    @HostBinding("title") get title() {
+    @HostBinding('title') get title() {
         return this.data.name;
     }
 

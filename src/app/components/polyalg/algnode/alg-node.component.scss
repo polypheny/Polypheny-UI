@@ -41,35 +41,37 @@ $socket-size: 16px;
     }
   }
 
-  .output {
-    text-align: right;
+  .outputs {
+    display: flex;
+    justify-content: space-around;
+    margin-top: -18px;
+    height: 24px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
   }
 
-  .input {
+  .inputs {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: -18px;
+    height: 24px;
+  }
+
+  .output, .input {
     text-align: left;
+    display: block;
   }
 
   .output-socket {
     text-align: right;
-    margin-right: -20px;
     display: inline-block;
   }
 
   .input-socket {
     text-align: left;
-    margin-left: -20px;
     display: inline-block;
-  }
-
-  .input-title,
-  .output-title {
-    vertical-align: middle;
-    color: white;
-    display: inline-block;
-    font-family: sans-serif;
-    font-size: 14px;
-    margin: $socket-margin;
-    line-height: $socket-size;
   }
 
   .input-control {
