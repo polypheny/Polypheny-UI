@@ -41,7 +41,7 @@ $socket-size: 16px;
     }
   }
 
-  .outputs {
+  .inputs {
     display: flex;
     justify-content: space-around;
     margin-top: -18px;
@@ -52,8 +52,9 @@ $socket-size: 16px;
     width: 100%;
   }
 
-  .inputs {
+  .outputs {
     display: flex;
+    flex-direction: row-reverse; // needed for non-overlapping connections when arranging nodes
     justify-content: space-around;
     margin-bottom: -18px;
     height: 24px;

@@ -6,7 +6,7 @@ import {EntityControl} from './entity-arg/entity-arg.component';
 import {ListControl} from './list-arg/list-arg.component';
 import {BooleanArg, EntityArg, ListArg, PlanArgument, RexArg, StringArg} from '../models/polyalg-plan.model';
 
-export function getControl(name: string, arg: PlanArgument, readonly: boolean): ArgControl {
+export function getControl(name: string, arg: PlanArgument, readonly: boolean, updateHeight: (height: number) => void): ArgControl {
     switch (arg.type) {
         case 'ANY':
             break;
@@ -31,7 +31,7 @@ export function getControl(name: string, arg: PlanArgument, readonly: boolean): 
         case 'FIELD':
             break;
         case 'LIST':
-            return new ListControl(name, arg.value as ListArg, readonly);
+            return new ListControl(name, arg.value as ListArg, readonly, updateHeight);
         case 'COLLATION':
             break;
         case 'CORR_ID':
