@@ -17,9 +17,9 @@ export class ListArgComponent {
 export class ListControl extends ArgControl {
     children: ArgControl[];
 
-    constructor(name: string, public value: ListArg, readonly: boolean) {
+    constructor(name: string, public value: ListArg, readonly: boolean, public updateHeight: any) {
         super(name, readonly);
-        this.children = value.args.map(arg => getControl('', arg, readonly));
+        this.children = value.args.map(arg => getControl('', arg, readonly, updateHeight));
     }
 
     getHeight(): number {
@@ -28,8 +28,11 @@ export class ListControl extends ArgControl {
     }
 
     addElement() {
-        console.log('add child');
-        this.children.push(getControl('', {type: 'REX', value: {rex: 'abc', alias: ''}}, this.readonly));
+        this.children.push(getControl('', {
+            type: 'REX',
+            value: {rex: 'abc', alias: ''}
+        }, this.readonly, this.updateHeight));
+        this.updateHeight(this.getHeight());
     }
 
     getArgComponent(): Type<any> {

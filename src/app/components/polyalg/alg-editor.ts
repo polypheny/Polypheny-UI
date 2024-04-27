@@ -29,7 +29,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, n
     const arrange = new AutoArrangePlugin<Schemes>();
     const pathPlugin = new ConnectionPathPlugin({
         transformer: () => (
-            (p) => Transformers.classic({vertical: true})(p.reverse())
+            (p) => Transformers.classic({vertical: true})(p)
         )
     });
 
@@ -83,7 +83,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, n
     AreaExtensions.simpleNodesOrder(area);
     addCustomBackground(area);
 
-    const [nodes, connections] = addNode(socket, node, readonly);
+    const [nodes, connections] = addNode(socket, node, readonly, area);
     for (const n of nodes) {
         await editor.addNode(n);
     }
@@ -92,12 +92,14 @@ export async function createEditor(container: HTMLElement, injector: Injector, n
         await editor.addConnection(c);
     }
 
+    const layoutOpts = {
+        'elk.algorithm': 'mrtree',
+        'elk.mrtree.weighting': 'CONSTRAINT',
+        'elk.spacing.edgeNode': '0',
+        'elk.spacing.nodeNode': '50'
+    };
     await arrange.layout({
-        applier, options: {
-            'algorithm': 'mrtree',
-            'elk.direction': 'RIGHT',
-            'elk.topdownLayout': 'true',
-        }
+        applier, options: layoutOpts
     }); // https://github.com/retejs/rete/issues/697
 
     AreaExtensions.zoomAt(area, editor.getNodes());
@@ -117,31 +119,42 @@ export async function createEditor(container: HTMLElement, injector: Injector, n
     }
 
 
-    return () => area.destroy();
+    return {
+        layout: async () => {
+            await arrange.layout({
+                applier, options: layoutOpts
+            });
+            AreaExtensions.zoomAt(area, editor.getNodes());
+        },
+        destroy: () => area.destroy()
+    };
 }
 
-function addNode(socket: ClassicPreset.Socket, node: PlanNode, readonly: boolean): [AlgNode[], CustomConnection<AlgNode>[]] {
+function addNode(socket: ClassicPreset.Socket, node: PlanNode, readonly: boolean, area: AreaPlugin<Schemes, AreaExtra>): [AlgNode[], CustomConnection<AlgNode>[]] {
     const nodes = [];
     const connections = [];
     const algNode = new AlgNode(node.opName, node.inputs.length);
-    algNode.addOutput('out', new ClassicPreset.Output(socket));
+    algNode.addInput('top', new ClassicPreset.Input(socket));
 
     const heights = {};
     for (const [key, arg] of Object.entries(node.arguments)) {
-        const c = getControl(key, arg, readonly);
+        const c = getControl(key, arg, readonly, (height: number) => {
+            algNode.updateControlHeight(key, height);
+            area.update('node', algNode.id).then();
+        });
         heights[key] = c.getHeight();
         algNode.addControl(key, c);
     }
     algNode.updateControlHeights(heights);
 
     for (let i = 0; i < node.inputs.length; i++) {
-        const [childNodes, childConnections] = addNode(socket, node.inputs[i], readonly);
+        const [childNodes, childConnections] = addNode(socket, node.inputs[i], readonly, area);
         const childNode = childNodes[childNodes.length - 1];
         nodes.push(...childNodes);
         connections.push(...childConnections);
 
-        algNode.addInput(i.toString(), new ClassicPreset.Input(socket));
-        connections.push(new CustomConnection(childNode, 'out', algNode, i.toString()));
+        algNode.addOutput(i.toString(), new ClassicPreset.Output(socket));
+        connections.push(new CustomConnection(algNode, i.toString(), childNode, 'top'));
     }
     nodes.push(algNode);
     return [nodes, connections];

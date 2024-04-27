@@ -1,8 +1,8 @@
 import {ChangeDetectorRef, Component, HostBinding, Input, OnChanges} from '@angular/core';
-import {ClassicPreset} from "rete";
-import {KeyValue} from "@angular/common";
+import {ClassicPreset} from 'rete';
+import {KeyValue} from '@angular/common';
 
-type SortValue<N extends ClassicPreset.Node> = (N['controls'] | N['inputs'] | N['outputs'])[string]
+type SortValue<N extends ClassicPreset.Node> = (N['controls'] | N['inputs'] | N['outputs'])[string];
 
 @Component({
     selector: 'app-alg-node',
@@ -11,30 +11,30 @@ type SortValue<N extends ClassicPreset.Node> = (N['controls'] | N['inputs'] | N[
 })
 export class AlgNodeComponent implements OnChanges {
     @Input() data!: AlgNode;
-    @Input() emit!: (data: any) => void
-    @Input() rendered!: () => void
+    @Input() emit!: (data: any) => void;
+    @Input() rendered!: () => void;
 
-    seed = 0
+    seed = 0;
 
     @HostBinding('class.selected') get selected() {
-        return this.data.selected
+        return this.data.selected;
     }
 
     constructor(private cdr: ChangeDetectorRef) {
-        this.cdr.detach()
+        this.cdr.detach();
     }
 
     ngOnChanges(): void {
-        this.cdr.detectChanges()
-        requestAnimationFrame(() => this.rendered())
-        this.seed++ // force render sockets
+        this.cdr.detectChanges();
+        requestAnimationFrame(() => this.rendered());
+        this.seed++; // force render sockets
     }
 
     sortByIndex<N extends ClassicPreset.Node, I extends KeyValue<string, SortValue<N>>>(a: I, b: I) {
-        const ai = a.value?.index || 0
-        const bi = b.value?.index || 0
+        const ai = a.value?.index || 0;
+        const bi = b.value?.index || 0;
 
-        return ai - bi
+        return ai - bi;
     }
 }
 
@@ -63,7 +63,7 @@ export class AlgNode extends ClassicPreset.Node {
         this.recomputeHeight();
     }
 
-    recomputeHeight() {
+    private recomputeHeight() {
         const sum = Object.values(this.controlHeights).reduce((total, value) => total + value, 0);
         this.height = BASE_HEIGHT + this.numOfInputs * 40 + sum;
     }
