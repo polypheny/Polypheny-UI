@@ -1,14 +1,14 @@
 <div class="param-wrapper">
     <label for="arg" *ngIf="data.name"><strong>{{data.name}}</strong></label>
 
-    <c-input-group>
+    <c-input-group sizing="sm">
         <input type="text" id="arg" name="arg" (pointerdown)="$event.stopPropagation()"
-               autocomplete="off" [readonly]="data.readonly"
+               autocomplete="off" [readonly]="data.isReadOnly"
                class="form-control form-control-sm param-input" [(ngModel)]="data.value.arg">
         <ng-container *ngIf="data.value.alias != null">
-            <span cInputGroupText>AS</span>
+            <span cInputGroupText class="p-1">AS</span>
             <input type="text" id="alias" name="alias" (pointerdown)="$event.stopPropagation()"
-                   autocomplete="off" [readonly]="data.readonly" placeholder="{{data.value.arg}}"
+                   autocomplete="off" [readonly]="data.isReadOnly" placeholder="{{data.value.arg}}"
                    class="form-control form-control-sm param-input" [ngModel]="data.value.alias">
         </ng-container>
     </c-input-group>

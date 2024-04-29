@@ -1,6 +1,7 @@
 import {Component, Input, Type} from '@angular/core';
 import {StringArg} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
+import {Parameter, ParamTag} from '../../models/polyalg-registry';
 
 @Component({
   selector: 'app-string-arg',
@@ -13,8 +14,11 @@ export class StringArgComponent {
 }
 
 export class StringControl extends ArgControl {
-  constructor(name: string, public value: StringArg, readonly: boolean) {
-    super(name, readonly);
+  readonly showAlias: boolean;
+
+  constructor(param: Parameter, public value: StringArg, isReadOnly: boolean) {
+    super(param, isReadOnly);
+    this.showAlias = param.tags.includes(ParamTag.ALIAS);
   }
 
   getHeight(): number {

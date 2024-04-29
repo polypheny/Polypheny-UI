@@ -79,3 +79,51 @@
     transform: rotate(0deg);
   }
 }
+
+
+[rete-context-menu] {
+  // TODO: adjust style of context menu
+  width: 320px !important;
+  border-radius: 4px;
+
+  .block {
+
+    background: $dark !important;
+    //color: black !important;
+    //border: 4px solid $dark;
+    //border-radius: 4px;
+    border: none !important;
+  }
+
+  .block.item {
+    border: none;
+    font-weight: 600;
+    font-family: "PathWay", sans-serif;
+  }
+
+  .block.item:hover {
+    background: cyan;
+    color: orange;
+  }
+
+  .block:first-child input {
+    background: blue;
+    border: none;
+  }
+
+  .block:first-child input:focus {
+    background: lightseagreen;
+    border: none;
+  }
+
+  .block:first-child:hover {
+    background: green;
+    border: none;
+  }
+
+  .search {
+    color: purple !important;
+    font-weight: 600;
+    font-family: "PathWay", sans-serif;
+  }
+}

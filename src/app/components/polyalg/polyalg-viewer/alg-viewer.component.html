@@ -2,6 +2,10 @@
 <div>
     <div class="rete" #rete></div>
 </div>
+<button cButton color="success" variant="outline" class="mt-1" *ngIf="!isReadOnly"
+        (click)="editor?.layout()">
+    Arrange Nodes
+</button>
 <c-card class="mt-2">
     <c-card-body>
         <pre class="d-block p-3 bg-dark text-white">{{polyAlg}}</pre>

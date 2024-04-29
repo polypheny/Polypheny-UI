@@ -1,4 +1,6 @@
 <div class="rete-wrapper">
-    <div class="rete" #rete></div>
-    <button cButton color="success" variant="outline" class="mt-1" (click)="editor?.layout()">Arrange Nodes</button>
+    <app-alg-viewer [planObject]="samplePlan" [planType]="'LOGICAL'" [polyAlg]="" [isReadOnly]="false"></app-alg-viewer>
 </div>
+
+
+
