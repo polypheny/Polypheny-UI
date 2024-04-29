@@ -1,34 +1,10 @@
 import {EventEmitter, inject, Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders, HttpUrlEncodingCodec} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {
-    EntityMeta,
-    IndexModel,
-    ModifyPartitionRequest,
-    PartitionFunctionModel,
-    PartitioningRequest,
-    PathAccessRequest,
-    PlacementFieldsModel
-} from '../components/data-view/models/result-set.model';
+import {EntityMeta, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PathAccessRequest, PlacementFieldsModel} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {
-    ColumnRequest,
-    ConstraintRequest,
-    DeleteRequest,
-    EditCollectionRequest,
-    EditTableRequest,
-    EntityRequest,
-    ExploreTable,
-    GraphRequest,
-    MaterializedRequest,
-    Method,
-    MonitoringRequest,
-    Namespace,
-    QueryRequest,
-    RelAlgRequest,
-    StatisticRequest
-} from '../models/ui-request.model';
-import {CreateDockerResponse, AutoDockerResult, AutoDockerStatus, DockerInstanceInfo, DockerSettings, HandshakeInfo, InstancesAndAutoDocker, UpdateDockerResponse} from '../models/docker.model';
+import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, QueryRequest, RelAlgRequest, StatisticRequest} from '../models/ui-request.model';
+import {AutoDockerResult, AutoDockerStatus, CreateDockerResponse, DockerInstanceInfo, DockerSettings, HandshakeInfo, InstancesAndAutoDocker, UpdateDockerResponse} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {AdapterModel} from '../views/adapters/adapter.model';
@@ -37,6 +13,7 @@ import {AlgNodeModel, Node} from '../views/querying/algebra/algebra.model';
 import {WebSocket} from './webSocket';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
+import {PolyAlgRegistry} from '../components/polyalg/models/polyalg-registry';
 
 
 @Injectable({
@@ -472,7 +449,7 @@ export class CrudService {
             }
         } else {
             request = new RelAlgRequest(relAlg, cache, analyzeQuery);
-            console.log(request)
+            console.log(request);
         }
         return socket.sendMessage(request);
     }
@@ -532,7 +509,7 @@ export class CrudService {
     }
 
     createAdapter(adapter: AdapterModel, formdata: FormData) {
-        formdata.set("body", JSON.stringify(adapter))
+        formdata.set('body', JSON.stringify(adapter));
         return this._http.post(`${this.httpUrl}/createAdapter`, formdata);
     }
 
@@ -677,6 +654,10 @@ export class CrudService {
 
     changeDockerSettings(settings: DockerSettings) {
         return this._http.patch<DockerSettings>(`${this.httpUrl}/docker/settings`, settings, this.httpOptions);
+    }
+
+    getPolyAlgRegistry() {
+        return this._http.get<PolyAlgRegistry>(`${this.httpUrl}/getPolyAlgRegistry`);
     }
 
     getNameValidator(required: boolean = false) {

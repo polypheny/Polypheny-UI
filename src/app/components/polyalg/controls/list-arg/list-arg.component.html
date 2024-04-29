@@ -1,23 +1,25 @@
 <label for="argList"><strong>{{data.name}}</strong></label>
 <ul cListGroup [ngSwitch]="data.value.innerType" id="argList">
-    <li cListGroupItem *ngFor="let child of data.children" class="p-2">
+    <li cListGroupItem *ngFor="let child of data.children" class="p-2 list-element-container d-flex flex-row">
+        <div class="list-element flex-grow-1">
+            <ng-container *ngSwitchCase="'REX'">
+                <app-rex-arg [data]="child"></app-rex-arg>
+            </ng-container>
 
-        <div *ngIf="!data.readonly" class="text-end remove-element">
+            <ng-container *ngSwitchCase="'STRING'">
+                <app-string-arg [data]="child"></app-string-arg>
+            </ng-container>
+
+            <ng-container *ngSwitchDefault>
+                <p>{{child}}</p>
+            </ng-container>
+        </div>
+
+        <div *ngIf="!data.isReadOnly" class="text-end remove-element align-self-center ms-1" (click)="data.removeElement(child)" (pointerdown)="$event.stopPropagation()">
             <i class="fa fa-close"></i>
         </div>
-        <ng-container *ngSwitchCase="'REX'">
-            <app-rex-arg [data]="child"></app-rex-arg>
-        </ng-container>
-
-        <ng-container *ngSwitchCase="'STRING'">
-            <app-string-arg [data]="child"></app-string-arg>
-        </ng-container>
-
-        <ng-container *ngSwitchDefault>
-            <p>{{child}}</p>
-        </ng-container>
     </li>
-    <li *ngIf="!data.readonly" cListGroupItem color="success" (click)="data.addElement()" (pointerdown)="$event.stopPropagation()">
+    <li *ngIf="!data.isReadOnly" cListGroupItem color="success" (click)="data.addElement()" (pointerdown)="$event.stopPropagation()">
         Add element
     </li>
 </ul>

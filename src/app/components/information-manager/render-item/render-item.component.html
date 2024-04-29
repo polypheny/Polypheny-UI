@@ -64,7 +64,7 @@
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationPolyAlg' && li.jsonPolyAlg">
-        <app-polyalg-viewer [planObject]="li.jsonPolyAlg" [planType]="li.planType" [polyAlg]="li.polyAlg"></app-polyalg-viewer>
+        <app-alg-viewer [planObject]="li.jsonPolyAlg" [planType]="li.planType" [polyAlg]="li.polyAlg" [isReadOnly]="true"></app-alg-viewer>
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationAction'">

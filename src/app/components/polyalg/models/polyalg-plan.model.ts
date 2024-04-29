@@ -1,3 +1,5 @@
+import {ParamType} from './polyalg-registry';
+
 export interface PlanNode {
     opName: string;
     arguments: {
@@ -8,14 +10,15 @@ export interface PlanNode {
 }
 
 export interface PlanArgument {
-    type: ParamType;
+    type: ParamType; // if isEnum, then type identifies the type of enum and is not a ParamType
     value: ArgType;
+    isEnum?: boolean;
 }
 
 export interface EntityArg {
     arg: string;
-    namespaceId: number;
-    entityId: number;
+    namespaceId?: number;
+    entityId?: number;
 }
 
 export interface RexArg {
@@ -37,22 +40,8 @@ export interface StringArg {
     alias?: string;
 }
 
-export type ArgType = EntityArg | RexArg | ListArg | StringArg | BooleanArg;
+export interface EnumArg {
+    arg: string;
+}
 
-export type ParamType =
-    | 'ANY'
-    | 'INTEGER'
-    | 'STRING'
-    | 'BOOLEAN'
-    | 'REX'
-    | 'AGGREGATE'
-    | 'LAX_AGGREGATE'
-    | 'ENTITY'
-    | 'JOIN_TYPE_ENUM'  // TODO: handle enums dynamically based on the PolyAlgRegistry
-    | 'SEMI_JOIN_TYPE_ENUM'
-    | 'MODIFY_OP_ENUM'
-    | 'DISTRIBUTION_TYPE_ENUM'
-    | 'FIELD'
-    | 'LIST'
-    | 'COLLATION'
-    | 'CORR_ID';
+export type ArgType = EntityArg | RexArg | ListArg | StringArg | BooleanArg | EnumArg;

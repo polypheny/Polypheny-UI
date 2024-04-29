@@ -1,4 +1,12 @@
 .remove-element {
-  margin-top: -0.5rem;
+  //margin-top: -0.5rem;
+  display: none;
+}
 
+//.list-element:hover + .remove-element, .remove-element:hover {
+//  display: block;
+//}
+
+.list-element-container:hover .remove-element, .remove-element:hover {
+  display: block;
 }

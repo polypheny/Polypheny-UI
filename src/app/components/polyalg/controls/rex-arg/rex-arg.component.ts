@@ -1,6 +1,7 @@
 import {Component, Input, Type} from '@angular/core';
 import {RexArg} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
+import {Parameter, ParamTag} from '../../models/polyalg-registry';
 
 @Component({
     selector: 'app-rex-arg',
@@ -13,8 +14,11 @@ export class RexArgComponent {
 }
 
 export class RexControl extends ArgControl {
-    constructor(name: string, public value: RexArg, readonly: boolean) {
-        super(name, readonly);
+    readonly showAlias: boolean;
+
+    constructor(param: Parameter, public value: RexArg, isReadOnly: boolean) {
+        super(param, isReadOnly);
+        this.showAlias = param.tags.includes(ParamTag.ALIAS);
     }
 
     getHeight(): number {

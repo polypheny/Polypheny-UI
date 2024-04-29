@@ -99,17 +99,18 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
 import {ReloadButtonComponent} from '../views/util/reload-button/reload-button.component';
 import {ViewComponent} from './data-view/view/view.component';
 import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.component';
-import {PolyalgViewerComponent} from "./polyalg/polyalg-viewer/polyalg-viewer.component";
-import {AlgNodeComponent} from "./polyalg/algnode/alg-node.component";
-import {ReteModule} from "rete-angular-plugin/17";
-import {EntityArgComponent} from "./polyalg/controls/entity-arg/entity-arg.component";
-import {AutocompleteLibModule} from "angular-ng-autocomplete";
-import {ListArgComponent} from "./polyalg/controls/list-arg/list-arg.component";
+import {AlgViewerComponent} from './polyalg/polyalg-viewer/alg-viewer.component';
+import {AlgNodeComponent} from './polyalg/algnode/alg-node.component';
+import {ReteModule} from 'rete-angular-plugin/17';
+import {EntityArgComponent} from './polyalg/controls/entity-arg/entity-arg.component';
+import {AutocompleteLibModule} from 'angular-ng-autocomplete';
+import {ListArgComponent} from './polyalg/controls/list-arg/list-arg.component';
 import {RexArgComponent} from './polyalg/controls/rex-arg/rex-arg.component';
 import {StringArgComponent} from './polyalg/controls/string-arg/string-arg.component';
 import {BooleanArgComponent} from './polyalg/controls/boolean-arg/boolean-arg.component';
 import {CustomSocketComponent} from './polyalg/custom-socket/custom-socket.component';
 import {CustomConnectionComponent} from './polyalg/custom-connection/custom-connection.component';
+import {EnumArgComponent} from './polyalg/controls/enum-arg/enum-arg.component';
 
 //import 'hammerjs';
 
@@ -179,7 +180,7 @@ import {CustomConnectionComponent} from './polyalg/custom-connection/custom-conn
         DropdownMenuDirective,
         DropdownItemDirective,
         DropdownDividerDirective,
-        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective, ContainerComponent, PolyalgViewerComponent, ReteModule, AutocompleteLibModule
+        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective, ContainerComponent, ReteModule, AutocompleteLibModule
     ],
     declarations: [
         BreadcrumbComponent,
@@ -216,7 +217,9 @@ import {CustomConnectionComponent} from './polyalg/custom-connection/custom-conn
         StringArgComponent,
         BooleanArgComponent,
         CustomSocketComponent,
-        CustomConnectionComponent
+        CustomConnectionComponent,
+        EnumArgComponent,
+        AlgViewerComponent
     ],
     exports: [
         BreadcrumbComponent,
@@ -240,6 +243,7 @@ import {CustomConnectionComponent} from './polyalg/custom-connection/custom-conn
         Toast,
         ReloadButtonComponent,
         DockerInstanceComponent,
+        AlgViewerComponent
     ]
 })
 export class ComponentsModule {

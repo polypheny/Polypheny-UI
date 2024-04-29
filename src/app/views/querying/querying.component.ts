@@ -1,5 +1,6 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
+import {PolyAlgService} from '../../components/polyalg/polyalg.service';
 
 @Component({
     selector: 'app-querying',
@@ -12,7 +13,7 @@ export class QueryingComponent implements OnInit {
 
     public route = 'console';
 
-    constructor() {
+    constructor(private _registry: PolyAlgService) {
     }
 
     ngOnInit() {

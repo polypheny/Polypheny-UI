@@ -2,6 +2,7 @@ import {Component, Input, Type} from '@angular/core';
 import {ListArg} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {getControl} from '../arg-control-utils';
+import {Parameter} from '../../models/polyalg-registry';
 
 @Component({
     selector: 'app-list-arg',
@@ -17,9 +18,10 @@ export class ListArgComponent {
 export class ListControl extends ArgControl {
     children: ArgControl[];
 
-    constructor(name: string, public value: ListArg, readonly: boolean, public updateHeight: any) {
-        super(name, readonly);
-        this.children = value.args.map(arg => getControl('', arg, readonly, updateHeight));
+    constructor(param: Parameter, public value: ListArg,
+                isReadOnly: boolean, public updateHeight: (height: number) => void) {
+        super(param, isReadOnly, true);
+        this.children = value.args.map(arg => getControl(param, arg, isReadOnly, updateHeight));
     }
 
     getHeight(): number {
@@ -28,11 +30,15 @@ export class ListControl extends ArgControl {
     }
 
     addElement() {
-        this.children.push(getControl('', {
-            type: 'REX',
-            value: {rex: 'abc', alias: ''}
-        }, this.readonly, this.updateHeight));
+        this.children.push(getControl(this.param, null, this.isReadOnly, this.updateHeight, false));
         this.updateHeight(this.getHeight());
+    }
+
+    removeElement(child: ArgControl) {
+        const index = this.children.indexOf(child);
+        this.children.splice(index, 1);
+        this.updateHeight(this.getHeight());
+
     }
 
     getArgComponent(): Type<any> {
