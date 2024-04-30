@@ -5,6 +5,7 @@ import {SOCKET_PRESET} from '../polyalg-viewer/alg-editor';
 import {Declaration} from '../models/polyalg-registry';
 import {PlanArgument} from '../models/polyalg-plan.model';
 import {getControl} from '../controls/arg-control-utils';
+import {ArgControl} from '../controls/arg-control';
 
 type SortValue<N extends ClassicPreset.Node> = (N['controls'] | N['inputs'] | N['outputs'])[string];
 
@@ -56,7 +57,7 @@ export class AlgNode extends ClassicPreset.Node {
         this.numOfInputs = decl.numInputs;
 
 
-        this.addInput('top', new ClassicPreset.Input(SOCKET_PRESET));
+        this.addOutput('out', new ClassicPreset.Output(SOCKET_PRESET));
 
         const heights = {};
         for (const p of decl.posParams.concat(decl.kwParams)) {
@@ -72,11 +73,11 @@ export class AlgNode extends ClassicPreset.Node {
 
         if (decl.numInputs > 0) {
             for (let i = 0; i < decl.numInputs; i++) {
-                this.addOutput(i.toString(), new ClassicPreset.Output(SOCKET_PRESET));
+                this.addInput(i.toString(), new ClassicPreset.Input(SOCKET_PRESET));
             }
         } else if (decl.numInputs === -1) {
             // TODO: handle variable number of inputs
-            this.addOutput('0', new ClassicPreset.Output(SOCKET_PRESET));
+            this.addInput('0', new ClassicPreset.Input(SOCKET_PRESET));
         }
     }
 
@@ -95,14 +96,41 @@ export class AlgNode extends ClassicPreset.Node {
         this.height = BASE_HEIGHT + this.numOfInputs * 40 + sum;
     }
 
-    data(inputs: any = {}) {
+    data(inputs: { [key: string]: string } = {}) {
+        // https://retejs.org/docs/guides/processing/dataflow
+        // build PolyAlg representation of this node
 
-        return {'0': {name: this.label, inputs: inputs}};
+        const args = [];
+        for (const p of this.decl.posParams) {
+            const arg = this.controls[p.name] as ArgControl;
+            args.push(arg.toPolyAlg());
+        }
+        for (const p of this.decl.kwParams) {
+            const polyAlg = (this.controls[p.name] as ArgControl).toPolyAlg();
+            if (polyAlg !== p.defaultPolyAlg) {
+                args.push(polyAlg);
+            }
+        }
+
+        const values = Object.keys(inputs)
+        .sort((a, b) => parseInt(a, 10) - parseInt(b, 10)) // keys correspond to input socket key
+        .map(key => inputs[key]);
+        let children = '';
+        if (values.length > 0) {
+            children = `(\n${values.join(',\n')})`;
+        }
+
+        const polyAlg = `  ${this.decl.name}[${args.join(', ')}]${children}`;
+
+        return {'out': polyAlg};
     }
 
     clone() {
-        // TODO: infer args from controls of this node
-        return new AlgNode(this.decl, null, this.isReadOnly, this.updateArea);
+        const args = {};
+        for (const p of this.decl.posParams.concat(this.decl.kwParams)) {
+            args[p.name] = (this.controls[p.name] as ArgControl).copyArg();
+        }
+        return new AlgNode(this.decl, args, this.isReadOnly, this.updateArea);
     }
 
 }

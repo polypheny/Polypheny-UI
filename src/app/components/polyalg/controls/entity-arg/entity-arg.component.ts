@@ -1,7 +1,7 @@
 import {Component, Input, Type} from '@angular/core';
-import {EntityArg} from '../../models/polyalg-plan.model';
+import {EntityArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
-import {Parameter} from '../../models/polyalg-registry';
+import {Parameter, ParamType} from '../../models/polyalg-registry';
 
 @Component({
     selector: 'app-entity-arg',
@@ -23,5 +23,13 @@ export class EntityControl extends ArgControl {
 
     getArgComponent(): Type<any> {
         return EntityArgComponent;
+    }
+
+    toPolyAlg(): string {
+        return this.value.arg;
+    }
+
+    copyArg(): PlanArgument {
+        return {type: ParamType.ENTITY, value: JSON.parse(JSON.stringify(this.value))};
     }
 }

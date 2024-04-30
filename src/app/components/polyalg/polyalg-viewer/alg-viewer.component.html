@@ -2,11 +2,24 @@
 <div>
     <div class="rete" #rete></div>
 </div>
-<button cButton color="success" variant="outline" class="mt-1" *ngIf="!isReadOnly"
-        (click)="editor?.layout()">
-    Arrange Nodes
-</button>
-<c-card class="mt-2">
+<ng-container *ngIf="!isReadOnly">
+    <button cButton color="success" variant="outline" class="m-1" *ngIf="!isReadOnly"
+            (click)="editor?.layout()">
+        Arrange Nodes
+    </button>
+    <button cButton color="success" variant="outline" class="m-1" *ngIf="!isReadOnly"
+            (click)="generatePolyAlg()">
+        Generate PolyAlgebra
+    </button>
+
+    <c-card class="mt-2" *ngIf="generatedPolyAlg">
+        <c-card-body>
+            <pre class="d-block p-3 bg-dark text-white">{{generatedPolyAlg}}</pre>
+        </c-card-body>
+    </c-card>
+</ng-container>
+
+<c-card class="mt-2" *ngIf="isReadOnly">
     <c-card-body>
         <pre class="d-block p-3 bg-dark text-white">{{polyAlg}}</pre>
     </c-card-body>

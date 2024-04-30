@@ -10,7 +10,7 @@ export interface PlanNode {
 }
 
 export interface PlanArgument {
-    type: ParamType; // if isEnum, then type identifies the type of enum and is not a ParamType
+    type: ParamType | string; // if isEnum, then type identifies the type of enum and is not a ParamType
     value: ArgType;
     isEnum?: boolean;
 }
@@ -31,7 +31,7 @@ export interface BooleanArg {
 }
 
 export interface ListArg {
-    innerType: ParamType;
+    innerType: ParamType | string;
     args: PlanArgument[];
 }
 
@@ -44,4 +44,4 @@ export interface EnumArg {
     arg: string;
 }
 
-export type ArgType = EntityArg | RexArg | ListArg | StringArg | BooleanArg | EnumArg;
+type ArgType = EntityArg | RexArg | ListArg | StringArg | BooleanArg | EnumArg;
