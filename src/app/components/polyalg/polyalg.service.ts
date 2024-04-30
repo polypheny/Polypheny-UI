@@ -29,7 +29,6 @@ export class PolyAlgService {
     }
 
     private buildLookups() {
-        console.log('in lookups with ', this.registry);
         for (const opName in this.registry.declarations) {
             if (this.registry.declarations.hasOwnProperty(opName)) {
                 const decl: Declaration = this.registry.declarations[opName];

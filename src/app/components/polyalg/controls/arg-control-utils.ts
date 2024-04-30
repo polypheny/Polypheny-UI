@@ -15,7 +15,6 @@ export function getControl(param: Parameter, arg: PlanArgument | null,
     }
 
     if (arg.isEnum) {
-        console.log('creating new enumcontrol');
         return new EnumControl(param, arg.type, arg.value as EnumArg, isReadOnly);
     }
 
