@@ -1,6 +1,7 @@
 import {ClassicPreset} from 'rete';
 import {Type} from '@angular/core';
 import {Parameter} from '../models/polyalg-registry';
+import {PlanArgument} from '../models/polyalg-plan.model';
 
 export abstract class ArgControl extends ClassicPreset.Control {
     readonly name: string;
@@ -13,4 +14,8 @@ export abstract class ArgControl extends ClassicPreset.Control {
     abstract getHeight(): number;
 
     abstract getArgComponent(): Type<any>;
+
+    abstract toPolyAlg(): string;
+
+    abstract copyArg(): PlanArgument;
 }

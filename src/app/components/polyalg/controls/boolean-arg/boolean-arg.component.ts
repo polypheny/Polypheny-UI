@@ -1,7 +1,7 @@
 import {Component, Input, Type} from '@angular/core';
-import {BooleanArg} from '../../models/polyalg-plan.model';
+import {BooleanArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
-import {Parameter} from '../../models/polyalg-registry';
+import {Parameter, ParamType} from '../../models/polyalg-registry';
 
 @Component({
     selector: 'app-boolean-arg',
@@ -24,5 +24,13 @@ export class BooleanControl extends ArgControl {
 
     getArgComponent(): Type<any> {
         return BooleanArgComponent;
+    }
+
+    toPolyAlg(): string {
+        return this.value.arg.toString();
+    }
+
+    copyArg(): PlanArgument {
+        return {type: ParamType.BOOLEAN, value: JSON.parse(JSON.stringify(this.value))};
     }
 }

@@ -1,6 +1,6 @@
 import {Component, Input, OnInit, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
-import {EnumArg} from '../../models/polyalg-plan.model';
+import {EnumArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {PolyAlgService} from '../../polyalg.service';
 import {Parameter} from '../../models/polyalg-registry';
 
@@ -35,4 +35,11 @@ export class EnumControl extends ArgControl {
         return EnumArgComponent;
     }
 
+    toPolyAlg(): string {
+        return this.value.arg;
+    }
+
+    copyArg(): PlanArgument {
+        return {type: this.type, value: JSON.parse(JSON.stringify(this.value)), isEnum: true};
+    }
 }

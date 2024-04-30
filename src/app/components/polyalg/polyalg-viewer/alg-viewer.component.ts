@@ -15,7 +15,9 @@ export class AlgViewerComponent implements AfterViewInit {
     @Input() isReadOnly: boolean;
     @ViewChild('rete') container!: ElementRef;
 
-    editor: { layout: () => Promise<void>; destroy: () => void; };
+    generatedPolyAlg: string;
+
+    editor: { layout: () => Promise<void>; destroy: () => void; toPolyAlg: () => Promise<string>; };
     showAlgEditor = computed(() => this._registry.registryLoaded());
 
     constructor(private injector: Injector, private _registry: PolyAlgService) {
@@ -24,7 +26,10 @@ export class AlgViewerComponent implements AfterViewInit {
 
             if (this.showAlgEditor() && el) {
                 createEditor(el, this.injector, _registry, JSON.parse(this.planObject) as PlanNode, this.isReadOnly)
-                .then(editor => this.editor = editor);
+                .then(editor => {
+                    this.editor = editor;
+                    this.generatePolyAlg();
+                });
             }
         });
     }
@@ -36,5 +41,11 @@ export class AlgViewerComponent implements AfterViewInit {
             createEditor(el, this.injector, JSON.parse(this.planObject) as PlanNode, this.readonly)
             .then(editor => this.editor = editor);
         }*/
+    }
+
+    generatePolyAlg() {
+        this.editor?.toPolyAlg().then(str => {
+            this.generatedPolyAlg = str || 'Cannot determine root of tree';
+        });
     }
 }

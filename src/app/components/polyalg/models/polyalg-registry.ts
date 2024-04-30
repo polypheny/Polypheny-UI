@@ -25,6 +25,8 @@ export interface Parameter {
     isMultiValued: boolean;
     requiresAlias: boolean;
     defaultValue?: PlanArgument;
+    defaultPolyAlg?: string;
+    canUnpackValues?: boolean;
 }
 
 export enum ParamType {

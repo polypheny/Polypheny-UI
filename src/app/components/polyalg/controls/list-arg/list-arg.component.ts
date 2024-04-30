@@ -1,8 +1,8 @@
 import {Component, Input, Type} from '@angular/core';
-import {ListArg} from '../../models/polyalg-plan.model';
+import {ListArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {getControl} from '../arg-control-utils';
-import {Parameter} from '../../models/polyalg-registry';
+import {Parameter, ParamType} from '../../models/polyalg-registry';
 
 @Component({
     selector: 'app-list-arg',
@@ -43,5 +43,21 @@ export class ListControl extends ArgControl {
 
     getArgComponent(): Type<any> {
         return ListArgComponent;
+    }
+
+    toPolyAlg(): string {
+        if (this.children.length === 0) {
+            return '[]';
+        }
+
+        const args = this.children.map(arg => arg.toPolyAlg()).join(', ');
+        if (this.children.length === 1 || this.param.canUnpackValues) {
+            return args;
+        }
+        return `[${args}]`;
+    }
+
+    copyArg(): PlanArgument {
+        return {type: ParamType.LIST, value: JSON.parse(JSON.stringify(this.value))};
     }
 }

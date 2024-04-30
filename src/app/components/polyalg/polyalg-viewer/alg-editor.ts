@@ -4,7 +4,7 @@ import {AreaExtensions, AreaPlugin, BaseAreaPlugin} from 'rete-area-plugin';
 import {ConnectionPlugin, Presets as ConnectionPresets} from 'rete-connection-plugin';
 import {AngularArea2D, AngularPlugin, Presets} from 'rete-angular-plugin/17';
 import {PlanNode} from '../models/polyalg-plan.model';
-import {ArrangeAppliers, AutoArrangePlugin, Presets as ArrangePresets} from 'rete-auto-arrange-plugin';
+import {ArrangeAppliers, AutoArrangePlugin} from 'rete-auto-arrange-plugin';
 import {AlgNode, AlgNodeComponent} from '../algnode/alg-node.component';
 import {addCustomBackground} from '../algnode/background';
 import {ArgControl} from '../controls/arg-control';
@@ -35,7 +35,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     const arrange = new AutoArrangePlugin<Schemes>();
     const pathPlugin = new ConnectionPathPlugin({
         transformer: () => (
-            (p) => Transformers.classic({vertical: true})(p)
+            (p) => Transformers.classic({vertical: true})(p.reverse()) // reverse for correct UP direction
         )
     });
     const contextMenu = new ContextMenuPlugin<Schemes>({
@@ -81,7 +81,19 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
             await AreaExtensions.zoomAt(area, editor.getNodes());
         }
     });
-    arrange.addPreset(ArrangePresets.classic.setup());
+    arrange.addPreset(() => {
+        return {
+            port(n) {
+                return {
+                    x: n.width / (n.ports + 1) * (n.index + 1),
+                    y: 0,
+                    width: 15,
+                    height: 15,
+                    side: 'output' === n.side ? 'NORTH' : 'SOUTH'
+                };
+            }
+        };
+    });
 
     editor.use(readonlyPlugin.root);
     editor.use(area);
@@ -91,6 +103,12 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     area.use(arrange);
     area.use(contextMenu);
     render.use(pathPlugin);
+
+    if (isReadOnly) {
+        readonlyPlugin.enable(); // disable interaction with nodes (control interaction is deactivated separately)
+    } else {
+        area.use(connection);  // make connections editable
+    }
 
     AreaExtensions.simpleNodesOrder(area);
     addCustomBackground(area);
@@ -105,14 +123,11 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     }
 
     const layoutOpts = {
-        'elk.algorithm': 'mrtree',
-        'elk.mrtree.weighting': 'CONSTRAINT',
-        'elk.spacing.edgeNode': '0',
-        'elk.spacing.nodeNode': '50'
+        'elk.direction': 'UP'
     };
     await arrange.layout({
         applier, options: layoutOpts
-    }); // https://github.com/retejs/rete/issues/697
+    });
 
     AreaExtensions.zoomAt(area, editor.getNodes());
 
@@ -124,15 +139,6 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         return context
     })*/
 
-    if (isReadOnly) {
-        readonlyPlugin.enable(); // disable interaction with nodes (control interaction is deactivated separately)
-    } else {
-        area.use(connection);  // make connections editable
-    }
-
-    //const result = await engine.fetch(nodes[nodes.length - 1].id);
-    //console.log('result', result);
-
 
     return {
         layout: async () => {
@@ -141,7 +147,14 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
             });
             AreaExtensions.zoomAt(area, editor.getNodes());
         },
-        destroy: () => area.destroy()
+        destroy: () => area.destroy(),
+        toPolyAlg: async (): Promise<string> => {
+            const rootId = findRootNodeId(editor.getNodes(), editor.getConnections());
+            if (rootId) {
+                return await engine.fetch(rootId).then(res => res['out']);
+            }
+            return null;
+        }
     };
 }
 
@@ -150,15 +163,17 @@ function addNode(registry: PolyAlgService, node: PlanNode, isReadOnly: boolean, 
     const connections = [];
     const algNode = new AlgNode(registry.getDeclaration(node.opName), node.arguments, isReadOnly,
         (a: AlgNode) => area.update('node', a.id).then());
+    if (node.opName.endsWith('#')) {
+        // TODO: handle implicit project correctly
+        algNode.label = 'PROJECT#';
+    }
 
     for (let i = 0; i < node.inputs.length; i++) {
         const [childNodes, childConnections] = addNode(registry, node.inputs[i], isReadOnly, area);
         const childNode = childNodes[childNodes.length - 1];
         nodes.push(...childNodes);
         connections.push(...childConnections);
-
-        //algNode.addOutput(i.toString(), new ClassicPreset.Output(SOCKET_PRESET));
-        connections.push(new CustomConnection(algNode, i.toString(), childNode, 'top'));
+        connections.push(new CustomConnection(childNode, 'out', algNode, i.toString()));
     }
     nodes.push(algNode);
     return [nodes, connections];
@@ -203,4 +218,53 @@ function getContextMenuItems(registry: PolyAlgService, isReadOnly: boolean, area
     };
 }
 
+function findRootNodeId(nodes: AlgNode[], connections: CustomConnection<AlgNode>[]): string | null {
+    if (connections.length === 0) {
+        if (nodes.length === 1) {
+            return nodes[0].id;
+        }
+        return null;
+    }
+    const visited = new Set<string>();
 
+    let root: string = null;
+
+    for (const c of connections) {
+        visited.add(c.source);
+        let curr = c.target;
+        if (visited.has(curr)) {
+            continue;
+        }
+
+        let next = c.target;
+        while (next !== null) {
+            if (visited.has(next)) {
+                break;
+            }
+            curr = next;
+            next = getSuccessor(curr, connections);
+            visited.add(curr);
+        }
+        if (next === null) {
+            // arrived at root of subtree
+            if (root === null) {
+                root = curr;
+            } else if (root !== curr) {
+                // found different root => multiple subtrees
+                return null;
+            }
+        }
+    }
+    if (visited.size < nodes.length) {
+        console.log('found orphan nodes');
+    }
+    return root;
+}
+
+function getSuccessor(nodeId: string, connections: CustomConnection<AlgNode>[]): string | null {
+    const outgoing = connections.filter(c => c.source === nodeId);
+    if (outgoing.length === 0) {
+        return null;
+    }
+    return outgoing[0].target;
+}
