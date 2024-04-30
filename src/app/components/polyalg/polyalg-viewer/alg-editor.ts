@@ -1,6 +1,6 @@
 import {Injector} from '@angular/core';
 import {ClassicPreset, GetSchemes, NodeEditor} from 'rete';
-import {AreaExtensions, AreaPlugin} from 'rete-area-plugin';
+import {AreaExtensions, AreaPlugin, BaseAreaPlugin} from 'rete-area-plugin';
 import {ConnectionPlugin, Presets as ConnectionPresets} from 'rete-connection-plugin';
 import {AngularArea2D, AngularPlugin, Presets} from 'rete-angular-plugin/17';
 import {PlanNode} from '../models/polyalg-plan.model';
@@ -8,7 +8,6 @@ import {ArrangeAppliers, AutoArrangePlugin, Presets as ArrangePresets} from 'ret
 import {AlgNode, AlgNodeComponent} from '../algnode/alg-node.component';
 import {addCustomBackground} from '../algnode/background';
 import {ArgControl} from '../controls/arg-control';
-import {getControl} from '../controls/arg-control-utils';
 import {CustomSocketComponent} from '../custom-socket/custom-socket.component';
 import {CustomConnection, CustomConnectionComponent} from '../custom-connection/custom-connection.component';
 import {ReadonlyPlugin} from 'rete-readonly-plugin';
@@ -16,20 +15,23 @@ import {ConnectionPathPlugin, Transformers} from 'rete-connection-path-plugin';
 import {getDOMSocketPosition} from 'rete-render-utils';
 import {ContextMenuExtra, ContextMenuPlugin, Presets as ContextMenuPresets} from 'rete-context-menu-plugin';
 import {PolyAlgService} from '../polyalg.service';
-import {Declaration} from '../models/polyalg-registry';
 import {DataModel} from '../../../models/ui-request.model';
+import {DataflowEngine} from 'rete-engine';
 
 type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
 
+export const SOCKET_PRESET = new ClassicPreset.Socket('socket');
+
 export async function createEditor(container: HTMLElement, injector: Injector, registry: PolyAlgService, node: PlanNode, isReadOnly: boolean) {
     const readonlyPlugin = new ReadonlyPlugin<Schemes>();
 
-    const socket = new ClassicPreset.Socket('socket');
+    //const socket = new ClassicPreset.Socket('socket');
     const editor = new NodeEditor<Schemes>();
     const area = new AreaPlugin<Schemes, AreaExtra>(container);
     const connection = new ConnectionPlugin<Schemes, AreaExtra>;
     const render = new AngularPlugin<Schemes, AreaExtra>({injector});
+    const engine = new DataflowEngine<Schemes>();
     const arrange = new AutoArrangePlugin<Schemes>();
     const pathPlugin = new ConnectionPathPlugin({
         transformer: () => (
@@ -37,14 +39,14 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         )
     });
     const contextMenu = new ContextMenuPlugin<Schemes>({
-        items: getContextMenuItems(registry, socket, isReadOnly, area)
+        items: getContextMenuItems(registry, isReadOnly, area)
     });
 
     AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
         accumulating: AreaExtensions.accumulateOnCtrl()
     });
 
-    render.addPreset(Presets.classic.setup({
+    render.addPreset(Presets.classic.setup<Schemes, AngularArea2D<Schemes>>({
         customize: {
             node() {
                 return AlgNodeComponent;
@@ -68,7 +70,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
             },
         })
     }));
-    render.addPreset(Presets.contextMenu.setup({delay: 250}));
+    render.addPreset(Presets.contextMenu.setup({delay: 100}));
 
     connection.addPreset(ConnectionPresets.classic.setup());
 
@@ -83,6 +85,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
 
     editor.use(readonlyPlugin.root);
     editor.use(area);
+    editor.use(engine);
     area.use(readonlyPlugin.area);
     area.use(render);
     area.use(arrange);
@@ -92,7 +95,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     AreaExtensions.simpleNodesOrder(area);
     addCustomBackground(area);
 
-    const [nodes, connections] = addNode(socket, registry, node, isReadOnly, area);
+    const [nodes, connections] = addNode(registry, node, isReadOnly, area);
     for (const n of nodes) {
         await editor.addNode(n);
     }
@@ -127,6 +130,9 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         area.use(connection);  // make connections editable
     }
 
+    //const result = await engine.fetch(nodes[nodes.length - 1].id);
+    //console.log('result', result);
+
 
     return {
         layout: async () => {
@@ -139,45 +145,34 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     };
 }
 
-function addNode(socket: ClassicPreset.Socket, registry: PolyAlgService, node: PlanNode, isReadOnly: boolean, area: AreaPlugin<Schemes, AreaExtra>): [AlgNode[], CustomConnection<AlgNode>[]] {
+function addNode(registry: PolyAlgService, node: PlanNode, isReadOnly: boolean, area: AreaPlugin<Schemes, AreaExtra>): [AlgNode[], CustomConnection<AlgNode>[]] {
     const nodes = [];
     const connections = [];
-    const algNode = new AlgNode(node.opName, node.inputs.length);
-    algNode.addInput('top', new ClassicPreset.Input(socket));
-
-    const heights = {};
-    for (const [key, arg] of Object.entries(node.arguments)) {
-        const param = registry.getParameter(node.opName, key);
-        const c = getControl(param, arg, isReadOnly, (height: number) => {
-            algNode.updateControlHeight(key, height);
-            area.update('node', algNode.id).then();
-        });
-        heights[key] = c.getHeight();
-        algNode.addControl(key, c);
-    }
-    algNode.updateControlHeights(heights);
+    const algNode = new AlgNode(registry.getDeclaration(node.opName), node.arguments, isReadOnly,
+        (a: AlgNode) => area.update('node', a.id).then());
 
     for (let i = 0; i < node.inputs.length; i++) {
-        const [childNodes, childConnections] = addNode(socket, registry, node.inputs[i], isReadOnly, area);
+        const [childNodes, childConnections] = addNode(registry, node.inputs[i], isReadOnly, area);
         const childNode = childNodes[childNodes.length - 1];
         nodes.push(...childNodes);
         connections.push(...childConnections);
 
-        algNode.addOutput(i.toString(), new ClassicPreset.Output(socket));
+        //algNode.addOutput(i.toString(), new ClassicPreset.Output(SOCKET_PRESET));
         connections.push(new CustomConnection(algNode, i.toString(), childNode, 'top'));
     }
     nodes.push(algNode);
     return [nodes, connections];
 }
 
-function getContextMenuItems(registry: PolyAlgService, socket: ClassicPreset.Socket, isReadOnly: boolean, area: AreaPlugin<Schemes, AreaExtra>) {
+function getContextMenuItems(registry: PolyAlgService, isReadOnly: boolean, area: AreaPlugin<Schemes, AreaExtra>) {
     const nodes = [];
     for (const model of Object.keys(DataModel).map(key => DataModel[key])) {
         const innerNodes = [];
         for (const decl of registry.getSortedDeclarations(model)) {
             innerNodes.push([
                 decl.name,
-                () => createAlgNode(decl, socket, isReadOnly, (algNode) => area.update('node', algNode.id).then())
+                () => new AlgNode(decl, null, isReadOnly,
+                    (algNode) => area.update('node', algNode.id).then())
             ]);
         }
         nodes.push([model, innerNodes]);
@@ -186,39 +181,26 @@ function getContextMenuItems(registry: PolyAlgService, socket: ClassicPreset.Soc
 
     const items = ContextMenuPresets.classic.setup(nodes);
 
-    return (context, plugin) => {
+    // adjust classic preset to hide the search bar and enable cloning (clone handler of the preset is broken)
+    return (context: any, plugin: any) => {
         const result = items(context, plugin);
         result.searchBar = false;
+
+        if (result.list[result.list.length - 1].key === 'clone') {
+            const area = plugin.parentScope(BaseAreaPlugin);
+            const editor = area.parentScope(NodeEditor);
+            result.list[result.list.length - 1] = {
+                label: 'Clone',
+                key: 'clone',
+                async handler() {
+                    const node = context.clone(context);
+                    await editor.addNode(node);
+                    area.translate(node.id, area.area.pointer);
+                }
+            };
+        }
         return result;
     };
-}
-
-export function createAlgNode(decl: Declaration, socket: ClassicPreset.Socket, isReadOnly: boolean, updateArea: (a: AlgNode) => void): AlgNode {
-    console.log(decl);
-
-    const algNode = new AlgNode(decl.name, decl.numInputs);
-    algNode.addInput('top', new ClassicPreset.Input(socket));
-
-    const heights = {};
-    for (const p of decl.posParams.concat(decl.kwParams)) {
-        const c = getControl(p, null, isReadOnly, (height: number) => {
-            algNode.updateControlHeight(p.name, height);
-            updateArea(algNode);
-        }, p.isMultiValued);
-        heights[p.name] = c.getHeight();
-        algNode.addControl(p.name, c);
-    }
-    algNode.updateControlHeights(heights);
-
-    if (decl.numInputs > 0) {
-        for (let i = 0; i < decl.numInputs; i++) {
-            algNode.addOutput(i.toString(), new ClassicPreset.Output(socket));
-        }
-    } else if (decl.numInputs === -1) {
-        algNode.addOutput('0', new ClassicPreset.Output(socket));
-    }
-
-    return algNode;
 }
 
 
