@@ -101,13 +101,11 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     area.use(readonlyPlugin.area);
     area.use(render);
     area.use(arrange);
-    area.use(contextMenu);
     render.use(pathPlugin);
 
-    if (isReadOnly) {
-        readonlyPlugin.enable(); // disable interaction with nodes (control interaction is deactivated separately)
-    } else {
+    if (!isReadOnly) {
         area.use(connection);  // make connections editable
+        area.use(contextMenu); // add context menu
     }
 
     AreaExtensions.simpleNodesOrder(area);
@@ -139,6 +137,10 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         return context
     })*/
 
+    if (isReadOnly) {
+        readonlyPlugin.enable(); // disable interaction with nodes (control interaction is deactivated separately)
+    }
+
 
     return {
         layout: async () => {
@@ -151,6 +153,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         toPolyAlg: async (): Promise<string> => {
             const rootId = findRootNodeId(editor.getNodes(), editor.getConnections());
             if (rootId) {
+                engine.reset(); // clear cache
                 return await engine.fetch(rootId).then(res => res['out']);
             }
             return null;

@@ -87,7 +87,6 @@
   border-radius: 4px;
 
   .block {
-
     background: $dark !important;
     //color: black !important;
     border-bottom: 1px solid white !important;
@@ -103,35 +102,7 @@
     border: none !important;
   }
 
-  .block.item {
-    border: none;
-    font-weight: 600;
-    //font-family: "PathWay", sans-serif;
-  }
-
-  .block.item:hover {
-    background: cyan;
-    color: orange;
-  }
-
-  .block:first-child input {
-    background: blue;
-    border: none;
-  }
-
-  .block:first-child input:focus {
-    background: lightseagreen;
-    border: none;
-  }
-
-  .block:first-child:hover {
-    background: green;
-    border: none;
-  }
-
-  .search {
-    color: purple !important;
-    font-weight: 600;
-    //font-family: "PathWay", sans-serif;
+  .subitems {
+    width: 200px !important;
   }
 }

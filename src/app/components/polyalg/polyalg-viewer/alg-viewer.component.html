@@ -3,6 +3,7 @@
     <div class="rete" #rete></div>
 </div>
 <ng-container *ngIf="!isReadOnly">
+    <p><i>Use right-click to add or remove nodes</i></p>
     <button cButton color="success" variant="outline" class="m-1" *ngIf="!isReadOnly"
             (click)="editor?.layout()">
         Arrange Nodes

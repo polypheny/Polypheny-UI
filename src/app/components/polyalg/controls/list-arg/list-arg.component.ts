@@ -13,6 +13,7 @@ export class ListArgComponent {
     @Input() data: ListControl;
 
 
+    protected readonly ParamType = ParamType;
 }
 
 export class ListControl extends ArgControl {
@@ -22,11 +23,15 @@ export class ListControl extends ArgControl {
                 isReadOnly: boolean, public updateHeight: (height: number) => void) {
         super(param, isReadOnly, true);
         this.children = value.args.map(arg => getControl(param, arg, isReadOnly, updateHeight));
+        if (this.children.length === 0 && value.innerType === ParamType.LIST) {
+            value.innerType = param.type; // TODO: handle nested lists
+        }
     }
 
     getHeight(): number {
-        return this.children.reduce((total, child) => total + child.getHeight(), 0)
-            + Object.keys(this.children).length * 16;
+        const childrenHeight = this.children.reduce((total, child) => total + child.getHeight() + 16, 0);
+
+        return 36 + (this.isReadOnly ? childrenHeight : childrenHeight + 33); // 36: title, 33: add button
     }
 
     addElement() {
@@ -58,6 +63,10 @@ export class ListControl extends ArgControl {
     }
 
     copyArg(): PlanArgument {
-        return {type: ParamType.LIST, value: JSON.parse(JSON.stringify(this.value))};
+        const value: ListArg = {
+            innerType: this.value.innerType,
+            args: this.children.map(arg => arg.copyArg())
+        };
+        return {type: ParamType.LIST, value: value};
     }
 }

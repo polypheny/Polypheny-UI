@@ -2,15 +2,40 @@
 <ul cListGroup [ngSwitch]="data.value.innerType" id="argList">
     <li cListGroupItem *ngFor="let child of data.children" class="p-2 list-element-container d-flex flex-row">
         <div class="list-element flex-grow-1">
-            <ng-container *ngSwitchCase="'REX'">
+            <ng-container *ngSwitchCase="ParamType.REX">
                 <app-rex-arg [data]="child"></app-rex-arg>
             </ng-container>
 
-            <ng-container *ngSwitchCase="'STRING'">
+            <ng-container *ngSwitchCase="ParamType.STRING">
                 <app-string-arg [data]="child"></app-string-arg>
             </ng-container>
 
+            <ng-container *ngSwitchCase="ParamType.INTEGER">
+                <app-int-arg [data]="child"></app-int-arg>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="ParamType.FIELD">
+                <app-field-arg [data]="child"></app-field-arg>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="ParamType.CORR_ID">
+                <app-correlation-arg [data]="child"></app-correlation-arg>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="ParamType.COLLATION">
+                <app-collation-arg [data]="child"></app-collation-arg>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="ParamType.AGGREGATE">
+                <app-agg-arg [data]="child"></app-agg-arg>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="ParamType.LAX_AGGREGATE">
+                <app-lax-agg-arg [data]="child"></app-lax-agg-arg>
+            </ng-container>
+
             <ng-container *ngSwitchDefault>
+                <p>{{data.value.innerType}}</p>
                 <p>{{child}}</p>
             </ng-container>
         </div>
@@ -19,7 +44,8 @@
             <i class="fa fa-close"></i>
         </div>
     </li>
-    <li *ngIf="!data.isReadOnly" cListGroupItem color="success" (click)="data.addElement()" (pointerdown)="$event.stopPropagation()">
+    <li *ngIf="!data.isReadOnly" cListGroupItem color="success" class="py-1"
+        (click)="data.addElement()" (pointerdown)="$event.stopPropagation()">
         Add element
     </li>
 </ul>

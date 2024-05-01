@@ -53,6 +53,7 @@ export enum OperatorTag {
 
 export enum ParamTag {
     ALIAS = 'ALIAS',
-    ADVANCED = 'ADVANCED'
+    ADVANCED = 'ADVANCED',
+    NON_NEGATIVE = 'NON_NEGATIVE'
 }
 

@@ -25,7 +25,7 @@ export class RexControl extends ArgControl {
     }
 
     getHeight(): number {
-        return 100;
+        return this.name ? 55 : 31;
     }
 
     trivialAlias(): boolean {

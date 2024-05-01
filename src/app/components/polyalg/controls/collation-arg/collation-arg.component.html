@@ -1,0 +1,20 @@
+<label for="arg" *ngIf="data.name"><strong>{{data.name}}</strong></label>
+<input type="text" id="arg" name="arg" (pointerdown)="$event.stopPropagation()"
+       autocomplete="off" [readonly]="data.isReadOnly" placeholder="field"
+       class="form-control form-control-sm mb-1" [(ngModel)]="data.value.field">
+
+<c-input-group sizing="sm" class="mb-1">
+    <label cInputGroupText for="selectDirection">Direction</label>
+    <select cSelect id="selectDirection" [(ngModel)]="data.value.direction" (pointerdown)="$event.stopPropagation()"
+            [disabled]="data.isReadOnly">
+        <option *ngFor="let choice of dirChoices" [value]="CollDirection[choice]">{{ choice }}</option>
+    </select>
+</c-input-group>
+
+<c-input-group sizing="sm">
+    <label cInputGroupText for="selectNullDirection">Null Direction</label>
+    <select cSelect id="selectNullDirection" [(ngModel)]="data.value.nullDirection" (pointerdown)="$event.stopPropagation()"
+            [disabled]="data.isReadOnly">
+        <option *ngFor="let choice of nullDirChoices" [value]="CollNullDirection[choice]">{{ choice }}</option>
+    </select>
+</c-input-group>
