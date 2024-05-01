@@ -28,7 +28,7 @@ export class EnumControl extends ArgControl {
     }
 
     getHeight(): number {
-        return 55;
+        return this.name ? 55 : 31;
     }
 
     getArgComponent(): Type<any> {

@@ -61,7 +61,7 @@ export class AlgNode extends ClassicPreset.Node {
 
         const heights = {};
         for (const p of decl.posParams.concat(decl.kwParams)) {
-            const arg = args?.[p.name];
+            const arg = args?.[p.name] || null;
             const c = getControl(p, arg, isReadOnly, (height: number) => {
                 this.updateControlHeight(p.name, height);
                 updateArea(this);
@@ -92,8 +92,8 @@ export class AlgNode extends ClassicPreset.Node {
     }
 
     private recomputeHeight() {
-        const sum = Object.values(this.controlHeights).reduce((total, value) => total + value, 0);
-        this.height = BASE_HEIGHT + this.numOfInputs * 40 + sum;
+        const sum = Object.values(this.controlHeights).reduce((total, value) => total + value + 12, 0);
+        this.height = BASE_HEIGHT + sum;
     }
 
     data(inputs: { [key: string]: string } = {}) {
@@ -108,7 +108,7 @@ export class AlgNode extends ClassicPreset.Node {
         for (const p of this.decl.kwParams) {
             const polyAlg = (this.controls[p.name] as ArgControl).toPolyAlg();
             if (polyAlg !== p.defaultPolyAlg) {
-                args.push(polyAlg);
+                args.push(`${p.name}=${polyAlg}`);
             }
         }
 

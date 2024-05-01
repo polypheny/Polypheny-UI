@@ -44,4 +44,67 @@ export interface EnumArg {
     arg: string;
 }
 
-type ArgType = EntityArg | RexArg | ListArg | StringArg | BooleanArg | EnumArg;
+export interface IntArg {
+    arg: number;
+}
+
+export interface LaxAggArg {
+    arg?: string;
+    function: string;
+    input: string;
+    alias: string;
+}
+
+export interface AggArg {
+    arg?: string;
+    function: string;
+    distinct: boolean;
+    approximate: boolean;
+    argList: string[];
+    collList: CollationArg[];
+    filter?: string;
+    alias: string;
+}
+
+export interface CollationArg {
+    field: string;
+    direction: CollDirection;
+    nullDirection: CollNullDirection;
+}
+
+export interface CorrelationArg {
+    arg: number;
+}
+
+export interface FieldArg {
+    arg: string;
+}
+
+type ArgType = EntityArg | RexArg | ListArg | StringArg | BooleanArg | EnumArg | IntArg | LaxAggArg | AggArg | CollationArg | CorrelationArg | FieldArg;
+
+export enum CollDirection {
+    ASCENDING = 'ASC',
+    STRICTLY_ASCENDING = 'SASC',
+    DESCENDING = 'DESC',
+    STRICTLY_DESCENDING = 'SDESC',
+    CLUSTERED = 'CLU'
+}
+
+export enum CollNullDirection {
+    FIRST = 'FIRST',
+    LAST = 'LAST',
+    UNSPECIFIED = 'UNSPECIFIED'
+}
+
+export function defaultNullDirection(d: CollDirection) {
+    switch (d) {
+        case CollDirection.ASCENDING:
+        case CollDirection.STRICTLY_ASCENDING:
+            return CollNullDirection.LAST;
+        case CollDirection.DESCENDING:
+        case CollDirection.STRICTLY_DESCENDING:
+            return CollNullDirection.FIRST;
+        default:
+            return CollNullDirection.UNSPECIFIED;
+    }
+}

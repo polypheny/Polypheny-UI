@@ -21,6 +21,8 @@ import {
     DropdownItemDirective,
     DropdownMenuDirective,
     DropdownToggleDirective,
+    FormCheckComponent,
+    FormCheckLabelDirective,
     FormControlDirective,
     FormDirective,
     FormFeedbackComponent,
@@ -111,6 +113,12 @@ import {BooleanArgComponent} from './polyalg/controls/boolean-arg/boolean-arg.co
 import {CustomSocketComponent} from './polyalg/custom-socket/custom-socket.component';
 import {CustomConnectionComponent} from './polyalg/custom-connection/custom-connection.component';
 import {EnumArgComponent} from './polyalg/controls/enum-arg/enum-arg.component';
+import {IntArgComponent} from './polyalg/controls/int-arg/int-arg.component';
+import {FieldArgComponent} from './polyalg/controls/field-arg/field-arg.component';
+import {CorrelationArgComponent} from './polyalg/controls/correlation-arg/correlation-arg.component';
+import {CollationArgComponent} from './polyalg/controls/collation-arg/collation-arg.component';
+import {AggArgComponent} from './polyalg/controls/agg-arg/agg-arg.component';
+import {LaxAggArgComponent} from './polyalg/controls/lax-agg/lax-agg-arg.component';
 
 //import 'hammerjs';
 
@@ -180,7 +188,18 @@ import {EnumArgComponent} from './polyalg/controls/enum-arg/enum-arg.component';
         DropdownMenuDirective,
         DropdownItemDirective,
         DropdownDividerDirective,
-        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective, ContainerComponent, ReteModule, AutocompleteLibModule
+        DropdownToggleDirective,
+        ModalTitleDirective,
+        FormDirective,
+        RowDirective,
+        DropdownComponent,
+        FormSelectDirective,
+        TooltipDirective,
+        ContainerComponent,
+        ReteModule,
+        AutocompleteLibModule,
+        FormCheckComponent,
+        FormCheckLabelDirective
     ],
     declarations: [
         BreadcrumbComponent,
@@ -219,7 +238,13 @@ import {EnumArgComponent} from './polyalg/controls/enum-arg/enum-arg.component';
         CustomSocketComponent,
         CustomConnectionComponent,
         EnumArgComponent,
-        AlgViewerComponent
+        AlgViewerComponent,
+        IntArgComponent,
+        FieldArgComponent,
+        CorrelationArgComponent,
+        CollationArgComponent,
+        AggArgComponent,
+        LaxAggArgComponent
     ],
     exports: [
         BreadcrumbComponent,

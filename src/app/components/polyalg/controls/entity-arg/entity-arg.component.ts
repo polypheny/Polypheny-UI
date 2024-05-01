@@ -18,7 +18,7 @@ export class EntityControl extends ArgControl {
     }
 
     getHeight(): number {
-        return 40;
+        return this.name ? 55 : 31;
     }
 
     getArgComponent(): Type<any> {
