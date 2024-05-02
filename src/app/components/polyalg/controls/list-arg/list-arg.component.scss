@@ -10,3 +10,7 @@
 .list-element-container:hover .remove-element, .remove-element:hover {
   display: block;
 }
+
+.add-element.disabled {
+  background-color: lightgray;
+}

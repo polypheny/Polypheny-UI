@@ -4,12 +4,12 @@
     <c-input-group sizing="sm">
         <input type="text" id="rex" name="rex" (pointerdown)="$event.stopPropagation()"
                autocomplete="off" [readonly]="data.isReadOnly" placeholder="expression"
-               class="form-control form-control-sm param-input" [(ngModel)]="data.value.rex">
+               class="form-control form-control-sm param-input" [(ngModel)]="data.rex">
         <ng-container *ngIf="data.showAlias">
             <span cInputGroupText class="p-1">AS</span>
             <input type="text" id="alias" name="alias" (pointerdown)="$event.stopPropagation()"
-                   autocomplete="off" [readonly]="data.isReadOnly" placeholder="{{data.value.rex}}"
-                   class="form-control form-control-sm param-input" [(ngModel)]="data.value.alias">
+                   autocomplete="off" [readonly]="data.isReadOnly" placeholder="{{data.rex() || 'alias'}}"
+                   class="form-control form-control-sm param-input" [(ngModel)]="data.alias">
 
         </ng-container>
     </c-input-group>

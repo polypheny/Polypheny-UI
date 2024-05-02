@@ -17,6 +17,7 @@ import {ContextMenuExtra, ContextMenuPlugin, Presets as ContextMenuPresets} from
 import {PolyAlgService} from '../polyalg.service';
 import {DataModel} from '../../../models/ui-request.model';
 import {DataflowEngine} from 'rete-engine';
+import {Position} from 'rete-angular-plugin/17/types';
 
 type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
@@ -37,9 +38,6 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         transformer: () => (
             (p) => Transformers.classic({vertical: true})(p.reverse()) // reverse for correct UP direction
         )
-    });
-    const contextMenu = new ContextMenuPlugin<Schemes>({
-        items: getContextMenuItems(registry, isReadOnly, area)
     });
 
     AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
@@ -94,6 +92,16 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
             }
         };
     });
+    const layoutOpts = {
+        'elk.direction': 'UP'
+    };
+
+    const updateSizeFct = (a: AlgNode, delta: Position) => updateSize(a, delta, area, readonlyPlugin,
+        () => arrange.layout({applier: undefined, options: layoutOpts}));
+
+    const contextMenu = new ContextMenuPlugin<Schemes>({
+        items: getContextMenuItems(registry, isReadOnly, updateSizeFct)
+    });
 
     editor.use(readonlyPlugin.root);
     editor.use(area);
@@ -111,7 +119,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     AreaExtensions.simpleNodesOrder(area);
     addCustomBackground(area);
 
-    const [nodes, connections] = addNode(registry, node, isReadOnly, area);
+    const [nodes, connections] = addNode(registry, node, isReadOnly, updateSizeFct);
     for (const n of nodes) {
         await editor.addNode(n);
     }
@@ -120,9 +128,6 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         await editor.addConnection(c);
     }
 
-    const layoutOpts = {
-        'elk.direction': 'UP'
-    };
     await arrange.layout({
         applier, options: layoutOpts
     });
@@ -161,18 +166,18 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     };
 }
 
-function addNode(registry: PolyAlgService, node: PlanNode, isReadOnly: boolean, area: AreaPlugin<Schemes, AreaExtra>): [AlgNode[], CustomConnection<AlgNode>[]] {
+function addNode(registry: PolyAlgService, node: PlanNode, isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void): [AlgNode[], CustomConnection<AlgNode>[]] {
     const nodes = [];
     const connections = [];
     const algNode = new AlgNode(registry.getDeclaration(node.opName), node.arguments, isReadOnly,
-        (a: AlgNode) => area.update('node', a.id).then());
+        updateSize);
     if (node.opName.endsWith('#')) {
         // TODO: handle implicit project correctly
         algNode.label = 'PROJECT#';
     }
 
     for (let i = 0; i < node.inputs.length; i++) {
-        const [childNodes, childConnections] = addNode(registry, node.inputs[i], isReadOnly, area);
+        const [childNodes, childConnections] = addNode(registry, node.inputs[i], isReadOnly, updateSize);
         const childNode = childNodes[childNodes.length - 1];
         nodes.push(...childNodes);
         connections.push(...childConnections);
@@ -182,15 +187,14 @@ function addNode(registry: PolyAlgService, node: PlanNode, isReadOnly: boolean, 
     return [nodes, connections];
 }
 
-function getContextMenuItems(registry: PolyAlgService, isReadOnly: boolean, area: AreaPlugin<Schemes, AreaExtra>) {
+function getContextMenuItems(registry: PolyAlgService, isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void) {
     const nodes = [];
     for (const model of Object.keys(DataModel).map(key => DataModel[key])) {
         const innerNodes = [];
         for (const decl of registry.getSortedDeclarations(model)) {
             innerNodes.push([
                 decl.name,
-                () => new AlgNode(decl, null, isReadOnly,
-                    (algNode) => area.update('node', algNode.id).then())
+                () => new AlgNode(decl, null, isReadOnly, updateSize)
             ]);
         }
         nodes.push([model, innerNodes]);
@@ -219,6 +223,25 @@ function getContextMenuItems(registry: PolyAlgService, isReadOnly: boolean, area
         }
         return result;
     };
+}
+
+function updateSize(algNode: AlgNode, {x, y}: Position, area: AreaPlugin<Schemes, AreaExtra>,
+                    readonlyPlugin: ReadonlyPlugin<Schemes>,
+                    arrange: () => Promise<any>) {
+    const oldPos = area.nodeViews.get(algNode.id).position;
+
+    // update location of sockets
+    area.update('node', algNode.id).then(
+        () => {
+            const isReadOnly = readonlyPlugin.enabled;
+            if (isReadOnly) {
+                readonlyPlugin.disable();
+                arrange().then(() => readonlyPlugin.enable());
+            } else {
+                area.translate(algNode.id, {x: oldPos.x + x, y: oldPos.y + y}).then();
+            }
+        }
+    );
 }
 
 function findRootNodeId(nodes: AlgNode[], connections: CustomConnection<AlgNode>[]): string | null {
