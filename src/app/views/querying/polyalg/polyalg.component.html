@@ -1,6 +1,50 @@
-<div class="rete-wrapper">
-    <app-alg-viewer [planObject]="samplePlan" [planType]="'LOGICAL'" [polyAlg]="" [isReadOnly]="false"></app-alg-viewer>
-</div>
+<c-container>
+
+    <c-row class="row w-100" [hidden]="showingAnalysis">
+        <button cButton (click)="executePolyAlg()" class="mb-1">Execute Plan</button>
+        <div class="rete-wrapper">
+            <app-alg-viewer #algViewer [planObject]="samplePlan" [planType]="'LOGICAL'" [polyAlg]="" [isReadOnly]="false"></app-alg-viewer>
+        </div>
+
+    </c-row>
 
 
+    <app-information-manager
+            *ngIf="queryAnalysis"
+            [data]="queryAnalysis"
+            [hidden]="!showingAnalysis"></app-information-manager>
+</c-container>
 
+<c-container>
+    <c-card class="my-3" *ngIf="result() && !showingAnalysis " id="alg-result">
+        <c-card-header>
+            <span>{{ result().query }}</span>
+            <span class="badge pull-right" *ngIf="result().error"
+                  [ngClass]="{'badge-secondary': !result().error, 'badge-danger': result().error}">
+            <ng-container *ngIf="result().error">!</ng-container>
+            </span>
+        </c-card-header>
+
+        <c-card-body>
+            <div class="text-danger" *ngIf="result() && result().error">
+                <strong>Error:</strong>
+                <p class="mb-3">{{ result().error }}</p>
+            </div>
+
+            <div class="query-info">
+                <p *ngIf="result() && !result().data && !result().error" class="mb-3">
+                    <i>Successfully executed</i>
+                </p>
+            </div>
+
+            <c-row *ngIf="result() && result().data" [hidden]="showingAnalysis">
+                <c-col lg="lg">
+                    <app-data-view [result]="result()"
+                                   [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: true}"
+                                   [loading]="loading()"></app-data-view>
+                </c-col>
+            </c-row>
+        </c-card-body>
+
+    </c-card>
+</c-container>

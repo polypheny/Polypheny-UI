@@ -62,6 +62,17 @@ export class RelAlgRequest extends UIRequest {
     }
 }
 
+export class PolyAlgRequest {
+    type = 'PolyAlgRequest';
+    polyAlg: string;
+    runQuery: boolean; // false if the parsed tree should only be generated, but not executed
+
+    constructor(polyAlg: string, runQuery: boolean) {
+        this.polyAlg = polyAlg;
+        this.runQuery = runQuery;
+    }
+}
+
 export class QueryRequest extends UIRequest {
     type = 'QueryRequest';
     query: string;
