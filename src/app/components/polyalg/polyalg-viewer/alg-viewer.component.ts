@@ -35,17 +35,15 @@ export class AlgViewerComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        /*const el = this.container.nativeElement;
-
-        if (el && this.showAlgEditor()) {
-            createEditor(el, this.injector, JSON.parse(this.planObject) as PlanNode, this.readonly)
-            .then(editor => this.editor = editor);
-        }*/
     }
 
     generatePolyAlg() {
-        this.editor?.toPolyAlg().then(str => {
+        this.getPolyAlg().then(str => {
             this.generatedPolyAlg = str || 'Cannot determine root of tree';
         });
+    }
+
+    getPolyAlg() {
+        return this.editor?.toPolyAlg();
     }
 }

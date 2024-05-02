@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {EntityMeta, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PathAccessRequest, PlacementFieldsModel} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, QueryRequest, RelAlgRequest, StatisticRequest} from '../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, RelAlgRequest, StatisticRequest} from '../models/ui-request.model';
 import {AutoDockerResult, AutoDockerStatus, CreateDockerResponse, DockerInstanceInfo, DockerSettings, HandshakeInfo, InstancesAndAutoDocker, UpdateDockerResponse} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
@@ -660,6 +660,16 @@ export class CrudService {
         return this._http.get<PolyAlgRegistry>(`${this.httpUrl}/getPolyAlgRegistry`);
     }
 
+    executePolyAlg(socket: WebSocket, polyAlg: string) {
+        const request = new PolyAlgRequest(polyAlg, true);
+        return socket.sendMessage(request);
+    }
+
+    buildTreeFromPolyAlg(socket: WebSocket, polyAlg: string) {
+        const request = new PolyAlgRequest(polyAlg, false);
+        return socket.sendMessage(request);
+    }
+
     getNameValidator(required: boolean = false) {
         if (required) {
             return [Validators.pattern('^[a-zA-Z_][a-zA-Z0-9_]*$'), Validators.required, Validators.max(100)];
@@ -712,6 +722,5 @@ export class CrudService {
 
         return this._http.post(`${this.httpUrl}/loadPlugins`, formData);
     }
-
 
 }
