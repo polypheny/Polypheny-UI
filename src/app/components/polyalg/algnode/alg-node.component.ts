@@ -6,6 +6,7 @@ import {Declaration} from '../models/polyalg-registry';
 import {PlanArgument} from '../models/polyalg-plan.model';
 import {getControl} from '../controls/arg-control-utils';
 import {ArgControl} from '../controls/arg-control';
+import {Position} from 'rete-angular-plugin/17/types';
 
 type SortValue<N extends ClassicPreset.Node> = (N['controls'] | N['inputs'] | N['outputs'])[string];
 
@@ -52,7 +53,8 @@ export class AlgNode extends ClassicPreset.Node {
     controlHeights: { [key: string]: number } = {};
     numOfInputs = 0;
 
-    constructor(public decl: Declaration, args: { [key: string]: PlanArgument } | null, private isReadOnly: boolean, private updateArea: (a: AlgNode) => void) {
+    constructor(public decl: Declaration, args: { [key: string]: PlanArgument } | null, private isReadOnly: boolean,
+                private updateArea: (a: AlgNode, delta: Position) => void) {
         super(decl.name);
         this.numOfInputs = decl.numInputs;
 
@@ -63,8 +65,11 @@ export class AlgNode extends ClassicPreset.Node {
         for (const p of decl.posParams.concat(decl.kwParams)) {
             const arg = args?.[p.name] || null;
             const c = getControl(p, arg, isReadOnly, (height: number) => {
+                const oldHeight = this.height;
                 this.updateControlHeight(p.name, height);
-                updateArea(this);
+                let deltaY = this.height - oldHeight;
+                deltaY += deltaY > 0 ? 1 : -1; // slight adjustment required for growing node
+                updateArea(this, {x: 0, y: -deltaY});
             }, p.isMultiValued);
             heights[p.name] = c.getHeight();
             this.addControl(p.name, c);

@@ -1,46 +1,54 @@
-import {Component, Input, Type} from '@angular/core';
+import {Component, computed, Input, signal, Type} from '@angular/core';
 import {PlanArgument, StringArg} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
 
 @Component({
-  selector: 'app-string-arg',
-  templateUrl: './string-arg.component.html',
-  styleUrl: './string-arg.component.scss'
+    selector: 'app-string-arg',
+    templateUrl: './string-arg.component.html',
+    styleUrl: './string-arg.component.scss'
 })
 export class StringArgComponent {
-  @Input() data: StringControl;
+    @Input() data: StringControl;
 
 }
 
 export class StringControl extends ArgControl {
-  readonly showAlias: boolean;
+    readonly showAlias: boolean;
 
-  constructor(param: Parameter, public value: StringArg, isReadOnly: boolean) {
-    super(param, isReadOnly);
-    if (value.alias === value.arg) {
-      value.alias = '';
+    // instead of changing this.value, we use signals (-> this.value might not reflect the current state!)
+    arg = signal(this.value.arg);
+    alias = signal(this.value.alias === this.value.arg ? '' : this.value.alias);
+    isTrivial = computed(() => {
+        const hasTrivialAlias = !this.showAlias || !this.alias() || this.alias() === this.arg();
+        const hasTrivialArg = !this.arg() || /^[a-zA-Z0-9_$]+$/.test(this.arg()); // TODO: use better way to determine whether arg is trivial
+        return hasTrivialAlias && hasTrivialArg;
+    });
+
+    constructor(param: Parameter, private value: StringArg, isReadOnly: boolean) {
+        super(param, isReadOnly);
+        this.showAlias = param.tags.includes(ParamTag.ALIAS);
     }
-    this.showAlias = param.tags.includes(ParamTag.ALIAS);
-  }
 
-  getHeight(): number {
-    return this.name ? 55 : 31;
-  }
-
-  getArgComponent(): Type<any> {
-    return StringArgComponent;
-  }
-
-  toPolyAlg(): string {
-    if (this.showAlias && this.value.alias !== '' && this.value.alias !== this.value.arg) {
-      return `${this.value.arg} AS ${this.value.alias}`;
+    getHeight(): number {
+        return this.name ? 55 : 31;
     }
-    return this.value.arg;
-  }
 
-  copyArg(): PlanArgument {
-    return {type: ParamType.STRING, value: JSON.parse(JSON.stringify(this.value))};
-  }
+    getArgComponent(): Type<any> {
+        return StringArgComponent;
+    }
+
+    toPolyAlg(): string {
+        if (this.showAlias && this.alias() !== '' && this.alias() !== this.arg()) {
+            return `${this.arg()} AS ${this.alias()}`;
+        }
+        return this.arg();
+    }
+
+    copyArg(): PlanArgument {
+        this.value.arg = this.arg();
+        this.value.alias = this.alias();
+        return {type: ParamType.STRING, value: JSON.parse(JSON.stringify(this.value))};
+    }
 
 }
