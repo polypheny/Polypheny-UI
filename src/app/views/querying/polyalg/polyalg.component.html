@@ -5,7 +5,7 @@
         <div class="rete-wrapper">
             <app-alg-viewer #algViewer [planObject]="samplePlan" [planType]="'LOGICAL'" [polyAlg]="" [isReadOnly]="false"></app-alg-viewer>
         </div>
-
+        <button cButton (click)="buildPolyPlan()" class="mb-1">Build Plan from PolyAlgebra</button>
     </c-row>
 
 

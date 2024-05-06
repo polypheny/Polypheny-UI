@@ -11,6 +11,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {InformationObject, InformationPage} from '../../../models/information-page.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
+import {PlanNode} from '../../../components/polyalg/models/polyalg-plan.model';
 
 @Component({
     selector: 'app-polyalg',
@@ -52,7 +53,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
     }
 
     async executePolyAlg() {
-        const polyAlg = await this.algViewer.getPolyAlg();
+        const polyAlg = await this.algViewer.getPolyAlgFromTree();
         if (polyAlg == null) {
             this._toast.warn('Plan is invalid');
             return;
@@ -64,6 +65,13 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         if (!this._crud.executePolyAlg(this.websocket, polyAlg)) {
             this.loading.set(false);
             this.result.set(new RelationalResult('Could not establish a connection with the server.'));
+        }
+    }
+
+    buildPolyPlan() {
+        const polyAlg = this.algViewer.getPolyAlgFromText();
+        if (!this._crud.buildTreeFromPolyAlg(this.websocket, polyAlg)) {
+            console.log('successfully requested plan for ', polyAlg);
         }
     }
 
@@ -127,6 +135,11 @@ export class PolyalgComponent implements OnInit, OnDestroy {
                     } else {
                         this._leftSidebar.close();
                     }
+
+                } else if (msg.hasOwnProperty('opName')) {
+                    const plan: PlanNode = msg as PlanNode;
+                    console.log(plan);
+                    this.samplePlan = JSON.stringify(plan);
 
                 } else if (msg.hasOwnProperty('data') || msg.hasOwnProperty('affectedTuples') || msg.hasOwnProperty('error')) { // Result
                     this.loading.set(false);
