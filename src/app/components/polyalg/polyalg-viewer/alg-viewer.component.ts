@@ -25,7 +25,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     @ViewChild('rete') container!: ElementRef;
     @ViewChild('textEditor') textEditor: EditorComponent;
 
-    private polyAlgPlan = signal<PlanNode>(null);
+    private polyAlgPlan = signal<PlanNode>(undefined); // null: empty plan
     textEditorState = signal<editorState>('SYNCHRONIZED');
     nodeEditorState = signal<editorState>('SYNCHRONIZED');
     canSyncEditors = computed<boolean>(() =>
@@ -62,10 +62,9 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
         effect(() => {
             const el = this.container.nativeElement;
 
-            if (this.showNodeEditor() && this.polyAlgPlan() != null && el) {
+            if (this.showNodeEditor() && this.polyAlgPlan() !== undefined && el) {
                 untracked(() => {
                     this.modifySubscription?.unsubscribe();
-
                     createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.isReadOnly)
                     .then(editor => {
                         this.nodeEditor = editor;
@@ -120,7 +119,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     generateTextFromNodeEditor(validatePlanWithBackend = false) {
         this.getPolyAlgFromTree().then(str => {
-            if (str) {
+            if (str != null) {
                 if (!this.initialPolyAlg) {
                     this.initialPolyAlg = str;
                 }
@@ -129,7 +128,8 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
                         next: () => this.updateTextEditor(str),
                         error: (err) => {
                             this.nodeEditorState.set('INVALID');
-                            this._toast.warn(err.error.errorMsg, 'Invalid PolyAlgebra');
+                            console.log('Invalid PolyAlgebra: ' + err.error.errorMsg);
+                            //this._toast.warn(err.error.errorMsg, 'Invalid PolyAlgebra');
                         }
                     });
                 } else {
@@ -231,8 +231,14 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
             return;
         }
         localStorage.setItem('polyalg.polyAlg', this.textEditor.getCode());
-        //const params = {polyAlg: this.textEditor.getCode()};
         this._router.navigate(['/views/querying/polyalg']).then(null);
 
+    }
+
+    executePlan() {
+        const code = this.textEditor.getCode();
+        if (code.length > 0) {
+            this.execute.emit(code);
+        }
     }
 }

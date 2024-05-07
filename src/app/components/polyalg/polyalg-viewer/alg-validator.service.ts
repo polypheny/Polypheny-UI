@@ -59,6 +59,9 @@ export class AlgValidatorService {
         if (cachedPlan) {
             return of(cachedPlan);
         }
+        if (str.trim().length === 0) {
+            return of(null);
+        }
         return this._crud.buildTreeFromPolyAlg(str).pipe(
             tap({
                 next: (plan) => this.setValid(str, plan),
