@@ -46,12 +46,14 @@ export class AlgNodeComponent implements OnChanges {
 
 const BASE_WIDTH = 350;
 const BASE_HEIGHT = 110;
+const TAB_SIZE = 2; // the indentation width when generating PolyAlg
 
 export class AlgNode extends ClassicPreset.Node {
     width = BASE_WIDTH;
     height = BASE_HEIGHT;
     controlHeights: { [key: string]: number } = {};
     numOfInputs = 0;
+    private readonly tabIndent = ' '.repeat(TAB_SIZE);
 
     constructor(public decl: Declaration, args: { [key: string]: PlanArgument } | null, private isReadOnly: boolean,
                 private updateArea: (a: AlgNode, delta: Position) => void) {
@@ -122,10 +124,11 @@ export class AlgNode extends ClassicPreset.Node {
         .map(key => inputs[key]);
         let children = '';
         if (values.length > 0) {
-            children = `(\n${values.join(',\n')})`;
+            const indented = values.join(',\n').replace(/^/gm, this.tabIndent);
+            children = `(\n${indented}\n)`;
         }
 
-        const polyAlg = `  ${this.decl.name}[${args.join(', ')}]${children}`;
+        const polyAlg = `${this.decl.name}[${args.join(', ')}]${children}`;
 
         return {'out': polyAlg};
     }

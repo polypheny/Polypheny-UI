@@ -18,13 +18,15 @@ import {PolyAlgService} from '../polyalg.service';
 import {DataModel} from '../../../models/ui-request.model';
 import {DataflowEngine} from 'rete-engine';
 import {Position} from 'rete-angular-plugin/17/types';
+import {Subject} from 'rxjs';
 
 type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
 
 export const SOCKET_PRESET = new ClassicPreset.Socket('socket');
 
-export async function createEditor(container: HTMLElement, injector: Injector, registry: PolyAlgService, node: PlanNode, isReadOnly: boolean) {
+export async function createEditor(container: HTMLElement, injector: Injector, registry: PolyAlgService, node: PlanNode,
+                                   isReadOnly: boolean) {
     const readonlyPlugin = new ReadonlyPlugin<Schemes>();
 
     //const socket = new ClassicPreset.Socket('socket');
@@ -96,8 +98,9 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         'elk.direction': 'UP'
     };
 
+    const $modifyEvent = new Subject<void>();
     const updateSizeFct = (a: AlgNode, delta: Position) => updateSize(a, delta, area, readonlyPlugin,
-        () => arrange.layout({applier: undefined, options: layoutOpts}));
+        () => arrange.layout({applier: undefined, options: layoutOpts}), $modifyEvent);
 
     const contextMenu = new ContextMenuPlugin<Schemes>({
         items: getContextMenuItems(registry, isReadOnly, updateSizeFct)
@@ -129,18 +132,20 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     }
 
     await arrange.layout({
-        applier, options: layoutOpts
+        applier: undefined, options: layoutOpts
     });
 
     AreaExtensions.zoomAt(area, editor.getNodes());
 
-    /*area.addPipe(context => {
-        if (context.type === 'nodepicked') {
-            const node = editor.getNode(context.data.id)
-            console.log(node, "was selected");
+    const modifyingEventTypes = new Set(['nodecreated', 'noderemoved', 'connectioncreated', 'connectionremoved']);
+    editor.addPipe(context => {
+        if (modifyingEventTypes.has(context.type)) {
+            if (context.type !== 'nodecreated' || editor.getNodes().length === 1) {
+                $modifyEvent.next();
+            }
         }
-        return context
-    })*/
+        return context;
+    });
 
     if (isReadOnly) {
         readonlyPlugin.enable(); // disable interaction with nodes (control interaction is deactivated separately)
@@ -162,7 +167,8 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
                 return await engine.fetch(rootId).then(res => res['out']);
             }
             return null;
-        }
+        },
+        onModify: $modifyEvent.asObservable()
     };
 }
 
@@ -227,7 +233,7 @@ function getContextMenuItems(registry: PolyAlgService, isReadOnly: boolean, upda
 
 function updateSize(algNode: AlgNode, {x, y}: Position, area: AreaPlugin<Schemes, AreaExtra>,
                     readonlyPlugin: ReadonlyPlugin<Schemes>,
-                    arrange: () => Promise<any>) {
+                    arrange: () => Promise<any>, $modifyEvent: Subject<void>) {
     const oldPos = area.nodeViews.get(algNode.id).position;
 
     // update location of sockets
@@ -239,6 +245,7 @@ function updateSize(algNode: AlgNode, {x, y}: Position, area: AreaPlugin<Schemes
                 arrange().then(() => readonlyPlugin.enable());
             } else {
                 area.translate(algNode.id, {x: oldPos.x + x, y: oldPos.y + y}).then();
+                $modifyEvent.next(); // size has changed, so the content has probably also changed (e.g. when list item is deleted)
             }
         }
     );

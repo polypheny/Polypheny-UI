@@ -1,27 +1,38 @@
-
-<div>
-    <div class="rete" #rete></div>
+<div class="my-3 p-1 text-editor-wrapper"
+     [ngClass]="textEditorState()">
+    <app-editor #textEditor id="text-editor"
+                [language]="'sql'"
+                [autocomplete]="true"
+                [initOptions]="textEditorOpts"
+                [useParentHeight]="false"
+                [code]="initialPolyAlg"
+                [readonly]="isReadOnly">
+    </app-editor>
 </div>
+
+<ng-container *ngIf="showEditButton">
+    <button cButton color="success" variant="outline" class="m-1"
+            (click)="openInPlanEditor()">
+        Edit Plan
+    </button>
+</ng-container>
 <ng-container *ngIf="!isReadOnly">
-    <p><i>Use right-click to add or remove nodes</i></p>
-    <button cButton color="success" variant="outline" class="m-1" *ngIf="!isReadOnly"
-            (click)="editor?.layout()">
+    <button cButton (click)="execute.emit(textEditor.getCode())" class="m-1" [disabled]="!isSynchronized()">Execute Plan</button>
+    <button cButton color="secondary" class="m-1"
+            (click)="nodeEditor?.layout()">
         Arrange Nodes
     </button>
-    <button cButton color="success" variant="outline" class="m-1" *ngIf="!isReadOnly"
-            (click)="generatePolyAlg()">
-        Generate PolyAlgebra
+    <button cButton color="secondary" class="m-1" [disabled]="!canSyncEditors()"
+            (click)="synchronizeEditors()">
+        Synchronize
     </button>
-
-    <c-card class="mt-2" *ngIf="generatedPolyAlg">
-        <c-card-body>
-            <pre class="d-block p-3 bg-dark text-white">{{generatedPolyAlg}}</pre>
-        </c-card-body>
-    </c-card>
 </ng-container>
 
-<c-card class="mt-2" *ngIf="isReadOnly">
-    <c-card-body>
-        <pre class="d-block p-3 bg-dark text-white">{{polyAlg}}</pre>
-    </c-card-body>
-</c-card>
+<div class="mt-3">
+    <div class="rete" #rete (focusout)="onNodeEditorBlur()" (focusin)="onNodeEditorFocus()" [ngClass]="nodeEditorState()"></div>
+</div>
+<ng-container *ngIf="!isReadOnly">
+    <p>
+        <i>Open the context menu to add or remove nodes</i>
+    </p>
+</ng-container>
