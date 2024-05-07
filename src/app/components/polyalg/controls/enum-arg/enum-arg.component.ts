@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, Type} from '@angular/core';
+import {Component, Input, OnInit, signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
 import {EnumArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {PolyAlgService} from '../../polyalg.service';
@@ -23,12 +23,10 @@ export class EnumArgComponent implements OnInit {
 }
 
 export class EnumControl extends ArgControl {
+    height = signal(this.name ? 55 : 31);
+
     constructor(param: Parameter, public type: string, public value: EnumArg, isReadOnly: boolean) {
         super(param, isReadOnly);
-    }
-
-    getHeight(): number {
-        return this.name ? 55 : 31;
     }
 
     getArgComponent(): Type<any> {

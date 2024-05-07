@@ -15,6 +15,7 @@ export class RexArgComponent {
 
 export class RexControl extends ArgControl {
     readonly showAlias: boolean;
+    height = signal(this.name ? 55 : 31);
 
     // instead of changing this.value, we use signals (-> this.value might not reflect the current state!)
     rex = signal(this.value.rex);
@@ -28,10 +29,6 @@ export class RexControl extends ArgControl {
     constructor(param: Parameter, private value: RexArg, isReadOnly: boolean) {
         super(param, isReadOnly);
         this.showAlias = param.tags.includes(ParamTag.ALIAS);
-    }
-
-    getHeight(): number {
-        return this.name ? 55 : 31;
     }
 
     getArgComponent(): Type<any> {

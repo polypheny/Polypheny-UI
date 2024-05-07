@@ -1,4 +1,4 @@
-import {Component, Input, Type} from '@angular/core';
+import {Component, Input, signal, Type} from '@angular/core';
 import {EntityArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
@@ -13,12 +13,10 @@ export class EntityArgComponent {
 }
 
 export class EntityControl extends ArgControl {
+    height = signal(this.name ? 55 : 31);
+
     constructor(param: Parameter, public value: EntityArg, isReadOnly: boolean) {
         super(param, isReadOnly);
-    }
-
-    getHeight(): number {
-        return this.name ? 55 : 31;
     }
 
     getArgComponent(): Type<any> {

@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, HostBinding, Input, OnChanges} from '@angular/core';
+import {ChangeDetectorRef, Component, effect, HostBinding, Input, OnChanges, Signal} from '@angular/core';
 import {ClassicPreset} from 'rete';
 import {KeyValue} from '@angular/common';
 import {SOCKET_PRESET} from '../polyalg-viewer/alg-editor';
@@ -28,6 +28,8 @@ export class AlgNodeComponent implements OnChanges {
 
     constructor(private cdr: ChangeDetectorRef) {
         this.cdr.detach();
+
+        effect(() => this.data.recomputeHeight());
     }
 
     ngOnChanges(): void {
@@ -50,10 +52,10 @@ const TAB_SIZE = 2; // the indentation width when generating PolyAlg
 
 export class AlgNode extends ClassicPreset.Node {
     width = BASE_WIDTH;
-    height = BASE_HEIGHT;
-    controlHeights: { [key: string]: number } = {};
+    height: number;
     numOfInputs = 0;
     private readonly tabIndent = ' '.repeat(TAB_SIZE);
+    private controlHeights: Signal<number>[] = [];
 
     constructor(public decl: Declaration, args: { [key: string]: PlanArgument } | null, private isReadOnly: boolean,
                 private updateArea: (a: AlgNode, delta: Position) => void) {
@@ -63,20 +65,15 @@ export class AlgNode extends ClassicPreset.Node {
 
         this.addOutput('out', new ClassicPreset.Output(SOCKET_PRESET));
 
-        const heights = {};
+        //const heights = {};
         for (const p of decl.posParams.concat(decl.kwParams)) {
             const arg = args?.[p.name] || null;
-            const c = getControl(p, arg, isReadOnly, (height: number) => {
-                const oldHeight = this.height;
-                this.updateControlHeight(p.name, height);
-                let deltaY = this.height - oldHeight;
-                deltaY += deltaY > 0 ? 1 : -1; // slight adjustment required for growing node
-                updateArea(this, {x: 0, y: -deltaY});
-            }, p.isMultiValued);
-            heights[p.name] = c.getHeight();
+            const c = getControl(p, arg, isReadOnly, p.isMultiValued);
+
+            this.controlHeights.push(c.height);
+
             this.addControl(p.name, c);
         }
-        this.updateControlHeights(heights);
 
         if (decl.numInputs > 0) {
             for (let i = 0; i < decl.numInputs; i++) {
@@ -88,19 +85,15 @@ export class AlgNode extends ClassicPreset.Node {
         }
     }
 
-    updateControlHeights(heights: { [key: string]: number; }) {
-        this.controlHeights = heights;
-        this.recomputeHeight();
-    }
-
-    updateControlHeight(controlName: string, height: number) {
-        this.controlHeights[controlName] = height;
-        this.recomputeHeight();
-    }
-
-    private recomputeHeight() {
-        const sum = Object.values(this.controlHeights).reduce((total, value) => total + value + 12, 0);
+    recomputeHeight() {
+        const oldHeight = this.height;
+        const sum = Object.values(this.controlHeights).reduce((total, value) => total + value() + 12, 0);
         this.height = BASE_HEIGHT + sum;
+        if (oldHeight) {
+            let deltaY = this.height - oldHeight;
+            deltaY += deltaY > 0 ? 1 : -1; // slight adjustment is required for smooth behavior
+            this.updateArea(this, {x: 0, y: -deltaY});
+        }
     }
 
     data(inputs: { [key: string]: string } = {}) {

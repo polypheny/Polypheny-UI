@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, computed, effect, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, Output, signal, SimpleChanges, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, computed, effect, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, Output, signal, SimpleChanges, untracked, ViewChild} from '@angular/core';
 import {createEditor} from './alg-editor';
 import {PlanNode} from '../models/polyalg-plan.model';
 import {PolyAlgService} from '../polyalg.service';
@@ -63,18 +63,20 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
             const el = this.container.nativeElement;
 
             if (this.showNodeEditor() && this.polyAlgPlan() != null && el) {
-                this.modifySubscription?.unsubscribe();
+                untracked(() => {
+                    this.modifySubscription?.unsubscribe();
 
-                createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.isReadOnly)
-                .then(editor => {
-                    this.nodeEditor = editor;
-                    this.generateTextFromNodeEditor();
-                    this.modifySubscription = this.nodeEditor.onModify.pipe(
-                        switchMap(() => {
-                            this.nodeEditorState.set('CHANGED');
-                            return timer(500);
-                        })
-                    ).subscribe(() => this.generateTextFromNodeEditor(true));
+                    createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.isReadOnly)
+                    .then(editor => {
+                        this.nodeEditor = editor;
+                        this.generateTextFromNodeEditor();
+                        this.modifySubscription = this.nodeEditor.onModify.pipe(
+                            switchMap(() => {
+                                this.nodeEditorState.set('CHANGED');
+                                return timer(500);
+                            })
+                        ).subscribe(() => this.generateTextFromNodeEditor(true));
+                    });
                 });
             }
         });
@@ -204,7 +206,6 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
         if (this.isReadOnly) {
             return;
         }
-        console.log('blurred node');
         this.isNodeFocused = false;
         this.generateTextFromNodeEditor(true);
     }

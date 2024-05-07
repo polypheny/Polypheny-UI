@@ -2,13 +2,13 @@
 
 <c-form-check *ngIf="data.canHideTrivial" [switch]="true" class="align-self-center">
     <input type="checkbox" role="switch" id="collapseTrivial" name="collapseTrivial" (pointerdown)="$event.stopPropagation()"
-           [checked]="data.hideTrivial" (change)="data.toggleHideTrivial()"
+           [checked]="data.hideTrivial()" (change)="data.toggleHideTrivial()"
            class="form-check-input">
     <label cFormCheckLabel><i>Hide trivial rows</i></label>
 </c-form-check>
 <ul cListGroup [flush]="true" [ngSwitch]="data.value.innerType" id="argList">
-    <ng-container *ngFor="let child of data.children">
-        <li cListGroupItem class="p-2 list-element-container d-flex flex-row" *ngIf="!(data.hideTrivial && child.isTrivial())">
+    <ng-container *ngFor="let child of data.children()">
+        <li cListGroupItem class="p-2 list-element-container d-flex flex-row" *ngIf="!(data.hideTrivial() && child.isTrivial())">
             <div class="list-element flex-grow-1">
                 <ng-container *ngSwitchCase="ParamType.REX">
                     <app-rex-arg [data]="child"></app-rex-arg>
@@ -53,7 +53,7 @@
             </div>
         </li>
     </ng-container>
-    <li *ngIf="!data.isReadOnly" cListGroupItem [class.mt-1]="data.children.length > 0" class="py-0 px-2">
+    <li *ngIf="!data.isReadOnly" cListGroupItem [class.mt-1]="data.children().length > 0" class="py-0 px-2">
         <div class="d-grid">
             <button cButton color="success" variant="outline" class="my-0 p-1"
                     (click)="data.addElement()" (pointerdown)="$event.stopPropagation()">

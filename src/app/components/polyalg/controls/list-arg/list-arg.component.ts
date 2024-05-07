@@ -1,4 +1,4 @@
-import {Component, Input, Type} from '@angular/core';
+import {Component, computed, Input, signal, Type, WritableSignal} from '@angular/core';
 import {ListArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {getControl} from '../arg-control-utils';
@@ -17,24 +17,25 @@ export class ListArgComponent {
 }
 
 export class ListControl extends ArgControl {
-    children: ArgControl[];
+    children: WritableSignal<ArgControl[]>;
     canHideTrivial = this.param.tags.includes(ParamTag.HIDE_TRIVIAL);
-    hideTrivial: boolean;
+    hideTrivial: WritableSignal<boolean>;
+    height = computed(() => this.computeHeight());
 
     constructor(param: Parameter, public value: ListArg,
-                isReadOnly: boolean, public updateHeight: (height: number) => void) {
+                isReadOnly: boolean) {
         super(param, isReadOnly, true);
-        this.children = value.args.map(arg => getControl(param, arg, isReadOnly, updateHeight));
-        if (this.children.length === 0 && value.innerType === ParamType.LIST) {
+        this.children = signal(value.args.map(arg => getControl(param, arg, isReadOnly)));
+        if (this.children().length === 0 && value.innerType === ParamType.LIST) {
             value.innerType = param.type; // TODO: handle nested lists
         }
-        this.hideTrivial = this.isReadOnly && this.canHideTrivial && this.children.filter(c => c.isTrivial()).length > 2;
+        this.hideTrivial = signal(this.isReadOnly && this.canHideTrivial && this.children().filter(c => c.isTrivial()).length > 2);
 
     }
 
-    getHeight(): number {
-        let height = this.children.filter(c => !(this.hideTrivial && c.isTrivial()))
-        .reduce((total, child) => total + child.getHeight() + 16, 0);
+    computeHeight(): number {
+        let height = this.children().filter(c => !(this.hideTrivial() && c.isTrivial()))
+        .reduce((total, child) => total + child.height() + 16, 0);
         if (!this.isReadOnly) {
             height += 33; // add button
         }
@@ -45,21 +46,17 @@ export class ListControl extends ArgControl {
     }
 
     addElement() {
-        this.hideTrivial = false;
-        this.children.push(getControl(this.param, null, this.isReadOnly, this.updateHeight, false));
-        this.updateHeight(this.getHeight());
+        this.hideTrivial.set(false);
+        this.children.update(values => [...values, getControl(this.param, null, this.isReadOnly, false)]);
     }
 
     removeElement(child: ArgControl) {
-        const index = this.children.indexOf(child);
-        this.children.splice(index, 1);
-        this.updateHeight(this.getHeight());
+        this.children.update(values => values.filter(c => c !== child));
 
     }
 
     toggleHideTrivial() {
-        this.hideTrivial = !this.hideTrivial;
-        this.updateHeight(this.getHeight());
+        this.hideTrivial.update(old => !old);
     }
 
     getArgComponent(): Type<any> {
@@ -67,12 +64,12 @@ export class ListControl extends ArgControl {
     }
 
     toPolyAlg(): string {
-        if (this.children.length === 0) {
+        if (this.children().length === 0) {
             return '[]';
         }
 
-        const args = this.children.map(arg => arg.toPolyAlg()).filter(s => s.length > 0).join(', ');
-        if (this.children.length === 1 || this.param.canUnpackValues) {
+        const args = this.children().map(arg => arg.toPolyAlg()).filter(s => s.length > 0).join(', ');
+        if (this.children().length === 1 || this.param.canUnpackValues) {
             return args;
         }
         return `[${args}]`;
@@ -81,7 +78,7 @@ export class ListControl extends ArgControl {
     copyArg(): PlanArgument {
         const value: ListArg = {
             innerType: this.value.innerType,
-            args: this.children.map(arg => arg.copyArg())
+            args: this.children().map(arg => arg.copyArg())
         };
         return {type: ParamType.LIST, value: value};
     }

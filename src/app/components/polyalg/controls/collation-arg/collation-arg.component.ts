@@ -1,4 +1,4 @@
-import {Component, Input, Type} from '@angular/core';
+import {Component, Input, signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
 import {CollationArg, CollDirection, CollNullDirection, defaultNullDirection, PlanArgument} from '../../models/polyalg-plan.model';
@@ -18,6 +18,7 @@ export class CollationArgComponent {
 }
 
 export class CollationControl extends ArgControl {
+    height = signal(101);
 
     constructor(param: Parameter, public value: CollationArg, isReadOnly: boolean) {
         super(param, isReadOnly);
@@ -33,10 +34,6 @@ export class CollationControl extends ArgControl {
             }
         }
         return str;
-    }
-
-    getHeight(): number {
-        return 101;
     }
 
     getArgComponent(): Type<any> {
