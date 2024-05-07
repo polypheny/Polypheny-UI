@@ -1,7 +1,7 @@
 <c-container>
     <div class="rete-wrapper m-0" [hidden]="showingAnalysis">
         <app-alg-viewer #algViewer [polyAlg]="polyAlg" [planType]="'LOGICAL'" [isReadOnly]="false"
-                        (execute)="executePolyAlg(polyAlg)"
+                        (execute)="executePolyAlg($event)"
         ></app-alg-viewer>
     </div>
 

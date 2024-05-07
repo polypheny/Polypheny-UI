@@ -17,7 +17,7 @@
     </button>
 </ng-container>
 <ng-container *ngIf="!isReadOnly">
-    <button cButton (click)="execute.emit(textEditor.getCode())" class="m-1" [disabled]="!isSynchronized()">Execute Plan</button>
+    <button cButton (click)="executePlan()" class="m-1" [disabled]="!isSynchronized()">Execute Plan</button>
     <button cButton color="secondary" class="m-1"
             (click)="nodeEditor?.layout()">
         Arrange Nodes

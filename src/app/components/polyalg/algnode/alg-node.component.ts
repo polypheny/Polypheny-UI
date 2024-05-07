@@ -53,14 +53,13 @@ const TAB_SIZE = 2; // the indentation width when generating PolyAlg
 export class AlgNode extends ClassicPreset.Node {
     width = BASE_WIDTH;
     height: number;
-    numOfInputs = 0;
     private readonly tabIndent = ' '.repeat(TAB_SIZE);
     private controlHeights: Signal<number>[] = [];
+    readonly hasVariableInputs: boolean;
 
     constructor(public decl: Declaration, args: { [key: string]: PlanArgument } | null, private isReadOnly: boolean,
                 private updateArea: (a: AlgNode, delta: Position) => void) {
         super(decl.name);
-        this.numOfInputs = decl.numInputs;
 
 
         this.addOutput('out', new ClassicPreset.Output(SOCKET_PRESET));
@@ -75,13 +74,12 @@ export class AlgNode extends ClassicPreset.Node {
             this.addControl(p.name, c);
         }
 
-        if (decl.numInputs > 0) {
-            for (let i = 0; i < decl.numInputs; i++) {
-                this.addInput(i.toString(), new ClassicPreset.Input(SOCKET_PRESET));
-            }
-        } else if (decl.numInputs === -1) {
-            // TODO: handle variable number of inputs
-            this.addInput('0', new ClassicPreset.Input(SOCKET_PRESET));
+        this.hasVariableInputs = decl.numInputs === -1;
+        const n = this.hasVariableInputs ? 1 : decl.numInputs;
+        for (let i = 0; i < n; i++) {
+            const input = new ClassicPreset.Input(SOCKET_PRESET);
+            input.multipleConnections = this.hasVariableInputs;
+            this.addInput(i.toString(), input);
         }
     }
 
@@ -112,9 +110,14 @@ export class AlgNode extends ClassicPreset.Node {
             }
         }
 
-        const values = Object.keys(inputs)
-        .sort((a, b) => parseInt(a, 10) - parseInt(b, 10)) // keys correspond to input socket key
-        .map(key => inputs[key]);
+        let values;
+        if (this.hasVariableInputs) {
+            values = inputs['0'];
+        } else {
+            values = Object.keys(inputs)
+            .sort((a, b) => parseInt(a, 10) - parseInt(b, 10)) // keys correspond to input socket key
+            .map(key => inputs[key]);
+        }
         let children = '';
         if (values.length > 0) {
             const indented = values.join(',\n').replace(/^/gm, this.tabIndent);

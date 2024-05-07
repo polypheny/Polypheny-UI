@@ -25,7 +25,7 @@ type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
 
 export const SOCKET_PRESET = new ClassicPreset.Socket('socket');
 
-export async function createEditor(container: HTMLElement, injector: Injector, registry: PolyAlgService, node: PlanNode,
+export async function createEditor(container: HTMLElement, injector: Injector, registry: PolyAlgService, node: PlanNode | null,
                                    isReadOnly: boolean) {
     const readonlyPlugin = new ReadonlyPlugin<Schemes>();
 
@@ -161,6 +161,9 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         },
         destroy: () => area.destroy(),
         toPolyAlg: async (): Promise<string> => {
+            if (editor.getNodes().length === 0) {
+                return '';
+            }
             const rootId = findRootNodeId(editor.getNodes(), editor.getConnections());
             if (rootId) {
                 engine.reset(); // clear cache
@@ -172,11 +175,13 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     };
 }
 
-function addNode(registry: PolyAlgService, node: PlanNode, isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void): [AlgNode[], CustomConnection<AlgNode>[]] {
+function addNode(registry: PolyAlgService, node: PlanNode | null, isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void): [AlgNode[], CustomConnection<AlgNode>[]] {
     const nodes = [];
     const connections = [];
-    const algNode = new AlgNode(registry.getDeclaration(node.opName), node.arguments, isReadOnly,
-        updateSize);
+    if (!node) {
+        return [nodes, connections];
+    }
+    const algNode = new AlgNode(registry.getDeclaration(node.opName), node.arguments, isReadOnly, updateSize);
     if (node.opName.endsWith('#')) {
         // TODO: handle implicit project correctly
         algNode.label = 'PROJECT#';
@@ -187,7 +192,9 @@ function addNode(registry: PolyAlgService, node: PlanNode, isReadOnly: boolean, 
         const childNode = childNodes[childNodes.length - 1];
         nodes.push(...childNodes);
         connections.push(...childConnections);
-        connections.push(new CustomConnection(childNode, 'out', algNode, i.toString()));
+
+        const targetIn = algNode.hasVariableInputs ? '0' : i.toString();
+        connections.push(new CustomConnection(childNode, 'out', algNode, targetIn));
     }
     nodes.push(algNode);
     return [nodes, connections];
