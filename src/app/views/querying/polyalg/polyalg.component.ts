@@ -11,7 +11,6 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {InformationObject, InformationPage} from '../../../models/information-page.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
-import {PlanNode} from '../../../components/polyalg/models/polyalg-plan.model';
 
 @Component({
     selector: 'app-polyalg',
@@ -29,7 +28,14 @@ export class PolyalgComponent implements OnInit, OnDestroy {
     showingAnalysis = false;
     queryAnalysis: InformationPage;
 
-    samplePlan = '{"opName":"PROJECT","arguments":{"projects":{"type":"LIST","value":{"innerType":"REX","args":[{"type":"REX","value":{"rex":"employeeno","alias":"employeeno"}},{"type":"REX","value":{"rex":"relationshipjoy","alias":"happiness"}}]}}},"inputs":[{"opName":"FILTER","arguments":{"condition":{"type":"REX","value":{"rex":"<(age0, 30)"}},"variables":{"type":"LIST","value":{"innerType":"LIST","args":[]}}},"inputs":[{"opName":"JOIN","arguments":{"type":{"type":"JOIN_TYPE_ENUM","value":{"arg":"INNER","enum":"JoinAlgType"},"isEnum":true},"semiJoinDone":{"type":"BOOLEAN","value":{"arg":false}},"variables":{"type":"LIST","value":{"innerType":"LIST","args":[]}},"condition":{"type":"REX","value":{"rex":"=(employeeno, employeeno0)"}}},"inputs":[{"opName":"SCAN","arguments":{"entity":{"type":"ENTITY","value":{"arg":"public.emp","namespaceId":0,"id":3}}},"inputs":[]},{"opName":"PROJECT#","arguments":{"projects":{"type":"LIST","value":{"innerType":"STRING","args":[{"type":"STRING","value":{"arg":"employeeno","alias":"employeeno0"}},{"type":"STRING","value":{"arg":"age","alias":"age0"}}]}}},"inputs":[{"opName":"PROJECT","arguments":{"projects":{"type":"LIST","value":{"innerType":"REX","args":[{"type":"REX","value":{"rex":"employeeno","alias":"employeeno"}},{"type":"REX","value":{"rex":"age","alias":"age"}}]}}},"inputs":[{"opName":"SCAN","arguments":{"entity":{"type":"ENTITY","value":{"arg":"public.emp","namespaceId":0,"id":3}}},"inputs":[]}]}]}]}]}]}';
+    polyAlg = `
+    PROJECT[employeeno, relationshipjoy AS happiness](
+      FILTER[<(age0, 30)](
+        JOIN[=(employeeno, employeeno0)](
+          SCAN[public.emp],
+          PROJECT[employeeno AS employeeno0, age AS age0](
+            PROJECT[employeeno, age](
+              SCAN[public.emp])))))`;
 
     constructor(
         private _crud: CrudService,
@@ -37,6 +43,13 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         private _toast: ToasterService,
         private _breadcrumb: BreadcrumbService,
         private _settings: WebuiSettingsService) {
+
+        const polyAlgToEdit = localStorage.getItem('polyalg.polyAlg');
+        localStorage.removeItem('polyalg.polyAlg'); // only open the plan the first time this component is shown
+
+        if (polyAlgToEdit) {
+            this.polyAlg = polyAlgToEdit;
+        }
 
         this.websocket = new WebSocket();
         this.initWebsocket();
@@ -52,8 +65,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         this.websocket.close();
     }
 
-    async executePolyAlg() {
-        const polyAlg = await this.algViewer.getPolyAlgFromTree();
+    executePolyAlg(polyAlg: string) {
         if (polyAlg == null) {
             this._toast.warn('Plan is invalid');
             return;
@@ -65,13 +77,6 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         if (!this._crud.executePolyAlg(this.websocket, polyAlg)) {
             this.loading.set(false);
             this.result.set(new RelationalResult('Could not establish a connection with the server.'));
-        }
-    }
-
-    buildPolyPlan() {
-        const polyAlg = this.algViewer.getPolyAlgFromText();
-        if (!this._crud.buildTreeFromPolyAlg(this.websocket, polyAlg)) {
-            console.log('successfully requested plan for ', polyAlg);
         }
     }
 
@@ -135,11 +140,6 @@ export class PolyalgComponent implements OnInit, OnDestroy {
                     } else {
                         this._leftSidebar.close();
                     }
-
-                } else if (msg.hasOwnProperty('opName')) {
-                    const plan: PlanNode = msg as PlanNode;
-                    console.log(plan);
-                    this.samplePlan = JSON.stringify(plan);
 
                 } else if (msg.hasOwnProperty('data') || msg.hasOwnProperty('affectedTuples') || msg.hasOwnProperty('error')) { // Result
                     this.loading.set(false);

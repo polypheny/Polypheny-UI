@@ -71,7 +71,7 @@ export class ListControl extends ArgControl {
             return '[]';
         }
 
-        const args = this.children.map(arg => arg.toPolyAlg()).join(', ');
+        const args = this.children.map(arg => arg.toPolyAlg()).filter(s => s.length > 0).join(', ');
         if (this.children.length === 1 || this.param.canUnpackValues) {
             return args;
         }

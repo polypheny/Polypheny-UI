@@ -1,4 +1,22 @@
+@import "scss/style.scss";
+
 .rete {
   min-height: 800px;
-  border: 2px solid lightblue;
+  border: 2px solid;
+}
+
+.text-editor-wrapper {
+  border: 2px solid;
+}
+
+.CHANGED {
+  border-color: $warning;
+}
+
+.SYNCHRONIZED {
+  border-color: lightblue;
+}
+
+.INVALID {
+  border-color: $danger;
 }

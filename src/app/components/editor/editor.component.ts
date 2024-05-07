@@ -1,16 +1,4 @@
-import {
-    AfterViewInit,
-    Component,
-    effect,
-    ElementRef,
-    inject,
-    Input,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
-    untracked,
-    ViewChild
-} from '@angular/core';
+import {AfterViewInit, Component, effect, ElementRef, inject, Input, OnChanges, OnInit, SimpleChanges, untracked, ViewChild} from '@angular/core';
 import * as ace from 'ace-builds'; // ace module ..
 import 'ace-builds/src-noconflict/mode-sql';
 import 'ace-builds/src-noconflict/mode-pgsql';
@@ -202,6 +190,14 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
     setScrollMargin(top: number, bottom: number, left: number = 0, right: number = 0) {
         // https://groups.google.com/g/ace-discuss/c/LmMRaYnLzCk
         this.codeEditor.renderer.setScrollMargin(top, bottom, left, right);
+    }
+
+    onBlur(callback: (e: Event) => void) {
+        this.codeEditor.on('blur', callback);
+    }
+
+    onChange(callback: (delta: any) => void) {
+        this.codeEditor.on('change', callback);
     }
 
 }

@@ -1,12 +1,9 @@
 <c-container>
-
-    <c-row class="row w-100" [hidden]="showingAnalysis">
-        <button cButton (click)="executePolyAlg()" class="mb-1">Execute Plan</button>
-        <div class="rete-wrapper">
-            <app-alg-viewer #algViewer [planObject]="samplePlan" [planType]="'LOGICAL'" [polyAlg]="" [isReadOnly]="false"></app-alg-viewer>
-        </div>
-        <button cButton (click)="buildPolyPlan()" class="mb-1">Build Plan from PolyAlgebra</button>
-    </c-row>
+    <div class="rete-wrapper m-0" [hidden]="showingAnalysis">
+        <app-alg-viewer #algViewer [polyAlg]="polyAlg" [planType]="'LOGICAL'" [isReadOnly]="false"
+                        (execute)="executePolyAlg(polyAlg)"
+        ></app-alg-viewer>
+    </div>
 
 
     <app-information-manager

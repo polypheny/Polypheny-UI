@@ -14,6 +14,7 @@ import {WebSocket} from './webSocket';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {PolyAlgRegistry} from '../components/polyalg/models/polyalg-registry';
+import {PlanNode} from '../components/polyalg/models/polyalg-plan.model';
 
 
 @Injectable({
@@ -665,9 +666,9 @@ export class CrudService {
         return socket.sendMessage(request);
     }
 
-    buildTreeFromPolyAlg(socket: WebSocket, polyAlg: string) {
+    buildTreeFromPolyAlg(polyAlg: string) {
         const request = new PolyAlgRequest(polyAlg, false);
-        return socket.sendMessage(request);
+        return this._http.post<PlanNode>(`${this.httpUrl}/buildPolyPlan`, request, this.httpOptions);
     }
 
     getNameValidator(required: boolean = false) {
