@@ -15,6 +15,7 @@ export class StringArgComponent {
 
 export class StringControl extends ArgControl {
     readonly showAlias: boolean;
+    height = signal(this.name ? 55 : 31);
 
     // instead of changing this.value, we use signals (-> this.value might not reflect the current state!)
     arg = signal(this.value.arg);
@@ -28,10 +29,6 @@ export class StringControl extends ArgControl {
     constructor(param: Parameter, private value: StringArg, isReadOnly: boolean) {
         super(param, isReadOnly);
         this.showAlias = param.tags.includes(ParamTag.ALIAS);
-    }
-
-    getHeight(): number {
-        return this.name ? 55 : 31;
     }
 
     getArgComponent(): Type<any> {

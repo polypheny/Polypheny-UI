@@ -1,4 +1,4 @@
-import {Component, Input, Type} from '@angular/core';
+import {Component, Input, signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
 import {IntArg, PlanArgument} from '../../models/polyalg-plan.model';
@@ -14,6 +14,7 @@ export class IntArgComponent {
 
 export class IntControl extends ArgControl {
     valueRange: { min: number | null; max: number | null; };
+    height = signal(this.name ? 55 : 31);
 
     constructor(param: Parameter, public value: IntArg, isReadOnly: boolean) {
         super(param, isReadOnly);
@@ -22,10 +23,6 @@ export class IntControl extends ArgControl {
         if (param.tags.includes(ParamTag.NON_NEGATIVE)) {
             this.valueRange.min = 0;
         }
-    }
-
-    getHeight(): number {
-        return this.name ? 55 : 31;
     }
 
     getArgComponent(): Type<any> {

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, Type} from '@angular/core';
+import {Component, Input, OnInit, signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
 import {LaxAggArg, PlanArgument} from '../../models/polyalg-plan.model';
@@ -23,12 +23,10 @@ export class LaxAggArgComponent implements OnInit {
 }
 
 export class LaxAggControl extends ArgControl {
+    height = signal(this.name ? 125 : 101);
+
     constructor(param: Parameter, public value: LaxAggArg, isReadOnly: boolean) {
         super(param, isReadOnly);
-    }
-
-    getHeight(): number {
-        return this.name ? 125 : 101;
     }
 
     getArgComponent(): Type<any> {

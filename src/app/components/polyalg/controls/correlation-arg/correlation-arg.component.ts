@@ -1,4 +1,4 @@
-import {Component, Input, Type} from '@angular/core';
+import {Component, Input, signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
 import {CorrelationArg, PlanArgument} from '../../models/polyalg-plan.model';
@@ -14,13 +14,10 @@ export class CorrelationArgComponent {
 }
 
 export class CorrelationControl extends ArgControl {
+    height = signal(this.name ? 55 : 31);
 
     constructor(param: Parameter, public value: CorrelationArg, isReadOnly: boolean) {
         super(param, isReadOnly);
-    }
-
-    getHeight(): number {
-        return this.name ? 55 : 31;
     }
 
     getArgComponent(): Type<any> {

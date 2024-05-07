@@ -15,7 +15,7 @@ import {AggControl} from './agg-arg/agg-arg.component';
 import {LaxAggControl} from './lax-agg/lax-agg-arg.component';
 
 export function getControl(param: Parameter, arg: PlanArgument | null,
-                           isReadOnly: boolean, updateHeight: (height: number) => void, isForOuter = false): ArgControl {
+                           isReadOnly: boolean, isForOuter = false): ArgControl {
     if (arg == null) {
         arg = getInitialArg(param, isForOuter);
     }
@@ -44,7 +44,7 @@ export function getControl(param: Parameter, arg: PlanArgument | null,
         case 'FIELD':
             return new FieldControl(param, arg.value as FieldArg, isReadOnly);
         case 'LIST':
-            return new ListControl(param, arg.value as ListArg, isReadOnly, updateHeight);
+            return new ListControl(param, arg.value as ListArg, isReadOnly);
         case 'COLLATION':
             return new CollationControl(param, arg.value as CollationArg, isReadOnly);
         case 'CORR_ID':
