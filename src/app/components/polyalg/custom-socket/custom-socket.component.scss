@@ -22,8 +22,8 @@ $socket-margin: 6px;
     background: $primary;
   }
 
-  &.multiple {
-    border-color: $success;
+  &.multi {
+    width: 2*$socket-size;
   }
 
   &.output {

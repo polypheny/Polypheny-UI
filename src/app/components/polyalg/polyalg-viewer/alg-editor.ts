@@ -1,12 +1,12 @@
 import {Injector} from '@angular/core';
-import {ClassicPreset, GetSchemes, NodeEditor} from 'rete';
+import {GetSchemes, NodeEditor} from 'rete';
 import {AreaExtensions, AreaPlugin, BaseAreaPlugin} from 'rete-area-plugin';
 import {ConnectionPlugin, Presets as ConnectionPresets} from 'rete-connection-plugin';
 import {AngularArea2D, AngularPlugin, Presets} from 'rete-angular-plugin/17';
 import {PlanNode} from '../models/polyalg-plan.model';
 import {ArrangeAppliers, AutoArrangePlugin} from 'rete-auto-arrange-plugin';
 import {AlgNode, AlgNodeComponent} from '../algnode/alg-node.component';
-import {addCustomBackground} from '../algnode/background';
+import {addCustomBackground} from './background';
 import {ArgControl} from '../controls/arg-control';
 import {CustomSocketComponent} from '../custom-socket/custom-socket.component';
 import {CustomConnection, CustomConnectionComponent} from '../custom-connection/custom-connection.component';
@@ -19,11 +19,11 @@ import {DataModel} from '../../../models/ui-request.model';
 import {DataflowEngine} from 'rete-engine';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Subject} from 'rxjs';
+import {canCreateConnection, findRootNodeId} from './alg-editor-utils';
+import {setupPanningBoundary} from './panning-boundary';
 
-type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
+export type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
-
-export const SOCKET_PRESET = new ClassicPreset.Socket('socket');
 
 export async function createEditor(container: HTMLElement, injector: Injector, registry: PolyAlgService, node: PlanNode | null,
                                    isReadOnly: boolean) {
@@ -42,7 +42,8 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         )
     });
 
-    AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
+    const selector = AreaExtensions.selector();
+    AreaExtensions.selectableNodes(area, selector, {
         accumulating: AreaExtensions.accumulateOnCtrl()
     });
 
@@ -121,6 +122,13 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
 
     AreaExtensions.simpleNodesOrder(area);
     addCustomBackground(area);
+    AreaExtensions.restrictor(area, {scaling: {min: 0.02, max: 5}});
+    const panningBoundary = setupPanningBoundary({
+        area,
+        selector,
+        padding: 40,
+        intensity: 2
+    });
 
     const [nodes, connections] = addNode(registry, node, isReadOnly, updateSizeFct);
     for (const n of nodes) {
@@ -139,6 +147,12 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
 
     const modifyingEventTypes = new Set(['nodecreated', 'noderemoved', 'connectioncreated', 'connectionremoved']);
     editor.addPipe(context => {
+        if (context.type === 'connectioncreate') {
+            if (!canCreateConnection(editor, context.data)) {
+                //alert('Sockets are not compatible');
+                return;
+            }
+        }
         if (modifyingEventTypes.has(context.type)) {
             if (context.type !== 'nodecreated' || editor.getNodes().length === 1) {
                 $modifyEvent.next();
@@ -159,7 +173,10 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
             });
             AreaExtensions.zoomAt(area, editor.getNodes());
         },
-        destroy: () => area.destroy(),
+        destroy: () => {
+            area.destroy();
+            panningBoundary.destroy();
+        },
         toPolyAlg: async (): Promise<string> => {
             if (editor.getNodes().length === 0) {
                 return '';
@@ -258,53 +275,4 @@ function updateSize(algNode: AlgNode, {x, y}: Position, area: AreaPlugin<Schemes
     );
 }
 
-function findRootNodeId(nodes: AlgNode[], connections: CustomConnection<AlgNode>[]): string | null {
-    if (connections.length === 0) {
-        if (nodes.length === 1) {
-            return nodes[0].id;
-        }
-        return null;
-    }
-    const visited = new Set<string>();
 
-    let root: string = null;
-
-    for (const c of connections) {
-        visited.add(c.source);
-        let curr = c.target;
-        if (visited.has(curr)) {
-            continue;
-        }
-
-        let next = c.target;
-        while (next !== null) {
-            if (visited.has(next)) {
-                break;
-            }
-            curr = next;
-            next = getSuccessor(curr, connections);
-            visited.add(curr);
-        }
-        if (next === null) {
-            // arrived at root of subtree
-            if (root === null) {
-                root = curr;
-            } else if (root !== curr) {
-                // found different root => multiple subtrees
-                return null;
-            }
-        }
-    }
-    if (visited.size < nodes.length) {
-        console.log('found orphan nodes');
-    }
-    return root;
-}
-
-function getSuccessor(nodeId: string, connections: CustomConnection<AlgNode>[]): string | null {
-    const outgoing = connections.filter(c => c.source === nodeId);
-    if (outgoing.length === 0) {
-        return null;
-    }
-    return outgoing[0].target;
-}
