@@ -18,6 +18,9 @@ export class EnumArgComponent implements OnInit {
 
     ngOnInit(): void {
         this.choices = this._registry.getEnumValues(this.data.type);
+        if (!this.data.value.arg) {
+            this.data.value.arg = this.choices[0];
+        }
     }
 
 }

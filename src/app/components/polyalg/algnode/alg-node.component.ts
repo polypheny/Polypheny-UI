@@ -1,12 +1,13 @@
 import {ChangeDetectorRef, Component, effect, HostBinding, Input, OnChanges, Signal} from '@angular/core';
 import {ClassicPreset} from 'rete';
 import {KeyValue} from '@angular/common';
-import {SOCKET_PRESET} from '../polyalg-viewer/alg-editor';
 import {Declaration} from '../models/polyalg-registry';
 import {PlanArgument} from '../models/polyalg-plan.model';
 import {getControl} from '../controls/arg-control-utils';
 import {ArgControl} from '../controls/arg-control';
 import {Position} from 'rete-angular-plugin/17/types';
+import {DataModel} from '../../../models/ui-request.model';
+import {AlgNodeSocket} from '../custom-socket/custom-socket.component';
 
 type SortValue<N extends ClassicPreset.Node> = (N['controls'] | N['inputs'] | N['outputs'])[string];
 
@@ -50,6 +51,17 @@ const BASE_WIDTH = 350;
 const BASE_HEIGHT = 110;
 const TAB_SIZE = 2; // the indentation width when generating PolyAlg
 
+const SINGLE_SOCKET_PRESETS = {
+    [DataModel.DOCUMENT]: new AlgNodeSocket(DataModel.DOCUMENT),
+    [DataModel.RELATIONAL]: new AlgNodeSocket(DataModel.RELATIONAL),
+    [DataModel.GRAPH]: new AlgNodeSocket(DataModel.GRAPH),
+};
+const MULTI_SOCKET_PRESETS = {
+    [DataModel.DOCUMENT]: new AlgNodeSocket(DataModel.DOCUMENT, true),
+    [DataModel.RELATIONAL]: new AlgNodeSocket(DataModel.RELATIONAL, true),
+    [DataModel.GRAPH]: new AlgNodeSocket(DataModel.GRAPH, true),
+};
+
 export class AlgNode extends ClassicPreset.Node {
     width = BASE_WIDTH;
     height: number;
@@ -61,8 +73,7 @@ export class AlgNode extends ClassicPreset.Node {
                 private updateArea: (a: AlgNode, delta: Position) => void) {
         super(decl.name);
 
-
-        this.addOutput('out', new ClassicPreset.Output(SOCKET_PRESET));
+        this.addOutput('out', new ClassicPreset.Output(SINGLE_SOCKET_PRESETS[decl.model]));
 
         //const heights = {};
         for (const p of decl.posParams.concat(decl.kwParams)) {
@@ -75,11 +86,15 @@ export class AlgNode extends ClassicPreset.Node {
         }
 
         this.hasVariableInputs = decl.numInputs === -1;
-        const n = this.hasVariableInputs ? 1 : decl.numInputs;
-        for (let i = 0; i < n; i++) {
-            const input = new ClassicPreset.Input(SOCKET_PRESET);
-            input.multipleConnections = this.hasVariableInputs;
-            this.addInput(i.toString(), input);
+
+        if (this.hasVariableInputs) {
+            const input = new ClassicPreset.Input(MULTI_SOCKET_PRESETS[decl.model]);
+            input.multipleConnections = true;
+            this.addInput('0', input);
+        } else {
+            for (let i = 0; i < decl.numInputs; i++) {
+                this.addInput(i.toString(), new ClassicPreset.Input(SINGLE_SOCKET_PRESETS[decl.model]));
+            }
         }
     }
 

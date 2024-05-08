@@ -5,19 +5,19 @@ import {AlgNode} from '../algnode/alg-node.component';
 import Position = Popper.Position;
 
 @Component({
-  selector: 'app-custom-connection',
-  template: `
-    <svg data-testid="connection">
-      <path [attr.d]="path"/>
-    </svg>
-  `,
-  styleUrl: './custom-connection.component.scss'
+    selector: 'app-custom-connection',
+    template: `
+        <svg data-testid="connection">
+            <path [attr.d]="path"/>
+        </svg>
+    `,
+    styleUrl: './custom-connection.component.scss'
 })
 export class CustomConnectionComponent {
-  @Input() data!: CustomConnection<AlgNode>;
-  @Input() start: Position;
-  @Input() end: Position;
-  @Input() path: string;
+    @Input() data!: CustomConnection<AlgNode>;
+    @Input() start: Position;
+    @Input() end: Position;
+    @Input() path: string;
 
 }
 
