@@ -22,4 +22,5 @@ export class CustomConnectionComponent {
 }
 
 export class CustomConnection<N extends AlgNode> extends ClassicPreset.Connection<N, N> {
+    isMagnetic = false;
 }

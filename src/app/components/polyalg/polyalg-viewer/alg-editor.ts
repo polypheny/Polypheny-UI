@@ -1,5 +1,5 @@
 import {Injector} from '@angular/core';
-import {GetSchemes, NodeEditor} from 'rete';
+import {ClassicPreset, GetSchemes, NodeEditor} from 'rete';
 import {AreaExtensions, AreaPlugin, BaseAreaPlugin} from 'rete-area-plugin';
 import {ConnectionPlugin, Presets as ConnectionPresets} from 'rete-connection-plugin';
 import {AngularArea2D, AngularPlugin, Presets} from 'rete-angular-plugin/17';
@@ -21,6 +21,8 @@ import {Position} from 'rete-angular-plugin/17/types';
 import {Subject} from 'rxjs';
 import {canCreateConnection, findRootNodeId} from './alg-editor-utils';
 import {setupPanningBoundary} from './panning-boundary';
+import {useMagneticConnection} from './magnetic-connection';
+import {MagneticConnectionComponent} from './magnetic-connection/magnetic-connection.component';
 
 export type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
@@ -58,7 +60,10 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
                 }
                 return null;
             },
-            connection() {
+            connection(data) {
+                if (data.payload.isMagnetic) {
+                    return MagneticConnectionComponent;
+                }
                 return CustomConnectionComponent;
             },
             socket() {
@@ -123,11 +128,37 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     AreaExtensions.simpleNodesOrder(area);
     addCustomBackground(area);
     AreaExtensions.restrictor(area, {scaling: {min: 0.02, max: 5}});
-    const panningBoundary = setupPanningBoundary({
-        area,
-        selector,
-        padding: 40,
-        intensity: 2
+    let panningBoundary = null;
+    if (!isReadOnly) {
+        panningBoundary = setupPanningBoundary({area, selector, padding: 40, intensity: 2});
+    }
+
+    useMagneticConnection(connection, {
+        async createConnection(from, to) {
+            if (from.side === to.side) {
+                return;
+            }
+            const [source, target] = from.side === 'output' ? [from, to] : [to, from];
+            const sourceNode = editor.getNode(source.nodeId);
+            const targetNode = editor.getNode(target.nodeId);
+
+            await editor.addConnection(
+                new CustomConnection(
+                    sourceNode,
+                    source.key as never,
+                    targetNode,
+                    target.key as never
+                )
+            );
+        },
+        display(from, to) {
+            return from.side !== to.side;
+        },
+        offset(socket, position) {
+
+            return {x: position.x, y: position.y};
+        },
+        distance: 75
     });
 
     const [nodes, connections] = addNode(registry, node, isReadOnly, updateSizeFct);
@@ -175,7 +206,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         },
         destroy: () => {
             area.destroy();
-            panningBoundary.destroy();
+            panningBoundary?.destroy();
         },
         toPolyAlg: async (): Promise<string> => {
             if (editor.getNodes().length === 0) {

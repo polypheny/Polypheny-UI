@@ -119,6 +119,7 @@ import {CorrelationArgComponent} from './polyalg/controls/correlation-arg/correl
 import {CollationArgComponent} from './polyalg/controls/collation-arg/collation-arg.component';
 import {AggArgComponent} from './polyalg/controls/agg-arg/agg-arg.component';
 import {LaxAggArgComponent} from './polyalg/controls/lax-agg/lax-agg-arg.component';
+import {MagneticConnectionComponent} from './polyalg/polyalg-viewer/magnetic-connection/magnetic-connection.component';
 
 //import 'hammerjs';
 
@@ -244,7 +245,8 @@ import {LaxAggArgComponent} from './polyalg/controls/lax-agg/lax-agg-arg.compone
         CorrelationArgComponent,
         CollationArgComponent,
         AggArgComponent,
-        LaxAggArgComponent
+        LaxAggArgComponent,
+        MagneticConnectionComponent
     ],
     exports: [
         BreadcrumbComponent,

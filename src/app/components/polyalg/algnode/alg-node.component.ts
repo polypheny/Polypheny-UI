@@ -73,7 +73,9 @@ export class AlgNode extends ClassicPreset.Node {
                 private updateArea: (a: AlgNode, delta: Position) => void) {
         super(decl.name);
 
-        this.addOutput('out', new ClassicPreset.Output(SINGLE_SOCKET_PRESETS[decl.model]));
+        const output = new ClassicPreset.Output(SINGLE_SOCKET_PRESETS[decl.model]);
+        output.multipleConnections = false;
+        this.addOutput('out', output);
 
         //const heights = {};
         for (const p of decl.posParams.concat(decl.kwParams)) {
