@@ -43,8 +43,8 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     polyAlgSnapshot: string; // keep track whether the textEditor has changed
     initialPolyAlg: string; // only used for initially setting the text representation
     readonly textEditorOpts = {
-        minLines: 15,
-        maxLines: 15,
+        minLines: 12,
+        maxLines: 12,
         showLineNumbers: false,
         highlightGutterLine: false,
         highlightActiveLine: true,

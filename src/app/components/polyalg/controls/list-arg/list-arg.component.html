@@ -4,7 +4,7 @@
     <input type="checkbox" role="switch" id="collapseTrivial" name="collapseTrivial" (pointerdown)="$event.stopPropagation()"
            [checked]="data.hideTrivial()" (change)="data.toggleHideTrivial()"
            class="form-check-input">
-    <label cFormCheckLabel><i>Hide trivial rows</i></label>
+    <label cFormCheckLabel><i>Hide trivial {{data.name}}</i></label>
 </c-form-check>
 <ul cListGroup [flush]="true" [ngSwitch]="data.value.innerType" id="argList">
     <ng-container *ngFor="let child of data.children()">
