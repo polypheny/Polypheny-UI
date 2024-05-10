@@ -1,14 +1,29 @@
-<div class="mb-3 text-editor-wrapper"
-     [ngClass]="textEditorState()">
-    <app-editor #textEditor id="text-editor"
-                [language]="'sql'"
-                [autocomplete]="true"
-                [initOptions]="textEditorOpts"
-                [useParentHeight]="false"
-                [code]="initialPolyAlg"
-                [readonly]="isReadOnly">
-    </app-editor>
-</div>
+<c-accordion [flush]="true" [alwaysOpen]="true" class="mb-3">
+    <c-accordion-item #item0="cAccordionItem" [visible]="true">
+        <ng-template cTemplateId="accordionHeaderTemplate">
+            <button (click)="item0.toggleItem()" [collapsed]="!item0.visible" cAccordionButton class="ps-1 py-1 fs-3"
+                    [ngClass]="textEditorState()" [tooltip]="textEditorState() === 'INVALID' ? textErrorTooltip : ''" [placement]="'bottom left'">
+                PolyAlgebra Editor {{stateText[textEditorState()]}}
+                <ng-template #textErrorTooltip>
+                    {{textEditorError()}}
+                </ng-template>
+            </button>
+        </ng-template>
+        <ng-template cTemplateId="accordionBodyTemplate">
+            <div class="text-editor-wrapper"
+                 [ngClass]="textEditorState()">
+                <app-editor #textEditor id="text-editor"
+                            [language]="'sql'"
+                            [autocomplete]="true"
+                            [initOptions]="textEditorOpts"
+                            [useParentHeight]="false"
+                            [code]="initialPolyAlg"
+                            [readonly]="isReadOnly">
+                </app-editor>
+            </div>
+        </ng-template>
+    </c-accordion-item>
+</c-accordion>
 
 <ng-container *ngIf="showEditButton">
     <button cButton color="success" variant="outline" class="m-1"
@@ -28,11 +43,25 @@
     </button>
 </ng-container>
 
-<div class="mt-3">
-    <div class="rete" #rete (focusout)="onNodeEditorBlur()" (focusin)="onNodeEditorFocus()" [ngClass]="nodeEditorState()"></div>
-</div>
-<ng-container *ngIf="!isReadOnly">
-    <p>
-        <i>Open the context menu to add or remove nodes</i>
-    </p>
-</ng-container>
+
+<c-accordion [flush]="true" class="mt-3">
+    <c-accordion-item #item1="cAccordionItem" [visible]="true">
+        <ng-template cTemplateId="accordionHeaderTemplate">
+            <button (click)="item1.toggleItem()" [collapsed]="!item1.visible" cAccordionButton class="ps-1 py-1 fs-3"
+                    [ngClass]="nodeEditorState()" [tooltip]="nodeEditorState() === 'INVALID' ? nodeErrorTooltip : ''" [placement]="'bottom left'">
+                Node Editor {{stateText[nodeEditorState()]}}
+                <ng-template #nodeErrorTooltip>
+                    {{nodeEditorError()}}
+                </ng-template>
+            </button>
+        </ng-template>
+        <ng-template cTemplateId="accordionBodyTemplate">
+            <div class="rete" #rete (focusout)="onNodeEditorBlur()" (focusin)="onNodeEditorFocus()" [ngClass]="nodeEditorState()"></div>
+            <ng-container *ngIf="!isReadOnly">
+                <p>
+                    <i>Open the context menu to add or remove nodes</i>
+                </p>
+            </ng-container>
+        </ng-template>
+    </c-accordion-item>
+</c-accordion>

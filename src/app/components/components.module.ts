@@ -4,6 +4,9 @@ import {GraphComponent} from './graph/graph.component';
 import {NgChartsModule} from 'ng2-charts';
 
 import {
+    AccordionButtonDirective,
+    AccordionComponent,
+    AccordionItemComponent,
     BgColorDirective,
     BreadcrumbComponent as BreadCrumb,
     ButtonCloseDirective,
@@ -15,6 +18,7 @@ import {
     CardHeaderComponent,
     ColComponent,
     ColDirective,
+    CollapseDirective,
     ContainerComponent,
     DropdownComponent,
     DropdownDividerDirective,
@@ -44,6 +48,7 @@ import {
     PageItemDirective,
     PageLinkDirective,
     PaginationComponent,
+    PopoverDirective,
     ProgressBarComponent,
     ProgressComponent,
     RowComponent,
@@ -53,6 +58,7 @@ import {
     TabContentRefDirective,
     TableDirective,
     TabPaneComponent,
+    TemplateIdDirective,
     TextColorDirective,
     ToastBodyComponent,
     ToastCloseDirective,
@@ -120,6 +126,7 @@ import {CollationArgComponent} from './polyalg/controls/collation-arg/collation-
 import {AggArgComponent} from './polyalg/controls/agg-arg/agg-arg.component';
 import {LaxAggArgComponent} from './polyalg/controls/lax-agg/lax-agg-arg.component';
 import {MagneticConnectionComponent} from './polyalg/polyalg-viewer/magnetic-connection/magnetic-connection.component';
+import {PopoverModule} from 'ngx-bootstrap/popover';
 
 //import 'hammerjs';
 
@@ -200,7 +207,7 @@ import {MagneticConnectionComponent} from './polyalg/polyalg-viewer/magnetic-con
         ReteModule,
         AutocompleteLibModule,
         FormCheckComponent,
-        FormCheckLabelDirective
+        FormCheckLabelDirective, AccordionComponent, AccordionItemComponent, AccordionButtonDirective, TemplateIdDirective, CollapseDirective, PopoverDirective, PopoverModule
     ],
     declarations: [
         BreadcrumbComponent,

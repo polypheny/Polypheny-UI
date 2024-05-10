@@ -11,6 +11,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {InformationObject, InformationPage} from '../../../models/information-page.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
+import {DataModel} from '../../../models/ui-request.model';
 
 @Component({
     selector: 'app-polyalg',
@@ -28,8 +29,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
     showingAnalysis = false;
     queryAnalysis: InformationPage;
 
-    polyAlg = `
-    PROJECT[employeeno, relationshipjoy AS happiness](
+    polyAlg = `PROJECT[employeeno, relationshipjoy AS happiness](
       FILTER[<(age0, 30)](
         JOIN[=(employeeno, employeeno0)](
           SCAN[public.emp],
@@ -65,7 +65,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         this.websocket.close();
     }
 
-    executePolyAlg(polyAlg: string) {
+    executePolyAlg([polyAlg, model]: [string, DataModel]) {
         if (polyAlg == null) {
             this._toast.warn('Plan is invalid');
             return;
@@ -74,7 +74,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         this._leftSidebar.open();
 
         this.loading.set(true);
-        if (!this._crud.executePolyAlg(this.websocket, polyAlg)) {
+        if (!this._crud.executePolyAlg(this.websocket, polyAlg, model)) {
             this.loading.set(false);
             this.result.set(new RelationalResult('Could not establish a connection with the server.'));
         }

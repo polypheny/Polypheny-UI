@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {EntityMeta, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PathAccessRequest, PlacementFieldsModel} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, RelAlgRequest, StatisticRequest} from '../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, DataModel, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, RelAlgRequest, StatisticRequest} from '../models/ui-request.model';
 import {AutoDockerResult, AutoDockerStatus, CreateDockerResponse, DockerInstanceInfo, DockerSettings, HandshakeInfo, InstancesAndAutoDocker, UpdateDockerResponse} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
@@ -661,13 +661,13 @@ export class CrudService {
         return this._http.get<PolyAlgRegistry>(`${this.httpUrl}/getPolyAlgRegistry`);
     }
 
-    executePolyAlg(socket: WebSocket, polyAlg: string) {
-        const request = new PolyAlgRequest(polyAlg, true);
+    executePolyAlg(socket: WebSocket, polyAlg: string, model: DataModel) {
+        const request = new PolyAlgRequest(polyAlg, model);
         return socket.sendMessage(request);
     }
 
     buildTreeFromPolyAlg(polyAlg: string) {
-        const request = new PolyAlgRequest(polyAlg, false);
+        const request = new PolyAlgRequest(polyAlg, DataModel.RELATIONAL); // datamodel doesn't matter when building the plan
         return this._http.post<PlanNode>(`${this.httpUrl}/buildPolyPlan`, request, this.httpOptions);
     }
 

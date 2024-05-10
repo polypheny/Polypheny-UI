@@ -1,10 +1,6 @@
 import {NodeEditor} from 'rete';
 import {Area2D, AreaPlugin} from 'rete-area-plugin';
-import {
-    ConnectionPlugin,
-    SocketData,
-    createPseudoconnection
-} from 'rete-connection-plugin';
+import {ConnectionPlugin, createPseudoconnection, SocketData} from 'rete-connection-plugin';
 import {getElementCenter} from 'rete-render-utils';
 import {Position, Schemes} from './types';
 import {findNearestPoint, isInsideRect} from './math';
@@ -87,7 +83,6 @@ export function useMagneticConnection<S extends Schemes, K = never>(connection: 
             );
             nearestSocket =
                 findNearestPoint(socketsPositions, point, distance) || null;
-
             if (nearestSocket && props.display(picked, nearestSocket)) {
                 if (!magneticConnection.isMounted()) {
                     magneticConnection.mount(area);

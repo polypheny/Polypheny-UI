@@ -10,13 +10,33 @@
 }
 
 .CHANGED {
-  border-color: $warning;
+  border-color: $warning-50;
 }
+
+button.accordion-button.CHANGED {
+  background-color: $warning-50 !important;
+}
+
 
 .SYNCHRONIZED {
   border-color: lightblue;
 }
 
 .INVALID {
-  border-color: $danger;
+  border-color: $danger-50;
+}
+
+button.accordion-button.INVALID {
+  background-color: $danger-50 !important;
+}
+
+button.accordion-button {
+  box-shadow: none !important;
+  outline: none;
+  color: $body-color !important;
+  background-color: white !important;
+}
+
+button.accordion-button::after {
+  background-image: var(--cui-accordion-btn-icon) !important;
 }
