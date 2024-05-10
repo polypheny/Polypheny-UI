@@ -15,9 +15,9 @@ import {AggControl} from './agg-arg/agg-arg.component';
 import {LaxAggControl} from './lax-agg/lax-agg-arg.component';
 
 export function getControl(param: Parameter, arg: PlanArgument | null,
-                           isReadOnly: boolean, isForOuter = false): ArgControl {
+                           isReadOnly: boolean, depth: number): ArgControl {
     if (arg == null) {
-        arg = getInitialArg(param, isForOuter);
+        arg = getInitialArg(param, depth);
     }
 
     if (arg.isEnum) {
@@ -44,7 +44,7 @@ export function getControl(param: Parameter, arg: PlanArgument | null,
         case 'FIELD':
             return new FieldControl(param, arg.value as FieldArg, isReadOnly);
         case 'LIST':
-            return new ListControl(param, arg.value as ListArg, isReadOnly);
+            return new ListControl(param, arg.value as ListArg, depth, isReadOnly);
         case 'COLLATION':
             return new CollationControl(param, arg.value as CollationArg, isReadOnly);
         case 'CORR_ID':
@@ -53,24 +53,30 @@ export function getControl(param: Parameter, arg: PlanArgument | null,
     return new StringControl(param, {'arg': JSON.stringify(arg)}, isReadOnly);
 }
 
-export function getInitialArg(p: Parameter, isForOuter: boolean): PlanArgument {
-    if (p.defaultValue && !p.isMultiValued) {
+
+export function getInitialArg(p: Parameter, depth: number): PlanArgument {
+    if (p.defaultValue && p.multiValued === 0) {
         return p.defaultValue; // kwParams always have a defaultValue
     }
-    const isListArg = p.isMultiValued && isForOuter;
+    const isListArg = depth < p.multiValued; // not yet on the depth of the actual argument
 
-    if (isListArg && p.defaultValue) {
-        if ((p.defaultValue?.value as ListArg).args.length === 0) {
-            // Handle case of EMPTY_LIST
-            return {type: ParamType.LIST, value: {innerType: p.type, args: []}};
+    if (isListArg && depth === 0) {
+        // we're at the outermost list
+        if (p.defaultValue) {
+            if ((p.defaultValue?.value as ListArg).args.length === 0) {
+                // Handle case of EMPTY_LIST
+                const innerType = p.multiValued > 1 ? ParamType.LIST : p.type;
+                return {type: ParamType.LIST, value: {innerType: innerType, args: []}};
+            }
+            return p.defaultValue;
         }
-        return p.defaultValue;
     }
     return {
         type: isListArg ? ParamType.LIST : p.type,
         value: (function () {
             if (isListArg) {
-                return {innerType: p.type, args: [getInitialArg(p, false)]};
+                const innerType = p.multiValued > depth + 1 ? ParamType.LIST : p.type;
+                return {innerType: innerType, args: [getInitialArg(p, depth + 1)]};
             }
             if (p.isEnum) {
                 return {arg: ''};

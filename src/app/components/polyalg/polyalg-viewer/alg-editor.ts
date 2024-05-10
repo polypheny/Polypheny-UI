@@ -208,6 +208,12 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         }
         return context;
     });
+    area.addPipe(context => {
+        if (context.type === 'zoom' && context.data.source === 'dblclick') {
+            return; // https://github.com/retejs/rete/issues/204
+        }
+        return context;
+    });
 
     if (isReadOnly) {
         readonlyPlugin.enable(); // disable interaction with nodes (control interaction is deactivated separately)

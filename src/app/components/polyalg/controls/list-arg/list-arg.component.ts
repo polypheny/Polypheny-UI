@@ -22,10 +22,10 @@ export class ListControl extends ArgControl {
     hideTrivial: WritableSignal<boolean>;
     height = computed(() => this.computeHeight());
 
-    constructor(param: Parameter, public value: ListArg,
+    constructor(param: Parameter, public value: ListArg, public depth: number,
                 isReadOnly: boolean) {
-        super(param, isReadOnly, true);
-        this.children = signal(value.args.map(arg => getControl(param, arg, isReadOnly)));
+        super(param, isReadOnly, depth === 0);
+        this.children = signal(value.args.map(arg => getControl(param, arg, isReadOnly, depth + 1)));
         if (this.children().length === 0 && value.innerType === ParamType.LIST) {
             value.innerType = param.type; // TODO: handle nested lists
         }
@@ -47,7 +47,8 @@ export class ListControl extends ArgControl {
 
     addElement() {
         this.hideTrivial.set(false);
-        this.children.update(values => [...values, getControl(this.param, null, this.isReadOnly, false)]);
+        this.children.update(values =>
+            [...values, getControl(this.param, null, this.isReadOnly, this.depth + 1)]);
     }
 
     removeElement(child: ArgControl) {
@@ -69,7 +70,7 @@ export class ListControl extends ArgControl {
         }
 
         const args = this.children().map(arg => arg.toPolyAlg()).filter(s => s.length > 0).join(', ');
-        if (this.children().length === 1 || this.param.canUnpackValues) {
+        if (this.param.multiValued === 1 && (this.children().length === 1 || this.param.canUnpackValues)) {
             return args;
         }
         return `[${args}]`;

@@ -8,9 +8,9 @@ export abstract class ArgControl extends ClassicPreset.Control {
     isTrivial: Signal<boolean> = signal(false);
     height: Signal<number>;
 
-    protected constructor(public readonly param: Parameter, public isReadOnly: boolean, isForOuter = false) {
+    protected constructor(public readonly param: Parameter, public isReadOnly: boolean, enforceName = false) {
         super();
-        this.name = param.isMultiValued && !isForOuter ? null : param.name;
+        this.name = param.multiValued > 0 && !enforceName ? null : param.name;
     }
 
     abstract getArgComponent(): Type<any>;
