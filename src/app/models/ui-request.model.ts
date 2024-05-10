@@ -62,14 +62,16 @@ export class RelAlgRequest extends UIRequest {
     }
 }
 
-export class PolyAlgRequest {
+export class PolyAlgRequest extends UIRequest {
     type = 'PolyAlgRequest';
     polyAlg: string;
-    runQuery: boolean; // false if the parsed tree should only be generated, but not executed
+    model: DataModel;
+    noLimit = false; // TODO: handle queries with large results
 
-    constructor(polyAlg: string, runQuery: boolean) {
+    constructor(polyAlg: string, model: DataModel) {
+        super();
         this.polyAlg = polyAlg;
-        this.runQuery = runQuery;
+        this.model = model;
     }
 }
 

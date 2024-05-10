@@ -1,5 +1,5 @@
 import {Injector} from '@angular/core';
-import {ClassicPreset, GetSchemes, NodeEditor} from 'rete';
+import {GetSchemes, NodeEditor} from 'rete';
 import {AreaExtensions, AreaPlugin, BaseAreaPlugin} from 'rete-area-plugin';
 import {ConnectionPlugin, Presets as ConnectionPresets} from 'rete-connection-plugin';
 import {AngularArea2D, AngularPlugin, Presets} from 'rete-angular-plugin/17';
@@ -123,6 +123,51 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     if (!isReadOnly) {
         area.use(connection);  // make connections editable
         area.use(contextMenu); // add context menu
+
+        useMagneticConnection(connection, {
+            async createConnection(from, to) {
+                if (from.side === to.side) {
+                    return;
+                }
+                const [source, target] = from.side === 'output' ? [from, to] : [to, from];
+                const sourceNode = editor.getNode(source.nodeId);
+                const targetNode = editor.getNode(target.nodeId);
+
+                const connection = new CustomConnection(
+                    sourceNode,
+                    source.key as never,
+                    targetNode,
+                    target.key as never
+                );
+
+                if (!canCreateConnection(editor, connection)) {
+                    return;
+                }
+
+                const connectionsToRemove = editor.getConnections().filter(c => {
+                    return (c.target === targetNode.id && c.targetInput === target.key && !targetNode.hasVariableInputs) || (c.source === sourceNode.id);
+                });
+
+                for (const c of connectionsToRemove) {
+                    await editor.removeConnection(c.id);
+                }
+
+                await editor.addConnection(
+                    connection
+                );
+            },
+            display(from, to) {
+                return from.side !== to.side;
+            },
+            offset(socket, position) {
+
+                return {
+                    x: position.x + (socket.side === 'input' ? 3 : -3),
+                    y: position.y + (socket.side === 'input' ? 12 : -12)
+                };
+            },
+            distance: 75
+        });
     }
 
     AreaExtensions.simpleNodesOrder(area);
@@ -132,34 +177,6 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     if (!isReadOnly) {
         panningBoundary = setupPanningBoundary({area, selector, padding: 40, intensity: 2});
     }
-
-    useMagneticConnection(connection, {
-        async createConnection(from, to) {
-            if (from.side === to.side) {
-                return;
-            }
-            const [source, target] = from.side === 'output' ? [from, to] : [to, from];
-            const sourceNode = editor.getNode(source.nodeId);
-            const targetNode = editor.getNode(target.nodeId);
-
-            await editor.addConnection(
-                new CustomConnection(
-                    sourceNode,
-                    source.key as never,
-                    targetNode,
-                    target.key as never
-                )
-            );
-        },
-        display(from, to) {
-            return from.side !== to.side;
-        },
-        offset(socket, position) {
-
-            return {x: position.x, y: position.y};
-        },
-        distance: 75
-    });
 
     const [nodes, connections] = addNode(registry, node, isReadOnly, updateSizeFct);
     for (const n of nodes) {
@@ -208,16 +225,16 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
             area.destroy();
             panningBoundary?.destroy();
         },
-        toPolyAlg: async (): Promise<string> => {
+        toPolyAlg: async () => {
             if (editor.getNodes().length === 0) {
-                return '';
+                return ['', null];
             }
             const rootId = findRootNodeId(editor.getNodes(), editor.getConnections());
             if (rootId) {
                 engine.reset(); // clear cache
-                return await engine.fetch(rootId).then(res => res['out']);
+                return await engine.fetch(rootId).then(res => [res['out'], editor.getNode(rootId).decl.model]);
             }
-            return null;
+            return [null, null];
         },
         onModify: $modifyEvent.asObservable()
     };
@@ -305,5 +322,3 @@ function updateSize(algNode: AlgNode, {x, y}: Position, area: AreaPlugin<Schemes
         }
     );
 }
-
-

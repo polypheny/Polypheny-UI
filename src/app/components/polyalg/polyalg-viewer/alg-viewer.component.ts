@@ -5,9 +5,10 @@ import {PolyAlgService} from '../polyalg.service';
 import {EditorComponent} from '../../editor/editor.component';
 import {AlgValidatorService, trimLines} from './alg-validator.service';
 import {ToasterService} from '../../toast-exposer/toaster.service';
-import {Observable, Subscription, timer} from 'rxjs';
+import {Subscription, timer} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
+import {DataModel} from '../../../models/ui-request.model';
 
 type editorState = 'SYNCHRONIZED' | 'CHANGED' | 'INVALID';
 
@@ -21,13 +22,20 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     @Input() initialPlan?: string;
     @Input() planType: 'LOGICAL' | 'ROUTED' | 'PHYSICAL';
     @Input() isReadOnly: boolean;
-    @Output() execute = new EventEmitter<string>();
+    @Output() execute = new EventEmitter<[string, DataModel]>();
     @ViewChild('rete') container!: ElementRef;
     @ViewChild('textEditor') textEditor: EditorComponent;
 
     private polyAlgPlan = signal<PlanNode>(undefined); // null: empty plan
     textEditorState = signal<editorState>('SYNCHRONIZED');
+    textEditorError = signal<string>('');
     nodeEditorState = signal<editorState>('SYNCHRONIZED');
+    nodeEditorError = signal<string>('');
+    readonly stateText = {
+        'SYNCHRONIZED': '',
+        'CHANGED': ' (edited)',
+        'INVALID': ' (invalid)'
+    };
     canSyncEditors = computed<boolean>(() =>
         (this.textEditorState() === 'SYNCHRONIZED' && this.nodeEditorState() === 'INVALID') ||
         (this.textEditorState() === 'INVALID' && this.nodeEditorState() === 'SYNCHRONIZED')
@@ -36,7 +44,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     showEditButton: boolean;
 
     private modifySubscription: Subscription;
-    nodeEditor: { toPolyAlg: any; layout: () => Promise<void>; destroy: () => void; onModify: Observable<void>; };
+    nodeEditor: { onModify: any; destroy: any; toPolyAlg: any; layout?: () => Promise<void>; };
     showNodeEditor = computed(() => this._registry.registryLoaded());
     private isNodeFocused = false; // If a node is focused we must assume that a control has changed. Thus, the nodeEditor cannot be 'SYNCHRONIZED'.
 
@@ -118,7 +126,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     generateTextFromNodeEditor(validatePlanWithBackend = false) {
-        this.getPolyAlgFromTree().then(str => {
+        this.getPolyAlgFromTree().then(([str, model]) => {
             if (str != null) {
                 if (!this.initialPolyAlg) {
                     this.initialPolyAlg = str;
@@ -128,8 +136,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
                         next: () => this.updateTextEditor(str),
                         error: (err) => {
                             this.nodeEditorState.set('INVALID');
-                            console.log('Invalid PolyAlgebra: ' + err.error.errorMsg);
-                            //this._toast.warn(err.error.errorMsg, 'Invalid PolyAlgebra');
+                            this.nodeEditorError.set(err.error.errorMsg);
                         }
                     });
                 } else {
@@ -137,6 +144,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
                 }
             } else {
                 this.nodeEditorState.set('INVALID');
+                this.nodeEditorError.set('Invalid plan structure');
             }
         });
     }
@@ -157,13 +165,13 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
             },
             error: (err) => {
                 this.textEditorState.set('INVALID');
-                this._toast.warn(err.error.errorMsg, 'Invalid PolyAlgebra');
+                this.textEditorError.set(err.error.errorMsg);
             }
         });
 
     }
 
-    getPolyAlgFromTree() {
+    getPolyAlgFromTree(): Promise<[string, DataModel]> {
         return this.nodeEditor.toPolyAlg();
     }
 
@@ -236,9 +244,10 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     executePlan() {
-        const code = this.textEditor.getCode();
-        if (code.length > 0) {
-            this.execute.emit(code);
-        }
+        this.getPolyAlgFromTree().then(([str, model]) => {
+            if (str.length > 0 && model) {
+                this.execute.emit([str, model]);
+            }
+        });
     }
 }

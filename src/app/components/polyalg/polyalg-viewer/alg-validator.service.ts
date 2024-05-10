@@ -53,6 +53,7 @@ export class AlgValidatorService {
      * calling the backend.
      * If successful, the plan is added to the cache of valid plans.
      * @param str
+     * @param model
      */
     buildPlan(str: string) {
         const cachedPlan = this.getCachedPlan(str);
