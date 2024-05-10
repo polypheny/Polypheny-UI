@@ -77,10 +77,9 @@ export class AlgNode extends ClassicPreset.Node {
         output.multipleConnections = false;
         this.addOutput('out', output);
 
-        //const heights = {};
         for (const p of decl.posParams.concat(decl.kwParams)) {
             const arg = args?.[p.name] || null;
-            const c = getControl(p, arg, isReadOnly, p.isMultiValued);
+            const c = getControl(p, arg, isReadOnly, 0);
 
             this.controlHeights.push(c.height);
 

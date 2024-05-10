@@ -22,7 +22,7 @@ export interface Parameter {
     tags: ParamTag[];
     type: ParamType; // if isEnum, then type identifies the type of enum and is not a ParamType
     isEnum: boolean;
-    isMultiValued: boolean;
+    multiValued: number; // how deeply nested arguments can be in lists (0 = not nested at all)
     requiresAlias: boolean;
     defaultValue?: PlanArgument;
     defaultPolyAlg?: string;
