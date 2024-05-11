@@ -3,6 +3,7 @@ import {ArgControl} from '../arg-control';
 import {EnumArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {PolyAlgService} from '../../polyalg.service';
 import {Parameter} from '../../models/polyalg-registry';
+import {DataModel} from '../../../../models/ui-request.model';
 
 @Component({
     selector: 'app-enum-arg',
@@ -28,8 +29,8 @@ export class EnumArgComponent implements OnInit {
 export class EnumControl extends ArgControl {
     height = signal(this.name ? 55 : 31);
 
-    constructor(param: Parameter, public type: string, public value: EnumArg, isReadOnly: boolean) {
-        super(param, isReadOnly);
+    constructor(param: Parameter, public type: string, public value: EnumArg, model: DataModel, isReadOnly: boolean) {
+        super(param, model, isReadOnly);
     }
 
     getArgComponent(): Type<any> {

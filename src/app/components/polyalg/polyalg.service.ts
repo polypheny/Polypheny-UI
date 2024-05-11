@@ -1,6 +1,6 @@
 import {Injectable, signal} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
-import {Declaration, Parameter, ParamTag, PolyAlgRegistry} from './models/polyalg-registry';
+import {Declaration, OperatorTag, Parameter, PolyAlgRegistry} from './models/polyalg-registry';
 import {DataModel} from '../../models/ui-request.model';
 
 @Injectable({
@@ -68,8 +68,7 @@ export class PolyAlgService {
         return this.parameters.get(decl)?.get(pName);
     }
 
-    showAlias(opName: string, pName: string) {
-        const p = this.getParameter(opName, pName);
-        return p.tags.includes(ParamTag.ALIAS);
+    isSimpleOperator(opName: string) {
+        return !this.declarations.get(opName).tags.includes(OperatorTag.ADVANCED);
     }
 }

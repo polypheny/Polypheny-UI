@@ -2,6 +2,7 @@ import {Component, computed, Input, signal, Type} from '@angular/core';
 import {PlanArgument, RexArg} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
+import {DataModel} from '../../../../models/ui-request.model';
 
 @Component({
     selector: 'app-rex-arg',
@@ -26,8 +27,8 @@ export class RexControl extends ArgControl {
         return hasTrivialAlias && hasTrivialRex;
     });
 
-    constructor(param: Parameter, private value: RexArg, isReadOnly: boolean) {
-        super(param, isReadOnly);
+    constructor(param: Parameter, private value: RexArg, model: DataModel, isReadOnly: boolean) {
+        super(param, model, isReadOnly);
         this.showAlias = param.tags.includes(ParamTag.ALIAS);
     }
 

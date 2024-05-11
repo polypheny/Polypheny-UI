@@ -32,15 +32,33 @@
     </button>
 </ng-container>
 <ng-container *ngIf="!isReadOnly">
-    <button cButton (click)="executePlan()" class="m-1" [disabled]="!isSynchronized()">Execute Plan</button>
-    <button cButton color="secondary" class="m-1"
-            (click)="nodeEditor?.layout()">
-        Arrange Nodes
-    </button>
-    <button cButton color="secondary" class="m-1" [disabled]="!canSyncEditors()"
-            (click)="synchronizeEditors()">
-        Synchronize
-    </button>
+    <c-button-toolbar
+            aria-label="Toolbar with button groups"
+            class="justify-content-between"
+            role="group"
+    >
+        <div>
+            <c-button-group class="m-1">
+                <input class="btn-check" id="radio1" type="radio" [checked]="userMode() === UserMode.SIMPLE"/>
+                <label (click)="setUserMode(UserMode.SIMPLE)" cButton cFormCheckLabel for="radio1" color="dark" variant="outline">Simple</label>
+
+                <input class="btn-check" id="radio2" type="radio" [checked]="userMode() === UserMode.ADVANCED"/>
+                <label (click)="setUserMode(UserMode.ADVANCED)" cButton cFormCheckLabel for="radio2" color="dark" variant="outline">Advanced</label>
+            </c-button-group>
+
+            <button cButton color="light" class="m-1"
+                    (click)="nodeEditor?.layout()">
+                Arrange Nodes
+            </button>
+            <button cButton color="light" class="m-1" [disabled]="!canSyncEditors()"
+                    (click)="synchronizeEditors()">
+                Synchronize
+            </button>
+        </div>
+
+        <button cButton (click)="executePlan()" class="m-1" [disabled]="!isSynchronized()">Execute Plan</button>
+
+    </c-button-toolbar>
 </ng-container>
 
 

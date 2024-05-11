@@ -2,6 +2,7 @@ import {Component, Input, signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
 import {IntArg, PlanArgument} from '../../models/polyalg-plan.model';
+import {DataModel} from '../../../../models/ui-request.model';
 
 @Component({
     selector: 'app-int-arg',
@@ -16,8 +17,8 @@ export class IntControl extends ArgControl {
     valueRange: { min: number | null; max: number | null; };
     height = signal(this.name ? 55 : 31);
 
-    constructor(param: Parameter, public value: IntArg, isReadOnly: boolean) {
-        super(param, isReadOnly);
+    constructor(param: Parameter, public value: IntArg, model: DataModel, isReadOnly: boolean) {
+        super(param, model, isReadOnly);
 
         this.valueRange = {min: null, max: null};
         if (param.tags.includes(ParamTag.NON_NEGATIVE)) {

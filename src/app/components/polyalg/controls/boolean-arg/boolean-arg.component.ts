@@ -2,6 +2,7 @@ import {Component, Input, signal, Type} from '@angular/core';
 import {BooleanArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
+import {DataModel} from '../../../../models/ui-request.model';
 
 @Component({
     selector: 'app-boolean-arg',
@@ -16,8 +17,8 @@ export class BooleanArgComponent {
 export class BooleanControl extends ArgControl {
     height = signal(50);
 
-    constructor(param: Parameter, public value: BooleanArg, isReadOnly: boolean) {
-        super(param, isReadOnly);
+    constructor(param: Parameter, public value: BooleanArg, model: DataModel, isReadOnly: boolean) {
+        super(param, model, isReadOnly);
     }
 
     getArgComponent(): Type<any> {
