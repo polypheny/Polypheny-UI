@@ -1,6 +1,6 @@
 <div class="param-wrapper">
     <label for="entityName" *ngIf="data.name"><strong>{{data.name}}</strong></label>
     <input type="text" id="entityName" name="entity" (pointerdown)="$event.stopPropagation()"
-           autocomplete="off" [readonly]="data.isReadOnly" placeholder="entity.field"
+           autocomplete="off" [readonly]="data.isReadOnly" placeholder="{{placeholder}}"
            class="form-control form-control-sm param-input" [(ngModel)]="data.value.arg">
 </div>

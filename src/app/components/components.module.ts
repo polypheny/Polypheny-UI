@@ -12,6 +12,7 @@ import {
     ButtonCloseDirective,
     ButtonDirective,
     ButtonGroupComponent,
+    ButtonToolbarComponent,
     CardBodyComponent,
     CardComponent,
     CardFooterComponent,
@@ -207,7 +208,7 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
         ReteModule,
         AutocompleteLibModule,
         FormCheckComponent,
-        FormCheckLabelDirective, AccordionComponent, AccordionItemComponent, AccordionButtonDirective, TemplateIdDirective, CollapseDirective, PopoverDirective, PopoverModule
+        FormCheckLabelDirective, AccordionComponent, AccordionItemComponent, AccordionButtonDirective, TemplateIdDirective, CollapseDirective, PopoverDirective, PopoverModule, ButtonToolbarComponent
     ],
     declarations: [
         BreadcrumbComponent,

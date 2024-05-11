@@ -3,6 +3,7 @@ import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
 import {LaxAggArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {PolyAlgService} from '../../polyalg.service';
+import {DataModel} from '../../../../models/ui-request.model';
 
 @Component({
     selector: 'app-lax-agg-arg',
@@ -25,8 +26,8 @@ export class LaxAggArgComponent implements OnInit {
 export class LaxAggControl extends ArgControl {
     height = signal(this.name ? 125 : 101);
 
-    constructor(param: Parameter, public value: LaxAggArg, isReadOnly: boolean) {
-        super(param, isReadOnly);
+    constructor(param: Parameter, public value: LaxAggArg, model: DataModel, isReadOnly: boolean) {
+        super(param, model, isReadOnly);
     }
 
     getArgComponent(): Type<any> {

@@ -1,4 +1,4 @@
-import {Injector} from '@angular/core';
+import {Injector, WritableSignal} from '@angular/core';
 import {GetSchemes, NodeEditor} from 'rete';
 import {AreaExtensions, AreaPlugin, BaseAreaPlugin} from 'rete-area-plugin';
 import {ConnectionPlugin, Presets as ConnectionPresets} from 'rete-connection-plugin';
@@ -28,7 +28,8 @@ export type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
 
 export async function createEditor(container: HTMLElement, injector: Injector, registry: PolyAlgService, node: PlanNode | null,
-                                   isReadOnly: boolean) {
+                                   isReadOnly: boolean, userMode: WritableSignal<UserMode>) {
+
     const readonlyPlugin = new ReadonlyPlugin<Schemes>();
 
     //const socket = new ClassicPreset.Socket('socket');
@@ -202,7 +203,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
             }
         }
         if (modifyingEventTypes.has(context.type)) {
-            if (context.type !== 'nodecreated' || editor.getNodes().length === 1) {
+            if (!(context.type === 'nodecreated' || context.type === 'noderemoved') || editor.getNodes().length === 1) {
                 $modifyEvent.next();
             }
         }
@@ -218,6 +219,15 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     if (isReadOnly) {
         readonlyPlugin.enable(); // disable interaction with nodes (control interaction is deactivated separately)
     }
+
+    contextMenu.addPipe(context => {
+        if (context.type === 'render' && context.data.type === 'contextmenu' && userMode() === UserMode.SIMPLE) {
+            context.data.items.forEach(item =>
+                item.subitems = item.subitems?.filter(sub => registry.isSimpleOperator(sub.label))
+            );
+        }
+        return context;
+    });
 
 
     return {
@@ -327,4 +337,9 @@ function updateSize(algNode: AlgNode, {x, y}: Position, area: AreaPlugin<Schemes
             }
         }
     );
+}
+
+export enum UserMode {
+    SIMPLE = 'SIMPLE',
+    ADVANCED = 'ADVANCED'
 }

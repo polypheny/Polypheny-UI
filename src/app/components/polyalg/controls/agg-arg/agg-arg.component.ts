@@ -4,6 +4,7 @@ import {Parameter, ParamType} from '../../models/polyalg-registry';
 import {AggArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {CollationControl} from '../collation-arg/collation-arg.component';
 import {PolyAlgService} from '../../polyalg.service';
+import {DataModel} from '../../../../models/ui-request.model';
 
 @Component({
     selector: 'app-agg-arg',
@@ -27,8 +28,8 @@ export class AggArgComponent implements OnInit {
 export class AggControl extends ArgControl {
     height = signal(188);
 
-    constructor(param: Parameter, public value: AggArg, isReadOnly: boolean) {
-        super(param, isReadOnly);
+    constructor(param: Parameter, public value: AggArg, model: DataModel, isReadOnly: boolean) {
+        super(param, model, isReadOnly);
     }
 
     getArgComponent(): Type<any> {

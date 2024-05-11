@@ -2,6 +2,7 @@ import {Component, Input, signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
 import {CollationArg, CollDirection, CollNullDirection, defaultNullDirection, PlanArgument} from '../../models/polyalg-plan.model';
+import {DataModel} from '../../../../models/ui-request.model';
 
 @Component({
     selector: 'app-collation-arg',
@@ -20,8 +21,8 @@ export class CollationArgComponent {
 export class CollationControl extends ArgControl {
     height = signal(101);
 
-    constructor(param: Parameter, public value: CollationArg, isReadOnly: boolean) {
-        super(param, isReadOnly);
+    constructor(param: Parameter, public value: CollationArg, model: DataModel, isReadOnly: boolean) {
+        super(param, model, isReadOnly);
     }
 
     static collToPolyAlg(value: CollationArg): string {

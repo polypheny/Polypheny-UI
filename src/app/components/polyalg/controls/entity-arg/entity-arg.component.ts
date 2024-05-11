@@ -1,22 +1,30 @@
-import {Component, Input, signal, Type} from '@angular/core';
+import {Component, Input, OnInit, signal, Type} from '@angular/core';
 import {EntityArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
+import {DataModel} from '../../../../models/ui-request.model';
 
 @Component({
     selector: 'app-entity-arg',
     templateUrl: './entity-arg.component.html',
     styleUrl: './entity-arg.component.scss'
 })
-export class EntityArgComponent {
+export class EntityArgComponent implements OnInit {
     @Input() data: EntityControl;
+    placeholder = 'entity.field';
+
+    ngOnInit(): void {
+        if (this.data.model === DataModel.GRAPH) {
+            this.placeholder = 'entity';
+        }
+    }
 }
 
 export class EntityControl extends ArgControl {
     height = signal(this.name ? 55 : 31);
 
-    constructor(param: Parameter, public value: EntityArg, isReadOnly: boolean) {
-        super(param, isReadOnly);
+    constructor(param: Parameter, public value: EntityArg, model: DataModel, isReadOnly: boolean) {
+        super(param, model, isReadOnly);
     }
 
     getArgComponent(): Type<any> {

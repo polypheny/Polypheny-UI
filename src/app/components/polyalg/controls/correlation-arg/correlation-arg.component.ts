@@ -2,6 +2,7 @@ import {Component, Input, signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
 import {CorrelationArg, PlanArgument} from '../../models/polyalg-plan.model';
+import {DataModel} from '../../../../models/ui-request.model';
 
 @Component({
     selector: 'app-correlation-arg',
@@ -16,8 +17,8 @@ export class CorrelationArgComponent {
 export class CorrelationControl extends ArgControl {
     height = signal(this.name ? 55 : 31);
 
-    constructor(param: Parameter, public value: CorrelationArg, isReadOnly: boolean) {
-        super(param, isReadOnly);
+    constructor(param: Parameter, public value: CorrelationArg, model: DataModel, isReadOnly: boolean) {
+        super(param, model, isReadOnly);
     }
 
     getArgComponent(): Type<any> {

@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, computed, effect, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, Output, signal, SimpleChanges, untracked, ViewChild} from '@angular/core';
-import {createEditor} from './alg-editor';
+import {createEditor, UserMode} from './alg-editor';
 import {PlanNode} from '../models/polyalg-plan.model';
 import {PolyAlgService} from '../polyalg.service';
 import {EditorComponent} from '../../editor/editor.component';
@@ -18,6 +18,36 @@ type editorState = 'SYNCHRONIZED' | 'CHANGED' | 'INVALID';
     styleUrl: './alg-viewer.component.scss'
 })
 export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
+
+    constructor(private injector: Injector,
+                private _registry: PolyAlgService,
+                private _toast: ToasterService,
+                private _validator: AlgValidatorService,
+                private _router: Router,
+                private _route: ActivatedRoute) {
+
+        effect(() => {
+            const el = this.container.nativeElement;
+
+            if (this.showNodeEditor() && this.polyAlgPlan() !== undefined && el) {
+                untracked(() => {
+                    this.modifySubscription?.unsubscribe();
+                    createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.isReadOnly, this.userMode)
+                    .then(editor => {
+                        this.nodeEditor = editor;
+                        this.generateTextFromNodeEditor();
+                        this.modifySubscription = this.nodeEditor.onModify.pipe(
+                            switchMap(() => {
+                                this.nodeEditorState.set('CHANGED');
+                                return timer(500);
+                            })
+                        ).subscribe(() => this.generateTextFromNodeEditor(true));
+                    });
+                });
+            }
+        });
+    }
+
     @Input() polyAlg?: string;
     @Input() initialPlan?: string;
     @Input() planType: 'LOGICAL' | 'ROUTED' | 'PHYSICAL';
@@ -42,6 +72,8 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     );
     isSynchronized = computed(() => this.nodeEditorState() === 'SYNCHRONIZED' && this.textEditorState() === 'SYNCHRONIZED');
     showEditButton: boolean;
+    //isSimpleMode = signal(false);
+    userMode = signal(UserMode.ADVANCED);
 
     private modifySubscription: Subscription;
     nodeEditor: { onModify: any; destroy: any; toPolyAlg: any; layout?: () => Promise<void>; };
@@ -60,40 +92,12 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
         tabSize: 2
     };
 
-    constructor(private injector: Injector,
-                private _registry: PolyAlgService,
-                private _toast: ToasterService,
-                private _validator: AlgValidatorService,
-                private _router: Router,
-                private _route: ActivatedRoute) {
-
-        effect(() => {
-            const el = this.container.nativeElement;
-
-            if (this.showNodeEditor() && this.polyAlgPlan() !== undefined && el) {
-                untracked(() => {
-                    this.modifySubscription?.unsubscribe();
-                    createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.isReadOnly)
-                    .then(editor => {
-                        this.nodeEditor = editor;
-                        this.generateTextFromNodeEditor();
-                        this.modifySubscription = this.nodeEditor.onModify.pipe(
-                            switchMap(() => {
-                                this.nodeEditorState.set('CHANGED');
-                                return timer(500);
-                            })
-                        ).subscribe(() => this.generateTextFromNodeEditor(true));
-                    });
-                });
-            }
-        });
-    }
+    protected readonly UserMode = UserMode;
 
     ngAfterViewInit(): void {
         this.showEditButton = this.isReadOnly && !(this.planType === 'LOGICAL' && this._route.snapshot.params.route === 'polyalg');
 
         this.textEditor.setScrollMargin(5, 5);
-        //this.textEditor.onSelectionChange((f) => console.log(f));
         if (!this.isReadOnly) {
             this.textEditor.onBlur(() => this.onTextEditorBlur());
             this.textEditor.onChange(() => this.onTextEditorChange());
@@ -249,5 +253,9 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
                 this.execute.emit([str, model]);
             }
         });
+    }
+
+    setUserMode(mode: UserMode) {
+        this.userMode.set(mode);
     }
 }

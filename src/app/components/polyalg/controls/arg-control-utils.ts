@@ -13,44 +13,45 @@ import {CorrelationControl} from './correlation-arg/correlation-arg.component';
 import {CollationControl} from './collation-arg/collation-arg.component';
 import {AggControl} from './agg-arg/agg-arg.component';
 import {LaxAggControl} from './lax-agg/lax-agg-arg.component';
+import {DataModel} from '../../../models/ui-request.model';
 
 export function getControl(param: Parameter, arg: PlanArgument | null,
-                           isReadOnly: boolean, depth: number): ArgControl {
+                           isReadOnly: boolean, depth: number, model: DataModel): ArgControl {
     if (arg == null) {
         arg = getInitialArg(param, depth);
     }
 
     if (arg.isEnum) {
-        return new EnumControl(param, arg.type, arg.value as EnumArg, isReadOnly);
+        return new EnumControl(param, arg.type, arg.value as EnumArg, model, isReadOnly);
     }
 
     switch (arg.type) {
         case 'ANY':
             break;
         case 'INTEGER':
-            return new IntControl(param, arg.value as IntArg, isReadOnly);
+            return new IntControl(param, arg.value as IntArg, model, isReadOnly);
         case 'STRING':
-            return new StringControl(param, arg.value as StringArg, isReadOnly);
+            return new StringControl(param, arg.value as StringArg, model, isReadOnly);
         case 'BOOLEAN':
-            return new BooleanControl(param, arg.value as BooleanArg, isReadOnly);
+            return new BooleanControl(param, arg.value as BooleanArg, model, isReadOnly);
         case 'REX':
-            return new RexControl(param, arg.value as RexArg, isReadOnly);
+            return new RexControl(param, arg.value as RexArg, model, isReadOnly);
         case 'AGGREGATE':
-            return new AggControl(param, arg.value as AggArg, isReadOnly);
+            return new AggControl(param, arg.value as AggArg, model, isReadOnly);
         case 'LAX_AGGREGATE':
-            return new LaxAggControl(param, arg.value as LaxAggArg, isReadOnly);
+            return new LaxAggControl(param, arg.value as LaxAggArg, model, isReadOnly);
         case 'ENTITY':
-            return new EntityControl(param, arg.value as EntityArg, isReadOnly);
+            return new EntityControl(param, arg.value as EntityArg, model, isReadOnly);
         case 'FIELD':
-            return new FieldControl(param, arg.value as FieldArg, isReadOnly);
+            return new FieldControl(param, arg.value as FieldArg, model, isReadOnly);
         case 'LIST':
-            return new ListControl(param, arg.value as ListArg, depth, isReadOnly);
+            return new ListControl(param, arg.value as ListArg, depth, model, isReadOnly);
         case 'COLLATION':
-            return new CollationControl(param, arg.value as CollationArg, isReadOnly);
+            return new CollationControl(param, arg.value as CollationArg, model, isReadOnly);
         case 'CORR_ID':
-            return new CorrelationControl(param, arg.value as CorrelationArg, isReadOnly);
+            return new CorrelationControl(param, arg.value as CorrelationArg, model, isReadOnly);
     }
-    return new StringControl(param, {'arg': JSON.stringify(arg)}, isReadOnly);
+    return new StringControl(param, {'arg': JSON.stringify(arg)}, model, isReadOnly);
 }
 
 

@@ -83,19 +83,19 @@
 
 [rete-context-menu] {
   // TODO: adjust style of context menu
-  width: 320px !important;
+  width: 200px !important;
   border-radius: 4px;
 
   .block {
-    background: $dark !important;
-    //color: black !important;
-    border-bottom: 1px solid white !important;
-    //border-radius: 4px;
-    //border: none !important;
+    color: $body-color !important;
+    background: $light !important;
+    border-bottom: 1px solid #c8c9cb !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
   }
 
   .block:hover {
-    background: $secondary !important;
+    background: #c8c9cb !important;
   }
 
   .block:last-child {

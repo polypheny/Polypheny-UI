@@ -2,6 +2,7 @@ import {Component, Input, signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
 import {FieldArg, PlanArgument} from '../../models/polyalg-plan.model';
+import {DataModel} from '../../../../models/ui-request.model';
 
 @Component({
     selector: 'app-field-arg',
@@ -16,8 +17,8 @@ export class FieldArgComponent {
 export class FieldControl extends ArgControl {
     height = signal(this.name ? 55 : 31);
 
-    constructor(param: Parameter, public value: FieldArg, isReadOnly: boolean) {
-        super(param, isReadOnly);
+    constructor(param: Parameter, public value: FieldArg, model: DataModel, isReadOnly: boolean) {
+        super(param, model, isReadOnly);
     }
 
     getArgComponent(): Type<any> {

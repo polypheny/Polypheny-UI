@@ -3,6 +3,7 @@ import {ListArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {getControl} from '../arg-control-utils';
 import {Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
+import {DataModel} from '../../../../models/ui-request.model';
 
 @Component({
     selector: 'app-list-arg',
@@ -22,10 +23,10 @@ export class ListControl extends ArgControl {
     hideTrivial: WritableSignal<boolean>;
     height = computed(() => this.computeHeight());
 
-    constructor(param: Parameter, public value: ListArg, public depth: number,
+    constructor(param: Parameter, public value: ListArg, public depth: number, model: DataModel,
                 isReadOnly: boolean) {
-        super(param, isReadOnly, depth === 0);
-        this.children = signal(value.args.map(arg => getControl(param, arg, isReadOnly, depth + 1)));
+        super(param, model, isReadOnly, depth === 0);
+        this.children = signal(value.args.map(arg => getControl(param, arg, isReadOnly, depth + 1, model)));
         if (this.children().length === 0 && value.innerType === ParamType.LIST) {
             value.innerType = param.type; // TODO: handle nested lists
         }
@@ -48,7 +49,7 @@ export class ListControl extends ArgControl {
     addElement() {
         this.hideTrivial.set(false);
         this.children.update(values =>
-            [...values, getControl(this.param, null, this.isReadOnly, this.depth + 1)]);
+            [...values, getControl(this.param, null, this.isReadOnly, this.depth + 1, this.model)]);
     }
 
     removeElement(child: ArgControl) {
