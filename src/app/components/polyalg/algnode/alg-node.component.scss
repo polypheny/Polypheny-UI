@@ -1,7 +1,10 @@
 @use "sass:math";
 @import "scss/style.scss";
 
-$node-width: 350px;
+// the width also needs to be changed in alg-node.component.ts
+$node-base-width: 350px;
+$node-metadata-width: 200px;
+$collapse-width: 16px;
 $socket-margin: 6px;
 $socket-size: 16px;
 
@@ -13,14 +16,35 @@ $socket-size: 16px;
   border-radius: 4px;
   cursor: pointer;
   //box-sizing: border-box;
-  width: $node-width !important;
+  width: auto !important;
   height: auto !important;
-  padding-bottom: 6px;
   position: relative;
   user-select: none;
 
+  .node-body {
+    display: flex;
+  }
+
+  .controls {
+    width: $node-base-width;
+  }
+
+  .metadata {
+    width: $node-metadata-width;
+  }
+
+  .collapse-button {
+    width: $collapse-width;
+    padding: 2px;
+  }
+
+  .collapse-button:hover {
+    color: $primary;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0) 100%);
+  }
+
   .title-wrapper {
-    margin: -4px;
+    margin: -4px -4px 0px;
     border-radius: 4px 4px 0 0;
   }
 
@@ -44,7 +68,7 @@ $socket-size: 16px;
   .outputs {
     display: flex;
     justify-content: space-around;
-    margin-top: -18px;
+    margin-top: -22px;
     height: 24px;
     position: absolute;
     top: 0;
@@ -55,8 +79,12 @@ $socket-size: 16px;
   .inputs {
     display: flex;
     justify-content: space-around;
-    margin-bottom: -14px;
+    margin-bottom: -8px;
     height: 24px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
   }
 
   .output, .input {

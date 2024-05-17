@@ -9,15 +9,28 @@
     </div>
 </div>
 
-<div class="title-wrapper bg-dark">
-    <h2 class="p-2 text-white">{{ data.label }}</h2>
+<div class="title-wrapper bg-dark d-flex justify-content-between align-items-center">
+    <h2 class="p-2 text-white mb-0">{{ data.label }} </h2>
+    <div class="m-2">
+        <c-badge [color]="data.modelColor">{{data.modelBadge}}</c-badge>
+    </div>
 </div>
 
-<div class="control" *ngFor="let control of data.controls | keyvalue: sortByIndex"
-     refComponent [data]="{type: 'control', payload: control.value }"
-     [emit]="emit" [attr.data-testid]="'control-'+control.key"
-></div>
+<div class="node-body">
+    <div class="controls mb-2">
+        <div class="control" *ngFor="let control of data.controls | keyvalue: sortByIndex"
+             refComponent [data]="{type: 'control', payload: control.value }"
+             [emit]="emit" [attr.data-testid]="'control-'+control.key"
+        ></div>
+    </div>
+    <div *ngIf="data.isReadOnly" class="metadata" [hidden]="!data.isMetaVisible()">
+        <app-alg-metadata [data]="data.metadata"></app-alg-metadata>
+    </div>
+    <div *ngIf="data.isReadOnly" (click)="toggleCollapse()" (pointerdown)="$event.stopPropagation()" class="collapse-button d-flex align-items-center justify-content-center">
+        <i class="fa" [ngClass]="{'fa-caret-left': data.isMetaVisible, 'fa-caret-right': !data.isMetaVisible}"></i>
+    </div>
 
+</div>
 
 <div class="inputs">
     <div class="input" *ngFor="let input of data.inputs | keyvalue: sortByIndex"

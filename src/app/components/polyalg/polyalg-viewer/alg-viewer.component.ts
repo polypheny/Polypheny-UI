@@ -9,6 +9,7 @@ import {Subscription, timer} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DataModel} from '../../../models/ui-request.model';
+import {Transform} from 'rete-area-plugin/_types/area';
 
 type editorState = 'SYNCHRONIZED' | 'CHANGED' | 'INVALID';
 
@@ -32,7 +33,8 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
             if (this.showNodeEditor() && this.polyAlgPlan() !== undefined && el) {
                 untracked(() => {
                     this.modifySubscription?.unsubscribe();
-                    createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.isReadOnly, this.userMode)
+                    const oldTransform = this.nodeEditor ? this.nodeEditor.getTransform() : null;
+                    createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.isReadOnly, this.userMode, oldTransform)
                     .then(editor => {
                         this.nodeEditor = editor;
                         this.generateTextFromNodeEditor();
@@ -76,9 +78,10 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     userMode = signal(UserMode.ADVANCED);
 
     private modifySubscription: Subscription;
-    nodeEditor: { onModify: any; destroy: any; toPolyAlg: any; layout?: () => Promise<void>; };
+    nodeEditor: { onModify: any; destroy: any; toPolyAlg: any; layout?: () => Promise<void>; showMetadata: (b: boolean) => boolean; getTransform: () => Transform };
     showNodeEditor = computed(() => this._registry.registryLoaded());
     private isNodeFocused = false; // If a node is focused we must assume that a control has changed. Thus, the nodeEditor cannot be 'SYNCHRONIZED'.
+    showMetadata = false;
 
     polyAlgSnapshot: string; // keep track whether the textEditor has changed
     initialPolyAlg: string; // only used for initially setting the text representation
@@ -96,6 +99,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     ngAfterViewInit(): void {
         this.showEditButton = this.isReadOnly && !(this.planType === 'LOGICAL' && this._route.snapshot.params.route === 'polyalg');
+        this.showMetadata = this.isReadOnly;
 
         this.textEditor.setScrollMargin(5, 5);
         if (!this.isReadOnly) {
@@ -257,5 +261,10 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     setUserMode(mode: UserMode) {
         this.userMode.set(mode);
+    }
+
+    toggleMetadata() {
+        // if all nodes are already in the state !this.showMetadata, then the returned boolean is inverted
+        this.showMetadata = this.nodeEditor.showMetadata(!this.showMetadata);
     }
 }

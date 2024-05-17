@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, effect, HostBinding, Input, OnChanges, Signal} from '@angular/core';
+import {ChangeDetectorRef, Component, effect, HostBinding, Input, OnChanges, signal, Signal} from '@angular/core';
 import {ClassicPreset} from 'rete';
 import {KeyValue} from '@angular/common';
 import {Declaration} from '../models/polyalg-registry';
@@ -8,6 +8,8 @@ import {ArgControl} from '../controls/arg-control';
 import {Position} from 'rete-angular-plugin/17/types';
 import {DataModel} from '../../../models/ui-request.model';
 import {AlgNodeSocket} from '../custom-socket/custom-socket.component';
+import {AlgMetadata} from './alg-metadata/alg-metadata.component';
+import {getModelPrefix} from '../polyalg-viewer/alg-editor-utils';
 
 type SortValue<N extends ClassicPreset.Node> = (N['controls'] | N['inputs'] | N['outputs'])[string];
 
@@ -30,7 +32,7 @@ export class AlgNodeComponent implements OnChanges {
     constructor(private cdr: ChangeDetectorRef) {
         this.cdr.detach();
 
-        effect(() => this.data.recomputeHeight());
+        effect(() => this.data.recomputeSize());
     }
 
     ngOnChanges(): void {
@@ -45,9 +47,15 @@ export class AlgNodeComponent implements OnChanges {
 
         return ai - bi;
     }
+
+    toggleCollapse() {
+        this.data.isMetaVisible.update(b => !b);
+    }
 }
 
 const BASE_WIDTH = 350;
+const METADATA_WIDTH = 200;
+const METADATA_COLLAPSE_WIDTH = 16;
 const BASE_HEIGHT = 110;
 const TAB_SIZE = 2; // the indentation width when generating PolyAlg
 
@@ -61,17 +69,32 @@ const MULTI_SOCKET_PRESETS = {
     [DataModel.RELATIONAL]: new AlgNodeSocket(DataModel.RELATIONAL, true),
     [DataModel.GRAPH]: new AlgNodeSocket(DataModel.GRAPH, true),
 };
+const MODEL_COLORS = new Map([
+    [DataModel.RELATIONAL, 'warning'],
+    [DataModel.DOCUMENT, 'warning'],
+    [DataModel.GRAPH, 'warning']
+]);
 
 export class AlgNode extends ClassicPreset.Node {
-    width = BASE_WIDTH;
+    width: number;
     height: number;
+    isMetaVisible = signal(false);
     private readonly tabIndent = ' '.repeat(TAB_SIZE);
     private controlHeights: Signal<number>[] = [];
     readonly hasVariableInputs: boolean;
+    readonly modelBadge: string;
+    readonly modelColor: string;
 
-    constructor(public decl: Declaration, args: { [key: string]: PlanArgument } | null, private isReadOnly: boolean,
-                private updateArea: (a: AlgNode, delta: Position) => void) {
-        super(decl.name);
+    constructor(public decl: Declaration, args: { [key: string]: PlanArgument } | null, public readonly metadata: AlgMetadata | null,
+                public isReadOnly: boolean, private updateArea: (a: AlgNode, delta: Position) => void) {
+        super(decl.name.substring(decl.name.indexOf('_') + 1));
+        this.modelBadge = getModelPrefix(decl.model);
+        this.modelColor = MODEL_COLORS.get(decl.model);
+
+        if (metadata) {
+            this.isMetaVisible.set(true);
+        }
+        this.width = isReadOnly ? BASE_WIDTH + METADATA_WIDTH + METADATA_COLLAPSE_WIDTH : BASE_WIDTH;
 
         const output = new ClassicPreset.Output(SINGLE_SOCKET_PRESETS[decl.model]);
         output.multipleConnections = false;
@@ -99,15 +122,26 @@ export class AlgNode extends ClassicPreset.Node {
         }
     }
 
-    recomputeHeight() {
+    recomputeSize() {
+        const oldWidth = this.width;
+        this.width = BASE_WIDTH;
+        if (this.isReadOnly) {
+            this.width += METADATA_COLLAPSE_WIDTH;
+        }
+        if (this.isMetaVisible()) {
+            this.width += METADATA_WIDTH;
+        }
+        const deltaX = this.width - oldWidth;
+
         const oldHeight = this.height;
         const sum = Object.values(this.controlHeights).reduce((total, value) => total + value() + 12, 0);
-        this.height = BASE_HEIGHT + sum;
+        this.height = BASE_HEIGHT + (this.isMetaVisible() ? Math.max(sum, this.metadata.height()) : sum);
+        let deltaY = 0;
         if (oldHeight) {
-            let deltaY = this.height - oldHeight;
+            deltaY = this.height - oldHeight;
             deltaY += deltaY > 0 ? 1 : -1; // slight adjustment is required for smooth behavior
-            this.updateArea(this, {x: 0, y: -deltaY});
         }
+        this.updateArea(this, {x: -deltaX / 2, y: -deltaY});
     }
 
     data(inputs: { [key: string]: string } = {}) {
@@ -150,7 +184,7 @@ export class AlgNode extends ClassicPreset.Node {
         for (const p of this.decl.posParams.concat(this.decl.kwParams)) {
             args[p.name] = (this.controls[p.name] as ArgControl).copyArg();
         }
-        return new AlgNode(this.decl, args, this.isReadOnly, this.updateArea);
+        return new AlgNode(this.decl, args, null, this.isReadOnly, this.updateArea);
     }
 
 }

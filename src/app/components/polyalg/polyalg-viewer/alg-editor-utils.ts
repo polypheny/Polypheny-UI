@@ -3,6 +3,8 @@ import {ClassicPreset, NodeEditor} from 'rete';
 import {Schemes} from './alg-editor';
 import {AlgNode} from '../algnode/alg-node.component';
 import {CustomConnection} from '../custom-connection/custom-connection.component';
+import {PlanNode} from '../models/polyalg-plan.model';
+import {DataModel} from '../../../models/ui-request.model';
 
 type Sockets = AlgNodeSocket;
 type Input = ClassicPreset.Input<Sockets>;
@@ -80,6 +82,42 @@ export function findRootNodeId(nodes: AlgNode[], connections: CustomConnection<A
         console.log('found orphan nodes');
     }
     return root;
+}
+
+export function getModelPrefix(model: DataModel) {
+    switch (model) {
+        case DataModel.DOCUMENT:
+            return 'DOC';
+        case DataModel.RELATIONAL:
+            return 'REL';
+        case DataModel.GRAPH:
+            return 'LPG';
+    }
+}
+
+export function computeGlobalStats(plan: PlanNode, stats: GlobalStats = {maxRows: 0, maxIo: 0, maxCpu: 0}) {
+    const meta = plan.metadata;
+    if (meta.rowsCost > stats.maxRows) {
+        stats.maxRows = meta.rowsCost;
+    }
+    if (meta.ioCost > stats.maxIo) {
+        stats.maxIo = meta.ioCost;
+    }
+    if (meta.cpuCost > stats.maxCpu) {
+        stats.maxCpu = meta.cpuCost;
+    }
+
+    for (const child of plan.inputs) {
+        computeGlobalStats(child, stats);
+    }
+    return stats;
+}
+
+export interface GlobalStats {
+    maxRows: number;
+    maxIo: number;
+    //maxDuration: number;
+    maxCpu: number;
 }
 
 function getSuccessor(nodeId: string, connections: CustomConnection<AlgNode>[]): string | null {

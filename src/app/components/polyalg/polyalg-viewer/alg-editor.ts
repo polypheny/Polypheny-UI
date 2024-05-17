@@ -19,16 +19,18 @@ import {DataModel} from '../../../models/ui-request.model';
 import {DataflowEngine} from 'rete-engine';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Subject} from 'rxjs';
-import {canCreateConnection, findRootNodeId} from './alg-editor-utils';
+import {canCreateConnection, computeGlobalStats, findRootNodeId, getModelPrefix, GlobalStats} from './alg-editor-utils';
 import {setupPanningBoundary} from './panning-boundary';
 import {useMagneticConnection} from './magnetic-connection';
 import {MagneticConnectionComponent} from './magnetic-connection/magnetic-connection.component';
+import {AlgMetadata} from '../algnode/alg-metadata/alg-metadata.component';
+import {Transform} from 'rete-area-plugin/_types/area';
 
 export type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
 
 export async function createEditor(container: HTMLElement, injector: Injector, registry: PolyAlgService, node: PlanNode | null,
-                                   isReadOnly: boolean, userMode: WritableSignal<UserMode>) {
+                                   isReadOnly: boolean, userMode: WritableSignal<UserMode>, oldTransform: Transform | null) {
 
     const readonlyPlugin = new ReadonlyPlugin<Schemes>();
 
@@ -106,7 +108,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     };
 
     const $modifyEvent = new Subject<void>();
-    const updateSizeFct = (a: AlgNode, delta: Position) => updateSize(a, delta, area, readonlyPlugin,
+    const updateSizeFct = (a: AlgNode, delta: Position) => updateSize(a, delta, area, isReadOnly ? readonlyPlugin : null,
         () => arrange.layout({applier: undefined, options: layoutOpts}), $modifyEvent);
 
     const contextMenu = new ContextMenuPlugin<Schemes>({
@@ -179,7 +181,8 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         panningBoundary = setupPanningBoundary({area, selector, padding: 40, intensity: 2});
     }
 
-    const [nodes, connections] = addNode(registry, node, isReadOnly, updateSizeFct);
+    const globalStats = computeGlobalStats(node);
+    const [nodes, connections] = addNode(registry, node, globalStats, isReadOnly, updateSizeFct);
     for (const n of nodes) {
         await editor.addNode(n);
     }
@@ -192,7 +195,11 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         applier: undefined, options: layoutOpts
     });
 
-    AreaExtensions.zoomAt(area, editor.getNodes());
+    if (oldTransform) {
+        await area.area.zoom(oldTransform.k, oldTransform.x, oldTransform.y);
+    } else {
+        AreaExtensions.zoomAt(area, editor.getNodes());
+    }
 
     const modifyingEventTypes = new Set(['nodecreated', 'noderemoved', 'connectioncreated', 'connectionremoved']);
     editor.addPipe(context => {
@@ -222,9 +229,13 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
 
     contextMenu.addPipe(context => {
         if (context.type === 'render' && context.data.type === 'contextmenu' && userMode() === UserMode.SIMPLE) {
-            context.data.items.forEach(item =>
-                item.subitems = item.subitems?.filter(sub => registry.isSimpleOperator(sub.label))
-            );
+            context.data.items.forEach(item => {
+                const model = getModelPrefix(item.label as DataModel);
+                item.subitems = item.subitems?.filter(sub => {
+                    const opName = `${model}_${sub.label}`;
+                    return registry.isSimpleOperator(opName);
+                });
+            });
         }
         return context;
     });
@@ -252,24 +263,27 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
             }
             return [null, null];
         },
-        onModify: $modifyEvent.asObservable()
+        onModify: $modifyEvent.asObservable(),
+        showMetadata: (b: boolean) => showMetadata(editor, b),
+        getTransform: () => area.area.transform
     };
 }
 
-function addNode(registry: PolyAlgService, node: PlanNode | null, isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void): [AlgNode[], CustomConnection<AlgNode>[]] {
+function addNode(registry: PolyAlgService, node: PlanNode | null, globalStats: GlobalStats, isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void): [AlgNode[], CustomConnection<AlgNode>[]] {
     const nodes = [];
     const connections = [];
     if (!node) {
         return [nodes, connections];
     }
-    const algNode = new AlgNode(registry.getDeclaration(node.opName), node.arguments, isReadOnly, updateSize);
+    const metadata = new AlgMetadata(node.metadata, globalStats);
+    const algNode = new AlgNode(registry.getDeclaration(node.opName), node.arguments, metadata, isReadOnly, updateSize);
     if (node.opName.endsWith('#')) {
         // TODO: handle implicit project correctly
         algNode.label = 'PROJECT#';
     }
 
     for (let i = 0; i < node.inputs.length; i++) {
-        const [childNodes, childConnections] = addNode(registry, node.inputs[i], isReadOnly, updateSize);
+        const [childNodes, childConnections] = addNode(registry, node.inputs[i], globalStats, isReadOnly, updateSize);
         const childNode = childNodes[childNodes.length - 1];
         nodes.push(...childNodes);
         connections.push(...childConnections);
@@ -287,8 +301,8 @@ function getContextMenuItems(registry: PolyAlgService, isReadOnly: boolean, upda
         const innerNodes = [];
         for (const decl of registry.getSortedDeclarations(model)) {
             innerNodes.push([
-                decl.name,
-                () => new AlgNode(decl, null, isReadOnly, updateSize)
+                decl.name.substring(decl.name.indexOf('_') + 1),
+                () => new AlgNode(decl, null, null, isReadOnly, updateSize)
             ]);
         }
         nodes.push([model, innerNodes]);
@@ -320,23 +334,40 @@ function getContextMenuItems(registry: PolyAlgService, isReadOnly: boolean, upda
 }
 
 function updateSize(algNode: AlgNode, {x, y}: Position, area: AreaPlugin<Schemes, AreaExtra>,
-                    readonlyPlugin: ReadonlyPlugin<Schemes>,
+                    readonlyPlugin: ReadonlyPlugin<Schemes> | null,
                     arrange: () => Promise<any>, $modifyEvent: Subject<void>) {
     const oldPos = area.nodeViews.get(algNode.id).position;
 
     // update location of sockets
     area.update('node', algNode.id).then(
         () => {
-            const isReadOnly = readonlyPlugin.enabled;
+            const isReadOnly = readonlyPlugin != null;
             if (isReadOnly) {
-                readonlyPlugin.disable();
-                arrange().then(() => readonlyPlugin.enable());
-            } else {
+                if (readonlyPlugin.enabled) { // disabled if another node is currently arranging
+                    readonlyPlugin.disable();
+                    arrange().then(() => readonlyPlugin.enable());
+                }
+
+            } else if (x || y) {
                 area.translate(algNode.id, {x: oldPos.x + x, y: oldPos.y + y}).then();
-                $modifyEvent.next(); // size has changed, so the content has probably also changed (e.g. when list item is deleted)
+                if (y) {
+                    $modifyEvent.next(); // height has changed, so the content has probably also changed (e.g. when list item is deleted)
+                }
             }
         }
     );
+}
+
+function showMetadata(editor: NodeEditor<Schemes>, b: boolean): boolean {
+    const nodes = editor.getNodes();
+    if (nodes.some(n => n.isMetaVisible() !== b)) {
+        nodes.forEach(n => n.isMetaVisible.set(b));
+        return b;
+    }
+    // if setting the metadata to b would have no effect, we toggle all by inverting b
+    nodes.forEach(n => n.isMetaVisible.set(!b));
+    return !b;
+
 }
 
 export enum UserMode {

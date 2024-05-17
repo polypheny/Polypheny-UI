@@ -1,7 +1,7 @@
 <c-accordion [flush]="true" [alwaysOpen]="true" class="mb-3">
     <c-accordion-item #item0="cAccordionItem" [visible]="true">
         <ng-template cTemplateId="accordionHeaderTemplate">
-            <button (click)="item0.toggleItem()" [collapsed]="!item0.visible" cAccordionButton class="ps-1 py-1 fs-3"
+            <button (click)="item0.toggleItem()" [collapsed]="!item0.visible" cAccordionButton class="ps-1 py-0 fs-3"
                     [ngClass]="textEditorState()" [tooltip]="textEditorState() === 'INVALID' ? textErrorTooltip : ''" [placement]="'bottom left'">
                 PolyAlgebra Editor {{stateText[textEditorState()]}}
                 <ng-template #textErrorTooltip>
@@ -29,6 +29,12 @@
     <button cButton color="success" variant="outline" class="m-1"
             (click)="openInPlanEditor()">
         Edit Plan
+    </button>
+</ng-container>
+<ng-container *ngIf="isReadOnly">
+    <button cButton color="light" class="m-1"
+            (click)="toggleMetadata()">
+        Toggle Stats
     </button>
 </ng-container>
 <ng-container *ngIf="!isReadOnly">
@@ -63,9 +69,9 @@
 
 
 <c-accordion [flush]="true" class="mt-3">
-    <c-accordion-item #item1="cAccordionItem" [visible]="true">
+    <c-accordion-item #item1="cAccordionItem" [visible]="true" class="text-body">
         <ng-template cTemplateId="accordionHeaderTemplate">
-            <button (click)="item1.toggleItem()" [collapsed]="!item1.visible" cAccordionButton class="ps-1 py-1 fs-3"
+            <button (click)="item1.toggleItem()" [collapsed]="!item1.visible" cAccordionButton class="ps-1 py-0 fs-3"
                     [ngClass]="nodeEditorState()" [tooltip]="nodeEditorState() === 'INVALID' ? nodeErrorTooltip : ''" [placement]="'bottom left'">
                 Node Editor {{stateText[nodeEditorState()]}}
                 <ng-template #nodeErrorTooltip>

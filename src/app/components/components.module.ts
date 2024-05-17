@@ -7,6 +7,7 @@ import {
     AccordionButtonDirective,
     AccordionComponent,
     AccordionItemComponent,
+    BadgeComponent,
     BgColorDirective,
     BreadcrumbComponent as BreadCrumb,
     ButtonCloseDirective,
@@ -128,6 +129,7 @@ import {AggArgComponent} from './polyalg/controls/agg-arg/agg-arg.component';
 import {LaxAggArgComponent} from './polyalg/controls/lax-agg/lax-agg-arg.component';
 import {MagneticConnectionComponent} from './polyalg/polyalg-viewer/magnetic-connection/magnetic-connection.component';
 import {PopoverModule} from 'ngx-bootstrap/popover';
+import {AlgMetadataComponent} from './polyalg/algnode/alg-metadata/alg-metadata.component';
 
 //import 'hammerjs';
 
@@ -208,7 +210,7 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
         ReteModule,
         AutocompleteLibModule,
         FormCheckComponent,
-        FormCheckLabelDirective, AccordionComponent, AccordionItemComponent, AccordionButtonDirective, TemplateIdDirective, CollapseDirective, PopoverDirective, PopoverModule, ButtonToolbarComponent
+        FormCheckLabelDirective, AccordionComponent, AccordionItemComponent, AccordionButtonDirective, TemplateIdDirective, CollapseDirective, PopoverDirective, PopoverModule, ButtonToolbarComponent, BadgeComponent
     ],
     declarations: [
         BreadcrumbComponent,
@@ -254,7 +256,8 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
         CollationArgComponent,
         AggArgComponent,
         LaxAggArgComponent,
-        MagneticConnectionComponent
+        MagneticConnectionComponent,
+        AlgMetadataComponent
     ],
     exports: [
         BreadcrumbComponent,
