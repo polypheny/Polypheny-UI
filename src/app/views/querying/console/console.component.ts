@@ -70,6 +70,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     confirmDeletingHistory;
     readonly activeNamespace: WritableSignal<string> = signal(null);
     readonly namespaces: WritableSignal<NamespaceModel[]> = signal([]);
+    delayedNamespace: string = null
 
     entityConfig: EntityConfig = {
         create: false,
@@ -121,6 +122,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     private loadAndSetNamespaceDB() {
+        if (this.activeNamespace || this.delayedNamespace) {
+            return;
+        }
         let namespaceName = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
 
         if (namespaceName === null || (this.namespaces && this.namespaces.length > 0 && (this.namespaces().filter(n => n.name === namespaceName).length === 0))) {
@@ -133,6 +137,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         if (!namespaceName) {
             return;
         }
+
         this.activeNamespace.set(namespaceName);
 
         this.storeNamespace(namespaceName);
@@ -149,6 +154,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
 
     submitQuery() {
+        this.delayedNamespace = null;
         const code = this.codeEditor.getCode();
         if (!code) {
             return;
@@ -156,20 +162,24 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         if (this.saveInHistory) {
             this.addToHistory(code, this.language());
         }
-        if (this.usesAdvancedConsole(this.language())) { // maybe adjust
-            const matchGraph = code.toLowerCase().match('use graph [a-zA-Z][a-zA-Z0-1]*');
-            if (matchGraph !== null && matchGraph.length >= 0) {
-                const namespace = matchGraph[matchGraph.length - 1].replace('use ', '');
-                this.activeNamespace.set(namespace);
-            }
-
-            const match = code.toLowerCase().match('use [a-zA-Z][a-zA-Z0-1]*');
-            if (match !== null && match.length >= 0) {
-                const namespace = match[match.length - 1].replace('use ', '');
-                if (namespace !== 'placement') {
-                    this.activeNamespace.set(namespace);
+        if (this.usesAdvancedConsole(this.language())) {
+            code.split(";").forEach((query: string) => {
+                // maybe adjust
+                const graphUse = /use *graph *([a-zA-Z][a-zA-Z0-9-_]*)/gmi
+                const matchGraph = graphUse.exec(query.trim());
+                if (matchGraph !== null && matchGraph.length > 1) {
+                    this.delayedNamespace = matchGraph[1];
                 }
-            }
+
+                const useRegex = /use ([a-zA-Z][a-zA-Z0-9-_]*)/gmi
+                const match = useRegex.exec(query.trim());
+                if (match !== null && match.length > 1) {
+                    const namespace = match[1];
+                    if (namespace !== 'placement') {
+                        this.delayedNamespace = namespace;
+                    }
+                }
+            })
 
 
             if (code.match('show db')) {
@@ -315,6 +325,11 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                     }
 
                 } else if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSets
+                    if (this.delayedNamespace && !msg[0].hasOwnProperty('error')) {
+                        this.activeNamespace.set(this.delayedNamespace);
+                    }
+                    this.delayedNamespace = null;
+
                     this.loading.set(false);
                     this.results.set(<Result<any, any>[]>msg);
 
@@ -425,7 +440,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     changedDefaultDB(n) {
-        console.log(n);
         this.activeNamespace.set(n);
     }
 
