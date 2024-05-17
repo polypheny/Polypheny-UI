@@ -5,8 +5,17 @@ export interface PlanNode {
     arguments: {
         [key: string]: PlanArgument
     };
+    metadata: PlanMetadata;
     inputs: PlanNode[];
     defaultValue: string;
+}
+
+export interface PlanMetadata {
+    isAuxiliary?: boolean;
+    rowCount?: number;
+    rowsCost?: number;
+    cpuCost?: number;
+    ioCost?: number;
 }
 
 export interface PlanArgument {
