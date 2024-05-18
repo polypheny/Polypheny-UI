@@ -230,7 +230,7 @@
                                                 [formControlName]="control.key"
                                                 (change)="onChange(control.key,control.value)">
                                             <option *ngFor="let option of getAdapterSetting(control.key).template.options"
-                                                    [value]="option">{{ getAdapterSetting(control.key).template.alias[option] }}
+                                                    [value]="option">{{ getAdapterSetting(control.key).template?.alias?.[option] ? getAdapterSetting(control.key).template?.alias?.[option] : option }}
                                             </option>
                                         </select>
                                         <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>

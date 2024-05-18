@@ -99,7 +99,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             const namespace = this._catalog.namespaces();
             untracked(() => {
                 this.namespaces.set(Array.from(namespace.values()));
-                this.loadAndSetNamespaceDB();
             });
         });
 
@@ -122,9 +121,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     private loadAndSetNamespaceDB() {
-        if (this.activeNamespace || this.delayedNamespace) {
-            return;
-        }
         let namespaceName = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
 
         if (namespaceName === null || (this.namespaces && this.namespaces.length > 0 && (this.namespaces().filter(n => n.name === namespaceName).length === 0))) {
@@ -327,6 +323,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 } else if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSets
                     if (this.delayedNamespace && !msg[0].hasOwnProperty('error')) {
                         this.activeNamespace.set(this.delayedNamespace);
+                        this.storeNamespace(this.delayedNamespace)
                     }
                     this.delayedNamespace = null;
 
