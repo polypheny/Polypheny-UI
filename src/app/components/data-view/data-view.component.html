@@ -18,7 +18,7 @@
                     [class.active]="$presentationType() === presentationTypes.CARD"
                     tooltip="cards" placement="top" delay="200"><i class="fa fa-th-large"></i></button>
             <button cButton color="light" class="mx-1"
-                    [hidden]="$dataModel() !== NamespaceType.GRAPH || this.$result().queryType === QueryType.DDL || this.$result().queryType === QueryType.DML"
+                    [hidden]="$dataModel() !== NamespaceType.GRAPH || this.$result().queryType === QueryType.DDL || this.$result().queryType === QueryType.DML || !containsNode()"
                     (click)="$presentationType.set(presentationTypes.GRAPH)"
                     [class.active]="$presentationType() === presentationTypes.GRAPH"
                     tooltip="graph" placement="top" delay="200"><i class="fa fa-code-fork"></i></button>
