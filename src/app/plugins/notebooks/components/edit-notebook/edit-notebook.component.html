@@ -146,7 +146,13 @@
                 <option value="poly">Query</option>
                 <option value="raw">Raw</option>
             </select>
-
+            <select class="form-select btn pull-right mr-1 bg-light px-1" aria-label="Select Present Type"
+            (change)="onPresentChange($event)" [(ngModel)]="selectedPresentType">
+            <option value="slide">Slide</option>
+            <option value="subslide">Subslide</option>
+            <option value="fragment">Fragment</option>
+            <option value="skip">Skip</option>
+        </select>
         </div>
     </div>
     <div class="col-md-3 text-right">
@@ -180,6 +186,7 @@
                                  [isFirst]="i === 0"
                                  [isLast]="i === nb.cells.length-1"
                                  [selectedCellType]="selectedCellType"
+                                 [selectedPresentType]="selectedPresentType"
                                  [(mode)]="mode"
                                  [namespaces]="namespaces"
                                  [nbLanguage]="kernelSpec?.spec?.language || 'python'"
@@ -190,7 +197,8 @@
                                  (duplicate)="duplicateCell(cell.id)"
                                  (delete)="deleteCell($event)"
                                  (selected)="selectCell($event)"
-                                 (changeType)="onTypeChange($event)">
+                                 (changeType)="onTypeChange($event)"
+                                 (ChangePresent)="onPresentChange($event)">
                         <div class="nb-drag-handle" cdkDragHandle></div>
                     </app-nb-cell>
                     <div *cdkDragPreview class="drop-preview">

@@ -35,12 +35,14 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     @Input() isExecuting: boolean;
     @Input() mode: NbMode;
     @Input() selectedCellType: CellType; // not necessarily the type of this cell
+    @Input() selectedPresentType: string;
     @Input() namespaces: string[];
     @Input() nbLanguage: string;
     @Input() isTrusted: boolean;
     @Output() modeChange = new EventEmitter<NbMode>();
     @Output() insert = new EventEmitter<boolean>(); // true: below, false: above
     @Output() move = new EventEmitter<boolean>(); // true: down, false: up
+    @Output() ChangePresent = new EventEmitter<Event>();
     @Output() duplicate = new EventEmitter<null>();
     @Output() execute = new EventEmitter<string>();
     @Output() changeType = new EventEmitter<Event>();

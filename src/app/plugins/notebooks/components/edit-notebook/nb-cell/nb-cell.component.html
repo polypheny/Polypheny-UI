@@ -10,6 +10,14 @@
                 <option value="poly">Query</option>
                 <option value="raw">Raw</option>
             </select>
+            <select class="form-select btn bg-light pr-0 pl-1" aria-label="Select Present Type"
+            (change)="ChangePresent.emit($event)"
+            [value]="selectedPresentType">
+                <option value="slide">Slide</option>
+                <option value="subslide">Subslide</option>
+                <option value="fragment">Fragment</option>
+                <option value="skip">Skip</option>
+            </select>
             <div class="nb-overlay-separator bg-secondary"></div>
             <button type="button" class="btn btn-light no-select-cell ml-0" (click)="move.emit(false)"
                     [disabled]="isFirst" onclick="this.blur();" tooltip="Move cell up" container="body">

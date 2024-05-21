@@ -32,6 +32,7 @@ export interface NotebookMetadata {
 
 export interface NotebookCell {
     cell_type: 'code' | 'markdown' | 'raw';
+    cell_present: 'slide' | 'subSlide' | 'notes' | 'skip' | 'fragment';
     id: string;
     metadata: CellMetadata;
     source: string[] | string;

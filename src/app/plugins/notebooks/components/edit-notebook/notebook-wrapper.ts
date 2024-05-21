@@ -240,7 +240,21 @@ export class NotebookWrapper {
             name: kernel.name
         };
     }
+    getCellPresent(cell: NotebookCell): PresentType {
+        if(cell.cell_present==undefined){
+            return 'skip';
+        }
+        return cell.cell_present;
+    }
 
+
+    changeCellPresent(cell: NotebookCell, type: PresentType){
+        const oldType = this.getCellPresent(cell);
+        if (oldType === type) {
+            return;
+        }
+        cell.cell_present = type;
+    }
     changeCellType(cell: NotebookCell, type: CellType) {
         const oldType = this.getCellType(cell);
         if (oldType === type) {
@@ -462,6 +476,7 @@ export class NotebookWrapper {
     private getEmptyCell(): NotebookCell {
         return {
             cell_type: 'code',
+            cell_present:'skip',
             id: uuid.v4(),
             metadata: {},
             source: [],
@@ -501,3 +516,4 @@ export class NotebookWrapper {
 }
 
 export type CellType = 'code' | 'markdown' | 'raw' | 'poly';
+export type PresentType = 'slide' | 'subSlide' | 'notes' | 'skip' | 'fragment';

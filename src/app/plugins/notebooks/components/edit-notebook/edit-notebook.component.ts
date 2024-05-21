@@ -22,7 +22,7 @@ import {WebuiSettingsService} from '../../../../services/webui-settings.service'
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {NbCellComponent} from './nb-cell/nb-cell.component';
-import {CellType, NotebookWrapper} from './notebook-wrapper';
+import {CellType, NotebookWrapper,PresentType} from './notebook-wrapper';
 import {delay, mergeMap, take, tap} from 'rxjs/operators';
 import {LoadingScreenService} from '../../../../components/loading-screen/loading-screen.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
@@ -44,6 +44,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     private subscriptions = new Subscription();
     selectedCell: NotebookCell;
     selectedCellType: CellType = 'code';
+    selectedPresentType: string='skip';
     busyCellIds = new Set<string>();
     mode: NbMode = 'command';
     namespaces: string[] = [];
@@ -533,6 +534,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         if (id !== unselectId) {
             this.selectedComponent?.editor?.blur();
             this.selectedCell = this.nb.getCell(id);
+            this.selectedPresentType=this.nb.getCellPresent(this.selectedCell);
             if (this.selectedCell) {
                 this.selectedCellType = this.nb.getCellType(this.selectedCell);
                 this.scrollCellIntoView(id);
@@ -708,6 +710,11 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     onTypeChange(event: Event) {
         const type: CellType = <CellType>(event.target as HTMLOptionElement).value;
         this.setCellType(type);
+    }
+    onPresentChange(event: Event) {
+        const type: PresentType = <PresentType>(event.target as HTMLOptionElement).value;
+        this.selectedPresentType = type;
+        this.nb.changeCellPresent(this.selectedCell, type);
     }
 
     setCellType(type: CellType) {
