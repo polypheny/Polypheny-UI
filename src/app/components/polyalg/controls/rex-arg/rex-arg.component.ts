@@ -1,7 +1,7 @@
-import {Component, computed, Input, signal, Type} from '@angular/core';
+import {Component, computed, Input, Signal, signal, Type} from '@angular/core';
 import {PlanArgument, RexArg} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
-import {Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
+import {Parameter, ParamTag, ParamType, SimpleType} from '../../models/polyalg-registry';
 import {DataModel} from '../../../../models/ui-request.model';
 
 @Component({
@@ -12,6 +12,7 @@ import {DataModel} from '../../../../models/ui-request.model';
 export class RexArgComponent {
     @Input() data: RexControl;
 
+    protected readonly SimpleType = SimpleType;
 }
 
 export class RexControl extends ArgControl {
@@ -26,9 +27,19 @@ export class RexControl extends ArgControl {
         const hasTrivialRex = !this.rex() || /^[a-zA-Z0-9_$]+$/.test(this.rex());
         return hasTrivialAlias && hasTrivialRex;
     });
+    simpleValues = {
+        'REX_PREDICATE': {
+            r1: '',
+            r2: '',
+            operator: '='
+        },
+        'REX_UINT': {
+            i: null
+        }
+    };
 
-    constructor(param: Parameter, private value: RexArg, model: DataModel, isReadOnly: boolean) {
-        super(param, model, isReadOnly);
+    constructor(param: Parameter, private value: RexArg, model: DataModel, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+        super(param, model, isSimpleMode, isReadOnly);
         this.showAlias = param.tags.includes(ParamTag.ALIAS);
     }
 
@@ -37,6 +48,14 @@ export class RexControl extends ArgControl {
     }
 
     toPolyAlg(): string {
+        if (this.simpleType() === SimpleType.REX_PREDICATE) {
+            const values = this.simpleValues.REX_PREDICATE;
+            const polyAlg = `${values.operator}(${values.r1}, ${values.r2})`;
+            this.rex.set(polyAlg);
+        } else if (this.simpleType() === SimpleType.REX_UINT) {
+            this.rex.set(this.simpleValues.REX_UINT.i?.toString(10));
+        }
+
         if (this.showAlias && this.alias() && this.alias() !== this.rex()) {
             return `${this.rex()} AS ${this.alias()}`;
         }

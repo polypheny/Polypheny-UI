@@ -21,6 +21,7 @@ export interface Parameter {
     aliases: string[];
     tags: ParamTag[];
     type: ParamType; // if isEnum, then type identifies the type of enum and is not a ParamType
+    simpleType: SimpleType | null;
     isEnum: boolean;
     multiValued: number; // how deeply nested arguments can be in lists (0 = not nested at all)
     requiresAlias: boolean;
@@ -53,8 +54,14 @@ export enum OperatorTag {
 
 export enum ParamTag {
     ALIAS = 'ALIAS',
-    ADVANCED = 'ADVANCED',
     NON_NEGATIVE = 'NON_NEGATIVE',
     HIDE_TRIVIAL = 'HIDE_TRIVIAL'
 }
 
+export enum SimpleType {
+    HIDDEN = 'HIDDEN',
+    REX_PREDICATE = 'REX_PREDICATE',
+    REX_UINT = 'REX_UINT',
+    SIMPLE_COLLATION = 'SIMPLE_COLLATION',
+    SIMPLE_AGG = 'SIMPLE_AGG'
+}

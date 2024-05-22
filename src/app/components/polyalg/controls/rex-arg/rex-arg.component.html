@@ -1,7 +1,29 @@
-<div class="param-wrapper">
+<div class="param-wrapper" [ngSwitch]="data.simpleType()">
     <label for="rex" *ngIf="data.name"><strong>{{data.name}}</strong></label>
 
-    <c-input-group sizing="sm">
+    <c-input-group sizing="sm" *ngSwitchCase="SimpleType.REX_PREDICATE">
+        <input type="text" name="r1" (pointerdown)="$event.stopPropagation()"
+               autocomplete="off" [readonly]="data.isReadOnly" placeholder="expression 1"
+               class="form-control form-control-sm param-input" [(ngModel)]="data.simpleValues.REX_PREDICATE.r1">
+        <select cSelect id="select-operator" [(ngModel)]="data.simpleValues.REX_PREDICATE.operator"
+                (pointerdown)="$event.stopPropagation()" [disabled]="data.isReadOnly">
+            <option value="=">=</option>
+            <option value="<>">&lt;&gt;</option>
+            <option value="<">&lt;</option>
+            <option value=">">&gt;</option>
+            <option value="<=">&le;</option>
+            <option value=">=">&ge;</option>
+        </select>
+        <input type="text" name="r2" (pointerdown)="$event.stopPropagation()"
+               autocomplete="off" [readonly]="data.isReadOnly" placeholder="expression 2"
+               class="form-control form-control-sm param-input" [(ngModel)]="data.simpleValues.REX_PREDICATE.r2">
+    </c-input-group>
+
+    <input cFormControl sizing="sm" *ngSwitchCase="SimpleType.REX_UINT" (pointerdown)="$event.stopPropagation()"
+           type="number" autocomplete="off" [readonly]="data.isReadOnly"
+           [min]="0" [(ngModel)]="data.simpleValues.REX_UINT.i">
+
+    <c-input-group sizing="sm" *ngSwitchDefault>
         <input type="text" id="rex" name="rex" (pointerdown)="$event.stopPropagation()"
                autocomplete="off" [readonly]="data.isReadOnly" placeholder="expression"
                class="form-control form-control-sm param-input" [(ngModel)]="data.rex">

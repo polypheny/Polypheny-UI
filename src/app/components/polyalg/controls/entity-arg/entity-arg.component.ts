@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, signal, Type} from '@angular/core';
+import {Component, Input, OnInit, Signal, signal, Type} from '@angular/core';
 import {EntityArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
@@ -23,8 +23,8 @@ export class EntityArgComponent implements OnInit {
 export class EntityControl extends ArgControl {
     height = signal(this.name ? 55 : 31);
 
-    constructor(param: Parameter, public value: EntityArg, model: DataModel, isReadOnly: boolean) {
-        super(param, model, isReadOnly);
+    constructor(param: Parameter, public value: EntityArg, model: DataModel, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+        super(param, model, isSimpleMode, isReadOnly);
     }
 
     getArgComponent(): Type<any> {

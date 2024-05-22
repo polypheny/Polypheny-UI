@@ -96,7 +96,10 @@ export function getModelPrefix(model: DataModel) {
 }
 
 export function computeGlobalStats(plan: PlanNode, stats: GlobalStats = {maxRows: 0, maxIo: 0, maxCpu: 0}) {
-    const meta = plan.metadata;
+    const meta = plan?.metadata;
+    if (meta == null) {
+        return stats;
+    }
     if (meta.rowsCost > stats.maxRows) {
         stats.maxRows = meta.rowsCost;
     }

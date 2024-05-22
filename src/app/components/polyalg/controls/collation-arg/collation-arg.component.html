@@ -1,20 +1,39 @@
-<label for="arg" *ngIf="data.name"><strong>{{data.name}}</strong></label>
-<input type="text" id="arg" name="arg" (pointerdown)="$event.stopPropagation()"
-       autocomplete="off" [readonly]="data.isReadOnly" placeholder="field"
-       class="form-control form-control-sm mb-1" [(ngModel)]="data.value.field">
+<ng-container [ngSwitch]="data.simpleType()">
+    <label for="arg" *ngIf="data.name"><strong>{{data.name}}</strong></label>
 
-<c-input-group sizing="sm" class="mb-1">
-    <label cInputGroupText for="selectDirection">Direction</label>
-    <select cSelect id="selectDirection" [(ngModel)]="data.value.direction" (pointerdown)="$event.stopPropagation()"
-            [disabled]="data.isReadOnly">
-        <option *ngFor="let choice of dirChoices" [value]="CollDirection[choice]">{{ choice }}</option>
-    </select>
-</c-input-group>
+    <input type="text" id="arg" name="arg" (pointerdown)="$event.stopPropagation()"
+           autocomplete="off" [readonly]="data.isReadOnly" placeholder="field"
+           class="form-control form-control-sm mb-1" [(ngModel)]="data.value.field">
 
-<c-input-group sizing="sm">
-    <label cInputGroupText for="selectNullDirection">Null Direction</label>
-    <select cSelect id="selectNullDirection" [(ngModel)]="data.value.nullDirection" (pointerdown)="$event.stopPropagation()"
-            [disabled]="data.isReadOnly">
-        <option *ngFor="let choice of nullDirChoices" [value]="CollNullDirection[choice]">{{ choice }}</option>
-    </select>
-</c-input-group>
+    <ng-container *ngSwitchCase="SimpleType.SIMPLE_COLLATION">
+
+        <c-input-group sizing="sm">
+            <label cInputGroupText for="simpleSelectDir">Direction</label>
+            <select cSelect id="simpleSelectDir" [(ngModel)]="data.value.direction" (pointerdown)="$event.stopPropagation()"
+                    [disabled]="data.isReadOnly">
+                <option *ngFor="let choice of simpleDirChoices" [value]="CollDirection[choice]">{{ choice }}</option>
+            </select>
+        </c-input-group>
+
+    </ng-container>
+
+    <ng-container *ngSwitchDefault>
+
+        <c-input-group sizing="sm" class="mb-1">
+            <label cInputGroupText for="selectDir">Direction</label>
+            <select cSelect id="selectDir" [(ngModel)]="data.value.direction" (pointerdown)="$event.stopPropagation()"
+                    [disabled]="data.isReadOnly">
+                <option *ngFor="let choice of dirChoices" [value]="CollDirection[choice]">{{ choice }}</option>
+            </select>
+        </c-input-group>
+
+        <c-input-group sizing="sm">
+            <label cInputGroupText for="selectNullDirection">Null Direction</label>
+            <select cSelect id="selectNullDirection" [(ngModel)]="data.value.nullDirection" (pointerdown)="$event.stopPropagation()"
+                    [disabled]="data.isReadOnly">
+                <option *ngFor="let choice of nullDirChoices" [value]="CollNullDirection[choice]">{{ choice }}</option>
+            </select>
+        </c-input-group>
+    </ng-container>
+
+</ng-container>

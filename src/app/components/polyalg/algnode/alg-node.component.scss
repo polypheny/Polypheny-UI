@@ -48,6 +48,10 @@ $socket-size: 16px;
     border-radius: 4px 4px 0 0;
   }
 
+  .simple-badge:hover {
+    background-color: $danger !important;
+  }
+
   &:hover {
     border-color: $primary;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);

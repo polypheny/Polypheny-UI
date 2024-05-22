@@ -1,6 +1,6 @@
-import {Component, Input, OnInit, signal, Type} from '@angular/core';
+import {Component, computed, Input, OnInit, Signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
-import {Parameter, ParamType} from '../../models/polyalg-registry';
+import {Parameter, ParamType, SimpleType} from '../../models/polyalg-registry';
 import {AggArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {CollationControl} from '../collation-arg/collation-arg.component';
 import {PolyAlgService} from '../../polyalg.service';
@@ -12,24 +12,27 @@ import {DataModel} from '../../../../models/ui-request.model';
     styleUrl: './agg-arg.component.scss'
 })
 export class AggArgComponent implements OnInit {
-    @Input() data: AggControl; // TODO: support multiple args, colls
-    fChoices: string[] = [];
 
     constructor(private _registry: PolyAlgService) {
     }
+    @Input() data: AggControl; // TODO: support multiple args, colls
+    fChoices: string[] = [];
+    fChoicesSimple = ['AVG', 'COUNT', 'MAX', 'MIN', 'SUM'].sort();
+
+    protected readonly SimpleType = SimpleType;
 
     ngOnInit(): void {
         this.fChoices = this._registry.getEnumValues('AggFunctionOperator').slice().sort(); // sort shallow copy
     }
-
 }
 
 
 export class AggControl extends ArgControl {
-    height = signal(188);
+    height = computed(() => this.isSimpleMode() ? 101 : 188);
+    argsStr = this.value.argList.join(', ');
 
-    constructor(param: Parameter, public value: AggArg, model: DataModel, isReadOnly: boolean) {
-        super(param, model, isReadOnly);
+    constructor(param: Parameter, public value: AggArg, model: DataModel, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+        super(param, model, isSimpleMode, isReadOnly);
     }
 
     getArgComponent(): Type<any> {
@@ -37,6 +40,7 @@ export class AggControl extends ArgControl {
     }
 
     toPolyAlg(): string {
+        this.value.argList = this.argsStr.split(',').map(a => a.trim());
         const argList = this.value.argList.join(', ');
         const distStr = this.value.distinct ? (argList.length > 0 ? 'DISTINCT ' : 'DISTINCT') : '';
         const approx = this.value.approximate ? ' APPROXIMATE' : '';

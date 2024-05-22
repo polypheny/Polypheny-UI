@@ -74,8 +74,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     );
     isSynchronized = computed(() => this.nodeEditorState() === 'SYNCHRONIZED' && this.textEditorState() === 'SYNCHRONIZED');
     showEditButton: boolean;
-    //isSimpleMode = signal(false);
-    userMode = signal(UserMode.ADVANCED);
+    userMode = signal(UserMode.SIMPLE);
 
     private modifySubscription: Subscription;
     nodeEditor: { onModify: any; destroy: any; toPolyAlg: any; layout?: () => Promise<void>; showMetadata: (b: boolean) => boolean; getTransform: () => Transform };
