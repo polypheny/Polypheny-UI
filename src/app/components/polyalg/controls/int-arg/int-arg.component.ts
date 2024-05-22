@@ -31,6 +31,9 @@ export class IntControl extends ArgControl {
     }
 
     toPolyAlg(): string {
+        if (this.value.arg == null) {
+            return '';
+        }
         return this.value.arg.toString();
     }
 
