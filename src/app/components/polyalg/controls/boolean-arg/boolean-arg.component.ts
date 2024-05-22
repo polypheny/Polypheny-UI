@@ -1,4 +1,4 @@
-import {Component, Input, signal, Type} from '@angular/core';
+import {Component, Input, Signal, signal, Type} from '@angular/core';
 import {BooleanArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
@@ -17,8 +17,8 @@ export class BooleanArgComponent {
 export class BooleanControl extends ArgControl {
     height = signal(50);
 
-    constructor(param: Parameter, public value: BooleanArg, model: DataModel, isReadOnly: boolean) {
-        super(param, model, isReadOnly);
+    constructor(param: Parameter, public value: BooleanArg, model: DataModel, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+        super(param, model, isSimpleMode, isReadOnly);
     }
 
     getArgComponent(): Type<any> {

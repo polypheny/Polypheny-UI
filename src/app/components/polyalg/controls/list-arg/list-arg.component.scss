@@ -7,7 +7,7 @@
 //  display: block;
 //}
 
-.list-element-container:hover .remove-element, .remove-element:hover {
+.list-element-container:hover > .remove-element, .remove-element:hover {
   display: block;
 }
 

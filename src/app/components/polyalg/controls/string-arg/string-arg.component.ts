@@ -1,4 +1,4 @@
-import {Component, computed, Input, signal, Type} from '@angular/core';
+import {Component, computed, Input, Signal, signal, Type} from '@angular/core';
 import {PlanArgument, StringArg} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
@@ -27,8 +27,8 @@ export class StringControl extends ArgControl {
         return hasTrivialAlias && hasTrivialArg;
     });
 
-    constructor(param: Parameter, private value: StringArg, model: DataModel, isReadOnly: boolean) {
-        super(param, model, isReadOnly);
+    constructor(param: Parameter, private value: StringArg, model: DataModel, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+        super(param, model, isSimpleMode, isReadOnly);
         this.showAlias = param.tags.includes(ParamTag.ALIAS);
     }
 

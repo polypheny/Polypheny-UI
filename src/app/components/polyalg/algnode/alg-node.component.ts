@@ -1,7 +1,7 @@
-import {ChangeDetectorRef, Component, effect, HostBinding, Input, OnChanges, signal, Signal} from '@angular/core';
+import {ChangeDetectorRef, Component, computed, effect, HostBinding, Input, OnChanges, signal, Signal, WritableSignal} from '@angular/core';
 import {ClassicPreset} from 'rete';
 import {KeyValue} from '@angular/common';
-import {Declaration} from '../models/polyalg-registry';
+import {Declaration, SimpleType} from '../models/polyalg-registry';
 import {PlanArgument} from '../models/polyalg-plan.model';
 import {getControl} from '../controls/arg-control-utils';
 import {ArgControl} from '../controls/arg-control';
@@ -51,6 +51,10 @@ export class AlgNodeComponent implements OnChanges {
     toggleCollapse() {
         this.data.isMetaVisible.update(b => !b);
     }
+
+    deactivateSimpleMode() {
+        this.data.isSimpleMode.set(false);
+    }
 }
 
 const BASE_WIDTH = 350;
@@ -84,12 +88,16 @@ export class AlgNode extends ClassicPreset.Node {
     readonly hasVariableInputs: boolean;
     readonly modelBadge: string;
     readonly modelColor: string;
+    readonly isSimpleMode: WritableSignal<boolean>;
+    readonly hasSimpleParams: boolean; // true if at least one parameter has a simple variant (even if it's hidden)
+    readonly hasVisibleControls;
 
     constructor(public decl: Declaration, args: { [key: string]: PlanArgument } | null, public readonly metadata: AlgMetadata | null,
-                public isReadOnly: boolean, private updateArea: (a: AlgNode, delta: Position) => void) {
+                isSimpleMode: boolean, public isReadOnly: boolean, private updateArea: (a: AlgNode, delta: Position) => void) {
         super(decl.name.substring(decl.name.indexOf('_') + 1));
         this.modelBadge = getModelPrefix(decl.model);
         this.modelColor = MODEL_COLORS.get(decl.model);
+        this.isSimpleMode = signal(isSimpleMode);
 
         if (metadata) {
             this.isMetaVisible.set(true);
@@ -100,14 +108,27 @@ export class AlgNode extends ClassicPreset.Node {
         output.multipleConnections = false;
         this.addOutput('out', output);
 
+        let hasSimpleParams = false;
+        let hiddenSimpleParamsCount = 0;
+        let paramsCount = 0;
         for (const p of decl.posParams.concat(decl.kwParams)) {
+            paramsCount++;
+            if (p.simpleType) {
+                hasSimpleParams = true;
+                if (p.simpleType === SimpleType.HIDDEN) {
+                    hiddenSimpleParamsCount++;
+                }
+            }
             const arg = args?.[p.name] || null;
-            const c = getControl(p, arg, isReadOnly, 0, decl.model);
+            const c = getControl(p, arg, isReadOnly, 0, decl.model, this.isSimpleMode);
 
-            this.controlHeights.push(c.height);
+            this.controlHeights.push(c.visibleHeight);
 
             this.addControl(p.name, c);
         }
+        this.hasSimpleParams = hasSimpleParams;
+
+        this.hasVisibleControls = computed(() => this.isSimpleMode() ? paramsCount - hiddenSimpleParamsCount > 0 : paramsCount > 0);
 
         this.hasVariableInputs = decl.numInputs === -1;
 
@@ -127,9 +148,9 @@ export class AlgNode extends ClassicPreset.Node {
         this.width = BASE_WIDTH;
         if (this.isReadOnly) {
             this.width += METADATA_COLLAPSE_WIDTH;
-        }
-        if (this.isMetaVisible()) {
-            this.width += METADATA_WIDTH;
+            if (this.isMetaVisible()) {
+                this.width += METADATA_WIDTH;
+            }
         }
         const deltaX = this.width - oldWidth;
 
@@ -184,7 +205,7 @@ export class AlgNode extends ClassicPreset.Node {
         for (const p of this.decl.posParams.concat(this.decl.kwParams)) {
             args[p.name] = (this.controls[p.name] as ArgControl).copyArg();
         }
-        return new AlgNode(this.decl, args, null, this.isReadOnly, this.updateArea);
+        return new AlgNode(this.decl, args, null, this.isSimpleMode(), this.isReadOnly, this.updateArea);
     }
 
 }

@@ -112,7 +112,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         () => arrange.layout({applier: undefined, options: layoutOpts}), $modifyEvent);
 
     const contextMenu = new ContextMenuPlugin<Schemes>({
-        items: getContextMenuItems(registry, isReadOnly, updateSizeFct)
+        items: getContextMenuItems(registry, userMode, isReadOnly, updateSizeFct)
     });
 
     editor.use(readonlyPlugin.root);
@@ -227,19 +227,6 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         readonlyPlugin.enable(); // disable interaction with nodes (control interaction is deactivated separately)
     }
 
-    contextMenu.addPipe(context => {
-        if (context.type === 'render' && context.data.type === 'contextmenu' && userMode() === UserMode.SIMPLE) {
-            context.data.items.forEach(item => {
-                const model = getModelPrefix(item.label as DataModel);
-                item.subitems = item.subitems?.filter(sub => {
-                    const opName = `${model}_${sub.label}`;
-                    return registry.isSimpleOperator(opName);
-                });
-            });
-        }
-        return context;
-    });
-
 
     return {
         layout: async () => {
@@ -276,7 +263,7 @@ function addNode(registry: PolyAlgService, node: PlanNode | null, globalStats: G
         return [nodes, connections];
     }
     const metadata = new AlgMetadata(node.metadata, globalStats);
-    const algNode = new AlgNode(registry.getDeclaration(node.opName), node.arguments, metadata, isReadOnly, updateSize);
+    const algNode = new AlgNode(registry.getDeclaration(node.opName), node.arguments, metadata, false, isReadOnly, updateSize);
     if (node.opName.endsWith('#')) {
         // TODO: handle implicit project correctly
         algNode.label = 'PROJECT#';
@@ -295,14 +282,15 @@ function addNode(registry: PolyAlgService, node: PlanNode | null, globalStats: G
     return [nodes, connections];
 }
 
-function getContextMenuItems(registry: PolyAlgService, isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void) {
+function getContextMenuItems(registry: PolyAlgService, userMode: WritableSignal<UserMode>, isReadOnly: boolean,
+                             updateSize: (a: AlgNode, delta: Position) => void) {
     const nodes = [];
     for (const model of Object.keys(DataModel).map(key => DataModel[key])) {
         const innerNodes = [];
         for (const decl of registry.getSortedDeclarations(model)) {
             innerNodes.push([
                 decl.name.substring(decl.name.indexOf('_') + 1),
-                () => new AlgNode(decl, null, null, isReadOnly, updateSize)
+                () => new AlgNode(decl, null, null, userMode() === UserMode.SIMPLE, isReadOnly, updateSize)
             ]);
         }
         nodes.push([model, innerNodes]);
@@ -328,6 +316,14 @@ function getContextMenuItems(registry: PolyAlgService, isReadOnly: boolean, upda
                     area.translate(node.id, area.area.pointer);
                 }
             };
+        } else if (userMode() === UserMode.SIMPLE) {
+            result.list.forEach(item => {
+                const model = getModelPrefix(item.label as DataModel);
+                item.subitems = item.subitems?.filter(sub => {
+                    const opName = `${model}_${sub.label}`;
+                    return registry.isSimpleOperator(opName);
+                });
+            });
         }
         return result;
     };

@@ -1,4 +1,4 @@
-import {Component, computed, Input, signal, Type, WritableSignal} from '@angular/core';
+import {Component, computed, Input, Signal, signal, Type, WritableSignal} from '@angular/core';
 import {ListArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {getControl} from '../arg-control-utils';
@@ -24,11 +24,16 @@ export class ListControl extends ArgControl {
     height = computed(() => this.computeHeight());
 
     constructor(param: Parameter, public value: ListArg, public depth: number, model: DataModel,
-                isReadOnly: boolean) {
-        super(param, model, isReadOnly, depth === 0);
-        this.children = signal(value.args.map(arg => getControl(param, arg, isReadOnly, depth + 1, model)));
-        if (this.children().length === 0 && value.innerType === ParamType.LIST) {
-            value.innerType = param.type; // TODO: handle nested lists
+                isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+        super(param, model, isSimpleMode, isReadOnly, depth === 0);
+        if (value.args.length === 1 && value.args[0].type === ParamType.LIST && (value.args[0].value as ListArg).args.length === 0) {
+            // remove empty inner list, as they have no effect and can be confusing if not created explicitly by the user
+            value.args = [];
+        }
+
+        this.children = signal(value.args.map(arg => getControl(param, arg, isReadOnly, depth + 1, model, isSimpleMode)));
+        if (this.children().length === 0 && value.innerType === ParamType.LIST && depth === param.multiValued - 1) {
+            value.innerType = param.type;
         }
         this.hideTrivial = signal(this.isReadOnly && this.canHideTrivial && this.children().filter(c => c.isTrivial()).length > 2);
 
@@ -49,7 +54,7 @@ export class ListControl extends ArgControl {
     addElement() {
         this.hideTrivial.set(false);
         this.children.update(values =>
-            [...values, getControl(this.param, null, this.isReadOnly, this.depth + 1, this.model)]);
+            [...values, getControl(this.param, null, this.isReadOnly, this.depth + 1, this.model, this.isSimpleMode)]);
     }
 
     removeElement(child: ArgControl) {
