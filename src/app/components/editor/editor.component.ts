@@ -187,6 +187,10 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
         }
     }
 
+    setReadOnly(isReadOnly: boolean) {
+        this.codeEditor.setReadOnly(isReadOnly);
+    }
+
     setScrollMargin(top: number, bottom: number, left: number = 0, right: number = 0) {
         // https://groups.google.com/g/ace-discuss/c/LmMRaYnLzCk
         this.codeEditor.renderer.setScrollMargin(top, bottom, left, right);

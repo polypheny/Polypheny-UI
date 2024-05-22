@@ -102,6 +102,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
         this.textEditor.setScrollMargin(5, 5);
         if (!this.isReadOnly) {
+            this.textEditor.setReadOnly(this.userMode() === UserMode.SIMPLE);
             this.textEditor.onBlur(() => this.onTextEditorBlur());
             this.textEditor.onChange(() => this.onTextEditorChange());
         }
@@ -260,6 +261,9 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     setUserMode(mode: UserMode) {
         this.userMode.set(mode);
+        if (!this.isReadOnly) {
+            this.textEditor.setReadOnly(mode === UserMode.SIMPLE);
+        }
     }
 
     toggleMetadata() {
