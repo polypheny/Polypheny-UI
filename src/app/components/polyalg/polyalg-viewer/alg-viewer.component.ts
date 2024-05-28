@@ -10,6 +10,7 @@ import {switchMap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DataModel} from '../../../models/ui-request.model';
 import {Transform} from 'rete-area-plugin/_types/area';
+import {PlanType} from '../../../models/information-page.model';
 
 type editorState = 'SYNCHRONIZED' | 'CHANGED' | 'INVALID';
 
@@ -30,11 +31,11 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
         effect(() => {
             const el = this.container.nativeElement;
 
-            if (this.showNodeEditor() && this.polyAlgPlan() !== undefined && el) {
+            if (this.showNodeEditor() && this.polyAlgPlan() !== undefined && this.planTypeSignal() !== undefined && el) {
                 untracked(() => {
                     this.modifySubscription?.unsubscribe();
                     const oldTransform = this.nodeEditor ? this.nodeEditor.getTransform() : null;
-                    createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.isReadOnly, this.userMode, oldTransform)
+                    createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.planTypeSignal(), this.isReadOnly, this.userMode, oldTransform)
                     .then(editor => {
                         this.nodeEditor = editor;
                         this.generateTextFromNodeEditor();
@@ -52,13 +53,14 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     @Input() polyAlg?: string;
     @Input() initialPlan?: string;
-    @Input() planType: 'LOGICAL' | 'ROUTED' | 'PHYSICAL';
+    @Input() planType: PlanType;
     @Input() isReadOnly: boolean;
     @Output() execute = new EventEmitter<[string, DataModel]>();
     @ViewChild('rete') container!: ElementRef;
     @ViewChild('textEditor') textEditor: EditorComponent;
 
     private polyAlgPlan = signal<PlanNode>(undefined); // null: empty plan
+    private planTypeSignal = signal<PlanType>(undefined); // we need an additional signal to automatically execute the effect
     textEditorState = signal<editorState>('SYNCHRONIZED');
     textEditorError = signal<string>('');
     nodeEditorState = signal<editorState>('SYNCHRONIZED');
@@ -97,7 +99,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     protected readonly UserMode = UserMode;
 
     ngAfterViewInit(): void {
-        this.showEditButton = this.isReadOnly && !(this.planType === 'LOGICAL' && this._route.snapshot.params.route === 'polyalg');
+        this.showEditButton = this.isReadOnly && !(this._route.snapshot.params.route === 'polyalg');
         this.showMetadata = this.isReadOnly;
 
         this.textEditor.setScrollMargin(5, 5);
@@ -110,10 +112,10 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.polyAlg) {
-            if (!this.polyAlg) {
+            if (this.polyAlg == null) {
                 return;
             }
-            this._validator.buildPlan(this.polyAlg).subscribe({
+            this._validator.buildPlan(this.polyAlg, this.planType).subscribe({
                 next: (plan) => this.polyAlgPlan.set(plan),
                 error: () => {
                     this.nodeEditorState.set('INVALID');
@@ -121,6 +123,10 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
                     this.textEditor.setCode(this.polyAlg);
                 }
             });
+        }
+
+        if (changes.planType) {
+            this.planTypeSignal.set(this.planType);
         }
 
         if (changes.initialPlan && !this.polyAlg && !this.polyAlgPlan()) {
@@ -140,7 +146,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
                     this.initialPolyAlg = str;
                 }
                 if (validatePlanWithBackend && !this._validator.isConfirmedValid(str)) {
-                    this._validator.buildPlan(str).subscribe({
+                    this._validator.buildPlan(str, this.planTypeSignal()).subscribe({
                         next: () => this.updateTextEditor(str),
                         error: (err) => {
                             this.nodeEditorState.set('INVALID');
@@ -167,7 +173,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     generateNodesFromTextEditor(updatedPolyAlg = this.textEditor.getCode()) {
-        this._validator.buildPlan(updatedPolyAlg).subscribe({
+        this._validator.buildPlan(updatedPolyAlg, this.planTypeSignal()).subscribe({
             next: (plan) => {
                 this.polyAlgPlan.set(plan); // this has the effect of calling generateTextFromNodeEditor() since the nodeEditor is the sync authority
             },
@@ -247,6 +253,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
             return;
         }
         localStorage.setItem('polyalg.polyAlg', this.textEditor.getCode());
+        localStorage.setItem('polyalg.planType', this.planTypeSignal());
         this._router.navigate(['/views/querying/polyalg']).then(null);
 
     }

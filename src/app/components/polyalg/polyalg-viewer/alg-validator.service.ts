@@ -3,6 +3,7 @@ import {CrudService} from '../../../services/crud.service';
 import {tap} from 'rxjs/operators';
 import {PlanNode} from '../models/polyalg-plan.model';
 import {of} from 'rxjs';
+import {PlanType} from '../../../models/information-page.model';
 
 
 @Injectable({
@@ -52,10 +53,8 @@ export class AlgValidatorService {
      * Returns a plan for the given polyAlg string by either using the cached plan or
      * calling the backend.
      * If successful, the plan is added to the cache of valid plans.
-     * @param str
-     * @param model
      */
-    buildPlan(str: string) {
+    buildPlan(str: string, planType: PlanType) {
         const cachedPlan = this.getCachedPlan(str);
         if (cachedPlan) {
             return of(cachedPlan);
@@ -63,7 +62,7 @@ export class AlgValidatorService {
         if (str.trim().length === 0) {
             return of(null);
         }
-        return this._crud.buildTreeFromPolyAlg(str).pipe(
+        return this._crud.buildTreeFromPolyAlg(str, planType).pipe(
             tap({
                 next: (plan) => this.setValid(str, plan),
                 error: () => this.removeValid(str)

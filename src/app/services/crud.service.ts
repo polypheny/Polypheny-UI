@@ -15,6 +15,7 @@ import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {PolyAlgRegistry} from '../components/polyalg/models/polyalg-registry';
 import {PlanNode} from '../components/polyalg/models/polyalg-plan.model';
+import {PlanType} from '../models/information-page.model';
 
 
 @Injectable({
@@ -661,13 +662,13 @@ export class CrudService {
         return this._http.get<PolyAlgRegistry>(`${this.httpUrl}/getPolyAlgRegistry`);
     }
 
-    executePolyAlg(socket: WebSocket, polyAlg: string, model: DataModel) {
-        const request = new PolyAlgRequest(polyAlg, model);
+    executePolyAlg(socket: WebSocket, polyAlg: string, model: DataModel, planType: PlanType) {
+        const request = new PolyAlgRequest(polyAlg, model, planType);
         return socket.sendMessage(request);
     }
 
-    buildTreeFromPolyAlg(polyAlg: string) {
-        const request = new PolyAlgRequest(polyAlg, DataModel.RELATIONAL); // datamodel doesn't matter when building the plan
+    buildTreeFromPolyAlg(polyAlg: string, planType: PlanType) {
+        const request = new PolyAlgRequest(polyAlg, DataModel.RELATIONAL, planType); // datamodel doesn't matter when building the plan
         return this._http.post<PlanNode>(`${this.httpUrl}/buildPolyPlan`, request, this.httpOptions);
     }
 

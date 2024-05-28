@@ -8,7 +8,7 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 import {Subscription} from 'rxjs';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {InformationObject, InformationPage} from '../../../models/information-page.model';
+import {InformationObject, InformationPage, PlanType} from '../../../models/information-page.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {DataModel} from '../../../models/ui-request.model';
@@ -29,6 +29,10 @@ export class PolyalgComponent implements OnInit, OnDestroy {
     showingAnalysis = false;
     queryAnalysis: InformationPage;
 
+    planType: PlanType = 'LOGICAL';
+    selectedPlanType: PlanType = 'LOGICAL';
+    showPlanTypeModal = signal(false);
+    showHelpModal = signal(false);
     polyAlg = `PROJECT[employeeno, relationshipjoy AS happiness](
       FILTER[<(age0, 30)](
         JOIN[=(employeeno, employeeno0)](
@@ -49,6 +53,14 @@ export class PolyalgComponent implements OnInit, OnDestroy {
 
         if (polyAlgToEdit) {
             this.polyAlg = polyAlgToEdit;
+            this.planType = localStorage.getItem('polyalg.planType') as PlanType;
+            console.log(this.planType);
+            this.selectedPlanType = this.planType;
+            localStorage.removeItem('polyalg.planType');
+        }
+
+        if (!this.planType) {
+            this.showPlanTypeModal.set(true);
         }
 
         this.websocket = new WebSocket();
@@ -74,7 +86,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         this._leftSidebar.open();
 
         this.loading.set(true);
-        if (!this._crud.executePolyAlg(this.websocket, polyAlg, model)) {
+        if (!this._crud.executePolyAlg(this.websocket, polyAlg, model, this.planType)) {
             this.loading.set(false);
             this.result.set(new RelationalResult('Could not establish a connection with the server.'));
         }
@@ -165,4 +177,28 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         this.subscriptions.add(sub);
     }
 
+    handlePlanTypeModalChange($event: boolean) {
+        this.showPlanTypeModal.set($event);
+    }
+
+    togglePlanTypeModal() {
+        this.showPlanTypeModal.update(b => !b);
+    }
+
+    choosePlanType() {
+        const hasChanged = this.planType !== this.selectedPlanType;
+        this.planType = this.selectedPlanType;
+        this.showPlanTypeModal.set(false);
+        if (hasChanged) {
+            this.polyAlg = '';
+        }
+    }
+
+    handleHelpModalChange($event: boolean) {
+        this.showHelpModal.set($event);
+    }
+
+    toggleHelpModal() {
+        this.showHelpModal.update(b => !b);
+    }
 }
