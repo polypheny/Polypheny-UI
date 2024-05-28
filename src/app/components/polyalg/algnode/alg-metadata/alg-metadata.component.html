@@ -1,12 +1,11 @@
 <div class="py-2">
-    <c-badge color="danger" *ngIf="data.isHighestCpuCost" class="me-1 px-1">Most CPU</c-badge>
-    <c-badge color="danger" *ngIf="data.isHighestRowsCost" class="me-1 px-1">Most Rows</c-badge>
-    <c-badge color="danger" *ngIf="data.isHighestIoCost" class="me-1 px-1">Most IO</c-badge>
-    <table cTable hover small>
+    <c-badge color="danger" *ngFor="let badge of data.badges" class="me-1 px-1 mb-1">{{badge.content}}</c-badge>
+    <p *ngIf="data.isAuxiliary"><i>Auxiliary node (not part of original plan)</i></p>
+    <table cTable hover small class="meta-table">
         <tbody>
-        <tr *ngFor="let row of data.rows | keyvalue">
-            <th scope="row">{{row.key}}</th>
-            <td>{{row.value}}</td>
+        <tr *ngFor="let row of data.displayTable">
+            <th scope="row">{{row[0]}}</th>
+            <td>{{row[1]}}</td>
         </tr>
         </tbody>
     </table>

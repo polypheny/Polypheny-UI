@@ -11,11 +11,27 @@ export interface PlanNode {
 }
 
 export interface PlanMetadata {
-    isAuxiliary?: boolean;
-    rowCount?: number;
-    rowsCost?: number;
-    cpuCost?: number;
-    ioCost?: number;
+    isAuxiliary: boolean;
+    table?: MetadataTableEntry[];
+    badges?: MetadataBadge[];
+    outConnection?: MetadataConnection;
+}
+
+export interface MetadataConnection {
+    width: number; // 0 <= width <= 1
+    forKey: string;
+}
+
+export interface MetadataBadge {
+    content: string;
+    forKey: string;
+}
+
+export interface MetadataTableEntry {
+    displayName: string;
+    value: number;
+    cumulativeValue?: number;
+    calculated: boolean;
 }
 
 export interface PlanArgument {

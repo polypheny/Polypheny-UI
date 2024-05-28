@@ -1,6 +1,5 @@
 import {Component, Input, signal} from '@angular/core';
-import {PlanMetadata} from '../../models/polyalg-plan.model';
-import {GlobalStats} from '../../polyalg-viewer/alg-editor-utils';
+import {MetadataBadge, MetadataConnection, MetadataTableEntry, PlanMetadata} from '../../models/polyalg-plan.model';
 
 @Component({
     selector: 'app-alg-metadata',
@@ -9,32 +8,33 @@ import {GlobalStats} from '../../polyalg-viewer/alg-editor-utils';
 })
 export class AlgMetadataComponent {
     @Input() data: AlgMetadata;
-
 }
 
 export class AlgMetadata {
     height = signal(0);
-    rows = new Map<string, number | null>();
-    isAuxiliary = false;
-    isHighestIoCost: boolean;
-    isHighestRowsCost: boolean;
-    isHighestCpuCost: boolean;
+    table: MetadataTableEntry[];
+    badges: MetadataBadge[];
+    isAuxiliary: boolean;
+    outConnection?: MetadataConnection;
 
-    constructor(meta: PlanMetadata, globalStats: GlobalStats) {
-        this.computeStats(meta, globalStats);
-        this.recomputeHeight();
-    }
+    displayTable: [string, string][] = [];
 
-    private computeStats(meta: PlanMetadata, stats: GlobalStats) {
+    constructor(meta: PlanMetadata) {
+        console.log('meta', meta);
+        this.table = meta.table || [];
+        this.badges = meta.badges || [];
         this.isAuxiliary = meta.isAuxiliary;
-        this.rows.set('Row Count', this.round(meta.rowCount, 2));
-        this.rows.set('Rows Cost', this.round(meta.rowsCost, 2));
-        this.rows.set('CPU Cost', this.round(meta.cpuCost, 2));
-        this.rows.set('IO Cost', this.round(meta.ioCost, 2));
+        this.outConnection = meta.outConnection;
 
-        this.isHighestIoCost = stats.maxIo > 0 && stats.maxIo === meta.ioCost;
-        this.isHighestRowsCost = stats.maxRows > 0 && stats.maxRows === meta.rowsCost;
-        this.isHighestCpuCost = stats.maxCpu > 0 && stats.maxCpu === meta.cpuCost;
+        for (const entry of this.table) {
+            const name = entry.calculated ? entry.displayName + '*' : entry.displayName;
+            const value = this.round(entry.value, 2).toString();
+            this.displayTable.push([name, value]);
+            if (entry.cumulativeValue && entry.cumulativeValue !== entry.value) {
+                this.displayTable.push([name + ' (total)', this.round(entry.cumulativeValue, 2).toString()]);
+            }
+        }
+        this.recomputeHeight();
     }
 
     private round(number: number, d: number) {
@@ -50,10 +50,10 @@ export class AlgMetadata {
 
     private recomputeHeight() {
         let height = 2 * 8; // padding
-        if (this.isHighestIoCost || this.isHighestRowsCost || this.isHighestCpuCost) {
-            height += 20;
+        if (this.badges.length > 0) {
+            height += 24;
         }
-        height += this.rows.size * 33;
+        height += this.displayTable.length * 27;
         this.height.set(height);
     }
 }
