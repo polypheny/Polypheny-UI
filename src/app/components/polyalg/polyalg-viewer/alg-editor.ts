@@ -25,12 +25,15 @@ import {useMagneticConnection} from './magnetic-connection';
 import {MagneticConnectionComponent} from './magnetic-connection/magnetic-connection.component';
 import {AlgMetadata} from '../algnode/alg-metadata/alg-metadata.component';
 import {Transform} from 'rete-area-plugin/_types/area';
+import {PlanType} from '../../../models/information-page.model';
+import {OperatorTag} from '../models/polyalg-registry';
 
 export type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
 
 export async function createEditor(container: HTMLElement, injector: Injector, registry: PolyAlgService, node: PlanNode | null,
-                                   isReadOnly: boolean, userMode: WritableSignal<UserMode>, oldTransform: Transform | null) {
+                                   planType: PlanType, isReadOnly: boolean, userMode: WritableSignal<UserMode>,
+                                   oldTransform: Transform | null) {
 
     const readonlyPlugin = new ReadonlyPlugin<Schemes>();
 
@@ -112,7 +115,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         () => arrange.layout({applier: undefined, options: layoutOpts}), $modifyEvent);
 
     const contextMenu = new ContextMenuPlugin<Schemes>({
-        items: getContextMenuItems(registry, userMode, isReadOnly, updateSizeFct)
+        items: getContextMenuItems(registry, userMode, planType, isReadOnly, updateSizeFct)
     });
 
     editor.use(readonlyPlugin.root);
@@ -261,7 +264,7 @@ function addNode(registry: PolyAlgService, node: PlanNode | null, isReadOnly: bo
     if (!node) {
         return [nodes, connections];
     }
-    const metadata = new AlgMetadata(node.metadata);
+    const metadata = node.metadata ? new AlgMetadata(node.metadata) : null;
     const algNode = new AlgNode(registry.getDeclaration(node.opName), node.arguments, metadata, false, isReadOnly, updateSize);
     if (node.opName.endsWith('#')) {
         // TODO: handle implicit project correctly
@@ -275,24 +278,28 @@ function addNode(registry: PolyAlgService, node: PlanNode | null, isReadOnly: bo
         connections.push(...childConnections);
 
         const targetIn = algNode.hasVariableInputs ? '0' : i.toString();
-        connections.push(new CustomConnection(childNode, 'out', algNode, targetIn, childNode.metadata.outConnection?.width || 0));
+        connections.push(new CustomConnection(childNode, 'out', algNode, targetIn, childNode.metadata?.outConnection?.width || 0));
     }
     nodes.push(algNode);
     return [nodes, connections];
 }
 
-function getContextMenuItems(registry: PolyAlgService, userMode: WritableSignal<UserMode>, isReadOnly: boolean,
-                             updateSize: (a: AlgNode, delta: Position) => void) {
+function getContextMenuItems(registry: PolyAlgService, userMode: WritableSignal<UserMode>, planType: PlanType,
+                             isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void) {
     const nodes = [];
     for (const model of Object.keys(DataModel).map(key => DataModel[key])) {
         const innerNodes = [];
         for (const decl of registry.getSortedDeclarations(model)) {
-            innerNodes.push([
-                decl.name.substring(decl.name.indexOf('_') + 1),
-                () => new AlgNode(decl, null, null, userMode() === UserMode.SIMPLE, isReadOnly, updateSize)
-            ]);
+            if (decl.tags.includes(OperatorTag[planType])) {
+                innerNodes.push([
+                    decl.name.substring(decl.name.indexOf('_') + 1),
+                    () => new AlgNode(decl, null, null, userMode() === UserMode.SIMPLE, isReadOnly, updateSize)
+                ]);
+            }
         }
-        nodes.push([model, innerNodes]);
+        if (innerNodes.length > 0) {
+            nodes.push([model, innerNodes]);
+        }
     }
 
 

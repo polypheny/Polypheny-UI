@@ -2,6 +2,7 @@ import {SortState} from '../components/data-view/models/sort-state.model';
 import {TableConstraint, UiColumnDefinition} from '../components/data-view/models/result-set.model';
 import {Node} from '../views/querying/algebra/algebra.model';
 import {EntityType} from './catalog.model';
+import {PlanType} from './information-page.model';
 
 export class RequestModel {
     type: string;
@@ -66,12 +67,14 @@ export class PolyAlgRequest extends UIRequest {
     type = 'PolyAlgRequest';
     polyAlg: string;
     model: DataModel;
+    planType: PlanType;
     noLimit = false; // TODO: handle queries with large results
 
-    constructor(polyAlg: string, model: DataModel) {
+    constructor(polyAlg: string, model: DataModel, planType: PlanType) {
         super();
         this.polyAlg = polyAlg;
         this.model = model;
+        this.planType = planType;
     }
 }
 

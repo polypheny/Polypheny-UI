@@ -43,10 +43,9 @@ export interface InformationObject extends Duration {
     graphType?: string;
     //debugger
     queryPlan: string;
-    //polyalg
-    polyAlg: string;
+    //PolyAlg plans
     jsonPolyAlg: string;
-    planType: "LOGICAL" | "ROUTED" | "PHYSICAL";
+    planType: PlanType;
     //code
     code?: string;
     language?: string;
@@ -63,6 +62,8 @@ export interface InformationObject extends Duration {
     //InformationText
     text: string;
 }
+
+export type PlanType = 'LOGICAL' | 'ALLOCATION' | 'PHYSICAL';
 
 export interface InformationResponse {
     errorMsg?: string;

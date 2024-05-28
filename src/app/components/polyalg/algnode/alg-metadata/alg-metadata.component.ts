@@ -20,7 +20,6 @@ export class AlgMetadata {
     displayTable: [string, string][] = [];
 
     constructor(meta: PlanMetadata) {
-        console.log('meta', meta);
         this.table = meta.table || [];
         this.badges = meta.badges || [];
         this.isAuxiliary = meta.isAuxiliary;

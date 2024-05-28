@@ -44,6 +44,8 @@ export interface EntityArg {
     arg: string;
     namespaceId?: number;
     entityId?: number;
+    partitionId?: number;
+    placementId?: number;
 }
 
 export interface RexArg {

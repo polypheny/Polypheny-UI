@@ -21,7 +21,8 @@ export class EntityArgComponent implements OnInit {
 }
 
 export class EntityControl extends ArgControl {
-    height = signal(this.name ? 55 : 31);
+    readonly isAllocation = this.value.placementId != null;
+    height = signal((this.name ? 55 : 31) + (this.isAllocation ? 2 * 31 : 0));
 
     constructor(param: Parameter, public value: EntityArg, model: DataModel, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
         super(param, model, isSimpleMode, isReadOnly);
@@ -32,6 +33,9 @@ export class EntityControl extends ArgControl {
     }
 
     toPolyAlg(): string {
+        if (this.isAllocation) {
+            return `${this.value.placementId}.${this.value.partitionId}`;
+        }
         return this.value.arg;
     }
 

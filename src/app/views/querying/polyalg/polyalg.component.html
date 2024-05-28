@@ -1,7 +1,20 @@
 <c-container>
-    <div class="rete-wrapper m-0" [hidden]="showingAnalysis">
-        <app-alg-viewer #algViewer [polyAlg]="polyAlg" [planType]="'LOGICAL'" [isReadOnly]="false"
-                        (execute)="executePolyAlg($event)"
+
+    <div [hidden]="showingAnalysis">
+        <div class="mb-1">
+            <button cButton color="primary" class="me-3"
+                    (click)="toggleHelpModal()">
+                <span class="fa fa-lightbulb-o fa-lg"></span>
+            </button>
+            <button cButton color="light" class="me-1"
+                    (click)="togglePlanTypeModal()">
+                {{planType ? ' Plan Type: ' + planType : 'Select Plan Type'}}
+            </button>
+
+        </div>
+
+        <app-alg-viewer #algViewer [polyAlg]="polyAlg" [planType]="planType" [isReadOnly]="false"
+                        (execute)="executePolyAlg($event)" *ngIf="planType"
         ></app-alg-viewer>
     </div>
 
@@ -45,3 +58,47 @@
 
     </c-card>
 </c-container>
+
+<c-modal [visible]="showPlanTypeModal()" (visibleChange)="handlePlanTypeModalChange($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Choose a Plan Type</h5>
+        <button (click)="togglePlanTypeModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        <p>
+            {{planType ? 'Warning: Changing the plan type will create a completely new plan!' : 'Please select the type of plan you want to create:'}}
+        </p>
+        <c-input-group sizing="sm">
+            <select cSelect id="planTypeSelect" [(ngModel)]="selectedPlanType">
+                <option value="LOGICAL">Logical Plan</option>
+                <option value="ALLOCATION">Allocation Plan</option>
+                <option value="PHYSICAL">Physical Plan</option>
+            </select>
+        </c-input-group>
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="togglePlanTypeModal()" cButton color="secondary">
+            Close
+        </button>
+        <button cButton color="primary" (click)="choosePlanType()">Create Plan</button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showHelpModal()" (visibleChange)="handleHelpModalChange($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Choose a Plan Type</h5>
+        <button (click)="toggleHelpModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        The PolyPlan Builder can be used to create or edit plans using either
+        <ul>
+            <li>the PolyAlgebra Editor</li>
+            <li>or the Node Editor.</li>
+        </ul>
+
+
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleHelpModal()" cButton color="secondary"> Close</button>
+    </c-modal-footer>
+</c-modal>

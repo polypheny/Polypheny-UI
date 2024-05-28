@@ -63,7 +63,7 @@
             </button>
         </div>
 
-        <button cButton (click)="executePlan()" class="m-1" [disabled]="!isSynchronized()">Execute Plan</button>
+        <button cButton (click)="executePlan()" class="m-1" [disabled]="!isSynchronized() || planType === 'PHYSICAL'">Execute Plan</button>
 
     </c-button-toolbar>
 </ng-container>

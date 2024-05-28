@@ -1,6 +1,25 @@
 <div class="param-wrapper">
     <label for="entityName" *ngIf="data.name"><strong>{{data.name}}</strong></label>
-    <input type="text" id="entityName" name="entity" (pointerdown)="$event.stopPropagation()"
-           autocomplete="off" [readonly]="data.isReadOnly" placeholder="{{placeholder}}"
-           class="form-control form-control-sm param-input" [(ngModel)]="data.value.arg">
+
+    <ng-container *ngIf="!data.isAllocation">
+        <input type="text" id="entityName" name="entity" (pointerdown)="$event.stopPropagation()"
+               autocomplete="off" [readonly]="data.isReadOnly" placeholder="{{placeholder}}"
+               class="form-control form-control-sm param-input mb-1" [(ngModel)]="data.value.arg">
+    </ng-container>
+
+    <ng-container *ngIf="data.isAllocation">
+        <c-input-group sizing="sm" class="mb-1">
+            <label cInputGroupText for="placementArg">Placement ID</label>
+            <input cFormControl sizing="sm" id="placementArg" (pointerdown)="$event.stopPropagation()"
+                   type="number" autocomplete="off" [readonly]="data.isReadOnly"
+                   [min]="0" [(ngModel)]="data.value.placementId">
+        </c-input-group>
+        <c-input-group sizing="sm">
+            <label cInputGroupText for="partitionArg">Partition ID</label>
+            <input cFormControl sizing="sm" id="partitionArg" (pointerdown)="$event.stopPropagation()"
+                   type="number" autocomplete="off" [readonly]="data.isReadOnly"
+                   [min]="0" [(ngModel)]="data.value.partitionId">
+
+        </c-input-group>
+    </ng-container>
 </div>

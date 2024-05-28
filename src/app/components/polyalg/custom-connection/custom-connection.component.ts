@@ -30,6 +30,5 @@ export class CustomConnection<N extends AlgNode> extends ClassicPreset.Connectio
     constructor(source: N, sourceOutput: keyof N['outputs'], target: N, targetInput: keyof N['inputs'], width = 0) {
         super(source, sourceOutput, target, targetInput);
         this.width = DEFAULT_WIDTH + (MAX_WIDTH - DEFAULT_WIDTH) * Math.max(0, Math.min(width, 1));
-        console.log('width:', this.width);
     }
 }
