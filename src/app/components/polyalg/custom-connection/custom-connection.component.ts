@@ -8,7 +8,7 @@ import Position = Popper.Position;
     selector: 'app-custom-connection',
     template: `
         <svg data-testid="connection">
-            <path [attr.d]="path"/>
+            <path [attr.d]="path" [attr.stroke-width]="data.width"/>
         </svg>
     `,
     styleUrl: './custom-connection.component.scss'
@@ -21,6 +21,15 @@ export class CustomConnectionComponent {
 
 }
 
+const DEFAULT_WIDTH = 5;
+const MAX_WIDTH = 50;
 export class CustomConnection<N extends AlgNode> extends ClassicPreset.Connection<N, N> {
     isMagnetic = false;
+    width = DEFAULT_WIDTH;
+
+    constructor(source: N, sourceOutput: keyof N['outputs'], target: N, targetInput: keyof N['inputs'], width = 0) {
+        super(source, sourceOutput, target, targetInput);
+        this.width = DEFAULT_WIDTH + (MAX_WIDTH - DEFAULT_WIDTH) * Math.max(0, Math.min(width, 1));
+        console.log('width:', this.width);
+    }
 }

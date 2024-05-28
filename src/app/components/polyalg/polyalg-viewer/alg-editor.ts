@@ -19,7 +19,7 @@ import {DataModel} from '../../../models/ui-request.model';
 import {DataflowEngine} from 'rete-engine';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Subject} from 'rxjs';
-import {canCreateConnection, computeGlobalStats, findRootNodeId, getModelPrefix, GlobalStats} from './alg-editor-utils';
+import {canCreateConnection, findRootNodeId, getModelPrefix} from './alg-editor-utils';
 import {setupPanningBoundary} from './panning-boundary';
 import {useMagneticConnection} from './magnetic-connection';
 import {MagneticConnectionComponent} from './magnetic-connection/magnetic-connection.component';
@@ -181,8 +181,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         panningBoundary = setupPanningBoundary({area, selector, padding: 40, intensity: 2});
     }
 
-    const globalStats = computeGlobalStats(node);
-    const [nodes, connections] = addNode(registry, node, globalStats, isReadOnly, updateSizeFct);
+    const [nodes, connections] = addNode(registry, node, isReadOnly, updateSizeFct);
     for (const n of nodes) {
         await editor.addNode(n);
     }
@@ -256,13 +255,13 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     };
 }
 
-function addNode(registry: PolyAlgService, node: PlanNode | null, globalStats: GlobalStats, isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void): [AlgNode[], CustomConnection<AlgNode>[]] {
+function addNode(registry: PolyAlgService, node: PlanNode | null, isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void): [AlgNode[], CustomConnection<AlgNode>[]] {
     const nodes = [];
     const connections = [];
     if (!node) {
         return [nodes, connections];
     }
-    const metadata = new AlgMetadata(node.metadata, globalStats);
+    const metadata = new AlgMetadata(node.metadata);
     const algNode = new AlgNode(registry.getDeclaration(node.opName), node.arguments, metadata, false, isReadOnly, updateSize);
     if (node.opName.endsWith('#')) {
         // TODO: handle implicit project correctly
@@ -270,13 +269,13 @@ function addNode(registry: PolyAlgService, node: PlanNode | null, globalStats: G
     }
 
     for (let i = 0; i < node.inputs.length; i++) {
-        const [childNodes, childConnections] = addNode(registry, node.inputs[i], globalStats, isReadOnly, updateSize);
+        const [childNodes, childConnections] = addNode(registry, node.inputs[i], isReadOnly, updateSize);
         const childNode = childNodes[childNodes.length - 1];
         nodes.push(...childNodes);
         connections.push(...childConnections);
 
         const targetIn = algNode.hasVariableInputs ? '0' : i.toString();
-        connections.push(new CustomConnection(childNode, 'out', algNode, targetIn));
+        connections.push(new CustomConnection(childNode, 'out', algNode, targetIn, childNode.metadata.outConnection?.width || 0));
     }
     nodes.push(algNode);
     return [nodes, connections];

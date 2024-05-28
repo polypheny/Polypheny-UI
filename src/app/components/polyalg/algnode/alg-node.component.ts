@@ -58,7 +58,7 @@ export class AlgNodeComponent implements OnChanges {
 }
 
 const BASE_WIDTH = 350;
-const METADATA_WIDTH = 200;
+const METADATA_WIDTH = 250;
 const METADATA_COLLAPSE_WIDTH = 16;
 const BASE_HEIGHT = 110;
 const TAB_SIZE = 2; // the indentation width when generating PolyAlg
