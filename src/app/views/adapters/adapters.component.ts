@@ -28,7 +28,6 @@ import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
 import {
     AdapterSettingModel,
-    AdapterSettingValueModel,
     AdapterTemplateModel,
     DeployMode
 } from '../../models/catalog.model';
@@ -354,7 +353,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             }
 
             if (!setting.current) {
-                setting.current = new AdapterSettingValueModel(k, null);
+                setting.current = null;
             }
 
             if (setting.template.type.toLowerCase() === "directory") {
@@ -363,9 +362,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 for (let fileName of setting.template.fileNames) {
                     fd.append(fileName, this.files.get(fileName));
                 }
-                setting.current.value = JSON.stringify(setting.template.fileNames);
+                setting.current = JSON.stringify(setting.template.fileNames);
             } else {
-                setting.current.value = v.value;
+                setting.current = v.value;
             }
 
             deploy.settings.set(k, setting.current);
@@ -644,7 +643,7 @@ class Adapter {
 
         for (const template of adapter.settings) {
             const temp = current === null ? null : current.settings[template.name];
-            const val = new MergedSetting(template, new AdapterSettingValueModel(template.name, template.defaultValue));
+            const val = new MergedSetting(template, template.defaultValue);
             val.current = temp;
 
             settings.set(template.name, val);
@@ -655,9 +654,9 @@ class Adapter {
 
 class MergedSetting {
     template: AdapterSettingModel;
-    current: AdapterSettingValueModel;
+    current: string;
 
-    constructor(template: AdapterSettingModel, current: AdapterSettingValueModel) {
+    constructor(template: AdapterSettingModel, current: string) {
         this.template = template;
         this.current = current;
     }

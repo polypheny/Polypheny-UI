@@ -157,16 +157,6 @@ export interface AdapterSettingModel {
     appliesTo: DeployMode[];
 }
 
-export class AdapterSettingValueModel {
-    name: string;
-    value: string;
-
-    constructor(name: string, value: string) {
-        this.name = name;
-        this.value = value;
-    }
-}
-
 export enum EntityType {
     ENTITY = 'ENTITY',
     SOURCE = 'SOURCE',
