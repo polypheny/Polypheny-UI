@@ -26,7 +26,7 @@
 </c-container>
 
 <c-container>
-    <c-card class="my-3" *ngIf="result() && !showingAnalysis " id="alg-result">
+    <c-card class="my-3" *ngIf="result() && !showingAnalysis " id="alg-result" scrollTo>
         <c-card-header>
             <span>{{ result().query }}</span>
             <span class="badge pull-right" *ngIf="result().error"

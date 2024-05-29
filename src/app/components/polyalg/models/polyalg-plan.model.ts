@@ -25,6 +25,13 @@ export interface MetadataConnection {
 export interface MetadataBadge {
     content: string;
     forKey: string;
+    level: BadgeLevel;
+}
+
+export enum BadgeLevel {
+    INFO = 'INFO',
+    WARN = 'WARN',
+    DANGER = 'DANGER'
 }
 
 export interface MetadataTableEntry {

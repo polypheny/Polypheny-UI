@@ -21,6 +21,13 @@ $socket-size: 16px;
   position: relative;
   user-select: none;
 
+  .socket-label {
+    position: absolute;
+    top: -40px;
+    left: $node-base-width / 2;
+    transform: translateX(-50%);
+  }
+
   .node-body {
     display: flex;
   }

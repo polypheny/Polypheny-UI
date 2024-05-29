@@ -1,3 +1,4 @@
+<c-badge color="dark" class="socket-label" *ngIf="data.multiConnIdx != null">{{data.multiConnIdx}}</c-badge>
 <div class="outputs">
     <div class="output" *ngFor="let output of data.outputs | keyvalue: sortByIndex"
          [attr.data-testid]="'output-'+output.key">

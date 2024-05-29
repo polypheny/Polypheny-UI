@@ -8,7 +8,7 @@ import Position = Popper.Position;
     selector: 'app-custom-connection',
     template: `
         <svg data-testid="connection">
-            <path [attr.d]="path" [attr.stroke-width]="data.width"/>
+            <path [attr.d]="path" [attr.stroke-width]="data.width || DEFAULT_WIDTH"/>
         </svg>
     `,
     styleUrl: './custom-connection.component.scss'
@@ -19,10 +19,13 @@ export class CustomConnectionComponent {
     @Input() end: Position;
     @Input() path: string;
 
+    DEFAULT_WIDTH = DEFAULT_WIDTH;
+
 }
 
 const DEFAULT_WIDTH = 5;
 const MAX_WIDTH = 50;
+
 export class CustomConnection<N extends AlgNode> extends ClassicPreset.Connection<N, N> {
     isMagnetic = false;
     width = DEFAULT_WIDTH;

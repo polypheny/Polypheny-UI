@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, signal, ViewChild, WritableSignal} from '@angular/core';
+import {AfterViewInit, Component, Directive, ElementRef, OnDestroy, OnInit, signal, ViewChild, WritableSignal} from '@angular/core';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
 import {WebSocket} from '../../../services/webSocket';
@@ -84,6 +84,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         }
         this._leftSidebar.setNodes([]);
         this._leftSidebar.open();
+        this.result.set(null);
 
         this.loading.set(true);
         if (!this._crud.executePolyAlg(this.websocket, polyAlg, model, this.planType)) {
@@ -200,5 +201,17 @@ export class PolyalgComponent implements OnInit, OnDestroy {
 
     toggleHelpModal() {
         this.showHelpModal.update(b => !b);
+    }
+}
+
+// https://stackoverflow.com/a/42820432
+@Directive({selector: '[scrollTo]'})
+export class ScrollToDirective implements AfterViewInit {
+    constructor(private elRef: ElementRef) {
+    }
+
+    ngAfterViewInit() {
+        console.log('scrolling auto');
+        this.elRef.nativeElement.scrollIntoView({behavior: 'smooth', block: 'start'});
     }
 }

@@ -91,6 +91,8 @@ export class AlgNode extends ClassicPreset.Node {
     readonly isSimpleMode: WritableSignal<boolean>;
     readonly hasSimpleParams: boolean; // true if at least one parameter has a simple variant (even if it's hidden)
     readonly hasVisibleControls;
+    multiConnIdx: number | null = null; // in the case that the output of this node is connected to a node that allows multiple connections, this indicates the order
+
 
     constructor(public decl: Declaration, args: { [key: string]: PlanArgument } | null, public readonly metadata: AlgMetadata | null,
                 isSimpleMode: boolean, public isReadOnly: boolean, private updateArea: (a: AlgNode, delta: Position) => void) {
@@ -165,6 +167,11 @@ export class AlgNode extends ClassicPreset.Node {
         this.updateArea(this, {x: -deltaX / 2, y: -deltaY});
     }
 
+    setMultiConnIdx(i: number) {
+        this.multiConnIdx = i;
+        this.updateArea(this, {x: 0, y: 0});
+    }
+
     data(inputs: { [key: string]: string } = {}) {
         // https://retejs.org/docs/guides/processing/dataflow
         // build PolyAlg representation of this node
@@ -184,6 +191,7 @@ export class AlgNode extends ClassicPreset.Node {
         let values;
         if (this.hasVariableInputs) {
             values = inputs['0'];
+            console.log(values);
         } else {
             values = Object.keys(inputs)
             .sort((a, b) => parseInt(a, 10) - parseInt(b, 10)) // keys correspond to input socket key

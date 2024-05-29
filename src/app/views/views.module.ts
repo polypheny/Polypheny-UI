@@ -90,7 +90,7 @@ import {
 } from '@coreui/angular';
 import {EditEntityComponent} from './schema-editing/edit-entity/edit-entity.component';
 import {TreeModule} from '@ali-hm/angular-tree-component';
-import {PolyalgComponent} from './querying/polyalg/polyalg.component';
+import {PolyalgComponent, ScrollToDirective} from './querying/polyalg/polyalg.component';
 
 
 @NgModule({
@@ -190,7 +190,8 @@ import {PolyalgComponent} from './querying/polyalg/polyalg.component';
         FileUploaderComponent,
         DockerconfigComponent,
         EditEntityComponent,
-        PolyalgComponent
+        PolyalgComponent,
+        ScrollToDirective
     ],
     exports: []
 })
