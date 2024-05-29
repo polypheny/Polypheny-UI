@@ -19,7 +19,7 @@ import {DataModel} from '../../../models/ui-request.model';
 import {DataflowEngine} from 'rete-engine';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Subject} from 'rxjs';
-import {canCreateConnection, findRootNodeId, getModelPrefix} from './alg-editor-utils';
+import {areSocketsCompatible, canCreateConnection, findRootNodeId, getModelPrefix, getPredecessors} from './alg-editor-utils';
 import {setupPanningBoundary} from './panning-boundary';
 import {useMagneticConnection} from './magnetic-connection';
 import {MagneticConnectionComponent} from './magnetic-connection/magnetic-connection.component';
@@ -143,7 +143,8 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
                     sourceNode,
                     source.key as never,
                     targetNode,
-                    target.key as never
+                    target.key as never,
+                    0
                 );
 
                 if (!canCreateConnection(editor, connection)) {
@@ -163,7 +164,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
                 );
             },
             display(from, to) {
-                return from.side !== to.side;
+                return from.side !== to.side && areSocketsCompatible(editor, from, to);
             },
             offset(socket, position) {
 
@@ -209,6 +210,36 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
             if (!canCreateConnection(editor, context.data)) {
                 //alert('Sockets are not compatible');
                 return;
+            }
+            const target = editor.getNode(context.data.target);
+            if (target.hasVariableInputs) {
+                const nodeIds = getPredecessors(target.id, editor.getConnections());
+                if (nodeIds.length > 0) { // only show id if there are multiple predecessors
+                    if (nodeIds.length === 1) {
+                        editor.getNode(nodeIds[0]).setMultiConnIdx(0);
+                    }
+                    editor.getNode(context.data.source).setMultiConnIdx(nodeIds.length);
+                }
+            }
+        } else if (context.type === 'connectionremove') {
+            const source = editor.getNode(context.data.source);
+            const target = editor.getNode(context.data.target);
+            if (target.hasVariableInputs) {
+                let i = 0;
+                const nodeIds = getPredecessors(target.id, editor.getConnections());
+                for (const nodeId of nodeIds) {
+                    if (nodeId === source.id) {
+                        source.setMultiConnIdx(null);
+                    } else {
+                        if (nodeIds.length - 1 === 1) {
+                            // nodeId is the only node left -> do not show idx
+                            editor.getNode(nodeId).setMultiConnIdx(null);
+                        } else {
+                            editor.getNode(nodeId).setMultiConnIdx(i);
+                            i++;
+                        }
+                    }
+                }
             }
         }
         if (modifyingEventTypes.has(context.type)) {

@@ -1,5 +1,5 @@
 <div class="py-2">
-    <c-badge color="danger" *ngFor="let badge of data.badges" class="me-1 px-1 mb-1">{{badge.content}}</c-badge>
+    <c-badge [color]="BADGE_COLORS[badge.level]" *ngFor="let badge of data.badges" class="me-1 px-1 mb-1">{{badge.content}}</c-badge>
     <p *ngIf="data.isAuxiliary"><i>Auxiliary node (not part of original plan)</i></p>
     <table cTable hover small class="meta-table">
         <tbody>

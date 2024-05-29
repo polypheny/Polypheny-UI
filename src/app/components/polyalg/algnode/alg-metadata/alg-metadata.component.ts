@@ -1,5 +1,5 @@
 import {Component, Input, signal} from '@angular/core';
-import {MetadataBadge, MetadataConnection, MetadataTableEntry, PlanMetadata} from '../../models/polyalg-plan.model';
+import {BadgeLevel, MetadataBadge, MetadataConnection, MetadataTableEntry, PlanMetadata} from '../../models/polyalg-plan.model';
 
 @Component({
     selector: 'app-alg-metadata',
@@ -8,6 +8,12 @@ import {MetadataBadge, MetadataConnection, MetadataTableEntry, PlanMetadata} fro
 })
 export class AlgMetadataComponent {
     @Input() data: AlgMetadata;
+
+    BADGE_COLORS = {
+        [BadgeLevel.INFO]: 'info',
+        [BadgeLevel.WARN]: 'warning',
+        [BadgeLevel.DANGER]: 'danger'
+    };
 }
 
 export class AlgMetadata {

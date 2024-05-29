@@ -4,6 +4,7 @@ import {Schemes} from './alg-editor';
 import {AlgNode} from '../algnode/alg-node.component';
 import {CustomConnection} from '../custom-connection/custom-connection.component';
 import {DataModel} from '../../../models/ui-request.model';
+import {SocketData} from 'rete-connection-plugin';
 
 type Sockets = AlgNodeSocket;
 type Input = ClassicPreset.Input<Sockets>;
@@ -38,6 +39,12 @@ export function canCreateConnection(editor: NodeEditor<Schemes>, connection: Sch
     const {source, target} = getConnectionSockets(sourceNode, targetNode, connection);
 
     return source && target && source.isCompatibleWith(target);
+}
+
+export function areSocketsCompatible(editor: NodeEditor<Schemes>, from: SocketData, to: SocketData) {
+    const fromNode = editor.getNode(from.nodeId);
+    const toNode = editor.getNode(to.nodeId);
+    return fromNode.decl.model === toNode.decl.model;
 }
 
 export function findRootNodeId(nodes: AlgNode[], connections: CustomConnection<AlgNode>[]): string | null {
@@ -92,6 +99,10 @@ export function getModelPrefix(model: DataModel) {
         case DataModel.GRAPH:
             return 'LPG';
     }
+}
+
+export function getPredecessors(nodeId: string, connections: CustomConnection<AlgNode>[]): string[] {
+    return connections.filter(c => c.target === nodeId).map(c => c.source);
 }
 
 function getSuccessor(nodeId: string, connections: CustomConnection<AlgNode>[]): string | null {
