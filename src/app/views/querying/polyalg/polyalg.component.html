@@ -8,7 +8,7 @@
             </button>
             <button cButton color="light" class="me-1"
                     (click)="togglePlanTypeModal()">
-                {{planType ? ' Plan Type: ' + planType : 'Select Plan Type'}}
+                {{ planType ? ' Plan Type: ' + planType : 'Select Plan Type' }}
             </button>
 
         </div>
@@ -66,7 +66,7 @@
     </c-modal-header>
     <c-modal-body>
         <p>
-            {{planType ? 'Warning: Changing the plan type will create a completely new plan!' : 'Please select the type of plan you want to create:'}}
+            {{ planType ? 'Warning: Changing the plan type will create a completely new plan!' : 'Please select the type of plan you want to create:' }}
         </p>
         <c-input-group sizing="sm">
             <select cSelect id="planTypeSelect" [(ngModel)]="selectedPlanType">
@@ -86,7 +86,7 @@
 
 <c-modal [visible]="showHelpModal()" (visibleChange)="handleHelpModalChange($event)">
     <c-modal-header>
-        <h5 cModalTitle>Choose a Plan Type</h5>
+        <h5 cModalTitle>Help</h5>
         <button (click)="toggleHelpModal()" cButtonClose></button>
     </c-modal-header>
     <c-modal-body>
