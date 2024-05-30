@@ -24,7 +24,7 @@ $socket-size: 16px;
   .socket-label {
     position: absolute;
     top: -40px;
-    left: $node-base-width / 2;
+    left: 50%;
     transform: translateX(-50%);
   }
 

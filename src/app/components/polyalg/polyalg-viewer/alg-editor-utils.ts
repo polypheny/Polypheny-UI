@@ -5,6 +5,7 @@ import {AlgNode} from '../algnode/alg-node.component';
 import {CustomConnection} from '../custom-connection/custom-connection.component';
 import {DataModel} from '../../../models/ui-request.model';
 import {SocketData} from 'rete-connection-plugin';
+import {Position} from 'rete-angular-plugin/17/types';
 
 type Sockets = AlgNodeSocket;
 type Input = ClassicPreset.Input<Sockets>;
@@ -101,8 +102,91 @@ export function getModelPrefix(model: DataModel) {
     }
 }
 
+export function updateMultiConnAfterCreate(editor: NodeEditor<Schemes>, sourceId: string, targetId: string) {
+    const target = editor.getNode(targetId);
+    if (target.hasVariableInputs) {
+        const nodeIds = getPredecessors(targetId, editor.getConnections());
+        if (nodeIds.length > 0) {
+            if (nodeIds.length === 1) {
+                editor.getNode(nodeIds[0]).setMultiConnIdx(0);
+            }
+            editor.getNode(sourceId).setMultiConnIdx(nodeIds.length);
+        }
+    }
+}
+
+export function updateMultiConnAfterRemove(editor: NodeEditor<Schemes>, sourceId: string, targetId: string) {
+    const source = editor.getNode(sourceId);
+    const target = editor.getNode(targetId);
+    if (target.hasVariableInputs) {
+        let i = 0;
+        const nodeIds = getPredecessors(targetId, editor.getConnections());
+        for (const nodeId of nodeIds) {
+            if (nodeId === sourceId) {
+                source.setMultiConnIdx(null);
+            } else {
+                if (nodeIds.length - 1 === 1) {
+                    // nodeId is the only node left -> do not show idx
+                    editor.getNode(nodeId).setMultiConnIdx(null);
+                } else {
+                    editor.getNode(nodeId).setMultiConnIdx(i);
+                    i++;
+                }
+            }
+        }
+    }
+}
+
 export function getPredecessors(nodeId: string, connections: CustomConnection<AlgNode>[]): string[] {
     return connections.filter(c => c.target === nodeId).map(c => c.source);
+}
+
+export function getMagneticConnectionProps(editor: NodeEditor<Schemes>) {
+    return {
+        async createConnection(from: SocketData, to: SocketData) {
+            if (from.side === to.side) {
+                return;
+            }
+            const [source, target] = from.side === 'output' ? [from, to] : [to, from];
+            const sourceNode = editor.getNode(source.nodeId);
+            const targetNode = editor.getNode(target.nodeId);
+
+            const connection = new CustomConnection(
+                sourceNode,
+                source.key as never,
+                targetNode,
+                target.key as never,
+                0
+            );
+
+            if (!canCreateConnection(editor, connection)) {
+                return;
+            }
+
+            const connectionsToRemove = editor.getConnections().filter(c => {
+                return (c.target === targetNode.id && c.targetInput === target.key && !targetNode.hasVariableInputs) || (c.source === sourceNode.id);
+            });
+
+            for (const c of connectionsToRemove) {
+                await editor.removeConnection(c.id);
+            }
+
+            await editor.addConnection(
+                connection
+            );
+        },
+        display(from: SocketData, to: SocketData) {
+            return from.side !== to.side && areSocketsCompatible(editor, from, to);
+        },
+        offset(socket: SocketData, position: Position) {
+
+            return {
+                x: position.x + (socket.side === 'input' ? 3 : -3),
+                y: position.y + (socket.side === 'input' ? 12 : -12)
+            };
+        },
+        distance: 75
+    };
 }
 
 function getSuccessor(nodeId: string, connections: CustomConnection<AlgNode>[]): string | null {
