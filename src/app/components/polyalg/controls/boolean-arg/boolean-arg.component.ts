@@ -3,6 +3,7 @@ import {BooleanArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
 import {DataModel} from '../../../../models/ui-request.model';
+import {PlanType} from '../../../../models/information-page.model';
 
 @Component({
     selector: 'app-boolean-arg',
@@ -17,8 +18,9 @@ export class BooleanArgComponent {
 export class BooleanControl extends ArgControl {
     height = signal(50);
 
-    constructor(param: Parameter, public value: BooleanArg, model: DataModel, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
-        super(param, model, isSimpleMode, isReadOnly);
+    constructor(param: Parameter, public value: BooleanArg, model: DataModel, planType: PlanType,
+                isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+        super(param, model, planType, isSimpleMode, isReadOnly);
     }
 
     getArgComponent(): Type<any> {

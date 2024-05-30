@@ -1,25 +1,23 @@
 <div class="param-wrapper">
-    <label for="entityName" *ngIf="data.name"><strong>{{data.name}}</strong></label>
+    <label for="fullName" *ngIf="data.name"><strong>{{data.name}}</strong></label>
 
-    <ng-container *ngIf="!data.isAllocation">
-        <input type="text" id="entityName" name="entity" (pointerdown)="$event.stopPropagation()"
-               autocomplete="off" [readonly]="data.isReadOnly" placeholder="{{placeholder}}"
-               class="form-control form-control-sm param-input mb-1" [(ngModel)]="data.value.arg">
-    </ng-container>
+    <input type="text" id="fullName" name="name" (pointerdown)="$event.stopPropagation()"
+           autocomplete="off" [readonly]="data.isReadOnly" placeholder="{{placeholder}}"
+           class="form-control form-control-sm param-input mb-1" [(ngModel)]="data.value.fullName">
 
     <ng-container *ngIf="data.isAllocation">
         <c-input-group sizing="sm" class="mb-1">
-            <label cInputGroupText for="placementArg">Placement ID</label>
-            <input cFormControl sizing="sm" id="placementArg" (pointerdown)="$event.stopPropagation()"
-                   type="number" autocomplete="off" [readonly]="data.isReadOnly"
-                   [min]="0" [(ngModel)]="data.value.placementId">
+            <label cInputGroupText for="adapter">Adapter</label>
+            <select cSelect id="adapter" [(ngModel)]="data.value.adapterName" (pointerdown)="$event.stopPropagation()"
+                    [disabled]="data.isReadOnly">
+                <option *ngFor="let adapter of adapters()" [value]="adapter.name">{{ adapter.name + ' (Adapter: ' + adapter.adapterName + ')' }}</option>
+            </select>
         </c-input-group>
         <c-input-group sizing="sm">
-            <label cInputGroupText for="partitionArg">Partition ID</label>
-            <input cFormControl sizing="sm" id="partitionArg" (pointerdown)="$event.stopPropagation()"
-                   type="number" autocomplete="off" [readonly]="data.isReadOnly"
-                   [min]="0" [(ngModel)]="data.value.partitionId">
-
+            <label cInputGroupText for="partition">Partition</label>
+            <input type="text" id="partition" name="partition" (pointerdown)="$event.stopPropagation()"
+                   autocomplete="off" [readonly]="data.isReadOnly" placeholder="partition"
+                   class="form-control form-control-sm param-input" [(ngModel)]="data.value.partitionId">
         </c-input-group>
     </ng-container>
 </div>

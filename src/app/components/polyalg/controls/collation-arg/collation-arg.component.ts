@@ -3,6 +3,7 @@ import {ArgControl} from '../arg-control';
 import {Parameter, ParamType, SimpleType} from '../../models/polyalg-registry';
 import {CollationArg, CollDirection, CollNullDirection, defaultNullDirection, PlanArgument} from '../../models/polyalg-plan.model';
 import {DataModel} from '../../../../models/ui-request.model';
+import {PlanType} from '../../../../models/information-page.model';
 
 @Component({
     selector: 'app-collation-arg',
@@ -23,8 +24,9 @@ export class CollationArgComponent {
 export class CollationControl extends ArgControl {
     height = computed(() => this.isSimpleMode() ? 66 : 101);
 
-    constructor(param: Parameter, public value: CollationArg, model: DataModel, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
-        super(param, model, isSimpleMode, isReadOnly);
+    constructor(param: Parameter, public value: CollationArg, model: DataModel, planType: PlanType,
+                isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+        super(param, model, planType, isSimpleMode, isReadOnly);
     }
 
     static collToPolyAlg(value: CollationArg): string {

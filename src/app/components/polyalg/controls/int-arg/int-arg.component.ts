@@ -3,6 +3,7 @@ import {ArgControl} from '../arg-control';
 import {Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
 import {IntArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {DataModel} from '../../../../models/ui-request.model';
+import {PlanType} from '../../../../models/information-page.model';
 
 @Component({
     selector: 'app-int-arg',
@@ -17,8 +18,8 @@ export class IntControl extends ArgControl {
     valueRange: { min: number | null; max: number | null; };
     height = signal(this.name ? 55 : 31);
 
-    constructor(param: Parameter, public value: IntArg, model: DataModel, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
-        super(param, model, isSimpleMode, isReadOnly);
+    constructor(param: Parameter, public value: IntArg, model: DataModel, planType: PlanType, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+        super(param, model, planType, isSimpleMode, isReadOnly);
 
         this.valueRange = {min: null, max: null};
         if (param.tags.includes(ParamTag.NON_NEGATIVE)) {

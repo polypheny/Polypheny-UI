@@ -10,6 +10,7 @@ import {DataModel} from '../../../models/ui-request.model';
 import {AlgNodeSocket} from '../custom-socket/custom-socket.component';
 import {AlgMetadata} from './alg-metadata/alg-metadata.component';
 import {getModelPrefix} from '../polyalg-viewer/alg-editor-utils';
+import {PlanType} from '../../../models/information-page.model';
 
 type SortValue<N extends ClassicPreset.Node> = (N['controls'] | N['inputs'] | N['outputs'])[string];
 
@@ -94,7 +95,8 @@ export class AlgNode extends ClassicPreset.Node {
     multiConnIdx: number | null = null; // in the case that the output of this node is connected to a node that allows multiple connections, this indicates the order
 
 
-    constructor(public decl: Declaration, args: { [key: string]: PlanArgument } | null, public readonly metadata: AlgMetadata | null,
+    constructor(public readonly decl: Declaration, public readonly planType: PlanType,
+                args: { [key: string]: PlanArgument } | null, public readonly metadata: AlgMetadata | null,
                 isSimpleMode: boolean, public isReadOnly: boolean, private updateArea: (a: AlgNode, delta: Position) => void) {
         super(decl.name.substring(decl.name.indexOf('_') + 1));
         this.modelBadge = getModelPrefix(decl.model);
@@ -122,7 +124,7 @@ export class AlgNode extends ClassicPreset.Node {
                 }
             }
             const arg = args?.[p.name] || null;
-            const c = getControl(p, arg, isReadOnly, 0, decl.model, this.isSimpleMode);
+            const c = getControl(p, arg, isReadOnly, 0, decl.model, planType, this.isSimpleMode);
 
             this.controlHeights.push(c.visibleHeight);
 
@@ -213,7 +215,7 @@ export class AlgNode extends ClassicPreset.Node {
         for (const p of this.decl.posParams.concat(this.decl.kwParams)) {
             args[p.name] = (this.controls[p.name] as ArgControl).copyArg();
         }
-        return new AlgNode(this.decl, args, null, this.isSimpleMode(), this.isReadOnly, this.updateArea);
+        return new AlgNode(this.decl, this.planType, args, null, this.isSimpleMode(), this.isReadOnly, this.updateArea);
     }
 
 }

@@ -9,17 +9,26 @@
   border: 2px solid;
 }
 
+
+.SYNCHRONIZED {
+  border-color: lightblue;
+}
+
+// READONLY must be above CHANGED and INVALID. This way CHANGED and INVALID take priority
+.READONLY {
+  border-color: $secondary;
+}
+
+button.accordion-button.READONLY {
+  background-color: $secondary !important;
+}
+
 .CHANGED {
   border-color: $warning-50;
 }
 
 button.accordion-button.CHANGED {
   background-color: $warning-50 !important;
-}
-
-
-.SYNCHRONIZED {
-  border-color: lightblue;
 }
 
 .INVALID {
