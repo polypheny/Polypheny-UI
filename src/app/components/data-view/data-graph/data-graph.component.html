@@ -5,7 +5,7 @@
 <div class="card-wrapper">
     <div class="wrapper d-flex justify-content-center graph-wrapper">
         <div id="chart-area"></div>
-        <div *ngIf="showProperties" class="graph-properties">
+        <div *ngIf="showProperties()" class="graph-properties">
             <c-card class="card text-center h-100">
                 <c-card-header>
                     {{ detail.id }}
@@ -19,7 +19,7 @@
                     </div>
                 </c-card-body>
                 <c-card-footer class="text-muted">
-                    <button cButton color="primary" (click)="showProperties = false"><span
+                    <button cButton color="primary" (click)="showProperties.set(false)"><span
                             class="cil-arrow-thick-from-left"></span></button>
                 </c-card-footer>
             </c-card>

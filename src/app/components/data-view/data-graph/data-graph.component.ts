@@ -1,4 +1,4 @@
-import {Component, effect} from '@angular/core';
+import {Component, effect, signal} from '@angular/core';
 import {GraphResult} from '../models/result-set.model';
 import {DataModel, GraphRequest} from '../../../models/ui-request.model';
 import {DataTemplateComponent} from '../data-template/data-template.component';
@@ -38,7 +38,7 @@ export class DataGraphComponent extends DataTemplateComponent {
     jsonValid = false;
     public graphLoading = false;
 
-    showProperties = false;
+    showProperties = signal(false);
     detail: Detail;
 
     private zoom: any;
@@ -53,9 +53,9 @@ export class DataGraphComponent extends DataTemplateComponent {
 
     protected readonly NamespaceType = DataModel;
 
-    private static filterEdges(hidden: any[], d: Edge, p: any) {
-        const source = !p.afterInit ? d.source : d.source['id'];
-        const target = !p.afterInit ? d.target : d.target['id'];
+    private static filterEdges(hidden: any[], d: Edge | any, p: any) {
+        const source = d.source instanceof String ? d.source : d.source['id'];
+        const target = d.target instanceof String ? d.target : d.target['id'];
 
         if (source === target) {
             return true;
@@ -75,7 +75,9 @@ export class DataGraphComponent extends DataTemplateComponent {
     }
 
     private renderGraph(graph: Graph) {
-        graph.nodes = Array.from(this.initialNodes); // normally this does nothing, but for cross model queries this ensures that the initial nodes are present (different ids)
+        if (!Array.from(this.initialNodeIds).some(id => graph.nodes.filter(n => n.id === id).length > 0)) {
+            graph.nodes = Array.from(this.initialNodes); // (different ids) due to cross model query, initial ids are not in graph
+        }
 
         if (!this.initialNodeIds) {
             this.initialNodeIds = new Set(graph.nodes.map(n => n.id));
@@ -142,8 +144,11 @@ export class DataGraphComponent extends DataTemplateComponent {
         setInterval(() => simulation.force('charge', null), 1500);
 
         const action = (d) => {
+            if (!(d.hasOwnProperty("properties") || d.hasOwnProperty("id"))) {
+                return
+            }
             this.detail = new Detail(d);
-            this.showProperties = true;
+            this.showProperties.set(true);
         };
 
         // Change the value of alpha, so things move around when we drag a node
