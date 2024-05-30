@@ -54,7 +54,6 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         if (polyAlgToEdit) {
             this.polyAlg = polyAlgToEdit;
             this.planType = localStorage.getItem('polyalg.planType') as PlanType;
-            console.log(this.planType);
             this.selectedPlanType = this.planType;
             localStorage.removeItem('polyalg.planType');
         }
@@ -109,7 +108,6 @@ export class PolyalgComponent implements OnInit, OnDestroy {
             if (analyzerId && analyzerPage) {
                 this._crud.getAnalyzerPage(analyzerId, analyzerPage).subscribe({
                     next: res => {
-                        console.log(res);
                         this.queryAnalysis = <InformationPage>res;
                         this.showingAnalysis = true;
                         this._breadcrumb.setBreadcrumbs([new BreadcrumbItem(node.data.name)]);
@@ -211,7 +209,6 @@ export class ScrollToDirective implements AfterViewInit {
     }
 
     ngAfterViewInit() {
-        console.log('scrolling auto');
         this.elRef.nativeElement.scrollIntoView({behavior: 'smooth', block: 'start'});
     }
 }

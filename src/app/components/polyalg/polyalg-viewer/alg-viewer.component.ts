@@ -12,7 +12,7 @@ import {DataModel} from '../../../models/ui-request.model';
 import {Transform} from 'rete-area-plugin/_types/area';
 import {PlanType} from '../../../models/information-page.model';
 
-type editorState = 'SYNCHRONIZED' | 'CHANGED' | 'INVALID';
+type editorState = 'SYNCHRONIZED' | 'CHANGED' | 'INVALID' | 'READONLY';
 
 @Component({
     selector: 'app-alg-viewer',
@@ -61,8 +61,10 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     private polyAlgPlan = signal<PlanNode>(undefined); // null: empty plan
     private planTypeSignal = signal<PlanType>(undefined); // we need an additional signal to automatically execute the effect
+    userMode = signal(UserMode.SIMPLE);
     textEditorState = signal<editorState>('SYNCHRONIZED');
     textEditorError = signal<string>('');
+    textEditorIsLocked = computed(() => this.userMode() === UserMode.SIMPLE && !this.isReadOnly); // only relevant when plan is editable
     nodeEditorState = signal<editorState>('SYNCHRONIZED');
     nodeEditorError = signal<string>('');
     readonly stateText = {
@@ -76,7 +78,6 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     );
     isSynchronized = computed(() => this.nodeEditorState() === 'SYNCHRONIZED' && this.textEditorState() === 'SYNCHRONIZED');
     showEditButton: boolean;
-    userMode = signal(UserMode.SIMPLE);
 
     private modifySubscription: Subscription;
     nodeEditor: { onModify: any; destroy: any; toPolyAlg: any; layout?: () => Promise<void>; showMetadata: (b: boolean) => boolean; getTransform: () => Transform };

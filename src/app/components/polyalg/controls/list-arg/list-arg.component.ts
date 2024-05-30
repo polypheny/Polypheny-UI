@@ -4,6 +4,7 @@ import {ArgControl} from '../arg-control';
 import {getControl} from '../arg-control-utils';
 import {Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
 import {DataModel} from '../../../../models/ui-request.model';
+import {PlanType} from '../../../../models/information-page.model';
 
 @Component({
     selector: 'app-list-arg',
@@ -23,15 +24,15 @@ export class ListControl extends ArgControl {
     hideTrivial: WritableSignal<boolean>;
     height = computed(() => this.computeHeight());
 
-    constructor(param: Parameter, public value: ListArg, public depth: number, model: DataModel,
+    constructor(param: Parameter, public value: ListArg, public depth: number, model: DataModel, planType: PlanType,
                 isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
-        super(param, model, isSimpleMode, isReadOnly, depth === 0);
+        super(param, model, planType, isSimpleMode, isReadOnly, depth === 0);
         if (value.args.length === 1 && value.args[0].type === ParamType.LIST && (value.args[0].value as ListArg).args.length === 0) {
             // remove empty inner list, as they have no effect and can be confusing if not created explicitly by the user
             value.args = [];
         }
 
-        this.children = signal(value.args.map(arg => getControl(param, arg, isReadOnly, depth + 1, model, isSimpleMode)));
+        this.children = signal(value.args.map(arg => getControl(param, arg, isReadOnly, depth + 1, model, planType, isSimpleMode)));
         if (this.children().length === 0 && value.innerType === ParamType.LIST && depth === param.multiValued - 1) {
             value.innerType = param.type;
         }
@@ -54,7 +55,7 @@ export class ListControl extends ArgControl {
     addElement() {
         this.hideTrivial.set(false);
         this.children.update(values =>
-            [...values, getControl(this.param, null, this.isReadOnly, this.depth + 1, this.model, this.isSimpleMode)]);
+            [...values, getControl(this.param, null, this.isReadOnly, this.depth + 1, this.model, this.planType, this.isSimpleMode)]);
     }
 
     removeElement(child: ArgControl) {

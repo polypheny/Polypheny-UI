@@ -3,6 +3,7 @@ import {ArgControl} from '../arg-control';
 import {Parameter, ParamType} from '../../models/polyalg-registry';
 import {FieldArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {DataModel} from '../../../../models/ui-request.model';
+import {PlanType} from '../../../../models/information-page.model';
 
 @Component({
     selector: 'app-field-arg',
@@ -17,8 +18,8 @@ export class FieldArgComponent {
 export class FieldControl extends ArgControl {
     height = signal(this.name ? 55 : 31);
 
-    constructor(param: Parameter, public value: FieldArg, model: DataModel, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
-        super(param, model, isSimpleMode, isReadOnly);
+    constructor(param: Parameter, public value: FieldArg, model: DataModel, planType: PlanType, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+        super(param, model, planType, isSimpleMode, isReadOnly);
     }
 
     getArgComponent(): Type<any> {

@@ -3,6 +3,7 @@ import {PlanArgument, StringArg} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
 import {DataModel} from '../../../../models/ui-request.model';
+import {PlanType} from '../../../../models/information-page.model';
 
 @Component({
     selector: 'app-string-arg',
@@ -27,8 +28,8 @@ export class StringControl extends ArgControl {
         return hasTrivialAlias && hasTrivialArg;
     });
 
-    constructor(param: Parameter, private value: StringArg, model: DataModel, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
-        super(param, model, isSimpleMode, isReadOnly);
+    constructor(param: Parameter, private value: StringArg, model: DataModel, planType: PlanType, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+        super(param, model, planType, isSimpleMode, isReadOnly);
         this.showAlias = param.tags.includes(ParamTag.ALIAS);
     }
 

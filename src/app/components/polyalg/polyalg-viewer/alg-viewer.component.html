@@ -1,16 +1,18 @@
 <c-accordion [flush]="true" [alwaysOpen]="true" class="mb-3">
     <c-accordion-item #item0="cAccordionItem" [visible]="true">
         <ng-template cTemplateId="accordionHeaderTemplate">
-            <button (click)="item0.toggleItem()" [collapsed]="!item0.visible" cAccordionButton class="ps-1 py-0 fs-3"
+            <button (click)="item0.toggleItem()" [collapsed]="!item0.visible" cAccordionButton
+                    class="ps-1 py-0 fs-3" [class.READONLY]="textEditorIsLocked()"
                     [ngClass]="textEditorState()" [tooltip]="textEditorState() === 'INVALID' ? textErrorTooltip : ''" [placement]="'bottom left'">
-                PolyAlgebra Editor {{stateText[textEditorState()]}}
+                PolyAlgebra {{isReadOnly ? 'Viewer' : 'Editor'}} {{stateText[textEditorState()]}}
+                <span class="fa fa-lock ms-3 pt-1" *ngIf="textEditorIsLocked()"></span>
                 <ng-template #textErrorTooltip>
                     {{textEditorError()}}
                 </ng-template>
             </button>
         </ng-template>
         <ng-template cTemplateId="accordionBodyTemplate">
-            <div class="text-editor-wrapper"
+            <div class="text-editor-wrapper" [class.READONLY]="textEditorIsLocked()"
                  [ngClass]="textEditorState()">
                 <app-editor #textEditor id="text-editor"
                             [language]="'sql'"
@@ -80,7 +82,7 @@
         <ng-template cTemplateId="accordionHeaderTemplate">
             <button (click)="item1.toggleItem()" [collapsed]="!item1.visible" cAccordionButton class="ps-1 py-0 fs-3"
                     [ngClass]="nodeEditorState()" [tooltip]="nodeEditorState() === 'INVALID' ? nodeErrorTooltip : ''" [placement]="'bottom left'">
-                Node Editor {{stateText[nodeEditorState()]}}
+                Node {{isReadOnly ? 'Viewer' : 'Editor'}} {{stateText[nodeEditorState()]}}
                 <ng-template #nodeErrorTooltip>
                     {{nodeEditorError()}}
                 </ng-template>

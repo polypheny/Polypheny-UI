@@ -19,14 +19,7 @@ import {DataModel} from '../../../models/ui-request.model';
 import {DataflowEngine} from 'rete-engine';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Subject} from 'rxjs';
-import {
-    canCreateConnection,
-    findRootNodeId,
-    getMagneticConnectionProps,
-    getModelPrefix,
-    updateMultiConnAfterCreate,
-    updateMultiConnAfterRemove
-} from './alg-editor-utils';
+import {canCreateConnection, findRootNodeId, getMagneticConnectionProps, getModelPrefix, updateMultiConnAfterCreate, updateMultiConnAfterRemove} from './alg-editor-utils';
 import {setupPanningBoundary} from './panning-boundary';
 import {useMagneticConnection} from './magnetic-connection';
 import {MagneticConnectionComponent} from './magnetic-connection/magnetic-connection.component';
@@ -148,7 +141,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         panningBoundary = setupPanningBoundary({area, selector, padding: 40, intensity: 2});
     }
 
-    const [nodes, connections] = addNode(registry, node, isReadOnly, updateSizeFct);
+    const [nodes, connections] = addNode(registry, planType, node, isReadOnly, updateSizeFct);
     for (const n of nodes) {
         await editor.addNode(n);
     }
@@ -226,21 +219,21 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     };
 }
 
-function addNode(registry: PolyAlgService, node: PlanNode | null, isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void): [AlgNode[], CustomConnection<AlgNode>[]] {
+function addNode(registry: PolyAlgService, planType: PlanType, node: PlanNode | null, isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void): [AlgNode[], CustomConnection<AlgNode>[]] {
     const nodes = [];
     const connections = [];
     if (!node) {
         return [nodes, connections];
     }
     const metadata = node.metadata ? new AlgMetadata(node.metadata) : null;
-    const algNode = new AlgNode(registry.getDeclaration(node.opName), node.arguments, metadata, false, isReadOnly, updateSize);
+    const algNode = new AlgNode(registry.getDeclaration(node.opName), planType, node.arguments, metadata, false, isReadOnly, updateSize);
     if (node.opName.endsWith('#')) {
         // TODO: handle implicit project correctly
         algNode.label = 'PROJECT#';
     }
 
     for (let i = 0; i < node.inputs.length; i++) {
-        const [childNodes, childConnections] = addNode(registry, node.inputs[i], isReadOnly, updateSize);
+        const [childNodes, childConnections] = addNode(registry, planType, node.inputs[i], isReadOnly, updateSize);
         const childNode = childNodes[childNodes.length - 1];
         nodes.push(...childNodes);
         connections.push(...childConnections);
@@ -261,7 +254,7 @@ function getContextMenuItems(registry: PolyAlgService, userMode: WritableSignal<
             if (decl.tags.includes(OperatorTag[planType])) {
                 innerNodes.push([
                     decl.name.substring(decl.name.indexOf('_') + 1),
-                    () => new AlgNode(decl, null, null, userMode() === UserMode.SIMPLE, isReadOnly, updateSize)
+                    () => new AlgNode(decl, planType, null, null, userMode() === UserMode.SIMPLE, isReadOnly, updateSize)
                 ]);
             }
         }

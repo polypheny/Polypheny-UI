@@ -48,11 +48,9 @@ export interface PlanArgument {
 }
 
 export interface EntityArg {
-    arg: string;
-    namespaceId?: number;
-    entityId?: number;
-    partitionId?: number;
-    placementId?: number;
+    fullName: string;
+    adapterName?: string;
+    partitionId?: string;
 }
 
 export interface RexArg {
