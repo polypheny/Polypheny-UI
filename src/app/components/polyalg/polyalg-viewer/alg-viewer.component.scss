@@ -49,3 +49,8 @@ button.accordion-button {
 button.accordion-button::after {
   background-image: var(--cui-accordion-btn-icon) !important;
 }
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+}

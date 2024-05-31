@@ -98,3 +98,24 @@
         </ng-template>
     </c-accordion-item>
 </c-accordion>
+
+
+<c-modal [visible]="showEditModal()" (visibleChange)="handleEditModalChange($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Open Plan in Editor</h5>
+        <button (click)="toggleEditModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        Are you sure you want to edit this plan? This will replace the plan currently being built.
+        Alternatively, the plan can be opened it in a new tab.
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleEditModal()" cButton color="secondary">Close</button>
+        <div>
+            <button cButton color="light" (click)="openInPlanEditor(true, true)" class="me-1">
+                Edit in New Tab
+            </button>
+            <button cButton color="primary" (click)="openInPlanEditor(true)">Edit Plan</button>
+        </div>
+    </c-modal-footer>
+</c-modal>
