@@ -49,6 +49,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     mode: NbMode = 'command';
     namespaces: string[] = [];
     expand = false;
+    persentShowFlag=false;
     private copiedCell: string; // stringified NotebookCell
     @ViewChild('deleteNotebookModal') public deleteNotebookModal: ModalDirective;
     @ViewChild('restartKernelModal') public restartKernelModal: ModalDirective;
@@ -561,6 +562,13 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    persentShow(){
+        this.persentShowFlag=true;
+    }
+    persentDisable(){
+        this.persentShowFlag=false;
+    }
+
     private scrollCellIntoView(id) {
         // https://stackoverflow.com/a/37829643
         const element = document.getElementById(id); // id of the scroll to element
@@ -755,6 +763,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             return c.id === this.selectedCell.id;
         });
     }
+  
 }
 
 export type NbMode = 'edit' | 'command';

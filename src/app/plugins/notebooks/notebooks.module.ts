@@ -13,6 +13,8 @@ import {
 } from './components/notebooks-dashboard/notebooks-dashboard.component';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {NbCellComponent} from './components/edit-notebook/nb-cell/nb-cell.component';
+import {PresentionCellsComponent} from './components/edit-notebook/presention-cells/presention-cells.component';
+
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {MarkdownModule, MarkedOptions, MarkedRenderer} from 'ngx-markdown';
@@ -52,6 +54,7 @@ import {SafeHtmlPipe} from './services/safe-html.pipe';
         EditNotebookComponent,
         NotebooksDashboardComponent,
         NbCellComponent,
+        PresentionCellsComponent,
         NbInputEditorComponent,
         NbOutputDataComponent,
         NbPolyOutputComponent,

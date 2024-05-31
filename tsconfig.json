@@ -19,5 +19,10 @@
       "dom"
     ],
     "types": ["hammerjs"]
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "allowSyntheticDefaultImports": true
   }
 }

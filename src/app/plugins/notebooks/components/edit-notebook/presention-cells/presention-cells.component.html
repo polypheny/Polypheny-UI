@@ -1,0 +1,14 @@
+<div class="full-screen">
+  <div class="reveal">
+    <div class="slides">
+      <section  *ngFor="let slide of slides">
+        <section *ngFor="let child of slide.children">
+          <markdown ngPreserveWhitespaces>
+            {{child.source}}
+          </markdown>
+        </section>
+      </section>
+    </div>
+  </div>
+</div>
+
