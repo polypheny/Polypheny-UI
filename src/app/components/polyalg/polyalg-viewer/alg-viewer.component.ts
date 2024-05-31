@@ -78,6 +78,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     );
     isSynchronized = computed(() => this.nodeEditorState() === 'SYNCHRONIZED' && this.textEditorState() === 'SYNCHRONIZED');
     showEditButton: boolean;
+    showEditModal = signal(false);
 
     private modifySubscription: Subscription;
     nodeEditor: { onModify: any; destroy: any; toPolyAlg: any; layout?: () => Promise<void>; showMetadata: (b: boolean) => boolean; getTransform: () => Transform };
@@ -100,7 +101,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     protected readonly UserMode = UserMode;
 
     ngAfterViewInit(): void {
-        this.showEditButton = this.isReadOnly && !(this._route.snapshot.params.route === 'polyalg');
+        this.showEditButton = this.isReadOnly;
         this.showMetadata = this.isReadOnly;
 
         this.textEditor.setScrollMargin(5, 5);
@@ -249,14 +250,45 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
         }
     }
 
-    openInPlanEditor() {
+    openInPlanEditor(forced = false, newTab = false) {
         if (!this.isReadOnly) {
             return;
         }
+        const isSameRoute = this._route.snapshot.params.route === 'polyalg';
+        if (isSameRoute && !forced) {
+            this.showEditModal.set(true);
+            return;
+        }
+
         localStorage.setItem('polyalg.polyAlg', this.textEditor.getCode());
         localStorage.setItem('polyalg.planType', this.planTypeSignal());
-        this._router.navigate(['/views/querying/polyalg']).then(null);
+        if (isSameRoute) {
+            if (newTab) {
+                const newRelativeUrl = this._router.createUrlTree(['/views/querying/polyalg']);
+                const baseUrl = window.location.href.replace(this._router.url, '');
 
+                window.open(baseUrl + newRelativeUrl, '_blank');
+                //const url = this._router.serializeUrl(this._router.createUrlTree(['/#/views/querying/polyalg']));
+                //window.open(url, '_blank');
+            } else {
+                // https://stackoverflow.com/questions/47813927/how-to-refresh-a-component-in-angular
+                this._router.navigateByUrl('/', {skipLocationChange: true}).then(() => {
+                    this._router.navigate(['/views/querying/polyalg']).then(null);
+                });
+            }
+        } else {
+            this._router.navigate(['/views/querying/polyalg']).then(null);
+        }
+        this.showEditModal.set(false);
+
+    }
+
+    toggleEditModal() {
+        this.showEditModal.update(b => !b);
+    }
+
+    handleEditModalChange($event: boolean) {
+        this.showEditModal.set($event);
     }
 
     executePlan() {
