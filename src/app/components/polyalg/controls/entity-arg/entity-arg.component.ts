@@ -1,8 +1,7 @@
 import {Component, computed, inject, Input, OnInit, Signal, signal, Type} from '@angular/core';
 import {EntityArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
-import {Parameter, ParamType} from '../../models/polyalg-registry';
-import {DataModel} from '../../../../models/ui-request.model';
+import {OperatorModel, Parameter, ParamType} from '../../models/polyalg-registry';
 import {PlanType} from '../../../../models/information-page.model';
 import {AdapterModel} from '../../../../views/adapters/adapter.model';
 import {CatalogService} from '../../../../services/catalog.service';
@@ -20,7 +19,7 @@ export class EntityArgComponent implements OnInit {
     private readonly _catalog = inject(CatalogService);
 
     ngOnInit(): void {
-        if (this.data.model === DataModel.GRAPH) {
+        if (this.data.model === OperatorModel.GRAPH) {
             this.placeholder = 'entity';
         }
 
@@ -40,7 +39,7 @@ export class EntityControl extends ArgControl {
     readonly isAllocation = this.planType !== 'LOGICAL';
     height = signal((this.name ? 55 : 31) + (this.isAllocation ? 2 * 31 : 0));
 
-    constructor(param: Parameter, public value: EntityArg, model: DataModel, planType: PlanType,
+    constructor(param: Parameter, public value: EntityArg, model: OperatorModel, planType: PlanType,
                 isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
         super(param, model, planType, isSimpleMode, isReadOnly);
     }

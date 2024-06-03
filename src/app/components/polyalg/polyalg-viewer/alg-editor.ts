@@ -15,18 +15,16 @@ import {ConnectionPathPlugin, Transformers} from 'rete-connection-path-plugin';
 import {getDOMSocketPosition} from 'rete-render-utils';
 import {ContextMenuExtra, ContextMenuPlugin, Presets as ContextMenuPresets} from 'rete-context-menu-plugin';
 import {PolyAlgService} from '../polyalg.service';
-import {DataModel} from '../../../models/ui-request.model';
 import {DataflowEngine} from 'rete-engine';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Subject} from 'rxjs';
-import {canCreateConnection, findRootNodeId, getMagneticConnectionProps, getModelPrefix, updateMultiConnAfterCreate, updateMultiConnAfterRemove} from './alg-editor-utils';
+import {canCreateConnection, findRootNodeId, getContextMenuNodes, getMagneticConnectionProps, updateMultiConnAfterCreate, updateMultiConnAfterRemove} from './alg-editor-utils';
 import {setupPanningBoundary} from './panning-boundary';
 import {useMagneticConnection} from './magnetic-connection';
 import {MagneticConnectionComponent} from './magnetic-connection/magnetic-connection.component';
 import {AlgMetadata} from '../algnode/alg-metadata/alg-metadata.component';
 import {Transform} from 'rete-area-plugin/_types/area';
 import {PlanType} from '../../../models/information-page.model';
-import {OperatorTag} from '../models/polyalg-registry';
 
 export type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
@@ -247,27 +245,14 @@ function addNode(registry: PolyAlgService, planType: PlanType, node: PlanNode | 
 
 function getContextMenuItems(registry: PolyAlgService, userMode: WritableSignal<UserMode>, planType: PlanType,
                              isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void) {
-    const nodes = [];
-    for (const model of Object.keys(DataModel).map(key => DataModel[key])) {
-        const innerNodes = [];
-        for (const decl of registry.getSortedDeclarations(model)) {
-            if (decl.tags.includes(OperatorTag[planType])) {
-                innerNodes.push([
-                    decl.name.substring(decl.name.indexOf('_') + 1),
-                    () => new AlgNode(decl, planType, null, null, userMode() === UserMode.SIMPLE, isReadOnly, updateSize)
-                ]);
-            }
-        }
-        if (innerNodes.length > 0) {
-            nodes.push([model, innerNodes]);
-        }
-    }
-
-
-    const items = ContextMenuPresets.classic.setup(nodes);
+    const advancedItems = ContextMenuPresets.classic.setup(
+        getContextMenuNodes(false, registry, planType, isReadOnly, updateSize));
+    const simpleItems = ContextMenuPresets.classic.setup(
+        getContextMenuNodes(true, registry, planType, isReadOnly, updateSize));
 
     // adjust classic preset to hide the search bar and enable cloning (clone handler of the preset is broken)
     return (context: any, plugin: any) => {
+        const items = userMode() === UserMode.SIMPLE ? simpleItems : advancedItems;
         const result = items(context, plugin);
         result.searchBar = false;
 
@@ -283,14 +268,6 @@ function getContextMenuItems(registry: PolyAlgService, userMode: WritableSignal<
                     area.translate(node.id, area.area.pointer);
                 }
             };
-        } else if (userMode() === UserMode.SIMPLE) {
-            result.list.forEach(item => {
-                const model = getModelPrefix(item.label as DataModel);
-                item.subitems = item.subitems?.filter(sub => {
-                    const opName = `${model}_${sub.label}`;
-                    return registry.isSimpleOperator(opName);
-                });
-            });
         }
         return result;
     };

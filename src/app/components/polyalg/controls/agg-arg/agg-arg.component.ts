@@ -1,10 +1,9 @@
 import {Component, computed, Input, OnInit, Signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
-import {Parameter, ParamType, SimpleType} from '../../models/polyalg-registry';
+import {OperatorModel, Parameter, ParamType, SimpleType} from '../../models/polyalg-registry';
 import {AggArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {CollationControl} from '../collation-arg/collation-arg.component';
 import {PolyAlgService} from '../../polyalg.service';
-import {DataModel} from '../../../../models/ui-request.model';
 import {PlanType} from '../../../../models/information-page.model';
 
 @Component({
@@ -32,7 +31,7 @@ export class AggControl extends ArgControl {
     height = computed(() => this.isSimpleMode() ? 101 : 188);
     argsStr = this.value.argList.join(', ');
 
-    constructor(param: Parameter, public value: AggArg, model: DataModel, planType: PlanType,
+    constructor(param: Parameter, public value: AggArg, model: OperatorModel, planType: PlanType,
                 isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
         super(param, model, planType, isSimpleMode, isReadOnly);
     }

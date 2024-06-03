@@ -1,8 +1,7 @@
 import {Component, Input, Signal, signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
-import {Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
+import {OperatorModel, Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
 import {IntArg, PlanArgument} from '../../models/polyalg-plan.model';
-import {DataModel} from '../../../../models/ui-request.model';
 import {PlanType} from '../../../../models/information-page.model';
 
 @Component({
@@ -18,7 +17,7 @@ export class IntControl extends ArgControl {
     valueRange: { min: number | null; max: number | null; };
     height = signal(this.name ? 55 : 31);
 
-    constructor(param: Parameter, public value: IntArg, model: DataModel, planType: PlanType, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+    constructor(param: Parameter, public value: IntArg, model: OperatorModel, planType: PlanType, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
         super(param, model, planType, isSimpleMode, isReadOnly);
 
         this.valueRange = {min: null, max: null};

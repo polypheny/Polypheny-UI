@@ -1,8 +1,7 @@
 import {Component, computed, Input, Signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
-import {Parameter, ParamType, SimpleType} from '../../models/polyalg-registry';
+import {OperatorModel, Parameter, ParamType, SimpleType} from '../../models/polyalg-registry';
 import {CollationArg, CollDirection, CollNullDirection, defaultNullDirection, PlanArgument} from '../../models/polyalg-plan.model';
-import {DataModel} from '../../../../models/ui-request.model';
 import {PlanType} from '../../../../models/information-page.model';
 
 @Component({
@@ -24,7 +23,7 @@ export class CollationArgComponent {
 export class CollationControl extends ArgControl {
     height = computed(() => this.isSimpleMode() ? 66 : 101);
 
-    constructor(param: Parameter, public value: CollationArg, model: DataModel, planType: PlanType,
+    constructor(param: Parameter, public value: CollationArg, model: OperatorModel, planType: PlanType,
                 isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
         super(param, model, planType, isSimpleMode, isReadOnly);
     }

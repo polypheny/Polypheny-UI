@@ -6,19 +6,18 @@ import {EntityControl} from './entity-arg/entity-arg.component';
 import {ListControl} from './list-arg/list-arg.component';
 import {AggArg, BooleanArg, CollationArg, CollDirection, CorrelationArg, defaultNullDirection, EntityArg, EnumArg, FieldArg, IntArg, LaxAggArg, ListArg, PlanArgument, RexArg, StringArg} from '../models/polyalg-plan.model';
 import {EnumControl} from './enum-arg/enum-arg.component';
-import {Parameter, ParamType} from '../models/polyalg-registry';
+import {OperatorModel, Parameter, ParamType} from '../models/polyalg-registry';
 import {IntControl} from './int-arg/int-arg.component';
 import {FieldControl} from './field-arg/field-arg.component';
 import {CorrelationControl} from './correlation-arg/correlation-arg.component';
 import {CollationControl} from './collation-arg/collation-arg.component';
 import {AggControl} from './agg-arg/agg-arg.component';
 import {LaxAggControl} from './lax-agg/lax-agg-arg.component';
-import {DataModel} from '../../../models/ui-request.model';
 import {Signal} from '@angular/core';
 import {PlanType} from '../../../models/information-page.model';
 
 export function getControl(param: Parameter, arg: PlanArgument | null, isReadOnly: boolean, depth: number,
-                           model: DataModel, planType: PlanType, isSimpleMode: Signal<boolean>): ArgControl {
+                           model: OperatorModel, planType: PlanType, isSimpleMode: Signal<boolean>): ArgControl {
     if (arg == null) {
         arg = getInitialArg(param, depth);
     }

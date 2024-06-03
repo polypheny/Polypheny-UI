@@ -3,9 +3,11 @@ import {ClassicPreset, NodeEditor} from 'rete';
 import {Schemes} from './alg-editor';
 import {AlgNode} from '../algnode/alg-node.component';
 import {CustomConnection} from '../custom-connection/custom-connection.component';
-import {DataModel} from '../../../models/ui-request.model';
 import {SocketData} from 'rete-connection-plugin';
 import {Position} from 'rete-angular-plugin/17/types';
+import {OperatorModel, OperatorTag} from '../models/polyalg-registry';
+import {PolyAlgService} from '../polyalg.service';
+import {PlanType} from '../../../models/information-page.model';
 
 type Sockets = AlgNodeSocket;
 type Input = ClassicPreset.Input<Sockets>;
@@ -43,9 +45,9 @@ export function canCreateConnection(editor: NodeEditor<Schemes>, connection: Sch
 }
 
 export function areSocketsCompatible(editor: NodeEditor<Schemes>, from: SocketData, to: SocketData) {
-    const fromNode = editor.getNode(from.nodeId);
-    const toNode = editor.getNode(to.nodeId);
-    return fromNode.decl.model === toNode.decl.model;
+    const fromModel = editor.getNode(from.nodeId).decl.model;
+    const toModel = editor.getNode(to.nodeId).decl.model;
+    return fromModel === toModel || fromModel === OperatorModel.COMMON || toModel === OperatorModel.COMMON;
 }
 
 export function findRootNodeId(nodes: AlgNode[], connections: CustomConnection<AlgNode>[]): string | null {
@@ -91,15 +93,24 @@ export function findRootNodeId(nodes: AlgNode[], connections: CustomConnection<A
     return root;
 }
 
-export function getModelPrefix(model: DataModel) {
+export function getModelPrefix(model: OperatorModel) {
     switch (model) {
-        case DataModel.DOCUMENT:
+        case OperatorModel.DOCUMENT:
             return 'DOC';
-        case DataModel.RELATIONAL:
+        case OperatorModel.RELATIONAL:
             return 'REL';
-        case DataModel.GRAPH:
+        case OperatorModel.GRAPH:
             return 'LPG';
+        default:
+            return '';
     }
+}
+
+export function removeModelPrefix(name: string, model: OperatorModel) {
+    if (model === OperatorModel.COMMON) {
+        return name;
+    }
+    return name.substring(name.indexOf('_') + 1);
 }
 
 export function updateMultiConnAfterCreate(editor: NodeEditor<Schemes>, sourceId: string, targetId: string) {
@@ -187,6 +198,27 @@ export function getMagneticConnectionProps(editor: NodeEditor<Schemes>) {
         },
         distance: 75
     };
+}
+
+export function getContextMenuNodes(isSimpleMode: boolean, registry: PolyAlgService, planType: PlanType,
+                                    isReadOnly: boolean, updateSize: (a: AlgNode, delta: Position) => void) {
+    const nodes = [];
+    for (const model of Object.keys(OperatorModel).map(key => OperatorModel[key])) {
+        const innerNodes = [];
+        for (const decl of registry.getSortedDeclarations(model)) {
+            if (decl.tags.includes(OperatorTag[planType]) && !(isSimpleMode && decl.tags.includes(OperatorTag.ADVANCED))) {
+                const displayName = removeModelPrefix(decl.name, decl.model);
+                innerNodes.push([
+                    displayName,
+                    () => new AlgNode(decl, planType, null, null, isSimpleMode, isReadOnly, updateSize)
+                ]);
+            }
+        }
+        if (innerNodes.length > 0) {
+            nodes.push([model, innerNodes]);
+        }
+    }
+    return nodes;
 }
 
 function getSuccessor(nodeId: string, connections: CustomConnection<AlgNode>[]): string | null {
