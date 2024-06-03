@@ -2,8 +2,7 @@ import {Component, computed, Input, Signal, signal, Type, WritableSignal} from '
 import {ListArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {getControl} from '../arg-control-utils';
-import {Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
-import {DataModel} from '../../../../models/ui-request.model';
+import {OperatorModel, Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
 import {PlanType} from '../../../../models/information-page.model';
 
 @Component({
@@ -24,7 +23,7 @@ export class ListControl extends ArgControl {
     hideTrivial: WritableSignal<boolean>;
     height = computed(() => this.computeHeight());
 
-    constructor(param: Parameter, public value: ListArg, public depth: number, model: DataModel, planType: PlanType,
+    constructor(param: Parameter, public value: ListArg, public depth: number, model: OperatorModel, planType: PlanType,
                 isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
         super(param, model, planType, isSimpleMode, isReadOnly, depth === 0);
         if (value.args.length === 1 && value.args[0].type === ParamType.LIST && (value.args[0].value as ListArg).args.length === 0) {

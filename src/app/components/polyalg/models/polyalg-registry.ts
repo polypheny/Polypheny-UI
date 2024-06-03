@@ -1,4 +1,3 @@
-import {DataModel} from '../../../models/ui-request.model';
 import {PlanArgument} from './polyalg-plan.model';
 
 export interface PolyAlgRegistry {
@@ -9,7 +8,7 @@ export interface PolyAlgRegistry {
 export interface Declaration {
     name: string;
     aliases: string[];
-    model: DataModel;
+    model: OperatorModel;
     numInputs: number;
     tags: OperatorTag[];
     posParams: Parameter[];
@@ -64,4 +63,14 @@ export enum SimpleType {
     REX_UINT = 'REX_UINT',
     SIMPLE_COLLATION = 'SIMPLE_COLLATION',
     SIMPLE_AGG = 'SIMPLE_AGG'
+}
+
+/**
+ * Very similar to the DataModel enum, but also has a COMMON model to indicate that all Models are supported
+ */
+export enum OperatorModel {
+    RELATIONAL = 'RELATIONAL',
+    DOCUMENT = 'DOCUMENT',
+    GRAPH = 'GRAPH',
+    COMMON = 'COMMON'
 }

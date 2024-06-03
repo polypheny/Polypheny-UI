@@ -11,6 +11,7 @@ import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {InformationObject, InformationPage, PlanType} from '../../../models/information-page.model';
 import {SidebarNode} from '../../../models/sidebar-node.model';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
+import {OperatorModel} from '../../../components/polyalg/models/polyalg-registry';
 import {DataModel} from '../../../models/ui-request.model';
 
 @Component({
@@ -76,7 +77,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         this.websocket.close();
     }
 
-    executePolyAlg([polyAlg, model]: [string, DataModel]) {
+    executePolyAlg([polyAlg, model]: [string, OperatorModel]) {
         if (polyAlg == null) {
             this._toast.warn('Plan is invalid');
             return;
@@ -85,8 +86,11 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         this._leftSidebar.open();
         this.result.set(null);
 
+        // if the OperatorModel is COMMON, we use the relational DataModel
+        const dataModel = model === OperatorModel.COMMON ? DataModel.RELATIONAL : DataModel[model];
+
         this.loading.set(true);
-        if (!this._crud.executePolyAlg(this.websocket, polyAlg, model, this.planType)) {
+        if (!this._crud.executePolyAlg(this.websocket, polyAlg, dataModel, this.planType)) {
             this.loading.set(false);
             this.result.set(new RelationalResult('Could not establish a connection with the server.'));
         }

@@ -1,8 +1,7 @@
 import {Component, computed, Input, Signal, signal, Type} from '@angular/core';
 import {PlanArgument, RexArg} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
-import {Parameter, ParamTag, ParamType, SimpleType} from '../../models/polyalg-registry';
-import {DataModel} from '../../../../models/ui-request.model';
+import {OperatorModel, Parameter, ParamTag, ParamType, SimpleType} from '../../models/polyalg-registry';
 import {PlanType} from '../../../../models/information-page.model';
 
 @Component({
@@ -39,7 +38,7 @@ export class RexControl extends ArgControl {
         }
     };
 
-    constructor(param: Parameter, private value: RexArg, model: DataModel, planType: PlanType, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+    constructor(param: Parameter, private value: RexArg, model: OperatorModel, planType: PlanType, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
         super(param, model, planType, isSimpleMode, isReadOnly);
         this.showAlias = param.tags.includes(ParamTag.ALIAS);
     }

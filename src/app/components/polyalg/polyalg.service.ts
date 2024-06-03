@@ -1,7 +1,6 @@
 import {Injectable, signal} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
-import {Declaration, OperatorTag, Parameter, PolyAlgRegistry} from './models/polyalg-registry';
-import {DataModel} from '../../models/ui-request.model';
+import {Declaration, OperatorModel, OperatorTag, Parameter, PolyAlgRegistry} from './models/polyalg-registry';
 
 @Injectable({
     providedIn: 'root'
@@ -56,7 +55,7 @@ export class PolyAlgService {
         return this.declarations.get(opName);
     }
 
-    getSortedDeclarations(model: DataModel = null): Declaration[] {
+    getSortedDeclarations(model: OperatorModel = null): Declaration[] {
         if (model === null) {
             return this.sortedDeclarations;
         }

@@ -1,9 +1,8 @@
 import {Component, Input, OnInit, Signal, signal, Type} from '@angular/core';
 import {ArgControl} from '../arg-control';
-import {Parameter, ParamType} from '../../models/polyalg-registry';
+import {OperatorModel, Parameter, ParamType} from '../../models/polyalg-registry';
 import {LaxAggArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {PolyAlgService} from '../../polyalg.service';
-import {DataModel} from '../../../../models/ui-request.model';
 import {PlanType} from '../../../../models/information-page.model';
 
 @Component({
@@ -27,7 +26,7 @@ export class LaxAggArgComponent implements OnInit {
 export class LaxAggControl extends ArgControl {
     height = signal(this.name ? 125 : 101);
 
-    constructor(param: Parameter, public value: LaxAggArg, model: DataModel, planType: PlanType, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
+    constructor(param: Parameter, public value: LaxAggArg, model: OperatorModel, planType: PlanType, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
         super(param, model, planType, isSimpleMode, isReadOnly);
     }
 

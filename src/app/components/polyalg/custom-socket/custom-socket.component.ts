@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, ElementRef, HostBinding, Input, OnChanges, OnInit} from '@angular/core';
 import {ClassicPreset} from 'rete';
-import {DataModel} from '../../../models/ui-request.model';
+import {OperatorModel} from '../models/polyalg-registry';
 
 @Component({
     selector: 'app-custom-socket',
@@ -37,14 +37,16 @@ export class AlgNodeSocket extends ClassicPreset.Socket {
 
     /**
      *
-     * @param dataModel the DataModel this socket expects or null if it does not matter
+     * @param model the OperatorModel this socket expects
      * @param isMultiValued true if this socket supports multiple incoming connections
      */
-    constructor(public readonly dataModel: DataModel | null, public readonly isMultiValued = false) {
+    constructor(public readonly model: OperatorModel | null, public readonly isMultiValued = false) {
         super('AlgNodeSocket');
     }
 
     isCompatibleWith(socket: AlgNodeSocket) {
-        return socket.dataModel === this.dataModel || socket.dataModel === null;
+        return socket.model === this.model ||
+            socket.model === OperatorModel.COMMON ||
+            this.model === OperatorModel.COMMON;
     }
 }

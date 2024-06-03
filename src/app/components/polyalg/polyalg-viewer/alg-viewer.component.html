@@ -50,13 +50,13 @@
             <c-button-group class="m-1">
                 <input class="btn-check" id="radio1" type="radio" [checked]="userMode() === UserMode.SIMPLE"/>
                 <label (click)="setUserMode(UserMode.SIMPLE)" cButton cFormCheckLabel for="radio1" color="dark"
-                       variant="outline" tooltip="Only shows the most important operators and uses their simplified form.">
+                       variant="outline" container="body" tooltip="Only shows the most important operators and uses their simplified form.">
                     Simple
                 </label>
 
                 <input class="btn-check" id="radio2" type="radio" [checked]="userMode() === UserMode.ADVANCED"/>
                 <label (click)="setUserMode(UserMode.ADVANCED)" cButton cFormCheckLabel for="radio2" color="dark"
-                       variant="outline" tooltip="Allows you to insert all operators and edit the PolyAlgebra representation.">
+                       variant="outline" container="body" tooltip="Allows you to insert all operators and edit the PolyAlgebra representation.">
                     Advanced
                 </label>
             </c-button-group>

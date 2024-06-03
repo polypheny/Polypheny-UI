@@ -1,12 +1,11 @@
 import {ChangeDetectorRef, Component, computed, effect, HostBinding, Input, OnChanges, signal, Signal, WritableSignal} from '@angular/core';
 import {ClassicPreset} from 'rete';
 import {KeyValue} from '@angular/common';
-import {Declaration, SimpleType} from '../models/polyalg-registry';
+import {Declaration, OperatorModel, SimpleType} from '../models/polyalg-registry';
 import {PlanArgument} from '../models/polyalg-plan.model';
 import {getControl} from '../controls/arg-control-utils';
 import {ArgControl} from '../controls/arg-control';
 import {Position} from 'rete-angular-plugin/17/types';
-import {DataModel} from '../../../models/ui-request.model';
 import {AlgNodeSocket} from '../custom-socket/custom-socket.component';
 import {AlgMetadata} from './alg-metadata/alg-metadata.component';
 import {getModelPrefix} from '../polyalg-viewer/alg-editor-utils';
@@ -65,19 +64,22 @@ const BASE_HEIGHT = 110;
 const TAB_SIZE = 2; // the indentation width when generating PolyAlg
 
 const SINGLE_SOCKET_PRESETS = {
-    [DataModel.DOCUMENT]: new AlgNodeSocket(DataModel.DOCUMENT),
-    [DataModel.RELATIONAL]: new AlgNodeSocket(DataModel.RELATIONAL),
-    [DataModel.GRAPH]: new AlgNodeSocket(DataModel.GRAPH),
+    [OperatorModel.DOCUMENT]: new AlgNodeSocket(OperatorModel.DOCUMENT),
+    [OperatorModel.RELATIONAL]: new AlgNodeSocket(OperatorModel.RELATIONAL),
+    [OperatorModel.GRAPH]: new AlgNodeSocket(OperatorModel.GRAPH),
+    [OperatorModel.COMMON]: new AlgNodeSocket(OperatorModel.COMMON),
 };
 const MULTI_SOCKET_PRESETS = {
-    [DataModel.DOCUMENT]: new AlgNodeSocket(DataModel.DOCUMENT, true),
-    [DataModel.RELATIONAL]: new AlgNodeSocket(DataModel.RELATIONAL, true),
-    [DataModel.GRAPH]: new AlgNodeSocket(DataModel.GRAPH, true),
+    [OperatorModel.DOCUMENT]: new AlgNodeSocket(OperatorModel.DOCUMENT, true),
+    [OperatorModel.RELATIONAL]: new AlgNodeSocket(OperatorModel.RELATIONAL, true),
+    [OperatorModel.GRAPH]: new AlgNodeSocket(OperatorModel.GRAPH, true),
+    [OperatorModel.COMMON]: new AlgNodeSocket(OperatorModel.COMMON, true),
 };
 const MODEL_COLORS = new Map([
-    [DataModel.RELATIONAL, 'warning'],
-    [DataModel.DOCUMENT, 'warning'],
-    [DataModel.GRAPH, 'warning']
+    [OperatorModel.RELATIONAL, 'warning'],
+    [OperatorModel.DOCUMENT, 'warning'],
+    [OperatorModel.GRAPH, 'warning'],
+    [OperatorModel.COMMON, 'warning']
 ]);
 
 export class AlgNode extends ClassicPreset.Node {

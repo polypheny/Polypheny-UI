@@ -8,9 +8,9 @@ import {ToasterService} from '../../toast-exposer/toaster.service';
 import {Subscription, timer} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DataModel} from '../../../models/ui-request.model';
 import {Transform} from 'rete-area-plugin/_types/area';
 import {PlanType} from '../../../models/information-page.model';
+import {OperatorModel} from '../models/polyalg-registry';
 
 type editorState = 'SYNCHRONIZED' | 'CHANGED' | 'INVALID' | 'READONLY';
 
@@ -55,7 +55,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     @Input() initialPlan?: string;
     @Input() planType: PlanType;
     @Input() isReadOnly: boolean;
-    @Output() execute = new EventEmitter<[string, DataModel]>();
+    @Output() execute = new EventEmitter<[string, OperatorModel]>();
     @ViewChild('rete') container!: ElementRef;
     @ViewChild('textEditor') textEditor: EditorComponent;
 
@@ -187,7 +187,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     }
 
-    getPolyAlgFromTree(): Promise<[string, DataModel]> {
+    getPolyAlgFromTree(): Promise<[string, OperatorModel]> {
         return this.nodeEditor.toPolyAlg();
     }
 
