@@ -8,7 +8,6 @@ import {ToasterService} from '../../toast-exposer/toaster.service';
 import {Subscription, timer} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Transform} from 'rete-area-plugin/_types/area';
 import {PlanType} from '../../../models/information-page.model';
 import {OperatorModel} from '../models/polyalg-registry';
 
@@ -81,7 +80,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     showEditModal = signal(false);
 
     private modifySubscription: Subscription;
-    nodeEditor: { onModify: any; destroy: any; toPolyAlg: any; layout?: () => Promise<void>; showMetadata: (b: boolean) => boolean; getTransform: () => Transform };
+    nodeEditor: { getTransform: any; onModify: any; destroy: any; toPolyAlg: any; showMetadata: any; layout?: () => Promise<void>; hasUnregisteredNodes?: boolean; };
     showNodeEditor = computed(() => this._registry.registryLoaded());
     private isNodeFocused = false; // If a node is focused we must assume that a control has changed. Thus, the nodeEditor cannot be 'SYNCHRONIZED'.
     showMetadata = false;
@@ -252,6 +251,10 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     openInPlanEditor(forced = false, newTab = false) {
         if (!this.isReadOnly) {
+            return;
+        }
+        if (this.nodeEditor.hasUnregisteredNodes) {
+            this._toast.warn('Plan contains unregistered operators', 'Cannot edit plan');
             return;
         }
         const isSameRoute = this._route.snapshot.params.route === 'polyalg';

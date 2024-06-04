@@ -32,7 +32,7 @@
     <div *ngIf="data.isReadOnly" class="metadata" [hidden]="!data.isMetaVisible()">
         <app-alg-metadata [data]="data.metadata"></app-alg-metadata>
     </div>
-    <div *ngIf="data.isReadOnly" (click)="toggleCollapse()" (pointerdown)="$event.stopPropagation()" class="collapse-button d-flex align-items-center justify-content-center">
+    <div *ngIf="data.isReadOnly" (click)="toggleCollapse()" (pointerdown)="$event.stopPropagation()" class="collapse-button d-flex align-items-center justify-content-center py-1 z-1">
         <i class="fa" [ngClass]="{'fa-caret-left': data.isMetaVisible(), 'fa-caret-right': !data.isMetaVisible()}"></i>
     </div>
 

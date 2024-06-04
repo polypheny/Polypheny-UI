@@ -213,7 +213,8 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         },
         onModify: $modifyEvent.asObservable(),
         showMetadata: (b: boolean) => showMetadata(editor, b),
-        getTransform: () => area.area.transform
+        getTransform: () => area.area.transform,
+        hasUnregisteredNodes: nodes.some(n => n.decl.notRegistered)
     };
 }
 
@@ -224,7 +225,8 @@ function addNode(registry: PolyAlgService, planType: PlanType, node: PlanNode | 
         return [nodes, connections];
     }
     const metadata = node.metadata ? new AlgMetadata(node.metadata) : null;
-    const algNode = new AlgNode(registry.getDeclaration(node.opName), planType, node.arguments, metadata, false, isReadOnly, updateSize);
+    const decl = registry.getDeclaration(node.opName) || registry.createDeclarationForUndef(node.opName, node.inputs, planType);
+    const algNode = new AlgNode(decl, planType, node.arguments, metadata, false, isReadOnly, updateSize);
     if (node.opName.endsWith('#')) {
         // TODO: handle implicit project correctly
         algNode.label = 'PROJECT#';

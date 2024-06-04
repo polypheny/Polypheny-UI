@@ -23,7 +23,7 @@
                             [readonly]="isReadOnly">
                 </app-editor>
             </div>
-            <p *ngIf="userMode() === UserMode.SIMPLE" class="mb-1"><i>PolyAlgebra can only be edited in advanced mode</i>.</p>
+            <p *ngIf="!isReadOnly && userMode() === UserMode.SIMPLE" class="mb-1"><i>PolyAlgebra can only be edited in advanced mode</i>.</p>
         </ng-template>
     </c-accordion-item>
 </c-accordion>

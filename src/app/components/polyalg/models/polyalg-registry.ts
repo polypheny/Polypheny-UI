@@ -13,6 +13,7 @@ export interface Declaration {
     tags: OperatorTag[];
     posParams: Parameter[];
     kwParams: Parameter[];
+    notRegistered?: boolean; // Only used by the frontend. Indicates that this declaration is not in the registry.
 }
 
 export interface Parameter {

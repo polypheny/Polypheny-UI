@@ -1,6 +1,8 @@
 import {Injectable, signal} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {Declaration, OperatorModel, OperatorTag, Parameter, PolyAlgRegistry} from './models/polyalg-registry';
+import {PlanNode} from './models/polyalg-plan.model';
+import {PlanType} from '../../models/information-page.model';
 
 @Injectable({
     providedIn: 'root'
@@ -53,6 +55,19 @@ export class PolyAlgService {
 
     getDeclaration(opName: string) {
         return this.declarations.get(opName);
+    }
+
+    createDeclarationForUndef(opName: string, inputs: PlanNode[], planType: PlanType): Declaration {
+        return {
+            name: opName,
+            aliases: [],
+            model: OperatorModel.COMMON,
+            numInputs: inputs.length,
+            tags: [OperatorTag.ADVANCED, OperatorTag[planType]],
+            posParams: [],
+            kwParams: [],
+            notRegistered: true
+        };
     }
 
     getSortedDeclarations(model: OperatorModel = null): Declaration[] {
