@@ -28,6 +28,7 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 import {ViewInformation} from '../../../components/data-view/data-view.component';
 import {CatalogService} from '../../../services/catalog.service';
 import {NamespaceModel} from '../../../models/catalog.model';
+import {bnfdisplay} from 'rrdiagram-js';
 
 @Component({
     selector: 'app-console',
@@ -118,6 +119,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this._breadcrumb.hide();
 
         this.loadAndSetNamespaceDB();
+
+        const bnfDisplay = new bnfdisplay.BNFDisplay();
+        bnfDisplay.replaceBNF('BNF', 'BNFSVG');
     }
 
     private loadAndSetNamespaceDB() {
