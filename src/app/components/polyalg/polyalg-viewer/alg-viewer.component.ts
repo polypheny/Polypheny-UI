@@ -52,6 +52,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     @Input() polyAlg?: string;
     @Input() initialPlan?: string;
+    @Input() initialUserMode?: UserMode;
     @Input() planType: PlanType;
     @Input() isReadOnly: boolean;
     @Output() execute = new EventEmitter<[string, OperatorModel]>();
@@ -102,6 +103,10 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     ngAfterViewInit(): void {
         this.showEditButton = this.isReadOnly;
         this.showMetadata = this.isReadOnly;
+
+        if (this.initialUserMode) {
+            this.userMode.set(this.initialUserMode);
+        }
 
         this.textEditor.setScrollMargin(5, 5);
         if (!this.isReadOnly) {

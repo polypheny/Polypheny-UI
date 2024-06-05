@@ -13,6 +13,7 @@ import {SidebarNode} from '../../../models/sidebar-node.model';
 import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {OperatorModel} from '../../../components/polyalg/models/polyalg-registry';
 import {DataModel} from '../../../models/ui-request.model';
+import {UserMode} from '../../../components/polyalg/polyalg-viewer/alg-editor';
 
 @Component({
     selector: 'app-polyalg',
@@ -32,6 +33,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
 
     planType: PlanType = 'LOGICAL';
     selectedPlanType: PlanType = 'LOGICAL';
+    initialUserMode = UserMode.SIMPLE;
     showPlanTypeModal = signal(false);
     showHelpModal = signal(false);
     polyAlg = `PROJECT[employeeno, relationshipjoy AS happiness](
@@ -57,6 +59,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
             this.planType = localStorage.getItem('polyalg.planType') as PlanType;
             this.selectedPlanType = this.planType;
             localStorage.removeItem('polyalg.planType');
+            this.initialUserMode = UserMode.ADVANCED;
         }
 
         if (!this.planType) {
