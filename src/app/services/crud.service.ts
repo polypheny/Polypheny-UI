@@ -352,7 +352,7 @@ export class CrudService {
                 code = `db.${collection}.deletePlacement( "${store}" )`;
                 break;
         }
-        const request = new QueryRequest(code, false, true, 'cypher', namespace);
+        const request = new QueryRequest(code, false, true, 'mongo', namespace);
         return this.anyQueryBlocking(request);
     }
 
