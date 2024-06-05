@@ -10,7 +10,7 @@
             <label cInputGroupText for="adapter">Adapter</label>
             <select cSelect id="adapter" [(ngModel)]="data.value.adapterName" (pointerdown)="$event.stopPropagation()"
                     [disabled]="data.isReadOnly">
-                <option *ngFor="let adapter of adapters()" [value]="adapter.name">{{ adapter.name + ' (Adapter: ' + adapter.adapterName + ')' }}</option>
+                <option *ngFor="let adapter of adapters()" [value]="adapter.name">{{ adapter.name + ' (' + adapter.adapterName + ')' }}</option>
             </select>
         </c-input-group>
         <c-input-group sizing="sm">
