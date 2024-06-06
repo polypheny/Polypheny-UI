@@ -10,6 +10,7 @@ import {switchMap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import {PlanType} from '../../../models/information-page.model';
 import {OperatorModel} from '../models/polyalg-registry';
+import {AccordionItemComponent} from '@coreui/angular';
 
 type editorState = 'SYNCHRONIZED' | 'CHANGED' | 'INVALID' | 'READONLY';
 
@@ -58,6 +59,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     @Output() execute = new EventEmitter<[string, OperatorModel]>();
     @ViewChild('rete') container!: ElementRef;
     @ViewChild('textEditor') textEditor: EditorComponent;
+    @ViewChild('itemText') textAccordionItem: AccordionItemComponent;
 
     private polyAlgPlan = signal<PlanNode>(undefined); // null: empty plan
     private planTypeSignal = signal<PlanType>(undefined); // we need an additional signal to automatically execute the effect
@@ -106,6 +108,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
         if (this.initialUserMode) {
             this.userMode.set(this.initialUserMode);
+            this.textAccordionItem.visible = this.initialUserMode === UserMode.ADVANCED;
         }
 
         this.textEditor.setScrollMargin(5, 5);
@@ -207,7 +210,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
         if (this._validator.isInvalid(updatedPolyAlg)) {
             this.textEditorState.set('INVALID');
-            this._toast.warn('Parentheses are not balanced', 'Invalid PolyAlgebra');
+            this._toast.warn('Parentheses are not balanced', 'Invalid Algebra');
             return;
         }
 
@@ -310,7 +313,9 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     setUserMode(mode: UserMode) {
         this.userMode.set(mode);
         if (!this.isReadOnly) {
-            this.textEditor.setReadOnly(mode === UserMode.SIMPLE);
+            const isSimple = mode === UserMode.SIMPLE;
+            this.textEditor.setReadOnly(isSimple);
+            this.textAccordionItem.visible = !isSimple;
         }
     }
 

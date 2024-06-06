@@ -3,6 +3,7 @@ import {PlanArgument, RexArg} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {OperatorModel, Parameter, ParamTag, ParamType, SimpleType} from '../../models/polyalg-registry';
 import {PlanType} from '../../../../models/information-page.model';
+import {hasValidStructure} from '../arg-control-utils';
 
 @Component({
     selector: 'app-rex-arg',
@@ -31,12 +32,15 @@ export class RexControl extends ArgControl {
         'REX_PREDICATE': {
             r1: '',
             r2: '',
-            operator: '='
+            operator: '=',
+            is1Valid: true,
+            is2Valid: true
         },
         'REX_UINT': {
             i: null
         }
     };
+    isRexValid = true;
 
     constructor(param: Parameter, private value: RexArg, model: OperatorModel, planType: PlanType, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
         super(param, model, planType, isSimpleMode, isReadOnly);
@@ -50,14 +54,19 @@ export class RexControl extends ArgControl {
     toPolyAlg(): string {
         if (this.simpleType() === SimpleType.REX_PREDICATE) {
             const values = this.simpleValues.REX_PREDICATE;
+            values.is1Valid = hasValidStructure(values.r1);
+            values.is2Valid = hasValidStructure(values.r2);
             const polyAlg = `${values.operator}(${values.r1}, ${values.r2})`;
             this.rex.set(polyAlg);
         } else if (this.simpleType() === SimpleType.REX_UINT) {
             this.rex.set(this.simpleValues.REX_UINT.i?.toString(10));
+        } else {
+            this.isRexValid = hasValidStructure(this.rex());
         }
 
         if (this.showAlias && this.alias() && this.alias() !== this.rex()) {
-            return `${this.rex()} AS ${this.alias()}`;
+            const cleanedAlias = hasValidStructure(this.alias()) ? this.alias() : `'${this.alias()}'`;
+            return `${this.rex()} AS ${cleanedAlias}`;
         }
         return this.rex();
     }

@@ -1,4 +1,4 @@
-import {Component, computed, inject, Input, OnInit, Signal, signal, Type} from '@angular/core';
+import {Component, computed, inject, Input, OnInit, Signal, signal, Type, ViewEncapsulation} from '@angular/core';
 import {EntityArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {OperatorModel, Parameter, ParamType} from '../../models/polyalg-registry';
@@ -9,12 +9,14 @@ import {CatalogService} from '../../../../services/catalog.service';
 @Component({
     selector: 'app-entity-arg',
     templateUrl: './entity-arg.component.html',
-    styleUrl: './entity-arg.component.scss'
+    styleUrl: './entity-arg.component.scss',
+    encapsulation: ViewEncapsulation.None // for autocomplete styling
 })
 export class EntityArgComponent implements OnInit {
     @Input() data: EntityControl;
     placeholder = 'entity.field';
     adapters: Signal<AdapterModel[]>;
+    entityNamesList: Signal<string[]>;
 
     private readonly _catalog = inject(CatalogService);
 
@@ -22,6 +24,21 @@ export class EntityArgComponent implements OnInit {
         if (this.data.model === OperatorModel.GRAPH) {
             this.placeholder = 'entity';
         }
+
+        this.entityNamesList = computed(() => {
+            const catalog = this._catalog.listener();
+
+            const names = [];
+            for (const schema of catalog.getSchemaTree('', true, 3)) {
+                if (this.data.model === OperatorModel.GRAPH) {
+                    names.push(schema.name);
+                }
+                for (const table of schema.children) {
+                    names.push(schema.name + '.' + table.name);
+                }
+            }
+            return names;
+        });
 
         if (this.data.isAllocation) {
             this.adapters = computed(() => {
