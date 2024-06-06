@@ -13,7 +13,7 @@
         </c-input-group>
 
         <c-input-group sizing="sm" class="mb-1">
-            <span cInputGroupText class="p-1">Function Argument</span>
+            <span cInputGroupText class="p-1">Function Arg</span>
             <input type="text" name="simpleArg" (pointerdown)="$event.stopPropagation()"
                    autocomplete="off" [readonly]="data.isReadOnly" placeholder="field"
                    class="form-control form-control-sm" [(ngModel)]="data.argsStr">
@@ -34,7 +34,7 @@
         </c-input-group>
 
         <c-input-group sizing="sm" class="mb-1">
-            <span cInputGroupText class="p-1">Function Argument(s)</span>
+            <span cInputGroupText class="p-1">Function Arg(s)</span>
             <input type="text" id="arg" name="arg" (pointerdown)="$event.stopPropagation()"
                    autocomplete="off" [readonly]="data.isReadOnly" placeholder="field1, ..."
                    class="form-control form-control-sm" [(ngModel)]="data.argsStr">

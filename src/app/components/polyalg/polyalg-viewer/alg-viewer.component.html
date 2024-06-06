@@ -1,10 +1,10 @@
 <c-accordion [flush]="true" [alwaysOpen]="true" class="mb-3">
-    <c-accordion-item #item0="cAccordionItem" [visible]="true">
+    <c-accordion-item #itemText="cAccordionItem" [visible]="true">
         <ng-template cTemplateId="accordionHeaderTemplate">
-            <button (click)="item0.toggleItem()" [collapsed]="!item0.visible" cAccordionButton
+            <button (click)="itemText.toggleItem()" [collapsed]="!itemText.visible" cAccordionButton
                     class="ps-1 py-0 fs-3" [class.READONLY]="textEditorIsLocked()"
                     [ngClass]="textEditorState()" [tooltip]="textEditorState() === 'INVALID' ? textErrorTooltip : ''" [placement]="'bottom left'">
-                PolyAlgebra {{isReadOnly ? 'Viewer' : 'Editor'}} {{stateText[textEditorState()]}}
+                Algebra {{isReadOnly ? 'Viewer' : 'Editor'}} {{stateText[textEditorState()]}}
                 <span class="fa fa-lock ms-3 pt-1" *ngIf="textEditorIsLocked()"></span>
                 <ng-template #textErrorTooltip>
                     {{textEditorError()}}
@@ -56,7 +56,7 @@
 
                 <input class="btn-check" id="radio2" type="radio" [checked]="userMode() === UserMode.ADVANCED"/>
                 <label (click)="setUserMode(UserMode.ADVANCED)" cButton cFormCheckLabel for="radio2" color="dark"
-                       variant="outline" container="body" tooltip="Allows you to insert all operators and edit the PolyAlgebra representation.">
+                       variant="outline" container="body" tooltip="Allows you to insert all operators and edit the Algebra representation.">
                     Advanced
                 </label>
             </c-button-group>
@@ -78,9 +78,9 @@
 
 
 <c-accordion [flush]="true" class="mt-3">
-    <c-accordion-item #item1="cAccordionItem" [visible]="true" class="text-body">
+    <c-accordion-item #itemNode="cAccordionItem" [visible]="true" class="text-body">
         <ng-template cTemplateId="accordionHeaderTemplate">
-            <button (click)="item1.toggleItem()" [collapsed]="!item1.visible" cAccordionButton class="ps-1 py-0 fs-3"
+            <button (click)="itemNode.toggleItem()" [collapsed]="!itemNode.visible" cAccordionButton class="ps-1 py-0 fs-3"
                     [ngClass]="nodeEditorState()" [tooltip]="nodeEditorState() === 'INVALID' ? nodeErrorTooltip : ''" [placement]="'bottom left'">
                 Node {{isReadOnly ? 'Viewer' : 'Editor'}} {{stateText[nodeEditorState()]}}
                 <ng-template #nodeErrorTooltip>

@@ -73,19 +73,33 @@ export class AlgValidatorService {
     areParenthesesBalanced(str: string) {
         const stack: string[] = [];
 
-        // TODO: ignore parentheses in quoted text
-        for (const char of str) {
-            if (char === '(' || char === '[') {
-                stack.push(char);
-            } else if (char === ')') {
-                const lastOpen = stack.pop();
-                if (!lastOpen || lastOpen !== '(') {
-                    return false;
-                }
-            } else if (char === ']') {
-                const lastOpen = stack.pop();
-                if (!lastOpen || lastOpen !== '[') {
-                    return false;
+        let inSingleQuotes = false;
+        let inDoubleQuotes = false;
+
+        for (let i = 0; i < str.length; i++) {
+            const char = str[i];
+            if (char === '\\') {
+                i++;
+                continue; // Skip the next character if it's escaped
+            }
+
+            if (char === '\'' && !inDoubleQuotes) {
+                inSingleQuotes = !inSingleQuotes;
+            } else if (char === '"' && !inSingleQuotes) {
+                inDoubleQuotes = !inDoubleQuotes;
+            } else if (!inSingleQuotes && !inDoubleQuotes) {
+                if (char === '(' || char === '[') {
+                    stack.push(char);
+                } else if (char === ')') {
+                    const lastOpen = stack.pop();
+                    if (!lastOpen || lastOpen !== '(') {
+                        return false;
+                    }
+                } else if (char === ']') {
+                    const lastOpen = stack.pop();
+                    if (!lastOpen || lastOpen !== '[') {
+                        return false;
+                    }
                 }
             }
         }

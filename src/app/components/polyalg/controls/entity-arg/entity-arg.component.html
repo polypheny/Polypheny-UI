@@ -1,9 +1,21 @@
 <div class="param-wrapper">
     <label for="fullName" *ngIf="data.name"><strong>{{data.name}}</strong></label>
 
-    <input type="text" id="fullName" name="name" (pointerdown)="$event.stopPropagation()"
-           autocomplete="off" [readonly]="data.isReadOnly" placeholder="{{placeholder}}"
-           class="form-control form-control-sm param-input mb-1" [(ngModel)]="data.value.fullName">
+    <input *ngIf="data.isReadOnly" cFormControl type="text" id="fullNameReadOnly" name="name" (pointerdown)="$event.stopPropagation()"
+           autocomplete="off" [readonly]="true" placeholder="{{placeholder}}"
+           class="param-input mb-1" [(ngModel)]="data.value.fullName">
+
+    <div class="mb-1">
+        <ng-autocomplete *ngIf="!data.isReadOnly"
+                         id="fullName"
+                         (pointerdown)="$event.stopPropagation()"
+                         [data]="entityNamesList()"
+                         [(ngModel)]="data.value.fullName"
+                         [placeholder]="placeholder"
+                         [searchKeyword]="data.value.fullName"
+                         [itemTemplate]="itemTemplate"
+                         [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
+    </div>
 
     <ng-container *ngIf="data.isAllocation">
         <c-input-group sizing="sm" class="mb-1">
@@ -16,8 +28,18 @@
         <c-input-group sizing="sm">
             <label cInputGroupText for="partition">Partition</label>
             <input type="text" id="partition" name="partition" (pointerdown)="$event.stopPropagation()"
-                   autocomplete="off" [readonly]="data.isReadOnly" placeholder="partition"
+                   autocomplete="off" [readonly]="data.isReadOnly" placeholder="ID or name"
+                   container="body" [tooltip]="data.isReadOnly ? '' : 'Leave empty to automatically select a partition'"
                    class="form-control form-control-sm param-input" [(ngModel)]="data.value.partitionId">
+            <label *ngIf="data.isReadOnly && data.value.partitionName" cInputGroupText>({{data.value.partitionName}})</label>
         </c-input-group>
     </ng-container>
 </div>
+
+<!-- autocomplete templates -->
+<ng-template #itemTemplate let-item>
+    <a [innerHTML]="item"></a>
+</ng-template>
+<ng-template #notFoundTemplate let-notFound>
+    <div [innerHTML]="notFound"></div>
+</ng-template>

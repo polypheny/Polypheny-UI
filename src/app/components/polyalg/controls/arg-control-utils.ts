@@ -137,6 +137,49 @@ export function getInitialArg(p: Parameter, depth: number): PlanArgument {
         })(),
         isEnum: p.isEnum
     };
+}
 
+/**
+ * Checks whether the string has balanced parantheses and separators (',') only in valid locations.
+ * A valid location is if the separator is within parentheses, brackets or is quoted.
+ * @param str the string to check
+ */
+export function hasValidStructure(str: string) {
+    const separators = new Set([',']);
+    str = str.trim();
 
+    let inSingleQuotes = false;
+    let inDoubleQuotes = false;
+    const stack: string[] = [];
+
+    for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+        if (char === '\\') {
+            i++;
+            continue; // Skip the next character if it's escaped
+        }
+
+        if (char === '\'' && !inDoubleQuotes) {
+            inSingleQuotes = !inSingleQuotes;
+        } else if (char === '"' && !inSingleQuotes) {
+            inDoubleQuotes = !inDoubleQuotes;
+        } else if (!inSingleQuotes && !inDoubleQuotes) {
+            if (char === '(' || char === '[') {
+                stack.push(char);
+            } else if (char === ')') {
+                const lastOpen = stack.pop();
+                if (!lastOpen || lastOpen !== '(') {
+                    return false;
+                }
+            } else if (char === ']') {
+                const lastOpen = stack.pop();
+                if (!lastOpen || lastOpen !== '[') {
+                    return false;
+                }
+            } else if (separators.has(char) && stack.length === 0) {
+                return false;
+            }
+        }
+    }
+    return stack.length === 0 && !inSingleQuotes && !inDoubleQuotes;
 }
