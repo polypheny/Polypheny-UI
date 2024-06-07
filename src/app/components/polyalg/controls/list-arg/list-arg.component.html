@@ -22,6 +22,10 @@
                     <app-int-arg [data]="child"></app-int-arg>
                 </ng-container>
 
+                <ng-container *ngSwitchCase="ParamType.DOUBLE">
+                    <app-double-arg [data]="child"></app-double-arg>
+                </ng-container>
+
                 <ng-container *ngSwitchCase="ParamType.FIELD">
                     <app-field-arg [data]="child"></app-field-arg>
                 </ng-container>

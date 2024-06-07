@@ -1,4 +1,4 @@
-<c-badge color="dark" class="socket-label" *ngIf="data.multiConnIdx != null">{{data.multiConnIdx}}</c-badge>
+<c-badge color="dark" class="socket-label" *ngIf="data.multiConnIdx != null">{{ data.multiConnIdx }}</c-badge>
 <div class="outputs">
     <div class="output" *ngFor="let output of data.outputs | keyvalue: sortByIndex"
          [attr.data-testid]="'output-'+output.key">
@@ -16,12 +16,13 @@
         <c-badge *ngIf="data.hasSimpleParams && data.isSimpleMode()" color="success" class="me-1 simple-badge"
                  (click)="deactivateSimpleMode()" (pointerdown)="$event.stopPropagation()">Simple
         </c-badge>
-        <c-badge [color]="data.modelColor" *ngIf="data.modelBadge">{{data.modelBadge}}</c-badge>
+        <c-badge [color]="data.modelColor" *ngIf="data.modelBadge">{{ data.modelBadge }}</c-badge>
     </div>
 </div>
 
 <div class="node-body">
     <div class="controls" [class.mb-2]="data.hasVisibleControls()">
+        <p *ngIf="data.decl.notRegistered" class="ms-2 mt-2"><i>(unknown operator)</i></p>
         <ng-container *ngFor="let control of data.controls | keyvalue: sortByIndex">
             <div class="control" *ngIf="!control.value.isHidden()"
                  refComponent [data]="{type: 'control', payload: control.value }"
@@ -32,7 +33,8 @@
     <div *ngIf="data.isReadOnly" class="metadata" [hidden]="!data.isMetaVisible()">
         <app-alg-metadata [data]="data.metadata"></app-alg-metadata>
     </div>
-    <div *ngIf="data.isReadOnly" (click)="toggleCollapse()" (pointerdown)="$event.stopPropagation()" class="collapse-button d-flex align-items-center justify-content-center py-1 z-1">
+    <div *ngIf="data.isReadOnly" (click)="toggleCollapse()" (pointerdown)="$event.stopPropagation()"
+         class="collapse-button d-flex align-items-center justify-content-center py-1 z-1">
         <i class="fa" [ngClass]="{'fa-caret-left': data.isMetaVisible(), 'fa-caret-right': !data.isMetaVisible()}"></i>
     </div>
 

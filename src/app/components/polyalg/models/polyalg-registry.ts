@@ -13,6 +13,7 @@ export interface Declaration {
     tags: OperatorTag[];
     posParams: Parameter[];
     kwParams: Parameter[];
+    convention?: string; // only for physical operators
     notRegistered?: boolean; // Only used by the frontend. Indicates that this declaration is not in the registry.
 }
 
@@ -33,6 +34,7 @@ export interface Parameter {
 export enum ParamType {
     ANY = 'ANY',
     INTEGER = 'INTEGER',
+    DOUBLE = 'DOUBLE',
     STRING = 'STRING',
     BOOLEAN = 'BOOLEAN',
     REX = 'REX',

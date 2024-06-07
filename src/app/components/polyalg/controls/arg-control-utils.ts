@@ -4,7 +4,24 @@ import {BooleanControl} from './boolean-arg/boolean-arg.component';
 import {RexControl} from './rex-arg/rex-arg.component';
 import {EntityControl} from './entity-arg/entity-arg.component';
 import {ListControl} from './list-arg/list-arg.component';
-import {AggArg, BooleanArg, CollationArg, CollDirection, CorrelationArg, defaultNullDirection, EntityArg, EnumArg, FieldArg, IntArg, LaxAggArg, ListArg, PlanArgument, RexArg, StringArg} from '../models/polyalg-plan.model';
+import {
+    AggArg,
+    BooleanArg,
+    CollationArg,
+    CollDirection,
+    CorrelationArg,
+    defaultNullDirection,
+    DoubleArg,
+    EntityArg,
+    EnumArg,
+    FieldArg,
+    IntArg,
+    LaxAggArg,
+    ListArg,
+    PlanArgument,
+    RexArg,
+    StringArg
+} from '../models/polyalg-plan.model';
 import {EnumControl} from './enum-arg/enum-arg.component';
 import {OperatorModel, Parameter, ParamType} from '../models/polyalg-registry';
 import {IntControl} from './int-arg/int-arg.component';
@@ -15,6 +32,7 @@ import {AggControl} from './agg-arg/agg-arg.component';
 import {LaxAggControl} from './lax-agg/lax-agg-arg.component';
 import {Signal} from '@angular/core';
 import {PlanType} from '../../../models/information-page.model';
+import {DoubleControl} from './double-arg/double-arg.component';
 
 export function getControl(param: Parameter, arg: PlanArgument | null, isReadOnly: boolean, depth: number,
                            model: OperatorModel, planType: PlanType, isSimpleMode: Signal<boolean>): ArgControl {
@@ -31,6 +49,8 @@ export function getControl(param: Parameter, arg: PlanArgument | null, isReadOnl
             break;
         case 'INTEGER':
             return new IntControl(param, arg.value as IntArg, model, planType, isSimpleMode, isReadOnly);
+        case 'DOUBLE':
+            return new DoubleControl(param, arg.value as DoubleArg, model, planType, isSimpleMode, isReadOnly);
         case 'STRING':
             return new StringControl(param, arg.value as StringArg, model, planType, isSimpleMode, isReadOnly);
         case 'BOOLEAN':
@@ -87,6 +107,8 @@ export function getInitialArg(p: Parameter, depth: number): PlanArgument {
                 case ParamType.ANY:
                     break;
                 case ParamType.INTEGER:
+                    return {arg: 0};
+                case ParamType.DOUBLE:
                     return {arg: 0};
                 case ParamType.STRING:
                     return {arg: ''};
