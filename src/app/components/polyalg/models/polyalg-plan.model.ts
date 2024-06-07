@@ -80,6 +80,10 @@ export interface IntArg {
     arg: number;
 }
 
+export interface DoubleArg {
+    arg: number;
+}
+
 export interface LaxAggArg {
     arg?: string;
     function: string;
