@@ -1,152 +1,179 @@
-<div class="row" [hidden]="showingAnalysis" (keydown.alt.shift)="toggleCache(false)" (keyup.alt.shift)="revertCache()"
-     (keyup.shift.alt)="revertCache()" (keydown.alt.shift.enter)="submitQuery()" (keydown.alt.enter)="submitQuery()">
-    <app-toast></app-toast>
-    <div class="col-lg-8 col-md-8 col-sm-12 mb-3">
-        <ul class="list-group grey-border" id="console">
-            <li id="console-item-head" *ngIf="usesAdvancedConsole(lang)" class="list-group-item header grey-bg"
-                (dblclick)="toggleNamespaceField()">
-                <span *ngIf="showNamespaceConfig" class="document-db-info"><i>Namespace: {{activeNamespace}}</i></span>
-                <div *ngIf="!showNamespaceConfig" class="advanced-console-db-info">
-                    <span class="document-db-info"><i>Namespace: </i></span>
-                    <select class="form-control form-control-sm advanced-console-db-info" [(ngModel)]="activeNamespace"
-                            (ngModelChange)="changedDefaultDB()">
-                        <option *ngFor="let namespace of namespaces" [ngValue]="namespace">{{namespace}}</option>
+<c-container>
+    <c-row class="row w-100" [hidden]="showingAnalysis" (keydown.alt.shift)="toggleCache(false)"
+           (keyup.alt.shift)="revertCache()"
+           (keyup.shift.alt)="revertCache()" (keydown.alt.shift.enter)="submitQuery()"
+           (keydown.alt.enter)="submitQuery()">
+        <c-col class="col-lg-8 col-md-8 col-sm-12 mb-3">
+            <div class="list-group grey-border" id="console">
+                <div id="console-item-head" *ngIf="usesAdvancedConsole(language())"
+                     class="list-group-item header grey-bg"
+                     (dblclick)="toggleNamespaceField()">
+                    <span *ngIf="showNamespaceConfig"
+                          class="document-db-info"><span>Namespace: {{activeNamespace()}}</span></span>
+                    <div *ngIf="!showNamespaceConfig" class="advanced-console-db-info">
+                        <span class="document-db-info"><span>Namespace: </span></span>
+                        <select class="form-control form-control-sm advanced-console-db-info"
+                                [ngModel]="activeNamespace()"
+                                (ngModelChange)="changedDefaultDB($event)">
+                            <option *ngFor="let namespace of namespaces()"
+                                    [ngValue]="namespace.name">{{namespace.name}}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button cButton color="primary" size="sm" type="submit" class="pull-right"
+                                (click)="clearConsole()"><i
+                                class="cil-trash"></i></button>
+                        <button cButton color="primary" size="sm" type="submit" class="pull-right me-1"
+                                (click)="formatQuery()"><i
+                                class="cil-clear-all"></i></button>
+                    </div>
+
+                </div>
+                <div class="form-group"
+                     [ngClass]="usesAdvancedConsole(language()) ? 'advanced-console': 'simple-console'">
+                    <app-editor [language]="language()" #editor id="query-editor"></app-editor>
+                </div>
+            </div>
+        </c-col>
+        <c-col class="col-lg-4 col-md-4 col-sm-12 mb-3">
+            <ul class="list-group" id="history-header">
+                <li id="history-item-head" class="list-group-item header px-3">
+                    <div>History</div>
+                    <div>
+                        <button cButton color="primary" size="sm" (click)="openHistorySearch()"
+                                [hidden]="showSearch">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        <input #historySearchInput type='text'
+                               class='form-control form-control-sm'
+                               [(ngModel)]="historySearchQuery"
+                               (keydown.esc)="closeHistorySearch()"
+                               [hidden]="!showSearch"/>
+                        <i class="fa fa-times text-muted search-close"
+                           (click)="closeHistorySearch()"
+                           [hidden]="!showSearch"></i>
+                    </div>
+                </li>
+            </ul>
+            <ul class="list-group" id="history">
+                <li class="list-group-item empty"
+                    *ngIf="(history | searchFilter:historySearchQuery).size == 0">(empty)
+                </li>
+                <li class="list-group-item history-item"
+                    *ngFor="let h of (history | searchFilter:historySearchQuery) | keyvalue:orderHistory"
+                    (click)="applyHistory( h.value.query, h.value.lang, false )"
+                    (dblclick)="applyHistory( h.value.query, h.value.lang, true)">
+                    <div class="history-time-wrapper">
+                        <small class="time" style="text-transform: uppercase;">{{h.value.lang}}</small>
+                        <small class="time">{{h.value.displayTime()}}</small>
+                        <small class="time">{{h.value.fromNow()}}</small>
+                    </div>
+                    <div>{{_util.limitedString(h.value.query)}}</div>
+
+                    <button cButton color="light" size="sm" class="del-hist-item"
+                            [ngClass]="confirmDeletingHistory === h.key ? 'cil-warning' : 'cil-trash'"
+                            (mouseout)="confirmDeletingHistory = null"
+                            (click)="deleteHistoryItem(h.key, $event)"></button>
+                    <!-- see https://stackoverflow.com/questions/44669340/how-to-truncate-text-in-angular2 -->
+                    <!--{{h.value.query}}-->
+                </li>
+            </ul>
+        </c-col>
+
+
+        <c-col class="col-lg-8 mb-3" [hidden]="showingAnalysis">
+            <c-row>
+                <c-form-check cCol class="col-auto">
+                    <input cFormCheckInput type="checkbox" id="checkbox1" [(ngModel)]="analyzeQuery">
+                    <label cFormCheckLabel for="checkbox1">analyze query</label>
+                </c-form-check>
+
+                <c-form-check cCol class="col-auto">
+                    <input cFormCheckInput type="checkbox" id="checkbox3" [(ngModel)]="useCache">
+                    <label cFormCheckLabel for="checkbox3">use cache</label>
+                </c-form-check>
+
+                <c-form-check cCol class="col-auto">
+                    <input cFormCheckInput type="checkbox" id="checkbox2" [(ngModel)]="saveInHistory">
+                    <label cFormCheckLabel for="checkbox2">save in history</label>
+                </c-form-check>
+
+
+                <c-input-group cCol>
+                    <select class="form-control btn pull-right me-1 border bg-white" [ngModel]="language()"
+                            (ngModelChange)="setLanguage($event)" *ngIf="!loading()">
+                        <option value="cypher">CYPHER</option>
+                        <option value="sql">SQL</option>
+                        <option value="mql">MQL</option>
+                        <option value="cql">CQL</option>
+                        <option value="pig">PIG</option>
                     </select>
-                </div>
-                <button type="submit" class="btn btn-primary btn-sm pull-right" (click)="clearConsole()"><i
-                        class="cui-trash"></i></button>
-                <button type="submit" class="btn btn-primary btn-sm pull-right mr-1" (click)="formatQuery()"><i
-                        class="cui-clear-all"></i></button>
-            </li>
-            <div class="form-group" [ngClass]="usesAdvancedConsole(lang) ? 'mql-console': 'sql-console'">
-                <app-editor [lang]="lang" #editor id="sql-editor"></app-editor>
-            </div>
-        </ul>
-    </div>
-    <div class="col-lg-4 col-md-4 col-sm-12 mb-3">
-        <ul class="list-group" id="history">
-            <li id="history-item-head" class="list-group-item header">
-                <div>History</div>
-                <div>
-                    <button class="btn btn-primary btn-sm" (click)="openHistorySearch()"
-                            [hidden]="showSearch">
-                        <i class="fa fa-search"></i>
+                    <button *ngIf="!loading()" cButton type="submit" color="primary" (click)="submitQuery()">Execute
                     </button>
-                    <input #historySearchInput type='text'
-                           class='form-control form-control-sm'
-                           [(ngModel)]="historySearchQuery"
-                           (keydown.esc)="closeHistorySearch()"
-                           [hidden]="!showSearch"/>
-                    <i class="fa fa-times text-muted search-close"
-                       (click)="closeHistorySearch()"
-                       [hidden]="!showSearch"></i>
-                </div>
-            </li>
-            <li class="list-group-item empty"
-                *ngIf="(history | searchFilter:historySearchQuery).size == 0">(empty)
-            </li>
-            <li class="list-group-item history-item"
-                *ngFor="let h of (history | searchFilter:historySearchQuery) | keyvalue:orderHistory"
-                (click)="applyHistory( h.value.query, h.value.lang, false )"
-                (dblclick)="applyHistory( h.value.query, h.value.lang, true)">
-                <div class="history-time-wrapper">
-                    <small class="time" style="text-transform: uppercase;">{{h.value.lang}}</small>
-                    <small class="time">{{h.value.displayTime()}}</small>
-                    <small class="time">{{h.value.fromNow()}}</small>
-                </div>
-                <div>{{_util.limitedString(h.value.query)}}</div>
-                <span class="btn btn-sm btn-light del-hist-item"
-                      [ngClass]="{'cui-trash': confirmDeletingHistory!==h.key, 'fa fa-warning':confirmDeletingHistory===h.key}"
-                      (mouseout)="confirmDeletingHistory=null" (click)="deleteHistoryItem(h.key, $event)"></span>
-                <!-- see https://stackoverflow.com/questions/44669340/how-to-truncate-text-in-angular2 -->
-                <!--{{h.value.query}}-->
-            </li>
-        </ul>
-    </div>
+                    <button *ngIf="loading()" type="submit" cButton color="primary"
+                            class="progress-bar-striped progress-bar-animated align-self-end" disabled>Loading
+                    </button>
+                </c-input-group>
+            </c-row>
+        </c-col>
+    </c-row>
 
-
-    <div class="col-lg-8 mb-3" [hidden]="showingAnalysis">
-        <div class="custom-control custom-checkbox custom-control-inline">
-            <input type="checkbox" class="custom-control-input" id="checkbox1" [(ngModel)]="analyzeQuery">
-            <label class="custom-control-label" for="checkbox1">analyze query</label>
-        </div>
-        <div class="custom-control custom-checkbox custom-control-inline">
-            <input type="checkbox" class="custom-control-input" id="checkbox3" [(ngModel)]="useCache">
-            <label class="custom-control-label" for="checkbox3">use cache</label>
-        </div>
-        <div class="custom-control custom-checkbox custom-control-inline">
-            <input type="checkbox" class="custom-control-input" id="checkbox2" [(ngModel)]="saveInHistory">
-            <label class="custom-control-label" for="checkbox2">save in history</label>
-        </div>
-        <div *ngIf="!loading" class="pull-right">
-            <button type="submit" class="btn btn-primary pull-right" (click)="submitQuery()">Execute</button>
-            <select class="form-control btn pull-right mr-1 border bg-white" [(ngModel)]="lang">
-                <option value="cypher">CYPHER</option>
-                <option value="sql">SQL</option>
-                <option value="mql">MQL</option>
-                <option value="cql">CQL</option>
-                <option value="pig">PIG</option>
-            </select>
-        </div>
-        <button *ngIf="loading" type="submit"
-                class="btn btn-primary progress-bar-striped progress-bar-animated pull-right" disabled>Loading
-        </button>
-    </div>
-</div>
-
-<div class="row" [hidden]="showingAnalysis || loading">
-    <div class="col-lg-12 pb-1" *ngIf="resultSets && resultSets.length > 1"
-         style="display: flex; justify-content: space-between">
-        <span style="padding-top: 0.25em">Click on a query to view its result and additional information.</span>
-        <div id="collapse-btn-wrapper">
-            <button class="btn btn-light btn-sm" (click)="collapseAll(true)" tooltip="expand all" container="body"
-                    placement="top" delay="500"><i class="fa fa-expand"></i></button>
-            <button class="btn btn-light btn-sm ml-1" (click)="collapseAll(false)" tooltip="collapse all"
-                    container="body" placement="top" delay="500"><i class="fa fa-compress"></i></button>
-        </div>
-    </div>
-    <div class="col-lg-12 mb-3" [ngClass]="{'accordion': resultSets && resultSets.length > 1}" id="results">
-        <div class="card" *ngFor="let resultSet of resultSets; let i = index;">
-            <div class="card-header"
-                 [ngClass]="{'pointer': resultSets.length > 1, 'open': collapsed !== undefined && collapsed[i]}"
-                 (click)="toggleCollapsed(i)">
-                <span>{{resultSet.generatedQuery}}</span>
-                <span class="badge pull-right"
-                      [ngClass]="{'badge-secondary': !resultSet.error, 'badge-danger': resultSet.error}">
-                <ng-container *ngIf="!resultSet.error">{{resultSet.affectedRows}}</ng-container>
-                <ng-container *ngIf="resultSet.error">!</ng-container>
-                </span>
+    <c-row class="row" [hidden]="showingAnalysis || loading()">
+        <c-col class="col-lg-12 pb-1" *ngIf="results().length > 1"
+               style="display: flex; justify-content: space-between">
+            <span style="padding-top: 0.25em">Click on a query to view its result and additional information.</span>
+            <div id="collapse-btn-wrapper">
+                <button cButton color="light" size="sm" (click)="collapseAll(true)" tooltip="expand all"
+                        container="body"
+                        placement="top" delay="500"><i class="fa fa-expand"></i></button>
+                <button cButton color="light" size="sm" class="ms-1" (click)="collapseAll(false)" tooltip="collapse all"
+                        container="body" placement="top" delay="500"><i class="fa fa-compress"></i></button>
             </div>
+        </c-col>
+        <c-col class="col-lg-12 mb-3" [ngClass]="{'accordion': results() && results().length > 1}" id="results">
+            <c-card class="mb-1" *ngFor="let result of results(); let i = index;">
+                <c-card-header
+                        [ngClass]="{'pointer': results().length > 1, 'open': collapsed !== undefined && collapsed[i]}"
+                        (click)="toggleCollapsed(i)">
+                    <span>{{result.query}}</span>
+                    <c-badge class="pull-right" [color]="result.error ? 'danger' : 'secondary'">
+                        <ng-container *ngIf="!result.error">{{result.affectedTuples}}</ng-container>
+                        <ng-container *ngIf="result.error">!</ng-container>
+                    </c-badge>
+                </c-card-header>
 
-            <div [id]="'collapse'+i" class="collapse show" data-parent="#accordion">
-                <div class="card-body" [collapse]="collapsed !== undefined && !collapsed[i] && resultSets.length !== 1">
-                    <div class="text-danger" *ngIf="resultSet && resultSet.error">
+
+                <c-card-body [visible]="!(collapsed !== undefined && !collapsed[i] && results().length !== 1)"
+                             cCollapse>
+                    <div class="text-danger" *ngIf="result && result.error">
                         <strong>Error:</strong>
-                        <p class="mb-3">{{resultSet.error}}</p>
+                        <p class="mb-3">{{ result.error }}</p>
                     </div>
 
                     <div class="query-info">
-                        <p *ngIf="resultSet && !resultSet.data && !resultSet.error" class="mb-3">
+                        <p *ngIf="result && !result.data && !result.error" class="mb-3">
                             <i>Successfully executed</i>
                         </p>
                     </div>
 
 
-                    <div class="col-lg-12 result-wrapper" *ngIf="resultSet && resultSet.data">
-                        <app-data-view [resultSet]="resultSet" [config]="tableConfig"
-                                       (viewEditorCode)="createView($event)"
-                                       (executeView)="executeView($event)"></app-data-view>
-                        <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="resultSet.hasMoreRows">
-                            Only {{resultSet.data.length}} rows are being displayed. To fetch more rows, please specify
+                    <c-row class="col-lg-12 result-wrapper" *ngIf="result && result.data">
+                        <app-data-view [result]="result"
+                                       [config]="entityConfig"
+                                       [loading]="loading()"
+                                       (viewQueryConsumer)="createView($event)"></app-data-view>
+                        <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="result.hasMore">
+                            Only {{ result.data.length }} rows are being displayed. To fetch more rows, please specify
                             a LIMIT clause.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                    </c-row>
+                </c-card-body>
+            </c-card>
+        </c-col>
+    </c-row>
 
-<app-information-manager *ngIf="queryAnalysis" [data]="queryAnalysis" [zoom]="_breadcrumb.getMasonryZoom()"
-                         [hidden]="!showingAnalysis"></app-information-manager>
-
+    <app-information-manager
+            *ngIf="queryAnalysis"
+            [data]="queryAnalysis"
+            [hidden]="!showingAnalysis"></app-information-manager>
+</c-container>
 

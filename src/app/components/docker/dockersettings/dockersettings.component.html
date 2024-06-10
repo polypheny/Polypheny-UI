@@ -1,0 +1,20 @@
+<c-modal-content>
+    <c-modal-header>
+        <h4 class="modal-title">Settings</h4>
+        <button (click)="close()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        <form cRow [gutter]="{gy:2}">
+            <c-input-group>
+                <span cInputGroupText cTooltipPlacement="left" cTooltip="Docker Registry to use by default">
+                    Default Docker Registry
+                </span>
+                <input cFormControl type="text" id="defaultRegistryField" name="id" (input)="modified = true" [(ngModel)]="defaultRegistry">
+            </c-input-group>
+        </form>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="success" class="me-2" (click)="saveSettings()" [disabled]="!modified">Save</button>
+        <button cButton color="secondary" (click)="close()">Close</button>
+    </c-modal-footer>
+</c-modal-content>

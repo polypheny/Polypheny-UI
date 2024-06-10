@@ -1,5 +1,5 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {InformationService} from '../../services/information.service';
 import {InformationObject, InformationPage} from '../../models/information-page.model';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
@@ -15,6 +15,12 @@ import {Subscription} from 'rxjs';
 })
 export class MonitoringComponent implements OnInit, OnDestroy {
 
+    private readonly _information = inject(InformationService);
+    private readonly _route = inject(ActivatedRoute);
+    public readonly _breadcrumb = inject(BreadcrumbService);
+    private readonly _sidebar = inject(LeftSidebarService);
+    private readonly _settings = inject(WebuiSettingsService);
+
     data;
     routerId;
     pageList: InformationPage[];
@@ -22,14 +28,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
     pageNotFound = false;
     private subscriptions = new Subscription();
 
-    constructor(
-        private _information: InformationService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-        public _breadcrumb: BreadcrumbService,
-        private _sidebar: LeftSidebarService,
-        private _settings: WebuiSettingsService
-    ) {
+    constructor() {
     }
 
     ngOnInit() {
@@ -91,18 +90,18 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 
     getServiceData() {
         if (!this.routerId) {
-            this._information.getPageList().subscribe(
-                res => {
+            this._information.getPageList().subscribe({
+                next: res => {
                     this.pageList = <InformationPage[]>res;
                     this._breadcrumb.setDashboardBreadcrumbs([new BreadcrumbItem('Dashboard')]);
                     this.serverError = null;
-                }, err => {
+                }, error: err => {
                     this.serverError = err;
                 }
-            );
+            });
         } else {
-            this._information.getPage(this.routerId).subscribe(
-                res => {
+            this._information.getPage(this.routerId).subscribe({
+                next: res => {
                     if (res == null) {
                         this.onPageNotFound();
                         this._breadcrumb.setDashboardBreadcrumbs([new BreadcrumbItem('Dashboard')]);
@@ -116,12 +115,12 @@ export class MonitoringComponent implements OnInit, OnDestroy {
                         }
                         this.serverError = null;
                     }
-                }, err => {
+                }, error: err => {
                     this.onPageNotFound();
                     this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Monitoring')]);
                     this.serverError = err;
                 }
-            );
+            });
         }
     }
 
@@ -129,14 +128,14 @@ export class MonitoringComponent implements OnInit, OnDestroy {
         this.pageNotFound = true;
         this.data = null;
         this.serverError = null;
-        this._information.getPageList().subscribe(
-            res => {
+        this._information.getPageList().subscribe({
+            next: res => {
                 this.pageList = <InformationPage[]>res;
             },
-            err => {
+            error: err => {
                 this.serverError = err;
             }
-        );
+        });
     }
 
 }

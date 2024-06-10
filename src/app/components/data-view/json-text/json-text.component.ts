@@ -8,7 +8,7 @@ import {Component, Input, OnInit} from '@angular/core';
 export class JsonTextComponent implements OnInit {
 
     @Input() text?: string;
-    testing;
+    json: {};
 
     constructor() {
     }
@@ -18,10 +18,10 @@ export class JsonTextComponent implements OnInit {
         if (regex.test(this.text)) {
             return;
         }
-        this.testing = this.parse(this.text);
+        this.json = this.parse(this.text);
     }
 
-    parse(text: string) {
+    parse(text: string): {} {
         try {
             return JSON.parse(text);
         } catch (e) {

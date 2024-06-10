@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, computed, HostListener, Input, OnInit, signal, untracked, ViewEncapsulation} from '@angular/core';
 import {InformationPage} from '../../models/information-page.model';
 import {KeyValue} from '@angular/common';
 import {InformationService} from '../../services/information.service';
@@ -11,46 +11,61 @@ import {InformationService} from '../../services/information.service';
 })
 export class InformationManagerComponent implements OnInit {
 
-    @Input() data: InformationPage;
-    @Input() zoom;
+    $data = signal(null);
+
+    @Input() set data(data: InformationPage) {
+        this.$data.set(data);
+    }
+
     refreshingPage = false;
     refreshingGroup = [];
+    width = signal(1080);
+    zoom = computed(() => {
+        if (this.width() < 1200 || this.$data().fullWidth) {
+            return 12;
+        } else {
+            return 6;
+        }
+    });
+
+    @HostListener('window:resize', ['$event'])
+    onResize(event?) {
+        untracked(() => {
+            this.width.set(window.innerWidth);
+        });
+    }
+
 
     constructor(
         private _information: InformationService
     ) {
+        this.onResize();
     }
 
     ngOnInit() {
     }
 
     getCardClass(color) {
-        let card = '';
         switch (color) {
             case 'BLUE':
-                card = 'bg-primary';
-                break;
+                return 'bg-primary';
             case 'LIGHTBLUE':
-                card = 'bg-info';
-                break;
+                return 'bg-info';
             case 'YELLOW':
-                card = 'bg-warning';
-                break;
+                return 'bg-warning';
             case 'RED':
-                card = 'bg-danger';
-                break;
+                return 'bg-danger';
             case 'GREEN':
-                card = 'bg-success';
-                break;
+                return 'bg-success';
+            default:
+                return '';
         }
-        card = card + ' card';
-        return card;
     }
 
     /** order groups within a page, respectively information-elements within a group
      * items with lower order value are rendered first, then this with higher values, then thows where uiOrder is null ( -> 0)
      */
-    private order(a: KeyValue<string, any>, b: KeyValue<string, any>) {
+    public order(a: KeyValue<string, any>, b: KeyValue<string, any>) {
         let out = 0;
         if (a.value.uiOrder !== 0 && b.value.uiOrder === 0) {
             out = -1;
@@ -64,17 +79,9 @@ export class InformationManagerComponent implements OnInit {
         return out;
     }
 
-    getZoom() {
-        if (this.data.fullWidth) {
-            return {'column-count': 1};
-        } else {
-            return {'column-count': this.zoom};
-        }
-    }
-
     refreshPage() {
         this.refreshingPage = true;
-        this._information.refreshPage(this.data.id).subscribe().add(() => this.refreshingPage = false);
+        this._information.refreshPage(this.$data().id).subscribe().add(() => this.refreshingPage = false);
     }
 
     refreshGroup(id: string) {

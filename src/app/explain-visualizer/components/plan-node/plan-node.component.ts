@@ -70,7 +70,7 @@ export class PlanNodeComponent implements OnInit, DoCheck {
         this.calculateDuration();
         this.calculateTags();
 
-        this.plannerRowEstimateDirection = this.node[this._planService.PLANNER_ESIMATE_DIRECTION];
+        this.plannerRowEstimateDirection = this.node[this._planService.PLANNER_ESTIMATE_DIRECTION];
         this.plannerRowEstimateValue = _.round(this.node[this._planService.PLANNER_ESTIMATE_FACTOR], 1);
     }
 

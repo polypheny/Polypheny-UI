@@ -1,17 +1,18 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {Subscription} from 'rxjs';
-import {AbstractControl, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
+import {AbstractControl, UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ToastService} from '../../components/toast/toast.service';
-import {ResultSet} from '../../components/data-view/models/result-set.model';
+import {ToasterService} from '../../components/toast-exposer/toaster.service';
+import {RelationalResult} from '../../components/data-view/models/result-set.model';
 import {
     QueryInterface,
     QueryInterfaceInformation,
     QueryInterfaceInformationRequest,
     QueryInterfaceSetting
 } from './query-interfaces.model';
+import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 
 @Component({
     selector: 'app-query-interfaces',
@@ -20,6 +21,12 @@ import {
 })
 export class QueryInterfacesComponent implements OnInit, OnDestroy {
 
+    private readonly _crud = inject(CrudService);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _router = inject(Router);
+    private readonly _toast = inject(ToasterService);
+    private readonly _sidebar = inject(LeftSidebarService);
+
     queryInterfaces: QueryInterface[];
     availableQueryInterfaces: QueryInterfaceInformation[];
     route: String;
@@ -27,24 +34,21 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
     private subscriptions = new Subscription();
 
     editingQI: QueryInterface;
-    editingQIForm: FormGroup;
+    editingQIForm: UntypedFormGroup;
     deletingQI;
 
     editingAvailableQI: QueryInterfaceInformation;
-    editingAvailableQIForm: FormGroup;
-    availableQIUniqueNameForm: FormGroup;
+    editingAvailableQIForm: UntypedFormGroup;
+    availableQIUniqueNameForm: UntypedFormGroup;
 
     @ViewChild('QISettingsModal', {static: false}) public QISettingsModal: ModalDirective;
 
-    constructor(
-        private _crud: CrudService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _toast: ToastService
-    ) {
+    constructor() {
+
     }
 
     ngOnInit() {
+        this._sidebar.hide();
         this.getQueryInterfaces();
         this.getAvailableQueryInterfaces();
         this.route = this._route.snapshot.paramMap.get('action');
@@ -67,27 +71,27 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
     }
 
     getQueryInterfaces() {
-        this._crud.getQueryInterfaces().subscribe(
-            res => {
+        this._crud.getQueryInterfaces().subscribe({
+            next: res => {
                 const queryInterfaces = <QueryInterface[]>res;
                 queryInterfaces.sort((a, b) => (a.uniqueName > b.uniqueName) ? 1 : -1);
                 this.queryInterfaces = queryInterfaces;
-            }, err => {
+            }, error: err => {
                 console.log(err);
             }
-        );
+        });
     }
 
     getAvailableQueryInterfaces() {
-        this._crud.getAvailableQueryInterfaces().subscribe(
-            res => {
+        this._crud.getAvailableQueryInterfaces().subscribe({
+            next: res => {
                 const availableQIs = <QueryInterfaceInformation[]>res;
                 availableQIs.sort((a, b) => (a.name > b.name) ? 1 : -1);
                 this.availableQueryInterfaces = <QueryInterfaceInformation[]>res;
-            }, err => {
+            }, error: err => {
                 console.log(err);
             }
-        );
+        });
     }
 
     onCloseModal() {
@@ -106,9 +110,9 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
                 validators.push(Validators.required);
             }
             const val = queryInterface.currentSettings[v.name];
-            fc[v.name] = new FormControl({value: val, disabled: !v.modifiable}, validators);
+            fc[v.name] = new UntypedFormControl({value: val, disabled: !v.modifiable}, validators);
         }
-        this.editingQIForm = new FormGroup(fc);
+        this.editingQIForm = new UntypedFormGroup(fc);
         this.QISettingsModal.show();
     }
 
@@ -123,9 +127,9 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
                 delete queryInterface.currentSettings[k];
             }
         }
-        this._crud.updateQueryInterfaceSettings(queryInterface).subscribe(
-            res => {
-                const result = <ResultSet>res;
+        this._crud.updateQueryInterfaceSettings(queryInterface).subscribe({
+            next: res => {
+                const result = <RelationalResult>res;
                 if (!result.error) {
                     this._toast.success('updated queryInterface settings');
                 } else {
@@ -133,11 +137,11 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
                 }
                 this.QISettingsModal.hide();
                 this.getQueryInterfaces();
-            }, err => {
+            }, error: err => {
                 this._toast.error('could not update queryInterface settings');
                 console.log(err);
             }
-        );
+        });
     }
 
     initAvailableQISettings(availableQI: QueryInterfaceInformation) {
@@ -152,11 +156,11 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
             if (v.options) {
                 val = v.options[0];
             }
-            fc[v.name] = new FormControl(val, validators);
+            fc[v.name] = new UntypedFormControl(val, validators);
         }
-        this.editingAvailableQIForm = new FormGroup(fc);
-        this.availableQIUniqueNameForm = new FormGroup({
-            uniqueName: new FormControl(null, [Validators.required, Validators.pattern(this._crud.getValidationRegex()), validateUniqueQI(this.queryInterfaces)])
+        this.editingAvailableQIForm = new UntypedFormGroup(fc);
+        this.availableQIUniqueNameForm = new UntypedFormGroup({
+            uniqueName: new UntypedFormControl(null, [Validators.required, Validators.pattern(this._crud.getValidationRegex()), validateUniqueQI(this.queryInterfaces)])
         });
         this.QISettingsModal.show();
     }
@@ -194,45 +198,45 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         for (const [k, v] of Object.entries(this.editingAvailableQIForm.controls)) {
             deploy.currentSettings[k] = v.value;
         }
-        this._crud.addQueryInterface(deploy).subscribe(
-            res => {
-                const result = <ResultSet>res;
+        this._crud.createQueryInterface(deploy).subscribe({
+            next: res => {
+                const result = <RelationalResult>res;
                 if (!result.error) {
-                    this._toast.success('Added query interface: ' + deploy.uniqueName, result.generatedQuery);
+                    this._toast.success('Added query interface: ' + deploy.uniqueName, result.query);
                     this._router.navigate(['./../'], {relativeTo: this._route});
                 } else {
                     this._toast.exception(result);
                 }
                 this.QISettingsModal.hide();
-            }, err => {
+            }, error: err => {
                 this._toast.error('Could not add query interface: ' + deploy.uniqueName);
                 console.log(err);
             }
-        );
+        });
     }
 
     removeQueryInterface(queryInterface: QueryInterface) {
         if (this.deletingQI !== queryInterface) {
             this.deletingQI = queryInterface;
         } else {
-            this._crud.removeQueryInterface(queryInterface.uniqueName).subscribe(
-                res => {
-                    const result = <ResultSet>res;
+            this._crud.removeQueryInterface(queryInterface.uniqueName).subscribe({
+                next: res => {
+                    const result = <RelationalResult>res;
                     if (!result.error) {
-                        this._toast.success('Removed query interface: ' + queryInterface.uniqueName, result.generatedQuery);
+                        this._toast.success('Removed query interface: ' + queryInterface.uniqueName, result.query);
                         this.getQueryInterfaces();
                     } else {
                         this._toast.exception(result);
                     }
-                }, err => {
+                }, error: err => {
                     this._toast.error('Could not remove query interface: ' + queryInterface.uniqueName, 'server error');
                     console.log(err);
                 }
-            );
+            });
         }
     }
 
-    validate(form: FormGroup, key) {
+    validate(form: UntypedFormGroup, key) {
         if (form === undefined) {
             return;
         }

@@ -1,74 +1,54 @@
-import {AvailableIndexMethod, ResultException} from '../../components/data-view/models/result-set.model';
+import {IndexMethodModel, ResultException} from '../../components/data-view/models/result-set.model';
+import {DeployMode, IdEntity} from '../../models/catalog.model';
 
-export interface Adapter {
-    adapterId: number;
-    uniqueName: string;
-    adapterName;
-    adapterSettings: AdapterSetting[];
-    currentSettings: Map<string, string>;
-    columnPlacements: CatalogColumnPlacement[];
-    partitionKeys: number[];
-    numPartitions: number;
-    partitionType: PartitionType;
+export class AdapterModel extends IdEntity {
+    readonly adapterName: string;
+    readonly settings: Map<string, string>;
+    readonly persistent: boolean;
+    readonly type: AdapterType;
+    readonly mode: DeployMode;
+    indexMethods: IndexMethodModel[];
+
+    constructor(uniqueName: string, adapterName: string, settings: Map<string, string>, persistent: boolean, type: AdapterType, deployMode: DeployMode) {
+        super(-1, uniqueName);
+        this.adapterName = adapterName;
+        this.settings = settings;
+        this.persistent = persistent;
+        this.type = type;
+        this.mode = deployMode;
+    }
 }
 
-export interface Source extends Adapter {
-    dataReadOnly: boolean;
+
+export enum AdapterType {
+    STORE = 'STORE',
+    SOURCE = 'SOURCE'
 }
 
-export interface Store extends Adapter {
-    availableIndexMethods: AvailableIndexMethod[];
-    persistent: boolean;
-}
-
-export interface GraphStore extends Store {
-    isNative: boolean;
-}
 
 export interface AdapterInformation {
     name: string;
     description: string;
     adapterName: string;
     type: string;
-    adapterSettings: Map<string, AdapterSetting[]>;
+    adapterSettings: Map<string, string>;
 }
 
-export interface AdapterSetting {
-    subOf: string;
-    name: string;
-    nameAlias: string;
-    alias: any;
-    description: string;
-    defaultValue: string;
-    canBeNull: boolean;
-    required: boolean;
-    modifiable: boolean;
-    options: string[];
-    fileNames: string[];
-    dynamic: boolean;
-    position: number;
-}
 
 export interface Placements {
-    stores: Store[];
+    stores: AdapterModel[];
     exception: ResultException;
     isPartitioned: boolean;
     partitionNames: string[];
     tableType: string;
 }
 
-export interface GraphPlacements {
-    stores: GraphStore[];
-    exception: ResultException;
-    isPartitioned: boolean;
-    partitionNames: string[];
-    entityType: string;
-}
 
 export interface UnderlyingTables {
     exception: ResultException;
     underlyingTable: {};
 }
+
 
 export interface MaterializedInfos {
     exception: ResultException;
@@ -76,15 +56,11 @@ export interface MaterializedInfos {
 }
 
 
-export interface CatalogColumnPlacement {
-    columnName: string;
-    placementType: PlacementType;
-    columnId;
+export enum PlacementType {
+    MANUAL = 'MANUAL',
+    AUTOMATIC = 'AUTOMATIC'
 }
 
-export enum PlacementType {
-    MANUAL = 'MANUAL', AUTOMATIC = 'AUTOMATIC'
-}
 
 export enum PartitionType {
     NONE,
@@ -92,4 +68,11 @@ export enum PartitionType {
     LIST,
     HASH,
     ROUNDROBIN
+}
+
+
+export class PolyMap<K, V> extends Map<K, V> {
+    public toJSON() {
+        return Object.fromEntries(this.entries());
+    }
 }

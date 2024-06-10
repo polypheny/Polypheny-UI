@@ -1,43 +1,86 @@
 import {SortState} from './sort-state.model';
+import {ColumnModel, EntityType} from '../../../models/catalog.model';
+import {DataModel, Method} from '../../../models/ui-request.model';
+import {Pair} from '../../json/json-editor.component';
 
 /**
  * model for the result of a query coming from the server
  */
 
-export class ResultSet {
-    header: DbColumn[];
-    data: string[][];
-    hasMoreRows: boolean;
+export interface FieldDefinition {
+    name: string;
+    dataType: string;
+    nullable: boolean;
+    defaultValue: string;
+}
+
+export class Result<D, H extends FieldDefinition | UiColumnDefinition> {
+    dataModel: DataModel;
+    namespace: string;
+    queryType: QueryType;
+    query: string;
+    data: D[];
+    header: H[];
+    exception: ResultException;
+    error: string;
+    language: QueryLanguage;
+    hasMore: boolean;
     currentPage: number;
     highestPage: number;
+    affectedTuples: number;
+}
+
+
+export class RelationalResult extends Result<string[], UiColumnDefinition> {
     table: string;
+    tableId: number;
     tables: string[];
     error: string;
-    exception: ResultException;
-    affectedRows: number;
-    generatedQuery: string;
-    type: string;//"table" or "view"
-    namespaceName: string;
-    namespaceType = 'RELATIONAL';//"relational" or "document"
-    language: string; //sql,mql,cql
+    type: EntityType;//"table" or "view"
+
+    constructor(error: string, affectedRows = 0) {
+        super();
+        this.error = error;
+        this.affectedTuples = affectedRows;
+    }
+}
+
+export class RelationalExploreResult extends RelationalResult {
     explorerId: number;
     classificationInfo: string;
     includesClassificationInfo: boolean;
     classifiedData: string[][];
     isConvertedToSql: boolean;
-
-    constructor(error: string, generatedQuery = null, affectedRows = 0) {
-        this.error = error;
-        this.generatedQuery = generatedQuery;
-        this.affectedRows = affectedRows;
-    }
 }
 
-export class InfoSet extends ResultSet {
+export class GraphResult extends Result<string[], FieldDefinition> {
+
+}
+
+export class DocumentResult extends Result<string, FieldDefinition> {
+
+}
+
+export enum QueryLanguage {
+    MQL = 'mql',
+    MONGO = 'mongo',
+    SQL = 'sql',
+    CYPHER = 'cypher',
+    CQL = 'cql'
+}
+
+export enum QueryType {
+    DDL = 'DDL',
+    DML = 'DML',
+    DQL = 'DQL'
+}
+
+
+export class InfoSet extends RelationalResult {
 
 
     constructor(error: string, generatedQuery: any, affectedRows: number) {
-        super(error, generatedQuery, affectedRows);
+        super(error, affectedRows);
     }
 }
 
@@ -45,10 +88,10 @@ export class InfoSet extends ResultSet {
  * model with classified data coming form server
  */
 export class ExploreSet {
-    header: DbColumn[];
-    dataAfterClassification: String[];
-    exploreManagerId;
-    graph: String;
+    header: UiColumnDefinition[];
+    dataAfterClassification: string[];
+    exploreManagerId: number;
+    graph: string;
 }
 
 export class ExplorColSet {
@@ -63,8 +106,8 @@ export class SelectedColSet {
 
 export class DashboardSet {
 
-    availableAdapter: {};
-    availableSchemas: {};
+    availableAdapter: { string: Pair };
+    availableNamespaces: {};
     catalogPersistent: boolean;
     numberOfCommits: number;
     numberOfRollbacks: number;
@@ -146,10 +189,10 @@ export class DashboardData {
 /**
  * Model for a column of a table
  */
-export class DbColumn {
+export class UiColumnDefinition implements FieldDefinition {
     //for both
     name: string;
-    physicalName: string;
+    id: number;
 
     //for the data-table
     sort: SortState;
@@ -171,7 +214,19 @@ export class DbColumn {
     as: string;
 
     constructor(
-        name: string, primary: boolean = null, nullable: boolean = null, type: string = null, collectionsType: string = null, precision: number = null, scale: number, defaultValue: string = null, dimension: number = -1, cardinality: number = -1, as = null) {
+        id: number,
+        name: string,
+        primary: boolean = null,
+        nullable: boolean = null,
+        type: string = null,
+        collectionsType: string = null,
+        precision: number = null,
+        scale: number,
+        defaultValue: string = null,
+        dimension: number = -1,
+        cardinality: number = -1,
+        as = null) {
+        this.id = id;
         this.name = name;
         this.primary = primary;
         this.nullable = nullable;
@@ -185,8 +240,19 @@ export class DbColumn {
         this.as = as;
     }
 
-    static fromJson(obj) {
-        return new DbColumn(obj.name, obj.primary, obj.nullable, obj.dataType, obj.collectionsType, obj.precision, obj.scale, obj.defaultValue, obj.dimension, obj.cardinality, obj.as);
+    static fromModel(column: ColumnModel, primaries: number[]) {
+        return new UiColumnDefinition(
+            column.id,
+            column.name,
+            primaries.includes(column.id),
+            column.nullable,
+            column.type.name,
+            column.collectionsType == null ? null : column.collectionsType.name,
+            column.precision,
+            column.scale,
+            column.defaultValue,
+            column.dimension,
+            column.cardinality);
     }
 }
 
@@ -199,13 +265,15 @@ export interface PolyType {
  * model for constraints of a table
  */
 export class TableConstraint {
+    id: number;
     name: string;
     type: string;
     deferrable: boolean;
     initially_deferred: boolean;
     columns: string[] = [];
 
-    constructor(name: string, type: string = null, deferrable: boolean = null, initially_deferred: boolean = null) {
+    constructor(id: number, name: string = null, type: string = null, deferrable: boolean = null, initially_deferred: boolean = null) {
+        this.id = id;
         this.name = name;
         this.type = type;
         this.deferrable = deferrable;
@@ -223,21 +291,67 @@ export class TableConstraint {
 /**
  * SQL Index of a table
  */
-export class Index {
+export class IndexModel {
     constructor(
-        private schema: string,
-        private table: string,
+        private namespaceId: number,
+        private entityId: number,
         private name: string,
         private storeUniqueName: string,
         private method: string,
-        private columns: string[]
+        private columnIds: number[]
     ) {
     }
 }
 
-export class AvailableIndexMethod {
+export class EntityMeta {
+    namespaceId: number;
+    entityId: number;
+    entityName: string;
+    fields: number[];
+
+    constructor(
+        namespaceId: number,
+        entityId: number,
+        entityName: string,
+        fields: number[] = []
+    ) {
+        this.namespaceId = namespaceId;
+        this.entityId = entityId;
+        this.entityName = entityName;
+        this.fields = fields;
+    }
+}
+
+export class PlacementFieldsModel {
+    namespaceId: number;
+    entityId: number;
+    adapterName: string;
+    method: Method;
+    fieldNames: string[];
+
+    constructor(
+        namespaceId: number,
+        entityId: number,
+        adapterName: string,
+        method: Method,
+        fieldNames: string[]
+    ) {
+        this.namespaceId = namespaceId;
+        this.entityId = entityId;
+        this.adapterName = adapterName;
+        this.method = method;
+        this.fieldNames = fieldNames;
+    }
+}
+
+export class IndexMethodModel {
     name: string;
     displayName: string;
+
+    constructor(name: string, displayName: string) {
+        this.name = name;
+        this.displayName = displayName;
+    }
 }
 
 /**
@@ -326,9 +440,12 @@ export class ModifyPartitionRequest {
     }
 }
 
+
 /**
  * How a ResultSet should be displayed
  */
 export enum DataPresentationType {
-    TABLE, CAROUSEL, CARD, GRAPH
+    TABLE = 'TABLE',
+    CARD = 'CARD',
+    GRAPH = 'GRAPH'
 }

@@ -2,11 +2,11 @@
 
 ul {
   display: flex;
+  justify-content: center;
   padding: 12px 0 0 0;
   position: relative;
-  margin: auto;
   transition: all 0.5s;
-  margin-top: -5px
+  margin: -5px auto auto;
 }
 
 ul ul::before {
@@ -87,7 +87,6 @@ ul li .plan-node:hover + ul ul::before {
   border-color: #008CAF
 }
 
-
 /*
 	PLAN NODE
 */
@@ -107,7 +106,7 @@ ul li .plan-node:hover + ul ul::before {
   word-wrap: break-word;
   word-break: break-all;
   width: 240px;
-  box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.1)
+  box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, 0.1)
 }
 
 .plan-node header {

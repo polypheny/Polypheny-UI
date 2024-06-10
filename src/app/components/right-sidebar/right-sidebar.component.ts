@@ -1,6 +1,6 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit} from '@angular/core';
 import {Setting, WebuiSettingsService} from '../../services/webui-settings.service';
-import {FormControl, FormGroup} from '@angular/forms';
+import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
 import {RightSidebarToRelationalalgebraService} from '../../services/right-sidebar-to-relationalalgebra.service';
 
 @Component({
@@ -10,29 +10,32 @@ import {RightSidebarToRelationalalgebraService} from '../../services/right-sideb
 })
 export class RightSidebarComponent implements OnInit {
 
+    private readonly _settings = inject(WebuiSettingsService);
+    private readonly _RsToRa = inject(RightSidebarToRelationalalgebraService);
+
+
+    @Input()
+    reload: () => void;
     settings: Map<string, Setting> = this._settings.getSettings();
-    form: FormGroup;
+    form: UntypedFormGroup;
 
     settingsGR = this._settings.getSettingsGR();
-    formGR: FormGroup;
+    formGR: UntypedFormGroup;
     public buttonName = 'connect';
 
 
-    constructor(
-        private _settings: WebuiSettingsService,
-        private _RsToRa: RightSidebarToRelationalalgebraService
-    ) {
+    constructor() {
         const controls = {};
         this.settings.forEach((val: Setting, key: string) => {
-            controls[key] = new FormControl(<string>val.value);
+            controls[key] = new UntypedFormControl(<string>val.value);
         });
-        this.form = new FormGroup(controls);
+        this.form = new UntypedFormGroup(controls);
 
         const controlsGR = {};
         this.settingsGR.forEach((val, key) => {
-            controlsGR[key] = new FormControl(val);
+            controlsGR[key] = new UntypedFormControl(val);
         });
-        this.formGR = new FormGroup(controlsGR);
+        this.formGR = new UntypedFormGroup(controlsGR);
 
     }
 

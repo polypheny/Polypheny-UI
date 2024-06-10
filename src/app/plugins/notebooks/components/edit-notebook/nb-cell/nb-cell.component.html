@@ -1,7 +1,7 @@
 <div class="nb-cell" #cellDiv (click)="onFocus($event)" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()"
      tabindex="-1">
     <div *ngIf="isFocused" class="nb-overlay">
-        <div class="nb-overlay-buttons btn-group btn-group-sm mr-2" role="group" aria-label="Overlay Buttons">
+        <div class="nb-overlay-buttons btn-group btn-group-sm me-2" role="group" aria-label="Overlay Buttons">
             <select class="form-select btn bg-light pr-0 pl-1" aria-label="Select Cell Type"
                     (change)="changeType.emit($event)"
                     [value]="selectedCellType">
@@ -11,35 +11,44 @@
                 <option value="raw">Raw</option>
             </select>
             <div class="nb-overlay-separator bg-secondary"></div>
-            <button type="button" class="btn btn-light no-select-cell ml-0" (click)="move.emit(false)"
+            <button cButton color="light" type="button" class="no-select-cell ms-0" (click)="move.emit(false)"
                     [disabled]="isFirst" onclick="this.blur();" tooltip="Move cell up" container="body">
                 <i class="fa fa-arrow-up no-select-cell"></i>
             </button>
-            <button type="button" class="btn btn-light no-select-cell" (click)="move.emit(true)"
+            <button cButton color="light" type="button" class="no-select-cell" (click)="move.emit(true)"
                     [disabled]="isLast" onclick="this.blur();" tooltip="Move cell down" container="body">
                 <i class="fa fa-arrow-down no-select-cell"></i>
             </button>
             <div class="nb-overlay-separator bg-secondary"></div>
-            <button type="button" class="btn btn-light no-select-cell" (click)="duplicate.emit()"
+            <button cButton color="light" type="button" class="no-select-cell" (click)="duplicate.emit()"
                     onclick="this.blur();" tooltip="Duplicate cell" container="body">
                 <i class="fa fa-clone no-select-cell"></i>
             </button>
-            <button type="button" class="btn btn-light vertical-icons py-0 no-select-cell ml-0"
+            <button cButton color="light" type="button" class="vertical-icons py-0 no-select-cell ms-0"
                     (click)="insert.emit(false)"
                     onclick="this.blur();" tooltip="Insert cell above (A)" container="body">
                 <i class="fa fa-chevron-up no-select-cell"></i>
                 <i class="fa fa-plus-square vertical-icon-plus-bottom no-select-cell"></i>
             </button>
-            <button type="button" class="btn btn-light vertical-icons py-0 no-select-cell" (click)="insert.emit(true)"
-                    onclick="this.blur();" tooltip="Insert cell below (B)" container="body">
+            <button cButton
+                    color="light"
+                    type="button"
+                    class="vertical-icons py-0 no-select-cell"
+                    (click)="insert.emit(true)"
+                    onclick="this.blur();"
+                    tooltip="Insert cell below (B)"
+                    container="body">
                 <i class="fa fa-plus-square vertical-icon-plus-top no-select-cell"></i>
                 <i class="fa fa-chevron-down no-select-cell"></i>
             </button>
             <div class="nb-overlay-separator bg-secondary"></div>
-            <button class="btn btn-light no-select-cell" (click)="deleteCell()" (mouseleave)="resetDeleteConfirm()"
-                    tooltip="Delete cell" container="body">
+            <button cButton color="light" class="no-select-cell"
+                    (click)="deleteCell()"
+                    (mouseleave)="resetDeleteConfirm()"
+                    tooltip="Delete cell"
+                    container="body">
                 <i class="no-select-cell"
-                   [ngClass]="{'cui-trash': !confirmingDeletion, 'fa fa-warning': confirmingDeletion}"></i>
+                   [ngClass]="{'cil-trash': !confirmingDeletion, 'fa fa-warning': confirmingDeletion}"></i>
             </button>
         </div>
     </div>
@@ -58,7 +67,7 @@
                     *ngIf="(isFocused || isMouseOver || manualExecution) && (cell.cell_type === 'code' || (cellType === 'markdown' && !isMdRendered))">
                 <button
                         [hidden]="sourceHidden"
-                        type="button" class="btn nb-exec-btn" [ngClass]="{'mr-0 pr-0': manualExecution}"
+                        type="button" class="btn nb-exec-btn" [ngClass]="{'me-0 pe-0': manualExecution}"
                         (click)="executeCell()" onclick="this.blur();">
                     <i *ngIf="cellType === 'markdown' || !manualExecution; else elseManual" class="fa fa-play"
                        style="vertical-align: middle"></i>
@@ -138,9 +147,9 @@
 
         <div *ngIf="sourceHidden" class="nb-hidden" (click)="setSourceHidden(false)"
              [ngClass]="{'text-secondary': isFocused, 'text-light': !isFocused}">
-            <i class="fa fa-circle mr-2"></i>
-            <i class="fa fa-circle mr-2"></i>
-            <i class="fa fa-circle mr-2"></i>
+            <i class="fa fa-circle me-2"></i>
+            <i class="fa fa-circle me-2"></i>
+            <i class="fa fa-circle me-2"></i>
         </div>
 
     </div>
@@ -154,7 +163,7 @@
             <div class="nb-outputs" *ngIf="cellType === 'poly'; else codeOutput">
                 <div class="nb-poly-data-view nb-output">
                     <!--<div class="nb-side-area"></div>-->
-                    <div class="nb-output-text ml-1">
+                    <div class="nb-output-text ms-1">
                         <app-db-poly-output [resultSet]="resultSet"
                                             [resultVariable]="resultVariable"
                                             [resultIsTooLong]="resultIsTooLong"></app-db-poly-output>
@@ -204,9 +213,9 @@
         <div *ngIf="outputsHidden" class="nb-hidden nb-output" (click)="setOutputsHidden(false)"
              [ngClass]="{'text-secondary': isFocused, 'text-light': !isFocused}">
             <div class="nb-side-area"></div>
-            <i class="fa fa-circle mr-2"></i>
-            <i class="fa fa-circle mr-2"></i>
-            <i class="fa fa-circle mr-2"></i>
+            <i class="fa fa-circle me-2"></i>
+            <i class="fa fa-circle me-2"></i>
+            <i class="fa fa-circle me-2"></i>
         </div>
     </div>
 </div>

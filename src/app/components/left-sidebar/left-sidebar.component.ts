@@ -1,8 +1,10 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, computed, inject, OnInit, Signal, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
-import {TreeComponent, TreeModel} from 'angular-tree-component';
 import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
+import {TreeComponent, TreeModel} from '@ali-hm/angular-tree-component';
+import {CatalogService} from '../../services/catalog.service';
+import {CatalogState} from '../../models/catalog.model';
 
 
 @Component({
@@ -14,33 +16,25 @@ import {LeftSidebarService} from './left-sidebar.service';
 //docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
-    static readonly EXPAND_SHOWN_ROUTES: String[] = [
-        '/views/monitoring', '/views/config', '/views/uml', '/views/querying/console',
-        '/views/querying/relational-algebra', '/views/notebooks'];
+    private readonly _router = inject(Router);
+    public readonly _sidebar = inject(LeftSidebarService);
+    public readonly _catalog = inject(CatalogService);
 
-    @ViewChild('tree', {static: false}) treeComponent: TreeComponent;
-    nodes = [];
-    buttons = [];
-    options;
-    error;
-    router;
+    public readonly sidebarAvailable: Signal<boolean>;
 
-    constructor(
-        _router: Router,
-        private _sidebar: LeftSidebarService,
-    ) {
-        this.router = _router;
+    constructor() {
+        this.router = this._router;
         //this.nodes = nodes;
         this.options = {
             actionMapping: {
                 mouse: {
                     click: (tree, node, $event) => {
-                        _sidebar.selectedNodeId = node.data.id;
+                        this._sidebar.selectedNodeId = node.data.id;
                         if (node.data.action !== null) {
                             node.data.action(tree, node, $event);
                         }
                         if (node.data.routerLink && node.data.allowRouting) {
-                            _router.navigate([node.data.routerLink]);
+                            this._router.navigate([node.data.routerLink]).then(r => null);
                         }
                         if (node.data.isAutoExpand()) {
                             node.toggleExpanded();
@@ -64,12 +58,29 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
             }
         };
 
-        _sidebar.getError().subscribe(
+        this._sidebar.getError().subscribe(
             error => {
                 this.error = error;
             }
         );
+
+        this.sidebarAvailable = computed(() => {
+            return this.buttons.length > 0 || this.error || this.nodes.length > 0
+        })
     }
+
+    static readonly EXPAND_SHOWN_ROUTES: String[] = [
+        '/views/monitoring', '/views/config', '/views/uml', '/views/querying/console',
+        '/views/querying/algebra', '/views/notebooks'];
+
+    @ViewChild('tree', {static: false}) treeComponent: TreeComponent;
+    nodes = [];
+    buttons = [];
+    options;
+    error;
+    router;
+
+    protected readonly CatalogState = CatalogState;
 
     ngOnInit() {
     }

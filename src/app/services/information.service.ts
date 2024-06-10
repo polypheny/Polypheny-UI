@@ -1,4 +1,4 @@
-import {EventEmitter, Injectable} from '@angular/core';
+import {EventEmitter, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {webSocket} from 'rxjs/webSocket';
 import {WebuiSettingsService} from './webui-settings.service';
@@ -8,8 +8,10 @@ import {InformationObject} from '../models/information-page.model';
     providedIn: 'root'
 })
 export class InformationService {
+    private readonly _http = inject(HttpClient);
+    private readonly _settings = inject(WebuiSettingsService);
 
-    constructor(private _http: HttpClient, private _settings: WebuiSettingsService) {
+    constructor() {
         this.initWebSocket();
     }
 
@@ -18,6 +20,7 @@ export class InformationService {
     public socket;
     httpUrl = this._settings.getConnection('information.rest');
     httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
+    reconnetor: number;
 
     getPage(pageId: string) {
         return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
@@ -62,11 +65,18 @@ export class InformationService {
             err => {
                 //this.reconnected.emit(false);
                 this.connected = false;
-                setTimeout(() => {
-                    this.initWebSocket();
-                }, +this._settings.getSetting('reconnection.timeout'));
+                this.startReconnecting();
             }
         );
+    }
+
+    private startReconnecting() {
+        if (this.reconnetor) {
+            clearTimeout(this.reconnetor);
+        }
+        this.reconnetor = setTimeout(() => {
+            this.initWebSocket();
+        }, +this._settings.getSetting('reconnection.timeout'));
     }
 
     socketSend(msg: string) {
@@ -83,6 +93,13 @@ export class InformationService {
 
     onReconnection() {
         return this.reconnected;
+    }
+
+    manualReconnect() {
+        if (this.reconnetor) {
+            clearTimeout(this.reconnetor);
+        }
+        this.initWebSocket();
     }
 
 }

@@ -1,58 +1,61 @@
-export interface Handshake {
-    lastErrorMessage: string;
-    hostname: string;
-    execCommand: string;
-    containerExists: string;
-    status: string;
-    runCommand: string;
+export interface HandshakeInfo {
+    id: number,
+    host: DockerHost,
+    runCommand: string,
+    execCommand: string,
+    status: string,
+    lastErrorMessage: string,
+    containerExistsGuess: boolean,
 }
 
-export interface DockerInstance {
+export interface DockerHost {
+    hostname: string,
+    alias: string,
+    registry: string,
+    communicationPort: number,
+    handshakePort: number,
+    proxyPort: number,
+}
+
+export interface DockerInstanceInfo {
     id: number;
-    host: string;
-    alias: string;
     connected: boolean;
-    registry: string;
-    communicationPort: number;
-    handshakePort: number;
-    proxyPort: number;
     numberOfContainers: number;
+    host: DockerHost;
 }
 
-export interface DockerStatus {
-    successful: boolean;
-    errorMessage: string;
-    instanceId: number;
+export interface CreateDockerResponse {
+    handshake: HandshakeInfo,
+    instances: DockerInstanceInfo[],
 }
 
-export interface DockerSetupResponse {
-    error: string;
-    success: boolean;
-    handshake: Handshake;
-    instances: DockerInstance[];
+export interface UpdateDockerResponse {
+    handshake: HandshakeInfo;
+    instance: DockerInstanceInfo;
 }
 
-export interface DockerUpdateResponse {
-    error: string;
-    instance: DockerInstance;
-    handshake: Handshake;
+export interface InstancesAndAutoDocker {
+    instances: DockerInstanceInfo[];
+    status: AutoDockerStatus;
 }
 
-export interface DockerReconnectResponse {
-    error: string;
-    handshake: Handshake;
+export interface AutoDockerStatus {
+    available: boolean;
+    connected: boolean;
+    running: boolean;
+    status: string;
 }
 
-export interface DockerRemoveResponse {
-    error: string;
-    instances: DockerInstance[];
+export interface AutoDockerResult {
+    status: AutoDockerStatus;
+    instances: DockerInstanceInfo[];
 }
 
 export interface HandshakeAndInstance {
-    handshake: Handshake;
-    instance: DockerInstance;
+    handshake: HandshakeInfo;
+    instance: DockerInstanceInfo;
 }
 
 export interface DockerSettings {
-    registry: string;
+    defaultRegistry: string;
 }

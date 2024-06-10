@@ -16,12 +16,12 @@
             Result is too big to be displayed entirely. Only the first {{resultSet.data.length}}
             of {{resultSet.affectedRows}} entries are shown.
         </p>
-        <app-data-view class="result-view" [resultSet]="resultSet" [config]="tableConfig"></app-data-view>
-        <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="resultSet.hasMoreRows">
+        <app-data-view class="result-view" [result]="resultSet" [config]="tableConfig"></app-data-view>
+        <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="resultSet.hasMore">
             Only {{resultSet.data.length}} rows are being displayed. To fetch more rows, please specify
             a LIMIT clause.</p>
         <p class="text-center" *ngIf="resultVariable">
-            <i class="cui-arrow-right"></i>
+            <i class="cil-arrow-right"></i>
             <i> {{resultVariable}}</i>
         </p>
     </ng-container>

@@ -1,18 +1,19 @@
-<app-toast></app-toast>
-<ng-container [ngSwitch]="route">
+<ng-container [ngSwitch]="currentRoute()">
 
     <!-- availableAdapters -->
-    <div class="row" *ngSwitchCase="['addStore','addSource'].includes(route) ? route : ''">
-        <div class="col-lg-12">
+    <c-row *ngSwitchCase="['addStore','addSource'].includes(currentRoute()) ? currentRoute() : ''">
+        <c-col>
             <h2>Adapters</h2>
-        </div>
-    </div>
-    <div class="row" *ngSwitchCase="['addStore','addSource'].includes(route) ? route : ''">
-        <button class="btn btn-circle btn-primary topRight" [routerLink]="['./../']"><i class="fa fa-close"></i>
+            <br>
+        </c-col>
+    </c-row>
+    <c-row *ngSwitchCase="['addStore','addSource'].includes(currentRoute()) ? currentRoute() : ''">
+        <button cButton color="primary" class="btn-circle topRight" [routerLink]="['./../']">
+            <i class="fa fa-close"></i>
         </button>
 
-        <div class="col-lg-12" *ngIf="getAvailableAdapters()">
-            <table class="table table-hover table-sm table-bordered table-striped" id="adapter-table">
+        <c-col *ngIf="availableAdapters()">
+            <table cTable size="sm" hover="true" bordered="true" id="adapter-table">
                 <thead>
                 <tr>
                     <th>Logo</th>
@@ -22,316 +23,265 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let adapter of getAvailableAdapters()">
+                <tr *ngFor="let adapter of availableAdapters()">
                     <td class="center">
-                        <ng-container *ngIf="getLogo(adapter.name).startsWith('assets/')">
-                            <img [src]="getLogo(adapter.name)" alt="">
+                        <ng-container *ngIf="getLogo(adapter.adapterName).startsWith('assets/')">
+                            <img [src]="getLogo(adapter.adapterName)" alt="">
                         </ng-container>
-                        <ng-container *ngIf="!getLogo(adapter.name).startsWith('assets/')">
-                            <i [class]="getLogo(adapter.name)"></i>
+                        <ng-container *ngIf="!getLogo(adapter.adapterName).startsWith('assets/')">
+                            <i [class]="getLogo(adapter.adapterName)"></i>
                         </ng-container>
                     </td>
-                    <td><strong>{{adapter.name}}</strong></td>
-                    <td>{{adapter.description}}</td>
+                    <td><strong>{{ adapter.adapterName }}</strong></td>
+                    <td>{{ adapter.description }}</td>
                     <td class="center">
-                        <button class="btn btn-sm btn-primary" (click)="initDeployModal(adapter)">Deploy</button>
+                        <button cButton size="sm" color="primary" (click)="initDeployModal(adapter)">Deploy</button>
                     </td>
                 </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
+        </c-col>
+    </c-row>
 
     <!-- template for current stores and sources, it is called below -->
     <ng-template #adapterTemplate let-adapters="adapters" let-type="type">
-        <div class="col-lg-6 fixed-width" *ngFor="let adapter of adapters">
-
-            <div class="card fixed-height">
-                <div class="card-header card-header-adapter">
-                    <p>{{adapter.uniqueName}}</p>
-                    <span *ngIf="adapter.currentSettings['mode'] === 'docker'" class="badge badge-primary">Docker</span>
-                    <span *ngIf="adapter.currentSettings['mode'] === 'remote'" class="badge badge-primary bg-green">Remote</span>
-                    <span *ngIf="adapter.currentSettings['mode'] === 'embedded'"
-                          class="badge badge-dark">Embedded</span>
-                </div>
-                <div class="card-body">
+        <c-col [lg]="6" class="fixed-width" *ngFor="let adapter of adapters">
+            <c-card class="fixed-height">
+                <c-card-header class="card-header-adapter">
+                    <p>{{ adapter.name }}</p>
+                    <c-badge *ngIf="adapter.mode === DeployMode.DOCKER" color="primary">Docker</c-badge>
+                    <c-badge *ngIf="adapter.mode === DeployMode.REMOTE" color="success">Remote</c-badge>
+                    <c-badge *ngIf="adapter.mode === DeployMode.EMBEDDED" color="info">Embedded</c-badge>
+                </c-card-header>
+                <c-card-body>
                     <img *ngIf="getLogo(adapter.adapterName).startsWith('assets/')" [src]="getLogo(adapter.adapterName)"
                          alt="" class="logo">
                     <i *ngIf="!getLogo(adapter.adapterName).startsWith('assets/')"
                        [class]="'logo ' + getLogo(adapter.adapterName)"></i>
-                    <span class="mb-2">Adapter: {{adapter.adapterName}}</span>
+                    <span class="mb-2">Adapter: {{ adapter.adapterName }}</span>
 
                     <span *ngIf="adapter.dataReadOnly"><span class="fa fa-eye"></span> read-only</span>
                     <span *ngIf="adapter.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
-                    <span *ngIf="adapter.currentSettings.hasOwnProperty('host') && adapter.currentSettings.hasOwnProperty('port')">{{adapter.currentSettings['host']}}
-                        <span *ngIf="adapter.currentSettings['mode'] === 'remote'">: {{adapter.currentSettings['port']}}</span></span>
-
-                </div>
-                <div class="card-footer bg-transparent">
-                    <button class="btn btn-danger" (click)="removeAdapter(adapter)"
+                    <span *ngIf="adapter.settings.hasOwnProperty('host') && adapter.settings.hasOwnProperty('port')">{{ adapter.settings['host'].value }}
+                        <span *ngIf="adapter.settings['mode'] === 'remote'">: {{ adapter.settings['port'] }}</span>
+                    </span>
+                </c-card-body>
+                <c-card-footer class="bg-transparent">
+                    <button cButton color="danger" (click)="removeAdapter(adapter)"
                             (mouseleave)="resetDeletingAdapter(adapter)" [ngClass]="{'disabled': isDeleting(adapter)}">
-                        <i class="cui-trash" *ngIf="!isDeleting(adapter)"
-                           [ngClass]="{'cui-trash': adapter !== deletingAdapter, 'fa fa-warning': adapter === deletingAdapter}"></i>
-                        <div *ngIf="isDeleting(adapter)" class="spinner-border spinner-border-sm" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
+                        <i class="text-white" *ngIf="!isDeleting(adapter)"
+                           [ngClass]="{'cil-trash': adapter !== deletingAdapter, 'cil-warning': adapter === deletingAdapter}"></i>
+                        <c-spinner *ngIf="isDeleting(adapter)" size="sm" cBorder color="light"
+                                   role="status"></c-spinner>
                     </button>
-                    <button class="btn btn-primary pull-right" (click)="initAdapterSettingsModal(adapter)">Configure
+                    <button cButton color="primary" class="pull-right"
+                            (click)="initAdapterSettingsConfigureModal(adapter)">
+                        Configure
                     </button>
-                </div>
-            </div>
+                </c-card-footer>
+            </c-card>
 
-        </div>
-        <div class="col-lg-6 fixed-height add-adapter-wrapper">
-            <button *ngIf="type === 'source'" class="btn btn-primary add-adapter" [routerLink]="['./addSource']"><i
-                    class="fa fa-plus"></i></button>
-            <button *ngIf="type === 'store'" class="btn btn-primary add-adapter" [routerLink]="['./addStore']"><i
-                    class="fa fa-plus"></i></button>
-        </div>
+        </c-col>
+        <c-col size="1" [lg]="6" class="fixed-height fixed-width add-adapter-wrapper">
+            <button cButton color="primary" *ngIf="type === 'source'" class="add-btn"
+                    [routerLink]="['./addSource']">
+                <i class="fa fa-plus"></i>
+            </button>
+            <button cButton color="primary" *ngIf="type === 'store'" class="add-btn" [routerLink]="['./addStore']">
+                <i class="fa fa-plus"></i>
+            </button>
+        </c-col>
     </ng-template>
 
     <!-- show current stores and sources -->
-    <div *ngSwitchDefault>
-        <div class="row">
-            <div class="col-lg-12">
+    <div *ngSwitchDefault class="mb-3">
+        <c-row>
+            <c-col size="12">
                 <h2>Stores</h2>
-            </div>
-        </div>
-        <div class="row adapters">
-            <ng-container *ngTemplateOutlet="adapterTemplate; context:{adapters: stores, type: 'store'}"></ng-container>
-        </div>
+                <br>
+            </c-col>
+        </c-row>
+        <c-row class="adapters" [gutter]="3">
+            <ng-container
+                    *ngTemplateOutlet="adapterTemplate; context:{adapters: stores(), type: 'store'}"></ng-container>
+        </c-row>
+        <br>
     </div>
     <div *ngSwitchDefault>
-        <div class="row">
-            <div class="col-lg-12">
+        <c-row>
+            <c-col size="12">
                 <h2>Sources</h2>
-            </div>
-        </div>
-        <div class="row adapters">
+                <br>
+            </c-col>
+        </c-row>
+        <c-row class="adapters" [gutter]="3">
             <ng-container
-                    *ngTemplateOutlet="adapterTemplate; context:{adapters: sources, type: 'source'}"></ng-container>
-        </div>
+                    *ngTemplateOutlet="adapterTemplate; context:{adapters: sources(), type: 'source'}"></ng-container>
+        </c-row>
+        <br>
     </div>
-
 </ng-container>
 
 
-<div bsModal #adapterSettingsModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
-     aria-labelledby="myModalLabel" aria-hidden="true" id="editUserModal" (onHide)="onCloseModal()">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">{{activeMode ? "Settings" : "Deployment Mode"}}</h4>
+<c-modal class="fade" role="dialog" *ngIf="modalActive" [visible]="modalActive" aria-labelledby="myModalLabel"
+         aria-hidden="true" id="editUserModal" (visibleChange)="onVisibilityChange($event)">
+    <c-modal-content>
+        <c-modal-header>
+            <h4 cModalTitle>{{ activeMode() ? "Settings" : "Deployment Mode" }}</h4>
+            <button (click)="modalActive = false" cButtonClose></button>
+        </c-modal-header>
 
-                <button type="button" class="close" (click)="adapterSettingsModal.hide()" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <!-- Edit adapter settings -->
-            <div class="modal-body" *ngIf="editingAdapter && editingAdapter.adapterSettings">
-                <form [formGroup]="editingAdapterForm" autocomplete="off" (ngSubmit)="saveAdapterSettings()">
-                    <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
-                        <div>
-                            <div class="input-group"
-                                 *ngIf="!getAdapterSetting(editingAdapter, control.key).options && !getAdapterSetting(editingAdapter, control.key).fileNames">
-                                <div class="input-group-prepend"
-                                     [tooltip]="getAdapterSetting(editingAdapter, control.key).description"
-                                     placement="left"
-                                     delay="200">
-                                    <label [for]="control.key" class="input-group-text">{{control.key}}</label>
-                                </div>
-                                <input type="text" class="form-control" [id]="control.key"
-                                       [formControlName]="control.key"
-                                       [ngClass]="validate(editingAdapterForm, control.key)">
-                                <div class="invalid-feedback">required</div>
-                            </div>
-                            <div class="form-group" *ngIf="getAdapterSetting(editingAdapter, control.key).options">
-                                <div class="input-group select-wrapper"
-                                     *ngIf="!getAdapterSetting(editingAdapter, control.key).dynamic; else editDynamic">
-                                    <div class="input-group-prepend"
-                                         [tooltip]="getAdapterSetting(editingAdapter, control.key).description"
-                                         placement="left" delay="200">
-                                        <label class="input-group-text" [for]="control.key">{{control.key}}</label>
-                                    </div>
-                                    <select [id]="control.key" class="form-control" [formControlName]="control.key">
-                                        <option *ngFor="let option of getAdapterSetting(editingAdapter, control.key).options"
-                                                [value]="option">{{option}}</option>
-                                    </select>
-                                </div>
-                                <!--dynamic select, which use ids internally-->
-                                <ng-template #editDynamic>
-                                    <div class="input-group select-wrapper">
-                                        <div class="input-group-prepend"
-                                             [tooltip]="getAdapterSetting(editingAdapter, control.key).description"
-                                             placement="left" delay="200">
-                                            <label class="input-group-text"
-                                                   [for]="control.key">{{getAdapterSetting(editingAdapter, control.key).nameAlias}}</label>
-                                        </div>
-                                        <select [id]="control.key" class="form-control" [formControlName]="control.key">
-                                            <option *ngFor="let option of getAdapterSetting(editingAdapter, control.key).options"
-                                                    [value]="option">{{getAdapterSetting(editingAdapter, control.key).alias[option]}}</option>
-                                        </select>
-                                    </div>
-                                </ng-template>
-                            </div>
-                            <div class="input-group" *ngIf="getAdapterSetting(editingAdapter, control.key).fileNames">
-                                <div class="input-group-prepend"
-                                     [tooltip]="getAdapterSetting(editingAdapter, control.key).description"
-                                     placement="left"
-                                     delay="200">
-                                    <label [for]="control.key" class="input-group-text">{{control.key}}</label>
-                                </div>
-                                <input *ngIf="!getAdapterSetting(editingAdapter, control.key).modifiable" type="text"
-                                       class="form-control" disabled
-                                       [value]="editingAdapter.currentSettings['directory']">
-                                <label [for]="control.key"
-                                       *ngIf="getAdapterSetting(editingAdapter, control.key).modifiable"
-                                       class="form-control"
-                                       style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
-                                    <input type="file" multiple style="display: none" [id]="control.key"
-                                           [ngClass]="validate(editingAdapterForm, control.key)"
-                                           (change)="onFileChange($event, editingAdapterForm, control.key)">
-                                    {{fileLabel}}
-                                </label>
-                                <div class="invalid-feedback">required</div>
-                            </div>
+        <!-- Edit adapter settings -->
+        <c-modal-body *ngIf="editingAdapterForm">
+            <form [formGroup]="editingAdapterForm" autocomplete="off" (ngSubmit)="saveAdapterSettings()" cRow
+                  [gutter]="{gy:2}">
+                <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
+                    <ng-container *ngIf="getAdapterSetting(control.key)">
+                        <c-input-group
+                                *ngIf="!getAdapterSetting(control.key).template.options && getAdapterSetting(control.key).template.type.toLowerCase() !== 'directory'">
+                            <span cInputGroupText cTooltipPlacement="left"
+                                  [cTooltip]="getAdapterSetting(control.key).template.description">
+                                {{ control.key }}
+                            </span>
+                            <input cFormControl type="text" [id]="control.key"
+                                   [formControlName]="control.key"
+                                   [ngClass]="validate(editingAdapterForm, control.key)">
+                            <c-form-feedback>required</c-form-feedback>
+                        </c-input-group>
+                        <div class="form-group" *ngIf="getAdapterSetting(control.key).template.options">
+                            <c-input-group class="select-wrapper">
+                                        <span cInputGroupText cTooltipPlacement="left"
+                                              [cTooltip]="getAdapterSetting(control.key).template.description">
+                                            {{ control.key }}
+                                        </span>
+                                <select cSelect [id]="control.key" [formControlName]="control.key">
+                                    <option *ngFor="let option of getAdapterSetting( control.key).template.options"
+                                            [value]="option">
+                                        {{ option }}
+                                    </option>
+                                </select>
+                            </c-input-group>
                         </div>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Form for deploying -->
-            <div class="modal-body" *ngIf="editingAvailableAdapter && editingAvailableAdapter.adapterSettings">
-                <div *ngIf="!activeMode; else options">
-                    <div class="">
-                        <p *ngFor="let mode of modeSettings" class="btn btn-primary btn-lg mr-1 btn-block"
-                           (click)="setMode(mode)">{{mode}}</p>
-                    </div>
+                        <c-input-group
+                                *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
+                            test
+                            <span cInputGroupText cTooltipPlacement="left"
+                                  [cTooltip]="getAdapterSetting(control.key).template.description">{{ control.key }}</span>
+                            <span cFormText *ngIf="!getAdapterSetting(control.key).template.modifiable" disabled></span>
+                            <span cFormText *ngIf="getAdapterSetting(control.key).template.modifiable"
+                                  style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
+                                    {{ fileLabel }}
+                                </span>
+                            <input cFormControl type="file" multiple style="display: none" [id]="control.key"
+                                   [ngClass]="validate(editingAdapterForm, control.key)"
+                                   (change)="onFileChange($event, control.key)">
+                            <c-form-feedback>required</c-form-feedback>
+                        </c-input-group>
+                    </ng-container>
                 </div>
+            </form>
+        </c-modal-body>
 
-                <ng-template #options>
-                    <div *ngIf="!handshaking; else secure">
-                        <form [formGroup]="availableAdapterUniqueNameForm" (ngSubmit)="deploy()" autocomplete="off">
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <label for="adapterUniqueName" class="input-group-text">Unique Name</label>
-                                    </div>
-                                    <input type="text" class="form-control" id="adapterUniqueName"
-                                           formControlName="uniqueName"
-                                           [ngClass]="validate(availableAdapterUniqueNameForm, 'uniqueName')">
-                                    <div class="invalid-feedback">{{getFeedback()}}</div>
-                                </div>
-                            </div>
-                        </form>
-                        <form [formGroup]="editingAvailableAdapterForm" (ngSubmit)="deploy()" autocomplete="off">
-                            <div class="form-group"
-                                 *ngFor="let control of editingAvailableAdapterForm.controls  | keyvalue: positionOrder( editingAvailableAdapter)">
-                                <div *ngIf=" !getAdapterSetting(editingAvailableAdapter, control.key).subOf || subIsActive(editingAvailableAdapter, getAdapterSetting(editingAvailableAdapter, control.key).subOf)">
-                                    <div class="input-group"
-                                         *ngIf="!getAdapterSetting(editingAvailableAdapter, control.key).options && !getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
-                                        <div class="input-group-prepend"
-                                             [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description"
-                                             placement="left" delay="200">
-                                            <label [for]="control.key" class="input-group-text">{{control.key}}</label>
-                                        </div>
-                                        <input type="text" class="form-control" [id]="control.key"
-                                               [formControlName]="control.key"
-                                               [ngClass]="validate(control.value, control.key)">
-                                        <div class="invalid-feedback">{{ getGenericFeedback(control.key)}}</div>
-                                    </div>
-                                    <div class="form-group"
-                                         *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).options">
-                                        <div class="input-group select-wrapper"
-                                             *ngIf="!getAdapterSetting(editingAvailableAdapter, control.key).dynamic; else dynamicSelect">
-                                            <div class="input-group-prepend"
-                                                 [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description"
-                                                 placement="left" delay="200">
-                                                <label class="input-group-text"
-                                                       [for]="control.key">{{control.key}}</label>
-                                            </div>
-                                            <select [id]="control.key" class="form-control"
-                                                    [ngClass]="validate(control.value, control.key)"
-                                                    [formControlName]="control.key" class="form-control"
-                                                    (change)="onChange(control.key, control.value)">
-                                                <option *ngFor="let option of getAdapterSetting(editingAvailableAdapter, control.key).options"
-                                                        [value]="option">{{option}}</option>
-                                            </select>
-                                            <div class="invalid-feedback">{{ getGenericFeedback(control.key)}}</div>
-                                        </div>
-                                        <ng-template #dynamicSelect>
-                                            <div class="input-group select-wrapper select-dynamic">
-                                                <div class="input-group-prepend"
-                                                     [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description"
-                                                     placement="left" delay="200">
-                                                    <label class="input-group-text"
-                                                           [for]="control.key">{{getAdapterSetting(editingAvailableAdapter, control.key).nameAlias}}</label>
-                                                </div>
-                                                <select [id]="control.key" class="form-control"
-                                                        [ngClass]="validate(control.value, control.key)"
-                                                        [formControlName]="control.key" class="form-control">
-                                                    <option *ngFor="let option of getAdapterSetting(editingAvailableAdapter, control.key).options"
-                                                            [value]="option">{{getAdapterSetting(editingAvailableAdapter, control.key).alias[option]}}</option>
-                                                </select>
-                                                <div class="invalid-feedback">{{ getGenericFeedback(control.key)}}</div>
-                                            </div>
-                                        </ng-template>
-                                    </div>
-                                    <div class="input-group"
-                                         *ngIf="getAdapterSetting(editingAvailableAdapter, control.key).fileNames">
-                                        <div class="input-group-prepend"
-                                             [tooltip]="getAdapterSetting(editingAvailableAdapter, control.key).description"
-                                             placement="left" delay="200">
-                                            <label [for]="control.key" class="input-group-text">{{control.key}}</label>
-                                        </div>
-                                        <label [for]="control.key" class="form-control"
-                                               style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
-                                            <input type="file" multiple style="display: none" [id]="control.key"
-                                                   [ngClass]="validate(control.value, control.key)"
-                                                   (change)="onFileChange($event, editingAvailableAdapterForm, control.key)">
-                                            {{fileLabel}}
-                                        </label>
-                                        <div class="invalid-feedback">{{ getGenericFeedback(control.key)}}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </ng-template>
-
-                <ng-template #secure>
-
-                    <p>Due to the limited permissions available to browsers, Polypheny cannot directly link files via
-                        UI.</p>
-                    <p>As a security measure, the established link has to be validated by the backend, for this it
-                        requires a <i><strong>polypheny.access</strong></i>, with the following content in the target
-                        directory:</p>
-                    <p><i><strong>{{this.accessId}}</strong></i></p>
-                    <p>This can be done created manually or downloaded: <a class="btn btn-primary"
-                                                                           (click)="createSecureFile()" download><i
-                            class="cui-file"></i></a></p>
-
-
-                </ng-template>
+        <!-- Form for deploying -->
+        <c-modal-body *ngIf="adapter() && !editingAdapterForm">
+            <div *ngIf="!activeMode(); else options" cRow [gutter]="3">
+                <c-col *ngFor="let mode of adapter().modes.sort()" xs="12" class="text-center">
+                    <button cButton size="lg" color="primary" class="btn-block"
+                            (click)="setMode(mode)">{{ mode | titlecase }}
+                    </button>
+                </c-col>
             </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="adapterSettingsModal.hide()">Close</button>
-                <button *ngIf="editingAdapter" type="submit" class="btn btn-primary" (click)="saveAdapterSettings()"
-                        [disabled]="!editingAdapterForm.valid">Save
-                </button>
-                <button *ngIf="editingAvailableAdapter && activeMode && !handshaking" type="submit"
-                        class="btn btn-primary"
-                        (click)="deploy()"
-                        [disabled]="!availableAdapterUniqueNameForm.valid || !editingAvailableAdapterForm.valid || deploying || handshaking">
-                    <span *ngIf="!deploying && !handshaking">Deploy</span>
-                    <span *ngIf="deploying || handshaking" class="spinner-border spinner-border-sm" role="status">
-                        <span class="sr-only">{{ handshaking ? 'Security checking...' : 'Loading...' }}</span>
-                    </span>
-                </button>
-                <button *ngIf="handshaking" class="btn btn-primary" (click)="continueSecureDeploy()">Continue</button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div>
+            <ng-template #options>
+                <c-container *ngIf="!handshaking; else secure" [gutter]="{gy:2}">
+                    <form [formGroup]="editingAvailableAdapterForm" (ngSubmit)="deploy()" autocomplete="off" cRow
+                          [gutter]="{gy:2}">
+                        <c-input-group class="has-validation">
+                            <span cInputGroupText>Unique Name</span>
+                            <input cFormControl type="text" id="adapterUniqueName"
+                                   formControlName="uniqueName"
+                                   [ngClass]="validate(editingAvailableAdapterForm.controls['uniqueName'].value, 'uniqueName')">
+                            <c-form-feedback>{{ getFeedback(editingAvailableAdapterForm) }}</c-form-feedback>
+                        </c-input-group>
+                        <ng-container
+                                *ngFor="let control of editingAvailableAdapterForm.controls | keyvalue: positionOrder()">
+                            <ng-container *ngIf=" control.key !== 'uniqueName' && isSettingDisplayed(control.key)">
+                                <c-input-group class="has-validation"
+                                               *ngIf="!getAdapterSetting(control.key).template.options && getAdapterSetting(control.key).template.type.toLowerCase() !== 'directory'">
+                                    <span cInputGroupText
+                                          [cTooltip]="getAdapterSetting(control.key).template.description"
+                                          cTooltipPlacement="left">{{ control.key }}</span>
+                                    <input cFormControl type="text" [id]="control.key"
+                                           [formControlName]="control.key"
+                                           [ngClass]="validate(control.value, control.key)">
+                                    <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
+                                </c-input-group>
+                                <ng-container *ngIf="getAdapterSetting(control.key).template.options">
+                                    <c-input-group class="has-validation">
+                                            <span cInputGroupText
+                                                  [cTooltip]="getAdapterSetting(control.key).template.description"
+                                                  [cTooltipVisible]="!!getAdapterSetting(control.key).template.description"
+                                                  cTooltipPlacement="left">
+                                                {{ control.key }}
+                                            </span>
+
+                                        <select cSelect [id]="control.key"
+                                                [ngClass]="validate(control.value, control.key)"
+                                                [formControlName]="control.key"
+                                                (change)="onChange(control.key,control.value)">
+                                            <option *ngFor="let option of getAdapterSetting(control.key).template.options"
+                                                    [value]="option">{{ getAdapterSetting(control.key).template?.alias?.[option] ? getAdapterSetting(control.key).template?.alias?.[option] : option }}
+                                            </option>
+                                        </select>
+                                        <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
+                                    </c-input-group>
+                                </ng-container>
+                                <c-input-group
+                                        *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
+                                    <label cInputGroupText>{{ control.key }}</label>
+                                    <input cFormControl type="file" (change)="onFileChange($event, control.key)"/>
+                                    <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
+                                </c-input-group>
+                            </ng-container>
+                        </ng-container>
+                    </form>
+                </c-container>
+            </ng-template>
+
+            <ng-template #secure>
+                <p>Due to the limited permissions available to browsers, Polypheny cannot directly link files via
+                    UI.</p>
+                <p>As a security measure, the established link has to be validated by the backend, for this it
+                    requires a <i><strong>polypheny.access</strong></i>, with the following content in the target
+                    directory:</p>
+                <p><i><strong>{{ this.accessId }}</strong></i></p>
+                <p>This can be done created manually or downloaded:
+                    <button cButton color="primary" (click)="createSecureFile()" download>
+                        <i class="cil-file"></i>
+                    </button>
+                </p>
+
+
+            </ng-template>
+        </c-modal-body>
+
+        <c-modal-footer>
+            <button cButton color="secondary" (click)="modalActive = false">
+                Close
+            </button>
+            <button cButton color="primary" *ngIf="editingAdapterForm" type="submit" (click)="saveAdapterSettings()"
+                    [disabled]="!editingAdapterForm?.valid">
+                Save
+            </button>
+            <button cButton color="primary" *ngIf="activeMode() && !handshaking && adapter().task != Task.CHANGE"
+                    type="submit" (click)="deploy()"
+                    [disabled]="!editingAvailableAdapterForm?.valid || deploying || handshaking">
+                <span *ngIf="!deploying && !handshaking">Deploy</span>
+                <c-spinner size="sm" *ngIf="deploying || handshaking" role="status">
+                    <span class="sr-only">{{ handshaking ? 'Security checking...' : 'Loading...' }}</span>
+                </c-spinner>
+            </button>
+            <button cButton color="primary" *ngIf="handshaking" (click)="continueSecureDeploy()">Continue</button>
+        </c-modal-footer>
+    </c-modal-content><!-- /.modal-content -->
+</c-modal>
