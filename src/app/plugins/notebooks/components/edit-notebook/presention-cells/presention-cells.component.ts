@@ -32,12 +32,20 @@ constructor(private _markdown: MarkdownService,
     this.slides=[];
     this.nb.cells.forEach(item=>{
       let type=this.nb.getCellPresent(item);
-      if(type!="skip"&& (type=="slide" || this.slides.length==0))
+      if(type!="skip")
       {
-        this.slides.push({source:item.source,children:[{source:item.source,children:[]}]});
-      }
-      else if (type!="skip"){
-        this.slides[this.slides.length-1].children.push({source:item.source,children:[]});
+        if(type=="slide" || this.slides.length==0)
+        {
+          this.slides.push({source:item.source,children:[{source:item.source,children:[],fragments:[]}],fragments:[]});
+        }
+        else if (type=="fragment")
+        {
+          let len=this.slides[this.slides.length-1].children.length;
+          this.slides[this.slides.length-1].children[len-1].fragments.push(item.source);
+        }
+        else {
+          this.slides[this.slides.length-1].children.push({source:item.source,children:[],fragments:[]});
+        }
       }
     })
   }

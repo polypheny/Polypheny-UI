@@ -503,6 +503,7 @@ export class NotebookWrapper {
     }
 
     get notebook() {
+        console.log(this.nb);
         return this.nb;
     }
 

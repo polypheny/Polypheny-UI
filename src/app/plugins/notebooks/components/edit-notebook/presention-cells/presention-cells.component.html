@@ -6,6 +6,9 @@
           <markdown ngPreserveWhitespaces>
             {{child.source}}
           </markdown>
+          <markdown  *ngFor="let fragment of child.fragments" ngPreserveWhitespaces  class="fragment fade-up">
+          {{fragment}}
+          </markdown>
         </section>
       </section>
     </div>

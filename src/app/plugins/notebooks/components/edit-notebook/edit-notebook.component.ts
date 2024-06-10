@@ -173,7 +173,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this.nb = null;
         }
         this._content.getNotebookContent(this.path, this.nb == null).subscribe(res => {
-
             if (res) {
                 this.nb = new NotebookWrapper(res, this.busyCellIds,
                     new NotebooksWebSocket(this.session.kernel.id, this._settings),
@@ -731,6 +730,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         const type: PresentType = <PresentType>(event.target as HTMLOptionElement).value;
         this.selectedPresentType = type;
         this.nb.changeCellPresent(this.selectedCell, type);
+        this.selectedComponent.updatePresentType();
+
     }
 
     setCellType(type: CellType) {

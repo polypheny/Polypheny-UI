@@ -5,7 +5,7 @@ import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {KatexOptions, MarkdownService} from 'ngx-markdown';
 import {NbMode} from '../edit-notebook.component';
 import {NbInputEditorComponent} from '../nb-input-editor/nb-input-editor.component';
-import {CellType} from '../notebook-wrapper';
+import {CellType, PresentType} from '../notebook-wrapper';
 import {RelationalResult, Result} from '../../../../../components/data-view/models/result-set.model';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 
@@ -38,6 +38,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     @ViewChild('editor') editor: NbInputEditorComponent;
     @ViewChild('cellDiv') cellDiv: ElementRef;
     cellType: CellType = 'code';
+    presentType:PresentType='skip';
 
     isMouseOver = false;
     resultVariable: string;
@@ -252,7 +253,9 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         this.sourceHidden = this.cell.metadata.jupyter?.source_hidden;
         this.outputsHidden = this.cell.metadata.jupyter?.outputs_hidden;
     }
-
+    updatePresentType(){
+        this.presentType=this.cell.cell_present;
+    }
     changedNamespace() {
         this.cell.metadata.polypheny.namespace = this.polyForm.value.namespace;
     }
