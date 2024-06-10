@@ -1,47 +1,4 @@
 import {Component, EventEmitter, Input, OnInit, Output,} from '@angular/core';
-import {isNumeric} from 'rxjs/internal-compatibility';
-
-export class Pair {
-
-    constructor(key: string, value: string | number | {} | Pair[]) {
-        this.id = Pair.getAndIncrementId();
-        this.key = key;
-        this.value = value;
-    }
-
-    static idBuilder = 0;
-    private id: number;
-    key: string;
-    value: string | number | {} | Pair[];
-
-    static getAndIncrementId() {
-        const id = Pair.idBuilder;
-        Pair.idBuilder++;
-        return id;
-    }
-
-    isValid() {
-        let temp = this.key.trim() !== '';
-        if (this.value instanceof Array && this.value[0] instanceof Pair) {
-            temp &&= new Set(this.value.map(e => e.key)).size === this.value.length && this.value.reduce<boolean>((c, next) => c && next.isValid(), true);
-        }
-        return temp;
-    }
-}
-
-export class Info {
-    index: string;
-    type: Type;
-
-    constructor(index: string, type: Type) {
-        this.index = index;
-        this.type = type;
-    }
-}
-
-export enum Type {
-    Value, Object, Array
-}
 
 
 @Component({
@@ -52,7 +9,6 @@ export enum Type {
 
 export class JsonEditorComponent implements OnInit {
     @Output() valid: boolean;
-    dupblKeyError = 'Document has duplicate key.';
 
     constructor() {
         this.data = [];
@@ -120,7 +76,7 @@ export class JsonEditorComponent implements OnInit {
         for (const entry of raw) {
             const parsed = JsonEditorComponent.tryParse(entry.value);
 
-            if (isNumeric(entry.value)) {
+            if (!isNaN(entry.value)) {
                 data[entry.key] = Number(entry.value);
             } else if (entry.value instanceof Array && entry.value.some(el => el instanceof Pair)) {
                 data[entry.key] = this.generateJson(entry.value);
@@ -259,5 +215,48 @@ export class JsonEditorComponent implements OnInit {
     }
 
 }
+
+export class Pair {
+
+    constructor(key: string, value: string | number | {} | Pair[]) {
+        this.id = Pair.getAndIncrementId();
+        this.key = key;
+        this.value = value;
+    }
+
+    static idBuilder = 0;
+    private id: number;
+    key: string;
+    value: string | number | {} | Pair[];
+
+    static getAndIncrementId() {
+        const id = Pair.idBuilder;
+        Pair.idBuilder++;
+        return id;
+    }
+
+    isValid() {
+        let temp = this.key.trim() !== '';
+        if (this.value instanceof Array && this.value[0] instanceof Pair) {
+            temp &&= new Set(this.value.map(e => e.key)).size === this.value.length && this.value.map(p => p.isValid()).reduce((c, next) => c && next, true);
+        }
+        return temp;
+    }
+}
+
+export class Info {
+    index: string;
+    type: Type;
+
+    constructor(index: string, type: Type) {
+        this.index = index;
+        this.type = type;
+    }
+}
+
+export enum Type {
+    Value, Object, Array
+}
+
 
 

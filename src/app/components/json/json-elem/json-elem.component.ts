@@ -208,6 +208,12 @@ export class JsonElemComponent implements OnInit, OnChanges {
         keys.splice(i);
         return keys.includes(name);
     }
+
+    protected readonly Pair = Pair;
+
+    asPair(el: string): Pair {
+        return el as unknown as Pair;
+    }
 }
 
 

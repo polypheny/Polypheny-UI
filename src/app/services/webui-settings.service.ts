@@ -9,40 +9,40 @@ export class WebuiSettingsService {
     settings = new Map<string, Setting>();
     settingsGR = new Map<string, string>();
     host: string;
+    version = 'v1';
 
     constructor() {
 
-        this.host = location.hostname;
 
         // tslint:disable:no-unused-expression
-        new Setting(this.settings, 'webUI.port', '8080');
-        new Setting(this.settings, 'configServer.port', '8081');
-        new Setting(this.settings, 'informationServer.port', '8082');
-        new Setting(this.settings, 'httpServer.port', '13137');
-        new Setting(this.settings, 'websocketGestureRecognition.ip:port', 'localhost:4999/index.php');
-        new Setting(this.settings, 'reconnection.timeout', '5000');
+        new Setting(this.settings, 'host', 'localhost');
+        new Setting(this.settings, 'webUI.port', '7659');
+        new Setting(this.settings, 'config.prefix', 'config');
+        new Setting(this.settings, 'information.prefix', 'info');
+        new Setting(this.settings, 'reconnection.timeout', '500');
+
+        this.host = localStorage.getItem('host');
 
         this.connections.set('config.rest',
-            'http://' + this.host + ':' + localStorage.getItem('configServer.port'));
+            'http://' + this.host + ':' + localStorage.getItem('webUI.port') + '/' + localStorage.getItem('config.prefix') + '/' + this.version);
         this.connections.set('config.socket',
-            'ws://' + this.host + ':' + localStorage.getItem('configServer.port') + '/configWebSocket');
+            'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/config');
         this.connections.set('information.rest',
-            'http://' + this.host + ':' + localStorage.getItem('informationServer.port'));
+            'http://' + this.host + ':' + localStorage.getItem('webUI.port') + '/' + localStorage.getItem('information.prefix') + '/' + this.version);
         this.connections.set('information.socket',
-            'ws://' + this.host + ':' + localStorage.getItem('informationServer.port') + '/informationWebSocket');
+            'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/info');
         this.connections.set('crud.rest',
             'http://' + this.host + ':' + localStorage.getItem('webUI.port'));
         this.connections.set('crud.socket',
             'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/webSocket');
-        this.connections.set('httpServer.rest',
-            'http://' + this.host + ':' + localStorage.getItem('httpServer.port'));
-        this.connections.set('websocketGestureRecognition', 'ws://' + localStorage.getItem('websocketGestureRecognition.ip:port'));
+        this.connections.set('main.socket', 'http://' + this.host + ':' + localStorage.getItem('webUI.port'));
         this.connections.set('notebooks.rest',
             'http://' + this.host + ':' + localStorage.getItem('webUI.port') + '/notebooks');
         this.connections.set('notebooks.socket',
             'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/notebooks/webSocket');
         this.connections.set('notebooks.file',
             'http://' + this.host + ':' + localStorage.getItem('webUI.port') + '/notebooks/file');
+
     }
 
     public getConnection(key: string) {
@@ -78,14 +78,17 @@ export class WebuiSettingsService {
         }
         location.reload();
     }
+
+
 }
 
 export class Setting {
     key: string;
     value: string;
     default: string;
+    order: number;
 
-    constructor(map: Map<string, Setting>, key: string, defaultValue: string) {
+    constructor(map: Map<string, Setting>, key: string, defaultValue: string, order = 1) {
         this.key = key;
         this.default = defaultValue;
         if (localStorage.getItem(key) === null) {
@@ -94,6 +97,8 @@ export class Setting {
         } else {
             this.value = localStorage.getItem(key);
         }
+        this.order = order;
+
         map.set(key, this);
     }
 }

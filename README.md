@@ -1,6 +1,7 @@
 # Polypheny-UI
 
-_Polypheny-UI_ is a powerful and easy to use browser-based user interface for Polypheny. The UI is deployed together with Polypheny-DB and can (by default) be accessed via port 8080.
+_Polypheny-UI_ is a powerful and easy to use browser-based user interface for Polypheny. The UI is deployed together
+with Polypheny-DB and can (by default) be accessed via port 7659.
 
 
 ## Features ##
@@ -14,7 +15,6 @@ Polypheny-UI supports a wide range of features including:
 * Execute arbitrary queries
 * Analyze query execution
 * Graphically build query plans
-* Import and export data from [Polypheny-Hub](https://github.com/polypheny/Polypheny-Hub)
 * Explore-by-example based data exploration
 
 

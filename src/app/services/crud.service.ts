@@ -1,11 +1,14 @@
-import {EventEmitter, Injectable} from '@angular/core';
+import {EventEmitter, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpUrlEncodingCodec} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {
-    Index,
+    EntityMeta,
+    IndexModel,
     ModifyPartitionRequest,
     PartitionFunctionModel,
-    PartitioningRequest, PathAccessRequest
+    PartitioningRequest,
+    PathAccessRequest,
+    PlacementFieldsModel
 } from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
@@ -14,38 +17,41 @@ import {
     DeleteRequest,
     EditCollectionRequest,
     EditTableRequest,
+    EntityRequest,
     ExploreTable,
     GraphRequest,
     MaterializedRequest,
+    Method,
     MonitoringRequest,
+    Namespace,
     QueryRequest,
     RelAlgRequest,
-    Schema,
-    SchemaRequest,
-    StatisticRequest,
-    TableRequest
+    StatisticRequest
 } from '../models/ui-request.model';
-import {DockerSettings} from '../models/docker.model';
-import {ForeignKey} from '../views/uml/uml.model';
+import {CreateDockerResponse, AutoDockerResult, AutoDockerStatus, DockerInstanceInfo, DockerSettings, HandshakeInfo, InstancesAndAutoDocker, UpdateDockerResponse} from '../models/docker.model';
+import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
-import {Adapter} from '../views/adapters/adapter.model';
+import {AdapterModel} from '../views/adapters/adapter.model';
 import {QueryInterface} from '../views/query-interfaces/query-interfaces.model';
-import {Node} from '../views/querying/relational-algebra/relational-algebra.model';
+import {AlgNodeModel, Node} from '../views/querying/algebra/algebra.model';
 import {WebSocket} from './webSocket';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
+
 
 @Injectable({
     providedIn: 'root'
 })
 export class CrudService {
+    private readonly _http = inject(HttpClient);
+    private readonly _settings = inject(WebuiSettingsService);
+
     private enabledPlugins: [string] = null;
     private enabledRequestFired: number = null;
     private REQUEST_DELAY: number = 1000 * 20;
 
 
-    constructor(
-        private _http: HttpClient,
-        private _settings: WebuiSettingsService
-    ) {
+    constructor() {
         this.initWebSocket();
         setInterval(() => this.socket.next('keepalive'), 10_000);
     }
@@ -53,8 +59,8 @@ export class CrudService {
     public connected = false;
     private reconnected = new EventEmitter<boolean>();
     private httpUrl = this._settings.getConnection('crud.rest');
-    private langUrl = this._settings.getConnection('httpServer.rest');
     private httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
+    private httpOptionsPart = {headers: new HttpHeaders({'Content-Type': 'multipart/form-data'})};
     private socket;
 
     // rendering routerLinks from string might not be possible:7
@@ -62,20 +68,16 @@ export class CrudService {
     // workarounds:
     // https://stackoverflow.com/questions/44613069/angular4-routerlink-inside-innerhtml-turned-to-lowercase
 
-    getTable(socket: WebSocket, data: TableRequest): boolean {
+    getEntityData(socket: WebSocket, data: EntityRequest): boolean {
         return socket.sendMessage(data);
-    }
-
-    getSchema(request: SchemaRequest) {
-        return this._http.post(`${this.httpUrl}/getSchemaTree`, request, this.httpOptions);
     }
 
     getGraph(socket: WebSocket, data: GraphRequest): boolean {
         return socket.sendMessage(data);
     }
 
-    insertRow(formData: FormData) {
-        return this._http.post(`${this.httpUrl}/insertRow`, formData, {reportProgress: true, observe: 'events'});
+    insertTuple(formData: FormData) {
+        return this._http.post(`${this.httpUrl}/insertTuple`, formData, {reportProgress: true, observe: 'events'});
     }
 
     /**
@@ -102,9 +104,9 @@ export class CrudService {
             if ((this.enabledRequestFired + this.REQUEST_DELAY) < today) {
                 this.enabledRequestFired = today;
                 this._http.get(`${this.httpUrl}/getEnabledPlugins`, this.httpOptions)
-                    .subscribe(res => {
-                        this.enabledPlugins = <[string]>res;
-                    });
+                .subscribe(res => {
+                    this.enabledPlugins = <[string]>res;
+                });
             }
             return [];
         }
@@ -164,16 +166,16 @@ export class CrudService {
      * delete a row from a table
      * @param request UIRequest
      */
-    deleteRow(request: DeleteRequest) {
-        return this._http.post(`${this.httpUrl}/deleteRow`, request, this.httpOptions);
+    deleteTuple(request: DeleteRequest) {
+        return this._http.post(`${this.httpUrl}/deleteTuple`, request, this.httpOptions);
     }
 
     /**
      * Update a row from a table
      * @param formData Data in the form of a FormData
      */
-    updateRow(formData: FormData) {
-        return this._http.post(`${this.httpUrl}/updateRow`, formData, {reportProgress: true, observe: 'events'});
+    updateTuple(formData: FormData) {
+        return this._http.post(`${this.httpUrl}/updateTuple`, formData, {reportProgress: true, observe: 'events'});
     }
 
     /**
@@ -193,11 +195,11 @@ export class CrudService {
     /**
      * Get the columns of a DataSource
      */
-    getDataSourceColumns(request: TableRequest) {
+    getDataSourceColumns(request: EntityRequest) {
         return this._http.post(`${this.httpUrl}/getDataSourceColumns`, request, this.httpOptions);
     }
 
-    getAvailableSourceColumns(request: TableRequest) {
+    getAvailableSourceColumns(request: EntityRequest) {
         return this._http.post(`${this.httpUrl}/getAvailableSourceColumns`, request, this.httpOptions);
     }
 
@@ -216,8 +218,8 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/getMaterializedInfo`, materializedRequest, this.httpOptions);
     }
 
-    addColumn(columnRequest: ColumnRequest) {
-        return this._http.post(`${this.httpUrl}/addColumn`, columnRequest, this.httpOptions);
+    createColumn(columnRequest: ColumnRequest) {
+        return this._http.post(`${this.httpUrl}/createColumn`, columnRequest, this.httpOptions);
     }
 
     dropColumn(columnRequest: ColumnRequest) {
@@ -273,15 +275,15 @@ export class CrudService {
     /**
      * Add a primary key to a table
      */
-    addPrimaryKey(request: ConstraintRequest) {
-        return this._http.post(`${this.httpUrl}/addPrimaryKey`, request, this.httpOptions);
+    createPrimaryKey(request: ConstraintRequest) {
+        return this._http.post(`${this.httpUrl}/createPrimaryKey`, request, this.httpOptions);
     }
 
     /**
      * Add a unique constraint to a table
      */
-    addUniqueConstraint(request: ConstraintRequest) {
-        return this._http.post(`${this.httpUrl}/addUniqueConstraint`, request, this.httpOptions);
+    createUniqueConstraint(request: ConstraintRequest) {
+        return this._http.post(`${this.httpUrl}/createUniqueConstraint`, request, this.httpOptions);
     }
 
     /**
@@ -294,39 +296,39 @@ export class CrudService {
     /**
      * Drop an index of a table
      */
-    dropIndex(index: Index) {
+    dropIndex(index: IndexModel) {
         return this._http.post(`${this.httpUrl}/dropIndex`, index, this.httpOptions);
     }
 
     /**
      * Create an index
      */
-    createIndex(index: Index) {
+    createIndex(index: IndexModel) {
         return this._http.post(`${this.httpUrl}/createIndex`, index, this.httpOptions);
     }
 
     /**
      * Get data placement information
      */
-    getDataPlacements(schema: string, table: string) {
-        const index = new Index(schema, table, '', '', '', []);
-        return this._http.post(`${this.httpUrl}/getPlacements`, index, this.httpOptions);
+    getDataPlacements(namespaceId: number, entityId: number, fields: number[] = null) {
+        const meta = new EntityMeta(namespaceId, entityId, null, fields);
+        return this._http.post(`${this.httpUrl}/getPlacements`, meta, this.httpOptions);
     }
 
     /**
      * Get data placement information
      */
-    getCollectionPlacements(namespace: string, collection: string) {
-        const index = new Index(namespace, collection, '', '', '', []);
-        return this._http.post(`${this.httpUrl}/getCollectionPlacements`, index, this.httpOptions);
+    getCollectionPlacements(namespaceId: number, entityId: number, fields: number[]) {
+        const meta = new EntityMeta(namespaceId, entityId, null, fields);
+        return this._http.post(`${this.httpUrl}/getCollectionPlacements`, meta, this.httpOptions);
     }
 
-    getGraphPlacements(graph: string) {
-        const index = new Index(graph, '', '', '', '', []);
-        return this._http.post(`${this.httpUrl}/getGraphPlacements`, index, this.httpOptions);
+    getGraphPlacements(namespaceId: number, entityId: number, fields: number[]) {
+        const meta = new EntityMeta(namespaceId, entityId, null, fields);
+        return this._http.post(`${this.httpUrl}/getGraphPlacements`, meta, this.httpOptions);
     }
 
-    getUnderlyingTable(request: TableRequest) {
+    getUnderlyingTable(request: EntityRequest) {
         return this._http.post(`${this.httpUrl}/getUnderlyingTable`, request, this.httpOptions);
     }
 
@@ -334,33 +336,34 @@ export class CrudService {
     /**
      * Add or drop a placement
      */
-    addDropPlacement(schema: string, table: string, store: string, method: 'ADD' | 'DROP' | 'MODIFY', columns = []) {
-        const index = new Index(schema, table, null, store, method, columns);
-        return this._http.post(`${this.httpUrl}/addDropPlacement`, index, this.httpOptions);
+    addDropPlacement(namespaceId: number, entityId: number, adapterName: string, method: Method, columns: string[] = []) {
+        const placementFieldsModel = new PlacementFieldsModel(namespaceId, entityId, adapterName, method, columns);
+
+        return this._http.post(`${this.httpUrl}/addDropPlacement`, placementFieldsModel, this.httpOptions);
     }
 
     /**
      * Add or drop a placement
      */
-    addDropGraphPlacement(graph: string, store: string, method: 'ADD' | 'DROP') {
+    addDropGraphPlacement(graph: string, store: number, method: Method) {
         let code: string;
         switch (method) {
-            case 'ADD':
+            case Method.ADD:
                 code = `CREATE PLACEMENT OF ${graph} ON STORE ${store}`;
                 break;
-            case 'DROP':
+            case Method.DROP:
                 code = `DROP PLACEMENT OF ${graph} ON STORE ${store}`;
                 break;
         }
         const request = new QueryRequest(code, false, true, 'cypher', graph);
 
-        return this._http.post(`${this.langUrl}/cypher`, request, this.httpOptions);
+        return this.anyQueryBlocking(request);
     }
 
     /**
      * Add or drop a placement
      */
-    addDropCollectionPlacement(namespace: string, collection: string, store: string, method: 'ADD' | 'DROP') {
+    addDropCollectionPlacement(namespace: string, collection: string, store: string, method: Method) {
         let code: string;
         switch (method) {
             case 'ADD':
@@ -371,7 +374,7 @@ export class CrudService {
                 break;
         }
         const request = new QueryRequest(code, false, true, 'cypher', namespace);
-        return this._http.post(`${this.langUrl}/mql`, request, this.httpOptions);
+        return this.anyQueryBlocking(request);
     }
 
 
@@ -402,8 +405,8 @@ export class CrudService {
      * the list of all tables of a schema with their columns
      * and a list of all the foreign keys of a schema
      */
-    getUml(request: EditTableRequest) {
-        return this._http.post(`${this.httpUrl}/getUml`, request, this.httpOptions);
+    getUml(request: EditTableRequest): Observable<Uml> {
+        return <Observable<Uml>>this._http.post(`${this.httpUrl}/getUml`, request, this.httpOptions);
     }
 
     /**
@@ -432,9 +435,10 @@ export class CrudService {
         );
     }
 
-    /*socketSend( msg: string ) {
-      this.socket.next(msg);
-    }*/
+
+    anyQueryBlocking(queryRequest: QueryRequest) {
+        return this._http.post(`${this.httpUrl}/anyQuery`, queryRequest, this.httpOptions);
+    }
 
     onSocketEvent() {
         return this.socket;
@@ -451,14 +455,14 @@ export class CrudService {
     /**
      * Add a foreign key (in the Uml view)
      */
-    addForeignKey(fk: ForeignKey) {
-        return this._http.post(`${this.httpUrl}/addForeignKey`, fk, this.httpOptions);
+    createForeignKey(fk: ForeignKey) {
+        return this._http.post(`${this.httpUrl}/createForeignKey`, fk, this.httpOptions);
     }
 
     /**
-     * Execute a relational algebra
+     * Execute an algebra expression
      */
-    executeRelAlg(socket: WebSocket, relAlg: Node, cache: boolean, analyzeQuery, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?: string, timeUnit?: string) {
+    executeAlg(socket: WebSocket, relAlg: Node, cache: boolean, analyzeQuery, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?: string, timeUnit?: string) {
         let request;
         if (createView) {
             if (tableType === 'MATERIALIZED') {
@@ -468,20 +472,21 @@ export class CrudService {
             }
         } else {
             request = new RelAlgRequest(relAlg, cache, analyzeQuery);
+            console.log(request)
         }
         return socket.sendMessage(request);
     }
 
 
-    renameTable(table: Index) {
-        return this._http.post(`${this.httpUrl}/renameTable`, table, this.httpOptions);
+    renameTable(meta: EntityMeta) {
+        return this._http.post(`${this.httpUrl}/renameTable`, meta, this.httpOptions);
     }
 
     /**
      * Send a request to either create or drop a schema
      */
-    createOrDropSchema(schema: Schema) {
-        return this._http.post(`${this.httpUrl}/schemaRequest`, schema, this.httpOptions);
+    createOrDropNamespace(namespace: Namespace) {
+        return this._http.post(`${this.httpUrl}/namespaceRequest`, namespace, this.httpOptions);
     }
 
     /**
@@ -506,11 +511,11 @@ export class CrudService {
         return this._http.get(`${this.httpUrl}/getStores`);
     }
 
-    getAvailableStoresForIndexes(request: Index) {
+    getAvailableStoresForIndexes(request: IndexModel) {
         return this._http.post(`${this.httpUrl}/getAvailableStoresForIndexes`, request, this.httpOptions);
     }
 
-    updateAdapterSettings(adapter: Adapter) {
+    updateAdapterSettings(adapter: AdapterModel) {
         return this._http.post(`${this.httpUrl}/updateAdapterSettings`, adapter);
     }
 
@@ -526,12 +531,14 @@ export class CrudService {
         return this._http.get(`${this.httpUrl}/getAvailableSources`);
     }
 
-    addAdapter(fd: FormData) {
-        return this._http.post(`${this.httpUrl}/addAdapter`, fd);
+    createAdapter(adapter: AdapterModel, formdata: FormData) {
+        formdata.set("body", JSON.stringify(adapter))
+        return this._http.post(`${this.httpUrl}/createAdapter`, formdata);
     }
 
+
     pathAccess(req: PathAccessRequest) {
-        return this._http.post( `${this.httpUrl}/pathAccess`, req );
+        return this._http.post(`${this.httpUrl}/pathAccess`, req);
     }
 
     removeAdapter(storeId: string) {
@@ -546,12 +553,19 @@ export class CrudService {
         return this._http.get(`${this.httpUrl}/getAvailableQueryInterfaces`);
     }
 
-    addQueryInterface(request: any) {
-        return this._http.post(`${this.httpUrl}/addQueryInterface`, request, this.httpOptions);
+    createQueryInterface(request: any) {
+        return this._http.post(`${this.httpUrl}/createQueryInterface`, request, this.httpOptions);
     }
 
     updateQueryInterfaceSettings(request: QueryInterface) {
         return this._http.post(`${this.httpUrl}/updateQueryInterfaceSettings`, request, this.httpOptions);
+    }
+
+    getAlgebraNodes() {
+        return this._http.get(`${this.httpUrl}/getAlgebraNodes`)
+        .pipe(map(algs => new Map(Object.entries(algs)
+        .sort()
+        .map(([k, v], i) => [k, v as AlgNodeModel[]]))));
     }
 
     removeQueryInterface(queryInterfaceId: string) {
@@ -589,60 +603,80 @@ export class CrudService {
         });
     }
 
-    addDockerInstance(host: string, alias: string, registry: string, communicationPort: number, handshakePort: number, proxyPort: number) {
-        return this._http.post(`${this.httpUrl}/addDockerInstance`, {'host': host, 'alias': alias, 'communicationPort': communicationPort, 'handshakePort': handshakePort, 'proxyPort': proxyPort, }, this.httpOptions);
-    }
-
-    testDockerInstance(id: number) {
-        return this._http.post(`${this.httpUrl}/testDockerInstance/${id}`, null, this.httpOptions);
-    }
-
-    getDockerInstance(id: number) {
-        return this._http.get(`${this.httpUrl}/getDockerInstance/${id}`);
+    createDockerInstance(hostname: string, alias: string, registry: string, communicationPort: number, handshakePort: number, proxyPort: number) {
+        return this._http.post<CreateDockerResponse>(`${this.httpUrl}/docker/instances/create`, {
+            'hostname': hostname,
+            'alias': alias,
+            'registry': registry,
+            'communicationPort': communicationPort,
+            'handshakePort': handshakePort,
+            'proxyPort': proxyPort,
+        }, this.httpOptions);
     }
 
     getDockerInstances() {
-        return this._http.get(`${this.httpUrl}/getDockerInstances`);
+        return this._http.get<DockerInstanceInfo[]>(`${this.httpUrl}/docker/instances`);
+    }
+
+    getDockerInstance(id: number) {
+        return this._http.get<DockerInstanceInfo>(`${this.httpUrl}/docker/instances/${id}`);
     }
 
     updateDockerInstance(id: number, hostname: string, alias: string, registry: string) {
-        return this._http.post(`${this.httpUrl}/updateDockerInstance`, {'id': id.toString(), 'hostname': hostname, 'alias': alias, 'registry': registry}, this.httpOptions);
+        return this._http.patch<UpdateDockerResponse>(`${this.httpUrl}/docker/instances/${id}`, {
+            'id': id,
+            'hostname': hostname,
+            'alias': alias,
+            'registry': registry
+        }, this.httpOptions);
     }
 
     reconnectToDockerInstance(id: number) {
-        return this._http.post(`${this.httpUrl}/reconnectToDockerInstance`, {'id': id.toString()}, this.httpOptions);
+        return this._http.post<HandshakeInfo>(`${this.httpUrl}/docker/instances/${id}/reconnect`, null, this.httpOptions);
+    }
+
+    pingDockerInstance(id: number) {
+        return this._http.post(`${this.httpUrl}/docker/instances/${id}/ping`, null, this.httpOptions);
     }
 
     removeDockerInstance(id: number) {
-        return this._http.post(`${this.httpUrl}/removeDockerInstance`, {'id': id.toString()}, this.httpOptions);
+        return this._http.delete<InstancesAndAutoDocker>(`${this.httpUrl}/docker/instances/${id}`);
     }
 
     getAutoDockerStatus() {
-        return this._http.get(`${this.httpUrl}/getAutoDockerStatus`);
+        return this._http.get<AutoDockerStatus>(`${this.httpUrl}/docker/auto`);
     }
 
     doAutoHandshake() {
-        return this._http.post(`${this.httpUrl}/doAutoHandshake`, "", this.httpOptions);
+        return this._http.post<AutoDockerResult>(`${this.httpUrl}/docker/auto`, null, this.httpOptions);
     }
 
-    startHandshake(hostname: string) {
-        return this._http.post(`${this.httpUrl}/startHandshake`, hostname, this.httpOptions);
+    getHandshakes() {
+        return this._http.get<HandshakeInfo[]>(`${this.httpUrl}/docker/handshakes`);
     }
 
-    getHandshake(hostname: string) {
-        return this._http.get(`${this.httpUrl}/getHandshake/${new HttpUrlEncodingCodec().encodeKey(hostname)}`);
+    getHandshake(id: number) {
+        return this._http.get<HandshakeInfo>(`${this.httpUrl}/docker/handshakes/${id}`);
     }
 
-    cancelHandshake(hostname: string) {
-        return this._http.post(`${this.httpUrl}/cancelHandshake`, hostname, this.httpOptions);
+    restartHandshake(id: number) {
+        return this._http.post<HandshakeInfo>(`${this.httpUrl}/docker/handshakes/${id}/restart`, null, this.httpOptions);
+    }
+
+    cancelHandshake(id: number) {
+        return this._http.post(`${this.httpUrl}/docker/handshakes/${id}/cancel`, null, this.httpOptions);
+    }
+
+    deleteHandshake(id: number) {
+        return this._http.delete<HandshakeInfo[]>(`${this.httpUrl}/docker/handshakes/${id}`);
     }
 
     getDockerSettings() {
-        return this._http.get(`${this.httpUrl}/getDockerSettings/`);
+        return this._http.get<DockerSettings>(`${this.httpUrl}/docker/settings`);
     }
 
     changeDockerSettings(settings: DockerSettings) {
-        return this._http.post(`${this.httpUrl}/changeDockerSettings`, settings, this.httpOptions);
+        return this._http.patch<DockerSettings>(`${this.httpUrl}/docker/settings`, settings, this.httpOptions);
     }
 
     getNameValidator(required: boolean = false) {
@@ -697,5 +731,6 @@ export class CrudService {
 
         return this._http.post(`${this.httpUrl}/loadPlugins`, formData);
     }
+
 
 }

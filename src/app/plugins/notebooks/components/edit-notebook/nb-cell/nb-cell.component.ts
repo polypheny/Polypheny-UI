@@ -1,25 +1,12 @@
-import {
-    AfterViewInit,
-    Component, ElementRef,
-    EventEmitter,
-    Input,
-    OnInit,
-    Output,
-    ViewChild,
-} from '@angular/core';
-import {
-    CellDisplayDataOutput,
-    CellErrorOutput,
-    CellStreamOutput,
-    NotebookCell
-} from '../../../models/notebook.model';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild,} from '@angular/core';
+import {CellDisplayDataOutput, CellErrorOutput, CellStreamOutput, NotebookCell} from '../../../models/notebook.model';
 import {default as AnsiUp} from 'ansi_up';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {KatexOptions, MarkdownService} from 'ngx-markdown';
 import {NbMode} from '../edit-notebook.component';
 import {NbInputEditorComponent} from '../nb-input-editor/nb-input-editor.component';
 import {CellType} from '../notebook-wrapper';
-import {ResultSet} from '../../../../../components/data-view/models/result-set.model';
+import {RelationalResult, Result} from '../../../../../components/data-view/models/result-set.model';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 
 @Component({
@@ -56,7 +43,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     resultVariable: string;
     resultIsTooLong = false;
     polyForm: FormGroup;
-    resultSet: ResultSet;
+    resultSet: Result<any, any>;
     private ansi_up = new AnsiUp();
     mdSource = '';
     errorHtml: SafeHtml;
@@ -214,8 +201,8 @@ export class NbCellComponent implements OnInit, AfterViewInit {
             const output = <CellDisplayDataOutput>this.cell.outputs.find(o => o.output_type === 'display_data'
                 && (<CellDisplayDataOutput>o).data['application/json']);
             if (output) {
-                const jsonResult = <ResultSet>(output.data['application/json']);
-                if (jsonResult.affectedRows > this.MAX_RESULT_SIZE && jsonResult.data?.length >= this.MAX_RESULT_SIZE) {
+                const jsonResult = <RelationalResult>(output.data['application/json']);
+                if (jsonResult.affectedTuples > this.MAX_RESULT_SIZE && jsonResult.data?.length >= this.MAX_RESULT_SIZE) {
                     this.resultIsTooLong = true;
                     jsonResult.data = jsonResult.data.slice(0, this.MAX_RESULT_SIZE);
                 } else {

@@ -1,38 +1,26 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {CrudService} from '../../../services/crud.service';
-import {ToastService} from '../../toast/toast.service';
-import {DbmsTypesService} from '../../../services/dbms-types.service';
-import {BsModalService} from 'ngx-bootstrap/modal';
-import {DataViewComponent} from '../data-view.component';
-import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
+import {DataTemplateComponent} from '../data-template/data-template.component';
+import {DataModel} from '../../../models/ui-request.model';
 
 @Component({
     selector: 'app-data-card',
     templateUrl: './data-card.component.html',
     styleUrls: ['./data-card.component.scss']
 })
-export class DataCardComponent extends DataViewComponent implements OnInit {
+export class DataCardComponent extends DataTemplateComponent implements OnInit {
+
+    constructor() {
+        super();
+    }
 
     showInsertCard = false;
     jsonValid = false;
 
-    constructor(
-        public _crud: CrudService,
-        public _toast: ToastService,
-        public _route: ActivatedRoute,
-        public _router: Router,
-        public _types: DbmsTypesService,
-        public _settings: WebuiSettingsService,
-        public _sidebar: LeftSidebarService,
-        public modalService: BsModalService
-    ) {
-        super(_crud, _toast, _route, _router, _types, _settings, _sidebar, modalService);
-    }
+    protected readonly DataModel = DataModel;
 
     ngOnInit(): void {
-        if (this.config && this.config.create) {
+        super.ngOnInit();
+        if (this.entityConfig && this.entityConfig().create) {
             this.buildInsertObject();
         }
         this.setPagination();

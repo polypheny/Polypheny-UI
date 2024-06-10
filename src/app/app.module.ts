@@ -1,28 +1,71 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
-import {HashLocationStrategy, LocationStrategy} from '@angular/common';
-
-import {PerfectScrollbarConfigInterface, PerfectScrollbarModule} from 'ngx-perfect-scrollbar';
+import {HashLocationStrategy, LocationStrategy, NgOptimizedImage} from '@angular/common';
 
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 // coreui / bootstrap imports
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 // tree-module
-import {TreeModule} from 'angular-tree-component';
 import {AppComponent} from './app.component';
 
 // Import routing module
-import {AppRoutingModule} from './app.routing';
+import {AppRoutingModule} from './app-routing.module';
 
 // Import 3rd party components
 import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {TabsModule} from 'ngx-bootstrap/tabs';
-import {ChartsModule} from 'ng2-charts';
+import {NgChartsModule} from 'ng2-charts';
 import {HttpClientModule} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
-import {AppAsideModule, AppFooterModule, AppHeaderModule, AppSidebarModule} from '@coreui/angular';
+import {
+    AvatarComponent,
+    BreadcrumbComponent,
+    ButtonCloseDirective,
+    ButtonDirective,
+    CardBodyComponent,
+    CardComponent,
+    ColComponent,
+    CollapseDirective,
+    ContainerComponent,
+    DropdownComponent,
+    DropdownItemDirective,
+    DropdownMenuDirective,
+    DropdownToggleDirective,
+    FooterComponent,
+    GutterDirective,
+    HeaderBrandComponent,
+    HeaderComponent,
+    HeaderDividerComponent,
+    HeaderNavComponent,
+    HeaderTextComponent,
+    HeaderTogglerDirective,
+    ModalBodyComponent,
+    ModalComponent,
+    ModalFooterComponent,
+    ModalHeaderComponent,
+    ModalTitleDirective,
+    NavbarBrandDirective,
+    NavbarComponent,
+    NavbarNavComponent,
+    NavbarTogglerDirective,
+    NavItemComponent,
+    NavLinkDirective,
+    ProgressBarComponent,
+    ProgressComponent,
+    RowComponent,
+    SidebarComponent,
+    SidebarNavComponent,
+    SidebarToggleDirective,
+    SidebarTogglerComponent,
+    ToastBodyComponent,
+    ToastCloseDirective,
+    ToastComponent,
+    ToasterComponent,
+    ToastHeaderComponent,
+    TooltipDirective
+} from '@coreui/angular';
 import {DefaultLayoutComponent} from './containers/default-layout';
 import {P404Component} from './views/error/404.component';
 import {P500Component} from './views/error/500.component';
@@ -33,10 +76,8 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {NotebooksModule} from './plugins/notebooks/notebooks.module';
+import {IconDirective} from '@coreui/icons-angular';
 
-const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
-    suppressScrollX: true
-};
 
 @NgModule({
     imports: [
@@ -44,35 +85,80 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         AppRoutingModule,
         BrowserAnimationsModule,
         BrowserModule,
-        PerfectScrollbarModule,
         BsDropdownModule.forRoot(),
         TabsModule.forRoot(),
-        ChartsModule,
+        NgChartsModule,
         // plugins
         NotebooksModule,
+        ToastComponent,
+        NgChartsModule,
+        ToasterComponent,
         // coreui / bootstrap
         TooltipModule.forRoot(),
-        AppHeaderModule,
-        AppAsideModule,
-        AppSidebarModule,
-        AppFooterModule,
         // forms
-        FormsModule, ReactiveFormsModule,
-        TreeModule.forRoot(),
+        FormsModule,
+        ReactiveFormsModule,
         BsDropdownModule,
         TypeaheadModule.forRoot(),
         HttpClientModule,
         ViewsModule,
         PopoverModule.forRoot(),
         ModalModule.forRoot(),
-        NgxJsonViewerModule
+        NgxJsonViewerModule,
+        FooterComponent,
+        HeaderComponent,
+        ContainerComponent,
+        HeaderDividerComponent,
+        HeaderBrandComponent,
+        HeaderNavComponent,
+        NavItemComponent,
+        DropdownToggleDirective,
+        DropdownComponent,
+        NavLinkDirective,
+        HeaderTextComponent,
+        SidebarComponent,
+        SidebarToggleDirective,
+        NgOptimizedImage,
+        DropdownItemDirective,
+        DropdownMenuDirective,
+        HeaderTogglerDirective,
+        SidebarTogglerComponent,
+        SidebarNavComponent,
+        IconDirective,
+        RowComponent,
+        ColComponent,
+        GutterDirective,
+        ToastHeaderComponent,
+        BreadcrumbComponent,
+        ProgressComponent,
+        ToastBodyComponent,
+        ToastHeaderComponent,
+        ProgressBarComponent,
+        ToastCloseDirective,
+        ToasterComponent,
+        AvatarComponent,
+        ModalComponent,
+        ModalHeaderComponent,
+        ModalBodyComponent,
+        ModalFooterComponent,
+        ModalTitleDirective,
+        ButtonCloseDirective,
+        ButtonDirective,
+        CardComponent,
+        CardBodyComponent,
+        TooltipDirective,
+        NavbarTogglerDirective,
+        NavbarComponent,
+        CollapseDirective,
+        NavbarBrandDirective,
+        NavbarNavComponent
     ],
     declarations: [
         AppComponent,
         DefaultLayoutComponent,
         P404Component,
         P500Component,
-        LoginComponent,
+        LoginComponent
     ],
     providers: [{
         provide: LocationStrategy,

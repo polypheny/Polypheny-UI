@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 
 @Component({
@@ -8,7 +8,7 @@ import {Router} from '@angular/router';
     styleUrls: ['login.component.scss']
 })
 export class LoginComponent implements OnInit {
-    form: FormGroup;
+    form: UntypedFormGroup;
     formObj;
     history = [
         {server: '10.100.20.30', port: 4000},
@@ -37,9 +37,9 @@ export class LoginComponent implements OnInit {
         const f = [];
         const formGroup = {};
         for (let i of this.formObj) {
-            formGroup[i.key] = new FormControl(i.value || '', i.validation);
+            formGroup[i.key] = new UntypedFormControl(i.value || '', i.validation);
         }
-        this.form = new FormGroup(formGroup);
+        this.form = new UntypedFormGroup(formGroup);
     }
 
     submit(form) {
