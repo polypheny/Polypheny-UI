@@ -49,9 +49,10 @@ export interface PlanArgument {
 
 export interface EntityArg {
     fullName: string;
-    adapterName?: string; // not null in case of an AllocationEntity
-    partitionId?: string; // not null in case of an AllocationEntity
+    adapterName?: string; // not null in case of an AllocationEntity or PhysicalEntity
+    partitionId?: number; // not null in case of an AllocationEntity
     partitionName?: string; // might be null
+    physicalId?: number; // not null in case of a PhysicalEntity
 }
 
 export interface RexArg {
