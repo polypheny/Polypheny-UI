@@ -1,4 +1,4 @@
-<c-container class="mt-3 pt-1 px-3">
+<c-container class="mt-3 pt-1 px-3" *ngIf="! persentShowFlag">
     <c-row class="no-gutters nb-toolbar">
         <c-col md="9">
             <c-button-toolbar role="group" aria-label="Toolbar with button groups">
@@ -147,6 +147,24 @@
                         <option value="raw">Raw</option>
                     </select>
                 </c-button-group>
+                <c-button-group>
+                    <select class="form-select btn pull-right mr-1 bg-light px-1" aria-label="Select Present Type"
+                        (change)="onPresentChange($event)" [(ngModel)]="selectedPresentType">
+                            <option value="slide">Slide</option>
+                            <option value="subslide">Subslide</option>
+                            <option value="fragment">Fragment</option>
+                            <option value="skip">Skip</option>
+                    </select>
+                </c-button-group>
+            
+                <c-button-group>
+                    <button type="button" class="btn btn-light"
+                    (click)="persentShow()"
+                    onclick="this.blur();" tooltip="Present Slides" container="body"
+                    [disabled]="inserting">
+                Present
+            </button>
+                </c-button-group>
             </c-button-toolbar>
         </c-col>
         <c-col md="3" class="col-md-3 text-right">
@@ -161,6 +179,11 @@
         </c-col>
     </c-row>
 </c-container>
+
+<div *ngIf="persentShowFlag">
+    <app-presention-cells    [nb]="nb" (closeShow)="persentDisable()">
+    </app-presention-cells>
+</div>
 
 <div class="nb-scroll px-3" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
     <h1 class="nb-title">{{name}}</h1>
@@ -187,7 +210,9 @@
                                  (duplicate)="duplicateCell(cell.id)"
                                  (delete)="deleteCell($event)"
                                  (selected)="selectCell($event)"
-                                 (changeType)="onTypeChange($event)">
+                                 [selectedPresentType]="selectedPresentType"
+                                 (changeType)="onTypeChange($event)"
+                                 (ChangePresent)="onPresentChange($event)">
                         <div class="nb-drag-handle" cdkDragHandle></div>
                     </app-nb-cell>
                     <div *cdkDragPreview class="drop-preview">
