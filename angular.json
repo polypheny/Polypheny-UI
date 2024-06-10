@@ -40,7 +40,9 @@
               "node_modules/flatpickr/dist/flatpickr.min.css",
               "node_modules/plyr/dist/plyr.css",
               "node_modules/katex/dist/katex.min.css",
-              "node_modules/prismjs/themes/prism-okaidia.css"
+              "node_modules/prismjs/themes/prism-okaidia.css",
+              "node_modules/reveal.js/dist/reveal.css",
+              "node_modules/reveal.js/dist/theme/black.css"            
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
@@ -58,7 +60,7 @@
               "node_modules/prismjs/components/prism-java.min.js",
               "node_modules/prismjs/components/prism-mongodb.min.js",
               "node_modules/prismjs/components/prism-bash.min.js",
-              "node_modules/prismjs/components/prism-markdown.min.js"
+              "node_modules/prismjs/components/prism-markdown.min.js",
             ]
           },
           "configurations": {
