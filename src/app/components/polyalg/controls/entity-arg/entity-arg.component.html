@@ -1,39 +1,58 @@
 <div class="param-wrapper">
     <label for="fullName" *ngIf="data.name"><strong>{{data.name}}</strong></label>
 
-    <input *ngIf="data.isReadOnly" cFormControl type="text" id="fullNameReadOnly" name="name" (pointerdown)="$event.stopPropagation()"
-           autocomplete="off" [readonly]="true" placeholder="{{placeholder}}"
-           class="param-input mb-1" [(ngModel)]="data.value.fullName">
+    <ng-container *ngIf="!data.isPhysical; else physicalEntity">
+        <input *ngIf="data.isReadOnly" cFormControl type="text" id="fullNameReadOnly" name="name" (pointerdown)="$event.stopPropagation()"
+               autocomplete="off" [readonly]="true" placeholder="{{placeholder}}"
+               class="param-input mb-1" [(ngModel)]="data.value.fullName">
 
-    <div class="mb-1">
-        <ng-autocomplete *ngIf="!data.isReadOnly"
-                         id="fullName"
-                         (pointerdown)="$event.stopPropagation()"
-                         [data]="entityNamesList()"
-                         [(ngModel)]="data.value.fullName"
-                         [placeholder]="placeholder"
-                         [searchKeyword]="data.value.fullName"
-                         [itemTemplate]="itemTemplate"
-                         [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
-    </div>
+        <div class="mb-1">
+            <ng-autocomplete *ngIf="!data.isReadOnly"
+                             id="fullName"
+                             (pointerdown)="$event.stopPropagation()"
+                             [data]="entityNamesList()"
+                             [(ngModel)]="data.value.fullName"
+                             [placeholder]="placeholder"
+                             [searchKeyword]="data.value.fullName"
+                             [itemTemplate]="itemTemplate"
+                             [notFoundTemplate]="notFoundTemplate"></ng-autocomplete>
+        </div>
 
-    <ng-container *ngIf="data.isAllocation">
+        <ng-container *ngIf="data.isAllocation">
+            <c-input-group sizing="sm" class="mb-1">
+                <label cInputGroupText for="allocAdapter">Adapter</label>
+                <select cSelect id="allocAdapter" [(ngModel)]="data.value.adapterName" (pointerdown)="$event.stopPropagation()"
+                        [disabled]="data.isReadOnly">
+                    <option *ngFor="let adapter of adapters()" [value]="adapter.name">{{ adapter.name + ' (' + adapter.adapterName + ')' }}</option>
+                </select>
+            </c-input-group>
+            <c-input-group sizing="sm">
+                <label cInputGroupText for="partition">Partition</label>
+                <input type="text" id="partition" name="partition" (pointerdown)="$event.stopPropagation()"
+                       autocomplete="off" [readonly]="data.isReadOnly" placeholder="ID or name"
+                       container="body" [tooltip]="data.isReadOnly ? '' : 'Leave empty to automatically select a partition'"
+                       class="form-control form-control-sm param-input" [(ngModel)]="data.value.partitionId">
+                <label *ngIf="data.isReadOnly && data.value.partitionName" cInputGroupText>({{data.value.partitionName}})</label>
+            </c-input-group>
+        </ng-container>
+    </ng-container>
+
+    <ng-template #physicalEntity>
         <c-input-group sizing="sm" class="mb-1">
-            <label cInputGroupText for="adapter">Adapter</label>
-            <select cSelect id="adapter" [(ngModel)]="data.value.adapterName" (pointerdown)="$event.stopPropagation()"
+            <label cInputGroupText for="physAdapter">Adapter</label>
+            <select cSelect id="physAdapter" [(ngModel)]="data.value.adapterName" (pointerdown)="$event.stopPropagation()"
                     [disabled]="data.isReadOnly">
                 <option *ngFor="let adapter of adapters()" [value]="adapter.name">{{ adapter.name + ' (' + adapter.adapterName + ')' }}</option>
             </select>
         </c-input-group>
         <c-input-group sizing="sm">
-            <label cInputGroupText for="partition">Partition</label>
-            <input type="text" id="partition" name="partition" (pointerdown)="$event.stopPropagation()"
-                   autocomplete="off" [readonly]="data.isReadOnly" placeholder="ID or name"
-                   container="body" [tooltip]="data.isReadOnly ? '' : 'Leave empty to automatically select a partition'"
-                   class="form-control form-control-sm param-input" [(ngModel)]="data.value.partitionId">
-            <label *ngIf="data.isReadOnly && data.value.partitionName" cInputGroupText>({{data.value.partitionName}})</label>
+            <label cInputGroupText for="physicalId">Physical ID</label>
+            <input cFormControl sizing="sm" id="physicalId" (pointerdown)="$event.stopPropagation()"
+                   type="number" autocomplete="off" [readonly]="data.isReadOnly"
+                   [min]="0" [(ngModel)]="data.value.physicalId">
+            <label *ngIf="data.isReadOnly && data.value.fullName" cInputGroupText>({{data.value.fullName}})</label>
         </c-input-group>
-    </ng-container>
+    </ng-template>
 </div>
 
 <!-- autocomplete templates -->

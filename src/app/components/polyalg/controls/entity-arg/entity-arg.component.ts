@@ -40,7 +40,7 @@ export class EntityArgComponent implements OnInit {
             return names;
         });
 
-        if (this.data.isAllocation) {
+        if (this.data.isAllocation || this.data.isPhysical) {
             this.adapters = computed(() => {
                 this._catalog.listener();
                 return [...this._catalog.getStores(), ...this._catalog.getSources()];
@@ -53,7 +53,8 @@ export class EntityArgComponent implements OnInit {
 }
 
 export class EntityControl extends ArgControl {
-    readonly isAllocation = this.planType !== 'LOGICAL';
+    readonly isAllocation = this.planType === 'ALLOCATION';
+    readonly isPhysical = this.planType === 'PHYSICAL';
     height = signal((this.name ? 55 : 31) + (this.isAllocation ? 2 * 31 : 0));
 
     constructor(param: Parameter, public value: EntityArg, model: OperatorModel, planType: PlanType,
@@ -72,6 +73,8 @@ export class EntityControl extends ArgControl {
                 polyAlg += '.' + this.value.partitionId;
             }
             return polyAlg;
+        } else if (this.isPhysical) {
+            return `${this.value.adapterName}.${this.value.physicalId}`;
         }
         return this.value.fullName;
     }

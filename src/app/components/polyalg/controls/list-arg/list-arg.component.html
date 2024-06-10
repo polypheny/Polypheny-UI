@@ -10,6 +10,7 @@
     <ng-container *ngFor="let child of data.children()">
         <li cListGroupItem class="p-2 list-element-container d-flex flex-row" [color]="data.depth > 0 && 'dark'" *ngIf="!(data.hideTrivial() && child.isTrivial())">
             <div class="list-element flex-grow-1">
+                <app-enum-arg [data]="child" *ngIf="data.param.isEnum"></app-enum-arg>
                 <ng-container *ngSwitchCase="ParamType.REX">
                     <app-rex-arg [data]="child"></app-rex-arg>
                 </ng-container>
@@ -51,8 +52,10 @@
                 </ng-container>
 
                 <ng-container *ngSwitchDefault>
-                    <p>{{data.value.innerType}}</p>
-                    <p>{{child}}</p>
+                    <ng-container *ngIf="!data.param.isEnum">
+                        <p>{{data.value.innerType}}</p>
+                        <p>{{child}}</p>
+                    </ng-container>
                 </ng-container>
             </div>
 

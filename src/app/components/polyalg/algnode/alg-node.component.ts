@@ -194,8 +194,7 @@ export class AlgNode extends ClassicPreset.Node {
 
         let values;
         if (this.hasVariableInputs) {
-            values = inputs['0'];
-            console.log(values);
+            values = inputs['0'] || [];
         } else {
             values = Object.keys(inputs)
             .sort((a, b) => parseInt(a, 10) - parseInt(b, 10)) // keys correspond to input socket key
