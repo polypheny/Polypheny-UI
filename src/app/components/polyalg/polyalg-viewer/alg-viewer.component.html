@@ -1,7 +1,7 @@
 <c-accordion [flush]="true" [alwaysOpen]="true" class="mb-3">
     <c-accordion-item #itemText="cAccordionItem" [visible]="true">
         <ng-template cTemplateId="accordionHeaderTemplate">
-            <button (click)="itemText.toggleItem()" [collapsed]="!itemText.visible" cAccordionButton
+            <button (click)="toggleTextEditor()" [collapsed]="!itemText.visible" cAccordionButton
                     class="ps-1 py-0 fs-3" [class.READONLY]="textEditorIsLocked()"
                     [ngClass]="textEditorState()" [tooltip]="textEditorState() === 'INVALID' ? textErrorTooltip : ''" [placement]="'bottom left'">
                 Algebra {{isReadOnly ? 'Viewer' : 'Editor'}} {{stateText[textEditorState()]}}

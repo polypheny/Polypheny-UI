@@ -4,24 +4,7 @@ import {BooleanControl} from './boolean-arg/boolean-arg.component';
 import {RexControl} from './rex-arg/rex-arg.component';
 import {EntityControl} from './entity-arg/entity-arg.component';
 import {ListControl} from './list-arg/list-arg.component';
-import {
-    AggArg,
-    BooleanArg,
-    CollationArg,
-    CollDirection,
-    CorrelationArg,
-    defaultNullDirection,
-    DoubleArg,
-    EntityArg,
-    EnumArg,
-    FieldArg,
-    IntArg,
-    LaxAggArg,
-    ListArg,
-    PlanArgument,
-    RexArg,
-    StringArg
-} from '../models/polyalg-plan.model';
+import {AggArg, BooleanArg, CollationArg, CollDirection, CorrelationArg, defaultNullDirection, DoubleArg, EntityArg, EnumArg, FieldArg, IntArg, LaxAggArg, ListArg, PlanArgument, RexArg, StringArg} from '../models/polyalg-plan.model';
 import {EnumControl} from './enum-arg/enum-arg.component';
 import {OperatorModel, Parameter, ParamType} from '../models/polyalg-registry';
 import {IntControl} from './int-arg/int-arg.component';
@@ -164,7 +147,7 @@ export function hasValidStructure(str: string) {
         } else if (char === '"' && !inSingleQuotes) {
             inDoubleQuotes = !inDoubleQuotes;
         } else if (!inSingleQuotes && !inDoubleQuotes) {
-            if (char === '(' || char === '[') {
+            if (char === '(' || char === '[' || char === '{') {
                 stack.push(char);
             } else if (char === ')') {
                 const lastOpen = stack.pop();
@@ -174,6 +157,11 @@ export function hasValidStructure(str: string) {
             } else if (char === ']') {
                 const lastOpen = stack.pop();
                 if (!lastOpen || lastOpen !== '[') {
+                    return false;
+                }
+            } else if (char === '}') {
+                const lastOpen = stack.pop();
+                if (!lastOpen || lastOpen !== '{') {
                     return false;
                 }
             } else if (separators.has(char) && stack.length === 0) {
