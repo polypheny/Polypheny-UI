@@ -316,7 +316,19 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
             const isSimple = mode === UserMode.SIMPLE;
             this.textEditor.setReadOnly(isSimple);
             this.textAccordionItem.visible = !isSimple;
+            this.refreshTextEditor();
         }
+    }
+
+    toggleTextEditor() {
+        this.textAccordionItem.visible = !this.textAccordionItem.visible;
+        this.refreshTextEditor();
+    }
+
+    refreshTextEditor() {
+        // If the editor is hidden when setCode is used, the visible text is not correctly updated.
+        // We fix this by forcing it to render again.
+        this.textEditor.setCode(this.textEditor.getCode());
     }
 
     toggleMetadata() {
