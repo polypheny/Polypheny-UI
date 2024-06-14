@@ -30,7 +30,7 @@
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationCode'">
-        <div [ngStyle]="{'height': getCodeHeight()}">
+        <div [ngStyle]="{'height': codeHeight}">
             <app-editor [readonly]="true" [language]="li.language" [code]="li.code"></app-editor>
         </div>
     </ng-container>
