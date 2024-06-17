@@ -4,6 +4,7 @@ import {OperatorModel, Parameter, ParamType} from '../../models/polyalg-registry
 import {LaxAggArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {PolyAlgService} from '../../polyalg.service';
 import {PlanType} from '../../../../models/information-page.model';
+import {sanitizeAlias} from '../arg-control-utils';
 
 @Component({
     selector: 'app-lax-agg-arg',
@@ -35,8 +36,12 @@ export class LaxAggControl extends ArgControl {
     }
 
     toPolyAlg(): string {
-        const alias = this.value.alias ? ` AS ${this.value.alias}` : '';
-        return `${this.value.function}(${this.value.input})${alias}`;
+        const functionCall = `${this.value.function}(${this.value.input})`;
+        if (this.value.alias && functionCall !== this.value.alias) {
+            const cleanedAlias = sanitizeAlias(this.value.alias);
+            return `${functionCall} AS ${cleanedAlias}`;
+        }
+        return functionCall;
     }
 
     copyArg(): PlanArgument {

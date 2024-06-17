@@ -667,6 +667,11 @@ export class CrudService {
         return socket.sendMessage(request);
     }
 
+    executePhysicalPolyAlg(socket: WebSocket, polyAlg: string, model: DataModel, dynamicValues: string[], dynamicTypes: string[]) {
+        const request = new PolyAlgRequest(polyAlg, model, 'PHYSICAL', dynamicValues, dynamicTypes);
+        return socket.sendMessage(request);
+    }
+
     buildTreeFromPolyAlg(polyAlg: string, planType: PlanType) {
         const request = new PolyAlgRequest(polyAlg, DataModel.RELATIONAL, planType); // datamodel doesn't matter when building the plan
         return this._http.post<PlanNode>(`${this.httpUrl}/buildPolyPlan`, request, this.httpOptions);

@@ -3,7 +3,7 @@ import {PlanArgument, StringArg} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {OperatorModel, Parameter, ParamTag, ParamType} from '../../models/polyalg-registry';
 import {PlanType} from '../../../../models/information-page.model';
-import {hasValidStructure} from '../arg-control-utils';
+import {hasValidStructure, sanitizeAlias} from '../arg-control-utils';
 
 @Component({
     selector: 'app-string-arg',
@@ -40,8 +40,7 @@ export class StringControl extends ArgControl {
     toPolyAlg(): string {
         const cleanedArg = hasValidStructure(this.arg()) ? this.arg() : `'${this.arg()}'`;
         if (this.showAlias && this.alias() !== '' && this.alias() !== this.arg()) {
-            const cleanedAlias = hasValidStructure(this.alias()) ? this.alias() : `'${this.alias()}'`;
-            return `${cleanedArg} AS ${cleanedAlias}`;
+            return `${cleanedArg} AS ${sanitizeAlias(this.alias())}`;
         }
         return cleanedArg;
     }

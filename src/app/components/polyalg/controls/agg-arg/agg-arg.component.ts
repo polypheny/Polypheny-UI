@@ -5,6 +5,7 @@ import {AggArg, PlanArgument} from '../../models/polyalg-plan.model';
 import {CollationControl} from '../collation-arg/collation-arg.component';
 import {PolyAlgService} from '../../polyalg.service';
 import {PlanType} from '../../../../models/information-page.model';
+import {sanitizeAlias} from '../arg-control-utils';
 
 @Component({
     selector: 'app-agg-arg',
@@ -15,6 +16,7 @@ export class AggArgComponent implements OnInit {
 
     constructor(private _registry: PolyAlgService) {
     }
+
     @Input() data: AggControl; // TODO: support multiple args, colls
     fChoices: string[] = [];
     fChoicesSimple = ['AVG', 'COUNT', 'MAX', 'MIN', 'SUM'].sort();
@@ -48,7 +50,11 @@ export class AggControl extends ArgControl {
         const collation = this.value.collList.length > 0 ?
             ` WITHIN GROUP (${this.value.collList.map(coll => CollationControl.collToPolyAlg(coll)).join(', ')})` : '';
         const filter = this.value.filter ? ' FILTER ' + this.value.filter : '';
-        const alias = this.value.alias ? ` AS ${this.value.alias}` : '';
+
+        let alias = '';
+        if (this.value.alias) {
+            alias = ' AS ' + sanitizeAlias(this.value.alias);
+        }
 
         return `${this.value.function}(${distStr}${argList})${approx}${collation}${filter}${alias}`;
     }

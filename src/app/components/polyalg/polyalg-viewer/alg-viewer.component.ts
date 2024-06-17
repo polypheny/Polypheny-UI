@@ -35,6 +35,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
                 untracked(() => {
                     this.modifySubscription?.unsubscribe();
                     const oldTransform = this.nodeEditor ? this.nodeEditor.getTransform() : null;
+                    this.nodeEditor?.destroy();
                     createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.planTypeSignal(), this.isReadOnly, this.userMode, oldTransform)
                     .then(editor => {
                         this.nodeEditor = editor;
@@ -135,6 +136,9 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
         }
 
         if (changes.planType) {
+            if (this.planType === 'PHYSICAL' && this.planTypeSignal() != null) {
+                this.setUserMode(UserMode.ADVANCED); // user mode for PHYSICAL is Advanced by default
+            }
             this.planTypeSignal.set(this.planType);
         }
 

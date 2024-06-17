@@ -10,14 +10,14 @@
     </div>
 </div>
 
-<div class="title-wrapper bg-dark d-flex justify-content-between align-items-center">
+<div class="title-wrapper d-flex justify-content-between align-items-center" [ngClass]="data.isAuxiliary ? 'auxiliary' : 'bg-dark'">
     <h2 class="p-2 text-white mb-0">{{ data.label }} </h2>
-    <div class="m-2">
+    <h4 class="m-2">
         <c-badge *ngIf="data.hasSimpleParams && data.isSimpleMode()" color="success" class="me-1 simple-badge"
                  (click)="deactivateSimpleMode()" (pointerdown)="$event.stopPropagation()">Simple
         </c-badge>
         <c-badge [color]="data.modelColor" *ngIf="data.modelBadge">{{ data.modelBadge }}</c-badge>
-    </div>
+    </h4>
 </div>
 
 <div class="node-body">
