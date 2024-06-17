@@ -68,13 +68,17 @@ export class PolyAlgRequest extends UIRequest {
     polyAlg: string;
     model: DataModel;
     planType: PlanType;
+    dynamicValues: string[];
+    dynamicTypes: string[];
     noLimit = false; // TODO: handle queries with large results
 
-    constructor(polyAlg: string, model: DataModel, planType: PlanType) {
+    constructor(polyAlg: string, model: DataModel, planType: PlanType, dynamicValues = null, dynamicTypes = null) {
         super();
         this.polyAlg = polyAlg;
         this.model = model;
         this.planType = planType;
+        this.dynamicValues = dynamicValues;
+        this.dynamicTypes = dynamicTypes;
     }
 }
 

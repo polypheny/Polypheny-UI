@@ -93,7 +93,8 @@ export class AlgNode extends ClassicPreset.Node {
     readonly modelColor: string;
     readonly isSimpleMode: WritableSignal<boolean>;
     readonly hasSimpleParams: boolean; // true if at least one parameter has a simple variant (even if it's hidden)
-    readonly hasVisibleControls;
+    readonly hasVisibleControls: Signal<boolean>;
+    readonly isAuxiliary: boolean;
     multiConnIdx: number | null = null; // in the case that the output of this node is connected to a node that allows multiple connections, this indicates the order
 
 
@@ -104,6 +105,7 @@ export class AlgNode extends ClassicPreset.Node {
         this.modelBadge = getModelPrefix(decl.model);
         this.modelColor = MODEL_COLORS.get(decl.model);
         this.isSimpleMode = signal(isSimpleMode);
+        this.isAuxiliary = metadata?.isAuxiliary;
 
         if (metadata) {
             this.isMetaVisible.set(true);

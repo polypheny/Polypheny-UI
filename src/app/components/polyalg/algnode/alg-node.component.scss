@@ -8,7 +8,6 @@ $collapse-width: 16px;
 $socket-margin: 6px;
 $socket-size: 16px;
 
-
 :host {
   display: block;
   background: white;
@@ -55,12 +54,16 @@ $socket-size: 16px;
     border-radius: 4px 4px 0 0;
   }
 
+  .title-wrapper.auxiliary {
+    background-color: $secondary;
+  }
+
   .simple-badge:hover {
     background-color: $danger !important;
   }
 
   &:hover {
-    border-color: $primary;
+    border-color: $primary !important;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 
     .title-wrapper {
@@ -69,7 +72,7 @@ $socket-size: 16px;
   }
 
   &.selected {
-    border-color: $primary;
+    border-color: $primary !important;
 
     .title-wrapper {
       background-color: $primary !important;
@@ -123,6 +126,8 @@ $socket-size: 16px;
   .control {
     padding: $socket-margin math.div($socket-size, 2) + $socket-margin;
   }
+}
 
-
+:host:has(.auxiliary) {
+  border: 4px solid $secondary;
 }

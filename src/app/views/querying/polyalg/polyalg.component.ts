@@ -36,6 +36,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
     initialUserMode = UserMode.SIMPLE;
     showPlanTypeModal = signal(false);
     showHelpModal = signal(false);
+    showParamsModal = signal(false);
     polyAlg = `PROJECT[employeeno, relationshipjoy AS happiness](
       FILTER[<(age0, 30)](
         JOIN[=(employeeno, employeeno0)](
@@ -43,6 +44,8 @@ export class PolyalgComponent implements OnInit, OnDestroy {
           PROJECT[employeeno AS employeeno0, age AS age0](
             PROJECT[employeeno, age](
               SCAN[public.emp])))))`;
+    physicalExecForm: { polyAlg: string, model: DataModel, params: string[][], values: (string | boolean)[] }
+        = {polyAlg: null, model: null, params: null, values: null};
 
     constructor(
         private _crud: CrudService,
@@ -85,18 +88,71 @@ export class PolyalgComponent implements OnInit, OnDestroy {
             this._toast.warn('Plan is invalid');
             return;
         }
+        // if the OperatorModel is COMMON, we use the relational DataModel
+        const dataModel = model === OperatorModel.COMMON ? DataModel.RELATIONAL : DataModel[model];
+
+        if (this.planType === 'PHYSICAL') {
+            const regex = /\?\d+:[A-Z_]+(\([\w,\s]+\))?/g; // matches '?0:INTEGER'
+            const matches = [...new Set(polyAlg.match(regex))];
+            const params = matches.map(m => m.substring(1).split(':')).sort((a, b) => +a[0] - +b[0]);
+            for (let i = 0; i < params.length; i++) {
+                const type = params[i][1];
+                const idx = type.indexOf('(');
+                params[i].push(idx === -1 ? type : type.substring(0, idx));
+            }
+
+            let values: (string | boolean)[] = params.map(p => p[1] === 'BOOLEAN' ? false : '');
+            if (this.physicalExecForm.values != null && JSON.stringify(this.physicalExecForm.params) === JSON.stringify(params)) {
+                console.log('equal params!');
+                values = this.physicalExecForm.values; // keep existing values
+            } else {
+                console.log('not equal params: ', this.physicalExecForm.params, params);
+            }
+            this.physicalExecForm = {
+                polyAlg: polyAlg,
+                model: dataModel,
+                params: params,
+                values: values
+            };
+            if (matches.length === 0) {
+                this.executePhysicalPlan();
+            } else {
+                this.showParamsModal.set(true);
+            }
+            return;
+        }
+
         this._leftSidebar.setNodes([]);
         this._leftSidebar.open();
         this.result.set(null);
-
-        // if the OperatorModel is COMMON, we use the relational DataModel
-        const dataModel = model === OperatorModel.COMMON ? DataModel.RELATIONAL : DataModel[model];
 
         this.loading.set(true);
         if (!this._crud.executePolyAlg(this.websocket, polyAlg, dataModel, this.planType)) {
             this.loading.set(false);
             this.result.set(new RelationalResult('Could not establish a connection with the server.'));
         }
+    }
+
+    executePhysicalPlan() {
+        console.log('executing', this.physicalExecForm.values);
+        this.showParamsModal.set(false);
+        this._leftSidebar.setNodes([]);
+        this._leftSidebar.open();
+        this.result.set(null);
+
+        const p = this.physicalExecForm;
+        this.loading.set(true);
+        if (!this._crud.executePhysicalPolyAlg(
+            this.websocket,
+            p.polyAlg,
+            p.model,
+            p.values.map(v => `${v}`),
+            p.params.map(p => p[1]))) {
+
+            this.loading.set(false);
+            this.result.set(new RelationalResult('Could not establish a connection with the server.'));
+        }
+
     }
 
     initWebsocket() {
@@ -206,6 +262,14 @@ export class PolyalgComponent implements OnInit, OnDestroy {
 
     toggleHelpModal() {
         this.showHelpModal.update(b => !b);
+    }
+
+    handleParamsModalChange($event: boolean) {
+        this.showParamsModal.set($event);
+    }
+
+    toggleParamsModal() {
+        this.showParamsModal.update(b => !b);
     }
 }
 

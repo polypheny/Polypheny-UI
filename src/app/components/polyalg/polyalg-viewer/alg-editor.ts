@@ -227,10 +227,6 @@ function addNode(registry: PolyAlgService, planType: PlanType, node: PlanNode | 
     const metadata = node.metadata ? new AlgMetadata(node.metadata) : null;
     const decl = registry.getDeclaration(node.opName) || registry.createDeclarationForUndef(node.opName, node.inputs, planType);
     const algNode = new AlgNode(decl, planType, node.arguments, metadata, false, isReadOnly, updateSize);
-    if (node.opName.endsWith('#')) {
-        // TODO: handle implicit project correctly
-        algNode.label = 'PROJECT#';
-    }
 
     for (let i = 0; i < node.inputs.length; i++) {
         const [childNodes, childConnections] = addNode(registry, planType, node.inputs[i], isReadOnly, updateSize);

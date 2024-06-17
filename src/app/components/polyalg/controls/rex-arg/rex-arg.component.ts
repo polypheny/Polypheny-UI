@@ -3,7 +3,7 @@ import {PlanArgument, RexArg} from '../../models/polyalg-plan.model';
 import {ArgControl} from '../arg-control';
 import {OperatorModel, Parameter, ParamTag, ParamType, SimpleType} from '../../models/polyalg-registry';
 import {PlanType} from '../../../../models/information-page.model';
-import {hasValidStructure} from '../arg-control-utils';
+import {hasValidStructure, sanitizeAlias} from '../arg-control-utils';
 
 @Component({
     selector: 'app-rex-arg',
@@ -15,6 +15,9 @@ export class RexArgComponent {
 
     protected readonly SimpleType = SimpleType;
 }
+
+const NODE_PREFIX = 'PolyNode ';
+const PATH_PREFIX = 'PolyPath ';
 
 export class RexControl extends ArgControl {
     readonly showAlias: boolean;
@@ -41,10 +44,19 @@ export class RexControl extends ArgControl {
         }
     };
     isRexValid = true;
+    isPolyNode = false;
+    isPolyPath = false;
 
     constructor(param: Parameter, private value: RexArg, model: OperatorModel, planType: PlanType, isSimpleMode: Signal<boolean>, isReadOnly: boolean) {
         super(param, model, planType, isSimpleMode, isReadOnly);
         this.showAlias = param.tags.includes(ParamTag.ALIAS);
+        this.isPolyNode = this.param.tags.includes(ParamTag.POLY_NODE);
+        this.isPolyPath = this.param.tags.includes(ParamTag.POLY_PATH);
+        if (this.isPolyNode && this.rex().startsWith(NODE_PREFIX)) {
+            this.rex.update(s => s.substring(NODE_PREFIX.length));
+        } else if (this.isPolyPath && this.rex().startsWith('PolyPath ')) {
+            this.rex.update(s => s.substring('PolyPath '.length));
+        }
     }
 
     getArgComponent(): Type<any> {
@@ -60,13 +72,17 @@ export class RexControl extends ArgControl {
             this.rex.set(polyAlg);
         } else if (this.simpleType() === SimpleType.REX_UINT) {
             this.rex.set(this.simpleValues.REX_UINT.i?.toString(10));
+        } else if (this.isPolyNode) {
+            return this.rex().startsWith(NODE_PREFIX) ? this.rex() : NODE_PREFIX + this.rex();
+
+        } else if (this.isPolyPath) {
+            return this.rex().startsWith(PATH_PREFIX) ? this.rex() : PATH_PREFIX + this.rex();
         } else {
             this.isRexValid = hasValidStructure(this.rex());
         }
 
         if (this.showAlias && this.alias() && this.alias() !== this.rex()) {
-            const cleanedAlias = hasValidStructure(this.alias()) ? this.alias() : `'${this.alias()}'`;
-            return `${this.rex()} AS ${cleanedAlias}`;
+            return `${this.rex()} AS ${sanitizeAlias(this.alias())}`;
         }
         return this.rex();
     }

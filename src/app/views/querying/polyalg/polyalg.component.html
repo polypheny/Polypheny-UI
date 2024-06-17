@@ -101,3 +101,48 @@
         <button (click)="toggleHelpModal()" cButton color="secondary"> Close</button>
     </c-modal-footer>
 </c-modal>
+
+<c-modal [visible]="showParamsModal()" (visibleChange)="handleParamsModalChange($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Execute Plan</h5>
+        <button (click)="toggleParamsModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        Please specify the dynamic parameters:
+        <c-input-group *ngFor="let param of physicalExecForm.params; let i = index" class="mt-3">
+            <span cInputGroupText id="input-{{i}}">{{param[0]}}:{{param[1]}}</span>
+            <ng-container [ngSwitch]="param[2]">
+                <ng-container *ngSwitchCase="['INTEGER', 'TINYINT', 'SMALLINT', 'BIGINT'].includes(param[2]) ? param[2] : '' ">
+                    <input cFormControl sizing="sm" type="number" autocomplete="off" step="1"
+                           placeholder="0" [(ngModel)]="physicalExecForm.values[i]">
+                </ng-container>
+
+                <ng-container *ngSwitchCase="['DECIMAL', 'REAL', 'DOUBLE', 'FLOAT'].includes(param[2]) ? param[2] : '' ">
+                    <input cFormControl sizing="sm" type="number" autocomplete="off" step="any"
+                           placeholder="0.0" [(ngModel)]="physicalExecForm.values[i]">
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'BOOLEAN'">
+                    <span cInputGroupText>
+                        <c-form-check>
+                          <input cFormCheckInput type="checkbox"
+                                 [checked]="physicalExecForm.values[i]" (change)="physicalExecForm.values[i] = !physicalExecForm.values[i]"/>
+                        </c-form-check>
+                    </span>
+                </ng-container>
+
+                <ng-container *ngSwitchDefault>
+                    <input aria-describedby="input-{{i}}" aria-label="Username" cFormControl autocomplete="off"
+                           placeholder="Enter Value" [(ngModel)]="physicalExecForm.values[i]"/>
+                </ng-container>
+            </ng-container>
+
+        </c-input-group>
+
+
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleParamsModal()" cButton color="secondary"> Close</button>
+        <button cButton color="primary" (click)="executePhysicalPlan()">Execute</button>
+    </c-modal-footer>
+</c-modal>

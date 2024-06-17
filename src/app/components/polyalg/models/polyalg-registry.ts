@@ -57,7 +57,9 @@ export enum OperatorTag {
 export enum ParamTag {
     ALIAS = 'ALIAS',
     NON_NEGATIVE = 'NON_NEGATIVE',
-    HIDE_TRIVIAL = 'HIDE_TRIVIAL'
+    HIDE_TRIVIAL = 'HIDE_TRIVIAL',
+    POLY_NODE = 'POLY_NODE',
+    POLY_PATH = 'POLY_PATH',
 }
 
 export enum SimpleType {
