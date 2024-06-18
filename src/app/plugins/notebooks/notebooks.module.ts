@@ -53,7 +53,7 @@ import {
     TooltipDirective
 } from '@coreui/angular';
 import {IconDirective} from '@coreui/icons-angular';
-
+import { HighlightService } from './services/highlight.service';
 
 @NgModule({
     imports: [
@@ -72,7 +72,7 @@ import {IconDirective} from '@coreui/icons-angular';
             }
         }),
         TreeModule,
-        NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective, ButtonToolbarComponent, TooltipDirective, GutterDirective
+        NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective, ButtonToolbarComponent, TooltipDirective, GutterDirective,
     ],
     declarations: [
         NotebooksComponent,
@@ -92,7 +92,8 @@ import {IconDirective} from '@coreui/icons-angular';
     providers: [
         NotebooksSidebarService,
         NotebooksContentService,
-        UnsavedChangesGuard
+        UnsavedChangesGuard,
+        HighlightService
     ]
 })
 export class NotebooksModule {

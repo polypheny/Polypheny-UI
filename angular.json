@@ -53,7 +53,8 @@
               "node_modules/katex/dist/katex.min.css",
               "node_modules/prismjs/themes/prism-okaidia.css",
               "node_modules/reveal.js/dist/reveal.css",
-              "node_modules/reveal.js/dist/theme/black.css"            
+              "node_modules/reveal.js/dist/theme/black.css",
+              "node_modules/prismjs/themes/prism.css"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [

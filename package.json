@@ -58,6 +58,7 @@
     "ngx-markdown": "^17.1.1",
     "ngx-plyr": "^4.0.1",
     "prismjs": "1.29.0",
+    "reveal.js": "^4.3.0",
     "rxjs": "^7.8.1",
     "rxjs-compat": "^6.5.5",
     "sass": "^1.26.3",
@@ -66,8 +67,7 @@
     "ts-helpers": "^1.1.2",
     "ts-md5": "^1.2.7",
     "uuid": "^9.0.0",
-    "zone.js": "~0.14.4",
-    "reveal.js": "^4.3.0"
+    "zone.js": "~0.14.4"
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "^17.0.1",

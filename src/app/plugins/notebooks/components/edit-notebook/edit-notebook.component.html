@@ -157,10 +157,10 @@
                     </select>
                 </c-button-group>
             
-                <c-button-group>
-                    <button type="button" class="btn btn-light"
+                <c-button-group size="sm" class="me-2" role="group" >
+                    <button cButton color="light" type="button" 
                     (click)="persentShow()"
-                    onclick="this.blur();" tooltip="Present Slides" container="body"
+                    onclick="this.blur();" cTooltip="Present Slides" 
                     [disabled]="inserting">
                 Present
             </button>

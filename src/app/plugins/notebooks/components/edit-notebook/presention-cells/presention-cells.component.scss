@@ -1,13 +1,18 @@
 .full-screen{
-    position: fixed; /* Position the div relative to the viewport */
-  top: 0;          /* Align to the top of the viewport */
-  left: 0;         /* Align to the left of the viewport */
-  width: 100vw;    /* Full viewport width */
-  height: 100vh;   /* Full viewport height */
-  background-color: black; /* Background color for visibility */
-  color:white;
-  z-index: 2000;   /* High z-index to ensure it's on top of other elements */
+    position: fixed; 
+  top: 0;         
+  left: 0;       
+  width: 100vw;  
+  height: 100vh;   
+  background-color: black; 
+  z-index: 2000;  
 }
 .slides{
   display: block !important;
 }
+// .reveal {
+//   transform: translate3d(0,0,0);
+// }
+// .reveal h2 {
+//   text-transform: none !important;
+// }

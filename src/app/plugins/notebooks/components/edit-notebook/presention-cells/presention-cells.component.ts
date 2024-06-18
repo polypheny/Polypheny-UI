@@ -6,6 +6,7 @@ import {NotebookWrapper} from '../notebook-wrapper';
 import {KatexOptions, MarkdownService} from 'ngx-markdown';
 import { Slides } from '../../../models/peresentions';
 import { Router } from '@angular/router';
+import { HighlightService } from '../../../services/highlight.service'
 
 @Component({
   selector: 'app-presention-cells',
@@ -18,14 +19,14 @@ export class PresentionCellsComponent implements OnInit {
   @Input() nb: NotebookWrapper;
   
   slides: Slides[]=[];
- 
-  public options: KatexOptions = {
-    throwOnError: false,
-    errorColor: '#f86c6b'
-  };
+  theme = 'vs-dark';
+
+
+  private highlighted: boolean = false
 
 constructor(private _markdown: MarkdownService,
-  public router:Router) {
+  public router:Router,
+  private highlightService: HighlightService) {
 }
 
   ngOnInit(): void {
@@ -34,20 +35,22 @@ constructor(private _markdown: MarkdownService,
       let type=this.nb.getCellPresent(item);
       if(type!="skip")
       {
+
         if(type=="slide" || this.slides.length==0)
         {
-          this.slides.push({source:item.source,children:[{source:item.source,children:[],fragments:[]}],fragments:[]});
+          this.slides.push({source:item.source,children:[{source:item.source,children:[],fragments:[],type:item.cell_type}],fragments:[],type:item.cell_type});
         }
         else if (type=="fragment")
         {
           let len=this.slides[this.slides.length-1].children.length;
-          this.slides[this.slides.length-1].children[len-1].fragments.push(item.source);
+          this.slides[this.slides.length-1].children[len-1].fragments.push({text:item.source,type:item.cell_type});
         }
         else {
-          this.slides[this.slides.length-1].children.push({source:item.source,children:[],fragments:[]});
+          this.slides[this.slides.length-1].children.push({source:item.source,children:[],fragments:[],type:item.cell_type});
         }
       }
     })
+    console.log(this.slides);
   }
   
   ngAfterViewInit(){  
@@ -59,7 +62,12 @@ constructor(private _markdown: MarkdownService,
     })
     
   }
-
+  ngAfterViewChecked() {
+    if (!this.highlighted) {
+      this.highlightService.highlightAll()
+      this.highlighted = true
+    }
+  }
   ngOnDestroy(){
     window.location.reload();
   }
