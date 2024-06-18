@@ -31,7 +31,6 @@ constructor(private _markdown: MarkdownService,
 
   ngOnInit(): void {
     this.slides=[];
-    console.log( this.nb.cells)
     this.nb.cells.forEach(item=>{
       let type=this.nb.getCellPresent(item);
       let codeType=this.nb.getCellType(item);
@@ -48,7 +47,6 @@ constructor(private _markdown: MarkdownService,
         }
         if(type=="slide" || this.slides.length==0)
         {
-          
           if(language=="")
           {
             this.slides.push({source:item.source,children:[{source:item.source,children:[],fragments:[],type:item.cell_type}],fragments:[],type:item.cell_type});
@@ -81,7 +79,6 @@ constructor(private _markdown: MarkdownService,
         }
       }
     })
-    console.log(this.slides);
   }
   
   ngAfterViewInit(){  
