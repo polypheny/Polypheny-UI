@@ -10,9 +10,9 @@
 .slides{
   display: block !important;
 }
-// .reveal {
-//   transform: translate3d(0,0,0);
-// }
-// .reveal h2 {
-//   text-transform: none !important;
-// }
+
+.preview ::ng-deep h2,.preview ::ng-deep h1, 
+.preview ::ng-deep h3, .preview ::ng-deep h4,
+.preview ::ng-deep h5, .preview ::ng-deep h6{
+  text-transform: none;
+}
