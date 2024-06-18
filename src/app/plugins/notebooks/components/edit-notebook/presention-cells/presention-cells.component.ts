@@ -31,22 +31,53 @@ constructor(private _markdown: MarkdownService,
 
   ngOnInit(): void {
     this.slides=[];
+    console.log( this.nb.cells)
     this.nb.cells.forEach(item=>{
       let type=this.nb.getCellPresent(item);
+      let codeType=this.nb.getCellType(item);
       if(type!="skip")
       {
-
+        let language=""
+        if(codeType=='poly')
+        {
+          language="sql"
+        }
+        else if (codeType=="code")
+        {
+          language="py"
+        }
         if(type=="slide" || this.slides.length==0)
         {
-          this.slides.push({source:item.source,children:[{source:item.source,children:[],fragments:[],type:item.cell_type}],fragments:[],type:item.cell_type});
+          
+          if(language=="")
+          {
+            this.slides.push({source:item.source,children:[{source:item.source,children:[],fragments:[],type:item.cell_type}],fragments:[],type:item.cell_type});
+          }
+          else{
+            this.slides.push({source:item.source,children:[{source:item.source,children:[],fragments:[],type:item.cell_type,language:language}],fragments:[],type:item.cell_type,language:language});
+
+          }
         }
         else if (type=="fragment")
         {
           let len=this.slides[this.slides.length-1].children.length;
+          if(language=="")
+          {
           this.slides[this.slides.length-1].children[len-1].fragments.push({text:item.source,type:item.cell_type});
+          }
+          else{
+            this.slides[this.slides.length-1].children[len-1].fragments.push({text:item.source,type:item.cell_type,language:language});
+
+          }
         }
         else {
+          if(language=="")
+          {
           this.slides[this.slides.length-1].children.push({source:item.source,children:[],fragments:[],type:item.cell_type});
+          }
+          else{
+            this.slides[this.slides.length-1].children.push({source:item.source,children:[],fragments:[],type:item.cell_type,language:language});
+          }
         }
       }
     })

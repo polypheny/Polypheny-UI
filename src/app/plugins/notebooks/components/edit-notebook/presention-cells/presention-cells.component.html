@@ -4,22 +4,15 @@
       <section  *ngFor="let slide of slides">
         <section *ngFor="let child of slide.children">
           <markdown ngPreserveWhitespaces *ngIf="child.type=='markdown'" class="markdown">
-            <!-- {{child.source}} -->
-            ## Markdown 
+            {{child.source}}
           </markdown>
-          <pre *ngIf="child.type=='code'" >
-            <code  class="language-py" [innerHTML]="child.source">
-            
-              </code>
-  
-           </pre>
+          <pre *ngIf="child.type=='code'" ><code  [class]="'language-' + child.language" [innerHTML]="child.source">
+              </code></pre>
           <div  *ngFor="let fragment of child.fragments">
             <markdown  *ngIf="fragment.type=='markdown'" ngPreserveWhitespaces  class="fragment fade-up">
               {{fragment.text}}
             </markdown>
-            <pre *ngIf="fragment.type=='code'" class="fragment fade-up">
-              <code  class="language-py" [innerHTML]="fragment.text">
-              
+            <pre *ngIf="fragment.type=='code'" class="fragment fade-up"><code  [class]="'language-' + fragment.language" [innerHTML]="fragment.text">   
               </code></pre>
           </div>
         </section>
