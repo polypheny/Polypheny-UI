@@ -206,7 +206,8 @@ export function getContextMenuNodes(isSimpleMode: boolean, registry: PolyAlgServ
     for (const model of Object.keys(OperatorModel).map(key => OperatorModel[key])) {
         const innerNodes = [];
         for (const decl of registry.getSortedDeclarations(model)) {
-            if (decl.tags.includes(OperatorTag[planType]) && !(isSimpleMode && decl.tags.includes(OperatorTag.ADVANCED))) {
+            if (decl.tags.includes(OperatorTag[planType]) && !(isSimpleMode && decl.tags.includes(OperatorTag.ADVANCED)) &&
+                !decl.notRegistered) {
                 const displayName = decl.convention ? decl.name : removeModelPrefix(decl.name, decl.model);
                 innerNodes.push([
                     displayName,

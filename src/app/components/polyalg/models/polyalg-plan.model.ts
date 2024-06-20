@@ -118,7 +118,15 @@ export interface FieldArg {
     arg: string;
 }
 
-type ArgType = EntityArg | RexArg | ListArg | StringArg | BooleanArg | EnumArg | IntArg | LaxAggArg | AggArg | CollationArg | CorrelationArg | FieldArg;
+export interface WindowGroupArg {
+    isRows: boolean;
+    lowerBound: string;
+    upperBound: string;
+    aggCalls: string[];
+    orderKeys: CollationArg[];
+}
+
+type ArgType = EntityArg | RexArg | ListArg | StringArg | BooleanArg | EnumArg | IntArg | LaxAggArg | AggArg | CollationArg | CorrelationArg | FieldArg | WindowGroupArg;
 
 export enum CollDirection {
     ASCENDING = 'ASC',

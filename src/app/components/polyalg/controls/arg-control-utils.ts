@@ -4,7 +4,7 @@ import {BooleanControl} from './boolean-arg/boolean-arg.component';
 import {RexControl} from './rex-arg/rex-arg.component';
 import {EntityControl} from './entity-arg/entity-arg.component';
 import {ListControl} from './list-arg/list-arg.component';
-import {AggArg, BooleanArg, CollationArg, CollDirection, CorrelationArg, defaultNullDirection, DoubleArg, EntityArg, EnumArg, FieldArg, IntArg, LaxAggArg, ListArg, PlanArgument, RexArg, StringArg} from '../models/polyalg-plan.model';
+import {AggArg, BooleanArg, CollationArg, CollDirection, CorrelationArg, defaultNullDirection, DoubleArg, EntityArg, EnumArg, FieldArg, IntArg, LaxAggArg, ListArg, PlanArgument, RexArg, StringArg, WindowGroupArg} from '../models/polyalg-plan.model';
 import {EnumControl} from './enum-arg/enum-arg.component';
 import {OperatorModel, Parameter, ParamType} from '../models/polyalg-registry';
 import {IntControl} from './int-arg/int-arg.component';
@@ -16,6 +16,7 @@ import {LaxAggControl} from './lax-agg/lax-agg-arg.component';
 import {Signal} from '@angular/core';
 import {PlanType} from '../../../models/information-page.model';
 import {DoubleControl} from './double-arg/double-arg.component';
+import {WindowControl} from './window-arg/window-arg.component';
 
 export function getControl(param: Parameter, arg: PlanArgument | null, isReadOnly: boolean, depth: number,
                            model: OperatorModel, planType: PlanType, isSimpleMode: Signal<boolean>): ArgControl {
@@ -54,6 +55,8 @@ export function getControl(param: Parameter, arg: PlanArgument | null, isReadOnl
             return new CollationControl(param, arg.value as CollationArg, model, planType, isSimpleMode, isReadOnly);
         case 'CORR_ID':
             return new CorrelationControl(param, arg.value as CorrelationArg, model, planType, isSimpleMode, isReadOnly);
+        case 'WINDOW_GROUP':
+            return new WindowControl(param, arg.value as WindowGroupArg, model, planType, isSimpleMode, isReadOnly);
     }
     return new StringControl(param, {'arg': JSON.stringify(arg)}, model, planType, isSimpleMode, isReadOnly);
 }
@@ -115,6 +118,8 @@ export function getInitialArg(p: Parameter, depth: number): PlanArgument {
                     };
                 case ParamType.CORR_ID:
                     return {arg: 0};
+                case ParamType.WINDOW_GROUP:
+                    return {isRows: false, lowerBound: '', upperBound: '', aggCalls: [], orderKeys: []};
             }
             return null;
         })(),

@@ -44,7 +44,8 @@ export enum ParamType {
     FIELD = 'FIELD',
     LIST = 'LIST',
     COLLATION = 'COLLATION',
-    CORR_ID = 'CORR_ID'
+    CORR_ID = 'CORR_ID',
+    WINDOW_GROUP = 'WINDOW_GROUP'
 }
 
 export enum OperatorTag {
