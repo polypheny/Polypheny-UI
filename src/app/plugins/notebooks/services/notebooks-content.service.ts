@@ -43,7 +43,6 @@ export class NotebooksContentService {
     private namespaces = new BehaviorSubject<string[]>([]);
 
     constructor() {
-        this.updateExistingNamespaces();
         this.updateAvailableKernels();
         this.updateSessions();
         this.loadPreferredSessions();
@@ -142,12 +141,10 @@ export class NotebooksContentService {
         this.updateInterval$?.unsubscribe();
         if (active) {
             this.updateInterval$ = interval(10000).subscribe(() => {
-                this.updateExistingNamespaces();
                 this.updateAvailableKernels();
                 this.updateSessions();
                 this.update();
             });
-            this.updateExistingNamespaces();
         }
     }
 
@@ -350,18 +347,6 @@ export class NotebooksContentService {
             JSON.parse(localStorage.getItem(this.LOCAL_STORAGE_PREFERRED_SESSIONS_KEY)));
     }
 
-
-    private updateExistingNamespaces() {
-        /*this._crud.get(new SchemaRequest('views/notebooks/', false, 1, false)).subscribe(
-            res => {
-                const names = [];
-                for (const namespace of <any[]>res) {
-                    names.push(namespace?.name);
-                }
-                this.namespaces.next(names);
-            }todo dl
-        );*/
-    }
 
     /**
      * Returns true if there exists a directory file inside the current directory with the specified path.
