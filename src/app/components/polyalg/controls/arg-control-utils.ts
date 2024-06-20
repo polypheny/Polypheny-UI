@@ -176,8 +176,8 @@ export function sanitizeAlias(alias: string) {
     if ((alias.startsWith('\'') && alias.endsWith('\'')) || (alias.startsWith('"') && alias.endsWith('"'))) {
         return alias;
     }
-    if (alias.match(/^[a-zA-Z#$@öÖäÄüÜàÀçÇáÁèÈíÍîÎóÓòôÔÒíÍëËâÂïÏéÉñÑß.\d-]*$/)) {
+    if (alias.match(/^[a-zA-Z#$@öÖäÄüÜàÀçÇáÁèÈíÍîÎóÓòôÔÒíÍëËâÂïÏéÉñÑß.\d]*$/)) {
         return alias;
     }
-    return '\'' + alias + '\'';
+    return '"' + alias + '"';
 }
