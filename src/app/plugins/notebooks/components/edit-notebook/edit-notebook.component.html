@@ -2,7 +2,9 @@
     <c-row class="no-gutters nb-toolbar">
         <c-col md="9">
             <c-button-toolbar role="group" aria-label="Toolbar with button groups">
-                <button cButton color="danger" variant="outline" class="me-4 flex-grow-0" (click)="closeNotebookModal.show()">Close</button>
+                <button cButton color="danger" variant="outline" class="me-4 flex-grow-0"
+                        (click)="closeNotebookModal.show()">Close
+                </button>
                 <c-button-group size="sm" class="me-2" role="group" aria-label="Save">
                     <button cButton color="light" type="button" (click)="uploadNotebook()"
                             onclick="this.blur();" cTooltip="Save notebook (S)">
@@ -13,7 +15,8 @@
                 <c-button-group size="sm" class="me-2" role="group" aria-label="File Run Kernel">
                     <c-button-group dropdown triggers="mouseover" #dropdownFile="bs-dropdown"
                                     (mouseleave)="dropdownFile.hide()">
-                        <button cButton color="light" id="drop-file-btn" dropdownToggle type="button" class="dropdown-toggle"
+                        <button cButton color="light" id="drop-file-btn" dropdownToggle type="button"
+                                class="dropdown-toggle"
                                 aria-controls="dropdown-menu" onclick="this.blur();">
                             File
                         </button>
@@ -46,8 +49,10 @@
                         </div>
                     </c-button-group>
 
-                    <c-button-group dropdown triggers="mouseover" #dropdownRun="bs-dropdown" (mouseleave)="dropdownRun.hide()">
-                        <button cButton color="light" id="drop-run-btn" dropdownToggle type="button" class="dropdown-toggle"
+                    <c-button-group dropdown triggers="mouseover" #dropdownRun="bs-dropdown"
+                                    (mouseleave)="dropdownRun.hide()">
+                        <button cButton color="light" id="drop-run-btn" dropdownToggle type="button"
+                                class="dropdown-toggle"
                                 aria-controls="dropdown-menu" onclick="this.blur();">
                             Run
                         </button>
@@ -86,7 +91,8 @@
 
                     <c-button-group dropdown triggers="mouseover" #dropdownKernel="bs-dropdown"
                                     (mouseleave)="dropdownKernel.hide()">
-                        <button cButton color="light" id="drop-kernel-btn" dropdownToggle type="button" class="dropdown-toggle"
+                        <button cButton color="light" id="drop-kernel-btn" dropdownToggle type="button"
+                                class="dropdown-toggle"
                                 aria-controls="dropdown-menu" onclick="this.blur();">
                             Kernel
                         </button>
@@ -137,8 +143,8 @@
                         <i class="fa fa-plus"></i>
                     </button>
                 </c-button-group>
-                <c-button-group>
-                    <select class="form-select btn pull-right me-1 bg-light px-1" aria-label="Select Cell Type"
+                <div class="btn-group" role="group">
+                    <select cButton class="form-select me-1 bg-light text-black px-2" aria-label="Select Cell Type"
                             (change)="onTypeChange($event)"
                             [(ngModel)]="selectedCellType">
                         <option value="code">Code</option>
@@ -146,16 +152,16 @@
                         <option value="poly">Query</option>
                         <option value="raw">Raw</option>
                     </select>
-                </c-button-group>
+                </div>
             </c-button-toolbar>
         </c-col>
-        <c-col md="3" class="col-md-3 text-right">
+        <c-col md="3" class="col-md-3 d-flex justify-content-end">
             <button cButton color="light" type="button" style="white-space: nowrap"
                     (click)="openChangeSessionModal.emit({name: name, path: path})">
-                <span class="me-2">{{kernelSpec?.spec?.display_name || 'No kernel'}}</span>
+                <span class="me-2">{{ kernelSpec?.spec?.display_name || 'No kernel' }}</span>
                 <c-badge class="badge badge-pill"
                          [color]="nb?.kernelStatus === 'idle' ? 'success': (!nb || nb?.kernelStatus === 'unknown' ? 'danger' : (nb?.kernelStatus === 'busy' ? 'primary' : (nb?.kernelStatus === 'starting' ? 'secondary' : 'primary')))">
-                    {{nb?.kernelStatus || 'unknown'}}
+                    {{ nb?.kernelStatus || 'unknown' }}
                 </c-badge>
             </button>
         </c-col>
@@ -163,7 +169,7 @@
 </c-container>
 
 <div class="nb-scroll px-3" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
-    <h1 class="nb-title">{{name}}</h1>
+    <h1 class="nb-title">{{ name }}</h1>
     <div class="nb-background mt-4 pt-4">
         <ng-container *ngIf="nb">
             <div cdkDropList class="drop-list" (cdkDropListDropped)="drop($event)">
@@ -178,7 +184,6 @@
                                  [isLast]="i === nb.cells.length-1"
                                  [selectedCellType]="selectedCellType"
                                  [(mode)]="mode"
-                                 [namespaces]="namespaces"
                                  [nbLanguage]="kernelSpec?.spec?.language || 'python'"
                                  [isTrusted]="nb.trustedCellIds.has(cell.id)"
                                  (execute)="nb.executeCell($event)"
@@ -192,7 +197,7 @@
                     </app-nb-cell>
                     <div *cdkDragPreview class="drop-preview">
                         <span class="text-secondary me-4" *ngIf="cell.cell_type === 'code'">[ ]:</span>
-                        <span>{{getPreviewText( cell )}}</span>
+                        <span>{{ getPreviewText(cell) }}</span>
                     </div>
                     <div class="example-custom-placeholder bg-primary" *cdkDragPlaceholder></div>
                 </div>
@@ -220,7 +225,8 @@
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Delete Notebook</h4>
-            <button cButtonClose type="button" class="close" (click)="deleteNotebookModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" class="close" (click)="deleteNotebookModal.hide()"
+                    aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
@@ -316,7 +322,8 @@
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Close Notebook</h4>
-            <button cButtonClose type="button" class="close" (click)="closeNotebookCancelled()" aria-label="Close"></button>
+            <button cButtonClose type="button" class="close" (click)="closeNotebookCancelled()"
+                    aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
@@ -341,7 +348,7 @@
         <c-modal-footer>
             <button cButton color="secondary" type="button" (click)="closeNotebookCancelled()">Cancel</button>
             <button cButton color="primary" type="submit" (click)="closeNotebookSubmitted()" [disabled]="deleting">
-                {{closeNotebookForm.get( "shutDown" ).value && session ? 'Close & Shut Down' : 'Close'}}
+                {{ closeNotebookForm.get("shutDown").value && session ? 'Close & Shut Down' : 'Close' }}
             </button>
         </c-modal-footer>
     </c-modal-content>
