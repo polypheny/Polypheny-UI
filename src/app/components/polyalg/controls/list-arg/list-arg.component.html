@@ -47,6 +47,10 @@
                     <app-lax-agg-arg [data]="child"></app-lax-agg-arg>
                 </ng-container>
 
+                <ng-container *ngSwitchCase="ParamType.WINDOW_GROUP">
+                    <app-window-arg [data]="child"></app-window-arg>
+                </ng-container>
+
                 <ng-container *ngSwitchCase="ParamType.LIST">
                     <app-list-arg [data]="child"></app-list-arg>
                 </ng-container>

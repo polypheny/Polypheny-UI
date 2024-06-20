@@ -130,7 +130,8 @@ import {LaxAggArgComponent} from './polyalg/controls/lax-agg/lax-agg-arg.compone
 import {MagneticConnectionComponent} from './polyalg/polyalg-viewer/magnetic-connection/magnetic-connection.component';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {AlgMetadataComponent} from './polyalg/algnode/alg-metadata/alg-metadata.component';
-import { DoubleArgComponent } from './polyalg/controls/double-arg/double-arg.component';
+import {DoubleArgComponent} from './polyalg/controls/double-arg/double-arg.component';
+import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.component';
 
 //import 'hammerjs';
 
@@ -259,7 +260,8 @@ import { DoubleArgComponent } from './polyalg/controls/double-arg/double-arg.com
         LaxAggArgComponent,
         MagneticConnectionComponent,
         AlgMetadataComponent,
-        DoubleArgComponent
+        DoubleArgComponent,
+        WindowArgComponent
     ],
     exports: [
         BreadcrumbComponent,
