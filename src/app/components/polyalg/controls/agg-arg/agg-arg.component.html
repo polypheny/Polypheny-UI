@@ -55,7 +55,7 @@
             <label cFormCheckLabel>Approximate</label>
         </c-form-check>
 
-        <c-input-group sizing="sm">
+        <c-input-group sizing="sm" class="mb-1">
             <span cInputGroupText class="p-1">Filter</span>
             <input type="text" id="filter" name="filter" (pointerdown)="$event.stopPropagation()"
                    autocomplete="off" [readonly]="data.isReadOnly" placeholder="Field"
