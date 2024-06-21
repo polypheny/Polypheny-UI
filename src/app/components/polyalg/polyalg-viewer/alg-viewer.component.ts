@@ -21,37 +21,6 @@ type editorState = 'SYNCHRONIZED' | 'CHANGED' | 'INVALID' | 'READONLY';
 })
 export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
-    constructor(private injector: Injector,
-                private _registry: PolyAlgService,
-                private _toast: ToasterService,
-                private _validator: AlgValidatorService,
-                private _router: Router,
-                private _route: ActivatedRoute) {
-
-        effect(() => {
-            const el = this.container.nativeElement;
-
-            if (this.showNodeEditor() && this.polyAlgPlan() !== undefined && this.planTypeSignal() !== undefined && el) {
-                untracked(() => {
-                    this.modifySubscription?.unsubscribe();
-                    const oldTransform = this.nodeEditor ? this.nodeEditor.getTransform() : null;
-                    this.nodeEditor?.destroy();
-                    createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.planTypeSignal(), this.isReadOnly, this.userMode, oldTransform)
-                    .then(editor => {
-                        this.nodeEditor = editor;
-                        this.generateTextFromNodeEditor();
-                        this.modifySubscription = this.nodeEditor.onModify.pipe(
-                            switchMap(() => {
-                                this.nodeEditorState.set('CHANGED');
-                                return timer(500);
-                            })
-                        ).subscribe(() => this.generateTextFromNodeEditor(true));
-                    });
-                });
-            }
-        });
-    }
-
     @Input() polyAlg?: string;
     @Input() initialPlan?: string;
     @Input() initialUserMode?: UserMode;
@@ -100,8 +69,38 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
         fontSize: '1rem',
         tabSize: 2
     };
-
     protected readonly UserMode = UserMode;
+
+    constructor(private injector: Injector,
+                private _registry: PolyAlgService,
+                private _toast: ToasterService,
+                private _validator: AlgValidatorService,
+                private _router: Router,
+                private _route: ActivatedRoute) {
+
+        effect(() => {
+            const el = this.container.nativeElement;
+
+            if (this.showNodeEditor() && this.polyAlgPlan() !== undefined && this.planTypeSignal() !== undefined && el) {
+                untracked(() => {
+                    this.modifySubscription?.unsubscribe();
+                    const oldTransform = this.nodeEditor ? this.nodeEditor.getTransform() : null;
+                    this.nodeEditor?.destroy();
+                    createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.planTypeSignal(), this.isReadOnly, this.userMode, oldTransform)
+                    .then(editor => {
+                        this.nodeEditor = editor;
+                        this.generateTextFromNodeEditor();
+                        this.modifySubscription = this.nodeEditor.onModify.pipe(
+                            switchMap(() => {
+                                this.nodeEditorState.set('CHANGED');
+                                return timer(500);
+                            })
+                        ).subscribe(() => this.generateTextFromNodeEditor(true));
+                    });
+                });
+            }
+        });
+    }
 
     ngAfterViewInit(): void {
         this.showEditButton = this.isReadOnly;
@@ -127,10 +126,13 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
             }
             this._validator.buildPlan(this.polyAlg, this.planType).subscribe({
                 next: (plan) => this.polyAlgPlan.set(plan),
-                error: () => {
-                    this.nodeEditorState.set('INVALID');
-                    this.textEditorState.set('INVALID');
+                error: (err) => {
                     this.textEditor.setCode(this.polyAlg);
+                    this.textEditorState.set('INVALID');
+                    this.textEditorError.set(err.error.errorMsg);
+                    this.nodeEditorState.set('INVALID');
+                    this.nodeEditorError.set(err.error.errorMsg);
+                    this._toast.error('Unable to build the initial plan. It most likely contains a (yet) unsupported feature.');
                 }
             });
         }

@@ -103,10 +103,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
 
             let values: (string | boolean)[] = params.map(p => p[1] === 'BOOLEAN' ? false : '');
             if (this.physicalExecForm.values != null && JSON.stringify(this.physicalExecForm.params) === JSON.stringify(params)) {
-                console.log('equal params!');
                 values = this.physicalExecForm.values; // keep existing values
-            } else {
-                console.log('not equal params: ', this.physicalExecForm.params, params);
             }
             this.physicalExecForm = {
                 polyAlg: polyAlg,
@@ -270,6 +267,10 @@ export class PolyalgComponent implements OnInit, OnDestroy {
 
     toggleParamsModal() {
         this.showParamsModal.update(b => !b);
+    }
+
+    clearParamsModal() {
+        this.physicalExecForm.values = this.physicalExecForm.params.map(p => p[1] === 'BOOLEAN' ? false : '');
     }
 }
 

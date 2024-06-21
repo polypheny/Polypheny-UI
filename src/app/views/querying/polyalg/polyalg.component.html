@@ -89,11 +89,25 @@
         <button (click)="toggleHelpModal()" cButtonClose></button>
     </c-modal-header>
     <c-modal-body>
-        The PolyPlan Builder can be used to create or edit plans using either
+        <p>The PolyPlan Builder can be used to create or edit plans using either the <i>Algebra Editor</i> or the <i>Node Editor</i>.</p>
+        <p>The color around an editor indicates its state:</p>
         <ul>
-            <li>the Algebra Editor</li>
-            <li>or the Node Editor.</li>
+            <li>
+                <c-badge color="warning">Yellow</c-badge>
+                indicates the content was edited and not yet synchronized with the other editor.
+            </li>
+            <li>
+                <c-badge color="danger">Red</c-badge>
+                indicates that the the plan is invalid. You can hover over the editor title to display the
+                error message.
+            </li>
         </ul>
+        <p>A plan can only be executed if both editors are synchronized and valid.</p>
+        <p>You can choose between <i>Simple</i> and <i>Advanced</i> mode. Simple mode disables the Algebra Editor and
+            hides advanced nodes. Some nodes also have a simplified variant. All properties can be unlocked by clicking on the
+            <c-badge color="success">Simple</c-badge>
+            badge.
+        </p>
 
 
     </c-modal-body>
@@ -109,7 +123,7 @@
     </c-modal-header>
     <c-modal-body>
         Please specify the dynamic parameters:
-        <c-input-group *ngFor="let param of physicalExecForm.params; let i = index" class="mt-3">
+        <c-input-group *ngFor="let param of physicalExecForm.params; let i = index" class="mb-2">
             <span cInputGroupText id="input-{{i}}">{{param[0]}}:{{param[1]}}</span>
             <ng-container [ngSwitch]="param[2]">
                 <ng-container *ngSwitchCase="['INTEGER', 'TINYINT', 'SMALLINT', 'BIGINT'].includes(param[2]) ? param[2] : '' ">
@@ -139,10 +153,11 @@
 
         </c-input-group>
 
+        <button (click)="clearParamsModal()" cButton color="light" size="sm">Clear all</button>
 
     </c-modal-body>
     <c-modal-footer>
-        <button (click)="toggleParamsModal()" cButton color="secondary"> Close</button>
+        <button (click)="toggleParamsModal()" cButton color="secondary">Close</button>
         <button cButton color="primary" (click)="executePhysicalPlan()">Execute</button>
     </c-modal-footer>
 </c-modal>
