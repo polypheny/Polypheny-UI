@@ -7,12 +7,36 @@
   background-color: black; 
   z-index: 2000;  
 }
+.reveal .slides {
+  height: 100%;
+  top: 0;
+  margin-top: 0;
+}
+
+.reveal .slides>section {
+  min-height: 90%;
+}
+
+.reveal .slides>section>section {
+  min-height: 100%;
+}
+
 .slides{
   display: block !important;
+}
+.scroll{
+  overflow-y: auto  !important;
 }
 
 .preview ::ng-deep h2,.preview ::ng-deep h1, 
 .preview ::ng-deep h3, .preview ::ng-deep h4,
 .preview ::ng-deep h5, .preview ::ng-deep h6{
   text-transform: none;
+}
+.code-container{
+  font-size: large;
+}
+
+.output-container{
+  overflow: scroll;
 }

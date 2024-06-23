@@ -91,7 +91,11 @@ constructor(private _markdown: MarkdownService,
       parallaxBackgroundImage: '',
       parallaxBackgroundSize: '',
       parallaxBackgroundHorizontal: 200,
-      parallaxBackgroundVertical: 50
+      parallaxBackgroundVertical: 50,
+      minScale: 0.2,
+      maxScale: 1.0,
+      width: 960,
+      height: 700,
     })
     
   }
