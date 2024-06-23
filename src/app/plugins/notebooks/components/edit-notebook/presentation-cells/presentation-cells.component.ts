@@ -36,14 +36,14 @@ constructor(private _markdown: MarkdownService,
 
   ngOnInit(): void {
     
-    console.log(   this.nb.cells)
     this.slides=[];
     this.nb.cells.forEach(item=>{
      
       /* store data for presention */
       let type=this.nb.getCellPresent(item);
       let codeType=this.nb.getCellType(item);
-      let isTrusted=this.nb.trustedCellIds.has(item.id)
+      let isTrusted=this.nb.trustedCellIds.has(item.id);
+      let showOutput=item?.showOutput;
       if(type!="skip")
       {
         let language=""
@@ -66,7 +66,7 @@ constructor(private _markdown: MarkdownService,
         if(type=="slide" || this.slides.length==0)
         {
             this.slides.push({source:item.source,children:[{source:item.source,children:[],fragments:[],type:item.cell_type,language:language,
-              isTrusted:isTrusted,outputs:item?.outputs,errorHtml:errorHtml,streamHtml:streamHtml}],fragments:[],type:item.cell_type,language:language,isTrusted:isTrusted,outputs:item?.outputs,errorHtml:errorHtml,streamHtml:streamHtml});
+              isTrusted:isTrusted,outputs:item?.outputs,errorHtml:errorHtml,streamHtml:streamHtml,showOutput:showOutput}],fragments:[],type:item.cell_type,language:language,isTrusted:isTrusted,outputs:item?.outputs,errorHtml:errorHtml,streamHtml:streamHtml,showOutput:showOutput});
 
         }
         else if (type=="fragment")
@@ -78,11 +78,10 @@ constructor(private _markdown: MarkdownService,
         }
         else {
         
-            this.slides[this.slides.length-1].children.push({source:item.source,children:[],fragments:[],type:item.cell_type,language:language,isTrusted:isTrusted,outputs:item?.outputs,errorHtml:errorHtml,streamHtml:streamHtml});
+            this.slides[this.slides.length-1].children.push({source:item.source,children:[],fragments:[],type:item.cell_type,language:language,isTrusted:isTrusted,outputs:item?.outputs,errorHtml:errorHtml,streamHtml:streamHtml,showOutput:showOutput});
         }
       }
     })
-    console.log(   this.slides)
 
   }
   

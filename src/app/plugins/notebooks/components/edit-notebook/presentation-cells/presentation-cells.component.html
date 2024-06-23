@@ -8,7 +8,7 @@
           </markdown>
           <pre class="code-container"  *ngIf="child.type=='code'" ><code  [class]="'language-' + child.language" [innerHTML]="child.source">
               </code></pre>
-            <div *ngIf="child.type=='code'" class="output-container fragment fade-up nb-outputs text-monospace">
+            <div *ngIf="child.type=='code' && child.showOutput" class="output-container fragment fade-up nb-outputs text-monospace">
               <div class="nb-output" *ngFor="let output of child.outputs">
                   <ng-container *ngIf="output.output_type !== 'execute_result'; else elseExecuteResult">
                     <div class="nb-side-area"></div>

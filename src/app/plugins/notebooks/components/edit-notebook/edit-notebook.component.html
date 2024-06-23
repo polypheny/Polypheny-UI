@@ -216,6 +216,8 @@
                                  (delete)="deleteCell($event)"
                                  (selected)="selectCell($event)"
                                  [selectedPresentType]="selectedPresentType"
+                                 [showOutput]="showOutput"
+                                 (toggleCellShowOutput)="toggleCellShowOutput()"
                                  (changeType)="onTypeChange($event)"
                                  (ChangePresent)="onPresentChange($event)">
                         <div class="nb-drag-handle" cdkDragHandle></div>

@@ -12,4 +12,5 @@ export interface  Slides {
     streamHtml: SafeHtml;
     outputs?:(CellStreamOutput | CellDisplayDataOutput | CellExecuteResultOutput | CellErrorOutput)[];
     language?:string;
+    showOutput?:boolean;
   }

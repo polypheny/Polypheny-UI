@@ -246,8 +246,16 @@ export class NotebookWrapper {
         }
         return cell.cell_present;
     }
+    
 
-
+    getCellShowOutput(cell: NotebookCell): boolean {
+        return cell.showOutput;
+    }
+    toggleCellShowOutput(cell: NotebookCell): boolean {
+        cell.showOutput=!cell.showOutput;
+        return cell.showOutput;
+    }
+    
     changeCellPresent(cell: NotebookCell, type: PresentType){
         const oldType = this.getCellPresent(cell);
         if (oldType === type) {
@@ -477,6 +485,7 @@ export class NotebookWrapper {
         return {
             cell_type: 'code',
             cell_present:'skip',
+            showOutput:true,
             id: uuid.v4(),
             metadata: {},
             source: [],

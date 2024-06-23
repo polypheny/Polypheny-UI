@@ -19,9 +19,10 @@
                 <option value="skip">Skip</option>
             </select>
             <div class="nb-overlay-separator bg-secondary"></div>
-            <button cButton color="light" type="button" class="no-select-cell ms-0" (click)="move.emit(false)"
+            <button *ngIf="selectedCellType=='code'" cButton color="light" type="button" class="no-select-cell ms-0" (click)="toggleCellShowOutput.emit()"
              onclick="this.blur();" tooltip="Show output in presentation" container="body">
-            <i class="fa fa-eye select-cell"></i>
+                <i *ngIf="showOutput" class="fa fa-eye select-cell"></i>
+                <i *ngIf="!showOutput" class="fa fa-eye-slash select-cell"></i>
             </button>
             <button cButton color="light" type="button" class="no-select-cell ms-0" (click)="move.emit(false)"
                     [disabled]="isFirst" onclick="this.blur();" tooltip="Move cell up" container="body">

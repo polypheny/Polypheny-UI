@@ -59,6 +59,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     selectedCell: NotebookCell;
     selectedCellType: CellType = 'code';
     selectedPresentType: string='skip';
+    showOutput:boolean=true;
     busyCellIds = new Set<string>();
     mode: NbMode = 'command';
     namespaces: string[] = [];
@@ -543,6 +544,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this.selectedComponent?.editor?.blur();
             this.selectedCell = this.nb.getCell(id);
             this.selectedPresentType=this.nb.getCellPresent(this.selectedCell);
+            this.showOutput=this.nb.getCellShowOutput(this.selectedCell);
             if (this.selectedCell) {
                 this.selectedCellType = this.nb.getCellType(this.selectedCell);
                 this.scrollCellIntoView(id);
@@ -731,6 +733,11 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this.selectedPresentType = type;
         this.nb.changeCellPresent(this.selectedCell, type);
         this.selectedComponent.updatePresentType();
+
+    }
+    
+    toggleCellShowOutput() {
+        this.showOutput=this.nb.toggleCellShowOutput(this.selectedCell);
 
     }
 

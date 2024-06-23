@@ -33,6 +33,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     @Input() isLast: boolean;
     @Input() isExecuting: boolean;
     @Input() mode: NbMode;
+    @Input() showOutput: boolean;
     @Input() selectedCellType: CellType; // not necessarily the type of this cell
     @Input() selectedPresentType: string;
 
@@ -45,13 +46,13 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     @Output() duplicate = new EventEmitter<null>();
     @Output() execute = new EventEmitter<string>();
     @Output() changeType = new EventEmitter<Event>();
+    @Output() toggleCellShowOutput = new EventEmitter();
     @Output() delete = new EventEmitter<string>();
     @Output() selected = new EventEmitter<string>();
     @ViewChild('editor') editor: NbInputEditorComponent;
     @ViewChild('cellDiv') cellDiv: ElementRef;
     cellType: CellType = 'code';
     presentType:PresentType='skip';
-
     protected namespaces: Signal<string[]>;
 
     isMouseOver = false;
@@ -274,6 +275,9 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     }
     updatePresentType(){
         this.presentType=this.cell.cell_present;
+    }
+    updateShowOutput(){
+        this.showOutput=this.cell.showOutput;
     }
     changedNamespace() {
         this.cell.metadata.polypheny.namespace = this.polyForm.value.namespace;
