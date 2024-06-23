@@ -37,6 +37,7 @@ export interface NotebookCell {
     metadata: CellMetadata;
     source: string[] | string;
     execution_count: number;
+    showOutput?:boolean;
     outputs?: (CellStreamOutput | CellDisplayDataOutput | CellExecuteResultOutput | CellErrorOutput)[];
 }
 

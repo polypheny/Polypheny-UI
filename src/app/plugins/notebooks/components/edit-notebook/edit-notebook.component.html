@@ -187,8 +187,8 @@
 </c-container>
 
 <div *ngIf="persentShowFlag">
-    <app-presention-cells    [nb]="nb" (closeShow)="persentDisable()">
-    </app-presention-cells>
+    <app-presentation-cells   [nb]="nb" (closeShow)="persentDisable()">
+    </app-presentation-cells>
 </div>
 
 <div class="nb-scroll px-3" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">

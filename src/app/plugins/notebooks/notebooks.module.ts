@@ -11,7 +11,7 @@ import {NotebooksContentService} from './services/notebooks-content.service';
 import {NotebooksDashboardComponent} from './components/notebooks-dashboard/notebooks-dashboard.component';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {NbCellComponent} from './components/edit-notebook/nb-cell/nb-cell.component';
-import {PresentionCellsComponent} from './components/edit-notebook/presention-cells/presention-cells.component';
+import {PresentationCellsComponent} from './components/edit-notebook/presentation-cells/presentation-cells.component';
 
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
@@ -83,7 +83,7 @@ import { HighlightService } from './services/highlight.service';
         EditNotebookComponent,
         NotebooksDashboardComponent,
         NbCellComponent,
-        PresentionCellsComponent,
+        PresentationCellsComponent,
         NbInputEditorComponent,
         NbOutputDataComponent,
         NbPolyOutputComponent,

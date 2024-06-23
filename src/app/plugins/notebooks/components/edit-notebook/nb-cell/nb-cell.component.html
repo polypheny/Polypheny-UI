@@ -20,6 +20,10 @@
             </select>
             <div class="nb-overlay-separator bg-secondary"></div>
             <button cButton color="light" type="button" class="no-select-cell ms-0" (click)="move.emit(false)"
+             onclick="this.blur();" tooltip="Show output in presentation" container="body">
+            <i class="fa fa-eye select-cell"></i>
+            </button>
+            <button cButton color="light" type="button" class="no-select-cell ms-0" (click)="move.emit(false)"
                     [disabled]="isFirst" onclick="this.blur();" tooltip="Move cell up" container="body">
                 <i class="fa fa-arrow-up no-select-cell"></i>
             </button>

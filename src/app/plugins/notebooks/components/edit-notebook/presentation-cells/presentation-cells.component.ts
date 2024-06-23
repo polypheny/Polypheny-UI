@@ -12,12 +12,12 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {default as AnsiUp} from 'ansi_up';
 
 @Component({
-  selector: 'app-presention-cells',
-  templateUrl: './presention-cells.component.html',
-  styleUrls: ['./presention-cells.component.scss']
+  selector: 'app-presentation-cells',
+  templateUrl: './presentation-cells.component.html',
+  styleUrls: ['./presentation-cells.component.scss']
 })
 
-export class PresentionCellsComponent implements OnInit {
+export class PresentationCellsComponent implements OnInit {
   @Output() closeShow = new EventEmitter<void>(); // true: below, false: above
   @Input() nb: NotebookWrapper;
   
