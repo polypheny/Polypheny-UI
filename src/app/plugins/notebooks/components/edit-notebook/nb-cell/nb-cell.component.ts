@@ -1,4 +1,15 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild,} from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    computed,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    Signal,
+    ViewChild,
+} from '@angular/core';
 import {CellDisplayDataOutput, CellErrorOutput, CellStreamOutput, NotebookCell} from '../../../models/notebook.model';
 import {default as AnsiUp} from 'ansi_up';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
@@ -8,6 +19,7 @@ import {NbInputEditorComponent} from '../nb-input-editor/nb-input-editor.compone
 import {CellType, PresentType} from '../notebook-wrapper';
 import {RelationalResult, Result} from '../../../../../components/data-view/models/result-set.model';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {CatalogService} from '../../../../../services/catalog.service';
 
 @Component({
     selector: 'app-nb-cell',
@@ -23,7 +35,7 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     @Input() mode: NbMode;
     @Input() selectedCellType: CellType; // not necessarily the type of this cell
     @Input() selectedPresentType: string;
-    @Input() namespaces: string[];
+
     @Input() nbLanguage: string;
     @Input() isTrusted: boolean;
     @Output() modeChange = new EventEmitter<NbMode>();
@@ -39,6 +51,8 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     @ViewChild('cellDiv') cellDiv: ElementRef;
     cellType: CellType = 'code';
     presentType:PresentType='skip';
+
+    protected namespaces: Signal<string[]>;
 
     isMouseOver = false;
     resultVariable: string;
@@ -62,8 +76,13 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         errorColor: '#f86c6b'
     };
 
-    constructor(private _sanitizer: DomSanitizer,
-                private _markdown: MarkdownService) {
+    constructor(private _sanitizer: DomSanitizer, private _markdown: MarkdownService, private _catalog: CatalogService) {
+
+        this.namespaces = computed(() => {
+            this._catalog.listener();
+            return this._catalog.getNamespaces().map(n => n.name);
+        });
+
     }
 
     ngOnInit(): void {

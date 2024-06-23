@@ -85,58 +85,9 @@ export class QueryRequest extends UIRequest {
 
 export class GraphRequest extends QueryRequest {
     type = 'GraphRequest';
-    private nodeIds: string[];
-    private edgeIds: string[];
 
     constructor(namespace: string, nodeIds: Set<string>, edgeIds: Set<string>) {
         super('MATCH * RETURN *', false, false, 'CYPHER', namespace);
-        this.nodeIds = Array.from(nodeIds);
-        this.edgeIds = Array.from(edgeIds);
-    }
-}
-
-export class QueryExplorationRequest extends UIRequest {
-    query: string;
-    analyze: boolean;
-    cPage: number;
-
-    constructor(query: string, analyze: boolean, cPage: number) {
-        super();
-        this.query = query;
-        this.analyze = analyze;
-        this.cPage = cPage;
-        return this;
-    }
-}
-
-/**
- * Request to classify data
- */
-export class ClassifyRequest {
-    id: number;
-    header: UiColumnDefinition[];
-    classified: string[][];
-    cPage: number;
-
-    constructor(id: number, header: UiColumnDefinition[], classified: string[][], cPage: number) {
-        this.id = id;
-        this.header = header;
-        this.classified = classified;
-        this.cPage = cPage;
-        return this;
-    }
-}
-
-export class Exploration {
-    id: number;
-    header: UiColumnDefinition[];
-    classified: string[][];
-
-    constructor(id: number, header: UiColumnDefinition[], classified: string[][]) {
-        this.id = id;
-        this.header = header;
-        this.classified = classified;
-
     }
 }
 
@@ -191,33 +142,6 @@ export class DeleteRequest extends UIRequest {
         super();
         this.entityId = entityId;
         this.data = data;
-    }
-}
-
-export class SchemaRequest extends UIRequest {
-    routerLinkRoot: string;
-    views: boolean;
-    /**
-     * depth 1: schemas
-     * depth 2: schemas + tables
-     * depth 3: schemas + tables + columns
-     */
-    depth: number;
-    /**
-     * if show table is false, "table" will not be shown in left sidebar
-     */
-    showTable: boolean;
-    schemaEdit: boolean;
-    dataModels: DataModel[];
-
-    constructor(routerLinkRoot: string, views: boolean, depth: number, showTable: boolean, schemaEdit?: boolean, dataModels: DataModel[] = [DataModel.RELATIONAL, DataModel.DOCUMENT, DataModel.GRAPH]) {
-        super();
-        this.routerLinkRoot = routerLinkRoot;
-        this.views = views;
-        this.depth = depth;
-        this.showTable = showTable;
-        this.schemaEdit = schemaEdit || false;
-        this.dataModels = dataModels;
     }
 }
 
