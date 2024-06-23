@@ -3,11 +3,46 @@
     <div class="slides">
       <section  *ngFor="let slide of slides">
         <section class="preview" *ngFor="let child of slide.children">
-          <markdown ngPreserveWhitespaces *ngIf="child.type=='markdown'" class="markdown">
+          <markdown ngPreserveWhitespaces *ngIf="child.type=='markdown' || child.type=='raw' " class="markdown">
             {{child.source}}
           </markdown>
           <pre *ngIf="child.type=='code'" ><code  [class]="'language-' + child.language" [innerHTML]="child.source">
               </code></pre>
+            <div *ngIf="child.type=='code'" class="fragment fade-up nb-outputs text-monospace">
+              <div class="nb-output" *ngFor="let output of child.outputs">
+                  <ng-container *ngIf="output.output_type !== 'execute_result'; else elseExecuteResult">
+                    <div class="nb-side-area"></div>
+
+                    <div class="nb-output-text">
+                        <ng-container [ngSwitch]="output.output_type">
+                            <ng-container *ngSwitchCase="'stream'">
+                                <pre class="nb-plaintext text-monospace" [innerHTML]="child.streamHtml"></pre>
+                            </ng-container>
+                            <ng-container *ngSwitchCase="'display_data'">
+                                <app-nb-output-data [data]="output.data"
+                                                    [isTrusted]="child.isTrusted"></app-nb-output-data>
+                            </ng-container>
+                            <pre class="nb-error text-monospace" *ngSwitchCase="'error'"
+                                  [innerHTML]="child.errorHtml">
+                            </pre>
+                        </ng-container>
+
+                      </div>
+                  </ng-container>
+
+                  <ng-template #elseExecuteResult>
+                      <div class="nb-side-area">
+                          <span [ngClass]="{'text-primary': isFocused, 'text-secondary': !isFocused}">
+                              [{{ (isExecuting ? '*' : cell.execution_count) || ' ' }}]:
+                          </span>
+                      </div>
+
+                      <div class="nb-output-text nb-execute-result">
+                          <app-nb-output-data [data]="output.data" [isTrusted]="child.isTrusted"></app-nb-output-data>
+                      </div>
+                  </ng-template>
+              </div>
+          </div>
           <div class="preview" *ngFor="let fragment of child.fragments">
             <markdown  *ngIf="fragment.type=='markdown'" ngPreserveWhitespaces  class="fragment fade-up">
               {{fragment.text}}

@@ -153,15 +153,15 @@
                         <option value="raw">Raw</option>
                     </select>
                 </div>
-                <c-button-group>
-                    <select class="form-select btn pull-right mr-1 bg-light px-1" aria-label="Select Present Type"
+                <div class="btn-group me-2" role="group">
+                    <select class="form-select btn pull-right mr-1 bg-light px-2" aria-label="Select Present Type"
                         (change)="onPresentChange($event)" [(ngModel)]="selectedPresentType">
                             <option value="slide">Slide</option>
                             <option value="subslide">Subslide</option>
                             <option value="fragment">Fragment</option>
                             <option value="skip">Skip</option>
                     </select>
-                </c-button-group>
+                </div>
             
                 <c-button-group size="sm" class="me-2" role="group" >
                     <button cButton color="light" type="button" 
