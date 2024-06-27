@@ -9,14 +9,18 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
     styleUrls: ['./node.component.scss']
 })
 export class NodeComponent implements OnInit, AfterViewChecked {
-    isView = false;
 
     constructor() {
     }
 
+    isView = false;
+
     @ViewChild('element', {read: ElementRef}) public element: ElementRef;
     @Input() node: Node;
     @Output() autocompleteChanged = new EventEmitter();
+
+
+    protected readonly AlgType = AlgType;
 
     ngOnInit() {
 
@@ -83,7 +87,4 @@ export class NodeComponent implements OnInit, AfterViewChecked {
     trackFields(index: number, obj: any): any {
         return obj.length;
     }
-
-
-    protected readonly AlgType = AlgType;
 }

@@ -57,6 +57,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     showNodeEditor = computed(() => this._registry.registryLoaded());
     private isNodeFocused = false; // If a node is focused we must assume that a control has changed. Thus, the nodeEditor cannot be 'SYNCHRONIZED'.
     showMetadata = false;
+    skipOldTransformReuse = false; // when updating the entire PolyAlg, we want to reset the node editor transform
 
     polyAlgSnapshot: string; // keep track whether the textEditor has changed
     initialPolyAlg: string; // only used for initially setting the text representation
@@ -84,11 +85,12 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
             if (this.showNodeEditor() && this.polyAlgPlan() !== undefined && this.planTypeSignal() !== undefined && el) {
                 untracked(() => {
                     this.modifySubscription?.unsubscribe();
-                    const oldTransform = this.nodeEditor ? this.nodeEditor.getTransform() : null;
+                    const oldTransform = (this.nodeEditor && !this.skipOldTransformReuse) ? this.nodeEditor.getTransform() : null;
                     this.nodeEditor?.destroy();
                     createEditor(el, this.injector, _registry, this.polyAlgPlan(), this.planTypeSignal(), this.isReadOnly, this.userMode, oldTransform)
                     .then(editor => {
                         this.nodeEditor = editor;
+                        this.skipOldTransformReuse = false;
                         this.generateTextFromNodeEditor();
                         this.modifySubscription = this.nodeEditor.onModify.pipe(
                             switchMap(() => {
@@ -124,6 +126,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
             if (this.polyAlg == null) {
                 return;
             }
+            this.skipOldTransformReuse = true;
             this._validator.buildPlan(this.polyAlg, this.planType).subscribe({
                 next: (plan) => this.polyAlgPlan.set(plan),
                 error: (err) => {
@@ -244,7 +247,9 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
             return;
         }
         this.isNodeFocused = false;
-        this.generateTextFromNodeEditor(true);
+
+        // Wait a short amount of time for ng-autocomplete to update the value when selecting a suggestion
+        setTimeout(() => this.generateTextFromNodeEditor(true), 100);
     }
 
     onNodeEditorFocus() {
@@ -340,5 +345,9 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     toggleMetadata() {
         // if all nodes are already in the state !this.showMetadata, then the returned boolean is inverted
         this.showMetadata = this.nodeEditor.showMetadata(!this.showMetadata);
+    }
+
+    clearPlan() {
+        this.generateNodesFromTextEditor('');
     }
 }
