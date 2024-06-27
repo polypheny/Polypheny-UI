@@ -190,22 +190,17 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
             return;
         }
         const deploy: QueryInterfaceInformationRequest = {
+            interfaceName: this.editingAvailableQI.interfaceName,
             uniqueName: this.availableQIUniqueNameForm.controls['uniqueName'].value,
-            clazzName: this.editingAvailableQI.clazz,
-            currentSettings: {}
+            currentSettings: new Map()
         };
         for (const [k, v] of Object.entries(this.editingAvailableQIForm.controls)) {
             deploy.currentSettings[k] = v.value;
         }
         this._crud.createQueryInterface(deploy).subscribe({
-            next: res => {
-                const result = <RelationalResult>res;
-                if (!result.error) {
-                    this._toast.success('Added query interface: ' + deploy.uniqueName, result.query);
-                    this._router.navigate(['./../'], {relativeTo: this._route});
-                } else {
-                    this._toast.exception(result);
-                }
+            next: _ => {
+                this._toast.success('Added query interface: ' + deploy.uniqueName);
+                this._router.navigate(['./../'], {relativeTo: this._route});
                 this.QISettingsModal.hide();
             }, error: err => {
                 this._toast.error('Could not add query interface: ' + deploy.uniqueName);
