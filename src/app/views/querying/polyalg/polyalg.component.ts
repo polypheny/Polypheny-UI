@@ -15,6 +15,14 @@ import {OperatorModel} from '../../../components/polyalg/models/polyalg-registry
 import {DataModel} from '../../../models/ui-request.model';
 import {UserMode} from '../../../components/polyalg/polyalg-viewer/alg-editor';
 
+// Make sure to change these plans in case the name of operators changes!
+const SAMPLE_PLANS = {
+    LOGICAL: 'REL_PROJECT[name, salary](REL_SCAN[public.emps])',
+    ALLOCATION: 'REL_PROJECT[name, salary](REL_SCAN[public.emps@hr.0])',
+    PHYSICAL: `E_CALC[exprs=[empid, deptno, name, salary, commission], projects=[$t2:VARCHAR(255) AS name, $t3:INTEGER AS salary]](
+        E_INTERPRETER[0.5](    BINDABLE_SCAN[hr.0, projects=[0, 1, 2, 3, 4]]  ))`
+};
+
 @Component({
     selector: 'app-polyalg',
     templateUrl: './polyalg.component.html',
@@ -32,18 +40,12 @@ export class PolyalgComponent implements OnInit, OnDestroy {
     queryAnalysis: InformationPage;
 
     planType: PlanType = 'LOGICAL';
-    selectedPlanType: PlanType = 'LOGICAL';
+    selectedPlanType: PlanType = 'LOGICAL'; // the plan type selected in the modal
     initialUserMode = UserMode.SIMPLE;
     showPlanTypeModal = signal(false);
     showHelpModal = signal(false);
     showParamsModal = signal(false);
-    polyAlg = `PROJECT[employeeno, relationshipjoy AS happiness](
-      FILTER[<(age0, 30)](
-        JOIN[=(employeeno, employeeno0)](
-          SCAN[public.emp],
-          PROJECT[employeeno AS employeeno0, age AS age0](
-            PROJECT[employeeno, age](
-              SCAN[public.emp])))))`;
+    polyAlg: string;
     physicalExecForm: { polyAlg: string, model: DataModel, params: string[][], values: (string | boolean)[] }
         = {polyAlg: null, model: null, params: null, values: null};
 
@@ -63,6 +65,8 @@ export class PolyalgComponent implements OnInit, OnDestroy {
             this.selectedPlanType = this.planType;
             localStorage.removeItem('polyalg.planType');
             this.initialUserMode = UserMode.ADVANCED;
+        } else {
+            this.polyAlg = SAMPLE_PLANS[this.planType || 'LOGICAL'];
         }
 
         if (!this.planType) {
@@ -249,7 +253,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         this.planType = this.selectedPlanType;
         this.showPlanTypeModal.set(false);
         if (hasChanged) {
-            this.polyAlg = '';
+            this.polyAlg = SAMPLE_PLANS[this.planType];
         }
     }
 

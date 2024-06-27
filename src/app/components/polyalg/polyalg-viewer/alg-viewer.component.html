@@ -69,6 +69,10 @@
                     (click)="synchronizeEditors()">
                 Synchronize
             </button>
+            <button cButton color="danger" variant="outline" class="m-1"
+                    (click)="clearPlan()">
+                Clear Plan
+            </button>
         </div>
 
         <button cButton (click)="executePlan()" class="m-1" [disabled]="!isSynchronized()">Execute Plan</button>
