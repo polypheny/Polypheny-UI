@@ -8,9 +8,8 @@ export interface QueryInterface {
 }
 
 export interface QueryInterfaceInformation {
-    name: string;
+    interfaceName: string;
     description: string;
-    clazz: string;
     availableSettings: QueryInterfaceSetting[];
 }
 
@@ -24,7 +23,7 @@ export interface QueryInterfaceSetting {
 }
 
 export interface QueryInterfaceInformationRequest {
-    clazzName: string;
+    interfaceName: string;
     uniqueName: string;
-    currentSettings: any;//Map<string, string>
+    currentSettings: Map<string, string>;
 }
