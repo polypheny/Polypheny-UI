@@ -22,8 +22,8 @@ export interface QueryInterfaceSetting {
     options: string[];
 }
 
-export interface QueryInterfaceInformationRequest {
+export interface QueryInterfaceCreateRequest {
     interfaceName: string;
     uniqueName: string;
-    currentSettings: Map<string, string>;
+    settings: Map<string, string>;
 }
