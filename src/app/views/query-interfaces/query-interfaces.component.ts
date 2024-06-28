@@ -9,7 +9,7 @@ import {RelationalResult} from '../../components/data-view/models/result-set.mod
 import {
     QueryInterface,
     QueryInterfaceInformation,
-    QueryInterfaceInformationRequest,
+    QueryInterfaceCreateRequest,
     QueryInterfaceSetting
 } from './query-interfaces.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
@@ -189,13 +189,13 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         if (!this.availableQIUniqueNameForm.valid) {
             return;
         }
-        const deploy: QueryInterfaceInformationRequest = {
+        const deploy: QueryInterfaceCreateRequest = {
             interfaceName: this.editingAvailableQI.interfaceName,
             uniqueName: this.availableQIUniqueNameForm.controls['uniqueName'].value,
-            currentSettings: new Map()
+            settings: new Map()
         };
         for (const [k, v] of Object.entries(this.editingAvailableQIForm.controls)) {
-            deploy.currentSettings[k] = v.value;
+            deploy.settings[k] = v.value;
         }
         this._crud.createQueryInterface(deploy).subscribe({
             next: _ => {
