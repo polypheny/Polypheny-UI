@@ -85,8 +85,8 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
     getAvailableQueryInterfaces() {
         this._crud.getAvailableQueryInterfaces().subscribe({
             next: availableQIs => {
-                availableQIs.sort((a, b) => (a.interfaceName > b.interfaceName) ? 1 : -1);
-                this.availableQueryInterfaces = <QueryInterfaceInformation[]>availableQIs;
+                availableQIs.sort((a, b) => (a.interfaceType > b.interfaceType) ? 1 : -1);
+                this.availableQueryInterfaces = availableQIs;
             }, error: err => {
                 console.log(err);
             }
@@ -190,7 +190,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
             return;
         }
         const deploy: QueryInterfaceCreateRequest = {
-            interfaceName: this.editingAvailableQI.interfaceName,
+            interfaceType: this.editingAvailableQI.interfaceType,
             uniqueName: this.availableQIUniqueNameForm.controls['uniqueName'].value,
             settings: new Map()
         };

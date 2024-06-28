@@ -8,7 +8,7 @@ export interface QueryInterface {
 }
 
 export interface QueryInterfaceInformation {
-    interfaceName: string;
+    interfaceType: string;
     description: string;
     availableSettings: QueryInterfaceSetting[];
 }
@@ -23,7 +23,7 @@ export interface QueryInterfaceSetting {
 }
 
 export interface QueryInterfaceCreateRequest {
-    interfaceName: string;
+    interfaceType: string;
     uniqueName: string;
     settings: Map<string, string>;
 }

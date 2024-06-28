@@ -22,7 +22,7 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let aQI of availableQueryInterfaces">
-                    <td><strong>{{ aQI.interfaceName }}</strong></td>
+                    <td><strong>{{ aQI.interfaceType }}</strong></td>
                     <td>{{aQI.description}}</td>
                     <td class="center">
                         <button cButton color="primary" size="sm" (click)="initAvailableQISettings(aQI)">Add</button>
