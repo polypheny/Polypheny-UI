@@ -9,7 +9,7 @@ import {RelationalResult} from '../../components/data-view/models/result-set.mod
 import {
     QueryInterface,
     QueryInterfaceInformation,
-    QueryInterfaceInformationRequest,
+    QueryInterfaceCreateRequest,
     QueryInterfaceSetting
 } from './query-interfaces.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
@@ -86,8 +86,8 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         this._crud.getAvailableQueryInterfaces().subscribe({
             next: res => {
                 const availableQIs = <QueryInterfaceInformation[]>res;
-                availableQIs.sort((a, b) => (a.name > b.name) ? 1 : -1);
-                this.availableQueryInterfaces = <QueryInterfaceInformation[]>res;
+                availableQIs.sort((a, b) => (a.interfaceType > b.interfaceType) ? 1 : -1);
+                this.availableQueryInterfaces = availableQIs;
             }, error: err => {
                 console.log(err);
             }
@@ -190,23 +190,18 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         if (!this.availableQIUniqueNameForm.valid) {
             return;
         }
-        const deploy: QueryInterfaceInformationRequest = {
+        const deploy: QueryInterfaceCreateRequest = {
+            interfaceType: this.editingAvailableQI.interfaceType,
             uniqueName: this.availableQIUniqueNameForm.controls['uniqueName'].value,
-            clazzName: this.editingAvailableQI.clazz,
-            currentSettings: {}
+            settings: new Map()
         };
         for (const [k, v] of Object.entries(this.editingAvailableQIForm.controls)) {
-            deploy.currentSettings[k] = v.value;
+            deploy.settings[k] = v.value;
         }
         this._crud.createQueryInterface(deploy).subscribe({
-            next: res => {
-                const result = <RelationalResult>res;
-                if (!result.error) {
-                    this._toast.success('Added query interface: ' + deploy.uniqueName, result.query);
-                    this._router.navigate(['./../'], {relativeTo: this._route});
-                } else {
-                    this._toast.exception(result);
-                }
+            next: _ => {
+                this._toast.success('Added query interface: ' + deploy.uniqueName);
+                this._router.navigate(['./../'], {relativeTo: this._route});
                 this.QISettingsModal.hide();
             }, error: err => {
                 this._toast.error('Could not add query interface: ' + deploy.uniqueName);
