@@ -164,7 +164,19 @@ export class NotebookWrapper {
             this.executeCell(cell, true);
         }
     }
-
+    changeTheme(color:string){
+        // this.nb.metadata.persentation.backgroundColor=color;
+        this.nb.metadata.persentation={
+            ...this.nb.metadata.persentation,
+            backgroundColor:color
+        };
+    }
+    changeColor(color:string){
+        this.nb.metadata.persentation={
+            ...this.nb.metadata.persentation,
+            textColor:color
+        };
+    }
     executeCells(reference: NotebookCell, above: boolean, refAndBelow: boolean) {
         const idx = this.nb.cells.indexOf(reference);
         if (idx < 0) {

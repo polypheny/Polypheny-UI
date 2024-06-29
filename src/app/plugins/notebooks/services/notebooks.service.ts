@@ -168,11 +168,11 @@ export class NotebooksService {
         return this._http.put<Content>(`${this.httpUrl}/contents/${filePath}`, json, this.httpOptions);
     }
 
-    updateNotebook(filePath: string, content: Notebook) {
+    updateNotebook(filePath: string, content) {
         const json = {
             content: content,
             format: 'json',
-            type: 'notebook'
+            type: 'notebook',
         };
         return this._http.put<Content>(`${this.httpUrl}/contents/${filePath}`, json, this.httpOptions);
     }

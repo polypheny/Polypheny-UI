@@ -20,7 +20,9 @@ import {default as AnsiUp} from 'ansi_up';
 export class PresentationCellsComponent implements OnInit {
   @Output() closeShow = new EventEmitter<void>(); // true: below, false: above
   @Input() nb: NotebookWrapper;
-  
+  @Input() backgroundColor: string;
+  @Input() color: string;
+
   slides: Slides[]=[];
   theme = 'vs-dark';
 
@@ -82,7 +84,6 @@ constructor(private _markdown: MarkdownService,
         }
       }
     })
-
   }
   
   ngAfterViewInit(){  

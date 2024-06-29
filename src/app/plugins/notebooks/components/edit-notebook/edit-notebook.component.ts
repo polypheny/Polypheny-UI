@@ -65,6 +65,9 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     namespaces: string[] = [];
     expand = false;
     persentShowFlag=false;
+    backgroundColor:string="#000";
+    color:string="#fff";
+
     private copiedCell: string; // stringified NotebookCell
     @ViewChild('deleteNotebookModal') public deleteNotebookModal: ModalDirective;
     @ViewChild('restartKernelModal') public restartKernelModal: ModalDirective;
@@ -181,6 +184,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                     (id, output) => this.getCellComponent(id)?.renderError(output),
                     (id, output) => this.getCellComponent(id)?.renderStream(output),
                     id => this.getCellComponent(id)?.renderResultSet());
+                this.backgroundColor=res.content.metadata.persentation.backgroundColor;
+                this.color=res.content.metadata.persentation.textColor;
                 this.expand = this.nb.isExpansionAllowed();
                 this.kernelSpec = this._content.getKernelspec(this.session.kernel.name);
                 if (this.kernelSpec) {
@@ -451,6 +456,12 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     }
 
+    changeTheme(event:string){
+        this.nb.changeTheme(event);
+    }
+    changeColor(event:string){
+        this.nb.changeColor(event);
+    }
     interruptKernel() {
         this._notebooks.interruptKernel(this.session.kernel.id).subscribe(() => {
         }, () => {
@@ -779,6 +790,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             return c.id === this.selectedCell.id;
         });
     }
+  
   
 }
 

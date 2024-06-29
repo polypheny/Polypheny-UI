@@ -57,6 +57,7 @@ import {
 } from '@coreui/angular';
 import {IconDirective} from '@coreui/icons-angular';
 import { HighlightService } from './services/highlight.service';
+import { NgxColorsModule } from 'ngx-colors';
 
 @NgModule({
     imports: [
@@ -75,7 +76,8 @@ import { HighlightService } from './services/highlight.service';
             }
         }),
         TreeModule,
-        NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective, ButtonToolbarComponent, TooltipDirective, GutterDirective, FormDirective, FormTextDirective, RowDirective
+        NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective, ButtonToolbarComponent, TooltipDirective, GutterDirective, FormDirective, FormTextDirective, RowDirective,
+        NgxColorsModule
     ],
     declarations: [
         NotebooksComponent,

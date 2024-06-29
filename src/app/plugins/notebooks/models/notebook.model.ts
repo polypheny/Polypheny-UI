@@ -27,6 +27,10 @@ export interface NotebookMetadata {
         version: string;
     };
     polypheny?: PolyphenyNbMetadata;
+    persentation?:{
+        backgroundColor:string,
+        textColor:string
+    }
 
 }
 
