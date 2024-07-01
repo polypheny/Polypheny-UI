@@ -60,7 +60,7 @@ export class AlgNodeComponent implements OnChanges {
 const BASE_WIDTH = 350;
 const METADATA_WIDTH = 250;
 const METADATA_COLLAPSE_WIDTH = 16;
-const BASE_HEIGHT = 110;
+const BASE_HEIGHT = 75;
 const TAB_SIZE = 2; // the indentation width when generating PolyAlg
 
 const SINGLE_SOCKET_PRESETS = {
@@ -189,7 +189,7 @@ export class AlgNode extends ClassicPreset.Node {
         }
         for (const p of this.decl.kwParams) {
             const polyAlg = (this.controls[p.name] as ArgControl).toPolyAlg();
-            if (polyAlg !== p.defaultPolyAlg) {
+            if (polyAlg !== '[]' && polyAlg !== p.defaultPolyAlg) {
                 args.push(`${p.name}=${polyAlg}`);
             }
         }
