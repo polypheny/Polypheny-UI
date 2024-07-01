@@ -4,7 +4,7 @@ import {AreaExtensions, AreaPlugin, BaseAreaPlugin} from 'rete-area-plugin';
 import {ConnectionPlugin, Presets as ConnectionPresets} from 'rete-connection-plugin';
 import {AngularArea2D, AngularPlugin, Presets} from 'rete-angular-plugin/17';
 import {PlanNode} from '../models/polyalg-plan.model';
-import {ArrangeAppliers, AutoArrangePlugin} from 'rete-auto-arrange-plugin';
+import {AutoArrangePlugin} from 'rete-auto-arrange-plugin';
 import {AlgNode, AlgNodeComponent} from '../algnode/alg-node.component';
 import {addCustomBackground} from './background';
 import {ArgControl} from '../controls/arg-control';
@@ -84,13 +84,6 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
 
     connection.addPreset(ConnectionPresets.classic.setup());
 
-    const applier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
-        duration: 250,
-        timingFunction: (t) => t,
-        async onTick() {
-            await AreaExtensions.zoomAt(area, editor.getNodes());
-        }
-    });
     arrange.addPreset(() => {
         return {
             port(n) {
@@ -192,7 +185,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     return {
         layout: async () => {
             await arrange.layout({
-                applier, options: layoutOpts
+                applier: undefined, options: layoutOpts
             });
             AreaExtensions.zoomAt(area, editor.getNodes());
         },
