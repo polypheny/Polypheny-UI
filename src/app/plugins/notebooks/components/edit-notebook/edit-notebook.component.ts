@@ -184,10 +184,11 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                     (id, output) => this.getCellComponent(id)?.renderError(output),
                     (id, output) => this.getCellComponent(id)?.renderStream(output),
                     id => this.getCellComponent(id)?.renderResultSet());
-                this.backgroundColor=res.content.metadata.persentation.backgroundColor;
-                this.color=res.content.metadata.persentation.textColor;
+             
                 this.expand = this.nb.isExpansionAllowed();
                 this.kernelSpec = this._content.getKernelspec(this.session.kernel.name);
+                this.backgroundColor=res.content.metadata.persentation?.backgroundColor||'#000';
+                this.color=res.content.metadata.persentation?.textColor||'#fff';
                 if (this.kernelSpec) {
                     this.nb.setKernelSpec(this.kernelSpec);
                     this.uploadNotebook(false);
