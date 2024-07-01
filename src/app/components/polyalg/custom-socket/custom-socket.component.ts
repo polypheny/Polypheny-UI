@@ -41,7 +41,7 @@ export class AlgNodeSocket extends ClassicPreset.Socket {
      * @param isMultiValued true if this socket supports multiple incoming connections
      */
     constructor(public readonly model: OperatorModel | null, public readonly isMultiValued = false) {
-        super('AlgNodeSocket');
+        super(isMultiValued ? 'multi-valued input' : '');
     }
 
     isCompatibleWith(socket: AlgNodeSocket) {
