@@ -20,7 +20,7 @@ import {
     DropdownDividerDirective,
     DropdownItemDirective,
     DropdownMenuDirective,
-    DropdownToggleDirective,
+    DropdownToggleDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective,
     FormControlDirective,
     FormDirective,
     FormFeedbackComponent,
@@ -168,7 +168,7 @@ import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.co
         DropdownMenuDirective,
         DropdownItemDirective,
         DropdownDividerDirective,
-        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective, ContainerComponent
+        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective, ContainerComponent, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective
     ],
     declarations: [
         BreadcrumbComponent,
