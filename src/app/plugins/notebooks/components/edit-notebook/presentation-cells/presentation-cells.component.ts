@@ -94,8 +94,8 @@ constructor(private _markdown: MarkdownService,
       parallaxBackgroundVertical: 50,
       minScale: 0.2,
       maxScale: 1.0,
-      width: 960,
-      height: 700,
+      // width: 960,
+      // height: 700,
     })
     
   }
