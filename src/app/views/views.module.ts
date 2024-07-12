@@ -15,9 +15,7 @@ import {EditTablesComponent} from './schema-editing/edit-tables/edit-tables.comp
 import {MonitoringComponent} from './monitoring/monitoring.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
-import {AlgebraComponent} from './querying/algebra/algebra.component';
 import {QueryingComponent} from './querying/querying.component';
-import {NodeComponent} from './querying/algebra/node/node.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import {AdaptersComponent} from './adapters/adapters.component';
 import {RefinementOptionsComponent} from './querying/graphical-querying/refinement-options/refinement-options.component';
@@ -176,9 +174,7 @@ import {PolyalgComponent, ScrollToDirective} from './querying/polyalg/polyalg.co
         GraphEditGraphComponent,
         MonitoringComponent,
         DashboardComponent,
-        AlgebraComponent,
         QueryingComponent,
-        NodeComponent,
         AdaptersComponent,
         RefinementOptionsComponent,
         AboutComponent,

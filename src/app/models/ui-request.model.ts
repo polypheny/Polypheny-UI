@@ -1,6 +1,5 @@
 import {SortState} from '../components/data-view/models/sort-state.model';
 import {TableConstraint, UiColumnDefinition} from '../components/data-view/models/result-set.model';
-import {Node} from '../views/querying/algebra/algebra.model';
 import {EntityType} from './catalog.model';
 import {PlanType} from './information-page.model';
 
@@ -31,35 +30,6 @@ export class EntityRequest extends UIRequest {
         this.filter = filter;
         this.sortState = sortState;
         return this;
-    }
-}
-
-export class RelAlgRequest extends UIRequest {
-    type = 'RelAlgRequest';
-    topNode: Node;
-    createView: boolean;
-    analyze: boolean;
-    tableType;
-    string;
-    viewName: string;
-    store: string;
-    freshness: string;
-    interval;
-    timeUnit: string;
-    useCache: boolean;
-
-    constructor(node: Node, cache: boolean, analyzeQuery: boolean, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?, timeUnit?: string) {
-        super();
-        this.topNode = node;
-        this.useCache = cache;
-        this.analyze = analyzeQuery;
-        this.createView = createView || false;
-        this.tableType = tableType || 'table';
-        this.viewName = viewName || 'viewName';
-        this.store = store || null;
-        this.freshness = freshness || null;
-        this.interval = interval || null;
-        this.timeUnit = timeUnit || null;
     }
 }
 
