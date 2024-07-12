@@ -87,14 +87,12 @@ export interface DoubleArg {
 }
 
 export interface LaxAggArg {
-    arg?: string;
     function: string;
     input: string;
     alias: string;
 }
 
 export interface AggArg {
-    arg?: string;
     function: string;
     distinct: boolean;
     approximate: boolean;

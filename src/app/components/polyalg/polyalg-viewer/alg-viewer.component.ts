@@ -208,7 +208,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     private onTextEditorBlur() {
-        if (this.isReadOnly) {
+        if (this.isReadOnly || !this.textAccordionItem.visible) {
             return;
         }
         const updatedPolyAlg = this.textEditor.getCode();
@@ -230,13 +230,16 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     private onTextEditorChange() {
-        if (this.isReadOnly) {
+        if (this.isReadOnly || !this.textAccordionItem.visible) {
             return;
         }
         const trimmed = trimLines(this.textEditor.getCode());
+        if (trimmed === '' && this.polyAlgSnapshot !== '') {
+            return; // this happens when the textAccordion is expanded. We do not want to override the state
+        }
         if (trimmed !== this.polyAlgSnapshot) {
             this.textEditorState.set('CHANGED');
-        } else {
+        } else if (this.textEditorState() !== 'INVALID') {
             this.textEditorState.set('SYNCHRONIZED');
         }
     }
