@@ -81,7 +81,6 @@ import {RenderItemComponent} from './information-manager/render-item/render-item
 import {InformationManagerComponent} from './information-manager/information-manager.component';
 import {InputComponent} from './data-view/input/input.component';
 import {EditorComponent} from './editor/editor.component';
-import {ExplainVisualizerModule} from '../explain-visualizer/explain-visualizer.module';
 import {CollapseModule} from 'ngx-bootstrap/collapse';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
@@ -152,7 +151,6 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         CollapseModule,
         TooltipModule,
         ProgressbarModule.forRoot(),
-        ExplainVisualizerModule,
         ModalModule.forRoot(),
         CarouselModule,
         NgxJsonViewerModule,

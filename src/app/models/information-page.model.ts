@@ -41,8 +41,6 @@ export interface InformationObject extends Duration {
     labels?: string[];
     colors?: string[];
     graphType?: string;
-    //debugger
-    queryPlan: string;
     //PolyAlg plans
     jsonPolyAlg: string;
     planType: PlanType;
