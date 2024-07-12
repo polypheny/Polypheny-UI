@@ -101,7 +101,7 @@ export class AlgNode extends ClassicPreset.Node {
     constructor(public readonly decl: Declaration, public readonly planType: PlanType,
                 args: { [key: string]: PlanArgument } | null, public readonly metadata: AlgMetadata | null,
                 isSimpleMode: boolean, public isReadOnly: boolean, private updateArea: (a: AlgNode, delta: Position) => void) {
-        super(decl.convention? decl.name : decl.name.substring(decl.name.indexOf('_') + 1));
+        super(decl.convention ? decl.name : decl.name.substring(decl.name.indexOf('_') + 1));
         this.modelBadge = getModelPrefix(decl.model);
         this.modelColor = MODEL_COLORS.get(decl.model);
         this.isSimpleMode = signal(isSimpleMode);

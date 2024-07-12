@@ -5,14 +5,25 @@ import {PolyAlgService} from '../polyalg.service';
 import {EditorComponent} from '../../editor/editor.component';
 import {AlgValidatorService, trimLines} from './alg-validator.service';
 import {ToasterService} from '../../toast-exposer/toaster.service';
-import {Subscription, timer} from 'rxjs';
+import {Observable, Subscription, timer} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import {PlanType} from '../../../models/information-page.model';
 import {OperatorModel} from '../models/polyalg-registry';
 import {AccordionItemComponent} from '@coreui/angular';
+import {Transform} from 'rete-area-plugin/_types/area';
 
 type editorState = 'SYNCHRONIZED' | 'CHANGED' | 'INVALID' | 'READONLY';
+
+interface NodeEditor {
+    layout: () => Promise<void>;
+    destroy: () => void;
+    toPolyAlg: () => Promise<[string | null, OperatorModel | null]>;
+    onModify: Observable<void>;
+    showMetadata: (b: boolean) => boolean;
+    getTransform: () => Transform;
+    hasUnregisteredNodes: boolean;
+}
 
 @Component({
     selector: 'app-alg-viewer',
@@ -53,7 +64,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     showEditModal = signal(false);
 
     private modifySubscription: Subscription;
-    nodeEditor: { getTransform: any; onModify: any; destroy: any; toPolyAlg: any; showMetadata: any; layout?: () => Promise<void>; hasUnregisteredNodes?: boolean; };
+    nodeEditor: NodeEditor;
     showNodeEditor = computed(() => this._registry.registryLoaded());
     private isNodeFocused = false; // If a node is focused we must assume that a control has changed. Thus, the nodeEditor cannot be 'SYNCHRONIZED'.
     showMetadata = false;
@@ -158,7 +169,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     generateTextFromNodeEditor(validatePlanWithBackend = false) {
-        this.getPolyAlgFromTree().then(([str, model]) => {
+        this.getPolyAlgFromTree().then(([str]) => {
             if (str != null) {
                 if (!this.initialPolyAlg) {
                     this.initialPolyAlg = str;

@@ -25,6 +25,7 @@ import {MagneticConnectionComponent} from './magnetic-connection/magnetic-connec
 import {AlgMetadata} from '../algnode/alg-metadata/alg-metadata.component';
 import {Transform} from 'rete-area-plugin/_types/area';
 import {PlanType} from '../../../models/information-page.model';
+import {OperatorModel} from '../models/polyalg-registry';
 
 export type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
@@ -35,7 +36,6 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
 
     const readonlyPlugin = new ReadonlyPlugin<Schemes>();
 
-    //const socket = new ClassicPreset.Socket('socket');
     const editor = new NodeEditor<Schemes>();
     const area = new AreaPlugin<Schemes, AreaExtra>(container);
     const connection = new ConnectionPlugin<Schemes, AreaExtra>;
@@ -48,11 +48,13 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         )
     });
 
+    // make nodes selectable
     const selector = AreaExtensions.selector();
     AreaExtensions.selectableNodes(area, selector, {
         accumulating: AreaExtensions.accumulateOnCtrl()
     });
 
+    // customize rendering of nodes, controls, connections and sockets
     render.addPreset(Presets.classic.setup<Schemes, AngularArea2D<Schemes>>({
         customize: {
             node() {
@@ -76,14 +78,14 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         },
         socketPositionWatcher: getDOMSocketPosition({
             offset({x, y}, nodeId, side, key) {
-                return {x, y};
+                return {x, y}; // remove default shift of socket positions
             },
         })
     }));
-    render.addPreset(Presets.contextMenu.setup({delay: 100}));
 
     connection.addPreset(ConnectionPresets.classic.setup());
 
+    // Customizing the arrangement of nodes
     arrange.addPreset(() => {
         return {
             port(n) {
@@ -105,6 +107,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     const updateSizeFct = (a: AlgNode, delta: Position) => updateSize(a, delta, area, isReadOnly ? readonlyPlugin : null,
         () => arrange.layout({applier: undefined, options: layoutOpts}), $modifyEvent);
 
+    render.addPreset(Presets.contextMenu.setup({delay: 100})); // time in ms for context menu to close
     const contextMenu = new ContextMenuPlugin<Schemes>({
         items: getContextMenuItems(registry, userMode, planType, isReadOnly, updateSizeFct)
     });
@@ -120,32 +123,29 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     if (!isReadOnly) {
         area.use(connection);  // make connections editable
         area.use(contextMenu); // add context menu
-
         useMagneticConnection(connection, getMagneticConnectionProps(editor));
     }
 
     AreaExtensions.simpleNodesOrder(area);
     addCustomBackground(area);
-    AreaExtensions.restrictor(area, {scaling: {min: 0.02, max: 5}});
+    AreaExtensions.restrictor(area, {scaling: {min: 0.03, max: 5}}); // Restrict Zoom
     let panningBoundary = null;
     if (!isReadOnly) {
         panningBoundary = setupPanningBoundary({area, selector, padding: 40, intensity: 2});
     }
 
+    // Add nodes, connections and arrange them
     const [nodes, connections] = addNode(registry, planType, node, isReadOnly, updateSizeFct);
     for (const n of nodes) {
         await editor.addNode(n);
     }
-
     for (const c of connections) {
         updateMultiConnAfterCreate(editor, c.source, c.target);
         await editor.addConnection(c);
     }
-
     await arrange.layout({
         applier: undefined, options: layoutOpts
     });
-
     if (oldTransform) {
         await area.area.zoom(oldTransform.k, oldTransform.x, oldTransform.y);
     } else {
@@ -156,7 +156,6 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     editor.addPipe(context => {
         if (context.type === 'connectioncreate') {
             if (!canCreateConnection(editor, context.data)) {
-                //alert('Sockets are not compatible');
                 return;
             }
             updateMultiConnAfterCreate(editor, context.data.source, context.data.target);
@@ -193,7 +192,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
             area.destroy();
             panningBoundary?.destroy();
         },
-        toPolyAlg: async () => {
+        toPolyAlg: async (): Promise<[string, OperatorModel]> => {
             if (editor.getNodes().length === 0) {
                 return ['', null];
             }

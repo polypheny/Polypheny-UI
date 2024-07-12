@@ -254,6 +254,9 @@ export class PolyalgComponent implements OnInit, OnDestroy {
         this.showPlanTypeModal.set(false);
         if (hasChanged) {
             this.polyAlg = SAMPLE_PLANS[this.planType];
+            this._leftSidebar.setNodes([]);
+            this._leftSidebar.close();
+            this.result.set(null);
         }
     }
 
