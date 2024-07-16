@@ -71,10 +71,9 @@ export class RexControl extends ArgControl {
             const polyAlg = `${values.operator}(${values.r1}, ${values.r2})`;
             this.rex.set(polyAlg);
         } else if (this.simpleType() === SimpleType.REX_UINT) {
-            this.rex.set(this.simpleValues.REX_UINT.i?.toString(10));
+            this.rex.set(this.simpleValues.REX_UINT.i?.toString(10) || '');
         } else if (this.isPolyNode) {
             return this.rex().startsWith(NODE_PREFIX) ? this.rex() : NODE_PREFIX + this.rex();
-
         } else if (this.isPolyPath) {
             return this.rex().startsWith(PATH_PREFIX) ? this.rex() : PATH_PREFIX + this.rex();
         } else {
