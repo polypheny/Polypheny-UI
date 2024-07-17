@@ -1,0 +1,125 @@
+<c-accordion [flush]="true" [alwaysOpen]="true" class="mb-3">
+    <c-accordion-item #itemText="cAccordionItem" [visible]="true">
+        <ng-template cTemplateId="accordionHeaderTemplate">
+            <button (click)="toggleTextEditor()" [collapsed]="!itemText.visible" cAccordionButton
+                    class="ps-1 py-0 fs-3" [class.READONLY]="textEditorIsLocked()"
+                    [ngClass]="textEditorState()" [tooltip]="textEditorState() === 'INVALID' ? textErrorTooltip : ''" [placement]="'bottom left'">
+                Algebra {{isReadOnly ? 'Viewer' : 'Editor'}} {{stateText[textEditorState()]}}
+                <span class="fa fa-lock ms-3 pt-1" *ngIf="textEditorIsLocked()"></span>
+                <ng-template #textErrorTooltip>
+                    {{textEditorError()}}
+                </ng-template>
+            </button>
+        </ng-template>
+        <ng-template cTemplateId="accordionBodyTemplate">
+            <div class="text-editor-wrapper" [class.READONLY]="textEditorIsLocked()"
+                 [ngClass]="textEditorState()">
+                <app-editor #textEditor id="text-editor"
+                            [language]="'sql'"
+                            [autocomplete]="true"
+                            [initOptions]="textEditorOpts"
+                            [useParentHeight]="false"
+                            [code]="initialPolyAlg"
+                            [readonly]="isReadOnly">
+                </app-editor>
+            </div>
+            <p *ngIf="!isReadOnly && userMode() === UserMode.SIMPLE" class="mb-1"><i>PolyAlgebra can only be edited in advanced mode</i>.</p>
+        </ng-template>
+    </c-accordion-item>
+</c-accordion>
+
+<ng-container *ngIf="showEditButton">
+    <button cButton color="success" variant="outline" class="m-1"
+            (click)="openInPlanEditor()">
+        Edit Plan
+    </button>
+</ng-container>
+<ng-container *ngIf="isReadOnly">
+    <button cButton color="light" class="m-1"
+            (click)="toggleMetadata()">
+        Toggle Stats
+    </button>
+</ng-container>
+<ng-container *ngIf="!isReadOnly">
+    <c-button-toolbar
+            aria-label="Toolbar with button groups"
+            class="justify-content-between"
+            role="group"
+    >
+        <div>
+            <c-button-group class="m-1">
+                <input class="btn-check" id="radio1" type="radio" [checked]="userMode() === UserMode.SIMPLE"/>
+                <label (click)="setUserMode(UserMode.SIMPLE)" cButton cFormCheckLabel for="radio1" color="dark" [disabled]="planType === 'PHYSICAL'"
+                       variant="outline" container="body" tooltip="Only shows the most important operators and uses their simplified form.">
+                    Simple
+                </label>
+
+                <input class="btn-check" id="radio2" type="radio" [checked]="userMode() === UserMode.ADVANCED"/>
+                <label (click)="setUserMode(UserMode.ADVANCED)" cButton cFormCheckLabel for="radio2" color="dark" [disabled]="planType === 'PHYSICAL'"
+                       variant="outline" container="body" tooltip="Allows you to insert all operators and edit the Algebra representation.">
+                    Advanced
+                </label>
+            </c-button-group>
+
+            <button cButton color="light" class="m-1"
+                    (click)="nodeEditor?.layout()">
+                Arrange Nodes
+            </button>
+            <button cButton color="light" class="m-1" [disabled]="!canSyncEditors()"
+                    (click)="synchronizeEditors()">
+                Synchronize
+            </button>
+            <button cButton color="danger" variant="outline" class="m-1"
+                    (click)="clearPlan()">
+                Clear Plan
+            </button>
+        </div>
+
+        <button cButton (click)="executePlan()" class="m-1" [disabled]="!isSynchronized()">Execute Plan</button>
+
+    </c-button-toolbar>
+</ng-container>
+
+
+<c-accordion [flush]="true" class="mt-3">
+    <c-accordion-item #itemNode="cAccordionItem" [visible]="true" class="text-body">
+        <ng-template cTemplateId="accordionHeaderTemplate">
+            <button (click)="itemNode.toggleItem()" [collapsed]="!itemNode.visible" cAccordionButton class="ps-1 py-0 fs-3"
+                    [ngClass]="nodeEditorState()" [tooltip]="nodeEditorState() === 'INVALID' ? nodeErrorTooltip : ''" [placement]="'bottom left'">
+                Node {{isReadOnly ? 'Viewer' : 'Editor'}} {{stateText[nodeEditorState()]}}
+                <ng-template #nodeErrorTooltip>
+                    {{nodeEditorError()}}
+                </ng-template>
+            </button>
+        </ng-template>
+        <ng-template cTemplateId="accordionBodyTemplate">
+            <div class="rete" #rete (focusout)="onNodeEditorBlur()" (focusin)="onNodeEditorFocus()" [ngClass]="nodeEditorState()"></div>
+            <ng-container *ngIf="!isReadOnly">
+                <p>
+                    <i>Open the context menu to add or remove nodes</i>
+                </p>
+            </ng-container>
+        </ng-template>
+    </c-accordion-item>
+</c-accordion>
+
+
+<c-modal [visible]="showEditModal()" (visibleChange)="handleEditModalChange($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Open Plan in Editor</h5>
+        <button (click)="toggleEditModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        Are you sure you want to edit this plan? This will replace the plan currently being built.
+        Alternatively, the plan can be opened it in a new tab.
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleEditModal()" cButton color="secondary">Close</button>
+        <div>
+            <button cButton color="light" (click)="openInPlanEditor(true, true)" class="me-1">
+                Edit in New Tab
+            </button>
+            <button cButton color="primary" (click)="openInPlanEditor(true)">Edit Plan</button>
+        </div>
+    </c-modal-footer>
+</c-modal>

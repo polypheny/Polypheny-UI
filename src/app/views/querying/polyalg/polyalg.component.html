@@ -1,0 +1,167 @@
+<c-container>
+
+    <div [hidden]="showingAnalysis">
+        <div class="mb-2">
+            <button cButton color="primary" class="me-3"
+                    (click)="toggleHelpModal()">
+                <span class="fa fa-lightbulb-o fa-lg"></span>
+            </button>
+            <button cButton color="light" class="me-1"
+                    (click)="togglePlanTypeModal()">
+                {{ planType ? ' Plan Type: ' + planType : 'Select Plan Type' }}
+            </button>
+
+        </div>
+
+        <app-alg-viewer #algViewer [polyAlg]="polyAlg" [planType]="planType" [isReadOnly]="false"
+                        [initialUserMode]="initialUserMode" (execute)="executePolyAlg($event)" *ngIf="planType"
+        ></app-alg-viewer>
+    </div>
+
+
+    <app-information-manager
+            *ngIf="queryAnalysis && showingAnalysis"
+            [data]="queryAnalysis"></app-information-manager>
+</c-container>
+
+<c-container>
+    <c-card class="my-3" *ngIf="result() && !showingAnalysis " id="alg-result" scrollTo>
+        <c-card-header>
+            <span>{{ result().query }}</span>
+            <span class="badge pull-right" *ngIf="result().error"
+                  [ngClass]="{'badge-secondary': !result().error, 'badge-danger': result().error}">
+            <ng-container *ngIf="result().error">!</ng-container>
+            </span>
+        </c-card-header>
+
+        <c-card-body>
+            <div class="text-danger" *ngIf="result() && result().error">
+                <strong>Error:</strong>
+                <p class="mb-3">{{ result().error }}</p>
+            </div>
+
+            <div class="query-info">
+                <p *ngIf="result() && !result().data && !result().error" class="mb-3">
+                    <i>Successfully executed</i>
+                </p>
+            </div>
+
+            <c-row *ngIf="result() && result().data" [hidden]="showingAnalysis">
+                <c-col lg="lg">
+                    <app-data-view [result]="result()"
+                                   [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: true}"
+                                   [loading]="loading()"></app-data-view>
+                </c-col>
+            </c-row>
+        </c-card-body>
+
+    </c-card>
+</c-container>
+
+<c-modal [visible]="showPlanTypeModal()" (visibleChange)="handlePlanTypeModalChange($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Choose a Plan Type</h5>
+        <button (click)="togglePlanTypeModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        <p>
+            {{ planType ? 'Warning: Changing the plan type will create a completely new plan!' : 'Please select the type of plan you want to create:' }}
+        </p>
+        <c-input-group sizing="sm">
+            <select cSelect id="planTypeSelect" [(ngModel)]="selectedPlanType">
+                <option value="LOGICAL">Logical Plan</option>
+                <option value="ALLOCATION">Allocation Plan</option>
+                <option value="PHYSICAL">Physical Plan</option>
+            </select>
+        </c-input-group>
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="togglePlanTypeModal()" cButton color="secondary">
+            Close
+        </button>
+        <button cButton color="primary" (click)="choosePlanType()">Create Plan</button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showHelpModal()" (visibleChange)="handleHelpModalChange($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Help</h5>
+        <button (click)="toggleHelpModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        <p>The Plan Builder can be used to create or edit plans using either the <i>Algebra Editor</i> or the <i>Node Editor</i>.</p>
+        <p>The color around an editor indicates its state:</p>
+        <ul>
+            <li>
+                <c-badge color="primary">Blue</c-badge>
+                indicates that the plan is valid.
+            </li>
+            <li>
+                <c-badge color="warning">Yellow</c-badge>
+                indicates that the content was (possibly) edited and not yet synchronized with the other editor.
+            </li>
+            <li>
+                <c-badge color="danger">Red</c-badge>
+                indicates that the the plan is invalid. You can hover over the editor title to display the
+                error message.
+            </li>
+        </ul>
+        <p>A plan can only be executed if both editors are synchronized and valid.</p>
+        <p>You can choose between <i>Simple</i> and <i>Advanced</i> mode. Simple mode disables the Algebra Editor and
+            hides advanced nodes. Some nodes also have a simplified variant. All properties can be unlocked by clicking on the
+            <c-badge color="success">Simple</c-badge>
+            badge.
+        </p>
+
+
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleHelpModal()" cButton color="secondary"> Close</button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showParamsModal()" (visibleChange)="handleParamsModalChange($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Execute Plan</h5>
+        <button (click)="toggleParamsModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        Please specify the dynamic parameters:
+        <c-input-group *ngFor="let param of physicalExecForm.params; let i = index" class="mb-2">
+            <span cInputGroupText id="input-{{i}}">{{param[0]}}:{{param[1]}}</span>
+            <ng-container [ngSwitch]="param[2]">
+                <ng-container *ngSwitchCase="['INTEGER', 'TINYINT', 'SMALLINT', 'BIGINT'].includes(param[2]) ? param[2] : '' ">
+                    <input cFormControl sizing="sm" type="number" autocomplete="off" step="1"
+                           placeholder="0" [(ngModel)]="physicalExecForm.values[i]">
+                </ng-container>
+
+                <ng-container *ngSwitchCase="['DECIMAL', 'REAL', 'DOUBLE', 'FLOAT'].includes(param[2]) ? param[2] : '' ">
+                    <input cFormControl sizing="sm" type="number" autocomplete="off" step="any"
+                           placeholder="0.0" [(ngModel)]="physicalExecForm.values[i]">
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'BOOLEAN'">
+                    <span cInputGroupText>
+                        <c-form-check>
+                          <input cFormCheckInput type="checkbox"
+                                 [checked]="physicalExecForm.values[i]" (change)="physicalExecForm.values[i] = !physicalExecForm.values[i]"/>
+                        </c-form-check>
+                    </span>
+                </ng-container>
+
+                <ng-container *ngSwitchDefault>
+                    <input aria-describedby="input-{{i}}" aria-label="Username" cFormControl autocomplete="off"
+                           placeholder="Enter Value" [(ngModel)]="physicalExecForm.values[i]"/>
+                </ng-container>
+            </ng-container>
+
+        </c-input-group>
+
+        <button (click)="clearParamsModal()" cButton color="light" size="sm">Clear all</button>
+
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleParamsModal()" cButton color="secondary">Close</button>
+        <button cButton color="primary" (click)="executePhysicalPlan()">Execute</button>
+    </c-modal-footer>
+</c-modal>

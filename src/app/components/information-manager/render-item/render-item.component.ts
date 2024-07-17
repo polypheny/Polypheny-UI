@@ -13,6 +13,7 @@ export class RenderItemComponent implements OnInit {
 
     @Input() li: InformationObject;
     executingInformationAction = false;
+    codeHeight = '20px';
 
     constructor(
         private _infoService: InformationService,
@@ -21,6 +22,14 @@ export class RenderItemComponent implements OnInit {
     }
 
     ngOnInit() {
+        if (this.li.code) {
+            const match = this.li.code.match(/\n/g);
+            let numberOfLines = 1;
+            if (Array.isArray(match)) {
+                numberOfLines = this.li.code.match(/\n/g).length;
+            }
+            this.codeHeight = numberOfLines * 16 + 60 + 'px';
+        }
     }
 
     displayProgressValue(li) {
@@ -62,21 +71,6 @@ export class RenderItemComponent implements OnInit {
                 }
             default:
                 return 'info';
-        }
-    }
-
-    getCodeHeight() {
-        if (!this.li.code) {
-            return '20px';
-        } else {
-
-            const match = this.li.code.match(/\n/g);
-            let numberOfLines = 1;
-            if (Array.isArray(match)) {
-                numberOfLines = this.li.code.match(/\n/g).length;
-            }
-            console.log(numberOfLines * 16 + 60 + 'px');
-            return numberOfLines * 16 + 60 + 'px';
         }
     }
 

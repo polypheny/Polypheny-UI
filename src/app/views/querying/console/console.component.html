@@ -68,7 +68,7 @@
                         <small class="time">{{h.value.displayTime()}}</small>
                         <small class="time">{{h.value.fromNow()}}</small>
                     </div>
-                    <div>{{_util.limitedString(h.value.query)}}</div>
+                    <div>{{_util.limitedString( h.value.query )}}</div>
 
                     <button cButton color="light" size="sm" class="del-hist-item"
                             [ngClass]="confirmDeletingHistory === h.key ? 'cil-warning' : 'cil-trash'"
@@ -172,8 +172,7 @@
     </c-row>
 
     <app-information-manager
-            *ngIf="queryAnalysis"
-            [data]="queryAnalysis"
-            [hidden]="!showingAnalysis"></app-information-manager>
+            *ngIf="queryAnalysis && showingAnalysis"
+            [data]="queryAnalysis"></app-information-manager>
 </c-container>
 

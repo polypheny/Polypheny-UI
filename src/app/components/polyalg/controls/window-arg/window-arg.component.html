@@ -1,0 +1,17 @@
+<label for="isRows" *ngIf="data.name"><strong>{{data.name}}</strong></label>
+(Warning: not yet fully implemented)
+<div class="form-check form-switch align-self-center">
+    <input type="checkbox" role="switch" id="isRows" name="arg" (pointerdown)="$event.stopPropagation()"
+           [disabled]="data.isReadOnly" [checked]="data.value.isRows" (change)="data.value.isRows = !data.value.isRows"
+           class="form-check-input">
+</div>
+
+<input type="text" id="lower" name="arg" (pointerdown)="$event.stopPropagation()"
+       autocomplete="off" [readonly]="data.isReadOnly" placeholder="lowerBound"
+       class="form-control form-control-sm mb-1" [(ngModel)]="data.value.lowerBound">
+<input type="text" id="upper" name="arg" (pointerdown)="$event.stopPropagation()"
+       autocomplete="off" [readonly]="data.isReadOnly" placeholder="upperBound"
+       class="form-control form-control-sm mb-1" [(ngModel)]="data.value.upperBound">
+
+<p>AggCalls: {{JSON.stringify( data.value.aggCalls )}}</p>
+<p>OrderKeys: {{JSON.stringify( data.value.orderKeys )}}</p>

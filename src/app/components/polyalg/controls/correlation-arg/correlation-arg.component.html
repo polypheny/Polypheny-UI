@@ -1,0 +1,4 @@
+<label for="arg" *ngIf="data.name"><strong>{{data.name}}</strong></label>
+<input cFormControl sizing="sm" id="arg" (pointerdown)="$event.stopPropagation()"
+       type="number" autocomplete="off" [readonly]="data.isReadOnly" placeholder="correlation ID"
+       [min]="0" [(ngModel)]="data.value.arg">

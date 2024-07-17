@@ -29,8 +29,8 @@ Please note that we have a [code of conduct](https://github.com/polypheny/Admin/
 
 
 ## Credits ##
-Polypheny-UI is based on the beautiful [CoreUI](https://coreui.io/angular/) template. The query plan visualization is based on the [Postgres Explain Visualizer](https://github.com/AlexTatiyants/pev) which we have updated to be compatible with Angular 8 and modified to be used with Polypheny-DB. 
 
+Polypheny-UI is based on the beautiful [CoreUI](https://coreui.io/angular/) template.
 
 ## License ##
 The MIT License (MIT)

@@ -97,7 +97,11 @@ export class DataViewComponent implements OnDestroy {
                         this.$presentationType.set(DataPresentationType.TABLE);
                         break;
                     case DataModel.GRAPH:
-                        this.$presentationType.set(DataPresentationType.GRAPH);
+                        if (!this.containsNode()) {
+                            this.$presentationType.set(DataPresentationType.TABLE);
+                        } else {
+                            this.$presentationType.set(DataPresentationType.GRAPH);
+                        }
                         break;
                     default:
                         this.$presentationType.set(DataPresentationType.TABLE);
@@ -105,6 +109,10 @@ export class DataViewComponent implements OnDestroy {
             });
 
         });
+    }
+
+    public containsNode(): boolean {
+        return this.$result().header.some(h => h.dataType.toLowerCase().includes("node"));
     }
 
     @ViewChild(ViewComponent, {static: false})
@@ -116,7 +124,8 @@ export class DataViewComponent implements OnDestroy {
         if (!result) {
             return;
         }
-        this.$result.set(CombinedResult.from(result));
+        const res = CombinedResult.from(result)
+        this.$result.set(res);
     }
 
 

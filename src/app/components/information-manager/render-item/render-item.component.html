@@ -30,7 +30,7 @@
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationCode'">
-        <div [ngStyle]="{'height': getCodeHeight()}">
+        <div [ngStyle]="{'height': codeHeight}">
             <app-editor [readonly]="true" [language]="li.language" [code]="li.code"></app-editor>
         </div>
     </ng-container>
@@ -59,8 +59,8 @@
                    [max]="li.max"></app-graph>
     </ng-container>
 
-    <ng-container *ngIf="li.type == 'InformationQueryPlan' && li.queryPlan">
-        <app-plan-view [query]="''" [planObject]="li.queryPlan"></app-plan-view>
+    <ng-container *ngIf="li.type == 'InformationPolyAlg' && li.jsonPolyAlg">
+        <app-alg-viewer [initialPlan]="li.jsonPolyAlg" [planType]="li.planType" [isReadOnly]="true"></app-alg-viewer>
     </ng-container>
 
     <ng-container *ngIf="li.type == 'InformationAction'">

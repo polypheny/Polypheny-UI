@@ -1,7 +1,7 @@
 import {SortState} from '../components/data-view/models/sort-state.model';
 import {TableConstraint, UiColumnDefinition} from '../components/data-view/models/result-set.model';
-import {Node} from '../views/querying/algebra/algebra.model';
 import {EntityType} from './catalog.model';
+import {PlanType} from './information-page.model';
 
 export class RequestModel {
     type: string;
@@ -33,32 +33,22 @@ export class EntityRequest extends UIRequest {
     }
 }
 
-export class RelAlgRequest extends UIRequest {
-    type = 'RelAlgRequest';
-    topNode: Node;
-    createView: boolean;
-    analyze: boolean;
-    tableType;
-    string;
-    viewName: string;
-    store: string;
-    freshness: string;
-    interval;
-    timeUnit: string;
-    useCache: boolean;
+export class PolyAlgRequest extends UIRequest {
+    type = 'PolyAlgRequest';
+    polyAlg: string;
+    model: DataModel;
+    planType: PlanType;
+    dynamicValues: string[];
+    dynamicTypes: string[];
+    noLimit = false; // TODO: handle queries with large results
 
-    constructor(node: Node, cache: boolean, analyzeQuery: boolean, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?, timeUnit?: string) {
+    constructor(polyAlg: string, model: DataModel, planType: PlanType, dynamicValues = null, dynamicTypes = null) {
         super();
-        this.topNode = node;
-        this.useCache = cache;
-        this.analyze = analyzeQuery;
-        this.createView = createView || false;
-        this.tableType = tableType || 'table';
-        this.viewName = viewName || 'viewName';
-        this.store = store || null;
-        this.freshness = freshness || null;
-        this.interval = interval || null;
-        this.timeUnit = timeUnit || null;
+        this.polyAlg = polyAlg;
+        this.model = model;
+        this.planType = planType;
+        this.dynamicValues = dynamicValues;
+        this.dynamicTypes = dynamicTypes;
     }
 }
 
