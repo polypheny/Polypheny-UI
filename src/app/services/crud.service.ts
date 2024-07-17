@@ -1,5 +1,5 @@
 import {EventEmitter, inject, Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders, HttpUrlEncodingCodec} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {
     EntityMeta,
@@ -28,11 +28,20 @@ import {
     RelAlgRequest,
     StatisticRequest
 } from '../models/ui-request.model';
-import {CreateDockerResponse, AutoDockerResult, AutoDockerStatus, DockerInstanceInfo, DockerSettings, HandshakeInfo, InstancesAndAutoDocker, UpdateDockerResponse} from '../models/docker.model';
+import {
+    AutoDockerResult,
+    AutoDockerStatus,
+    CreateDockerResponse,
+    DockerInstanceInfo,
+    DockerSettings,
+    HandshakeInfo,
+    InstancesAndAutoDocker,
+    UpdateDockerResponse
+} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {AdapterModel} from '../views/adapters/adapter.model';
-import {QueryInterface} from '../views/query-interfaces/query-interfaces.model';
+import {QueryInterface, QueryInterfaceInformation} from '../views/query-interfaces/query-interfaces.model';
 import {AlgNodeModel, Node} from '../views/querying/algebra/algebra.model';
 import {WebSocket} from './webSocket';
 import {Observable} from 'rxjs';
@@ -546,11 +555,11 @@ export class CrudService {
     }
 
     getQueryInterfaces() {
-        return this._http.get(`${this.httpUrl}/getQueryInterfaces`);
+        return this._http.get<QueryInterface[]>(`${this.httpUrl}/getQueryInterfaces`);
     }
 
     getAvailableQueryInterfaces() {
-        return this._http.get(`${this.httpUrl}/getAvailableQueryInterfaces`);
+        return this._http.get<QueryInterfaceInformation[]>(`${this.httpUrl}/getAvailableQueryInterfaces`);
     }
 
     createQueryInterface(request: any) {
