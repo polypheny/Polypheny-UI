@@ -207,7 +207,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
                         });
                     }
 
-                    sidebarNodes.unshift(new SidebarNode('polyPlanBuilder', 'PolyPlan Builder', 'fa fa-cubes').setAction(nodeBehavior));
+                    sidebarNodes.unshift(new SidebarNode('polyPlanBuilder', 'Plan Builder', 'fa fa-cubes').setAction(nodeBehavior));
 
                     this._leftSidebar.setNodes(sidebarNodes);
                     if (sidebarNodes.length > 0) {
