@@ -87,9 +87,17 @@ constructor(private _markdown: MarkdownService,
         else if (type=="fragment")
         {
           let len=this.slides[this.slides.length-1].children.length;
-       
-            this.slides[this.slides.length-1].children[len-1].fragments.push({text:item.source,type:item.cell_type,language:language});
-
+          if(item.cell_type=='markdown')
+            {
+              let [sourceText,imageLinks]=this.clearLinks('image',item.source);
+  
+              let [sourceTextClean,videoLinks]=this.clearLinks('video',sourceText);
+              this.slides[this.slides.length-1].children[len-1].fragments.push({text:sourceTextClean,type:item.cell_type,language:language,
+                imageUrl:imageLinks,videoUrl:videoLinks});
+            }
+            else{
+              this.slides[this.slides.length-1].children[len-1].fragments.push({text:item.source,type:item.cell_type,language:language});
+            }
         }
         else {
         

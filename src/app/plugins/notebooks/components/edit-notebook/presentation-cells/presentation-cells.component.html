@@ -54,12 +54,21 @@
             </div>
           </div>
           <div *ngFor="let fragment of child.fragments">
-            <div class="preview">
+            <div class="preview fragment fade-up"  >
 
               <markdown *ngIf="fragment.type=='markdown' || fragment.type=='raw' " ngPreserveWhitespaces
-                class="fragment fade-up">
+                >
                 {{fragment.text}}
               </markdown>
+              <div *ngFor="let image of fragment.imageUrl" >
+                <img class="media" [width]="image.width" [height]="image.height" [src]="image.url" data-preload allowfullscreen
+                 />
+              </div>
+              <div *ngFor="let video of fragment.videoUrl" >
+                <iframe [width]="video.width" [height]="video.height" [src]="video.url" data-preload allowfullscreen
+                  allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                </iframe>
+              </div>
             </div>
             <pre *ngIf="fragment.type=='code'" class="code-container fragment fade-up"><code  [class]="'language-' + fragment.language" [innerHTML]="fragment.text">   
               </code></pre>
