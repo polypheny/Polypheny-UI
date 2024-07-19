@@ -50,10 +50,16 @@
   color: var(--text-color, #fff);
 
 }
+
+.media {
+  margin-left: auto;
+  margin-right: auto;
+}
 .code-container{
   font-size: large;
   flex: 0 1 auto;
-
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .output-container{

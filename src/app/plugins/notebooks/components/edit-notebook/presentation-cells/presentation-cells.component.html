@@ -1,55 +1,65 @@
-<div class="full-screen" [style.--bg-color]="backgroundColor" >
+<div class="full-screen" [style.--bg-color]="backgroundColor">
   <div class="reveal">
     <div class="slides">
-      <section  class="scroll"  *ngFor="let slide of slides">
+      <section class="scroll" *ngFor="let slide of slides">
         <section class="child-section" [style.--text-color]="color" *ngFor="let child of slide.children">
-          <div class="preview" >
-          <markdown ngPreserveWhitespaces *ngIf="child.type=='markdown' || child.type=='raw' " class="markdown">
-            {{child.source}}
-          </markdown>
+          <div class="preview">
+            <markdown ngPreserveWhitespaces *ngIf="child.type=='markdown' || child.type=='raw' " class="markdown">
+              {{child.source}}
+            </markdown>
+            <div *ngFor="let image of child.imageUrl">
+              <img class="media" [width]="image.width" [height]="image.height" [src]="image.url" data-preload allowfullscreen
+               />
+            </div>
+            <div *ngFor="let video of child.videoUrl">
+              <iframe [width]="video.width" [height]="video.height" [src]="video.url" data-preload allowfullscreen
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+              </iframe>
+            </div>
           </div>
-          <pre class="code-container"  *ngIf="child.type=='code'" ><code  [class]="'language-' + child.language" [innerHTML]="child.source">
+          <pre class="code-container" *ngIf="child.type=='code'"><code  [class]="'language-' + child.language" [innerHTML]="child.source">
               </code></pre>
-          <div *ngIf="child.type=='code' && child.showOutput" class="output-container fragment fade-up nb-outputs text-monospace">
-              <div class="nb-output" *ngFor="let output of child.outputs">
-                  <ng-container *ngIf="output.output_type !== 'execute_result'; else elseExecuteResult">
-                    <div class="nb-side-area"></div>
-                    <div class="nb-output-text">
-                        <ng-container [ngSwitch]="output.output_type">
-                            <ng-container  *ngSwitchCase="'stream'">
-                                <pre class="nb-plaintext text-monospace" [innerHTML]="child.streamHtml"></pre>
-                            </ng-container>
-                            <ng-container *ngSwitchCase="'display_data'">
-                                <app-nb-output-data class="output-content" [data]="output.data"
-                                                    [isTrusted]="child.isTrusted"></app-nb-output-data>
-                            </ng-container>
-                            <pre class="nb-error text-monospace" *ngSwitchCase="'error'"
-                                  [innerHTML]="child.errorHtml">
+          <div *ngIf="child.type=='code' && child.showOutput"
+            class="output-container fragment fade-up nb-outputs text-monospace">
+            <div class="nb-output" *ngFor="let output of child.outputs">
+              <ng-container *ngIf="output.output_type !== 'execute_result'; else elseExecuteResult">
+                <div class="nb-side-area"></div>
+                <div class="nb-output-text">
+                  <ng-container [ngSwitch]="output.output_type">
+                    <ng-container *ngSwitchCase="'stream'">
+                      <pre class="nb-plaintext text-monospace" [innerHTML]="child.streamHtml"></pre>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'display_data'">
+                      <app-nb-output-data class="output-content" [data]="output.data"
+                        [isTrusted]="child.isTrusted"></app-nb-output-data>
+                    </ng-container>
+                    <pre class="nb-error text-monospace" *ngSwitchCase="'error'" [innerHTML]="child.errorHtml">
                             </pre>
-                        </ng-container>
-
-                      </div>
                   </ng-container>
 
-                  <ng-template #elseExecuteResult>
-                      <div class="nb-side-area">
-                          <span [ngClass]="{'text-primary': isFocused, 'text-secondary': !isFocused}">
-                              [{{ (isExecuting ? '*' : cell.execution_count) || ' ' }}]:
-                          </span>
-                      </div>
+                </div>
+              </ng-container>
 
-                      <div class="nb-output-text nb-execute-result">
-                          <app-nb-output-data [data]="output.data" [isTrusted]="child.isTrusted"></app-nb-output-data>
-                      </div>
-                  </ng-template>
-              </div>
+              <ng-template #elseExecuteResult>
+                <div class="nb-side-area">
+                  <span [ngClass]="{'text-primary': isFocused, 'text-secondary': !isFocused}">
+                    [{{ (isExecuting ? '*' : cell.execution_count) || ' ' }}]:
+                  </span>
+                </div>
+
+                <div class="nb-output-text nb-execute-result">
+                  <app-nb-output-data [data]="output.data" [isTrusted]="child.isTrusted"></app-nb-output-data>
+                </div>
+              </ng-template>
+            </div>
           </div>
-          <div  *ngFor="let fragment of child.fragments">
-            <div class="preview" >
+          <div *ngFor="let fragment of child.fragments">
+            <div class="preview">
 
-            <markdown  *ngIf="fragment.type=='markdown' || fragment.type=='raw' " ngPreserveWhitespaces  class="fragment fade-up">
-              {{fragment.text}}
-            </markdown>
+              <markdown *ngIf="fragment.type=='markdown' || fragment.type=='raw' " ngPreserveWhitespaces
+                class="fragment fade-up">
+                {{fragment.text}}
+              </markdown>
             </div>
             <pre *ngIf="fragment.type=='code'" class="code-container fragment fade-up"><code  [class]="'language-' + fragment.language" [innerHTML]="fragment.text">   
               </code></pre>
@@ -58,5 +68,5 @@
       </section>
     </div>
   </div>
-  
+
 </div>

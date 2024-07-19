@@ -1,6 +1,7 @@
 
 import {CellStreamOutput,CellDisplayDataOutput,CellExecuteResultOutput,CellErrorOutput} from "./notebook.model"
 import { SafeHtml} from '@angular/platform-browser';
+import {  SafeResourceUrl } from '@angular/platform-browser';
 
 export interface  Slides {
     source:string[] | string;
@@ -13,4 +14,7 @@ export interface  Slides {
     outputs?:(CellStreamOutput | CellDisplayDataOutput | CellExecuteResultOutput | CellErrorOutput)[];
     language?:string;
     showOutput?:boolean;
+    videoUrl?:{ url: SafeResourceUrl; width: number ; height: number}[];
+    imageUrl?:{ url: SafeResourceUrl; width: number ; height: number}[];
+
   }
