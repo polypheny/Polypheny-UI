@@ -159,18 +159,21 @@
                         cTooltip="Present Slides" [disabled]="inserting">
                         Present
                     </button>
+                    <button cButton color="light" type="button" (click)="toggleDocDemo()" onclick="this.blur();"
+                        cTooltip="Presentation Features" [disabled]="inserting">
+                        <i class="fa fa-info-circle"></i>
+                    </button>
                 </c-button-group>
                 <c-button-group size="sm" class="mt-2 me-2" role="group">
                     <div cButton color="light" type="button" class="color-button ">
-                        <ngx-colors class="me-1" ngx-colors-trigger [(ngModel)]="backgroundColor"     
-                        colorPickerControls="no-alpha" (change)="changeTheme($event)">
+                        <ngx-colors class="me-1" ngx-colors-trigger [(ngModel)]="backgroundColor"
+                            colorPickerControls="no-alpha" (change)="changeTheme($event)">
                         </ngx-colors>
                         <div>Theme</div>
                     </div>
                     <div cButton color="light" type="button" class="color-button ">
-                        <ngx-colors class="me-1" ngx-colors-trigger [(ngModel)]="color"    
-                        (change)="changeColor($event)" 
-                        colorPickerControls="no-alpha">
+                        <ngx-colors class="me-1" ngx-colors-trigger [(ngModel)]="color" (change)="changeColor($event)"
+                            colorPickerControls="no-alpha">
                         </ngx-colors>
                         <div>Text</div>
                     </div>
@@ -193,7 +196,8 @@
 </c-container>
 
 <div *ngIf="persentShowFlag">
-    <app-presentation-cells [nb]="nb" [backgroundColor]="backgroundColor" [color]="color" (closeShow)="persentDisable()">
+    <app-presentation-cells [nb]="nb" [backgroundColor]="backgroundColor" [color]="color"
+        (closeShow)="persentDisable()">
     </app-presentation-cells>
 </div>
 
@@ -239,6 +243,53 @@
         Close Notebook
     </button>
 </ng-template>
+
+<c-modal #modalLg id="modalLg" size="lg" [visible]="docVisible" (visibleChange)="handleDocChange($event)">
+    <c-modal-header>
+        <h4 cModalTitle>Presentation Features</h4>
+        <button (click)="toggleDocDemo()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body class="doc-body">
+        <h4>Slides type</h4>
+        <ol >
+            <li><strong>Slide:</strong> A single screen or page in your presentation. It's the basic unit of content displayed in
+                sequence.</li>
+
+            <li><strong>Subslide:</strong> A slide nested within another slide, used for creating vertical sequences. They allow you to
+                expand on a topic by showing related content step by step.</li>
+
+
+            <li><strong>Skip:</strong> A setting that allows you to skip a slide when navigating through the presentation. Skipped
+                slides are not shown in the normal presentation flow.</li>
+
+            <li><strong>Fragment:</strong> An element that is revealed incrementally on a slide, allowing you to present content in
+                steps, such as bullet points appearing one by one.</li>
+        </ol>
+        <h4>Media</h4>
+        <ul >
+            <li><strong>Image:</strong> 
+                <pre class="code-container"><code class='language-md'>![image](url) width=400 height=300</code></pre>
+            </li>
+
+            <li><strong>Video:</strong> 
+                <pre class="code-container"><code class='language-md'>![video](url) width=400 height=300</code></pre>
+            </li>
+        </ul>
+        <p><strong>nore:</strong> The width and height parameters are optimal with default values: width = 400 and height = 300.</p>
+        <h4>Style</h4>
+        <ul >
+            <li><strong>Theme:</strong> Choose the background color for the presentation.</li>
+
+            <li><strong>Text:</strong> /strong> Choose the coolur color for the presentation.</li>
+        </ul>
+        </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleDocDemo()" cButton color="secondary">
+            Close
+        </button>
+    </c-modal-footer>
+</c-modal>
+
 
 
 <c-modal bsModal #deleteNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"

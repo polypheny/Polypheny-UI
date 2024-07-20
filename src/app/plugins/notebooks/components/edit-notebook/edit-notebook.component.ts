@@ -67,7 +67,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     persentShowFlag=false;
     backgroundColor:string="#000";
     color:string="#fff";
-
+    docVisible = false;
     private copiedCell: string; // stringified NotebookCell
     @ViewChild('deleteNotebookModal') public deleteNotebookModal: ModalDirective;
     @ViewChild('restartKernelModal') public restartKernelModal: ModalDirective;
@@ -489,7 +489,13 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         });
         this.restartKernelModal.hide();
     }
-
+    toggleDocDemo() {
+        this.docVisible = !this.docVisible;
+      }
+    
+      handleDocChange(event: any) {
+        this.docVisible = event;
+      }
     insertCell(id: string, below: boolean, editMode = true) {
         if (this.inserting) {
             return;
