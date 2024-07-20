@@ -244,6 +244,7 @@
     </button>
 </ng-template>
 
+<!-- model for showing presentation documents -->
 <c-modal #modalLg id="modalLg" size="lg" [visible]="docVisible" (visibleChange)="handleDocChange($event)">
     <c-modal-header>
         <h4 cModalTitle>Presentation Features</h4>
@@ -275,12 +276,12 @@
                 <pre class="code-container"><code class='language-md'>![video](url) width=400 height=300</code></pre>
             </li>
         </ul>
-        <p><strong>nore:</strong> The width and height parameters are optimal with default values: width = 400 and height = 300.</p>
+        <p><strong>Nore:</strong> Media is working on markdown cells. The width and height parameters are optimal with default values: width = 400 and height = 300.</p>
         <h4>Style</h4>
         <ul >
             <li><strong>Theme:</strong> Choose the background color for the presentation.</li>
 
-            <li><strong>Text:</strong> /strong> Choose the coolur color for the presentation.</li>
+            <li><strong>Text:</strong> Choose the text color for the presentation.</li>
         </ul>
         </c-modal-body>
     <c-modal-footer>

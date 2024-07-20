@@ -1,12 +1,14 @@
 <div class="full-screen" [style.--bg-color]="backgroundColor">
   <div class="reveal">
     <div class="slides">
+      <!--loop on slides -->
       <section class="scroll" *ngFor="let slide of slides">
         <section class="child-section" [style.--text-color]="color" *ngFor="let child of slide.children">
           <div class="preview">
             <markdown ngPreserveWhitespaces *ngIf="child.type=='markdown' || child.type=='raw' " class="markdown">
               {{child.source}}
             </markdown>
+            <!-- show images and videos in the end of slide-->
             <div *ngFor="let image of child.imageUrl">
               <img class="media" [width]="image.width" [height]="image.height" [src]="image.url" data-preload allowfullscreen
                />
@@ -53,6 +55,7 @@
               </ng-template>
             </div>
           </div>
+          <!--loop on fragments to show it -->
           <div *ngFor="let fragment of child.fragments">
             <div class="preview fragment fade-up"  >
 
