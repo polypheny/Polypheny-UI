@@ -263,11 +263,13 @@ export class NotebookWrapper {
     getCellShowOutput(cell: NotebookCell): boolean {
         return cell.showOutput;
     }
+
     toggleCellShowOutput(cell: NotebookCell): boolean {
         cell.showOutput=!cell.showOutput;
         return cell.showOutput;
     }
     
+    // change peersent type os cell
     changeCellPresent(cell: NotebookCell, type: PresentType){
         const oldType = this.getCellPresent(cell);
         if (oldType === type) {
@@ -275,6 +277,7 @@ export class NotebookWrapper {
         }
         cell.cell_present = type;
     }
+    
     changeCellType(cell: NotebookCell, type: CellType) {
         const oldType = this.getCellType(cell);
         if (oldType === type) {

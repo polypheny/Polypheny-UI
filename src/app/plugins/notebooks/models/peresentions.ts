@@ -3,6 +3,7 @@ import {CellStreamOutput,CellDisplayDataOutput,CellExecuteResultOutput,CellError
 import { SafeHtml} from '@angular/platform-browser';
 import {  SafeResourceUrl } from '@angular/platform-browser';
 
+// interface for persentation slides
 export interface  Slides {
     source:string[] | string;
     fragments:{text: string[]| string, type:string,language?:string, videoUrl?:{ url: SafeResourceUrl; width: number ; height: number}[],
@@ -13,8 +14,8 @@ export interface  Slides {
     errorHtml: SafeHtml;
     streamHtml: SafeHtml;
     outputs?:(CellStreamOutput | CellDisplayDataOutput | CellExecuteResultOutput | CellErrorOutput)[];
-    language?:string;
-    showOutput?:boolean;
+    language?:string; // lang of the code
+    showOutput?:boolean; 
     videoUrl?:{ url: SafeResourceUrl; width: number ; height: number}[];
     imageUrl?:{ url: SafeResourceUrl; width: number ; height: number}[];
 

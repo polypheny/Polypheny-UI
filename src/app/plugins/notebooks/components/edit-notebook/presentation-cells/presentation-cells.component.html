@@ -5,7 +5,7 @@
       <section *ngFor="let slide of slides">
         <section class="child-section" [style.--text-color]="color" *ngFor="let child of slide.children">
           <div class="preview">
-            
+
             <markdown ngPreserveWhitespaces *ngIf="child.type=='markdown' || child.type=='raw' " class="markdown">
               {{child.source}}
             </markdown>
@@ -14,7 +14,7 @@
               <iframe [width]="video.width" [height]="video.height" [src]="video.url" data-preload allowfullscreen
                 allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
               </iframe>
-            </div> 
+            </div>
           </div>
           <pre class="code-container" *ngIf="child.type=='code'"><code  [class]="'language-' + child.language" [innerHTML]="child.source">
               </code></pre>
@@ -54,17 +54,16 @@
           </div>
           <!--loop on fragments to show it -->
           <div *ngFor="let fragment of child.fragments">
-            <div class="preview fragment fade-up"  >
+            <div class="preview fragment fade-up">
 
-              <markdown *ngIf="fragment.type=='markdown' || fragment.type=='raw' " ngPreserveWhitespaces
-                >
+              <markdown *ngIf="fragment.type=='markdown' || fragment.type=='raw' " ngPreserveWhitespaces>
                 {{fragment.text}}
               </markdown>
-              <div *ngFor="let video of fragment.videoUrl" >
+              <div *ngFor="let video of fragment.videoUrl">
                 <iframe [width]="video.width" [height]="video.height" [src]="video.url" data-preload allowfullscreen
                   allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
                 </iframe>
-              </div> 
+              </div>
             </div>
             <pre *ngIf="fragment.type=='code'" class="code-container fragment fade-up"><code  [class]="'language-' + fragment.language" [innerHTML]="fragment.text">   
               </code></pre>
