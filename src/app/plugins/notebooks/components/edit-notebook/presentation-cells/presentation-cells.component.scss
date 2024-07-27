@@ -18,7 +18,7 @@
 }
 
 .reveal .slides>section {
-  min-height: 90%;
+  min-height: 90%;  
 }
 
 .reveal .slides>section>section {
@@ -32,12 +32,7 @@
 .slides code {
   height: 300px;
 }
-.scroll{
-  // overflow-y: auto  !important;
-  // max-width: 100%;
-  // display: flex;
-  // flex-direction: column;
-}
+
 .child-section{
   display: flex;
   flex-direction: column;
@@ -51,9 +46,10 @@
 
 }
 
-.media {
-  margin-left: auto;
-  margin-right: auto;
+::ng-deep .media {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: flex;
 }
 .code-container{
   font-size: large;
@@ -63,17 +59,11 @@
 }
 
 .output-container{
-  // overflow: scroll;
   flex: 1 1 auto;
 }
 
 
-.output-content ::ng-deep .nb-output-data-wrapper{
-  // max-width: calc(100vh - 400px - 2); 
-
-}
 .output-content ::ng-deep img{
-  // max-width: calc(100vh - 400px );
   max-height: calc(100vh - 300px - 18vh);
 
 }

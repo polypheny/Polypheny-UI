@@ -2,22 +2,19 @@
   <div class="reveal">
     <div class="slides">
       <!--loop on slides -->
-      <section class="scroll" *ngFor="let slide of slides">
+      <section *ngFor="let slide of slides">
         <section class="child-section" [style.--text-color]="color" *ngFor="let child of slide.children">
           <div class="preview">
+            
             <markdown ngPreserveWhitespaces *ngIf="child.type=='markdown' || child.type=='raw' " class="markdown">
               {{child.source}}
             </markdown>
-            <!-- show images and videos in the end of slide-->
-            <div *ngFor="let image of child.imageUrl">
-              <img class="media" [width]="image.width" [height]="image.height" [src]="image.url" data-preload allowfullscreen
-               />
-            </div>
+            <!-- show videos in the end of slide-->
             <div *ngFor="let video of child.videoUrl">
               <iframe [width]="video.width" [height]="video.height" [src]="video.url" data-preload allowfullscreen
                 allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
               </iframe>
-            </div>
+            </div> 
           </div>
           <pre class="code-container" *ngIf="child.type=='code'"><code  [class]="'language-' + child.language" [innerHTML]="child.source">
               </code></pre>
@@ -63,15 +60,11 @@
                 >
                 {{fragment.text}}
               </markdown>
-              <div *ngFor="let image of fragment.imageUrl" >
-                <img class="media" [width]="image.width" [height]="image.height" [src]="image.url" data-preload allowfullscreen
-                 />
-              </div>
               <div *ngFor="let video of fragment.videoUrl" >
                 <iframe [width]="video.width" [height]="video.height" [src]="video.url" data-preload allowfullscreen
                   allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
                 </iframe>
-              </div>
+              </div> 
             </div>
             <pre *ngIf="fragment.type=='code'" class="code-container fragment fade-up"><code  [class]="'language-' + fragment.language" [innerHTML]="fragment.text">   
               </code></pre>

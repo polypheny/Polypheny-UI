@@ -70,11 +70,10 @@ constructor(private _markdown: MarkdownService,
           
           if(item.cell_type=='markdown')
           {
-            let [sourceText,imageLinks]=this.clearLinks('image',item.source);
-
-            let [sourceTextClean,videoLinks]=this.clearLinks('video',sourceText);
+            let sourceText=this.handelImageLinks('image',item.source);
+            let[sourceTextClean,videoLinks]=this.extractVideoLinks('video',sourceText);
             this.slides.push({source:sourceTextClean,children:[{source:sourceTextClean,children:[],fragments:[],type:item.cell_type,language:language,
-              isTrusted:isTrusted,outputs:item?.outputs,errorHtml:errorHtml,streamHtml:streamHtml,showOutput:showOutput,videoUrl:videoLinks,imageUrl:imageLinks}],
+              isTrusted:isTrusted,outputs:item?.outputs,errorHtml:errorHtml,streamHtml:streamHtml,showOutput:showOutput,videoUrl:videoLinks}],
               fragments:[],type:item.cell_type,language:language,isTrusted:isTrusted,outputs:item?.outputs,errorHtml:errorHtml,streamHtml:streamHtml,showOutput:showOutput});
           }
           else{
@@ -89,24 +88,30 @@ constructor(private _markdown: MarkdownService,
           let len=this.slides[this.slides.length-1].children.length;
           if(item.cell_type=='markdown')
             {
-              let [sourceText,imageLinks]=this.clearLinks('image',item.source);
-  
-              let [sourceTextClean,videoLinks]=this.clearLinks('video',sourceText);
+              let sourceText=this.handelImageLinks('image',item.source);
+              let[sourceTextClean,videoLinks]=this.extractVideoLinks('video',sourceText);
               this.slides[this.slides.length-1].children[len-1].fragments.push({text:sourceTextClean,type:item.cell_type,language:language,
-                imageUrl:imageLinks,videoUrl:videoLinks});
+                videoUrl:videoLinks});
             }
             else{
               this.slides[this.slides.length-1].children[len-1].fragments.push({text:item.source,type:item.cell_type,language:language});
             }
         }
         else {
-        
+          if(item.cell_type=='markdown')
+            {
+              let sourceText=this.handelImageLinks('image',item.source);
+              let[sourceTextClean,videoLinks]=this.extractVideoLinks('video',sourceText);
+              this.slides[this.slides.length-1].children.push({source:sourceTextClean,children:[],fragments:[],type:item.cell_type,language:language,isTrusted:isTrusted,
+                outputs:item?.outputs,errorHtml:errorHtml,streamHtml:streamHtml,showOutput:showOutput,videoUrl:videoLinks});
+            }
+            else{
             this.slides[this.slides.length-1].children.push({source:item.source,children:[],fragments:[],type:item.cell_type,language:language,isTrusted:isTrusted,outputs:item?.outputs,errorHtml:errorHtml,streamHtml:streamHtml,showOutput:showOutput});
+            }
         }
       }
 
     })
-    console.log(this.slides)
   }
   
   ngAfterViewInit(){  
@@ -117,8 +122,6 @@ constructor(private _markdown: MarkdownService,
       parallaxBackgroundVertical: 50,
       minScale: 0.2,
       maxScale: 1.0,
-      // width: 960,
-      // height: 700,
     })
     
   }
@@ -154,12 +157,13 @@ constructor(private _markdown: MarkdownService,
       return null;
   }
 
-  clearLinks(mediaType:string,text:string | any[]): [string| any[], { url: SafeResourceUrl; width: number ; height: number}[]] {
+  // extract video links from text
+  extractVideoLinks(mediaType:string,text:string | any[]): [string| any[], { url: SafeResourceUrl; width: number ; height: number}[]] {
       if(typeof(text)!='string')
       {
         return [text,[{url:'',width:0,height:0}]]
       }
-      // Regular expression to match YouTube video links
+      // regular expression to match YouTube video links
           
       const mediaRegex = new RegExp(`!\\[${mediaType}\\]\\((.*?)\\)`, 'g');
       const widthRegex = /width=(\d+)/;
@@ -171,23 +175,50 @@ constructor(private _markdown: MarkdownService,
       if (match) {
         let str=match[0];
         str=str.substring(9, str.length - 1);
-        const widthMatch = line.match(widthRegex); // Look for width in the line
-        let width = widthMatch ? parseInt(widthMatch[1], 10) : 400; // Default to 400 if no width specified
-        const heightMatch = line.match(heightRegex); // Look for height in the line
-        let height = heightMatch ? parseInt(heightMatch[1], 10) : 300; // Default height to 300 if not specified
+        const widthMatch = line.match(widthRegex); 
+        let width = widthMatch ? parseInt(widthMatch[1], 10) : 400; // default to 400 if no width specified
+        const heightMatch = line.match(heightRegex); 
+        let height = heightMatch ? parseInt(heightMatch[1], 10) : 300; // default height to 300 if not specified
         extractedLinks.push({
           url: this._sanitizer.bypassSecurityTrustResourceUrl(str),
           width: width,
           height:height
         });
-        return false; // Skip lines with YouTube links
+        return false; 
       }
       return true;
       });
 
-      // Join the filtered lines back into a single string
+      // join the filtered lines back into a single string
       const filteredText = filteredLines.join('\n');
       return [filteredText,extractedLinks];
   }
+
+  // show images inside text
+  handelImageLinks(mediaType: string, text: string | any[]): any{
+    if (typeof text !== 'string') {
+      return text;
+    }
+  
+    // regular expression to match image or video links
+    const mediaRegex = new RegExp(`!\\[${mediaType}\\]\\((.*?)\\)`, 'g');
+    const widthRegex = /width=(\d+)/;
+    const heightRegex = /height=(\d+)/;
+
+    // replace the media markers in the text with HTML tags
+    const replacedText = text.replace(mediaRegex, (match, url):any => {
+      const widthMatch = match.match(widthRegex);
+      const width = widthMatch ? parseInt(widthMatch[1], 10) : 400;
+      const heightMatch = match.match(heightRegex);
+      const height = heightMatch ? parseInt(heightMatch[1], 10) : 300;
+      if (mediaType == 'image') {
+        return `<img src="${url}" width="${width}" height="${height}" class="media" data-preload allowfullscreen />`;
+      } 
+      return match;
+    });
+
+    return  replacedText;
+  }
+  
 
 }
