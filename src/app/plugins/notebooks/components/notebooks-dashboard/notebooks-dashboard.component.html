@@ -194,7 +194,7 @@
             <select cSelect name="instanceId" #selectedInstance class="form-control"
                     [disabled]="instances.length === 0">
                 <option *ngIf="instances.length === 0">No instances available</option>
-                <option *ngFor="let instance of instances" [value]="instance.id">{{ instance.alias }}</option>
+                <option *ngFor="let instance of instances" [value]="instance.id">{{ instance.host.alias }}</option>
             </select>
             <div *ngIf="instances.length === 0" class="alert alert-info mt-3">
                 To add a Docker instance go to Config &gt; Docker.

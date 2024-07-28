@@ -277,13 +277,13 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
             this._config.saveChanges(changes).subscribe({
                 next: res => {
                     interface Feedback {
-                        success?: boolean;
+                        successful?: boolean;
                         message?: string;
                     }
 
                     const f: Feedback = <Feedback>res;
-                    //console.log(f);
-                    if (f.success) {
+                    console.log(f);
+                    if (f.successful) {
                         this._toast.success('Saved changes.', null, null, ToastDuration.SHORT);
                         this.loadPage();// reload config-page after updating a config, because it can lead to additional groups or elements
                     } else {

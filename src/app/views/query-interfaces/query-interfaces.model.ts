@@ -8,7 +8,7 @@ export interface QueryInterface {
 }
 
 export interface QueryInterfaceInformation {
-    name: string;
+    interfaceName: string;
     description: string;
     clazz: string;
     availableSettings: QueryInterfaceSetting[];

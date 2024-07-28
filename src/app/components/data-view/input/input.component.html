@@ -18,26 +18,14 @@
         </ng-container>
 
         <ng-container *ngSwitchCase="_types.booleanTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
-            <div class="form-check form-check-inline switch-wrapper">
-                <span cInputGroupText *ngIf="showLabel">{{header.name}}</span>
-                <label class="switch switch-label switch-pill switch-outline-primary-alt switch-sm"
-                       [ngClass]="{'ms-3':!showLabel}">
-                    <input type="checkbox" class="switch-input" [id]="'insertRow'+header.name"
-                           [checked]="value === true"
-                           [disabled]="value === null && header.nullable === true"
-                           (change)="onValueChange(checkboxInput.checked)" #checkboxInput>
-                    <span class="switch-slider"></span>
-                </label>
-                <span cInputGroupText class="insertRowLabel">
-                    {{ value === null ? 'null' : value }}
-                </span>
-
-                <button size="sm"
-                        *ngIf="header.nullable"
-                        [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}"
-                        (click)="onValueChange( triggerNull(value) )">null
-                </button>
-            </div>
+            <span cInputGroupText *ngIf="showLabel">{{header.name}}</span>
+            <c-button-group aria-label="boolean entry" class="mx-auto" role="group" size="sm">
+                <button cButton color="primary" style="border-top-left-radius: 4px !important; border-bottom-left-radius: 4px !important;" (click)="onValueChange(true)" [variant]="value === true ? undefined:'outline'">true</button>
+                <button cButton color="primary" (click)="onValueChange(false)" [variant]="value === false ? undefined:'outline'">false</button>
+                @if (header.nullable){
+                    <button cButton color="primary" (click)="onValueChange(null)" [variant]="value === null ? undefined:'outline'" >null</button>
+                }
+            </c-button-group>
         </ng-container>
 
         <ng-container *ngSwitchCase="_types.dateTimeTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">

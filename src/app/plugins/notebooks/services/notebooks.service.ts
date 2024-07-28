@@ -12,6 +12,7 @@ import {
 import {Notebook} from '../models/notebook.model';
 import * as uuid from 'uuid';
 import {forkJoin} from 'rxjs';
+import {DockerInstanceInfo} from '../../../models/docker.model';
 
 @Injectable({
     providedIn: 'root'
@@ -193,7 +194,7 @@ export class NotebooksService {
     }
 
     getDockerInstances() {
-        return this._http.get(`${this.httpUrl}/container/getDockerInstances`);
+        return this._http.get<DockerInstanceInfo[]>(`${this.httpUrl}/container/getDockerInstances`);
     }
 
     createContainer(id: number) {
