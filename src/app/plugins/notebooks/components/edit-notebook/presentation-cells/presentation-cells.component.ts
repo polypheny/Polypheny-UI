@@ -202,16 +202,14 @@ export class PresentationCellsComponent implements OnInit {
     }
 
     // regular expression to match image or video links
-    const mediaRegex = new RegExp(`!\\[${mediaType}\\]\\((.*?)\\)`, 'g');
-    const widthRegex = /width=(\d+)/;
-    const heightRegex = /height=(\d+)/;
-
+    const mediaRegex = new RegExp(
+      `!\\[${mediaType}\\]\\((.*?)\\)(?:\\s+width=(\\d+))?(?:\\s+height=(\\d+))?`,
+      'g'
+    );
     // replace the media markers in the text with HTML tags
-    const replacedText = text.replace(mediaRegex, (match, url): any => {
-      const widthMatch = match.match(widthRegex);
-      const width = widthMatch ? parseInt(widthMatch[1], 10) : 400;
-      const heightMatch = match.match(heightRegex);
-      const height = heightMatch ? parseInt(heightMatch[1], 10) : 300;
+    const replacedText = text.replace(mediaRegex, (match, url,imgWidth, imgHeight): any => {
+      const width = imgWidth ? parseInt(imgWidth, 10) : 400;
+      const height = imgHeight ? parseInt(imgHeight, 10) : 300;
       if (mediaType == 'image') {
         return `<img src="${url}" width="${width}" height="${height}" class="media" data-preload allowfullscreen />`;
       }
