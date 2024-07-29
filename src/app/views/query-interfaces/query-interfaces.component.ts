@@ -8,7 +8,7 @@ import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {RelationalResult} from '../../components/data-view/models/result-set.model';
 import {
     QueryInterface,
-    QueryInterfaceInformation,
+    QueryInterfaceTemplate,
     QueryInterfaceCreateRequest,
     QueryInterfaceSetting
 } from './query-interfaces.model';
@@ -28,7 +28,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
     private readonly _sidebar = inject(LeftSidebarService);
 
     queryInterfaces: QueryInterface[];
-    availableQueryInterfaces: QueryInterfaceInformation[];
+    availableQueryInterfaces: QueryInterfaceTemplate[];
     route: String;
     routeListener;
     private subscriptions = new Subscription();
@@ -37,7 +37,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
     editingQIForm: UntypedFormGroup;
     deletingQI;
 
-    editingAvailableQI: QueryInterfaceInformation;
+    editingAvailableQI: QueryInterfaceTemplate;
     editingAvailableQIForm: UntypedFormGroup;
     availableQIUniqueNameForm: UntypedFormGroup;
 
@@ -143,7 +143,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         });
     }
 
-    initAvailableQISettings(availableQI: QueryInterfaceInformation) {
+    initAvailableQISettings(availableQI: QueryInterfaceTemplate) {
         this.editingAvailableQI = availableQI;
         const fc = {};
         for (const [k, v] of Object.entries(this.editingAvailableQI.availableSettings)) {

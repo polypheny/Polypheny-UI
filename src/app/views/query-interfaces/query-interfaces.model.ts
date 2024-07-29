@@ -7,7 +7,7 @@ export interface QueryInterface {
     currentSettings: Map<string, string>;
 }
 
-export interface QueryInterfaceInformation {
+export interface QueryInterfaceTemplate {
     interfaceType: string;
     description: string;
     availableSettings: QueryInterfaceSetting[];

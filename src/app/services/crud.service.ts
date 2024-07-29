@@ -41,7 +41,7 @@ import {
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {AdapterModel} from '../views/adapters/adapter.model';
-import {QueryInterface, QueryInterfaceInformation} from '../views/query-interfaces/query-interfaces.model';
+import {QueryInterface, QueryInterfaceTemplate} from '../views/query-interfaces/query-interfaces.model';
 import {AlgNodeModel, Node} from '../views/querying/algebra/algebra.model';
 import {WebSocket} from './webSocket';
 import {Observable} from 'rxjs';
@@ -559,7 +559,7 @@ export class CrudService {
     }
 
     getAvailableQueryInterfaces() {
-        return this._http.get<QueryInterfaceInformation[]>(`${this.httpUrl}/getAvailableQueryInterfaces`);
+        return this._http.get<QueryInterfaceTemplate[]>(`${this.httpUrl}/getAvailableQueryInterfaces`);
     }
 
     createQueryInterface(request: any) {
