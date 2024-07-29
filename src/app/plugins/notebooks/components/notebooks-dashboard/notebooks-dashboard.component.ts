@@ -6,6 +6,7 @@ import {SessionResponse, StatusResponse} from '../../models/notebooks-response.m
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {cilMediaPlay, cilReload, cilTrash} from '@coreui/icons';
+import {DockerInstanceInfo} from '../../../../models/docker.model';
 
 @Component({
     selector: 'app-notebooks-dashboard',
@@ -34,7 +35,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     serverStatus: StatusResponse;
     pluginLoaded = false;
     sessionSubscription = null;
-    instances = [];
+    instances: DockerInstanceInfo[] = [];
 
     constructor() {
     }
@@ -43,7 +44,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
         this.getServerStatus();
         this._notebooks.getDockerInstances().subscribe({
             next: res => {
-                this.instances = <[]>res;
+                this.instances = res;
             },
             error: err => {
                 console.log(err);

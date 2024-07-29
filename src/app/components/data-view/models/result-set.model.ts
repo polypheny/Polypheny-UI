@@ -45,14 +45,6 @@ export class RelationalResult extends Result<string[], UiColumnDefinition> {
     }
 }
 
-export class RelationalExploreResult extends RelationalResult {
-    explorerId: number;
-    classificationInfo: string;
-    includesClassificationInfo: boolean;
-    classifiedData: string[][];
-    isConvertedToSql: boolean;
-}
-
 export class GraphResult extends Result<string[], FieldDefinition> {
 
 }
@@ -75,34 +67,6 @@ export enum QueryType {
     DQL = 'DQL'
 }
 
-
-export class InfoSet extends RelationalResult {
-
-
-    constructor(error: string, generatedQuery: any, affectedRows: number) {
-        super(error, affectedRows);
-    }
-}
-
-/**
- * model with classified data coming form server
- */
-export class ExploreSet {
-    header: UiColumnDefinition[];
-    dataAfterClassification: string[];
-    exploreManagerId: number;
-    graph: string;
-}
-
-export class ExplorColSet {
-    [column: string]: {}
-}
-
-export class SelectedColSet {
-    [column: string]: {
-        selected: string
-    }
-}
 
 export class DashboardSet {
 

@@ -84,10 +84,9 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
 
     getAvailableQueryInterfaces() {
         this._crud.getAvailableQueryInterfaces().subscribe({
-            next: res => {
-                const availableQIs = <QueryInterfaceInformation[]>res;
-                availableQIs.sort((a, b) => (a.name > b.name) ? 1 : -1);
-                this.availableQueryInterfaces = <QueryInterfaceInformation[]>res;
+            next: availableQIs => {
+                availableQIs.sort((a, b) => (a.interfaceName > b.interfaceName) ? 1 : -1);
+                this.availableQueryInterfaces = <QueryInterfaceInformation[]>availableQIs;
             }, error: err => {
                 console.log(err);
             }

@@ -171,7 +171,6 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
                         this._toast.exception(res);
                     } else {
                         this._toast.success('Created namespace ' + val.name);
-                        //this.getSchema();
                     }
                     this.resetForm('createForm');
                 }, error: err => {
@@ -193,7 +192,6 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
                         this._toast.exception(res);
                     } else {
                         this._toast.success('Dropped namespace ' + val.name);
-                        //this.getSchema();
                     }
                     this.resetForm('dropForm');
                 }, error: err => {

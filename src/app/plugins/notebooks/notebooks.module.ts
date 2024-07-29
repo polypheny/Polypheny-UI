@@ -36,7 +36,9 @@ import {
     ColComponent,
     ContainerComponent,
     FormControlDirective,
+    FormDirective,
     FormSelectDirective,
+    FormTextDirective,
     GutterDirective,
     InputGroupComponent,
     InputGroupTextDirective,
@@ -48,6 +50,7 @@ import {
     ModalHeaderComponent,
     ModalTitleDirective,
     RowComponent,
+    RowDirective,
     TooltipDirective
 } from '@coreui/angular';
 import {IconDirective} from '@coreui/icons-angular';
@@ -70,7 +73,7 @@ import {IconDirective} from '@coreui/icons-angular';
             }
         }),
         TreeModule,
-        NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective, ButtonToolbarComponent, TooltipDirective, GutterDirective
+        NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective, ButtonToolbarComponent, TooltipDirective, GutterDirective, FormDirective, FormTextDirective, RowDirective
     ],
     declarations: [
         NotebooksComponent,
