@@ -27,15 +27,21 @@ export interface NotebookMetadata {
         version: string;
     };
     polypheny?: PolyphenyNbMetadata;
+    persentation?:{
+        backgroundColor:string,
+        textColor:string
+    }
 
 }
 
 export interface NotebookCell {
     cell_type: 'code' | 'markdown' | 'raw';
+    cell_present: 'slide' | 'subSlide' | 'notes' | 'skip' | 'fragment';
     id: string;
     metadata: CellMetadata;
     source: string[] | string;
     execution_count: number;
+    showOutput?:boolean;
     outputs?: (CellStreamOutput | CellDisplayDataOutput | CellExecuteResultOutput | CellErrorOutput)[];
 }
 

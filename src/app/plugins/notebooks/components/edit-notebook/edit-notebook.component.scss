@@ -71,3 +71,30 @@
 .modal-footer {
   justify-content: space-between;
 }
+
+.color-button{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doc-body{
+  font-size: large;
+}
+
+.code-container{
+  font-size: large;
+  background: #333;
+  white-space: pre;
+  word-wrap: break-word;
+  overflow: auto;
+  border-radius: 10px;
+  height: 34px;
+}
+
+.code-container code {
+  border: 1px solid #292929;
+  position: relative;
+  color: #aed581;
+  padding: 8px 12px;
+}

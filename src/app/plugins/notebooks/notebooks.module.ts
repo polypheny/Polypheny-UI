@@ -11,6 +11,8 @@ import {NotebooksContentService} from './services/notebooks-content.service';
 import {NotebooksDashboardComponent} from './components/notebooks-dashboard/notebooks-dashboard.component';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {NbCellComponent} from './components/edit-notebook/nb-cell/nb-cell.component';
+import {PresentationCellsComponent} from './components/edit-notebook/presentation-cells/presentation-cells.component';
+
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {MarkdownModule, MARKED_OPTIONS, MarkedRenderer} from 'ngx-markdown';
@@ -54,7 +56,8 @@ import {
     TooltipDirective
 } from '@coreui/angular';
 import {IconDirective} from '@coreui/icons-angular';
-
+import { HighlightService } from './services/highlight.service';
+import { NgxColorsModule } from 'ngx-colors';
 
 @NgModule({
     imports: [
@@ -73,7 +76,8 @@ import {IconDirective} from '@coreui/icons-angular';
             }
         }),
         TreeModule,
-        NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective, ButtonToolbarComponent, TooltipDirective, GutterDirective, FormDirective, FormTextDirective, RowDirective
+        NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective, ButtonToolbarComponent, TooltipDirective, GutterDirective, FormDirective, FormTextDirective, RowDirective,
+        NgxColorsModule
     ],
     declarations: [
         NotebooksComponent,
@@ -81,6 +85,7 @@ import {IconDirective} from '@coreui/icons-angular';
         EditNotebookComponent,
         NotebooksDashboardComponent,
         NbCellComponent,
+        PresentationCellsComponent,
         NbInputEditorComponent,
         NbOutputDataComponent,
         NbPolyOutputComponent,
@@ -92,7 +97,8 @@ import {IconDirective} from '@coreui/icons-angular';
     providers: [
         NotebooksSidebarService,
         NotebooksContentService,
-        UnsavedChangesGuard
+        UnsavedChangesGuard,
+        HighlightService
     ]
 })
 export class NotebooksModule {

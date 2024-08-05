@@ -13,23 +13,23 @@ import {
     ViewChild,
     ViewChildren
 } from '@angular/core';
-import {KernelSpec, NotebookContent, SessionResponse} from '../../models/notebooks-response.model';
-import {NotebooksService} from '../../services/notebooks.service';
-import {NotebooksSidebarService} from '../../services/notebooks-sidebar.service';
-import {NotebookCell} from '../../models/notebook.model';
-import {ActivatedRoute, Router} from '@angular/router';
-import {NotebooksContentService} from '../../services/notebooks-content.service';
-import {EMPTY, Observable, Subject, Subscription, timer} from 'rxjs';
-import {NotebooksWebSocket} from '../../services/notebooks-webSocket';
-import {ModalDirective} from 'ngx-bootstrap/modal';
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
-import {NbCellComponent} from './nb-cell/nb-cell.component';
-import {CellType, NotebookWrapper} from './notebook-wrapper';
-import {delay, mergeMap, take, tap} from 'rxjs/operators';
-import {LoadingScreenService} from '../../../../components/loading-screen/loading-screen.service';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
-import {WebuiSettingsService} from '../../../../services/webui-settings.service';
+import { KernelSpec, NotebookContent, SessionResponse } from '../../models/notebooks-response.model';
+import { NotebooksService } from '../../services/notebooks.service';
+import { NotebooksSidebarService } from '../../services/notebooks-sidebar.service';
+import { NotebookCell } from '../../models/notebook.model';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NotebooksContentService } from '../../services/notebooks-content.service';
+import { EMPTY, Observable, Subject, Subscription, timer } from 'rxjs';
+import { NotebooksWebSocket } from '../../services/notebooks-webSocket';
+import { ModalDirective } from 'ngx-bootstrap/modal';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { NbCellComponent } from './nb-cell/nb-cell.component';
+import { CellType, NotebookWrapper, PresentType } from './notebook-wrapper';
+import { delay, mergeMap, take, tap } from 'rxjs/operators';
+import { LoadingScreenService } from '../../../../components/loading-screen/loading-screen.service';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ToasterService } from '../../../../components/toast-exposer/toaster.service';
+import { WebuiSettingsService } from '../../../../services/webui-settings.service';
 
 @Component({
     selector: 'app-edit-notebook',
@@ -58,10 +58,16 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     private subscriptions = new Subscription();
     selectedCell: NotebookCell;
     selectedCellType: CellType = 'code';
+    selectedPresentType: string = 'skip';
+    showOutput: boolean = true;
     busyCellIds = new Set<string>();
     mode: NbMode = 'command';
     namespaces: string[] = [];
     expand = false;
+    persentShowFlag = false;
+    backgroundColor: string = "#000";
+    color: string = "#fff";
+    docVisible = false;
     private copiedCell: string; // stringified NotebookCell
     @ViewChild('deleteNotebookModal') public deleteNotebookModal: ModalDirective;
     @ViewChild('restartKernelModal') public restartKernelModal: ModalDirective;
@@ -106,7 +112,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                         return;
                     }
                     if (!this.renameNotebookModal.isShown) {
-                        this.renameNotebookForm.patchValue({name: this.name});
+                        this.renameNotebookForm.patchValue({ name: this.name });
                     }
                     this._content.setPreferredSessionId(this.path, this.sessionId);
                     this.loadNotebook();
@@ -154,8 +160,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         const path = this._notebooks.getPathFromSession(this.session);
         if (this.path !== path) {
             if (this.path) {
-                const queryParams = {session: this.sessionId, forced: true};
-                this._router.navigate([this._sidebar.baseUrl].concat(path.split('/')), {queryParams});
+                const queryParams = { session: this.sessionId, forced: true };
+                this._router.navigate([this._sidebar.baseUrl].concat(path.split('/')), { queryParams });
                 this._toast.warn(`The path to the notebook has changed.`, 'Info');
             }
             this.path = path;
@@ -171,7 +177,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this.nb = null;
         }
         this._content.getNotebookContent(this.path, this.nb == null).subscribe(res => {
-
             if (res) {
                 this.nb = new NotebookWrapper(res, this.busyCellIds,
                     new NotebooksWebSocket(this.session.kernel.id, this._settings),
@@ -179,8 +184,12 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                     (id, output) => this.getCellComponent(id)?.renderError(output),
                     (id, output) => this.getCellComponent(id)?.renderStream(output),
                     id => this.getCellComponent(id)?.renderResultSet());
+
                 this.expand = this.nb.isExpansionAllowed();
                 this.kernelSpec = this._content.getKernelspec(this.session.kernel.name);
+                // load backgroundColor and color if they are saved
+                this.backgroundColor = res.content.metadata.persentation?.backgroundColor || '#000';
+                this.color = res.content.metadata.persentation?.textColor || '#fff';
                 if (this.kernelSpec) {
                     this.nb.setKernelSpec(this.kernelSpec);
                     this.uploadNotebook(false);
@@ -206,9 +215,9 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
      */
     closeEdit(forced = false) {
         this.nb?.closeSocket();
-        const queryParams = forced ? {forced: true} : null;
+        const queryParams = forced ? { forced: true } : null;
         this._router.navigate([this._sidebar.baseUrl].concat(this._content.directoryPath.split('/')),
-            {queryParams});
+            { queryParams });
     }
 
     /**
@@ -315,8 +324,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             return;
         }
         this._notebooks.getExportedNotebook(this.path, this.kernelSpec?.name).subscribe(res => {
-                this._content.downloadNotebook(res.content, 'exported_' + this.name);
-            },
+            this._content.downloadNotebook(res.content, 'exported_' + this.name);
+        },
             () => {
                 this._toast.warn('Unable to export the notebook.');
             });
@@ -449,6 +458,15 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
 
     }
 
+    // change background color in presentation
+    changeTheme(event: string) {
+        this.nb.changeTheme(event);
+    }
+
+    // change text color in presentation
+    changeColor(event: string) {
+        this.nb.changeColor(event);
+    }
     interruptKernel() {
         this._notebooks.interruptKernel(this.session.kernel.id).subscribe(() => {
         }, () => {
@@ -475,7 +493,13 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         });
         this.restartKernelModal.hide();
     }
+    toggleDocDemo() {
+        this.docVisible = !this.docVisible;
+    }
 
+    handleDocChange(event: any) {
+        this.docVisible = event;
+    }
     insertCell(id: string, below: boolean, editMode = true) {
         if (this.inserting) {
             return;
@@ -541,6 +565,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         if (id !== unselectId) {
             this.selectedComponent?.editor?.blur();
             this.selectedCell = this.nb.getCell(id);
+            this.selectedPresentType = this.nb.getCellPresent(this.selectedCell);
+            this.showOutput = this.nb.getCellShowOutput(this.selectedCell);
             if (this.selectedCell) {
                 this.selectedCellType = this.nb.getCellType(this.selectedCell);
                 this.scrollCellIntoView(id);
@@ -566,6 +592,14 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this.selectCell(cellBelow.id, editMode);
         }
     }
+    // show presentation
+    persentShow() {
+        this.persentShowFlag = true;
+    }
+    
+    persentDisable() {
+        this.persentShowFlag = false;
+    }
 
     private scrollCellIntoView(id) {
         // https://stackoverflow.com/a/37829643
@@ -575,9 +609,9 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         if (element.getBoundingClientRect().bottom > window.innerHeight - 50) {
-            element.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'nearest'});
+            element.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
         } else if (element.getBoundingClientRect().top < 100) {
-            element.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'nearest'});
+            element.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
         }
     }
 
@@ -718,6 +752,22 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this.setCellType(type);
     }
 
+    // update persent type of slide
+    onPresentChange(event: Event) {
+        const type: PresentType = <PresentType>(event.target as HTMLOptionElement).value;
+        this.selectedPresentType = type;
+        this.nb.changeCellPresent(this.selectedCell, type);
+        this.selectedComponent.updatePresentType();
+
+    }
+
+    // toggle to show output of the code
+    toggleCellShowOutput() {
+        this.showOutput = this.nb.toggleCellShowOutput(this.selectedCell);
+
+    }
+
+    // set cell type
     setCellType(type: CellType) {
         const oldType = this.selectedCell.cell_type;
         if (oldType === 'markdown') {
@@ -756,6 +806,8 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             return c.id === this.selectedCell.id;
         });
     }
+
+
 }
 
 export type NbMode = 'edit' | 'command';

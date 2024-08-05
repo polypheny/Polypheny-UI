@@ -16,7 +16,7 @@ import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {KatexOptions, MarkdownService} from 'ngx-markdown';
 import {NbMode} from '../edit-notebook.component';
 import {NbInputEditorComponent} from '../nb-input-editor/nb-input-editor.component';
-import {CellType} from '../notebook-wrapper';
+import {CellType, PresentType} from '../notebook-wrapper';
 import {RelationalResult, Result} from '../../../../../components/data-view/models/result-set.model';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {CatalogService} from '../../../../../services/catalog.service';
@@ -33,22 +33,26 @@ export class NbCellComponent implements OnInit, AfterViewInit {
     @Input() isLast: boolean;
     @Input() isExecuting: boolean;
     @Input() mode: NbMode;
+    @Input() showOutput: boolean;
     @Input() selectedCellType: CellType; // not necessarily the type of this cell
+    @Input() selectedPresentType: string;
 
     @Input() nbLanguage: string;
     @Input() isTrusted: boolean;
     @Output() modeChange = new EventEmitter<NbMode>();
     @Output() insert = new EventEmitter<boolean>(); // true: below, false: above
     @Output() move = new EventEmitter<boolean>(); // true: down, false: up
+    @Output() ChangePresent = new EventEmitter<Event>();
     @Output() duplicate = new EventEmitter<null>();
     @Output() execute = new EventEmitter<string>();
     @Output() changeType = new EventEmitter<Event>();
+    @Output() toggleCellShowOutput = new EventEmitter();
     @Output() delete = new EventEmitter<string>();
     @Output() selected = new EventEmitter<string>();
     @ViewChild('editor') editor: NbInputEditorComponent;
     @ViewChild('cellDiv') cellDiv: ElementRef;
     cellType: CellType = 'code';
-
+    presentType:PresentType='skip';
     protected namespaces: Signal<string[]>;
 
     isMouseOver = false;
@@ -269,7 +273,12 @@ export class NbCellComponent implements OnInit, AfterViewInit {
         this.sourceHidden = this.cell.metadata.jupyter?.source_hidden;
         this.outputsHidden = this.cell.metadata.jupyter?.outputs_hidden;
     }
-
+    updatePresentType(){
+        this.presentType=this.cell.cell_present;
+    }
+    updateShowOutput(){
+        this.showOutput=this.cell.showOutput;
+    }
     changedNamespace() {
         this.cell.metadata.polypheny.namespace = this.polyForm.value.namespace;
     }

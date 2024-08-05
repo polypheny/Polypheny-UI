@@ -164,7 +164,19 @@ export class NotebookWrapper {
             this.executeCell(cell, true);
         }
     }
-
+    changeTheme(color:string){
+        // this.nb.metadata.persentation.backgroundColor=color;
+        this.nb.metadata.persentation={
+            ...this.nb.metadata.persentation,
+            backgroundColor:color
+        };
+    }
+    changeColor(color:string){
+        this.nb.metadata.persentation={
+            ...this.nb.metadata.persentation,
+            textColor:color
+        };
+    }
     executeCells(reference: NotebookCell, above: boolean, refAndBelow: boolean) {
         const idx = this.nb.cells.indexOf(reference);
         if (idx < 0) {
@@ -240,7 +252,32 @@ export class NotebookWrapper {
             name: kernel.name
         };
     }
+    getCellPresent(cell: NotebookCell): PresentType {
+        if(cell.cell_present==undefined){
+            return 'skip';
+        }
+        return cell.cell_present;
+    }
+    
 
+    getCellShowOutput(cell: NotebookCell): boolean {
+        return cell.showOutput;
+    }
+
+    toggleCellShowOutput(cell: NotebookCell): boolean {
+        cell.showOutput=!cell.showOutput;
+        return cell.showOutput;
+    }
+    
+    // change peersent type os cell
+    changeCellPresent(cell: NotebookCell, type: PresentType){
+        const oldType = this.getCellPresent(cell);
+        if (oldType === type) {
+            return;
+        }
+        cell.cell_present = type;
+    }
+    
     changeCellType(cell: NotebookCell, type: CellType) {
         const oldType = this.getCellType(cell);
         if (oldType === type) {
@@ -462,6 +499,8 @@ export class NotebookWrapper {
     private getEmptyCell(): NotebookCell {
         return {
             cell_type: 'code',
+            cell_present:'skip',
+            showOutput:true,
             id: uuid.v4(),
             metadata: {},
             source: [],
@@ -501,3 +540,4 @@ export class NotebookWrapper {
 }
 
 export type CellType = 'code' | 'markdown' | 'raw' | 'poly';
+export type PresentType = 'slide' | 'subSlide' | 'notes' | 'skip' | 'fragment';
