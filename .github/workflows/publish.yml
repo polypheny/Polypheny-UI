@@ -26,6 +26,6 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }} 
           local-dir: publish/
-          server-dir: /
+          server-dir: /ui/
           protocol: ftp
           port: 21
