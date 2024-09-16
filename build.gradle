@@ -1,7 +1,6 @@
 
 plugins {
   id "java"
-  id "maven-publish"
   id "com.github.node-gradle.node" version "7.0.1"
 }
 
@@ -38,25 +37,6 @@ jar {
     }
 }
 
-
-publishing {
-    publications {
-        "${project.name}"(MavenPublication) {
-            from components.java
-            pom {
-                licenses {
-                    license {
-                        name = 'Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0'
-                    }
-                }
-            }
-        }
-    }
-}
-task generatePom(group: 'publishing', dependsOn: "generatePomFileFor${project.name.capitalize()}Publication")
-
-
 task licenseReport(type: NpxTask) {
   command = 'license-checker-rseidelsohn'
   args = ['--json', '--production', '--files', 'build/reports/licenses/files', '--out', 'build/reports/licenses/licenseReport.json']
@@ -71,5 +51,10 @@ clean {
 	delete "/node_modules"
 }
 
-// Add install task
-task install(group: 'other', dependsOn: publishToMavenLocal)
+
+
+tasks.register('packageDistribution', Zip) {
+    archiveFileName = "polypheny-ui.zip"
+    destinationDirectory = file('publish')
+    from file('dist')
+}
