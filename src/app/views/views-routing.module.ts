@@ -13,6 +13,7 @@ import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.comp
 import {NotebooksComponent} from '../plugins/notebooks/components/notebooks.component';
 import {UnsavedChangesGuard} from '../plugins/notebooks/services/unsaved-changes.guard';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
+import {InventoryComponent} from '../plugins/inventory/components/inventory.component';
 
 const routes: Routes = [
     {
@@ -178,6 +179,18 @@ const routes: Routes = [
                     title: 'Notebooks'
                 },
                 canDeactivate: [UnsavedChangesGuard]
+            }
+        ]
+    },
+    {
+        path: 'inventory',
+        children: [
+            {
+                path: '**',
+                component: InventoryComponent,
+                data: {
+                    title: 'Inventory'
+                },
             }
         ]
     },

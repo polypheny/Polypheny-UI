@@ -76,6 +76,7 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {NotebooksModule} from './plugins/notebooks/notebooks.module';
+import {InventoryModule} from './plugins/inventory/inventory.module';
 import {IconDirective} from '@coreui/icons-angular';
 
 
@@ -90,6 +91,7 @@ import {IconDirective} from '@coreui/icons-angular';
         NgChartsModule,
         // plugins
         NotebooksModule,
+        InventoryModule,
         ToastComponent,
         NgChartsModule,
         ToasterComponent,
