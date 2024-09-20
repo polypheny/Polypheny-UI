@@ -69,16 +69,16 @@
                     </c-dropdown>
 
                     <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/notebooks']" *ngIf="inventoryEnabled()" routerLinkActive="active">
-                            <i class="fa fa-warehouse"></i>
-                            <span class="ms-1">Inventory</span>
+                        <a cNavLink [routerLink]="['/views/notebooks']" routerLinkActive="active">
+                            <i class="fa fa-book"></i>
+                            <span class="ms-1">Notebooks</span>
                         </a>
                     </c-nav-item>
 
                     <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/inventory']" routerLinkActive="active">
-                            <i class="fa fa-book"></i>
-                            <span class="ms-1">Notebooks</span>
+                        <a cNavLink [routerLink]="['/views/inventory']" *ngIf="inventoryEnabled()" routerLinkActive="active">
+                            <i class="fa fa-industry"></i>
+                            <span class="ms-1">Inventory</span>
                         </a>
                     </c-nav-item>
 

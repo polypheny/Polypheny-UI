@@ -4,6 +4,12 @@
 
         <h1>Inventory</h1>
 
+        <!-- Display the string once it is retrieved -->
+        <p *ngIf="dataString">{{ dataString }}</p>
+
+        <!-- Show an error message if the request fails -->
+        <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+
     </c-col>
 
 </c-row>

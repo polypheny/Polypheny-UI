@@ -62,7 +62,7 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
     }
 
     inventoryEnabled() {
-        return this._plugin.getEnabledPlugins().includes('ent-inventory');
+        return this._plugin.getEnabledPlugins().includes('inventory');
     }
 
     toggleDropdown() {

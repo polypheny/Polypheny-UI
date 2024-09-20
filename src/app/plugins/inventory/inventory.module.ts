@@ -5,6 +5,7 @@ import {ComponentsModule} from '../../components/components.module';
 
 import {BadgeComponent, BgColorDirective, ColComponent, ContainerComponent, RowComponent,} from '@coreui/angular';
 import {InventoryComponent} from './components/inventory.component';
+import {HttpClientModule} from '@angular/common/http';
 
 
 @NgModule({
@@ -18,6 +19,7 @@ import {InventoryComponent} from './components/inventory.component';
         ContainerComponent,
         BgColorDirective,
         RowComponent,
+        HttpClientModule
     ],
     declarations: [
         InventoryComponent,
