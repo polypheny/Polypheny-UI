@@ -657,11 +657,6 @@ class Node {
 }
 
 
-class PolyList {
-    size: number;
-    instance: any[];
-}
-
 class Graph {
     nodes: Node[];
     edges: Edge[];
