@@ -50,8 +50,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     constructor(private injector: Injector) {
         this.availableAdapters = computed(() => {
-            console.log(this.currentRoute());
-            const route = this.currentRoute();
             return this._catalog.getAdapterTemplates().filter(a => a.adapterType === this.getMatchingAdapterType());
         });
 
@@ -132,7 +130,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
 
     subscribeActiveChange() {
-
         effect(() => {
             const mode = this.activeMode();
             const adapter = this.adapter();
@@ -141,10 +138,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             }
             const fc = {};
 
-
             for (const setting of adapter.settings.values()) {
                 const validators = [];
-                if (setting.template.required) {
+                if (setting.template.required && setting.template.appliesTo.includes(mode)) {
                     validators.push(Validators.required);
                 }
                 let val = setting.template.defaultValue;
@@ -163,7 +159,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             if (adapter.task === Task.DEPLOY) {
                 fc['uniqueName'] = new UntypedFormControl(this.getDefaultUniqueName(), [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores(), ...this.sources()])]);
                 this.editingAvailableAdapterForm = new UntypedFormGroup(fc);
-                this.editingAvailableAdapterForm.controls['mode'].setValue(this.activeMode().toLowerCase());
             } else {
                 fc['uniqueName'] = new UntypedFormControl(adapter.uniqueName, [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores(), ...this.sources()].filter(a => a.name !== adapter.uniqueName))]);
                 this.editingAdapterForm = new UntypedFormGroup(fc);
