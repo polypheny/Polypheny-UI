@@ -540,10 +540,8 @@ export class DataGraphComponent extends DataTemplateComponent {
     initWebsocket() {
         const sub = this.webSocket.onMessage().subscribe({
             next: res => {
-                const unparsedGraph: string = <string>res;
                 this.graphLoading = false;
-                this.renderGraph(Graph.from(unparsedGraph['nodes'], unparsedGraph['edges']));
-
+                this.renderGraph(Graph.from(res['nodes'], res['edges']));
             },
             error: err => {
                 this._toast.error('Could not load the data.');
