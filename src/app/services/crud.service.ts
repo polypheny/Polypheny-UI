@@ -8,7 +8,8 @@ import {
     PartitionFunctionModel,
     PartitioningRequest,
     PathAccessRequest,
-    PlacementFieldsModel
+    PlacementFieldsModel,
+    RelationalResult
 } from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {
@@ -524,8 +525,8 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/getAvailableStoresForIndexes`, request, this.httpOptions);
     }
 
-    updateAdapterSettings(adapter: AdapterModel) {
-        return this._http.post(`${this.httpUrl}/updateAdapterSettings`, adapter);
+    updateAdapterSettings(adapter: AdapterModel): Observable<RelationalResult> {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/updateAdapterSettings`, adapter);
     }
 
     getSources() {

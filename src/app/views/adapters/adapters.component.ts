@@ -74,7 +74,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     readonly adapter: WritableSignal<Adapter> = signal(null);
     editingAdapterForm: FormGroup;
-    deletingAdapter;
+    deletingAdapter: AdapterModel;
     deletingInProgress: AdapterModel[];
 
     editingAvailableAdapterForm: UntypedFormGroup;
@@ -220,8 +220,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             adapter.settings[k] = v.value;
         }
         this._crud.updateAdapterSettings(adapter).subscribe({
-            next: res => {
-                const result = <RelationalResult>res;
+            next: result => {
                 if (result.error) {
                     this._toast.exception(result);
                 } else {
