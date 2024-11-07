@@ -233,14 +233,14 @@ export class DataGraphComponent extends DataTemplateComponent {
                 .style('fill', '#000')
                 .append('textPath')
                 .on('click', action)
-                .attr('xlink:href', function (d, i) {
+                .attr('xlink:href', function (_, i) {
                     return '#linkId_' + i;
                 })
                 .attr('cursor', 'pointer')
-                .on('mouseover', function (d) {
+                .on('mouseover', function () {
                     d3.select(this).attr('fill', 'grey');
                 })
-                .on('mouseout', function (d) {
+                .on('mouseout', function () {
                     d3.select(this).attr('fill', '#000');
                 })
                 .text(function (d) {
@@ -266,7 +266,7 @@ export class DataGraphComponent extends DataTemplateComponent {
                 .attr('class', function (d) {
                     return 'link ' + d.type;
                 })
-                .attr('id', function (d, i) {
+                .attr('id', function (_, i) {
                     return 'linkId_' + i;
                 })
                 .attr('marker-end', 'url(#end)');
@@ -340,10 +340,10 @@ export class DataGraphComponent extends DataTemplateComponent {
                 .attr('stroke', 'white')
                 .style('cursor', 'pointer')
                 .attr('d', arc({startAngle: 0, endAngle: Math.PI}))
-                .on('mouseover', function (d) {
+                .on('mouseover', function () {
                     d3.select(this).attr('fill', 'darkgray');
                 })
-                .on('mouseout', function (d) {
+                .on('mouseout', function () {
                     d3.select(this).attr('fill', 'grey');
                 })
                 .on('click', (d) => {
@@ -367,10 +367,10 @@ export class DataGraphComponent extends DataTemplateComponent {
                 .attr('stroke', 'white')
                 .style('cursor', 'pointer')
                 .attr('d', arc({startAngle: -Math.PI, endAngle: 0}))
-                .on('mouseover', function (d) {
+                .on('mouseover', function () {
                     d3.select(this).attr('fill', 'darkgray');
                 })
-                .on('mouseout', function (d) {
+                .on('mouseout', function () {
                     d3.select(this).attr('fill', 'grey');
                 })
                 .on('click', (d) => {
@@ -386,7 +386,7 @@ export class DataGraphComponent extends DataTemplateComponent {
                 .attr('class', 'el-select el-back fa')
                 .style('transform', 'translateX(-35px)')
                 .style('pointer-events', 'none')
-                .text(function (d) {
+                .text(function () {
                     return '\uf070';
                 });
 
@@ -398,7 +398,7 @@ export class DataGraphComponent extends DataTemplateComponent {
                 .attr('class', 'el-select el-cross')
                 .style('transform', 'translateX(35px)')
                 .style('pointer-events', 'none')
-                .text(function (d) {
+                .text(function () {
                     return '\uebd8';
                 });
 
