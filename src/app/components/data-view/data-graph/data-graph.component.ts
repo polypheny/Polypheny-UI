@@ -580,15 +580,20 @@ export class DataGraphComponent extends DataTemplateComponent {
                 });
             } else if (dataType.startsWith('path')) {
                 graphResult.data.forEach(d => {
-                    for (const el of JSON.parse(d[i]).path) {
-                        if (el.type.includes('NODE')) {
-                            nodeIds.add(el.id);
-                        }
-                        if (el.type.includes('EDGE')) {
-                            edgeIds.add(el.id);
+                    const path = JSON.parse(d[i]);
+                    for (const node of path.nodes) {
+                        const id = node.id;
+                        if (!nodeIds.has(id)) {
+                            nodeIds.add(id);
+                            this.initialNodes.add(node)
                         }
                     }
+                    for (const edge of path.edges) {
+                        edgeIds.add(edge.id);
+                    }
                 });
+            } else {
+                console.error(`Unknown dataType: '${dataType}'`);
             }
 
             this.initialNodeIds = nodeIds;
