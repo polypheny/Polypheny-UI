@@ -558,14 +558,15 @@ export class DataGraphComponent extends DataTemplateComponent {
 
         for (const dbColumn of graphResult.header) {
             i++;
-            if (!dbColumn.dataType.toLowerCase().includes('node') && !dbColumn.dataType.toLowerCase().includes('edge')) {
+            const dataType: string = dbColumn.dataType.trim().toLowerCase();
+            if (!dataType.startsWith('node') && !dataType.startsWith('edge') && !dataType.startsWith('path')) {
                 continue;
             }
 
             this.initialNodes = new Set();
-            if (dbColumn.dataType.toLowerCase().includes('node')) {
-                graphResult.data.forEach(d => {
 
+            if (dataType.startsWith('node')) {
+                graphResult.data.forEach(d => {
                     const node = JSON.parse(d[i]);
                     const id = node['id'];
                     if (!nodeIds.has(id)) {
@@ -573,15 +574,11 @@ export class DataGraphComponent extends DataTemplateComponent {
                         this.initialNodes.add(node)
                     }
                 });
-            }
-
-            if (dbColumn.dataType.toLowerCase().includes('edge')) {
+            } else if (dataType.startsWith('edge')) {
                 graphResult.data.forEach(d => {
                     edgeIds.add(JSON.parse(d[i])['id']);
                 });
-            }
-
-            if (dbColumn.dataType.toLowerCase().includes('path')) {
+            } else if (dataType.startsWith('path')) {
                 graphResult.data.forEach(d => {
                     for (const el of JSON.parse(d[i]).path) {
                         if (el.type.includes('NODE')) {
@@ -615,8 +612,6 @@ export class DataGraphComponent extends DataTemplateComponent {
 
             this.renderGraph(graph);
         }
-
-
     }
 
     setJsonValid($event: any) {
@@ -680,7 +675,6 @@ class Graph {
     }
 
     constructor(nodes: Node[], edges: Edge[]) {
-
         this.nodes = nodes;
         this.edges = edges;
         this.selfEdges = edges.filter(d => d['source'] === d['target']);
