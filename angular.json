@@ -51,7 +51,8 @@
               "node_modules/plyr/dist/plyr.css",
               "node_modules/@ali-hm/angular-tree-component/css/angular-tree-component.css",
               "node_modules/katex/dist/katex.min.css",
-              "node_modules/prismjs/themes/prism-okaidia.css"
+              "node_modules/prismjs/themes/prism-okaidia.css",
+              "src/app/components/data-view/data-map/leaflet.css"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [

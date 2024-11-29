@@ -22,6 +22,11 @@
                     (click)="$presentationType.set(presentationTypes.GRAPH)"
                     [class.active]="$presentationType() === presentationTypes.GRAPH"
                     tooltip="graph" placement="top" delay="200"><i class="fa fa-code-fork"></i></button>
+            <button cButton color="light"
+                    class="mx-1"
+                    (click)="$presentationType.set(presentationTypes.MAP)"
+                    [class.active]="$presentationType() === presentationTypes.MAP"
+                    tooltip="map" placement="top" delay="200"><i class="fa fa-map-pin"></i></button>
         </div>
         <div>
             <button cButton color="light" *ngIf="showCreateView()" class="viewButton" tooltip="Create View"
@@ -48,6 +53,11 @@
         <app-data-graph
                 [result]="$result()"
                 [inputConfig]="config"></app-data-graph>
+    </ng-container>
+    <ng-container *ngSwitchCase="presentationTypes.MAP">
+        <app-data-map
+                [result]="$result()"
+                [inputConfig]="config"></app-data-map>
     </ng-container>
 </ng-container>
 

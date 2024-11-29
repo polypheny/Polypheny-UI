@@ -99,6 +99,7 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
 import {ReloadButtonComponent} from '../views/util/reload-button/reload-button.component';
 import {ViewComponent} from './data-view/view/view.component';
 import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.component';
+import {DataMapComponent} from "./data-view/data-map/data-map.component";
 
 //import 'hammerjs';
 
@@ -185,6 +186,7 @@ import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.co
         DataCardComponent,
         DataTableComponent,
         DataGraphComponent,
+        DataMapComponent,
         MediaComponent,
         DeleteConfirmComponent,
         ExpandableTextComponent,
