@@ -95,6 +95,7 @@ import {
 } from '@coreui/angular';
 import {EditEntityComponent} from './schema-editing/edit-entity/edit-entity.component';
 import {TreeModule} from '@ali-hm/angular-tree-component';
+import {GisComponent} from "./querying/gis/gis.component";
 
 
 @NgModule({
@@ -169,6 +170,7 @@ import {TreeModule} from '@ali-hm/angular-tree-component';
         EditColumnsComponent,
         FormGeneratorComponent,
         GraphicalQueryingComponent,
+        GisComponent,
         ConsoleComponent,
         TableViewComponent,
         UmlComponent,
