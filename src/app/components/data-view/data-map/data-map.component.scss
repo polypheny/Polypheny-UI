@@ -1,7 +1,18 @@
 .map-container {
   position: relative;
-  min-height: 600px;
+  height: 100%;
   border: 1px solid lightgray;
+}
+
+// Only for query mode, the results view already has a margin
+.map-margin {
+  margin: 1rem 0;
+  height: calc(100% - 2rem);
+}
+
+.inside-results {
+  min-height: 600px;
+  padding: 0;
 }
 
 #map {

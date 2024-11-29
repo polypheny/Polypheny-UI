@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, effect} from '@angular/core';
+import {AfterViewInit, Component, effect, Input} from '@angular/core';
 import {DataTemplateComponent} from '../data-template/data-template.component';
 import * as d3 from 'd3';
 import { GeoPath, GeoPermissibleObjects } from 'd3';
@@ -14,6 +14,9 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     constructor() {
         super();
     }
+
+    // If the map is shown inside the results section, different styling needs to be applied.
+    @Input() isInsideResults : boolean = false;
 
     // Leaflet
     readonly MIN_ZOOM = 0;

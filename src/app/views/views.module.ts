@@ -96,6 +96,7 @@ import {
 import {EditEntityComponent} from './schema-editing/edit-entity/edit-entity.component';
 import {TreeModule} from '@ali-hm/angular-tree-component';
 import {GisComponent} from "./querying/gis/gis.component";
+import {MapLayersComponent} from "./querying/gis/components/layers/map-layers.component";
 
 
 @NgModule({
@@ -164,7 +165,8 @@ import {GisComponent} from "./querying/gis/gis.component";
         PlaceholderDirective,
         ProgressComponent,
         ProgressBarComponent,
-        CollapseDirective
+        CollapseDirective,
+        MapLayersComponent
     ],
     declarations: [
         EditColumnsComponent,

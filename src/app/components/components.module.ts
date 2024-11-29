@@ -223,6 +223,7 @@ import {DataMapComponent} from "./data-view/data-map/data-map.component";
         Toast,
         ReloadButtonComponent,
         DockerInstanceComponent,
+        DataMapComponent,
     ]
 })
 export class ComponentsModule {
