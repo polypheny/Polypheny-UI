@@ -4,7 +4,7 @@ import {MapLayer} from "./MapLayer.model";
 /**
  * Represents one row in the results returned by Polypheny.
  */
-export class RowResult {
+export class MapGeometryWithData {
     /**
      * Used for styling if the results are ordered
      */
@@ -40,7 +40,7 @@ export class RowResult {
 
     copy(){
         // We leave out cache on purpose, because we will use the copy to compare both if the layer has changed.
-        return new RowResult(this.index, this.geometry, this.data);
+        return new MapGeometryWithData(this.index, this.geometry, this.data);
     }
 
     getNumberValueFromField(fieldName: string): number {

@@ -1,5 +1,5 @@
 import { Visualization } from './visualization.interface';
-import { RowResult } from './RowResult.model';
+import { MapGeometryWithData } from './RowResult.model';
 import { ColorVisualization } from '../components/visualization/color-visualization-model';
 import {AreaShapeVisualization} from "../components/visualization/area-shape-visualization.model";
 import {LabelVisualization} from "../components/visualization/label-visualization-model";
@@ -7,7 +7,7 @@ import {PointShapeVisualization} from "../components/visualization/point-shape-v
 
 export class MapLayer {
     name: string;
-    data: RowResult[] = [];
+    data: MapGeometryWithData[] = [];
 
     pointShapeVisualization: Visualization = new PointShapeVisualization(3);
     areaShapeVisualization: Visualization = new AreaShapeVisualization(1);
@@ -37,7 +37,7 @@ export class MapLayer {
         return copy;
     }
 
-    addData(data: RowResult[]) {
+    addData(data: MapGeometryWithData[]) {
         data.forEach((d) => (d.layer = this));
         this.data.push(...data);
         return this;

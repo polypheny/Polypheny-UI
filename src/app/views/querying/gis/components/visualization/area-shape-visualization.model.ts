@@ -1,5 +1,5 @@
 import { Visualization } from '../../models/visualization.interface';
-import { RowResult } from '../../models/RowResult.model';
+import { MapGeometryWithData } from '../../models/RowResult.model';
 import { EmptyComponent } from './empty/empty.component';
 import {AreaShapeComponent} from "./area-shape/area-shape.component";
 
@@ -16,7 +16,7 @@ export class AreaShapeVisualization implements Visualization {
         this.outlineThickness = outlineThickness;
     }
 
-    init(data: RowResult[]): void {
+    init(data: MapGeometryWithData[]): void {
         //
     }
 
@@ -26,7 +26,7 @@ export class AreaShapeVisualization implements Visualization {
         return copy;
     }
 
-    getValueForAttribute(attr: string, data: RowResult): string | number {
+    getValueForAttribute(attr: string, data: MapGeometryWithData): string | number {
         switch (attr) {
             case 'stroke-width':
                 return this.outlineThickness;

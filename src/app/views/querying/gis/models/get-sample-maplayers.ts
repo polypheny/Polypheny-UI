@@ -1,6 +1,6 @@
 import { MapLayer } from './MapLayer.model';
 import * as GeoJSON from 'geojson';
-import { RowResult } from './RowResult.model';
+import { MapGeometryWithData } from './RowResult.model';
 
 export function getSampleMapLayers(): MapLayer[] {
     const data = `
@@ -293,13 +293,13 @@ export function getSampleMapLayers(): MapLayer[] {
 
     return [
         new MapLayer('a').addData(
-            geoJson.features.map((f, i) => new RowResult(i, f.geometry)),
+            geoJson.features.map((f, i) => new MapGeometryWithData(i, f.geometry)),
         ),
         new MapLayer('b').addData(
-            geoJson2.features.map((f, i) => new RowResult(i, f.geometry)),
+            geoJson2.features.map((f, i) => new MapGeometryWithData(i, f.geometry)),
         ),
         new MapLayer('Landkreise').addData(
-            geoJson3.features.map((f, i) => new RowResult(i, f.geometry)),
+            geoJson3.features.map((f, i) => new MapGeometryWithData(i, f.geometry)),
         ),
     ];
 }

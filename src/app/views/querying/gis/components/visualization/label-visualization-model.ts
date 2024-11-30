@@ -1,5 +1,5 @@
 import { Visualization } from '../../models/visualization.interface';
-import { RowResult } from '../../models/RowResult.model';
+import { MapGeometryWithData } from '../../models/RowResult.model';
 import {LabelComponent} from "./label/label.component";
 
 export class LabelVisualization implements Visualization {
@@ -10,7 +10,7 @@ export class LabelVisualization implements Visualization {
 
     constructor() {}
 
-    init(data: RowResult[]): void {
+    init(data: MapGeometryWithData[]): void {
         //
     }
 
@@ -20,7 +20,7 @@ export class LabelVisualization implements Visualization {
         return copy;
     }
 
-    getValueForAttribute(attr: string, data: RowResult): string | number {
+    getValueForAttribute(attr: string, data: MapGeometryWithData): string | number {
         return 'TODO';
         // throw new Error(`Visualization does not support attribute [${attr}]`);
     }

@@ -1,5 +1,5 @@
 import { Visualization } from '../../models/visualization.interface';
-import { RowResult } from '../../models/RowResult.model';
+import { MapGeometryWithData } from '../../models/RowResult.model';
 import * as d3 from 'd3';
 import * as turf from '@turf/turf';
 import { ColorComponent } from './color/color.component';
@@ -24,7 +24,7 @@ export class ColorVisualization implements Visualization {
         this.color = color;
     }
 
-    init(data: RowResult[]): void {
+    init(data: MapGeometryWithData[]): void {
         if (this.selectedMode === this.modes[0]) {
             // Nothing to do
             return;
@@ -67,7 +67,7 @@ export class ColorVisualization implements Visualization {
         return copy;
     }
 
-    getValueForAttribute(attr: string, data: RowResult): string | number {
+    getValueForAttribute(attr: string, data: MapGeometryWithData): string | number {
         switch (attr) {
             case 'stroke':
                 switch (this.selectedMode) {

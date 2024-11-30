@@ -21,7 +21,7 @@ import {
     ModalTitleDirective,
     PopoverDirective,
 } from '@coreui/angular';
-import {RowResult} from '../../models/RowResult.model';
+import {MapGeometryWithData} from '../../models/RowResult.model';
 import * as GeoJSON from 'geojson';
 import {FeatureCollection} from 'geojson';
 import {MapLayer} from '../../models/MapLayer.model';
@@ -285,7 +285,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
                 ).addData(
                     geojson.features.map(
                         (f, i) =>
-                            new RowResult(
+                            new MapGeometryWithData(
                                 i,
                                 f.geometry,
                                 f.properties ? f.properties : {},
@@ -301,7 +301,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
                     ).addData(
                         this.loadedGeoJsonFile.features.map(
                             (f, i) =>
-                                new RowResult(
+                                new MapGeometryWithData(
                                     i,
                                     f.geometry,
                                     f.properties ? f.properties : {},

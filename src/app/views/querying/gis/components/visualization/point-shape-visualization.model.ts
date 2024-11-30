@@ -1,5 +1,5 @@
 import { Visualization } from '../../models/visualization.interface';
-import { RowResult } from '../../models/RowResult.model';
+import { MapGeometryWithData } from '../../models/RowResult.model';
 import { PointShapeComponent } from './point-shape/point-shape.component';
 
 export class PointShapeVisualization implements Visualization {
@@ -15,7 +15,7 @@ export class PointShapeVisualization implements Visualization {
         this.size = size;
     }
 
-    init(data: RowResult[]): void {
+    init(data: MapGeometryWithData[]): void {
         //
     }
 
@@ -26,7 +26,7 @@ export class PointShapeVisualization implements Visualization {
         return copy;
     }
 
-    getValueForAttribute(attr: string, data: RowResult): string | number {
+    getValueForAttribute(attr: string, data: MapGeometryWithData): string | number {
         if (data.isPoint()) {
             switch (attr) {
                 case 'r':

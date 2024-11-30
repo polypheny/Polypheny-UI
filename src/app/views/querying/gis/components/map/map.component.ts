@@ -5,7 +5,7 @@ import * as d3Geo from 'd3-geo';
 import * as L from 'leaflet';
 import { LayerSettingsService } from '../../services/layersettings.service';
 import { MapLayer } from '../../models/MapLayer.model';
-import { RowResult } from '../../models/RowResult.model';
+import { MapGeometryWithData } from '../../models/RowResult.model';
 import { ButtonDirective, SpinnerComponent } from '@coreui/angular';
 import { NgIf } from '@angular/common';
 
@@ -32,10 +32,10 @@ export class MapComponent implements OnInit, AfterViewInit {
         | undefined;
     private g: d3.Selection<SVGGElement, unknown, null, undefined> | undefined;
     private circles:
-        | d3.Selection<SVGCircleElement, RowResult, SVGGElement, unknown>
+        | d3.Selection<SVGCircleElement, MapGeometryWithData, SVGGElement, unknown>
         | undefined;
     private paths:
-        | d3.Selection<SVGPathElement, RowResult, SVGGElement, unknown>
+        | d3.Selection<SVGPathElement, MapGeometryWithData, SVGGElement, unknown>
         | undefined;
     private pathGenerator!: GeoPath<any, GeoPermissibleObjects>;
     private tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
@@ -200,8 +200,8 @@ export class MapComponent implements OnInit, AfterViewInit {
                 // Remove all previously added elements
                 this.g.selectAll('*').remove();
 
-                const points: RowResult[] = [];
-                const paths: RowResult[] = [];
+                const points: MapGeometryWithData[] = [];
+                const paths: MapGeometryWithData[] = [];
 
                 // Add shapes from each layer to array
                 for (const layer of this.layers.slice().reverse()) {
@@ -257,7 +257,7 @@ export class MapComponent implements OnInit, AfterViewInit {
         }, 0);
     }
 
-    createPoints(points: RowResult[]) {
+    createPoints(points: MapGeometryWithData[]) {
         if (!this.g) {
             return;
         }
@@ -303,7 +303,7 @@ export class MapComponent implements OnInit, AfterViewInit {
             });
     }
 
-    createPaths(paths: RowResult[]) {
+    createPaths(paths: MapGeometryWithData[]) {
         if (!this.g) {
             return;
         }

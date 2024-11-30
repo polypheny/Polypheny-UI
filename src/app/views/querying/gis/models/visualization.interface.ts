@@ -1,6 +1,6 @@
 import { VisualizationConfiguration } from './visualization-configuration.interface';
 import { Type } from '@angular/core';
-import {RowResult} from "./RowResult.model";
+import {MapGeometryWithData} from "./RowResult.model";
 
 export interface Visualization {
     name: string;
@@ -10,7 +10,7 @@ export interface Visualization {
 
     copy(): Visualization;
 
-    init(data: RowResult[]): void;
+    init(data: MapGeometryWithData[]): void;
 
-    getValueForAttribute(attr: string, data: RowResult): string | number;
+    getValueForAttribute(attr: string, data: MapGeometryWithData): string | number;
 }
