@@ -16,7 +16,7 @@ import {MapGeometryWithData} from "../../../views/querying/gis/models/RowResult.
 export class DataMapComponent extends DataTemplateComponent implements AfterViewInit {
     // If the map is shown inside the results section, different styling needs to be applied.
     @Input() isInsideResults : boolean = false;
-    
+
     currentBaseLayer: L.TileLayer | undefined;
     layers: MapLayer[] = [];
     isLoading: boolean = false;

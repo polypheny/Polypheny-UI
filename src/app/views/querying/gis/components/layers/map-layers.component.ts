@@ -170,7 +170,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
             this.updateLayers(this.layers);
         });
 
-        this.updateLayers(getSampleMapLayers());
+        // this.updateLayers(getSampleMapLayers());
     }
 
     @HostListener('window:resize')
