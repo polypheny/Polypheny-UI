@@ -1,4 +1,13 @@
-import {AfterViewInit, Component, ElementRef, HostListener, OnInit, Renderer2} from '@angular/core';
+import {
+    AfterViewInit,
+    Component, effect,
+    ElementRef,
+    HostListener,
+    inject,
+    OnInit,
+    Renderer2, signal, untracked,
+    WritableSignal
+} from '@angular/core';
 import {LayerContext} from '../../models/LayerContext.model';
 import {LayerSettingsService} from '../../services/layersettings.service';
 import {
@@ -40,6 +49,14 @@ import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {ConfigSectionComponent} from '../config-section/config-section.component';
 // noinspection ES6UnusedImports
 import {getSampleMapLayers} from '../../models/get-sample-maplayers';
+import {CrudService} from "../../../../../services/crud.service";
+import {WebSocket} from "../../../../../services/webSocket";
+import {SidebarNode} from "../../../../../models/sidebar-node.model";
+import {RelationalResult, Result} from "../../../../../components/data-view/models/result-set.model";
+import {InformationObject} from "../../../../../models/information-page.model";
+import {WebuiSettingsService} from "../../../../../services/webui-settings.service";
+import {Subscription} from "rxjs";
+import {QueryRequest} from "../../../../../models/ui-request.model";
 
 type BaseLayer = { name: string; value: string };
 
@@ -49,8 +66,6 @@ type BaseLayer = { name: string; value: string };
     imports: [
         FormLabelDirective,
         FormControlDirective,
-        AsyncPipe,
-        NgComponentOutlet,
         NgIf,
         ModalComponent,
         ModalHeaderComponent,
@@ -61,7 +76,6 @@ type BaseLayer = { name: string; value: string };
         ButtonDirective,
         CdkDropList,
         CdkDrag,
-        CdkDragPlaceholder,
         CdkDragHandle,
         InputGroupComponent,
         InputGroupTextDirective,
@@ -74,14 +88,23 @@ type BaseLayer = { name: string; value: string };
         PopoverDirective,
         NgxJsonViewerModule,
         ConfigSectionComponent,
-        ListGroupDirective,
-        ListGroupItemDirective,
+
+
     ],
     templateUrl: './map-layers.component.html',
     styleUrl: './map-layers.component.scss',
     // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MapLayersComponent implements OnInit, AfterViewInit {
+    // DI
+    private readonly _crud = inject(CrudService);
+    private readonly _settings = inject(WebuiSettingsService);
+
+    // Querying
+    websocket: WebSocket;
+    results: WritableSignal<Result<any, any>[]> = signal([]);
+    private subscriptions = new Subscription();
+
     protected baseLayers: BaseLayer[] = [
         {
             name: 'OSM',
@@ -99,17 +122,22 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
     protected selectedBaseLayer: BaseLayer = this.baseLayers[0];
     protected layers: MapLayer[] = [];
     protected renderedLayers: MapLayer[] = [];
+
+    // Add Layer
+    protected query = ""
     protected isAddLayerModalVisible = false;
     protected loadedGeoJsonFile?: GeoJSON.FeatureCollection = undefined;
     protected loadedGeoJsonFileName: string = '';
     protected anyLayersVisible = false;
     protected addLayerModes: LayerContext[] = [
-        LayerContext.Results,
+        // LayerContext.Results,
         LayerContext.Query,
-        LayerContext.DB,
+        // LayerContext.DB,
         LayerContext.External,
     ];
-    protected addLayerMode: LayerContext = LayerContext.DB;
+    protected addLayerMode: LayerContext = LayerContext.Query;
+
+
     protected datasetToUrl = new Map<string, string>([
         ['Genealogy (100, data)', 'gedcom_coordinates_100_data.geojson'],
         ['Genealogy (Full, no data)', 'gedcom_coordinates_full.geojson'],
@@ -133,6 +161,34 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
         private renderer: Renderer2
         // private cdRef: ChangeDetectorRef,
     ) {
+        this.websocket = new WebSocket();
+        this.initWebsocket();
+
+        effect(() => {
+            const res = this.results();
+
+            untracked(() => {
+                console.log(res)
+            })
+        });
+    }
+
+    private initWebsocket() {
+        const sub = this.websocket.onMessage().subscribe({
+            next: msg => {
+                if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSet
+                    this.results.set(<Result<any, any>[]>msg);
+
+                }
+            },
+            error: err => {
+                //this._leftSidebar.setError('Lost connection with the server.');
+                setTimeout(() => {
+                    this.initWebsocket();
+                }, +this._settings.getSetting('reconnection.timeout'));
+            }
+        });
+        this.subscriptions.add(sub);
     }
 
     ngAfterViewInit(): void {
@@ -184,10 +240,10 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
         const endTime = Date.now() + this.pollingDuration;
         this.pollingTimer = setInterval(() => {
             const currentHeight = this.getMapHeight();
-            if (currentHeight != this.lastHeight){
+            if (currentHeight != this.lastHeight) {
                 this.setMapHeight(currentHeight);
             } else {
-                if (Date.now() > endTime){
+                if (Date.now() > endTime) {
                     clearInterval(this.pollingTimer);
                 }
             }
@@ -273,6 +329,12 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
     async addLayer() {
         switch (this.addLayerMode) {
             case LayerContext.Query:
+            // TODO: Run query parse results
+                // TODO: queryLanguage, namespace
+                if (!this._crud.anyQuery(this.websocket, new QueryRequest(this.query, false, false, "MQL", "test"))) {
+                    this.results.set([new RelationalResult('Could not establish a connection with the server.')]);
+                }
+
             case LayerContext.Results:
             case LayerContext.DB:
                 if (!this.selectedPolyphenyDataset) {
@@ -355,4 +417,6 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
 
     protected readonly Object = Object;
     protected readonly LayerContext = LayerContext;
+
+
 }

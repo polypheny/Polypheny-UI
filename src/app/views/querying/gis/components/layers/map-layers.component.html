@@ -131,24 +131,11 @@
                     </select>
                 </c-input-group>
 
-                <div *ngIf="addLayerMode === LayerContext.Results">
-                    <span>TODO</span>
-                </div>
-
                 <div *ngIf="addLayerMode === LayerContext.Query">
-                    <span>TODO</span>
-                </div>
-
-                <div *ngIf="addLayerMode === LayerContext.DB">
-                    <span class="d-block mb-2">Select which dataset will be loaded</span>
-                    <div cListGroup>
-                        <button
-                            cListGroupItem
-                            (click)="selectedPolyphenyDataset = dataset"
-                            [active]="dataset === selectedPolyphenyDataset"
-                            *ngFor="let dataset of polyphenyDatasets">{{ dataset }}
-                        </button>
-                    </div>
+                    <c-input-group>
+                        <span cInputGroupText>Query</span>
+                        <textarea [ngModel]="query" cFormControl aria-label="Query" placeholder="Write query in SQL, MQL or Cypher" [rows]="5" ></textarea>
+                    </c-input-group>
                 </div>
 
                 <div *ngIf="addLayerMode === LayerContext.External">

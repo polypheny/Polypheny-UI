@@ -1,12 +1,13 @@
 import {AfterViewInit, Component, effect, Input} from '@angular/core';
 import {DataTemplateComponent} from '../data-template/data-template.component';
 import * as d3 from 'd3';
-import { GeoPath, GeoPermissibleObjects } from 'd3';
+import {GeoPath, GeoPermissibleObjects} from 'd3';
 import * as d3Geo from 'd3-geo';
 import * as L from 'leaflet';
 import {LayerSettingsService} from "../../../views/querying/gis/services/layersettings.service";
 import {MapLayer} from "../../../views/querying/gis/models/MapLayer.model";
 import {MapGeometryWithData} from "../../../views/querying/gis/models/RowResult.model";
+import {CombinedResult} from "../data-view.model";
 
 @Component({
     selector: 'app-data-map',
@@ -15,7 +16,7 @@ import {MapGeometryWithData} from "../../../views/querying/gis/models/RowResult.
 })
 export class DataMapComponent extends DataTemplateComponent implements AfterViewInit {
     // If the map is shown inside the results section, different styling needs to be applied.
-    @Input() isInsideResults : boolean = false;
+    @Input() isInsideResults: boolean = false;
 
     currentBaseLayer: L.TileLayer | undefined;
     layers: MapLayer[] = [];
@@ -42,6 +43,20 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
     constructor(protected layerSettings: LayerSettingsService) {
         super();
+
+        effect(() => {
+            // This code is only called when the map is shown inside the results.
+            const result = this.$result();
+            if (!result) {
+                return;
+            }
+            this.createLayerFromResult(result)
+        });
+    }
+
+    createLayerFromResult(result: CombinedResult) {
+        this.layers = [ MapLayer.from(result) ]
+        this.renderLayersWithD3()
     }
 
     ngOnInit() {
@@ -103,7 +118,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             this.stream.point(point.x, point.y);
         }
 
-        const transform = d3Geo.geoTransform({ point: projectPoint });
+        const transform = d3Geo.geoTransform({point: projectPoint});
         this.pathGenerator = d3Geo.geoPath().projection(transform);
 
         this.map.on('zoomend', () => {
@@ -239,7 +254,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
                 // Center the map around the data.
                 // TODO: Do the same thing for paths.
-                const latLngs : L.LatLng[] = [];
+                const latLngs: L.LatLng[] = [];
                 this.circles!.each(d => {
                     // d has the property geometry, which is a GeoJSON point of type
                     latLngs.push(L.latLng(d.getPoint().coordinates[1], d.getPoint().coordinates[0],));
@@ -249,7 +264,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 // and zooming back in can be very slow. (if the points are all over the world)
                 if (latLngs.length > 0 && latLngs.length <= 1000) {
                     const latLngBounds = L.latLngBounds(latLngs);
-                    if (latLngBounds.isValid()){
+                    if (latLngBounds.isValid()) {
                         this.map.fitBounds(latLngBounds);
                     }
                 }

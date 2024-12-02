@@ -176,7 +176,11 @@ export class DataViewComponent implements OnDestroy {
     }
 
     showAny(): boolean {
-        return !(this.$dataModel() === DataModel.RELATIONAL || this.$dataModel() === DataModel.DOCUMENT);
+        // TODO: Control should be more fine-grained.
+        //   - Relational: Table, map
+        //   - Document: Cards, map
+        //   - Graph: Table / Cards, Graph, map
+        return true;
 
     }
 

@@ -5,6 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve -o",
+    "start2": "ng serve --no-live-reload -o",
     "build": "ng build --configuration production --aot --optimization --progress --extract-licenses",
     "test": "ng test",
     "lint": "ng lint",
