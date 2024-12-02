@@ -34,14 +34,14 @@ export class MapLayer {
 
         switch (result.dataModel) {
             case DataModel.DOCUMENT:
-                for (let i = 0; i < result.data.length; i++) {
-                    const json = result.data[i][0];
+                for (let rowIndex = 0; rowIndex < result.data.length; rowIndex++) {
+                    const json = result.data[rowIndex][0];
                     const jsonObject: Record<string, any> = Object.fromEntries(
                         Object.entries(JSON.parse(json)).map(([key, value]) => [key.toLowerCase(), value])
                     );
                     const geometry = this.getGeometryFromData(jsonObject);
                     if (geometry) {
-                        const geometryWithData = new MapGeometryWithData(i, geometry, jsonObject);
+                        const geometryWithData = new MapGeometryWithData(rowIndex, geometry, jsonObject);
                         mapData.push(geometryWithData);
                     }
                 }
@@ -49,11 +49,11 @@ export class MapLayer {
             case DataModel.RELATIONAL:
                 for (let rowIndex = 0; rowIndex < result.data.length; rowIndex++) {
                     const map = new Map<string, any>();
-                    for (let i = 0; i < result.header.length; i++) {
+                    for (let headerIndex = 0; headerIndex < result.header.length; headerIndex++) {
                         // TODO: Geometry objects
-                        const header = result.header[i];
+                        const header = result.header[headerIndex];
                         const key = header.name.toLowerCase();
-                        const value = result.data[rowIndex][i];
+                        const value = result.data[rowIndex][headerIndex];
                         if (header.dataType.startsWith('INTEGER')) {
                             map.set(key, parseInt(value, 10));
                         } else if (header.dataType.startsWith('DECIMAL')) {
@@ -71,6 +71,34 @@ export class MapLayer {
                 }
                 break;
             case DataModel.GRAPH:
+                for (let rowIndex = 0; rowIndex < result.data.length; rowIndex++) {
+                    const map = new Map<string, any>();
+                    for (let headerIndex = 0; headerIndex < result.header.length; headerIndex++) {
+                        const header = result.header[headerIndex];
+                        const key = header.name.toLowerCase();
+                        const datatype = header.dataType;
+                        const value = result.data[rowIndex][headerIndex];
+
+                        if (datatype.startsWith('NODE')) {
+                            const json = JSON.parse(value);
+                            const properties = json['properties'];
+                            const propertiesLowercase: Record<string, any> = Object.fromEntries(
+                                Object.entries(properties).map(([key, value]) => [key.toLowerCase(), value])
+                            );
+                            // Node stored as JSON
+                            map.set(key, propertiesLowercase);
+                        } else {
+                            // Other value
+                            map.set(key, value);
+                        }
+                    }
+
+                    const geometry = this.getGeometryFromData(map);
+                    if (geometry) {
+                        const geometryWithData = new MapGeometryWithData(rowIndex, geometry, map);
+                        mapData.push(geometryWithData);
+                    }
+                }
                 break;
             default:
                 throw Error(`Cannot convert CombinedResult to MapLayer. Unknown document model: ${result.dataModel}`);
