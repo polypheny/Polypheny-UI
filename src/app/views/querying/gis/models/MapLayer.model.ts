@@ -1,14 +1,19 @@
 import {Visualization} from './visualization.interface';
 import {MapGeometryWithData} from './RowResult.model';
 import {ColorVisualization} from '../components/visualization/color-visualization-model';
-import {AreaShapeVisualization} from "../components/visualization/area-shape-visualization.model";
-import {LabelVisualization} from "../components/visualization/label-visualization-model";
-import {PointShapeVisualization} from "../components/visualization/point-shape-visualization.model";
-import {CombinedResult} from "../../../../components/data-view/data-view.model";
-import {DataModel} from "../../../../models/ui-request.model";
-import {GeoJSON, Geometry} from "geojson";
+import {AreaShapeVisualization} from '../components/visualization/area-shape-visualization.model';
+import {LabelVisualization} from '../components/visualization/label-visualization-model';
+import {PointShapeVisualization} from '../components/visualization/point-shape-visualization.model';
+import {CombinedResult} from '../../../../components/data-view/data-view.model';
+import {DataModel} from '../../../../models/ui-request.model';
+import {Geometry} from 'geojson';
 
 export class MapLayer {
+
+    constructor(name: string) {
+        this.name = name;
+    }
+
     name: string;
     data: MapGeometryWithData[] = [];
 
@@ -18,12 +23,98 @@ export class MapLayer {
     labelVisualization: Visualization = new LabelVisualization();
 
     // Computed (Not used in copy)
-    isActive: boolean = true;
-    isRemoved: boolean = false;
-    index: number = -1;
+    isActive = true;
+    isRemoved = false;
+    index = -1;
 
-    constructor(name: string) {
-        this.name = name;
+    static from(result: CombinedResult): MapLayer {
+        console.log(result);
+        const layer = new MapLayer('Query');
+        const mapData = [];
+
+        switch (result.dataModel) {
+            case DataModel.DOCUMENT:
+                for (let i = 0; i < result.data.length; i++) {
+                    const json = result.data[i][0];
+                    const jsonObject: Record<string, any> = Object.fromEntries(
+                        Object.entries(JSON.parse(json)).map(([key, value]) => [key.toLowerCase(), value])
+                    );
+                    const geometry = this.getGeometryFromData(jsonObject);
+                    if (geometry) {
+                        const geometryWithData = new MapGeometryWithData(i, geometry, jsonObject);
+                        mapData.push(geometryWithData);
+                    }
+                }
+                break;
+            case DataModel.RELATIONAL:
+                for (let rowIndex = 0; rowIndex < result.data.length; rowIndex++) {
+                    const map = new Map<string, any>();
+                    for (let i = 0; i < result.header.length; i++) {
+                        // TODO: Geometry objects
+                        const header = result.header[i];
+                        const key = header.name.toLowerCase();
+                        const value = result.data[rowIndex][i];
+                        if (header.dataType.startsWith('INTEGER')) {
+                            map.set(key, parseInt(value, 10));
+                        } else if (header.dataType.startsWith('DECIMAL')) {
+                            map.set(key, parseFloat(value));
+                        } else {
+                            map.set(key, value);
+                        }
+                    }
+                    const geometry = this.getGeometryFromData(map);
+                    console.log(geometry);
+                    if (geometry) {
+                        const geometryWithData = new MapGeometryWithData(rowIndex, geometry, map);
+                        mapData.push(geometryWithData);
+                    }
+                }
+                break;
+            case DataModel.GRAPH:
+                break;
+            default:
+                throw Error(`Cannot convert CombinedResult to MapLayer. Unknown document model: ${result.dataModel}`);
+        }
+        layer.addData(mapData);
+        console.log('Created layer: ', layer);
+        return layer;
+    }
+
+    static getGeometryFromData(data: Record<string, any>): Geometry | undefined {
+        // GeoJSON object
+        if ('geometry' in data) {
+            return data['geometry'];
+        }
+
+        // Detect 2 columns that store latitude / longitude coordinates
+        const latLong = [
+            ['lat', 'lon'],
+            ['latitude', 'longitude'],
+            ['lati', 'long'],
+        ];
+        const isNumber = (value: any): boolean => {
+            return typeof value === 'number' && !isNaN(value);
+        };
+
+        for (const ll of latLong) {
+            const lat = ll[0];
+            const lon = ll[1];
+
+            if (data.has(lat) &&
+                data.has(lon) &&
+                isNumber(data.get(lat)) &&
+                isNumber(data.get(lon))) {
+                return {
+                    type: 'Point',
+                    coordinates: [data.get(lon), data.get(lat)]
+                };
+            }
+        }
+
+        // TODO: Detect heuristic, so that we can automatically detect the most common geometry types
+        //   - string in wkt format
+
+        return undefined;
     }
 
     copy() {
@@ -44,68 +135,5 @@ export class MapLayer {
         data.forEach((d) => (d.layer = this));
         this.data.push(...data);
         return this;
-    }
-
-    static from(result: CombinedResult): MapLayer {
-        console.log(result)
-        const layer = new MapLayer("Query")
-        const mapData = []
-
-        switch (result.dataModel) {
-            case DataModel.DOCUMENT:
-                for (let i = 0; i < result.data.length; i++) {
-                    const json = result.data[i][0];
-                    const jsonObject: Record<string, any> = JSON.parse(json)
-                    const geometry = this.getGeometryFromData(jsonObject)
-                    if (geometry) {
-                        const geometryWithData = new MapGeometryWithData(i, geometry, jsonObject)
-                        mapData.push(geometryWithData)
-                    }
-                }
-                break;
-            case DataModel.RELATIONAL:
-                break;
-            case DataModel.GRAPH:
-                break;
-            default:
-                throw Error(`Cannot convert CombinedResult to MapLayer. Unknown document model: ${result.dataModel}`);
-        }
-        layer.addData(mapData);
-        return layer
-    }
-
-    static getGeometryFromData(data: Record<string, any>): Geometry | undefined {
-        // GeoJSON object
-        if ("geometry" in data) {
-            return data["geometry"]
-        }
-
-        // Detect 2 columns that store lattidue / longitude coordinates
-        const latLong = [
-            ["lat", "lon"],
-            ["latitude", "longitude"],
-            ["lati", 'long'],
-        ]
-        const isNumber = (value: any): boolean => {
-            return typeof value === 'number' && !isNaN(value);
-        };
-
-        for (const ll of latLong) {
-            const lat = ll[0]
-            const lon = ll[1]
-
-            if (lat in data && lon in data && isNumber(data[lat]) && isNumber(data[lon])) {
-                return {
-                    type: "Point",
-                    coordinates: [data[lat], data[lon]]
-                }
-            }
-        }
-
-        // TODO: Detect heuristic, so that we can automatically detect the most common geometry types
-        //   - string in wkt format
-        //   - If we are inside SQL, we should be able to use the schema, to detect Geometry objects?
-
-        return undefined
     }
 }
