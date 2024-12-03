@@ -50,13 +50,10 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             if (!result) {
                 return;
             }
-            this.createLayerFromResult(result)
-        });
-    }
 
-    createLayerFromResult(result: CombinedResult) {
-        this.layers = [MapLayer.from(result)]
-        this.renderLayersWithD3()
+            // Create layer from results
+            this.layerSettings.setLayers([MapLayer.from(result)])
+        });
     }
 
     ngOnInit() {
@@ -82,6 +79,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         });
 
         this.layerSettings.layers$.subscribe((layers) => {
+            console.log("data-map.component.ts layerSettings.layers$.subscribe(). Layers=", layers)
             if (!layers || !layers.length) {
                 return;
             }
