@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, effect, Input} from '@angular/core';
+import {AfterViewInit, Component, effect, Input, OnDestroy} from '@angular/core';
 import {DataTemplateComponent} from '../data-template/data-template.component';
 import * as d3 from 'd3';
 import {GeoPath, GeoPermissibleObjects} from 'd3';
@@ -14,12 +14,13 @@ import {CombinedResult} from "../data-view.model";
     templateUrl: './data-map.component.html',
     styleUrls: ['./data-map.component.scss']
 })
-export class DataMapComponent extends DataTemplateComponent implements AfterViewInit {
+export class DataMapComponent extends DataTemplateComponent implements AfterViewInit, OnDestroy {
     // If the map is shown inside the results section, different styling needs to be applied.
     @Input() isInsideResults: boolean = false;
 
     currentBaseLayer: L.TileLayer | undefined;
     layers: MapLayer[] = [];
+    resultLayer? : MapLayer = undefined;
     isLoading: boolean = false;
     isLoadingMessage: string = 'TODO isLoadingMessage';
     canRerenderLayers: boolean = false;
@@ -51,8 +52,12 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 return;
             }
 
-            // Create layer from results
-            this.layerSettings.setLayers([MapLayer.from(result)])
+            // I could send the query string to the layers settings, and execute it there.
+
+            // this.resultLayer = MapLayer.from(result);
+
+            // TODO: If there already are results in the map query view,
+            // this.layerSettings.setLayers([MapLayer.from(result), ...this.layers])
         });
     }
 
@@ -80,10 +85,6 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
         this.layerSettings.layers$.subscribe((layers) => {
             console.log("data-map.component.ts layerSettings.layers$.subscribe(). Layers=", layers)
-            if (!layers || !layers.length) {
-                return;
-            }
-
             this.layers = layers;
             this.renderLayersWithD3();
         });
@@ -95,6 +96,11 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         this.layerSettings.toggleLayerVisibility$.subscribe((layer) => {
             this.toggleLayerVisibility(layer);
         });
+    }
+
+    ngOnDestroy() {
+        // TODO: This breaks the navigation from results to map query view
+        // this.layerSettings.setLayers([])
     }
 
     ngAfterViewInit(): void {

@@ -1,5 +1,5 @@
 import {
-    AfterViewInit,
+    AfterViewInit, ChangeDetectorRef,
     Component, effect,
     ElementRef,
     HostListener,
@@ -56,7 +56,9 @@ import {RelationalResult, Result} from "../../../../../components/data-view/mode
 import {InformationObject} from "../../../../../models/information-page.model";
 import {WebuiSettingsService} from "../../../../../services/webui-settings.service";
 import {Subscription} from "rxjs";
-import {QueryRequest} from "../../../../../models/ui-request.model";
+import {EntityRequest, QueryRequest} from "../../../../../models/ui-request.model";
+import {CombinedResult} from "../../../../../components/data-view/data-view.model";
+import {CatalogService} from "../../../../../services/catalog.service";
 
 type BaseLayer = { name: string; value: string };
 
@@ -99,6 +101,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
     // DI
     private readonly _crud = inject(CrudService);
     private readonly _settings = inject(WebuiSettingsService);
+    public readonly _catalog = inject(CatalogService);
 
     // Querying
     websocket: WebSocket;
@@ -124,7 +127,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
     protected renderedLayers: MapLayer[] = [];
 
     // Add Layer
-    protected query = ""
+    protected query = "db.geoCollection2.find({})"
     protected isAddLayerModalVisible = false;
     protected loadedGeoJsonFile?: GeoJSON.FeatureCollection = undefined;
     protected loadedGeoJsonFileName: string = '';
@@ -158,26 +161,44 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
     constructor(
         protected layerSettings: LayerSettingsService,
         private el: ElementRef,
-        private renderer: Renderer2
-        // private cdRef: ChangeDetectorRef,
+        private renderer: Renderer2,
     ) {
         this.websocket = new WebSocket();
         this.initWebsocket();
 
-        // effect(() => {
-        //     const res = this.results();
-        // });
+        effect(() => {
+            const res = this.results();
+            console.log("res=", res)
+            if (res.length > 0){
+                const combinedResult = CombinedResult.from(res[0])
+                console.log("CombinedResult=", combinedResult)
+                this.updateLayers([ MapLayer.from(combinedResult) ])
+
+                if (combinedResult.hasMore){
+                    // TODO: What is EntityID and why is it null?
+                    const request = new EntityRequest(combinedResult.entityId, combinedResult.namespace, combinedResult.currentPage);
+                    console.log("get more")
+
+                    if (!this._crud.getEntityData(this.websocket, request)) {
+                        console.log("Error getEntityData")
+                        // this.results.set(CombinedResult.fromRelational(new RelationalResult('Could not establish a connection with the server.')));
+                    }
+                }
+
+            }
+        });
     }
 
     private initWebsocket() {
         const sub = this.websocket.onMessage().subscribe({
             next: msg => {
+                console.log("websocket.msg=", msg)
                 if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSet
                     this.results.set(<Result<any, any>[]>msg);
-
                 }
             },
             error: err => {
+                console.log("websocket.err=", err)
                 //this._leftSidebar.setError('Lost connection with the server.');
                 setTimeout(() => {
                     this.initWebsocket();
@@ -195,14 +216,11 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
         console.log("map-layers.component.ts ngOnInit(). Layers=", this.layers)
 
         this.layerSettings.layers$.subscribe((layers) => {
-            if (!layers) {
-                return;
-            }
-
-            this.layers = [...layers];
+            this.layers = layers;
             console.log("map-layers.component layerSettings.subscribe: ", this.layers)
             this.renderedLayers = this.deepCopyLayers(layers);
             this.layerSettings.setCanRerenderLayers(false);
+            this.updateLayerUi();
         });
 
         this.layerSettings.modifiedVisualization$.subscribe((config) => {
@@ -329,12 +347,14 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
     async addLayer() {
         switch (this.addLayerMode) {
             case LayerContext.Query:
-            // TODO: Run query parse results
                 // TODO: queryLanguage, namespace
                 if (!this._crud.anyQuery(this.websocket, new QueryRequest(this.query, false, false, "MQL", "test"))) {
                     this.results.set([new RelationalResult('Could not establish a connection with the server.')]);
+                    console.log("Querry error")
+                } else {
+                    console.log("Querry success")
                 }
-
+                break
             case LayerContext.Results:
             case LayerContext.DB:
                 if (!this.selectedPolyphenyDataset) {
