@@ -135,7 +135,8 @@ export class DataGraphComponent extends DataTemplateComponent {
             .force('center', d3.forceCenter(width / 2, height / 2))
             .force('charge', d3.forceManyBody().strength(-this.initialNodeIds.size))
             .force('collide', d3.forceCollide(100).strength(0.9).radius(40))
-            .force('link', d3.forceLink().id(d => d.id).distance(160));
+            // TODO TS2339: Property id does not exist on type SimulationNodeDatum
+            // .force('link', d3.forceLink().id(d => d.id).distance(160));
 
 
         // disable charge after initial setup
@@ -333,13 +334,15 @@ export class DataGraphComponent extends DataTemplateComponent {
             t = newOverlay.append('path').attr('fill', 'transparent')
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'transparent')
-                .attr('d', arc({startAngle: -(Math.PI / 3), endAngle: (Math.PI / 3)}));
+                // TODO TS2769: No overload matches this call.
+                // .attr('d', arc({startAngle: -(Math.PI / 3), endAngle: (Math.PI / 3)}));
 
             right = newOverlay.append('path').attr('fill', 'grey')
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
                 .style('cursor', 'pointer')
-                .attr('d', arc({startAngle: 0, endAngle: Math.PI}))
+                // TODO TS2769: No overload matches this call.
+                // .attr('d', arc({startAngle: 0, endAngle: Math.PI}))
                 .on('mouseover', function (d) {
                     d3.select(this).attr('fill', 'darkgray');
                 })
@@ -366,7 +369,8 @@ export class DataGraphComponent extends DataTemplateComponent {
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
                 .style('cursor', 'pointer')
-                .attr('d', arc({startAngle: -Math.PI, endAngle: 0}))
+                // TODO TS2769: No overload matches this call.
+                // .attr('d', arc({startAngle: -Math.PI, endAngle: 0}))
                 .on('mouseover', function (d) {
                     d3.select(this).attr('fill', 'darkgray');
                 })
@@ -514,13 +518,16 @@ export class DataGraphComponent extends DataTemplateComponent {
         function activate() {
             // Attach nodes to the simulation, add listener on the "tick" event
             simulation
-                .nodes(graph.nodes)
+                // TODO TS2345: Argument of type Node[] is not assignable to parameter of type SimulationNodeDatum[]
+                //        Type Node has no properties in common with type SimulationNodeDatum
+                // .nodes(graph.nodes)
                 .on('tick', onTick);
 
             // Associate the lines with the "link" force
             simulation
                 .force('link')
-                .links(graph.edges);
+                // TODO TS2339: Property links does not exist on type Force<SimulationNodeDatum, undefined>
+                // .links(graph.edges);
 
             simulation.alpha(1).alphaTarget(0).restart();
         }

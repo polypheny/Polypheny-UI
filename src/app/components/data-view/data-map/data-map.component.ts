@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import {GeoPath, GeoPermissibleObjects} from 'd3';
 import * as d3Geo from 'd3-geo';
 import * as L from 'leaflet';
+import 'leaflet-draw';
 import {LayerSettingsService} from "../../../views/querying/gis/services/layersettings.service";
 import {MapLayer} from "../../../views/querying/gis/models/MapLayer.model";
 import {MapGeometryWithData} from "../../../views/querying/gis/models/RowResult.model";
@@ -20,7 +21,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
     currentBaseLayer: L.TileLayer | undefined;
     layers: MapLayer[] = [];
-    resultLayer? : MapLayer = undefined;
+    resultLayer?: MapLayer = undefined;
     isLoading: boolean = false;
     isLoadingMessage: string = 'TODO isLoadingMessage';
     canRerenderLayers: boolean = false;
@@ -106,6 +107,22 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     ngAfterViewInit(): void {
         const leafletMap = L.map('map').setView([52, 10], this.INITIAL_ZOOM);
         this.map = leafletMap;
+
+        // Leaflet.Draw edit toolbar
+        const drawnItems = new L.FeatureGroup();
+        leafletMap.addLayer(drawnItems);
+        const drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems
+            }
+        });
+        leafletMap.addControl(drawControl);
+
+        leafletMap.on(L.Draw.Event.CREATED, function (event) {
+            const layer = event.layer
+            drawnItems.addLayer(layer);
+        });
+
         this.svg = d3.select(this.map.getPanes().overlayPane).append('svg');
         this.g = this.svg.append('g').attr('class', 'leaflet-zoom-hide');
         this.tooltip = d3
