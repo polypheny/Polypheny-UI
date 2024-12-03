@@ -164,13 +164,9 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
         this.websocket = new WebSocket();
         this.initWebsocket();
 
-        effect(() => {
-            const res = this.results();
-
-            untracked(() => {
-                console.log(res)
-            })
-        });
+        // effect(() => {
+        //     const res = this.results();
+        // });
     }
 
     private initWebsocket() {
@@ -196,17 +192,17 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit(): void {
+        console.log("map-layers.component.ts ngOnInit(). Layers=", this.layers)
+
         this.layerSettings.layers$.subscribe((layers) => {
             if (!layers) {
                 return;
             }
 
-            this.layers = layers;
+            this.layers = [...layers];
+            console.log("map-layers.component layerSettings.subscribe: ", this.layers)
             this.renderedLayers = this.deepCopyLayers(layers);
             this.layerSettings.setCanRerenderLayers(false);
-
-            // Disable Change Detection and manually trigger to prevent rerenders when mouse moves
-            // this.cdRef.markForCheck();
         });
 
         this.layerSettings.modifiedVisualization$.subscribe((config) => {
@@ -227,6 +223,10 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
         });
 
         // this.updateLayers(getSampleMapLayers());
+    }
+
+    trackByLayerName(index: number, layer: MapLayer): string {
+        return layer.name;
     }
 
     @HostListener('window:resize')

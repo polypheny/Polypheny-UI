@@ -40,7 +40,10 @@
   padding: 2rem;
 }
 
-.render-button {
+.map-overlay-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
   position: absolute;
   z-index: 3;
   bottom: 2rem;

@@ -55,11 +55,14 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     }
 
     createLayerFromResult(result: CombinedResult) {
-        this.layers = [ MapLayer.from(result) ]
+        this.layers = [MapLayer.from(result)]
         this.renderLayersWithD3()
     }
 
     ngOnInit() {
+        // Reset data on map
+        console.log("data-map.component.ts ngOnInit(). Layers=", this.layers)
+
         this.layerSettings.selectedBaseLayer$.subscribe((item) => {
             if (!item) {
                 return;
@@ -259,7 +262,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                     // d has the property geometry, which is a GeoJSON point of type
                     latLngs.push(L.latLng(d.getPoint().coordinates[1], d.getPoint().coordinates[0],));
                 });
-                console.log(latLngs)
+
                 // TODO: Currently, only do this, if the dataset is not too big. Otherwise we zoom way out,
                 // and zooming back in can be very slow. (if the points are all over the world)
                 if (latLngs.length > 0 && latLngs.length <= 1000) {
@@ -388,11 +391,19 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
         layerElements.forEach((elem) => {
             if (layer.isActive) {
-                elem.classList.remove('layer-hidden');
+                elem.classList.remove('map-layer-hidden');
             } else {
-                elem.classList.add('layer-hidden');
+                elem.classList.add('map-layer-hidden');
             }
         });
+    }
+
+    navigateToMapQueryMode() {
+        // TODO: The layer that was created from the results only contains the first 10 rows. We somehow need to
+        //       also need to give the map view a way to load the rest of the results.
+        console.log("Map layers before navigation", this.layers)
+        this.layerSettings.setLayers(this.layers)
+        this._router.navigate(['/views/querying/gis'])
     }
 }
 

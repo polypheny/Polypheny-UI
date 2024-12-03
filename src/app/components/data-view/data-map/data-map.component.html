@@ -1,19 +1,24 @@
-<div [ngClass]="isInsideResults ? '' : 'map-margin' " >
-    <div class="map-container" [ngClass]="isInsideResults ? 'inside-results' : '' " >
+<div [ngClass]="isInsideResults ? '' : 'map-margin' ">
+    <div class="map-container" [ngClass]="isInsideResults ? 'inside-results' : '' ">
         <div id="map"></div>
         <div *ngIf="this.loading()" class="map-overlay">
             <div class="spinner-container">
                 <c-spinner color="light">
-                    <!--                <span class="visually-hidden">{{ this.isLoadingMessage }}</span>-->
+                    <span class="visually-hidden">{{ this.isLoadingMessage }}</span>
                     <span class="visually-hidden">Loading...</span>
                 </c-spinner>
-                <!--            <span>{{ this.isLoadingMessage }}</span>-->
+                <span>{{ this.isLoadingMessage }}</span>
                 <span class="visually-hidden">Loading...</span>
             </div>
         </div>
-        <!--    <button *ngIf="this.canRerenderLayers" (click)="this.layerSettings.rerenderButtonClicked()"-->
-        <!--            class="shadow-lg render-button" cButton color="primary">Refresh layers-->
-        <!--    </button>-->
+        <div class="map-overlay-buttons">
+            <button *ngIf="this.canRerenderLayers" (click)="this.layerSettings.rerenderButtonClicked()"
+                    class="shadow-lg" cButton color="primary">Refresh layers
+            </button>
+            <button *ngIf="isInsideResults" (click)="navigateToMapQueryMode()"
+                    class="shadow-lg" cButton color="primary">See full results in map-based query mode
+            </button>
+        </div>
     </div>
 </div>
 

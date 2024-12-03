@@ -104,6 +104,7 @@ export class MapLayer {
                 throw Error(`Cannot convert CombinedResult to MapLayer. Unknown document model: ${result.dataModel}`);
         }
         layer.addData(mapData);
+        layer.index = 1;
         console.log('Created layer: ', layer);
         return layer;
     }
