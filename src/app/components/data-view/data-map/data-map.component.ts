@@ -114,11 +114,21 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         const drawControl = new L.Control.Draw({
             edit: {
                 featureGroup: drawnItems
+            },
+            draw: {
+                circle: false,
+                marker: false,
+                polyline: false,
+                rectangle: false,
+                circlemarker: false
             }
         });
         leafletMap.addControl(drawControl);
 
         leafletMap.on(L.Draw.Event.CREATED, function (event) {
+
+            // TODO: What is the best way to use this shape to add a filter to another layer?
+            //         - We could add this shape as its own layer.
             const layer = event.layer
             drawnItems.addLayer(layer);
         });
