@@ -4,36 +4,8 @@
            (keyup.shift.alt)="revertCache()" (keydown.alt.shift.enter)="submitQuery()"
            (keydown.alt.enter)="submitQuery()">
         <c-col class="col-lg-8 col-md-8 col-sm-12 mb-3">
-            <div class="list-group grey-border" id="console">
-                <div id="console-item-head" *ngIf="usesAdvancedConsole(language())"
-                     class="list-group-item header grey-bg"
-                     (dblclick)="toggleNamespaceField()">
-                    <span *ngIf="showNamespaceConfig"
-                          class="document-db-info"><span>Namespace: {{activeNamespace()}}</span></span>
-                    <div *ngIf="!showNamespaceConfig" class="advanced-console-db-info">
-                        <span class="document-db-info"><span>Namespace: </span></span>
-                        <select class="form-control form-control-sm advanced-console-db-info"
-                                [ngModel]="activeNamespace()"
-                                (ngModelChange)="changedDefaultDB($event)">
-                            <option *ngFor="let namespace of namespaces()"
-                                    [ngValue]="namespace.name">{{namespace.name}}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <button cButton color="primary" size="sm" type="submit" class="pull-right"
-                                (click)="clearConsole()"><i
-                                class="cil-trash"></i></button>
-                        <button cButton color="primary" size="sm" type="submit" class="pull-right me-1"
-                                (click)="formatQuery()"><i
-                                class="cil-clear-all"></i></button>
-                    </div>
-
-                </div>
-                <div class="form-group"
-                     [ngClass]="usesAdvancedConsole(language()) ? 'advanced-console': 'simple-console'">
-                    <app-editor [language]="language()" #editor id="query-editor"></app-editor>
-                </div>
-            </div>
+            <app-query-editor [activeNamespace]="activeNamespace" [language]="language">
+            </app-query-editor>
         </c-col>
         <c-col class="col-lg-4 col-md-4 col-sm-12 mb-3">
             <ul class="list-group" id="history-header">
@@ -64,11 +36,11 @@
                     (click)="applyHistory( h.value.query, h.value.lang, false )"
                     (dblclick)="applyHistory( h.value.query, h.value.lang, true)">
                     <div class="history-time-wrapper">
-                        <small class="time" style="text-transform: uppercase;">{{h.value.lang}}</small>
-                        <small class="time">{{h.value.displayTime()}}</small>
-                        <small class="time">{{h.value.fromNow()}}</small>
+                        <small class="time" style="text-transform: uppercase;">{{ h.value.lang }}</small>
+                        <small class="time">{{ h.value.displayTime() }}</small>
+                        <small class="time">{{ h.value.fromNow() }}</small>
                     </div>
-                    <div>{{_util.limitedString(h.value.query)}}</div>
+                    <div>{{ _util.limitedString(h.value.query) }}</div>
 
                     <button cButton color="light" size="sm" class="del-hist-item"
                             [ngClass]="confirmDeletingHistory === h.key ? 'cil-warning' : 'cil-trash'"
@@ -98,22 +70,13 @@
                     <label cFormCheckLabel for="checkbox2">save in history</label>
                 </c-form-check>
 
-
-                <c-input-group cCol>
-                    <select class="form-control btn pull-right me-1 border bg-white" [ngModel]="language()"
-                            (ngModelChange)="setLanguage($event)" *ngIf="!loading()">
-                        <option value="cypher">CYPHER</option>
-                        <option value="sql">SQL</option>
-                        <option value="mql">MQL</option>
-                        <option value="cql">CQL</option>
-                        <option value="pig">PIG</option>
-                    </select>
-                    <button *ngIf="!loading()" cButton type="submit" color="primary" (click)="submitQuery()">Execute
-                    </button>
-                    <button *ngIf="loading()" type="submit" cButton color="primary"
-                            class="progress-bar-striped progress-bar-animated align-self-end" disabled>Loading
-                    </button>
-                </c-input-group>
+                <app-submit-execute-button cCol
+                                           [loading]="loading()"
+                                           [language]="language()"
+                                           (languageChange)="setLanguage($event)"
+                                           (submitQuery)="submitQuery()">
+                    >
+                </app-submit-execute-button>
             </c-row>
         </c-col>
     </c-row>
@@ -135,9 +98,9 @@
                 <c-card-header
                         [ngClass]="{'pointer': results().length > 1, 'open': collapsed !== undefined && collapsed[i]}"
                         (click)="toggleCollapsed(i)">
-                    <span>{{result.query}}</span>
+                    <span>{{ result.query }}</span>
                     <c-badge class="pull-right" [color]="result.error ? 'danger' : 'secondary'">
-                        <ng-container *ngIf="!result.error">{{result.affectedTuples}}</ng-container>
+                        <ng-container *ngIf="!result.error">{{ result.affectedTuples }}</ng-container>
                         <ng-container *ngIf="result.error">!</ng-container>
                     </c-badge>
                 </c-card-header>

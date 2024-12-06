@@ -28,6 +28,8 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 import {ViewInformation} from '../../../components/data-view/data-view.component';
 import {CatalogService} from '../../../services/catalog.service';
 import {NamespaceModel} from '../../../models/catalog.model';
+import {usesAdvancedConsole} from "./components/console-helper";
+import {QueryEditor} from "./components/code-editor/query-editor.component";
 
 @Component({
     selector: 'app-console',
@@ -35,23 +37,21 @@ import {NamespaceModel} from '../../../models/catalog.model';
     styleUrls: ['./console.component.scss']
 })
 export class ConsoleComponent implements OnInit, OnDestroy {
-
     private readonly _crud = inject(CrudService);
     private readonly _leftSidebar = inject(LeftSidebarService);
     private readonly _breadcrumb = inject(BreadcrumbService);
     private readonly _settings = inject(WebuiSettingsService);
     public readonly _util = inject(UtilService);
-    public readonly _toast = inject(ToasterService);
     public readonly _catalog = inject(CatalogService);
     private readonly _sidebar = inject(LeftSidebarService);
 
-    @ViewChild('editor', {static: false}) codeEditor;
     @ViewChild('historySearchInput') historySearchInput;
+    @ViewChild(QueryEditor) queryEditor!: QueryEditor;
 
     history: Map<string, QueryHistory> = new Map<string, QueryHistory>();
     readonly MAX_HISTORY = 50; //maximum items in history
     private readonly LOCAL_STORAGE_HISTORY_KEY = 'query-history';
-    private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
+    readonly activeNamespace: WritableSignal<string> = signal(null);
 
     results: WritableSignal<Result<any, any>[]> = signal([]);
     collapsed: boolean[];
@@ -64,12 +64,13 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private subscriptions = new Subscription();
     readonly loading: WritableSignal<boolean> = signal(false);
     readonly language: WritableSignal<string> = signal('sql');
+    readonly query: WritableSignal<string> = signal('');
+
     saveInHistory = true;
     showSearch = false;
     historySearchQuery = '';
     confirmDeletingHistory;
-    readonly activeNamespace: WritableSignal<string> = signal(null);
-    readonly namespaces: WritableSignal<NamespaceModel[]> = signal([]);
+
     delayedNamespace: string = null
 
     entityConfig: EntityConfig = {
@@ -80,7 +81,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         search: false,
         exploring: false
     };
-    showNamespaceConfig: boolean;
 
     constructor() {
         this.websocket = new WebSocket();
@@ -88,20 +88,14 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         // @ts-ignore
         if (window.Cypress) {
             (<any>window).executeQuery = (query: string) => {
-                this.codeEditor.setCode(query);
+                this.queryEditor.setCode(query);
+                this.query.set(query)
                 this.submitQuery();
             };
         }
 
         this.initWebsocket();
-
-        effect(() => {
-            const namespace = this._catalog.namespaces();
-            untracked(() => {
-                this.namespaces.set(Array.from(namespace.values()));
-            });
-        });
-
+        
         effect(() => {
             const res = this.results();
 
@@ -116,27 +110,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     ngOnInit() {
         QueryHistory.fromJson(localStorage.getItem(this.LOCAL_STORAGE_HISTORY_KEY), this.history);
         this._breadcrumb.hide();
-
-        this.loadAndSetNamespaceDB();
-    }
-
-    private loadAndSetNamespaceDB() {
-        let namespaceName = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
-
-        if (namespaceName === null || (this.namespaces && this.namespaces.length > 0 && (this.namespaces().filter(n => n.name === namespaceName).length === 0))) {
-            if (this.namespaces() && this.namespaces().length > 0) {
-                namespaceName = this.namespaces()[0].name;
-            } else {
-                namespaceName = 'public';
-            }
-        }
-        if (!namespaceName) {
-            return;
-        }
-
-        this.activeNamespace.set(namespaceName);
-
-        this.storeNamespace(namespaceName);
     }
 
     ngOnDestroy() {
@@ -148,17 +121,16 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         window.onkeydown = null;
     }
 
-
     submitQuery() {
         this.delayedNamespace = null;
-        const code = this.codeEditor.getCode();
+        const code = this.query()
         if (!code) {
             return;
         }
         if (this.saveInHistory) {
             this.addToHistory(code, this.language());
         }
-        if (this.usesAdvancedConsole(this.language())) {
+        if (usesAdvancedConsole(this.language())) {
             code.split(";").forEach((query: string) => {
                 // maybe adjust
                 const graphUse = /use *graph *([a-zA-Z][a-zA-Z0-9-_]*)/gmi
@@ -177,14 +149,12 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 }
             })
 
-
             if (code.match('show db')) {
                 this._catalog.updateIfNecessary().subscribe(catalog => {
                     this.loading.set(false);
                 });
                 return;
             }
-
         }
 
         this._leftSidebar.setNodes([]);
@@ -224,7 +194,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     applyHistory(query: string, lang: string, run: boolean) {
         this.language.set(lang);
-        this.codeEditor.setCode(query);
+        this.queryEditor.setCode(query);
+        this.query.set(query)
         if (run) {
             this.submitQuery();
         }
@@ -323,7 +294,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 } else if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSets
                     if (this.delayedNamespace && !msg[0].hasOwnProperty('error')) {
                         this.activeNamespace.set(this.delayedNamespace);
-                        this.storeNamespace(this.delayedNamespace)
+                        this.queryEditor.storeNamespace(this.delayedNamespace)
                     }
                     this.delayedNamespace = null;
 
@@ -351,57 +322,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     createView(info: ViewInformation) {
-        this.codeEditor.setCode(info.fullQuery);
-    }
-
-    executeView(info: ViewInformation) {
-        this.codeEditor.setCode(info.fullQuery);
-        this.submitQuery();
-    }
-
-    formatQuery() {
-        let code = this.codeEditor.getCode();
-        if (!code) {
-            return;
-        }
-        let before = '';
-        const after = ')';
-
-        // here we replace the Json incompatible types with placeholders
-        const temp = code.match(/NumberDecimal\([^)]*\)/g);
-
-        if (temp !== null) {
-            for (let i = 0; i < temp.length; i++) {
-                code = code.replace(temp[i], '"___' + i + '"');
-            }
-        }
-
-
-        const splits = code.split('(');
-        before = splits.shift() + '(';
-
-        try {
-            let json = this.parse(splits.join('(').slice(0, -1));
-            // we have to translate them back
-            if (temp !== null) {
-                for (let i = 0; i < temp.length; i++) {
-                    json = json.replace('"___' + i + '"', temp[i]);
-                }
-            }
-
-            this.codeEditor.setCode(before + json + after);
-        } catch (e) {
-            this._toast.warn(e);
-        }
-    }
-
-    parse(code: string) {
-        const formatted = JSON.stringify(JSON.parse('[' + code + ']'), null, 4);
-        return formatted.substring(1, formatted.length - 1);
-    }
-
-    private storeNamespace(name: string) {
-        localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
+        this.queryEditor.setCode(info.fullQuery);
     }
 
     toggleCollapsed(i: number) {
@@ -409,10 +330,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         if (this.collapsed !== undefined && this.collapsed[i] !== undefined) {
             this.collapsed[i] = !this.collapsed[i];
         }
-    }
-
-    clearConsole() {
-        this.codeEditor.setCode('');
     }
 
     toggleCache(b: boolean) {
@@ -426,18 +343,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         console.log('revert');
         this.useCache = this.originalCache;
         this.originalCache = null;
-    }
-
-    usesAdvancedConsole(lang: string) {
-        return lang === 'mql' || lang === 'cypher';
-    }
-
-    toggleNamespaceField() {
-        this.showNamespaceConfig = !this.showNamespaceConfig;
-    }
-
-    changedDefaultDB(n) {
-        this.activeNamespace.set(n);
     }
 
     setLanguage(language) {

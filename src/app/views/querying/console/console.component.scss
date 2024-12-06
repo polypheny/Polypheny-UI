@@ -169,36 +169,3 @@ select {
 .viewButton {
   margin-right: 0.5em;
 }
-
-.document-db-info {
-  text-align: right;
-}
-
-.advanced-console-db-info {
-  display: inline-block;
-
-  option {
-    font-size: 10px;
-    font-style: italic;
-  }
-}
-
-.grey-bg {
-  background-color: #f0f3f5;
-  border: none;
-  border-bottom: 1px white solid;
-}
-
-.grey-border {
-  border: 1px rgba(0, 0, 0, .125) solid;
-}
-
-.advanced-console {
-  height: 185.617px;
-  margin: 1px;
-}
-
-.simple-console {
-  height: 240px;
-  margin-bottom: 0;
-}

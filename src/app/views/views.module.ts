@@ -97,6 +97,10 @@ import {EditEntityComponent} from './schema-editing/edit-entity/edit-entity.comp
 import {TreeModule} from '@ali-hm/angular-tree-component';
 import {GisComponent} from "./querying/gis/gis.component";
 import {MapLayersComponent} from "./querying/gis/components/layers/map-layers.component";
+import {
+    SubmitQueryButtonComponent
+} from "./querying/console/components/submit-query-button/submit-query-button.component";
+import {QueryEditor} from "./querying/console/components/code-editor/query-editor.component";
 
 
 @NgModule({
@@ -174,6 +178,8 @@ import {MapLayersComponent} from "./querying/gis/components/layers/map-layers.co
         GraphicalQueryingComponent,
         GisComponent,
         ConsoleComponent,
+        SubmitQueryButtonComponent,
+        QueryEditor,
         TableViewComponent,
         UmlComponent,
         SchemaEditingComponent,
