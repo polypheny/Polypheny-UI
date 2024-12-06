@@ -31,7 +31,7 @@ export class QueryEditor implements OnInit {
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
     showNamespaceConfig: boolean;
 
-    @Input() language: WritableSignal<string> = signal("");
+    @Input() language: WritableSignal<string> = signal('sql');
     @Input() activeNamespace: WritableSignal<string> = signal("");
     @ViewChild('editor', {static: false}) codeEditor: EditorComponent;
 

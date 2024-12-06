@@ -16,19 +16,6 @@ import { NgForOf, NgIf } from '@angular/common';
 
 @Component({
     selector: 'app-color',
-    standalone: true,
-    imports: [
-        FormsModule,
-        InputGroupComponent,
-        InputGroupTextDirective,
-        FormControlDirective,
-        FormSelectDirective,
-        NgForOf,
-        NgIf,
-        FormCheckComponent,
-        FormCheckInputDirective,
-        FormCheckLabelDirective,
-    ],
     templateUrl: './color.component.html',
     styleUrl: './color.component.css',
 })

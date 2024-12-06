@@ -5,8 +5,6 @@ import {LayerSettingsService} from "../../../services/layersettings.service";
 
 @Component({
   selector: 'app-empty',
-  standalone: true,
-  imports: [],
   templateUrl: './empty.component.html',
 })
 export class EmptyComponent implements VisualizationConfiguration {

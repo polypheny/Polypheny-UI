@@ -16,19 +16,6 @@ import {AreaShapeVisualization} from "../area-shape-visualization.model";
 
 @Component({
     selector: 'app-area-shape',
-    standalone: true,
-    imports: [
-        FormsModule,
-        InputGroupComponent,
-        InputGroupTextDirective,
-        FormControlDirective,
-        FormSelectDirective,
-        NgForOf,
-        NgIf,
-        FormCheckComponent,
-        FormCheckInputDirective,
-        FormCheckLabelDirective,
-    ],
     templateUrl: './area-shape.component.html',
     styleUrl: './area-shape.component.css',
 })

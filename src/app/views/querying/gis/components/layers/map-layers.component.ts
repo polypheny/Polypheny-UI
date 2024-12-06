@@ -59,40 +59,12 @@ import {Subscription} from "rxjs";
 import {EntityRequest, QueryRequest} from "../../../../../models/ui-request.model";
 import {CombinedResult} from "../../../../../components/data-view/data-view.model";
 import {CatalogService} from "../../../../../services/catalog.service";
+import {ViewsModule} from "../../../../views.module";
 
 type BaseLayer = { name: string; value: string };
 
 @Component({
     selector: 'app-map-layers',
-    standalone: true,
-    imports: [
-        FormLabelDirective,
-        FormControlDirective,
-        NgIf,
-        ModalComponent,
-        ModalHeaderComponent,
-        ModalBodyComponent,
-        ModalFooterComponent,
-        ModalTitleDirective,
-        ButtonCloseDirective,
-        ButtonDirective,
-        CdkDropList,
-        CdkDrag,
-        CdkDragHandle,
-        InputGroupComponent,
-        InputGroupTextDirective,
-        FormSelectDirective,
-        FormsModule,
-        NgForOf,
-        CardComponent,
-        CardHeaderComponent,
-        CardBodyComponent,
-        PopoverDirective,
-        NgxJsonViewerModule,
-        ConfigSectionComponent,
-
-
-    ],
     templateUrl: './map-layers.component.html',
     styleUrl: './map-layers.component.scss',
     // changeDetection: ChangeDetectionStrategy.OnPush,
@@ -106,6 +78,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
     // Querying
     websocket: WebSocket;
     results: WritableSignal<Result<any, any>[]> = signal([]);
+    readonly language: WritableSignal<string> = signal('sql');
     private subscriptions = new Subscription();
 
     protected baseLayers: BaseLayer[] = [

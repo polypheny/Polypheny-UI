@@ -130,12 +130,9 @@
                     </select>
                 </c-input-group>
 
-                <div *ngIf="addLayerMode === LayerContext.Query">
-                    <c-input-group>
-                        <span cInputGroupText>Query</span>
-                        <textarea [ngModel]="query" cFormControl aria-label="Query"
-                                  placeholder="Write query in SQL, MQL or Cypher" [rows]="5"></textarea>
-                    </c-input-group>
+                <div class="add-layer-query" *ngIf="addLayerMode === LayerContext.Query">
+                    <app-query-editor [language]="language"></app-query-editor>
+                    <app-submit-execute-button (languageChange)="language.set($event)" class="query-controls"></app-submit-execute-button>
                 </div>
 
                 <div *ngIf="addLayerMode === LayerContext.External">

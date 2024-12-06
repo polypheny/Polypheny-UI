@@ -17,19 +17,6 @@ import {LabelVisualization} from "../label-visualization-model";
 
 @Component({
     selector: 'app-area-shape',
-    standalone: true,
-    imports: [
-        FormsModule,
-        InputGroupComponent,
-        InputGroupTextDirective,
-        FormControlDirective,
-        FormSelectDirective,
-        NgForOf,
-        NgIf,
-        FormCheckComponent,
-        FormCheckInputDirective,
-        FormCheckLabelDirective,
-    ],
     templateUrl: './label.component.html',
     styleUrl: './label.component.css',
 })

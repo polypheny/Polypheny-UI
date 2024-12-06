@@ -5,8 +5,6 @@ import { NgComponentOutlet, NgIf } from '@angular/common';
 
 @Component({
     selector: 'app-config-section',
-    standalone: true,
-    imports: [ButtonDirective, CollapseDirective, NgComponentOutlet, NgIf],
     templateUrl: './config-section.component.html',
     styleUrl: './config-section.component.scss',
 })

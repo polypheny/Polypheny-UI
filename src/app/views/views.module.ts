@@ -84,7 +84,7 @@ import {
     ModalHeaderComponent,
     ModalTitleDirective,
     ModalToggleDirective,
-    PlaceholderDirective,
+    PlaceholderDirective, PopoverDirective,
     ProgressBarComponent,
     ProgressComponent,
     RowComponent,
@@ -101,6 +101,13 @@ import {
     SubmitQueryButtonComponent
 } from "./querying/console/components/submit-query-button/submit-query-button.component";
 import {QueryEditor} from "./querying/console/components/code-editor/query-editor.component";
+import {ConfigSectionComponent} from "./querying/gis/components/config-section/config-section.component";
+import {AreaShapeComponent} from "./querying/gis/components/visualization/area-shape/area-shape.component";
+import {ColorComponent} from "./querying/gis/components/visualization/color/color.component";
+import {EmptyComponent} from "./querying/gis/components/visualization/empty/empty.component";
+import {LabelComponent} from "./querying/gis/components/visualization/label/label.component";
+import {PointShapeComponent} from "./querying/gis/components/visualization/point-shape/point-shape.component";
+import {NgxJsonViewerModule} from "ngx-json-viewer";
 
 
 @NgModule({
@@ -170,7 +177,8 @@ import {QueryEditor} from "./querying/console/components/code-editor/query-edito
         ProgressComponent,
         ProgressBarComponent,
         CollapseDirective,
-        MapLayersComponent
+        NgxJsonViewerModule,
+        PopoverDirective,
     ],
     declarations: [
         EditColumnsComponent,
@@ -203,8 +211,19 @@ import {QueryEditor} from "./querying/console/components/code-editor/query-edito
         FileUploaderComponent,
         DockerconfigComponent,
         EditEntityComponent,
+        // GIS
+        MapLayersComponent,
+        ConfigSectionComponent,
+        AreaShapeComponent,
+        ColorComponent,
+        EmptyComponent,
+        LabelComponent,
+        PointShapeComponent
     ],
-    exports: []
+    exports: [
+        QueryEditor,
+        SubmitQueryButtonComponent
+    ]
 })
 export class ViewsModule {
 }

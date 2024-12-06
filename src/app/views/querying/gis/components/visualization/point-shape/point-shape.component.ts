@@ -17,19 +17,6 @@ import {PointShapeVisualization} from "../point-shape-visualization.model";
 
 @Component({
     selector: 'app-point-shape',
-    standalone: true,
-    imports: [
-        FormsModule,
-        InputGroupComponent,
-        InputGroupTextDirective,
-        FormControlDirective,
-        FormSelectDirective,
-        NgForOf,
-        NgIf,
-        FormCheckComponent,
-        FormCheckInputDirective,
-        FormCheckLabelDirective,
-    ],
     templateUrl: './point-shape.component.html',
     styleUrl: './point-shape.component.css',
 })

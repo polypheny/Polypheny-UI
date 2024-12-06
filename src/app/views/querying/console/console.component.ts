@@ -95,7 +95,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         }
 
         this.initWebsocket();
-        
+
         effect(() => {
             const res = this.results();
 

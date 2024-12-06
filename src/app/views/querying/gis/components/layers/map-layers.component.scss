@@ -86,6 +86,15 @@
     fill: #f3f4f7;
 }
 
+.add-layer-query {
+    display: flex;
+    gap: 1rem;
+
+    & > .query-controls {
+        align-content: flex-end;
+    }
+}
+
 .layer-card {
     display: flex;
     border: 1px solid lightgray;
