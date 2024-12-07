@@ -321,7 +321,9 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
         switch (this.addLayerMode) {
             case LayerContext.Query:
                 // TODO: queryLanguage, namespace
-                if (!this._crud.anyQuery(this.websocket, new QueryRequest(this.query, false, false, "MQL", "test"))) {
+                const request = new QueryRequest(this.query, false, false, 'MQL', 'doc');
+                request.noLimit = true;
+                if (!this._crud.anyQuery(this.websocket, request)) {
                     this.results.set([new RelationalResult('Could not establish a connection with the server.')]);
                     console.log("Querry error")
                 } else {
