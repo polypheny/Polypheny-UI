@@ -7,13 +7,16 @@ import {PointShapeVisualization} from '../components/visualization/point-shape-v
 import {CombinedResult} from '../../../../components/data-view/data-view.model';
 import {DataModel} from '../../../../models/ui-request.model';
 import {Geometry} from 'geojson';
+import {v4} from 'uuid';
 
 export class MapLayer {
 
     constructor(name: string) {
         this.name = name;
+        this.uuid = v4();
     }
 
+    uuid: string;
     name: string;
     data: MapGeometryWithData[] = [];
 
@@ -152,6 +155,7 @@ export class MapLayer {
         const copy = new MapLayer(this.name).addData(
             this.data.map((d) => d.copy()),
         );
+        copy.uuid = this.uuid;
         copy.pointShapeVisualization = this.pointShapeVisualization.copy();
         copy.areaShapeVisualization = this.areaShapeVisualization.copy();
         copy.colorVisualization = this.colorVisualization.copy();

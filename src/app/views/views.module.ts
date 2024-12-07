@@ -46,6 +46,7 @@ import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-e
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
 import {
+    AlertComponent,
     BadgeComponent,
     BorderDirective,
     ButtonCloseDirective,
@@ -69,7 +70,7 @@ import {
     FormCheckLabelDirective,
     FormControlDirective,
     FormDirective,
-    FormFeedbackComponent,
+    FormFeedbackComponent, FormLabelDirective,
     FormSelectDirective,
     FormTextDirective,
     GutterDirective,
@@ -179,6 +180,8 @@ import {NgxJsonViewerModule} from "ngx-json-viewer";
         CollapseDirective,
         NgxJsonViewerModule,
         PopoverDirective,
+        FormLabelDirective,
+        AlertComponent,
     ],
     declarations: [
         EditColumnsComponent,

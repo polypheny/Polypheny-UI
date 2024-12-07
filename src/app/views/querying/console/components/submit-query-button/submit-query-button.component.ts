@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {QUERY_LANGUAGES} from '../console-helper';
 
 
 @Component({
@@ -7,11 +8,13 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     styleUrls: ['submit-query-button.component.scss']
 })
 export class SubmitQueryButtonComponent {
-    @Input() loading: boolean = false;
-    @Input() language: string = 'sql';
+    @Input() loading = false;
+    @Input() language = 'sql';
 
     @Output() languageChange = new EventEmitter<string>();
     @Output() submitQuery = new EventEmitter<void>();
+
+    protected readonly QUERY_LANGUAGES = QUERY_LANGUAGES;
 
     onLanguageChange(newLanguage: string): void {
         this.languageChange.emit(newLanguage);

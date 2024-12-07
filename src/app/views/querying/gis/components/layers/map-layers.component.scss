@@ -88,6 +88,7 @@
 
 .add-layer-query {
     display: flex;
+    flex-direction: column;
     gap: 1rem;
 
     & > .query-controls {

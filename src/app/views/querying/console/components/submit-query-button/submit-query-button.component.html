@@ -1,11 +1,7 @@
 <c-input-group>
     <select class="form-control btn pull-right me-1 border bg-white" [ngModel]="language"
             (ngModelChange)="onLanguageChange($event)" *ngIf="!loading">
-        <option value="cypher">CYPHER</option>
-        <option value="sql">SQL</option>
-        <option value="mql">MQL</option>
-        <option value="cql">CQL</option>
-        <option value="pig">PIG</option>
+        <option *ngFor="let ql of QUERY_LANGUAGES"  value='{{ql.toLowerCase()}}'>{{ql}}</option>
     </select>
     <button *ngIf="!loading" cButton type="submit" color="primary" (click)="onExecute()">Execute</button>
     <button *ngIf="loading" type="submit" cButton color="primary"
