@@ -2,11 +2,15 @@ import { Injectable } from '@angular/core';
 import {BehaviorSubject, Subject} from 'rxjs';
 import { MapLayer } from '../models/MapLayer.model';
 import {Visualization} from '../models/visualization.interface';
+import {CombinedResult} from "../../../../components/data-view/data-view.model";
 
 @Injectable({
     providedIn: 'root',
 })
 export class LayerSettingsService {
+    private queryFromConsoleResults = new BehaviorSubject<CombinedResult>(null);
+    queryFromConsoleResults$ = this.queryFromConsoleResults.asObservable();
+
     private selectedBaseLayer = new BehaviorSubject<string>('EMPTY');
     selectedBaseLayer$ = this.selectedBaseLayer.asObservable();
 
@@ -24,6 +28,9 @@ export class LayerSettingsService {
 
     private toggleLayerVisibilitySubject = new Subject<MapLayer>();
     toggleLayerVisibility$ = this.toggleLayerVisibilitySubject.asObservable();
+    setResultsQuery(result: CombinedResult){
+        this.queryFromConsoleResults.next(result);
+    }
     setBaseLayer(item: string) {
         this.selectedBaseLayer.next(item);
     }

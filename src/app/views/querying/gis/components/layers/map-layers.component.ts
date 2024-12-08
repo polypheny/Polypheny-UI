@@ -2,7 +2,7 @@ import {
     AfterViewInit, Component, effect,
     ElementRef,
     HostListener,
-    inject,
+    inject, OnDestroy,
     OnInit,
     Renderer2, signal, ViewChild, WritableSignal
 } from '@angular/core';
@@ -39,7 +39,7 @@ interface BaseLayer {
     templateUrl: './map-layers.component.html',
     styleUrl: './map-layers.component.scss',
 })
-export class MapLayersComponent implements OnInit, AfterViewInit {
+export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
 
     constructor(
         protected layerSettings: LayerSettingsService,
@@ -48,6 +48,9 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
     ) {
         this.websocket = new WebSocket();
         this.initWebsocket();
+
+        // Starting a new GIS query session: Remove all layers which were previously added and not cleaned up.
+        this.updateLayers([])
 
         effect(() => {
             const res = this.results();
@@ -62,6 +65,14 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
                 }
             }
         });
+    }
+
+    ngOnDestroy(): void {
+        // When we navigate away from the query mode, we remove all the layers from the layer settings as well
+        // as from the map. Otherwise, they show up when we don't want them, e.g. in the results view.
+        this.updateLayers([]);
+        this.subscriptions.unsubscribe();
+        clearInterval(this.pollingTimer);
     }
 
     // DI
@@ -112,8 +123,6 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
 
     // Correctly set height.
     private pollingTimer: any;
-    private pollingDuration = 3000; // 3 seconds
-    private pollInterval = 500; // Poll every 500ms
     private lastHeight = '';
     protected readonly Object = Object;
     protected readonly LayerContext = LayerContext;
@@ -146,28 +155,37 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit(): void {
-        this.layerSettings.layers$.subscribe((layers) => {
+        this.subscriptions.add(this.layerSettings.layers$.subscribe((layers) => {
             this.layers = layers;
-            this.renderedLayers = this.deepCopyLayers(layers);
+            this.renderedLayers = this.deepCopyLayers(layers, false);
             this.layerSettings.setCanRerenderLayers(false);
             this.updateLayerUi();
-        });
+        }))
 
-        this.layerSettings.modifiedVisualization$.subscribe((config) => {
+        this.subscriptions.add(this.layerSettings.modifiedVisualization$.subscribe((config) => {
             if (!config) {
                 return;
             }
 
             const canRerenderLayers = !isEqual(
-                this.deepCopyLayers(this.layers),
+                this.deepCopyLayers(this.layers, false),
                 this.renderedLayers,
             );
             this.layerSettings.setCanRerenderLayers(canRerenderLayers);
-        });
+        }));
 
-        this.layerSettings.rerenderButtonClicked$.subscribe(() => {
+        this.subscriptions.add(this.layerSettings.rerenderButtonClicked$.subscribe(() => {
             this.updateLayers(this.layers);
-        });
+        }));
+
+        this.subscriptions.add(this.layerSettings.queryFromConsoleResults$.subscribe((query) => {
+            if (query){
+                console.log("Run full query from results", query);
+                this.submitQuery(query.query, query.language.toString(), query.namespace);
+                // Remove it, so that if we navigate away and back again, we won't run the query twice.
+                this.layerSettings.setResultsQuery(null);
+            }
+        }));
 
         // this.updateLayers(getSampleMapLayers());
     }
@@ -184,21 +202,35 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
     private startPollingHeight(): void {
         // A bit dirty, but it works for now. For some reason, a second after the map is created, the size changes.
         // We just poll for the first few seconds after the component is created, and update the size if it changes.
-        const endTime = Date.now() + this.pollingDuration;
+        const endTime = Date.now() + 3000;
         this.pollingTimer = setInterval(() => {
             const currentHeight = this.getMapHeight();
+
+            if (currentHeight === undefined){
+                return
+            }
+
             if (currentHeight !== this.lastHeight) {
                 this.setMapHeight(currentHeight);
-            } else {
-                if (Date.now() > endTime) {
-                    clearInterval(this.pollingTimer);
-                }
             }
-        }, this.pollInterval);
+            // TODO: Somehow, sometimes, the onResize event does not capture all changes in the viewport, e.g.
+            //       when interacting with windows snapping or doing other fast stuff. For now, just always poll while
+            //       the component is active.
+            // else {
+            //     if (Date.now() > endTime) {
+            //         clearInterval(this.pollingTimer);
+            //     }
+            // }
+        }, 500);
     }
 
-    private getMapHeight(): string {
-        return `${(document.querySelector('#map') as HTMLElement).offsetHeight}px`;
+    private getMapHeight(): string | undefined {
+        const elem = (document.querySelector('#map') as HTMLElement)
+        if (elem === null){
+            return undefined
+        } else {
+            return `${elem.offsetHeight}px`
+        }
     }
 
     private setMapHeight(mapHeight: string): void {
@@ -206,8 +238,10 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
         this.renderer.setStyle(this.el.nativeElement, 'height', mapHeight);
     }
 
-    deepCopyLayers(layers: MapLayer[]) {
-        return layers.map((layer) => layer.copy());
+    deepCopyLayers(layers: MapLayer[], includeData = true) {
+        // We only case if the configuration has changed. Copying the data over every time something changes would
+        // cause big performance problems.
+        return layers.map((layer) => layer.copy(includeData));
     }
 
     async loadGeoJsonFile($event: Event) {
@@ -263,17 +297,22 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
         return geojson;
     }
 
+    submitQuery(query: string, language: string, namespace: string) : boolean {
+        const request = new QueryRequest(query, false, false, language, namespace);
+        request.noLimit = true;
+        return this._crud.anyQuery(this.websocket, request)
+    }
+
     async addLayer() {
         this.addLayerDialogErrorMessage = '';
 
         switch (this.addLayerMode) {
             case LayerContext.Query:
-                const request = new QueryRequest(this.queryEditor.getCode(), false, false, this.language(), this.activeNamespace());
-                request.noLimit = true;
-                if (!this._crud.anyQuery(this.websocket, request)) {
+                if (!this.submitQuery(this.queryEditor.getCode(), this.language(), this.activeNamespace())){
                     this.addLayerDialogErrorMessage = 'There was an error executing this query.';
                 }
-                // Dialog will be hidden when result has arrived in constructor.efffect
+                // Dialog will be hidden when result has arrived in constructor.effect, because it is possible to
+                // get the error in the result, and not directly here.
                 break;
             case LayerContext.Results:
             case LayerContext.DB:

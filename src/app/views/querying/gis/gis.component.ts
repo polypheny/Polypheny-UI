@@ -28,9 +28,10 @@ export class GisComponent implements OnInit, OnDestroy {
     private readonly _sidebar = inject(LeftSidebarService);
 
     ngOnDestroy(): void {
-        console.log("GisComponent.ngOnDestroy")
+
     }
+
     ngOnInit(): void {
-        console.log("GisComponent.ngOnInit")
+        this._sidebar.hide();
     }
 }

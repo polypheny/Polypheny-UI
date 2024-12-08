@@ -19,6 +19,8 @@ export class MapLayer {
     uuid: string;
     name: string;
     data: MapGeometryWithData[] = [];
+    containsPoints = false;
+    containsAreas = false;
 
     pointShapeVisualization: Visualization = new PointShapeVisualization(3);
     areaShapeVisualization: Visualization = new AreaShapeVisualization(1);
@@ -148,13 +150,17 @@ export class MapLayer {
         return undefined;
     }
 
-    copy() {
+    copy(includeData = true) {
         // Do not copy isActive and isRemoved, because we use the copy to check if
         // anything changes so we need to rerender, but in these cases we do not need
         // to rerender.
-        const copy = new MapLayer(this.name).addData(
-            this.data.map((d) => d.copy()),
-        );
+
+        const copy = new MapLayer(this.name)
+        if (includeData){
+            copy.addData(
+                this.data.map((d) => d.copy()),
+            );
+        }
         copy.uuid = this.uuid;
         copy.pointShapeVisualization = this.pointShapeVisualization.copy();
         copy.areaShapeVisualization = this.areaShapeVisualization.copy();
@@ -164,7 +170,18 @@ export class MapLayer {
     }
 
     addData(data: MapGeometryWithData[]) {
-        data.forEach((d) => (d.layer = this));
+        this.containsPoints = false;
+        this.containsAreas = false;
+
+        data.forEach((d) => {
+            if (d.isPoint()){
+                this.containsPoints = true;
+            } else {
+                this.containsAreas = true;
+            }
+            d.layer = this
+            return;
+        });
         this.data.push(...data);
         return this;
     }

@@ -65,9 +65,11 @@
                             class="preview-data">({{ layer.data.length }})</span>
                     </div>
                     <div class="config-sections">
-                        <app-config-section [title]="layer.pointShapeVisualization.name"
+                        <app-config-section *ngIf="layer.containsPoints"
+                                            [title]="layer.pointShapeVisualization.name"
                                             [config]="layer.pointShapeVisualization"></app-config-section>
-                        <app-config-section [title]="layer.areaShapeVisualization.name"
+                        <app-config-section *ngIf="layer.containsAreas"
+                                            [title]="layer.areaShapeVisualization.name"
                                             [config]="layer.areaShapeVisualization"></app-config-section>
                         <app-config-section [title]="layer.colorVisualization.name"
                                             [config]="layer.colorVisualization"></app-config-section>
@@ -161,7 +163,7 @@
 
                 <c-alert *ngIf="addLayerDialogErrorMessage" color="danger">
                     <span><strong>Error</strong></span><br>
-                    <span>{{addLayerDialogErrorMessage}}</span>
+                    <span>{{ addLayerDialogErrorMessage }}</span>
                 </c-alert>
             </div>
 

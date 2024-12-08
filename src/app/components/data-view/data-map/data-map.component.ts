@@ -23,10 +23,10 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
     currentBaseLayer: L.TileLayer | undefined;
     layers: MapLayer[] = [];
-    resultLayer?: MapLayer = undefined;
     isLoading = false;
     isLoadingMessage = 'TODO isLoadingMessage';
     canRerenderLayers = false;
+    previewResult : CombinedResult = null;
 
     readonly MIN_ZOOM = 0;
     readonly MAX_ZOOM = 19;
@@ -49,23 +49,25 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         super();
 
         effect(() => {
-            // This code is only called when the map is shown inside the results.
+            if (!this.isInsideResults) {
+                return
+            }
+
+            // Display the results.
             const result = this.$result();
             if (!result) {
                 return;
             }
 
-            // I could send the query string to the layers settings, and execute it there.
-
-            // this.resultLayer = MapLayer.from(result);
-
-            // TODO: If there already are results in the map query view,
-            // this.layerSettings.setLayers([MapLayer.from(result), ...this.layers])
+            // The CombinedResult will be given to the LayerSettings, if the user clicks on the button to show the
+            // results in the full GIS query mode.
+            this.previewResult = result;
+            this.layerSettings.setLayers([MapLayer.from(result)]);
         });
     }
 
     ngOnInit() {
-        this.layerSettings.selectedBaseLayer$.subscribe((item) => {
+        this.subscriptions.add(this.layerSettings.selectedBaseLayer$.subscribe((item) => {
             if (!item) {
                 return;
             }
@@ -81,25 +83,25 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 }).addTo(this.map);
             }
-        });
+        }));
 
-        this.layerSettings.layers$.subscribe((layers) => {
+        this.subscriptions.add(this.layerSettings.layers$.subscribe((layers) => {
             this.layers = layers;
             this.renderLayersWithD3();
-        });
+        }));
 
-        this.layerSettings.canRerenderLayers$.subscribe((canRerenderLayers) => {
+        this.subscriptions.add(this.layerSettings.canRerenderLayers$.subscribe((canRerenderLayers) => {
             this.canRerenderLayers = canRerenderLayers;
-        });
+        }));
 
-        this.layerSettings.toggleLayerVisibility$.subscribe((layer) => {
+        this.subscriptions.add(this.layerSettings.toggleLayerVisibility$.subscribe((layer) => {
             this.toggleLayerVisibility(layer);
-        });
+        }));
     }
 
     ngOnDestroy() {
         // TODO: This breaks the navigation from results to map query view
-        // this.layerSettings.setLayers([])
+        this.subscriptions.unsubscribe();
     }
 
     ngAfterViewInit(): void {
@@ -426,9 +428,8 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     }
 
     navigateToMapQueryMode() {
-        // TODO: The layer that was created from the results only contains the first 10 rows. We somehow need to
-        //       also need to give the map view a way to load the rest of the results.
-        this.layerSettings.setLayers(this.layers);
+        // Give CombinedResult to map-layers component, so that the full query can be run and added from there.
+        this.layerSettings.setResultsQuery(this.previewResult);
         this._router.navigate(['/views/querying/gis']);
     }
 }
