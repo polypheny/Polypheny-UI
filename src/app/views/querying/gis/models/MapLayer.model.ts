@@ -32,7 +32,7 @@ export class MapLayer {
 
     static from(result: CombinedResult): MapLayer {
         console.log(result);
-        const layer = new MapLayer('Query');
+        const layer = new MapLayer(result.query);
         const mapData = [];
 
         switch (result.dataModel) {

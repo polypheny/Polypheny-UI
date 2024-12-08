@@ -21,10 +21,10 @@ import {
 import {getSampleMapLayers} from '../../models/get-sample-maplayers';
 import {CrudService} from '../../../../../services/crud.service';
 import {WebSocket} from '../../../../../services/webSocket';
-import {RelationalResult, Result} from '../../../../../components/data-view/models/result-set.model';
+import {Result} from '../../../../../components/data-view/models/result-set.model';
 import {WebuiSettingsService} from '../../../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
-import {EntityRequest, QueryRequest} from '../../../../../models/ui-request.model';
+import {QueryRequest} from '../../../../../models/ui-request.model';
 import {CombinedResult} from '../../../../../components/data-view/data-view.model';
 import {CatalogService} from '../../../../../services/catalog.service';
 import {QueryEditor} from '../../../console/components/code-editor/query-editor.component';
@@ -38,7 +38,6 @@ interface BaseLayer {
     selector: 'app-map-layers',
     templateUrl: './map-layers.component.html',
     styleUrl: './map-layers.component.scss',
-    // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MapLayersComponent implements OnInit, AfterViewInit {
 
@@ -52,13 +51,11 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
 
         effect(() => {
             const res = this.results();
-            console.log('res=', res);
             if (res.length > 0) {
                 const combinedResult = CombinedResult.from(res[0]);
                 if (combinedResult.error) {
                     this.addLayerDialogErrorMessage = `There was an error executing the query. Error: ${combinedResult.error}`;
                 } else {
-                    console.log('CombinedResult=', combinedResult);
                     this.addLayerInternal(MapLayer.from(combinedResult));
                     localStorage.setItem(this.LOCAL_STORAGE_LAST_QUERY_KEY, combinedResult.query);
                     this.isAddLayerModalVisible = false;
@@ -126,13 +123,11 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
     private initWebsocket() {
         const sub = this.websocket.onMessage().subscribe({
             next: msg => {
-                console.log('websocket.msg=', msg);
                 if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSet
                     this.results.set(<Result<any, any>[]>msg);
                 }
             },
             error: err => {
-                console.log('websocket.err=', err);
                 //this._leftSidebar.setError('Lost connection with the server.');
                 setTimeout(() => {
                     this.initWebsocket();
@@ -146,7 +141,6 @@ export class MapLayersComponent implements OnInit, AfterViewInit {
         this.startPollingHeight();
         const lastQuery = localStorage.getItem(this.LOCAL_STORAGE_LAST_QUERY_KEY);
         if (lastQuery) {
-            console.log(this.queryEditor);
             this.queryEditor.setCode(lastQuery);
         }
     }

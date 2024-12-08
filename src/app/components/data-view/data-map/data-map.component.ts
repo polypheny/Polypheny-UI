@@ -5,10 +5,12 @@ import {GeoPath, GeoPermissibleObjects} from 'd3';
 import * as d3Geo from 'd3-geo';
 import * as L from 'leaflet';
 import 'leaflet-draw';
-import {LayerSettingsService} from "../../../views/querying/gis/services/layersettings.service";
-import {MapLayer} from "../../../views/querying/gis/models/MapLayer.model";
-import {MapGeometryWithData} from "../../../views/querying/gis/models/RowResult.model";
-import {CombinedResult} from "../data-view.model";
+import {LayerSettingsService} from '../../../views/querying/gis/services/layersettings.service';
+import {MapLayer} from '../../../views/querying/gis/models/MapLayer.model';
+import {MapGeometryWithData} from '../../../views/querying/gis/models/RowResult.model';
+import {CombinedResult} from '../data-view.model';
+
+// tslint:disable:no-non-null-assertion
 
 @Component({
     selector: 'app-data-map',
@@ -17,14 +19,14 @@ import {CombinedResult} from "../data-view.model";
 })
 export class DataMapComponent extends DataTemplateComponent implements AfterViewInit, OnDestroy {
     // If the map is shown inside the results section, different styling needs to be applied.
-    @Input() isInsideResults: boolean = false;
+    @Input() isInsideResults = false;
 
     currentBaseLayer: L.TileLayer | undefined;
     layers: MapLayer[] = [];
     resultLayer?: MapLayer = undefined;
-    isLoading: boolean = false;
-    isLoadingMessage: string = 'TODO isLoadingMessage';
-    canRerenderLayers: boolean = false;
+    isLoading = false;
+    isLoadingMessage = 'TODO isLoadingMessage';
+    canRerenderLayers = false;
 
     readonly MIN_ZOOM = 0;
     readonly MAX_ZOOM = 19;
@@ -63,9 +65,6 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     }
 
     ngOnInit() {
-        // Reset data on map
-        console.log("data-map.component.ts ngOnInit(). Layers=", this.layers)
-
         this.layerSettings.selectedBaseLayer$.subscribe((item) => {
             if (!item) {
                 return;
@@ -75,7 +74,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 this.map.removeLayer(this.currentBaseLayer);
             }
 
-            if (item != 'EMPTY') {
+            if (item !== 'EMPTY') {
                 this.currentBaseLayer = L.tileLayer(item, {
                     maxZoom: this.MAX_ZOOM,
                     attribution:
@@ -85,7 +84,6 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         });
 
         this.layerSettings.layers$.subscribe((layers) => {
-            console.log("data-map.component.ts layerSettings.layers$.subscribe(). Layers=", layers)
             this.layers = layers;
             this.renderLayersWithD3();
         });
@@ -129,7 +127,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
             // TODO: What is the best way to use this shape to add a filter to another layer?
             //         - We could add this shape as its own layer.
-            const layer = event.layer
+            const layer = event.layer;
             drawnItems.addLayer(layer);
         });
 
@@ -256,7 +254,6 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
                 // Add shapes from each layer to array
                 for (const layer of this.layers.slice().reverse()) {
-                    console.log(`Render layer [${layer.name}]. Initialize...`);
 
                     // Initialize all configs
                     layer.pointShapeVisualization.init(layer.data);
@@ -338,8 +335,8 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             })
             .attr('cx', (d) => d.cache['x'])
             .attr('cy', (d) => d.cache['y'])
-            .style("pointer-events", "auto")
-            .style("cursor", "pointer")
+            .style('pointer-events', 'auto')
+            .style('cursor', 'pointer')
             .on('mouseover', function (event, d) {
                 tt.style('display', 'block').html(JSON.stringify(d.data, null, 1));
             })
@@ -359,7 +356,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             return;
         }
 
-        const tt = this.tooltip
+        const tt = this.tooltip;
 
         return this.g
             .selectAll('.paths')
@@ -387,10 +384,9 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                     d,
                 ),
             )
-            .style("pointer-events", "auto")
-            .style("cursor", "pointer")
+            .style('pointer-events', 'auto')
+            .style('cursor', 'pointer')
             .on('mouseover', function (event, d) {
-                console.log("hover")
                 tt.style('display', 'block').html(JSON.stringify(d.data, null, 2));
             })
             .on('mousemove', function (event) {
@@ -432,9 +428,8 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     navigateToMapQueryMode() {
         // TODO: The layer that was created from the results only contains the first 10 rows. We somehow need to
         //       also need to give the map view a way to load the rest of the results.
-        console.log("Map layers before navigation", this.layers)
-        this.layerSettings.setLayers(this.layers)
-        this._router.navigate(['/views/querying/gis'])
+        this.layerSettings.setLayers(this.layers);
+        this._router.navigate(['/views/querying/gis']);
     }
 }
 
