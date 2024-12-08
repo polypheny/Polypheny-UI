@@ -28,8 +28,8 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 import {ViewInformation} from '../../../components/data-view/data-view.component';
 import {CatalogService} from '../../../services/catalog.service';
 import {NamespaceModel} from '../../../models/catalog.model';
-import {usesAdvancedConsole} from "./components/console-helper";
-import {QueryEditor} from "./components/code-editor/query-editor.component";
+import {usesAdvancedConsole} from './components/console-helper';
+import {QueryEditor} from './components/code-editor/query-editor.component';
 
 @Component({
     selector: 'app-console',
@@ -64,14 +64,13 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private subscriptions = new Subscription();
     readonly loading: WritableSignal<boolean> = signal(false);
     readonly language: WritableSignal<string> = signal('sql');
-    readonly query: WritableSignal<string> = signal('');
 
     saveInHistory = true;
     showSearch = false;
     historySearchQuery = '';
     confirmDeletingHistory;
 
-    delayedNamespace: string = null
+    delayedNamespace: string = null;
 
     entityConfig: EntityConfig = {
         create: false,
@@ -89,7 +88,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         if (window.Cypress) {
             (<any>window).executeQuery = (query: string) => {
                 this.queryEditor.setCode(query);
-                this.query.set(query)
                 this.submitQuery();
             };
         }
@@ -102,7 +100,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             untracked(() => {
                 this.collapsed = new Array(res.length);
                 this.collapsed.fill(false);
-            })
+            });
         });
     }
 
@@ -123,7 +121,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     submitQuery() {
         this.delayedNamespace = null;
-        const code = this.query()
+        const code = this.queryEditor.getCode();
         if (!code) {
             return;
         }
@@ -131,15 +129,15 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             this.addToHistory(code, this.language());
         }
         if (usesAdvancedConsole(this.language())) {
-            code.split(";").forEach((query: string) => {
+            code.split(';').forEach((query: string) => {
                 // maybe adjust
-                const graphUse = /use *graph *([a-zA-Z][a-zA-Z0-9-_]*)/gmi
+                const graphUse = /use *graph *([a-zA-Z][a-zA-Z0-9-_]*)/gmi;
                 const matchGraph = graphUse.exec(query.trim());
                 if (matchGraph !== null && matchGraph.length > 1) {
                     this.delayedNamespace = matchGraph[1];
                 }
 
-                const useRegex = /use ([a-zA-Z][a-zA-Z0-9-_]*)/gmi
+                const useRegex = /use ([a-zA-Z][a-zA-Z0-9-_]*)/gmi;
                 const match = useRegex.exec(query.trim());
                 if (match !== null && match.length > 1) {
                     const namespace = match[1];
@@ -147,7 +145,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                         this.delayedNamespace = namespace;
                     }
                 }
-            })
+            });
 
             if (code.match('show db')) {
                 this._catalog.updateIfNecessary().subscribe(catalog => {
@@ -195,7 +193,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     applyHistory(query: string, lang: string, run: boolean) {
         this.language.set(lang);
         this.queryEditor.setCode(query);
-        this.query.set(query)
         if (run) {
             this.submitQuery();
         }
@@ -294,7 +291,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 } else if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSets
                     if (this.delayedNamespace && !msg[0].hasOwnProperty('error')) {
                         this.activeNamespace.set(this.delayedNamespace);
-                        this.queryEditor.storeNamespace(this.delayedNamespace)
+                        this.queryEditor.storeNamespace(this.delayedNamespace);
                     }
                     this.delayedNamespace = null;
 
@@ -326,7 +323,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     toggleCollapsed(i: number) {
-        console.log(i)
+        console.log(i);
         if (this.collapsed !== undefined && this.collapsed[i] !== undefined) {
             this.collapsed[i] = !this.collapsed[i];
         }
