@@ -240,6 +240,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     }
 
     renderLayersWithD3() {
+        console.log("Map: Render layers...")
         this.showLoadingSpinner('Rendering layers');
 
         setTimeout(() => {
@@ -276,10 +277,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
                 // Render all points
                 // TODO: Circles are always on the bottom this way...
-                console.log('Create Points: ', points);
                 this.circles = this.createPoints(points);
-
-                console.log('Create Paths: ', paths);
                 this.paths = this.createPaths(paths);
 
                 // Set SVG position correctly

@@ -33,7 +33,7 @@ export class MapLayer {
     index = -1;
 
     static from(result: CombinedResult): MapLayer {
-        console.log(result);
+        console.log("MapLayer from result: ", result);
         const layer = new MapLayer(result.query);
         const mapData = [];
 
@@ -41,7 +41,7 @@ export class MapLayer {
             case DataModel.DOCUMENT:
                 for (let rowIndex = 0; rowIndex < result.data.length; rowIndex++) {
                     const json = result.data[rowIndex][0];
-                    const jsonObject: Record<string, any> = Object.fromEntries(
+                    const jsonObject: Map<string, any> = new Map(
                         Object.entries(JSON.parse(json)).map(([key, value]) => [key.toLowerCase(), value])
                     );
                     const geometry = this.getGeometryFromData(jsonObject);
@@ -54,12 +54,14 @@ export class MapLayer {
             case DataModel.RELATIONAL:
                 for (let rowIndex = 0; rowIndex < result.data.length; rowIndex++) {
                     const map = new Map<string, any>();
+
                     for (let headerIndex = 0; headerIndex < result.header.length; headerIndex++) {
-                        // TODO: Geometry objects
                         const header = result.header[headerIndex];
                         const key = header.name.toLowerCase();
                         const value = result.data[rowIndex][headerIndex];
-                        if (header.dataType.startsWith('INTEGER')) {
+                        if (header.dataType.startsWith('GEOMETRY')) {
+                            map.set(key, JSON.parse(value));
+                        } else if (header.dataType.startsWith('INTEGER')) {
                             map.set(key, parseInt(value, 10));
                         } else if (header.dataType.startsWith('DECIMAL')) {
                             map.set(key, parseFloat(value));
@@ -67,8 +69,8 @@ export class MapLayer {
                             map.set(key, value);
                         }
                     }
+
                     const geometry = this.getGeometryFromData(map);
-                    console.log(geometry);
                     if (geometry) {
                         const geometryWithData = new MapGeometryWithData(rowIndex, geometry, map);
                         mapData.push(geometryWithData);
@@ -113,10 +115,12 @@ export class MapLayer {
         return layer;
     }
 
-    static getGeometryFromData(data: Record<string, any>): Geometry | undefined {
-        // GeoJSON object
-        if ('geometry' in data) {
-            return data['geometry'];
+    static getGeometryFromData(data: Map<string, any>): Geometry | undefined {
+        // Detect GeoJSON objects
+        for (const value of data.values()) {
+            if (this.isGeoJSON(value)){
+                return value;
+            }
         }
 
         // Detect 2 columns that store latitude / longitude coordinates
@@ -149,6 +153,45 @@ export class MapLayer {
 
         return undefined;
     }
+
+    static isGeoJSON(obj: any): boolean {
+        if (!obj || typeof obj !== 'object') return false;
+
+        const validTypes: string[] = [
+            'Feature',
+            'FeatureCollection',
+            'GeometryCollection',
+            'Point',
+            'MultiPoint',
+            'LineString',
+            'MultiLineString',
+            'Polygon',
+            'MultiPolygon',
+        ];
+
+        if (!obj.type || !validTypes.includes(obj.type)) {
+            return false;
+        }
+
+        switch (obj.type) {
+            case 'Feature':
+                return obj.hasOwnProperty('geometry') && obj.hasOwnProperty('properties');
+            case 'FeatureCollection':
+                return Array.isArray(obj.features);
+            case 'GeometryCollection':
+                return Array.isArray(obj.geometries);
+            case 'Point':
+            case 'MultiPoint':
+            case 'LineString':
+            case 'MultiLineString':
+            case 'Polygon':
+            case 'MultiPolygon':
+                return obj.hasOwnProperty('coordinates');
+            default:
+                return false;
+        }
+    }
+
 
     copy(includeData = true) {
         // Do not copy isActive and isRemoved, because we use the copy to check if
