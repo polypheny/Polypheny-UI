@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { VisualizationConfiguration } from '../../../models/visualization-configuration.interface';
+import { MapLayerConfigurationComponent } from '../../../models/visualization-configuration.interface';
 import { FormsModule } from '@angular/forms';
 import { LayerSettingsService } from '../../../services/layersettings.service';
 import {
@@ -19,7 +19,7 @@ import { NgForOf, NgIf } from '@angular/common';
     templateUrl: './color.component.html',
     styleUrl: './color.component.css',
 })
-export class ColorComponent implements VisualizationConfiguration {
+export class ColorComponent implements MapLayerConfigurationComponent {
     constructor(
         @Inject('config') protected config: ColorVisualization,
         private layerSettings: LayerSettingsService,

@@ -332,7 +332,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                                 new MapGeometryWithData(
                                     i,
                                     f.geometry,
-                                    f.properties ? f.properties : {},
+                                    f.properties ? new Map(Object.entries(f.properties)) : new Map<string, any>(),
                                 ),
                         ),
                     );

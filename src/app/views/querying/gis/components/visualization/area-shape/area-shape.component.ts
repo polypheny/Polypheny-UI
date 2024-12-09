@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { VisualizationConfiguration } from '../../../models/visualization-configuration.interface';
+import { MapLayerConfigurationComponent } from '../../../models/visualization-configuration.interface';
 import { FormsModule } from '@angular/forms';
 import { LayerSettingsService } from '../../../services/layersettings.service';
 import {
@@ -19,7 +19,7 @@ import {AreaShapeVisualization} from "../area-shape-visualization.model";
     templateUrl: './area-shape.component.html',
     styleUrl: './area-shape.component.css',
 })
-export class AreaShapeComponent implements VisualizationConfiguration {
+export class AreaShapeComponent implements MapLayerConfigurationComponent {
     constructor(
         @Inject('config') protected config: AreaShapeVisualization,
         private layerSettings: LayerSettingsService,

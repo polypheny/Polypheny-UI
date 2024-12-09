@@ -1,7 +1,7 @@
 import {Component, Injector, Input, OnInit} from '@angular/core';
-import { ButtonDirective, CollapseDirective } from '@coreui/angular';
 import { Visualization } from '../../models/visualization.interface';
-import { NgComponentOutlet, NgIf } from '@angular/common';
+import {MapLayer} from "../../models/MapLayer.model";
+import {MapLayerConfiguration} from "../../models/MapLayerConfiguration.interface";
 
 @Component({
     selector: 'app-config-section',
@@ -9,7 +9,8 @@ import { NgComponentOutlet, NgIf } from '@angular/common';
     styleUrl: './config-section.component.scss',
 })
 export class ConfigSectionComponent implements OnInit {
-    @Input() config?: Visualization;
+    @Input() config?: MapLayerConfiguration;
+    @Input() layer?: MapLayer
     @Input() title: string = '';
 
     injector?: Injector;

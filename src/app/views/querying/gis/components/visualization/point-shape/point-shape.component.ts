@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { VisualizationConfiguration } from '../../../models/visualization-configuration.interface';
+import { MapLayerConfigurationComponent } from '../../../models/visualization-configuration.interface';
 import { FormsModule } from '@angular/forms';
 import { LayerSettingsService } from '../../../services/layersettings.service';
 import {
@@ -20,7 +20,7 @@ import {PointShapeVisualization} from "../point-shape-visualization.model";
     templateUrl: './point-shape.component.html',
     styleUrl: './point-shape.component.css',
 })
-export class PointShapeComponent implements VisualizationConfiguration {
+export class PointShapeComponent implements MapLayerConfigurationComponent {
     constructor(
         @Inject('config') protected config: PointShapeVisualization,
         private layerSettings: LayerSettingsService,

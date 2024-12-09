@@ -9,6 +9,8 @@ import {DataModel} from '../../../../models/ui-request.model';
 import {Geometry} from 'geojson';
 import {v4} from 'uuid'
 import * as L from 'leaflet';
+import {MapLayerConfiguration} from "./MapLayerConfiguration.interface";
+import {DataPreview} from "../components/configuration/DataPreview";
 
 export class MapLayer {
 
@@ -23,6 +25,7 @@ export class MapLayer {
     containsPoints = false;
     containsAreas = false;
 
+    dataPreview : MapLayerConfiguration = new DataPreview(this)
     pointShapeVisualization: Visualization = new PointShapeVisualization(3);
     areaShapeVisualization: Visualization = new AreaShapeVisualization(1);
     colorVisualization: Visualization = new ColorVisualization('red');

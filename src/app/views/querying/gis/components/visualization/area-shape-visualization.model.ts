@@ -1,9 +1,9 @@
 import { Visualization } from '../../models/visualization.interface';
 import { MapGeometryWithData } from '../../models/RowResult.model';
-import { EmptyComponent } from './empty/empty.component';
 import {AreaShapeComponent} from "./area-shape/area-shape.component";
+import {MapLayerConfiguration} from "../../models/MapLayerConfiguration.interface";
 
-export class AreaShapeVisualization implements Visualization {
+export class AreaShapeVisualization implements Visualization, MapLayerConfiguration {
     name = 'Area Shape';
     // TODO: Change to own component
     configurationComponentType = AreaShapeComponent;

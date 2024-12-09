@@ -1,10 +1,10 @@
-import { VisualizationConfiguration } from './visualization-configuration.interface';
+import { MapLayerConfigurationComponent } from './visualization-configuration.interface';
 import { Type } from '@angular/core';
 import {MapGeometryWithData} from "./RowResult.model";
+import {MapLayerConfiguration} from "./MapLayerConfiguration.interface";
 
-export interface Visualization {
+export interface Visualization extends MapLayerConfiguration {
     name: string;
-    configurationComponentType: Type<VisualizationConfiguration>;
 
     apply(): void;
 

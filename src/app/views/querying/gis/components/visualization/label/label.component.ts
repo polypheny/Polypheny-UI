@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { VisualizationConfiguration } from '../../../models/visualization-configuration.interface';
+import { MapLayerConfigurationComponent } from '../../../models/visualization-configuration.interface';
 import { FormsModule } from '@angular/forms';
 import { LayerSettingsService } from '../../../services/layersettings.service';
 import {
@@ -20,7 +20,7 @@ import {LabelVisualization} from "../label-visualization-model";
     templateUrl: './label.component.html',
     styleUrl: './label.component.css',
 })
-export class LabelComponent implements VisualizationConfiguration {
+export class LabelComponent implements MapLayerConfigurationComponent {
     constructor(
         @Inject('config') protected config: LabelVisualization,
         private layerSettings: LayerSettingsService,

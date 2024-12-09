@@ -12,20 +12,6 @@
             cdkDropListSortingDisabled="false"
     >
         <div *ngFor="let layer of layers; trackBy: trackByLayerUuid">
-            <ng-template #dataPopover>
-                <h3 class="popover-header">
-                    Preview data
-                </h3>
-                <div class="popover-body json-viewer-popover-body">
-                    <div *ngIf="Object.keys(layer.data[0].data).length !== 0">
-                        <span class="d-block mb-2">First data point:</span>
-                        <ngx-json-viewer [depth]="0"
-                                         [json]="layer.data[0].data"></ngx-json-viewer>
-                    </div>
-                    <span *ngIf="Object.keys(layer.data[0].data).length === 0">No data attached to geometries</span>
-                </div>
-            </ng-template>
-
             <c-card *ngIf="!layer.isRemoved"
                     cdkDrag
                     class="layer-card shadow-sm">
@@ -64,13 +50,12 @@
                 </c-card-header>
                 <c-card-body class="layer-card-body">
                     <div class="title">
-                        <span class="layer-name">{{ layer.name }}</span><!-- prettier-ignore --><span
-                            [cPopover]="dataPopover"
-                            cPopoverPlacement="left"
-                            [cPopoverTrigger]="'click'"
-                            class="preview-data">({{ layer.data.length }})</span>
+                        <span class="layer-name">{{ layer.name }}</span><!-- prettier-ignore --><span> ({{ layer.data.length }})</span>
                     </div>
                     <div class="config-sections">
+                        <app-config-section *ngIf="layer.data[0].data.size !== 0"
+                                            [title]="'Data'"
+                                            [config]="layer.dataPreview"></app-config-section>
                         <app-config-section *ngIf="layer.containsPoints"
                                             [title]="layer.pointShapeVisualization.name"
                                             [config]="layer.pointShapeVisualization"></app-config-section>

@@ -1,8 +1,9 @@
 import { Visualization } from '../../models/visualization.interface';
 import { MapGeometryWithData } from '../../models/RowResult.model';
 import { PointShapeComponent } from './point-shape/point-shape.component';
+import {MapLayerConfiguration} from "../../models/MapLayerConfiguration.interface";
 
-export class PointShapeVisualization implements Visualization {
+export class PointShapeVisualization implements Visualization, MapLayerConfiguration {
     name = 'Point Shape';
     configurationComponentType = PointShapeComponent;
 

@@ -10,14 +10,14 @@ export class MapGeometryWithData {
      */
     index: number;
     geometry: Geometry;
-    data: Record<string, any> = {};
+    data: Map<string, any> = new Map();
     cache: Record<string, number> = {};
     layer?: MapLayer = undefined;
 
     constructor(
         index: number,
         geometry: Geometry,
-        data: Record<string, any> | undefined = undefined,
+        data: Map<string, any> | undefined = undefined,
     ) {
         this.index = index;
         this.geometry = geometry;

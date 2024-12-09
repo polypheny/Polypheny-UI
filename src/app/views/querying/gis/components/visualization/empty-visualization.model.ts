@@ -1,12 +1,13 @@
 import { Type } from '@angular/core';
 import { MapGeometryWithData } from '../../models/RowResult.model';
-import { VisualizationConfiguration } from '../../models/visualization-configuration.interface';
+import { MapLayerConfigurationComponent } from '../../models/visualization-configuration.interface';
 import { Visualization } from '../../models/visualization.interface';
 import {EmptyComponent} from "./empty/empty.component";
+import {MapLayerConfiguration} from "../../models/MapLayerConfiguration.interface";
 
-export class EmptyVisualization implements Visualization {
+export class EmptyVisualization implements Visualization, MapLayerConfiguration {
     name: string = "Empty";
-    configurationComponentType: Type<VisualizationConfiguration> = EmptyComponent;
+    configurationComponentType: Type<MapLayerConfigurationComponent> = EmptyComponent;
 
     apply(): void {
         throw new Error('Method not implemented.');
