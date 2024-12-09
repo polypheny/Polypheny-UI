@@ -7,7 +7,8 @@ import {PointShapeVisualization} from '../components/visualization/point-shape-v
 import {CombinedResult} from '../../../../components/data-view/data-view.model';
 import {DataModel} from '../../../../models/ui-request.model';
 import {Geometry} from 'geojson';
-import {v4} from 'uuid';
+import {v4} from 'uuid'
+import * as L from 'leaflet';
 
 export class MapLayer {
 
@@ -192,6 +193,42 @@ export class MapLayer {
         }
     }
 
+    getBounds(): L.LatLng[] {
+        const bounds : L.LatLng[] = [];
+
+        for (const data of this.data){
+            switch (data.geometry.type) {
+                case 'Point':
+                    bounds.push(L.latLng(data.geometry.coordinates[1], data.geometry.coordinates[0]));
+                    break;
+                case 'LineString':
+                case 'MultiPoint':
+                    data.geometry.coordinates.forEach((coord: number[]) => {
+                        bounds.push(L.latLng(coord[1], coord[0]));
+                    });
+                    break;
+                case 'Polygon':
+                case 'MultiLineString':
+                    data.geometry.coordinates.forEach((ring: number[][]) => {
+                        ring.forEach((coord: number[]) => {
+                            bounds.push(L.latLng(coord[1], coord[0]));
+                        });
+                    });
+                    break;
+                case 'MultiPolygon':
+                    data.geometry.coordinates.forEach((polygon: number[][][]) => {
+                        polygon.forEach((ring: number[][]) => {
+                            ring.forEach((coord: number[]) => {
+                                bounds.push(L.latLng(coord[1], coord[0]));
+                            });
+                        });
+                    });
+                    break;
+            }
+        }
+
+        return bounds;
+    }
 
     copy(includeData = true) {
         // Do not copy isActive and isRemoved, because we use the copy to check if

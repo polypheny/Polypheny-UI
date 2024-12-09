@@ -263,6 +263,10 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
+    fitLayerToMap(layer: MapLayer){
+        this.layerSettings.setFitLayerToMap(layer);
+    }
+
     removeLayer(layer: MapLayer) {
         layer.isRemoved = true;
         if (layer.isActive) {

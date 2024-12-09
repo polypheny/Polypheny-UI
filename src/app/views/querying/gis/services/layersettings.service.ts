@@ -8,6 +8,9 @@ import {CombinedResult} from "../../../../components/data-view/data-view.model";
     providedIn: 'root',
 })
 export class LayerSettingsService {
+    private fitLayerToMap = new BehaviorSubject<MapLayer>(null);
+    fitLayerToMap$ = this.fitLayerToMap.asObservable();
+
     private queryFromConsoleResults = new BehaviorSubject<CombinedResult>(null);
     queryFromConsoleResults$ = this.queryFromConsoleResults.asObservable();
 
@@ -28,6 +31,9 @@ export class LayerSettingsService {
 
     private toggleLayerVisibilitySubject = new Subject<MapLayer>();
     toggleLayerVisibility$ = this.toggleLayerVisibilitySubject.asObservable();
+    setFitLayerToMap(layer: MapLayer){
+        this.fitLayerToMap.next(layer)
+    }
     setResultsQuery(result: CombinedResult){
         this.queryFromConsoleResults.next(result);
     }

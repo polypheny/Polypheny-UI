@@ -26,7 +26,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     isLoading = false;
     isLoadingMessage = 'TODO isLoadingMessage';
     canRerenderLayers = false;
-    previewResult : CombinedResult = null;
+    previewResult: CombinedResult = null;
 
     readonly MIN_ZOOM = 0;
     readonly MAX_ZOOM = 19;
@@ -97,6 +97,23 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         this.subscriptions.add(this.layerSettings.toggleLayerVisibility$.subscribe((layer) => {
             this.toggleLayerVisibility(layer);
         }));
+
+        this.subscriptions.add(this.layerSettings.fitLayerToMap$.subscribe((layer) => {
+            if (layer) {
+                this.fitLayerToMap(layer)
+            }
+
+        }));
+    }
+
+    fitLayerToMap(layer: MapLayer) {
+        const bounds = layer.getBounds()
+        if (bounds.length > 0){
+            const latLngBounds = L.latLngBounds(bounds);
+            if (latLngBounds.isValid()) {
+                this.map.fitBounds(latLngBounds);
+            }
+        }
     }
 
     ngOnDestroy() {
@@ -283,22 +300,13 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 // Set SVG position correctly
                 this.updateSvgPosition();
 
-                // Center the map around the data.
-                // TODO: Do the same thing for paths.
-                const latLngs: L.LatLng[] = [];
-                this.circles!.each(d => {
-                    // d has the property geometry, which is a GeoJSON point of type
-                    latLngs.push(L.latLng(d.getPoint().coordinates[1], d.getPoint().coordinates[0],));
-                });
-
-                // TODO: Currently, only do this, if the dataset is not too big. Otherwise we zoom way out,
-                // and zooming back in can be very slow. (if the points are all over the world)
-                if (latLngs.length > 0 && latLngs.length <= 1000) {
-                    const latLngBounds = L.latLngBounds(latLngs);
-                    if (latLngBounds.isValid()) {
-                        this.map.fitBounds(latLngBounds);
-                    }
+                // Only for the first layer we add: Adjust map to points from layer.
+                // Otherwise: Maybe the user is already looking at the data they are interested in -> do not change
+                //            map position, because it could be unwanted.
+                if (this.layers.length == 1){
+                    this.fitLayerToMap(this.layers[0])
                 }
+
             } finally {
                 this.isLoading = false;
             }
