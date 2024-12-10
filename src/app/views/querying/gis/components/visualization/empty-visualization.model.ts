@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { MapGeometryWithData } from '../../models/RowResult.model';
+import { MapGeometryWithData } from '../../models/MapGeometryWithData.model';
 import { MapLayerConfigurationComponent } from '../../models/visualization-configuration.interface';
 import { Visualization } from '../../models/visualization.interface';
 import {EmptyComponent} from "./empty/empty.component";

@@ -7,7 +7,7 @@ import * as L from 'leaflet';
 import 'leaflet-draw';
 import {LayerSettingsService} from '../../../views/querying/gis/services/layersettings.service';
 import {MapLayer} from '../../../views/querying/gis/models/MapLayer.model';
-import {MapGeometryWithData} from '../../../views/querying/gis/models/RowResult.model';
+import {MapGeometryWithData} from '../../../views/querying/gis/models/MapGeometryWithData.model';
 import {CombinedResult} from '../data-view.model';
 
 // tslint:disable:no-non-null-assertion

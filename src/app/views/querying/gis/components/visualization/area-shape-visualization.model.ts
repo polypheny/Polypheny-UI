@@ -1,5 +1,5 @@
 import { Visualization } from '../../models/visualization.interface';
-import { MapGeometryWithData } from '../../models/RowResult.model';
+import { MapGeometryWithData } from '../../models/MapGeometryWithData.model';
 import {AreaShapeComponent} from "./area-shape/area-shape.component";
 import {MapLayerConfiguration} from "../../models/MapLayerConfiguration.interface";
 

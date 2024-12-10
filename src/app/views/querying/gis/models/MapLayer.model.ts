@@ -1,5 +1,5 @@
 import {Visualization} from './visualization.interface';
-import {MapGeometryWithData} from './RowResult.model';
+import {MapGeometryWithData} from './MapGeometryWithData.model';
 import {ColorVisualization} from '../components/visualization/color-visualization-model';
 import {AreaShapeVisualization} from '../components/visualization/area-shape-visualization.model';
 import {LabelVisualization} from '../components/visualization/label-visualization-model';
@@ -264,6 +264,9 @@ export class MapLayer {
     addData(data: MapGeometryWithData[]) {
         this.containsPoints = false;
         this.containsAreas = false;
+
+        // Remove everything that does not have a geometry.
+        data = data.filter((d) => d.geometry !== null);
 
         data.forEach((d) => {
             if (d.isPoint()){

@@ -1,5 +1,5 @@
 import { Visualization } from '../../models/visualization.interface';
-import { MapGeometryWithData } from '../../models/RowResult.model';
+import { MapGeometryWithData } from '../../models/MapGeometryWithData.model';
 import * as d3 from 'd3';
 import * as turf from '@turf/turf';
 import { ColorComponent } from './color/color.component';

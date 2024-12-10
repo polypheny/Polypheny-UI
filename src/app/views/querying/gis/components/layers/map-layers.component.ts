@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import {LayerContext} from '../../models/LayerContext.model';
 import {LayerSettingsService} from '../../services/layersettings.service';
-import {MapGeometryWithData} from '../../models/RowResult.model';
+import {MapGeometryWithData} from '../../models/MapGeometryWithData.model';
 import * as GeoJSON from 'geojson';
 import {FeatureCollection} from 'geojson';
 import {MapLayer} from '../../models/MapLayer.model';
@@ -256,6 +256,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                 const file = input.files[0];
                 this.loadedGeoJsonFileName = file.name;
                 this.loadedGeoJsonFile = JSON.parse(await file.text());
+                console.log("Loaded GeoJSON file!")
             }
         } catch (error) {
             if (error instanceof Error) {

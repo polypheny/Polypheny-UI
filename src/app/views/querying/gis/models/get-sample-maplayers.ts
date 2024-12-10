@@ -1,6 +1,6 @@
 import { MapLayer } from './MapLayer.model';
 import * as GeoJSON from 'geojson';
-import { MapGeometryWithData } from './RowResult.model';
+import { MapGeometryWithData } from './MapGeometryWithData.model';
 
 export function getSampleMapLayers(): MapLayer[] {
     const data = `
