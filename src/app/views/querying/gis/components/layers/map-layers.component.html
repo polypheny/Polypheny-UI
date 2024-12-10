@@ -56,7 +56,7 @@
                         <button cButton (click)="filterLayer(layer)">Add filter</button>
                     </div>
                     <div class="config-sections">
-                        <app-config-section *ngIf="layer.data[0].data.size !== 0"
+                        <app-config-section *ngIf="Object.keys(layer.data[0].data).length !== 0"
                                             [title]="'Data'"
                                             [config]="layer.dataPreview"></app-config-section>
                         <app-config-section *ngIf="layer.containsPoints"

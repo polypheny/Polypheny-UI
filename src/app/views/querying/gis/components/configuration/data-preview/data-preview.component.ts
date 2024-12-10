@@ -18,7 +18,7 @@ export class DataPreviewComponent implements MapLayerConfigurationComponent {
         private layerSettings: LayerSettingsService,
     ) {
         this.layer = config.layer;
-        this.previewObject = Object.fromEntries(config.layer.data[0].data);
+        this.previewObject = config.layer.data[0].data;
     }
 
     protected readonly Object = Object;

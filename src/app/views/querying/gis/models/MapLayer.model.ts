@@ -45,7 +45,7 @@ export class MapLayer {
             case DataModel.DOCUMENT:
                 for (let rowIndex = 0; rowIndex < result.data.length; rowIndex++) {
                     const json = result.data[rowIndex][0];
-                    const jsonObject: Map<string, any> = new Map(
+                    const jsonObject = Object.fromEntries(
                         Object.entries(JSON.parse(json)).map(([key, value]) => [key.toLowerCase(), value])
                     );
                     const geometry = this.getGeometryFromData(jsonObject);
@@ -55,35 +55,39 @@ export class MapLayer {
                     }
                 }
                 break;
+
             case DataModel.RELATIONAL:
                 for (let rowIndex = 0; rowIndex < result.data.length; rowIndex++) {
-                    const map = new Map<string, any>();
+                    const obj: Record<string, any> = {};
 
                     for (let headerIndex = 0; headerIndex < result.header.length; headerIndex++) {
                         const header = result.header[headerIndex];
                         const key = header.name.toLowerCase();
                         const value = result.data[rowIndex][headerIndex];
+
                         if (header.dataType.startsWith('GEOMETRY')) {
-                            map.set(key, JSON.parse(value));
+                            obj[key] = JSON.parse(value);
                         } else if (header.dataType.startsWith('INTEGER')) {
-                            map.set(key, parseInt(value, 10));
+                            obj[key] = parseInt(value, 10);
                         } else if (header.dataType.startsWith('DECIMAL')) {
-                            map.set(key, parseFloat(value));
+                            obj[key] = parseFloat(value);
                         } else {
-                            map.set(key, value);
+                            obj[key] = value;
                         }
                     }
 
-                    const geometry = this.getGeometryFromData(map);
+                    const geometry = this.getGeometryFromData(obj);
                     if (geometry) {
-                        const geometryWithData = new MapGeometryWithData(rowIndex, geometry, map);
+                        const geometryWithData = new MapGeometryWithData(rowIndex, geometry, obj);
                         mapData.push(geometryWithData);
                     }
                 }
                 break;
+
             case DataModel.GRAPH:
                 for (let rowIndex = 0; rowIndex < result.data.length; rowIndex++) {
-                    const map = new Map<string, any>();
+                    const obj: Record<string, any> = {};
+
                     for (let headerIndex = 0; headerIndex < result.header.length; headerIndex++) {
                         const header = result.header[headerIndex];
                         const key = header.name.toLowerCase();
@@ -93,37 +97,39 @@ export class MapLayer {
                         if (datatype.startsWith('NODE')) {
                             const json = JSON.parse(value);
                             const properties = json['properties'];
-                            const propertiesLowercase: Record<string, any> = Object.fromEntries(
+                            // Node stored as JSON
+                            obj[key] = Object.fromEntries(
                                 Object.entries(properties).map(([key, value]) => [key.toLowerCase(), value])
                             );
-                            // Node stored as JSON
-                            map.set(key, propertiesLowercase);
                         } else {
                             // Other value
-                            map.set(key, value);
+                            obj[key] = value;
                         }
                     }
 
-                    const geometry = this.getGeometryFromData(map);
+                    const geometry = this.getGeometryFromData(obj);
                     if (geometry) {
-                        const geometryWithData = new MapGeometryWithData(rowIndex, geometry, map);
+                        const geometryWithData = new MapGeometryWithData(rowIndex, geometry, obj);
                         mapData.push(geometryWithData);
                     }
                 }
                 break;
+
             default:
                 throw Error(`Cannot convert CombinedResult to MapLayer. Unknown document model: ${result.dataModel}`);
         }
+
         layer.addData(mapData);
         console.log('Created layer: ', layer);
         return layer;
     }
 
-    static getGeometryFromData(data: Map<string, any>): Geometry | undefined {
+
+    static getGeometryFromData(data: Record<string, any>): Geometry | undefined {
         // Detect GeoJSON objects
-        for (const value of data.values()) {
-            if (this.isGeoJSON(value)){
-                return value;
+        for (const key in data) {
+            if (data.hasOwnProperty(key) && this.isGeoJSON(data[key])) {
+                return data[key];
             }
         }
 
@@ -141,22 +147,25 @@ export class MapLayer {
             const lat = ll[0];
             const lon = ll[1];
 
-            if (data.has(lat) &&
-                data.has(lon) &&
-                isNumber(data.get(lat)) &&
-                isNumber(data.get(lon))) {
+            if (
+                data.hasOwnProperty(lat) &&
+                data.hasOwnProperty(lon) &&
+                isNumber(data[lat]) &&
+                isNumber(data[lon])
+            ) {
                 return {
                     type: 'Point',
-                    coordinates: [data.get(lon), data.get(lat)]
+                    coordinates: [data[lon], data[lat]],
                 };
             }
         }
 
         // TODO: Detect heuristic, so that we can automatically detect the most common geometry types
-        //   - string in wkt format
+        //   - string in WKT format
 
         return undefined;
     }
+
 
     static isGeoJSON(obj: any): boolean {
         if (!obj || typeof obj !== 'object') return false;
