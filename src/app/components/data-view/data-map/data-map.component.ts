@@ -350,7 +350,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             .data(points)
             .enter()
             .append('circle')
-            .attr('layer-name', (d) => d.layer!.name)
+            .attr('layer-id', (d) => d.layer!.uuid)
             .attr('layer-index', (d) => d.layer!.index.toString())
             .attr('r', (d) =>
                 d.layer!.pointShapeVisualization.getValueForAttribute('r', d),
@@ -396,7 +396,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             .data(paths)
             .enter()
             .append('path')
-            .attr('layer-name', (d) => d.layer!.name)
+            .attr('layer-id', (d) => d.layer!.uuid)
             .attr('layer-index', (d) => d.layer!.index.toString())
             .attr('d', (d) => this.pathGenerator(d.geometry))
             .attr('stroke-width', (d) =>
@@ -441,7 +441,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         const layerElements = this.g
             .node()!
             .querySelectorAll(
-                `[layer-name='${layer.name}'][layer-index='${layer.index.toString()}']`,
+                `[layer-id='${layer.uuid}']`,
             );
 
         if (!layerElements.length) {
