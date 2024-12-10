@@ -307,6 +307,11 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         return this._crud.anyQuery(this.websocket, request)
     }
 
+    filterLayer(layer: MapLayer){
+        console.log("Filter layer", layer)
+        this.layerSettings.addPolygonFilterForLayer(layer);
+    }
+
     async addLayer() {
         this.addLayerDialogErrorMessage = '';
 

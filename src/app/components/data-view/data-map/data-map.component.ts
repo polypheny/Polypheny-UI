@@ -27,11 +27,12 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     isLoadingMessage = 'TODO isLoadingMessage';
     canRerenderLayers = false;
     previewResult: CombinedResult = null;
+    leafletDrawControl = null;
 
     readonly MIN_ZOOM = 0;
     readonly MAX_ZOOM = 19;
     readonly INITIAL_ZOOM = 6;
-    private map!: L.Map;
+    private map!: L.DrawMap;
     private svg:
         | d3.Selection<SVGSVGElement, unknown, null, undefined>
         | undefined;
@@ -102,13 +103,14 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             if (layer) {
                 this.fitLayerToMap(layer)
             }
-
         }));
+
+
     }
 
     fitLayerToMap(layer: MapLayer) {
         const bounds = layer.getBounds()
-        if (bounds.length > 0){
+        if (bounds.length > 0) {
             const latLngBounds = L.latLngBounds(bounds);
             if (latLngBounds.isValid()) {
                 this.map.fitBounds(latLngBounds);
@@ -128,7 +130,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         // Leaflet.Draw edit toolbar
         const drawnItems = new L.FeatureGroup();
         leafletMap.addLayer(drawnItems);
-        const drawControl = new L.Control.Draw({
+        this.leafletDrawControl = new L.Control.Draw({
             edit: {
                 featureGroup: drawnItems
             },
@@ -140,15 +142,38 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 circlemarker: false
             }
         });
-        leafletMap.addControl(drawControl);
+        // leafletMap.addControl(this.leafletDrawControl);
 
-        leafletMap.on(L.Draw.Event.CREATED, function (event) {
+        // leafletMap.on(L.Draw.Event.CREATED, function (event) {
+        //     const layer = event.layer;
+        //     drawnItems.addLayer(layer);
+        // });
 
-            // TODO: What is the best way to use this shape to add a filter to another layer?
-            //         - We could add this shape as its own layer.
-            const layer = event.layer;
-            drawnItems.addLayer(layer);
-        });
+        this.subscriptions.add(this.layerSettings.addLayerFilterPolygon$.subscribe((mapLayer) => {
+            if (mapLayer === null) {
+                return;
+            }
+            console.log("addLayerFilterPolygon$", leafletMap, this.leafletDrawControl.options.draw.polygon)
+
+            const drawControl = this.leafletDrawControl
+            leafletMap.addControl(drawControl)
+            const polygonTool = new L.Draw.Polygon(leafletMap, this.leafletDrawControl.options.draw.polygon);
+            polygonTool.enable();
+
+            // TODO: Do not create new handler in here...
+            leafletMap.on(L.Draw.Event.CREATED, function (event) {
+                const polygon = event.layer;
+
+                if (polygon instanceof L.Polygon){
+                    const coordinates = polygon.getLatLngs();
+                    console.log("polygon coordinates", coordinates)
+                }
+
+                leafletMap.removeControl(drawControl)
+                polygonTool.disable()
+                drawnItems.addLayer(polygon);
+            });
+        }));
 
         this.svg = d3.select(this.map.getPanes().overlayPane).append('svg');
         this.g = this.svg.append('g').attr('class', 'leaflet-zoom-hide');
@@ -303,7 +328,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 // Only for the first layer we add: Adjust map to points from layer.
                 // Otherwise: Maybe the user is already looking at the data they are interested in -> do not change
                 //            map position, because it could be unwanted.
-                if (this.layers.length == 1){
+                if (this.layers.length == 1) {
                     this.fitLayerToMap(this.layers[0])
                 }
 

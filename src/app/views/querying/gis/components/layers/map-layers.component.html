@@ -52,6 +52,9 @@
                     <div class="title">
                         <span class="layer-name">{{ layer.name }}</span><!-- prettier-ignore --><span> ({{ layer.data.length }})</span>
                     </div>
+                    <div>
+                        <button cButton (click)="filterLayer(layer)">Add filter</button>
+                    </div>
                     <div class="config-sections">
                         <app-config-section *ngIf="layer.data[0].data.size !== 0"
                                             [title]="'Data'"

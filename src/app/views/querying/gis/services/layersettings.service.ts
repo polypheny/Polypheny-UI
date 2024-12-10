@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {BehaviorSubject, Subject} from 'rxjs';
-import { MapLayer } from '../models/MapLayer.model';
+import {MapLayer} from '../models/MapLayer.model';
 import {Visualization} from '../models/visualization.interface';
 import {CombinedResult} from "../../../../components/data-view/data-view.model";
 
@@ -8,6 +8,9 @@ import {CombinedResult} from "../../../../components/data-view/data-view.model";
     providedIn: 'root',
 })
 export class LayerSettingsService {
+    private addLayerFilterPolygon = new BehaviorSubject<MapLayer>(null);
+    addLayerFilterPolygon$ = this.addLayerFilterPolygon.asObservable();
+
     private fitLayerToMap = new BehaviorSubject<MapLayer>(null);
     fitLayerToMap$ = this.fitLayerToMap.asObservable();
 
@@ -31,28 +34,40 @@ export class LayerSettingsService {
 
     private toggleLayerVisibilitySubject = new Subject<MapLayer>();
     toggleLayerVisibility$ = this.toggleLayerVisibilitySubject.asObservable();
-    setFitLayerToMap(layer: MapLayer){
+
+    addPolygonFilterForLayer(layer: MapLayer) {
+        this.addLayerFilterPolygon.next(layer);
+    }
+
+    setFitLayerToMap(layer: MapLayer) {
         this.fitLayerToMap.next(layer)
     }
-    setResultsQuery(result: CombinedResult){
+
+    setResultsQuery(result: CombinedResult) {
         this.queryFromConsoleResults.next(result);
     }
+
     setBaseLayer(item: string) {
         this.selectedBaseLayer.next(item);
     }
+
     setLayers(layers: MapLayer[]) {
         this.layers.next(layers);
     }
+
     visualizationConfigurationChanged(visualization: Visualization): void {
         this.modifiedVisualization.next(visualization);
     }
-    setCanRerenderLayers(canRerenderMap: boolean){
+
+    setCanRerenderLayers(canRerenderMap: boolean) {
         this.canRerenderLayers.next(canRerenderMap);
     }
-    rerenderButtonClicked(){
+
+    rerenderButtonClicked() {
         this.rerenderButtonClickedSubject.next();
     }
-    toggleLayerVisibility(layer: MapLayer){
+
+    toggleLayerVisibility(layer: MapLayer) {
         this.toggleLayerVisibilitySubject.next(layer);
     }
 }
