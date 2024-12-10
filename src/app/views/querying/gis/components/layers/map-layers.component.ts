@@ -68,9 +68,11 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        // When we navigate away from the query mode, we remove all the layers from the layer settings as well
-        // as from the map. Otherwise, they show up when we don't want them, e.g. in the results view.
-        this.updateLayers([]);
+        // This component is only destroyed once we navigate away from the Map-Based Query Mode. In this case,
+        // we want to remove everything that belongs to this session.
+        // Note: Don't do the same thing for the map: Because when we are navigating from the results to the full
+        //       query mode, we want to keep the session going, and transfer the last-run query over.
+        this.layerSettings.reset();
         this.subscriptions.unsubscribe();
         clearInterval(this.pollingTimer);
     }
