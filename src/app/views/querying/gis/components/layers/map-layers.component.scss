@@ -155,6 +155,26 @@
     }
   }
 
+  & .edit-query-button {
+    gap: 0.5rem;
+    display: none;
+    align-items: center;
+    & > svg {
+      fill: white;
+      width: 16px;
+    }
+  }
+
+  &:hover {
+    & .edit-query-button {
+      display: flex;
+
+      & > svg {
+        fill: currentColor;
+      }
+    }
+  }
+
   & > .layer-card-body {
     display: flex;
     flex-direction: column;
@@ -164,27 +184,15 @@
   & .title {
     word-break: break-all;
 
-    & > .layer-name {
+    & .layer-length {
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+
+    & .layer-name {
       text-transform: uppercase;
       letter-spacing: 0.5px;
       font-weight: bold;
-    }
-
-    & > .layer-size {
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    & > .preview-data {
-      all: unset;
-      color: #4645ab;
-      cursor: pointer;
-      user-select: none;
-      margin-left: 0.25rem;
-
-      &:hover {
-        text-decoration: underline;
-      }
     }
   }
 
