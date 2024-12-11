@@ -59,7 +59,18 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                 if (combinedResult.error) {
                     this.addLayerDialogErrorMessage = `There was an error executing the query. Error: ${combinedResult.error}`;
                 } else {
-                    this.addLayerInternal(MapLayer.from(combinedResult));
+                    const queryLayer = MapLayer.from(combinedResult)
+                    console.log("this.addDataToExistingLayer", this.addDataToExistingLayer);
+                    if (this.addDataToExistingLayer){
+                        this.addDataToExistingLayer.data = queryLayer.data;
+                        this.addDataToExistingLayer.query = queryLayer.query;
+                        // This timestamp will trigger the change detection.
+                        this.addDataToExistingLayer.lastUpdated = queryLayer.lastUpdated;
+                        this.addDataToExistingLayer = null;
+                        this.checkCanRerender()
+                    } else {
+                        this.addLayerInternal(queryLayer);
+                    }
                     localStorage.setItem(this.LOCAL_STORAGE_LAST_QUERY_KEY, combinedResult.query);
                     this.isAddLayerModalVisible = false;
                 }
@@ -90,6 +101,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     readonly language: WritableSignal<string> = signal('sql');
     private subscriptions = new Subscription();
     private readonly LOCAL_STORAGE_LAST_QUERY_KEY = 'last_query_gis';
+    private addDataToExistingLayer : MapLayer = null;
 
     protected baseLayers: BaseLayer[] = [
         {
@@ -168,12 +180,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             if (!config) {
                 return;
             }
-
-            const canRerenderLayers = !isEqual(
-                this.deepCopyLayers(this.layers, false),
-                this.renderedLayers,
-            );
-            this.layerSettings.setCanRerenderLayers(canRerenderLayers);
+            this.checkCanRerender()
         }));
 
         this.subscriptions.add(this.layerSettings.rerenderButtonClicked$.subscribe(() => {
@@ -198,6 +205,14 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         }));
 
         // this.updateLayers(getSampleMapLayers());
+    }
+
+    checkCanRerender(){
+        const canRerenderLayers = !isEqual(
+            this.deepCopyLayers(this.layers, false),
+            this.renderedLayers,
+        );
+        this.layerSettings.setCanRerenderLayers(canRerenderLayers);
     }
 
     trackByLayerUuid(index: number, layer: MapLayer): string {
@@ -272,6 +287,12 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             }
             this.loadedGeoJsonFile = undefined;
         }
+    }
+
+    rerunQuery(layer: MapLayer) {
+        // Data will be overwritten once the results are in
+        this.addDataToExistingLayer = layer;
+        this.submitQuery(layer.query, layer.language, layer.namespace);
     }
 
     fitLayerToMap(layer: MapLayer) {

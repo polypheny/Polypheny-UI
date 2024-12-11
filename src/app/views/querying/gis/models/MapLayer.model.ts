@@ -18,6 +18,7 @@ export class MapLayer {
     constructor(name: string) {
         this.name = name;
         this.uuid = v4();
+        this.lastUpdated = new Date().toISOString();
     }
 
     uuid: string;
@@ -25,7 +26,13 @@ export class MapLayer {
     data: MapGeometryWithData[] = [];
     containsPoints = false;
     containsAreas = false;
+
+    // Query
     isQueryLayer = false;
+    query = null;
+    language = null;
+    namespace = null;
+    lastUpdated = ""
 
     dataPreview: MapLayerConfiguration = new DataPreview(this);
     filterConfig: FilterConfig = new FilterConfig(this);
@@ -42,6 +49,9 @@ export class MapLayer {
     static from(result: CombinedResult): MapLayer {
         console.log("MapLayer from result: ", result);
         const layer = new MapLayer(result.query);
+        layer.query = result.query;
+        layer.language = result.language;
+        layer.namespace = result.namespace;
         layer.isQueryLayer = true;
         const mapData = [];
 
@@ -252,6 +262,7 @@ export class MapLayer {
         // to rerender.
 
         const copy = new MapLayer(this.name)
+        copy.lastUpdated = this.lastUpdated;
         if (includeData) {
             copy.addData(
                 this.data.map((d) => d.copy()),
