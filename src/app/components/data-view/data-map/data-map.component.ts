@@ -9,6 +9,8 @@ import {LayerSettingsService} from '../../../views/querying/gis/services/layerse
 import {MapLayer} from '../../../views/querying/gis/models/MapLayer.model';
 import {MapGeometryWithData} from '../../../views/querying/gis/models/MapGeometryWithData.model';
 import {CombinedResult} from '../data-view.model';
+import {LatLng} from "leaflet";
+import {Polygon, Position} from "geojson";
 
 // tslint:disable:no-non-null-assertion
 
@@ -27,7 +29,12 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     isLoadingMessage = 'TODO isLoadingMessage';
     canRerenderLayers = false;
     previewResult: CombinedResult = null;
+
+    // leaflet-draw
     leafletDrawControl = null;
+    layerIdToPoylgon = new Map<string, L.Polygon>()
+    currentDrawingLayer: MapLayer = null;
+    polygonTool = null;
 
     readonly MIN_ZOOM = 0;
     readonly MAX_ZOOM = 19;
@@ -142,37 +149,53 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 circlemarker: false
             }
         });
-        // leafletMap.addControl(this.leafletDrawControl);
 
-        // leafletMap.on(L.Draw.Event.CREATED, function (event) {
-        //     const layer = event.layer;
-        //     drawnItems.addLayer(layer);
-        // });
+        leafletMap.on(L.Draw.Event.CREATED, (event) => {
+            if (this.currentDrawingLayer === null) {
+                throw new Error("We are drawing, but there is no layer set?")
+            }
+            const polygon: L.Polygon = event.layer;
+            this.layerIdToPoylgon.set(this.currentDrawingLayer.uuid, polygon);
+            console.log("Polygon added for layer ", this.currentDrawingLayer.uuid, polygon)
+            leafletMap.removeControl(this.leafletDrawControl)
+            this.polygonTool.disable()
+            drawnItems.addLayer(polygon);
+
+            // Send coordinates back to map-layers
+            let coordinates = polygon.getLatLngs() as LatLng[][];
+            let positions: Position[][] = coordinates.map((ring) =>
+                ring.map((c) => [c.lng, c.lat])
+            );
+            const geoJsonPolygon: Polygon = {
+                type: "Polygon",
+                coordinates: positions,
+            }
+            this.layerSettings.addPolygonToLayer(this.currentDrawingLayer, geoJsonPolygon);
+        });
 
         this.subscriptions.add(this.layerSettings.addLayerFilterPolygon$.subscribe((mapLayer) => {
             if (mapLayer === null) {
                 return;
             }
-            console.log("addLayerFilterPolygon$", leafletMap, this.leafletDrawControl.options.draw.polygon)
-
-            const drawControl = this.leafletDrawControl
-            leafletMap.addControl(drawControl)
+            this.currentDrawingLayer = mapLayer;
+            leafletMap.addControl(this.leafletDrawControl);
             const polygonTool = new L.Draw.Polygon(leafletMap, this.leafletDrawControl.options.draw.polygon);
             polygonTool.enable();
+            this.polygonTool = polygonTool;
+        }));
 
-            // TODO: Do not create new handler in here...
-            leafletMap.on(L.Draw.Event.CREATED, function (event) {
-                const polygon = event.layer;
-
-                if (polygon instanceof L.Polygon){
-                    const coordinates = polygon.getLatLngs();
-                    console.log("polygon coordinates", coordinates)
-                }
-
-                leafletMap.removeControl(drawControl)
-                polygonTool.disable()
-                drawnItems.addLayer(polygon);
-            });
+        this.subscriptions.add(this.layerSettings.removeLayerFilterPolygon$.subscribe((mapLayer) => {
+            if (mapLayer === null) {
+                return;
+            }
+            console.log("data-map remove layer filter polygon for ", mapLayer, this.layerIdToPoylgon);
+            console.trace();
+            if (!this.layerIdToPoylgon.has(mapLayer.uuid)) {
+                return;
+            }
+            const polygon = this.layerIdToPoylgon.get(mapLayer.uuid);
+            console.log("Remove polygon", polygon);
+            drawnItems.removeLayer(polygon);
         }));
 
         this.svg = d3.select(this.map.getPanes().overlayPane).append('svg');

@@ -3,4 +3,6 @@ import {MapLayerConfigurationComponent} from "./visualization-configuration.inte
 
 export interface MapLayerConfiguration {
     configurationComponentType: Type<MapLayerConfigurationComponent>;
+
+    copy(): MapLayerConfiguration;
 }

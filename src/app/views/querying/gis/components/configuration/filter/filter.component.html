@@ -1,0 +1,12 @@
+<div>
+    <c-input-group>
+        <span cInputGroupText>Polygon</span>
+        <input aria-label="Color"
+               cFormControl
+               [(ngModel)]="config.filterPolygonText"
+               readonly
+               (ngModelChange)="configChanged()"
+        />
+        <button cButton (click)="drawOrRemovePolygon()">{{ config.filterPolygon ? 'Remove' : 'Draw' }}</button>
+    </c-input-group>
+</div>

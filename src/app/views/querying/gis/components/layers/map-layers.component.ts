@@ -164,7 +164,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             this.updateLayerUi();
         }))
 
-        this.subscriptions.add(this.layerSettings.modifiedVisualization$.subscribe((config) => {
+        this.subscriptions.add(this.layerSettings.modifiedConfig$.subscribe((config) => {
             if (!config) {
                 return;
             }
@@ -181,12 +181,20 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         }));
 
         this.subscriptions.add(this.layerSettings.queryFromConsoleResults$.subscribe((query) => {
-            if (query){
+            if (query) {
                 console.log("Run full query from results", query);
                 this.submitQuery(query.query, query.language.toString(), query.namespace);
                 // Remove it, so that if we navigate away and back again, we won't run the query twice.
                 this.layerSettings.setResultsQuery(null);
             }
+        }));
+
+        this.subscriptions.add(this.layerSettings.layerPolygonFilter$.subscribe((layerAndPolygon) => {
+            if (layerAndPolygon === null) {
+                return
+            }
+            const [layer, polygon] = layerAndPolygon;
+            layer.filterConfig.addPolygon(polygon);
         }));
 
         // this.updateLayers(getSampleMapLayers());
@@ -208,7 +216,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         this.pollingTimer = setInterval(() => {
             const currentHeight = this.getMapHeight();
 
-            if (currentHeight === undefined){
+            if (currentHeight === undefined) {
                 return
             }
 
@@ -228,7 +236,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
 
     private getMapHeight(): string | undefined {
         const elem = (document.querySelector('#map') as HTMLElement)
-        if (elem === null){
+        if (elem === null) {
             return undefined
         } else {
             return `${elem.offsetHeight}px`
@@ -266,7 +274,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    fitLayerToMap(layer: MapLayer){
+    fitLayerToMap(layer: MapLayer) {
         this.layerSettings.setFitLayerToMap(layer);
     }
 
@@ -304,13 +312,13 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         return geojson;
     }
 
-    submitQuery(query: string, language: string, namespace: string) : boolean {
+    submitQuery(query: string, language: string, namespace: string): boolean {
         const request = new QueryRequest(query, false, false, language, namespace);
         request.noLimit = true;
         return this._crud.anyQuery(this.websocket, request)
     }
 
-    filterLayer(layer: MapLayer){
+    filterLayer(layer: MapLayer) {
         console.log("Filter layer", layer)
         this.layerSettings.addPolygonFilterForLayer(layer);
     }
@@ -320,7 +328,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
 
         switch (this.addLayerMode) {
             case LayerContext.Query:
-                if (!this.submitQuery(this.queryEditor.getCode(), this.language(), this.activeNamespace())){
+                if (!this.submitQuery(this.queryEditor.getCode(), this.language(), this.activeNamespace())) {
                     this.addLayerDialogErrorMessage = 'There was an error executing this query.';
                 }
                 // Dialog will be hidden when result has arrived in constructor.effect, because it is possible to
@@ -387,5 +395,45 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         this.anyLayersVisible =
             this.layers.filter((d) => !d.isRemoved).length > 0;
+    }
+
+    export() {
+        if (this.layers.length === 0){
+            return;
+        }
+
+        // Create and download a GeoJSON file.
+        const geoJSON = {
+            type: "FeatureCollection",
+            features: this.layers.flatMap(layer =>
+                layer.data.map(item => ({
+                    type: "Feature",
+                    geometry: item.geometry,
+                    properties: {
+                        ...item.data,
+                        layerName: layer.name,
+                        layerUUID: layer.uuid,
+                    },
+                }))
+            ),
+        };
+
+        const jsonString = JSON.stringify(geoJSON, null, 2);
+        const blob = new Blob([jsonString], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const now = new Date();
+        // Timestamp looks like 01-12-2024-15-30
+        const timestamp = [
+            now.getDate().toString().padStart(2, '0'),
+            (now.getMonth() + 1).toString().padStart(2, '0'),
+            now.getFullYear(),
+            now.getHours().toString().padStart(2, '0'),
+            now.getMinutes().toString().padStart(2, '0')
+        ].join("-");
+        a.download = `${timestamp}_polypheny_map_layers_export.geojson`;
+        a.click();
+        URL.revokeObjectURL(url);
     }
 }

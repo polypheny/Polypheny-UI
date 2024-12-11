@@ -110,6 +110,7 @@ import {LabelComponent} from "./querying/gis/components/visualization/label/labe
 import {PointShapeComponent} from "./querying/gis/components/visualization/point-shape/point-shape.component";
 import {NgxJsonViewerModule} from "ngx-json-viewer";
 import {DataPreviewComponent} from "./querying/gis/components/configuration/data-preview/data-preview.component";
+import {FilterComponent} from "./querying/gis/components/configuration/filter/filter.component";
 
 
 @NgModule({
@@ -223,7 +224,8 @@ import {DataPreviewComponent} from "./querying/gis/components/configuration/data
         EmptyComponent,
         LabelComponent,
         PointShapeComponent,
-        DataPreviewComponent
+        DataPreviewComponent,
+        FilterComponent
     ],
     exports: [
         QueryEditor,

@@ -10,4 +10,8 @@ export class DataPreview implements MapLayerConfiguration {
         this.layer = layer;
     }
 
+    copy(): MapLayerConfiguration {
+        throw new Error("Layer should not need to be copied, there is no configuration that can change.");
+    }
+
 }

@@ -11,6 +11,7 @@ import {v4} from 'uuid'
 import * as L from 'leaflet';
 import {MapLayerConfiguration} from "./MapLayerConfiguration.interface";
 import {DataPreview} from "../components/configuration/DataPreview";
+import {FilterConfig} from "../components/configuration/FilterConfig";
 
 export class MapLayer {
 
@@ -24,8 +25,10 @@ export class MapLayer {
     data: MapGeometryWithData[] = [];
     containsPoints = false;
     containsAreas = false;
+    isQueryLayer = false;
 
-    dataPreview : MapLayerConfiguration = new DataPreview(this)
+    dataPreview: MapLayerConfiguration = new DataPreview(this);
+    filterConfig: FilterConfig = new FilterConfig(this);
     pointShapeVisualization: Visualization = new PointShapeVisualization(3);
     areaShapeVisualization: Visualization = new AreaShapeVisualization(1);
     colorVisualization: Visualization = new ColorVisualization('red');
@@ -39,6 +42,7 @@ export class MapLayer {
     static from(result: CombinedResult): MapLayer {
         console.log("MapLayer from result: ", result);
         const layer = new MapLayer(result.query);
+        layer.isQueryLayer = true;
         const mapData = [];
 
         switch (result.dataModel) {
@@ -206,9 +210,9 @@ export class MapLayer {
     }
 
     getBounds(): L.LatLng[] {
-        const bounds : L.LatLng[] = [];
+        const bounds: L.LatLng[] = [];
 
-        for (const data of this.data){
+        for (const data of this.data) {
             switch (data.geometry.type) {
                 case 'Point':
                     bounds.push(L.latLng(data.geometry.coordinates[1], data.geometry.coordinates[0]));
@@ -248,7 +252,7 @@ export class MapLayer {
         // to rerender.
 
         const copy = new MapLayer(this.name)
-        if (includeData){
+        if (includeData) {
             copy.addData(
                 this.data.map((d) => d.copy()),
             );
@@ -258,6 +262,7 @@ export class MapLayer {
         copy.areaShapeVisualization = this.areaShapeVisualization.copy();
         copy.colorVisualization = this.colorVisualization.copy();
         copy.labelVisualization = this.labelVisualization.copy();
+        copy.filterConfig = this.filterConfig.copy() as FilterConfig;
         return copy;
     }
 
@@ -269,7 +274,7 @@ export class MapLayer {
         data = data.filter((d) => d.geometry !== null);
 
         data.forEach((d) => {
-            if (d.isPoint()){
+            if (d.isPoint()) {
                 this.containsPoints = true;
             } else {
                 this.containsAreas = true;

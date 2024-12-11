@@ -3,13 +3,21 @@ import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {MapLayer} from '../models/MapLayer.model';
 import {Visualization} from '../models/visualization.interface';
 import {CombinedResult} from "../../../../components/data-view/data-view.model";
+import {MapLayerConfiguration} from "../models/MapLayerConfiguration.interface";
+import {Polygon} from "geojson";
+
 
 @Injectable({
     providedIn: 'root',
 })
 export class LayerSettingsService {
+    // Filter
     private addLayerFilterPolygon: BehaviorSubject<MapLayer>;
     addLayerFilterPolygon$: Observable<MapLayer>;
+    private removeLayerFilterPolygon: BehaviorSubject<MapLayer>;
+    removeLayerFilterPolygon$: Observable<MapLayer>;
+    private layerPolygonFilter: BehaviorSubject<[MapLayer, Polygon]>;
+    layerPolygonFilter$: Observable<[MapLayer, Polygon]>;
     private fitLayerToMap: BehaviorSubject<MapLayer>;
     fitLayerToMap$: Observable<MapLayer>;
     private queryFromConsoleResults: BehaviorSubject<CombinedResult>;
@@ -18,8 +26,8 @@ export class LayerSettingsService {
     selectedBaseLayer$: Observable<string>;
     private layers: BehaviorSubject<MapLayer[]>;
     layers$: Observable<MapLayer[]>;
-    private modifiedVisualization: BehaviorSubject<Visualization | null>;
-    modifiedVisualization$: Observable<Visualization | null>;
+    private modifiedConfig: BehaviorSubject<MapLayerConfiguration | null>;
+    modifiedConfig$: Observable<MapLayerConfiguration | null>;
     private canRerenderLayers: BehaviorSubject<boolean>;
     canRerenderLayers$: Observable<boolean>;
     private rerenderButtonClickedSubject: Subject<void>;
@@ -37,6 +45,10 @@ export class LayerSettingsService {
         // receive the most recent value, which could be from an old session.
         this.addLayerFilterPolygon = new BehaviorSubject<MapLayer>(null);
         this.addLayerFilterPolygon$ = this.addLayerFilterPolygon.asObservable();
+        this.removeLayerFilterPolygon = new BehaviorSubject<MapLayer>(null);
+        this.removeLayerFilterPolygon$ = this.removeLayerFilterPolygon.asObservable();
+        this.layerPolygonFilter = new BehaviorSubject<[MapLayer, Polygon]>(null);
+        this.layerPolygonFilter$ = this.layerPolygonFilter.asObservable();
         this.fitLayerToMap = new BehaviorSubject<MapLayer>(null);
         this.fitLayerToMap$ = this.fitLayerToMap.asObservable();
         this.queryFromConsoleResults = new BehaviorSubject<CombinedResult>(null);
@@ -45,8 +57,8 @@ export class LayerSettingsService {
         this.selectedBaseLayer$ = this.selectedBaseLayer.asObservable();
         this.layers = new BehaviorSubject<MapLayer[]>([]);
         this.layers$ = this.layers.asObservable();
-        this.modifiedVisualization = new BehaviorSubject<Visualization | null>(null);
-        this.modifiedVisualization$ = this.modifiedVisualization.asObservable();
+        this.modifiedConfig = new BehaviorSubject<Visualization | null>(null);
+        this.modifiedConfig$ = this.modifiedConfig.asObservable();
         this.canRerenderLayers = new BehaviorSubject(false);
         this.canRerenderLayers$ = this.canRerenderLayers.asObservable();
         this.rerenderButtonClickedSubject = new Subject<void>();
@@ -55,9 +67,16 @@ export class LayerSettingsService {
         this.toggleLayerVisibility$ = this.toggleLayerVisibilitySubject.asObservable();
     }
 
+    removePolygonFilterForLayer(layer: MapLayer) {
+        this.removeLayerFilterPolygon.next(layer);
+    }
 
     addPolygonFilterForLayer(layer: MapLayer) {
         this.addLayerFilterPolygon.next(layer);
+    }
+
+    addPolygonToLayer(layer: MapLayer, polygon: Polygon){
+        this.layerPolygonFilter.next([layer, polygon]);
     }
 
     setFitLayerToMap(layer: MapLayer) {
@@ -76,8 +95,8 @@ export class LayerSettingsService {
         this.layers.next(layers);
     }
 
-    visualizationConfigurationChanged(visualization: Visualization): void {
-        this.modifiedVisualization.next(visualization);
+    visualizationConfigurationChanged(config: MapLayerConfiguration): void {
+        this.modifiedConfig.next(config);
     }
 
     setCanRerenderLayers(canRerenderMap: boolean) {
