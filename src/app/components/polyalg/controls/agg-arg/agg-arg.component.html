@@ -1,0 +1,74 @@
+<ng-container [ngSwitch]="data.simpleType()">
+    <label for="selectFunction" *ngIf="data.name"><strong>{{data.name}}</strong></label>
+
+    <ng-container *ngSwitchCase="SimpleType.SIMPLE_AGG">
+        <c-input-group sizing="sm" class="mb-1">
+            <label cInputGroupText for="simpleSelectFunction">
+                Function
+            </label>
+            <select cSelect id="simpleSelectFunction" [(ngModel)]="data.value.function" (pointerdown)="$event.stopPropagation()"
+                    [disabled]="data.isReadOnly">
+                <option *ngFor="let choice of fChoicesSimple" [value]="choice">{{ choice }}</option>
+            </select>
+        </c-input-group>
+
+        <c-input-group sizing="sm" class="mb-1">
+            <span cInputGroupText class="p-1">Function Arg</span>
+            <input type="text" name="simpleArg" (pointerdown)="$event.stopPropagation()"
+                   autocomplete="off" [readonly]="data.isReadOnly" placeholder="field"
+                   class="form-control form-control-sm" [(ngModel)]="data.argsStr">
+        </c-input-group>
+
+    </ng-container>
+
+    <ng-container *ngSwitchDefault>
+
+        <c-input-group sizing="sm" class="mb-1">
+            <label cInputGroupText for="selectFunction">
+                Function
+            </label>
+            <select cSelect id="selectFunction" [(ngModel)]="data.value.function" (pointerdown)="$event.stopPropagation()"
+                    [disabled]="data.isReadOnly">
+                <option *ngFor="let choice of fChoices" [value]="choice">{{ choice }}</option>
+            </select>
+        </c-input-group>
+
+        <c-input-group sizing="sm" class="mb-1">
+            <span cInputGroupText class="p-1">Function Arg(s)</span>
+            <input type="text" id="arg" name="arg" (pointerdown)="$event.stopPropagation()"
+                   autocomplete="off" [readonly]="data.isReadOnly" placeholder="field1, ..."
+                   class="form-control form-control-sm" [(ngModel)]="data.argsStr">
+        </c-input-group>
+
+
+        <c-form-check [inline]="true" [switch]="true" class="align-self-center mb-1">
+            <input type="checkbox" role="switch" id="distinct" name="distinct" (pointerdown)="$event.stopPropagation()"
+                   [disabled]="data.isReadOnly || (!data.value.distinct && data.argsStr.length === 0)" [checked]="data.value.distinct" (change)="data.value.distinct = !data.value.distinct"
+                   class="form-check-input">
+            <label cFormCheckLabel>Distinct</label>
+        </c-form-check>
+
+        <c-form-check [inline]="true" [switch]="true" class="align-self-center mb-1 ms-3">
+            <input type="checkbox" role="switch" id="approximate" name="approximate" (pointerdown)="$event.stopPropagation()"
+                   [disabled]="data.isReadOnly" [checked]="data.value.approximate" (change)="data.value.approximate = !data.value.approximate"
+                   class="form-check-input">
+            <label cFormCheckLabel>Approximate</label>
+        </c-form-check>
+
+        <c-input-group sizing="sm" class="mb-1">
+            <span cInputGroupText class="p-1">Filter</span>
+            <input type="text" id="filter" name="filter" (pointerdown)="$event.stopPropagation()"
+                   autocomplete="off" [readonly]="data.isReadOnly" placeholder="Field"
+                   class="form-control form-control-sm" [(ngModel)]="data.value.filter">
+        </c-input-group>
+
+    </ng-container>
+
+    <c-input-group sizing="sm" class="mb-1">
+        <span cInputGroupText class="p-1">Alias</span>
+        <input type="text" id="alias" name="alias" (pointerdown)="$event.stopPropagation()"
+               autocomplete="off" [readonly]="data.isReadOnly" placeholder="alias"
+               class="form-control form-control-sm" [(ngModel)]="data.value.alias">
+    </c-input-group>
+
+</ng-container>

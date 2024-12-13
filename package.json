@@ -19,6 +19,7 @@
     "@angular/common": "^17.2.3",
     "@angular/compiler": "^17.2.3",
     "@angular/core": "^17.2.3",
+    "@angular/elements": "^17.2.3",
     "@angular/forms": "^17.2.3",
     "@angular/platform-browser": "^17.2.3",
     "@angular/platform-browser-dynamic": "^17.2.3",
@@ -71,7 +72,17 @@
     "ts-helpers": "^1.1.2",
     "ts-md5": "^1.2.7",
     "uuid": "^9.0.0",
-    "zone.js": "~0.14.4"
+    "zone.js": "~0.14.4",
+    "rete": "^2.0.3",
+    "rete-angular-plugin": "^2.1.1",
+    "rete-connection-plugin": "^2.0.1",
+    "rete-auto-arrange-plugin": "^2.0.1",
+    "rete-area-plugin": "^2.0.4",
+    "rete-render-utils": "^2.0.2",
+    "rete-readonly-plugin": "^2.0.1",
+    "rete-connection-path-plugin": "^2.0.3",
+    "rete-context-menu-plugin": "^2.0.3",
+    "rete-engine": "^2.0.1"
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "^17.0.1",
@@ -106,7 +117,8 @@
     "tslint": "~6.1.0",
     "typescript": "^5.3.3",
     "webpack": "^5.54.0",
-    "webpack-bundle-analyzer": "^4.9.0"
+    "webpack-bundle-analyzer": "^4.9.0",
+    "@types/d3-shape": "^3.1.6"
   },
   "engines": {
     "node": ">= 16.3.0",

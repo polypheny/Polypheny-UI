@@ -135,8 +135,7 @@
     </c-row>
 
     <app-information-manager
-            *ngIf="queryAnalysis"
-            [data]="queryAnalysis"
-            [hidden]="!showingAnalysis"></app-information-manager>
+            *ngIf="queryAnalysis && showingAnalysis"
+            [data]="queryAnalysis"></app-information-manager>
 </c-container>
 

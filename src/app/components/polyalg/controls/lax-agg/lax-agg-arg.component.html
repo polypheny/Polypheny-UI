@@ -1,0 +1,26 @@
+<label for="selectFunction" *ngIf="data.name"><strong>{{data.name}}</strong></label>
+
+<c-input-group sizing="sm" class="mb-1">
+    <label cInputGroupText for="selectFunction">
+        Function
+    </label>
+    <select cSelect id="selectFunction" [(ngModel)]="data.value.function" (pointerdown)="$event.stopPropagation()"
+            [disabled]="data.isReadOnly">
+        <option *ngFor="let choice of fChoices" [value]="choice">{{ choice }}</option>
+    </select>
+</c-input-group>
+
+<c-input-group sizing="sm" class="mb-1">
+    <span cInputGroupText class="p-1">Input</span>
+    <input type="text" id="input" name="input" (pointerdown)="$event.stopPropagation()"
+           autocomplete="off" [readonly]="data.isReadOnly" placeholder="rex"
+           class="form-control form-control-sm" [(ngModel)]="data.value.input">
+</c-input-group>
+
+<c-input-group sizing="sm" class="">
+    <span cInputGroupText class="p-1">Alias</span>
+    <input type="text" id="alias" name="alias" (pointerdown)="$event.stopPropagation()"
+           autocomplete="off" [readonly]="data.isReadOnly" placeholder="alias"
+           class="form-control form-control-sm" [(ngModel)]="data.value.alias">
+</c-input-group>
+

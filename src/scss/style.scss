@@ -79,3 +79,29 @@
     transform: rotate(0deg);
   }
 }
+
+/* Node Editor for query plans */
+[rete-context-menu] {
+  width: 200px !important;
+  border-radius: 4px;
+
+  .block {
+    color: $body-color !important;
+    background: $light !important;
+    border-bottom: 1px solid #c8c9cb !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .block:hover {
+    background: #c8c9cb !important;
+  }
+
+  .block:last-child {
+    border: none !important;
+  }
+
+  .subitems {
+    width: 200px !important;
+  }
+}
