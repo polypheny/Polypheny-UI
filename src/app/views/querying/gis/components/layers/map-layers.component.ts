@@ -334,7 +334,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     submitQuery(query: string, language: string, namespace: string): boolean {
-        const request = new QueryRequest(query, false, false, language, namespace);
+        const request = new QueryRequest(query, true, false, language, namespace);
         request.noLimit = true;
         return this._crud.anyQuery(this.websocket, request)
     }
