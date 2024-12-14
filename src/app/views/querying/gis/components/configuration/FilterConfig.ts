@@ -23,10 +23,12 @@ export class FilterConfig implements MapLayerConfiguration {
     addPolygon(polygon: Polygon) {
         this.filterPolygon = polygon;
         this.filterPolygonText = "Polygon";
+        console.log("Polygon added", polygon);
     }
 
     removePolygon() {
         this.filterPolygon = null;
         this.filterPolygonText = "";
+        console.log("Polygon removed");
     }
 }
