@@ -166,6 +166,8 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             let positions: Position[][] = coordinates.map((ring) =>
                 ring.map((c) => [c.lng, c.lat])
             );
+            // Close the linear ring
+            positions[0].push(positions[0][0]);
             const geoJsonPolygon: Polygon = {
                 type: "Polygon",
                 coordinates: positions,
