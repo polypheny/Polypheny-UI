@@ -12,6 +12,8 @@ import * as L from 'leaflet';
 import {MapLayerConfiguration} from "./MapLayerConfiguration.interface";
 import {DataPreview} from "../components/configuration/DataPreview";
 import {FilterConfig} from "../components/configuration/FilterConfig";
+import {AlgValidatorService} from "../../../../components/polyalg/polyalg-viewer/alg-validator.service";
+import {PlanNode} from "../../../../components/polyalg/models/polyalg-plan.model";
 
 export class MapLayer {
 
@@ -33,6 +35,10 @@ export class MapLayer {
     language = null;
     namespace = null;
     lastUpdated = ""
+
+    // Query Filter
+    planValidator : AlgValidatorService = null;
+    planNode : PlanNode = null;
 
     dataPreview: MapLayerConfiguration = new DataPreview(this);
     filterConfig: FilterConfig = new FilterConfig(this);
@@ -295,5 +301,21 @@ export class MapLayer {
         });
         this.data.push(...data);
         return this;
+    }
+
+    convertQueryToPlan(){
+        const polyAlg = this.query // TODO: Convert
+
+        // this.planValidator.buildPlan(this.polyAlg, this.planType).subscribe({
+        //     next: (plan) => this.polyAlgPlan.set(plan),
+        //     error: (err) => {
+        //         this.textEditor.setCode(this.polyAlg);
+        //         this.textEditorState.set('INVALID');
+        //         this.textEditorError.set(err.error.errorMsg);
+        //         this.nodeEditorState.set('INVALID');
+        //         this.nodeEditorError.set(err.error.errorMsg);
+        //         this._toast.error('Unable to build the initial plan. It most likely contains a (yet) unsupported feature.');
+        //     }
+        // });
     }
 }

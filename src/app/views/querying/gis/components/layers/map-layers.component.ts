@@ -28,6 +28,8 @@ import {QueryRequest} from '../../../../../models/ui-request.model';
 import {CombinedResult} from '../../../../../components/data-view/data-view.model';
 import {CatalogService} from '../../../../../services/catalog.service';
 import {QueryEditor} from '../../../console/components/code-editor/query-editor.component';
+import {AlgValidatorService} from "../../../../../components/polyalg/polyalg-viewer/alg-validator.service";
+import {SidebarNode} from "../../../../../models/sidebar-node.model";
 
 interface BaseLayer {
     name: string;
@@ -61,7 +63,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                 } else {
                     const queryLayer = MapLayer.from(combinedResult)
                     console.log("this.addDataToExistingLayer", this.addDataToExistingLayer);
-                    if (this.addDataToExistingLayer){
+                    if (this.addDataToExistingLayer) {
                         this.addDataToExistingLayer.data = queryLayer.data;
                         this.addDataToExistingLayer.query = queryLayer.query;
                         // This timestamp will trigger the change detection.
@@ -92,6 +94,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly _crud = inject(CrudService);
     private readonly _settings = inject(WebuiSettingsService);
     public readonly _catalog = inject(CatalogService);
+    public readonly _validator = inject(AlgValidatorService);
 
     @ViewChild(QueryEditor) queryEditor!: QueryEditor;
 
@@ -101,7 +104,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     readonly language: WritableSignal<string> = signal('sql');
     private subscriptions = new Subscription();
     private readonly LOCAL_STORAGE_LAST_QUERY_KEY = 'last_query_gis';
-    private addDataToExistingLayer : MapLayer = null;
+    private addDataToExistingLayer: MapLayer = null;
 
     protected baseLayers: BaseLayer[] = [
         {
@@ -146,6 +149,11 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     private initWebsocket() {
         const sub = this.websocket.onMessage().subscribe({
             next: msg => {
+                console.log("msg: ", msg)
+                if (Array.isArray(msg) && msg[0].hasOwnProperty('routerLink')) {
+                    const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
+                    console.log("sidebarNodesTemp", sidebarNodesTemp);
+                }
                 if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSet
                     this.results.set(<Result<any, any>[]>msg);
                 }
@@ -207,7 +215,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         // this.updateLayers(getSampleMapLayers());
     }
 
-    checkCanRerender(){
+    checkCanRerender() {
         const canRerenderLayers = !isEqual(
             this.deepCopyLayers(this.layers, false),
             this.renderedLayers,
@@ -319,6 +327,8 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             v.index = i + 1;
             return v;
         });
+        layer.planValidator = this._validator;
+
         this.updateLayers(newLayers);
     }
 
@@ -419,7 +429,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     export() {
-        if (this.layers.length === 0){
+        if (this.layers.length === 0) {
             return;
         }
 
