@@ -13,7 +13,7 @@ import {
 } from '@coreui/angular';
 import { ColorVisualization } from '../color-visualization-model';
 import { NgForOf, NgIf } from '@angular/common';
-import {PointShapeVisualization} from "../point-shape-visualization.model";
+import {PointShapeVisualization} from '../point-shape-visualization.model';
 
 @Component({
     selector: 'app-point-shape',

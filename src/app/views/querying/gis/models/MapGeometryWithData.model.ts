@@ -1,5 +1,5 @@
 import {Geometry, Point} from 'geojson';
-import {MapLayer} from "./MapLayer.model";
+import {MapLayer} from './MapLayer.model';
 
 /**
  * Represents one row in the results returned by Polypheny.
@@ -28,14 +28,14 @@ export class MapGeometryWithData {
     }
 
     isPoint(){
-        return this.geometry.type == "Point"
+        return this.geometry.type === 'Point';
     }
 
     getPoint() {
         if (this.isPoint()){
             return this.geometry as Point;
         }
-        throw new Error("Can only call getPoint() if geometry is actually of type Point!")
+        throw new Error('Can only call getPoint() if geometry is actually of type Point!');
     }
 
     copy(){
@@ -46,15 +46,15 @@ export class MapGeometryWithData {
     getNumberValueFromField(fieldName: string): number {
         let finalValue: any = this.data;
 
-        for (const key of fieldName.split(".")) {
-            if (finalValue && typeof finalValue === "object") {
+        for (const key of fieldName.split('.')) {
+            if (finalValue && typeof finalValue === 'object') {
                 finalValue = finalValue[key];
             } else {
                 return NaN;
             }
         }
 
-        if (typeof finalValue === "number") {
+        if (typeof finalValue === 'number') {
             return finalValue;
         }
 

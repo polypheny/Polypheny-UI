@@ -1,7 +1,7 @@
 import {Component, Inject} from '@angular/core';
-import {MapLayerConfigurationComponent} from "../../../models/visualization-configuration.interface";
-import {ColorVisualization} from "../color-visualization-model";
-import {LayerSettingsService} from "../../../services/layersettings.service";
+import {MapLayerConfigurationComponent} from '../../../models/visualization-configuration.interface';
+import {ColorVisualization} from '../color-visualization-model';
+import {LayerSettingsService} from '../../../services/layersettings.service';
 
 @Component({
   selector: 'app-empty',

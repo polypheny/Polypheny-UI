@@ -1,7 +1,7 @@
 import { Visualization } from '../../models/visualization.interface';
 import { MapGeometryWithData } from '../../models/MapGeometryWithData.model';
-import {AreaShapeComponent} from "./area-shape/area-shape.component";
-import {MapLayerConfiguration} from "../../models/MapLayerConfiguration.interface";
+import {AreaShapeComponent} from './area-shape/area-shape.component';
+import {MapLayerConfiguration} from '../../models/MapLayerConfiguration.interface';
 
 export class AreaShapeVisualization implements Visualization, MapLayerConfiguration {
     name = 'Area Shape';

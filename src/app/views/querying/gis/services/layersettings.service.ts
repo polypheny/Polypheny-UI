@@ -2,9 +2,9 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {MapLayer} from '../models/MapLayer.model';
 import {Visualization} from '../models/visualization.interface';
-import {CombinedResult} from "../../../../components/data-view/data-view.model";
-import {MapLayerConfiguration} from "../models/MapLayerConfiguration.interface";
-import {Polygon} from "geojson";
+import {CombinedResult} from '../../../../components/data-view/data-view.model';
+import {MapLayerConfiguration} from '../models/MapLayerConfiguration.interface';
+import {Polygon} from 'geojson';
 
 
 @Injectable({
@@ -36,7 +36,7 @@ export class LayerSettingsService {
     toggleLayerVisibility$: Observable<MapLayer>;
 
     constructor() {
-        this.reset()
+        this.reset();
     }
 
     reset() {
@@ -80,7 +80,7 @@ export class LayerSettingsService {
     }
 
     setFitLayerToMap(layer: MapLayer) {
-        this.fitLayerToMap.next(layer)
+        this.fitLayerToMap.next(layer);
     }
 
     setResultsQuery(result: CombinedResult) {

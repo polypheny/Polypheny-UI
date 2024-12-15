@@ -1,7 +1,7 @@
 import { Visualization } from '../../models/visualization.interface';
 import { MapGeometryWithData } from '../../models/MapGeometryWithData.model';
 import { PointShapeComponent } from './point-shape/point-shape.component';
-import {MapLayerConfiguration} from "../../models/MapLayerConfiguration.interface";
+import {MapLayerConfiguration} from '../../models/MapLayerConfiguration.interface';
 
 export class PointShapeVisualization implements Visualization, MapLayerConfiguration {
     name = 'Point Shape';
@@ -10,7 +10,7 @@ export class PointShapeVisualization implements Visualization, MapLayerConfigura
     modes: string[] = ['Circle', 'Icon'];
     selectedMode: string = this.modes[0];
     size: number;
-    fieldName: string = '';
+    fieldName = '';
 
     constructor(size: number) {
         this.size = size;

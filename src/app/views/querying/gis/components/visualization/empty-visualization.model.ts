@@ -2,11 +2,11 @@ import { Type } from '@angular/core';
 import { MapGeometryWithData } from '../../models/MapGeometryWithData.model';
 import { MapLayerConfigurationComponent } from '../../models/visualization-configuration.interface';
 import { Visualization } from '../../models/visualization.interface';
-import {EmptyComponent} from "./empty/empty.component";
-import {MapLayerConfiguration} from "../../models/MapLayerConfiguration.interface";
+import {EmptyComponent} from './empty/empty.component';
+import {MapLayerConfiguration} from '../../models/MapLayerConfiguration.interface';
 
 export class EmptyVisualization implements Visualization, MapLayerConfiguration {
-    name: string = "Empty";
+    name = 'Empty';
     configurationComponentType: Type<MapLayerConfigurationComponent> = EmptyComponent;
 
     apply(): void {

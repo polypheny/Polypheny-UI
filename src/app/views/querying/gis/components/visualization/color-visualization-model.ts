@@ -3,7 +3,9 @@ import { MapGeometryWithData } from '../../models/MapGeometryWithData.model';
 import * as d3 from 'd3';
 import * as turf from '@turf/turf';
 import { ColorComponent } from './color/color.component';
-import {MapLayerConfiguration} from "../../models/MapLayerConfiguration.interface";
+import {MapLayerConfiguration} from '../../models/MapLayerConfiguration.interface';
+
+// tslint:disable:no-non-null-assertion
 
 export class ColorVisualization implements Visualization, MapLayerConfiguration {
     name = 'Color';
@@ -14,11 +16,11 @@ export class ColorVisualization implements Visualization, MapLayerConfiguration 
 
     // Static
     color: string;
-    fillOpacity: number = 0.25;
+    fillOpacity = 0.25;
 
     // Gradient
-    fieldName: string = '';
-    normalizeByArea: boolean = false;
+    fieldName = '';
+    normalizeByArea = false;
     colorScale?: d3.ScaleSequential<string>;
 
     constructor(color: string) {

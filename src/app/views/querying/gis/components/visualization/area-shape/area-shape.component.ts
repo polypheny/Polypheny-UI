@@ -12,7 +12,7 @@ import {
     InputGroupTextDirective,
 } from '@coreui/angular';
 import { NgForOf, NgIf } from '@angular/common';
-import {AreaShapeVisualization} from "../area-shape-visualization.model";
+import {AreaShapeVisualization} from '../area-shape-visualization.model';
 
 @Component({
     selector: 'app-area-shape',

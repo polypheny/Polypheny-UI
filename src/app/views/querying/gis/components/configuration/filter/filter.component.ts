@@ -1,9 +1,9 @@
 import {Component, Inject} from '@angular/core';
 import {MapLayerConfigurationComponent} from '../../../models/visualization-configuration.interface';
 import {LayerSettingsService} from '../../../services/layersettings.service';
-import {DataPreview} from "../DataPreview";
-import {MapLayer} from "../../../models/MapLayer.model";
-import {FilterConfig} from "../FilterConfig";
+import {DataPreview} from '../DataPreview';
+import {MapLayer} from '../../../models/MapLayer.model';
+import {FilterConfig} from '../FilterConfig';
 
 @Component({
     selector: 'app-data-preview',
@@ -25,12 +25,12 @@ export class FilterComponent implements MapLayerConfigurationComponent {
 
     drawOrRemovePolygon() {
         if (this.config.filterPolygon) {
-            console.log("drawOrRemovePolygon REMOVE")
+            console.log('drawOrRemovePolygon REMOVE');
             this.config.removePolygon();
             this.layerSettings.removePolygonFilterForLayer(this.config.layer);
         } else {
-            console.log("drawOrRemovePolygon ADD")
-            this.layerSettings.addPolygonFilterForLayer(this.config.layer)
+            console.log('drawOrRemovePolygon ADD');
+            this.layerSettings.addPolygonFilterForLayer(this.config.layer);
         }
     }
 }
