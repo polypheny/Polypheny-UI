@@ -6,7 +6,7 @@ import {LabelVisualization} from '../components/visualization/label-visualizatio
 import {PointShapeVisualization} from '../components/visualization/point-shape-visualization.model';
 import {CombinedResult} from '../../../../components/data-view/data-view.model';
 import {DataModel} from '../../../../models/ui-request.model';
-import {Geometry} from 'geojson';
+import {Geometry, Polygon} from 'geojson';
 import {v4} from 'uuid';
 import * as L from 'leaflet';
 import {MapLayerConfiguration} from './MapLayerConfiguration.interface';
@@ -39,6 +39,22 @@ export class MapLayer {
     // Query Filter
     planValidator: AlgValidatorService = null;
     planNode: PlanNode = null;
+    jsonPolyAlg: string = null;
+
+    // Polygon around Berlin
+    tempPolygon: Polygon = {
+        type: 'Polygon',
+        coordinates: [
+            [
+                [12.535400390625002, 52.92215137976296],
+                [13.458251953125002, 51.15178610143037],
+                [15.128173828125002, 51.41291212935532],
+                [14.930419921875002, 53.553362785528094],
+                [13.348388671875002, 53.6185793648952],
+                [12.535400390625002, 52.92215137976296]
+            ]
+        ]
+    };
 
     dataPreview: MapLayerConfiguration = new DataPreview(this);
     filterConfig: FilterConfig = new FilterConfig(this);

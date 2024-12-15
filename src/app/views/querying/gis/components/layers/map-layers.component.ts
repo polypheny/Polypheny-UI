@@ -30,6 +30,7 @@ import {CatalogService} from '../../../../../services/catalog.service';
 import {QueryEditor} from '../../../console/components/code-editor/query-editor.component';
 import {AlgValidatorService} from '../../../../../components/polyalg/polyalg-viewer/alg-validator.service';
 import {SidebarNode} from '../../../../../models/sidebar-node.model';
+import {InformationGroup, InformationPage} from '../../../../../models/information-page.model';
 
 interface BaseLayer {
     name: string;
@@ -62,6 +63,26 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.addLayerDialogErrorMessage = `There was an error executing the query. Error: ${combinedResult.error}`;
                 } else {
                     const queryLayer = MapLayer.from(combinedResult);
+
+                    if (this.lastQueryAnalyzerId && this.lastQueryAnalyzerPage) {
+                        this._crud.getAnalyzerPage(this.lastQueryAnalyzerId, this.lastQueryAnalyzerPage).subscribe({
+                            next: res => {
+                                const informationPage = res as InformationPage;
+                                const groups = new Map<string, InformationGroup>(Object.entries(informationPage.groups));
+                                for (const group of groups.values()) {
+                                    const informationObjects = Object.values(group.informationObjects);
+                                    for (const informationObject of informationObjects) {
+                                        if (informationObject.type === 'InformationPolyAlg') {
+                                            queryLayer.jsonPolyAlg = informationObject.jsonPolyAlg;
+                                        }
+                                    }
+                                }
+                            }, error: err => {
+                                console.log(err);
+                            }
+                        });
+                    }
+
                     console.log('this.addDataToExistingLayer', this.addDataToExistingLayer);
                     if (this.addDataToExistingLayer) {
                         this.addDataToExistingLayer.data = queryLayer.data;
@@ -95,6 +116,8 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     private subscriptions = new Subscription();
     private readonly LOCAL_STORAGE_LAST_QUERY_KEY = 'last_query_gis';
     private addDataToExistingLayer: MapLayer = null;
+    private lastQueryAnalyzerId = null;
+    private lastQueryAnalyzerPage = null;
 
     protected baseLayers: BaseLayer[] = [
         {
@@ -152,7 +175,12 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                 console.log('msg: ', msg);
                 if (Array.isArray(msg) && msg[0].hasOwnProperty('routerLink')) {
                     const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
-                    console.log('sidebarNodesTemp', sidebarNodesTemp);
+                    const logicalQueryPlanNode = sidebarNodesTemp.filter(n => n.name === 'Logical Query Plan')[0] || null;
+                    if (logicalQueryPlanNode !== null) {
+                        const split = logicalQueryPlanNode.routerLink.split('/');
+                        this.lastQueryAnalyzerId = split[0];
+                        this.lastQueryAnalyzerPage = split[1];
+                    }
                 }
                 if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSet
                     this.results.set(<Result<any, any>[]>msg);
