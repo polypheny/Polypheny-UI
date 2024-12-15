@@ -185,15 +185,15 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.applyFilterToLayer.language === 'mongo') {
             const wkt = geojsonToWKT(this.applyFilterToLayer.tempPolygon);
             plan = `DOC_FILTER[MQL_GEO_WITHIN(
-                geometry, 
+                ${this.applyFilterToLayer.geometryField}, 
                 SRID=4326;${wkt}:DOCUMENT, -1.0E0:DOCUMENT)](
                   ${polyPlan})`;
             plan = trimLines(plan);
         }
 
-        plan = `DOC_FILTER[MQL_GEO_WITHIN(geometry, SRID=4326;POLYGON ((12.535400390625002 52.92215137976296, 13.458251953125002 51.15178610143037, 15.128173828125002 51.41291212935532, 14.930419921875002 53.553362785528094, 13.348388671875002 53.6185793648952, 12.535400390625002 52.92215137976296)):DOCUMENT, -1.0E0:DOCUMENT)](
-  DOC_SCAN[doc.geocollection2]
-)`;
+//         plan = `DOC_FILTER[MQL_GEO_WITHIN(geometry, SRID=4326;POLYGON ((12.535400390625002 52.92215137976296, 13.458251953125002 51.15178610143037, 15.128173828125002 51.41291212935532, 14.930419921875002 53.553362785528094, 13.348388671875002 53.6185793648952, 12.535400390625002 52.92215137976296)):DOCUMENT, -1.0E0:DOCUMENT)](
+//   DOC_SCAN[doc.geocollection2]
+// )`;
 
         console.log('Run plan:', plan);
         const request = new PolyAlgRequest(plan, DataModel.DOCUMENT, 'LOGICAL');

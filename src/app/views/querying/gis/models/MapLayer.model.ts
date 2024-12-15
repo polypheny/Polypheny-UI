@@ -33,6 +33,7 @@ export class MapLayer {
     // Query
     isQueryLayer = false;
     query = null;
+    geometryField = null;
     language = null;
     namespace = null;
     lastUpdated = '';
@@ -77,6 +78,7 @@ export class MapLayer {
         layer.namespace = result.namespace;
         layer.isQueryLayer = true;
         const mapData = [];
+        let geometryField = undefined;
 
         switch (result.dataModel) {
             case DataModel.DOCUMENT:
@@ -85,7 +87,8 @@ export class MapLayer {
                     const jsonObject = Object.fromEntries(
                         Object.entries(JSON.parse(json)).map(([key, value]) => [key.toLowerCase(), value])
                     );
-                    const geometry = this.getGeometryFromData(jsonObject);
+                    const [geometry, key] = this.getGeometryFromData(jsonObject);
+                    geometryField = key;
                     if (geometry) {
                         const geometryWithData = new MapGeometryWithData(rowIndex, geometry, jsonObject);
                         mapData.push(geometryWithData);
@@ -113,7 +116,8 @@ export class MapLayer {
                         }
                     }
 
-                    const geometry = this.getGeometryFromData(obj);
+                    const [geometry, key] = this.getGeometryFromData(obj);
+                    geometryField = key;
                     if (geometry) {
                         const geometryWithData = new MapGeometryWithData(rowIndex, geometry, obj);
                         mapData.push(geometryWithData);
@@ -144,7 +148,8 @@ export class MapLayer {
                         }
                     }
 
-                    const geometry = this.getGeometryFromData(obj);
+                    const [geometry, key] = this.getGeometryFromData(obj);
+                    geometryField = key;
                     if (geometry) {
                         const geometryWithData = new MapGeometryWithData(rowIndex, geometry, obj);
                         mapData.push(geometryWithData);
@@ -157,45 +162,48 @@ export class MapLayer {
         }
 
         layer.addData(mapData);
+        layer.geometryField = geometryField;
         console.log('Created layer: ', layer);
         return layer;
     }
 
 
-    static getGeometryFromData(data: Record<string, any>): Geometry | undefined {
+    static getGeometryFromData(data: Record<string, any>): [Geometry, string] | undefined {
         // Detect GeoJSON objects
         for (const key in data) {
             if (data.hasOwnProperty(key) && this.isGeoJSON(data[key])) {
-                return data[key];
+                return [data[key], key];
             }
         }
 
+        // TODO: If we do this, we cannot filter the layer, because we do not have a single field
+        //       that we can use in the logical plan to reference the coordinates.
         // Detect 2 columns that store latitude / longitude coordinates
-        const latLong = [
-            ['lat', 'lon'],
-            ['latitude', 'longitude'],
-            ['lati', 'long'],
-        ];
-        const isNumber = (value: any): boolean => {
-            return typeof value === 'number' && !isNaN(value);
-        };
-
-        for (const ll of latLong) {
-            const lat = ll[0];
-            const lon = ll[1];
-
-            if (
-                data.hasOwnProperty(lat) &&
-                data.hasOwnProperty(lon) &&
-                isNumber(data[lat]) &&
-                isNumber(data[lon])
-            ) {
-                return {
-                    type: 'Point',
-                    coordinates: [data[lon], data[lat]],
-                };
-            }
-        }
+        // const latLong = [
+        //     ['lat', 'lon'],
+        //     ['latitude', 'longitude'],
+        //     ['lati', 'long'],
+        // ];
+        // const isNumber = (value: any): boolean => {
+        //     return typeof value === 'number' && !isNaN(value);
+        // };
+        //
+        // for (const ll of latLong) {
+        //     const lat = ll[0];
+        //     const lon = ll[1];
+        //
+        //     if (
+        //         data.hasOwnProperty(lat) &&
+        //         data.hasOwnProperty(lon) &&
+        //         isNumber(data[lat]) &&
+        //         isNumber(data[lon])
+        //     ) {
+        //         return {
+        //             type: 'Point',
+        //             coordinates: [data[lon], data[lat]],
+        //         };
+        //     }
+        // }
 
         // TODO: Detect heuristic, so that we can automatically detect the most common geometry types
         //   - string in WKT format
