@@ -7,13 +7,13 @@ import {PointShapeVisualization} from '../components/visualization/point-shape-v
 import {CombinedResult} from '../../../../components/data-view/data-view.model';
 import {DataModel} from '../../../../models/ui-request.model';
 import {Geometry} from 'geojson';
-import {v4} from 'uuid'
+import {v4} from 'uuid';
 import * as L from 'leaflet';
-import {MapLayerConfiguration} from "./MapLayerConfiguration.interface";
-import {DataPreview} from "../components/configuration/DataPreview";
-import {FilterConfig} from "../components/configuration/FilterConfig";
-import {AlgValidatorService} from "../../../../components/polyalg/polyalg-viewer/alg-validator.service";
-import {PlanNode} from "../../../../components/polyalg/models/polyalg-plan.model";
+import {MapLayerConfiguration} from './MapLayerConfiguration.interface';
+import {DataPreview} from '../components/configuration/DataPreview';
+import {FilterConfig} from '../components/configuration/FilterConfig';
+import {AlgValidatorService} from '../../../../components/polyalg/polyalg-viewer/alg-validator.service';
+import {PlanNode} from '../../../../components/polyalg/models/polyalg-plan.model';
 
 export class MapLayer {
 
@@ -34,11 +34,11 @@ export class MapLayer {
     query = null;
     language = null;
     namespace = null;
-    lastUpdated = ""
+    lastUpdated = '';
 
     // Query Filter
-    planValidator : AlgValidatorService = null;
-    planNode : PlanNode = null;
+    planValidator: AlgValidatorService = null;
+    planNode: PlanNode = null;
 
     dataPreview: MapLayerConfiguration = new DataPreview(this);
     filterConfig: FilterConfig = new FilterConfig(this);
@@ -53,7 +53,7 @@ export class MapLayer {
     index = -1;
 
     static from(result: CombinedResult): MapLayer {
-        console.log("MapLayer from result: ", result);
+        console.log('MapLayer from result: ', result);
         const layer = new MapLayer(result.query);
         layer.query = result.query;
         layer.language = result.language;
@@ -188,7 +188,9 @@ export class MapLayer {
 
 
     static isGeoJSON(obj: any): boolean {
-        if (!obj || typeof obj !== 'object') return false;
+        if (!obj || typeof obj !== 'object') {
+            return false;
+        }
 
         const validTypes: string[] = [
             'Feature',
@@ -267,7 +269,7 @@ export class MapLayer {
         // anything changes so we need to rerender, but in these cases we do not need
         // to rerender.
 
-        const copy = new MapLayer(this.name)
+        const copy = new MapLayer(this.name);
         copy.lastUpdated = this.lastUpdated;
         if (includeData) {
             copy.addData(
@@ -296,15 +298,15 @@ export class MapLayer {
             } else {
                 this.containsAreas = true;
             }
-            d.layer = this
+            d.layer = this;
             return;
         });
         this.data.push(...data);
         return this;
     }
 
-    convertQueryToPlan(){
-        const polyAlg = this.query // TODO: Convert
+    convertQueryToPlan() {
+        const polyAlg = this.query; // TODO: Convert
 
         // this.planValidator.buildPlan(this.polyAlg, this.planType).subscribe({
         //     next: (plan) => this.polyAlgPlan.set(plan),
