@@ -1,10 +1,16 @@
 import {
-    AfterViewInit, Component, effect,
+    AfterViewInit,
+    Component,
+    effect,
     ElementRef,
     HostListener,
-    inject, OnDestroy,
+    inject,
+    OnDestroy,
     OnInit,
-    Renderer2, signal, ViewChild, WritableSignal
+    Renderer2,
+    signal,
+    ViewChild,
+    WritableSignal
 } from '@angular/core';
 import {LayerContext} from '../../models/LayerContext.model';
 import {LayerSettingsService} from '../../services/layersettings.service';
@@ -13,24 +19,24 @@ import * as GeoJSON from 'geojson';
 import {FeatureCollection} from 'geojson';
 import {MapLayer} from '../../models/MapLayer.model';
 import isEqual from 'lodash/isEqual';
-import {
-    CdkDragDrop,
-    moveItemInArray,
-} from '@angular/cdk/drag-drop';
+import {CdkDragDrop, moveItemInArray,} from '@angular/cdk/drag-drop';
 // noinspection ES6UnusedImports
 import {getSampleMapLayers} from '../../models/get-sample-maplayers';
 import {CrudService} from '../../../../../services/crud.service';
 import {WebSocket} from '../../../../../services/webSocket';
-import {Result} from '../../../../../components/data-view/models/result-set.model';
+import {RelationalResult, Result} from '../../../../../components/data-view/models/result-set.model';
 import {WebuiSettingsService} from '../../../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
-import {QueryRequest} from '../../../../../models/ui-request.model';
+import {DataModel, PolyAlgRequest, QueryRequest} from '../../../../../models/ui-request.model';
 import {CombinedResult} from '../../../../../components/data-view/data-view.model';
 import {CatalogService} from '../../../../../services/catalog.service';
 import {QueryEditor} from '../../../console/components/code-editor/query-editor.component';
-import {AlgValidatorService} from '../../../../../components/polyalg/polyalg-viewer/alg-validator.service';
+import {AlgValidatorService, trimLines} from '../../../../../components/polyalg/polyalg-viewer/alg-validator.service';
 import {SidebarNode} from '../../../../../models/sidebar-node.model';
 import {InformationGroup, InformationPage} from '../../../../../models/information-page.model';
+import {AlgViewerComponent} from '../../../../../components/polyalg/polyalg-viewer/alg-viewer.component';
+import {geojsonToWKT} from '@terraformer/wkt';
+
 
 interface BaseLayer {
     name: string;
@@ -74,6 +80,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                                     for (const informationObject of informationObjects) {
                                         if (informationObject.type === 'InformationPolyAlg') {
                                             queryLayer.jsonPolyAlg = informationObject.jsonPolyAlg;
+                                            queryLayer.planNode = JSON.parse(informationObject.jsonPolyAlg);
                                         }
                                     }
                                 }
@@ -108,6 +115,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     public readonly _validator = inject(AlgValidatorService);
 
     @ViewChild(QueryEditor) queryEditor!: QueryEditor;
+    @ViewChild(AlgViewerComponent) algViewerComponent!: AlgViewerComponent;
 
     // Querying
     websocket: WebSocket;
@@ -118,6 +126,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     private addDataToExistingLayer: MapLayer = null;
     private lastQueryAnalyzerId = null;
     private lastQueryAnalyzerPage = null;
+    private applyFilterToLayer: MapLayer = null;
 
     protected baseLayers: BaseLayer[] = [
         {
@@ -158,6 +167,40 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     protected readonly LayerContext = LayerContext;
     protected readonly queryLanguages = ['CYPHER', 'SQL', 'MQL'];
     readonly activeNamespace: WritableSignal<string> = signal(null);
+
+    runPolyPlan(layer: MapLayer) {
+        this.applyFilterToLayer = layer;
+        this.algViewerComponent.setPolyAlgPlan(layer.planNode, 'LOGICAL');
+    }
+
+    onPolyPlanChanged(polyPlan: string) {
+        if (!this.applyFilterToLayer || !polyPlan) {
+            return;
+        }
+
+        console.log('onPolyPlanChanged', polyPlan, this.applyFilterToLayer);
+
+        let plan = '';
+
+        if (this.applyFilterToLayer.language === 'mongo') {
+            const wkt = geojsonToWKT(this.applyFilterToLayer.tempPolygon);
+            plan = `DOC_FILTER[MQL_GEO_WITHIN(
+                geometry, 
+                SRID=4326;${wkt}:DOCUMENT, -1.0E0:DOCUMENT)](
+                  ${polyPlan})`;
+            plan = trimLines(plan);
+        }
+
+        plan = `DOC_FILTER[MQL_GEO_WITHIN(geometry, SRID=4326;POLYGON ((12.535400390625002 52.92215137976296, 13.458251953125002 51.15178610143037, 15.128173828125002 51.41291212935532, 14.930419921875002 53.553362785528094, 13.348388671875002 53.6185793648952, 12.535400390625002 52.92215137976296)):DOCUMENT, -1.0E0:DOCUMENT)](
+  DOC_SCAN[doc.geocollection2]
+)`;
+
+        console.log('Run plan:', plan);
+        const request = new PolyAlgRequest(plan, DataModel.DOCUMENT, 'LOGICAL');
+        request.noLimit = true;
+        const success = this.websocket.sendMessage(request);
+        console.log('success', success);
+    }
 
     ngOnDestroy(): void {
         // This component is only destroyed once we navigate away from the Map-Based Query Mode. In this case,

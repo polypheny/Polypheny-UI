@@ -73,7 +73,10 @@
                         </div>
                     </div>
                     <div class="config-sections">
-                        <app-config-section *ngIf="Object.keys(layer.data[0].data).length !== 0"
+                        <div>
+                            <button cButton (click)="runPolyPlan(layer)" >Update plan</button>
+                        </div>
+                        <app-config-section *ngIf="layer.containsData"
                                             [title]="'Data'"
                                             [config]="layer.dataPreview"></app-config-section>
                         <app-config-section *ngIf="layer.isQueryLayer"
@@ -202,4 +205,9 @@
             </button>
         </c-modal-footer>
     </c-modal>
+
+    <div style="display: none;">
+        <app-alg-viewer #algViewer (polyPlan)="onPolyPlanChanged($event)"></app-alg-viewer>
+    </div>
+
 </div>

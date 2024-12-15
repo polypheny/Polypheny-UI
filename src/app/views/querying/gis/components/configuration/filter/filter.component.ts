@@ -33,4 +33,11 @@ export class FilterComponent implements MapLayerConfigurationComponent {
             this.layerSettings.addPolygonFilterForLayer(this.config.layer);
         }
     }
+
+    applyFilterPolygonToQuery() {
+
+
+        // const polygon = this.config.layer.tempPolygon;
+        // const planNode = this.config.layer.planNode;
+    }
 }

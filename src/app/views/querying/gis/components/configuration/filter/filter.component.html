@@ -1,12 +1,13 @@
 <div>
-    <c-input-group>
-        <span cInputGroupText>Polygon</span>
-        <input aria-label="Color"
-               cFormControl
-               [(ngModel)]="config.filterPolygonText"
-               readonly
-               (ngModelChange)="configChanged()"
-        />
-        <button cButton (click)="drawOrRemovePolygon()">{{ config.filterPolygon ? 'Remove' : 'Draw' }}</button>
-    </c-input-group>
+<!--    <c-input-group>-->
+<!--        <span cInputGroupText>Polygon</span>-->
+<!--        <input aria-label="Color"-->
+<!--               cFormControl-->
+<!--               [(ngModel)]="config.filterPolygonText"-->
+<!--               readonly-->
+<!--               (ngModelChange)="configChanged()"-->
+<!--        />-->
+<!--        <button cButton (click)="drawOrRemovePolygon()">{{ config.filterPolygon ? 'Remove' : 'Draw' }}</button>-->
+<!--    </c-input-group>-->
+    <button cButton (click)="applyFilterPolygonToQuery()"> Apply Filter to Query and Rerun</button>
 </div>

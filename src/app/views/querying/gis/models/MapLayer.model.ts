@@ -28,6 +28,7 @@ export class MapLayer {
     data: MapGeometryWithData[] = [];
     containsPoints = false;
     containsAreas = false;
+    containsData = false;
 
     // Query
     isQueryLayer = false;
@@ -304,6 +305,9 @@ export class MapLayer {
     addData(data: MapGeometryWithData[]) {
         this.containsPoints = false;
         this.containsAreas = false;
+        if (data.length > 0){
+            this.containsData = Object.keys(data[0].data).length !== 0;
+        }
 
         // Remove everything that does not have a geometry.
         data = data.filter((d) => d.geometry !== null);
