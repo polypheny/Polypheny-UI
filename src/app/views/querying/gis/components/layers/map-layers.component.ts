@@ -28,8 +28,8 @@ import {QueryRequest} from '../../../../../models/ui-request.model';
 import {CombinedResult} from '../../../../../components/data-view/data-view.model';
 import {CatalogService} from '../../../../../services/catalog.service';
 import {QueryEditor} from '../../../console/components/code-editor/query-editor.component';
-import {AlgValidatorService} from "../../../../../components/polyalg/polyalg-viewer/alg-validator.service";
-import {SidebarNode} from "../../../../../models/sidebar-node.model";
+import {AlgValidatorService} from '../../../../../components/polyalg/polyalg-viewer/alg-validator.service';
+import {SidebarNode} from '../../../../../models/sidebar-node.model';
 
 interface BaseLayer {
     name: string;
@@ -52,7 +52,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         this.initWebsocket();
 
         // Starting a new GIS query session: Remove all layers which were previously added and not cleaned up.
-        this.updateLayers([])
+        this.updateLayers([]);
 
         effect(() => {
             const res = this.results();
@@ -61,15 +61,15 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                 if (combinedResult.error) {
                     this.addLayerDialogErrorMessage = `There was an error executing the query. Error: ${combinedResult.error}`;
                 } else {
-                    const queryLayer = MapLayer.from(combinedResult)
-                    console.log("this.addDataToExistingLayer", this.addDataToExistingLayer);
+                    const queryLayer = MapLayer.from(combinedResult);
+                    console.log('this.addDataToExistingLayer', this.addDataToExistingLayer);
                     if (this.addDataToExistingLayer) {
                         this.addDataToExistingLayer.data = queryLayer.data;
                         this.addDataToExistingLayer.query = queryLayer.query;
                         // This timestamp will trigger the change detection.
                         this.addDataToExistingLayer.lastUpdated = queryLayer.lastUpdated;
                         this.addDataToExistingLayer = null;
-                        this.checkCanRerender()
+                        this.checkCanRerender();
                     } else {
                         this.addLayerInternal(queryLayer);
                     }
@@ -78,16 +78,6 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
             }
         });
-    }
-
-    ngOnDestroy(): void {
-        // This component is only destroyed once we navigate away from the Map-Based Query Mode. In this case,
-        // we want to remove everything that belongs to this session.
-        // Note: Don't do the same thing for the map: Because when we are navigating from the results to the full
-        //       query mode, we want to keep the session going, and transfer the last-run query over.
-        this.layerSettings.reset();
-        this.subscriptions.unsubscribe();
-        clearInterval(this.pollingTimer);
     }
 
     // DI
@@ -146,13 +136,23 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     protected readonly queryLanguages = ['CYPHER', 'SQL', 'MQL'];
     readonly activeNamespace: WritableSignal<string> = signal(null);
 
+    ngOnDestroy(): void {
+        // This component is only destroyed once we navigate away from the Map-Based Query Mode. In this case,
+        // we want to remove everything that belongs to this session.
+        // Note: Don't do the same thing for the map: Because when we are navigating from the results to the full
+        //       query mode, we want to keep the session going, and transfer the last-run query over.
+        this.layerSettings.reset();
+        this.subscriptions.unsubscribe();
+        clearInterval(this.pollingTimer);
+    }
+
     private initWebsocket() {
         const sub = this.websocket.onMessage().subscribe({
             next: msg => {
-                console.log("msg: ", msg)
+                console.log('msg: ', msg);
                 if (Array.isArray(msg) && msg[0].hasOwnProperty('routerLink')) {
                     const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
-                    console.log("sidebarNodesTemp", sidebarNodesTemp);
+                    console.log('sidebarNodesTemp', sidebarNodesTemp);
                 }
                 if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSet
                     this.results.set(<Result<any, any>[]>msg);
@@ -182,13 +182,13 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             this.renderedLayers = this.deepCopyLayers(layers, false);
             this.layerSettings.setCanRerenderLayers(false);
             this.updateLayerUi();
-        }))
+        }));
 
         this.subscriptions.add(this.layerSettings.modifiedConfig$.subscribe((config) => {
             if (!config) {
                 return;
             }
-            this.checkCanRerender()
+            this.checkCanRerender();
         }));
 
         this.subscriptions.add(this.layerSettings.rerenderButtonClicked$.subscribe(() => {
@@ -197,7 +197,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.subscriptions.add(this.layerSettings.queryFromConsoleResults$.subscribe((query) => {
             if (query) {
-                console.log("Run full query from results", query);
+                console.log('Run full query from results', query);
                 this.submitQuery(query.query, query.language.toString(), query.namespace);
                 // Remove it, so that if we navigate away and back again, we won't run the query twice.
                 this.layerSettings.setResultsQuery(null);
@@ -206,7 +206,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.subscriptions.add(this.layerSettings.layerPolygonFilter$.subscribe((layerAndPolygon) => {
             if (layerAndPolygon === null) {
-                return
+                return;
             }
             const [layer, polygon] = layerAndPolygon;
             layer.filterConfig.addPolygon(polygon);
@@ -240,7 +240,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             const currentHeight = this.getMapHeight();
 
             if (currentHeight === undefined) {
-                return
+                return;
             }
 
             if (currentHeight !== this.lastHeight) {
@@ -258,11 +258,11 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private getMapHeight(): string | undefined {
-        const elem = (document.querySelector('#map') as HTMLElement)
+        const elem = (document.querySelector('#map') as HTMLElement);
         if (elem === null) {
-            return undefined
+            return undefined;
         } else {
-            return `${elem.offsetHeight}px`
+            return `${elem.offsetHeight}px`;
         }
     }
 
@@ -287,7 +287,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                 const file = input.files[0];
                 this.loadedGeoJsonFileName = file.name;
                 this.loadedGeoJsonFile = JSON.parse(await file.text());
-                console.log("Loaded GeoJSON file!")
+                console.log('Loaded GeoJSON file!');
             }
         } catch (error) {
             if (error instanceof Error) {
@@ -346,11 +346,11 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     submitQuery(query: string, language: string, namespace: string): boolean {
         const request = new QueryRequest(query, true, false, language, namespace);
         request.noLimit = true;
-        return this._crud.anyQuery(this.websocket, request)
+        return this._crud.anyQuery(this.websocket, request);
     }
 
     filterLayer(layer: MapLayer) {
-        console.log("Filter layer", layer)
+        console.log('Filter layer', layer);
         this.layerSettings.addPolygonFilterForLayer(layer);
     }
 
@@ -435,10 +435,10 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // Create and download a GeoJSON file.
         const geoJSON = {
-            type: "FeatureCollection",
+            type: 'FeatureCollection',
             features: this.layers.flatMap(layer =>
                 layer.data.map(item => ({
-                    type: "Feature",
+                    type: 'Feature',
                     geometry: item.geometry,
                     properties: {
                         ...item.data,
@@ -450,9 +450,9 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         };
 
         const jsonString = JSON.stringify(geoJSON, null, 2);
-        const blob = new Blob([jsonString], {type: "application/json"});
+        const blob = new Blob([jsonString], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
+        const a = document.createElement('a');
         a.href = url;
         const now = new Date();
         // Timestamp looks like 01-12-2024-15-30
@@ -462,7 +462,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             now.getFullYear(),
             now.getHours().toString().padStart(2, '0'),
             now.getMinutes().toString().padStart(2, '0')
-        ].join("-");
+        ].join('-');
         a.download = `${timestamp}_polypheny_map_layers_export.geojson`;
         a.click();
         URL.revokeObjectURL(url);
