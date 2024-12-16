@@ -9,8 +9,9 @@ import {LayerSettingsService} from '../../../views/querying/gis/services/layerse
 import {MapLayer} from '../../../views/querying/gis/models/MapLayer.model';
 import {MapGeometryWithData} from '../../../views/querying/gis/models/MapGeometryWithData.model';
 import {CombinedResult} from '../data-view.model';
-import {LatLng} from "leaflet";
-import {Polygon, Position} from "geojson";
+import {LatLng} from 'leaflet';
+import {Polygon, Position} from 'geojson';
+import {cibYarn} from '@coreui/icons';
 
 // tslint:disable:no-non-null-assertion
 
@@ -32,7 +33,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
     // leaflet-draw
     leafletDrawControl = null;
-    layerIdToPoylgon = new Map<string, L.Polygon>()
+    layerIdToPoylgon = new Map<string, L.Polygon>();
     currentDrawingLayer: MapLayer = null;
     polygonTool = null;
 
@@ -53,7 +54,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
         effect(() => {
             if (!this.isInsideResults) {
-                return
+                return;
             }
 
             // Display the results.
@@ -103,7 +104,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
         this.subscriptions.add(this.layerSettings.fitLayerToMap$.subscribe((layer) => {
             if (layer) {
-                this.fitLayerToMap(layer)
+                this.fitLayerToMap(layer);
             }
         }));
 
@@ -111,7 +112,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     }
 
     fitLayerToMap(layer: MapLayer) {
-        const bounds = layer.getBounds()
+        const bounds = layer.getBounds();
         if (bounds.length > 0) {
             const latLngBounds = L.latLngBounds(bounds);
             if (latLngBounds.isValid()) {
@@ -147,26 +148,26 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
         leafletMap.on(L.Draw.Event.CREATED, (event) => {
             if (this.currentDrawingLayer === null) {
-                throw new Error("We are drawing, but there is no layer set?")
+                throw new Error('We are drawing, but there is no layer set?');
             }
             const polygon: L.Polygon = event.layer;
             this.layerIdToPoylgon.set(this.currentDrawingLayer.uuid, polygon);
-            console.log("Polygon added for layer ", this.currentDrawingLayer.uuid, polygon)
-            leafletMap.removeControl(this.leafletDrawControl)
-            this.polygonTool.disable()
+            console.log('Polygon added for layer ', this.currentDrawingLayer.uuid, polygon);
+            leafletMap.removeControl(this.leafletDrawControl);
+            this.polygonTool.disable();
             drawnItems.addLayer(polygon);
 
             // Send coordinates back to map-layers
-            let coordinates = polygon.getLatLngs() as LatLng[][];
-            let positions: Position[][] = coordinates.map((ring) =>
+            const coordinates = polygon.getLatLngs() as LatLng[][];
+            const positions: Position[][] = coordinates.map((ring) =>
                 ring.map((c) => [c.lng, c.lat])
             );
             // Close the linear ring
             positions[0].push(positions[0][0]);
             const geoJsonPolygon: Polygon = {
-                type: "Polygon",
+                type: 'Polygon',
                 coordinates: positions,
-            }
+            };
             this.layerSettings.addPolygonToLayer(this.currentDrawingLayer, geoJsonPolygon);
         });
 
@@ -185,13 +186,10 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             if (mapLayer === null) {
                 return;
             }
-            console.log("data-map remove layer filter polygon for ", mapLayer, this.layerIdToPoylgon);
-            console.trace();
             if (!this.layerIdToPoylgon.has(mapLayer.uuid)) {
                 return;
             }
             const polygon = this.layerIdToPoylgon.get(mapLayer.uuid);
-            console.log("Remove polygon", polygon);
             drawnItems.removeLayer(polygon);
         }));
 
@@ -263,11 +261,13 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                     return;
                 }
 
+                // GeoJSON paths
                 this.renderedGeometries
                     .filter((d) => d.type === 'path')
                     .attr('d', (d) => this.pathGenerator(d.geometry));
+                // Circles
                 this.renderedGeometries
-                    .filter((d) => d.type === 'point')
+                    .filter((d) => d.type === 'point' && d.layer!.pointShapeVisualization.selectedMode === 'Circle')
                     .each((d) => {
                         const layerPoint = this.map.latLngToLayerPoint([
                             d.getPoint().coordinates[1],
@@ -278,6 +278,33 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                     })
                     .attr('cx', (d) => d.cache['x'])
                     .attr('cy', (d) => d.cache['y']);
+                // Manually created Paths: Squares, Triangles, Stars
+                const createTrianglePath = this.createTrianglePath;
+                const createStarPath = this.createStarPath;
+                const createSquarePath = this.createSquarePath;
+
+                this.renderedGeometries
+                    .filter((d) => d.type === 'point' && d.layer!.pointShapeVisualization.selectedMode !== 'Circle')
+                    .each((d) => {
+                        const layerPoint = this.map.latLngToLayerPoint([
+                            d.getPoint().coordinates[1],
+                            d.getPoint().coordinates[0],
+                        ]);
+                        d.cache['x'] = layerPoint.x;
+                        d.cache['y'] = layerPoint.y;
+                    })
+                    .attr('d', (d) => {
+                        switch (d.layer!.pointShapeVisualization.selectedMode) {
+                            case 'Triangle':
+                                return createTrianglePath(d.cache['x'], d.cache['y'], d.cache['size']);
+                            case 'Star':
+                                return createStarPath(d.cache['x'], d.cache['y'], d.cache['size']);
+                            case 'Square':
+                                return createSquarePath(d.cache['x'], d.cache['y'], d.cache['size']);
+                            default:
+                                throw new Error(`Update SVG-Repositioning function to include point shape [${d.layer!.pointShapeVisualization.selectedMode}]`);
+                        }
+                    });
 
                 const bounds = this.map.getBounds();
                 const topLeft = this.map.latLngToLayerPoint(
@@ -300,7 +327,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     }
 
     renderLayersWithD3() {
-        console.log("Map: Render layers...")
+        console.log('Map: Render layers...');
         this.showLoadingSpinner('Rendering layers');
 
         setTimeout(() => {
@@ -311,7 +338,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
                 // Remove all previously added elements
                 this.g.selectAll('*').remove();
-                const geometries : MapGeometryWithData[] = [];
+                const geometries: MapGeometryWithData[] = [];
                 for (const layer of this.layers.slice().reverse()) {
                     // Initialize all configs
                     layer.pointShapeVisualization.init(layer.data);
@@ -321,7 +348,6 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 }
 
                 this.renderedGeometries = this.renderGeometries(geometries);
-                console.log(`renderedGeometries.size()`, this.renderedGeometries.size());
 
                 // Set SVG position correctly
                 this.updateSvgPosition();
@@ -329,8 +355,8 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 // Only for the first layer we add: Adjust map to points from layer.
                 // Otherwise: Maybe the user is already looking at the data they are interested in -> do not change
                 //            map position, because it could be unwanted.
-                if (this.layers.length == 1) {
-                    this.fitLayerToMap(this.layers[0])
+                if (this.layers.length === 1) {
+                    this.fitLayerToMap(this.layers[0]);
                 }
 
             } finally {
@@ -347,28 +373,29 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         const tt = this.tooltip;
         const pathGenerator = this.pathGenerator;
         const map = this.map;
+        const createTrianglePath = this.createTrianglePath;
+        const createStarPath = this.createStarPath;
+        const createSquarePath = this.createSquarePath;
 
         return this.g
             .selectAll('.geometry')
             .data(geometries)
             .enter()
             .append(function (d) {
-                console.log("d.type", d.type);
-                console.log("d.layer!.pointShapeVisualization.selectedMode", d.layer!.pointShapeVisualization.selectedMode);
-                if (d.type === 'point' && d.layer!.pointShapeVisualization.selectedMode === 'Circle'){
-                    return document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+                if (d.type === 'point' && d.layer!.pointShapeVisualization.selectedMode === 'Circle') {
+                    return document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 }
 
                 // All other more complex shapes need to be created by using paths.
-                return document.createElementNS('http://www.w3.org/2000/svg', 'path')
+                return document.createElementNS('http://www.w3.org/2000/svg', 'path');
             })
             .attr('class', 'geometry')
             .attr('layer-id', (d) => d.layer!.uuid)
             .attr('layer-index', (d) => d.layer!.index.toString())
             .each(function (d) {
                 const element = d3.select(this);
-                switch(d.type){
-                    case "point":
+                switch (d.type) {
+                    case 'point':
                         const layerPoint = map.latLngToLayerPoint([
                             d.getPoint().coordinates[1],
                             d.getPoint().coordinates[0],
@@ -377,41 +404,41 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                         const y = layerPoint.y;
                         const size = d.layer!.pointShapeVisualization.getValueForAttribute('r', d) as number;
                         const fill = d.layer!.colorVisualization.getValueForAttribute('fill', d) as string;
+
                         d.cache['x'] = x;
                         d.cache['y'] = y;
+                        d.cache['size'] = size;
 
-                        if (d.layer!.pointShapeVisualization.selectedMode === "Icon"){
-                            // const icon = d.layer!.data[d.layer!.pointShapeVisualization.fieldName];
-                            // TODO: Lookup value of selected field to determine icon
-                            const icon = 'square'
+                        switch (d.layer!.pointShapeVisualization.selectedMode) {
+                            case 'Circle':
+                                element
+                                    .attr('cx', x)
+                                    .attr('cy', y)
+                                    .attr('r', size)
+                                    .attr('fill', fill);
+                                break;
+                            case 'Square':
+                                element
+                                    .attr('d', (d) => createSquarePath(x, y, size))
+                                    .attr('fill', fill);
+                                break;
+                            case 'Triangle':
+                                element
+                                    .attr('d', () => createTrianglePath(x, y, size))
+                                    .attr('fill', d.layer!.colorVisualization.getValueForAttribute('fill', d));
+                                break;
+                            case 'Star':
+                                element
+                                    .attr('d', (d) => createStarPath(x, y, size))
+                                    .attr('fill', d.layer!.colorVisualization.getValueForAttribute('fill', d));
+                                break;
+                            default:
+                                throw new Error(`Update render function to include shape [${d.type}]`);
 
-                            switch (icon){
-                                case 'square':
-                                    element
-                                        .attr('d', (d) => {
-                                            const halfSize = size;
-                                            return `M ${x - halfSize} ${y - halfSize} 
-                                                    L ${x + halfSize} ${y - halfSize} 
-                                                    L ${x + halfSize} ${y + halfSize} 
-                                                    L ${x - halfSize} ${y + halfSize} Z`;
-                                        })
-                                        .attr('fill', fill);
-                                    break
-                                default:
-                                    throw new Error(`Update render function to include shape [${d.type}]`);
-
-                            }
-                        } else {
-                            // Shape is set to circle, create circle element.
-                            element
-                                .attr('cx', x)
-                                .attr('cy', y)
-                                .attr('r', size)
-                                .attr('fill', fill);
                         }
 
                         break;
-                    case "path":
+                    case 'path':
                         element
                             .attr('d', pathGenerator(d.geometry))
                             .attr('stroke-width', d.layer!.areaShapeVisualization.getValueForAttribute('stroke-width', d))
@@ -437,6 +464,38 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             .on('mouseout', function () {
                 tt.style('display', 'none');
             });
+    }
+
+    createTrianglePath(x, y, size) {
+        const side = size * 3;
+        const height = (Math.sqrt(3) / 2) * side;
+        return `M ${x} ${y - height / 2} 
+                L ${x - side / 2} ${y + height / 2} 
+                L ${x + side / 2} ${y + height / 2} Z`;
+    }
+
+    createStarPath(x, y, size) {
+        const outerRadius = size * 2;
+        const innerRadius = size;
+        const spikes = 5;
+
+        let path = '';
+        const step = Math.PI / spikes;
+        for (let i = 0; i < 2 * spikes; i++) {
+            const radius = i % 2 === 0 ? outerRadius : innerRadius;
+            const xStar = x + Math.cos(i * step) * radius;
+            const yStar = y - Math.sin(i * step) * radius;
+            path += i === 0 ? `M ${xStar} ${yStar}` : `L ${xStar} ${yStar}`;
+        }
+        return `${path} Z`;
+    }
+
+    createSquarePath(x, y, size) {
+        const halfSize = size;
+        return `M ${x - halfSize} ${y - halfSize} 
+                L ${x + halfSize} ${y - halfSize} 
+                L ${x + halfSize} ${y + halfSize} 
+                L ${x - halfSize} ${y + halfSize} Z`;
     }
 
     toggleLayerVisibility(layer: MapLayer) {

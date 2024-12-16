@@ -7,10 +7,14 @@ export class PointShapeVisualization implements Visualization, MapLayerConfigura
     name = 'Point Shape';
     configurationComponentType = PointShapeComponent;
 
-    modes: string[] = ['Circle', 'Icon'];
+    modes: string[] = ['Circle', 'Square', 'Triangle', 'Star'];
     selectedMode: string;
     size: number;
-    fieldName = '';
+
+    // TODO: Currently deactivated, because it required too much client-side logic. It is easier to just apply
+    //       the filter when specifying the query, and then applying the selectedMode to the whole layer, instead
+    //       of comparing the field here.
+    // fieldName = '';
 
     constructor(size: number) {
         this.size = size;
@@ -24,7 +28,7 @@ export class PointShapeVisualization implements Visualization, MapLayerConfigura
     copy(): PointShapeVisualization {
         const copy = new PointShapeVisualization(this.size);
         copy.selectedMode = this.selectedMode;
-        copy.fieldName = this.fieldName;
+        // copy.fieldName = this.fieldName;
         return copy;
     }
 

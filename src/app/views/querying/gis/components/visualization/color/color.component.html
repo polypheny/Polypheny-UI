@@ -46,10 +46,11 @@
         />
     </c-input-group>
 
-    <c-form-check *ngIf="config.selectedMode == 'Gradient'">
-        <input cFormCheckInput [(ngModel)]="config.normalizeByArea" (ngModelChange)="configChanged()" id="normalize"
-               type="checkbox"/>
-        <label cFormCheckLabel for="normalize">Normalize value by area</label>
-    </c-form-check>
+<!--    TODO: This does not work... -->
+<!--    <c-form-check *ngIf="config.selectedMode == 'Gradient' && config.layer.containsAreas">-->
+<!--        <input cFormCheckInput [(ngModel)]="config.normalizeByArea" (ngModelChange)="configChanged()" id="normalize"-->
+<!--               type="checkbox"/>-->
+<!--        <label cFormCheckLabel for="normalize">Normalize value by area</label>-->
+<!--    </c-form-check>-->
 
 </div>
