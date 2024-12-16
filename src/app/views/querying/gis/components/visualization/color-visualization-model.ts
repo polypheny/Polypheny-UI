@@ -4,12 +4,14 @@ import * as d3 from 'd3';
 import * as turf from '@turf/turf';
 import { ColorComponent } from './color/color.component';
 import {MapLayerConfiguration} from '../../models/MapLayerConfiguration.interface';
+import {MapLayer} from "../../models/MapLayer.model";
 
 // tslint:disable:no-non-null-assertion
 
 export class ColorVisualization implements Visualization, MapLayerConfiguration {
     name = 'Color';
     configurationComponentType = ColorComponent;
+    layer: MapLayer;
 
     modes: string[] = ['Static', 'Gradient'];
     selectedMode: string = this.modes[0];
@@ -23,8 +25,9 @@ export class ColorVisualization implements Visualization, MapLayerConfiguration 
     normalizeByArea = false;
     colorScale?: d3.ScaleSequential<string>;
 
-    constructor(color: string) {
+    constructor(color: string, layer: MapLayer) {
         this.color = color;
+        this.layer = layer;
     }
 
     init(data: MapGeometryWithData[]): void {
@@ -62,7 +65,7 @@ export class ColorVisualization implements Visualization, MapLayerConfiguration 
     }
 
     copy(): Visualization {
-        const copy = new ColorVisualization(this.color);
+        const copy = new ColorVisualization(this.color, this.layer);
         copy.selectedMode = this.selectedMode;
         copy.fillOpacity = this.fillOpacity;
         copy.fieldName = this.fieldName;

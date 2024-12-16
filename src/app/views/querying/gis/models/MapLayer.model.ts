@@ -60,9 +60,9 @@ export class MapLayer {
 
     dataPreview: MapLayerConfiguration = new DataPreview(this);
     filterConfig: FilterConfig = new FilterConfig(this);
-    pointShapeVisualization: Visualization = new PointShapeVisualization(3);
+    pointShapeVisualization: PointShapeVisualization = new PointShapeVisualization(3);
     areaShapeVisualization: Visualization = new AreaShapeVisualization(1);
-    colorVisualization: Visualization = new ColorVisualization('red');
+    colorVisualization: Visualization = new ColorVisualization('red', this);
     labelVisualization: Visualization = new LabelVisualization();
 
     // Computed (Not used in copy)

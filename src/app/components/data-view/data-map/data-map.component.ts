@@ -44,14 +44,9 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         | d3.Selection<SVGSVGElement, unknown, null, undefined>
         | undefined;
     private g: d3.Selection<SVGGElement, unknown, null, undefined> | undefined;
-    private circles:
-        | d3.Selection<SVGCircleElement, MapGeometryWithData, SVGGElement, unknown>
-        | undefined;
-    private paths:
-        | d3.Selection<SVGPathElement, MapGeometryWithData, SVGGElement, unknown>
-        | undefined;
     private pathGenerator!: GeoPath<any, GeoPermissibleObjects>;
     private tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+    private renderedGeometries: d3.Selection<SVGPathElement, MapGeometryWithData, SVGGElement, unknown>;
 
     constructor(protected layerSettings: LayerSettingsService) {
         super();
@@ -222,6 +217,11 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         const transform = d3Geo.geoTransform({point: projectPoint});
         this.pathGenerator = d3Geo.geoPath().projection(transform);
 
+        this.map.on('zoomstart', () => {
+            if (this.g) {
+                this.g.style('visibility', 'hidden');
+            }
+        });
         this.map.on('zoomend', () => {
             this.updateSvgPosition();
         });
@@ -231,9 +231,6 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             }
             const bounds = this.map.getBounds();
             const topLeft = this.map.latLngToLayerPoint(bounds.getNorthWest());
-            const bottomRight = this.map.latLngToLayerPoint(
-                bounds.getSouthEast(),
-            );
             this.svg
                 .style('width', '999999px')
                 .style('height', '999999px')
@@ -266,30 +263,25 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                     return;
                 }
 
-                if (this.paths) {
-                    this.paths.attr('d', (d) => this.pathGenerator(d.geometry));
-                }
-
-                if (this.circles) {
-                    this.circles
-                        .each((d) => {
-                            const layerPoint = this.map.latLngToLayerPoint([
-                                d.getPoint()!.coordinates[1],
-                                d.getPoint()!.coordinates[0],
-                            ]);
-                            d.cache['x'] = layerPoint.x;
-                            d.cache['y'] = layerPoint.y;
-                        })
-                        .attr('cx', (d) => d.cache['x'])
-                        .attr('cy', (d) => d.cache['y']);
-                }
+                this.renderedGeometries
+                    .filter((d) => d.type === 'path')
+                    .attr('d', (d) => this.pathGenerator(d.geometry));
+                this.renderedGeometries
+                    .filter((d) => d.type === 'point')
+                    .each((d) => {
+                        const layerPoint = this.map.latLngToLayerPoint([
+                            d.getPoint().coordinates[1],
+                            d.getPoint().coordinates[0],
+                        ]);
+                        d.cache['x'] = layerPoint.x;
+                        d.cache['y'] = layerPoint.y;
+                    })
+                    .attr('cx', (d) => d.cache['x'])
+                    .attr('cy', (d) => d.cache['y']);
 
                 const bounds = this.map.getBounds();
                 const topLeft = this.map.latLngToLayerPoint(
                     bounds.getNorthWest(),
-                );
-                const bottomRight = this.map.latLngToLayerPoint(
-                    bounds.getSouthEast(),
                 );
                 this.svg
                     .style('width', '999999px')
@@ -300,6 +292,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                     'transform',
                     `translate(${-topLeft.x}, ${-topLeft.y})`,
                 );
+                this.g.style('visibility', 'visible');
             } finally {
                 this.isLoading = false;
             }
@@ -318,34 +311,17 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
                 // Remove all previously added elements
                 this.g.selectAll('*').remove();
-
-                const points: MapGeometryWithData[] = [];
-                const paths: MapGeometryWithData[] = [];
-
-                // Add shapes from each layer to array
+                const geometries : MapGeometryWithData[] = [];
                 for (const layer of this.layers.slice().reverse()) {
-
                     // Initialize all configs
                     layer.pointShapeVisualization.init(layer.data);
                     layer.areaShapeVisualization.init(layer.data);
                     layer.colorVisualization.init(layer.data);
-
-                    points.push(
-                        ...layer.data.filter(
-                            (d) => d.geometry.type === 'Point',
-                        ),
-                    );
-                    paths.push(
-                        ...layer.data.filter(
-                            (d) => d.geometry.type !== 'Point',
-                        ),
-                    );
+                    geometries.push(...layer.data);
                 }
 
-                // Render all points
-                // TODO: Circles are always on the bottom this way...
-                this.circles = this.createPoints(points);
-                this.paths = this.createPaths(paths);
+                this.renderedGeometries = this.renderGeometries(geometries);
+                console.log(`renderedGeometries.size()`, this.renderedGeometries.size());
 
                 // Set SVG position correctly
                 this.updateSvgPosition();
@@ -363,85 +339,90 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         }, 0);
     }
 
-    createPoints(points: MapGeometryWithData[]) {
+    renderGeometries(geometries: (MapGeometryWithData)[]) {
         if (!this.g) {
             return;
         }
 
         const tt = this.tooltip;
+        const pathGenerator = this.pathGenerator;
+        const map = this.map;
 
         return this.g
-            .selectAll('circle')
-            .data(points)
+            .selectAll('.geometry')
+            .data(geometries)
             .enter()
-            .append('circle')
+            .append(function (d) {
+                console.log("d.type", d.type);
+                console.log("d.layer!.pointShapeVisualization.selectedMode", d.layer!.pointShapeVisualization.selectedMode);
+                if (d.type === 'point' && d.layer!.pointShapeVisualization.selectedMode === 'Circle'){
+                    return document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+                }
+
+                // All other more complex shapes need to be created by using paths.
+                return document.createElementNS('http://www.w3.org/2000/svg', 'path')
+            })
+            .attr('class', 'geometry')
             .attr('layer-id', (d) => d.layer!.uuid)
             .attr('layer-index', (d) => d.layer!.index.toString())
-            .attr('r', (d) =>
-                d.layer!.pointShapeVisualization.getValueForAttribute('r', d),
-            )
-            .attr('fill', (d) =>
-                d.layer!.colorVisualization.getValueForAttribute('fill', d),
-            )
-            .each((d) => {
-                const layerPoint = this.map.latLngToLayerPoint([
-                    d.getPoint().coordinates[1],
-                    d.getPoint().coordinates[0],
-                ]);
-                d.cache['x'] = layerPoint.x;
-                d.cache['y'] = layerPoint.y;
-            })
-            .attr('cx', (d) => d.cache['x'])
-            .attr('cy', (d) => d.cache['y'])
-            .style('pointer-events', 'auto')
-            .style('cursor', 'pointer')
-            .on('mouseover', function (event, d) {
-                tt.style('display', 'block').html(JSON.stringify(d.data, null, 1));
-            })
-            .on('mousemove', function (event) {
-                tt.style('top', event.pageY + 10 + 'px').style(
-                    'left',
-                    event.pageX + 10 + 'px',
-                );
-            })
-            .on('mouseout', function () {
-                tt.style('display', 'none');
-            });
-    }
+            .each(function (d) {
+                const element = d3.select(this);
+                switch(d.type){
+                    case "point":
+                        const layerPoint = map.latLngToLayerPoint([
+                            d.getPoint().coordinates[1],
+                            d.getPoint().coordinates[0],
+                        ]);
+                        const x = layerPoint.x;
+                        const y = layerPoint.y;
+                        const size = d.layer!.pointShapeVisualization.getValueForAttribute('r', d) as number;
+                        const fill = d.layer!.colorVisualization.getValueForAttribute('fill', d) as string;
+                        d.cache['x'] = x;
+                        d.cache['y'] = y;
 
-    createPaths(paths: MapGeometryWithData[]) {
-        if (!this.g) {
-            return;
-        }
+                        if (d.layer!.pointShapeVisualization.selectedMode === "Icon"){
+                            // const icon = d.layer!.data[d.layer!.pointShapeVisualization.fieldName];
+                            // TODO: Lookup value of selected field to determine icon
+                            const icon = 'square'
 
-        const tt = this.tooltip;
+                            switch (icon){
+                                case 'square':
+                                    element
+                                        .attr('d', (d) => {
+                                            const halfSize = size;
+                                            return `M ${x - halfSize} ${y - halfSize} 
+                                                    L ${x + halfSize} ${y - halfSize} 
+                                                    L ${x + halfSize} ${y + halfSize} 
+                                                    L ${x - halfSize} ${y + halfSize} Z`;
+                                        })
+                                        .attr('fill', fill);
+                                    break
+                                default:
+                                    throw new Error(`Update render function to include shape [${d.type}]`);
 
-        return this.g
-            .selectAll('.paths')
-            .data(paths)
-            .enter()
-            .append('path')
-            .attr('layer-id', (d) => d.layer!.uuid)
-            .attr('layer-index', (d) => d.layer!.index.toString())
-            .attr('d', (d) => this.pathGenerator(d.geometry))
-            .attr('stroke-width', (d) =>
-                d.layer!.areaShapeVisualization.getValueForAttribute(
-                    'stroke-width',
-                    d,
-                ),
-            )
-            .attr('stroke', (d) =>
-                d.layer!.colorVisualization.getValueForAttribute('stroke', d),
-            )
-            .attr('fill', (d) =>
-                d.layer!.colorVisualization.getValueForAttribute('fill', d),
-            )
-            .attr('fill-opacity', (d) =>
-                d.layer!.colorVisualization.getValueForAttribute(
-                    'fill-opacity',
-                    d,
-                ),
-            )
+                            }
+                        } else {
+                            // Shape is set to circle, create circle element.
+                            element
+                                .attr('cx', x)
+                                .attr('cy', y)
+                                .attr('r', size)
+                                .attr('fill', fill);
+                        }
+
+                        break;
+                    case "path":
+                        element
+                            .attr('d', pathGenerator(d.geometry))
+                            .attr('stroke-width', d.layer!.areaShapeVisualization.getValueForAttribute('stroke-width', d))
+                            .attr('stroke', d.layer!.colorVisualization.getValueForAttribute('stroke', d))
+                            .attr('fill', d.layer!.colorVisualization.getValueForAttribute('fill', d))
+                            .attr('fill-opacity', d.layer!.colorVisualization.getValueForAttribute('fill-opacity', d));
+                        break;
+                    default:
+                        throw new Error(`Update render function to include shape [${d.type}]`);
+                }
+            })
             .style('pointer-events', 'auto')
             .style('cursor', 'pointer')
             .on('mouseover', function (event, d) {

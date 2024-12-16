@@ -13,6 +13,7 @@ export class MapGeometryWithData {
     data: Record<string, any> = {};
     cache: Record<string, number> = {};
     layer?: MapLayer = undefined;
+    type: 'point' | 'path';
 
     constructor(
         index: number,
@@ -21,6 +22,7 @@ export class MapGeometryWithData {
     ) {
         this.index = index;
         this.geometry = geometry;
+        this.type = this.isPoint() ? 'point' : 'path';
 
         if (data) {
             this.data = data;

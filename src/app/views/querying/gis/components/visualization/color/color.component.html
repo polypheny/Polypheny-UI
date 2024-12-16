@@ -24,9 +24,9 @@
         />
     </c-input-group>
 
-    <c-input-group>
-        <span cInputGroupText>Area Fill Opacity</span>
-        <input aria-label="Area Fill Opacity"
+    <c-input-group *ngIf="config.layer.containsAreas" >
+        <span cInputGroupText>Opacity (Area)</span>
+        <input aria-label="Fill Opacity"
                cFormControl
                placeholder="0.25"
                [min]="0"

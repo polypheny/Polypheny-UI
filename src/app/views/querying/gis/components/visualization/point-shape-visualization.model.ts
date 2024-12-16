@@ -8,19 +8,20 @@ export class PointShapeVisualization implements Visualization, MapLayerConfigura
     configurationComponentType = PointShapeComponent;
 
     modes: string[] = ['Circle', 'Icon'];
-    selectedMode: string = this.modes[0];
+    selectedMode: string;
     size: number;
     fieldName = '';
 
     constructor(size: number) {
         this.size = size;
+        this.selectedMode = this.modes[0];
     }
 
     init(data: MapGeometryWithData[]): void {
         //
     }
 
-    copy(): Visualization {
+    copy(): PointShapeVisualization {
         const copy = new PointShapeVisualization(this.size);
         copy.selectedMode = this.selectedMode;
         copy.fieldName = this.fieldName;
