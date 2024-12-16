@@ -36,6 +36,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     layerIdToPoylgon = new Map<string, L.Polygon>();
     currentDrawingLayer: MapLayer = null;
     polygonTool = null;
+    isInitialRender = true;
 
     readonly MIN_ZOOM = 0;
     readonly MAX_ZOOM = 19;
@@ -355,12 +356,14 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 // Only for the first layer we add: Adjust map to points from layer.
                 // Otherwise: Maybe the user is already looking at the data they are interested in -> do not change
                 //            map position, because it could be unwanted.
-                if (this.layers.length === 1) {
+                // Only do this for the
+                if (this.isInitialRender && this.layers.length === 1) {
                     this.fitLayerToMap(this.layers[0]);
                 }
 
             } finally {
                 this.isLoading = false;
+                this.isInitialRender = false;
             }
         }, 0);
     }
@@ -393,7 +396,9 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             .attr('layer-id', (d) => d.layer!.uuid)
             .attr('layer-index', (d) => d.layer!.index.toString())
             .each(function (d) {
-                const element = d3.select(this);
+                const element = d3.select(this)
+                const fill = d.layer!.colorVisualization.getValueForAttribute('fill', d) as string;
+
                 switch (d.type) {
                     case 'point':
                         const layerPoint = map.latLngToLayerPoint([
@@ -403,8 +408,6 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                         const x = layerPoint.x;
                         const y = layerPoint.y;
                         const size = d.layer!.pointShapeVisualization.getValueForAttribute('r', d) as number;
-                        const fill = d.layer!.colorVisualization.getValueForAttribute('fill', d) as string;
-
                         d.cache['x'] = x;
                         d.cache['y'] = y;
                         d.cache['size'] = size;
@@ -425,25 +428,23 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                             case 'Triangle':
                                 element
                                     .attr('d', () => createTrianglePath(x, y, size))
-                                    .attr('fill', d.layer!.colorVisualization.getValueForAttribute('fill', d));
+                                    .attr('fill', fill);
                                 break;
                             case 'Star':
                                 element
                                     .attr('d', (d) => createStarPath(x, y, size))
-                                    .attr('fill', d.layer!.colorVisualization.getValueForAttribute('fill', d));
+                                    .attr('fill', fill);
                                 break;
                             default:
                                 throw new Error(`Update render function to include shape [${d.type}]`);
-
                         }
-
                         break;
                     case 'path':
                         element
                             .attr('d', pathGenerator(d.geometry))
                             .attr('stroke-width', d.layer!.areaShapeVisualization.getValueForAttribute('stroke-width', d))
                             .attr('stroke', d.layer!.colorVisualization.getValueForAttribute('stroke', d))
-                            .attr('fill', d.layer!.colorVisualization.getValueForAttribute('fill', d))
+                            .attr('fill', fill)
                             .attr('fill-opacity', d.layer!.colorVisualization.getValueForAttribute('fill-opacity', d));
                         break;
                     default:
@@ -491,11 +492,13 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     }
 
     createSquarePath(x, y, size) {
-        const halfSize = size;
-        return `M ${x - halfSize} ${y - halfSize} 
-                L ${x + halfSize} ${y - halfSize} 
-                L ${x + halfSize} ${y + halfSize} 
-                L ${x - halfSize} ${y + halfSize} Z`;
+        // No idea why this is necessary, but on the second render the size is suddenly no longer a number
+        // and gets concatenated instead of added, which leads to the square looking wrong on the map.
+        size = Number(size);
+        return `M ${x - size} ${y - size} 
+                L ${x + size} ${y - size} 
+                L ${x + size} ${y + size} 
+                L ${x - size} ${y + size} Z`;
     }
 
     toggleLayerVisibility(layer: MapLayer) {
