@@ -67,7 +67,15 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             // The CombinedResult will be given to the LayerSettings, if the user clicks on the button to show the
             // results in the full GIS query mode.
             this.previewResult = result;
-            this.layerSettings.setLayers([MapLayer.from(result)]);
+
+            // Always update layers, because even if the current query did not result in any geometries that we can
+            // show on the map, we have to at least remove the old results.
+            const layers = [];
+            const resultsLayer = MapLayer.from(result);
+            if (resultsLayer.data.length > 0){
+                layers.push(resultsLayer);
+            }
+            this.layerSettings.setLayers(layers);
         });
     }
 

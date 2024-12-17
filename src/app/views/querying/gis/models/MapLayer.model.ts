@@ -71,8 +71,8 @@ export class MapLayer {
                         Object.entries(JSON.parse(json)).map(([key, value]) => [key.toLowerCase(), value])
                     );
                     const [geometry, key] = this.getGeometryFromData(jsonObject);
-                    geometryField = key;
                     if (geometry) {
+                        geometryField = key;
                         const geometryWithData = new MapGeometryWithData(rowIndex, geometry, jsonObject);
                         mapData.push(geometryWithData);
                     }
@@ -100,8 +100,8 @@ export class MapLayer {
                     }
 
                     const [geometry, key] = this.getGeometryFromData(obj);
-                    geometryField = key;
                     if (geometry) {
+                        geometryField = key;
                         const geometryWithData = new MapGeometryWithData(rowIndex, geometry, obj);
                         mapData.push(geometryWithData);
                     }
@@ -132,8 +132,8 @@ export class MapLayer {
                     }
 
                     const [geometry, key] = this.getGeometryFromData(obj);
-                    geometryField = key;
                     if (geometry) {
+                        geometryField = key;
                         const geometryWithData = new MapGeometryWithData(rowIndex, geometry, obj);
                         mapData.push(geometryWithData);
                     }
@@ -144,9 +144,12 @@ export class MapLayer {
                 throw Error(`Cannot convert CombinedResult to MapLayer. Unknown document model: ${result.dataModel}`);
         }
 
-        layer.addData(mapData);
-        layer.geometryField = geometryField;
-        console.log('Created layer: ', layer);
+        if (mapData.length > 0){
+            layer.addData(mapData);
+            layer.geometryField = geometryField;
+        }
+
+        console.log(`Created layer with ${layer.data.length}: data points:`, layer);
         return layer;
     }
 
@@ -191,7 +194,7 @@ export class MapLayer {
         // TODO: Detect heuristic, so that we can automatically detect the most common geometry types
         //   - string in WKT format
 
-        return undefined;
+        return [undefined, undefined];
     }
 
 
