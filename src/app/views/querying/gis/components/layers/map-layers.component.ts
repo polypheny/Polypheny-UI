@@ -169,7 +169,13 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     readonly activeNamespace: WritableSignal<string> = signal(null);
 
     runPolyPlan(layer: MapLayer) {
+        if (this.applyFilterToLayer || this.addDataToExistingLayer) {
+            console.log('Another query is already in progress. Wait for it to finish.');
+            return;
+        }
+
         this.applyFilterToLayer = layer;
+        this.addDataToExistingLayer = layer;
         this.algViewerComponent.setPolyAlgPlan(layer.planNode, 'LOGICAL');
     }
 
@@ -369,6 +375,11 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     rerunQuery(layer: MapLayer) {
+        if (this.applyFilterToLayer || this.addDataToExistingLayer) {
+            console.log('Another query is already in progress. Do not update this.addDataToExistingLayer.');
+            return;
+        }
+
         // Data will be overwritten once the results are in
         this.addDataToExistingLayer = layer;
         this.submitQuery(layer.query, layer.language, layer.namespace);
