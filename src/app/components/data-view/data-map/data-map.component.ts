@@ -283,6 +283,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 const createTrianglePath = this.createTrianglePath;
                 const createStarPath = this.createStarPath;
                 const createSquarePath = this.createSquarePath;
+                const createCrossPath = this.createCrossPath;
 
                 this.renderedGeometries
                     .filter((d) => d.type === 'point' && d.layer!.pointShapeVisualization.selectedMode !== 'Circle')
@@ -302,6 +303,8 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                                 return createStarPath(d.cache['x'], d.cache['y'], d.cache['size']);
                             case 'Square':
                                 return createSquarePath(d.cache['x'], d.cache['y'], d.cache['size']);
+                            case 'Cross':
+                                return createCrossPath(d.cache['x'], d.cache['y'], d.cache['size']);
                             default:
                                 throw new Error(`Update SVG-Repositioning function to include point shape [${d.layer!.pointShapeVisualization.selectedMode}]`);
                         }
@@ -379,6 +382,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         const createTrianglePath = this.createTrianglePath;
         const createStarPath = this.createStarPath;
         const createSquarePath = this.createSquarePath;
+        const createCrossPath = this.createCrossPath;
 
         return this.g
             .selectAll('.geometry')
@@ -396,7 +400,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             .attr('layer-id', (d) => d.layer!.uuid)
             .attr('layer-index', (d) => d.layer!.index.toString())
             .each(function (d) {
-                const element = d3.select(this)
+                const element = d3.select(this);
                 const fill = d.layer!.colorVisualization.getValueForAttribute('fill', d) as string;
 
                 switch (d.type) {
@@ -434,6 +438,11 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                                 element
                                     .attr('d', (d) => createStarPath(x, y, size))
                                     .attr('fill', fill);
+                                break;
+                            case 'Cross':
+                                element
+                                    .attr('d', (d) => createCrossPath(x, y, size))
+                                    .attr('stroke', fill);
                                 break;
                             default:
                                 throw new Error(`Update render function to include shape [${d.type}]`);
@@ -499,6 +508,12 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 L ${x + size} ${y - size} 
                 L ${x + size} ${y + size} 
                 L ${x - size} ${y + size} Z`;
+    }
+
+    createCrossPath(x, y, size) {
+        const half = Number(size);
+        return `M ${x - half} ${y - half} L ${x + half} ${y + half}
+                M ${x - half} ${y + half} L ${x + half} ${y - half}`;
     }
 
     toggleLayerVisibility(layer: MapLayer) {
