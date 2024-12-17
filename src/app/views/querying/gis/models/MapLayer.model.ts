@@ -39,24 +39,7 @@ export class MapLayer {
     lastUpdated = '';
 
     // Query Filter
-    planValidator: AlgValidatorService = null;
     planNode: PlanNode = null;
-    jsonPolyAlg: string = null;
-
-    // Polygon around Berlin
-    tempPolygon: Polygon = {
-        type: 'Polygon',
-        coordinates: [
-            [
-                [12.535400390625002, 52.92215137976296],
-                [13.458251953125002, 51.15178610143037],
-                [15.128173828125002, 51.41291212935532],
-                [14.930419921875002, 53.553362785528094],
-                [13.348388671875002, 53.6185793648952],
-                [12.535400390625002, 52.92215137976296]
-            ]
-        ]
-    };
 
     dataPreview: MapLayerConfiguration = new DataPreview(this);
     filterConfig: FilterConfig = new FilterConfig(this);
@@ -310,7 +293,11 @@ export class MapLayer {
         return copy;
     }
 
-    addData(data: MapGeometryWithData[]) {
+    addData(data: MapGeometryWithData[], overwrite=false) {
+        if (overwrite){
+            this.data = [];
+        }
+
         this.containsPoints = false;
         this.containsAreas = false;
         if (data.length > 0){

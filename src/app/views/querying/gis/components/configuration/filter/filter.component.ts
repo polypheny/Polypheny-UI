@@ -12,11 +12,13 @@ import {FilterConfig} from '../FilterConfig';
 })
 export class FilterComponent implements MapLayerConfigurationComponent {
 
+    isAddMode: boolean;
+
     constructor(
         @Inject('config') protected config: FilterConfig,
         private layerSettings: LayerSettingsService,
     ) {
-        //
+        this.updateIsAddMode();
     }
 
     configChanged() {
@@ -34,10 +36,7 @@ export class FilterComponent implements MapLayerConfigurationComponent {
         }
     }
 
-    applyFilterPolygonToQuery() {
-
-
-        // const polygon = this.config.layer.tempPolygon;
-        // const planNode = this.config.layer.planNode;
+    updateIsAddMode(){
+        this.isAddMode = this.config.filterPolygon === null;
     }
 }

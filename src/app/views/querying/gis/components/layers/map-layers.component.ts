@@ -79,7 +79,6 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                                     const informationObjects = Object.values(group.informationObjects);
                                     for (const informationObject of informationObjects) {
                                         if (informationObject.type === 'InformationPolyAlg') {
-                                            queryLayer.jsonPolyAlg = informationObject.jsonPolyAlg;
                                             queryLayer.planNode = JSON.parse(informationObject.jsonPolyAlg);
                                         }
                                     }
@@ -92,16 +91,30 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
 
                     console.log('this.addDataToExistingLayer', this.addDataToExistingLayer);
                     if (this.addDataToExistingLayer) {
-                        this.addDataToExistingLayer.data = queryLayer.data;
-                        this.addDataToExistingLayer.query = queryLayer.query;
+                        this.addDataToExistingLayer.addData(queryLayer.data, true);
                         // This timestamp will trigger the change detection.
                         this.addDataToExistingLayer.lastUpdated = queryLayer.lastUpdated;
-                        this.addDataToExistingLayer = null;
-                        this.checkCanRerender();
+
+                        // Reset references to layer, so that the user can start the next query.
+                        if (this.applyFilterToLayer){
+                            // Restores the state in the filter configuration section
+                            this.applyFilterToLayer.filterConfig.removePolygon();
+                            // Restores the state on the map component
+                            this.layerSettings.removePolygonFilterForLayer(this.applyFilterToLayer);
+                            // Restores the state here.
+                            this.applyFilterToLayer = null;
+                        } else {
+                            // Only update the query if it was written in a query language the query console
+                            // understands.
+                            this.addDataToExistingLayer.query = queryLayer.query;
+                            this.addDataToExistingLayer = null;
+                        }
+
+                        // Instantly trigger rerender.
+                        this.updateLayers(this.layers);
                     } else {
                         this.addLayerInternal(queryLayer);
                     }
-                    localStorage.setItem(this.LOCAL_STORAGE_LAST_QUERY_KEY, combinedResult.query);
                     this.isAddLayerModalVisible = false;
                 }
             }
@@ -122,7 +135,6 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     results: WritableSignal<Result<any, any>[]> = signal([]);
     readonly language: WritableSignal<string> = signal('sql');
     private subscriptions = new Subscription();
-    private readonly LOCAL_STORAGE_LAST_QUERY_KEY = 'last_query_gis';
     private addDataToExistingLayer: MapLayer = null;
     private lastQueryAnalyzerId = null;
     private lastQueryAnalyzerPage = null;
@@ -184,28 +196,20 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             return;
         }
 
-        console.log('onPolyPlanChanged', polyPlan, this.applyFilterToLayer);
-
         let plan = '';
 
         if (this.applyFilterToLayer.language === 'mongo') {
-            const wkt = geojsonToWKT(this.applyFilterToLayer.tempPolygon);
-            plan = `DOC_FILTER[MQL_GEO_WITHIN(
-                ${this.applyFilterToLayer.geometryField}, 
-                SRID=4326;${wkt}:DOCUMENT, -1.0E0:DOCUMENT)](
-                  ${polyPlan})`;
+            const wkt = geojsonToWKT(this.applyFilterToLayer.filterConfig.filterPolygon);
+
+            // TODO: Get SRID from layer.
+            plan = `DOC_FILTER[MQL_GEO_WITHIN(${this.applyFilterToLayer.geometryField}, 'SRID=4326;${wkt}':DOCUMENT, -1:DOCUMENT)](${polyPlan})`;
             plan = trimLines(plan);
         }
-
-//         plan = `DOC_FILTER[MQL_GEO_WITHIN(geometry, SRID=4326;POLYGON ((12.535400390625002 52.92215137976296, 13.458251953125002 51.15178610143037, 15.128173828125002 51.41291212935532, 14.930419921875002 53.553362785528094, 13.348388671875002 53.6185793648952, 12.535400390625002 52.92215137976296)):DOCUMENT, -1.0E0:DOCUMENT)](
-//   DOC_SCAN[doc.geocollection2]
-// )`;
 
         console.log('Run plan:', plan);
         const request = new PolyAlgRequest(plan, DataModel.DOCUMENT, 'LOGICAL');
         request.noLimit = true;
-        const success = this.websocket.sendMessage(request);
-        console.log('success', success);
+        this.websocket.sendMessage(request);
     }
 
     ngOnDestroy(): void {
@@ -221,7 +225,6 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     private initWebsocket() {
         const sub = this.websocket.onMessage().subscribe({
             next: msg => {
-                console.log('msg: ', msg);
                 if (Array.isArray(msg) && msg[0].hasOwnProperty('routerLink')) {
                     const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
                     const logicalQueryPlanNode = sidebarNodesTemp.filter(n => n.name === 'Logical Query Plan')[0] || null;
@@ -230,9 +233,12 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                         this.lastQueryAnalyzerId = split[0];
                         this.lastQueryAnalyzerPage = split[1];
                     }
-                }
-                if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSet
+                } else if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSet
                     this.results.set(<Result<any, any>[]>msg);
+                } else
+                                if (msg.hasOwnProperty('data') || msg.hasOwnProperty('affectedTuples') || msg.hasOwnProperty('error')){
+                    // PolyRequest
+                    this.results.set([msg]);
                 }
             },
             error: err => {
@@ -247,10 +253,6 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngAfterViewInit(): void {
         this.startPollingHeight();
-        const lastQuery = localStorage.getItem(this.LOCAL_STORAGE_LAST_QUERY_KEY);
-        if (lastQuery) {
-            this.queryEditor.setCode(lastQuery);
-        }
     }
 
     ngOnInit(): void {
@@ -287,6 +289,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             }
             const [layer, polygon] = layerAndPolygon;
             layer.filterConfig.addPolygon(polygon);
+            this.runPolyPlan(layer);
         }));
 
         // this.updateLayers(getSampleMapLayers());
@@ -409,7 +412,6 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             v.index = i + 1;
             return v;
         });
-        layer.planValidator = this._validator;
 
         this.updateLayers(newLayers);
     }
@@ -429,11 +431,6 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         const request = new QueryRequest(query, true, false, language, namespace);
         request.noLimit = true;
         return this._crud.anyQuery(this.websocket, request);
-    }
-
-    filterLayer(layer: MapLayer) {
-        console.log('Filter layer', layer);
-        this.layerSettings.addPolygonFilterForLayer(layer);
     }
 
     async addLayer() {

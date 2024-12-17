@@ -331,7 +331,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     }
 
     renderLayersWithD3() {
-        console.log('Map: Render layers...');
+        console.log('Map: Render layers...', this.layers);
         this.showLoadingSpinner('Rendering layers');
 
         setTimeout(() => {
@@ -350,7 +350,8 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                     layer.colorVisualization.init(layer.data);
                     geometries.push(...layer.data);
                 }
-
+                
+                console.log('Render geometries: ', geometries);
                 this.renderedGeometries = this.renderGeometries(geometries);
 
                 // Set SVG position correctly

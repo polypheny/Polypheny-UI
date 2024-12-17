@@ -65,9 +65,6 @@
                         </div>
                     </div>
                     <div class="config-sections">
-                        <div>
-                            <button cButton (click)="runPolyPlan(layer)" >Update plan</button>
-                        </div>
                         <app-config-section *ngIf="layer.containsData"
                                             [title]="'Data' + ' (' + layer.data.length + ')'"
                                             [config]="layer.dataPreview"></app-config-section>
