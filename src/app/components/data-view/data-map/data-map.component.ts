@@ -35,7 +35,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     leafletDrawControl = null;
     layerIdToPoylgon = new Map<string, L.Polygon>();
     currentDrawingLayer: MapLayer = null;
-    polygonTool = null;
+    // polygonTool = null;
     isInitialRender = true;
 
     readonly MIN_ZOOM = 0;
@@ -163,7 +163,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             this.layerIdToPoylgon.set(this.currentDrawingLayer.uuid, polygon);
             console.log('Polygon added for layer ', this.currentDrawingLayer.uuid, polygon);
             leafletMap.removeControl(this.leafletDrawControl);
-            this.polygonTool.disable();
+            // this.polygonTool.disable();
             drawnItems.addLayer(polygon);
 
             // Send coordinates back to map-layers
@@ -186,9 +186,9 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             }
             this.currentDrawingLayer = mapLayer;
             leafletMap.addControl(this.leafletDrawControl);
-            const polygonTool = new L.Draw.Polygon(leafletMap, this.leafletDrawControl.options.draw.polygon);
-            polygonTool.enable();
-            this.polygonTool = polygonTool;
+            // const polygonTool = new L.Draw.Polygon(leafletMap, this.leafletDrawControl.options.draw.polygon);
+            // polygonTool.enable();
+            // this.polygonTool = polygonTool;
         }));
 
         this.subscriptions.add(this.layerSettings.removeLayerFilterPolygon$.subscribe((mapLayer) => {
