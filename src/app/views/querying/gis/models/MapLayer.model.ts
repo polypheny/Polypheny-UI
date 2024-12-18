@@ -94,7 +94,10 @@ export class MapLayer {
                             obj[key] = parseInt(value, 10);
                         } else if (header.dataType.startsWith('DECIMAL')) {
                             obj[key] = parseFloat(value);
-                        } else {
+                        } else if (header.dataType.startsWith('DOUBLE')) {
+                            obj[key] = parseFloat(value);
+                        }
+                        else {
                             obj[key] = value;
                         }
                     }
