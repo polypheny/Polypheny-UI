@@ -202,7 +202,10 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             const wkt = geojsonToWKT(this.applyFilterToLayer.filterConfig.filterPolygon);
 
             // TODO: Get SRID from layer.
-            plan = `DOC_FILTER[MQL_GEO_WITHIN(${this.applyFilterToLayer.geometryField}, 'SRID=4326;${wkt}':DOCUMENT, -1:DOCUMENT)](${polyPlan})`;
+            // TODO: class const
+            // Do not use distance for MQL_GEO_WITHIN
+            const distance = -1;
+            plan = `DOC_FILTER[MQL_GEO_WITHIN(${this.applyFilterToLayer.geometryField}, 'SRID=4326;${wkt}':DOCUMENT, ${distance}:FLOAT)](${polyPlan})`;
             plan = trimLines(plan);
         }
 
