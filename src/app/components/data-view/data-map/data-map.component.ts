@@ -180,21 +180,23 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             this.layerSettings.addPolygonToLayer(this.currentDrawingLayer, geoJsonPolygon);
         });
 
-        this.subscriptions.add(this.layerSettings.addLayerFilterPolygon$.subscribe((mapLayer) => {
+        this.subscriptions.add(this.layerSettings.layerEnableDrawingMode$.subscribe((mapLayer) => {
             if (mapLayer === null) {
                 return;
             }
             this.currentDrawingLayer = mapLayer;
             leafletMap.addControl(this.leafletDrawControl);
-            // const polygonTool = new L.Draw.Polygon(leafletMap, this.leafletDrawControl.options.draw.polygon);
-            // polygonTool.enable();
-            // this.polygonTool = polygonTool;
         }));
 
-        this.subscriptions.add(this.layerSettings.removeLayerFilterPolygon$.subscribe((mapLayer) => {
+        this.subscriptions.add(this.layerSettings.layerDisableDrawingMode$.subscribe((mapLayer) => {
             if (mapLayer === null) {
                 return;
             }
+
+            // This is important if the users disables the drawing mode.
+            leafletMap.removeControl(this.leafletDrawControl);
+
+            // Remove shape from the map if it exists.
             if (!this.layerIdToPoylgon.has(mapLayer.uuid)) {
                 return;
             }

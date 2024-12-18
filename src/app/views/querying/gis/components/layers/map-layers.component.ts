@@ -96,19 +96,23 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                         this.addDataToExistingLayer.lastUpdated = queryLayer.lastUpdated;
 
                         // Reset references to layer, so that the user can start the next query.
-                        if (this.applyFilterToLayer){
+                        if (this.applyFilterToLayer) {
                             // Restores the state in the filter configuration section
-                            this.applyFilterToLayer.filterConfig.removePolygon();
+                            this.applyFilterToLayer.filterConfig.polygon = null;
                             // Restores the state on the map component
-                            this.layerSettings.removePolygonFilterForLayer(this.applyFilterToLayer);
+                            this.layerSettings.disableDrawingModeForLayer(this.applyFilterToLayer);
                             // Restores the state here.
                             this.applyFilterToLayer = null;
+                            // Remove the PolyPlan from the AlgViewer, so that when setting the same plan for another
+                            // filter operation, the changed event is fired again.
+                            this.algViewerComponent.setPolyAlgPlan(null, 'LOGICAL');
                         } else {
                             // Only update the query if it was written in a query language the query console
                             // understands.
                             this.addDataToExistingLayer.query = queryLayer.query;
-                            this.addDataToExistingLayer = null;
                         }
+
+                        this.addDataToExistingLayer = null;
 
                         // Instantly trigger rerender.
                         this.updateLayers(this.layers);
@@ -118,6 +122,11 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.isAddLayerModalVisible = false;
                 }
             }
+
+        }, {
+            // Necessary to set the polyPlan of the AlgViewer to null after
+            // the result from the query arrived.
+            allowSignalWrites: true
         });
     }
 
@@ -182,24 +191,27 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
 
     runPolyPlan(layer: MapLayer) {
         if (this.applyFilterToLayer || this.addDataToExistingLayer) {
-            console.log('Another query is already in progress. Wait for it to finish.');
+            console.log('Another query is already in progress. Wait for it to finish.', this.applyFilterToLayer, this.addDataToExistingLayer);
             return;
         }
 
         this.applyFilterToLayer = layer;
         this.addDataToExistingLayer = layer;
+        console.log('runPolyPlan layer.planNode=', layer.planNode);
         this.algViewerComponent.setPolyAlgPlan(layer.planNode, 'LOGICAL');
     }
 
     onPolyPlanChanged(polyPlan: string) {
+        console.log('onPolyPlanChanged', polyPlan);
         if (!this.applyFilterToLayer || !polyPlan) {
             return;
         }
+        console.log('onPolyPlanChanged this.applyFilterToLayer', this.applyFilterToLayer);
 
         let plan = '';
 
         if (this.applyFilterToLayer.language === 'mongo') {
-            const wkt = geojsonToWKT(this.applyFilterToLayer.filterConfig.filterPolygon);
+            const wkt = geojsonToWKT(this.applyFilterToLayer.filterConfig.polygon);
 
             // TODO: Get SRID from layer.
             // TODO: class const
@@ -238,8 +250,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                     }
                 } else if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSet
                     this.results.set(<Result<any, any>[]>msg);
-                } else
-                                if (msg.hasOwnProperty('data') || msg.hasOwnProperty('affectedTuples') || msg.hasOwnProperty('error')){
+                } else if (msg.hasOwnProperty('data') || msg.hasOwnProperty('affectedTuples') || msg.hasOwnProperty('error')) {
                     // PolyRequest
                     this.results.set([msg]);
                 }
@@ -291,8 +302,22 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                 return;
             }
             const [layer, polygon] = layerAndPolygon;
-            layer.filterConfig.addPolygon(polygon);
+            layer.filterConfig.polygon = polygon;
             this.runPolyPlan(layer);
+        }));
+
+        this.subscriptions.add(this.layerSettings.layerEnableDrawingMode$.subscribe((mapLayer) => {
+            if (mapLayer === null) {
+                return;
+            }
+
+            // Currently, the drawing mode is exclusive to a single layer. Disable for all other layers.
+            for (const layer of this.layers) {
+                if (layer.uuid === mapLayer.uuid) {
+                    continue;
+                }
+                layer.filterConfig.isDrawingModeActive = false;
+            }
         }));
 
         // this.updateLayers(getSampleMapLayers());

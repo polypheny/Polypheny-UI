@@ -12,10 +12,10 @@ import {Polygon} from 'geojson';
 })
 export class LayerSettingsService {
     // Filter
-    private addLayerFilterPolygon: BehaviorSubject<MapLayer>;
-    addLayerFilterPolygon$: Observable<MapLayer>;
-    private removeLayerFilterPolygon: BehaviorSubject<MapLayer>;
-    removeLayerFilterPolygon$: Observable<MapLayer>;
+    private layerEnableDrawingMode: BehaviorSubject<MapLayer>;
+    layerEnableDrawingMode$: Observable<MapLayer>;
+    private layerDisableDrawingMode: BehaviorSubject<MapLayer>;
+    layerDisableDrawingMode$: Observable<MapLayer>;
     private layerPolygonFilter: BehaviorSubject<[MapLayer, Polygon]>;
     layerPolygonFilter$: Observable<[MapLayer, Polygon]>;
     private fitLayerToMap: BehaviorSubject<MapLayer>;
@@ -43,10 +43,10 @@ export class LayerSettingsService {
         // To make sure that information from one session does not spill over the next session, we recreate all
         // reactive variables, so that they don't hold any old values. Otherwise, the next time we subscribe, we will
         // receive the most recent value, which could be from an old session.
-        this.addLayerFilterPolygon = new BehaviorSubject<MapLayer>(null);
-        this.addLayerFilterPolygon$ = this.addLayerFilterPolygon.asObservable();
-        this.removeLayerFilterPolygon = new BehaviorSubject<MapLayer>(null);
-        this.removeLayerFilterPolygon$ = this.removeLayerFilterPolygon.asObservable();
+        this.layerEnableDrawingMode = new BehaviorSubject<MapLayer>(null);
+        this.layerEnableDrawingMode$ = this.layerEnableDrawingMode.asObservable();
+        this.layerDisableDrawingMode = new BehaviorSubject<MapLayer>(null);
+        this.layerDisableDrawingMode$ = this.layerDisableDrawingMode.asObservable();
         this.layerPolygonFilter = new BehaviorSubject<[MapLayer, Polygon]>(null);
         this.layerPolygonFilter$ = this.layerPolygonFilter.asObservable();
         this.fitLayerToMap = new BehaviorSubject<MapLayer>(null);
@@ -67,12 +67,14 @@ export class LayerSettingsService {
         this.toggleLayerVisibility$ = this.toggleLayerVisibilitySubject.asObservable();
     }
 
-    removePolygonFilterForLayer(layer: MapLayer) {
-        this.removeLayerFilterPolygon.next(layer);
+    disableDrawingModeForLayer(layer: MapLayer) {
+        layer.filterConfig.isDrawingModeActive = false;
+        this.layerDisableDrawingMode.next(layer);
     }
 
-    addPolygonFilterForLayer(layer: MapLayer) {
-        this.addLayerFilterPolygon.next(layer);
+    enableDrawingModeForLayer(layer: MapLayer) {
+        layer.filterConfig.isDrawingModeActive = true;
+        this.layerEnableDrawingMode.next(layer);
     }
 
     addPolygonToLayer(layer: MapLayer, polygon: Polygon){

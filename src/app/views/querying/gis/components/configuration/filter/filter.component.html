@@ -1,4 +1,14 @@
-<div>
-    <button cButton (click)="drawOrRemovePolygon()"> {{ isAddMode ? 'Apply Filter & Rerun' : 'Remove Filter & Rerun' }} </button>
-    <span class="info">Info: The filter is not stored inside the query. Rerunning the query will not apply the filter again.</span>
+<div class="flex">
+    <div>
+        <label for="apply-filter-button">Filter spatially</label>
+        <button cButton
+                id='apply-filter-button'
+                (click)="this.config.isDrawingModeActive ? disableDrawingMode() : enableDrawingMode()">
+            {{ this.config.isDrawingModeActive ? 'Disable Drawing on Map' : 'Enable Drawing on Map' }}
+        </button>
+    </div>
+    <span class="info">Info: Once the drawing mode is enabled,
+        you can use the Polygon Tool on the Map to draw a polygon.
+        When done, the filter is automatically applied to the query..
+    </span>
 </div>

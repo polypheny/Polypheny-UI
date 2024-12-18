@@ -12,31 +12,18 @@ import {FilterConfig} from '../FilterConfig';
 })
 export class FilterComponent implements MapLayerConfigurationComponent {
 
-    isAddMode: boolean;
-
     constructor(
         @Inject('config') protected config: FilterConfig,
         private layerSettings: LayerSettingsService,
     ) {
-        this.updateIsAddMode();
     }
 
-    configChanged() {
-        this.layerSettings.visualizationConfigurationChanged(this.config);
+    enableDrawingMode(){
+        this.layerSettings.enableDrawingModeForLayer(this.config.layer);
     }
 
-    drawOrRemovePolygon() {
-        if (this.config.filterPolygon) {
-            console.log('drawOrRemovePolygon REMOVE');
-            this.config.removePolygon();
-            this.layerSettings.removePolygonFilterForLayer(this.config.layer);
-        } else {
-            console.log('drawOrRemovePolygon ADD');
-            this.layerSettings.addPolygonFilterForLayer(this.config.layer);
-        }
+    disableDrawingMode(){
+        this.layerSettings.disableDrawingModeForLayer(this.config.layer);
     }
 
-    updateIsAddMode(){
-        this.isAddMode = this.config.filterPolygon === null;
-    }
 }
