@@ -24,7 +24,7 @@ import {CdkDragDrop, moveItemInArray,} from '@angular/cdk/drag-drop';
 import {getSampleMapLayers} from '../../models/get-sample-maplayers';
 import {CrudService} from '../../../../../services/crud.service';
 import {WebSocket} from '../../../../../services/webSocket';
-import {RelationalResult, Result} from '../../../../../components/data-view/models/result-set.model';
+import {Result} from '../../../../../components/data-view/models/result-set.model';
 import {WebuiSettingsService} from '../../../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {DataModel, PolyAlgRequest, QueryRequest} from '../../../../../models/ui-request.model';
@@ -49,6 +49,7 @@ interface BaseLayer {
     styleUrl: './map-layers.component.scss',
 })
 export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
+    protected editQueryForMapLayer: MapLayer;
 
     constructor(
         protected layerSettings: LayerSettingsService,
@@ -65,10 +66,12 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             const res = this.results();
             if (res.length > 0) {
                 const combinedResult = CombinedResult.from(res[0]);
+
                 if (combinedResult.error) {
                     this.addLayerDialogErrorMessage = `There was an error executing the query. Error: ${combinedResult.error}`;
                 } else {
                     const queryLayer = MapLayer.from(combinedResult);
+                    console.log('queryLayer.query', queryLayer.query);
 
                     if (this.lastQueryAnalyzerId && this.lastQueryAnalyzerPage) {
                         this._crud.getAnalyzerPage(this.lastQueryAnalyzerId, this.lastQueryAnalyzerPage).subscribe({
@@ -109,6 +112,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                         } else {
                             // Only update the query if it was written in a query language the query console
                             // understands.
+                            console.log('Update query');
                             this.addDataToExistingLayer.query = queryLayer.query;
                         }
 
@@ -186,7 +190,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     private lastHeight = '';
     protected readonly Object = Object;
     protected readonly LayerContext = LayerContext;
-    protected readonly queryLanguages = ['CYPHER', 'SQL', 'MQL'];
+    protected readonly queryLanguages = ['cypher', 'sql', 'mql'];
     readonly activeNamespace: WritableSignal<string> = signal(null);
 
     runPolyPlan(layer: MapLayer) {
@@ -320,6 +324,28 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }));
 
+        this.subscriptions.add(this.layerSettings.editQueryForMapLayer$.subscribe((mapLayer) => {
+            if (mapLayer === null) {
+                return;
+            }
+            if (!mapLayer.isQueryLayer) {
+                return;
+            }
+
+            this.editQueryForMapLayer = mapLayer;
+
+            // Show the Add Layer Modal, that we also use to edit the query.
+            if (!this.isAddLayerModalVisible) {
+                console.log('EDIT MODE', this.editQueryForMapLayer);
+                this.queryEditor.setCode(mapLayer.query);
+                const language = mapLayer.language === 'mongo' ? 'mql' : mapLayer.language;
+                this.language.set(language);
+                this.activeNamespace.set(mapLayer.namespace);
+                this.addLayerMode = LayerContext.Query;
+                this.isAddLayerModalVisible = true;
+            }
+        }));
+
         // this.updateLayers(getSampleMapLayers());
     }
 
@@ -420,12 +446,9 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         this.layerSettings.setFitLayerToMap(layer);
     }
 
-    removeLayer(layer: MapLayer) {
-        layer.isRemoved = true;
-        if (layer.isActive) {
-            this.toggleLayerVisibility(layer);
-            this.updateLayerUi();
-        }
+    removeLayer(layerToRemove: MapLayer) {
+        const newLayers = this.layers.filter(layer => layer !== layerToRemove);
+        this.updateLayers(newLayers);
     }
 
     onBaseLayerChange(selectedLayer: BaseLayer): void {
@@ -435,7 +458,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     addLayerInternal(layer: MapLayer) {
         const newLayers = [
             layer,
-            ...this.layers.filter((l) => !l.isRemoved),
+            ...this.layers,
         ].map((v, i) => {
             v.index = i + 1;
             return v;
@@ -517,7 +540,14 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     toggleAddLayerModalVisibility() {
-        this.isAddLayerModalVisible = !this.isAddLayerModalVisible;
+        if (!this.isAddLayerModalVisible){
+            // Open modal in new layer mode
+            this.editQueryForMapLayer = null;
+            this.isAddLayerModalVisible = true;
+        } else {
+            // Close the modal
+            this.isAddLayerModalVisible = false;
+        }
     }
 
     addLayerModalVisibilityChanged(event: any) {
@@ -527,12 +557,10 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     updateLayerUi() {
         // Layers which are first in the array are rendered first, and will be drawn over by other layers.
         // Layers: BOTTOM -> TOP
-        const visibleLayers = this.layers.filter((d) => !d.isRemoved);
-        for (let i = 0; i < visibleLayers.length; i++) {
-            visibleLayers[visibleLayers.length - 1 - i].index = i + 1;
+        for (let i = 0; i < this.layers.length; i++) {
+            this.layers[this.layers.length - 1 - i].index = i + 1;
         }
-        this.anyLayersVisible =
-            this.layers.filter((d) => !d.isRemoved).length > 0;
+        this.anyLayersVisible = this.layers.length > 0;
     }
 
     export() {
@@ -573,5 +601,17 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         a.download = `${timestamp}_polypheny_map_layers_export.geojson`;
         a.click();
         URL.revokeObjectURL(url);
+    }
+
+    editQuery() {
+        if (!this.editQueryForMapLayer) {
+            return;
+        }
+        this.editQueryForMapLayer.query = this.queryEditor.getCode();
+        this.editQueryForMapLayer.language = this.language();
+        this.editQueryForMapLayer.namespace = this.activeNamespace();
+        this.isAddLayerModalVisible = false;
+        this.rerunQuery(this.editQueryForMapLayer);
+        this.editQueryForMapLayer = null;
     }
 }

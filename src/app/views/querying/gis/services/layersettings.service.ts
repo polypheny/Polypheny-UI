@@ -35,6 +35,9 @@ export class LayerSettingsService {
     private toggleLayerVisibilitySubject: Subject<MapLayer>;
     toggleLayerVisibility$: Observable<MapLayer>;
 
+    private editQueryForMapLayer: Subject<MapLayer>;
+    editQueryForMapLayer$: Observable<MapLayer>;
+
     constructor() {
         this.reset();
     }
@@ -65,6 +68,12 @@ export class LayerSettingsService {
         this.rerenderButtonClicked$ = this.rerenderButtonClickedSubject.asObservable();
         this.toggleLayerVisibilitySubject = new Subject<MapLayer>();
         this.toggleLayerVisibility$ = this.toggleLayerVisibilitySubject.asObservable();
+        this.editQueryForMapLayer = new Subject<MapLayer>();
+        this.editQueryForMapLayer$ = this.editQueryForMapLayer.asObservable();
+    }
+
+    editQuery(layer: MapLayer) {
+        this.editQueryForMapLayer.next(layer);
     }
 
     disableDrawingModeForLayer(layer: MapLayer) {
@@ -77,7 +86,7 @@ export class LayerSettingsService {
         this.layerEnableDrawingMode.next(layer);
     }
 
-    addPolygonToLayer(layer: MapLayer, polygon: Polygon){
+    addPolygonToLayer(layer: MapLayer, polygon: Polygon) {
         this.layerPolygonFilter.next([layer, polygon]);
     }
 

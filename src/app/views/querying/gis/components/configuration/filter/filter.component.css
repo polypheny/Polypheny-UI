@@ -4,15 +4,18 @@
     gap: 1rem;
 }
 
-label {
-    margin-bottom: 0.25rem;
-}
+.spatial-filter-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 
-button {
-    /* So that the button width does not change when the labels are changed. */
-    width: 210px;
+    & > button {
+        /* So that the button width does not change when the labels are changed. */
+        width: 210px;
+    }
 }
 
 .info {
+    display: block;
     color: #a5a5a5;
 }

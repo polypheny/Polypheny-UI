@@ -18,12 +18,15 @@ export class FilterComponent implements MapLayerConfigurationComponent {
     ) {
     }
 
-    enableDrawingMode(){
+    enableDrawingMode() {
         this.layerSettings.enableDrawingModeForLayer(this.config.layer);
     }
 
-    disableDrawingMode(){
+    disableDrawingMode() {
         this.layerSettings.disableDrawingModeForLayer(this.config.layer);
     }
 
+    editQuery() {
+        this.layerSettings.editQuery(this.config.layer);
+    }
 }

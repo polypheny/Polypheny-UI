@@ -12,8 +12,7 @@
             cdkDropListSortingDisabled="false"
     >
         <div *ngFor="let layer of layers; trackBy: trackByLayerUuid">
-            <c-card *ngIf="!layer.isRemoved"
-                    cdkDrag
+            <c-card cdkDrag
                     class="layer-card shadow-sm">
                 <c-card-header>
                     <span>{{ layer.index }}</span>
@@ -61,7 +60,8 @@
                             {{ layer.query === null ? 'FILE' : 'QUERY' }}
                         </div>
                         <div>
-                            <span class="layer-name" [class.monospace]="layer.query !== null">{{ layer.name }}</span>
+                            <span class="layer-name"
+                                  [class.monospace]="layer.isQueryLayer">{{ layer.isQueryLayer ? layer.query : layer.name }}</span>
                         </div>
                     </div>
                     <div class="config-sections">
@@ -69,7 +69,7 @@
                                             [title]="'Data' + ' (' + layer.data.length + ')'"
                                             [config]="layer.dataPreview"></app-config-section>
                         <app-config-section *ngIf="layer.isQueryLayer"
-                                            [title]="'Filter'"
+                                            [title]="'Edit Query'"
                                             [config]="layer.filterConfig"></app-config-section>
                         <app-config-section *ngIf="layer.containsPoints"
                                             [title]="layer.pointShapeVisualization.name"
@@ -129,12 +129,12 @@
     <c-modal id="add-layer-modal" [visible]="this.isAddLayerModalVisible"
              (visibleChange)="addLayerModalVisibilityChanged($event)">
         <c-modal-header>
-            <h5 cModalTitle>Add layer</h5>
+            <h5 cModalTitle>{{ editQueryForMapLayer ? 'Edit Query' : 'Add Layer' }}</h5>
             <button (click)="toggleAddLayerModalVisibility()" cButtonClose></button>
         </c-modal-header>
         <c-modal-body>
             <div class="add-layer-modal-body">
-                <div>
+                <div *ngIf="!editQueryForMapLayer">
                     <label cLabel>Load data</label>
                     <c-input-group>
                         <label cInputGroupText for="layerVisualizationSelect">
@@ -163,7 +163,7 @@
                         <select [(ngModel)]="language"
                                 cSelect
                                 id="queryLanguage">
-                            <option *ngFor="let ql of queryLanguages" value='{{ql.toLowerCase()}}'>{{ ql }}</option>
+                            <option *ngFor="let ql of queryLanguages" value='{{ql}}'>{{ ql.toUpperCase() }}</option>
                         </select>
                     </c-input-group>
                 </div>
@@ -189,7 +189,11 @@
             <button (click)="toggleAddLayerModalVisibility()" cButton color="secondary">
                 Cancel
             </button>
-            <button (click)="addLayer()" cButton
+
+            <button *ngIf="editQueryForMapLayer" (click)="editQuery()" cButton
+                    color="primary">Edit Query & Update
+            </button>
+            <button *ngIf="!editQueryForMapLayer" (click)="addLayer()" cButton
                     color="primary"> {{ addLayerMode == LayerContext.Query ? 'Execute & Add' : 'Add' }}
             </button>
         </c-modal-footer>

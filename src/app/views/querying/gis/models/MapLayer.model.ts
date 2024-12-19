@@ -32,10 +32,10 @@ export class MapLayer {
 
     // Query
     isQueryLayer = false;
-    query = null;
-    geometryField = null;
-    language = null;
-    namespace = null;
+    query = '';
+    geometryField = '';
+    language = '';
+    namespace = '';
     lastUpdated = '';
 
     // Query Filter
@@ -50,7 +50,6 @@ export class MapLayer {
 
     // Computed (Not used in copy)
     isActive = true;
-    isRemoved = false;
     index = -1;
 
     static from(result: CombinedResult): MapLayer {
