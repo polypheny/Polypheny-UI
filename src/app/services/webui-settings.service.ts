@@ -42,6 +42,10 @@ export class WebuiSettingsService {
             'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/notebooks/webSocket');
         this.connections.set('notebooks.file',
             'http://' + this.host + ':' + localStorage.getItem('webUI.port') + '/notebooks/file');
+        this.connections.set('workflows.rest',
+            'http://' + this.host + ':' + localStorage.getItem('webUI.port') + '/workflows');
+        this.connections.set('workflows.socket',
+            'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/workflows/webSocket');
 
     }
 
