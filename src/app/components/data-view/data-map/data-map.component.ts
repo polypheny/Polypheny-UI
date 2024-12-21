@@ -1,4 +1,12 @@
-import {AfterViewInit, Component, effect, Input, OnDestroy} from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    effect,
+    Input,
+    OnDestroy
+} from '@angular/core';
 import {DataTemplateComponent} from '../data-template/data-template.component';
 import * as d3 from 'd3';
 import {GeoPath, GeoPermissibleObjects} from 'd3';
@@ -18,7 +26,8 @@ import {cibYarn} from '@coreui/icons';
 @Component({
     selector: 'app-data-map',
     templateUrl: './data-map.component.html',
-    styleUrls: ['./data-map.component.scss']
+    styleUrls: ['./data-map.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataMapComponent extends DataTemplateComponent implements AfterViewInit, OnDestroy {
     // If the map is shown inside the results section, different styling needs to be applied.
@@ -50,7 +59,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     private tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
     private renderedGeometries: d3.Selection<SVGPathElement, MapGeometryWithData, SVGGElement, unknown>;
 
-    constructor(protected layerSettings: LayerSettingsService) {
+    constructor(protected layerSettings: LayerSettingsService, private cdr: ChangeDetectorRef) {
         super();
 
         effect(() => {
@@ -105,6 +114,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
         this.subscriptions.add(this.layerSettings.canRerenderLayers$.subscribe((canRerenderLayers) => {
             this.canRerenderLayers = canRerenderLayers;
+            this.cdr.markForCheck();
         }));
 
         this.subscriptions.add(this.layerSettings.toggleLayerVisibility$.subscribe((layer) => {
@@ -116,8 +126,6 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 this.fitLayerToMap(layer);
             }
         }));
-
-
     }
 
     fitLayerToMap(layer: MapLayer) {
@@ -342,6 +350,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
     renderLayersWithD3() {
         console.log('Map: Render layers...', this.layers);
+        const startTime = performance.now()
         this.showLoadingSpinner('Rendering layers');
 
         setTimeout(() => {
@@ -378,6 +387,8 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             } finally {
                 this.isLoading = false;
                 this.isInitialRender = false;
+                const endTime = performance.now();
+                console.log(`renderLayersWithD3 took ${endTime - startTime} milliseconds`);
             }
         }, 0);
     }
