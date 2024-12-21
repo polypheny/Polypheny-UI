@@ -215,13 +215,18 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         let plan = '';
 
         if (this.applyFilterToLayer.language === 'mongo') {
-            const wkt = geojsonToWKT(this.applyFilterToLayer.filterConfig.polygon);
+            // Intermediate Step: Add transformer to convert everything to documents.
+            plan = `DOC_PROJECT[includes=name AS n](
+                      TRANSFORMER[DOCUMENT](
+                        ${polyPlan}
+                      )
+                    )`;
 
-            // TODO: Get SRID from layer.
-            // TODO: class const
-            // Do not use distance for MQL_GEO_WITHIN
+            // Final Step: Apply document filter with MQL_GEO_WITHIN condition.
+            const wkt = geojsonToWKT(this.applyFilterToLayer.filterConfig.polygon);
+            const srid = 4326; // TODO: Get from layer
             const distance = -1;
-            plan = `DOC_FILTER[MQL_GEO_WITHIN(${this.applyFilterToLayer.geometryField}, 'SRID=4326;${wkt}':DOCUMENT, ${distance}:FLOAT)](${polyPlan})`;
+            plan = `DOC_FILTER[MQL_GEO_WITHIN(${this.applyFilterToLayer.geometryField}, 'SRID=${srid};${wkt}':DOCUMENT, ${distance}:FLOAT)](${plan})`;
             plan = trimLines(plan);
         }
 
