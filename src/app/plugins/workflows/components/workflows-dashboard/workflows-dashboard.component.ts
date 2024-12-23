@@ -20,24 +20,23 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     workflowDefs: Record<string, WorkflowDefModel>;
     sessions: Record<string, SessionModel>;
     selectedVersion: Record<string, number> = {};
+    newWorkflowName = '';
 
     ngOnInit(): void {
         this._sidebar.hide();
 
-        this._workflows.getSessions().subscribe({
-            next: res => this.sessions = res
-        });
+        // TODO: add ability to update sessions and workflowdefs
         this._workflows.getWorkflowDefs().subscribe({
             next: res => {
                 console.log(res);
                 this.workflowDefs = res;
-                for (const version in this.workflowDefs) {
-
-                }
                 Object.entries(res).forEach(([key, value]) => {
-                    this.selectedVersion[key] = Math.max(...Object.keys(value.versions).map(versionId => parseInt(versionId, 10)));
+                    this.selectedVersion[key] = Math.max(...Object.keys(value.versions).map(versionId => parseInt(versionId, 10))); // TODO: order by creation date
                 });
             }
+        });
+        this._workflows.getSessions().subscribe({
+            next: res => this.sessions = res
         });
     }
 
@@ -52,7 +51,15 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     openVersion(key: string) {
         console.log('Opening Version');
         this._workflows.openWorkflow(key, this.selectedVersion[key]).subscribe({
-            next: sessionId => this.openSession(sessionId)
+            next: sessionId => this.openSession(sessionId),
+            error: err => this._toast.error(err.error)
+        });
+    }
+
+    createAndOpenWorkflow() {
+        this._workflows.createSession(this.newWorkflowName).subscribe({
+            next: sessionId => this.openSession(sessionId),
+            error: err => this._toast.error(err.error)
         });
     }
 

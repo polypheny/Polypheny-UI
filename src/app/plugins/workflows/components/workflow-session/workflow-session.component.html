@@ -1,2 +1,5 @@
 <h1>Session ID: {{sessionId}}</h1>
-<p>{{session | json}}</p>
+
+<ng-container *ngIf="session?.type === 'USER_SESSION'">
+    <app-workflow-viewer [sessionId]="sessionId" isEditable></app-workflow-viewer>
+</ng-container>

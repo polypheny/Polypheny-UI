@@ -1,5 +1,12 @@
 <h1>Workflow Dashboard</h1>
 
+<c-input-group class="mb-3">
+    <input cFormControl placeholder="Workflow Name" [(ngModel)]="newWorkflowName"/>
+    <button cButton color="primary" type="button" (click)="createAndOpenWorkflow()">
+        Create Workflow
+    </button>
+</c-input-group>
+
 <h2>Stored Workflows</h2>
 
 <c-accordion class="mb-5">
@@ -39,7 +46,7 @@
 </c-accordion>
 
 <h2>Active Sessions</h2>
-<ul cListGroup>
+<ul cListGroup *ngIf="workflowDefs">
     <ng-container *ngFor="let session of sessions | keyvalue">
         <li cListGroupItem>
             <div class="d-flex justify-content-between align-items-center">

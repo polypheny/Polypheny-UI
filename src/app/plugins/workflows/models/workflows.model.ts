@@ -99,7 +99,7 @@ export interface VersionInfo {
     creationTime: Date;
 }
 
-export interface WorkflowModel {
+export interface WorkflowModel { // TODO: turn into class
     format_version: string;
     activities: ActivityModel[];
     edges: EdgeModel[];
