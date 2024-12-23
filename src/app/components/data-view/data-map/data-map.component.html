@@ -11,7 +11,7 @@
                 <span class="visually-hidden">Loading...</span>
             </div>
         </div>
-        <div class="map-overlay-buttons">
+        <div *ngIf="!isFullscreen" class="map-overlay-buttons">
             <button *ngIf="this.canRerenderLayers" (click)="this.layerSettings.rerenderButtonClicked()"
                     class="shadow-lg" cButton color="primary">Refresh layers
             </button>
@@ -22,15 +22,3 @@
     </div>
 </div>
 
-
-<c-row class="row" *ngIf="$result()">
-    <c-col class="col-lg-12">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="$result().highestPage > 1">
-            <c-pagination>
-                <li cPageItem *ngFor="let p of pagination" [active]="p.active" [disabled]="p.disabled">
-                    <a cPageLink (click)="paginate(p)" [routerLink]="[]">{{ p.label }}</a>
-                </li>
-            </c-pagination>
-        </nav>
-    </c-col>
-</c-row>

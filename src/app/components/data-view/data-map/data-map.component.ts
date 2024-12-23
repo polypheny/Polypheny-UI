@@ -39,6 +39,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     isLoadingMessage = 'TODO isLoadingMessage';
     canRerenderLayers = false;
     previewResult: CombinedResult = null;
+    isFullscreen = false;
 
     // leaflet-draw
     leafletDrawControl = null;
@@ -147,6 +148,8 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         const leafletMap = L.map('map').setView([52, 10], this.INITIAL_ZOOM);
         this.map = leafletMap;
 
+        const shouldSidebarBeVisible = this._sidebar.isVisible();
+
         // leaflet.fullscreen
         L.control
             .fullscreen({
@@ -160,7 +163,10 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             })
             .addTo(leafletMap);
         leafletMap.on('enterFullscreen', () => {
+            this.isFullscreen = true;
+            this.cdr.detectChanges();
             this.layerSettings.setIsMapFullscreen(true);
+            this._sidebar.hide();
             const navbar = document.querySelector('c-navbar') as HTMLElement;
             if (navbar) {
                 // For some reason, the navbar is on top of the map, despite a lower z-index.
@@ -170,6 +176,11 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         });
         leafletMap.on('exitFullscreen', () => {
             this.layerSettings.setIsMapFullscreen(true);
+            if (shouldSidebarBeVisible){
+                this._sidebar.open();
+            }
+            this.isFullscreen = false;
+            this.cdr.detectChanges();
             const navbar = document.querySelector('c-navbar') as HTMLElement;
             if (navbar) {
                 navbar.style.visibility = 'visible';
