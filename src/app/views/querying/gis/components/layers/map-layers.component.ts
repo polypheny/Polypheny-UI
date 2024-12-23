@@ -506,7 +506,6 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                     const layer = new MapLayer().addData(
                         this.loadedGeoJsonFile.features.filter(f => f.geometry).map(
                             (f, i) => {
-                                console.log('f.geometry', f.geometry);
                                 return new MapGeometryWithData(
                                     i,
                                     f.geometry,

@@ -16,6 +16,9 @@ export class ColorVisualization implements Visualization, MapLayerConfiguration 
     modes: string[] = ['Static', 'Gradient'];
     selectedMode: string = this.modes[0];
 
+    scales: string[] = ['Sequential', 'Linear'];
+    selectedScale: string = this.scales[0];
+
     // Static
     color: string;
     fillOpacity = 0.25;
@@ -23,7 +26,7 @@ export class ColorVisualization implements Visualization, MapLayerConfiguration 
     // Gradient
     fieldName = '';
     normalizeByArea = false;
-    colorScale?: d3.ScaleSequential<string>;
+    colorScale?: d3.ScaleSequential<string> | d3.ScaleLinear<number, string, never>;
 
     constructor(color: string, layer: MapLayer) {
         this.color = color;
@@ -58,9 +61,21 @@ export class ColorVisualization implements Visualization, MapLayerConfiguration 
         console.log('minValue', minValue);
         console.log('maxValue', maxValue);
 
-        this.colorScale = d3
-            .scaleSequential(d3.interpolateHsl('lightblue', 'darkblue'))
-            .domain([minValue, maxValue]);
+        if (this.selectedScale === 'Sequential'){
+            this.colorScale = d3
+                .scaleSequential(d3.interpolateHsl('lightblue', 'darkblue'))
+                .domain([minValue, maxValue]);
+        }
+        else if (this.selectedScale === 'Linear'){
+            this.colorScale = d3
+                .scaleLinear()
+                .domain([minValue, maxValue])
+                .range([0, 1])
+                .interpolate(() => d3.interpolateHsl('lightyellow', 'darkred'));
+        } else {
+            throw new Error(`Scale ${this.selectedScale} is not implemented!`);
+        }
+
         console.log('this.colorScale', this.colorScale);
     }
 
@@ -70,6 +85,7 @@ export class ColorVisualization implements Visualization, MapLayerConfiguration 
         copy.fillOpacity = this.fillOpacity;
         copy.fieldName = this.fieldName;
         copy.normalizeByArea = this.normalizeByArea;
+        copy.selectedScale = this.selectedScale;
         return copy;
     }
 

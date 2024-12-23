@@ -46,6 +46,21 @@
         />
     </c-input-group>
 
+    <c-input-group *ngIf="config.selectedMode == 'Gradient'">
+        <label cInputGroupText for="selectScale">
+            Scale
+        </label>
+        <select [(ngModel)]="config.selectedScale"
+                (ngModelChange)="configChanged()"
+                cSelect
+                id="selectScale">
+            <option
+                    *ngFor="let mode of config.scales"
+                    [ngValue]="mode">{{ mode }}
+            </option>
+        </select>
+    </c-input-group>
+
 <!--    TODO: This does not work... -->
 <!--    <c-form-check *ngIf="config.selectedMode == 'Gradient' && config.layer.containsAreas">-->
 <!--        <input cFormCheckInput [(ngModel)]="config.normalizeByArea" (ngModelChange)="configChanged()" id="normalize"-->
