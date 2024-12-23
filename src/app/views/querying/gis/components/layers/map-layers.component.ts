@@ -192,6 +192,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     protected readonly LayerContext = LayerContext;
     protected readonly queryLanguages = ['cypher', 'sql', 'mql'];
     readonly activeNamespace: WritableSignal<string> = signal(null);
+    private isMapFullscreen = false;
 
     runPolyPlan(layer: MapLayer) {
         if (this.applyFilterToLayer || this.addDataToExistingLayer) {
@@ -351,6 +352,10 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }));
 
+        this.subscriptions.add(this.layerSettings.isMapFullscreen$.subscribe((isFullscreen) => {
+            this.isMapFullscreen = isFullscreen;
+        }));
+
         // this.updateLayers(getSampleMapLayers());
     }
 
@@ -372,28 +377,20 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private startPollingHeight(): void {
-        // A bit dirty, but it works for now. For some reason, a second after the map is created, the size changes.
-        // We just poll for the first few seconds after the component is created, and update the size if it changes.
-        const endTime = Date.now() + 3000;
         this.pollingTimer = setInterval(() => {
+            if (this.isMapFullscreen){
+                // Don't update height while in fullscreen, because as soon as we close the full scren mode, we have
+                // to put the size back, which takes some time!
+                return;
+            }
             const currentHeight = this.getMapHeight();
-
             if (currentHeight === undefined) {
                 return;
             }
-
             if (currentHeight !== this.lastHeight) {
                 this.setMapHeight(currentHeight);
             }
-            // TODO: Somehow, sometimes, the onResize event does not capture all changes in the viewport, e.g.
-            //       when interacting with windows snapping or doing other fast stuff. For now, just always poll while
-            //       the component is active.
-            // else {
-            //     if (Date.now() > endTime) {
-            //         clearInterval(this.pollingTimer);
-            //     }
-            // }
-        }, 500);
+        }, 250);
     }
 
     private getMapHeight(): string | undefined {
@@ -509,13 +506,15 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                     const layer = new MapLayer(
                         this.loadedGeoJsonFileName,
                     ).addData(
-                        this.loadedGeoJsonFile.features.map(
-                            (f, i) =>
-                                new MapGeometryWithData(
+                        this.loadedGeoJsonFile.features.filter(f => f.geometry).map(
+                            (f, i) => {
+                                console.log('f.geometry', f.geometry);
+                                return new MapGeometryWithData(
                                     i,
                                     f.geometry,
                                     f.properties ? f.properties : {},
-                                ),
+                                );
+                            }
                         ),
                     );
                     console.log('Added GeoJSON layer: ', layer);
@@ -545,7 +544,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     toggleAddLayerModalVisibility() {
-        if (!this.isAddLayerModalVisible){
+        if (!this.isAddLayerModalVisible) {
             // Open modal in new layer mode
             this.editQueryForMapLayer = null;
             this.isAddLayerModalVisible = true;

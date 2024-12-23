@@ -53,7 +53,8 @@
               "node_modules/katex/dist/katex.min.css",
               "node_modules/prismjs/themes/prism-okaidia.css",
               "src/app/components/data-view/data-map/leaflet.css",
-              "node_modules/leaflet-draw/dist/leaflet.draw.css"
+              "node_modules/leaflet-draw/dist/leaflet.draw.css",
+              "node_modules/leaflet.fullscreen/Control.FullScreen.css"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [

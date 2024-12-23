@@ -38,6 +38,9 @@ export class LayerSettingsService {
     private editQueryForMapLayer: Subject<MapLayer>;
     editQueryForMapLayer$: Observable<MapLayer>;
 
+    private isMapFullscreen: BehaviorSubject<boolean>;
+    isMapFullscreen$: Observable<boolean>;
+
     constructor() {
         this.reset();
     }
@@ -70,6 +73,12 @@ export class LayerSettingsService {
         this.toggleLayerVisibility$ = this.toggleLayerVisibilitySubject.asObservable();
         this.editQueryForMapLayer = new Subject<MapLayer>();
         this.editQueryForMapLayer$ = this.editQueryForMapLayer.asObservable();
+        this.isMapFullscreen = new BehaviorSubject<boolean>(false);
+        this.isMapFullscreen$ = this.isMapFullscreen.asObservable();
+    }
+
+    setIsMapFullscreen(isFullscreen: boolean){
+        this.isMapFullscreen.next(isFullscreen);
     }
 
     editQuery(layer: MapLayer) {

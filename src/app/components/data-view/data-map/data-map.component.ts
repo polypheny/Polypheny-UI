@@ -12,6 +12,7 @@ import * as d3 from 'd3';
 import {GeoPath, GeoPermissibleObjects} from 'd3';
 import * as d3Geo from 'd3-geo';
 import * as L from 'leaflet';
+import 'leaflet.fullscreen';
 import 'leaflet-draw';
 import {LayerSettingsService} from '../../../views/querying/gis/services/layersettings.service';
 import {MapLayer} from '../../../views/querying/gis/models/MapLayer.model';
@@ -19,7 +20,6 @@ import {MapGeometryWithData} from '../../../views/querying/gis/models/MapGeometr
 import {CombinedResult} from '../data-view.model';
 import {LatLng} from 'leaflet';
 import {Polygon, Position} from 'geojson';
-import {cibYarn} from '@coreui/icons';
 
 // tslint:disable:no-non-null-assertion
 
@@ -81,7 +81,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             // show on the map, we have to at least remove the old results.
             const layers = [];
             const resultsLayer = MapLayer.from(result);
-            if (resultsLayer.data.length > 0){
+            if (resultsLayer.data.length > 0) {
                 layers.push(resultsLayer);
             }
             this.layerSettings.setLayers(layers);
@@ -146,6 +146,35 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     ngAfterViewInit(): void {
         const leafletMap = L.map('map').setView([52, 10], this.INITIAL_ZOOM);
         this.map = leafletMap;
+
+        // leaflet.fullscreen
+        L.control
+            .fullscreen({
+                position: 'topleft', // change the position of the button can be topleft, topright, bottomright or bottomleft, default topleft
+                title: 'Show me the fullscreen !', // change the title of the button, default Full Screen
+                titleCancel: 'Exit fullscreen mode', // change the title of the button when fullscreen is on, default Exit Full Screen
+                content: null, // change the content of the button, can be HTML, default null
+                forceSeparateButton: true, // force separate button to detach from zoom buttons, default false
+                forcePseudoFullscreen: true, // force use of pseudo full screen even if full screen API is available, default false
+                fullscreenElement: false // Dom element to render in full screen, false by default, fallback to map._container
+            })
+            .addTo(leafletMap);
+        leafletMap.on('enterFullscreen', () => {
+            this.layerSettings.setIsMapFullscreen(true);
+            const navbar = document.querySelector('c-navbar') as HTMLElement;
+            if (navbar) {
+                // For some reason, the navbar is on top of the map, despite a lower z-index.
+                // We will just hide it for now.
+                navbar.style.visibility = 'hidden';
+            }
+        });
+        leafletMap.on('exitFullscreen', () => {
+            this.layerSettings.setIsMapFullscreen(true);
+            const navbar = document.querySelector('c-navbar') as HTMLElement;
+            if (navbar) {
+                navbar.style.visibility = 'visible';
+            }
+        });
 
         // Leaflet.Draw edit toolbar
         const drawnItems = new L.FeatureGroup();
@@ -350,7 +379,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
 
     renderLayersWithD3() {
         console.log('Map: Render layers...', this.layers);
-        const startTime = performance.now()
+        const startTime = performance.now();
         this.showLoadingSpinner('Rendering layers');
 
         setTimeout(() => {
@@ -369,7 +398,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                     layer.colorVisualization.init(layer.data);
                     geometries.push(...layer.data);
                 }
-                
+
                 console.log('Render geometries: ', geometries);
                 this.renderedGeometries = this.renderGeometries(geometries);
 
