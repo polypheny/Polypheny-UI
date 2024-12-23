@@ -503,9 +503,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                 break;
             case LayerContext.External:
                 if (this.loadedGeoJsonFile) {
-                    const layer = new MapLayer(
-                        this.loadedGeoJsonFileName,
-                    ).addData(
+                    const layer = new MapLayer().addData(
                         this.loadedGeoJsonFile.features.filter(f => f.geometry).map(
                             (f, i) => {
                                 console.log('f.geometry', f.geometry);
@@ -517,6 +515,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
                             }
                         ),
                     );
+                    layer.name = this.loadedGeoJsonFileName;
                     console.log('Added GeoJSON layer: ', layer);
                     this.isAddLayerModalVisible = false;
                     this.addLayerInternal(layer);

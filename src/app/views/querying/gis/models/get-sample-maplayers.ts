@@ -292,13 +292,13 @@ export function getSampleMapLayers(): MapLayer[] {
     const geoJson3: GeoJSON.FeatureCollection = JSON.parse(data3);
 
     return [
-        new MapLayer('a').addData(
+        new MapLayer().addData(
             geoJson.features.map((f, i) => new MapGeometryWithData(i, f.geometry)),
         ),
-        new MapLayer('b').addData(
+        new MapLayer().addData(
             geoJson2.features.map((f, i) => new MapGeometryWithData(i, f.geometry)),
         ),
-        new MapLayer('Landkreise').addData(
+        new MapLayer().addData(
             geoJson3.features.map((f, i) => new MapGeometryWithData(i, f.geometry)),
         ),
     ];

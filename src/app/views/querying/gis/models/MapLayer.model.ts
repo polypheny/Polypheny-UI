@@ -17,8 +17,7 @@ import {PlanNode} from '../../../../components/polyalg/models/polyalg-plan.model
 
 export class MapLayer {
 
-    constructor(name: string) {
-        this.name = name;
+    constructor() {
         this.uuid = v4();
         this.lastUpdated = new Date().toISOString();
     }
@@ -54,7 +53,13 @@ export class MapLayer {
 
     static from(result: CombinedResult): MapLayer {
         console.log('MapLayer from result: ', result);
-        const layer = new MapLayer(result.query);
+        const layer = new MapLayer();
+        if (!result){
+            // Empty layer.
+            return layer;
+        }
+
+        layer.name = result.query;
         layer.query = result.query;
         layer.language = result.language;
         layer.namespace = result.namespace;
@@ -282,7 +287,8 @@ export class MapLayer {
         // anything changes so we need to rerender, but in these cases we do not need
         // to rerender.
 
-        const copy = new MapLayer(this.name);
+        const copy = new MapLayer();
+        copy.name = this.name;
         copy.lastUpdated = this.lastUpdated;
         if (includeData) {
             copy.addData(
