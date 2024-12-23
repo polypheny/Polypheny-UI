@@ -28,7 +28,7 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
             if (this.sessionId) {
                 this._workflows.getSession(this.sessionId).subscribe({
                     next: res => this.session = res,
-                    error: e => this._router.navigate(['./../'], {relativeTo: this._route})
+                    error: e => this.backToDashboard()
                 });
             }
         });
@@ -37,5 +37,13 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+    }
+
+    isRegistryLoaded() {
+        return this._workflows.registryLoaded();
+    }
+
+    backToDashboard() {
+        this._router.navigate(['./../'], {relativeTo: this._route})
     }
 }

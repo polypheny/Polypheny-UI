@@ -1,7 +1,8 @@
-import {Injectable} from '@angular/core';
+import {Injectable, signal} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {ActivityModel, SessionModel, WorkflowConfigModel, WorkflowDefModel, WorkflowModel} from '../models/workflows.model';
+import {ActivityDef, ActivityRegistry} from '../models/activity-registry.model';
 
 class JsonNode {
 }
@@ -11,7 +12,18 @@ class JsonNode {
 })
 export class WorkflowsService {
 
+    private activityRegistry: ActivityRegistry;
+    registryLoaded = signal(false);
+
     constructor(private _http: HttpClient, private _settings: WebuiSettingsService) {
+        console.log('initializing workflowsservice');
+        this._http.get<Record<string, ActivityDef>>(`${this.httpUrl}/registry`, this.httpOptions).subscribe({
+            next: defs => {
+                this.activityRegistry = new ActivityRegistry(defs);
+                this.registryLoaded.set(true);
+                console.log('loaded registry', this.activityRegistry);
+            }
+        });
     }
 
     private httpUrl = this._settings.getConnection('workflows.rest');
@@ -65,5 +77,9 @@ export class WorkflowsService {
 
     terminateSession(sessionId: string) {
         return this._http.delete<void>(`${this.httpUrl}/sessions/${sessionId}`, this.httpOptions);
+    }
+
+    getRegistry() {
+        return this.activityRegistry;
     }
 }

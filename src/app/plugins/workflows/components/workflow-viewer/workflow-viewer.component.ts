@@ -17,6 +17,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
 
     private readonly _workflows = inject(WorkflowsService);
     private readonly _toast = inject(ToasterService);
+    private readonly registry = this._workflows.getRegistry();
     private editor: WorkflowEditor;
     workflow: WorkflowModel;
 
@@ -30,7 +31,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         const el = this.container.nativeElement;
 
         if (el) {
-            this.editor = new WorkflowEditor(this.injector, el, false);
+            this.editor = new WorkflowEditor(this.injector, el, this._workflows, false);
         }
         this._workflows.getActiveWorkflow(this.sessionId).subscribe({
             next: res => {

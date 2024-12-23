@@ -15,4 +15,16 @@
   &:hover {
     background: #ddd;
   }
+
+  &.success-control {
+    background: green;
+  }
+
+  &.fail-control {
+    background: red;
+  }
+
+  &.in-control {
+    background: blue;
+  }
 }

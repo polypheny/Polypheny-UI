@@ -18,6 +18,7 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     private readonly _workflows = inject(WorkflowsService);
 
     workflowDefs: Record<string, WorkflowDefModel>;
+    sortedWorkflowDefs: { key: string; value: WorkflowDefModel }[];
     sessions: Record<string, SessionModel>;
     selectedVersion: Record<string, number> = {};
     newWorkflowName = '';
@@ -30,6 +31,11 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
             next: res => {
                 console.log(res);
                 this.workflowDefs = res;
+
+                this.sortedWorkflowDefs = Object.entries(res)
+                .map(([key, value]) => ({key, value}))
+                .sort((a, b) => a.value.name.localeCompare(b.value.name));
+
                 Object.entries(res).forEach(([key, value]) => {
                     this.selectedVersion[key] = Math.max(...Object.keys(value.versions).map(versionId => parseInt(versionId, 10))); // TODO: order by creation date
                 });
@@ -41,11 +47,6 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-    }
-
-    onVersionChange(workflowName: string) {
-        // Logic when a version is selected (optional)
-        console.log('Selected version for', workflowName, this.selectedVersion[workflowName]);
     }
 
     openVersion(key: string) {

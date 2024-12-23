@@ -10,31 +10,31 @@
 <h2>Stored Workflows</h2>
 
 <c-accordion class="mb-5">
-    <ng-container *ngFor="let workflowDef of workflowDefs | keyvalue">
+    <ng-container *ngFor="let entry of sortedWorkflowDefs">
         <c-accordion-item #item="cAccordionItem" [visible]="false">
             <ng-template cTemplateId="accordionHeaderTemplate">
                 <button (click)="item.toggleItem()" [collapsed]="!item.visible" cAccordionButton>
-                    <h4>{{ workflowDef.value.name }}</h4>
+                    <h4>{{ entry.value.name }}</h4>
                 </button>
             </ng-template>
             <ng-template cTemplateId="accordionBodyTemplate">
                 <div class="accordion-body">
                     <div class="form-group">
-                        <label for="versionSelect-{{workflowDef.key}}"><strong>Version</strong></label>
-                        <select id="versionSelect-{{workflowDef.key}}" class="form-control" [(ngModel)]="selectedVersion[workflowDef.key]" (change)="onVersionChange(workflowDef.key)">
-                            <option *ngFor="let version of workflowDef.value.versions | keyvalue" [value]="version.key">{{ version.key }}</option>
+                        <label for="versionSelect-{{entry.key}}"><strong>Version</strong></label>
+                        <select id="versionSelect-{{entry.key}}" class="form-control" [(ngModel)]="selectedVersion[entry.key]">
+                            <option *ngFor="let version of entry.value.versions | keyvalue" [value]="version.key">{{ version.key }}</option>
                         </select>
                     </div>
 
                     <div class="mt-3">
                         <div>
-                            <strong>Description:</strong> {{ workflowDef.value.versions[selectedVersion[workflowDef.key]].description }}
+                            <strong>Description:</strong> {{ entry.value.versions[selectedVersion[entry.key]].description }}
                         </div>
                         <div>
-                            <strong>Creation Time:</strong> {{ workflowDef.value.versions[selectedVersion[workflowDef.key]].creationTime | date:'short' }}
+                            <strong>Creation Time:</strong> {{ entry.value.versions[selectedVersion[entry.key]].creationTime | date:'short' }}
                         </div>
 
-                        <button class="btn btn-primary mt-3" (click)="openVersion(workflowDef.key)">
+                        <button class="btn btn-primary mt-3" (click)="openVersion(entry.key)">
                             Open Version
                         </button>
                     </div>

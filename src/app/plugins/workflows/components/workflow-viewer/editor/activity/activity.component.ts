@@ -1,6 +1,9 @@
 import {ChangeDetectorRef, Component, HostBinding, Input, OnChanges} from '@angular/core';
 import {ClassicPreset} from 'rete';
 import {KeyValue} from '@angular/common';
+import {ActivityState} from '../../../../models/workflows.model';
+import {ActivityDef} from '../../../../models/activity-registry.model';
+import {ActivityPort} from '../activity-port/activity-port.component';
 
 @Component({
     selector: 'app-activity',
@@ -39,11 +42,34 @@ export class ActivityComponent implements OnChanges {
 
 }
 
-export class ActivityNode extends ClassicPreset.Node {
-    width = 100;
-    height = 100; // TODO: change dimensions
+export const IN_CONTROL_KEY = 'c_in';
+export const SUCCESS_CONTROL_KEY = 'c_out_success';
+export const FAIL_CONTROL_KEY = 'c_out_fail';
 
-    constructor() {
-        super('ActivityNode Sample Label');
+export class ActivityNode extends ClassicPreset.Node {
+    width = 200;
+    height = 200; // TODO: change dimensions according to number of inputs / outputs etc
+
+    constructor(public readonly def: ActivityDef, public readonly state: ActivityState) {
+        super(def.displayName);
+
+        // control ports
+        this.addInput(IN_CONTROL_KEY, new ClassicPreset.Input(new ActivityPort(null, 'in')));
+        this.addOutput(SUCCESS_CONTROL_KEY, new ClassicPreset.Output(new ActivityPort(null, 'success')));
+        this.addOutput(FAIL_CONTROL_KEY, new ClassicPreset.Output(new ActivityPort(null, 'fail')));
+
+        // data ports
+        def.inPorts.forEach((inPort, i) => {
+            this.addInput(ActivityNode.getDataPortKey(i), new ClassicPreset.Input(new ActivityPort(inPort)));
+        });
+        def.outPorts.forEach((outPort, i) => {
+            this.addOutput(ActivityNode.getDataPortKey(i), new ClassicPreset.Output(new ActivityPort(outPort))); // TODO: make multi-connection
+        });
+
+        this.height += (def.inPorts.length + def.outPorts.length) * 32;
+    }
+
+    public static getDataPortKey(index: number) {
+        return 'd_' + index;
     }
 }

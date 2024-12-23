@@ -1,18 +1,21 @@
 import {Injector} from '@angular/core';
-import {ClassicPreset, GetSchemes, NodeEditor} from 'rete';
+import {GetSchemes, NodeEditor} from 'rete';
 import {AreaExtensions, AreaPlugin} from 'rete-area-plugin';
 import {ConnectionPlugin, Presets as ConnectionPresets} from 'rete-connection-plugin';
 import {AngularArea2D, AngularPlugin, Presets} from 'rete-angular-plugin/15';
 import {WorkflowModel} from '../../../models/workflows.model';
 import {ActivityComponent, ActivityNode} from './activity/activity.component';
 import {Edge, EdgeComponent} from './edge/edge.component';
-import {ActivityPort, ActivityPortComponent} from './activity-port/activity-port.component';
+import {ActivityPortComponent} from './activity-port/activity-port.component';
 import {addCustomBackground} from '../../../../../components/polyalg/polyalg-viewer/background';
 import {ReadonlyPlugin} from 'rete-readonly-plugin';
 import {useMagneticConnection} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection';
 import {setupPanningBoundary} from '../../../../../components/polyalg/polyalg-viewer/panning-boundary';
 import {MagneticConnectionComponent} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection/magnetic-connection.component';
 import {getMagneticConnectionProps} from './workflow-editor-utils';
+import {AutoArrangePlugin, Presets as ArrangePresets} from 'rete-auto-arrange-plugin';
+import {WorkflowsService} from '../../../services/workflows.service';
+import {ActivityRegistry} from '../../../models/activity-registry.model';
 
 export type Schemes = GetSchemes<ActivityNode, Edge<ActivityNode>>;
 type AreaExtra = AngularArea2D<Schemes>;
@@ -23,17 +26,17 @@ export class WorkflowEditor {
     private readonly readonlyPlugin = new ReadonlyPlugin<Schemes>();
     private readonly area: AreaPlugin<Schemes, AreaExtra>;
     private readonly render: AngularPlugin<Schemes, AreaExtra>;
+    private readonly arrange = new AutoArrangePlugin<Schemes>();
+    private readonly nodeMap: Map<string, ActivityNode> = new Map(); // uuid to activitynode
+    private readonly nodeIdToActivityId: Map<string, string> = new Map();
+    private panningBoundary: { destroy: any; };
 
-    private readonly socket = new ActivityPort();
+    private readonly registry: ActivityRegistry;
 
-    constructor(private injector: Injector, container: HTMLElement, isReadOnly: boolean) {
+    constructor(private injector: Injector, container: HTMLElement, private readonly _workflows: WorkflowsService, private readonly isReadOnly: boolean) {
         this.area = new AreaPlugin<Schemes, AreaExtra>(container);
         this.render = new AngularPlugin<Schemes, AreaExtra>({injector});
-
-        const selector = AreaExtensions.selector();
-        AreaExtensions.selectableNodes(this.area, selector, {
-            accumulating: AreaExtensions.accumulateOnCtrl(),
-        });
+        this.registry = _workflows.getRegistry();
 
         this.render.addPreset(
             Presets.classic.setup({
@@ -55,6 +58,7 @@ export class WorkflowEditor {
         );
 
         this.connection.addPreset(ConnectionPresets.classic.setup());
+        this.arrange.addPreset(ArrangePresets.classic.setup());
 
 
         // Attach plugins
@@ -63,48 +67,69 @@ export class WorkflowEditor {
         this.area.use(this.connection);
         this.area.use(this.render);
         this.area.use(this.readonlyPlugin.area);
-
-
-        let panningBoundary = null;
-        if (!isReadOnly) {
-            this.area.use(this.connection);  // make connections editable
-            //this.area.use(this.contextMenu); // add context menu
-            useMagneticConnection(this.connection, getMagneticConnectionProps(this.editor));
-            panningBoundary = setupPanningBoundary({area: this.area, selector, padding: 40, intensity: 2});
-        }
+        this.area.use(this.arrange);
 
         AreaExtensions.restrictor(this.area, {scaling: {min: 0.03, max: 5}}); // Restrict Zoom
-
-        this.area.addPipe((c) => {
-            if (c.type === 'render') {
-                console.log(c.data);
-            }
-            return c;
-        });
         AreaExtensions.simpleNodesOrder(this.area);
         addCustomBackground(this.area);
+
+        this.area.addPipe(context => {
+            if (context.type === 'zoom' && context.data.source === 'dblclick') {
+                return; // https://github.com/retejs/rete/issues/204
+            } else if (context.type === 'nodetranslated') {
+                console.log('changed position of activity ' + this.nodeIdToActivityId.get(context.data.id), context.data.position); // TODO: send update to backend, but not too often..., double position coordinates?
+            } else if (context.type !== 'pointermove') {
+                //console.log(context);
+            }
+            return context;
+        });
     }
 
     async initialize(workflow: WorkflowModel): Promise<void> {
 
-        // Create nodes and connections
-        const a = new ActivityNode();
-        a.addControl('a', new ClassicPreset.InputControl('text', {initial: 'hello'}));
-        a.addOutput('a', new ClassicPreset.Output(this.socket));
-        await this.editor.addNode(a);
+        let requiresArranging = true;
+        for (const activity of workflow.activities) {
+            const node = new ActivityNode(this.registry.getDef(activity.type), activity.state);
+            this.nodeMap.set(activity.id, node);
+            this.nodeIdToActivityId.set(node.id, activity.id);
+            await this.editor.addNode(node);
+            if (activity.rendering.posX !== 0 || activity.rendering.posY !== 0) {
+                requiresArranging = false;
+                await this.area.translate(node.id, {x: activity.rendering.posX, y: activity.rendering.posY});
+            }
+        }
 
-        const b = new ActivityNode();
-        b.addControl('b', new ClassicPreset.InputControl('text', {initial: 'hello'}));
-        b.addInput('b', new ClassicPreset.Input(this.socket));
-        await this.editor.addNode(b);
+        for (const edge of workflow.edges) {
+            const from = this.nodeMap.get(edge.fromId);
+            const to = this.nodeMap.get(edge.toId);
 
-        await this.area.translate(b.id, {x: 320, y: 0});
-        await this.editor.addConnection(new Edge(a, 'a', b, 'b'));
+            const connection = edge.isControl ? Edge.createControlEdge(from, to, edge.fromPort) :
+                Edge.createDataEdge(from, edge.fromPort, to, edge.toPort);
+            await this.editor.addConnection(connection);
+        }
+        if (requiresArranging) {
+            const res = await this.arrange.layout({applier: undefined});
+            console.log(res);
+        }
 
         AreaExtensions.zoomAt(this.area, this.editor.getNodes());
+
+        const selector = AreaExtensions.selector();
+        AreaExtensions.selectableNodes(this.area, selector, {
+            accumulating: AreaExtensions.accumulateOnCtrl(),
+        });
+
+
+        if (!this.isReadOnly) {
+            this.area.use(this.connection);  // make connections editable
+            //this.area.use(this.contextMenu); // add context menu
+            useMagneticConnection(this.connection, getMagneticConnectionProps(this.editor));
+            this.panningBoundary = setupPanningBoundary({area: this.area, selector, padding: 40, intensity: 2});
+        }
     }
 
     destroy(): void {
         this.area.destroy();
+        this.panningBoundary?.destroy();
     }
 }

@@ -1,5 +1,11 @@
 <h1>Session ID: {{sessionId}}</h1>
+<button cButton color="secondary" class="m-1"
+        (click)="backToDashboard()">
+    Back
+</button>
 
-<ng-container *ngIf="session?.type === 'USER_SESSION'">
-    <app-workflow-viewer [sessionId]="sessionId" isEditable></app-workflow-viewer>
+<ng-container *ngIf="isRegistryLoaded()">
+    <ng-container *ngIf="session?.type === 'USER_SESSION'">
+        <app-workflow-viewer [sessionId]="sessionId" isEditable></app-workflow-viewer>
+    </ng-container>
 </ng-container>
