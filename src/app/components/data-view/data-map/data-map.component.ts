@@ -18,7 +18,7 @@ import {LayerSettingsService} from '../../../views/querying/gis/services/layerse
 import {MapLayer} from '../../../views/querying/gis/models/MapLayer.model';
 import {MapGeometryWithData} from '../../../views/querying/gis/models/MapGeometryWithData.model';
 import {CombinedResult} from '../data-view.model';
-import {LatLng} from 'leaflet';
+import {LatLng, LatLngExpression} from 'leaflet';
 import {Polygon, Position} from 'geojson';
 
 // tslint:disable:no-non-null-assertion
@@ -145,7 +145,8 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
     }
 
     ngAfterViewInit(): void {
-        const leafletMap = L.map('map').setView([52, 10], this.INITIAL_ZOOM);
+        const basel: LatLngExpression = [47.56026439272339, 7.587220613079865];
+        const leafletMap = L.map('map').setView(basel, this.INITIAL_ZOOM);
         this.map = leafletMap;
 
         const shouldSidebarBeVisible = this._sidebar.isVisible();
