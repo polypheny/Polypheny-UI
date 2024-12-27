@@ -526,7 +526,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             .style('pointer-events', 'auto')
             .style('cursor', 'pointer')
             .on('mouseover', function (event, d) {
-                tt.style('display', 'block').html(JSON.stringify(d.data, null, 2));
+                tt.style('display', 'block').html(JSON.stringify(d.getDataForPreview(), null, 2));
             })
             .on('mousemove', function (event) {
                 tt.style('top', event.pageY + 10 + 'px').style(

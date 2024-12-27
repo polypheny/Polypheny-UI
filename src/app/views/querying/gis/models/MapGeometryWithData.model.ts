@@ -62,4 +62,22 @@ export class MapGeometryWithData {
 
         return NaN;
     }
+
+    getDataForPreview(obj: Record<string, any> = null): Record<string, any> {
+        if (obj === null){
+            obj = this.data;
+        }
+
+        const previewData = { ...obj }; // Create a shallow copy to avoid mutating the original
+        for (const key in previewData) {
+            if (previewData.hasOwnProperty(key)) {
+                if (key === 'coordinates') {
+                    previewData[key] = '...';
+                } else if (typeof previewData[key] === 'object' && previewData[key] !== null) {
+                    previewData[key] = this.getDataForPreview(previewData[key]); // Recurse for nested objects
+                }
+            }
+        }
+        return previewData;
+    }
 }
