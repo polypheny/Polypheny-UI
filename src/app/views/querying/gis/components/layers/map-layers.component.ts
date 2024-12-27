@@ -214,22 +214,28 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log('onPolyPlanChanged this.applyFilterToLayer', this.applyFilterToLayer);
 
         let plan = '';
+        let geometryField = this.applyFilterToLayer.geometryField;
 
         if (this.applyFilterToLayer.language === 'mongo') {
-            // Intermediate Step: Add transformer to convert everything to documents.
-            plan = `DOC_PROJECT[includes=name AS n](
+            // We can use the plan as-is.
+            plan = polyPlan;
+        } else {
+            // Intermediate Step for SQL and Cypher: Add transformer to convert everything to documents, so that we can
+            // use the DOC_FILTER inside the plan.
+            plan = `DOC_PROJECT[includes=${geometryField} AS geometry](
                       TRANSFORMER[DOCUMENT](
                         ${polyPlan}
                       )
                     )`;
-
-            // Final Step: Apply document filter with MQL_GEO_WITHIN condition.
-            const wkt = geojsonToWKT(this.applyFilterToLayer.filterConfig.polygon);
-            const srid = 4326; // TODO: Get from layer
-            const distance = -1;
-            plan = `DOC_FILTER[MQL_GEO_WITHIN(${this.applyFilterToLayer.geometryField}, 'SRID=${srid};${wkt}':DOCUMENT, ${distance}:FLOAT)](${plan})`;
-            plan = trimLines(plan);
+            geometryField = 'geometry';
         }
+
+        // Final Step: Apply document filter with MQL_GEO_WITHIN condition.
+        const wkt = geojsonToWKT(this.applyFilterToLayer.filterConfig.polygon);
+        const srid = 4326; // TODO: Get from layer
+        const distance = -1;
+        plan = `DOC_FILTER[MQL_GEO_WITHIN(${geometryField}, 'SRID=${srid};${wkt}':DOCUMENT, ${distance}:FLOAT)](${plan})`;
+        plan = trimLines(plan);
 
         console.log('Run plan:', plan);
         const request = new PolyAlgRequest(plan, DataModel.DOCUMENT, 'LOGICAL');

@@ -156,7 +156,7 @@ export class MapLayer {
             layer.geometryField = geometryField;
         }
 
-        console.log(`Created layer with ${layer.data.length}: data points:`, layer);
+        console.log(`Created layer with ${layer.data.length} data points:`, layer);
         return layer;
     }
 
