@@ -94,7 +94,7 @@ export class MapLayer {
 
                         if (header.dataType.startsWith('GEOMETRY')) {
                             obj[key] = JSON.parse(value);
-                        } else if (header.dataType.startsWith('INTEGER')) {
+                        } else if (header.dataType.startsWith('INTEGER') || header.dataType.startsWith('BIGINT')) {
                             obj[key] = parseInt(value, 10);
                         } else if (header.dataType.startsWith('DECIMAL')) {
                             obj[key] = parseFloat(value);
