@@ -135,6 +135,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
             const latLngBounds = L.latLngBounds(bounds);
             if (latLngBounds.isValid()) {
                 this.map.fitBounds(latLngBounds);
+                this.updateSvgPosition();
             }
         }
     }
