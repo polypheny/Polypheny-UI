@@ -618,7 +618,6 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         this.editQueryForMapLayer.query = this.queryEditor.getCode();
         this.editQueryForMapLayer.language = this.language();
         this.editQueryForMapLayer.namespace = this.activeNamespace();
-        this.isAddLayerModalVisible = false;
         this.rerunQuery(this.editQueryForMapLayer);
         this.editQueryForMapLayer = null;
     }
