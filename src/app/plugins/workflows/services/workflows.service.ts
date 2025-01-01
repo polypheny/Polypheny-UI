@@ -3,6 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {ActivityModel, SessionModel, WorkflowConfigModel, WorkflowDefModel, WorkflowModel} from '../models/workflows.model';
 import {ActivityDef, ActivityRegistry} from '../models/activity-registry.model';
+import {WorkflowsWebSocket} from './workflows-webSocket';
 
 class JsonNode {
 }
@@ -81,5 +82,9 @@ export class WorkflowsService {
 
     getRegistry() {
         return this.activityRegistry;
+    }
+
+    createWebSocket(sessionId: string) {
+        return new WorkflowsWebSocket(this._settings, sessionId);
     }
 }

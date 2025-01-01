@@ -48,9 +48,9 @@ export const FAIL_CONTROL_KEY = 'c_out_fail';
 
 export class ActivityNode extends ClassicPreset.Node {
     width = 200;
-    height = 200; // TODO: change dimensions according to number of inputs / outputs etc
+    height = 280; // TODO: change dimensions according to number of inputs / outputs etc
 
-    constructor(public readonly def: ActivityDef, public readonly state: ActivityState) {
+    constructor(public readonly def: ActivityDef, public readonly activityId, public state: ActivityState, public progress: number) {
         super(def.displayName);
 
         // control ports
@@ -71,5 +71,9 @@ export class ActivityNode extends ClassicPreset.Node {
 
     public static getDataPortKey(index: number) {
         return 'd_' + index;
+    }
+
+    public static getDataPortIndexFromKey(key: string) {
+        return parseInt(key.slice(2), 10);
     }
 }

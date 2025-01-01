@@ -1,21 +1,23 @@
 import {Injector} from '@angular/core';
 import {GetSchemes, NodeEditor} from 'rete';
 import {AreaExtensions, AreaPlugin} from 'rete-area-plugin';
-import {ConnectionPlugin, Presets as ConnectionPresets} from 'rete-connection-plugin';
+import {ClassicFlow, ConnectionPlugin, getSourceTarget} from 'rete-connection-plugin';
 import {AngularArea2D, AngularPlugin, Presets} from 'rete-angular-plugin/15';
-import {WorkflowModel} from '../../../models/workflows.model';
-import {ActivityComponent, ActivityNode} from './activity/activity.component';
+import {ActivityState, EdgeModel, EdgeState, RenderModel, WorkflowModel} from '../../../models/workflows.model';
+import {ActivityComponent, ActivityNode, IN_CONTROL_KEY} from './activity/activity.component';
 import {Edge, EdgeComponent} from './edge/edge.component';
 import {ActivityPortComponent} from './activity-port/activity-port.component';
 import {addCustomBackground} from '../../../../../components/polyalg/polyalg-viewer/background';
 import {ReadonlyPlugin} from 'rete-readonly-plugin';
-import {useMagneticConnection} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection';
 import {setupPanningBoundary} from '../../../../../components/polyalg/polyalg-viewer/panning-boundary';
 import {MagneticConnectionComponent} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection/magnetic-connection.component';
-import {getMagneticConnectionProps} from './workflow-editor-utils';
 import {AutoArrangePlugin, Presets as ArrangePresets} from 'rete-auto-arrange-plugin';
 import {WorkflowsService} from '../../../services/workflows.service';
 import {ActivityRegistry} from '../../../models/activity-registry.model';
+import {debounceTime, Subject} from 'rxjs';
+import {Position} from 'rete-angular-plugin/17/types';
+import {useMagneticConnection} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection';
+import {getMagneticConnectionProps} from './workflow-editor-utils';
 
 export type Schemes = GetSchemes<ActivityNode, Edge<ActivityNode>>;
 type AreaExtra = AngularArea2D<Schemes>;
@@ -28,10 +30,14 @@ export class WorkflowEditor {
     private readonly render: AngularPlugin<Schemes, AreaExtra>;
     private readonly arrange = new AutoArrangePlugin<Schemes>();
     private readonly nodeMap: Map<string, ActivityNode> = new Map(); // uuid to activitynode
+    private readonly connectionMap: Map<string, Edge<ActivityNode>[]> = new Map(); // source uuid to array of out edges
     private readonly nodeIdToActivityId: Map<string, string> = new Map();
     private panningBoundary: { destroy: any; };
 
     private readonly registry: ActivityRegistry;
+    private readonly translateSubjects: { [key: string]: Subject<Position> } = {}; // debounce the translation of activities
+    private readonly debouncedTranslateSubject = new Subject<{ activityId: string, pos: Position }>();
+    private readonly DEBOUNCE_TIME_MS = 200;
 
     constructor(private injector: Injector, container: HTMLElement, private readonly _workflows: WorkflowsService, private readonly isReadOnly: boolean) {
         this.area = new AreaPlugin<Schemes, AreaExtra>(container);
@@ -46,6 +52,7 @@ export class WorkflowEditor {
                     },
                     connection(data) {
                         if (data.payload.isMagnetic) {
+                            console.log('its magnetic!');
                             return MagneticConnectionComponent;
                         }
                         return EdgeComponent;
@@ -57,7 +64,27 @@ export class WorkflowEditor {
             })
         );
 
-        this.connection.addPreset(ConnectionPresets.classic.setup());
+        this.connection.addPreset(() => new ClassicFlow({
+            makeConnection(from, to, context) {
+                const [source, target] = getSourceTarget(from, to) || [null, null];
+                const {editor} = context;
+
+                if (source && target) {
+                    // TODO: inform backend about change (maybe wait with connection creation for response)
+                    editor.addConnection(
+                        new Edge(
+                            editor.getNode(source.nodeId),
+                            source.key,
+                            editor.getNode(target.nodeId),
+                            target.key,
+                            target.key === IN_CONTROL_KEY,
+                            EdgeState.IDLE
+                        )
+                    );
+                    return true; // ensure that the connection has been successfully added
+                }
+            }
+        }));
         this.arrange.addPreset(ArrangePresets.classic.setup());
 
 
@@ -77,7 +104,7 @@ export class WorkflowEditor {
             if (context.type === 'zoom' && context.data.source === 'dblclick') {
                 return; // https://github.com/retejs/rete/issues/204
             } else if (context.type === 'nodetranslated') {
-                console.log('changed position of activity ' + this.nodeIdToActivityId.get(context.data.id), context.data.position); // TODO: send update to backend, but not too often..., double position coordinates?
+                this.translateSubjects[this.nodeIdToActivityId.get(context.data.id)].next(context.data.position);
             } else if (context.type !== 'pointermove') {
                 //console.log(context);
             }
@@ -89,9 +116,14 @@ export class WorkflowEditor {
 
         let requiresArranging = true;
         for (const activity of workflow.activities) {
-            const node = new ActivityNode(this.registry.getDef(activity.type), activity.state);
+            const node = new ActivityNode(this.registry.getDef(activity.type), activity.id, activity.state, 0);
             this.nodeMap.set(activity.id, node);
             this.nodeIdToActivityId.set(node.id, activity.id);
+            const translateSubject = new Subject<Position>();
+            translateSubject.pipe(
+                debounceTime(this.DEBOUNCE_TIME_MS)
+            ).subscribe(pos => this.debouncedTranslateSubject.next({activityId: activity.id, pos: pos}));
+            this.translateSubjects[activity.id] = translateSubject;
             await this.editor.addNode(node);
             if (activity.rendering.posX !== 0 || activity.rendering.posY !== 0) {
                 requiresArranging = false;
@@ -103,8 +135,12 @@ export class WorkflowEditor {
             const from = this.nodeMap.get(edge.fromId);
             const to = this.nodeMap.get(edge.toId);
 
-            const connection = edge.isControl ? Edge.createControlEdge(from, to, edge.fromPort) :
-                Edge.createDataEdge(from, edge.fromPort, to, edge.toPort);
+            const connection = edge.isControl ? Edge.createControlEdge(from, to, edge.fromPort, edge.state) :
+                Edge.createDataEdge(from, edge.fromPort, to, edge.toPort, edge.state);
+
+            const edges = this.connectionMap.get(edge.fromId) || [];
+            edges.push(connection);
+            this.connectionMap.set(edge.fromId, edges);
             await this.editor.addConnection(connection);
         }
         if (requiresArranging) {
@@ -128,7 +164,37 @@ export class WorkflowEditor {
         }
     }
 
+    onActivityTranslate() {
+        return this.debouncedTranslateSubject.asObservable();
+    }
+
+    setActivityState(id: string, state: ActivityState) {
+        // TODO: handle unknown activity
+        const node = this.nodeMap.get(id);
+        node.state = state;
+        this.area.update('node', node.id);
+    }
+
+    setEdgeState(edge: EdgeModel) {
+        // TODO: handle unknown edge
+        const connection = this.connectionMap.get(edge.fromId).find(connection => connection.isEquivalent(edge));
+        connection.state.set(edge.state);
+        this.area.update('connection', connection.id);
+    }
+
+    setActivityProgress(id: string, progress: number) {
+        const node = this.nodeMap.get(id);
+        node.progress = progress;
+        this.area.update('node', node.id);
+    }
+
+    setActivityPosition(id: string, rendering: RenderModel) {
+        const node = this.nodeMap.get(id);
+        this.area.translate(node.id, {x: rendering.posX, y: rendering.posY});
+    }
+
     destroy(): void {
+        Object.values(this.translateSubjects).forEach((subject) => subject.complete());
         this.area.destroy();
         this.panningBoundary?.destroy();
     }

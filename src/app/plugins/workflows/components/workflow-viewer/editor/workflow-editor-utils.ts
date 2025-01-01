@@ -3,6 +3,8 @@ import {SocketData} from 'rete-connection-plugin';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Schemes} from './workflow-editor';
 import {Edge} from './edge/edge.component';
+import {EdgeState} from '../../../models/workflows.model';
+import {IN_CONTROL_KEY} from './activity/activity.component';
 
 
 // TODO: implement workflow-editor specific changes
@@ -20,7 +22,9 @@ export function getMagneticConnectionProps(editor: NodeEditor<Schemes>) {
                 sourceNode,
                 source.key as never,
                 targetNode,
-                target.key as never
+                target.key as never,
+                target.key === IN_CONTROL_KEY,
+                EdgeState.IDLE
             );
 
             /*if (!canCreateConnection(editor, connection)) {
@@ -45,8 +49,8 @@ export function getMagneticConnectionProps(editor: NodeEditor<Schemes>) {
         offset(socket: SocketData, position: Position) {
 
             return {
-                x: position.x + (socket.side === 'input' ? 3 : -3),
-                y: position.y + (socket.side === 'input' ? 12 : -12)
+                x: position.x, //+ (socket.side === 'input' ? 3 : -3),
+                y: position.y //+ (socket.side === 'input' ? 12 : -12)
             };
         },
         distance: 75

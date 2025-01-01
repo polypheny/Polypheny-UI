@@ -4,8 +4,8 @@
     Back
 </button>
 
-<ng-container *ngIf="isRegistryLoaded()">
+<div *ngIf="isRegistryLoaded()">
     <ng-container *ngIf="session?.type === 'USER_SESSION'">
         <app-workflow-viewer [sessionId]="sessionId" isEditable></app-workflow-viewer>
     </ng-container>
-</ng-container>
+</div>
