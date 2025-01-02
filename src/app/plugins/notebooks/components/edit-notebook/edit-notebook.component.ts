@@ -1,18 +1,4 @@
-import {
-    Component,
-    EventEmitter,
-    HostListener,
-    inject,
-    Input,
-    OnChanges,
-    OnDestroy,
-    OnInit,
-    Output,
-    QueryList,
-    SimpleChanges,
-    ViewChild,
-    ViewChildren
-} from '@angular/core';
+import {Component, EventEmitter, HostListener, inject, Input, OnChanges, OnDestroy, OnInit, Output, QueryList, SimpleChanges, ViewChild, ViewChildren} from '@angular/core';
 import {KernelSpec, NotebookContent, SessionResponse} from '../../models/notebooks-response.model';
 import {NotebooksService} from '../../services/notebooks.service';
 import {NotebooksSidebarService} from '../../services/notebooks-sidebar.service';
@@ -87,7 +73,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this._content.onSessionsChange().subscribe(sessions => this.updateSession(sessions))
         );
         this.subscriptions.add(
-            this._content.onNamespaceChange().subscribe(namespaces => this.namespaces = namespaces)
+            this._content.onNamespaceChange().subscribe(namespaces => {
+                console.log('namespaces:', namespaces);
+                this.namespaces = namespaces;
+            })
         );
         this.initForms();
     }

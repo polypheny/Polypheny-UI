@@ -1,13 +1,6 @@
 import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NotebooksService} from '../services/notebooks.service';
-import {
-    ActivatedRoute,
-    ActivatedRouteSnapshot,
-    CanDeactivate,
-    Router,
-    RouterStateSnapshot,
-    UrlSegment
-} from '@angular/router';
+import {ActivatedRoute, ActivatedRouteSnapshot, CanDeactivate, Router, RouterStateSnapshot, UrlSegment} from '@angular/router';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {mergeMap, tap} from 'rxjs/operators';
@@ -126,7 +119,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
         this.createSessionForm = new FormGroup({
             isNew: new FormControl(false),
             session: new FormControl(''),
-            kernel: new FormControl('', [Validators.required]),
+            kernel: new FormControl(''),
             sessions: new FormControl([]),
             // Variables that cannot be set directly by the user:
             name: new FormControl('', [Validators.required]),
