@@ -1,12 +1,16 @@
-<button cButton color="primary" class="m-1" (click)="execute()">
-    Execute
-</button>
-<button cButton color="secondary" class="m-1" (click)="reset()">
-    Reset
-</button>
-<button cButton color="danger" class="m-1" (click)="interrupt()">
-    Interrupt
-</button>
-<div>
-    <div class="rete" #rete></div>
+<div class="d-flex flex-column h-100">
+    <div>
+        <button cButton color="primary" class="m-1" (click)="execute()">
+            Execute
+        </button>
+        <button cButton color="secondary" class="m-1" (click)="reset()">
+            Reset
+        </button>
+        <button cButton color="danger" class="m-1" (click)="interrupt()">
+            Interrupt
+        </button>
+    </div>
+    <div class="flex-grow-1">
+        <div class="rete" #rete></div>
+    </div>
 </div>

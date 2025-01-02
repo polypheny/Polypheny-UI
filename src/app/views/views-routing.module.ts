@@ -186,10 +186,17 @@ const routes: Routes = [
     {
         path: 'workflows',
         component: WorkflowsDashboardComponent,
+        data: {
+            title: 'Workflows Dashboard'
+        }
     },
     {
         path: 'workflows/:sessionId',
-        component: WorkflowSessionComponent
+        component: WorkflowSessionComponent,
+        data: {
+            title: 'Workflow Session',
+            isFullWidth: true
+        }
     }
 ];
 

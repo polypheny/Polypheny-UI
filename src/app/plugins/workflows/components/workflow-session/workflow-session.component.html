@@ -1,11 +1,15 @@
-<h1>Session ID: {{sessionId}}</h1>
-<button cButton color="secondary" class="m-1"
-        (click)="backToDashboard()">
-    Back
-</button>
+<div class="d-flex flex-column h-100">
+    <div>
+        <h1>Session ID: {{sessionId}}</h1>
+        <button cButton color="secondary" class="m-1"
+                (click)="backToDashboard()">
+            Back
+        </button>
+    </div>
 
-<div *ngIf="isRegistryLoaded()">
-    <ng-container *ngIf="session?.type === 'USER_SESSION'">
-        <app-workflow-viewer [sessionId]="sessionId" isEditable></app-workflow-viewer>
-    </ng-container>
+    <div *ngIf="isRegistryLoaded()" class="flex-grow-1">
+        <ng-container *ngIf="session?.type === 'USER_SESSION'">
+            <app-workflow-viewer [sessionId]="sessionId" isEditable></app-workflow-viewer>
+        </ng-container>
+    </div>
 </div>

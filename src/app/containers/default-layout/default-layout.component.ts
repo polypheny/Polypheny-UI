@@ -1,4 +1,4 @@
-import {AfterContentChecked, ChangeDetectorRef, Component, Inject, OnDestroy, signal} from '@angular/core';
+import {AfterContentChecked, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {navItems} from '../../_nav';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
@@ -7,13 +7,19 @@ import {CrudService} from '../../services/crud.service';
 import {PluginService} from '../../services/plugin.service';
 import {freeSet} from '@coreui/icons';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
+import {filter, Subscription} from 'rxjs';
+import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
+import {map} from 'rxjs/operators';
+import {SidebarComponent} from '@coreui/angular';
 
 @Component({
     selector: 'app-dashboard',
     templateUrl: './default-layout.component.html',
     styleUrls: ['./default-layout.component.scss']
 })
-export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
+export class DefaultLayoutComponent implements OnInit, OnDestroy, AfterContentChecked {
+    @ViewChild('leftSidebar') leftSidebarComponent: SidebarComponent;
+
     public navItems = navItems;
     public sidebarMinimized = true;
     private changes: MutationObserver;
@@ -21,6 +27,9 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
     icons = freeSet;
     hover = signal(false);
     modal = signal(false);
+
+    isFluid = signal(false);
+    private routeDataSubscription: Subscription;
 
 
     constructor(
@@ -30,6 +39,8 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
         public _crud: CrudService,
         public _plugin: PluginService,
         public _left: LeftSidebarService,
+        private _route: ActivatedRoute,
+        private _router: Router,
         private changeDetector: ChangeDetectorRef,
         @Inject(DOCUMENT) _document?: any,
     ) {
@@ -45,12 +56,24 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
 
     }
 
+    ngOnInit(): void {
+        this.isFluid.set(this.getLastChildData().isFullWidth || false);
+
+        this.routeDataSubscription = this._router.events.pipe(
+            filter(event => event instanceof NavigationEnd),
+            map(() => this.getLastChildData())
+        ).subscribe(data => {
+            this.isFluid.set(data.isFullWidth || false);
+        });
+    }
+
     ngAfterContentChecked(): void {
         this.changeDetector.detectChanges();
     }
 
     ngOnDestroy(): void {
         this.changes.disconnect();
+        this.routeDataSubscription.unsubscribe();
     }
 
     getConnectedColor() {
@@ -89,5 +112,22 @@ export class DefaultLayoutComponent implements OnDestroy, AfterContentChecked {
 
     handleModalChange($event: boolean) {
         this.modal.set($event);
+    }
+
+    private getLastChildData() {
+        // data of child routes: https://stackoverflow.com/a/50780702
+        let route = this._route;
+        while (route.firstChild) {
+            route = route.firstChild;
+        }
+        return route.snapshot.data;
+    }
+
+    changedVisible(isVisible: boolean) {
+        // TODO: find a better solution to enforce the correct visibility of the sidebar component after rescaling the window
+        if (isVisible !== this._left.isVisible()) {
+            this._left.isVisible.set(isVisible);
+            setTimeout(() => this._left.isVisible.set(!isVisible), 10);
+        }
     }
 }

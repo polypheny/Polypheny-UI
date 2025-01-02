@@ -56,7 +56,7 @@ export class Edge<N extends ActivityNode> extends ClassicPreset.Connection<N, N>
 
     getToPort() {
         if (this.isControl) {
-            return IN_CONTROL_KEY;
+            return 0;
         } else {
             // @ts-ignore
             return ActivityNode.getDataPortIndexFromKey(this.targetInput);
