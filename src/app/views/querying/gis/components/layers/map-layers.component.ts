@@ -36,6 +36,7 @@ import {SidebarNode} from '../../../../../models/sidebar-node.model';
 import {InformationGroup, InformationPage} from '../../../../../models/information-page.model';
 import {AlgViewerComponent} from '../../../../../components/polyalg/polyalg-viewer/alg-viewer.component';
 import {geojsonToWKT} from '@terraformer/wkt';
+import {ToastDuration, ToasterService} from '../../../../../components/toast-exposer/toaster.service';
 
 
 interface BaseLayer {
@@ -120,8 +121,13 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
 
                         // Instantly trigger rerender.
                         this.updateLayers(this.layers);
-                    } else {
+                    } else if (queryLayer.data.length > 0) {
                         this.addLayerInternal(queryLayer);
+                    } else {
+                        this._toast.warn(
+                            `No layer was added for query ${queryLayer.query}`,
+                            'Query did not return any results',
+                            ToastDuration.SHORT);
                     }
                     this.isAddLayerModalVisible = false;
                 }
@@ -139,6 +145,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly _settings = inject(WebuiSettingsService);
     public readonly _catalog = inject(CatalogService);
     public readonly _validator = inject(AlgValidatorService);
+    private readonly _toast = inject(ToasterService);
 
     @ViewChild(QueryEditor) queryEditor!: QueryEditor;
     @ViewChild(AlgViewerComponent) algViewerComponent!: AlgViewerComponent;
@@ -381,7 +388,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
 
     private startPollingHeight(): void {
         this.pollingTimer = setInterval(() => {
-            if (this.isMapFullscreen){
+            if (this.isMapFullscreen) {
                 // Don't update height while in fullscreen, because as soon as we close the full scren mode, we have
                 // to put the size back, which takes some time!
                 return;
