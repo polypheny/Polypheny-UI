@@ -61,6 +61,7 @@
             "scripts": [
               "node_modules/chart.js/dist/chart.min.js",
                 "node_modules/katex/dist/katex.min.js",
+              "node_modules/katex/dist/contrib/auto-render.min.js",
                 "node_modules/prismjs/prism.js",
                 "node_modules/prismjs/components/prism-css.min.js",
                 "node_modules/prismjs/components/prism-cypher.min.js",
