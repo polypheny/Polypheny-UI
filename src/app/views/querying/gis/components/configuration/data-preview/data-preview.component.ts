@@ -11,14 +11,13 @@ import {MapLayer} from '../../../models/MapLayer.model';
 })
 export class DataPreviewComponent implements MapLayerConfigurationComponent {
     layer: MapLayer;
-    previewObject: Object;
+
 
     constructor(
         @Inject('config') protected config: DataPreview,
         private layerSettings: LayerSettingsService,
     ) {
         this.layer = config.layer;
-        this.previewObject = config.layer.data[0].data;
     }
 
     protected readonly Object = Object;

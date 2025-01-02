@@ -14,6 +14,7 @@ import {DataPreview} from '../components/configuration/DataPreview';
 import {FilterConfig} from '../components/configuration/FilterConfig';
 import {AlgValidatorService} from '../../../../components/polyalg/polyalg-viewer/alg-validator.service';
 import {PlanNode} from '../../../../components/polyalg/models/polyalg-plan.model';
+import {DataPreviewComponent} from '../components/configuration/data-preview/data-preview.component';
 
 export class MapLayer {
 
@@ -328,6 +329,10 @@ export class MapLayer {
             return;
         });
         this.data.push(...data);
+
+        // Update preview object
+        (this.dataPreview as DataPreview).updatePreviewObject();
+
         return this;
     }
 
