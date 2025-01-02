@@ -6,15 +6,13 @@ import {LabelVisualization} from '../components/visualization/label-visualizatio
 import {PointShapeVisualization} from '../components/visualization/point-shape-visualization.model';
 import {CombinedResult} from '../../../../components/data-view/data-view.model';
 import {DataModel} from '../../../../models/ui-request.model';
-import {Geometry, Polygon} from 'geojson';
+import {Geometry} from 'geojson';
 import {v4} from 'uuid';
 import * as L from 'leaflet';
 import {MapLayerConfiguration} from './MapLayerConfiguration.interface';
 import {DataPreview} from '../components/configuration/DataPreview';
 import {FilterConfig} from '../components/configuration/FilterConfig';
-import {AlgValidatorService} from '../../../../components/polyalg/polyalg-viewer/alg-validator.service';
 import {PlanNode} from '../../../../components/polyalg/models/polyalg-plan.model';
-import {DataPreviewComponent} from '../components/configuration/data-preview/data-preview.component';
 
 export class MapLayer {
 
@@ -55,7 +53,7 @@ export class MapLayer {
     static from(result: CombinedResult): MapLayer {
         console.log('MapLayer from result: ', result);
         const layer = new MapLayer();
-        if (!result){
+        if (!result) {
             // Empty layer.
             return layer;
         }
@@ -101,8 +99,7 @@ export class MapLayer {
                             obj[key] = parseFloat(value);
                         } else if (header.dataType.startsWith('DOUBLE')) {
                             obj[key] = parseFloat(value);
-                        }
-                        else {
+                        } else {
                             obj[key] = value;
                         }
                     }
@@ -130,9 +127,9 @@ export class MapLayer {
                             const json = JSON.parse(value);
                             const properties = json['properties'];
                             // Node stored as JSON
-                            obj[key] = Object.fromEntries(
+                            obj[key] = this.parseKeysAsJsonRecursively(Object.fromEntries(
                                 Object.entries(properties).map(([key, value]) => [key.toLowerCase(), value])
-                            );
+                            ));
                         } else {
                             // Other value
                             obj[key] = value;
@@ -152,7 +149,7 @@ export class MapLayer {
                 throw Error(`Cannot convert CombinedResult to MapLayer. Unknown document model: ${result.dataModel}`);
         }
 
-        if (mapData.length > 0){
+        if (mapData.length > 0) {
             layer.addData(mapData);
             layer.geometryField = geometryField;
         }
@@ -161,50 +158,50 @@ export class MapLayer {
         return layer;
     }
 
-
-    static getGeometryFromData(data: Record<string, any>): [Geometry, string] | undefined {
-        // Detect GeoJSON objects
-        for (const key in data) {
-            if (data.hasOwnProperty(key) && this.isGeoJSON(data[key])) {
-                return [data[key], key];
-            }
+    static parseKeysAsJsonRecursively(obj: any): any {
+        if (typeof obj !== 'object' || obj === null) {
+            // Not a PolyMap
+            return obj;
         }
 
-        // TODO: If we do this, we cannot filter the layer, because we do not have a single field
-        //       that we can use in the logical plan to reference the coordinates.
-        // Detect 2 columns that store latitude / longitude coordinates
-        // const latLong = [
-        //     ['lat', 'lon'],
-        //     ['latitude', 'longitude'],
-        //     ['lati', 'long'],
-        // ];
-        // const isNumber = (value: any): boolean => {
-        //     return typeof value === 'number' && !isNaN(value);
-        // };
-        //
-        // for (const ll of latLong) {
-        //     const lat = ll[0];
-        //     const lon = ll[1];
-        //
-        //     if (
-        //         data.hasOwnProperty(lat) &&
-        //         data.hasOwnProperty(lon) &&
-        //         isNumber(data[lat]) &&
-        //         isNumber(data[lon])
-        //     ) {
-        //         return {
-        //             type: 'Point',
-        //             coordinates: [data[lon], data[lat]],
-        //         };
-        //     }
-        // }
-
-        // TODO: Detect heuristic, so that we can automatically detect the most common geometry types
-        //   - string in WKT format
-
-        return [undefined, undefined];
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const value = obj[key];
+                if (typeof value === 'string') {
+                    try {
+                        const parsed = JSON.parse(value);
+                        obj[key] = this.parseKeysAsJsonRecursively(parsed);
+                    } catch (e) {
+                        // The value is not a PolyMap.
+                    }
+                } else if (typeof value === 'object') {
+                    // The parsed PolyMap could contain other PolyMaps.
+                    obj[key] = this.parseKeysAsJsonRecursively(value);
+                }
+            }
+        }
+        return obj;
     }
 
+    static getGeometryFromData(data: Record<string, any>, path: string[] = []): [Geometry, string] | undefined {
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                const value = data[key];
+
+                if (this.isGeoJSON(value)) {
+                    // Key = Path to variable, separated by dots (if key is nested).
+                    return [value, [...path, key].join('.')];
+                } else if (typeof value === 'object' && value !== null) {
+                    // Recursively check nested objects.
+                    const result = this.getGeometryFromData(value, [...path, key]);
+                    if (result) {
+                        return result;
+                    }
+                }
+            }
+        }
+        return [undefined, undefined];
+    }
 
     static isGeoJSON(obj: any): boolean {
         if (!obj || typeof obj !== 'object') {
@@ -305,14 +302,14 @@ export class MapLayer {
         return copy;
     }
 
-    addData(data: MapGeometryWithData[], overwrite=false) {
-        if (overwrite){
+    addData(data: MapGeometryWithData[], overwrite = false) {
+        if (overwrite) {
             this.data = [];
         }
 
         this.containsPoints = false;
         this.containsAreas = false;
-        if (data.length > 0){
+        if (data.length > 0) {
             this.containsData = Object.keys(data[0].data).length !== 0;
         }
 
