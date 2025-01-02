@@ -214,7 +214,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log('onPolyPlanChanged this.applyFilterToLayer', this.applyFilterToLayer);
 
         let plan = '';
-        let geometryField = this.applyFilterToLayer.geometryField;
+        const geometryField = this.applyFilterToLayer.geometryField;
 
         if (this.applyFilterToLayer.language === 'mongo') {
             // We can use the plan as-is.
@@ -222,12 +222,9 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
         } else {
             // Intermediate Step for SQL and Cypher: Add transformer to convert everything to documents, so that we can
             // use the DOC_FILTER inside the plan.
-            plan = `DOC_PROJECT[includes=${geometryField} AS geometry](
-                      TRANSFORMER[DOCUMENT](
+            plan = `TRANSFORMER[DOCUMENT](
                         ${polyPlan}
-                      )
-                    )`;
-            geometryField = 'geometry';
+                      )`;
         }
 
         // Final Step: Apply document filter with MQL_GEO_WITHIN condition.
