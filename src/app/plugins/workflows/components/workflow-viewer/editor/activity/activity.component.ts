@@ -1,7 +1,7 @@
-import {ChangeDetectorRef, Component, HostBinding, Input, OnChanges} from '@angular/core';
+import {ChangeDetectorRef, Component, HostBinding, Input, OnChanges, Signal} from '@angular/core';
 import {ClassicPreset} from 'rete';
 import {KeyValue} from '@angular/common';
-import {ActivityState} from '../../../../models/workflows.model';
+import {ActivityState, CommonType} from '../../../../models/workflows.model';
 import {ActivityDef} from '../../../../models/activity-registry.model';
 import {ActivityPort} from '../activity-port/activity-port.component';
 
@@ -50,9 +50,14 @@ export class ActivityNode extends ClassicPreset.Node {
     width = 200;
     height = 280; // TODO: change dimensions according to number of inputs / outputs etc
 
-    constructor(public readonly def: ActivityDef, public readonly activityId, public state: ActivityState, public progress: number) {
+    constructor(
+        public readonly def: ActivityDef,
+        public readonly activityId: string,
+        public state: Signal<ActivityState>,
+        public progress: Signal<number>,
+        public commonType: Signal<CommonType>
+    ) {
         super(def.displayName);
-
         // control ports
         this.addInput(IN_CONTROL_KEY, new ClassicPreset.Input(new ActivityPort(null, 'in')));
         this.addOutput(SUCCESS_CONTROL_KEY, new ClassicPreset.Output(new ActivityPort(null, 'success')));

@@ -44,6 +44,16 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
     }
 
     backToDashboard() {
-        this._router.navigate(['./../'], {relativeTo: this._route})
+        this._router.navigate(['./../'], {relativeTo: this._route});
+    }
+
+    saveSession(message: string) {
+        this._workflows.saveSession(this.sessionId, message).subscribe({
+            next: version => {
+                if (this.session.version !== undefined) {
+                    this.session.version = version;
+                }
+            }
+        });
     }
 }

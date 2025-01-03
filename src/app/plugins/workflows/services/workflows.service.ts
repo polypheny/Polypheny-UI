@@ -17,12 +17,10 @@ export class WorkflowsService {
     registryLoaded = signal(false);
 
     constructor(private _http: HttpClient, private _settings: WebuiSettingsService) {
-        console.log('initializing workflowsservice');
         this._http.get<Record<string, ActivityDef>>(`${this.httpUrl}/registry`, this.httpOptions).subscribe({
             next: defs => {
                 this.activityRegistry = new ActivityRegistry(defs);
                 this.registryLoaded.set(true);
-                console.log('loaded registry', this.activityRegistry);
             }
         });
     }
@@ -73,7 +71,7 @@ export class WorkflowsService {
         const json = {
             message: saveMessage
         };
-        return this._http.post<void>(`${this.httpUrl}/sessions/${sessionId}`, json, this.httpOptions);
+        return this._http.post<number>(`${this.httpUrl}/sessions/${sessionId}/save`, json, this.httpOptions); // returns the new version
     }
 
     terminateSession(sessionId: string) {

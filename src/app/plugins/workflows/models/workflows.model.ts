@@ -85,8 +85,11 @@ export interface SessionModel {
     type: SessionModelType;
     sessionId: string;
     connectionCount: number;
-    workflowId?: string; // Only for USER_SESSION
-    version?: number; // Only for USER_SESSION
+
+    // Only for USER_SESSION
+    workflowId?: string;
+    version?: number;
+    workflowDef?: WorkflowDefModel;
 }
 
 export interface WorkflowDefModel {
@@ -99,7 +102,7 @@ export interface VersionInfo {
     creationTime: Date;
 }
 
-export interface WorkflowModel { // TODO: turn into class
+export interface WorkflowModel {
     format_version: string;
     activities: ActivityModel[];
     edges: EdgeModel[];

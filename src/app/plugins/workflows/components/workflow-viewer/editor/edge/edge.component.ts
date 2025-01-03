@@ -1,4 +1,4 @@
-import {Component, computed, Input, signal, WritableSignal} from '@angular/core';
+import {Component, computed, Input, Signal} from '@angular/core';
 import {ClassicPreset} from 'rete';
 import {ActivityNode, FAIL_CONTROL_KEY, IN_CONTROL_KEY, SUCCESS_CONTROL_KEY} from '../activity/activity.component';
 import {EdgeModel, EdgeState} from '../../../../models/workflows.model';
@@ -23,24 +23,23 @@ export const EDGE_COLOR_MAP = {
 
 export class Edge<N extends ActivityNode> extends ClassicPreset.Connection<N, N> {
     isMagnetic = false; // TODO: why is this required?
-    readonly state: WritableSignal<EdgeState> = signal(EdgeState.IDLE);
     readonly edgeColor = computed(() => EDGE_COLOR_MAP[this.state()]);
     readonly sourceActivityId: string; // activityId
     readonly targetActivityId: string; // activityId
 
-    constructor(source: N, sourceOutput: keyof N['outputs'], target: N, targetInput: keyof N['inputs'], public readonly isControl, state: EdgeState) {
+    constructor(source: N, sourceOutput: keyof N['outputs'], target: N, targetInput: keyof N['inputs'],
+                public readonly isControl: boolean, public readonly state: Signal<EdgeState>) {
         super(source, sourceOutput, target, targetInput);
-        this.state.set(state);
         this.sourceActivityId = source.activityId;
         this.targetActivityId = target.activityId;
         console.log('created edge', this);
     }
 
-    public static createDataEdge(from: ActivityNode, fromPort: number, to: ActivityNode, toPort: number, state: EdgeState) {
+    public static createDataEdge(from: ActivityNode, fromPort: number, to: ActivityNode, toPort: number, state: Signal<EdgeState>) {
         return new Edge(from, ActivityNode.getDataPortKey(fromPort), to, ActivityNode.getDataPortKey(toPort), false, state);
     }
 
-    public static createControlEdge(from: ActivityNode, to: ActivityNode, fromPort: number, state: EdgeState) {
+    public static createControlEdge(from: ActivityNode, to: ActivityNode, fromPort: number, state: Signal<EdgeState>) {
         const isSuccess = fromPort === 0;
         return new Edge(from, isSuccess ? SUCCESS_CONTROL_KEY : FAIL_CONTROL_KEY, to, IN_CONTROL_KEY, true, state);
     }
@@ -67,5 +66,13 @@ export class Edge<N extends ActivityNode> extends ClassicPreset.Connection<N, N>
         return edge.isControl === this.isControl
             && edge.fromId === this.sourceActivityId && edge.fromPort === this.getFromPort()
             && edge.toId === this.targetActivityId && edge.toPort === this.getToPort();
+    }
+
+    toModel(): EdgeModel {
+        return {
+            fromId: this.sourceActivityId, fromPort: this.getFromPort(),
+            toId: this.targetActivityId, toPort: this.getToPort(),
+            isControl: this.isControl
+        };
     }
 }

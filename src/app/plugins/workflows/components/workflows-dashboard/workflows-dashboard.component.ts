@@ -29,7 +29,6 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
         // TODO: add ability to update sessions and workflowdefs
         this._workflows.getWorkflowDefs().subscribe({
             next: res => {
-                console.log(res);
                 this.workflowDefs = res;
 
                 this.sortedWorkflowDefs = Object.entries(res)
@@ -50,7 +49,6 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     }
 
     openVersion(key: string) {
-        console.log('Opening Version');
         this._workflows.openWorkflow(key, this.selectedVersion[key]).subscribe({
             next: sessionId => this.openSession(sessionId),
             error: err => this._toast.error(err.error)

@@ -1,7 +1,8 @@
 <div class="title" data-testid="title">{{data.label}}</div>
-<h3 class="ms-2 text-light">{{data.state}}</h3>
-<h5 class="ms-2 text-primary" *ngIf="data.state == 'EXECUTING'">
-    {{data.progress * 100 | number}} %
+<h3 class="ms-2 text-light">{{data.state()}}</h3>
+<h5 class="text-warning ms-2" *ngIf="data.commonType() !== 'NONE'">{{data.commonType()}}</h5>
+<h5 class="ms-2 text-primary" *ngIf="data.state() === 'EXECUTING'">
+    {{data.progress() * 100 | number}} %
 </h5>
 <div
         class="output"

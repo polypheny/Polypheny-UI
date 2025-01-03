@@ -1,16 +1,60 @@
 <div class="d-flex flex-column h-100">
-    <div>
-        <button cButton color="primary" class="m-1" (click)="execute()">
-            Execute
-        </button>
-        <button cButton color="secondary" class="m-1" (click)="reset()">
-            Reset
-        </button>
-        <button cButton color="danger" class="m-1" (click)="interrupt()">
-            Interrupt
-        </button>
-    </div>
+    <c-row [gutter]="0">
+        <ng-container *ngIf="isEditable">
+            <c-col xs="3">
+                <c-button-group role="group" class="m-1">
+                    <button cButton color="primary" class="" (click)="execute()" [disabled]="!canExecute?.()">
+                        Execute
+                    </button>
+                    <button cButton color="secondary" class="" (click)="reset()" [disabled]="workflow?.state() === 'EXECUTING'">
+                        Reset
+                    </button>
+                    <button cButton color="danger" class="" (click)="interrupt()" [disabled]="workflow?.state() !== 'EXECUTING'">
+                        Interrupt
+                    </button>
+                    <button cButton color="primary" class="" (click)="toggleSaveModal()" [disabled]="showSaveModal()">
+                        Save
+                    </button>
+                </c-button-group>
+            </c-col>
+            <c-col xs="3" class="me-auto">
+                <c-input-group sizing="sm">
+                    <select cSelect id="createActivity" [(ngModel)]="selectedActivityType">
+                        <option *ngFor="let activityType of activityTypes" [value]="activityType">{{ activityType }}</option>
+                    </select>
+                    <button cButton color="secondary" type="button" (click)="createActivity()" [disabled]="workflow?.state() === 'EXECUTING' || !selectedActivityType">
+                        Create Activity
+                    </button>
+                </c-input-group>
+            </c-col>
+        </ng-container>
+
+        <c-col xs="1">
+            <c-badge *ngIf="workflow" color="primary" shape="rounded-pill">{{workflow.state()}}</c-badge>
+        </c-col>
+    </c-row>
+
     <div class="flex-grow-1">
         <div class="rete" #rete></div>
     </div>
 </div>
+
+<c-modal [visible]="showSaveModal()" (visibleChange)="showSaveModal.set($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Save Workflow</h5>
+        <button (click)="toggleSaveModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        You can save this workflow by creating a new version. Please specify a version description:
+        <c-input-group>
+            <span cInputGroupText>Description</span>
+            <input cFormControl type="text" (keyup.enter)="saveWorkflow()" [(ngModel)]="saveMessage" placeholder="Enter save message here...">
+        </c-input-group>
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleSaveModal()" cButton color="secondary">Close</button>
+        <div>
+            <button cButton color="primary" (click)="saveWorkflow()">Save Workflow</button>
+        </div>
+    </c-modal-footer>
+</c-modal>

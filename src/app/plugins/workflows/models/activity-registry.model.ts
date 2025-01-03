@@ -13,6 +13,10 @@ export class ActivityRegistry {
     public getDef(activityType: string) {
         return this.registry.get(activityType);
     }
+
+    public getTypes() {
+        return [...this.registry.keys()].sort();
+    }
 }
 
 export interface ActivityDef {
