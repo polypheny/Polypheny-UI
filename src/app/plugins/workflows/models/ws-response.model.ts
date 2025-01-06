@@ -13,6 +13,7 @@ export enum RequestType { // no specific interfaces for requests are required, s
     CREATE_ACTIVITY = 'CREATE_ACTIVITY',
     DELETE_ACTIVITY = 'DELETE_ACTIVITY',
     UPDATE_ACTIVITY = 'UPDATE_ACTIVITY',
+    CLONE_ACTIVITY = 'CLONE_ACTIVITY',
     CREATE_EDGE = 'CREATE_EDGE',
     DELETE_EDGE = 'DELETE_EDGE',
     EXECUTE = 'EXECUTE',

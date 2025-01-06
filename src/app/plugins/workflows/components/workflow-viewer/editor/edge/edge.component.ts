@@ -32,7 +32,6 @@ export class Edge<N extends ActivityNode> extends ClassicPreset.Connection<N, N>
         super(source, sourceOutput, target, targetInput);
         this.sourceActivityId = source.activityId;
         this.targetActivityId = target.activityId;
-        console.log('created edge', this);
     }
 
     public static createDataEdge(from: ActivityNode, fromPort: number, to: ActivityNode, toPort: number, state: Signal<EdgeState>) {

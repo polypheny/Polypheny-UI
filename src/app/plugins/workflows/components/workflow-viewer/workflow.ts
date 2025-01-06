@@ -114,7 +114,7 @@ export class Workflow {
         return true;
     }
 
-    updateActivityStates(activityStates: Record<string, ActivityState>): { removed: Set<string>, missing: Set<string> } {
+    updateActivityStates(activityStates: Record<string, ActivityState>): boolean {
         const missing = new Set<string>();
         const remaining = new Set<string>(this.activities.keys());
 
@@ -127,8 +127,7 @@ export class Workflow {
             }
         }
         remaining.forEach(a => this.removeActivity(a));
-
-        return {removed: remaining, missing: missing};
+        return missing.size === 0;
     }
 
     updateProgress(progressMap: Record<string, number>): Set<string> {
@@ -152,22 +151,40 @@ export class Workflow {
         });
     }
 
-    updateEdgeStates(edgeStates: EdgeModel[]): { removed: Set<string>, missing: Set<string> } {
+    updateEdgeStates(edgeStates: EdgeModel[]): boolean {
         const missing = new Set<string>();
         const remaining = new Set<string>(this.edgeStates.keys());
 
         for (const edgeModel of edgeStates) {
             const edgeString = edgeToString(edgeModel);
             if (this.updateOrCreateEdge(edgeModel)) {
-                //this.edgeChangeSubject.next(edgeString);
                 remaining.delete(edgeString);
             } else {
-                missing.add(edgeString); // missing because activity does not exist TODO: add missing activityId instead
+                missing.add(edgeString); // missing because activity does not exist
             }
         }
         remaining.forEach(e => this.removeEdge(e));
 
-        return {removed: remaining, missing: missing}; // TODO: delete removed edges, add missing ones if activities exist
+        return missing.size === 0;
+    }
+
+    update(workflowModel: WorkflowModel) {
+        this.state.set(workflowModel.state);
+        this.config.set(workflowModel.config);
+        this.variables.set(workflowModel.variables);
+
+        const remainingActivities = new Set<string>(this.activities.keys());
+        const remainingEdges = new Set<string>(this.edgeStates.keys());
+        workflowModel.activities.forEach(activity => {
+            this.updateOrCreateActivity(activity);
+            remainingActivities.delete(activity.id);
+        });
+        workflowModel.edges.forEach(edge => {
+            this.updateOrCreateEdge(edge);
+            remainingEdges.delete(edgeToString(edge));
+        });
+        remainingEdges.forEach(edge => this.removeEdge(edge));
+        remainingActivities.forEach(activityId => this.removeActivity(activityId));
     }
 
     onActivityChange() {
@@ -195,6 +212,9 @@ export class Workflow {
     }
 
     private updateActivityState(activityId: string, state: ActivityState): boolean {
+        if (state === 'IDLE') {
+            this.updateActivityProgress(activityId, 0); // reset progress
+        }
         return this.applyIfExists(activityId, a => a.state.set(state));
     }
 
@@ -220,7 +240,6 @@ export class Workflow {
         fct(activity);
         return true;
     }
-
 }
 
 export class Activity {

@@ -26,6 +26,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     private readonly _toast = inject(ToasterService);
     private readonly registry = this._workflows.getRegistry();
     private readonly subscriptions = new Subscription();
+    private readonly sentRequests = new Set<string>(); // contains the ws request ID until a response for that ID was received
     private readonly responsesToIgnore = new Set<string>();
     private editor: WorkflowEditor;
     private websocket: WorkflowsWebSocket;
@@ -60,16 +61,28 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                         ({activityId, pos}) => this.updateActivityPosition(activityId, pos)
                     ));
                     this.subscriptions.add(this.editor.onActivityRemove().subscribe(
-                        activityId => this.websocket.deleteActivity(activityId)
+                        activityId => this.sentRequests.add(this.websocket.deleteActivity(activityId))
+                    ));
+                    this.subscriptions.add(this.editor.onActivityClone().subscribe(
+                        activityId => {
+                            const rendering = this.workflow.getActivity(activityId).rendering();
+                            const delta = 50;
+                            this.sentRequests.add(this.websocket.cloneActivity(activityId, rendering.posX + delta, rendering.posY + delta));
+                        }
                     ));
                     this.subscriptions.add(this.editor.onEdgeRemove().subscribe(
-                        edge => this.websocket.deleteEdge(edge)
+                        edge => this.sentRequests.add(this.websocket.deleteEdge(edge))
                     ));
                     this.subscriptions.add(this.editor.onEdgeCreate().subscribe(
-                        edge => this.websocket.createEdge(edge)
+                        edge => this.sentRequests.add(this.websocket.createEdge(edge))
+                    ));
+                    this.subscriptions.add(this.editor.onActivityExecute().subscribe(
+                        activityId => this.sentRequests.add(this.websocket.execute(activityId))
+                    ));
+                    this.subscriptions.add(this.editor.onActivityReset().subscribe(
+                        activityId => this.sentRequests.add(this.websocket.reset(activityId))
                     ));
                     this.canExecute = computed(() => {
-                        console.log('computing can execute', this.workflow.hasUnfinishedActivities());
                         return this.workflow.state() !== WorkflowState.EXECUTING && this.workflow.hasUnfinishedActivities();
                     });
                 }
@@ -78,24 +91,30 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     }
 
     execute() {
-        this.websocket.execute();
+        this.sentRequests.add(this.websocket.execute());
     }
 
     reset() {
-        this.websocket.reset();
+        this.sentRequests.add(this.websocket.reset());
     }
 
     interrupt() {
-        this.websocket.interrupt();
+        this.sentRequests.add(this.websocket.interrupt());
+    }
+
+    arrangeNodes() {
+        this.editor.arrangeNodes();
     }
 
     createActivity() {
-        this.websocket.createActivity(this.selectedActivityType, {
-            posX: 0,
-            posY: 0,
-            name: '',
-            notes: ''
-        });
+        this.sentRequests.add(
+            this.websocket.createActivity(this.selectedActivityType, {
+                posX: 0,
+                posY: 0,
+                name: '',
+                notes: ''
+            })
+        );
     }
 
     private handleWsMsg(response: WsResponse) {
@@ -105,35 +124,48 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                 return; // only ignore non-error responses
             }
         }
+        const isDirectResponse = this.sentRequests.has(response.parentId) || !response.parentId;
+        this.sentRequests.delete(response.parentId); // this might cause issues if multiple responses for 1 request are sent
+
         switch (response.type) {
             case ResponseType.STATE_UPDATE:
                 // TODO: handle missing activities
                 const stateResponse = response as StateUpdateResponse;
-                this.workflow.updateActivityStates(stateResponse.activityStates);
-                this.workflow.updateEdgeStates(stateResponse.edgeStates);
                 this.workflow.state.set(stateResponse.workflowState);
+                if (!(this.workflow.updateActivityStates(stateResponse.activityStates)
+                    && this.workflow.updateEdgeStates(stateResponse.edgeStates))) {
+                    this.synchronizeWorkflow();
+                }
                 break;
             case ResponseType.PROGRESS_UPDATE:
                 // TODO: handle missing activities
                 this.workflow.updateProgress((response as ProgressUpdateResponse).progress);
-                //Object.entries((response as ProgressUpdateResponse).progress).forEach(([id, progress]) => this.editor.setActivityProgress(id, progress));
                 break;
             case ResponseType.RENDERING_UPDATE:
                 const renderResponse = response as RenderingUpdateResponse;
                 this.workflow.updateActivityRendering(renderResponse.activityId, renderResponse.rendering);
-                this.editor.setActivityPosition(renderResponse.activityId, renderResponse.rendering); // TODO: update position reactively
                 break;
             case ResponseType.ACTIVITY_UPDATE:
                 this.workflow.updateOrCreateActivity((response as ActivityUpdateResponse).activity);
                 break;
             case ResponseType.ERROR:
-                const errorResponse = response as ErrorResponse;
-                const cause = errorResponse.cause ? ': ' + errorResponse.cause : '';
-                this._toast.error(errorResponse.reason + cause, errorResponse.parentType + ' was unsuccessful');
+                if (isDirectResponse) {
+                    const errorResponse = response as ErrorResponse;
+                    const cause = errorResponse.cause ? ': ' + errorResponse.cause : '';
+                    this._toast.error(errorResponse.reason + cause, errorResponse.parentType + ' was unsuccessful');
+                }
                 break;
             default:
                 console.warn('unhandled websocket response', response);
         }
+    }
+
+    private synchronizeWorkflow() {
+        console.log('synchronizing workflow...');
+        // if workflow is not in sync, we get a consistent workflow by fetching and updating the entire workflow
+        this._workflows.getActiveWorkflow(this.sessionId).subscribe(workflowModel =>
+            this.workflow.update(workflowModel)
+        );
     }
 
     private updateActivityPosition(activityId: string, pos: Position) {
@@ -142,13 +174,12 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             return;
         }
         const modifiedRendering = {
-            // TODO: decide whether to update the actual workflow or wait for update from backend
-            // (the component already uses the updated value, so it probably makes sense to update immediately)
             ...rendering,
             posX: pos.x,
             posY: pos.y
         };
-        this.responsesToIgnore.add(this.websocket.updateActivity(activityId, null, null, modifiedRendering));
+        // the workflow is getting updated by the websocket broadcast
+        this.sentRequests.add(this.websocket.updateActivity(activityId, null, null, modifiedRendering));
     }
 
     toggleSaveModal() {

@@ -68,6 +68,19 @@ export class WorkflowsWebSocket {
         return id;
     }
 
+    cloneActivity(targetId: string, posX: number, posY: number): string {
+        const id = uuid.v4();
+        const msg = {
+            type: RequestType.CLONE_ACTIVITY,
+            msgId: id,
+            targetId,
+            posX,
+            posY
+        };
+        this.sendMessage(msg);
+        return id;
+    }
+
     updateActivity(targetId: string, settings?: Record<string, any>, config?: ActivityConfigModel, rendering?: RenderModel): string {
         const id = uuid.v4();
         const msg = {

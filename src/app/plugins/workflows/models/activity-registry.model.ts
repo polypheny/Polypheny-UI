@@ -1,3 +1,5 @@
+import {DataModel} from '../../../models/ui-request.model';
+
 const DEFAULT_GROUP = '';
 const ADVANCED_GROUP = 'advanced';
 const DEFAULT_SUBGROUP = '';
@@ -57,6 +59,19 @@ export enum PortType {
     REL = 'REL',
     DOC = 'DOC',
     LPG = 'LPG'
+}
+
+export function portTypeToDataModel(type: PortType): DataModel {
+    switch (type) {
+        case PortType.ANY:
+            return null;
+        case PortType.REL:
+            return DataModel.RELATIONAL;
+        case PortType.DOC:
+            return DataModel.DOCUMENT;
+        case PortType.LPG:
+            return DataModel.GRAPH;
+    }
 }
 
 export interface GroupDef {

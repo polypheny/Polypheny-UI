@@ -16,10 +16,10 @@ import {WorkflowsService} from '../../../services/workflows.service';
 import {ActivityRegistry} from '../../../models/activity-registry.model';
 import {debounceTime, Subject, Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
-import {useMagneticConnection} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection';
-import {getContextMenuItems, getMagneticConnectionProps, socketsToEdgeModel} from './workflow-editor-utils';
+import {canCreateConnection, getContextMenuItems, getMagneticConnectionProps, socketsToEdgeModel} from './workflow-editor-utils';
 import {Activity, edgeToString, Workflow} from '../workflow';
 import {ContextMenuExtra, ContextMenuPlugin} from 'rete-context-menu-plugin';
+import {useMagneticConnection} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection';
 
 export type Schemes = GetSchemes<ActivityNode, Edge<ActivityNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
@@ -42,8 +42,11 @@ export class WorkflowEditor {
     private readonly debouncedTranslateSubject = new Subject<{ activityId: string, pos: Position }>();
     private readonly DEBOUNCE_TIME_MS = 100;
     private readonly removeActivitySubject = new Subject<string>(); // activityId
+    private readonly cloneActivitySubject = new Subject<string>(); // activityId
     private readonly removeEdgeSubject = new Subject<EdgeModel>();
     private readonly createEdgeSubject = new Subject<EdgeModel>();
+    private readonly executeActivitySubject = new Subject<string>(); // activityId
+    private readonly resetActivitySubject = new Subject<string>(); // activityId
     private readonly subscriptions = new Subscription();
 
     constructor(private injector: Injector, container: HTMLElement, private readonly _workflows: WorkflowsService, private readonly isReadOnly: boolean) {
@@ -72,21 +75,24 @@ export class WorkflowEditor {
         this.render.addPreset(Presets.contextMenu.setup({delay: 100})); // time in ms for context menu to close
 
         this.connection.addPreset(() => new ClassicFlow({
+            canMakeConnection: (from, to): boolean => {
+                const [source, target] = getSourceTarget(from, to) || [null, null];
+                return canCreateConnection(source, target, this.editor);
+            },
             makeConnection: (from, to, context) => {
                 const [source, target] = getSourceTarget(from, to) || [null, null];
                 if (source && target) {
                     this.createEdgeSubject.next(socketsToEdgeModel(source, target, this.editor));
-                    return true; // ensure that the connection has been successfully added
+                    return true;
                 }
             }
         }));
-        this.arrange.addPreset(ArrangePresets.classic.setup());
 
+        this.arrange.addPreset(ArrangePresets.classic.setup());
 
         // Attach plugins
         this.editor.use(this.readonlyPlugin.root);
         this.editor.use(this.area);
-        this.area.use(this.connection);
         this.area.use(this.render);
         this.area.use(this.readonlyPlugin.area);
         this.area.use(this.arrange);
@@ -95,17 +101,22 @@ export class WorkflowEditor {
         AreaExtensions.simpleNodesOrder(this.area);
         addCustomBackground(this.area);
 
+        this.editor.addPipe(context => {
+            if (context.type === 'connectionremove') {
+                const edgeModel = context.data.toModel();
+                if (this.workflow.getEdgeState(edgeModel)) {
+                    this.removeEdgeSubject.next(edgeModel); // additionally, the edge is deleted immediately to not cause any issues
+                }
+            }
+            return context;
+        });
+
         this.area.addPipe(context => {
             if (context.type === 'zoom' && context.data.source === 'dblclick') {
                 return; // https://github.com/retejs/rete/issues/204
             } else if (context.type === 'nodetranslated') {
                 this.translateSubjects[this.nodeIdToActivityId.get(context.data.id)].next(context.data.position);
-            } else if (context.type === 'connectionremove') {
-                const edgeModel = context.data.toModel();
-                if (this.workflow.getEdgeState(edgeModel)) {
-                    this.removeEdgeSubject.next(edgeModel); // the edge is still deleted immediately to not cause any issues
-                }
-            } else if (!['pointermove', 'render', 'rendered', 'rendered', 'zoom', 'zoomed', 'translate', 'translated', 'nodetranslate'].includes(context.type)) {
+            } else if (!['pointermove', 'render', 'rendered', 'rendered', 'zoom', 'zoomed', 'translate', 'translated', 'nodetranslate', 'unmount'].includes(context.type)) {
                 //console.log(context);
             }
             return context;
@@ -128,12 +139,13 @@ export class WorkflowEditor {
         for (const edgePair of this.workflow.getEdges()) {
             await this.addConnection(...edgePair);
         }
+        this.editor.getNodes().forEach(n => this.area.update('node', n.id)); // ensure all node components are rendered
+
         this.addSubscriptions();
 
         if (requiresArranging) {
-            await this.arrange.layout({applier: undefined});
+            await this.arrangeNodes();
         }
-        AreaExtensions.zoomAt(this.area, this.editor.getNodes());
 
         const selector = AreaExtensions.selector();
         AreaExtensions.selectableNodes(this.area, selector, {
@@ -144,13 +156,15 @@ export class WorkflowEditor {
             this.area.use(this.connection);  // make connections editable
 
             const contextMenu: ContextMenuPlugin<Schemes> = new ContextMenuPlugin<Schemes>({
-                items: getContextMenuItems(this.removeEdgeSubject, this.removeActivitySubject)
+                items: getContextMenuItems(this.removeEdgeSubject, this.removeActivitySubject, this.cloneActivitySubject)
             });
 
             this.area.use(contextMenu); // add context menu
             useMagneticConnection(this.connection, getMagneticConnectionProps(this.editor, this.createEdgeSubject));
             this.panningBoundary = setupPanningBoundary({area: this.area, selector, padding: 40, intensity: 2});
         }
+
+        AreaExtensions.zoomAt(this.area, this.editor.getNodes());
     }
 
     onActivityTranslate() {
@@ -161,6 +175,18 @@ export class WorkflowEditor {
         return this.removeActivitySubject.asObservable();
     }
 
+    onActivityClone() {
+        return this.cloneActivitySubject.asObservable();
+    }
+
+    onActivityExecute() {
+        return this.executeActivitySubject.asObservable();
+    }
+
+    onActivityReset() {
+        return this.resetActivitySubject.asObservable();
+    }
+
     onEdgeRemove() {
         return this.removeEdgeSubject.asObservable();
     }
@@ -169,9 +195,8 @@ export class WorkflowEditor {
         return this.createEdgeSubject.asObservable();
     }
 
-    setActivityPosition(id: string, rendering: RenderModel) {
-        const node = this.nodeMap.get(id);
-        this.area.translate(node.id, {x: rendering.posX, y: rendering.posY});
+    async arrangeNodes() {
+        await this.arrange.layout({applier: undefined});
     }
 
     destroy(): void {
@@ -182,7 +207,9 @@ export class WorkflowEditor {
     }
 
     private async addNode(activity: Activity) {
-        const node = new ActivityNode(this.registry.getDef(activity.type), activity.id, activity.state, activity.progress, activity.commonType);
+        const node = new ActivityNode(this.registry.getDef(activity.type), activity.id,
+            activity.state, this.workflow.state, activity.progress, activity.commonType,
+            this.executeActivitySubject, this.resetActivitySubject);
         this.nodeMap.set(activity.id, node);
         this.nodeIdToActivityId.set(node.id, activity.id);
         const translateSubject = new Subject<Position>();
@@ -191,11 +218,19 @@ export class WorkflowEditor {
         ).subscribe(pos => this.debouncedTranslateSubject.next({activityId: activity.id, pos: pos}));
         this.translateSubjects[activity.id] = translateSubject;
         await this.editor.addNode(node);
+        await this.area.resize(node.id, node.width, node.height); // ensure specified size is actually reflected visually
         if (activity.rendering().posX !== 0 || activity.rendering().posY !== 0) {
             await this.area.translate(node.id, {x: activity.rendering().posX, y: activity.rendering().posY});
             return false;
         }
         return true;
+    }
+
+    private setActivityPosition(id: string, rendering: RenderModel) {
+        const node = this.nodeMap.get(id);
+        if (this.editor.getNode(node?.id)) {
+            this.area.translate(node.id, {x: rendering.posX, y: rendering.posY});
+        }
     }
 
     private async addConnection(edge: EdgeModel, state: Signal<EdgeState>) {
@@ -213,7 +248,7 @@ export class WorkflowEditor {
     private removeNode(activityId: string) {
         const node = this.nodeMap.get(activityId);
         if (this.editor.getNode(node.id)) {
-            this.editor.removeNode(node.id); // TODO: ensure that this does also remove connections
+            this.editor.removeNode(node.id);
         }
         this.translateSubjects[activityId].complete();
         this.nodeMap.delete(activityId);
@@ -244,6 +279,7 @@ export class WorkflowEditor {
         this.subscriptions.add(this.workflow.onActivityChange().subscribe(activityId => {
             const node = this.nodeMap.get(activityId);
             this.area.update('node', node.id);
+            this.setActivityPosition(activityId, this.workflow.getActivity(activityId).rendering());
         }));
         this.subscriptions.add(this.workflow.onActivityRemove().subscribe(activityId => {
             this.removeNode(activityId);

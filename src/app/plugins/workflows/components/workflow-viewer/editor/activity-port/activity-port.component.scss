@@ -27,4 +27,9 @@
   &.in-control {
     background: blue;
   }
+
+  & .output-datamodel {
+    position: absolute;
+    right: 1rem;
+  }
 }

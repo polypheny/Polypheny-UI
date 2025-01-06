@@ -15,7 +15,9 @@
   user-select: none;
 
   &:hover {
-    background: #333;
+    //background: #333;
+    border-color: lightskyblue;
+    border-width: 2px;
   }
 
   &.selected {

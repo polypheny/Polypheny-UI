@@ -8,9 +8,10 @@ import {Subject} from 'rxjs';
 import {Item, Items} from 'rete-context-menu-plugin/_types/types';
 import {ContextMenuPlugin} from 'rete-context-menu-plugin';
 import {BaseAreaPlugin} from 'rete-area-plugin';
+import {ActivityPort} from './activity-port/activity-port.component';
+import {Edge} from './edge/edge.component';
 
 
-// TODO: implement workflow-editor specific changes
 export function getMagneticConnectionProps(editor: NodeEditor<Schemes>, createEdgeSubject: Subject<EdgeModel>) {
     return {
         async createConnection(from: SocketData, to: SocketData) {
@@ -19,22 +20,22 @@ export function getMagneticConnectionProps(editor: NodeEditor<Schemes>, createEd
             }
             const [source, target] = from.side === 'output' ? [from, to] : [to, from];
 
-            createEdgeSubject.next(socketsToEdgeModel(source, target, editor));
-
-            /*if (!canCreateConnection(editor, connection)) {
+            if (!canCreateConnection(source, target, editor)) {
                 return;
             }
 
-            const connectionsToRemove = editor.getConnections().filter(c => {
-                return (c.target === targetNode.id && c.targetInput === target.key && !targetNode.hasVariableInputs) || (c.source === sourceNode.id);
-            });
-
-            for (const c of connectionsToRemove) {
-                await editor.removeConnection(c.id);
-            }*/
+            if (!ActivityNode.isControlPortKey(target.key)) {
+                const connectionsToRemove = editor.getConnections().filter(c =>
+                    c.target === target.nodeId && c.targetInput === target.key);
+                for (const c of connectionsToRemove) {
+                    await editor.removeConnection(c.id); // the edge add request could be sent before remove, but this is not a problem
+                }
+            }
+            createEdgeSubject.next(socketsToEdgeModel(source, target, editor));
         },
         display(from: SocketData, to: SocketData) {
-            return from.side !== to.side; //&& areSocketsCompatible(editor, from, to);
+            const [source, target] = from.side === 'output' ? [from, to] : [to, from];
+            return canCreateConnection(source, target, editor);
         },
         offset(socket: SocketData, position: Position) {
 
@@ -43,7 +44,7 @@ export function getMagneticConnectionProps(editor: NodeEditor<Schemes>, createEd
                 y: position.y //+ (socket.side === 'input' ? 12 : -12)
             };
         },
-        distance: 75
+        distance: 125
     };
 }
 
@@ -58,7 +59,7 @@ export function socketsToEdgeModel(source: SocketData, target: SocketData, edito
     };
 }
 
-export function getContextMenuItems(removeEdgeSubject: Subject<EdgeModel>, removeActivitySubject: Subject<string>): Items<Schemes> {
+export function getContextMenuItems(removeEdgeSubject: Subject<EdgeModel>, removeActivitySubject: Subject<string>, cloneActivitySubject: Subject<string>): Items<Schemes> {
     const items: Item[] = [
         {label: 'Print Something', key: '0', handler: () => console.log('something was printed')},
     ];
@@ -73,51 +74,82 @@ export function getContextMenuItems(removeEdgeSubject: Subject<EdgeModel>, remov
             };
         }
 
+        // TODO: change items depending on workflow state (possibly hide context menu? while executing?)
         const deleteItem: Item = {
             label: 'Delete',
             key: 'delete',
             handler: async () => {
                 if ('source' in context && 'target' in context) {
                     // connection
-                    const connectionId = context.id;
                     removeEdgeSubject.next(context.toModel());
                 } else {
                     // node
-                    const nodeId = context.id;
-                    /*const connections = editor.getConnections().filter(c => {
-                        return c.source === nodeId || c.target === nodeId
-                    })
-
-                    for (const connection of connections) {
-                        await editor.removeConnection(connection.id)
-                    }*/
                     removeActivitySubject.next(context.activityId);
                 }
             }
         };
 
-        // TODO: clone item
+        const cloneItem: Item = {
+            label: 'Clone',
+            key: 'clone',
+            handler: () => {
+                if (context instanceof ActivityNode) {
+                    cloneActivitySubject.next(context.activityId);
+                }
+            }
+        };
 
         return {
             searchBar: false,
-            list: [deleteItem]
+            list: context instanceof ActivityNode ? [deleteItem, cloneItem] : [deleteItem]
         };
-
-
-        /*result.searchBar = false;
-        console.log('result context items:', result);
-
-        if (result.list[result.list.length - 1].key === 'clone') {
-            result.list[result.list.length - 1] = {
-                label: 'Clone',
-                key: 'clone',
-                async handler() {
-                    const node = context.clone(context);
-                    await editor.addNode(node);
-                    area.translate(node.id, area.area.pointer);
-                }
-            };
-        }
-        return result;*/
     };
+}
+
+export function canCreateConnection(source: SocketData, target: SocketData, editor: NodeEditor<Schemes>): boolean {
+    if (!source || !target || source.side === target.side || source.nodeId === target.nodeId) {
+        return false;
+    }
+
+    const sourceNode = editor.getNode(source.nodeId);
+    const targetNode = editor.getNode(target.nodeId);
+    const sourcePort: ActivityPort = sourceNode.outputs[source.key].socket as ActivityPort;
+    const targetPort: ActivityPort = targetNode.inputs[target.key].socket as ActivityPort;
+
+    if (!sourcePort.isCompatibleWith(targetPort)) {
+        return false;
+    }
+
+    const connections = editor.getConnections();
+    if (connections.find(c => c.source === source.nodeId && c.target === target.nodeId
+        && c.sourceOutput === source.key && c.targetInput === target.key)) {
+        return false;
+    }
+    // Detect cycle using BFS
+    const queue = [targetNode.id];
+    const visited = new Set<string>();
+    while (queue.length > 0) {
+        const successor = queue.shift();
+        if (visited.has(successor)) {
+            continue;
+        }
+        if (successor === sourceNode.id) {
+            return false;
+        }
+        visited.add(successor);
+        const successors = getSuccessors(successor, connections);
+        if (successors) {
+            queue.push(...successors);
+        }
+    }
+
+    return true;
+}
+
+function getSuccessors(nodeId: string, connections: Edge<ActivityNode>[]): string[] | null {
+    const outgoing = connections.filter(c => c.source === nodeId).map(c => c.target);
+    if (outgoing.length === 0) {
+        return null;
+    }
+    return outgoing;
 }
