@@ -132,7 +132,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
     removeDockerInstance(instance: DockerInstanceInfo) {
         this._crud.removeDockerInstance(instance.id).subscribe({
             next: res => {
-                this._toast.success("Deleted Docker instance '" + instance.host.alias + "'");
+                this._toast.success('Deleted Docker instance \'' + instance.host.alias + '\'');
                 this.instances = res.instances;
                 this.status = res.status;
             },

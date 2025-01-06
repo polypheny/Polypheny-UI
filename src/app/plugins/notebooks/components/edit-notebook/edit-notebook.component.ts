@@ -29,7 +29,7 @@ import {delay, mergeMap, take, tap} from 'rxjs/operators';
 import {LoadingScreenService} from '../../../../components/loading-screen/loading-screen.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
-import {WebuiSettingsService} from "../../../../services/webui-settings.service";
+import {WebuiSettingsService} from '../../../../services/webui-settings.service';
 
 @Component({
     selector: 'app-edit-notebook',

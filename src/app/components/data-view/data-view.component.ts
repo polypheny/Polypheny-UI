@@ -171,8 +171,7 @@ export class DataViewComponent implements OnDestroy {
     }
 
     checkModelAndLanguage() {
-        return (this.$result().dataModel === DataModel.DOCUMENT && [QueryLanguage.MQL, QueryLanguage.MONGO].includes(this.$result().language)) ||
-            (this.$result().dataModel === DataModel.RELATIONAL && this.$result().language === QueryLanguage.SQL);
+        return (this.$result().dataModel === DataModel.RELATIONAL && this.$result().language === QueryLanguage.SQL);
     }
 
     showCreateView() {

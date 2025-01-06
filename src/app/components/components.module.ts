@@ -27,7 +27,7 @@ import {
     DropdownItemDirective,
     DropdownMenuDirective,
     DropdownToggleDirective,
-    FormCheckComponent,
+    FormCheckInputDirective,
     FormCheckLabelDirective,
     FormControlDirective,
     FormDirective,
@@ -209,8 +209,16 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         ContainerComponent,
         ReteModule,
         AutocompleteLibModule,
-        FormCheckComponent,
-        FormCheckLabelDirective, AccordionComponent, AccordionItemComponent, AccordionButtonDirective, TemplateIdDirective, CollapseDirective, PopoverDirective, PopoverModule, ButtonToolbarComponent, BadgeComponent
+        FormCheckLabelDirective,
+        AccordionComponent,
+        AccordionItemComponent,
+        AccordionButtonDirective,
+        TemplateIdDirective,
+        CollapseDirective,
+        PopoverDirective,
+        PopoverModule,
+        ButtonToolbarComponent,
+        BadgeComponent
     ],
     declarations: [
         BreadcrumbComponent,

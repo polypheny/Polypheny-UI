@@ -18,15 +18,14 @@ jobs:
           distribution: 'temurin'
           java-version: 17
       - name: Build with Gradle
-        run: ./gradlew --no-daemon build generatePom
-      - name: Publish JAR to DBIS Nexus
-        uses: sonatype-nexus-community/nexus-repo-github-action@master
+        run: ./gradlew --no-daemon build packageDistribution
+      - name: Publish Zip to artifacts.polypheny.com
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          serverUrl: https://dbis-nexus.dmi.unibas.ch/
-          username: ${{ secrets.DBIS_NEXUS_USERNAME }}
-          password: ${{ secrets.DBIS_NEXUS_PASSWORD }}
-          format: maven2
-          repository: maven-snapshots
-          coordinates: groupId=org.polypheny artifactId=polypheny-ui version=2.0-SNAPSHOT
-          assets: extension=jar
-          filename: ./build/libs/polypheny-ui-2.0-SNAPSHOT.jar
+          server: artifacts.polypheny.com
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }} 
+          local-dir: publish/
+          server-dir: /ui/
+          protocol: ftp
+          port: 21

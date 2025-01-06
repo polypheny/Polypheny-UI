@@ -2,7 +2,7 @@
 
     <!-- availableQueryInterfaces -->
     <c-row *ngSwitchCase="'add'">
-        <c-col class="col-lg-12">
+        <c-col class="col-lg-12 mb-4">
             <h2>Available Query Interfaces</h2>
         </c-col>
     </c-row>
@@ -22,7 +22,7 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let aQI of availableQueryInterfaces">
-                    <td><strong>{{aQI.name}}</strong></td>
+                    <td><strong>{{ aQI.interfaceType }}</strong></td>
                     <td>{{aQI.description}}</td>
                     <td class="center">
                         <button cButton color="primary" size="sm" (click)="initAvailableQISettings(aQI)">Add</button>

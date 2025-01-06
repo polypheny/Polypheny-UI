@@ -1,7 +1,6 @@
 
 plugins {
   id "java"
-  id "maven-publish"
   id "com.github.node-gradle.node" version "7.0.1"
 }
 
@@ -38,25 +37,6 @@ jar {
     }
 }
 
-
-publishing {
-    publications {
-        "${project.name}"(MavenPublication) {
-            from components.java
-            pom {
-                licenses {
-                    license {
-                        name = 'Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0'
-                    }
-                }
-            }
-        }
-    }
-}
-task generatePom(group: 'publishing', dependsOn: "generatePomFileFor${project.name.capitalize()}Publication")
-
-
 task licenseReport(type: NpxTask) {
   command = 'license-checker-rseidelsohn'
   args = ['--json', '--production', '--files', 'build/reports/licenses/files', '--out', 'build/reports/licenses/licenseReport.json']
@@ -71,5 +51,43 @@ clean {
 	delete "/node_modules"
 }
 
+
+
+tasks.register('packageDistribution', Zip) {
+    archiveFileName = "polypheny-ui.zip"
+    destinationDirectory = file('publish')
+    from file('dist')
+}
+packageDistribution.dependsOn('build')
+
+
+import org.apache.tools.ant.taskdefs.condition.Os
+
+task publishToDotPolypheny {
+    def polyphenyHome
+    def uiSubfolder = "ui/"
+
+    // Check if the environment variable POLYPHENY_HOME exists
+    if (System.getenv("POLYPHENY_HOME")) {
+        polyphenyHome = System.getenv("POLYPHENY_HOME")
+    } else {
+        // Fallback to the user's home directory with .polypheny folder
+        polyphenyHome = new File(System.getProperty("user.home"), ".polypheny").absolutePath
+    }
+
+    def targetDir = new File(polyphenyHome, uiSubfolder)
+    targetDir.mkdirs()
+
+    doLast {
+        println "Copying UI files to: ${targetDir.absolutePath}"
+        def sourceDir = file("dist/")
+        copy {
+            from sourceDir
+            into targetDir
+        }
+    }
+}
+publishToDotPolypheny.dependsOn('packageDistribution')
+
 // Add install task
-task install(group: 'other', dependsOn: publishToMavenLocal)
+task install(group: 'other', dependsOn: publishToDotPolypheny)
