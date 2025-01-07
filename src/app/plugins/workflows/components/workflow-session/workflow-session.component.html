@@ -1,16 +1,17 @@
 <div class="d-flex flex-column h-100">
-    <div>
-        <h1 *ngIf="session">{{session.workflowDef.name}} v{{session.version}}</h1>
-        <button cButton color="secondary" class="m-1"
+    <div class="d-flex flex-row align-items-center">
+        <button cButton color="secondary" class="m-1 me-5"
                 (click)="backToDashboard()">
             Back
         </button>
-        <span class="ms-5"><strong>Session ID: {{sessionId}}</strong></span>
+        <h1 *ngIf="session">{{ session.workflowDef.name }} v{{ session.version }}</h1>
+        <span class="ms-5"><strong>Session ID: {{ sessionId }}</strong></span>
     </div>
 
     <div *ngIf="isRegistryLoaded()" class="flex-grow-1">
         <ng-container *ngIf="session?.type === 'USER_SESSION'">
-            <app-workflow-viewer [sessionId]="sessionId" [isEditable]="true" (saveWorkflowEvent)="saveSession($event)"></app-workflow-viewer>
+            <app-workflow-viewer [sessionId]="sessionId" [isEditable]="true"
+                                 (saveWorkflowEvent)="saveSession($event)"></app-workflow-viewer>
         </ng-container>
     </div>
 </div>

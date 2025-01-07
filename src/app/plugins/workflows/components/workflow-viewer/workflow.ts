@@ -1,7 +1,21 @@
-import {ActivityConfigModel, ActivityModel, ActivityState, CommonType, EdgeModel, EdgeState, RenderModel, Settings, TypePreviewModel, WorkflowConfigModel, WorkflowModel, WorkflowState} from '../../models/workflows.model';
+import {
+    ActivityConfigModel,
+    ActivityModel,
+    ActivityState,
+    CommonType,
+    EdgeModel,
+    EdgeState,
+    RenderModel,
+    Settings,
+    TypePreviewModel,
+    WorkflowConfigModel,
+    WorkflowModel,
+    WorkflowState
+} from '../../models/workflows.model';
 import {computed, Signal, signal, WritableSignal} from '@angular/core';
 import * as _ from 'lodash';
 import {Subject} from 'rxjs';
+import {ActivityDef, ActivityRegistry} from '../../models/activity-registry.model';
 
 export function edgeToString(edge: EdgeModel) {
     return JSON.stringify({
@@ -34,9 +48,10 @@ export class Workflow {
     private readonly edgeAddSubject = new Subject<[EdgeModel, WritableSignal<EdgeState>]>();
     private readonly edgeRemoveSubject = new Subject<string>(); // edgeString
 
-    constructor(workflowModel: WorkflowModel) {
+    constructor(workflowModel: WorkflowModel, private readonly registry: ActivityRegistry) {
         this.state = signal(workflowModel.state);
-        workflowModel.activities.forEach(model => this.activities.set(model.id, new Activity(model)));
+        workflowModel.activities.forEach(model =>
+            this.activities.set(model.id, new Activity(model, registry.getDef(model.type))));
         workflowModel.edges.forEach(edge => this.edgeStates.set(edgeToString(edge), signal(edge.state)));
         this.config = signal(workflowModel.config, {equal: _.isEqual});
         this.variables = signal(workflowModel.variables, {equal: _.isEqual});
@@ -80,7 +95,7 @@ export class Workflow {
         if (this.applyIfExists(activityModel.id, a => a.update(activityModel))) {
             this.activityChangeSubject.next(activityModel.id);
         } else {
-            const activity = new Activity(activityModel);
+            const activity = new Activity(activityModel, this.registry.getDef(activityModel.type));
             this.activities.set(activityModel.id, activity);
             this.activityAddSubject.next(activity);
         }
@@ -130,7 +145,7 @@ export class Workflow {
         return missing.size === 0;
     }
 
-    updateProgress(progressMap: Record<string, number>): Set<string> {
+    updateProgress(progressMap: Record<string, number>): boolean {
         const missing = new Set<string>();
 
         for (const [id, progress] of Object.entries(progressMap)) {
@@ -141,7 +156,7 @@ export class Workflow {
                 missing.add(id);
             }
         }
-        return missing;
+        return missing.size === 0;
     }
 
     updateActivityRendering(activityId: string, rendering: RenderModel): boolean {
@@ -245,6 +260,7 @@ export class Workflow {
 export class Activity {
     readonly type: string;
     readonly id: string;
+    readonly def: ActivityDef;
 
     readonly state: WritableSignal<ActivityState>;
     readonly progress = signal(0);
@@ -254,26 +270,40 @@ export class Activity {
     readonly rendering: WritableSignal<RenderModel>;
     readonly inTypePreview: WritableSignal<TypePreviewModel[]>;
     readonly invalidReason: WritableSignal<string>;
+    readonly displayName: Signal<string>;
 
-    constructor(activityModel: ActivityModel) {
+    constructor(activityModel: ActivityModel, def: ActivityDef) {
         this.type = activityModel.type;
         this.id = activityModel.id;
+        this.def = def;
         this.state = signal(activityModel.state);
         this.settings = signal(activityModel.settings, {equal: _.isEqual}); // deep equivalence check
-        this.config = signal(activityModel.config, {equal: _.isEqual});
+        this.config = signal(this.prepareConfig(activityModel.config), {equal: _.isEqual});
         this.commonType = computed(() => this.config().commonType);
         this.rendering = signal(activityModel.rendering, {equal: _.isEqual});
         this.inTypePreview = signal(activityModel.inTypePreview, {equal: _.isEqual});
         this.invalidReason = signal(activityModel.invalidReason);
+        this.displayName = computed(() => this.rendering().name || this.def.displayName);
     }
 
     update(activityModel: ActivityModel) {
         this.state.set(activityModel.state);
         this.settings.set(activityModel.settings);
-        this.config.set(activityModel.config);
+        this.config.set(this.prepareConfig(activityModel.config));
         this.rendering.set(activityModel.rendering);
         this.inTypePreview.set(activityModel.inTypePreview);
         this.invalidReason.set(activityModel.invalidReason);
+    }
+
+    prepareConfig(config: ActivityConfigModel) {
+        // the received config might not be of correct length
+        if (config.preferredStores === null) {
+            config.preferredStores = [];
+        }
+        while (config.preferredStores.length < this.def.outPorts.length) {
+            config.preferredStores.push(null);
+        }
+        return config;
     }
 
 }

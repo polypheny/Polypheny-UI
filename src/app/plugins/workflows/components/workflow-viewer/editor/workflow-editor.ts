@@ -10,13 +10,20 @@ import {ActivityPortComponent} from './activity-port/activity-port.component';
 import {addCustomBackground} from '../../../../../components/polyalg/polyalg-viewer/background';
 import {ReadonlyPlugin} from 'rete-readonly-plugin';
 import {setupPanningBoundary} from '../../../../../components/polyalg/polyalg-viewer/panning-boundary';
-import {MagneticConnectionComponent} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection/magnetic-connection.component';
+import {
+    MagneticConnectionComponent
+} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection/magnetic-connection.component';
 import {AutoArrangePlugin, Presets as ArrangePresets} from 'rete-auto-arrange-plugin';
 import {WorkflowsService} from '../../../services/workflows.service';
 import {ActivityRegistry} from '../../../models/activity-registry.model';
 import {debounceTime, Subject, Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
-import {canCreateConnection, getContextMenuItems, getMagneticConnectionProps, socketsToEdgeModel} from './workflow-editor-utils';
+import {
+    canCreateConnection,
+    getContextMenuItems,
+    getMagneticConnectionProps,
+    socketsToEdgeModel
+} from './workflow-editor-utils';
 import {Activity, edgeToString, Workflow} from '../workflow';
 import {ContextMenuExtra, ContextMenuPlugin} from 'rete-context-menu-plugin';
 import {useMagneticConnection} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection';
@@ -47,6 +54,7 @@ export class WorkflowEditor {
     private readonly createEdgeSubject = new Subject<EdgeModel>();
     private readonly executeActivitySubject = new Subject<string>(); // activityId
     private readonly resetActivitySubject = new Subject<string>(); // activityId
+    private readonly openSettingsSubject = new Subject<string>(); // activityId
     private readonly subscriptions = new Subscription();
 
     constructor(private injector: Injector, container: HTMLElement, private readonly _workflows: WorkflowsService, private readonly isReadOnly: boolean) {
@@ -88,7 +96,21 @@ export class WorkflowEditor {
             }
         }));
 
-        this.arrange.addPreset(ArrangePresets.classic.setup());
+        this.arrange.addPreset(ArrangePresets.classic.setup({top: 100, bottom: 100}));
+        /* TODO: customize according to definitive port positions
+        this.arrange.addPreset(() => {
+            return {
+                port(n) {
+                    return {
+                        x: n.width / (n.ports + 1) * (n.index + 1),
+                        y: 0,
+                        width: 15,
+                        height: 15,
+                        side: 'output' === n.side ? 'NORTH' : 'SOUTH'
+                    };
+                }
+            };
+        }); */
 
         // Attach plugins
         this.editor.use(this.readonlyPlugin.root);
@@ -187,6 +209,10 @@ export class WorkflowEditor {
         return this.resetActivitySubject.asObservable();
     }
 
+    onOpenActivitySettings() {
+        return this.openSettingsSubject.asObservable();
+    }
+
     onEdgeRemove() {
         return this.removeEdgeSubject.asObservable();
     }
@@ -207,9 +233,8 @@ export class WorkflowEditor {
     }
 
     private async addNode(activity: Activity) {
-        const node = new ActivityNode(this.registry.getDef(activity.type), activity.id,
-            activity.state, this.workflow.state, activity.progress, activity.commonType,
-            this.executeActivitySubject, this.resetActivitySubject);
+        const node = new ActivityNode(activity, this.workflow.state,
+            this.executeActivitySubject, this.resetActivitySubject, this.openSettingsSubject);
         this.nodeMap.set(activity.id, node);
         this.nodeIdToActivityId.set(node.id, activity.id);
         const translateSubject = new Subject<Position>();

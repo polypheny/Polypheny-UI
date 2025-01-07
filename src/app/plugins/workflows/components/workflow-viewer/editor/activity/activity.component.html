@@ -1,19 +1,25 @@
 <div>
     <c-button-group role="group" class="mt-3 ms-3" size="sm">
-        <button cButton color="primary" class="" (click)="data.execute()" [disabled]="!data.canExecute()" (pointerdown)="$event.stopPropagation()">
+        <button cButton color="primary" class="" (click)="data.execute()" [disabled]="!data.canExecute()"
+                (pointerdown)="$event.stopPropagation()">
             Execute
         </button>
-        <button cButton color="secondary" class="" (click)="data.reset()" [disabled]="!data.canReset()" (pointerdown)="$event.stopPropagation()">
+        <button cButton color="secondary" class="" (click)="data.reset()" [disabled]="!data.canReset()"
+                (pointerdown)="$event.stopPropagation()">
             Reset
+        </button>
+        <button cButton color="light" class="cil-settings" (click)="data.openSettings()" [disabled]=""
+                (pointerdown)="$event.stopPropagation()">
+
         </button>
     </c-button-group>
 </div>
 
-<div class="title" data-testid="title">{{data.label}}</div>
-<h3 class="ms-2 text-light">{{data.state()}}</h3>
-<h5 class="text-warning ms-2" *ngIf="data.commonType() !== 'NONE'">{{data.commonType()}}</h5>
+<div class="title" data-testid="title">{{ data.displayName() }}</div>
+<h3 class="ms-2 text-light">{{ data.state() }}</h3>
+<h5 class="text-warning ms-2" *ngIf="data.commonType() !== 'NONE'">{{ data.commonType() }}</h5>
 <h5 class="ms-2 text-primary" *ngIf="data.state() === 'EXECUTING'">
-    {{data.progress() * 100 | number}} %
+    {{ data.progress() * 100 | number }} %
 </h5>
 
 <div class="d-flex flex-row">
@@ -35,7 +41,7 @@
                     data-testid="input-title"
                     *ngIf="!input.value?.control || !input.value?.showControl"
             >
-                {{input.value?.label}}
+                {{ input.value?.label }}
             </div>
             <div
                     class="input-control"
@@ -54,7 +60,7 @@
                 [attr.data-testid]="'output-'+output.key"
         >
             <div class="output-title" data-testid="output-title">
-                {{output.value?.label}}
+                {{ output.value?.label }}
             </div>
             <div
                     class="output-socket"

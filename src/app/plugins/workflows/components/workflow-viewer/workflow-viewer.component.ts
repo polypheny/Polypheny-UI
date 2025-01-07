@@ -1,13 +1,37 @@
-import {Component, computed, ElementRef, EventEmitter, inject, Injector, Input, OnDestroy, OnInit, Output, signal, Signal, ViewChild} from '@angular/core';
+import {
+    Component,
+    computed,
+    ElementRef,
+    EventEmitter,
+    inject,
+    Injector,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output,
+    signal,
+    Signal,
+    ViewChild
+} from '@angular/core';
 import {WorkflowsService} from '../../services/workflows.service';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {WorkflowEditor} from './editor/workflow-editor';
 import {WorkflowsWebSocket} from '../../services/workflows-webSocket';
-import {ActivityUpdateResponse, ErrorResponse, ProgressUpdateResponse, RenderingUpdateResponse, ResponseType, StateUpdateResponse, WsResponse} from '../../models/ws-response.model';
+import {
+    ActivityUpdateResponse,
+    ErrorResponse,
+    ProgressUpdateResponse,
+    RenderingUpdateResponse,
+    ResponseType,
+    StateUpdateResponse,
+    WsResponse
+} from '../../models/ws-response.model';
 import {Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
-import {Workflow} from './workflow';
+import {Activity, Workflow} from './workflow';
 import {WorkflowState} from '../../models/workflows.model';
+import {RightMenuComponent} from './right-menu/right-menu.component';
+import {switchMap, tap} from 'rxjs/operators';
 
 @Component({
     selector: 'app-workflow-viewer',
@@ -21,6 +45,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @Output() saveWorkflowEvent = new EventEmitter<string>();
 
     @ViewChild('rete') container!: ElementRef;
+    @ViewChild('rightMenu') rightMenu: RightMenuComponent;
 
     private readonly _workflows = inject(WorkflowsService);
     private readonly _toast = inject(ToasterService);
@@ -29,11 +54,12 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     private readonly sentRequests = new Set<string>(); // contains the ws request ID until a response for that ID was received
     private readonly responsesToIgnore = new Set<string>();
     private editor: WorkflowEditor;
-    private websocket: WorkflowsWebSocket;
+    websocket: WorkflowsWebSocket;
     workflow: Workflow;
     canExecute: Signal<boolean>;
     selectedActivityType: string;
     readonly activityTypes: string[];
+    readonly openedActivity = signal<Activity>(undefined);
 
     readonly showSaveModal = signal(false);
     saveMessage = '';
@@ -53,7 +79,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             this.editor = new WorkflowEditor(this.injector, el, this._workflows, false);
             this._workflows.getActiveWorkflow(this.sessionId).subscribe({
                 next: res => {
-                    this.workflow = new Workflow(res);
+                    this.workflow = new Workflow(res, this.registry);
                     this.editor.initialize(this.workflow);
                     this.websocket = this._workflows.createWebSocket(this.sessionId);
                     this.websocket.onMessage().subscribe(response => this.handleWsMsg(response));
@@ -82,6 +108,16 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                     this.subscriptions.add(this.editor.onActivityReset().subscribe(
                         activityId => this.sentRequests.add(this.websocket.reset(activityId))
                     ));
+                    this.subscriptions.add(this.editor.onOpenActivitySettings().pipe(
+                        switchMap(activityId =>
+                            this._workflows.getActivity(this.sessionId, activityId)
+                        ),
+                        tap(activityModel => {
+                            this.workflow.updateOrCreateActivity(activityModel);
+                            this.openedActivity.set(this.workflow.getActivity(activityModel.id));
+                            this.rightMenu.showMenu();
+                        })
+                    ).subscribe());
                     this.canExecute = computed(() => {
                         return this.workflow.state() !== WorkflowState.EXECUTING && this.workflow.hasUnfinishedActivities();
                     });
@@ -129,7 +165,6 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
 
         switch (response.type) {
             case ResponseType.STATE_UPDATE:
-                // TODO: handle missing activities
                 const stateResponse = response as StateUpdateResponse;
                 this.workflow.state.set(stateResponse.workflowState);
                 if (!(this.workflow.updateActivityStates(stateResponse.activityStates)
@@ -138,12 +173,15 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                 }
                 break;
             case ResponseType.PROGRESS_UPDATE:
-                // TODO: handle missing activities
-                this.workflow.updateProgress((response as ProgressUpdateResponse).progress);
+                if (!this.workflow.updateProgress((response as ProgressUpdateResponse).progress)) {
+                    this.synchronizeWorkflow();
+                }
                 break;
             case ResponseType.RENDERING_UPDATE:
                 const renderResponse = response as RenderingUpdateResponse;
-                this.workflow.updateActivityRendering(renderResponse.activityId, renderResponse.rendering);
+                if (!this.workflow.updateActivityRendering(renderResponse.activityId, renderResponse.rendering)) {
+                    this.synchronizeWorkflow();
+                }
                 break;
             case ResponseType.ACTIVITY_UPDATE:
                 this.workflow.updateOrCreateActivity((response as ActivityUpdateResponse).activity);

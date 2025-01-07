@@ -291,7 +291,8 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         Toast,
         ReloadButtonComponent,
         DockerInstanceComponent,
-        AlgViewerComponent
+        AlgViewerComponent,
+        JsonTextComponent
     ]
 })
 export class ComponentsModule {

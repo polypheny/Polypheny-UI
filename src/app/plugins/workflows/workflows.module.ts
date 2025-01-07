@@ -4,10 +4,55 @@ import {WorkflowViewerComponent} from './components/workflow-viewer/workflow-vie
 import {ReteModule} from 'rete-angular-plugin/17';
 import {WorkflowsDashboardComponent} from './components/workflows-dashboard/workflows-dashboard.component';
 import {WorkflowSessionComponent} from './components/workflow-session/workflow-session.component';
-import {AccordionButtonDirective, AccordionComponent, AccordionItemComponent, BadgeComponent, ButtonCloseDirective, ButtonDirective, ButtonGroupComponent, ColComponent, FormControlDirective, FormFeedbackComponent, FormSelectDirective, GutterDirective, InputGroupComponent, InputGroupTextDirective, ListGroupDirective, ListGroupItemDirective, ModalBodyComponent, ModalComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, RowComponent, TemplateIdDirective} from '@coreui/angular';
+import {
+    AccordionButtonDirective,
+    AccordionComponent,
+    AccordionItemComponent,
+    BadgeComponent,
+    ButtonCloseDirective,
+    ButtonDirective,
+    ButtonGroupComponent,
+    ColComponent,
+    FormControlDirective,
+    FormFeedbackComponent,
+    FormSelectDirective,
+    GutterDirective,
+    InputGroupComponent,
+    InputGroupTextDirective,
+    ListGroupDirective,
+    ListGroupItemDirective,
+    ModalBodyComponent,
+    ModalComponent,
+    ModalFooterComponent,
+    ModalHeaderComponent,
+    ModalTitleDirective,
+    NavComponent,
+    NavLinkDirective,
+    OffcanvasBodyComponent,
+    OffcanvasComponent,
+    OffcanvasHeaderComponent,
+    OffcanvasTitleDirective,
+    OffcanvasToggleDirective,
+    RowComponent,
+    SidebarBrandComponent,
+    SidebarComponent,
+    SidebarFooterComponent,
+    SidebarHeaderComponent,
+    SidebarNavComponent,
+    SidebarToggleDirective,
+    TabContentComponent,
+    TabContentRefDirective,
+    TabPaneComponent,
+    TemplateIdDirective
+} from '@coreui/angular';
 import {FormsModule} from '@angular/forms';
 import {ActivityComponent} from './components/workflow-viewer/editor/activity/activity.component';
 import {EdgeComponent} from './components/workflow-viewer/editor/edge/edge.component';
+import {RightMenuComponent} from './components/workflow-viewer/right-menu/right-menu.component';
+import {ComponentsModule} from '../../components/components.module';
+import {
+    ActivityConfigEditorComponent
+} from './components/workflow-viewer/right-menu/activity-config-editor/activity-config-editor.component';
 
 
 @NgModule({
@@ -38,13 +83,32 @@ import {EdgeComponent} from './components/workflow-viewer/editor/edge/edge.compo
         ModalHeaderComponent,
         ModalTitleDirective,
         FormFeedbackComponent,
+        OffcanvasComponent,
+        OffcanvasHeaderComponent,
+        OffcanvasBodyComponent,
+        OffcanvasToggleDirective,
+        OffcanvasTitleDirective,
+        SidebarComponent,
+        SidebarHeaderComponent,
+        SidebarBrandComponent,
+        SidebarNavComponent,
+        SidebarFooterComponent,
+        SidebarToggleDirective,
+        NavComponent,
+        TabContentRefDirective,
+        TabContentComponent,
+        TabPaneComponent,
+        NavLinkDirective,
+        ComponentsModule,
+        ActivityConfigEditorComponent,
     ],
     declarations: [
         WorkflowViewerComponent,
         WorkflowsDashboardComponent,
         WorkflowSessionComponent,
         ActivityComponent,
-        EdgeComponent
+        EdgeComponent,
+        RightMenuComponent
     ],
     exports: [
         WorkflowViewerComponent,

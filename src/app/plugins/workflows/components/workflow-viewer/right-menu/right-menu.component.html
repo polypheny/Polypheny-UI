@@ -1,0 +1,80 @@
+<c-offcanvas [hidden]="!isVisible() || !activity()"
+             id="Offcanvas"
+             [backdrop]="false"
+             [scroll]="true"
+             placement="end"
+             #offcanvas
+             [visible]="true"
+             class="no-select"
+             [ngClass]="offcanvas.visible ? 'menu-visible' : 'menu-hidden'"
+>
+    <c-offcanvas-header class="pb-1">
+        <div *ngIf="activity()" class="d-flex flex-column flex-grow-1">
+            <div class="d-flex flex-row align-items-center justify-content-between">
+                <h3 cOffcanvasTitle>{{ activity().displayName() }}</h3>
+                <!-- TODO: also show def name if displayname differs-->
+                <!--<button
+                        aria-label="Close"
+                        cButtonClose
+                        [cOffcanvasToggle]="offcanvas.id"
+                        class="text-reset ms-auto"
+                ></button>-->
+            </div>
+            <ul class="nav nav-underline" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeTab() === 'settings'}"
+                       (click)="activeTab.set('settings')"
+                       role="tab">Settings</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeTab() === 'variables'}"
+                       (click)="activeTab.set('variables')"
+                       role="tab">Variables</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeTab() === 'outputs'}"
+                       (click)="activeTab.set('outputs')"
+                       role="tab">Outputs</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeTab() === 'execution'}"
+                       (click)="activeTab.set('execution')"
+                       role="tab">Execution</a>
+                </li>
+            </ul>
+        </div>
+    </c-offcanvas-header>
+    <c-offcanvas-body class="pt-0">
+        <div class="tab-content" *ngIf="activity()">
+            @switch (activeTab()) {
+                @case ("settings") {
+                    @for (entry of activity().settings() | keyvalue; track activity().id + entry.key) {
+                        <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
+                        <!--<app-json-editor [json]="entry | json">
+                        </app-json-editor>-->
+                        <app-json-text [text]="entry.value | json"></app-json-text>
+                    }
+                }
+                @case ("variables") {
+                    <div>variables</div>
+                }
+                @case ("outputs") {
+                    <div>outputs</div>
+                }
+                @case ("execution") {
+                    <h5>Config</h5>
+                    <app-activity-config-editor [config]="activity().config()" [def]="activity().def"
+                                                (save)="saveConfig($event)"
+                    ></app-activity-config-editor>
+
+                    <h5 class="mt-5">Execution Stats</h5>
+                    <p>TODO</p>
+                }
+            }
+        </div>
+    </c-offcanvas-body>
+</c-offcanvas>
