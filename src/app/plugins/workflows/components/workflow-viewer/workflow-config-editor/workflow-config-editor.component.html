@@ -1,0 +1,76 @@
+<c-modal [visible]="showModal()" (visibleChange)="showModal.set($event)" *ngIf="config()">
+    <c-modal-header>
+        <h5 cModalTitle>Workflow Config</h5>
+        <button (click)="toggleModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        <form cForm>
+
+            <!-- Fusion / Pipelining -->
+            <c-form-check [switch]="true" class="mb-3">
+                <input cFormCheckInput id="fusion-check" type="checkbox" [(ngModel)]="editableConfig().fusionEnabled"
+                       name="fusion-check" (change)="checkForChanges()" [disabled]="!isEditable()">
+                <label cFormCheckLabel for="fusion-check">Enable Activity Fusion</label>
+            </c-form-check>
+            <c-form-check [switch]="true" class="mb-3">
+                <input cFormCheckInput id="pipe-check" type="checkbox" [(ngModel)]="editableConfig().pipelineEnabled"
+                       name="pipe-check" (change)="checkForChanges()" [disabled]="!isEditable()">
+                <label cFormCheckLabel for="pipe-check">Enable Activity Pipelining</label>
+            </c-form-check>
+
+            <!-- Timeout-->
+            <div class="mb-3">
+                <label cLabel for="timeout">Base execution timeout (ms), or 0 to disable</label>
+                <input cFormControl type="number" id="timeout" [(ngModel)]="editableConfig().timeoutMillis" name="timeout"
+                       (change)="checkForChanges()" [disabled]="!isEditable()" min="0">
+            </div>
+
+
+            <!-- Drop Checkpoints -->
+            <c-form-check [switch]="true" class="mb-3">
+                <input cFormCheckInput id="drop-check" type="checkbox" [(ngModel)]="editableConfig().dropUnusedCheckpoints"
+                       name="drop-check" (change)="checkForChanges()" [disabled]="!isEditable()">
+                <label cFormCheckLabel for="drop-check">Drop unused checkpoints</label>
+            </c-form-check>
+
+            <!-- Max Workers-->
+            <div class="mb-3">
+                <label cLabel for="maxWorkers">Worker Threads:</label>
+                <input cFormControl type="number" id="maxWorkers" [(ngModel)]="editableConfig().maxWorkers" name="maxWorkers"
+                       (change)="checkForChanges()" [disabled]="!isEditable()" min="1">
+            </div>
+
+            <!-- Queue Capacity-->
+            <div class="mb-3">
+                <label cLabel for="queueCapacity">Pipeline Queue Capacity</label>
+                <input cFormControl type="number" id="queueCapacity" [(ngModel)]="editableConfig().pipelineQueueCapacity" name="queueCapacity"
+                       (change)="checkForChanges()" [disabled]="!isEditable()" min="1">
+            </div>
+
+            <!-- Preferred Stores -->
+            <div class="mb-3">
+                <label cLabel>Preferred Stores:</label>
+
+                @for (entry of editableConfig().preferredStores | keyvalue; track entry.key) {
+                    <c-input-group class="mb-3">
+                        <label cInputGroupText for="preferred-{{entry.key}}">{{ entry.key }}</label>
+                        <select cSelect id="preferred-{{entry.key}}" [(ngModel)]="editableConfig().preferredStores[entry.key]" name="preferred-{{entry.key}}"
+                                (change)="checkForChanges()" [disabled]="!isEditable()">
+                            <option *ngFor="let adapter of adapters()" [value]="adapter.name">{{ adapter.name + ' (' + adapter.adapterName + ')' }}</option>
+                        </select>
+                    </c-input-group>
+                }
+            </div>
+
+        </form>
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleModal()" cButton color="secondary">Close</button>
+        <div>
+            <button cButton color="primary" (click)="saveConfig()" [disabled]="!hasConfigChanged()">
+                Save Config
+            </button>
+        </div>
+        <p class="text-muted" *ngIf="hasConfigChanged()">Changes only apply to already executed activities after a reset.</p>
+    </c-modal-footer>
+</c-modal>

@@ -1,0 +1,25 @@
+
+#Offcanvas {
+  height: 100%;
+  position: relative;
+  max-height: inherit;
+  width: 400px;
+}
+
+.menu-visible {
+}
+
+.menu-hidden {
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.offcanvas-body {
+  overflow-y: auto;
+  max-height: calc(100vh - 300px); // TODO: find solution without hardcoded height, or at least consider activity name length
+}

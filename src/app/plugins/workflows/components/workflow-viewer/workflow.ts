@@ -1,17 +1,4 @@
-import {
-    ActivityConfigModel,
-    ActivityModel,
-    ActivityState,
-    CommonType,
-    EdgeModel,
-    EdgeState,
-    RenderModel,
-    Settings,
-    TypePreviewModel,
-    WorkflowConfigModel,
-    WorkflowModel,
-    WorkflowState
-} from '../../models/workflows.model';
+import {ActivityConfigModel, ActivityModel, ActivityState, CommonType, EdgeModel, EdgeState, RenderModel, Settings, TypePreviewModel, WorkflowConfigModel, WorkflowModel, WorkflowState} from '../../models/workflows.model';
 import {computed, Signal, signal, WritableSignal} from '@angular/core';
 import * as _ from 'lodash';
 import {Subject} from 'rxjs';
@@ -297,12 +284,17 @@ export class Activity {
 
     prepareConfig(config: ActivityConfigModel) {
         // the received config might not be of correct length
-        if (config.preferredStores === null) {
-            config.preferredStores = [];
+        let prefs: string[] = config.preferredStores;
+        if (prefs === null) {
+            prefs = [];
+        } else {
+            prefs = prefs.map(store => store === null ? '' : store);
         }
-        while (config.preferredStores.length < this.def.outPorts.length) {
-            config.preferredStores.push(null);
+
+        while (prefs.length < this.def.outPorts.length) {
+            prefs.push('');
         }
+        config.preferredStores = prefs;
         return config;
     }
 

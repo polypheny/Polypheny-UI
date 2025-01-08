@@ -4,7 +4,7 @@
                 (click)="backToDashboard()">
             Back
         </button>
-        <h1 *ngIf="session">{{ session.workflowDef.name }} v{{ session.version }}</h1>
+        <h1 *ngIf="session" class="mb-0">{{ session.workflowDef.name }} v{{ session.version }}</h1>
         <span class="ms-5"><strong>Session ID: {{ sessionId }}</strong></span>
     </div>
 

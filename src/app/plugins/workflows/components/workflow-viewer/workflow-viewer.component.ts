@@ -1,37 +1,16 @@
-import {
-    Component,
-    computed,
-    ElementRef,
-    EventEmitter,
-    inject,
-    Injector,
-    Input,
-    OnDestroy,
-    OnInit,
-    Output,
-    signal,
-    Signal,
-    ViewChild
-} from '@angular/core';
+import {Component, computed, ElementRef, EventEmitter, inject, Injector, Input, OnDestroy, OnInit, Output, signal, Signal, ViewChild} from '@angular/core';
 import {WorkflowsService} from '../../services/workflows.service';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {WorkflowEditor} from './editor/workflow-editor';
 import {WorkflowsWebSocket} from '../../services/workflows-webSocket';
-import {
-    ActivityUpdateResponse,
-    ErrorResponse,
-    ProgressUpdateResponse,
-    RenderingUpdateResponse,
-    ResponseType,
-    StateUpdateResponse,
-    WsResponse
-} from '../../models/ws-response.model';
+import {ActivityUpdateResponse, ErrorResponse, ProgressUpdateResponse, RenderingUpdateResponse, ResponseType, StateUpdateResponse, WsResponse} from '../../models/ws-response.model';
 import {Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Activity, Workflow} from './workflow';
-import {WorkflowState} from '../../models/workflows.model';
+import {ActivityConfigModel, RenderModel, Settings, WorkflowConfigModel, WorkflowState} from '../../models/workflows.model';
 import {RightMenuComponent} from './right-menu/right-menu.component';
 import {switchMap, tap} from 'rxjs/operators';
+import {WorkflowConfigEditorComponent} from './workflow-config-editor/workflow-config-editor.component';
 
 @Component({
     selector: 'app-workflow-viewer',
@@ -45,7 +24,9 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @Output() saveWorkflowEvent = new EventEmitter<string>();
 
     @ViewChild('rete') container!: ElementRef;
+    @ViewChild('leftMenu') leftMenu: RightMenuComponent;
     @ViewChild('rightMenu') rightMenu: RightMenuComponent;
+    @ViewChild('workflowConfigEditor') workflowConfigEditor: WorkflowConfigEditorComponent;
 
     private readonly _workflows = inject(WorkflowsService);
     private readonly _toast = inject(ToasterService);
@@ -56,9 +37,8 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     private editor: WorkflowEditor;
     websocket: WorkflowsWebSocket;
     workflow: Workflow;
+    isExecuting: Signal<boolean>;
     canExecute: Signal<boolean>;
-    selectedActivityType: string;
-    readonly activityTypes: string[];
     readonly openedActivity = signal<Activity>(undefined);
 
     readonly showSaveModal = signal(false);
@@ -66,7 +46,6 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
 
 
     constructor(private injector: Injector) {
-        this.activityTypes = this.registry.getTypes();
     }
 
     ngOnInit(): void {
@@ -76,7 +55,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         const el = this.container.nativeElement;
 
         if (el) {
-            this.editor = new WorkflowEditor(this.injector, el, this._workflows, false);
+            this.editor = new WorkflowEditor(this.injector, el, this._workflows, !this.isEditable);
             this._workflows.getActiveWorkflow(this.sessionId).subscribe({
                 next: res => {
                     this.workflow = new Workflow(res, this.registry);
@@ -118,8 +97,11 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                             this.rightMenu.showMenu();
                         })
                     ).subscribe());
+                    this.isExecuting = computed(() => {
+                        return this.workflow.state() !== WorkflowState.IDLE;
+                    });
                     this.canExecute = computed(() => {
-                        return this.workflow.state() !== WorkflowState.EXECUTING && this.workflow.hasUnfinishedActivities();
+                        return !this.isExecuting() && this.workflow.hasUnfinishedActivities();
                     });
                 }
             });
@@ -142,13 +124,15 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         this.editor.arrangeNodes();
     }
 
-    createActivity() {
+    createActivity(activityType: string) {
+        const center = this.editor.getCenter();
+        console.log('center', center);
         this.sentRequests.add(
-            this.websocket.createActivity(this.selectedActivityType, {
-                posX: 0,
-                posY: 0,
-                name: '',
-                notes: ''
+            this.websocket.createActivity(activityType, {
+                posX: center.x,
+                posY: center.y,
+                name: null,
+                notes: null
             })
         );
     }
@@ -234,5 +218,20 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         this.subscriptions.unsubscribe();
         this.editor?.destroy();
         this.websocket?.close();
+    }
+
+    showConfigModal() {
+        this._workflows.getWorkflowConfig(this.sessionId).subscribe(config => {
+            this.workflow.config.set(config);
+            this.workflowConfigEditor.show();
+        });
+    }
+
+    saveConfig(config: WorkflowConfigModel) {
+        this.sentRequests.add(this.websocket.updateConfig(config));
+    }
+
+    saveActivity(value: [Settings, ActivityConfigModel, RenderModel]) {
+        this.sentRequests.add(this.websocket.updateActivity(this.openedActivity().id, ...value));
     }
 }

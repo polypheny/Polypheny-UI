@@ -1,62 +1,73 @@
 <div class="d-flex flex-column h-100 flex-fill w-100">
-    <c-row [gutter]="0">
-        <ng-container *ngIf="isEditable">
-            <c-col md="5">
+    <c-row [gutter]="0" class="align-items-center">
+        <c-col xs="auto" class="ps-1">
+            <c-button-group role="group" class="m-1">
+                <button cButton color="light" type="button" (click)="leftMenu.toggleMenu()"
+                        [ngClass]="leftMenu.isVisible() ? 'cil-arrow-thick-to-left' : 'cil-arrow-thick-from-left'">
+                </button>
+            </c-button-group>
+        </c-col>
+        <c-col md="6" [offset]="{lg: 3, md:1}" class="me-auto">
+            <ng-container *ngIf="isEditable">
+                <c-button-group role="group" class="m-1">
+                    <button cButton color="primary" class="" (click)="toggleSaveModal()"
+                            [disabled]="showSaveModal()">
+                        <i class="fa fa-save"></i>
+                    </button>
+                    <button cButton color="light" class="" (click)="arrangeNodes()"
+                            [disabled]="isExecuting?.()">
+                        Arrange
+                    </button>
+                    <button cButton color="light" class="" (click)="showConfigModal()">
+                        Config
+                    </button>
+                </c-button-group>
+
                 <c-button-group role="group" class="m-1">
                     <button cButton color="primary" class="" (click)="execute()" [disabled]="!canExecute?.()">
-                        Execute
+                        <i class="fa fa-forward"></i>
                     </button>
                     <button cButton color="secondary" class="" (click)="reset()"
-                            [disabled]="workflow?.state() !== 'IDLE'">
-                        Reset
+                            [disabled]="isExecuting?.()">
+                        <i class="fa fa-rotate-left"></i>
                     </button>
                     <button cButton color="danger" class="" (click)="interrupt()"
                             [disabled]="workflow?.state() !== 'EXECUTING'">
-                        Interrupt
-                    </button>
-                    <button cButton color="primary" class="" (click)="toggleSaveModal()"
-                            [disabled]="showSaveModal()">
-                        Save
+                        <i class="fa fa-stop"></i>
                     </button>
                 </c-button-group>
-
-                <c-button-group role="group" class="m-1">
-                    <button cButton color="secondary" class="" (click)="arrangeNodes()"
-                            [disabled]="workflow?.state() !== 'IDLE'">
-                        Arrange
-                    </button>
-                </c-button-group>
-            </c-col>
-            <c-col md="3" class="me-auto">
-                <c-input-group sizing="sm">
-                    <select cSelect id="createActivity" [(ngModel)]="selectedActivityType">
-                        <option *ngFor="let activityType of activityTypes"
-                                [value]="activityType">{{ activityType }}
-                        </option>
-                    </select>
-                    <button cButton color="secondary" type="button" (click)="createActivity()"
-                            [disabled]="workflow?.state() === 'EXECUTING' || !selectedActivityType">
-                        Create Activity
-                    </button>
-                </c-input-group>
-            </c-col>
-        </ng-container>
+            </ng-container>
+        </c-col>
 
         <c-col md="1">
-            <c-badge *ngIf="workflow" color="primary" shape="rounded-pill">{{ workflow.state() }}</c-badge>
+            <c-badge *ngIf="workflow" shape="rounded-pill" class=""
+                     [color]="workflow.state() === 'IDLE' ? 'primary' :
+                         workflow.state() === 'EXECUTING' ? 'warning' :
+                         'danger' ">
+                {{ workflow.state() }}
+            </c-badge>
         </c-col>
         <c-col xs="auto" class="pe-1">
-            <button cButton color="light" type="button" (click)="rightMenu.toggleMenu()" *ngIf="openedActivity()"
-                    [ngClass]="rightMenu.isVisible() ? 'cil-arrow-thick-to-right' : 'cil-arrow-thick-from-right'">
-            </button>
+            <c-button-group role="group" class="m-1">
+                <button cButton color="light" type="button" (click)="rightMenu.toggleMenu()" *ngIf="openedActivity()"
+                        [ngClass]="rightMenu.isVisible() ? 'cil-arrow-thick-to-right' : 'cil-arrow-thick-from-right'">
+                </button>
+            </c-button-group>
         </c-col>
     </c-row>
 
     <div class="flex-grow-1 d-flex flex-row editor-container overflow-hidden">
+        <app-left-menu #leftMenu [isEditable]="isEditable && !isExecuting?.()" (create)="createActivity($event)">
+        </app-left-menu>
         <div class="rete flex-fill" #rete></div>
-        <app-right-menu #rightMenu [activity]="openedActivity()" [websocket]="websocket"></app-right-menu>
+        <app-right-menu #rightMenu [activity]="openedActivity()" [isEditable]="isEditable && !isExecuting?.()"
+                        (save)="saveActivity($event)">
+        </app-right-menu>
     </div>
 </div>
+
+<app-workflow-config-editor #workflowConfigEditor [config]="workflow?.config()" [isEditable]="isEditable && !isExecuting?.()"
+                            (save)="saveConfig($event)"/>
 
 <c-modal [visible]="showSaveModal()" (visibleChange)="showSaveModal.set($event)">
     <c-modal-header>

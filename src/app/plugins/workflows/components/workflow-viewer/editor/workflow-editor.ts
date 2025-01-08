@@ -10,20 +10,13 @@ import {ActivityPortComponent} from './activity-port/activity-port.component';
 import {addCustomBackground} from '../../../../../components/polyalg/polyalg-viewer/background';
 import {ReadonlyPlugin} from 'rete-readonly-plugin';
 import {setupPanningBoundary} from '../../../../../components/polyalg/polyalg-viewer/panning-boundary';
-import {
-    MagneticConnectionComponent
-} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection/magnetic-connection.component';
+import {MagneticConnectionComponent} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection/magnetic-connection.component';
 import {AutoArrangePlugin, Presets as ArrangePresets} from 'rete-auto-arrange-plugin';
 import {WorkflowsService} from '../../../services/workflows.service';
 import {ActivityRegistry} from '../../../models/activity-registry.model';
 import {debounceTime, Subject, Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
-import {
-    canCreateConnection,
-    getContextMenuItems,
-    getMagneticConnectionProps,
-    socketsToEdgeModel
-} from './workflow-editor-utils';
+import {canCreateConnection, getContextMenuItems, getMagneticConnectionProps, socketsToEdgeModel} from './workflow-editor-utils';
 import {Activity, edgeToString, Workflow} from '../workflow';
 import {ContextMenuExtra, ContextMenuPlugin} from 'rete-context-menu-plugin';
 import {useMagneticConnection} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection';
@@ -223,6 +216,17 @@ export class WorkflowEditor {
 
     async arrangeNodes() {
         await this.arrange.layout({applier: undefined});
+    }
+
+    getCenter(): Position {
+        // https://retejs.org/docs/faq#viewport-center
+        const {x, y, k} = this.area.area.transform;
+        const box = this.area.container.getBoundingClientRect();
+        const halfWidth = box.width / 2 / k;
+        const halfHeight = box.height / 2 / k;
+        const activityHalfWidth = 200 / 2; // approximation
+        const activityHalfHeight = 300 / 2;
+        return {x: halfWidth - x / k - activityHalfWidth, y: halfHeight - y / k - activityHalfHeight};
     }
 
     destroy(): void {

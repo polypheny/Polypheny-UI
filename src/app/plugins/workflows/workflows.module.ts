@@ -13,8 +13,13 @@ import {
     ButtonDirective,
     ButtonGroupComponent,
     ColComponent,
+    FormCheckComponent,
+    FormCheckInputDirective,
+    FormCheckLabelDirective,
     FormControlDirective,
+    FormDirective,
     FormFeedbackComponent,
+    FormLabelDirective,
     FormSelectDirective,
     GutterDirective,
     InputGroupComponent,
@@ -50,9 +55,9 @@ import {ActivityComponent} from './components/workflow-viewer/editor/activity/ac
 import {EdgeComponent} from './components/workflow-viewer/editor/edge/edge.component';
 import {RightMenuComponent} from './components/workflow-viewer/right-menu/right-menu.component';
 import {ComponentsModule} from '../../components/components.module';
-import {
-    ActivityConfigEditorComponent
-} from './components/workflow-viewer/right-menu/activity-config-editor/activity-config-editor.component';
+import {ActivityConfigEditorComponent} from './components/workflow-viewer/right-menu/activity-config-editor/activity-config-editor.component';
+import {WorkflowConfigEditorComponent} from './components/workflow-viewer/workflow-config-editor/workflow-config-editor.component';
+import {LeftMenuComponent} from './components/workflow-viewer/left-menu/left-menu.component';
 
 
 @NgModule({
@@ -101,6 +106,11 @@ import {
         NavLinkDirective,
         ComponentsModule,
         ActivityConfigEditorComponent,
+        FormDirective,
+        FormCheckComponent,
+        FormCheckInputDirective,
+        FormCheckLabelDirective,
+        FormLabelDirective,
     ],
     declarations: [
         WorkflowViewerComponent,
@@ -108,7 +118,9 @@ import {
         WorkflowSessionComponent,
         ActivityComponent,
         EdgeComponent,
-        RightMenuComponent
+        RightMenuComponent,
+        WorkflowConfigEditorComponent,
+        LeftMenuComponent
     ],
     exports: [
         WorkflowViewerComponent,

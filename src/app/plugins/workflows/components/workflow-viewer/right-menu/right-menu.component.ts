@@ -1,9 +1,8 @@
-import {Component, input, Input, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, EventEmitter, input, Output, signal, ViewChild} from '@angular/core';
 import {OffcanvasComponent} from '@coreui/angular';
 import {Activity} from '../workflow';
 import {WorkflowsService} from '../../../services/workflows.service';
-import {ActivityConfigModel} from '../../../models/workflows.model';
-import {WorkflowsWebSocket} from '../../../services/workflows-webSocket';
+import {ActivityConfigModel, RenderModel, Settings} from '../../../models/workflows.model';
 
 
 export type MenuTabs = 'settings' | 'variables' | 'outputs' | 'execution';
@@ -13,20 +12,16 @@ export type MenuTabs = 'settings' | 'variables' | 'outputs' | 'execution';
     templateUrl: './right-menu.component.html',
     styleUrl: './right-menu.component.scss'
 })
-export class RightMenuComponent implements OnInit, OnDestroy {
-    @Input() websocket: WorkflowsWebSocket;
+export class RightMenuComponent {
+    isEditable = input.required<boolean>();
     activity = input.required<Activity>();
+    @Output() save = new EventEmitter<[Settings, ActivityConfigModel, RenderModel]>();
+
 
     @ViewChild('offcanvas') menu: OffcanvasComponent;
     activeTab = signal<MenuTabs>('settings');
 
     constructor(private readonly _workflows: WorkflowsService) {
-    }
-
-    ngOnInit(): void {
-    }
-
-    ngOnDestroy(): void {
     }
 
     toggleMenu() {
@@ -43,9 +38,5 @@ export class RightMenuComponent implements OnInit, OnDestroy {
 
     isVisible() {
         return this.menu?.visible;
-    }
-
-    saveConfig(config: ActivityConfigModel) {
-        this.websocket.updateActivity(this.activity().id, null, config, null);
     }
 }

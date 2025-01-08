@@ -1,0 +1,29 @@
+<c-offcanvas [hidden]="!isVisible()"
+             id="Offcanvas"
+             [backdrop]="false"
+             [scroll]="true"
+             placement="start"
+             #offcanvas
+             [visible]="false"
+             class="no-select"
+             [ngClass]="offcanvas.visible ? 'menu-visible' : 'menu-hidden'"
+>
+    <c-offcanvas-header class="pb-2 bg-light">
+        <h3 cOffcanvasTitle>Add Activity</h3>
+    </c-offcanvas-header>
+    <c-offcanvas-body class="pt-1">
+        <div>
+            <c-input-group sizing="sm" class="m-1">
+                <select cSelect id="createActivity" [(ngModel)]="selectedActivityType">
+                    <option *ngFor="let activityType of activityTypes"
+                            [value]="activityType">{{ activityType }}
+                    </option>
+                </select>
+                <button cButton color="secondary" type="button" (click)="create.emit(selectedActivityType)"
+                        [disabled]="!isEditable() || !selectedActivityType">
+                    Create Activity
+                </button>
+            </c-input-group>
+        </div>
+    </c-offcanvas-body>
+</c-offcanvas>

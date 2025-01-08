@@ -1,56 +1,63 @@
-import {Component, computed, EventEmitter, input, OnInit, Output} from '@angular/core';
+import {Component, computed, effect, EventEmitter, input, OnInit, Output, Signal, signal} from '@angular/core';
 import {ActivityConfigModel, CommonType, ControlStateMerger} from '../../../../models/workflows.model';
-import {JsonPipe, NgForOf, NgIf} from '@angular/common';
+import {NgForOf, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivityDef} from '../../../../models/activity-registry.model';
-import {
-    ButtonDirective,
-    FormCheckComponent,
-    FormCheckInputDirective,
-    FormCheckLabelDirective,
-    FormControlDirective,
-    FormDirective,
-    FormLabelDirective,
-    FormSelectDirective
-} from '@coreui/angular';
+import {ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormLabelDirective, FormSelectDirective, InputGroupComponent, InputGroupTextDirective} from '@coreui/angular';
+import {AdapterModel} from '../../../../../../views/adapters/adapter.model';
+import {CatalogService} from '../../../../../../services/catalog.service';
 
 @Component({
     selector: 'app-activity-config-editor',
     standalone: true,
     imports: [
-        JsonPipe,
         FormsModule,
         NgForOf,
-        NgIf,
-        FormControlDirective,
         FormDirective,
         FormLabelDirective,
         FormCheckComponent,
         FormCheckInputDirective,
         FormCheckLabelDirective,
         FormSelectDirective,
-        ButtonDirective
+        ButtonDirective,
+        InputGroupComponent,
+        InputGroupTextDirective,
+        NgIf,
+        FormControlDirective
     ],
     templateUrl: './activity-config-editor.component.html',
     styleUrl: './activity-config-editor.component.scss'
 })
 export class ActivityConfigEditorComponent implements OnInit {
 
-    constructor() {
-    }
-
     config = input.required<ActivityConfigModel>();
     def = input.required<ActivityDef>();
+    isEditable = input.required<boolean>();
     @Output() save = new EventEmitter<ActivityConfigModel>();
 
-    commonTypes = Object.values(CommonType);
-    controlStateMergers = Object.values(ControlStateMerger);
-    serializedConfig = computed(() => JSON.stringify(this.config()));
+    readonly commonTypes = Object.values(CommonType);
+    readonly controlStateMergers = Object.values(ControlStateMerger);
+    readonly adapters: Signal<AdapterModel[]>;
+    serializedConfig = computed(() => JSON.stringify(this.config()),
+        {equal: () => false}); // enforce change when switching to different activity, even if it has the same config value
     editableConfig = computed<ActivityConfigModel>(() => JSON.parse(this.serializedConfig())); // we edit a copy of the actual config
+    serializedEditedConfig = signal<string>(null);
+    hasConfigChanged: Signal<boolean>;
 
-    protected readonly JSON = JSON;
+    constructor(private _catalog: CatalogService) {
+        this.adapters = computed(() => {
+            this._catalog.listener();
+            return [...this._catalog.getStores().filter(store =>
+                // mvcc currently results in deadlocks with concurrent schema changes
+                store.adapterName !== 'HSQLDB' || store.settings['trxControlMode'] !== 'mvcc'
+            )];
+        });
+
+        effect(() => this.serializedEditedConfig.set(this.serializedConfig()), {allowSignalWrites: true});
+    }
 
     ngOnInit(): void {
+        this.hasConfigChanged = computed(() => this.serializedConfig() !== this.serializedEditedConfig());
     }
 
     saveConfig() {
@@ -60,5 +67,9 @@ export class ActivityConfigEditorComponent implements OnInit {
             }
         }
         this.save.emit(this.editableConfig());
+    }
+
+    checkForChanges() {
+        this.serializedEditedConfig.set(JSON.stringify(this.editableConfig()));
     }
 }

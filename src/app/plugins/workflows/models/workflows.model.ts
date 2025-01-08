@@ -53,6 +53,7 @@ export interface EdgeModel {
 
 export interface ActivityConfigModel {
     enforceCheckpoint: boolean;
+    timeoutMillis: number; // 0 for no timeout
     preferredStores: string[];
     commonType: CommonType;
     controlStateMerger: ControlStateMerger;
@@ -115,6 +116,8 @@ export interface WorkflowConfigModel {
     preferredStores: Record<DataModel, string>;
     fusionEnabled: boolean;
     pipelineEnabled: boolean;
+    timeoutMillis: number; // 0 for no timeout
+    dropUnusedCheckpoints: boolean;
     maxWorkers: number;
     pipelineQueueCapacity: number;
 }

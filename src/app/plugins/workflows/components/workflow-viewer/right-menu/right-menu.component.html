@@ -4,21 +4,23 @@
              [scroll]="true"
              placement="end"
              #offcanvas
-             [visible]="true"
+             [visible]="false"
              class="no-select"
              [ngClass]="offcanvas.visible ? 'menu-visible' : 'menu-hidden'"
 >
-    <c-offcanvas-header class="pb-1">
+    <c-offcanvas-header class="pb-2 bg-light">
         <div *ngIf="activity()" class="d-flex flex-column flex-grow-1">
             <div class="d-flex flex-row align-items-center justify-content-between">
+                <!--<div>
+                    <button
+                            aria-label="Close"
+                            cButtonClose
+                            [cOffcanvasToggle]="offcanvas.id"
+                            class="text-reset ms-auto"
+                    ></button>
+                </div>-->
                 <h3 cOffcanvasTitle>{{ activity().displayName() }}</h3>
                 <!-- TODO: also show def name if displayname differs-->
-                <!--<button
-                        aria-label="Close"
-                        cButtonClose
-                        [cOffcanvasToggle]="offcanvas.id"
-                        class="text-reset ms-auto"
-                ></button>-->
             </div>
             <ul class="nav nav-underline" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -48,7 +50,7 @@
             </ul>
         </div>
     </c-offcanvas-header>
-    <c-offcanvas-body class="pt-0">
+    <c-offcanvas-body class="pt-1">
         <div class="tab-content" *ngIf="activity()">
             @switch (activeTab()) {
                 @case ("settings") {
@@ -68,7 +70,7 @@
                 @case ("execution") {
                     <h5>Config</h5>
                     <app-activity-config-editor [config]="activity().config()" [def]="activity().def"
-                                                (save)="saveConfig($event)"
+                                                [isEditable]="isEditable()" (save)="save.emit([null, $event, null])"
                     ></app-activity-config-editor>
 
                     <h5 class="mt-5">Execution Stats</h5>
