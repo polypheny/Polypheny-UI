@@ -6,7 +6,7 @@ import {ActivityConfigModel, RenderModel, Settings} from '../../../models/workfl
 import {WorkflowsWebSocketService} from '../../../services/workflows-websocket.service';
 
 
-export type MenuTabs = 'settings' | 'variables' | 'outputs' | 'execution';
+export type MenuTabs = 'settings' | 'variables' | 'outputs' | 'execution' | 'help';
 
 @Component({
     selector: 'app-right-menu',

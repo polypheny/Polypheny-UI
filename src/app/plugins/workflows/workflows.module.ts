@@ -9,9 +9,16 @@ import {
     AccordionComponent,
     AccordionItemComponent,
     BadgeComponent,
+    BorderDirective,
     ButtonCloseDirective,
     ButtonDirective,
     ButtonGroupComponent,
+    CardBodyComponent,
+    CardComponent,
+    CardHeaderComponent,
+    CardSubtitleDirective,
+    CardTextDirective,
+    CardTitleDirective,
     ColComponent,
     FormCheckComponent,
     FormCheckInputDirective,
@@ -58,7 +65,9 @@ import {ComponentsModule} from '../../components/components.module';
 import {ActivityConfigEditorComponent} from './components/workflow-viewer/right-menu/activity-config-editor/activity-config-editor.component';
 import {WorkflowConfigEditorComponent} from './components/workflow-viewer/workflow-config-editor/workflow-config-editor.component';
 import {LeftMenuComponent} from './components/workflow-viewer/left-menu/left-menu.component';
-
+import {ActivityHelpComponent} from './components/workflow-viewer/right-menu/activity-help/activity-help.component';
+import {MarkdownComponent} from 'ngx-markdown';
+import {ActivitySettingsComponent} from './components/workflow-viewer/right-menu/activity-settings/activity-settings.component';
 
 @NgModule({
     imports: [
@@ -111,6 +120,14 @@ import {LeftMenuComponent} from './components/workflow-viewer/left-menu/left-men
         FormCheckInputDirective,
         FormCheckLabelDirective,
         FormLabelDirective,
+        CardComponent,
+        CardBodyComponent,
+        CardTitleDirective,
+        CardSubtitleDirective,
+        CardTextDirective,
+        CardHeaderComponent,
+        BorderDirective,
+        MarkdownComponent
     ],
     declarations: [
         WorkflowViewerComponent,
@@ -120,7 +137,9 @@ import {LeftMenuComponent} from './components/workflow-viewer/left-menu/left-men
         EdgeComponent,
         RightMenuComponent,
         WorkflowConfigEditorComponent,
-        LeftMenuComponent
+        LeftMenuComponent,
+        ActivityHelpComponent,
+        ActivitySettingsComponent
     ],
     exports: [
         WorkflowViewerComponent,

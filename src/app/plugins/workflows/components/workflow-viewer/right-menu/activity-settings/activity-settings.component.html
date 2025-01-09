@@ -1,0 +1,33 @@
+<div class="settings-section" *ngIf="activeSettingGroup()">
+
+    <ul class="nav nav-underline" role="tablist" *ngIf="activity().def.nonEmptyGroupCount > 1">
+        @for (group of activity().def.groups; track group.key) {
+            <li class="nav-item" role="presentation" *ngIf="!group.isEmpty">
+                <a class="nav-link"
+                   [ngClass]="{'active': activeSettingGroup() === group}"
+                   (click)="activeSettingGroup.set(group)"
+                   role="tab">{{ group.displayName }}</a>
+            </li>
+        }
+    </ul>
+
+    @for (subgroup of activeSettingGroup().subgroups; track subgroup.key) {
+        <ng-container *ngIf="!subgroup.isEmpty">
+            <h5 *ngIf="!subgroup.isDefault() || true">{{ subgroup.displayName }}</h5>
+            <c-card class="mb-3">
+                <ul cListGroup flush="true">
+                    @for (setting of subgroup.settings; track setting.key) {
+                        <li cListGroupItem>
+                            <h6>{{ setting.displayName }}
+                                <span class="text-medium-emphasis">({{ setting.key }}: {{ setting.type }})</span>
+                            </h6>
+                            <p>{{ setting.shortDescription }}</p>
+                            <h6>Value:</h6>
+                            <app-json-text [text]="activity().settings()[setting.key] | json"></app-json-text>
+                        </li>
+                    }
+                </ul>
+            </c-card>
+        </ng-container>
+    }
+</div>

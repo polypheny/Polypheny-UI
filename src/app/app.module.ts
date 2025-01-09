@@ -78,6 +78,7 @@ import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {NotebooksModule} from './plugins/notebooks/notebooks.module';
 import {IconDirective} from '@coreui/icons-angular';
 import {WorkflowsModule} from './plugins/workflows/workflows.module';
+import {MarkdownModule} from 'ngx-markdown';
 
 
 @NgModule({
@@ -153,7 +154,8 @@ import {WorkflowsModule} from './plugins/workflows/workflows.module';
         NavbarComponent,
         CollapseDirective,
         NavbarBrandDirective,
-        NavbarNavComponent
+        NavbarNavComponent,
+        MarkdownModule.forRoot()
     ],
     declarations: [
         AppComponent,

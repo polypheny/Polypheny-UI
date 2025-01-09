@@ -4,6 +4,7 @@ import {ToasterService} from '../../../../components/toast-exposer/toaster.servi
 import {LeftSidebarService} from '../../../../components/left-sidebar/left-sidebar.service';
 import {WorkflowsService} from '../../services/workflows.service';
 import {SessionModel} from '../../models/workflows.model';
+import {MarkdownService, MarkedRenderer} from 'ngx-markdown';
 
 @Component({
     selector: 'app-workflow-session',
@@ -16,12 +17,14 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
     private readonly _toast = inject(ToasterService);
     private readonly _sidebar = inject(LeftSidebarService);
     private readonly _workflows = inject(WorkflowsService);
+    private readonly _markdown = inject(MarkdownService);
 
     sessionId: string;
     session: SessionModel;
 
     ngOnInit(): void {
         this._sidebar.hide();
+        this.initMarkdown();
 
         this._route.paramMap.subscribe(params => {
             this.sessionId = params.get('sessionId');
@@ -55,5 +58,34 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
                 }
             }
         });
+    }
+
+    private initMarkdown() {
+        const renderer = new MarkedRenderer();
+        renderer.blockquote = (text: string) => {
+            return '<blockquote class="blockquote"><p>' + text + '</p></blockquote>';
+        };
+
+
+        const defaultHeadingRenderer = renderer.heading.bind(renderer);
+        renderer.heading = (text: string, level: number, raw: string) => {
+            return defaultHeadingRenderer(text, level + 3, raw);
+        };
+
+        const defaultLinkRenderer = renderer.link.bind(renderer);
+        renderer.link = (href, title, text) => {
+            const link = defaultLinkRenderer(href, title, text);
+            return link.startsWith('<a') ? '<a target="_blank"' + link.slice(2) : link;
+        };
+
+        // https://github.com/jfcere/ngx-markdown/issues/149#issuecomment-1008360616
+        const baseUrl = 'assets/img/plugin/workflows';
+        const defaultImageRenderer = renderer.image.bind(renderer);
+        renderer.image = (href: string | null, title: string | null, text) => {
+            href = `${baseUrl}/${href}`;
+            return defaultImageRenderer(href, title, text);
+        };
+
+        this._markdown.renderer = renderer;
     }
 }

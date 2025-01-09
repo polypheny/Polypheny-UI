@@ -10,8 +10,8 @@
 
     <!-- Timeout-->
     <div class="mb-3">
-        <label cLabel for="timeout">Execution timeout (ms), or 0 to use workflow default</label>
-        <input cFormControl type="number" id="timeout" [(ngModel)]="editableConfig().timeoutMillis" name="timeout"
+        <label cLabel for="timeout">Execution timeout in seconds, or 0 to use workflow default</label>
+        <input cFormControl type="number" id="timeout" [(ngModel)]="editableConfig().timeoutSeconds" name="timeout"
                (change)="checkForChanges()" [disabled]="!isEditable()" min="0">
     </div>
 

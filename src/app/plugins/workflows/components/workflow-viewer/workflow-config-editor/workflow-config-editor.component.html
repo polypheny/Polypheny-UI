@@ -20,8 +20,8 @@
 
             <!-- Timeout-->
             <div class="mb-3">
-                <label cLabel for="timeout">Base execution timeout (ms), or 0 to disable</label>
-                <input cFormControl type="number" id="timeout" [(ngModel)]="editableConfig().timeoutMillis" name="timeout"
+                <label cLabel for="timeout">Activity execution timeout in seconds, or 0 to disable</label>
+                <input cFormControl type="number" id="timeout" [(ngModel)]="editableConfig().timeoutSeconds" name="timeout"
                        (change)="checkForChanges()" [disabled]="!isEditable()" min="0">
             </div>
 

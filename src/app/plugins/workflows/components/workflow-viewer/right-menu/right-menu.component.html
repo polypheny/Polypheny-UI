@@ -8,17 +8,9 @@
              class="no-select"
              [ngClass]="offcanvas.visible ? 'menu-visible' : 'menu-hidden'"
 >
-    <c-offcanvas-header class="pb-2 bg-light">
+    <c-offcanvas-header class="py-2 bg-light border-bottom">
         <div *ngIf="activity()" class="d-flex flex-column flex-grow-1">
             <div class="d-flex flex-row align-items-center justify-content-between">
-                <!--<div>
-                    <button
-                            aria-label="Close"
-                            cButtonClose
-                            [cOffcanvasToggle]="offcanvas.id"
-                            class="text-reset ms-auto"
-                    ></button>
-                </div>-->
                 <h3 cOffcanvasTitle>{{ activity().displayName() }}</h3>
                 <!-- TODO: also show def name if displayname differs-->
             </div>
@@ -47,6 +39,12 @@
                        (click)="activeTab.set('execution')"
                        role="tab">Execution</a>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeTab() === 'help'}"
+                       (click)="activeTab.set('help')"
+                       role="tab">Help</a>
+                </li>
             </ul>
         </div>
     </c-offcanvas-header>
@@ -54,12 +52,14 @@
         <div class="tab-content" *ngIf="activity()">
             @switch (activeTab()) {
                 @case ("settings") {
-                    @for (entry of activity().settings() | keyvalue; track activity().id + entry.key) {
+                    <!--@for (entry of activity().settings() | keyvalue; track activity().id + entry.key) {
                         <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
-                        <!--<app-json-editor [json]="entry | json">
-                        </app-json-editor>-->
+                        &lt;!&ndash;<app-json-editor [json]="entry | json">
+                        </app-json-editor>&ndash;&gt;
                         <app-json-text [text]="entry.value | json"></app-json-text>
-                    }
+                    }-->
+
+                    <app-activity-settings [activity]="activity()"></app-activity-settings>
                 }
                 @case ("variables") {
                     <div>variables</div>
@@ -75,6 +75,9 @@
 
                     <h5 class="mt-5">Execution Stats</h5>
                     <p>TODO</p>
+                }
+                @case ("help") {
+                    <app-activity-help [def]="activity().def"></app-activity-help>
                 }
             }
         </div>
