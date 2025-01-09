@@ -60,14 +60,12 @@
         <app-left-menu #leftMenu [isEditable]="isEditable && !isExecuting?.()" (create)="createActivity($event)">
         </app-left-menu>
         <div class="rete flex-fill" #rete></div>
-        <app-right-menu #rightMenu [activity]="openedActivity()" [isEditable]="isEditable && !isExecuting?.()"
-                        (save)="saveActivity($event)">
+        <app-right-menu #rightMenu [activity]="openedActivity()" [isEditable]="isEditable && !isExecuting?.()">
         </app-right-menu>
     </div>
 </div>
 
-<app-workflow-config-editor #workflowConfigEditor [config]="workflow?.config()" [isEditable]="isEditable && !isExecuting?.()"
-                            (save)="saveConfig($event)"/>
+<app-workflow-config-editor #workflowConfigEditor [config]="workflow?.config()" [isEditable]="isEditable && !isExecuting?.()"/>
 
 <c-modal [visible]="showSaveModal()" (visibleChange)="showSaveModal.set($event)">
     <c-modal-header>

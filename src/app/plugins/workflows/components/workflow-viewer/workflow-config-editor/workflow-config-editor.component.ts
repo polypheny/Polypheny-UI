@@ -1,7 +1,8 @@
-import {Component, computed, effect, EventEmitter, input, OnInit, Output, Signal, signal} from '@angular/core';
+import {Component, computed, effect, input, OnInit, Signal, signal} from '@angular/core';
 import {WorkflowConfigModel} from '../../../models/workflows.model';
 import {CatalogService} from '../../../../../services/catalog.service';
 import {AdapterModel} from '../../../../../views/adapters/adapter.model';
+import {WorkflowsWebSocketService} from '../../../services/workflows-websocket.service';
 
 @Component({
     selector: 'app-workflow-config-editor',
@@ -11,7 +12,6 @@ import {AdapterModel} from '../../../../../views/adapters/adapter.model';
 export class WorkflowConfigEditorComponent implements OnInit {
     config = input.required<WorkflowConfigModel>();
     isEditable = input.required<boolean>();
-    @Output() save = new EventEmitter<WorkflowConfigModel>();
 
     readonly adapters: Signal<AdapterModel[]>;
     readonly serializedConfig = computed(() => JSON.stringify(this.config()),
@@ -21,7 +21,7 @@ export class WorkflowConfigEditorComponent implements OnInit {
     hasConfigChanged: Signal<boolean>;
     readonly showModal = signal(false);
 
-    constructor(private _catalog: CatalogService) {
+    constructor(private _catalog: CatalogService, private readonly _websocket: WorkflowsWebSocketService) {
         this.adapters = computed(() => {
             this._catalog.listener();
             return [...this._catalog.getStores().filter(store =>
@@ -42,7 +42,7 @@ export class WorkflowConfigEditorComponent implements OnInit {
         if (config.maxWorkers < 1) {
 
         }
-        this.save.emit(this.editableConfig());
+        this._websocket.updateConfig(config);
         this.showModal.set(false);
     }
 

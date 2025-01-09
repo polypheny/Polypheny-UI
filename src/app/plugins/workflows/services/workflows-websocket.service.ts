@@ -1,29 +1,39 @@
+import {Injectable, signal} from '@angular/core';
 import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
-import {signal} from '@angular/core';
-import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {Observable, Subject} from 'rxjs';
 import {RequestType, WsResponse} from '../models/ws-response.model';
+import {Observable, Subject} from 'rxjs';
+import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {ActivityConfigModel, EdgeModel, RenderModel, WorkflowConfigModel} from '../models/workflows.model';
 import * as uuid from 'uuid';
 
-export class WorkflowsWebSocket {
+interface Request {
+    msgId: string;
+
+    [key: string]: any;
+}
+
+@Injectable()
+export class WorkflowsWebSocketService {
     private socket: WebSocketSubject<WsResponse>;
     public readonly connected = signal(false);
-    private msgSubject = new Subject<WsResponse>();
+    private msgSubject = new Subject<{ response: WsResponse, isDirect: boolean }>(); // whether it is a direct response to a request originating here
     private keepalive: number;
+    private sessionId: string;
+    private readonly sentRequests = new Set<string>(); // contains the ws request ID until a response for that ID was received
 
-    constructor(private readonly _settings: WebuiSettingsService, private readonly sessionId: string) {
-        this.initWebSocket();
-        this.keepalive = setInterval(() => {
-            if (this.connected) {
-                // @ts-ignore
-                this.sendMessage({type: 'KEEPALIVE', msgId: uuid.v4()});
-            }
-        }, +this._settings.getSetting('reconnection.timeout'));
+    constructor(private readonly _settings: WebuiSettingsService) {
     }
 
 
-    private initWebSocket() {
+    initWebSocket(sessionId: string) {
+        if (this.sessionId === sessionId) {
+            return;
+        }
+        if (this.socket) {
+            this.close();
+        }
+        this.sessionId = sessionId;
+
         this.socket = webSocket<WsResponse>({
             url: this._settings.getConnection('workflows.socket') + `/${this.sessionId}`,
             openObserver: {
@@ -33,7 +43,10 @@ export class WorkflowsWebSocket {
             }
         });
         this.socket.subscribe({
-            next: msg => this.msgSubject.next(msg),
+            next: msg => {
+                const isDirect = this.sentRequests.delete(msg.parentId) || !msg.parentId;
+                this.msgSubject.next({response: msg, isDirect});
+            },
             error: err => {
                 console.log(err);
                 this.connected.set(false);
@@ -47,13 +60,21 @@ export class WorkflowsWebSocket {
                 this.msgSubject.complete();
             }
         });
+
+        this.keepalive = setInterval(() => {
+            if (this.connected) {
+                // @ts-ignore
+                this.sendMessage({type: 'KEEPALIVE', msgId: uuid.v4()});
+            }
+        }, +this._settings.getSetting('reconnection.timeout'));
     }
 
-    private sendMessage(obj: any) {
+    private sendMessage(obj: Request) {
         if (!this.connected()) {
             throw new Error('not connected');
         }
-        this.socket.next(obj);
+        this.sentRequests.add(obj.msgId);
+        this.socket.next(obj as any);
     }
 
     createActivity(activityType: string, rendering: RenderModel): string {
@@ -171,8 +192,8 @@ export class WorkflowsWebSocket {
         return id;
     }
 
-    onMessage(): Observable<WsResponse> {
-        return this.msgSubject;
+    onMessage(): Observable<{ response: WsResponse, isDirect: boolean }> {
+        return this.msgSubject.asObservable();
     }
 
     close() {
@@ -181,6 +202,4 @@ export class WorkflowsWebSocket {
         }
         this.socket.complete();
     }
-
-
 }

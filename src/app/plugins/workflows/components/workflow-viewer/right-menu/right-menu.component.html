@@ -70,7 +70,7 @@
                 @case ("execution") {
                     <h5>Config</h5>
                     <app-activity-config-editor [config]="activity().config()" [def]="activity().def"
-                                                [isEditable]="isEditable()" (save)="save.emit([null, $event, null])"
+                                                [isEditable]="isEditable()" (save)="save(null, $event, null)"
                     ></app-activity-config-editor>
 
                     <h5 class="mt-5">Execution Stats</h5>

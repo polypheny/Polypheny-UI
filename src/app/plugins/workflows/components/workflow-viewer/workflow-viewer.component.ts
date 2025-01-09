@@ -1,21 +1,22 @@
-import {Component, computed, ElementRef, EventEmitter, inject, Injector, Input, OnDestroy, OnInit, Output, signal, Signal, ViewChild} from '@angular/core';
+import {Component, computed, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, signal, Signal, ViewChild} from '@angular/core';
 import {WorkflowsService} from '../../services/workflows.service';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {WorkflowEditor} from './editor/workflow-editor';
-import {WorkflowsWebSocket} from '../../services/workflows-webSocket';
 import {ActivityUpdateResponse, ErrorResponse, ProgressUpdateResponse, RenderingUpdateResponse, ResponseType, StateUpdateResponse, WsResponse} from '../../models/ws-response.model';
 import {Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Activity, Workflow} from './workflow';
-import {ActivityConfigModel, RenderModel, Settings, WorkflowConfigModel, WorkflowState} from '../../models/workflows.model';
+import {ActivityConfigModel, RenderModel, Settings, WorkflowState} from '../../models/workflows.model';
 import {RightMenuComponent} from './right-menu/right-menu.component';
 import {switchMap, tap} from 'rxjs/operators';
 import {WorkflowConfigEditorComponent} from './workflow-config-editor/workflow-config-editor.component';
+import {WorkflowsWebSocketService} from '../../services/workflows-websocket.service';
 
 @Component({
     selector: 'app-workflow-viewer',
     templateUrl: './workflow-viewer.component.html',
-    styleUrl: './workflow-viewer.component.scss'
+    styleUrl: './workflow-viewer.component.scss',
+    providers: [WorkflowsWebSocketService]
 })
 export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @Input() sessionId: string;
@@ -28,14 +29,9 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @ViewChild('rightMenu') rightMenu: RightMenuComponent;
     @ViewChild('workflowConfigEditor') workflowConfigEditor: WorkflowConfigEditorComponent;
 
-    private readonly _workflows = inject(WorkflowsService);
-    private readonly _toast = inject(ToasterService);
     private readonly registry = this._workflows.getRegistry();
     private readonly subscriptions = new Subscription();
-    private readonly sentRequests = new Set<string>(); // contains the ws request ID until a response for that ID was received
-    private readonly responsesToIgnore = new Set<string>();
     private editor: WorkflowEditor;
-    websocket: WorkflowsWebSocket;
     workflow: Workflow;
     isExecuting: Signal<boolean>;
     canExecute: Signal<boolean>;
@@ -45,7 +41,11 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     saveMessage = '';
 
 
-    constructor(private injector: Injector) {
+    constructor(
+        private readonly _workflows: WorkflowsService,
+        private readonly _toast: ToasterService,
+        private readonly _websocket: WorkflowsWebSocketService,
+        private injector: Injector) {
     }
 
     ngOnInit(): void {
@@ -60,32 +60,32 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                 next: res => {
                     this.workflow = new Workflow(res, this.registry);
                     this.editor.initialize(this.workflow);
-                    this.websocket = this._workflows.createWebSocket(this.sessionId);
-                    this.websocket.onMessage().subscribe(response => this.handleWsMsg(response));
+                    this._websocket.initWebSocket(this.sessionId);
+                    this._websocket.onMessage().subscribe(msg => this.handleWsMsg(msg));
                     this.subscriptions.add(this.editor.onActivityTranslate().subscribe(
                         ({activityId, pos}) => this.updateActivityPosition(activityId, pos)
                     ));
                     this.subscriptions.add(this.editor.onActivityRemove().subscribe(
-                        activityId => this.sentRequests.add(this.websocket.deleteActivity(activityId))
+                        activityId => this._websocket.deleteActivity(activityId)
                     ));
                     this.subscriptions.add(this.editor.onActivityClone().subscribe(
                         activityId => {
                             const rendering = this.workflow.getActivity(activityId).rendering();
                             const delta = 50;
-                            this.sentRequests.add(this.websocket.cloneActivity(activityId, rendering.posX + delta, rendering.posY + delta));
+                            this._websocket.cloneActivity(activityId, rendering.posX + delta, rendering.posY + delta);
                         }
                     ));
                     this.subscriptions.add(this.editor.onEdgeRemove().subscribe(
-                        edge => this.sentRequests.add(this.websocket.deleteEdge(edge))
+                        edge => this._websocket.deleteEdge(edge)
                     ));
                     this.subscriptions.add(this.editor.onEdgeCreate().subscribe(
-                        edge => this.sentRequests.add(this.websocket.createEdge(edge))
+                        edge => this._websocket.createEdge(edge)
                     ));
                     this.subscriptions.add(this.editor.onActivityExecute().subscribe(
-                        activityId => this.sentRequests.add(this.websocket.execute(activityId))
+                        activityId => this._websocket.execute(activityId)
                     ));
                     this.subscriptions.add(this.editor.onActivityReset().subscribe(
-                        activityId => this.sentRequests.add(this.websocket.reset(activityId))
+                        activityId => this._websocket.reset(activityId)
                     ));
                     this.subscriptions.add(this.editor.onOpenActivitySettings().pipe(
                         switchMap(activityId =>
@@ -109,15 +109,15 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     }
 
     execute() {
-        this.sentRequests.add(this.websocket.execute());
+        this._websocket.execute();
     }
 
     reset() {
-        this.sentRequests.add(this.websocket.reset());
+        this._websocket.reset();
     }
 
     interrupt() {
-        this.sentRequests.add(this.websocket.interrupt());
+        this._websocket.interrupt();
     }
 
     arrangeNodes() {
@@ -126,27 +126,16 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
 
     createActivity(activityType: string) {
         const center = this.editor.getCenter();
-        console.log('center', center);
-        this.sentRequests.add(
-            this.websocket.createActivity(activityType, {
-                posX: center.x,
-                posY: center.y,
-                name: null,
-                notes: null
-            })
-        );
+        this._websocket.createActivity(activityType, {
+            posX: center.x,
+            posY: center.y,
+            name: null,
+            notes: null
+        });
     }
 
-    private handleWsMsg(response: WsResponse) {
-        if (this.responsesToIgnore.has(response.parentId)) {
-            this.responsesToIgnore.delete(response.parentId);
-            if (response.type !== ResponseType.ERROR) {
-                return; // only ignore non-error responses
-            }
-        }
-        const isDirectResponse = this.sentRequests.has(response.parentId) || !response.parentId;
-        this.sentRequests.delete(response.parentId); // this might cause issues if multiple responses for 1 request are sent
-
+    private handleWsMsg(msg: { response: WsResponse, isDirect: boolean }) {
+        const {response, isDirect} = msg;
         switch (response.type) {
             case ResponseType.STATE_UPDATE:
                 const stateResponse = response as StateUpdateResponse;
@@ -171,7 +160,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                 this.workflow.updateOrCreateActivity((response as ActivityUpdateResponse).activity);
                 break;
             case ResponseType.ERROR:
-                if (isDirectResponse) {
+                if (isDirect) {
                     const errorResponse = response as ErrorResponse;
                     const cause = errorResponse.cause ? ': ' + errorResponse.cause : '';
                     this._toast.error(errorResponse.reason + cause, errorResponse.parentType + ' was unsuccessful');
@@ -183,7 +172,6 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     }
 
     private synchronizeWorkflow() {
-        console.log('synchronizing workflow...');
         // if workflow is not in sync, we get a consistent workflow by fetching and updating the entire workflow
         this._workflows.getActiveWorkflow(this.sessionId).subscribe(workflowModel =>
             this.workflow.update(workflowModel)
@@ -201,7 +189,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             posY: pos.y
         };
         // the workflow is getting updated by the websocket broadcast
-        this.sentRequests.add(this.websocket.updateActivity(activityId, null, null, modifiedRendering));
+        this._websocket.updateActivity(activityId, null, null, modifiedRendering);
     }
 
     toggleSaveModal() {
@@ -217,7 +205,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
         this.editor?.destroy();
-        this.websocket?.close();
+        this._websocket?.close();
     }
 
     showConfigModal() {
@@ -227,11 +215,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         });
     }
 
-    saveConfig(config: WorkflowConfigModel) {
-        this.sentRequests.add(this.websocket.updateConfig(config));
-    }
-
-    saveActivity(value: [Settings, ActivityConfigModel, RenderModel]) {
-        this.sentRequests.add(this.websocket.updateActivity(this.openedActivity().id, ...value));
+    private saveActivity(value: [Settings, ActivityConfigModel, RenderModel]) {
+        this._websocket.updateActivity(this.openedActivity().id, ...value);
     }
 }
