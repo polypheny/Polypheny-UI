@@ -1,9 +1,11 @@
 import {DataModel} from '../../../models/ui-request.model';
+import {SettingsModel} from './workflows.model';
+import JsonPointer from 'json-pointer';
+import * as _ from 'lodash';
 
 export const DEFAULT_GROUP = '';
 export const ADVANCED_GROUP = 'advanced';
 export const DEFAULT_SUBGROUP = '';
-export const SUB_SEP = '>'; // this separator is used to specify dependencies on values of other settings.
 
 export class ActivityRegistry {
     private readonly registry: Map<string, ActivityDef>;
@@ -34,6 +36,7 @@ export class ActivityDef {
     iconPath: string;
     groups: GroupDef[];
     nonEmptyGroupCount: number;
+    private readonly settingDefMap = new Map<string, any>();
 
     constructor(model: ActivityDefModel) {
         this.type = model.type;
@@ -46,13 +49,20 @@ export class ActivityDef {
         this.iconPath = model.iconPath;
 
         const sortedGroups = [...model.groups].sort((a, b) => a.position - b.position);
-        console.log(model.type + ', sorted groups:', sortedGroups);
         this.groups = sortedGroups.map(group => new GroupDef(group, model.settings));
         this.nonEmptyGroupCount = this.groups.filter(group => !group.isEmpty).length;
+
+        this.groups.forEach(g => g.subgroups.forEach(sg => sg.settings.forEach(
+            setting => this.settingDefMap.set(setting.key, setting)
+        )));
     }
 
     public getFirstGroup(): GroupDef | undefined {
         return this.groups.find(group => !group.isEmpty);
+    }
+
+    getSettingDef<T extends SettingDef>(key: string): T {
+        return this.settingDefMap.get(key) as T;
     }
 
 }
@@ -114,7 +124,8 @@ export class SettingDef {
     displayName: string;
     shortDescription: string;
     longDescription: string;
-    subOf: string;
+    subPointer: string;
+    subValues: any[];
 
     constructor(model: SettingDefModel) {
         this.type = model.type;
@@ -122,7 +133,20 @@ export class SettingDef {
         this.displayName = model.displayName;
         this.shortDescription = model.shortDescription;
         this.longDescription = model.longDescription;
-        this.subOf = model.subOf;
+        this.subPointer = model.subPointer;
+        this.subValues = model.subValues;
+    }
+
+    isVisible(settings: SettingsModel) {
+        if (this.subPointer.length === 0) {
+            return true;
+        }
+        try {
+            const value = JsonPointer.get(settings, this.subPointer);
+            return this.subValues.find(subValue => _.isEqual(subValue, value)) !== undefined;
+        } catch (e) {
+            return false;
+        }
     }
 }
 
@@ -211,5 +235,6 @@ export interface SettingDefModel {
     group: string;
     subgroup: string;
     position: number;
-    subOf: string;
+    subPointer: string;
+    subValues: any[];
 }

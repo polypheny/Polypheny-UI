@@ -1,0 +1,5 @@
+.setting-group {
+  overflow-y: auto;
+  //max-height: 100%;
+  max-height: calc(100vh - 410px); // TODO: find solution without hardcoded height, or at least consider activity name length
+}

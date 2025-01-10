@@ -9,34 +9,38 @@
     </ng-template>
 
     <div class="ports-section">
-        <h4>Inputs</h4>
-        <c-card class="mb-3">
-            <ul cListGroup flush="true">
-                @for (inPort of def().inPorts; track $index) {
-                    <li cListGroupItem>
-                        <h5>{{ $index }}:
-                            <span class="text-medium-emphasis">{{ portTypeToDataModel( inPort.type ) }}</span>
-                            <span *ngIf="inPort.isOptional" class="text-medium-emphasis"> (optional)</span>
-                        </h5>
-                        <markdown katex [katexOptions]="options" [data]="inPort.description"></markdown>
-                    </li>
-                }
-            </ul>
-        </c-card>
+        @if (def().inPorts.length > 0) {
+            <h4>Inputs</h4>
+            <c-card class="mb-3">
+                <ul cListGroup flush="true">
+                    @for (inPort of def().inPorts; track $index) {
+                        <li cListGroupItem>
+                            <h5>{{ $index }}:
+                                <span class="text-medium-emphasis">{{ portTypeToDataModel( inPort.type ) }}</span>
+                                <span *ngIf="inPort.isOptional" class="text-medium-emphasis"> (optional)</span>
+                            </h5>
+                            <markdown katex [katexOptions]="options" [data]="inPort.description"></markdown>
+                        </li>
+                    }
+                </ul>
+            </c-card>
+        }
 
-        <h4>Outputs</h4>
-        <c-card class="mb-3">
-            <ul cListGroup flush="true">
-                @for (outPort of def().outPorts; track $index) {
-                    <li cListGroupItem>
-                        <h5>{{ $index }}:
-                            <span class="text-medium-emphasis">{{ portTypeToDataModel( outPort.type ) }}</span>
-                        </h5>
-                        <markdown katex [katexOptions]="options" [data]="outPort.description"></markdown>
-                    </li>
-                }
-            </ul>
-        </c-card>
+        @if (def().outPorts.length > 0) {
+            <h4>Outputs</h4>
+            <c-card class="mb-3">
+                <ul cListGroup flush="true">
+                    @for (outPort of def().outPorts; track $index) {
+                        <li cListGroupItem>
+                            <h5>{{ $index }}:
+                                <span class="text-medium-emphasis">{{ portTypeToDataModel( outPort.type ) }}</span>
+                            </h5>
+                            <markdown katex [katexOptions]="options" [data]="outPort.description"></markdown>
+                        </li>
+                    }
+                </ul>
+            </c-card>
+        }
     </div>
 
     <div class="settings-section" *ngIf="activeSettingGroup()">

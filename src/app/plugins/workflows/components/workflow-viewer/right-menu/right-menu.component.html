@@ -48,7 +48,7 @@
             </ul>
         </div>
     </c-offcanvas-header>
-    <c-offcanvas-body class="pt-1">
+    <c-offcanvas-body class="pt-1 pb-0">
         <div class="tab-content" *ngIf="activity()">
             @switch (activeTab()) {
                 @case ("settings") {
@@ -59,10 +59,13 @@
                         <app-json-text [text]="entry.value | json"></app-json-text>
                     }-->
 
-                    <app-activity-settings [activity]="activity()"></app-activity-settings>
+                    <app-activity-settings [activity]="activity()" [isEditable]="isEditable()"></app-activity-settings>
                 }
                 @case ("variables") {
-                    <div>variables</div>
+                    @for (entry of activity().variables() | keyvalue; track activity().id + entry.key) {
+                        <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
+                        <app-json-text [text]="entry.value | json"></app-json-text>
+                    }
                 }
                 @case ("outputs") {
                     <div>outputs</div>

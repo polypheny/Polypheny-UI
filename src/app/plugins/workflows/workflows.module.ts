@@ -20,6 +20,7 @@ import {
     CardTextDirective,
     CardTitleDirective,
     ColComponent,
+    CollapseDirective,
     FormCheckComponent,
     FormCheckInputDirective,
     FormCheckLabelDirective,
@@ -68,6 +69,8 @@ import {LeftMenuComponent} from './components/workflow-viewer/left-menu/left-men
 import {ActivityHelpComponent} from './components/workflow-viewer/right-menu/activity-help/activity-help.component';
 import {MarkdownComponent} from 'ngx-markdown';
 import {ActivitySettingsComponent} from './components/workflow-viewer/right-menu/activity-settings/activity-settings.component';
+import {IntSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/int-setting/int-setting.component';
+import {StringSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/string-setting/string-setting.component';
 
 @NgModule({
     imports: [
@@ -127,7 +130,8 @@ import {ActivitySettingsComponent} from './components/workflow-viewer/right-menu
         CardTextDirective,
         CardHeaderComponent,
         BorderDirective,
-        MarkdownComponent
+        MarkdownComponent,
+        CollapseDirective
     ],
     declarations: [
         WorkflowViewerComponent,
@@ -139,7 +143,9 @@ import {ActivitySettingsComponent} from './components/workflow-viewer/right-menu
         WorkflowConfigEditorComponent,
         LeftMenuComponent,
         ActivityHelpComponent,
-        ActivitySettingsComponent
+        ActivitySettingsComponent,
+        IntSettingComponent,
+        StringSettingComponent
     ],
     exports: [
         WorkflowViewerComponent,

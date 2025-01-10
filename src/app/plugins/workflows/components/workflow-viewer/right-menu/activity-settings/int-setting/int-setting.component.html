@@ -1,0 +1,3 @@
+<input cFormControl sizing="sm" id="arg"
+       type="number" autocomplete="off" [readonly]="!isEditable()" (change)="hasChanged.emit()"
+       [min]="def().minValue" [max]="def().maxValue" [ngModel]="value()" (ngModelChange)="value.set($event)">

@@ -97,7 +97,6 @@ export class ActivityNode extends ClassicPreset.Node {
 
     execute() {
         this.executeActivitySubject.next(this.activityId);
-        console.log('common type is ', this.commonType(), this.activity.config().commonType);
     }
 
     reset() {

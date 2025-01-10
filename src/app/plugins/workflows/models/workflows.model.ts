@@ -40,7 +40,8 @@ export enum SessionModelType {
     JOB_SESSION = 'JOB_SESSION'
 }
 
-export type Settings = Record<string, any>;
+export type SettingsModel = Record<string, any>;
+export type Variables = Record<string, any>;
 
 export interface EdgeModel {
     fromId: string;
@@ -74,12 +75,13 @@ export interface TypePreviewModel {
 export interface ActivityModel {
     type: string;
     id: string;
-    settings: Settings;
+    settings: SettingsModel;
     config: ActivityConfigModel;
     rendering: RenderModel;
     state?: ActivityState;
     inTypePreview?: TypePreviewModel[];
     invalidReason?: string;
+    variables?: Variables;
 }
 
 export interface SessionModel {
@@ -108,7 +110,7 @@ export interface WorkflowModel {
     activities: ActivityModel[];
     edges: EdgeModel[];
     config: WorkflowConfigModel;
-    variables: Settings;
+    variables: SettingsModel;
     state?: WorkflowState;
 }
 

@@ -1,8 +1,9 @@
-import {ActivityConfigModel, ActivityModel, ActivityState, CommonType, EdgeModel, EdgeState, RenderModel, Settings, TypePreviewModel, WorkflowConfigModel, WorkflowModel, WorkflowState} from '../../models/workflows.model';
+import {ActivityConfigModel, ActivityModel, ActivityState, CommonType, EdgeModel, EdgeState, RenderModel, SettingsModel, TypePreviewModel, Variables, WorkflowConfigModel, WorkflowModel, WorkflowState} from '../../models/workflows.model';
 import {computed, Signal, signal, WritableSignal} from '@angular/core';
 import * as _ from 'lodash';
 import {Subject} from 'rxjs';
 import {ActivityDef, ActivityRegistry} from '../../models/activity-registry.model';
+import JsonPointer from 'json-pointer';
 
 export function edgeToString(edge: EdgeModel) {
     return JSON.stringify({
@@ -25,12 +26,13 @@ export class Workflow {
     private readonly activities: Map<string, Activity> = new Map();
     private readonly edgeStates: Map<string, WritableSignal<EdgeState>> = new Map();
     readonly config: WritableSignal<WorkflowConfigModel>;
-    readonly variables: WritableSignal<Settings>;
+    readonly variables: WritableSignal<SettingsModel>;
     readonly hasUnfinishedActivities: Signal<boolean>;
 
     private readonly activityChangeSubject = new Subject<string>();
     private readonly activityRemoveSubject = new Subject<string>();
     private readonly activityAddSubject = new Subject<Activity>();
+    private readonly activityDirtySubject = new Subject<string>(); // if the activity state changed without updating the activity itself
     private readonly edgeChangeSubject = new Subject<string>(); // edgeString
     private readonly edgeAddSubject = new Subject<[EdgeModel, WritableSignal<EdgeState>]>();
     private readonly edgeRemoveSubject = new Subject<string>(); // edgeString
@@ -121,8 +123,12 @@ export class Workflow {
         const remaining = new Set<string>(this.activities.keys());
 
         for (const [id, state] of Object.entries(activityStates)) {
+            const oldState = this.activities.get(id)?.state();
             if (this.updateActivityState(id, state)) {
                 this.activityChangeSubject.next(id);
+                if (state !== oldState) {
+                    this.activityDirtySubject.next(id);
+                }
                 remaining.delete(id);
             } else {
                 missing.add(id);
@@ -201,6 +207,10 @@ export class Workflow {
         return this.activityRemoveSubject.asObservable();
     }
 
+    onActivityDirty() {
+        return this.activityDirtySubject.asObservable();
+    }
+
     onEdgeChange() {
         return this.edgeChangeSubject.asObservable();
     }
@@ -257,6 +267,7 @@ export class Activity {
     readonly rendering: WritableSignal<RenderModel>;
     readonly inTypePreview: WritableSignal<TypePreviewModel[]>;
     readonly invalidReason: WritableSignal<string>;
+    readonly variables: WritableSignal<Variables>;
     readonly displayName: Signal<string>;
 
     constructor(activityModel: ActivityModel, def: ActivityDef) {
@@ -264,22 +275,24 @@ export class Activity {
         this.id = activityModel.id;
         this.def = def;
         this.state = signal(activityModel.state);
-        this.settings = signal(activityModel.settings, {equal: _.isEqual}); // deep equivalence check
+        this.settings = signal(new Settings(activityModel.settings), {equal: _.isEqual}); // deep equivalence check
         this.config = signal(this.prepareConfig(activityModel.config), {equal: _.isEqual});
         this.commonType = computed(() => this.config().commonType);
         this.rendering = signal(activityModel.rendering, {equal: _.isEqual});
         this.inTypePreview = signal(activityModel.inTypePreview, {equal: _.isEqual});
         this.invalidReason = signal(activityModel.invalidReason);
+        this.variables = signal(activityModel.variables, {equal: _.isEqual});
         this.displayName = computed(() => this.rendering().name || this.def.displayName);
     }
 
     update(activityModel: ActivityModel) {
         this.state.set(activityModel.state);
-        this.settings.set(activityModel.settings);
+        this.settings.set(new Settings(activityModel.settings));
         this.config.set(this.prepareConfig(activityModel.config));
         this.rendering.set(activityModel.rendering);
         this.inTypePreview.set(activityModel.inTypePreview);
         this.invalidReason.set(activityModel.invalidReason);
+        this.variables.set(activityModel.variables);
     }
 
     prepareConfig(config: ActivityConfigModel) {
@@ -296,6 +309,149 @@ export class Activity {
         }
         config.preferredStores = prefs;
         return config;
+    }
+
+}
+
+export class Settings {
+    readonly settings = new Map<string, Setting>();
+
+    constructor(model: SettingsModel | string) {
+        if (typeof model === 'string') {
+            model = JSON.parse(model);
+        }
+        Object.entries(model).forEach(([key, value]) =>
+            this.settings.set(key, new Setting(key, value)));
+    }
+
+    get(key: string): Setting | undefined {
+        console.log('getting Setting', key, this.settings); // TODO: reduce calls
+        return this.settings.get(key);
+    }
+
+    toModel(insertRefs: boolean) {
+        const model = {};
+        for (const [key, value] of this.settings) {
+            model[key] = value.toModel(insertRefs);
+        }
+        return model;
+    }
+
+    serialize() {
+        return JSON.stringify(this.toModel(true));
+    }
+
+    keys() {
+        return [...this.settings.keys()];
+    }
+}
+
+export class Setting {
+    readonly references: VariableReference[];
+    value: any; // static value of this setting, possibly containing values that will get overwritten
+
+
+    constructor(public readonly key: string, model: any) {
+        const tokens = [];
+        const copy = JSON.parse(JSON.stringify(model));
+        [this.references, this.value] = Setting.splitRecursive(tokens, copy);
+    }
+
+    private static splitRecursive(tokens: string[], obj: any): [VariableReference[], any] {
+        const references: VariableReference[] = [];
+        if (obj === null) {
+            return [references, null];
+        } else if (typeof obj === 'object') {
+            if (VARIABLE_REF_FIELD in obj) {
+                const ref = new VariableReference(JsonPointer.compile(tokens), obj);
+                references.push(ref);
+                return [references, ref.defaultValue];
+            } else {
+                Object.entries(obj).forEach(([key, value]) => {
+                    const [r, o] = Setting.splitRecursive([...tokens, key], value);
+                    references.push(...r);
+                    obj[key] = o;
+                });
+            }
+        } else if (Array.isArray(obj)) {
+            for (const [i, value] of obj.entries()) {
+                const [r, o] = Setting.splitRecursive([...tokens, i.toString()], value);
+                references.push(...r);
+                obj[i] = o;
+            }
+        }
+
+        return [references, obj];
+    }
+
+    static toModel(references: VariableReference[], value: any): any {
+        let copy = JSON.parse(JSON.stringify(value));
+        for (const ref of references) {
+            let defaultValue = ref.defaultValue;
+            try {
+                defaultValue = JsonPointer.get(copy, ref.target); // overwrite with value set in settings component
+            } catch (ignored) {
+            }
+
+            const refObject = {[VARIABLE_REF_FIELD]: ref.varRef, [VARIABLE_DEFAULT_FIELD]: defaultValue};
+            if (ref.target.length <= 1) {
+                copy = refObject; // setting the root
+            } else {
+                JsonPointer.set(copy, ref.target, refObject); // TODO: try catch
+            }
+        }
+        return copy;
+    }
+
+    toModel(insertRefs: boolean): any {
+        if (insertRefs) {
+            return Setting.toModel(this.references, this.value);
+        }
+        return JSON.parse(JSON.stringify(this.value));
+    }
+
+    addReference(variablePointer: string, target: string): boolean {
+        target = target.startsWith('/') ? target : '/' + target;
+        if (this.isValidTargetPointer(target)) {
+            this.references.push(VariableReference.of(target, variablePointer));
+            console.log('added variable reference', this.references[this.references.length - 1]);
+            return true;
+        }
+        return false;
+    }
+
+    isValidTargetPointer(target: string) {
+
+        if (this.references.find(ref => target.startsWith(ref.target) || ref.target.startsWith(target))) {
+            return false; // cannot set two variables to same target
+        }
+
+        const slashCount = (target.match(/\//g) || []).length;
+
+        // TODO: test if this works
+        return JsonPointer.has(this.value, target) || (
+            slashCount > 1 &&
+            JsonPointer.has(this.value, target.substring(0, target.lastIndexOf('/')))
+        );
+    }
+}
+
+const VARIABLE_REF_FIELD = '$ref';
+const VARIABLE_DEFAULT_FIELD = '$default';
+
+export class VariableReference {
+    readonly target: string; // Json-Pointer to target location in setting
+    readonly varRef: string; // Json-Pointer to a variable
+    readonly defaultValue: any | null;
+
+    constructor(target: string, ref: { [VARIABLE_REF_FIELD]: string, [VARIABLE_DEFAULT_FIELD]?: any }) {
+        this.target = target.startsWith('/') ? target : '/' + target;
+        this.varRef = ref[VARIABLE_REF_FIELD];
+        this.defaultValue = ref[VARIABLE_DEFAULT_FIELD] || null;
+    }
+
+    static of(target: string, varRef: string): VariableReference {
+        return new VariableReference(target, {[VARIABLE_REF_FIELD]: varRef});
     }
 
 }

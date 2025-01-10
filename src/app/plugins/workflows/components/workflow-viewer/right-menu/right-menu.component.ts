@@ -2,7 +2,7 @@ import {Component, input, signal, ViewChild} from '@angular/core';
 import {OffcanvasComponent} from '@coreui/angular';
 import {Activity} from '../workflow';
 import {WorkflowsService} from '../../../services/workflows.service';
-import {ActivityConfigModel, RenderModel, Settings} from '../../../models/workflows.model';
+import {ActivityConfigModel, RenderModel, SettingsModel} from '../../../models/workflows.model';
 import {WorkflowsWebSocketService} from '../../../services/workflows-websocket.service';
 
 
@@ -39,7 +39,7 @@ export class RightMenuComponent {
         return this.menu?.visible;
     }
 
-    save(settings: Settings, config: ActivityConfigModel, rendering: RenderModel) {
+    save(settings: SettingsModel, config: ActivityConfigModel, rendering: RenderModel) {
         this._websocket.updateActivity(this.activity().id, settings, config, rendering);
     }
 }

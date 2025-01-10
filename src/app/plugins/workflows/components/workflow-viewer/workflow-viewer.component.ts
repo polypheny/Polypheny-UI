@@ -3,10 +3,10 @@ import {WorkflowsService} from '../../services/workflows.service';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {WorkflowEditor} from './editor/workflow-editor';
 import {ActivityUpdateResponse, ErrorResponse, ProgressUpdateResponse, RenderingUpdateResponse, ResponseType, StateUpdateResponse, WsResponse} from '../../models/ws-response.model';
-import {Subscription} from 'rxjs';
+import {filter, Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Activity, Workflow} from './workflow';
-import {ActivityConfigModel, RenderModel, Settings, WorkflowState} from '../../models/workflows.model';
+import {WorkflowState} from '../../models/workflows.model';
 import {RightMenuComponent} from './right-menu/right-menu.component';
 import {switchMap, tap} from 'rxjs/operators';
 import {WorkflowConfigEditorComponent} from './workflow-config-editor/workflow-config-editor.component';
@@ -62,41 +62,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                     this.editor.initialize(this.workflow);
                     this._websocket.initWebSocket(this.sessionId);
                     this._websocket.onMessage().subscribe(msg => this.handleWsMsg(msg));
-                    this.subscriptions.add(this.editor.onActivityTranslate().subscribe(
-                        ({activityId, pos}) => this.updateActivityPosition(activityId, pos)
-                    ));
-                    this.subscriptions.add(this.editor.onActivityRemove().subscribe(
-                        activityId => this._websocket.deleteActivity(activityId)
-                    ));
-                    this.subscriptions.add(this.editor.onActivityClone().subscribe(
-                        activityId => {
-                            const rendering = this.workflow.getActivity(activityId).rendering();
-                            const delta = 50;
-                            this._websocket.cloneActivity(activityId, rendering.posX + delta, rendering.posY + delta);
-                        }
-                    ));
-                    this.subscriptions.add(this.editor.onEdgeRemove().subscribe(
-                        edge => this._websocket.deleteEdge(edge)
-                    ));
-                    this.subscriptions.add(this.editor.onEdgeCreate().subscribe(
-                        edge => this._websocket.createEdge(edge)
-                    ));
-                    this.subscriptions.add(this.editor.onActivityExecute().subscribe(
-                        activityId => this._websocket.execute(activityId)
-                    ));
-                    this.subscriptions.add(this.editor.onActivityReset().subscribe(
-                        activityId => this._websocket.reset(activityId)
-                    ));
-                    this.subscriptions.add(this.editor.onOpenActivitySettings().pipe(
-                        switchMap(activityId =>
-                            this._workflows.getActivity(this.sessionId, activityId)
-                        ),
-                        tap(activityModel => {
-                            this.workflow.updateOrCreateActivity(activityModel);
-                            this.openedActivity.set(this.workflow.getActivity(activityModel.id));
-                            this.rightMenu.showMenu();
-                        })
-                    ).subscribe());
+                    this.addSubscriptions();
                     this.isExecuting = computed(() => {
                         return this.workflow.state() !== WorkflowState.IDLE;
                     });
@@ -132,6 +98,54 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             name: null,
             notes: null
         });
+    }
+
+    private addSubscriptions() {
+        this.subscriptions.add(this.editor.onActivityTranslate().subscribe(
+            ({activityId, pos}) => this.updateActivityPosition(activityId, pos)
+        ));
+        this.subscriptions.add(this.editor.onActivityRemove().subscribe(
+            activityId => this._websocket.deleteActivity(activityId)
+        ));
+        this.subscriptions.add(this.editor.onActivityClone().subscribe(
+            activityId => {
+                const rendering = this.workflow.getActivity(activityId).rendering();
+                const delta = 50;
+                this._websocket.cloneActivity(activityId, rendering.posX + delta, rendering.posY + delta);
+            }
+        ));
+        this.subscriptions.add(this.editor.onEdgeRemove().subscribe(
+            edge => this._websocket.deleteEdge(edge)
+        ));
+        this.subscriptions.add(this.editor.onEdgeCreate().subscribe(
+            edge => this._websocket.createEdge(edge)
+        ));
+        this.subscriptions.add(this.editor.onActivityExecute().subscribe(
+            activityId => this._websocket.execute(activityId)
+        ));
+        this.subscriptions.add(this.editor.onActivityReset().subscribe(
+            activityId => this._websocket.reset(activityId)
+        ));
+        this.subscriptions.add(this.editor.onOpenActivitySettings().pipe(
+            switchMap(activityId => this._workflows.getActivity(this.sessionId, activityId)),
+            tap(activityModel => {
+                this.workflow.updateOrCreateActivity(activityModel);
+                this.openedActivity.set(this.workflow.getActivity(activityModel.id));
+                this.rightMenu.showMenu();
+            })
+        ).subscribe());
+        this.subscriptions.add(this.workflow.onActivityRemove().subscribe(
+            activityId => {
+                if (this.openedActivity()?.id === activityId) {
+                    this.openedActivity.set(null);
+                }
+            }
+        ));
+        this.subscriptions.add(this.workflow.onActivityDirty().pipe(
+            filter(activityId => this.openedActivity()?.id === activityId),
+            switchMap(activityId => this._workflows.getActivity(this.sessionId, activityId)),
+            tap(activityModel => this.workflow.updateOrCreateActivity(activityModel))
+        ).subscribe());
     }
 
     private handleWsMsg(msg: { response: WsResponse, isDirect: boolean }) {
@@ -213,9 +227,5 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             this.workflow.config.set(config);
             this.workflowConfigEditor.show();
         });
-    }
-
-    private saveActivity(value: [Settings, ActivityConfigModel, RenderModel]) {
-        this._websocket.updateActivity(this.openedActivity().id, ...value);
     }
 }
