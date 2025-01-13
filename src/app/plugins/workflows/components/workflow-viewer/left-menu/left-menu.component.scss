@@ -3,13 +3,36 @@
   height: 100%;
   position: relative;
   max-height: inherit;
+}
+
+.info-visible {
+  width: 800px;
+}
+
+.info-hidden {
   width: 400px;
 }
 
-.menu-visible {
+.add-activity-col {
+  max-width: 400px;
 }
 
-.menu-hidden {
+.info-col {
+  max-width: 400px;
+
+  .offcanvas-header {
+    min-height: 59px; // same height as Add Activity
+  }
+}
+
+.activity-list {
+  overflow-y: auto;
+  max-height: calc(100vh - 400px); // TODO: find solution without hardcoded height, or at least consider activity name length
+}
+
+.activity-info {
+  overflow-y: auto;
+  max-height: calc(100vh - 300px); // TODO: find solution without hardcoded height, or at least consider activity name length
 }
 
 .no-select {
@@ -19,11 +42,21 @@
   -ms-user-select: none;
 }
 
-.offcanvas-body {
-  overflow-y: auto;
-  max-height: calc(100vh - 300px); // TODO: find solution without hardcoded height, or at least consider activity name length
-}
-
 .cdk-drag-preview {
   z-index: 1100 !important;
+}
+
+.draggable {
+  cursor: grab;
+}
+
+.draggable:active {
+  cursor: grabbing !important;
+}
+
+.activity-card:hover {
+
+  .info-button {
+    color: var(--cui-dark) !important;
+  }
 }

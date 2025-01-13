@@ -1,4 +1,4 @@
-import {Component, computed, effect, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, signal, Signal, ViewChild} from '@angular/core';
+import {Component, computed, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, signal, Signal, ViewChild} from '@angular/core';
 import {WorkflowsService} from '../../services/workflows.service';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {WorkflowEditor} from './editor/workflow-editor';
@@ -52,9 +52,6 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         private readonly _toast: ToasterService,
         private readonly _websocket: WorkflowsWebSocketService,
         private injector: Injector) {
-        effect(() => {
-            console.log('edited changed', this.editedVariables());
-        });
     }
 
     ngOnInit(): void {

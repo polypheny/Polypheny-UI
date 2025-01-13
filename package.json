@@ -33,6 +33,7 @@
     "ace-builds": "^1.31.1",
     "ajv": "^8.12.0",
     "angular-ng-autocomplete": "^2.0.12",
+    "angular2-multiselect-dropdown": "^9.0.0",
     "ansi_up": "^5.2.1",
     "bootstrap": "^5.3.1",
     "core-js": "^3.26.1",

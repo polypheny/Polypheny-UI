@@ -4,39 +4,66 @@
              [scroll]="true"
              placement="start"
              #offcanvas
-             [visible]="false"
+             [visible]="true"
              class="no-select"
-             [ngClass]="offcanvas.visible ? 'menu-visible' : 'menu-hidden'"
+             [ngClass]="openedActivityDef ? 'info-visible' : 'info-hidden'"
 >
-    <c-offcanvas-header class="py-2 bg-light border-bottom">
-        <h3 cOffcanvasTitle>Add Activity</h3>
-    </c-offcanvas-header>
-    <c-offcanvas-body class="pt-1">
-        <div>
-            <c-input-group sizing="sm" class="m-1">
-                <select cSelect id="createActivity" [(ngModel)]="selectedActivityType">
-                    <option *ngFor="let activityType of activityTypes"
-                            [value]="activityType">{{ activityType }}
-                    </option>
-                </select>
-                <button cButton color="secondary" type="button" (click)="create.emit(selectedActivityType)"
-                        [disabled]="!isEditable() || !selectedActivityType">
-                    Create Activity
-                </button>
-            </c-input-group>
+    <div class="d-flex flex-row">
+        <div class="add-activity-col flex-grow-1">
+            <c-offcanvas-header class="py-2 bg-light border-bottom">
+                <h3 cOffcanvasTitle>Add Activity</h3>
+            </c-offcanvas-header>
+            <div class="px-3 py-2 border-bottom">
+                <c-input-group class="mb-1">
+                    <span cInputGroupText class="cil-search bg-transparent"></span>
+                    <input class="activity-search" cFormControl type="search" value="search" [(ngModel)]="filterText" (input)="filterList()"
+                           placeholder="Search by name">
+                </c-input-group>
+                <angular2-multiselect id="category-multi-selector" [data]="dropdownCats" [(ngModel)]="selectedCategories"
+                                      [settings]="dropdownSettings"
+                                      (onSelect)="onItemSelect($event)"
+                                      (onDeSelect)="OnItemDeSelect($event)">
+                </angular2-multiselect>
+            </div>
+            <c-offcanvas-body class="p-0">
+                <ul cListGroup flush="true" cdkDropList cdkDropListSortingDisabled="true" class="activity-list px-2">
+                    <!--https://stackblitz.com/edit/angular-krmecd?file=src%2Fapp%2Fapp.component.ts-->
+                    @for (activity of filteredList; track activity.type) {
+                        <li cListGroupItem class="px-1">
+                            <c-card cdkDrag [cdkDragData]="activity.type" class="draggable" color="light" [cBorder]="activity === openedActivityDef && 'primary'"
+                                    (cdkDragDropped)="onDragDropped($event)">
+                                <c-card-body class="p-2 activity-card">
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <div (click)="create.emit(activity.type)">
+                                            <h6 class="flex-grow-1">{{ activity.displayName }}</h6>
+                                        </div>
+                                        <div>
+                                            <span class="fa fa-question-circle px-2 text-secondary info-button" style="cursor: pointer;"
+                                                  (click)="openedActivityDef = activity">
+                                            </span>
+                                        </div>
+                                    </div>
+                                </c-card-body>
+                            </c-card>
+                            <!--<div class="bg-primary draggable" *cdkDragPreview>
+                                <h5>{{ activity.displayName }}</h5>
+                            </div>-->
+                        </li>
+                    }
+                </ul>
+            </c-offcanvas-body>
+
         </div>
-        <div cdkDropList cdkDropListSortingDisabled="true">
-            Testing Drag And Drop
-            <!--https://stackblitz.com/edit/angular-krmecd?file=src%2Fapp%2Fapp.component.ts-->
-            @for (activityType of activityTypes; track activityType) {
-                <div cdkDrag [cdkDragData]="activityType"
-                     (cdkDragDropped)="onDragDropped($event)" (click)="create.emit(activityType)">
-                    <p>{{ activityType }}</p>
-                    <div class="bg-primary" *cdkDragPreview>
-                        <p>{{ activityType }}</p>
-                    </div>
-                </div>
-            }
+        <div *ngIf="openedActivityDef" class="border-start flex-grow-1 info-col">
+            <c-offcanvas-header class="py-2 border-bottom">
+                <h4 cOffcanvasTitle>{{ openedActivityDef.displayName }}</h4>
+                <button cButtonClose class="text-reset ms-auto" (click)="openedActivityDef=null"></button>
+            </c-offcanvas-header>
+            <c-offcanvas-body class="pt-3 activity-info">
+                <app-activity-help [def]="openedActivityDef"></app-activity-help>
+            </c-offcanvas-body>
         </div>
-    </c-offcanvas-body>
+
+    </div>
 </c-offcanvas>
+

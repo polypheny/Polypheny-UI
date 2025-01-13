@@ -9,11 +9,18 @@ export const DEFAULT_SUBGROUP = '';
 
 export class ActivityRegistry {
     private readonly registry: Map<string, ActivityDef>;
+    public readonly categories: string[] = [];
 
     constructor(data: Record<string, ActivityDefModel>) {
         this.registry = new Map(Object.entries(data).map(
             ([key, model]) => [key, new ActivityDef(model)]
         ));
+        const categories = new Set<string>();
+        this.registry.forEach((def, type) => {
+            def.categories.forEach(c => categories.add(c));
+        });
+        this.categories.push(...categories);
+        this.categories.sort((a, b) => a.localeCompare(b));
     }
 
     public getDef(activityType: string) {

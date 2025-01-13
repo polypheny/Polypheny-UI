@@ -44,12 +44,13 @@
         </c-col>
 
         <c-col md="1">
-            <c-badge *ngIf="workflow" shape="rounded-pill" class=""
-                     [color]="workflow.state() === 'IDLE' ? 'primary' :
-                         workflow.state() === 'EXECUTING' ? 'warning' :
-                         'danger' ">
+            <span class="badge rounded-pill" *ngIf="workflow" [ngClass]="{
+                'bg-primary': workflow.state() === 'IDLE',
+                'bg-warning': workflow.state() === 'EXECUTING',
+                'bg-danger': workflow.state() === 'INTERRUPTED'
+             }">
                 {{ workflow.state() }}
-            </c-badge>
+            </span>
         </c-col>
         <c-col xs="auto" class="pe-1">
             <c-button-group role="group" class="m-1">

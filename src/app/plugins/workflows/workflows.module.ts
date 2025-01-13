@@ -72,6 +72,7 @@ import {ActivitySettingsComponent} from './components/workflow-viewer/right-menu
 import {IntSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/int-setting/int-setting.component';
 import {StringSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/string-setting/string-setting.component';
 import {CdkDrag, CdkDragPreview, CdkDropList} from '@angular/cdk/drag-drop';
+import {AngularMultiSelectModule} from 'angular2-multiselect-dropdown';
 
 @NgModule({
     imports: [
@@ -135,7 +136,8 @@ import {CdkDrag, CdkDragPreview, CdkDropList} from '@angular/cdk/drag-drop';
         CollapseDirective,
         CdkDrag,
         CdkDropList,
-        CdkDragPreview
+        CdkDragPreview,
+        AngularMultiSelectModule,
     ],
     declarations: [
         WorkflowViewerComponent,

@@ -4,7 +4,7 @@
 
         <ul class="nav nav-underline flex-grow-1" role="tablist" *ngIf="activity().def.nonEmptyGroupCount > 1">
             @for (group of activity().def.groups; track group.key) {
-                <li class="nav-item" role="presentation" *ngIf="!group.isEmpty" class="pt-0">
+                <li class="nav-item pt-0" role="presentation" *ngIf="!group.isEmpty">
                     <a class="nav-link"
                        [ngClass]="{'active': activeSettingGroup() === group}"
                        (click)="activeSettingGroup.set(group)"
@@ -41,9 +41,9 @@
                                     <button cButton color="light" class="px-1 d-inline-flex align-items-center" tabindex="-1" size="sm"
                                             (click)="toggleVariablesVisibility(setting.key)">
                                         <span class="cil-bolt me-1"></span>
-                                        <c-badge color="{{editableReferences().get(setting.key)?.length === 0 ? 'secondary' : 'primary'}}">
+                                        <span class="badge" [ngClass]="editableReferences().get(setting.key)?.length === 0 ? 'bg-secondary' : 'bg-primary'">
                                             {{ editableReferences().get( setting.key )?.length }}
-                                        </c-badge>
+                                        </span>
                                     </button>
                                 </div>
                                 <p>{{ setting.shortDescription }}</p>
