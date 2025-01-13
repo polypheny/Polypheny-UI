@@ -3,7 +3,7 @@ import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
 import {RequestType, WsResponse} from '../models/ws-response.model';
 import {Observable, Subject} from 'rxjs';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {ActivityConfigModel, EdgeModel, RenderModel, WorkflowConfigModel} from '../models/workflows.model';
+import {ActivityConfigModel, EdgeModel, RenderModel, Variables, WorkflowConfigModel} from '../models/workflows.model';
 import * as uuid from 'uuid';
 
 interface Request {
@@ -187,6 +187,17 @@ export class WorkflowsWebSocketService {
             type: RequestType.UPDATE_CONFIG,
             msgId: id,
             workflowConfig,
+        };
+        this.sendMessage(msg);
+        return id;
+    }
+
+    updateVariables(variables: Variables): string {
+        const id = uuid.v4();
+        const msg = {
+            type: RequestType.UPDATE_VARIABLES,
+            msgId: id,
+            variables,
         };
         this.sendMessage(msg);
         return id;

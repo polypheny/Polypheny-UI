@@ -22,10 +22,13 @@
                        role="tab">Settings</a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link"
+                    <a class="nav-link d-flex align-items-center"
                        [ngClass]="{'active': activeTab() === 'variables'}"
                        (click)="activeTab.set('variables')"
-                       role="tab">Variables</a>
+                       role="tab">
+                        Variables
+                        <span class="cil-bolt ms-1"></span>
+                    </a>
                 </li>
                 <li class="nav-item" role="presentation">
                     <a class="nav-link"
@@ -48,7 +51,7 @@
             </ul>
         </div>
     </c-offcanvas-header>
-    <c-offcanvas-body class="pt-1 pb-0">
+    <c-offcanvas-body class="pt-3 pb-0">
         <div class="tab-content" *ngIf="activity()">
             @switch (activeTab()) {
                 @case ("settings") {
@@ -62,6 +65,8 @@
                     <app-activity-settings [activity]="activity()" [isEditable]="isEditable()"></app-activity-settings>
                 }
                 @case ("variables") {
+                    <!--TODO: force update app-json-text on change-->
+                    <p>Available variables after last execution:</p>
                     @for (entry of activity().variables() | keyvalue; track activity().id + entry.key) {
                         <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
                         <app-json-text [text]="entry.value | json"></app-json-text>

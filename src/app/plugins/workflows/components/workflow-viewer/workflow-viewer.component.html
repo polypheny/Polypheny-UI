@@ -10,7 +10,7 @@
         <c-col md="6" [offset]="{lg: 3, md:1}" class="me-auto">
             <ng-container *ngIf="isEditable">
                 <c-button-group role="group" class="m-1">
-                    <button cButton color="primary" class="" (click)="toggleSaveModal()"
+                    <button cButton color="light" class="" (click)="toggleSaveModal()"
                             [disabled]="showSaveModal()">
                         <i class="fa fa-save"></i>
                     </button>
@@ -20,6 +20,10 @@
                     </button>
                     <button cButton color="light" class="" (click)="showConfigModal()">
                         Config
+                    </button>
+                    <button cButton color="light" class="d-flex align-items-center" (click)="openVariableModal()">
+                        Variables
+                        <span class="cil-bolt ms-1"></span>
                     </button>
                 </c-button-group>
 
@@ -57,7 +61,8 @@
     </c-row>
 
     <div class="flex-grow-1 d-flex flex-row editor-container overflow-hidden">
-        <app-left-menu #leftMenu [isEditable]="isEditable && !isExecuting?.()" (create)="createActivity($event)">
+        <app-left-menu #leftMenu [isEditable]="isEditable && !isExecuting?.()"
+                       (create)="createActivity($event)" (createAt)="createActivityAt($event)">
         </app-left-menu>
         <div class="rete flex-fill" #rete></div>
         <app-right-menu #rightMenu [activity]="openedActivity()" [isEditable]="isEditable && !isExecuting?.()">
@@ -84,6 +89,27 @@
         <button (click)="toggleSaveModal()" cButton color="secondary">Close</button>
         <div>
             <button cButton color="primary" (click)="saveWorkflow()">Save Workflow</button>
+        </div>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showVariableModal()" (visibleChange)="showVariableModal.set($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Workflow Variables</h5>
+        <button (click)="toggleVariableModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        @if (isEditable) {
+            <app-json-editor [json]="workflow?.variables() | json" #variableEditor *ngIf="workflow?.variables()"
+                             (valueChange)="editedVariables.set($event)"></app-json-editor>
+        } @else {
+            <app-json-text [text]="workflow?.variables() | json" *ngIf="workflow?.variables()"></app-json-text>
+        }
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleVariableModal()" cButton color="secondary">Close</button>
+        <div *ngIf="isEditable">
+            <button cButton color="primary" (click)="saveVariables()" [disabled]="isExecuting?.() || !hasVariablesChanged()">Save Variables</button>
         </div>
     </c-modal-footer>
 </c-modal>

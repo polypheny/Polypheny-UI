@@ -1,58 +1,64 @@
 <form cForm (ngSubmit)="saveConfig()">
 
-    <!-- Enforce Checkpoint -->
-    <c-form-check [switch]="true" class="mb-3">
-        <input cFormCheckInput id="form-check-input" type="checkbox" [(ngModel)]="editableConfig().enforceCheckpoint"
-               name="form-check-input" (change)="checkForChanges()" [disabled]="!isEditable()">
-        <label cFormCheckLabel for="form-check-input">Always create checkpoint</label>
-    </c-form-check>
+    <div class="d-flex flex-row">
 
+        <!-- Save Button -->
+        <button class="ms-auto" cButton type="submit" color="primary" *ngIf="isEditable()"
+                [disabled]="!hasConfigChanged()">
+            Save
+        </button>
 
-    <!-- Timeout-->
-    <div class="mb-3">
-        <label cLabel for="timeout">Execution timeout in seconds, or 0 to use workflow default</label>
-        <input cFormControl type="number" id="timeout" [(ngModel)]="editableConfig().timeoutSeconds" name="timeout"
-               (change)="checkForChanges()" [disabled]="!isEditable()" min="0">
     </div>
 
-    <!-- Preferred Stores -->
-    <div class="mb-3">
-        <label cLabel>Preferred Stores:</label>
+    <div class="config-inputs mt-2">
+        <!-- Enforce Checkpoint -->
+        <c-form-check [switch]="true" class="mb-3">
+            <input cFormCheckInput id="form-check-input" type="checkbox" [(ngModel)]="editableConfig().enforceCheckpoint"
+                   name="form-check-input" (change)="checkForChanges()" [disabled]="!isEditable()">
+            <label cFormCheckLabel for="form-check-input">Always create checkpoint</label>
+        </c-form-check>
 
-        @for (outputStore of editableConfig().preferredStores; track i; let i = $index) {
-            <c-input-group class="mb-3">
-                <label cInputGroupText for="preferred-{{i}}">{{ $first ? 'Output' : 'Output ' + i }}</label>
-                <select cSelect id="preferred-{{i}}" [(ngModel)]="editableConfig().preferredStores[i]" name="preferred-{{i}}"
-                        (change)="checkForChanges()" [disabled]="!isEditable()">
-                    <option [value]="''">Use workflow default</option>
-                    <option *ngFor="let adapter of adapters()" [value]="adapter.name">{{ adapter.name + ' (' + adapter.adapterName + ')' }}</option>
-                </select>
-            </c-input-group>
-        }
+
+        <!-- Timeout-->
+        <div class="mb-3">
+            <label cLabel for="timeout">Execution timeout in seconds, or 0 to use workflow default</label>
+            <input cFormControl type="number" id="timeout" [(ngModel)]="editableConfig().timeoutSeconds" name="timeout"
+                   (change)="checkForChanges()" [disabled]="!isEditable()" min="0">
+        </div>
+
+        <!-- Preferred Stores -->
+        <div class="mb-3">
+            <label cLabel>Preferred Stores:</label>
+
+            @for (outputStore of editableConfig().preferredStores; track i; let i = $index) {
+                <c-input-group class="mb-3">
+                    <label cInputGroupText for="preferred-{{i}}">{{ $first ? 'Output' : 'Output ' + i }}</label>
+                    <select cSelect id="preferred-{{i}}" [(ngModel)]="editableConfig().preferredStores[i]" name="preferred-{{i}}"
+                            (change)="checkForChanges()" [disabled]="!isEditable()">
+                        <option [value]="''">Use workflow default</option>
+                        <option *ngFor="let adapter of adapters()" [value]="adapter.name">{{ adapter.name + ' (' + adapter.adapterName + ')' }}</option>
+                    </select>
+                </c-input-group>
+            }
+        </div>
+
+        <!-- Common Type -->
+        <div class="mb-3">
+            <label cLabel for="commonType">Common Type:</label>
+            <select cSelect id="commonType" [(ngModel)]="editableConfig().commonType" name="commonType"
+                    (change)="checkForChanges()" [disabled]="!isEditable()">
+                <option *ngFor="let type of commonTypes" [value]="type">{{ type }}</option>
+            </select>
+        </div>
+
+        <!-- Control State Merger -->
+        <div class="mb-3">
+            <label cLabel for="controlStateMerger">Control State Merger:</label>
+            <select cSelect id="controlStateMerger" [(ngModel)]="editableConfig().controlStateMerger"
+                    name="controlStateMerger" (change)="checkForChanges()" [disabled]="!isEditable()">
+                <option *ngFor="let merger of controlStateMergers" [value]="merger">{{ merger }}</option>
+            </select>
+        </div>
     </div>
-
-    <!-- Common Type -->
-    <div class="mb-3">
-        <label cLabel for="commonType">Common Type:</label>
-        <select cSelect id="commonType" [(ngModel)]="editableConfig().commonType" name="commonType"
-                (change)="checkForChanges()" [disabled]="!isEditable()">
-            <option *ngFor="let type of commonTypes" [value]="type">{{ type }}</option>
-        </select>
-    </div>
-
-    <!-- Control State Merger -->
-    <div class="mb-3">
-        <label cLabel for="controlStateMerger">Control State Merger:</label>
-        <select cSelect id="controlStateMerger" [(ngModel)]="editableConfig().controlStateMerger"
-                name="controlStateMerger" (change)="checkForChanges()" [disabled]="!isEditable()">
-            <option *ngFor="let merger of controlStateMergers" [value]="merger">{{ merger }}</option>
-        </select>
-    </div>
-
-    <!-- Save Button -->
-    <button cButton type="submit" color="primary" *ngIf="isEditable()"
-            [disabled]="!hasConfigChanged()">
-        Save
-    </button>
 </form>
 

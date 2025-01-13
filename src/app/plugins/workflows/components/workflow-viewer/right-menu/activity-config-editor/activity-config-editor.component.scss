@@ -1,0 +1,4 @@
+.config-inputs {
+  overflow-y: auto;
+  max-height: calc(100vh - 415px); // TODO: find solution without hardcoded height, or at least consider activity name length
+}

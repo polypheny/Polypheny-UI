@@ -20,6 +20,7 @@ export enum RequestType { // no specific interfaces for requests are required, s
     INTERRUPT = 'INTERRUPT',
     RESET = 'RESET',
     UPDATE_CONFIG = 'UPDATE_CONFIG',
+    UPDATE_VARIABLES = 'UPDATE_VARIABLES',
 }
 
 export interface WsResponse {

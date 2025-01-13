@@ -87,4 +87,9 @@ export class ActivitySettingsComponent implements OnInit {
         }
 
     }
+
+    deleteReference(key: string, ref: VariableReference) {
+        this.editableSettings().get(key).deleteReference(ref);
+        this.checkForChanges();
+    }
 }

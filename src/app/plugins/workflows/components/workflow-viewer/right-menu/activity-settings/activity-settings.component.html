@@ -4,7 +4,7 @@
 
         <ul class="nav nav-underline flex-grow-1" role="tablist" *ngIf="activity().def.nonEmptyGroupCount > 1">
             @for (group of activity().def.groups; track group.key) {
-                <li class="nav-item" role="presentation" *ngIf="!group.isEmpty">
+                <li class="nav-item" role="presentation" *ngIf="!group.isEmpty" class="pt-0">
                     <a class="nav-link"
                        [ngClass]="{'active': activeSettingGroup() === group}"
                        (click)="activeSettingGroup.set(group)"
@@ -15,10 +15,12 @@
 
 
         <!-- Save Button -->
-        <button cButton type="submit" color="primary" *ngIf="isEditable()" class="mt-2"
-                [disabled]="!hasSettingsChanged()" (click)="saveSettings()">
-            Save
-        </button>
+        <div class=" ms-auto">
+            <button cButton type="submit" color="primary" *ngIf="isEditable()" class=""
+                    [disabled]="!hasSettingsChanged()" (click)="saveSettings()">
+                Save
+            </button>
+        </div>
 
     </div>
 
@@ -31,12 +33,12 @@
                     <ul cListGroup flush="true">
                         @for (setting of subgroup.settings; track setting.key) {
                             <li cListGroupItem *ngIf="visibilityMap.get( setting.key ) && editableSettings().get(setting.key)">
-                                <div class="d-flex flex-row">
-                                    <h6 class="flex-grow-1">{{ setting.displayName }}
+                                <div class="d-flex flex-row justify-content-between align-items-center">
+                                    <h6 class="">{{ setting.displayName }}
                                         <span class="text-medium-emphasis">({{ setting.key }}: {{ setting.type }})</span>
                                     </h6>
 
-                                    <button cButton color="light" class="px-1" size="sm"
+                                    <button cButton color="light" class="px-1 d-inline-flex align-items-center" tabindex="-1" size="sm"
                                             (click)="toggleVariablesVisibility(setting.key)">
                                         <span class="cil-bolt me-1"></span>
                                         <c-badge color="{{editableReferences().get(setting.key)?.length === 0 ? 'secondary' : 'primary'}}">
@@ -46,18 +48,31 @@
                                 </div>
                                 <p>{{ setting.shortDescription }}</p>
                                 <div [visible]="variablesVisibilityMap.get(setting.key)?.()" cCollapse>
-                                    <c-card class="mb-2 shadow-sm">
-                                        <c-card-body>
-                                            @for (ref of editableReferences().get( setting.key ); track ref.target) {
-                                                <p>{{ ref | json }}</p>
-                                            }
-                                            <div class="">
-                                                <c-input-group class="mb-3">
+                                    <c-card class="mb-2" color="light">
+                                        <c-card-body class="py-0">
+
+                                            <ul cListGroup flush="true" size="sm" class="mt-1">
+                                                @for (ref of editableReferences().get( setting.key ); track ref.target) {
+                                                    <li cListGroupItem class="d-flex justify-content-between" color="secondary">
+                                                        <div class="d-flex align-items-center">
+                                                            {{ ref.varRef }}
+                                                            <span class="cil-arrow-right mx-3"></span>
+                                                            {{ ref.target }}
+                                                        </div>
+                                                        <button cButton color="light" class="px-1 d-inline-flex align-items-center" tabindex="-1" size="sm"
+                                                                (click)="deleteReference(setting.key, ref)">
+                                                            <span class="cil-x"></span>
+                                                        </button>
+                                                    </li>
+                                                }
+                                            </ul>
+                                            <div class="mt-1 mb-2">
+                                                <c-input-group>
                                                     <input cFormControl placeholder="Variable" #variableInput/>
                                                     <span cInputGroupText>/</span>
                                                     <input cFormControl placeholder="Pointer" #pointerInput/>
-                                                    <span cInputGroupText>target</span>
-                                                    <input cFormControl placeholder="Pointer" #targetInput/>
+                                                    <span cInputGroupText><span class="cil-arrow-right"></span></span>
+                                                    <input cFormControl placeholder="Target" #targetInput/>
                                                     <button cButton type="button" variant="outline" color="secondary" *ngIf="isEditable()"
                                                             (click)="addVariableRef(setting.key, variableInput.value, pointerInput.value, targetInput.value)">
                                                         <span class="cil-plus"></span>

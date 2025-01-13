@@ -1,6 +1,7 @@
 import {Component, EventEmitter, input, Output, ViewChild} from '@angular/core';
 import {OffcanvasComponent} from '@coreui/angular';
 import {WorkflowsService} from '../../../services/workflows.service';
+import {CdkDragDrop} from '@angular/cdk/drag-drop';
 
 @Component({
     selector: 'app-left-menu',
@@ -10,6 +11,7 @@ import {WorkflowsService} from '../../../services/workflows.service';
 export class LeftMenuComponent {
     isEditable = input.required<boolean>();
     @Output() create = new EventEmitter<string>();
+    @Output() createAt = new EventEmitter<[string, { x: number, y: number }]>();
 
 
     @ViewChild('offcanvas') menu: OffcanvasComponent;
@@ -37,4 +39,7 @@ export class LeftMenuComponent {
         return this.menu?.visible;
     }
 
+    onDragDropped($event: CdkDragDrop<any>) {
+        this.createAt.emit([$event.item.data, $event.dropPoint]);
+    }
 }

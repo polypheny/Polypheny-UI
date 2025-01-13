@@ -23,3 +23,7 @@
   overflow-y: auto;
   max-height: calc(100vh - 300px); // TODO: find solution without hardcoded height, or at least consider activity name length
 }
+
+.cdk-drag-preview {
+  z-index: 1100 !important;
+}

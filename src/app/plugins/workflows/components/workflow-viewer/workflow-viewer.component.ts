@@ -1,4 +1,4 @@
-import {Component, computed, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, signal, Signal, ViewChild} from '@angular/core';
+import {Component, computed, effect, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, signal, Signal, ViewChild} from '@angular/core';
 import {WorkflowsService} from '../../services/workflows.service';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {WorkflowEditor} from './editor/workflow-editor';
@@ -11,6 +11,7 @@ import {RightMenuComponent} from './right-menu/right-menu.component';
 import {switchMap, tap} from 'rxjs/operators';
 import {WorkflowConfigEditorComponent} from './workflow-config-editor/workflow-config-editor.component';
 import {WorkflowsWebSocketService} from '../../services/workflows-websocket.service';
+import {JsonEditorComponent} from '../../../../components/json/json-editor.component';
 
 @Component({
     selector: 'app-workflow-viewer',
@@ -28,6 +29,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @ViewChild('leftMenu') leftMenu: RightMenuComponent;
     @ViewChild('rightMenu') rightMenu: RightMenuComponent;
     @ViewChild('workflowConfigEditor') workflowConfigEditor: WorkflowConfigEditorComponent;
+    @ViewChild('variableEditor') variableEditor: JsonEditorComponent;
 
     private readonly registry = this._workflows.getRegistry();
     private readonly subscriptions = new Subscription();
@@ -39,6 +41,10 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
 
     readonly showSaveModal = signal(false);
     saveMessage = '';
+    readonly showVariableModal = signal(false);
+    serializedVariables: Signal<string>;
+    readonly editedVariables = signal<string>(null);
+    readonly hasVariablesChanged = computed(() => this.serializedVariables?.() !== this.editedVariables());
 
 
     constructor(
@@ -46,6 +52,9 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         private readonly _toast: ToasterService,
         private readonly _websocket: WorkflowsWebSocketService,
         private injector: Injector) {
+        effect(() => {
+            console.log('edited changed', this.editedVariables());
+        });
     }
 
     ngOnInit(): void {
@@ -69,6 +78,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                     this.canExecute = computed(() => {
                         return !this.isExecuting() && this.workflow.hasUnfinishedActivities();
                     });
+                    this.serializedVariables = computed(() => JSON.stringify(this.workflow?.variables()));
                 }
             });
         }
@@ -88,16 +98,6 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
 
     arrangeNodes() {
         this.editor.arrangeNodes();
-    }
-
-    createActivity(activityType: string) {
-        const center = this.editor.getCenter();
-        this._websocket.createActivity(activityType, {
-            posX: center.x,
-            posY: center.y,
-            name: null,
-            notes: null
-        });
     }
 
     private addSubscriptions() {
@@ -226,6 +226,55 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         this._workflows.getWorkflowConfig(this.sessionId).subscribe(config => {
             this.workflow.config.set(config);
             this.workflowConfigEditor.show();
+        });
+    }
+
+    openVariableModal() {
+        this._workflows.getWorkflowVariables(this.sessionId).subscribe(variables => {
+            this.workflow.variables.set(variables);
+            this.editedVariables.set(JSON.stringify(variables));
+            setTimeout(() => { // wait for input of editor to change
+                this.variableEditor.addInitialValues();
+                this.showVariableModal.set(true);
+            }, 50);
+        });
+
+    }
+
+    toggleVariableModal() {
+        this.showVariableModal.update(b => !b);
+    }
+
+    saveVariables() {
+        if (this.variableEditor.isValid()) {
+            this._websocket.updateVariables(JSON.parse(this.editedVariables()));
+            this.showVariableModal.set(false);
+        } else {
+            this._toast.warn('Specified variables are invalid', 'Unable to save variables');
+        }
+    }
+
+    createActivity(activityType: string) {
+        const center = this.editor.getCenter();
+        this._websocket.createActivity(activityType, {
+            posX: center.x,
+            posY: center.y,
+            name: null,
+            notes: null
+        });
+    }
+
+    createActivityAt($event: [string, { x: number; y: number }]) {
+        const [activityType, dropPos] = $event;
+        const pos = this.editor.clientCoords2EditorCoords(dropPos);
+        if (pos === null || !activityType) {
+            return;
+        }
+        this._websocket.createActivity(activityType, {
+            posX: pos.x,
+            posY: pos.y,
+            name: null,
+            notes: null
         });
     }
 }

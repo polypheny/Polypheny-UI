@@ -219,14 +219,23 @@ export class WorkflowEditor {
     }
 
     getCenter(): Position {
-        // https://retejs.org/docs/faq#viewport-center
-        const {x, y, k} = this.area.area.transform;
         const box = this.area.container.getBoundingClientRect();
-        const halfWidth = box.width / 2 / k;
-        const halfHeight = box.height / 2 / k;
+        return this.clientCoords2EditorCoords({x: box.width / 2, y: box.height / 2}, true);
+    }
+
+    clientCoords2EditorCoords(clientPos: Position, isRelative = false) {
+        // https://retejs.org/docs/faq#viewport-center
+        const box = this.area.container.getBoundingClientRect();
+        const relPos = isRelative ? clientPos : {x: clientPos.x - box.x, y: clientPos.y - box.y};
+
+        if (relPos.x < 0 || relPos.x > box.width || relPos.y < 0 || relPos.y > box.height) {
+            return null;
+        }
+
+        const {x, y, k} = this.area.area.transform;
         const activityHalfWidth = 200 / 2; // approximation
         const activityHalfHeight = 300 / 2;
-        return {x: halfWidth - x / k - activityHalfWidth, y: halfHeight - y / k - activityHalfHeight};
+        return {x: (relPos.x - x) / k - activityHalfWidth, y: (relPos.y - y) / k - activityHalfHeight};
     }
 
     destroy(): void {

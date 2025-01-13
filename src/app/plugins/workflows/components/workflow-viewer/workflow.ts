@@ -325,7 +325,7 @@ export class Settings {
     }
 
     get(key: string): Setting | undefined {
-        console.log('getting Setting', key, this.settings); // TODO: reduce calls
+        //console.log('getting Setting', key, this.settings); // TODO: reduce calls
         return this.settings.get(key);
     }
 
@@ -387,10 +387,14 @@ export class Setting {
     static toModel(references: VariableReference[], value: any): any {
         let copy = JSON.parse(JSON.stringify(value));
         for (const ref of references) {
-            let defaultValue = ref.defaultValue;
-            try {
-                defaultValue = JsonPointer.get(copy, ref.target); // overwrite with value set in settings component
-            } catch (ignored) {
+            let defaultValue = ref.defaultValue; // fallback
+            if (ref.target === '/') {
+                defaultValue = copy;
+            } else {
+                try {
+                    defaultValue = JsonPointer.get(copy, ref.target); // overwrite with value set in settings component
+                } catch (ignored) {
+                }
             }
 
             const refObject = {[VARIABLE_REF_FIELD]: ref.varRef, [VARIABLE_DEFAULT_FIELD]: defaultValue};
@@ -414,16 +418,23 @@ export class Setting {
         target = target.startsWith('/') ? target : '/' + target;
         if (this.isValidTargetPointer(target)) {
             this.references.push(VariableReference.of(target, variablePointer));
-            console.log('added variable reference', this.references[this.references.length - 1]);
             return true;
         }
         return false;
+    }
+
+    deleteReference(ref: VariableReference) {
+        this.references.splice(this.references.indexOf(ref), 1);
+
     }
 
     isValidTargetPointer(target: string) {
 
         if (this.references.find(ref => target.startsWith(ref.target) || ref.target.startsWith(target))) {
             return false; // cannot set two variables to same target
+        }
+        if (target === '/') {
+            return true;
         }
 
         const slashCount = (target.match(/\//g) || []).length;

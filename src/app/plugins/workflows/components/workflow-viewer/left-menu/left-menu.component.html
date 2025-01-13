@@ -25,5 +25,18 @@
                 </button>
             </c-input-group>
         </div>
+        <div cdkDropList cdkDropListSortingDisabled="true">
+            Testing Drag And Drop
+            <!--https://stackblitz.com/edit/angular-krmecd?file=src%2Fapp%2Fapp.component.ts-->
+            @for (activityType of activityTypes; track activityType) {
+                <div cdkDrag [cdkDragData]="activityType"
+                     (cdkDragDropped)="onDragDropped($event)" (click)="create.emit(activityType)">
+                    <p>{{ activityType }}</p>
+                    <div class="bg-primary" *cdkDragPreview>
+                        <p>{{ activityType }}</p>
+                    </div>
+                </div>
+            }
+        </div>
     </c-offcanvas-body>
 </c-offcanvas>
