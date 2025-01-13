@@ -68,7 +68,7 @@
                     }
                 }
                 @case ("outputs") {
-                    <div>outputs</div>
+                    <app-checkpoint-viewer [activity]="activity()" [isQueryable]="isEditable()"></app-checkpoint-viewer>
                 }
                 @case ("execution") {
                     <h5>Config</h5>

@@ -12,12 +12,13 @@ import {switchMap, tap} from 'rxjs/operators';
 import {WorkflowConfigEditorComponent} from './workflow-config-editor/workflow-config-editor.component';
 import {WorkflowsWebSocketService} from '../../services/workflows-websocket.service';
 import {JsonEditorComponent} from '../../../../components/json/json-editor.component';
+import {CheckpointViewerService} from '../../services/checkpoint-viewer.service';
 
 @Component({
     selector: 'app-workflow-viewer',
     templateUrl: './workflow-viewer.component.html',
     styleUrl: './workflow-viewer.component.scss',
-    providers: [WorkflowsWebSocketService]
+    providers: [WorkflowsWebSocketService, CheckpointViewerService]
 })
 export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @Input() sessionId: string;
@@ -51,6 +52,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         private readonly _workflows: WorkflowsService,
         private readonly _toast: ToasterService,
         private readonly _websocket: WorkflowsWebSocketService,
+        readonly _checkpoint: CheckpointViewerService,
         private injector: Injector) {
     }
 
@@ -177,6 +179,8 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                     this._toast.error(errorResponse.reason + cause, errorResponse.parentType + ' was unsuccessful');
                 }
                 break;
+            case ResponseType.CHECKPOINT_DATA:
+                break; // handled by checkpoint service
             default:
                 console.warn('unhandled websocket response', response);
         }

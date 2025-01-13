@@ -73,6 +73,7 @@ import {IntSettingComponent} from './components/workflow-viewer/right-menu/activ
 import {StringSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/string-setting/string-setting.component';
 import {CdkDrag, CdkDragPreview, CdkDropList} from '@angular/cdk/drag-drop';
 import {AngularMultiSelectModule} from 'angular2-multiselect-dropdown';
+import {CheckpointViewerComponent} from './components/workflow-viewer/right-menu/checkpoint-viewer/checkpoint-viewer.component';
 
 @NgModule({
     imports: [
@@ -151,7 +152,8 @@ import {AngularMultiSelectModule} from 'angular2-multiselect-dropdown';
         ActivityHelpComponent,
         ActivitySettingsComponent,
         IntSettingComponent,
-        StringSettingComponent
+        StringSettingComponent,
+        CheckpointViewerComponent
     ],
     exports: [
         WorkflowViewerComponent,

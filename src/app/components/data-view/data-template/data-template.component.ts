@@ -1,17 +1,4 @@
-import {
-    Component,
-    computed,
-    effect,
-    EventEmitter,
-    inject,
-    Input,
-    OnDestroy,
-    OnInit,
-    Signal,
-    signal,
-    untracked,
-    WritableSignal
-} from '@angular/core';
+import {Component, computed, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Signal, signal, untracked, WritableSignal} from '@angular/core';
 import {RelationalResult, Result, UiColumnDefinition} from '../models/result-set.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {CatalogService} from '../../../services/catalog.service';
@@ -132,7 +119,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this._sidebar.open();
+        //this._sidebar.open();
         //listen to results
         this.initWebsocket();
 

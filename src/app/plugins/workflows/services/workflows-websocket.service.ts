@@ -203,6 +203,18 @@ export class WorkflowsWebSocketService {
         return id;
     }
 
+    getCheckpoint(activityId: string, outputIndex: number): string {
+        const id = uuid.v4();
+        const msg = {
+            type: RequestType.GET_CHECKPOINT,
+            msgId: id,
+            activityId,
+            outputIndex
+        };
+        this.sendMessage(msg);
+        return id;
+    }
+
     onMessage(): Observable<{ response: WsResponse, isDirect: boolean }> {
         return this.msgSubject.asObservable();
     }

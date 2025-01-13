@@ -1,0 +1,27 @@
+@if (activity() && isExecuted()) {
+
+    @if (activity().def.outPorts.length > 0) {
+
+        @if (isFinished()) {
+            <p>The outputs of this activity are currently not materialized</p>
+            <button cButton (click)="materializeCheckpoints()">Materialize</button>
+        } @else {
+            <h5>Outputs</h5>
+            <ul cListGroup flush="true">
+                @for (output of activity().def.outPorts; track $index) {
+                    <li cListGroupItem>
+                        <button cButton (click)="showOutput($index)" color="light">
+                            {{ $index }}: {{ output.type }}
+                        </button>
+                    </li>
+                }
+            </ul>
+        }
+    } @else {
+        <p>This activity has no outputs.</p>
+    }
+
+
+} @else {
+    <p>Execute the activity to see its outputs.</p>
+}

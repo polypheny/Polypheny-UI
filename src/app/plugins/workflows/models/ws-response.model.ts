@@ -1,11 +1,12 @@
-import {ActivityModel, ActivityState, EdgeModel, RenderModel, WorkflowModel, WorkflowState} from './workflows.model';
+import {ActivityModel, ActivityState, EdgeModel, RenderModel, WorkflowState} from './workflows.model';
+import {Result} from '../../../components/data-view/models/result-set.model';
 
 export enum ResponseType {
-    WORKFLOW_UPDATE = 'WORKFLOW_UPDATE',
     ACTIVITY_UPDATE = 'ACTIVITY_UPDATE',
     RENDERING_UPDATE = 'RENDERING_UPDATE',
     STATE_UPDATE = 'STATE_UPDATE',
     PROGRESS_UPDATE = 'PROGRESS_UPDATE',
+    CHECKPOINT_DATA = 'CHECKPOINT_DATA',
     ERROR = 'ERROR'
 }
 
@@ -21,17 +22,13 @@ export enum RequestType { // no specific interfaces for requests are required, s
     RESET = 'RESET',
     UPDATE_CONFIG = 'UPDATE_CONFIG',
     UPDATE_VARIABLES = 'UPDATE_VARIABLES',
+    GET_CHECKPOINT = 'GET_CHECKPOINT'
 }
 
 export interface WsResponse {
     type: ResponseType;
     msgId: string;
     parentId?: string;
-}
-
-export interface WorkflowUpdateResponse extends WsResponse {
-    type: ResponseType.WORKFLOW_UPDATE;
-    workflow: WorkflowModel;
 }
 
 export interface ActivityUpdateResponse extends WsResponse {
@@ -62,4 +59,11 @@ export interface ErrorResponse extends WsResponse {
     reason: string;
     cause?: string;
     parentType: RequestType;
+}
+
+export interface CheckpointDataResponse extends WsResponse {
+    type: ResponseType.CHECKPOINT_DATA;
+    result: Result<any, any>;
+    limit: number;
+    totalCount: number;
 }
