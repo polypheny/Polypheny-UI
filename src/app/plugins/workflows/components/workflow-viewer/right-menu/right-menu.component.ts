@@ -18,25 +18,14 @@ export class RightMenuComponent {
     activity = input.required<Activity>();
 
     @ViewChild('offcanvas') menu: OffcanvasComponent;
+    visible = signal(false);
     activeTab = signal<MenuTabs>('settings');
 
     constructor(private readonly _workflows: WorkflowsService, private readonly _websocket: WorkflowsWebSocketService) {
     }
 
     toggleMenu() {
-        this.menu.visible = !this.menu.visible;
-    }
-
-    showMenu() {
-        this.menu.visible = true;
-    }
-
-    hideMenu() {
-        this.menu.visible = false;
-    }
-
-    isVisible() {
-        return this.menu?.visible;
+        this.visible.update(b => !b);
     }
 
     save(settings: SettingsModel, config: ActivityConfigModel, rendering: RenderModel) {

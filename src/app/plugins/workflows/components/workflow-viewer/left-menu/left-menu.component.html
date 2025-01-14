@@ -1,69 +1,67 @@
-<c-offcanvas [hidden]="!isVisible()"
-             id="Offcanvas"
-             [backdrop]="false"
-             [scroll]="true"
-             placement="start"
-             #offcanvas
-             [visible]="false"
-             class="no-select"
-             [ngClass]="openedActivityDef ? 'info-visible' : 'info-hidden'"
->
-    <div class="d-flex flex-row">
-        <div class="add-activity-col flex-grow-1">
-            <c-offcanvas-header class="py-2 bg-light border-bottom">
-                <h3 cOffcanvasTitle>Add Activity</h3>
-            </c-offcanvas-header>
-            <div class="px-3 py-2 border-bottom">
-                <c-input-group class="mb-1">
-                    <span cInputGroupText class="cil-search bg-transparent"></span>
-                    <input class="activity-search" cFormControl type="search" value="search" [(ngModel)]="filterText" (input)="filterList()"
-                           placeholder="Search by name">
-                </c-input-group>
-                <angular2-multiselect id="category-multi-selector" [data]="dropdownCats" [(ngModel)]="selectedCategories"
-                                      [settings]="dropdownSettings"
-                                      (onSelect)="onItemSelect($event)"
-                                      (onDeSelect)="OnItemDeSelect($event)">
-                </angular2-multiselect>
-            </div>
-            <c-offcanvas-body class="p-0">
-                <ul cListGroup flush="true" cdkDropList cdkDropListSortingDisabled="true" class="activity-list px-2">
-                    <!--https://stackblitz.com/edit/angular-krmecd?file=src%2Fapp%2Fapp.component.ts-->
-                    @for (activity of filteredList; track activity.type) {
-                        <li cListGroupItem class="px-1">
-                            <c-card cdkDrag [cdkDragData]="activity.type" class="draggable" color="light" [cBorder]="activity === openedActivityDef && 'primary'"
-                                    (cdkDragDropped)="onDragDropped($event)">
-                                <c-card-body class="p-2 activity-card">
-                                    <div class="d-flex flex-row justify-content-between">
-                                        <div (click)="create.emit(activity.type)">
-                                            <h6 class="flex-grow-1">{{ activity.displayName }}</h6>
-                                        </div>
-                                        <div>
-                                            <span class="fa fa-question-circle px-2 text-secondary info-button" style="cursor: pointer;"
-                                                  (click)="openedActivityDef = activity">
-                                            </span>
-                                        </div>
-                                    </div>
-                                </c-card-body>
-                            </c-card>
-                            <!--<div class="bg-primary draggable" *cdkDragPreview>
-                                <h5>{{ activity.displayName }}</h5>
-                            </div>-->
-                        </li>
-                    }
-                </ul>
-            </c-offcanvas-body>
-
+<div [hidden]="!visible()" class="no-select d-flex flex-row border-end h-100"
+     [ngClass]="{'info-visible': openedActivityDef,'info-hidden': !openedActivityDef}">
+    <div class="add-activity-col flex-grow-1 d-flex flex-column h-100">
+        <div class="px-3 py-2 bg-light border-bottom menu-header">
+            <h3 class="mb-0">Add Activity</h3>
         </div>
-        <div *ngIf="openedActivityDef" class="border-start flex-grow-1 info-col">
-            <c-offcanvas-header class="py-2 border-bottom">
-                <h4 cOffcanvasTitle>{{ openedActivityDef.displayName }}</h4>
-                <button cButtonClose class="text-reset ms-auto" (click)="openedActivityDef=null"></button>
-            </c-offcanvas-header>
-            <c-offcanvas-body class="pt-3 activity-info">
-                <app-activity-help [def]="openedActivityDef"></app-activity-help>
-            </c-offcanvas-body>
+        <div class="px-3 py-2 border-bottom">
+            <c-input-group class="mb-1">
+                <span cInputGroupText class="cil-search bg-transparent"></span>
+                <input class="activity-search" cFormControl type="search" value="search" [(ngModel)]="filterText" (input)="filterList()"
+                       placeholder="Search by name">
+            </c-input-group>
+            <angular2-multiselect id="category-multi-selector" [data]="dropdownCats" [(ngModel)]="selectedCategories"
+                                  [settings]="dropdownSettings"
+                                  (onSelect)="onItemSelect($event)"
+                                  (onDeSelect)="OnItemDeSelect($event)">
+                <c-item>
+                    <ng-template let-item="item">
+                        <span>{{ item.itemName }}</span>
+                    </ng-template>
+                </c-item>
+            </angular2-multiselect>
+            <c-form-check [switch]="true" class="mt-1">
+                <input cFormCheckInput id="show-description" type="checkbox" [(ngModel)]="showDescription"
+                       name="show-description">
+                <label cFormCheckLabel for="show-description">Show Description</label>
+            </c-form-check>
         </div>
+        <ul cListGroup flush="true" cdkDropList cdkDropListSortingDisabled="true" class="activity-list px-2 flex-grow-1">
+            @for (activity of filteredList; track activity.type) {
+                <li cListGroupItem class="px-2">
+                    <c-card cdkDrag [cdkDragData]="activity.type" class="draggable" color="light" [cBorder]="activity === openedActivityDef && 'primary'"
+                            (cdkDragDropped)="onDragDropped($event)">
+                        <c-card-body class="p-2 activity-card">
+                            <div class="d-flex flex-row justify-content-between">
+                                <div (click)="create.emit(activity.type)">
+                                    <h6 class="flex-grow-1">{{ activity.displayName }}</h6>
+                                    <small *ngIf="showDescription">{{ activity.shortDescription }}</small>
+                                </div>
+                                <div>
+                                        <span class="fa fa-question-circle px-2 info-button"
+                                              [ngClass]="activity === openedActivityDef ? 'text-primary' : 'text-secondary'"
+                                              style="cursor: pointer;" (click)="openedActivityDef = activity">
+                                        </span>
+                                </div>
+                            </div>
+                        </c-card-body>
+                    </c-card>
+                    <!--<div class="bg-primary draggable" *cdkDragPreview>
+                        <h5>{{ activity.displayName }}</h5>
+                    </div>-->
+                </li>
+            }
+        </ul>
 
     </div>
-</c-offcanvas>
+    <div *ngIf="openedActivityDef" class="border-start flex-grow-1 info-col">
+        <div class="px-3 py-2 border-bottom menu-header d-flex">
+            <h4 class="mb-0">{{ openedActivityDef.displayName }}</h4>
+            <button cButtonClose class="text-reset ms-auto" (click)="openedActivityDef=null"></button>
+        </div>
+        <div class="pt-3 px-3 activity-info">
+            <app-activity-help [def]="openedActivityDef"></app-activity-help>
+        </div>
+    </div>
 
+</div>

@@ -1,8 +1,6 @@
 
-#Offcanvas {
-  height: 100%;
-  position: relative;
-  max-height: inherit;
+[hidden] {
+  display: none !important;
 }
 
 .info-visible {
@@ -20,19 +18,19 @@
 .info-col {
   max-width: 400px;
 
-  .offcanvas-header {
-    min-height: 59px; // same height as Add Activity
+  .menu-header {
+    min-height: 51px; // same height as Add Activity
   }
 }
 
 .activity-list {
   overflow-y: auto;
-  max-height: calc(100vh - 400px); // TODO: find solution without hardcoded height, or at least consider activity name length
+  flex-basis: 0;
 }
 
 .activity-info {
   overflow-y: auto;
-  max-height: calc(100vh - 300px); // TODO: find solution without hardcoded height, or at least consider activity name length
+  flex-basis: 0;
 }
 
 .no-select {
@@ -43,7 +41,7 @@
 }
 
 .cdk-drag-preview {
-  z-index: 1100 !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .draggable {
@@ -56,7 +54,7 @@
 
 .activity-card:hover {
 
-  .info-button {
+  .info-button:not(.text-primary) {
     color: var(--cui-dark) !important;
   }
 }

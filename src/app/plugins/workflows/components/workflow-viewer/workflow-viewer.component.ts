@@ -130,7 +130,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             tap(activityModel => {
                 this.workflow.updateOrCreateActivity(activityModel);
                 this.openedActivity.set(this.workflow.getActivity(activityModel.id));
-                this.rightMenu.showMenu();
+                this.rightMenu.visible.set(true);
             })
         ).subscribe());
         this.subscriptions.add(this.workflow.onActivityRemove().subscribe(

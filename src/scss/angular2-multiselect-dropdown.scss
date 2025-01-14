@@ -5,7 +5,7 @@ $btn-background: #fff;
 $btn-border: var(--cui-border-color);
 $btn-text-color: #333;
 $btn-arrow: #333;
-$border-radius: var(--cui-border-radius-sm);
+$border-radius: var(--cui-border-radius);
 
 
 $token-background: $base-color;
@@ -25,7 +25,7 @@ $selected-background: #e9f4ff;
 .c-btn {
   background: $btn-background;
   border: 1px solid $btn-border;
-  border-radius: $border-radius;
+  border-radius: $border-radius !important;
   color: $btn-text-color;
 }
 
@@ -72,7 +72,7 @@ $selected-background: #e9f4ff;
 
 .list-area {
   border: 1px solid #ccc;
-  border-radius: $border-radius;
+  border-radius: $border-radius !important;
   background: #fff;
   box-shadow: 0px 1px 5px $box-shadow-color;
 }

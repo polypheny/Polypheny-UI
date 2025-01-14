@@ -3,7 +3,7 @@
         <c-col xs="auto" class="ps-1">
             <c-button-group role="group" class="m-1">
                 <button cButton color="light" type="button" (click)="leftMenu.toggleMenu()"
-                        [ngClass]="leftMenu.isVisible() ? 'cil-arrow-thick-to-left' : 'cil-arrow-thick-from-left'">
+                        [ngClass]="leftMenu.visible() ? 'cil-arrow-thick-to-left' : 'cil-arrow-thick-from-left'">
                 </button>
             </c-button-group>
         </c-col>
@@ -55,7 +55,7 @@
         <c-col xs="auto" class="pe-1">
             <c-button-group role="group" class="m-1">
                 <button cButton color="light" type="button" (click)="rightMenu.toggleMenu()" *ngIf="openedActivity()"
-                        [ngClass]="rightMenu.isVisible() ? 'cil-arrow-thick-to-right' : 'cil-arrow-thick-from-right'">
+                        [ngClass]="rightMenu.visible() ? 'cil-arrow-thick-to-right' : 'cil-arrow-thick-from-right'">
                 </button>
             </c-button-group>
         </c-col>

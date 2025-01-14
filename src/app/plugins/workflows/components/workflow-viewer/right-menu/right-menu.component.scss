@@ -1,15 +1,10 @@
 
-#Offcanvas {
-  height: 100%;
-  position: relative;
-  max-height: inherit;
+[hidden] {
+  display: none !important;
+}
+
+.menu {
   width: 500px;
-}
-
-.menu-visible {
-}
-
-.menu-hidden {
 }
 
 .no-select {
@@ -19,7 +14,7 @@
   -ms-user-select: none;
 }
 
-.offcanvas-body {
+.menu-body {
   overflow-y: auto;
-  max-height: calc(100vh - 350px); // TODO: find solution without hardcoded height, or at least consider activity name length
+  flex-basis: 0;
 }

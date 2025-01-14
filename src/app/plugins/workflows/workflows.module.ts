@@ -70,7 +70,7 @@ import {ComponentsModule} from '../../components/components.module';
 import {ActivityConfigEditorComponent} from './components/workflow-viewer/right-menu/activity-config-editor/activity-config-editor.component';
 import {WorkflowConfigEditorComponent} from './components/workflow-viewer/workflow-config-editor/workflow-config-editor.component';
 import {LeftMenuComponent} from './components/workflow-viewer/left-menu/left-menu.component';
-import {ActivityHelpComponent} from './components/workflow-viewer/right-menu/activity-help/activity-help.component';
+import {ActivityHelpComponent} from './components/workflow-viewer/activity-help/activity-help.component';
 import {MarkdownComponent} from 'ngx-markdown';
 import {ActivitySettingsComponent} from './components/workflow-viewer/right-menu/activity-settings/activity-settings.component';
 import {IntSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/int-setting/int-setting.component';

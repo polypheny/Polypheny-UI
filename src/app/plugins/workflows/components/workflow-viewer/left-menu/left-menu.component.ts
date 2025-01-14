@@ -1,5 +1,4 @@
-import {Component, EventEmitter, input, Output, ViewChild} from '@angular/core';
-import {OffcanvasComponent} from '@coreui/angular';
+import {Component, EventEmitter, input, Output, signal} from '@angular/core';
 import {WorkflowsService} from '../../../services/workflows.service';
 import {CdkDragDrop} from '@angular/cdk/drag-drop';
 import {ActivityDef} from '../../../models/activity-registry.model';
@@ -14,8 +13,7 @@ export class LeftMenuComponent {
     @Output() create = new EventEmitter<string>();
     @Output() createAt = new EventEmitter<[string, { x: number, y: number }]>();
 
-
-    @ViewChild('offcanvas') menu: OffcanvasComponent;
+    visible = signal(true);
 
     private readonly registry = this._workflows.getRegistry();
     readonly activityTypes = this.registry.getTypes();
@@ -24,6 +22,7 @@ export class LeftMenuComponent {
     readonly dropdownSettings = {
         singleSelection: false,
         text: 'Filter by category',
+        noDataLabel: 'No categories found',
         enableSearchFilter: true,
         enableCheckAll: false,
         enableFilterSelectAll: false,
@@ -32,6 +31,7 @@ export class LeftMenuComponent {
     filterText: string;
     selectedCategories = [];
     filteredList: ActivityDef[];
+    showDescription = false;
 
     openedActivityDef: ActivityDef; // for info
 
@@ -47,19 +47,7 @@ export class LeftMenuComponent {
     }
 
     toggleMenu() {
-        this.menu.visible = !this.menu.visible;
-    }
-
-    showMenu() {
-        this.menu.visible = true;
-    }
-
-    hideMenu() {
-        this.menu.visible = false;
-    }
-
-    isVisible() {
-        return this.menu?.visible;
+        this.visible.update(b => !b);
     }
 
     onDragDropped($event: CdkDragDrop<any>) {

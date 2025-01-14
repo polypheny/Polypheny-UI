@@ -1,5 +1,5 @@
 import {Component, computed, effect, input, OnInit, signal} from '@angular/core';
-import {ActivityDef, GroupDef, portTypeToDataModel} from '../../../../models/activity-registry.model';
+import {ActivityDef, GroupDef, portTypeToDataModel} from '../../../models/activity-registry.model';
 import {KatexOptions} from 'ngx-markdown';
 
 @Component({

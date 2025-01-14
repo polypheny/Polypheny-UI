@@ -1,17 +1,8 @@
-<c-offcanvas [hidden]="!isVisible() || !activity()"
-             id="Offcanvas"
-             [backdrop]="false"
-             [scroll]="true"
-             placement="end"
-             #offcanvas
-             [visible]="false"
-             class="no-select"
-             [ngClass]="offcanvas.visible ? 'menu-visible' : 'menu-hidden'"
->
-    <c-offcanvas-header class="py-2 bg-light border-bottom">
+<div [hidden]="!visible()" class="no-select border-start h-100 d-flex flex-column menu">
+    <div class="px-3 py-2 bg-light border-bottom">
         <div *ngIf="activity()" class="d-flex flex-column flex-grow-1">
             <div class="d-flex flex-row align-items-center justify-content-between">
-                <h3 cOffcanvasTitle>{{ activity().displayName() }}</h3>
+                <h3 class="mb-0">{{ activity().displayName() }}</h3>
                 <!-- TODO: also show def name if displayname differs-->
             </div>
             <ul class="nav nav-underline" role="tablist">
@@ -52,9 +43,9 @@
                 </li>
             </ul>
         </div>
-    </c-offcanvas-header>
-    <c-offcanvas-body class="pt-3 pb-0">
-        <div class="tab-content" *ngIf="activity()">
+    </div>
+    <div class="px-3 pt-3 menu-body flex-grow-1">
+        <div class="" *ngIf="activity()">
             @switch (activeTab()) {
                 @case ("settings") {
                     <app-activity-settings [activity]="activity()" [isEditable]="isEditable()"></app-activity-settings>
@@ -84,5 +75,5 @@
                 }
             }
         </div>
-    </c-offcanvas-body>
-</c-offcanvas>
+    </div>
+</div>
