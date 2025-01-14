@@ -1,6 +1,6 @@
-<div [hidden]="!visible()" class="no-select border-start h-100 d-flex flex-column menu">
+<div [hidden]="!visible()" class="no-select border-start h-100 d-flex flex-column menu" *ngIf="activity()">
     <div class="px-3 py-2 bg-light border-bottom">
-        <div *ngIf="activity()" class="d-flex flex-column flex-grow-1">
+        <div class="d-flex flex-column flex-grow-1">
             <div class="d-flex flex-row align-items-center justify-content-between">
                 <h3 class="mb-0">{{ activity().displayName() }}</h3>
                 <!-- TODO: also show def name if displayname differs-->
@@ -9,13 +9,13 @@
                 <li class="nav-item" role="presentation">
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'settings'}"
-                       (click)="activeTab.set('settings')"
+                       (click)="changeActiveTab('settings')"
                        role="tab">Settings</a>
                 </li>
                 <li class="nav-item" role="presentation">
                     <a class="nav-link d-flex align-items-center"
                        [ngClass]="{'active': activeTab() === 'variables'}"
-                       (click)="activeTab.set('variables')"
+                       (click)="changeActiveTab('variables')"
                        role="tab">
                         Variables
                         <span class="cil-bolt ms-1"></span>
@@ -24,19 +24,19 @@
                 <li class="nav-item" role="presentation">
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'outputs'}"
-                       (click)="activeTab.set('outputs')"
+                       (click)="changeActiveTab('outputs')"
                        role="tab">Outputs</a>
                 </li>
                 <li class="nav-item" role="presentation">
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'execution'}"
-                       (click)="activeTab.set('execution')"
+                       (click)="changeActiveTab('execution')"
                        role="tab">Execution</a>
                 </li>
                 <li class="nav-item" role="presentation">
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'help'}"
-                       (click)="activeTab.set('help')"
+                       (click)="changeActiveTab('help')"
                        role="tab">
                         <span class="px-1 fa fa-question-circle"></span>
                     </a>
@@ -45,10 +45,10 @@
         </div>
     </div>
     <div class="px-3 pt-3 menu-body flex-grow-1">
-        <div class="" *ngIf="activity()">
+        <div>
             @switch (activeTab()) {
                 @case ("settings") {
-                    <app-activity-settings [activity]="activity()" [isEditable]="isEditable()"></app-activity-settings>
+                    <app-activity-settings #settings [activity]="activity()" [isEditable]="isEditable()"></app-activity-settings>
                 }
                 @case ("variables") {
                     <!--TODO: force update app-json-text on change-->
@@ -63,7 +63,7 @@
                 }
                 @case ("execution") {
                     <h5>Config</h5>
-                    <app-activity-config-editor [config]="activity().config()" [def]="activity().def"
+                    <app-activity-config-editor [config]="activity().config()" [def]="activity().def" #config
                                                 [isEditable]="isEditable()" (save)="save(null, $event, null)"
                     ></app-activity-config-editor>
 

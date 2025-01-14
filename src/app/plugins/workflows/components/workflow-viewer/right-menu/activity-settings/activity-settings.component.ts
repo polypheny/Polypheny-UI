@@ -16,7 +16,11 @@ export class ActivitySettingsComponent implements OnInit {
     isEditable = input.required<boolean>();
 
     activeSettingGroup = signal<GroupDef>(null);
-    readonly serializedSettings = computed(() => this.activity().settings().serialize(),
+    private readonly resetSettingsSignal = signal(true); // manually enforce recomputing settings
+    readonly serializedSettings = computed(() => {
+            this.resetSettingsSignal();
+            return this.activity().settings().serialize();
+        },
         {equal: () => false}); // enforce change when switching to different activity, even if it has the same settings value
     readonly editableSettings = computed<Settings>(() => new Settings(this.serializedSettings())); // we edit a copy of the actual settings
     readonly editableReferences = computed<Map<string, VariableReference[]>>(() => {
@@ -91,5 +95,10 @@ export class ActivitySettingsComponent implements OnInit {
     deleteReference(key: string, ref: VariableReference) {
         this.editableSettings().get(key).deleteReference(ref);
         this.checkForChanges();
+    }
+
+    resetSettings() {
+        this.resetSettingsSignal.set(false);
+        this.resetSettingsSignal.set(true);
     }
 }

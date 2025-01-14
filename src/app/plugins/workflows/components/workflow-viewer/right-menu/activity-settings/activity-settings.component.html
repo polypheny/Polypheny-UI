@@ -1,6 +1,6 @@
 @if (activeSettingGroup()) {
 
-    <div class="d-flex flex-row">
+    <div class="d-flex flex-row align-items-baseline">
 
         <ul class="nav nav-underline flex-grow-1" role="tablist" *ngIf="activity().def.nonEmptyGroupCount > 1">
             @for (group of activity().def.groups; track group.key) {
@@ -13,9 +13,14 @@
             }
         </ul>
 
+        <div class="ms-auto" [ngClass]="{'ms-auto': activity().def.nonEmptyGroupCount > 1}">
+            @if (hasSettingsChanged()) {
+                <span class="text-muted">Discard</span>
+                <app-delete-confirm (delete)="resetSettings()"></app-delete-confirm>
+            }
+        </div>
 
-        <!-- Save Button -->
-        <div class=" ms-auto">
+        <div class="ms-3" [ngClass]="{'ms-auto': activity().def.nonEmptyGroupCount <= 1}">
             <button cButton type="submit" color="primary" *ngIf="isEditable()" class=""
                     [disabled]="!hasSettingsChanged()" (click)="saveSettings()">
                 Save
@@ -33,7 +38,7 @@
                     <ul cListGroup flush="true">
                         @for (setting of subgroup.settings; track setting.key) {
                             <li cListGroupItem *ngIf="visibilityMap.get( setting.key ) && editableSettings().get(setting.key)">
-                                <div class="d-flex flex-row justify-content-between align-items-center">
+                                <div class="d-flex flex-row justify-content-between align-items-center mb-2">
                                     <h6 class="">{{ setting.displayName }}
                                         <span class="text-medium-emphasis">({{ setting.key }}: {{ setting.type }})</span>
                                     </h6>
@@ -46,7 +51,7 @@
                                         </span>
                                     </button>
                                 </div>
-                                <p>{{ setting.shortDescription }}</p>
+                                <p *ngIf="setting.shortDescription">{{ setting.shortDescription }}</p>
                                 <div [visible]="variablesVisibilityMap.get(setting.key)?.()" cCollapse>
                                     <c-card class="mb-2" color="light">
                                         <c-card-body class="py-0">
@@ -84,16 +89,34 @@
                                 </div>
                                 @switch (setting.type) {
                                     @case (SettingType.INT) {
-                                        <app-int-setting [settingDef]="setting" [inTypePreview]="activity().inTypePreview()"
+                                        <app-int-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
                                                          [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
                                                          [(value)]="editableSettings().get(setting.key).value">
                                         </app-int-setting>
                                     }
                                     @case (SettingType.STRING) {
-                                        <app-string-setting [settingDef]="setting" [inTypePreview]="activity().inTypePreview()"
+                                        <app-string-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
                                                             [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
                                                             [(value)]="editableSettings().get(setting.key).value">
                                         </app-string-setting>
+                                    }
+                                    @case (SettingType.BOOLEAN) {
+                                        <app-boolean-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                             [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                             [(value)]="editableSettings().get(setting.key).value">
+                                        </app-boolean-setting>
+                                    }
+                                    @case (SettingType.DOUBLE) {
+                                        <app-double-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                            [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                            [(value)]="editableSettings().get(setting.key).value">
+                                        </app-double-setting>
+                                    }
+                                    @case (SettingType.ENTITY) {
+                                        <app-entity-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                            [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                            [(value)]="editableSettings().get(setting.key).value">
+                                        </app-entity-setting>
                                     }
                                     @default {
                                         <p class="text-danger">unknown setting type</p>

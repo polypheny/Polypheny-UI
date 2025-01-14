@@ -78,6 +78,9 @@ import {StringSettingComponent} from './components/workflow-viewer/right-menu/ac
 import {CdkDrag, CdkDragPreview, CdkDropList} from '@angular/cdk/drag-drop';
 import {AngularMultiSelectModule} from 'angular2-multiselect-dropdown';
 import {CheckpointViewerComponent} from './components/workflow-viewer/right-menu/checkpoint-viewer/checkpoint-viewer.component';
+import {BooleanSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/boolean-setting/boolean-setting.component';
+import {DoubleSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/double-setting/double-setting.component';
+import {EntitySettingComponent} from './components/workflow-viewer/right-menu/activity-settings/entity-setting/entity-setting.component';
 
 @NgModule({
     imports: [
@@ -162,6 +165,9 @@ import {CheckpointViewerComponent} from './components/workflow-viewer/right-menu
         ActivitySettingsComponent,
         IntSettingComponent,
         StringSettingComponent,
+        BooleanSettingComponent,
+        DoubleSettingComponent,
+        EntitySettingComponent,
         CheckpointViewerComponent
     ],
     exports: [

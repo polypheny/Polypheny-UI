@@ -6,6 +6,7 @@ import {ActivityDef} from '../../../../models/activity-registry.model';
 import {ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormLabelDirective, FormSelectDirective, InputGroupComponent, InputGroupTextDirective} from '@coreui/angular';
 import {AdapterModel} from '../../../../../../views/adapters/adapter.model';
 import {CatalogService} from '../../../../../../services/catalog.service';
+import {ComponentsModule} from '../../../../../../components/components.module';
 
 @Component({
     selector: 'app-activity-config-editor',
@@ -23,7 +24,8 @@ import {CatalogService} from '../../../../../../services/catalog.service';
         InputGroupComponent,
         InputGroupTextDirective,
         NgIf,
-        FormControlDirective
+        FormControlDirective,
+        ComponentsModule
     ],
     templateUrl: './activity-config-editor.component.html',
     styleUrl: './activity-config-editor.component.scss'
@@ -31,6 +33,7 @@ import {CatalogService} from '../../../../../../services/catalog.service';
 export class ActivityConfigEditorComponent implements OnInit {
 
     config = input.required<ActivityConfigModel>();
+    private readonly resetConfigSignal = signal(true); // manually enforce recomputing config
     def = input.required<ActivityDef>();
     isEditable = input.required<boolean>();
     @Output() save = new EventEmitter<ActivityConfigModel>();
@@ -38,7 +41,10 @@ export class ActivityConfigEditorComponent implements OnInit {
     readonly commonTypes = Object.values(CommonType);
     readonly controlStateMergers = Object.values(ControlStateMerger);
     readonly adapters: Signal<AdapterModel[]>;
-    serializedConfig = computed(() => JSON.stringify(this.config()),
+    serializedConfig = computed(() => {
+            this.resetConfigSignal();
+            return JSON.stringify(this.config());
+        },
         {equal: () => false}); // enforce change when switching to different activity, even if it has the same config value
     editableConfig = computed<ActivityConfigModel>(() => JSON.parse(this.serializedConfig())); // we edit a copy of the actual config
     serializedEditedConfig = signal<string>(null);
@@ -71,5 +77,10 @@ export class ActivityConfigEditorComponent implements OnInit {
 
     checkForChanges() {
         this.serializedEditedConfig.set(JSON.stringify(this.editableConfig()));
+    }
+
+    resetConfig() {
+        this.resetConfigSignal.set(false);
+        this.resetConfigSignal.set(true);
     }
 }

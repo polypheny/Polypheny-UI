@@ -1,6 +1,10 @@
 <form cForm (ngSubmit)="saveConfig()">
 
-    <div class="d-flex flex-row">
+    <div class="d-flex flex-row align-items-baseline">
+        @if (hasConfigChanged()) {
+            <span class="text-muted">Discard</span>
+            <app-delete-confirm (delete)="resetConfig()"></app-delete-confirm>
+        }
 
         <!-- Save Button -->
         <button class="ms-auto" cButton type="submit" color="primary" *ngIf="isEditable()"

@@ -126,6 +126,8 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             activityId => this._websocket.reset(activityId)
         ));
         this.subscriptions.add(this.editor.onOpenActivitySettings().pipe(
+            filter(activityId =>
+                !this.openedActivity() || (activityId !== this.openedActivity().id && this.rightMenu.canSafelyNavigate())),
             switchMap(activityId => this._workflows.getActivity(this.sessionId, activityId)),
             tap(activityModel => {
                 this.workflow.updateOrCreateActivity(activityModel);

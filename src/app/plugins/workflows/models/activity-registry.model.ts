@@ -16,7 +16,7 @@ export class ActivityRegistry {
             ([key, model]) => [key, new ActivityDef(model)]
         ));
         const categories = new Set<string>();
-        this.registry.forEach((def, type) => {
+        this.registry.forEach((def,) => {
             def.categories.forEach(c => categories.add(c));
         });
         this.categories.push(...categories);
@@ -133,6 +133,7 @@ export class SettingDef {
     longDescription: string;
     subPointer: string;
     subValues: any[];
+    model: SettingDefModel; // used to access values specific to a given SettingDef implementation
 
     constructor(model: SettingDefModel) {
         this.type = model.type;
@@ -142,6 +143,7 @@ export class SettingDef {
         this.longDescription = model.longDescription;
         this.subPointer = model.subPointer;
         this.subValues = model.subValues;
+        this.model = model;
     }
 
     isVisible(settings: SettingsModel) {

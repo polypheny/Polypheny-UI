@@ -1,5 +1,5 @@
 import {Component, computed, EventEmitter, input, model, Output} from '@angular/core';
-import {SettingDef} from '../../../../../models/activity-registry.model';
+import {SettingDefModel} from '../../../../../models/activity-registry.model';
 import {TypePreviewModel} from '../../../../../models/workflows.model';
 
 @Component({
@@ -9,7 +9,7 @@ import {TypePreviewModel} from '../../../../../models/workflows.model';
 })
 export class StringSettingComponent {
     isEditable = input.required<boolean>();
-    settingDef = input.required<SettingDef>();
+    settingDef = input.required<SettingDefModel>();
     inTypePreview = input.required<TypePreviewModel[]>(); // not required for int
     value = model.required<any>();
     @Output() hasChanged = new EventEmitter<void>();
@@ -18,7 +18,7 @@ export class StringSettingComponent {
     // TODO: change appearance if isList
 }
 
-interface StringSettingDef extends SettingDef {
+interface StringSettingDef extends SettingDefModel {
     isList: boolean;
     minLength: number;
     maxLength: number;
