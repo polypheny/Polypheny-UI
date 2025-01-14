@@ -47,7 +47,7 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
     }
 
     backToDashboard() {
-        this._router.navigate(['./../'], {relativeTo: this._route});
+        this._router.navigate(['/views/workflows/dashboard']);
     }
 
     saveSession(message: string) {
@@ -57,6 +57,13 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
                     this.session.version = version;
                 }
             }
+        });
+    }
+
+    terminateSession() {
+        this._workflows.terminateSession(this.sessionId).subscribe({
+            next: () => this.backToDashboard(),
+            error: e => this._toast.error(e.error, 'Unable to terminate session'),
         });
     }
 

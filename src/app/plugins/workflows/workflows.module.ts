@@ -20,6 +20,7 @@ import {
     CardTextDirective,
     CardTitleDirective,
     ColComponent,
+    ColDirective,
     CollapseDirective,
     FormCheckComponent,
     FormCheckInputDirective,
@@ -47,6 +48,7 @@ import {
     OffcanvasTitleDirective,
     OffcanvasToggleDirective,
     RowComponent,
+    RowDirective,
     SidebarBrandComponent,
     SidebarComponent,
     SidebarFooterComponent,
@@ -55,10 +57,12 @@ import {
     SidebarToggleDirective,
     TabContentComponent,
     TabContentRefDirective,
+    TableColorDirective,
+    TableDirective,
     TabPaneComponent,
     TemplateIdDirective
 } from '@coreui/angular';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ActivityComponent} from './components/workflow-viewer/editor/activity/activity.component';
 import {EdgeComponent} from './components/workflow-viewer/editor/edge/edge.component';
 import {RightMenuComponent} from './components/workflow-viewer/right-menu/right-menu.component';
@@ -139,6 +143,11 @@ import {CheckpointViewerComponent} from './components/workflow-viewer/right-menu
         CdkDropList,
         CdkDragPreview,
         AngularMultiSelectModule,
+        ColDirective,
+        ReactiveFormsModule,
+        RowDirective,
+        TableDirective,
+        TableColorDirective,
     ],
     declarations: [
         WorkflowViewerComponent,

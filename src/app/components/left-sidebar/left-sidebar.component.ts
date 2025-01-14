@@ -64,7 +64,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
     }
 
     static readonly EXPAND_SHOWN_ROUTES: String[] = [
-        '/views/monitoring', '/views/config', '/views/uml', '/views/querying/console', '/views/notebooks'];
+        '/views/monitoring', '/views/config', '/views/uml', '/views/querying/console', '/views/notebooks', '/views/workflows'];
 
     private readonly _router = inject(Router);
     public readonly _sidebar = inject(LeftSidebarService);

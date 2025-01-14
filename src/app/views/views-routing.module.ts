@@ -185,17 +185,22 @@ const routes: Routes = [
     },
     {
         path: 'workflows',
-        component: WorkflowsDashboardComponent,
-        data: {
-            title: 'Workflows Dashboard'
-        }
+        redirectTo: 'workflows/dashboard',
+        pathMatch: 'full'
     },
     {
-        path: 'workflows/:sessionId',
+        path: 'workflows/sessions/:sessionId',
         component: WorkflowSessionComponent,
         data: {
             title: 'Workflow Session',
             isFullWidth: true
+        }
+    },
+    {
+        path: 'workflows/:route',
+        component: WorkflowsDashboardComponent,
+        data: {
+            title: 'Workflows Dashboard'
         }
     }
 ];

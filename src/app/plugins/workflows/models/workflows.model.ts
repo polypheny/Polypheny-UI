@@ -93,11 +93,13 @@ export interface SessionModel {
     workflowId?: string;
     version?: number;
     workflowDef?: WorkflowDefModel;
+    state?: WorkflowState;
 }
 
 export interface WorkflowDefModel {
     name: string;
     versions: Record<number, VersionInfo>;
+    group: string;
 }
 
 export interface VersionInfo {

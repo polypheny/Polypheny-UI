@@ -1,87 +1,189 @@
-<h1>Workflow Dashboard</h1>
+@switch (route()) {
+    @case ('dashboard') {
+        <h1>Workflow Dashboard</h1>
 
-<c-input-group class="mb-3">
-    <input cFormControl placeholder="Workflow Name" [(ngModel)]="newWorkflowName"/>
-    <button cButton color="primary" type="button" (click)="createAndOpenWorkflow()">
-        Create Workflow
-    </button>
-</c-input-group>
-
-<h2>Stored Workflows</h2>
-
-<c-accordion class="mb-5">
-    <ng-container *ngFor="let entry of sortedWorkflowDefs">
-        <c-accordion-item #item="cAccordionItem" [visible]="false">
-            <ng-template cTemplateId="accordionHeaderTemplate">
-                <button (click)="item.toggleItem()" [collapsed]="!item.visible" cAccordionButton>
-                    <div class="d-flex justify-content-between flex-grow-1">
-                        <h4 class="flex-grow-1">{{ entry.value.name }}</h4>
-
-                        <c-input-group class="me-5 w-auto">
-                            <select id="versionSelect-{{entry.key}}" class="form-control px-4" [(ngModel)]="selectedVersion[entry.key]" (click)="$event.stopPropagation()">
-                                <option *ngFor="let version of entry.value.versions | keyvalue" [value]="version.key">v{{ version.key }}</option>
-                            </select>
-                            <button cButton color="primary" type="button" (click)="$event.stopPropagation(); openVersion(entry.key);">
-                                Open
+        <c-row class="mb-5">
+            <c-col md="6" class="fixed-width">
+                <c-card>
+                    <c-card-header>
+                        <span class="mb-0">Create Workflow</span>
+                        {{ newWorkflowName }}
+                        {{ newWorkflowGroup }}
+                    </c-card-header>
+                    <c-card-body>
+                        <c-input-group class="mb-3" cCol>
+                            <span cInputGroupText>Name</span>
+                            <input cFormControl placeholder="Workflow Name" [(ngModel)]="newWorkflowName"
+                                   autocomplete="off"/>
+                        </c-input-group>
+                        <c-input-group class="mb-3">
+                            <span cInputGroupText>Folder</span>
+                            <input cFormControl placeholder="Default Folder" [(ngModel)]="newWorkflowGroup"
+                                   autocomplete="off"/>
+                        </c-input-group>
+                        <c-input-group class="mb-0 justify-content-end">
+                            <button cButton color="primary" (click)="createAndOpenWorkflow()"
+                                    [disabled]="!newWorkflowName">Create
                             </button>
                         </c-input-group>
-                    </div>
-                </button>
-            </ng-template>
-            <ng-template cTemplateId="accordionBodyTemplate">
-                <div class="accordion-body">
-                    <!--<div class="form-group">
-                        <label for="versionSelect-{{entry.key}}"><strong>Version</strong></label>
-                        <select id="versionSelect-{{entry.key}}" class="form-control" [(ngModel)]="selectedVersion[entry.key]">
-                            <option *ngFor="let version of entry.value.versions | keyvalue" [value]="version.key">{{ version.key }}</option>
-                        </select>
-                    </div>-->
+                    </c-card-body>
+                </c-card>
+            </c-col>
+        </c-row>
 
-                    <div class="">
-                        <div>
-                            <strong>Version Description:</strong> {{ entry.value.versions[selectedVersion[entry.key]].description }}
-                        </div>
-                        <div>
-                            <strong>Creation Time:</strong> {{ entry.value.versions[selectedVersion[entry.key]].creationTime | date:'short' }}
-                        </div>
-                        <button cButton color="danger" type="button" class="mt-3" (click)="$event.stopPropagation();">
-                            Delete
-                        </button>
+        <h2 class="mb-3">Stored Workflows ({{ workflowDefsCount }})</h2>
 
-                        <!--<button class="btn btn-primary mt-3" (click)="openVersion(entry.key)">
-                            Open Version
-                        </button>-->
-                    </div>
+        @for (group of sortedGroups; track group.groupName) {
+            <div class="d-flex flex-row justify-content-between mb-1" *ngIf="group.groupName.length > 0"
+                 (click)="toggleCollapse(group.groupName)" style="cursor: pointer;">
+                <h4>{{ group.groupName }} ({{ group.defs.length }})</h4>
+                <i class="fa me-3 fa-lg"
+                   [ngClass]="{'fa-folder-open-o': !visibleGroups[group.groupName](), 'fa-folder-o': visibleGroups[group.groupName]()}"></i>
 
-                </div>
-            </ng-template>
-        </c-accordion-item>
-    </ng-container>
-</c-accordion>
-
-<h2>Active Sessions</h2>
-<ul cListGroup *ngIf="workflowDefs" class="mb-5">
-    <ng-container *ngFor="let session of sessions | keyvalue">
-        <li cListGroupItem>
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <strong *ngIf="session.value.type === 'USER_SESSION'">
-                        {{workflowDefs[session.value.workflowId].name}}
-                        v{{session.value.version}}
-                    </strong>
-                    <strong *ngIf="session.value.type !== 'USER_SESSION'">
-                        {{session.value.type}}
-                    </strong>
-
-                    <div>
-                        <small><strong>SessionId:</strong> {{ session.value.sessionId }}</small><br/>
-                        <small><strong>Connected Users:</strong> {{ session.value.connectionCount }}</small><br/>
-                    </div>
-                </div>
-                <button class="btn btn-primary btn-sm" (click)="openSession(session.value.sessionId)">
-                    Open
-                </button>
             </div>
-        </li>
-    </ng-container>
-</ul>
+
+            <div cCollapse [visible]="visibleGroups[group.groupName]()">
+                <c-accordion class="mb-5">
+                    @for (def of group.defs; track def.id) {
+                        <c-accordion-item #item="cAccordionItem" [visible]="false">
+                            <ng-template cTemplateId="accordionHeaderTemplate">
+                                <button (click)="item.toggleItem()" [collapsed]="!item.visible" cAccordionButton>
+                                    <div class="d-flex justify-content-between flex-grow-1">
+                                        <div class="flex-grow-1">
+                                            <h5>{{ def.def.name }}</h5>
+                                            <span class="text-muted">{{ def.def.versions[selectedVersion[def.id]].description }}</span>
+                                        </div>
+
+                                        <div>
+                                            <c-input-group class="me-5 w-auto">
+                                                <select id="versionSelect-{{def.id}}" class="form-control px-4" [(ngModel)]="selectedVersion[def.id]"
+                                                        (click)="$event.stopPropagation()">
+                                                    @for (version of def.def.versions | keyvalue; track version.key) {
+                                                        <option [value]="version.key">v{{ version.key }}</option>
+                                                    }
+                                                </select>
+                                                <button cButton color="primary" type="button" (click)="$event.stopPropagation(); openVersion(def.id);">
+                                                    Open
+                                                </button>
+                                            </c-input-group>
+                                        </div>
+                                    </div>
+                                </button>
+                            </ng-template>
+                            <ng-template cTemplateId="accordionBodyTemplate">
+                                <div class="accordion-body">
+                                    <c-row class="mb-3">
+                                        <c-col md="4">
+                                            <c-input-group>
+                                                <input cFormControl type="text" #nameInput placeholder="Enter new name">
+                                                <button cButton color="light" (click)="changeName(def.id, nameInput.value)"
+                                                        [disabled]="!nameInput.value">
+                                                    Change Name
+                                                </button>
+                                            </c-input-group>
+
+                                        </c-col>
+                                        <c-col md="4">
+                                            <c-input-group>
+                                                <input cFormControl type="text" #groupInput placeholder="Enter new group">
+                                                <button cButton color="light" (click)="changeGroup(def.id, groupInput.value)"
+                                                        [disabled]="!groupInput.value">
+                                                    Change Group
+                                                </button>
+                                            </c-input-group>
+                                        </c-col>
+                                        <c-col md="auto" class="ms-auto">
+                                            <button cButton color="danger" type="button" (click)="confirmDelete(def.id)">
+                                                Delete Workflow
+                                            </button>
+                                        </c-col>
+
+                                    </c-row>
+
+                                    <table cTable small="true">
+                                        <thead cTableColor="light">
+                                        <tr>
+                                            <th scope="col">Version</th>
+                                            <th scope="col">Creation Time</th>
+                                            <th scope="col">Comment</th>
+                                            <th scope="col">Delete Version</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (version of def.def.versions | keyvalue; track version.key) {
+                                                <tr>
+                                                    <th scope="row">v{{ version.key }}</th>
+                                                    <td>{{ version.value.creationTime | date:'short' }}</td>
+                                                    <td>{{ version.value.description }}</td>
+                                                    <td>
+                                                        <app-delete-confirm (delete)="deleteVersion(def.id, version.key)"></app-delete-confirm>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </ng-template>
+                        </c-accordion-item>
+                    }
+                </c-accordion>
+            </div>
+        }
+    }
+    @case ('sessions') {
+
+        <h2>Active Sessions</h2>
+        <ul cListGroup *ngIf="workflowDefs" class="mb-5">
+            <ng-container *ngFor="let session of sessions | keyvalue">
+                <li cListGroupItem>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong *ngIf="session.value.type === 'USER_SESSION'">
+                                {{ workflowDefs[session.value.workflowId].name }}
+                                v{{ session.value.version }}
+                            </strong>
+                            <strong *ngIf="session.value.type !== 'USER_SESSION'">
+                                {{ session.value.type }}
+                            </strong>
+
+                            <div>
+                                <small><strong>SessionId:</strong> {{ session.value.sessionId }}</small><br/>
+                                <small><strong>State:</strong> {{ session.value.state }}</small><br/>
+                                <small><strong>Connected Users:</strong> {{ session.value.connectionCount }}</small><br/>
+                            </div>
+                            <button cButton color="danger" variant="outline" size="sm" (click)="terminateSession(session.value.sessionId)">
+                                Terminate
+                            </button>
+                        </div>
+                        <button cButton (click)="openSession(session.value.sessionId)">
+                            Open
+                        </button>
+                    </div>
+                </li>
+            </ng-container>
+        </ul>
+    }
+    @case ('jobs') {
+        <p>Jobs coming soon...</p>
+    }
+    @case ('api') {
+        <p>API coming soon...</p>
+    }
+}
+
+<c-modal [visible]="showDeleteModal()" (visibleChange)="showDeleteModal.set($event)" *ngIf="workflowToDelete">
+    <c-modal-header>
+        <h5 cModalTitle>Delete Workflow</h5>
+        <button (click)="toggleDeleteModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        Do you really want to delete all versions of workflow "{{ workflowToDelete.def.name }}"?
+        This operation cannot be undone.
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleDeleteModal()" cButton color="secondary">Close</button>
+        <div>
+            <button cButton color="danger" (click)="deleteWorkflow(workflowToDelete.id)">Delete</button>
+        </div>
+    </c-modal-footer>
+</c-modal>

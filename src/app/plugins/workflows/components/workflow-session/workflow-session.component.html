@@ -1,9 +1,16 @@
 <div class="d-flex flex-column h-100">
     <div class="d-flex flex-row align-items-center">
-        <button cButton color="secondary" class="m-1 me-5"
-                (click)="backToDashboard()">
-            Back
-        </button>
+        <c-button-group class="m-2 me-3">
+            <button cButton color="secondary" class=""
+                    (click)="backToDashboard()">
+                Back
+            </button>
+            <button cButton color="danger" variant="outline" class=""
+                    (click)="terminateSession()">
+                Terminate
+            </button>
+
+        </c-button-group>
         <h1 *ngIf="session" class="mb-0">{{ session.workflowDef.name }} v{{ session.version }}</h1>
         <span class="ms-5"><strong>Session ID: {{ sessionId }}</strong></span>
     </div>

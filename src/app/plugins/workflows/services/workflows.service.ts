@@ -59,15 +59,32 @@ export class WorkflowsService {
         return this._http.get<Record<string, WorkflowDefModel>>(`${this.httpUrl}/workflows`, this.httpOptions);
     }
 
-    createSession(workflowName: string) {
+    createSession(workflowName: string, group: string) {
         const json = {
-            name: workflowName
+            name: workflowName,
+            group: group
         };
         return this._http.post<string>(`${this.httpUrl}/sessions`, json, this.httpOptions);
     }
 
     openWorkflow(workflowId: string, version: number) {
         return this._http.post<string>(`${this.httpUrl}/workflows/${workflowId}/${version}`, {}, this.httpOptions);
+    }
+
+    renameWorkflow(workflowId: string, newName: string = null, newGroup: string = null) {
+        const json = {
+            name: newName,
+            group: newGroup
+        };
+        return this._http.patch<string>(`${this.httpUrl}/workflows/${workflowId}`, json, this.httpOptions);
+    }
+
+    deleteWorkflow(workflowId: string) {
+        return this._http.delete<void>(`${this.httpUrl}/workflows/${workflowId}`, this.httpOptions);
+    }
+
+    deleteVersion(workflowId: string, version: number) {
+        return this._http.delete<void>(`${this.httpUrl}/workflows/${workflowId}/${version}`, this.httpOptions);
     }
 
     saveSession(sessionId: string, saveMessage: string) {

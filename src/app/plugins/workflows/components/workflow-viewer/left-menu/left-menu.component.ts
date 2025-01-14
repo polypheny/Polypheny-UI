@@ -88,7 +88,7 @@ export class LeftMenuComponent {
                 return false;
             }
             return this.selectedCategories.length === 0 ||
-                this.selectedCategories.find(item => def.categories.includes(item.itemName));
+                !this.selectedCategories.some(item => !def.categories.includes(item.itemName));
 
         }).map(type => this.registry.getDef(type));
     }
