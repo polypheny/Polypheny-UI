@@ -1,85 +1,87 @@
-<div>
-    <c-button-group role="group" class="mt-3 ms-3" size="sm">
-        <button cButton color="primary" class="" (click)="data.execute()" *ngIf="data.canExecute()"
-                (pointerdown)="$event.stopPropagation()">
-            <i class="fa fa-play"></i>
-        </button>
-        <button cButton color="primary" class="" (click)="data.reset()" *ngIf="data.canReset()"
-                (pointerdown)="$event.stopPropagation()">
-            <i class="fa fa-rotate-left"></i>
-        </button>
-        <button cButton color="light" class="cil-settings" (click)="data.openSettings()" [disabled]=""
-                (pointerdown)="$event.stopPropagation()">
+<div class="activity d-flex flex-column h-100">
 
-        </button>
-    </c-button-group>
-</div>
-
-<div class="title" data-testid="title">{{ data.displayName() }}</div>
-<h3 class="ms-2 text-light">{{ data.state() }}</h3>
-<h5 class="text-warning ms-2" *ngIf="data.commonType() !== 'NONE'">{{ data.commonType() }}</h5>
-<h5 class="ms-2 text-primary" *ngIf="data.state() === 'EXECUTING'">
-    {{ data.progress() * 100 | number }} %
-</h5>
-
-<div class="d-flex flex-row">
-    <div class="flex-grow-1">
-        <div
-                class="input"
-                *ngFor="let input of data.inputs | keyvalue: sortByIndex"
-                [attr.data-testid]="'input-'+input.key"
-        >
-            <div
-                    class="input-socket"
-                    refComponent
-                    [data]="{type: 'socket', side: 'input', key: input.key, nodeId: data.id, payload: input.value?.socket, seed: seed }"
-                    [emit]="emit"
-                    data-testid="input-socket"
-            ></div>
-            <div
-                    class="input-title"
-                    data-testid="input-title"
-                    *ngIf="!input.value?.control || !input.value?.showControl"
-            >
-                {{ input.value?.label }}
-            </div>
-            <div
-                    class="input-control"
-                    [style.display]="input.value?.control && input.value?.showControl ? '' : 'none'"
-                    refComponent
-                    [data]="{type: 'control', payload: input.value?.control }"
-                    [emit]="emit"
-                    data-testid="input-control"
-            ></div>
-        </div>
-    </div>
-    <div>
-        <div
-                class="output"
-                *ngFor="let output of data.outputs | keyvalue: sortByIndex"
-                [attr.data-testid]="'output-'+output.key"
-        >
-            <div class="output-title" data-testid="output-title">
-                {{ output.value?.label }}
-            </div>
-            <div
-                    class="output-socket"
-                    refComponent
-                    [data]="{type: 'socket', side: 'output', key: output.key, nodeId: data.id, payload: output.value?.socket, seed: seed }"
-                    [emit]="emit"
-                    data-testid="output-socket"
-            ></div>
-        </div>
+    <div class="status-bar" [ngClass]="'state-' + data.state().toLowerCase()"
+         [style.background]="statusBackground?.()">
+        <p class="text-center mb-0 status-text"
+           [ngClass]="data.state() === ActivityState.IDLE ? 'text-muted' : 'text-light'">
+            {{ statusText?.() }}
+        </p>
     </div>
 
+    <div class="activity-body h-100 d-flex flex-column">
+
+        <div class="control-bar d-flex flex-row py-1 px-3 align-items-center border-bottom">
+            <div class="">
+                <!--<span class="">!!!</span> TODO: info whether activity is consistent-->
+            </div>
+            <div class="flex-grow-1"></div>
+            <h6 class="ms-2 mb-0" *ngIf="data.commonType() !== 'NONE'">{{ data.commonType() }}</h6>
+            <c-button-group role="group" class="ms-2" size="sm">
+                <button cButton color="primary" class="" (click)="data.execute()" *ngIf="data.canExecute()"
+                        (pointerdown)="$event.stopPropagation()">
+                    <i class="fa fa-play"></i>
+                </button>
+                <button cButton color="primary" variant="outline" (click)="data.reset()" *ngIf="data.canReset()"
+                        (pointerdown)="$event.stopPropagation()">
+                    <i class="fa fa-rotate-left"></i>
+                </button>
+                <button cButton color="secondary" class="cil-settings" (click)="data.openSettings()"
+                        (pointerdown)="$event.stopPropagation()">
+                </button>
+            </c-button-group>
+        </div>
+
+        <div class="d-flex flex-row pt-3 h-100">
+            <div class="activity-inputs">
+                <div class="input mb-5">
+                    <div class="input-socket control-inport" refComponent [emit]="emit"
+                         [data]="{type: 'socket', side: 'input', key: IN_CONTROL_KEY, nodeId: data.id, payload: data.controlInput.socket, seed: seed }"
+                    ></div>
+                </div>
+
+
+                <div class="input d-flex align-items-center mb-2" *ngFor="let input of data.dataInputs | keyvalue: sortByIndex, let i = index">
+                    <div class="input-socket data-inport" refComponent [emit]="emit"
+                         [data]="{type: 'socket', side: 'input', key: input.key, nodeId: data.id, payload: input.value?.socket, seed: seed }">
+                    </div>
+                    <button cButton color="light" class="px-1 py-0" (click)="data.openCheckpoint(true, input.key)"
+                            (pointerdown)="$event.stopPropagation()" [disabled]="true"> <!--TODO: enable only if predecessor is finished or saved-->
+                        <span class="text-dark" [ngClass]="inIcons[input.key]?.()"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="activity-content flex-grow-1 h-100 px-1 d-flex flex-column justify-content-between">
+                <h4 class="">{{ data.displayName() }}</h4>
+                <div class="mb-2 notes-container" cFormFloating>
+                    <textarea cFormControl id="activity-notes" placeholder="" [(ngModel)]="data.rendering().notes"
+                              (pointerdown)="$event.stopPropagation()" (change)="saveNotes()">
+                    </textarea>
+                    <label cLabel class="pt-2" for="activity-notes">Notes</label>
+                </div>
+            </div>
+
+            <div class="activity-outputs d-flex flex-column justify-content-between">
+                <div>
+                    <div class="mb-5 output-spacer"></div>
+                    <div class="output mb-2 d-flex align-items-center" *ngFor="let output of data.dataOutputs | keyvalue: sortByIndex">
+                        <button cButton color="light" class="px-1 py-0" (click)="data.openCheckpoint(false, output.key)"
+                                (pointerdown)="$event.stopPropagation()" [disabled]="!data.canOpenCheckpoint()">
+                            <span class="text-dark" [ngClass]="outIcons[output.key]?.()"></span>
+                        </button>
+                        <div class="output-socket data-outport" refComponent [emit]="emit"
+                             [data]="{type: 'socket', side: 'output', key: output.key, nodeId: data.id, payload: output.value?.socket, seed: seed }">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="output" *ngFor="let output of data.controlOutputs | keyvalue: sortByIndex">
+                        <div class="output-socket control-outport" refComponent [emit]="emit"
+                             [data]="{type: 'socket', side: 'output', key: output.key, nodeId: data.id, payload: output.value?.socket, seed: seed }">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-
-<div
-        class="control"
-        *ngFor="let control of data.controls | keyvalue: sortByIndex"
-        refComponent
-        [data]="{type: 'control', payload: control.value }"
-        [emit]="emit"
-        [attr.data-testid]="'control-'+control.key"
-></div>

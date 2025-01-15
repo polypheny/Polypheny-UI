@@ -2,13 +2,11 @@
 @import "../vars";
 
 :host {
-  display: inline-block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  border: 1px solid grey;
-  width: $socket-size;
-  height: $socket-size * 2;
   vertical-align: middle;
-  background: #fff;
   z-index: 2;
   box-sizing: border-box;
 
@@ -16,20 +14,52 @@
     background: #ddd;
   }
 
+  &.control-port {
+    width: $control-port-size;
+    height: $control-port-size;
+    border-radius: 3px;
+  }
+
+  &.data-port {
+    width: $data-port-size;
+    height: $data-port-size;
+    background: var(--cui-dark);
+    border-radius: $data-port-size / 2;
+  }
+
+  &.is-optional {
+    background: var(--cui-secondary);
+
+  }
+
   &.success-control {
-    background: green;
+    background: var(--cui-success);
+
+    .port-icon {
+      font-size: $control-port-size - 4px;
+      padding-top: 1px;
+    }
   }
 
   &.fail-control {
-    background: red;
+    background: var(--cui-danger);
+
+    .port-icon {
+      font-size: $control-port-size - 4px;
+      padding-top: 1px;
+    }
   }
 
   &.in-control {
-    background: blue;
+    background: var(--cui-blue);
+
+    .port-icon {
+      font-size: $control-port-size - 5px;
+      padding-top: 1px;
+    }
   }
 
-  & .output-datamodel {
-    position: absolute;
-    right: 1rem;
+  .port-icon {
+    color: var(--cui-light)
   }
 }

@@ -115,24 +115,34 @@
     </c-modal-footer>
 </c-modal>
 
-<c-modal *ngIf="_checkpoint.selectedActivity()" [visible]="_checkpoint.showModal()" (visibleChange)="_checkpoint.setModal($event)" size="xl" scrollable="true">
+<c-modal *ngIf="_checkpoint.selectedActivity()" [visible]="_checkpoint.showModal()" (visibleChange)="_checkpoint.setModal($event)" scrollable="true">
     <c-modal-header>
-        <h5 cModalTitle>{{ _checkpoint.selectedActivity().displayName() }}: {{ _checkpoint.selectedOutput() }}</h5>
+        <h5 cModalTitle>{{ _checkpoint.selectedActivity().displayName() }}: Output {{ _checkpoint.selectedOutput() }}</h5>
         <button (click)="_checkpoint.toggleModal()" cButtonClose></button>
     </c-modal-header>
     <c-modal-body>
-        <div class="data-view-wrapper" *ngIf="_checkpoint.result() && _checkpoint.result().data">
-            <c-card *ngIf="_checkpoint.isLimited()" color="light" class="mb-3">
-                <c-card-body>
-                    <p>Only the first {{ _checkpoint.limit() }} of {{ _checkpoint.totalCount() }} elements are shown.</p>
-                </c-card-body>
-            </c-card>
-            <app-data-view [result]="_checkpoint.result()"
-                           [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: true}"
-                           [loading]="_checkpoint.isLoading()"></app-data-view>
-        </div>
+        @if (_checkpoint.result() || _checkpoint.isLoading()) {
+            <div class="data-view-wrapper w-100" *ngIf="_checkpoint.result() && _checkpoint.result().data">
+                <c-card *ngIf="_checkpoint.isLimited()" color="light" class="mb-3">
+                    <c-card-body>
+                        <p>Only the first {{ _checkpoint.limit() }} of {{ _checkpoint.totalCount() }} elements are shown.</p>
+                    </c-card-body>
+                </c-card>
+                <app-data-view [result]="_checkpoint.result()"
+                               [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: true}"
+                               [loading]="_checkpoint.isLoading()"></app-data-view>
+            </div>
+        } @else {
+            <p>The requested checkpoint is currently not materialized.
+                Do you want to execute the activity to materialize its checkpoints?</p>
+            <p class="text-danger">This will also reset all its successor activities!</p>
+
+        }
     </c-modal-body>
     <c-modal-footer>
         <button (click)="_checkpoint.toggleModal()" cButton color="secondary">Close</button>
+        @if (!_checkpoint.result() && !_checkpoint.isLoading()) {
+            <button cButton (click)="_checkpoint.materialize()" [disabled]="_checkpoint.selectedActivity().state() !== 'FINISHED'">Execute Activity</button>
+        }
     </c-modal-footer>
 </c-modal>

@@ -135,6 +135,21 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                 this.rightMenu.visible.set(true);
             })
         ).subscribe());
+        this.subscriptions.add(this.editor.onOpenCheckpoint().subscribe(
+            ([activityId, isInput, idx]) => {
+                if (isInput) {
+                    const edge = this.workflow.getInEdges(activityId, 'data').find(([edge,]) => edge.toPort === idx)?.[0];
+                    if (edge) {
+                        activityId = edge.fromId;
+                        idx = edge.fromPort;
+                    } else {
+                        return;
+                    }
+                }
+                const activity = this.workflow.getActivity(activityId);
+                this._checkpoint.openCheckpoint(activity, idx);
+            }
+        ));
         this.subscriptions.add(this.workflow.onActivityRemove().subscribe(
             activityId => {
                 if (this.openedActivity()?.id === activityId) {

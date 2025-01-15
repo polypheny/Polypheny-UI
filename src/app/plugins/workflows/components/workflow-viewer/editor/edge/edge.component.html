@@ -1,3 +1,4 @@
 <svg data-testid="connection">
-    <path [attr.d]="path" [attr.stroke]="data.edgeColor?.() || 'blue'"/>
+    <path [attr.d]="path" [ngClass]="'state-' + data.state?.().toLowerCase()"
+          [class.is-control]="isControl" [class.is-magnetic]="data.isMagnetic"/>
 </svg>

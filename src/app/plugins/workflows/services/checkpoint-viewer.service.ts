@@ -3,6 +3,7 @@ import {WorkflowsWebSocketService} from './workflows-websocket.service';
 import {CheckpointDataResponse, ResponseType, WsResponse} from '../models/ws-response.model';
 import {Result} from '../../../components/data-view/models/result-set.model';
 import {Activity} from '../components/workflow-viewer/workflow';
+import {ActivityState} from '../models/workflows.model';
 
 @Injectable()
 export class CheckpointViewerService {
@@ -29,16 +30,29 @@ export class CheckpointViewerService {
         this.showModal.set(visible);
         if (!visible) {
             this.selectedActivity.set(null);
+            this.selectedOutput.set(null);
             this.result.set(null);
         }
     }
 
-    getCheckpoint(activity: Activity, outputIndex: number) {
+    private getCheckpoint(activity: Activity, outputIndex: number) {
         this.selectedActivity.set(activity);
         this.selectedOutput.set(outputIndex);
         this.isLoading.set(true);
         this._websocket.getCheckpoint(activity.id, outputIndex);
+    }
 
+    openCheckpoint(activity: Activity, outputIndex: number) {
+        if (activity.state() === ActivityState.FINISHED) {
+            this.selectedActivity.set(activity);
+            this.selectedOutput.set(outputIndex);
+
+        } else if (activity.state() === ActivityState.SAVED) {
+            this.getCheckpoint(activity, outputIndex);
+        } else {
+            return;
+        }
+        this.setModal(true);
     }
 
     private handleWsMsg(msg: { response: WsResponse; isDirect: boolean }) {
@@ -55,5 +69,12 @@ export class CheckpointViewerService {
 
     materializeCheckpoints(activityId: string) {
         this._websocket.execute(activityId);
+    }
+
+    materialize() {
+        if (this.selectedActivity()) {
+            this._websocket.execute(this.selectedActivity().id);
+            this.setModal(false);
+        }
     }
 }

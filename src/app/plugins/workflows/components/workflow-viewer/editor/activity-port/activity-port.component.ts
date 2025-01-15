@@ -2,17 +2,12 @@ import {ChangeDetectorRef, Component, ElementRef, HostBinding, Input, OnChanges,
 import {ClassicPreset} from 'rete';
 import {InPortDef, OutPortDef, portTypeToDataModel} from '../../../../models/activity-registry.model';
 import {DataModel} from '../../../../../../models/ui-request.model';
-import {NgClass, NgIf} from '@angular/common';
 
 @Component({
     selector: 'app-activity-port',
     standalone: true,
-    imports: [
-        NgIf,
-        NgClass
-    ],
-    // TODO: render datamodel in activity itself
-    template: `<p *ngIf="!data.isControl" class="text-primary" [ngClass]="data.isInput ? 'ms-3' : 'output-datamodel'">{{data.dataModel().slice( 0, 3 )}}</p>`,
+    imports: [],
+    templateUrl: './activity-port.component.html',
     styleUrl: './activity-port.component.scss'
 })
 export class ActivityPortComponent implements OnInit, OnChanges {
@@ -20,7 +15,10 @@ export class ActivityPortComponent implements OnInit, OnChanges {
     @Input() rendered!: any;
 
     @HostBinding('title') get title() {
-        return this.data.dataModel;
+        if (this.data.isControl) {
+            return this.data.controlType + ' control';
+        }
+        return this.data.dataModel();
     }
 
     constructor(private cdr: ChangeDetectorRef, private elementRef: ElementRef) {
@@ -29,11 +27,16 @@ export class ActivityPortComponent implements OnInit, OnChanges {
 
     ngOnInit(): void {
         if (this.data.controlType === 'success') {
-            this.elementRef.nativeElement.classList.add('success-control');
+            this.elementRef.nativeElement.classList.add('success-control', 'control-port');
         } else if (this.data.controlType === 'fail') {
-            this.elementRef.nativeElement.classList.add('fail-control');
+            this.elementRef.nativeElement.classList.add('fail-control', 'control-port');
         } else if (this.data.controlType === 'in') {
-            this.elementRef.nativeElement.classList.add('in-control');
+            this.elementRef.nativeElement.classList.add('in-control', 'control-port');
+        } else {
+            this.elementRef.nativeElement.classList.add('data-port');
+            if (this.data.portDef['isOptional']) {
+                this.elementRef.nativeElement.classList.add('is-optional');
+            }
         }
     }
 

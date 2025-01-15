@@ -27,8 +27,7 @@ export class CheckpointViewerComponent implements OnInit {
 
     showOutput(i: number) {
         this.selectedOutput = i;
-        this._checkpoint.setModal(true);
-        this._checkpoint.getCheckpoint(this.activity(), this.selectedOutput);
+        this._checkpoint.openCheckpoint(this.activity(), this.selectedOutput);
     }
 
     materializeCheckpoints() {

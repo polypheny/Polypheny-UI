@@ -9,6 +9,7 @@ import {
     AccordionComponent,
     AccordionItemComponent,
     BadgeComponent,
+    BgColorDirective,
     BorderDirective,
     ButtonCloseDirective,
     ButtonDirective,
@@ -28,6 +29,7 @@ import {
     FormControlDirective,
     FormDirective,
     FormFeedbackComponent,
+    FormFloatingDirective,
     FormLabelDirective,
     FormSelectDirective,
     GutterDirective,
@@ -47,6 +49,7 @@ import {
     OffcanvasHeaderComponent,
     OffcanvasTitleDirective,
     OffcanvasToggleDirective,
+    PopoverDirective,
     RowComponent,
     RowDirective,
     SidebarBrandComponent,
@@ -60,7 +63,8 @@ import {
     TableColorDirective,
     TableDirective,
     TabPaneComponent,
-    TemplateIdDirective
+    TemplateIdDirective,
+    TooltipDirective
 } from '@coreui/angular';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ActivityComponent} from './components/workflow-viewer/editor/activity/activity.component';
@@ -151,6 +155,10 @@ import {EntitySettingComponent} from './components/workflow-viewer/right-menu/ac
         RowDirective,
         TableDirective,
         TableColorDirective,
+        TooltipDirective,
+        PopoverDirective,
+        FormFloatingDirective,
+        BgColorDirective,
     ],
     declarations: [
         WorkflowViewerComponent,

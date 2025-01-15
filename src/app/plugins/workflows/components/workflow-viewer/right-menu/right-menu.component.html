@@ -68,7 +68,34 @@
                     ></app-activity-config-editor>
 
                     <h5 class="mt-5">Execution Stats</h5>
-                    <p>TODO</p>
+                    <p><strong>Activity ID:</strong> {{ activity().id }}</p>
+                    <p><strong>Activity State:</strong> {{ activity().state() }}</p>
+
+                    @if (activity().executionInfo()) {
+                        <p><strong>Execution State:</strong> {{ activity().executionInfo().state }}</p>
+                        <p><strong>Executor:</strong> {{ activity().executionInfo().executorType }}</p>
+                        <p><strong>Total Duration:</strong> {{ activity().executionInfo().totalDuration }} ms</p>
+                        <p *ngIf="activity().executionInfo().activities.length > 1"><strong>Activities:</strong> {{ activity().executionInfo().activities }}</p>
+
+                        <table cTable small="true">
+                            <thead cTableColor="light">
+                            <tr>
+                                <th scope="col">Phase</th>
+                                <th scope="col">Time (ms)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                @for (state of activity().executionInfo().durations | keyvalue; track state.key) {
+                                    <tr>
+                                        <th scope="row">{{ state.key }}</th>
+                                        <td>{{ state.value }}</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    }
+
                 }
                 @case ("help") {
                     <app-activity-help [def]="activity().def"></app-activity-help>

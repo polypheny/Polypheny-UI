@@ -5,7 +5,29 @@ svg {
 
   path {
     fill: none;
-    stroke-width: 5px;
+    stroke-width: 4px;
     pointer-events: auto;
+    stroke: var(--cui-dark);
+
+    &.state-idle {
+      stroke: var(--cui-dark);
+    }
+
+    &.state-active {
+      stroke: var(--cui-success);
+    }
+
+    &.state-inactive {
+      stroke: var(--cui-danger);
+    }
+
+    &.is-control {
+      stroke-dasharray: 16, 8;
+      stroke-width: 3px;
+    }
+
+    &.is-magnetic {
+      stroke: rgba(79, 93, 115, 0.3);
+    }
   }
 }

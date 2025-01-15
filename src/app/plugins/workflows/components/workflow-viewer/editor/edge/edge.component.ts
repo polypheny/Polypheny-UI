@@ -1,4 +1,4 @@
-import {Component, computed, Input, Signal} from '@angular/core';
+import {Component, computed, Input, OnInit, Signal} from '@angular/core';
 import {ClassicPreset} from 'rete';
 import {ActivityNode, FAIL_CONTROL_KEY, IN_CONTROL_KEY, SUCCESS_CONTROL_KEY} from '../activity/activity.component';
 import {EdgeModel, EdgeState} from '../../../../models/workflows.model';
@@ -8,11 +8,24 @@ import {EdgeModel, EdgeState} from '../../../../models/workflows.model';
     templateUrl: './edge.component.html',
     styleUrl: './edge.component.scss'
 })
-export class EdgeComponent {
+export class EdgeComponent implements OnInit {
     @Input() data!: Edge<ActivityNode>;
     @Input() start: any;
     @Input() end: any;
     @Input() path: string;
+
+    isControl = false;
+
+    ngOnInit(): void {
+        // @ts-ignore
+        if (this.data.isPseudo || this.data.isMagnetic) {
+            this.isControl = ActivityNode.isControlPortKey(this.data.sourceOutput) || ActivityNode.isControlPortKey(this.data.targetInput);
+        } else {
+            this.isControl = this.data.isControl;
+        }
+    }
+
+
 }
 
 export const EDGE_COLOR_MAP = {
@@ -22,7 +35,7 @@ export const EDGE_COLOR_MAP = {
 };
 
 export class Edge<N extends ActivityNode> extends ClassicPreset.Connection<N, N> {
-    isMagnetic = false; // TODO: why is this required?
+    isMagnetic = false;
     readonly edgeColor = computed(() => EDGE_COLOR_MAP[this.state()]);
     readonly sourceActivityId: string; // activityId
     readonly targetActivityId: string; // activityId

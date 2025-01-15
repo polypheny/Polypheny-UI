@@ -40,6 +40,21 @@ export enum SessionModelType {
     JOB_SESSION = 'JOB_SESSION'
 }
 
+export enum ExecutionState {
+    SUBMITTED = 'SUBMITTED',
+    EXECUTING = 'EXECUTING',
+    AWAIT_PROCESSING = 'AWAIT_PROCESSING',
+    PROCESSING_RESULT = 'PROCESSING_RESULT',
+    DONE = 'DONE'
+}
+
+export enum ExecutorType {
+    DEFAULT = 'DEFAULT',
+    FUSION = 'FUSION',
+    PIPE = 'PIPE',
+    VARIABLE_WRITER = 'VARIABLE_WRITER'
+}
+
 export type SettingsModel = Record<string, any>;
 export type Variables = Record<string, any>;
 
@@ -72,6 +87,7 @@ export interface TypePreviewModel {
     fields: FieldDefinition[];
 }
 
+
 export interface ActivityModel {
     type: string;
     id: string;
@@ -82,6 +98,15 @@ export interface ActivityModel {
     inTypePreview?: TypePreviewModel[];
     invalidReason?: string;
     variables?: Variables;
+    executionInfo?: ExecutionInfoModel;
+}
+
+export interface ExecutionInfoModel {
+    totalDuration: number;
+    durations: Record<ExecutionState, number>;
+    activities: string[];
+    executorType: ExecutorType;
+    state: ExecutionState;
 }
 
 export interface SessionModel {

@@ -10,8 +10,7 @@ import {ActivityPortComponent} from './activity-port/activity-port.component';
 import {addCustomBackground} from '../../../../../components/polyalg/polyalg-viewer/background';
 import {ReadonlyPlugin} from 'rete-readonly-plugin';
 import {setupPanningBoundary} from '../../../../../components/polyalg/polyalg-viewer/panning-boundary';
-import {MagneticConnectionComponent} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection/magnetic-connection.component';
-import {AutoArrangePlugin, Presets as ArrangePresets} from 'rete-auto-arrange-plugin';
+import {AutoArrangePlugin} from 'rete-auto-arrange-plugin';
 import {WorkflowsService} from '../../../services/workflows.service';
 import {ActivityRegistry} from '../../../models/activity-registry.model';
 import {debounceTime, Subject, Subscription} from 'rxjs';
@@ -48,6 +47,7 @@ export class WorkflowEditor {
     private readonly executeActivitySubject = new Subject<string>(); // activityId
     private readonly resetActivitySubject = new Subject<string>(); // activityId
     private readonly openSettingsSubject = new Subject<string>(); // activityId
+    private readonly openCheckpointSubject = new Subject<[string, boolean, number]>(); // activityId, isInput, portIdx
     private readonly subscriptions = new Subscription();
 
     constructor(private injector: Injector, container: HTMLElement, private readonly _workflows: WorkflowsService, private readonly isReadOnly: boolean) {
@@ -61,10 +61,7 @@ export class WorkflowEditor {
                     node() {
                         return ActivityComponent;
                     },
-                    connection(data) {
-                        if (data.payload.isMagnetic) {
-                            return MagneticConnectionComponent;
-                        }
+                    connection() {
                         return EdgeComponent;
                     },
                     socket() {
@@ -88,22 +85,28 @@ export class WorkflowEditor {
                 }
             }
         }));
-
-        this.arrange.addPreset(ArrangePresets.classic.setup({top: 100, bottom: 100}));
-        /* TODO: customize according to definitive port positions
         this.arrange.addPreset(() => {
             return {
-                port(n) {
+                port(data) {
+                    let y;
+                    const firstData = 156;
+                    const isControl = ActivityNode.isControlPortKey(data.key);
+                    if (data.side === 'input') {
+                        y = isControl ? 80 : firstData + 34 * (data.index - 1);
+                    } else {
+                        y = isControl ? firstData + 34 * (data.ports - 2) + 24 * (data.index) : firstData + 34 * (data.index - 2);
+                    }
+                    console.log(data, y);
                     return {
-                        x: n.width / (n.ports + 1) * (n.index + 1),
-                        y: 0,
+                        x: 0,
+                        y: y,
                         width: 15,
                         height: 15,
-                        side: 'output' === n.side ? 'NORTH' : 'SOUTH'
+                        side: 'output' === data.side ? 'EAST' : 'WEST'
                     };
                 }
             };
-        }); */
+        });
 
         // Attach plugins
         this.editor.use(this.readonlyPlugin.root);
@@ -206,6 +209,10 @@ export class WorkflowEditor {
         return this.openSettingsSubject.asObservable();
     }
 
+    onOpenCheckpoint() {
+        return this.openCheckpointSubject.asObservable();
+    }
+
     onEdgeRemove() {
         return this.removeEdgeSubject.asObservable();
     }
@@ -215,7 +222,11 @@ export class WorkflowEditor {
     }
 
     async arrangeNodes() {
-        await this.arrange.layout({applier: undefined});
+        await this.arrange.layout({
+            applier: undefined, options: {
+                'elk.layered.spacing.nodeNodeBetweenLayers': '150'
+            }
+        });
     }
 
     getCenter(): Position {
@@ -247,7 +258,7 @@ export class WorkflowEditor {
 
     private async addNode(activity: Activity) {
         const node = new ActivityNode(activity, this.workflow.state,
-            this.executeActivitySubject, this.resetActivitySubject, this.openSettingsSubject);
+            this.executeActivitySubject, this.resetActivitySubject, this.openSettingsSubject, this.openCheckpointSubject);
         this.nodeMap.set(activity.id, node);
         this.nodeIdToActivityId.set(node.id, activity.id);
         const translateSubject = new Subject<Position>();

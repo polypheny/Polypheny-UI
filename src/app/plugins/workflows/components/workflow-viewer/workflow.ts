@@ -1,4 +1,4 @@
-import {ActivityConfigModel, ActivityModel, ActivityState, CommonType, EdgeModel, EdgeState, RenderModel, SettingsModel, TypePreviewModel, Variables, WorkflowConfigModel, WorkflowModel, WorkflowState} from '../../models/workflows.model';
+import {ActivityConfigModel, ActivityModel, ActivityState, CommonType, EdgeModel, EdgeState, ExecutionInfoModel, RenderModel, SettingsModel, TypePreviewModel, Variables, WorkflowConfigModel, WorkflowModel, WorkflowState} from '../../models/workflows.model';
 import {computed, Signal, signal, WritableSignal} from '@angular/core';
 import * as _ from 'lodash';
 import {Subject} from 'rxjs';
@@ -61,6 +61,18 @@ export class Workflow {
             edges.push([edgeModel, state]);
         }
         return edges;
+    }
+
+    getInEdges(activityId: string, type: 'data' | 'control' | 'both') {
+        const edges = this.getEdges();
+        switch (type) {
+            case 'data':
+                return edges.filter(([model,]) => !model.isControl && model.toId === activityId);
+            case 'control':
+                return edges.filter(([model,]) => model.isControl && model.toId === activityId);
+            case 'both':
+                return edges.filter(([model,]) => model.toId === activityId);
+        }
     }
 
     getEdgeState(edge: EdgeModel | string): WritableSignal<EdgeState> | undefined {
@@ -269,6 +281,7 @@ export class Activity {
     readonly invalidReason: WritableSignal<string>;
     readonly variables: WritableSignal<Variables>;
     readonly displayName: Signal<string>;
+    readonly executionInfo: WritableSignal<ExecutionInfoModel>;
 
     constructor(activityModel: ActivityModel, def: ActivityDef) {
         this.type = activityModel.type;
@@ -283,6 +296,7 @@ export class Activity {
         this.invalidReason = signal(activityModel.invalidReason);
         this.variables = signal(activityModel.variables, {equal: _.isEqual});
         this.displayName = computed(() => this.rendering().name || this.def.displayName);
+        this.executionInfo = signal(activityModel.executionInfo);
     }
 
     update(activityModel: ActivityModel) {
@@ -293,6 +307,7 @@ export class Activity {
         this.inTypePreview.set(activityModel.inTypePreview);
         this.invalidReason.set(activityModel.invalidReason);
         this.variables.set(activityModel.variables);
+        this.executionInfo.set(activityModel.executionInfo);
     }
 
     prepareConfig(config: ActivityConfigModel) {
