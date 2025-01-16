@@ -7,7 +7,8 @@
         <div class="px-3 py-2 border-bottom">
             <c-input-group class="mb-1">
                 <span cInputGroupText class="cil-search bg-transparent"></span>
-                <input class="activity-search" cFormControl type="search" value="search" [(ngModel)]="filterText" (input)="filterList()"
+                <input class="activity-search" cFormControl type="search" value="search" [(ngModel)]="filterText"
+                       (input)="filterList()"
                        placeholder="Search by name">
             </c-input-group>
             <angular2-multiselect id="category-multi-selector" [data]="dropdownCats" [(ngModel)]="selectedCategories"
@@ -26,10 +27,12 @@
                 <label cFormCheckLabel for="show-description">Show Description</label>
             </c-form-check>
         </div>
-        <ul cListGroup flush="true" cdkDropList cdkDropListSortingDisabled="true" class="activity-list px-2 flex-grow-1">
+
+        <div class="activity-list px-2 flex-grow-1" cdkDropList cdkDropListSortingDisabled="true">
             @for (activity of filteredList; track activity.type) {
-                <li cListGroupItem class="px-2">
-                    <c-card cdkDrag [cdkDragData]="activity.type" class="draggable" color="light" [cBorder]="activity === openedActivityDef && 'primary'"
+                <div class="px-2 mb-1">
+                    <c-card cdkDrag [cdkDragData]="activity.type" class="draggable" color="light"
+                            [cBorder]="activity === openedActivityDef && 'primary'"
                             (cdkDragDropped)="onDragDropped($event)">
                         <c-card-body class="p-2 activity-card">
                             <div class="d-flex flex-row justify-content-between">
@@ -49,17 +52,17 @@
                     <!--<div class="bg-primary draggable" *cdkDragPreview>
                         <h5>{{ activity.displayName }}</h5>
                     </div>-->
-                </li>
+                </div>
             }
-        </ul>
+        </div>
 
     </div>
-    <div *ngIf="openedActivityDef" class="border-start flex-grow-1 info-col">
+    <div *ngIf="openedActivityDef" class="border-start flex-grow-1 info-col d-flex flex-column">
         <div class="px-3 py-2 border-bottom menu-header d-flex">
             <h4 class="mb-0">{{ openedActivityDef.displayName }}</h4>
             <button cButtonClose class="text-reset ms-auto" (click)="openedActivityDef=null"></button>
         </div>
-        <div class="pt-3 px-3 activity-info">
+        <div class="pt-3 px-3 activity-info flex-grow-1">
             <app-activity-help [def]="openedActivityDef"></app-activity-help>
         </div>
     </div>

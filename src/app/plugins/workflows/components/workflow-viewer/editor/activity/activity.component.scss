@@ -79,20 +79,8 @@
     margin-right: -$data-port-size / 2;
   }
 
-  .notes-container {
-    .form-label {
-      color: var(--cui-secondary);
-    }
-
-    .form-label::after {
-      background: transparent;
-      padding-bottom: 0;
-    }
-  }
-
   #activity-notes {
-    resize: vertical;
-    max-height: 95px;
+    resize: none;
     background: var(--cui-light);
   }
 }

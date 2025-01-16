@@ -15,7 +15,12 @@ import {WorkflowsService} from '../../../services/workflows.service';
 import {ActivityRegistry} from '../../../models/activity-registry.model';
 import {debounceTime, Subject, Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
-import {canCreateConnection, getContextMenuItems, getMagneticConnectionProps, socketsToEdgeModel} from './workflow-editor-utils';
+import {
+    canCreateConnection,
+    getContextMenuItems,
+    getMagneticConnectionProps,
+    socketsToEdgeModel
+} from './workflow-editor-utils';
 import {Activity, edgeToString, Workflow} from '../workflow';
 import {ContextMenuExtra, ContextMenuPlugin} from 'rete-context-menu-plugin';
 import {useMagneticConnection} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection';
@@ -96,7 +101,6 @@ export class WorkflowEditor {
                     } else {
                         y = isControl ? firstData + 34 * (data.ports - 2) + 24 * (data.index) : firstData + 34 * (data.index - 2);
                     }
-                    console.log(data, y);
                     return {
                         x: 0,
                         y: y,
@@ -223,9 +227,7 @@ export class WorkflowEditor {
 
     async arrangeNodes() {
         await this.arrange.layout({
-            applier: undefined, options: {
-                'elk.layered.spacing.nodeNodeBetweenLayers': '150'
-            }
+            applier: undefined, options: {'elk.layered.spacing.nodeNodeBetweenLayers': '150'}
         });
     }
 

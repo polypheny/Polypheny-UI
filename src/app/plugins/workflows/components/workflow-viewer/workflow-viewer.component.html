@@ -71,7 +71,8 @@
     </div>
 </div>
 
-<app-workflow-config-editor #workflowConfigEditor [config]="workflow?.config()" [isEditable]="isEditable && !isExecuting?.()"/>
+<app-workflow-config-editor #workflowConfigEditor [config]="workflow?.config()"
+                            [isEditable]="isEditable && !isExecuting?.()"/>
 
 <c-modal [visible]="showSaveModal()" (visibleChange)="showSaveModal.set($event)">
     <c-modal-header>
@@ -110,22 +111,30 @@
     <c-modal-footer>
         <button (click)="toggleVariableModal()" cButton color="secondary">Close</button>
         <div *ngIf="isEditable">
-            <button cButton color="primary" (click)="saveVariables()" [disabled]="isExecuting?.() || !hasVariablesChanged()">Save Variables</button>
+            <button cButton color="primary" (click)="saveVariables()"
+                    [disabled]="isExecuting?.() || !hasVariablesChanged()">Save Variables
+            </button>
         </div>
     </c-modal-footer>
 </c-modal>
 
-<c-modal *ngIf="_checkpoint.selectedActivity()" [visible]="_checkpoint.showModal()" (visibleChange)="_checkpoint.setModal($event)" scrollable="true">
+<c-modal *ngIf="_checkpoint.selectedActivity()" [visible]="_checkpoint.showModal()"
+         (visibleChange)="_checkpoint.setModal($event)" scrollable="true">
     <c-modal-header>
-        <h5 cModalTitle>{{ _checkpoint.selectedActivity().displayName() }}: Output {{ _checkpoint.selectedOutput() }}</h5>
+        <h5 cModalTitle>{{ _checkpoint.selectedActivity().displayName() }}:
+            Output {{ _checkpoint.selectedOutput() }}</h5>
         <button (click)="_checkpoint.toggleModal()" cButtonClose></button>
     </c-modal-header>
     <c-modal-body>
         @if (_checkpoint.result() || _checkpoint.isLoading()) {
+            <div class="d-flex justify-content-center">
+                <c-spinner *ngIf="_checkpoint.isLoading()"></c-spinner>
+            </div>
             <div class="data-view-wrapper w-100" *ngIf="_checkpoint.result() && _checkpoint.result().data">
                 <c-card *ngIf="_checkpoint.isLimited()" color="light" class="mb-3">
                     <c-card-body>
-                        <p>Only the first {{ _checkpoint.limit() }} of {{ _checkpoint.totalCount() }} elements are shown.</p>
+                        <p>Only the first {{ _checkpoint.limit() }} of {{ _checkpoint.totalCount() }} elements are
+                            shown.</p>
                     </c-card-body>
                 </c-card>
                 <app-data-view [result]="_checkpoint.result()"
@@ -142,7 +151,9 @@
     <c-modal-footer>
         <button (click)="_checkpoint.toggleModal()" cButton color="secondary">Close</button>
         @if (!_checkpoint.result() && !_checkpoint.isLoading()) {
-            <button cButton (click)="_checkpoint.materialize()" [disabled]="_checkpoint.selectedActivity().state() !== 'FINISHED'">Execute Activity</button>
+            <button cButton (click)="_checkpoint.materialize()"
+                    [disabled]="_checkpoint.selectedActivity().state() !== 'FINISHED'">Execute Activity
+            </button>
         }
     </c-modal-footer>
 </c-modal>

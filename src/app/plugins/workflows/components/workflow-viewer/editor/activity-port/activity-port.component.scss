@@ -2,17 +2,17 @@
 @import "../vars";
 
 :host {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   cursor: pointer;
   vertical-align: middle;
   z-index: 2;
   box-sizing: border-box;
 
-  &:hover {
-    background: #ddd;
-  }
+}
+
+.port-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   &.control-port {
     width: $control-port-size;
@@ -23,13 +23,41 @@
   &.data-port {
     width: $data-port-size;
     height: $data-port-size;
-    background: var(--cui-dark);
     border-radius: $data-port-size / 2;
-  }
+    background: var(--cui-dark);
+    border: 2px solid var(--cui-dark);
 
-  &.is-optional {
-    background: var(--cui-secondary);
+    &.out-port.state-finished {
+      background: repeating-linear-gradient(
+                      135deg,
+                      var(--cui-dark),
+                      var(--cui-dark) 3px,
+                      var(--cui-secondary) 3px,
+                      var(--cui-secondary) 6px
+      );
 
+      &:hover {
+        background: repeating-linear-gradient(
+                        135deg,
+                        var(--cui-secondary),
+                        var(--cui-secondary) 3px,
+                        var(--cui-light) 3px,
+                        var(--cui-light) 6px
+        )
+      }
+    }
+
+    &.is-optional {
+      background: var(--cui-secondary);
+
+      &:hover {
+        background: var(--cui-light);
+      }
+    }
+
+    &:hover {
+      background: var(--cui-secondary);
+    }
   }
 
   &.success-control {
@@ -51,7 +79,7 @@
   }
 
   &.in-control {
-    background: var(--cui-blue);
+    background: var(--cui-dark);
 
     .port-icon {
       font-size: $control-port-size - 5px;

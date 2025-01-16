@@ -122,8 +122,8 @@ export class ActivityNode extends ClassicPreset.Node {
     readonly activityId = this.activity.id;
     readonly displayName = this.activity.displayName;
     readonly rendering = this.activity.rendering;
-    readonly state = this.activity.state;
-    readonly progress = this.activity.progress;
+    readonly state = this.activity.state.asReadonly();
+    readonly progress = this.activity.progress.asReadonly();
     readonly commonType = this.activity.commonType;
     readonly controlInput: ClassicPreset.Input<ActivityPort>;
     readonly dataInputs: { [key: string]: ClassicPreset.Input<ActivityPort> } = {};
@@ -140,10 +140,10 @@ export class ActivityNode extends ClassicPreset.Node {
     ) {
         super(activity.displayName());
         // control ports
-        this.controlInput = new ClassicPreset.Input(new ActivityPort(null, true, 'in'), null, true);
+        this.controlInput = new ClassicPreset.Input(new ActivityPort(null, true, 'in', this.state), null, true);
         this.addInput(IN_CONTROL_KEY, this.controlInput);
-        this.addOutput(SUCCESS_CONTROL_KEY, new ClassicPreset.Output(new ActivityPort(null, false, 'success'), null, true));
-        this.addOutput(FAIL_CONTROL_KEY, new ClassicPreset.Output(new ActivityPort(null, false, 'fail'), null, true));
+        this.addOutput(SUCCESS_CONTROL_KEY, new ClassicPreset.Output(new ActivityPort(null, false, 'success', this.state), null, true));
+        this.addOutput(FAIL_CONTROL_KEY, new ClassicPreset.Output(new ActivityPort(null, false, 'fail', this.state), null, true));
 
         this.controlOutputs = {
             [SUCCESS_CONTROL_KEY]: this.outputs[SUCCESS_CONTROL_KEY] as ClassicPreset.Output<ActivityPort>,
@@ -153,13 +153,13 @@ export class ActivityNode extends ClassicPreset.Node {
         const def = activity.def;
         // data ports
         def.inPorts.forEach((inPort, i) => {
-            const input = new ClassicPreset.Input(new ActivityPort(inPort, true), null, false);
+            const input = new ClassicPreset.Input(new ActivityPort(inPort, true, null, this.state), null, false);
             this.addInput(ActivityNode.getDataPortKey(i), input);
             this.dataInputs[ActivityNode.getDataPortKey(i)] = input;
         });
         def.outPorts.forEach((outPort, i) => {
-            const output = new ClassicPreset.Output(new ActivityPort(outPort, false), null, true);
-            this.addOutput(ActivityNode.getDataPortKey(i), new ClassicPreset.Output(new ActivityPort(outPort, false), null, true));
+            const output = new ClassicPreset.Output(new ActivityPort(outPort, false, null, this.state), null, true);
+            this.addOutput(ActivityNode.getDataPortKey(i), new ClassicPreset.Output(new ActivityPort(outPort, false, null, this.state), null, true));
             this.dataOutputs[ActivityNode.getDataPortKey(i)] = output;
         });
 

@@ -1,4 +1,19 @@
-import {ActivityConfigModel, ActivityModel, ActivityState, CommonType, EdgeModel, EdgeState, ExecutionInfoModel, RenderModel, SettingsModel, TypePreviewModel, Variables, WorkflowConfigModel, WorkflowModel, WorkflowState} from '../../models/workflows.model';
+import {
+    ActivityConfigModel,
+    ActivityModel,
+    ActivityState,
+    CommonType,
+    EdgeModel,
+    EdgeState,
+    ExecutionInfoModel,
+    RenderModel,
+    SettingsModel,
+    TypePreviewModel,
+    Variables,
+    WorkflowConfigModel,
+    WorkflowModel,
+    WorkflowState
+} from '../../models/workflows.model';
 import {computed, Signal, signal, WritableSignal} from '@angular/core';
 import * as _ from 'lodash';
 import {Subject} from 'rxjs';
@@ -45,9 +60,12 @@ export class Workflow {
         this.config = signal(workflowModel.config, {equal: _.isEqual});
         this.variables = signal(workflowModel.variables, {equal: _.isEqual});
 
-        this.hasUnfinishedActivities = computed(() => [...this.activities.values()].some(
-            a => a.state() !== ActivityState.FINISHED && a.state() !== ActivityState.SAVED
-        ));
+        this.hasUnfinishedActivities = computed(() => {
+            console.log('recomputing unfinished activities', this.activities.values());
+            return [...this.activities.values()].some(
+                a => a.state() !== ActivityState.FINISHED && a.state() !== ActivityState.SAVED
+            );
+        });
     }
 
     getActivities() {
@@ -433,6 +451,7 @@ export class Setting {
         target = target.startsWith('/') ? target : '/' + target;
         if (this.isValidTargetPointer(target)) {
             this.references.push(VariableReference.of(target, variablePointer));
+            console.log('added reference', this.references[this.references.length - 1]);
             return true;
         }
         return false;

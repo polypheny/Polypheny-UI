@@ -34,11 +34,14 @@
         <h2 class="mb-3">Stored Workflows ({{ workflowDefsCount }})</h2>
 
         @for (group of sortedGroups; track group.groupName) {
-            <div class="d-flex flex-row justify-content-between mb-1" *ngIf="group.groupName.length > 0"
+            <div class="mb-1" *ngIf="group.groupName.length > 0"
                  (click)="toggleCollapse(group.groupName)" style="cursor: pointer;">
-                <h4>{{ group.groupName }} ({{ group.defs.length }})</h4>
-                <i class="fa me-3 fa-lg"
-                   [ngClass]="{'fa-folder-open-o': !visibleGroups[group.groupName](), 'fa-folder-o': visibleGroups[group.groupName]()}"></i>
+
+                <h4>
+                    <i class="fa me-3"
+                       [ngClass]="{'fa-folder-o': !visibleGroups[group.groupName](), 'fa-folder-open-o': visibleGroups[group.groupName]()}"></i>
+                    {{ group.groupName }} ({{ group.defs.length }})
+                </h4>
 
             </div>
 
@@ -56,13 +59,15 @@
 
                                         <div>
                                             <c-input-group class="me-5 w-auto">
-                                                <select id="versionSelect-{{def.id}}" class="form-control px-4" [(ngModel)]="selectedVersion[def.id]"
+                                                <select id="versionSelect-{{def.id}}" class="form-control px-4"
+                                                        [(ngModel)]="selectedVersion[def.id]"
                                                         (click)="$event.stopPropagation()">
                                                     @for (version of def.def.versions | keyvalue; track version.key) {
                                                         <option [value]="version.key">v{{ version.key }}</option>
                                                     }
                                                 </select>
-                                                <button cButton color="primary" type="button" (click)="$event.stopPropagation(); openVersion(def.id);">
+                                                <button cButton color="primary" type="button"
+                                                        (click)="$event.stopPropagation(); openVersion(def.id);">
                                                     Open
                                                 </button>
                                             </c-input-group>
@@ -76,7 +81,8 @@
                                         <c-col md="4">
                                             <c-input-group>
                                                 <input cFormControl type="text" #nameInput placeholder="Enter new name">
-                                                <button cButton color="light" (click)="changeName(def.id, nameInput.value)"
+                                                <button cButton color="light"
+                                                        (click)="changeName(def.id, nameInput.value)"
                                                         [disabled]="!nameInput.value">
                                                     Change Name
                                                 </button>
@@ -85,15 +91,18 @@
                                         </c-col>
                                         <c-col md="4">
                                             <c-input-group>
-                                                <input cFormControl type="text" #groupInput placeholder="Enter new group">
-                                                <button cButton color="light" (click)="changeGroup(def.id, groupInput.value)"
+                                                <input cFormControl type="text" #groupInput
+                                                       placeholder="Enter new group">
+                                                <button cButton color="light"
+                                                        (click)="changeGroup(def.id, groupInput.value)"
                                                         [disabled]="!groupInput.value">
                                                     Change Group
                                                 </button>
                                             </c-input-group>
                                         </c-col>
                                         <c-col md="auto" class="ms-auto">
-                                            <button cButton color="danger" type="button" (click)="confirmDelete(def.id)">
+                                            <button cButton color="danger" type="button"
+                                                    (click)="confirmDelete(def.id)">
                                                 Delete Workflow
                                             </button>
                                         </c-col>
@@ -116,7 +125,8 @@
                                                     <td>{{ version.value.creationTime | date:'short' }}</td>
                                                     <td>{{ version.value.description }}</td>
                                                     <td>
-                                                        <app-delete-confirm (delete)="deleteVersion(def.id, version.key)"></app-delete-confirm>
+                                                        <app-delete-confirm
+                                                                (delete)="deleteVersion(def.id, version.key)"></app-delete-confirm>
                                                     </td>
                                                 </tr>
                                             }
@@ -149,9 +159,11 @@
                             <div>
                                 <small><strong>SessionId:</strong> {{ session.value.sessionId }}</small><br/>
                                 <small><strong>State:</strong> {{ session.value.state }}</small><br/>
-                                <small><strong>Connected Users:</strong> {{ session.value.connectionCount }}</small><br/>
+                                <small><strong>Connected
+                                    Users:</strong> {{ session.value.connectionCount }}</small><br/>
                             </div>
-                            <button cButton color="danger" variant="outline" size="sm" (click)="terminateSession(session.value.sessionId)">
+                            <button cButton color="danger" variant="outline" size="sm"
+                                    (click)="terminateSession(session.value.sessionId)">
                                 Terminate
                             </button>
                         </div>

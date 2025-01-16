@@ -40,12 +40,14 @@
                 </div>
 
 
-                <div class="input d-flex align-items-center mb-2" *ngFor="let input of data.dataInputs | keyvalue: sortByIndex, let i = index">
+                <div class="input d-flex align-items-center mb-2"
+                     *ngFor="let input of data.dataInputs | keyvalue: sortByIndex, let i = index">
                     <div class="input-socket data-inport" refComponent [emit]="emit"
                          [data]="{type: 'socket', side: 'input', key: input.key, nodeId: data.id, payload: input.value?.socket, seed: seed }">
                     </div>
                     <button cButton color="light" class="px-1 py-0" (click)="data.openCheckpoint(true, input.key)"
-                            (pointerdown)="$event.stopPropagation()" [disabled]="true"> <!--TODO: enable only if predecessor is finished or saved-->
+                            (pointerdown)="$event.stopPropagation()" [disabled]="true">
+                        <!--TODO: enable only if predecessor is finished or saved-->
                         <span class="text-dark" [ngClass]="inIcons[input.key]?.()"></span>
                     </button>
                 </div>
@@ -53,18 +55,17 @@
 
             <div class="activity-content flex-grow-1 h-100 px-1 d-flex flex-column justify-content-between">
                 <h4 class="">{{ data.displayName() }}</h4>
-                <div class="mb-2 notes-container" cFormFloating>
-                    <textarea cFormControl id="activity-notes" placeholder="" [(ngModel)]="data.rendering().notes"
-                              (pointerdown)="$event.stopPropagation()" (change)="saveNotes()">
+                <textarea cFormControl id="activity-notes" class="mb-2" placeholder="Notes"
+                          [(ngModel)]="data.rendering().notes"
+                          (pointerdown)="$event.stopPropagation()" (change)="saveNotes()">
                     </textarea>
-                    <label cLabel class="pt-2" for="activity-notes">Notes</label>
-                </div>
             </div>
 
             <div class="activity-outputs d-flex flex-column justify-content-between">
                 <div>
                     <div class="mb-5 output-spacer"></div>
-                    <div class="output mb-2 d-flex align-items-center" *ngFor="let output of data.dataOutputs | keyvalue: sortByIndex">
+                    <div class="output mb-2 d-flex align-items-center"
+                         *ngFor="let output of data.dataOutputs | keyvalue: sortByIndex">
                         <button cButton color="light" class="px-1 py-0" (click)="data.openCheckpoint(false, output.key)"
                                 (pointerdown)="$event.stopPropagation()" [disabled]="!data.canOpenCheckpoint()">
                             <span class="text-dark" [ngClass]="outIcons[output.key]?.()"></span>
