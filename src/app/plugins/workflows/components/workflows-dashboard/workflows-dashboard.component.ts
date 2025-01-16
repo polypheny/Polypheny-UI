@@ -5,6 +5,7 @@ import {LeftSidebarService} from '../../../../components/left-sidebar/left-sideb
 import {WorkflowsService} from '../../services/workflows.service';
 import {SessionModel, WorkflowDefModel} from '../../models/workflows.model';
 import {SidebarNode} from '../../../../models/sidebar-node.model';
+import {retry} from 'rxjs';
 
 @Component({
     selector: 'app-workflows-dashboard',
@@ -34,7 +35,6 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     constructor() {
         effect(() => {
             if (this.route()) {
-                console.log('updating defs');
                 this.getWorkflowDefs();
                 this.getSessions();
             }
@@ -58,7 +58,12 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     }
 
     private getWorkflowDefs() {
-        this._workflows.getWorkflowDefs().subscribe({
+        this._workflows.getWorkflowDefs().pipe(
+            retry({
+                count: 30,
+                delay: 10000
+            })
+        ).subscribe({
             next: res => {
                 this.workflowDefs = res;
                 this.workflowDefsCount = Object.keys(res).length;
@@ -87,7 +92,6 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
                 Object.entries(res).forEach(([key, value]) => {
                     selectedVersion[key] = Math.max(...Object.keys(value.versions).map(versionId => parseInt(versionId, 10))); // TODO: order by creation date
                 });
-                console.log('selectedVersions', this.selectedVersion);
                 this.selectedVersion = selectedVersion;
             }
         });

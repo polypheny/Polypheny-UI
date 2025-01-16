@@ -18,6 +18,10 @@
     width: $control-port-size;
     height: $control-port-size;
     border-radius: 3px;
+
+    &:hover {
+      filter: brightness(120%);
+    }
   }
 
   &.data-port {
@@ -29,20 +33,20 @@
 
     &.out-port.state-finished {
       background: repeating-linear-gradient(
-                      135deg,
-                      var(--cui-dark),
-                      var(--cui-dark) 3px,
-                      var(--cui-secondary) 3px,
-                      var(--cui-secondary) 6px
+              135deg,
+              var(--cui-dark),
+              var(--cui-dark) 3px,
+              var(--cui-secondary) 3px,
+              var(--cui-secondary) 6px
       );
 
       &:hover {
         background: repeating-linear-gradient(
-                        135deg,
-                        var(--cui-secondary),
-                        var(--cui-secondary) 3px,
-                        var(--cui-light) 3px,
-                        var(--cui-light) 6px
+                135deg,
+                var(--cui-secondary),
+                var(--cui-secondary) 3px,
+                var(--cui-light) 3px,
+                var(--cui-light) 6px
         )
       }
     }

@@ -125,6 +125,7 @@ export class ActivityNode extends ClassicPreset.Node {
     readonly state = this.activity.state.asReadonly();
     readonly progress = this.activity.progress.asReadonly();
     readonly commonType = this.activity.commonType;
+    readonly invalidReason = this.activity.invalidReason;
     readonly controlInput: ClassicPreset.Input<ActivityPort>;
     readonly dataInputs: { [key: string]: ClassicPreset.Input<ActivityPort> } = {};
     readonly controlOutputs: { [key: string]: ClassicPreset.Output<ActivityPort> };

@@ -11,8 +11,8 @@
     <div class="activity-body h-100 d-flex flex-column">
 
         <div class="control-bar d-flex flex-row py-1 px-3 align-items-center border-bottom">
-            <div class="">
-                <!--<span class="">!!!</span> TODO: info whether activity is consistent-->
+            <div class="" *ngIf="data.invalidReason()">
+                <span class="">{{ data.invalidReason() }}</span><!--TODO: hide text, only show icon-->
             </div>
             <div class="flex-grow-1"></div>
             <h6 class="ms-2 mb-0" *ngIf="data.commonType() !== 'NONE'">{{ data.commonType() }}</h6>

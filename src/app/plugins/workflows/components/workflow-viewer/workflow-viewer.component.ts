@@ -1,4 +1,4 @@
-import {Component, computed, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, signal, Signal, ViewChild} from '@angular/core';
+import {Component, computed, effect, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, signal, Signal, ViewChild} from '@angular/core';
 import {WorkflowsService} from '../../services/workflows.service';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {WorkflowEditor} from './editor/workflow-editor';
@@ -13,6 +13,7 @@ import {WorkflowConfigEditorComponent} from './workflow-config-editor/workflow-c
 import {WorkflowsWebSocketService} from '../../services/workflows-websocket.service';
 import {JsonEditorComponent} from '../../../../components/json/json-editor.component';
 import {CheckpointViewerService} from '../../services/checkpoint-viewer.service';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-workflow-viewer',
@@ -52,8 +53,16 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         private readonly _workflows: WorkflowsService,
         private readonly _toast: ToasterService,
         private readonly _websocket: WorkflowsWebSocketService,
+        private readonly _router: Router,
         readonly _checkpoint: CheckpointViewerService,
         private injector: Injector) {
+
+        effect(() => {
+            if (!this._websocket.connected() && this.workflow) {
+                this._toast.warn('Lost the connection to the workflow session');
+                this._router.navigate(['/views/workflows/dashboard']);
+            }
+        });
     }
 
     ngOnInit(): void {
@@ -66,7 +75,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             this.editor = new WorkflowEditor(this.injector, el, this._workflows, !this.isEditable);
             this._workflows.getActiveWorkflow(this.sessionId).subscribe({
                 next: res => {
-                    this.workflow = new Workflow(res, this.registry);
+                    this.workflow = new Workflow(res, this.registry, this.injector);
                     this.editor.initialize(this.workflow);
                     this._websocket.initWebSocket(this.sessionId);
                     this._websocket.onMessage().subscribe(msg => this.handleWsMsg(msg));
@@ -127,7 +136,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         ));
         this.subscriptions.add(this.editor.onOpenActivitySettings().pipe(
             filter(activityId =>
-                !this.openedActivity() || (activityId !== this.openedActivity().id && this.rightMenu.canSafelyNavigate())),
+                !this.openedActivity() || ((activityId !== this.openedActivity().id || !this.rightMenu.visible()) && this.rightMenu.canSafelyNavigate())),
             switchMap(activityId => this._workflows.getActivity(this.sessionId, activityId)),
             tap(activityModel => {
                 this.workflow.updateOrCreateActivity(activityModel);

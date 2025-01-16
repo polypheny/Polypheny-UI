@@ -23,9 +23,9 @@
                 </li>
                 <li class="nav-item" role="presentation">
                     <a class="nav-link"
-                       [ngClass]="{'active': activeTab() === 'outputs'}"
-                       (click)="changeActiveTab('outputs')"
-                       role="tab">Outputs</a>
+                       [ngClass]="{'active': activeTab() === 'config'}"
+                       (click)="changeActiveTab('config')"
+                       role="tab">Config</a>
                 </li>
                 <li class="nav-item" role="presentation">
                     <a class="nav-link"
@@ -45,62 +45,30 @@
         </div>
     </div>
     <div class="px-3 pt-3 menu-body flex-grow-1">
-        <div>
-            @switch (activeTab()) {
-                @case ("settings") {
-                    <app-activity-settings #settings [activity]="activity()" [isEditable]="isEditable()"></app-activity-settings>
-                }
-                @case ("variables") {
-                    <!--TODO: force update app-json-text on change-->
-                    <p>Available variables after last execution:</p>
-                    @for (entry of activity().variables() | keyvalue; track activity().id + entry.key) {
-                        <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
-                        <app-json-text [text]="entry.value | json"></app-json-text>
-                    }
-                }
-                @case ("outputs") {
-                    <app-checkpoint-viewer [activity]="activity()" [isQueryable]="isEditable()"></app-checkpoint-viewer>
-                }
-                @case ("execution") {
-                    <h5>Config</h5>
-                    <app-activity-config-editor [config]="activity().config()" [def]="activity().def" #config
-                                                [isEditable]="isEditable()" (save)="save(null, $event, null)"
-                    ></app-activity-config-editor>
-
-                    <h5 class="mt-5">Execution Stats</h5>
-                    <p><strong>Activity ID:</strong> {{ activity().id }}</p>
-                    <p><strong>Activity State:</strong> {{ activity().state() }}</p>
-
-                    @if (activity().executionInfo()) {
-                        <p><strong>Execution State:</strong> {{ activity().executionInfo().state }}</p>
-                        <p><strong>Executor:</strong> {{ activity().executionInfo().executorType }}</p>
-                        <p><strong>Total Duration:</strong> {{ activity().executionInfo().totalDuration }} ms</p>
-                        <p *ngIf="activity().executionInfo().activities.length > 1"><strong>Activities:</strong> {{ activity().executionInfo().activities }}</p>
-
-                        <table cTable small="true">
-                            <thead cTableColor="light">
-                            <tr>
-                                <th scope="col">Phase</th>
-                                <th scope="col">Time (ms)</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                                @for (state of activity().executionInfo().durations | keyvalue; track state.key) {
-                                    <tr>
-                                        <th scope="row">{{ state.key }}</th>
-                                        <td>{{ state.value }}</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-
-                    }
-
-                }
-                @case ("help") {
-                    <app-activity-help [def]="activity().def"></app-activity-help>
+        @switch (activeTab()) {
+            @case ("settings") {
+                <app-activity-settings #settings [activity]="activity()" [isEditable]="isEditable()"></app-activity-settings>
+            }
+            @case ("variables") {
+                <!--TODO: force update app-json-text on change-->
+                <p>Available variables after last execution:</p>
+                @for (entry of activity().variables() | keyvalue; track activity().id + entry.key) {
+                    <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
+                    <app-json-text [text]="entry.value | json"></app-json-text>
                 }
             }
-        </div>
+            @case ("config") {
+                <app-activity-config-editor [config]="activity().config()" [def]="activity().def" #config
+                                            [isEditable]="isEditable()" (save)="save(null, $event, null)"
+                ></app-activity-config-editor>
+            }
+            @case ("execution") {
+                <app-activity-exec-stats [activity]="activity()"></app-activity-exec-stats>
+
+            }
+            @case ("help") {
+                <app-activity-help [def]="activity().def"></app-activity-help>
+            }
+        }
     </div>
 </div>

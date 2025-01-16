@@ -8,7 +8,7 @@ import {ActivityConfigEditorComponent} from './activity-config-editor/activity-c
 import {ToasterService} from '../../../../../components/toast-exposer/toaster.service';
 
 
-export type MenuTabs = 'settings' | 'variables' | 'outputs' | 'execution' | 'help';
+export type MenuTabs = 'settings' | 'variables' | 'config' | 'execution' | 'help';
 
 @Component({
     selector: 'app-right-menu',

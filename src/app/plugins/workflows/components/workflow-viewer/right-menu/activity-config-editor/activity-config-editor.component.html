@@ -1,4 +1,4 @@
-<form cForm (ngSubmit)="saveConfig()">
+<form cForm (ngSubmit)="saveConfig()" class="d-flex flex-column h-100">
 
     <div class="d-flex flex-row align-items-baseline">
         @if (hasConfigChanged()) {
@@ -14,12 +14,12 @@
 
     </div>
 
-    <div class="config-inputs mt-2">
+    <div class="config-inputs mt-2 flex-grow-1">
         <!-- Enforce Checkpoint -->
-        <c-form-check [switch]="true" class="mb-3">
+        <c-form-check [switch]="true" class="ms-1 mb-3">
+            <label cFormCheckLabel for="form-check-input">Always create checkpoint</label>
             <input cFormCheckInput id="form-check-input" type="checkbox" [(ngModel)]="editableConfig().enforceCheckpoint"
                    name="form-check-input" (change)="checkForChanges()" [disabled]="!isEditable()">
-            <label cFormCheckLabel for="form-check-input">Always create checkpoint</label>
         </c-form-check>
 
 

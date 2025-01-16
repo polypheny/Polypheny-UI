@@ -1,24 +1,10 @@
-import {
-    ActivityConfigModel,
-    ActivityModel,
-    ActivityState,
-    CommonType,
-    EdgeModel,
-    EdgeState,
-    ExecutionInfoModel,
-    RenderModel,
-    SettingsModel,
-    TypePreviewModel,
-    Variables,
-    WorkflowConfigModel,
-    WorkflowModel,
-    WorkflowState
-} from '../../models/workflows.model';
-import {computed, Signal, signal, WritableSignal} from '@angular/core';
+import {ActivityConfigModel, ActivityModel, ActivityState, CommonType, EdgeModel, EdgeState, errorKey, ErrorVariable, ExecutionInfoModel, RenderModel, SettingsModel, TypePreviewModel, Variables, WorkflowConfigModel, WorkflowModel, WorkflowState} from '../../models/workflows.model';
+import {computed, Injector, Signal, signal, WritableSignal} from '@angular/core';
 import * as _ from 'lodash';
 import {Subject} from 'rxjs';
 import {ActivityDef, ActivityRegistry} from '../../models/activity-registry.model';
 import JsonPointer from 'json-pointer';
+import {toSignal} from '@angular/core/rxjs-interop';
 
 export function edgeToString(edge: EdgeModel) {
     return JSON.stringify({
@@ -52,7 +38,7 @@ export class Workflow {
     private readonly edgeAddSubject = new Subject<[EdgeModel, WritableSignal<EdgeState>]>();
     private readonly edgeRemoveSubject = new Subject<string>(); // edgeString
 
-    constructor(workflowModel: WorkflowModel, private readonly registry: ActivityRegistry) {
+    constructor(workflowModel: WorkflowModel, private readonly registry: ActivityRegistry, injector: Injector) {
         this.state = signal(workflowModel.state);
         workflowModel.activities.forEach(model =>
             this.activities.set(model.id, new Activity(model, registry.getDef(model.type))));
@@ -60,8 +46,12 @@ export class Workflow {
         this.config = signal(workflowModel.config, {equal: _.isEqual});
         this.variables = signal(workflowModel.variables, {equal: _.isEqual});
 
+        const addActivitySignal = toSignal(this.activityAddSubject, {injector: injector});
+        const removeActivitySignal = toSignal(this.activityRemoveSubject, {injector: injector});
+
         this.hasUnfinishedActivities = computed(() => {
-            console.log('recomputing unfinished activities', this.activities.values());
+            addActivitySignal(); // force recompute when activity is added
+            removeActivitySignal();
             return [...this.activities.values()].some(
                 a => a.state() !== ActivityState.FINISHED && a.state() !== ActivityState.SAVED
             );
@@ -300,6 +290,8 @@ export class Activity {
     readonly variables: WritableSignal<Variables>;
     readonly displayName: Signal<string>;
     readonly executionInfo: WritableSignal<ExecutionInfoModel>;
+    readonly logMessages: Signal<LogMessage[]>;
+    readonly error: Signal<ErrorVariable>;
 
     constructor(activityModel: ActivityModel, def: ActivityDef) {
         this.type = activityModel.type;
@@ -315,6 +307,11 @@ export class Activity {
         this.variables = signal(activityModel.variables, {equal: _.isEqual});
         this.displayName = computed(() => this.rendering().name || this.def.displayName);
         this.executionInfo = signal(activityModel.executionInfo);
+        this.logMessages = computed(() =>
+            this.executionInfo().log?.map(m => new LogMessage(m))
+            .filter(m => m.activityId === this.id) || []
+        );
+        this.error = computed(() => this.state() === ActivityState.FAILED && this.variables()[errorKey]);
     }
 
     update(activityModel: ActivityModel) {
@@ -499,4 +496,21 @@ export class VariableReference {
         return new VariableReference(target, {[VARIABLE_REF_FIELD]: varRef});
     }
 
+}
+
+export class LogMessage {
+    activityId: string;
+    level: 'INFO' | 'WARN' | 'ERROR';
+    timeMs: number;
+    msg: string;
+
+    constructor(rawMessage: string) {
+        const [activityId, level, timeMs, ...rest] = rawMessage.split('|');
+        const msg = rest.join('|');
+        this.activityId = activityId;
+        //@ts-ignore
+        this.level = level;
+        this.timeMs = parseInt(timeMs, 10);
+        this.msg = msg;
+    }
 }

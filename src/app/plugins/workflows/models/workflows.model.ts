@@ -57,6 +57,13 @@ export enum ExecutorType {
 
 export type SettingsModel = Record<string, any>;
 export type Variables = Record<string, any>;
+export const errorKey = '$errorMsg';
+
+export interface ErrorVariable {
+    message: string;
+    cause?: string;
+    origin: string;
+}
 
 export interface EdgeModel {
     fromId: string;
@@ -107,6 +114,7 @@ export interface ExecutionInfoModel {
     activities: string[];
     executorType: ExecutorType;
     state: ExecutionState;
+    log: string[]; // activityId|level|time|message
 }
 
 export interface SessionModel {

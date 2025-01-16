@@ -55,7 +55,6 @@ export class WorkflowsWebSocketService {
                 }, +this._settings.getSetting('reconnection.timeout'));*/
             },
             complete: () => {
-                console.log('completed');
                 this.connected.set(false);
                 this.msgSubject.complete();
             }

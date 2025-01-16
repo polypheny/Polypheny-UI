@@ -72,38 +72,20 @@ import {ActivityComponent} from './components/workflow-viewer/editor/activity/ac
 import {EdgeComponent} from './components/workflow-viewer/editor/edge/edge.component';
 import {RightMenuComponent} from './components/workflow-viewer/right-menu/right-menu.component';
 import {ComponentsModule} from '../../components/components.module';
-import {
-    ActivityConfigEditorComponent
-} from './components/workflow-viewer/right-menu/activity-config-editor/activity-config-editor.component';
-import {
-    WorkflowConfigEditorComponent
-} from './components/workflow-viewer/workflow-config-editor/workflow-config-editor.component';
+import {ActivityConfigEditorComponent} from './components/workflow-viewer/right-menu/activity-config-editor/activity-config-editor.component';
+import {WorkflowConfigEditorComponent} from './components/workflow-viewer/workflow-config-editor/workflow-config-editor.component';
 import {LeftMenuComponent} from './components/workflow-viewer/left-menu/left-menu.component';
 import {ActivityHelpComponent} from './components/workflow-viewer/activity-help/activity-help.component';
 import {MarkdownComponent} from 'ngx-markdown';
-import {
-    ActivitySettingsComponent
-} from './components/workflow-viewer/right-menu/activity-settings/activity-settings.component';
-import {
-    IntSettingComponent
-} from './components/workflow-viewer/right-menu/activity-settings/int-setting/int-setting.component';
-import {
-    StringSettingComponent
-} from './components/workflow-viewer/right-menu/activity-settings/string-setting/string-setting.component';
+import {ActivitySettingsComponent} from './components/workflow-viewer/right-menu/activity-settings/activity-settings.component';
+import {IntSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/int-setting/int-setting.component';
+import {StringSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/string-setting/string-setting.component';
 import {CdkDrag, CdkDragPreview, CdkDropList} from '@angular/cdk/drag-drop';
 import {AngularMultiSelectModule} from 'angular2-multiselect-dropdown';
-import {
-    CheckpointViewerComponent
-} from './components/workflow-viewer/right-menu/checkpoint-viewer/checkpoint-viewer.component';
-import {
-    BooleanSettingComponent
-} from './components/workflow-viewer/right-menu/activity-settings/boolean-setting/boolean-setting.component';
-import {
-    DoubleSettingComponent
-} from './components/workflow-viewer/right-menu/activity-settings/double-setting/double-setting.component';
-import {
-    EntitySettingComponent
-} from './components/workflow-viewer/right-menu/activity-settings/entity-setting/entity-setting.component';
+import {BooleanSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/boolean-setting/boolean-setting.component';
+import {DoubleSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/double-setting/double-setting.component';
+import {EntitySettingComponent} from './components/workflow-viewer/right-menu/activity-settings/entity-setting/entity-setting.component';
+import {ActivityExecStatsComponent} from './components/workflow-viewer/right-menu/activity-exec-stats/activity-exec-stats.component';
 
 @NgModule({
     imports: [
@@ -196,7 +178,7 @@ import {
         BooleanSettingComponent,
         DoubleSettingComponent,
         EntitySettingComponent,
-        CheckpointViewerComponent
+        ActivityExecStatsComponent
     ],
     exports: [
         WorkflowViewerComponent,

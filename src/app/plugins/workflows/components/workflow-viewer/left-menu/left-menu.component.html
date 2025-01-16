@@ -30,7 +30,7 @@
 
         <div class="activity-list px-2 flex-grow-1" cdkDropList cdkDropListSortingDisabled="true">
             @for (activity of filteredList; track activity.type) {
-                <div class="px-2 mb-1">
+                <div class="px-2 mt-1">
                     <c-card cdkDrag [cdkDragData]="activity.type" class="draggable" color="light"
                             [cBorder]="activity === openedActivityDef && 'primary'"
                             (cdkDragDropped)="onDragDropped($event)">
