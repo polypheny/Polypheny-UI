@@ -1,6 +1,6 @@
-<c-input-group>
+<!--<c-input-group>
     <input cFormControl sizing="sm" id="ns-setting" placeholder="namespace"
-           type="text" autocomplete="off" [disabled]="!isEditable()" (change)="hasChanged.emit()"
+           type="text" autocomplete="off" [disabled]="!isEditable()" (change)="valueChanged()"
            [(ngModel)]="value().namespace">
 
     @if (def().dataModel !== DataModel.GRAPH) {
@@ -10,4 +10,24 @@
                type="text" autocomplete="off" [disabled]="!isEditable()" (change)="hasChanged.emit()"
                [(ngModel)]="value().name">
     }
-</c-input-group>
+</c-input-group>-->
+
+<div class="mb-1">
+    <app-autocomplete (changed)="valueChanged()"
+                      [data]="namespaces()"
+                      [(value)]="value().namespace"
+                      placeholder="namespace"
+                      [disabled]="!isEditable()">
+    </app-autocomplete>
+</div>
+
+@if (def().dataModel !== DataModel.GRAPH) {
+    <div class="mb-1">
+        <app-autocomplete (changed)="valueChanged()"
+                          [data]="names()"
+                          [(value)]="value().name"
+                          placeholder="name"
+                          [disabled]="!isEditable()">
+        </app-autocomplete>
+    </div>
+}

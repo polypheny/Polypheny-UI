@@ -46,6 +46,8 @@ export interface StateUpdateResponse extends WsResponse {
     type: ResponseType.STATE_UPDATE;
     workflowState: WorkflowState;
     activityStates: Record<string, ActivityState>;
+    activityInvalidReasons: Record<string, string>;
+    activityInvalidSettings: Record<string, Record<string, string>>;
     edgeStates: EdgeModel[];
 }
 

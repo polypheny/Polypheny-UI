@@ -104,6 +104,7 @@ export interface ActivityModel {
     state?: ActivityState;
     inTypePreview?: TypePreviewModel[];
     invalidReason?: string;
+    invalidSettings?: Record<string, string>;
     variables?: Variables;
     executionInfo?: ExecutionInfoModel;
 }

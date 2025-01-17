@@ -131,6 +131,7 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {AlgMetadataComponent} from './polyalg/algnode/alg-metadata/alg-metadata.component';
 import {DoubleArgComponent} from './polyalg/controls/double-arg/double-arg.component';
 import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.component';
+import {AutocompleteComponent} from './autocomplete/autocomplete.component';
 
 //import 'hammerjs';
 
@@ -267,7 +268,8 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         MagneticConnectionComponent,
         AlgMetadataComponent,
         DoubleArgComponent,
-        WindowArgComponent
+        WindowArgComponent,
+        AutocompleteComponent
     ],
     exports: [
         BreadcrumbComponent,
@@ -292,7 +294,8 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         ReloadButtonComponent,
         DockerInstanceComponent,
         AlgViewerComponent,
-        JsonTextComponent
+        JsonTextComponent,
+        AutocompleteComponent
     ]
 })
 export class ComponentsModule {

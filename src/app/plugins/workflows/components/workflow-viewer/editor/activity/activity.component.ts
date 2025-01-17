@@ -7,6 +7,7 @@ import {Subject} from 'rxjs';
 import {Activity} from '../../workflow';
 import {DataModel} from '../../../../../../models/ui-request.model';
 import {WorkflowsWebSocketService} from '../../../../services/workflows-websocket.service';
+import {ToasterService} from '../../../../../../components/toast-exposer/toaster.service';
 
 
 export const stateColors = {
@@ -52,7 +53,7 @@ export class ActivityComponent implements OnInit, OnChanges {
         return this.data.selected;
     }
 
-    constructor(private cdr: ChangeDetectorRef, private _websocket: WorkflowsWebSocketService) {
+    constructor(private cdr: ChangeDetectorRef, private _websocket: WorkflowsWebSocketService, private _toast: ToasterService) {
         this.cdr.detach();
     }
 
@@ -101,6 +102,15 @@ export class ActivityComponent implements OnInit, OnChanges {
         this._websocket.updateActivity(this.data.activityId, null, null, this.data.rendering());
     }
 
+    showProblems() {
+        if (Object.keys(this.data.invalidSettings()).length > 0) {
+            this.data.openSettings();
+        }
+        if (this.data.invalidReason()) {
+            this._toast.warn(this.data.invalidReason(), 'Problem with Activity');
+        }
+    }
+
     sortByIndex<
         N extends object,
         T extends KeyValue<string, N & { index?: number }>
@@ -126,6 +136,8 @@ export class ActivityNode extends ClassicPreset.Node {
     readonly progress = this.activity.progress.asReadonly();
     readonly commonType = this.activity.commonType;
     readonly invalidReason = this.activity.invalidReason;
+    readonly invalidSettings = this.activity.invalidSettings;
+    readonly hasInvalidSettings = this.activity.hasInvalidSettings;
     readonly controlInput: ClassicPreset.Input<ActivityPort>;
     readonly dataInputs: { [key: string]: ClassicPreset.Input<ActivityPort> } = {};
     readonly controlOutputs: { [key: string]: ClassicPreset.Output<ActivityPort> };

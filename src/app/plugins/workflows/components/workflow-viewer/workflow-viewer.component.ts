@@ -59,7 +59,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
 
         effect(() => {
             if (!this._websocket.connected() && this.workflow) {
-                this._toast.warn('Lost the connection to the workflow session');
+                this._toast.error('Lost the connection to the workflow session');
                 this._router.navigate(['/views/workflows/dashboard']);
             }
         });
@@ -179,7 +179,9 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             case ResponseType.STATE_UPDATE:
                 const stateResponse = response as StateUpdateResponse;
                 this.workflow.state.set(stateResponse.workflowState);
-                if (!(this.workflow.updateActivityStates(stateResponse.activityStates)
+                if (!(this.workflow.updateActivityStates(stateResponse.activityStates,
+                        stateResponse.activityInvalidReasons,
+                        stateResponse.activityInvalidSettings)
                     && this.workflow.updateEdgeStates(stateResponse.edgeStates))) {
                     this.synchronizeWorkflow();
                 }

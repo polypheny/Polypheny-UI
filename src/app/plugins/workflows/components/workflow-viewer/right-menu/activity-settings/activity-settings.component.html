@@ -33,9 +33,6 @@
 
         <!-- TODO: make itself scrollable if tablist visible-->
         <div class="setting-group mt-2 flex-grow-1">
-            <p class="text-danger" *ngIf="activity().invalidReason()">
-                {{ activity().invalidReason() }}
-            </p>
             @for (subgroup of activeSettingGroup().subgroups; track activity().id + subgroup.key) {
                 <ng-container *ngIf="!subgroup.isEmpty">
                     <h5 *ngIf="!subgroup.isDefault() || true">{{ subgroup.displayName }}</h5>
@@ -56,6 +53,9 @@
                                         </span>
                                         </button>
                                     </div>
+                                    <p class="text-danger" *ngIf="activity().invalidSettings()[setting.key]">
+                                        {{ activity().invalidSettings()[setting.key] }}
+                                    </p>
                                     <p *ngIf="setting.shortDescription">{{ setting.shortDescription }}</p>
                                     <div [visible]="variablesVisibilityMap.get(setting.key)?.()" cCollapse>
                                         <c-card class="mb-2" color="light">

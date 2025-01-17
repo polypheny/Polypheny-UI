@@ -11,13 +11,15 @@
     <div class="activity-body h-100 d-flex flex-column">
 
         <div class="control-bar d-flex flex-row py-1 px-3 align-items-center border-bottom">
-            <div class="" *ngIf="data.invalidReason()">
-                <span class="">{{ data.invalidReason() }}</span><!--TODO: hide text, only show icon-->
-            </div>
+            <button cButton size=sm color="warning" *ngIf="data.hasInvalidSettings() || data.invalidReason()"
+                    (click)="showProblems()" (pointerdown)="$event.stopPropagation()" title="Show Problems">
+                <span class="fa fa-exclamation-triangle text-light"></span>
+            </button>
             <div class="flex-grow-1"></div>
             <h6 class="ms-2 mb-0" *ngIf="data.commonType() !== 'NONE'">{{ data.commonType() }}</h6>
             <c-button-group role="group" class="ms-2" size="sm">
                 <button cButton color="primary" class="" (click)="data.execute()" *ngIf="data.canExecute()"
+                        [disabled]="data.invalidReason() || data.hasInvalidSettings()"
                         (pointerdown)="$event.stopPropagation()">
                     <i class="fa fa-play"></i>
                 </button>

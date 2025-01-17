@@ -138,13 +138,15 @@ export class Workflow {
         return true;
     }
 
-    updateActivityStates(activityStates: Record<string, ActivityState>): boolean {
+    updateActivityStates(activityStates: Record<string, ActivityState>,
+                         invalidReasons: Record<string, string>,
+                         invalidSettings: Record<string, Record<string, string>>): boolean {
         const missing = new Set<string>();
         const remaining = new Set<string>(this.activities.keys());
 
         for (const [id, state] of Object.entries(activityStates)) {
             const oldState = this.activities.get(id)?.state();
-            if (this.updateActivityState(id, state)) {
+            if (this.updateActivityState(id, state, invalidReasons[id], invalidSettings[id])) {
                 this.activityChangeSubject.next(id);
                 if (state !== oldState) {
                     this.activityDirtySubject.next(id);
@@ -243,11 +245,15 @@ export class Workflow {
         return this.edgeRemoveSubject.asObservable();
     }
 
-    private updateActivityState(activityId: string, state: ActivityState): boolean {
+    private updateActivityState(activityId: string, state: ActivityState, invalidReason: string, invalidSettings: Record<string, string> | undefined): boolean {
         if (state === 'IDLE') {
             this.updateActivityProgress(activityId, 0); // reset progress
         }
-        return this.applyIfExists(activityId, a => a.state.set(state));
+        return this.applyIfExists(activityId, a => {
+            a.state.set(state);
+            a.invalidReason.set(invalidReason);
+            a.invalidSettings.set(invalidSettings || {});
+        });
     }
 
     private updateActivityProgress(activityId: string, progress: number): boolean {
@@ -287,6 +293,8 @@ export class Activity {
     readonly rendering: WritableSignal<RenderModel>;
     readonly inTypePreview: WritableSignal<TypePreviewModel[]>;
     readonly invalidReason: WritableSignal<string>;
+    readonly invalidSettings: WritableSignal<Record<string, string>>;
+    readonly hasInvalidSettings: Signal<boolean>;
     readonly variables: WritableSignal<Variables>;
     readonly displayName: Signal<string>;
     readonly executionInfo: WritableSignal<ExecutionInfoModel>;
@@ -304,6 +312,8 @@ export class Activity {
         this.rendering = signal(activityModel.rendering, {equal: _.isEqual});
         this.inTypePreview = signal(activityModel.inTypePreview, {equal: _.isEqual});
         this.invalidReason = signal(activityModel.invalidReason);
+        this.invalidSettings = signal(activityModel.invalidSettings);
+        this.hasInvalidSettings = computed(() => Object.keys(this.invalidSettings()).length > 0);
         this.variables = signal(activityModel.variables, {equal: _.isEqual});
         this.displayName = computed(() => this.rendering().name || this.def.displayName);
         this.executionInfo = signal(activityModel.executionInfo);
@@ -321,6 +331,7 @@ export class Activity {
         this.rendering.set(activityModel.rendering);
         this.inTypePreview.set(activityModel.inTypePreview);
         this.invalidReason.set(activityModel.invalidReason);
+        this.invalidSettings.set(activityModel.invalidSettings);
         this.variables.set(activityModel.variables);
         this.executionInfo.set(activityModel.executionInfo);
     }

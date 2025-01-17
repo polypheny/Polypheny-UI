@@ -65,6 +65,7 @@ import {
     TableDirective,
     TabPaneComponent,
     TemplateIdDirective,
+    TextColorDirective,
     TooltipDirective
 } from '@coreui/angular';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -86,6 +87,7 @@ import {BooleanSettingComponent} from './components/workflow-viewer/right-menu/a
 import {DoubleSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/double-setting/double-setting.component';
 import {EntitySettingComponent} from './components/workflow-viewer/right-menu/activity-settings/entity-setting/entity-setting.component';
 import {ActivityExecStatsComponent} from './components/workflow-viewer/right-menu/activity-exec-stats/activity-exec-stats.component';
+import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 
 @NgModule({
     imports: [
@@ -161,6 +163,8 @@ import {ActivityExecStatsComponent} from './components/workflow-viewer/right-men
         FormFloatingDirective,
         BgColorDirective,
         SpinnerComponent,
+        TextColorDirective,
+        AutocompleteLibModule,
     ],
     declarations: [
         WorkflowViewerComponent,

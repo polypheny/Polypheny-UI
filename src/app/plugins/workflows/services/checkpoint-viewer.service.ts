@@ -59,7 +59,6 @@ export class CheckpointViewerService {
         const {response, isDirect} = msg;
         if (response.type === ResponseType.CHECKPOINT_DATA) {
             const r = (response as CheckpointDataResponse);
-            console.log(r);
             this.result.set(r.result);
             this.limit.set(r.limit);
             this.totalCount.set(r.totalCount);
