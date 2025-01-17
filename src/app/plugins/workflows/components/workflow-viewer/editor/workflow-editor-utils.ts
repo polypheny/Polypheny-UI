@@ -146,6 +146,15 @@ export function canCreateConnection(source: SocketData, target: SocketData, edit
     return true;
 }
 
+export function computeCenter(points: { x: number; y: number }[]) {
+    const [start, end] = points;
+    return {
+        x: (start.x + end.x) / 2,
+        y: (start.y + end.y) / 2,
+        angle: Math.atan2(end.y - start.y, end.x - start.x) * (180 / Math.PI)
+    };
+}
+
 function getSuccessors(nodeId: string, connections: Edge<ActivityNode>[]): string[] | null {
     const outgoing = connections.filter(c => c.source === nodeId).map(c => c.target);
     if (outgoing.length === 0) {

@@ -9,15 +9,15 @@ svg {
     pointer-events: auto;
     stroke: var(--cui-dark);
 
-    &.state-idle {
+    &.state-IDLE {
       stroke: var(--cui-dark);
     }
 
-    &.state-active {
+    &.state-ACTIVE {
       stroke: var(--cui-success);
     }
 
-    &.state-inactive {
+    &.state-INACTIVE {
       stroke: var(--cui-danger);
     }
 
@@ -29,5 +29,21 @@ svg {
     &.is-magnetic {
       stroke: rgba(79, 93, 115, 0.3);
     }
+  }
+}
+
+#path-label {
+  position: absolute;
+
+  i {
+    color: var(--cui-dark);
+  }
+
+  i.state-ACTIVE {
+    color: var(--cui-success);
+  }
+
+  i.state-INACTIVE {
+    color: var(--cui-danger);
   }
 }

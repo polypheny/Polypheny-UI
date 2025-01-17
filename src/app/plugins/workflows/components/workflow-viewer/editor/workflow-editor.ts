@@ -15,12 +15,7 @@ import {WorkflowsService} from '../../../services/workflows.service';
 import {ActivityRegistry} from '../../../models/activity-registry.model';
 import {debounceTime, Subject, Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
-import {
-    canCreateConnection,
-    getContextMenuItems,
-    getMagneticConnectionProps,
-    socketsToEdgeModel
-} from './workflow-editor-utils';
+import {canCreateConnection, computeCenter, getContextMenuItems, getMagneticConnectionProps, socketsToEdgeModel} from './workflow-editor-utils';
 import {Activity, edgeToString, Workflow} from '../workflow';
 import {ContextMenuExtra, ContextMenuPlugin} from 'rete-context-menu-plugin';
 import {useMagneticConnection} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection';
@@ -140,6 +135,13 @@ export class WorkflowEditor {
                 this.translateSubjects[this.nodeIdToActivityId.get(context.data.id)].next(context.data.position);
             } else if (!['pointermove', 'render', 'rendered', 'rendered', 'zoom', 'zoomed', 'translate', 'translated', 'nodetranslate', 'unmount'].includes(context.type)) {
                 //console.log(context);
+            }
+            return context;
+        });
+
+        this.render.addPipe(context => {
+            if (context.type === 'connectionpath') {
+                context.data.payload.center?.set(computeCenter(context.data.points));
             }
             return context;
         });
