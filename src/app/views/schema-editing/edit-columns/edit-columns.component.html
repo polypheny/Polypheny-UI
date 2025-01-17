@@ -31,7 +31,7 @@
                                [ngClass]="columnValidation(editColName.value, col.name)">
                     </td>
                     <td>
-                        <input cFormCheckInput sizing="sm" type="checkbox" formControlName="nullable" id="nullable"
+                        <input cFormCheckInput *ngIf="!col.primary" sizing="sm" type="checkbox" formControlName="nullable" id="nullable"
                                [attr.data-before]="col.nullable" (change)="changeNullable()">
                     </td>
                     <td>
