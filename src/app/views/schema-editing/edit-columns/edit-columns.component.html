@@ -43,8 +43,8 @@
                     <td>
                         <select cSelect sizing="sm" id="collectionsType"
                                 [attr.data-before]="col.collectionsType" formControlName="collectionsType">
-                            <option value="">none</option>
-                            <option value="ARRAY">ARRAY</option>
+                            <option value="" [selected]="col.collectionsType === null">none</option>
+                            <option value="ARRAY" [selected]="col.collectionsType === 'ARRAY'">ARRAY</option>
                         </select>
                     </td>
                     <td class="data-type-parameters">
