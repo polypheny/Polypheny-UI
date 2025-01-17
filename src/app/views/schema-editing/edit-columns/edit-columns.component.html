@@ -30,9 +30,8 @@
                                [attr.data-before]="col.name" id="colName" #editColName
                                [ngClass]="columnValidation(editColName.value, col.name)">
                     </td>
-
                     <td>
-                        <input cFormControl sizing="sm" type="checkbox" formControlName="nullable" id="nullable"
+                        <input cFormCheckInput sizing="sm" type="checkbox" formControlName="nullable" id="nullable"
                                [attr.data-before]="col.nullable" (change)="changeNullable()">
                     </td>
                     <td>
