@@ -70,7 +70,7 @@ export class WorkflowEditor {
                 },
             })
         );
-        this.render.addPreset(Presets.contextMenu.setup({delay: 100})); // time in ms for context menu to close
+        this.render.addPreset(Presets.contextMenu.setup({delay: 200})); // time in ms for context menu to close
 
         this.connection.addPreset(() => new ClassicFlow({
             canMakeConnection: (from, to): boolean => {

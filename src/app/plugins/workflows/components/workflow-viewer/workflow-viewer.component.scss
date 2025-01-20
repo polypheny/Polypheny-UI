@@ -5,3 +5,23 @@
 .editor-container {
   border-top: 1px lightgray solid;
 }
+
+.workflow-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[rete-context-menu] {
+  // Also see global style.scss
+  .block {
+    background: var(--cui-dark) !important;
+    color: var(--cui-white) !important;
+    border-bottom: 1px solid #c8c9cb !important;
+  }
+
+  .block:hover {
+    background: var(--cui-secondary) !important;
+    color: var(--cui-body-color) !important;
+  }
+}

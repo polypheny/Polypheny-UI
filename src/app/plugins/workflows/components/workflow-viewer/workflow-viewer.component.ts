@@ -1,4 +1,4 @@
-import {Component, computed, effect, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, signal, Signal, ViewChild} from '@angular/core';
+import {Component, computed, effect, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, signal, Signal, ViewChild, ViewEncapsulation} from '@angular/core';
 import {WorkflowsService} from '../../services/workflows.service';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {WorkflowEditor} from './editor/workflow-editor';
@@ -14,23 +14,29 @@ import {WorkflowsWebSocketService} from '../../services/workflows-websocket.serv
 import {JsonEditorComponent} from '../../../../components/json/json-editor.component';
 import {CheckpointViewerService} from '../../services/checkpoint-viewer.service';
 import {Router} from '@angular/router';
+import {ExecutionMonitorComponent} from './execution-monitor/execution-monitor.component';
 
 @Component({
     selector: 'app-workflow-viewer',
     templateUrl: './workflow-viewer.component.html',
     styleUrl: './workflow-viewer.component.scss',
-    providers: [WorkflowsWebSocketService, CheckpointViewerService]
+    providers: [WorkflowsWebSocketService, CheckpointViewerService],
+    encapsulation: ViewEncapsulation.None // required to be able to style the rete context menu
 })
 export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @Input() sessionId: string;
     @Input() isEditable: boolean;
+    @Input() name: string;
 
     @Output() saveWorkflowEvent = new EventEmitter<string>();
+    @Output() close = new EventEmitter<void>();
+    @Output() terminate = new EventEmitter<void>();
 
     @ViewChild('rete') container!: ElementRef;
     @ViewChild('leftMenu') leftMenu: RightMenuComponent;
     @ViewChild('rightMenu') rightMenu: RightMenuComponent;
     @ViewChild('workflowConfigEditor') workflowConfigEditor: WorkflowConfigEditorComponent;
+    @ViewChild('executionMonitor') executionMonitor: ExecutionMonitorComponent;
     @ViewChild('variableEditor') variableEditor: JsonEditorComponent;
 
     private readonly registry = this._workflows.getRegistry();
@@ -39,8 +45,9 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     workflow: Workflow;
     isExecuting: Signal<boolean>;
     canExecute: Signal<boolean>;
-    readonly openedActivity = signal<Activity>(undefined);
+    openedActivity: Signal<Activity>;
 
+    readonly terminateConfirm = signal(false);
     readonly showSaveModal = signal(false);
     saveMessage = '';
     readonly showVariableModal = signal(false);
@@ -87,6 +94,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                         return !this.isExecuting() && this.workflow.hasUnfinishedActivities();
                     });
                     this.serializedVariables = computed(() => JSON.stringify(this.workflow?.variables()));
+                    this.openedActivity = this.workflow.getOpenedActivity();
                 }
             });
         }
@@ -134,16 +142,9 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         this.subscriptions.add(this.editor.onActivityReset().subscribe(
             activityId => this._websocket.reset(activityId)
         ));
-        this.subscriptions.add(this.editor.onOpenActivitySettings().pipe(
-            filter(activityId =>
-                !this.openedActivity() || ((activityId !== this.openedActivity().id || !this.rightMenu.visible()) && this.rightMenu.canSafelyNavigate())),
-            switchMap(activityId => this._workflows.getActivity(this.sessionId, activityId)),
-            tap(activityModel => {
-                this.workflow.updateOrCreateActivity(activityModel);
-                this.openedActivity.set(this.workflow.getActivity(activityModel.id));
-                this.rightMenu.visible.set(true);
-            })
-        ).subscribe());
+        this.subscriptions.add(this.editor.onOpenActivitySettings().subscribe(
+            activityId => this.openActivitySettings(activityId)
+        ));
         this.subscriptions.add(this.editor.onOpenCheckpoint().subscribe(
             ([activityId, isInput, idx]) => {
                 if (isInput) {
@@ -157,13 +158,6 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                 }
                 const activity = this.workflow.getActivity(activityId);
                 this._checkpoint.openCheckpoint(activity, idx);
-            }
-        ));
-        this.subscriptions.add(this.workflow.onActivityRemove().subscribe(
-            activityId => {
-                if (this.openedActivity()?.id === activityId) {
-                    this.openedActivity.set(null);
-                }
             }
         ));
         this.subscriptions.add(this.workflow.onActivityDirty().pipe(
@@ -214,6 +208,17 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         }
     }
 
+    openActivitySettings(activityId: string) {
+        if (!this.openedActivity() || ((activityId !== this.openedActivity().id || !this.rightMenu.visible()) && this.rightMenu.canSafelyNavigate())) {
+            this._workflows.getActivity(this.sessionId, activityId).subscribe(activityModel => {
+                    this.workflow.updateOrCreateActivity(activityModel);
+                    this.workflow.setOpenedActivity(activityModel.id);
+                    this.rightMenu.visible.set(true);
+                }
+            );
+        }
+    }
+
     private synchronizeWorkflow() {
         // if workflow is not in sync, we get a consistent workflow by fetching and updating the entire workflow
         this._workflows.getActiveWorkflow(this.sessionId).subscribe(workflowModel =>
@@ -245,6 +250,14 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         this.saveMessage = '';
     }
 
+    onTerminateClick() {
+        if (!this.terminateConfirm()) {
+            this.terminateConfirm.set(true);
+        } else {
+            this.terminate.emit();
+        }
+    }
+
     ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
         this.editor?.destroy();
@@ -256,6 +269,10 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             this.workflow.config.set(config);
             this.workflowConfigEditor.show();
         });
+    }
+
+    showMonitorModal() {
+        this.executionMonitor.show();
     }
 
     openVariableModal() {

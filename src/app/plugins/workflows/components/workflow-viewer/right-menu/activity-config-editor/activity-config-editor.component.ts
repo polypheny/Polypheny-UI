@@ -3,7 +3,7 @@ import {ActivityConfigModel, CommonType, ControlStateMerger} from '../../../../m
 import {NgForOf, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivityDef} from '../../../../models/activity-registry.model';
-import {ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormLabelDirective, FormSelectDirective, InputGroupComponent, InputGroupTextDirective} from '@coreui/angular';
+import {ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormLabelDirective, FormSelectDirective, FormTextDirective, InputGroupComponent, InputGroupTextDirective} from '@coreui/angular';
 import {AdapterModel} from '../../../../../../views/adapters/adapter.model';
 import {CatalogService} from '../../../../../../services/catalog.service';
 import {ComponentsModule} from '../../../../../../components/components.module';
@@ -25,7 +25,8 @@ import {ComponentsModule} from '../../../../../../components/components.module';
         InputGroupTextDirective,
         NgIf,
         FormControlDirective,
-        ComponentsModule
+        ComponentsModule,
+        FormTextDirective
     ],
     templateUrl: './activity-config-editor.component.html',
     styleUrl: './activity-config-editor.component.scss'

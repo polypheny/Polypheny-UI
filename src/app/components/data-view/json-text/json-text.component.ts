@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, computed, input, OnInit, Signal} from '@angular/core';
 
 @Component({
     selector: 'app-json-text',
@@ -7,18 +7,21 @@ import {Component, Input, OnInit} from '@angular/core';
 })
 export class JsonTextComponent implements OnInit {
 
-    @Input() text?: string;
-    json: {};
+    text = input<string>();
+
+    private readonly regex = new RegExp('/ObjectId(\d{1,24})/g');
+    json: Signal<any>;
 
     constructor() {
     }
 
     ngOnInit(): void {
-        const regex = new RegExp('/ObjectId(\d{1,24})/g');
-        if (regex.test(this.text)) {
-            return;
-        }
-        this.json = this.parse(this.text);
+        this.json = computed(() => {
+            if (this.regex.test(this.text())) {
+                return {};
+            }
+            return this.parse(this.text());
+        });
     }
 
     parse(text: string): {} {

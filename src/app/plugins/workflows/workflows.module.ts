@@ -14,6 +14,7 @@ import {
     ButtonCloseDirective,
     ButtonDirective,
     ButtonGroupComponent,
+    ButtonToolbarComponent,
     CardBodyComponent,
     CardComponent,
     CardHeaderComponent,
@@ -32,6 +33,7 @@ import {
     FormFloatingDirective,
     FormLabelDirective,
     FormSelectDirective,
+    FormTextDirective,
     GutterDirective,
     InputGroupComponent,
     InputGroupTextDirective,
@@ -88,6 +90,7 @@ import {DoubleSettingComponent} from './components/workflow-viewer/right-menu/ac
 import {EntitySettingComponent} from './components/workflow-viewer/right-menu/activity-settings/entity-setting/entity-setting.component';
 import {ActivityExecStatsComponent} from './components/workflow-viewer/right-menu/activity-exec-stats/activity-exec-stats.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
+import {ExecutionMonitorComponent} from './components/workflow-viewer/execution-monitor/execution-monitor.component';
 
 @NgModule({
     imports: [
@@ -165,6 +168,8 @@ import {AutocompleteLibModule} from 'angular-ng-autocomplete';
         SpinnerComponent,
         TextColorDirective,
         AutocompleteLibModule,
+        FormTextDirective,
+        ButtonToolbarComponent,
     ],
     declarations: [
         WorkflowViewerComponent,
@@ -182,7 +187,8 @@ import {AutocompleteLibModule} from 'angular-ng-autocomplete';
         BooleanSettingComponent,
         DoubleSettingComponent,
         EntitySettingComponent,
-        ActivityExecStatsComponent
+        ActivityExecStatsComponent,
+        ExecutionMonitorComponent
     ],
     exports: [
         WorkflowViewerComponent,

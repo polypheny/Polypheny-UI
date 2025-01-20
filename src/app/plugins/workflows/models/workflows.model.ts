@@ -110,12 +110,27 @@ export interface ActivityModel {
 }
 
 export interface ExecutionInfoModel {
+    submissionTime: string; // ISO 8601
     totalDuration: number;
     durations: Record<ExecutionState, number>;
     activities: string[];
     executorType: ExecutorType;
     state: ExecutionState;
-    log: string[]; // activityId|level|time|message
+    isSuccess: boolean; // only valid when state == DONE
+    tuplesWritten: number; // -1 if not written at all (failed or not yet finished or no data output)
+    log?: string[]; // activityId|level|time|message          only available when part of ActivityModel
+}
+
+export interface ExecutionMonitorModel {
+    startTime: string; // ISO 8601
+    totalDuration: number;
+    targetActivity: string;
+    infos: ExecutionInfoModel[]; // no logs
+    totalCount: number;
+    successCount: number;
+    failCount: number;
+    skipCount: number;
+    countByExecutorType: Record<ExecutorType, number>;
 }
 
 export interface SessionModel {
@@ -158,4 +173,5 @@ export interface WorkflowConfigModel {
     dropUnusedCheckpoints: boolean;
     maxWorkers: number;
     pipelineQueueCapacity: number;
+    logCapacity: number;
 }

@@ -61,7 +61,7 @@ export function socketsToEdgeModel(source: SocketData, target: SocketData, edito
 
 export function getContextMenuItems(removeEdgeSubject: Subject<EdgeModel>, removeActivitySubject: Subject<string>, cloneActivitySubject: Subject<string>): Items<Schemes> {
     const items: Item[] = [
-        {label: 'Print Something', key: '0', handler: () => console.log('something was printed')},
+        //{label: 'Print Something', key: '0', handler: () => console.log('something was printed')},
     ];
     return (context: 'root' | Schemes['Node'] | Schemes['Connection'], plugin: ContextMenuPlugin<Schemes>) => {
         const area = plugin.parentScope(BaseAreaPlugin);

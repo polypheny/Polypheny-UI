@@ -1,7 +1,7 @@
 import {Injectable, signal} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {ActivityModel, SessionModel, Variables, WorkflowConfigModel, WorkflowDefModel, WorkflowModel} from '../models/workflows.model';
+import {ActivityModel, ExecutionMonitorModel, SessionModel, Variables, WorkflowConfigModel, WorkflowDefModel, WorkflowModel} from '../models/workflows.model';
 import {ActivityDefModel, ActivityRegistry} from '../models/activity-registry.model';
 
 class JsonNode {
@@ -45,6 +45,10 @@ export class WorkflowsService {
 
     getWorkflowVariables(sessionId: string) {
         return this._http.get<Variables>(`${this.httpUrl}/sessions/${sessionId}/workflow/variables`, this.httpOptions);
+    }
+
+    getExecutionMonitor(sessionId: string) {
+        return this._http.get<ExecutionMonitorModel>(`${this.httpUrl}/sessions/${sessionId}/workflow/monitor`, this.httpOptions);
     }
 
     getActivity(sessionId: string, activityId: string) {

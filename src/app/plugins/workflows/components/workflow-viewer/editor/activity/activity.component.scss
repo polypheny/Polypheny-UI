@@ -22,6 +22,11 @@
   .activity {
     box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.5);
     background: var(--cui-light);
+
+    &.is-opened {
+      box-shadow: 0 0 20px 2px var(--cui-primary);
+
+    }
   }
 
   .status-bar {

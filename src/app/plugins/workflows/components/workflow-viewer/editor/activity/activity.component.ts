@@ -73,9 +73,11 @@ export class ActivityComponent implements OnInit, OnChanges {
                 case ActivityState.EXECUTING:
                     return `executing (${Math.floor(this.data.progress() * 100)} %)`;
                 case ActivityState.FINISHED:
-                    return 'finished (no checkpoint)';
+                    return 'finished (not materialized)';
                 case ActivityState.SAVED:
                     return 'finished';
+                case ActivityState.SKIPPED:
+                    return 'cancelled';
                 default:
                     return this.data.state().toLowerCase();
             }
@@ -138,6 +140,7 @@ export class ActivityNode extends ClassicPreset.Node {
     readonly invalidReason = this.activity.invalidReason;
     readonly invalidSettings = this.activity.invalidSettings;
     readonly hasInvalidSettings = this.activity.hasInvalidSettings;
+    readonly isOpened = this.activity.isOpened;
     readonly controlInput: ClassicPreset.Input<ActivityPort>;
     readonly dataInputs: { [key: string]: ClassicPreset.Input<ActivityPort> } = {};
     readonly controlOutputs: { [key: string]: ClassicPreset.Output<ActivityPort> };

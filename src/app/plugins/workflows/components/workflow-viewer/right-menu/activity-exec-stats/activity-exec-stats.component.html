@@ -6,9 +6,18 @@
     <h5>{{ activity().executionInfo().executorType }} Executor</h5>
     <c-card class="mb-3">
         <c-card-body>
+            <p class="mb-1"><strong>Submission Time:</strong> {{ activity().executionInfo().submissionTime | date:'medium' }}</p>
             <p class="mb-1"><strong>Execution State:</strong> {{ activity().executionInfo().state }}</p>
+            <p class="mb-1" *ngIf="activity().executionInfo().tuplesWritten >= 0">
+                @if (activity().executionInfo().activities.length > 1) {
+                    <strong>Tuples written (by root of Execution Tree):</strong>
+                } @else {
+                    <strong>Tuples written:</strong>
+                }
+                {{ activity().executionInfo().tuplesWritten }}
+            </p>
             @if (activity().executionInfo().activities.length > 1) {
-                <p class="mb-1"><strong>Activities:</strong></p>
+                <p class="mb-1"><strong>Activities in Execution Tree:</strong></p>
                 <ul cListGroup flush="true">
                     <li cListGroupItem *ngFor="let activity of activity().executionInfo().activities">
                         {{ activity }}
@@ -55,11 +64,20 @@
             </tr>
             </thead>
             <tbody>
-                @for (logMsg of activity().logMessages(); track $index) {
+                @for (logMsg of activity().logMessages(); track activity().id + $index) {
                     <tr>
                         <th scope="row" [ngClass]="{'text-warning': logMsg.level === 'WARN', 'text-danger': logMsg.level === 'ERROR'}">{{ logMsg.level }}</th>
                         <td>{{ logMsg.timeMs }}</td>
-                        <td>{{ logMsg.msg }}</td>
+
+                        @if ($first && settingSplit()) {
+                            <td>
+                                {{ settingSplit()[0] }}
+                                <app-json-text [text]="settingSplit()[1]"></app-json-text>
+                            </td>
+
+                        } @else {
+                            <td>{{ logMsg.msg }}</td>
+                        }
                     </tr>
                 }
             </tbody>

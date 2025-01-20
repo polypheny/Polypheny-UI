@@ -48,11 +48,15 @@
 
         <!-- Common Type -->
         <div class="mb-3">
-            <label cLabel for="commonType">Common Type:</label>
+            <label cLabel for="commonType">Common Transaction:</label>
             <select cSelect id="commonType" [(ngModel)]="editableConfig().commonType" name="commonType"
                     (change)="checkForChanges()" [disabled]="!isEditable()">
                 <option *ngFor="let type of commonTypes" [value]="type">{{ type }}</option>
             </select>
+            <div cFormText>
+                Common transactions provide atomicity, consistency and isolation guarantees over multiple activities. Guarantees do not hold for activities with
+                side-effects in external systems.
+            </div>
         </div>
 
         <!-- Control State Merger -->
@@ -62,6 +66,10 @@
                     name="controlStateMerger" (change)="checkForChanges()" [disabled]="!isEditable()">
                 <option *ngFor="let merger of controlStateMergers" [value]="merger">{{ merger }}</option>
             </select>
+            <div cFormText>
+                Determines whether the activity gets executed in case of multiple control edges. AND_AND means all control edges must be active.
+                AND_OR means all success control edges must be active and at least one fail control edge.
+            </div>
         </div>
     </div>
 </form>

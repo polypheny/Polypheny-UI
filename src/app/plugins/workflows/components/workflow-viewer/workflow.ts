@@ -29,6 +29,7 @@ export class Workflow {
     readonly config: WritableSignal<WorkflowConfigModel>;
     readonly variables: WritableSignal<SettingsModel>;
     readonly hasUnfinishedActivities: Signal<boolean>;
+    private readonly openedActivity = signal<Activity>(undefined); // which activity settings are open
 
     private readonly activityChangeSubject = new Subject<string>();
     private readonly activityRemoveSubject = new Subject<string>();
@@ -41,7 +42,11 @@ export class Workflow {
     constructor(workflowModel: WorkflowModel, private readonly registry: ActivityRegistry, injector: Injector) {
         this.state = signal(workflowModel.state);
         workflowModel.activities.forEach(model =>
-            this.activities.set(model.id, new Activity(model, registry.getDef(model.type))));
+            this.activities.set(model.id, new Activity(
+                model,
+                registry.getDef(model.type),
+                computed(() => this.openedActivity()?.id === model.id)
+            )));
         workflowModel.edges.forEach(edge => this.edgeStates.set(edgeToString(edge), signal(edge.state)));
         this.config = signal(workflowModel.config, {equal: _.isEqual});
         this.variables = signal(workflowModel.variables, {equal: _.isEqual});
@@ -50,7 +55,7 @@ export class Workflow {
         const removeActivitySignal = toSignal(this.activityRemoveSubject, {injector: injector});
 
         this.hasUnfinishedActivities = computed(() => {
-            addActivitySignal(); // force recompute when activity is added
+            addActivitySignal(); // force recompute when activity is added or removed
             removeActivitySignal();
             return [...this.activities.values()].some(
                 a => a.state() !== ActivityState.FINISHED && a.state() !== ActivityState.SAVED
@@ -98,13 +103,17 @@ export class Workflow {
     removeActivity(activityId: string) {
         this.activities.delete(activityId);
         this.activityRemoveSubject.next(activityId);
+        if (this.openedActivity()?.id === activityId) {
+            this.openedActivity.set(null);
+        }
     }
 
     updateOrCreateActivity(activityModel: ActivityModel) {
         if (this.applyIfExists(activityModel.id, a => a.update(activityModel))) {
             this.activityChangeSubject.next(activityModel.id);
         } else {
-            const activity = new Activity(activityModel, this.registry.getDef(activityModel.type));
+            const activity = new Activity(activityModel, this.registry.getDef(activityModel.type),
+                computed(() => this.openedActivity()?.id === activityModel.id));
             this.activities.set(activityModel.id, activity);
             this.activityAddSubject.next(activity);
         }
@@ -217,6 +226,22 @@ export class Workflow {
         remainingActivities.forEach(activityId => this.removeActivity(activityId));
     }
 
+    setOpenedActivity(activityId: string) {
+        const activity = this.getActivity(activityId);
+        const old = this.openedActivity();
+        this.openedActivity.set(activity);
+        if (old !== undefined) {
+            this.activityChangeSubject.next(old.id);
+        }
+        if (activityId !== undefined) {
+            this.activityChangeSubject.next(activity.id);
+        }
+    }
+
+    getOpenedActivity() {
+        return this.openedActivity.asReadonly();
+    }
+
     onActivityChange() {
         return this.activityChangeSubject.asObservable();
     }
@@ -301,7 +326,7 @@ export class Activity {
     readonly logMessages: Signal<LogMessage[]>;
     readonly error: Signal<ErrorVariable>;
 
-    constructor(activityModel: ActivityModel, def: ActivityDef) {
+    constructor(activityModel: ActivityModel, def: ActivityDef, readonly isOpened: Signal<boolean>) {
         this.type = activityModel.type;
         this.id = activityModel.id;
         this.def = def;
