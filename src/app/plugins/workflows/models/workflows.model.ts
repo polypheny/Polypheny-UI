@@ -1,5 +1,6 @@
 import {DataModel} from '../../../models/ui-request.model';
 import {FieldDefinition} from '../../../components/data-view/models/result-set.model';
+import {PortType} from './activity-registry.model';
 
 export enum EdgeState {
     IDLE = 'IDLE',
@@ -58,6 +59,7 @@ export enum ExecutorType {
 export type SettingsModel = Record<string, any>;
 export type Variables = Record<string, any>;
 export const errorKey = '$errorMsg';
+export const PK_COL = 'key'; // primary key column of relational checkpoints
 
 export interface ErrorVariable {
     message: string;
@@ -90,8 +92,9 @@ export interface RenderModel {
 }
 
 export interface TypePreviewModel {
-    dataModel: DataModel;
-    fields: FieldDefinition[];
+    portType: PortType; // this can be more specific than the port type of the def
+    fields: FieldDefinition[] | null;
+    notConnected: boolean; // only relevant for input previews
 }
 
 
@@ -103,6 +106,7 @@ export interface ActivityModel {
     rendering: RenderModel;
     state?: ActivityState;
     inTypePreview?: TypePreviewModel[];
+    outTypePreview?: TypePreviewModel[];
     invalidReason?: string;
     invalidSettings?: Record<string, string>;
     variables?: Variables;

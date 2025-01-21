@@ -53,7 +53,7 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.lang && !changes.lang.firstChange) {
+        if (changes.language && !changes.language.firstChange) {
             this.updateLanguage();
         }
         if (changes.autocomplete && !changes.autocomplete.firstChange) {
@@ -123,6 +123,11 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
         }
     }
 
+    insertAtCursor(code: string) {
+        console.log('inserting' + code);
+        this.codeEditor.session.insert(this.codeEditor.getCursorPosition(), code);
+    }
+
     // from: https://stackoverflow.com/questions/30041816/ace-editor-autocomplete-custom-strings
     setAutocomplete() {
         this.codeEditor.setOptions({enableLiveAutocompletion: true});
@@ -175,7 +180,6 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
             this.codeEditor.getSession().setMode('ace/mode/' + this.language);
         } else {
             this.codeEditor.getSession().setMode('ace/mode/sql');
-
         }
     }
 

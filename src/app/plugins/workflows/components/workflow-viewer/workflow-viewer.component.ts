@@ -175,7 +175,9 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                 this.workflow.state.set(stateResponse.workflowState);
                 if (!(this.workflow.updateActivityStates(stateResponse.activityStates,
                         stateResponse.activityInvalidReasons,
-                        stateResponse.activityInvalidSettings)
+                        stateResponse.activityInvalidSettings,
+                        stateResponse.inTypePreviews,
+                        stateResponse.outTypePreviews)
                     && this.workflow.updateEdgeStates(stateResponse.edgeStates))) {
                     this.synchronizeWorkflow();
                 }

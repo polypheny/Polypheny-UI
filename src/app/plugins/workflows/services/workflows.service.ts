@@ -19,6 +19,7 @@ export class WorkflowsService {
         this._http.get<Record<string, ActivityDefModel>>(`${this.httpUrl}/registry`, this.httpOptions).subscribe({
             next: defs => {
                 this.activityRegistry = new ActivityRegistry(defs);
+                console.log(defs);
                 this.registryLoaded.set(true);
             }
         });

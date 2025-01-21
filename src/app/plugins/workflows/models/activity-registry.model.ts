@@ -231,7 +231,9 @@ export enum SettingType {
     INT = 'INT',
     ENTITY = 'ENTITY',
     BOOLEAN = 'BOOLEAN',
-    DOUBLE = 'DOUBLE'
+    DOUBLE = 'DOUBLE',
+    QUERY = 'QUERY',
+    FIELD_SELECT = 'FIELD_SELECT',
     // TODO: update when a new settingType is added
 }
 

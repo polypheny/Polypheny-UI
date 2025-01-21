@@ -33,6 +33,9 @@
 
         <!-- TODO: make itself scrollable if tablist visible-->
         <div class="setting-group mt-2 flex-grow-1">
+            @if (activity().error()) {
+                <p class="mb-1"><strong>Execution Error: </strong> <span class="text-danger">{{ activity().error().message }}</span></p>
+            }
             @for (subgroup of activeSettingGroup().subgroups; track activity().id + subgroup.key) {
                 <ng-container *ngIf="!subgroup.isEmpty">
                     <h5 *ngIf="!subgroup.isDefault() || true">{{ subgroup.displayName }}</h5>
@@ -122,6 +125,18 @@
                                                                 [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
                                                                 [(value)]="editableSettings().get(setting.key).value">
                                             </app-entity-setting>
+                                        }
+                                        @case (SettingType.QUERY) {
+                                            <app-query-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                               [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                               [(value)]="editableSettings().get(setting.key).value">
+                                            </app-query-setting>
+                                        }
+                                        @case (SettingType.FIELD_SELECT) {
+                                            <app-field-select-setting [settingDef]="setting.model" [activityDef]="activity().def" [inTypePreview]="activity().inTypePreview()"
+                                                                      [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                      [(value)]="editableSettings().get(setting.key).value">
+                                            </app-field-select-setting>
                                         }
                                         @default {
                                             <p class="text-danger">unknown setting type</p>

@@ -83,7 +83,7 @@ import {MarkdownComponent} from 'ngx-markdown';
 import {ActivitySettingsComponent} from './components/workflow-viewer/right-menu/activity-settings/activity-settings.component';
 import {IntSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/int-setting/int-setting.component';
 import {StringSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/string-setting/string-setting.component';
-import {CdkDrag, CdkDragPreview, CdkDropList} from '@angular/cdk/drag-drop';
+import {CdkDrag, CdkDragPlaceholder, CdkDragPreview, CdkDropList} from '@angular/cdk/drag-drop';
 import {AngularMultiSelectModule} from 'angular2-multiselect-dropdown';
 import {BooleanSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/boolean-setting/boolean-setting.component';
 import {DoubleSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/double-setting/double-setting.component';
@@ -91,6 +91,8 @@ import {EntitySettingComponent} from './components/workflow-viewer/right-menu/ac
 import {ActivityExecStatsComponent} from './components/workflow-viewer/right-menu/activity-exec-stats/activity-exec-stats.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import {ExecutionMonitorComponent} from './components/workflow-viewer/execution-monitor/execution-monitor.component';
+import {QuerySettingComponent} from './components/workflow-viewer/right-menu/activity-settings/query-setting/query-setting.component';
+import {FieldSelectSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/field-select-setting/field-select-setting.component';
 
 @NgModule({
     imports: [
@@ -170,6 +172,7 @@ import {ExecutionMonitorComponent} from './components/workflow-viewer/execution-
         AutocompleteLibModule,
         FormTextDirective,
         ButtonToolbarComponent,
+        CdkDragPlaceholder,
     ],
     declarations: [
         WorkflowViewerComponent,
@@ -187,6 +190,8 @@ import {ExecutionMonitorComponent} from './components/workflow-viewer/execution-
         BooleanSettingComponent,
         DoubleSettingComponent,
         EntitySettingComponent,
+        QuerySettingComponent,
+        FieldSelectSettingComponent,
         ActivityExecStatsComponent,
         ExecutionMonitorComponent
     ],

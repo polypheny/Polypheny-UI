@@ -1,0 +1,26 @@
+<c-input-group class="mb-3">
+    <label cInputGroupText for="language">Language</label>
+    <select cSelect id="language" [(ngModel)]="val().queryLanguage"
+            (change)="valueChanged()" [disabled]="!isEditable() || def().queryLanguages.length < 2">
+        <option *ngFor="let language of def().queryLanguages" [value]="language">{{ language }}</option>
+    </select>
+</c-input-group>
+
+
+<c-button-group size="sm" class="mb-1" id="input-buttons">
+    @for (inType of inTypePreview(); track $index) {
+        <button cButton (click)="insertInput($index)" [disabled]="inType.notConnected" color="light">
+            Input {{ $index }}
+        </button>
+    }
+</c-button-group>
+<label for="input-buttons" class="ms-2">Insert Placeholder</label>
+
+<div class="editor-container border">
+    <app-editor #editor id="query-editor"
+                [language]="val().queryLanguage.toLowerCase()"
+                [autocomplete]="true"
+                [initOptions]="editorOptions"
+                [useParentHeight]="true"
+    />
+</div>

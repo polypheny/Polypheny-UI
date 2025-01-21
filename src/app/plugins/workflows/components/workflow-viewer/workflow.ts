@@ -149,13 +149,15 @@ export class Workflow {
 
     updateActivityStates(activityStates: Record<string, ActivityState>,
                          invalidReasons: Record<string, string>,
-                         invalidSettings: Record<string, Record<string, string>>): boolean {
+                         invalidSettings: Record<string, Record<string, string>>,
+                         inTypePreviews: Record<string, TypePreviewModel[]>,
+                         outTypePreviews: Record<string, TypePreviewModel[]>): boolean {
         const missing = new Set<string>();
         const remaining = new Set<string>(this.activities.keys());
 
         for (const [id, state] of Object.entries(activityStates)) {
             const oldState = this.activities.get(id)?.state();
-            if (this.updateActivityState(id, state, invalidReasons[id], invalidSettings[id])) {
+            if (this.updateActivityState(id, state, invalidReasons[id], invalidSettings[id], inTypePreviews[id], outTypePreviews[id])) {
                 this.activityChangeSubject.next(id);
                 if (state !== oldState) {
                     this.activityDirtySubject.next(id);
@@ -270,7 +272,8 @@ export class Workflow {
         return this.edgeRemoveSubject.asObservable();
     }
 
-    private updateActivityState(activityId: string, state: ActivityState, invalidReason: string, invalidSettings: Record<string, string> | undefined): boolean {
+    private updateActivityState(activityId: string, state: ActivityState, invalidReason: string, invalidSettings: Record<string, string> | undefined,
+                                inTypePreview: TypePreviewModel[], outTypePreview: TypePreviewModel[]): boolean {
         if (state === 'IDLE') {
             this.updateActivityProgress(activityId, 0); // reset progress
         }
@@ -278,6 +281,8 @@ export class Workflow {
             a.state.set(state);
             a.invalidReason.set(invalidReason);
             a.invalidSettings.set(invalidSettings || {});
+            a.inTypePreview.set(inTypePreview);
+            a.outTypePreview.set(outTypePreview);
         });
     }
 
@@ -317,6 +322,7 @@ export class Activity {
     readonly commonType: Signal<CommonType>;
     readonly rendering: WritableSignal<RenderModel>;
     readonly inTypePreview: WritableSignal<TypePreviewModel[]>;
+    readonly outTypePreview: WritableSignal<TypePreviewModel[]>;
     readonly invalidReason: WritableSignal<string>;
     readonly invalidSettings: WritableSignal<Record<string, string>>;
     readonly hasInvalidSettings: Signal<boolean>;
@@ -336,6 +342,7 @@ export class Activity {
         this.commonType = computed(() => this.config().commonType);
         this.rendering = signal(activityModel.rendering, {equal: _.isEqual});
         this.inTypePreview = signal(activityModel.inTypePreview, {equal: _.isEqual});
+        this.outTypePreview = signal(activityModel.outTypePreview, {equal: _.isEqual});
         this.invalidReason = signal(activityModel.invalidReason);
         this.invalidSettings = signal(activityModel.invalidSettings);
         this.hasInvalidSettings = computed(() => Object.keys(this.invalidSettings()).length > 0);
@@ -355,6 +362,7 @@ export class Activity {
         this.config.set(this.prepareConfig(activityModel.config));
         this.rendering.set(activityModel.rendering);
         this.inTypePreview.set(activityModel.inTypePreview);
+        this.outTypePreview.set(activityModel.outTypePreview);
         this.invalidReason.set(activityModel.invalidReason);
         this.invalidSettings.set(activityModel.invalidSettings);
         this.variables.set(activityModel.variables);

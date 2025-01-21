@@ -1,5 +1,5 @@
 <div class="d-flex flex-column h-100 flex-fill w-100">
-    <c-row [gutter]="0" class="align-items-center">
+    <c-row [gutter]="0" class="align-items-center mb-1">
         <c-col xs="auto" class="ps-1 me-5">
             <c-button-group role="group" class="m-1">
                 <button cButton color="light" type="button" (click)="leftMenu.toggleMenu()"
@@ -163,7 +163,7 @@
                     </c-card-body>
                 </c-card>
                 <app-data-view [result]="_checkpoint.result()"
-                               [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: true}"
+                               [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: true, hideCreateView: true}"
                                [loading]="_checkpoint.isLoading()"></app-data-view>
             </div>
         } @else {

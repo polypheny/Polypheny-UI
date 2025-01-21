@@ -5,9 +5,9 @@ import {ActivityState, WorkflowState} from '../../../../models/workflows.model';
 import {ActivityPort} from '../activity-port/activity-port.component';
 import {Subject} from 'rxjs';
 import {Activity} from '../../workflow';
-import {DataModel} from '../../../../../../models/ui-request.model';
 import {WorkflowsWebSocketService} from '../../../../services/workflows-websocket.service';
 import {ToasterService} from '../../../../../../components/toast-exposer/toaster.service';
+import {PortType} from '../../../../models/activity-registry.model';
 
 
 export const stateColors = {
@@ -24,10 +24,11 @@ export const IN_CONTROL_KEY = 'c_in';
 export const SUCCESS_CONTROL_KEY = 'c_out_success';
 export const FAIL_CONTROL_KEY = 'c_out_fail';
 
-export const dataModelIcons = {
-    [DataModel.RELATIONAL]: 'fa fa-table',
-    [DataModel.DOCUMENT]: 'fa fa-file-text-o',
-    [DataModel.GRAPH]: 'cil-graph',
+export const portTypeIcons = {
+    [PortType.REL]: 'fa fa-table',
+    [PortType.DOC]: 'fa fa-file-text-o',
+    [PortType.LPG]: 'cil-graph',
+    [PortType.ANY]: 'fa fa-question',
 };
 
 @Component({
@@ -82,11 +83,13 @@ export class ActivityComponent implements OnInit, OnChanges {
                     return this.data.state().toLowerCase();
             }
         });
-        Object.entries(this.data.dataInputs).forEach(([key, input]) => {
-            this.inIcons[key] = computed(() => dataModelIcons[input.socket.dataModel()]);
+        Object.keys(this.data.dataInputs).forEach(key => {
+            const idx = ActivityNode.getDataPortIndexFromKey(key);
+            this.inIcons[key] = computed(() => portTypeIcons[this.data.inPortTypes()[idx]]);
         });
-        Object.entries(this.data.dataOutputs).forEach(([key, input]) => {
-            this.outIcons[key] = computed(() => dataModelIcons[input.socket.dataModel()]);
+        Object.keys(this.data.dataOutputs).forEach(key => {
+            const idx = ActivityNode.getDataPortIndexFromKey(key);
+            this.outIcons[key] = computed(() => portTypeIcons[this.data.outPortTypes()[idx]]);
         });
 
         this.cdr.detectChanges();
@@ -127,9 +130,6 @@ export class ActivityComponent implements OnInit, OnChanges {
 export class ActivityNode extends ClassicPreset.Node {
     width = 400;
     height = 270;
-    canExecute = computed(() => this.state() === 'IDLE' && this.workflowState() === 'IDLE');
-    canReset = computed(() => this.state() !== 'IDLE' && this.workflowState() === 'IDLE');
-    canOpenCheckpoint = computed(() => this.state() === 'FINISHED' || this.state() === 'SAVED'); // TODO: find solution for when to show inputs
 
     readonly activityId = this.activity.id;
     readonly displayName = this.activity.displayName;
@@ -145,6 +145,12 @@ export class ActivityNode extends ClassicPreset.Node {
     readonly dataInputs: { [key: string]: ClassicPreset.Input<ActivityPort> } = {};
     readonly controlOutputs: { [key: string]: ClassicPreset.Output<ActivityPort> };
     readonly dataOutputs: { [key: string]: ClassicPreset.Output<ActivityPort> } = {};
+
+    canExecute = computed(() => this.state() === 'IDLE' && this.workflowState() === 'IDLE');
+    canReset = computed(() => this.state() !== 'IDLE' && this.workflowState() === 'IDLE');
+    canOpenCheckpoint = computed(() => this.state() === 'FINISHED' || this.state() === 'SAVED'); // TODO: find solution for when to show inputs
+    inPortTypes = computed(() => this.activity.inTypePreview().map(p => p.portType));
+    outPortTypes = computed(() => this.activity.outTypePreview().map(p => p.portType));
 
     constructor(
         private readonly activity: Activity,

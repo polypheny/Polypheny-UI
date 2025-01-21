@@ -1,4 +1,4 @@
-import {ActivityModel, ActivityState, EdgeModel, RenderModel, WorkflowState} from './workflows.model';
+import {ActivityModel, ActivityState, EdgeModel, RenderModel, TypePreviewModel, WorkflowState} from './workflows.model';
 import {Result} from '../../../components/data-view/models/result-set.model';
 
 export enum ResponseType {
@@ -46,6 +46,8 @@ export interface StateUpdateResponse extends WsResponse {
     type: ResponseType.STATE_UPDATE;
     workflowState: WorkflowState;
     activityStates: Record<string, ActivityState>;
+    inTypePreviews: Record<string, TypePreviewModel[]>;
+    outTypePreviews: Record<string, TypePreviewModel[]>;
     activityInvalidReasons: Record<string, string>;
     activityInvalidSettings: Record<string, Record<string, string>>;
     edgeStates: EdgeModel[];
