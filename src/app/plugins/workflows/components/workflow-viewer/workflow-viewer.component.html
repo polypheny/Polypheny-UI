@@ -7,12 +7,12 @@
                 </button>
             </c-button-group>
         </c-col>
-        <c-col xs="6" md="3">
+        <c-col xs="6" md="2" xxl="3">
             <h3 *ngIf="name" class="workflow-name mb-0" [title]="name">{{ name }}</h3>
         </c-col>
-        <c-col xs="12" md="6" class="me-auto">
+        <c-col xs="12" md="7" xxl="6" class="">
             <c-button-toolbar role="group">
-                <c-button-group role="group" class="me-5">
+                <c-button-group role="group" class="me-2">
                     <button cButton color="light" class=""
                             (click)="close.emit()">
                         Back
@@ -65,7 +65,7 @@
             </c-button-toolbar>
         </c-col>
 
-        <c-col xs="auto" md="1">
+        <c-col xs="auto" md="1" class="ms-auto">
             <span class="badge rounded-pill" *ngIf="workflow" [ngClass]="{
                 'bg-primary': workflow.state() === 'IDLE',
                 'bg-warning': workflow.state() === 'EXECUTING',
@@ -88,7 +88,8 @@
                        (create)="createActivity($event)" (createAt)="createActivityAt($event)">
         </app-left-menu>
         <div class="rete flex-fill" #rete></div>
-        <app-right-menu #rightMenu [activity]="openedActivity?.()" [isEditable]="isEditable && !isExecuting?.()">
+        <app-right-menu #rightMenu [activity]="openedActivity?.()" [isEditable]="isEditable && !isExecuting?.()"
+                        [workflowVars]="workflow?.variables()">
         </app-right-menu>
     </div>
 </div>

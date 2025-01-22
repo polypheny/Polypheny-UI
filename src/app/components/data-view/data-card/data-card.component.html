@@ -5,11 +5,11 @@
 <div class="card-wrapper" *ngIf="$result()">
     <c-card *ngFor="let d1 of $result().data; let i = index" (dblclick)="triggerEditing(i)"
             [ngClass]="{'editing': i===editing, 'json-card': $result().dataModel === DataModel.DOCUMENT}">
-        <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig.update && i !== editing"
+        <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig().update && i !== editing"
            [routerLink]="[]"
            class="edit-card"
            (click)="triggerEditing(i)"><i class="cil-pencil"></i></a>
-        <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig.update && i !== editing"
+        <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig().update && i !== editing"
            [routerLink]="[]"
            class="delete-card"
            (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"><i

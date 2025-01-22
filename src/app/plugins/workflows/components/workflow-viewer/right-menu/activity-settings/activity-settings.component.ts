@@ -3,6 +3,7 @@ import {GroupDef, SettingType} from '../../../../models/activity-registry.model'
 import {Activity, Settings, VariableReference} from '../../workflow';
 import {WorkflowsWebSocketService} from '../../../../services/workflows-websocket.service';
 import {ToasterService} from '../../../../../../components/toast-exposer/toaster.service';
+import {Variables} from '../../../../models/workflows.model';
 
 @Component({
     selector: 'app-activity-settings',
@@ -13,6 +14,7 @@ export class ActivitySettingsComponent implements OnInit {
     protected readonly SettingType = SettingType;
 
     activity = input.required<Activity>();
+    workflowVars = input.required<Variables>();
     isEditable = input.required<boolean>();
 
     activeSettingGroup = signal<GroupDef>(null);
@@ -75,16 +77,16 @@ export class ActivitySettingsComponent implements OnInit {
     private resetVariablesVisibility() {
         this.variablesVisibilityMap.clear();
         this.activity().settings().keys().forEach(key => {
-            this.variablesVisibilityMap.set(key, signal(false));
+            const isVisible = this.activity().settings().get(key).references.length > 0;
+            this.variablesVisibilityMap.set(key, signal(isVisible));
         });
     }
 
-    addVariableRef(key: string, variable: string, pointer: string, target: string) {
-        // TODO: better handling of edge cases with better feedback
-        const variablePointer = pointer.length > 0 ? variable + '/' + pointer : variable;
-        if (variablePointer.length === 0) {
-            this._toast.warn(`Please specify a variablePointer`, 'Invalid Variable Reference');
-        } else if (this.editableSettings().get(key).addReference(variablePointer, target)) {
+    addVariableRef(key: string, event: [string, string, string]) {
+        const [variable, pointer, target] = event;
+
+        const variablePointer = variable + this.prefixWithSlash(pointer);
+        if (this.editableSettings().get(key).addReference(variablePointer, target)) {
             this.checkForChanges();
         } else {
             this._toast.warn(`The specified target "${target}" is not a valid json pointer for this object`, 'Invalid Variable Reference');
@@ -100,5 +102,12 @@ export class ActivitySettingsComponent implements OnInit {
     resetSettings() {
         this.resetSettingsSignal.set(false);
         this.resetSettingsSignal.set(true);
+    }
+
+    private prefixWithSlash(str: string): string {
+        if (str.length > 0 && !str.startsWith('/')) {
+            return '/' + str;
+        }
+        return str;
     }
 }

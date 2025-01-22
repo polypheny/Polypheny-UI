@@ -358,7 +358,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
             //when double-clicking the delete btn
             return;
         }
-        if (this.entityConfig.update) {
+        if (this.entityConfig().update) {
             this.updateValues.clear();
             this.$result().data[i].forEach((v, k) => {
                 if (this.$result().header[k].dataType === 'bool') {

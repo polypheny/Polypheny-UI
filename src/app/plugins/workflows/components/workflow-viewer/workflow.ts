@@ -27,7 +27,7 @@ export class Workflow {
     private readonly activities: Map<string, Activity> = new Map();
     private readonly edgeStates: Map<string, WritableSignal<EdgeState>> = new Map();
     readonly config: WritableSignal<WorkflowConfigModel>;
-    readonly variables: WritableSignal<SettingsModel>;
+    readonly variables: WritableSignal<Variables>;
     readonly hasUnfinishedActivities: Signal<boolean>;
     private readonly openedActivity = signal<Activity>(undefined); // which activity settings are open
 
@@ -232,10 +232,10 @@ export class Workflow {
         const activity = this.getActivity(activityId);
         const old = this.openedActivity();
         this.openedActivity.set(activity);
-        if (old !== undefined) {
+        if (old) {
             this.activityChangeSubject.next(old.id);
         }
-        if (activityId !== undefined) {
+        if (activityId) {
             this.activityChangeSubject.next(activity.id);
         }
     }
@@ -337,7 +337,7 @@ export class Activity {
         this.id = activityModel.id;
         this.def = def;
         this.state = signal(activityModel.state);
-        this.settings = signal(new Settings(activityModel.settings), {equal: _.isEqual}); // deep equivalence check
+        this.settings = signal(new Settings(activityModel.settings)); // deep equivalence check
         this.config = signal(this.prepareConfig(activityModel.config), {equal: _.isEqual});
         this.commonType = computed(() => this.config().commonType);
         this.rendering = signal(activityModel.rendering, {equal: _.isEqual});
@@ -435,23 +435,25 @@ export class Setting {
         const references: VariableReference[] = [];
         if (obj === null) {
             return [references, null];
+        } else if (Array.isArray(obj)) {
+            for (const [i, value] of obj.entries()) {
+                const [r, o] = Setting.splitRecursive([...tokens, i.toString()], value);
+                references.push(...r);
+                obj[i] = o;
+            }
+            // undefined in lists means there is a variable reference that does not overwrite an existing value
+            obj = obj.filter(o => o !== undefined);
         } else if (typeof obj === 'object') {
             if (VARIABLE_REF_FIELD in obj) {
                 const ref = new VariableReference(JsonPointer.compile(tokens), obj);
                 references.push(ref);
-                return [references, ref.defaultValue];
+                return [references, ref.defaultValue || undefined];
             } else {
                 Object.entries(obj).forEach(([key, value]) => {
                     const [r, o] = Setting.splitRecursive([...tokens, key], value);
                     references.push(...r);
                     obj[key] = o;
                 });
-            }
-        } else if (Array.isArray(obj)) {
-            for (const [i, value] of obj.entries()) {
-                const [r, o] = Setting.splitRecursive([...tokens, i.toString()], value);
-                references.push(...r);
-                obj[i] = o;
             }
         }
 
@@ -475,7 +477,7 @@ export class Setting {
             if (ref.target.length <= 1) {
                 copy = refObject; // setting the root
             } else {
-                JsonPointer.set(copy, ref.target, refObject); // TODO: try catch
+                JsonPointer.set(copy, ref.target, refObject); // TODO: try catch?
             }
         }
         return copy;
@@ -492,7 +494,6 @@ export class Setting {
         target = target.startsWith('/') ? target : '/' + target;
         if (this.isValidTargetPointer(target)) {
             this.references.push(VariableReference.of(target, variablePointer));
-            console.log('added reference', this.references[this.references.length - 1]);
             return true;
         }
         return false;

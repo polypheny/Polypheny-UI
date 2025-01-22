@@ -1,7 +1,7 @@
 import {Component, input, signal, ViewChild} from '@angular/core';
 import {Activity} from '../workflow';
 import {WorkflowsService} from '../../../services/workflows.service';
-import {ActivityConfigModel, RenderModel, SettingsModel} from '../../../models/workflows.model';
+import {ActivityConfigModel, RenderModel, SettingsModel, Variables} from '../../../models/workflows.model';
 import {WorkflowsWebSocketService} from '../../../services/workflows-websocket.service';
 import {ActivitySettingsComponent} from './activity-settings/activity-settings.component';
 import {ActivityConfigEditorComponent} from './activity-config-editor/activity-config-editor.component';
@@ -18,6 +18,7 @@ export type MenuTabs = 'settings' | 'variables' | 'config' | 'execution' | 'help
 export class RightMenuComponent {
     isEditable = input.required<boolean>();
     activity = input.required<Activity>();
+    workflowVars = input.required<Variables>();
 
     @ViewChild('settings') settingsComponent: ActivitySettingsComponent;
     @ViewChild('config') configComponent: ActivityConfigEditorComponent;
@@ -51,17 +52,21 @@ export class RightMenuComponent {
         }
     }
 
-    canSafelyNavigate() {
+    canSafelyNavigate(warn = true) {
         if (this.activeTab() === 'settings') {
             if (this.settingsComponent?.hasSettingsChanged()) {
-                this._toast.warn('Please save or discard any unsaved changes to the settings first.', 'Unsaved settings');
-                this.visible.set(true);
+                if (warn) {
+                    this._toast.warn('Please save or discard any unsaved changes to the settings first.', 'Unsaved settings');
+                    this.visible.set(true);
+                }
                 return false;
             }
         } else if (this.activeTab() === 'execution') {
             if (this.configComponent?.hasConfigChanged()) {
-                this._toast.warn('Please save or discard the unsaved changes to the config first.', 'Unsaved config');
-                this.visible.set(true);
+                if (warn) {
+                    this._toast.warn('Please save or discard the unsaved changes to the config first.', 'Unsaved config');
+                    this.visible.set(true);
+                }
                 return false;
             }
         }

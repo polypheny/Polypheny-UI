@@ -125,9 +125,11 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         ));
         this.subscriptions.add(this.editor.onActivityClone().subscribe(
             activityId => {
-                const rendering = this.workflow.getActivity(activityId).rendering();
-                const delta = 50;
-                this._websocket.cloneActivity(activityId, rendering.posX + delta, rendering.posY + delta);
+                if (this.openedActivity().id !== activityId || this.rightMenu.canSafelyNavigate()) {
+                    const rendering = this.workflow.getActivity(activityId).rendering();
+                    const delta = 50;
+                    this._websocket.cloneActivity(activityId, rendering.posX + delta, rendering.posY + delta);
+                }
             }
         ));
         this.subscriptions.add(this.editor.onEdgeRemove().subscribe(
@@ -297,6 +299,9 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         if (this.variableEditor.isValid()) {
             this._websocket.updateVariables(JSON.parse(this.editedVariables()));
             this.showVariableModal.set(false);
+            this._workflows.getWorkflowVariables(this.sessionId).subscribe(variables =>
+                this.workflow.variables.set(variables)
+            );
         } else {
             this._toast.warn('Specified variables are invalid', 'Unable to save variables');
         }

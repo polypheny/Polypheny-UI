@@ -1,5 +1,5 @@
 import {Component, computed, effect, EventEmitter, input, model, Output, signal, ViewChild} from '@angular/core';
-import {ActivityDef, SettingDefModel} from '../../../../../models/activity-registry.model';
+import {SettingDefModel} from '../../../../../models/activity-registry.model';
 import {PK_COL, TypePreviewModel} from '../../../../../models/workflows.model';
 import {EditorComponent} from '../../../../../../../components/editor/editor.component';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
@@ -13,7 +13,6 @@ import {ToasterService} from '../../../../../../../components/toast-exposer/toas
 export class FieldSelectSettingComponent {
     isEditable = input.required<boolean>();
     settingDef = input.required<SettingDefModel>();
-    activityDef = input.required<ActivityDef>();
     inTypePreview = input.required<TypePreviewModel[]>();
     value = model.required<any>();
     @Output() hasChanged = new EventEmitter<void>();
@@ -23,16 +22,45 @@ export class FieldSelectSettingComponent {
     val = computed(() => this.value() as FieldSelectValue); // like value, but with correct type
     def = computed<FieldSelectSettingDef>(() => this.settingDef() as FieldSelectSettingDef);
     targetPreview = computed(() => this.inTypePreview()[this.def().targetInput]);
-    isRel = computed(() => this.activityDef().inPorts[this.def().targetInput].type === 'REL' || this.targetPreview().portType === 'REL');
+    isRel = computed(() => this.targetPreview().portType === 'REL');
     firstIsFixed = signal(false);
+    isInitialized = false;
+
+    // simple
+    dropdownData = computed(() => this.targetPreview().fields?.map(field => {
+        return {id: field.name, itemName: field.name};
+    }));
+    includeData: { id: string; itemName: string; }[] = [];
+    private changed = signal(false); // dummy signal to trigger recomputation
+
+
+    // https://www.npmjs.com/package/angular2-multiselect-dropdown
+    readonly dropdownSettings = {
+        singleSelection: false,
+        text: 'Fields to include',
+        noDataLabel: 'No fields found',
+        searchPlaceholderText: 'Search or add new',
+        enableSearchFilter: true,
+        enableCheckAll: true,
+        enableFilterSelectAll: false,
+        addNewItemOnFilter: true
+    };
 
     constructor(private _toast: ToasterService) {
         effect(() => {
+            this.changed();
             const inTypeFields = this.targetPreview().fields;
-            if (!this.def().simplified && this.val().exclude.length === 0 && this.val().include.length <= 1) {
+
+            if (this.def().simplified) {
+                this.includeData = this.val().include.map(fieldName => {
+                    return {id: fieldName, itemName: fieldName};
+                });
+            } else if (!this.isInitialized && this.val().exclude.length === 0 && this.val().include.length <= 1 && this.isRel()) {
                 if (inTypeFields?.length > 0) {
                     this.val().include = inTypeFields.map(field => field.name);
-                } else if (this.val().include.length === 0 && this.isRel()) {
+                    this.isInitialized = true;
+                    this.valueChanged();
+                } else if (this.val().include.length === 0) {
                     this.val().include.push(PK_COL);
                 }
             }
@@ -43,6 +71,7 @@ export class FieldSelectSettingComponent {
 
     valueChanged() {
         this.hasChanged.emit();
+        this.changed.update(v => !v);
     }
 
     drop(event: CdkDragDrop<string[], any>) {
@@ -86,7 +115,6 @@ export class FieldSelectSettingComponent {
             this.val().include.push(fieldName);
         }
         this.valueChanged();
-
     }
 
     unknownChanged(event: Event) {
@@ -95,6 +123,13 @@ export class FieldSelectSettingComponent {
         } else {
             this.val().unspecifiedIndex = -1;
         }
+        this.valueChanged();
+    }
+
+    // simple
+
+    includeDataChange(event: { id: string; itemName: string; }[]) {
+        this.val().include = event.map(e => e.id);
         this.valueChanged();
     }
 }

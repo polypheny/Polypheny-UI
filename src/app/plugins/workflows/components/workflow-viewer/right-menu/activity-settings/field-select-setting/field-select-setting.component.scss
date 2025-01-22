@@ -1,9 +1,9 @@
-#list-exclude {
+.field-list {
   min-height: 230px; // 5 * 46
-}
 
-#list-include {
-  min-height: 183px; // 4 * 46 - 1
+  &.skipped-first {
+    min-height: 183px; // 4 * 46 - 1
+  }
 }
 
 li {

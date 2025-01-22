@@ -10,9 +10,15 @@
     height: auto !important;
   }
 
+  .not-found {
+    margin-bottom: -36px;
+  }
+
   .input-container {
     height: initial;
     line-height: 2;
+    background-color: white !important;
+    border-radius: 0.25rem;
 
     input {
       background-color: transparent !important;
@@ -27,7 +33,7 @@
   }
 
   .input-container input::placeholder {
-    font-size: 0.765625rem;
+    font-size: 1rem;
   }
 
   /* bootstrap styles */

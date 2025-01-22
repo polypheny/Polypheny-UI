@@ -13,8 +13,8 @@
             </c-input-group>
             <angular2-multiselect id="category-multi-selector" [data]="dropdownCats" [(ngModel)]="selectedCategories"
                                   [settings]="dropdownSettings"
-                                  (onSelect)="onItemSelect($event)"
-                                  (onDeSelect)="OnItemDeSelect($event)">
+                                  (onSelect)="onItemSelect()"
+                                  (onDeSelect)="OnItemDeSelect()">
                 <c-item>
                     <ng-template let-item="item">
                         <span>{{ item.itemName }}</span>

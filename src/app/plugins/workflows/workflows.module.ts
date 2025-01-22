@@ -15,6 +15,7 @@ import {
     ButtonDirective,
     ButtonGroupComponent,
     ButtonToolbarComponent,
+    CalloutComponent,
     CardBodyComponent,
     CardComponent,
     CardHeaderComponent,
@@ -93,6 +94,7 @@ import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import {ExecutionMonitorComponent} from './components/workflow-viewer/execution-monitor/execution-monitor.component';
 import {QuerySettingComponent} from './components/workflow-viewer/right-menu/activity-settings/query-setting/query-setting.component';
 import {FieldSelectSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/field-select-setting/field-select-setting.component';
+import {AddVariableComponent} from './components/workflow-viewer/right-menu/activity-settings/add-variable/add-variable.component';
 
 @NgModule({
     imports: [
@@ -173,6 +175,7 @@ import {FieldSelectSettingComponent} from './components/workflow-viewer/right-me
         FormTextDirective,
         ButtonToolbarComponent,
         CdkDragPlaceholder,
+        CalloutComponent,
     ],
     declarations: [
         WorkflowViewerComponent,
@@ -193,7 +196,8 @@ import {FieldSelectSettingComponent} from './components/workflow-viewer/right-me
         QuerySettingComponent,
         FieldSelectSettingComponent,
         ActivityExecStatsComponent,
-        ExecutionMonitorComponent
+        ExecutionMonitorComponent,
+        AddVariableComponent
     ],
     exports: [
         WorkflowViewerComponent,

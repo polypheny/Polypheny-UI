@@ -103,7 +103,6 @@ export class ActivityComponent implements OnInit, OnChanges {
 
     saveNotes() {
         // we can perform this update locally, instead of from the workflow-viewer
-        console.log('saving notes', this.data.rendering());
         this._websocket.updateActivity(this.data.activityId, null, null, this.data.rendering());
     }
 

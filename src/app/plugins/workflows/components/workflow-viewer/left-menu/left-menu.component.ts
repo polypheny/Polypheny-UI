@@ -54,15 +54,11 @@ export class LeftMenuComponent {
         this.createAt.emit([$event.item.data, $event.dropPoint]);
     }
 
-    onItemSelect(item: any) {
-        console.log(item);
-        console.log(this.selectedCategories);
+    onItemSelect() {
         this.filterList();
     }
 
-    OnItemDeSelect(item: any) {
-        console.log(item);
-        console.log(this.selectedCategories);
+    OnItemDeSelect() {
         this.filterList();
     }
 

@@ -1,13 +1,21 @@
 @if (def().simplified) {
-    simplified view is not yet implemented
-    <!--TODO: implement simplified view, take reorderability into consideration-->
+    <angular2-multiselect id="category-multi-selector" [data]="dropdownData()" [ngModel]="includeData" (ngModelChange)="includeDataChange($event)"
+                          [settings]="dropdownSettings" (onAddFilterNewItem)="add('include', $event)">
+        <c-item>
+            <ng-template let-item="item">
+                <span>{{ item.itemName }}</span>
+            </ng-template>
+        </c-item>
+    </angular2-multiselect>
+
 } @else {
     <c-row>
         <c-col [xs]="6">
             <h5>Exclude</h5>
             <c-card class="list-container border bg-light mb-3">
                 <ul cListGroup cdkDropList id="list-exclude" flush="true" class="field-list"
-                    [cdkDropListConnectedTo]="['list-include']" [cdkDropListData]="val().exclude" (cdkDropListDropped)="drop($event)">
+                    [cdkDropListConnectedTo]="['list-include']" [cdkDropListData]="val().exclude"
+                    cdkDropListSortingDisabled="true" (cdkDropListDropped)="drop($event)">
                     @for (field of val().exclude; track field) {
                         <li cListGroupItem cdkDrag [class.border-bottom]="$last" [cdkDragDisabled]="!isEditable()" class="field-entry">
                             <div class="d-flex justify-content-between">
@@ -29,15 +37,16 @@
 
         </c-col>
         <c-col [xs]="6">
-            <h5>Include</h5>
+            <h5>Include <span *ngIf="!def().reorder && val().unspecifiedIndex >= 0">(ignored)</span></h5>
             <c-card class="list-container border bg-light mb-3">
                 <ul cListGroup *ngIf="firstIsFixed()" flush="true">
                     <li cListGroupItem color="dark">
                         {{ val().include[0] }}
                     </li>
                 </ul>
-                <ul cListGroup cdkDropList id="list-include" flush="true" class="field-list"
-                    [cdkDropListConnectedTo]="['list-exclude']" [cdkDropListData]="val().include" (cdkDropListDropped)="drop($event)">
+                <ul cListGroup cdkDropList id="list-include" flush="true" class="field-list" [class.skipped-first]="firstIsFixed()"
+                    [cdkDropListConnectedTo]="['list-exclude']" [cdkDropListData]="val().include"
+                    [cdkDropListSortingDisabled]="!def().reorder" (cdkDropListDropped)="drop($event)">
                     @for (field of val().include; track field) {
                         <li cListGroupItem cdkDrag [class.border-bottom]="$last" [hidden]="firstIsFixed() && $first" class="field-entry"
                             [cdkDragDisabled]="$first && firstIsFixed() || !isEditable()">
@@ -58,7 +67,11 @@
             </c-input-group>
         </c-col>
     </c-row>
-    <p class="text-muted" *ngIf="isEditable()"><em>Drag and drop the entries to modify the lists.</em></p>
+    <p class="text-muted" *ngIf="isEditable()">
+        <em>Drag and drop the fields to modify the lists</em>
+        <em *ngIf="!def().reorder"> (the field order is ignored)</em>.
+    </p>
+
 
     <c-form-check [switch]="true" class="mb-3">
         <input cFormCheckInput id="check" type="checkbox" [checked]="val().unspecifiedIndex >= 0"

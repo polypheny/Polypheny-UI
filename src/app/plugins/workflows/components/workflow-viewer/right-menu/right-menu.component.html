@@ -47,7 +47,8 @@
     <div class="px-3 pt-3 menu-body flex-grow-1">
         @switch (activeTab()) {
             @case ("settings") {
-                <app-activity-settings #settings [activity]="activity()" [isEditable]="isEditable()"></app-activity-settings>
+                <app-activity-settings #settings [activity]="activity()" [isEditable]="isEditable()" [workflowVars]="workflowVars()">
+                </app-activity-settings>
             }
             @case ("variables") {
                 <!--TODO: force update app-json-text on change-->
