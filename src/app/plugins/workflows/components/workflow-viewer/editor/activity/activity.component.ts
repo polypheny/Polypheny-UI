@@ -14,7 +14,7 @@ export const stateColors = {
     [ActivityState.IDLE]: '#dddddd',
     [ActivityState.QUEUED]: '#39f',
     [ActivityState.EXECUTING]: '#0d6efd',
-    [ActivityState.FINISHED]: '#2eb85c', // same color as saved
+    [ActivityState.FINISHED]: '#96dbad', // same color as saved
     [ActivityState.SAVED]: '#2eb85c',
     [ActivityState.SKIPPED]: '#f9b115',
     [ActivityState.FAILED]: '#e55353',
@@ -65,6 +65,11 @@ export class ActivityComponent implements OnInit, OnChanges {
             if (this.data.state() === ActivityState.EXECUTING) {
                 const percent = this.data.progress() * 100;
                 return `linear-gradient(to right, ${grad1} ${percent - 5}%, ${grad2} ${percent + 5}%)`;
+            } else if (this.data.state() === ActivityState.FINISHED) {
+                return `repeating-linear-gradient(                    135deg,
+                    ${stateColors[ActivityState.SAVED]}, ${stateColors[ActivityState.SAVED]} 45px,
+                    ${stateColors[ActivityState.FINISHED]} 45px, ${stateColors[ActivityState.FINISHED]} 90px
+                )`;
             } else {
                 return stateColors[this.data.state()];
             }
@@ -107,7 +112,7 @@ export class ActivityComponent implements OnInit, OnChanges {
     }
 
     showProblems() {
-        if (Object.keys(this.data.invalidSettings()).length > 0) {
+        if (this.data.hasInvalidSettings()) {
             this.data.openSettings();
         }
         if (this.data.invalidReason()) {
@@ -137,7 +142,6 @@ export class ActivityNode extends ClassicPreset.Node {
     readonly progress = this.activity.progress.asReadonly();
     readonly commonType = this.activity.commonType;
     readonly invalidReason = this.activity.invalidReason;
-    readonly invalidSettings = this.activity.invalidSettings;
     readonly hasInvalidSettings = this.activity.hasInvalidSettings;
     readonly isOpened = this.activity.isOpened;
     readonly controlInput: ClassicPreset.Input<ActivityPort>;

@@ -34,7 +34,9 @@
         <!-- TODO: make itself scrollable if tablist visible-->
         <div class="setting-group mt-2 flex-grow-1">
             @if (activity().error()) {
-                <p class="mb-1"><strong>Execution Error: </strong> <span class="text-danger">{{ activity().error().message }}</span></p>
+                <c-callout color="danger">
+                    <strong>Execution Error: </strong> <span class="text-danger text-break">{{ activity().error().message }}</span>
+                </c-callout>
             }
             @for (subgroup of activeSettingGroup().subgroups; track activity().id + subgroup.key) {
                 <ng-container *ngIf="!subgroup.isEmpty">
@@ -54,7 +56,7 @@
                                         </span>
                                         </button>
                                     </div>
-                                    <p class="text-danger" *ngIf="activity().invalidSettings()[setting.key]">
+                                    <p class="text-danger mb-2" *ngIf="activity().invalidSettings()[setting.key]">
                                         {{ activity().invalidSettings()[setting.key] }}
                                     </p>
                                     <p *ngIf="setting.shortDescription">{{ setting.shortDescription }}</p>
@@ -131,5 +133,7 @@
     </div>
 
 } @else {
-    <p>This activity has no settings.</p>
+    <c-callout color="primary">
+        This activity has no settings.
+    </c-callout>
 }

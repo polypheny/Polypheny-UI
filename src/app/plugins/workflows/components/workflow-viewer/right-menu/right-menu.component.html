@@ -2,7 +2,33 @@
     <div class="px-3 py-2 bg-light border-bottom">
         <div class="d-flex flex-column flex-grow-1">
             <div class="d-flex flex-row align-items-center justify-content-between">
-                <h3 class="mb-0">{{ activity().displayName() }}</h3>
+                @if (!isEditingName()) {
+                    <h3 class="mb-0">
+                        {{ activity().displayName() }}
+                        <small>
+                            <i class="fa fa-pencil ms-2 fa-xs text-secondary edit-name-button" *ngIf="isEditable()" (click)="editDisplayName()"></i>
+                        </small>
+                    </h3>
+                } @else {
+                    <div class="d-flex align-items-center w-100">
+                        <input cFormControl class="editable-name px-1 py-0 me-3"
+                               type="text" cBgColor="transparent"
+                               autocomplete="false"
+                               #editableName
+                               [(ngModel)]="editableDisplayName"
+                               (blur)="saveDisplayName()"
+                               (keyup.enter)="saveDisplayName()"
+                               (keyup.esc)="isEditingName.set(false)"
+                        />
+                        <button cButton color="danger" variant="outline" size="sm" (click)="resetDisplayName()" (pointerdown)="$event.preventDefault()">
+                            Reset
+                        </button>
+                    </div>
+
+                }
+
+
+
                 <!-- TODO: also show def name if displayname differs-->
             </div>
             <ul class="nav nav-underline" role="tablist">
@@ -25,7 +51,7 @@
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'config'}"
                        (click)="changeActiveTab('config')"
-                       role="tab">Config</a>
+                       role="tab">Configuration</a>
                 </li>
                 <li class="nav-item" role="presentation">
                     <a class="nav-link"
@@ -51,11 +77,16 @@
                 </app-activity-settings>
             }
             @case ("variables") {
-                <!--TODO: force update app-json-text on change-->
-                <p>Available variables after last execution:</p>
-                @for (entry of activity().variables() | keyvalue; track activity().id + entry.key) {
-                    <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
-                    <app-json-text [text]="entry.value | json"></app-json-text>
+                @if (activity().hasVariables()) {
+                    <p>Available variables after last execution:</p>
+                    @for (entry of activity().variables() | keyvalue; track activity().id + entry.key) {
+                        <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
+                        <app-json-text [text]="entry.value | json"></app-json-text>
+                    }
+                } @else {
+                    <c-callout color="primary">
+                        No variables are currently available for this activity.
+                    </c-callout>
                 }
             }
             @case ("config") {

@@ -1,7 +1,7 @@
 import {Component, EventEmitter, input, Output, signal} from '@angular/core';
 import {WorkflowsService} from '../../../services/workflows.service';
 import {CdkDragDrop} from '@angular/cdk/drag-drop';
-import {ActivityDef} from '../../../models/activity-registry.model';
+import {ActivityCategory, ActivityDef} from '../../../models/activity-registry.model';
 
 @Component({
     selector: 'app-left-menu',
@@ -17,6 +17,9 @@ export class LeftMenuComponent {
 
     private readonly registry = this._workflows.getRegistry();
     readonly activityTypes = this.registry.getTypes();
+    readonly isRelational: Record<string, boolean> = {};
+    readonly isDocument: Record<string, boolean> = {};
+    readonly isGraph: Record<string, boolean> = {};
     readonly dropdownCats: { id: number; itemName: string; }[] = [];
     // https://www.npmjs.com/package/angular2-multiselect-dropdown
     readonly dropdownSettings = {
@@ -43,6 +46,14 @@ export class LeftMenuComponent {
                 'itemName': category
             });
         }
+
+        for (const type of this.activityTypes) {
+            const cats = this.registry.getDef(type).categories;
+            this.isRelational[type] = cats.includes(ActivityCategory.RELATIONAL);
+            this.isDocument[type] = cats.includes(ActivityCategory.DOCUMENT);
+            this.isGraph[type] = cats.includes(ActivityCategory.GRAPH);
+        }
+
         this.filterList();
     }
 

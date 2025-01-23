@@ -6,7 +6,7 @@
         <h5 cModalTitle>Execution Statistics</h5>
         <button (click)="toggleModal()" cButtonClose></button>
     </c-modal-header>
-    <c-modal-body>
+    <c-modal-body *ngIf="showModal()">
         @if (isLoading()) {
             <div class="d-flex justify-content-center">
                 <c-spinner></c-spinner>
@@ -33,7 +33,7 @@
                     <strong>Target Activity:</strong>
                 </c-col>
                 <c-col xs="auto">
-                    <span>{{ monitor().targetActivity }}</span>
+                    <span>{{ workflow.getActivity( monitor().targetActivity )?.displayName() }}</span>
                 </c-col>
             </c-row>
             <c-row>
@@ -46,7 +46,7 @@
             </c-row>
             <c-row>
                 <c-col xs="6">
-                    <strong>Success / skip / fail: </strong>
+                    <strong>Success / cancel / fail: </strong>
                 </c-col>
                 <c-col xs="auto">
                     <span class="text-success">{{ monitor().successCount }}</span> /
@@ -86,8 +86,9 @@
                                     <c-col xs="3" md="2" class="text-end">
                                         <span>{{ infoDurationsSeconds()[$index] }} s</span>
                                     </c-col>
-                                    <c-col sm="4" [offset]="{xs: 0, sm: 1, md: 2}">
-                                        <strong>{{ info.executorType + (info.activities.length > 1 ? ' (' + info.activities.length + ')' : '') }}</strong>
+                                    <c-col sm="5" [offset]="{xs: 0, sm: 1}">
+                                        <strong>{{ info.executorType }}</strong>
+                                        <span> ({{ info.activities.length > 1 ? info.activities.length : workflow.getActivity( info.root )?.displayName() }})</span>
                                     </c-col>
                                     <c-col sm="2" class="remove-padding">
                                         <span [ngClass]="{'text-success': info.state === 'DONE' && info.isSuccess, 'text-danger': info.state === 'DONE' && !info.isSuccess}">
@@ -99,6 +100,9 @@
                         </ng-template>
                         <ng-template cTemplateId="accordionBodyTemplate">
                             <div class="accordion-body">
+                                <c-callout *ngIf="!info.isSuccess" color="danger" class="text-danger">
+                                    The execution was unsuccessful.
+                                </c-callout>
                                 <p class="mb-1" *ngIf="info.tuplesWritten >= 0">
                                     <strong>Tuples written:</strong>
                                     {{ info.tuplesWritten }}
@@ -125,8 +129,13 @@
                                 <h5 class="mt-3">Activities in Execution Tree</h5>
                                 <ul cListGroup flush="true">
                                     <li cListGroupItem *ngFor="let activity of info.activities" class="d-flex justify-content-between">
-                                        <span>{{ activity }}</span>
-                                        <button cButton color="light" size="sm" (click)="toggleModal(); openActivity.emit(activity)">Open</button>
+                                        <span>
+                                            {{ workflow.getActivity( activity )?.displayName() }}
+                                            <span class="badge bg-secondary ms-2" *ngIf="info.activities.length > 1 && info.root === activity">root</span>
+                                        </span>
+
+                                        <!--<span class="text-muted">{{ activity }}</span>-->
+                                        <button cButton color="primary" size="sm" (click)="toggleModal(); openActivity.emit(activity)">Open</button>
                                     </li>
                                 </ul>
                             </div>

@@ -8,6 +8,7 @@ import {Component, computed, input, OnInit, Signal} from '@angular/core';
 export class JsonTextComponent implements OnInit {
 
     text = input<string>();
+    expanded = input(false);
 
     private readonly regex = new RegExp('/ObjectId(\d{1,24})/g');
     json: Signal<any>;

@@ -1,6 +1,7 @@
 import {Component, computed, EventEmitter, Input, Output, signal} from '@angular/core';
 import {ExecutionMonitorModel} from '../../../models/workflows.model';
 import {WorkflowsService} from '../../../services/workflows.service';
+import {Workflow} from '../workflow';
 
 @Component({
     selector: 'app-execution-monitor',
@@ -9,6 +10,7 @@ import {WorkflowsService} from '../../../services/workflows.service';
 })
 export class ExecutionMonitorComponent {
     @Input() sessionId: string; // does not change
+    @Input() workflow: Workflow;
     @Output() openActivity = new EventEmitter<string>();
 
     readonly monitor = signal<ExecutionMonitorModel>(null);

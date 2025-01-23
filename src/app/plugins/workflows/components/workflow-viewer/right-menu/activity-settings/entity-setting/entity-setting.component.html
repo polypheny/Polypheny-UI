@@ -1,18 +1,5 @@
-<!--<c-input-group>
-    <input cFormControl sizing="sm" id="ns-setting" placeholder="namespace"
-           type="text" autocomplete="off" [disabled]="!isEditable()" (change)="valueChanged()"
-           [(ngModel)]="value().namespace">
-
-    @if (def().dataModel !== DataModel.GRAPH) {
-        <span cInputGroupText>.</span>
-
-        <input cFormControl sizing="sm" id="entity-setting" placeholder="name" *ngIf="def().dataModel !== DataModel.GRAPH"
-               type="text" autocomplete="off" [disabled]="!isEditable()" (change)="hasChanged.emit()"
-               [(ngModel)]="value().name">
-    }
-</c-input-group>-->
-
 <div class="mb-1">
+    {{ value().namespace }}
     <app-autocomplete (changed)="valueChanged()"
                       [data]="namespaces()"
                       [(value)]="value().namespace"

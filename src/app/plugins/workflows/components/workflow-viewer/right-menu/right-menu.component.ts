@@ -1,4 +1,4 @@
-import {Component, input, signal, ViewChild} from '@angular/core';
+import {Component, ElementRef, input, signal, ViewChild} from '@angular/core';
 import {Activity} from '../workflow';
 import {WorkflowsService} from '../../../services/workflows.service';
 import {ActivityConfigModel, RenderModel, SettingsModel, Variables} from '../../../models/workflows.model';
@@ -22,8 +22,12 @@ export class RightMenuComponent {
 
     @ViewChild('settings') settingsComponent: ActivitySettingsComponent;
     @ViewChild('config') configComponent: ActivityConfigEditorComponent;
+    @ViewChild('editableName') editableName: ElementRef<HTMLInputElement>;
     visible = signal(false);
     activeTab = signal<MenuTabs>('settings');
+
+    isEditingName = signal(false);
+    editableDisplayName = '';
 
     constructor(private readonly _workflows: WorkflowsService,
                 private readonly _websocket: WorkflowsWebSocketService,
@@ -35,14 +39,7 @@ export class RightMenuComponent {
         this.visible.update(b => !b);
     }
 
-    save(settings
-         :
-         SettingsModel, config
-         :
-         ActivityConfigModel, rendering
-         :
-         RenderModel
-    ) {
+    save(settings: SettingsModel, config: ActivityConfigModel, rendering: RenderModel) {
         this._websocket.updateActivity(this.activity().id, settings, config, rendering);
     }
 
@@ -71,5 +68,24 @@ export class RightMenuComponent {
             }
         }
         return true;
+    }
+
+    editDisplayName() {
+        this.editableDisplayName = this.activity().displayName();
+        this.isEditingName.set(true);
+        setTimeout(() => {
+            this.editableName.nativeElement.focus();
+        }, 0);
+    }
+
+    saveDisplayName() {
+        this.isEditingName.set(false);
+        this.activity().rendering.update(r => ({...r, name: this.editableDisplayName}));
+        this._websocket.updateActivity(this.activity().id, null, null, this.activity().rendering());
+    }
+
+    resetDisplayName() {
+        this.editableDisplayName = this.activity().def.displayName;
+        this.saveDisplayName();
     }
 }

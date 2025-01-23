@@ -124,7 +124,6 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     insertAtCursor(code: string) {
-        console.log('inserting' + code);
         this.codeEditor.session.insert(this.codeEditor.getCursorPosition(), code);
     }
 

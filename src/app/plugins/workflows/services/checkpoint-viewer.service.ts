@@ -1,9 +1,12 @@
-import {computed, Injectable, signal, WritableSignal} from '@angular/core';
+import {computed, effect, Injectable, Signal, signal, WritableSignal} from '@angular/core';
 import {WorkflowsWebSocketService} from './workflows-websocket.service';
 import {CheckpointDataResponse, ResponseType, WsResponse} from '../models/ws-response.model';
-import {Result} from '../../../components/data-view/models/result-set.model';
+import {FieldDefinition, Result} from '../../../components/data-view/models/result-set.model';
 import {Activity} from '../components/workflow-viewer/workflow';
 import {ActivityState} from '../models/workflows.model';
+import {DataModel} from '../../../models/ui-request.model';
+import {PortType} from '../models/activity-registry.model';
+import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 
 @Injectable()
 export class CheckpointViewerService {
@@ -11,15 +14,35 @@ export class CheckpointViewerService {
 
     readonly selectedActivity = signal<Activity>(undefined);
     readonly selectedOutput = signal<number>(0);
+    readonly outPreview = computed(() => this.selectedActivity().outTypePreview()[this.selectedOutput()]);
+    readonly outPreviewAsResult: Signal<Result<any, FieldDefinition>> = computed(() => {
+        if (this.outPreview().portType !== PortType.REL) {
+            return null;
+        }
+        return {
+            dataModel: DataModel.RELATIONAL,
+            header: this.outPreview().fields,
+            data: []
+        } as Result<any, FieldDefinition>;
+    });
     readonly isLoading = signal(false);
+    readonly isWaitingForExecution = signal(false);
     result: WritableSignal<Result<any, any>> = signal(null);
     readonly limit = signal(0);
     readonly totalCount = signal(0);
     readonly isLimited = computed(() => this.totalCount() > this.limit());
+    readonly config = {create: false, update: false, delete: false, sort: false, search: false, exploring: true, hideCreateView: true};
 
-    constructor(private readonly _websocket: WorkflowsWebSocketService) {
+    constructor(private _websocket: WorkflowsWebSocketService, private _toast: ToasterService) {
         this._websocket.onMessage().subscribe(msg => this.handleWsMsg(msg));
 
+        effect(() => {
+            if (this.showModal() && this.isWaitingForExecution() && this.selectedActivity().state() === ActivityState.SAVED) {
+                console.log('activity finished execution!');
+                this.isWaitingForExecution.set(false);
+                this._websocket.getCheckpoint(this.selectedActivity().id, this.selectedOutput());
+            }
+        }, {allowSignalWrites: true});
     }
 
     toggleModal() {
@@ -32,6 +55,8 @@ export class CheckpointViewerService {
             this.selectedActivity.set(null);
             this.selectedOutput.set(null);
             this.result.set(null);
+            this.isLoading.set(false);
+            this.isWaitingForExecution.set(false);
         }
     }
 
@@ -66,14 +91,11 @@ export class CheckpointViewerService {
         }
     }
 
-    materializeCheckpoints(activityId: string) {
-        this._websocket.execute(activityId);
-    }
-
     materialize() {
         if (this.selectedActivity()) {
+            this.isWaitingForExecution.set(true);
+            this.isLoading.set(true);
             this._websocket.execute(this.selectedActivity().id);
-            this.setModal(false);
         }
     }
 }

@@ -35,23 +35,33 @@
                             [cBorder]="activity === openedActivityDef && 'primary'"
                             (cdkDragDropped)="onDragDropped($event)">
                         <c-card-body class="p-2 activity-card">
-                            <div class="d-flex flex-row justify-content-between">
-                                <div (click)="create.emit(activity.type)">
-                                    <h6 class="flex-grow-1">{{ activity.displayName }}</h6>
-                                    <small *ngIf="showDescription">{{ activity.shortDescription }}</small>
-                                </div>
-                                <div>
-                                        <span class="fa fa-question-circle px-2 info-button"
-                                              [ngClass]="activity === openedActivityDef ? 'text-primary' : 'text-secondary'"
-                                              style="cursor: pointer;" (click)="openedActivityDef = activity">
-                                        </span>
-                                </div>
-                            </div>
+                            <c-row gutter="false" class="mx-0">
+                                <c-col [xs]="9" class="ps-0 pe-2">
+                                    <div (click)="create.emit(activity.type)">
+                                        <h6 class="flex-grow-1">{{ activity.displayName }}</h6>
+                                    </div>
+
+                                </c-col>
+                                <c-col [xs]="2" class="px-0">
+                                    <div>
+                                        <small class="text-muted">
+                                            <span *ngIf="isRelational[activity.type]" class="me-1 fa fa-table"></span>
+                                            <span *ngIf="isDocument[activity.type]" class="me-1 fa fa-file-text-o"></span>
+                                            <span *ngIf="isGraph[activity.type]" class="cil-graph"></span>
+                                        </small>
+                                    </div>
+
+                                </c-col>
+                                <c-col [xs]="1" class="ps-0 pe-2 text-end">
+                                    <span class="fa fa-question-circle px-2 info-button"
+                                          [ngClass]="activity === openedActivityDef ? 'text-primary' : 'text-dark'"
+                                          style="cursor: pointer;" (click)="openedActivityDef = activity">
+                                    </span>
+                                </c-col>
+                            </c-row>
+                            <small *ngIf="showDescription">{{ activity.shortDescription }}</small>
                         </c-card-body>
                     </c-card>
-                    <!--<div class="bg-primary draggable" *cdkDragPreview>
-                        <h5>{{ activity.displayName }}</h5>
-                    </div>-->
                 </div>
             }
         </div>

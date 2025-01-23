@@ -44,7 +44,6 @@ export class QuerySettingComponent implements AfterViewInit {
             if (this.listenForChanges) {
                 const oldQuery = this.val().query;
                 const newQuery = this.editor.getCode();
-                console.log('old vs new', oldQuery, newQuery, oldQuery !== newQuery);
                 if (oldQuery !== newQuery) {
                     this.val().query = newQuery;
                     this.valueChanged();

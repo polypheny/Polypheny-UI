@@ -12,11 +12,11 @@
   user-select: none;
 
   &:hover {
-    border-color: var(--cui-secondary);
+    border-color: var(--cui-light);
   }
 
   &.selected {
-    border-color: var(--cui-dark);
+    border-color: var(--cui-secondary);
   }
 
   .activity {

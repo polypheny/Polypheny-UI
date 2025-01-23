@@ -1,5 +1,5 @@
 <div class="d-flex flex-column h-100 flex-fill w-100">
-    <c-row [gutter]="0" class="align-items-center mb-1">
+    <c-row [gutter]="0" class="align-items-center mb-1 no-select">
         <c-col xs="auto" class="ps-1 me-5">
             <c-button-group role="group" class="m-1">
                 <button cButton color="light" type="button" (click)="leftMenu.toggleMenu()"
@@ -7,74 +7,99 @@
                 </button>
             </c-button-group>
         </c-col>
-        <c-col xs="6" md="2" xxl="3">
+        <c-col xs="6" md="3" xl="2" xxl="3">
             <h3 *ngIf="name" class="workflow-name mb-0" [title]="name">{{ name }}</h3>
         </c-col>
-        <c-col xs="12" md="7" xxl="6" class="">
-            <c-button-toolbar role="group">
-                <c-button-group role="group" class="me-2">
-                    <button cButton color="light" class=""
-                            (click)="close.emit()">
-                        Back
-                    </button>
-                    <button cButton color="danger" variant="outline" (mouseleave)="terminateConfirm.set(false)"
-                            (click)="onTerminateClick()">
-                        @if (terminateConfirm()) {
-                            <span>Stop Session </span>
-                            <span class="fa fa-warning"></span>
-                        } @else {
-                            <span>Stop Session</span>
-                        }
+        <c-col xs="12" md="7" xl="8" xxl="7">
+            <div class="d-inline-flex align-items-center">
+                <c-button-toolbar role="group">
+                    <c-button-group role="group" class="me-2">
+                        <button cButton color="light" class=""
+                                (click)="close.emit()">
+                            Back
+                        </button>
+                        <button cButton color="danger" variant="outline" (mouseleave)="terminateConfirm.set(false)"
+                                (click)="onTerminateClick()">
+                            @if (terminateConfirm()) {
+                                <span>Stop Session </span>
+                                <span class="fa fa-warning"></span>
+                            } @else {
+                                <span>Stop Session</span>
+                            }
 
-                    </button>
-                </c-button-group>
-                <c-button-group role="group" class="me-2">
-                    <button cButton color="light" class="" (click)="toggleSaveModal()"
-                            [disabled]="showSaveModal()" *ngIf="isEditable">
-                        <i class="fa fa-save"></i>
-                    </button>
-                    <button cButton color="light" class="" (click)="arrangeNodes()"
-                            [disabled]="isExecuting?.()" *ngIf="isEditable">
-                        Arrange
-                    </button>
-                    <button cButton color="light" class="" (click)="showConfigModal()">
-                        Config
-                    </button>
-                    <button cButton color="light" class="d-flex align-items-center" (click)="openVariableModal()">
-                        Variables
-                        <span class="cil-bolt ms-1"></span>
-                    </button>
-                    <button cButton color="light" class="d-flex align-items-center" (click)="showMonitorModal()">
-                        Stats
-                    </button>
-                </c-button-group>
+                        </button>
+                    </c-button-group>
+                    <c-button-group role="group" class="me-2 d-none d-xl-flex">
+                        <button cButton color="light" (click)="toggleSaveModal()"
+                                [disabled]="showSaveModal()" *ngIf="isEditable">
+                            <i class="fa fa-save"></i>
+                        </button>
+                        <button cButton color="light" (click)="arrangeNodes()"
+                                [disabled]="isExecuting?.()" *ngIf="isEditable">
+                            Arrange
+                        </button>
+                        <button cButton color="light" (click)="showConfigModal()">
+                            Configuration
+                        </button>
+                        <button cButton color="light" class="d-flex align-items-center" (click)="openVariableModal()">
+                            Variables
+                            <span class="cil-bolt ms-1"></span>
+                        </button>
+                        <button cButton color="light" class="d-flex align-items-center" (click)="showMonitorModal()">
+                            Statistics
+                        </button>
+                    </c-button-group>
 
-                <c-button-group role="group" class="" *ngIf="isEditable">
-                    <button cButton color="primary" class="" (click)="execute()" [disabled]="!canExecute?.()">
-                        <i class="fa fa-forward"></i>
-                    </button>
-                    <button cButton color="light" class="" (click)="reset()"
-                            [disabled]="isExecuting?.()">
-                        <i class="fa fa-rotate-left"></i>
-                    </button>
-                    <button cButton color="danger" class="" (click)="interrupt()"
-                            [disabled]="workflow?.state() !== 'EXECUTING'">
-                        <i class="fa fa-stop"></i>
-                    </button>
-                </c-button-group>
-            </c-button-toolbar>
+                    <c-dropdown class="d-flex d-xl-none me-2">
+                        <button cButton cDropdownToggle color="light">
+                            Workflow
+                        </button>
+                        <ul cDropdownMenu>
+                            <li><a cDropdownItem (click)="toggleSaveModal()"
+                                   [disabled]="showSaveModal()" *ngIf="isEditable">
+                                <i class="fa fa-save"></i> Save
+                            </a></li>
+                            <li><a cDropdownItem (click)="arrangeNodes()"
+                                   [disabled]="isExecuting?.()" *ngIf="isEditable">
+                                Arrange
+                            </a></li>
+                            <li><a cDropdownItem (click)="showConfigModal()">Configuration</a></li>
+                            <li><a cDropdownItem (click)="openVariableModal()">
+                                Variables
+                                <span class="cil-bolt ms-1"></span>
+                            </a></li>
+                            <li><a cDropdownItem (click)="showMonitorModal()">Statistics</a></li>
+                        </ul>
+                    </c-dropdown>
+
+                    <c-button-group role="group" class="" *ngIf="isEditable">
+                        <button cButton color="primary" class="" (click)="execute()" [disabled]="!canExecute?.()">
+                            <i class="fa fa-forward"></i>
+                        </button>
+                        <button cButton color="light" class="" (click)="reset()"
+                                [disabled]="isExecuting?.()">
+                            <i class="fa fa-rotate-left"></i>
+                        </button>
+                        <button cButton color="danger" class="" (click)="interrupt()"
+                                [disabled]="workflow?.state() !== 'EXECUTING'">
+                            <i class="fa fa-stop"></i>
+                        </button>
+                    </c-button-group>
+                </c-button-toolbar>
+                <div>
+                <span class="badge rounded-pill ms-2" *ngIf="workflow" [ngClass]="{
+                    'bg-primary': workflow.state() === 'IDLE',
+                    'bg-warning': workflow.state() === 'EXECUTING',
+                    'bg-danger': workflow.state() === 'INTERRUPTED'
+                 }">
+                    {{ workflow.state() }}
+                </span>
+
+                </div>
+
+            </div>
         </c-col>
-
-        <c-col xs="auto" md="1" class="ms-auto">
-            <span class="badge rounded-pill" *ngIf="workflow" [ngClass]="{
-                'bg-primary': workflow.state() === 'IDLE',
-                'bg-warning': workflow.state() === 'EXECUTING',
-                'bg-danger': workflow.state() === 'INTERRUPTED'
-             }">
-                {{ workflow.state() }}
-            </span>
-        </c-col>
-        <c-col xs="auto" class="pe-1">
+        <c-col xs="auto" class="ms-auto pe-1">
             <c-button-group role="group" class="m-1">
                 <button cButton color="light" type="button" (click)="rightMenu.toggleMenu()" *ngIf="openedActivity?.()"
                         [ngClass]="rightMenu.visible() ? 'cil-arrow-thick-to-right' : 'cil-arrow-thick-from-right'">
@@ -97,7 +122,7 @@
 <app-workflow-config-editor #workflowConfigEditor [config]="workflow?.config()"
                             [isEditable]="isEditable && !isExecuting?.()"/>
 
-<app-execution-monitor #executionMonitor [sessionId]="sessionId"
+<app-execution-monitor #executionMonitor [sessionId]="sessionId" [workflow]="workflow"
                        (openActivity)="openActivitySettings($event)"/>
 
 <c-modal [visible]="showSaveModal()" (visibleChange)="showSaveModal.set($event)">
@@ -153,6 +178,7 @@
     </c-modal-header>
     <c-modal-body>
         @if (_checkpoint.result() || _checkpoint.isLoading()) {
+            <p *ngIf="_checkpoint.isWaitingForExecution()">Waiting for execution to finish.</p>
             <div class="d-flex justify-content-center">
                 <c-spinner *ngIf="_checkpoint.isLoading()"></c-spinner>
             </div>
@@ -164,14 +190,23 @@
                     </c-card-body>
                 </c-card>
                 <app-data-view [result]="_checkpoint.result()"
-                               [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: true, hideCreateView: true}"
+                               [config]="_checkpoint.config"
                                [loading]="_checkpoint.isLoading()"></app-data-view>
             </div>
         } @else {
-            <p>The requested checkpoint is currently not materialized.
-                Do you want to execute the activity to materialize its checkpoints?</p>
-            <p class="text-danger">This will also reset all its successor activities!</p>
+            <h5>Output Preview</h5>
+            <p><strong>Data Model:</strong> {{ _checkpoint.outPreview().portType }}</p>
+            @switch (_checkpoint.outPreview().portType) {
+                @case (PortType.REL) {
+                    <app-data-table [result]="_checkpoint.outPreviewAsResult()" [inputConfig]="_checkpoint.config"></app-data-table>
+                }
+            }
 
+            <c-callout color="primary">
+                <p>The requested checkpoint is currently not materialized.
+                    Do you want to execute the activity to materialize its checkpoints?</p>
+                <p class="text-danger">This will also reset all its successor activities!</p>
+            </c-callout>
         }
     </c-modal-body>
     <c-modal-footer>

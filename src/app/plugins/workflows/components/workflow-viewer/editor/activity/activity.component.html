@@ -1,8 +1,8 @@
 <div class="activity d-flex flex-column h-100" [class.is-opened]="data.isOpened()">
 
     <div class="status-bar" [ngClass]="'state-' + data.state().toLowerCase()"
-         [style.background]="statusBackground?.()">
-        <p class="text-center mb-0 status-text"
+         [style.background]="statusBackground?.()" [title]="statusText?.()">
+        <p class="text-center mb-0 status-text" *ngIf="data.state() === ActivityState.EXECUTING"
            [ngClass]="data.state() === ActivityState.IDLE ? 'text-muted' : 'text-light'">
             {{ statusText?.() }}
         </p>

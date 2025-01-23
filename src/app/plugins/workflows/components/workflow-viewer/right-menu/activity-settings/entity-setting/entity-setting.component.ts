@@ -43,7 +43,9 @@ export class EntitySettingComponent implements OnInit {
 
 
     valueChanged() {
-        this.hasChanged.emit();
+        setTimeout(() => {
+            this.hasChanged.emit();
+        }, 10); // short delay to ensure this.value().? updated correctly when selecting an autocomplete entry
         this.changed.update(v => !v);
     }
 }

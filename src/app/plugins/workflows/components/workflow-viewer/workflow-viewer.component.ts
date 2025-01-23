@@ -15,6 +15,7 @@ import {JsonEditorComponent} from '../../../../components/json/json-editor.compo
 import {CheckpointViewerService} from '../../services/checkpoint-viewer.service';
 import {Router} from '@angular/router';
 import {ExecutionMonitorComponent} from './execution-monitor/execution-monitor.component';
+import {PortType} from '../../models/activity-registry.model';
 
 @Component({
     selector: 'app-workflow-viewer',
@@ -54,6 +55,8 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     serializedVariables: Signal<string>;
     readonly editedVariables = signal<string>(null);
     readonly hasVariablesChanged = computed(() => this.serializedVariables?.() !== this.editedVariables());
+
+    protected readonly PortType = PortType;
 
 
     constructor(
@@ -125,7 +128,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         ));
         this.subscriptions.add(this.editor.onActivityClone().subscribe(
             activityId => {
-                if (this.openedActivity().id !== activityId || this.rightMenu.canSafelyNavigate()) {
+                if (this.openedActivity()?.id !== activityId || this.rightMenu.canSafelyNavigate()) {
                     const rendering = this.workflow.getActivity(activityId).rendering();
                     const delta = 50;
                     this._websocket.cloneActivity(activityId, rendering.posX + delta, rendering.posY + delta);

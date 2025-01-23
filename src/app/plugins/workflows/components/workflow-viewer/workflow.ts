@@ -327,6 +327,7 @@ export class Activity {
     readonly invalidSettings: WritableSignal<Record<string, string>>;
     readonly hasInvalidSettings: Signal<boolean>;
     readonly variables: WritableSignal<Variables>;
+    readonly hasVariables: Signal<boolean>;
     readonly displayName: Signal<string>;
     readonly executionInfo: WritableSignal<ExecutionInfoModel>;
     readonly logMessages: Signal<LogMessage[]>;
@@ -347,7 +348,10 @@ export class Activity {
         this.invalidSettings = signal(activityModel.invalidSettings);
         this.hasInvalidSettings = computed(() => Object.keys(this.invalidSettings()).length > 0);
         this.variables = signal(activityModel.variables, {equal: _.isEqual});
-        this.displayName = computed(() => this.rendering().name || this.def.displayName);
+        this.hasVariables = computed(() => Object.keys(this.variables()).length > 0);
+        this.displayName = computed(() => {
+            return this.rendering().name || this.def.displayName;
+        });
         this.executionInfo = signal(activityModel.executionInfo);
         this.logMessages = computed(() =>
             this.executionInfo().log?.map(m => new LogMessage(m))

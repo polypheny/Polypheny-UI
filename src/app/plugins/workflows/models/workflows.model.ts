@@ -118,6 +118,7 @@ export interface ExecutionInfoModel {
     totalDuration: number;
     durations: Record<ExecutionState, number>;
     activities: string[];
+    root: string;
     executorType: ExecutorType;
     state: ExecutionState;
     isSuccess: boolean; // only valid when state == DONE
