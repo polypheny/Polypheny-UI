@@ -27,9 +27,13 @@
   &.data-port {
     width: $data-port-size;
     height: $data-port-size;
-    border-radius: $data-port-size / 2;
+    border-radius: calc(#{$data-port-size} / 2);
     background: var(--cui-dark);
     border: 2px solid var(--cui-dark);
+
+    &.is-multi {
+      height: calc(2 * #{$data-port-size});
+    }
 
     &.out-port.state-finished {
       background: repeating-linear-gradient(

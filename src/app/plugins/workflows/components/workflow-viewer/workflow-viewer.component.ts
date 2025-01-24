@@ -82,7 +82,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         const el = this.container.nativeElement;
 
         if (el) {
-            this.editor = new WorkflowEditor(this.injector, el, this._workflows, !this.isEditable);
+            this.editor = new WorkflowEditor(this.injector, el, !this.isEditable);
             this._workflows.getActiveWorkflow(this.sessionId).subscribe({
                 next: res => {
                     this.workflow = new Workflow(res, this.registry, this.injector);

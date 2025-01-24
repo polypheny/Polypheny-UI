@@ -136,6 +136,7 @@ export class ActivityNode extends ClassicPreset.Node {
     height = 270;
 
     readonly activityId = this.activity.id;
+    readonly def = this.activity.def;
     readonly displayName = this.activity.displayName;
     readonly rendering = this.activity.rendering;
     readonly state = this.activity.state.asReadonly();
@@ -175,22 +176,21 @@ export class ActivityNode extends ClassicPreset.Node {
             [FAIL_CONTROL_KEY]: this.outputs[FAIL_CONTROL_KEY] as ClassicPreset.Output<ActivityPort>
         };
 
-        const def = activity.def;
         // data ports
-        def.inPorts.forEach((inPort, i) => {
-            const input = new ClassicPreset.Input(new ActivityPort(inPort, true, null, this.state), null, false);
+        this.def.inPorts.forEach((inPort, i) => {
+            const input = new ClassicPreset.Input(new ActivityPort(inPort, true, null, this.state), null, inPort.isMulti);
             this.addInput(ActivityNode.getDataPortKey(i), input);
             this.dataInputs[ActivityNode.getDataPortKey(i)] = input;
         });
-        def.outPorts.forEach((outPort, i) => {
+        this.def.outPorts.forEach((outPort, i) => {
             const output = new ClassicPreset.Output(new ActivityPort(outPort, false, null, this.state), null, true);
             this.addOutput(ActivityNode.getDataPortKey(i), new ClassicPreset.Output(new ActivityPort(outPort, false, null, this.state), null, true));
             this.dataOutputs[ActivityNode.getDataPortKey(i)] = output;
         });
 
         this.height += Math.max(0,
-            (def.inPorts.length - 3) * 34,
-            (def.outPorts.length - 2) * 34
+            (this.def.inPorts.length - 3) * 34,
+            (this.def.outPorts.length - 2) * 34
         );
     }
 
@@ -204,6 +204,17 @@ export class ActivityNode extends ClassicPreset.Node {
 
     public static isControlPortKey(key: string) {
         return key === IN_CONTROL_KEY || key === SUCCESS_CONTROL_KEY || key === FAIL_CONTROL_KEY;
+    }
+
+    /**
+     * Takes multi-inputs into account.
+     */
+    public getInDataPortKey(index: number) {
+        const count = this.activity.def.inPorts.length;
+        if (index >= count) {
+            return ActivityNode.getDataPortKey(count - 1);
+        }
+        return ActivityNode.getDataPortKey(index);
     }
 
     execute() {

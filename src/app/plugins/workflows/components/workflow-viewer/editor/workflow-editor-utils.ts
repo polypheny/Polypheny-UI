@@ -27,8 +27,10 @@ export function getMagneticConnectionProps(editor: NodeEditor<Schemes>, createEd
             if (!ActivityNode.isControlPortKey(target.key)) {
                 const connectionsToRemove = editor.getConnections().filter(c =>
                     c.target === target.nodeId && c.targetInput === target.key);
-                for (const c of connectionsToRemove) {
-                    await editor.removeConnection(c.id); // the edge add request could be sent before remove, but this is not a problem
+                if (!connectionsToRemove[0]?.isMulti) {
+                    for (const c of connectionsToRemove) {
+                        await editor.removeConnection(c.id); // the edge add request could be sent before remove, but this is not a problem
+                    }
                 }
             }
             createEdgeSubject.next(socketsToEdgeModel(source, target, editor));
@@ -50,11 +52,19 @@ export function getMagneticConnectionProps(editor: NodeEditor<Schemes>, createEd
 
 export function socketsToEdgeModel(source: SocketData, target: SocketData, editor: NodeEditor<Schemes>) {
     const isControl = target.key === IN_CONTROL_KEY;
+    const toNode = editor.getNode(target.nodeId);
+    let toPort = 0;
+    if (!isControl) {
+        toPort = ActivityNode.getDataPortIndexFromKey(target.key);
+        if (toNode.def.inPorts[toPort].isMulti) {
+            toPort += editor.getConnections().filter(c => c.target === target.nodeId && c.isMulti).length;
+        }
+    }
     return {
         fromId: editor.getNode(source.nodeId).activityId,
-        toId: editor.getNode(target.nodeId).activityId,
+        toId: toNode.activityId,
         fromPort: isControl ? (source.key === SUCCESS_CONTROL_KEY ? 0 : 1) : ActivityNode.getDataPortIndexFromKey(source.key),
-        toPort: isControl ? 0 : ActivityNode.getDataPortIndexFromKey(target.key),
+        toPort: toPort,
         isControl: target.key === IN_CONTROL_KEY
     };
 }

@@ -23,10 +23,16 @@ export class ActivityPortComponent implements OnChanges {
             return this.data.controlType + ' control';
         } else if (!this.data.isInput && this.data.activityState() === 'FINISHED') {
             return this.data.dataModel() + ' (not materialized)';
-        } else if (this.data.portDef['isOptional']) {
-            return this.data.dataModel() + ' (optional)';
         }
-        return this.data.dataModel();
+        let title = '';
+        if (this.data.isMulti) {
+            title += 'Multiple Connections: ';
+        }
+        title += this.data.dataModel();
+        if (this.data.portDef['isOptional']) {
+            title += ' (optional)';
+        }
+        return title;
     }
 
     constructor(private cdr: ChangeDetectorRef, private elementRef: ElementRef) {
@@ -42,6 +48,7 @@ export class ActivityPortComponent implements OnChanges {
 
 export class ActivityPort extends ClassicPreset.Socket {
     public readonly isControl: boolean;
+    public readonly isMulti: boolean;
     public readonly dataModel = signal<DataModel>(null); // TODO: track data model state in workflow itself
 
     constructor(public readonly portDef: InPortDef | OutPortDef, public readonly isInput: boolean,
@@ -52,6 +59,7 @@ export class ActivityPort extends ClassicPreset.Socket {
         if (!this.isControl) {
             this.dataModel.set(portTypeToDataModel(portDef.type));
         }
+        this.isMulti = isInput && !this.isControl && (portDef as InPortDef)?.isMulti;
     }
 
     isCompatibleWith(target: ActivityPort) {

@@ -69,19 +69,19 @@
   }
 
   .control-inport {
-    margin-left: -$control-port-size / 2;
+    margin-left: calc(-#{$control-port-size} / 2);
   }
 
   .data-inport {
-    margin-left: -$data-port-size / 2;
+    margin-left: calc(-#{$data-port-size} / 2);
   }
 
   .control-outport {
-    margin-right: -$control-port-size / 2;
+    margin-right: calc(-#{$control-port-size} / 2);
   }
 
   .data-outport {
-    margin-right: -$data-port-size / 2;
+    margin-right: calc(-#{$data-port-size} / 2);
   }
 
   #activity-notes {

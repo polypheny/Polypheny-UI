@@ -47,3 +47,10 @@ svg {
     color: var(--cui-danger);
   }
 }
+
+.multi-index {
+  position: absolute;
+  transform: translate(-50%, -150%);
+  z-index: 1;
+  user-select: none;
+}

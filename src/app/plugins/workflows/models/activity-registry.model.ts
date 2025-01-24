@@ -176,6 +176,7 @@ export interface InPortDef {
     type: PortType;
     description: string;
     isOptional: boolean;
+    isMulti: boolean;
 }
 
 export interface OutPortDef {

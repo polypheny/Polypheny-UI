@@ -11,8 +11,6 @@ import {addCustomBackground} from '../../../../../components/polyalg/polyalg-vie
 import {ReadonlyPlugin} from 'rete-readonly-plugin';
 import {setupPanningBoundary} from '../../../../../components/polyalg/polyalg-viewer/panning-boundary';
 import {AutoArrangePlugin} from 'rete-auto-arrange-plugin';
-import {WorkflowsService} from '../../../services/workflows.service';
-import {ActivityRegistry} from '../../../models/activity-registry.model';
 import {debounceTime, Subject, Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
 import {canCreateConnection, computeCenter, getContextMenuItems, getMagneticConnectionProps, socketsToEdgeModel} from './workflow-editor-utils';
@@ -36,7 +34,6 @@ export class WorkflowEditor {
     private panningBoundary: { destroy: any; };
 
     private workflow: Workflow;
-    private readonly registry: ActivityRegistry;
     private readonly translateSubjects: { [key: string]: Subject<Position> } = {}; // debounce the translation of activities
     private readonly debouncedTranslateSubject = new Subject<{ activityId: string, pos: Position }>();
     private readonly DEBOUNCE_TIME_MS = 100;
@@ -50,10 +47,9 @@ export class WorkflowEditor {
     private readonly openCheckpointSubject = new Subject<[string, boolean, number]>(); // activityId, isInput, portIdx
     private readonly subscriptions = new Subscription();
 
-    constructor(private injector: Injector, container: HTMLElement, private readonly _workflows: WorkflowsService, private readonly isReadOnly: boolean) {
+    constructor(private injector: Injector, container: HTMLElement, private readonly isReadOnly: boolean) {
         this.area = new AreaPlugin<Schemes, AreaExtra>(container);
         this.render = new AngularPlugin<Schemes, AreaExtra>({injector});
-        this.registry = _workflows.getRegistry();
 
         this.render.addPreset(
             Presets.classic.setup({
@@ -295,7 +291,13 @@ export class WorkflowEditor {
 
         const edgeString = edgeToString(edge);
         this.connectionMap.set(edgeString, connection);
-        await this.editor.addConnection(connection);
+
+        if (connection.isMulti) {
+            // enforce adding the connections in the correct order
+            setTimeout(() => this.editor.addConnection(connection), connection.multiIdx);
+        } else {
+            await this.editor.addConnection(connection);
+        }
     }
 
     private removeNode(activityId: string) {
@@ -311,7 +313,12 @@ export class WorkflowEditor {
     private removeConnection(edgeString: string) {
         const connection = this.connectionMap.get(edgeString);
         if (this.editor.getConnection(connection.id)) { // connection might already have been deleted
-            this.editor.removeConnection(connection.id);
+            if (connection.isMulti) {
+                // require because of a weird bug with rete.js => enforce ordered removal
+                setTimeout(() => this.editor.removeConnection(connection.id), connection.multiIdx);
+            } else {
+                this.editor.removeConnection(connection.id);
+            }
         }
 
         this.connectionMap.delete(edgeString);

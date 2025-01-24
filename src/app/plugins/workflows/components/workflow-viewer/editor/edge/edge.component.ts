@@ -40,21 +40,28 @@ export class Edge<N extends ActivityNode> extends ClassicPreset.Connection<N, N>
     readonly sourceActivityId: string; // activityId
     readonly targetActivityId: string; // activityId
     readonly center = signal({x: 0, y: 0, angle: 0});
+    isMulti = false;
+    multiIdx = 0;
 
     constructor(source: N, sourceOutput: keyof N['outputs'], target: N, targetInput: keyof N['inputs'],
+                public readonly toIdx: number, // for multi-port: can differ from socket
                 public readonly isControl: boolean, public readonly state: Signal<EdgeState>) {
         super(source, sourceOutput, target, targetInput);
         this.sourceActivityId = source.activityId;
         this.targetActivityId = target.activityId;
+        if (!isControl && target.def.inPorts[ActivityNode.getDataPortIndexFromKey(targetInput as string)].isMulti) {
+            this.isMulti = true;
+            this.multiIdx = toIdx + 1 - target.def.inPorts.length;
+        }
     }
 
     public static createDataEdge(from: ActivityNode, fromPort: number, to: ActivityNode, toPort: number, state: Signal<EdgeState>) {
-        return new Edge(from, ActivityNode.getDataPortKey(fromPort), to, ActivityNode.getDataPortKey(toPort), false, state);
+        return new Edge(from, ActivityNode.getDataPortKey(fromPort), to, to.getInDataPortKey(toPort), toPort, false, state);
     }
 
     public static createControlEdge(from: ActivityNode, to: ActivityNode, fromPort: number, state: Signal<EdgeState>) {
         const isSuccess = fromPort === 0;
-        return new Edge(from, isSuccess ? SUCCESS_CONTROL_KEY : FAIL_CONTROL_KEY, to, IN_CONTROL_KEY, true, state);
+        return new Edge(from, isSuccess ? SUCCESS_CONTROL_KEY : FAIL_CONTROL_KEY, to, IN_CONTROL_KEY, 0, true, state);
     }
 
     getFromPort() {
@@ -66,25 +73,10 @@ export class Edge<N extends ActivityNode> extends ClassicPreset.Connection<N, N>
         }
     }
 
-    getToPort() {
-        if (this.isControl) {
-            return 0;
-        } else {
-            // @ts-ignore
-            return ActivityNode.getDataPortIndexFromKey(this.targetInput);
-        }
-    }
-
-    isEquivalent(edge: EdgeModel) {
-        return edge.isControl === this.isControl
-            && edge.fromId === this.sourceActivityId && edge.fromPort === this.getFromPort()
-            && edge.toId === this.targetActivityId && edge.toPort === this.getToPort();
-    }
-
     toModel(): EdgeModel {
         return {
             fromId: this.sourceActivityId, fromPort: this.getFromPort(),
-            toId: this.targetActivityId, toPort: this.getToPort(),
+            toId: this.targetActivityId, toPort: this.toIdx,
             isControl: this.isControl
         };
     }

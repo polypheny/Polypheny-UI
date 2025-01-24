@@ -6,7 +6,8 @@
     'success-control': data.controlType === 'success',
     'fail-control': data.controlType === 'fail',
     'in-control': data.controlType === 'in',
-    'is-optional': data.portDef?.['isOptional']
+    'is-optional': data.portDef?.['isOptional'],
+    'is-multi': data.isMulti
 }">
     @switch (data.controlType) {
         @case ('in') {
