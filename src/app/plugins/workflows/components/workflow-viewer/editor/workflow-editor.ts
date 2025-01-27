@@ -47,7 +47,7 @@ export class WorkflowEditor {
     private readonly openCheckpointSubject = new Subject<[string, boolean, number]>(); // activityId, isInput, portIdx
     private readonly subscriptions = new Subscription();
 
-    constructor(private injector: Injector, container: HTMLElement, private readonly isReadOnly: boolean) {
+    constructor(private injector: Injector, container: HTMLElement, private readonly isEditable: boolean) {
         this.area = new AreaPlugin<Schemes, AreaExtra>(container);
         this.render = new AngularPlugin<Schemes, AreaExtra>({injector});
 
@@ -163,16 +163,12 @@ export class WorkflowEditor {
 
         this.addSubscriptions();
 
-        if (requiresArranging) {
-            await this.arrangeNodes();
-        }
-
         const selector = AreaExtensions.selector();
         AreaExtensions.selectableNodes(this.area, selector, {
             accumulating: AreaExtensions.accumulateOnCtrl(),
         });
 
-        if (!this.isReadOnly) {
+        if (this.isEditable) {
             this.area.use(this.connection);  // make connections editable
 
             const contextMenu: ContextMenuPlugin<Schemes> = new ContextMenuPlugin<Schemes>({
@@ -184,7 +180,17 @@ export class WorkflowEditor {
             this.panningBoundary = setupPanningBoundary({area: this.area, selector, padding: 40, intensity: 2});
         }
 
-        AreaExtensions.zoomAt(this.area, this.editor.getNodes());
+
+        setTimeout(async () => {
+            if (requiresArranging) {
+                await this.arrangeNodes();
+            }
+            await AreaExtensions.zoomAt(this.area, this.editor.getNodes());
+            if (!this.isEditable) {
+                this.readonlyPlugin.enable();
+            }
+        }, 100);
+
     }
 
     onActivityTranslate() {
@@ -326,7 +332,7 @@ export class WorkflowEditor {
 
     private addSubscriptions() {
         effect(() => {
-            if (!this.isReadOnly) {
+            if (this.isEditable) {
                 const state = this.workflow.state();
                 if (state === WorkflowState.EXECUTING) {
                     this.readonlyPlugin.enable();

@@ -31,13 +31,13 @@
         <div class="activity-list px-2 flex-grow-1" cdkDropList cdkDropListSortingDisabled="true">
             @for (activity of filteredList; track activity.type) {
                 <div class="px-2 mt-1">
-                    <c-card cdkDrag [cdkDragData]="activity.type" class="draggable" color="light"
+                    <c-card cdkDrag [cdkDragData]="activity.type" [class.draggable]="isEditable()" color="light"
                             [cBorder]="activity === openedActivityDef && 'primary'"
-                            (cdkDragDropped)="onDragDropped($event)">
+                            [cdkDragDisabled]="!isEditable()" (cdkDragDropped)="onDragDropped($event)">
                         <c-card-body class="p-2 activity-card">
                             <c-row gutter="false" class="mx-0">
                                 <c-col [xs]="9" class="ps-0 pe-2">
-                                    <div (click)="create.emit(activity.type)">
+                                    <div (click)="isEditable() && create.emit(activity.type)">
                                         <h6 class="flex-grow-1">{{ activity.displayName }}</h6>
                                     </div>
 

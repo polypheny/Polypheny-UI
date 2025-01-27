@@ -31,7 +31,7 @@
         </div>
 
         <!-- Preferred Stores -->
-        <div class="mb-3">
+        <div class="mb-3" *ngIf="editableConfig().preferredStores?.length > 0">
             <label cLabel>Preferred Stores:</label>
 
             @for (outputStore of editableConfig().preferredStores; track i; let i = $index) {

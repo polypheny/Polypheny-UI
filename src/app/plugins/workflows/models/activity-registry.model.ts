@@ -235,6 +235,8 @@ export enum SettingType {
     DOUBLE = 'DOUBLE',
     QUERY = 'QUERY',
     FIELD_SELECT = 'FIELD_SELECT',
+    ENUM = 'ENUM',
+    COLLATION = 'COLLATION'
     // TODO: update when a new settingType is added
 }
 

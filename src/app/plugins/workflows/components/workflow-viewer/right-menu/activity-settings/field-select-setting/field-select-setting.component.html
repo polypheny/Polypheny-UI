@@ -17,7 +17,8 @@
                     [cdkDropListConnectedTo]="['list-include']" [cdkDropListData]="val().exclude"
                     cdkDropListSortingDisabled="true" (cdkDropListDropped)="drop($event)">
                     @for (field of val().exclude; track field) {
-                        <li cListGroupItem cdkDrag [class.border-bottom]="$last" [cdkDragDisabled]="!isEditable()" class="field-entry">
+                        <li cListGroupItem cdkDrag [class.border-bottom]="$last"
+                            [cdkDragDisabled]="!isEditable()" class="field-entry" [class.draggable]="isEditable()">
                             <div class="d-flex justify-content-between">
                                 {{ field }}
                                 <app-delete-confirm (delete)="delete('exclude', $index)" *ngIf="isEditable()"></app-delete-confirm>
@@ -49,7 +50,7 @@
                     [cdkDropListSortingDisabled]="!def().reorder" (cdkDropListDropped)="drop($event)">
                     @for (field of val().include; track field) {
                         <li cListGroupItem cdkDrag [class.border-bottom]="$last" [hidden]="firstIsFixed() && $first" class="field-entry"
-                            [cdkDragDisabled]="$first && firstIsFixed() || !isEditable()">
+                            [cdkDragDisabled]="$first && firstIsFixed() || !isEditable()" [class.draggable]="isEditable()">
                             <div class="d-flex justify-content-between">
                                 {{ field }}
                                 <app-delete-confirm (delete)="delete('include', $index)" *ngIf="isEditable()"></app-delete-confirm>

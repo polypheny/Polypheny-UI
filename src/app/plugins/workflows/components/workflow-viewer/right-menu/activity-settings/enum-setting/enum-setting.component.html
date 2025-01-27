@@ -1,0 +1,9 @@
+<c-input-group class="mb-3">
+    <label *ngIf="def().label" cInputGroupText for="enum-options">{{ def().label }}</label>
+    <select cSelect id="enum-options" [ngModel]="value()" (ngModelChange)="value.set($event)"
+            (change)="hasChanged.emit()" [disabled]="!isEditable()">
+        @for (option of options(); track option[0]) {
+            <option [value]="option[0]">{{ option[1] }}</option>
+        }
+    </select>
+</c-input-group>

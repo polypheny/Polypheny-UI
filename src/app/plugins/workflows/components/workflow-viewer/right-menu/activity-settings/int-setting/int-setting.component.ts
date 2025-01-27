@@ -15,11 +15,9 @@ export class IntSettingComponent {
     @Output() hasChanged = new EventEmitter<void>();
 
     def = computed<IntSettingDef>(() => this.settingDef() as IntSettingDef);
-    // TODO: change appearance if isList
 }
 
 interface IntSettingDef extends SettingDefModel {
-    isList: boolean;
     minValue: number;
     maxValue: number;
 }

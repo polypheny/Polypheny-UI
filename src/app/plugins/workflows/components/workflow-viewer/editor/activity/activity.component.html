@@ -27,7 +27,7 @@
                         (pointerdown)="$event.stopPropagation()">
                     <i class="fa fa-rotate-left"></i>
                 </button>
-                <button cButton color="secondary" class="cil-settings" (click)="data.openSettings()"
+                <button cButton color="secondary" class="cil-settings px-3" (click)="data.openSettings()"
                         (pointerdown)="$event.stopPropagation()">
                 </button>
             </c-button-group>
@@ -56,7 +56,7 @@
             </div>
 
             <div class="activity-content flex-grow-1 h-100 px-1 d-flex flex-column justify-content-between">
-                <h4 class="">{{ data.displayName() }}</h4>
+                <h3 class="">{{ data.displayName() }}</h3>
                 <textarea cFormControl id="activity-notes" class="mb-2" placeholder="Notes"
                           [(ngModel)]="data.rendering().notes"
                           (pointerdown)="$event.stopPropagation()" (change)="saveNotes()">

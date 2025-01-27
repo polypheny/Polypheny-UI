@@ -99,6 +99,8 @@ import {ExecutionMonitorComponent} from './components/workflow-viewer/execution-
 import {QuerySettingComponent} from './components/workflow-viewer/right-menu/activity-settings/query-setting/query-setting.component';
 import {FieldSelectSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/field-select-setting/field-select-setting.component';
 import {AddVariableComponent} from './components/workflow-viewer/right-menu/activity-settings/add-variable/add-variable.component';
+import {EnumSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/enum-setting/enum-setting.component';
+import {CollationSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/collation-setting/collation-setting.component';
 
 @NgModule({
     imports: [
@@ -205,7 +207,9 @@ import {AddVariableComponent} from './components/workflow-viewer/right-menu/acti
         FieldSelectSettingComponent,
         ActivityExecStatsComponent,
         ExecutionMonitorComponent,
-        AddVariableComponent
+        AddVariableComponent,
+        EnumSettingComponent,
+        CollationSettingComponent,
     ],
     exports: [
         WorkflowViewerComponent,

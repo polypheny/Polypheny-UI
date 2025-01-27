@@ -119,6 +119,18 @@
                                                                       [(value)]="editableSettings().get(setting.key).value">
                                             </app-field-select-setting>
                                         }
+                                        @case (SettingType.ENUM) {
+                                            <app-enum-setting [settingDef]="setting.model"
+                                                              [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                              [(value)]="editableSettings().get(setting.key).value">
+                                            </app-enum-setting>
+                                        }
+                                        @case (SettingType.COLLATION) {
+                                            <app-collation-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                   [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                   [(value)]="editableSettings().get(setting.key).value">
+                                            </app-collation-setting>
+                                        }
                                         @default {
                                             <p class="text-danger">unknown setting type</p>
                                         }
