@@ -21,7 +21,7 @@ export class CheckpointViewerService {
         }
         return {
             dataModel: DataModel.RELATIONAL,
-            header: this.outPreview().fields,
+            header: this.outPreview().columns,
             data: []
         } as Result<any, FieldDefinition>;
     });

@@ -26,9 +26,32 @@ export class FieldSelectSettingComponent {
     firstIsFixed = signal(false);
     isInitialized = false;
 
+    addExclude = '';
+    addInclude = '';
+
+    fields = computed(() => {
+        if (this.targetPreview().portType === 'REL') {
+            return this.targetPreview().columns?.map(c => c.name) || [];
+        } else if (this.targetPreview().portType === 'DOC') {
+            return this.targetPreview().fields || [];
+        } else if (this.targetPreview().portType === 'LPG') {
+            return [...this.targetPreview().nodeLabels, ...this.targetPreview().edgeLabels];
+        }
+        return [];
+    });
+    notExcludedFields = computed(() => {
+        this.changed();
+        return this.fields().filter(f => !this.val().exclude.includes(f));
+    });
+    notIncludedFields = computed(() => {
+        this.changed();
+        return this.fields().filter(f => !this.val().include.includes(f));
+    });
+
+
     // simple
-    dropdownData = computed(() => this.targetPreview().fields?.map(field => {
-        return {id: field.name, itemName: field.name};
+    dropdownData = computed(() => this.fields().map(field => {
+        return {id: field, itemName: field};
     }));
     includeData: { id: string; itemName: string; }[] = [];
     private changed = signal(false); // dummy signal to trigger recomputation
@@ -49,15 +72,14 @@ export class FieldSelectSettingComponent {
     constructor(private _toast: ToasterService) {
         effect(() => {
             this.changed();
-            const inTypeFields = this.targetPreview().fields;
 
             if (this.def().simplified) {
                 this.includeData = this.val().include.map(fieldName => {
                     return {id: fieldName, itemName: fieldName};
                 });
             } else if (!this.isInitialized && this.val().exclude.length === 0 && this.val().include.length <= 1 && this.isRel()) {
-                if (inTypeFields?.length > 0) {
-                    this.val().include = inTypeFields.map(field => field.name);
+                if (this.fields()?.length > 0) {
+                    this.val().include = this.fields();
                     this.isInitialized = true;
                     this.valueChanged();
                 } else if (this.val().include.length === 0) {

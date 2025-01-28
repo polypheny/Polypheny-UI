@@ -25,7 +25,7 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     workflowDefsCount = 0;
     sortedGroups: { groupName: string, defs: { id: string, def: WorkflowDefModel }[] }[];
     visibleGroups: Record<string, WritableSignal<boolean>> = {};
-    sessions: Record<string, SessionModel>;
+    sessions: SessionModel[] = [];
     selectedVersion: Record<string, number> = {};
     newWorkflowName = '';
     newWorkflowGroup = '';
@@ -99,7 +99,9 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
 
     private getSessions() {
         this._workflows.getSessions().subscribe({
-            next: res => this.sessions = res
+            next: res => this.sessions = Object.values(res).sort((a, b) =>
+                new Date(b.lastInteraction).getTime() - new Date(a.lastInteraction).getTime()
+            )
         });
     }
 

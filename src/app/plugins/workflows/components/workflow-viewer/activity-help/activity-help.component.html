@@ -16,8 +16,11 @@
                     @for (inPort of def().inPorts; track $index) {
                         <li cListGroupItem>
                             <h5>{{ $index }}:
-                                <span class="text-medium-emphasis">{{ portTypeToDataModel( inPort.type ) }}</span>
-                                <span *ngIf="inPort.isOptional" class="text-medium-emphasis"> (optional)</span>
+                                <small class="text-medium-emphasis">
+                                    <span *ngIf="inPort.isMulti" class="text-medium-emphasis">Multiple </span>
+                                    {{ portTypeToDataModel( inPort.type ) }}
+                                    <span *ngIf="inPort.isOptional" class="text-medium-emphasis"> (optional)</span>
+                                </small>
                             </h5>
                             <markdown katex [katexOptions]="options" [data]="inPort.description"></markdown>
                         </li>
@@ -33,7 +36,9 @@
                     @for (outPort of def().outPorts; track $index) {
                         <li cListGroupItem>
                             <h5>{{ $index }}:
-                                <span class="text-medium-emphasis">{{ portTypeToDataModel( outPort.type ) }}</span>
+                                <small class="text-medium-emphasis">
+                                    {{ portTypeToDataModel( outPort.type ) }}
+                                </small>
                             </h5>
                             <markdown katex [katexOptions]="options" [data]="outPort.description"></markdown>
                         </li>

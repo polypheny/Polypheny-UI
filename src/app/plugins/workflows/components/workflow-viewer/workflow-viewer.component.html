@@ -200,6 +200,13 @@
                 @case (PortType.REL) {
                     <app-data-table [result]="_checkpoint.outPreviewAsResult()" [inputConfig]="_checkpoint.config"></app-data-table>
                 }
+                @case (PortType.DOC) {
+                    <p class="mb-1"><strong>Fields (estimated):</strong> {{ _checkpoint.outPreview().fields | json }}</p>
+                }
+                @case (PortType.LPG) {
+                    <p class="mb-1"><strong>Node Labels (estimated):</strong> {{ _checkpoint.outPreview().nodeLabels | json }}</p>
+                    <p class="mb-1"><strong>Edge Labels (estimated):</strong> {{ _checkpoint.outPreview().edgeLabels | json }}</p>
+                }
             }
 
             <c-callout color="primary">

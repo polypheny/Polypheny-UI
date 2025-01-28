@@ -32,7 +32,9 @@
     border: 2px solid var(--cui-dark);
 
     &.is-multi {
-      height: calc(2 * #{$data-port-size});
+      margin-left: calc((#{$data-port-size} - #{$multi-width}) / 2);
+      height: $multi-height;
+      width: $multi-width;
     }
 
     &.out-port.state-finished {

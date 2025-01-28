@@ -24,7 +24,12 @@ export class StringSettingComponent {
         if (this.usesAutocomplete()) {
             switch (this.def().autoComplete) {
                 case 'FIELD_NAMES':
-                    return this.targetPreview().fields.map(field => field.name);
+                    if (this.targetPreview().portType === 'REL') {
+                        return this.targetPreview().columns?.map(c => c.name) || [];
+                    } else if (this.targetPreview().portType === 'DOC') {
+                        return this.targetPreview().fields || [];
+                    }
+                    return [];
                 case 'ADAPTERS':
                     return this.adapters().map(a => a.name);
             }
@@ -58,4 +63,5 @@ interface StringSettingDef extends SettingDefModel {
     maxLength: number;
     autoComplete: AutoCompleteType;
     autoCompleteInput: number;
+    nonBlank: boolean;
 }

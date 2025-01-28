@@ -142,30 +142,49 @@
 
         <h2>Active Sessions</h2>
         <ul cListGroup *ngIf="workflowDefs" class="mb-5">
-            <ng-container *ngFor="let session of sessions | keyvalue">
+            <ng-container *ngFor="let session of sessions">
                 <li cListGroupItem>
                     <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong *ngIf="session.value.type === 'USER_SESSION'">
-                                {{ workflowDefs[session.value.workflowId].name }}
-                                v{{ session.value.version }}
-                            </strong>
-                            <strong *ngIf="session.value.type !== 'USER_SESSION'">
-                                {{ session.value.type }}
-                            </strong>
+                        <div class="flex-grow-1">
+                            @if (session.type === 'USER_SESSION') {
+                                <h4>
+                                    {{ workflowDefs[session.workflowId].name }}
+                                    v{{ session.version }}
+                                </h4>
 
-                            <div>
-                                <small><strong>SessionId:</strong> {{ session.value.sessionId }}</small><br/>
-                                <small><strong>State:</strong> {{ session.value.state }}</small><br/>
-                                <small><strong>Connected
-                                    Users:</strong> {{ session.value.connectionCount }}</small><br/>
-                            </div>
-                            <button cButton color="danger" variant="outline" size="sm"
-                                    (click)="terminateSession(session.value.sessionId)">
+                            } @else {
+                                <h4>
+                                    {{ session.type }}
+                                </h4>
+                            }
+                            <c-row>
+                                <c-col [xs]="4"><small><strong>Session ID:</strong></small></c-col>
+                                <c-col [xs]="8"><small>{{ session.sessionId }}</small></c-col>
+                            </c-row>
+                            <c-row>
+                                <c-col [xs]="4"><small><strong>State:</strong></small></c-col>
+                                <c-col [xs]="8"><small>{{ session.state }}</small></c-col>
+                            </c-row>
+                            <c-row>
+                                <c-col [xs]="4"><small><strong>Last Interaction:</strong></small></c-col>
+                                <c-col [xs]="8">
+                                    <small>{{ session.lastInteraction | date: 'yyyy-MM-dd HH:mm:ss' }}</small>
+                                </c-col>
+                            </c-row>
+                            <c-row>
+                                <c-col [xs]="4"><small><strong>Connected Users:</strong></small></c-col>
+                                <c-col [xs]="8"><small>{{ session.connectionCount }}</small></c-col>
+                            </c-row>
+                            <c-row>
+                                <c-col [xs]="4"><small><strong>Activities:</strong></small></c-col>
+                                <c-col [xs]="8"><small>{{ session.activityCount }}</small></c-col>
+                            </c-row>
+                            <button cButton color="danger" variant="outline" size="sm" class="mt-1"
+                                    (click)="terminateSession(session.sessionId)">
                                 Terminate
                             </button>
                         </div>
-                        <button cButton (click)="openSession(session.value.sessionId)">
+                        <button cButton (click)="openSession(session.sessionId)">
                             Open
                         </button>
                     </div>

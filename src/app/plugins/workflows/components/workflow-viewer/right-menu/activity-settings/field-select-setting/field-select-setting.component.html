@@ -12,7 +12,7 @@
     <c-row>
         <c-col [xs]="6">
             <h5>Exclude</h5>
-            <c-card class="list-container border bg-light mb-3">
+            <c-card class="list-container border bg-light mb-1">
                 <ul cListGroup cdkDropList id="list-exclude" flush="true" class="field-list"
                     [cdkDropListConnectedTo]="['list-include']" [cdkDropListData]="val().exclude"
                     cdkDropListSortingDisabled="true" (cdkDropListDropped)="drop($event)">
@@ -28,18 +28,20 @@
                     }
                 </ul>
             </c-card>
-            <c-input-group class="mb-3" sizing="sm" *ngIf="isEditable()">
-                <input cFormControl placeholder="name to exclude" #addExclude/>
-                <button cButton color="secondary" type="button" variant="outline"
-                        (click)="add('exclude', addExclude.value); addExclude.value=''" [disabled]="addExclude.value.length == 0">
+            <div class="d-flex align-items-center mb-3" *ngIf="isEditable()">
+                <app-autocomplete [data]="notExcludedFields()"
+                                  [(value)]="addExclude"
+                                  placeholder="name to exclude">
+                </app-autocomplete>
+                <button cButton color="secondary" type="button" variant="outline" size="sm" class="ms-1"
+                        (click)="add('exclude', addExclude); addExclude = ''" [disabled]="addExclude.length == 0">
                     Add
                 </button>
-            </c-input-group>
-
+            </div>
         </c-col>
         <c-col [xs]="6">
             <h5>Include <span *ngIf="!def().reorder && val().unspecifiedIndex >= 0">(ignored)</span></h5>
-            <c-card class="list-container border bg-light mb-3">
+            <c-card class="list-container border bg-light mb-1">
                 <ul cListGroup *ngIf="firstIsFixed()" flush="true">
                     <li cListGroupItem color="dark">
                         {{ val().include[0] }}
@@ -59,13 +61,16 @@
                     }
                 </ul>
             </c-card>
-            <c-input-group class="mb-3" sizing="sm" *ngIf="isEditable()">
-                <input cFormControl placeholder="name to include" #addInclude/>
-                <button cButton color="secondary" type="button" variant="outline"
-                        (click)="add('include', addInclude.value); addInclude.value=''" [disabled]="addInclude.value.length == 0">
+            <div class="d-flex align-items-center mb-3" *ngIf="isEditable()">
+                <app-autocomplete [data]="notIncludedFields()"
+                                  [(value)]="addInclude"
+                                  placeholder="name to include">
+                </app-autocomplete>
+                <button cButton color="secondary" type="button" variant="outline" size="sm" class="ms-1"
+                        (click)="add('include', addInclude); addInclude = ''" [disabled]="addInclude.length == 0">
                     Add
                 </button>
-            </c-input-group>
+            </div>
         </c-col>
     </c-row>
     <p class="text-muted" *ngIf="isEditable()">

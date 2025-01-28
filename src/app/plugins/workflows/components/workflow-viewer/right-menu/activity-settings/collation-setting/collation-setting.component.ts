@@ -21,7 +21,14 @@ export class CollationSettingComponent {
     def = computed(() => this.settingDef() as CollationSettingDef);
     targetPreview = computed(() => this.inTypePreview()[this.def().targetInput]);
     fieldType = computed(() => this.targetPreview().portType === 'REL' ? 'column' : 'field');
-    suggestions = computed(() => this.targetPreview().fields?.map(field => field.name) || []);
+    suggestions = computed(() => {
+        if (this.targetPreview().portType === 'REL') {
+            return this.targetPreview().columns?.map(c => c.name) || [];
+        } else if (this.targetPreview().portType === 'DOC') {
+            return this.targetPreview().fields || [];
+        }
+        return [];
+    });
 
     readonly dirChoices: Directions[] = ['ASCENDING', 'STRICTLY_ASCENDING', 'DESCENDING', 'STRICTLY_DESCENDING', 'CLUSTERED'];
 
