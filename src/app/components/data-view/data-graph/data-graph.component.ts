@@ -137,7 +137,7 @@ export class DataGraphComponent extends DataTemplateComponent {
             .force('center', d3.forceCenter(width / 2, height / 2))
             .force('charge', d3.forceManyBody().strength(-this.initialNodeIds.size))
             .force('collide', d3.forceCollide(100).strength(0.9).radius(40))
-            .force('link', d3.forceLink().id(d => d.index).distance(160));
+        .force('link', d3.forceLink().id(d => d.id).distance(160));
 
 
         // disable charge after initial setup
