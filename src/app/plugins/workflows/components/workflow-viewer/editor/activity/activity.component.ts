@@ -142,6 +142,7 @@ export class ActivityNode extends ClassicPreset.Node {
     readonly state = this.activity.state.asReadonly();
     readonly progress = this.activity.progress.asReadonly();
     readonly commonType = this.activity.commonType;
+    readonly isRolledBack = this.activity.isRolledBack;
     readonly invalidReason = this.activity.invalidReason;
     readonly hasInvalidSettings = this.activity.hasInvalidSettings;
     readonly isOpened = this.activity.isOpened;

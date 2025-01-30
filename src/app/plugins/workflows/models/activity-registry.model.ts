@@ -40,7 +40,10 @@ export class ActivityDef {
     categories: ActivityCategory[];
     inPorts: InPortDef[];
     outPorts: OutPortDef[];
-    iconPath: string;
+    iconPath: string; // unused
+    fusable: boolean;
+    pipeable: boolean;
+    variableWriter: boolean;
     groups: GroupDef[];
     nonEmptyGroupCount: number;
     private readonly settingDefMap = new Map<string, any>();
@@ -54,6 +57,9 @@ export class ActivityDef {
         this.inPorts = model.inPorts;
         this.outPorts = model.outPorts;
         this.iconPath = model.iconPath;
+        this.fusable = model.fusable;
+        this.pipeable = model.pipeable;
+        this.variableWriter = model.variableWriter;
 
         const sortedGroups = [...model.groups].sort((a, b) => a.position - b.position);
         this.groups = sortedGroups.map(group => new GroupDef(group, model.settings));
@@ -170,6 +176,9 @@ export interface ActivityDefModel {
     iconPath: string;
     groups: GroupDefModel[];
     settings: Record<string, SettingDefModel>;
+    fusable: boolean;
+    pipeable: boolean;
+    variableWriter: boolean;
 }
 
 export interface InPortDef {

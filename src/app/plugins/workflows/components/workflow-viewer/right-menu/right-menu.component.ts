@@ -1,7 +1,7 @@
-import {Component, ElementRef, input, signal, ViewChild} from '@angular/core';
+import {Component, computed, ElementRef, input, signal, ViewChild} from '@angular/core';
 import {Activity} from '../workflow';
 import {WorkflowsService} from '../../../services/workflows.service';
-import {ActivityConfigModel, RenderModel, SettingsModel, Variables} from '../../../models/workflows.model';
+import {ActivityConfigModel, envVarsKey, RenderModel, SettingsModel, Variables, wfVarsKey} from '../../../models/workflows.model';
 import {WorkflowsWebSocketService} from '../../../services/workflows-websocket.service';
 import {ActivitySettingsComponent} from './activity-settings/activity-settings.component';
 import {ActivityConfigEditorComponent} from './activity-config-editor/activity-config-editor.component';
@@ -28,6 +28,18 @@ export class RightMenuComponent {
 
     isEditingName = signal(false);
     editableDisplayName = '';
+
+    basicVars = computed(() => {
+        const allVars = this.activity().variables();
+        return Object.keys(this.activity().variables())
+        .filter((key) => key !== wfVarsKey && key !== envVarsKey)
+        .reduce((obj, key) => {
+            obj[key] = allVars[key];
+            return obj;
+        }, {});
+    });
+    envVars = computed(() => this.activity().variables()[envVarsKey] || {});
+    wfVars = computed(() => this.activity().variables()[wfVarsKey] || {});
 
     constructor(private readonly _workflows: WorkflowsService,
                 private readonly _websocket: WorkflowsWebSocketService,

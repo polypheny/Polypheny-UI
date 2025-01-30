@@ -16,7 +16,11 @@
                 <span class="fa fa-exclamation-triangle text-light"></span>
             </button>
             <div class="flex-grow-1"></div>
-            <h6 class="ms-2 mb-0" *ngIf="data.commonType() !== 'NONE'">{{ data.commonType() }}</h6>
+            <h6 class="ms-2 mb-0" *ngIf="data.commonType() !== 'NONE'" [class.text-danger]="data.isRolledBack()"
+                [title]="data.isRolledBack() ? 'While the activity might have executed successfully on its own, the common activity was aborted' : 'Common Transaction'">
+                {{ data.commonType() }}
+                <span *ngIf="data.isRolledBack()"> (aborted)</span>
+            </h6>
             <c-button-group role="group" class="ms-2" size="sm">
                 <button cButton color="primary" class="" (click)="data.execute()" *ngIf="data.canExecute()"
                         [disabled]="data.invalidReason() || data.hasInvalidSettings()"

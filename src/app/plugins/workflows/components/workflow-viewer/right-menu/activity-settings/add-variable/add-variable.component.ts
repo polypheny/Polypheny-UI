@@ -1,6 +1,6 @@
 import {Component, computed, EventEmitter, input, Output, signal} from '@angular/core';
 import {VariableReference} from '../../../workflow';
-import {Variables} from '../../../../../models/workflows.model';
+import {envVarsKey, Variables, wfVarsKey} from '../../../../../models/workflows.model';
 import JsonPointer from 'json-pointer';
 
 @Component({
@@ -18,19 +18,24 @@ export class AddVariableComponent {
     @Output() add = new EventEmitter<[string, string, string]>();
     @Output() delete = new EventEmitter<VariableReference>();
 
-    variables = computed(() => Array.from(new Set([
-        ...Object.keys(this.activityVars()),
-        ...Object.keys(this.workflowVars())
-    ])));
+    variables = computed(() => {
+        const localVars = Object.keys(this.activityVars()).filter(key => key !== wfVarsKey && key !== envVarsKey);
+        const wfVars = Object.keys(this.workflowVars()).map(key => wfVarsKey + '/' + key);
+        const envVars = Object.keys(this.activityVars()[envVarsKey] || {}).map(key => envVarsKey + '/' + key);
+        return Array.from(new Set([...localVars, ...wfVars, ...envVars]));
+    });
     variablePointers = computed(() => {
-
         const aVar = this.activityVars()[this.variableInput()];
         if (aVar !== undefined) {
             return Object.keys(JsonPointer.dict(aVar)).sort((a, b) => a.length - b.length);
         }
-        const wVar = this.workflowVars()[this.variableInput()];
-        if (wVar !== undefined) {
-            return Object.keys(JsonPointer.dict(wVar)).sort((a, b) => a.length - b.length);
+        const split = this.variableInput().split('/');
+        if (split.length > 1 && split[0] === wfVarsKey) {
+            const wVar = this.workflowVars()[split[1]];
+            try {
+                return Object.keys(JsonPointer.dict(wVar)).sort((a, b) => a.length - b.length);
+            } catch (ignored) {
+            }
         }
         return [];
     });
@@ -48,7 +53,9 @@ export class AddVariableComponent {
     isValid = computed(() => this.variableInput().length > 0);
 
     addVariableRef() {
-        console.log('adding', this.variableInput(), this.pointerInput(), this.targetInput());
         this.add.emit([this.variableInput(), this.pointerInput(), this.targetInput()]);
+        this.variableInput.set('');
+        this.pointerInput.set('');
+        this.targetInput.set('');
     }
 }

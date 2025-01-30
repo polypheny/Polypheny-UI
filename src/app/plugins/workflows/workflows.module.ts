@@ -8,6 +8,7 @@ import {
     AccordionButtonDirective,
     AccordionComponent,
     AccordionItemComponent,
+    AlertComponent,
     BadgeComponent,
     BgColorDirective,
     BorderDirective,
@@ -186,6 +187,7 @@ import {CollationSettingComponent} from './components/workflow-viewer/right-menu
         DropdownToggleDirective,
         DropdownMenuDirective,
         DropdownItemDirective,
+        AlertComponent,
     ],
     declarations: [
         WorkflowViewerComponent,

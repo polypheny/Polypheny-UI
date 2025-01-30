@@ -70,7 +70,10 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
     private initMarkdown() {
         const renderer = new MarkedRenderer();
         renderer.blockquote = (text: string) => {
-            return '<blockquote class="blockquote"><p>' + text + '</p></blockquote>';
+            console.warn('blockquote txt:', text);
+            return `<div class="callout callout-warning">
+                        ${text}
+                    </div>`;
         };
 
 

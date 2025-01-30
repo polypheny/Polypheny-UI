@@ -1,12 +1,26 @@
 <div class="activity-help">
-    <markdown *ngIf="requiresMarkdown();else noMarkdown" class=""
-              katex [katexOptions]="options"
-              [data]="def().longDescription">
-    </markdown>
+    <div class="d-flex justify-content-end">
+        <span class="badge bg-success me-1 mb-1" *ngIf="def().fusable"
+              cTooltip="Supports the Activity Fusion Optimization" cTooltipPlacement="top">
+            <span class="fa fa-code-fork fa-rotate-270"></span>
+        </span>
+        <span class="badge bg-success me-1 mb-1" *ngIf="def().pipeable"
+              cTooltip="Supports the Activity Pipelining Optimization" cTooltipPlacement="top">
+            <span class="cil-stream"></span>
+        </span>
+        <span class="badge bg-success me-1 mb-1" *ngIf="def().variableWriter"
+              cTooltip="Writes Variables" cTooltipPlacement="top">
+            <span class="cil-bolt"></span>
+        </span>
+    </div>
 
-    <ng-template #noMarkdown>
+    @if (requiresMarkdown()) {
+        <markdown katex [katexOptions]="options"
+                  [data]="def().longDescription">
+        </markdown>
+    } @else {
         <p>{{ def().longDescription }}</p>
-    </ng-template>
+    }
 
     <div class="ports-section">
         @if (def().inPorts.length > 0) {
@@ -48,7 +62,7 @@
         }
     </div>
 
-    <div class="settings-section" *ngIf="activeSettingGroup()">
+    <div class="settings-section mt-4" *ngIf="activeSettingGroup()">
         <h4 [class]="{'mb-3': def().nonEmptyGroupCount <= 1}">Settings</h4>
 
         <ul class="nav nav-underline" role="tablist" *ngIf="def().nonEmptyGroupCount > 1">

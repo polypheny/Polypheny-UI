@@ -46,6 +46,7 @@ export interface StateUpdateResponse extends WsResponse {
     type: ResponseType.STATE_UPDATE;
     workflowState: WorkflowState;
     activityStates: Record<string, ActivityState>;
+    rolledBack: string[]; // rolled back activity ids
     inTypePreviews: Record<string, TypePreviewModel[]>;
     outTypePreviews: Record<string, TypePreviewModel[]>;
     activityInvalidReasons: Record<string, string>;

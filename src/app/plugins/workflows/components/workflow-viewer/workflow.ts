@@ -148,6 +148,7 @@ export class Workflow {
     }
 
     updateActivityStates(activityStates: Record<string, ActivityState>,
+                         rolledBack: string[],
                          invalidReasons: Record<string, string>,
                          invalidSettings: Record<string, Record<string, string>>,
                          inTypePreviews: Record<string, TypePreviewModel[]>,
@@ -157,7 +158,7 @@ export class Workflow {
 
         for (const [id, state] of Object.entries(activityStates)) {
             const oldState = this.activities.get(id)?.state();
-            if (this.updateActivityState(id, state, invalidReasons[id], invalidSettings[id], inTypePreviews[id], outTypePreviews[id])) {
+            if (this.updateActivityState(id, state, rolledBack.includes(id), invalidReasons[id], invalidSettings[id], inTypePreviews[id], outTypePreviews[id])) {
                 this.activityChangeSubject.next(id);
                 if (state !== oldState) {
                     this.activityDirtySubject.next(id);
@@ -272,13 +273,15 @@ export class Workflow {
         return this.edgeRemoveSubject.asObservable();
     }
 
-    private updateActivityState(activityId: string, state: ActivityState, invalidReason: string, invalidSettings: Record<string, string> | undefined,
+    private updateActivityState(activityId: string, state: ActivityState, isRolledBack: boolean, invalidReason: string,
+                                invalidSettings: Record<string, string> | undefined,
                                 inTypePreview: TypePreviewModel[], outTypePreview: TypePreviewModel[]): boolean {
         if (state === 'IDLE') {
             this.updateActivityProgress(activityId, 0); // reset progress
         }
         return this.applyIfExists(activityId, a => {
             a.state.set(state);
+            a.isRolledBack.set(isRolledBack);
             a.invalidReason.set(invalidReason);
             a.invalidSettings.set(invalidSettings || {});
             a.inTypePreview.set(inTypePreview);
@@ -316,6 +319,7 @@ export class Activity {
     readonly def: ActivityDef;
 
     readonly state: WritableSignal<ActivityState>;
+    readonly isRolledBack: WritableSignal<boolean>;
     readonly progress = signal(0);
     readonly settings: WritableSignal<Settings>;
     readonly config: WritableSignal<ActivityConfigModel>;
@@ -338,6 +342,7 @@ export class Activity {
         this.id = activityModel.id;
         this.def = def;
         this.state = signal(activityModel.state);
+        this.isRolledBack = signal(activityModel.rolledBack);
         this.settings = signal(new Settings(activityModel.settings)); // deep equivalence check
         this.config = signal(this.prepareConfig(activityModel.config), {equal: _.isEqual});
         this.commonType = computed(() => this.config().commonType);
@@ -362,6 +367,7 @@ export class Activity {
 
     update(activityModel: ActivityModel) {
         this.state.set(activityModel.state);
+        this.isRolledBack.set(activityModel.rolledBack);
         this.settings.set(new Settings(activityModel.settings));
         this.config.set(this.prepareConfig(activityModel.config));
         this.rendering.set(activityModel.rendering);

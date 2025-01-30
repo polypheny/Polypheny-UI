@@ -9,6 +9,6 @@
     </div>
 } @else {
     <input cFormControl sizing="sm" id="setting"
-           type="text" autocomplete="off" [disabled]="!isEditable()" (change)="hasChanged.emit()"
+           type="text" autocomplete="off" [disabled]="!isEditable()" (input)="hasChanged.emit()"
            [ngModel]="value()" (ngModelChange)="value.set($event)">
 }

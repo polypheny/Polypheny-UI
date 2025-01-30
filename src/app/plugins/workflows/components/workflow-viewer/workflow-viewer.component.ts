@@ -179,6 +179,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                 const stateResponse = response as StateUpdateResponse;
                 this.workflow.state.set(stateResponse.workflowState);
                 if (!(this.workflow.updateActivityStates(stateResponse.activityStates,
+                        stateResponse.rolledBack,
                         stateResponse.activityInvalidReasons,
                         stateResponse.activityInvalidSettings,
                         stateResponse.inTypePreviews,
@@ -218,6 +219,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     openActivitySettings(activityId: string) {
         if (!this.openedActivity() || ((activityId !== this.openedActivity().id || !this.rightMenu.visible()) && this.rightMenu.canSafelyNavigate())) {
             this._workflows.getActivity(this.sessionId, activityId).subscribe(activityModel => {
+                console.log(activityModel);
                     this.workflow.updateOrCreateActivity(activityModel);
                     this.workflow.setOpenedActivity(activityModel.id);
                     this.rightMenu.visible.set(true);

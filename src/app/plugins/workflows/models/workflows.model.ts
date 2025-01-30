@@ -59,6 +59,8 @@ export enum ExecutorType {
 export type SettingsModel = Record<string, any>;
 export type Variables = Record<string, any>;
 export const errorKey = '$errorMsg';
+export const wfVarsKey = '$workflow';
+export const envVarsKey = '$env';
 export const PK_COL = 'key'; // primary key column of relational checkpoints
 
 export interface ErrorVariable {
@@ -108,6 +110,7 @@ export interface ActivityModel {
     config: ActivityConfigModel;
     rendering: RenderModel;
     state?: ActivityState;
+    rolledBack?: boolean;
     inTypePreview?: TypePreviewModel[];
     outTypePreview?: TypePreviewModel[];
     invalidReason?: string;

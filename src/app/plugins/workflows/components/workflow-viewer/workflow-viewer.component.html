@@ -131,7 +131,7 @@
         <button (click)="toggleSaveModal()" cButtonClose></button>
     </c-modal-header>
     <c-modal-body>
-        You can save this workflow by creating a new version. Please specify a version description:
+        <p>You can save this workflow by creating a new version. Please specify a version description:</p>
         <c-input-group>
             <span cInputGroupText>Description</span>
             <input cFormControl type="text" (keyup.enter)="saveWorkflow()" [(ngModel)]="saveMessage"

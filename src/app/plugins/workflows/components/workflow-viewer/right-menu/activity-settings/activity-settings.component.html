@@ -31,13 +31,13 @@
 
         </div>
 
-        <!-- TODO: make itself scrollable if tablist visible-->
         <div class="setting-group mt-2 flex-grow-1">
             @if (activity().error()) {
                 <c-callout color="danger">
                     <strong>Execution Error: </strong> <span class="text-danger text-break">{{ activity().error().message }}</span>
                 </c-callout>
             }
+            <p>{{ activity().def.shortDescription }}</p>
             @for (subgroup of activeSettingGroup().subgroups; track activity().id + subgroup.key) {
                 <ng-container *ngIf="!subgroup.isEmpty">
                     <h5 *ngIf="!subgroup.isDefault() || true">{{ subgroup.displayName }}</h5>
@@ -72,9 +72,10 @@
                                                           (delete)="deleteReference(setting.key, $event)"></app-add-variable>
                                     </div>
 
-                                    <c-callout *ngIf="editableReferences().get( setting.key )?.length > 0" color="danger" class="text-danger">
+                                    <c-alert *ngIf="editableReferences().get( setting.key )?.length > 0" color="warning">
+                                        <h5>Note</h5>
                                         The static setting values are only used as a fallback when variables are present.
-                                    </c-callout>
+                                    </c-alert>
 
                                     @switch (setting.type) {
                                         @case (SettingType.INT) {

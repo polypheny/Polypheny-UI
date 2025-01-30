@@ -78,11 +78,39 @@
             }
             @case ("variables") {
                 @if (activity().hasVariables()) {
-                    <p>Available variables after last execution:</p>
-                    @for (entry of activity().variables() | keyvalue; track activity().id + entry.key) {
-                        <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
-                        <app-json-text [text]="entry.value | json"></app-json-text>
-                    }
+                    <div class="mb-4">
+                        <h5>Dynamic Variables</h5>
+                        @for (entry of basicVars() | keyvalue; track activity().id + entry.key) {
+                            <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
+                            <app-json-text [text]="entry.value | json"></app-json-text>
+                        } @empty {
+                            <p>None available</p>
+                        }
+                    </div>
+                    <div *ngIf="wfVars()" class="mb-4">
+                        <h5>Workflow Variables</h5>
+                        @for (entry of wfVars() | keyvalue; track activity().id + entry.key) {
+                            <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
+                            <app-json-text [text]="entry.value | json"></app-json-text>
+                        } @empty {
+                            <p>None available</p>
+                        }
+                    </div>
+                    <div *ngIf="envVars()">
+                        <h5>Environment Variables</h5>
+                        @for (entry of envVars() | keyvalue; track activity().id + entry.key) {
+                            <c-callout *ngIf="$first" color="primary">
+                                The (possibly sensitive) values of environment variables are never sent to the UI.
+                                Only the keys and types of variables are shown.
+                            </c-callout>
+                            <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">
+                                {{ entry.key }}:
+                                <span class="text-muted">{{ entry.value }}</span>
+                            </h6>
+                        } @empty {
+                            <p>None available</p>
+                        }
+                    </div>
                 } @else {
                     <c-callout color="primary">
                         No variables are currently available for this activity.
