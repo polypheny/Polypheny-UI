@@ -39,11 +39,15 @@ export class AddVariableComponent {
         }
         return [];
     });
-    targets = computed(() => Array.from(new Set([
-            ...Object.keys(JsonPointer.dict(this.settingValue())),
-            ...Object.keys(this.settingValue()).map(k => '/' + k)
-        ])).sort((a, b) => a.length - b.length)
-    );
+    targets = computed(() => {
+        if (typeof this.settingValue() === 'string') {
+            return [];
+        }
+        const leaves = Object.keys(JsonPointer.dict(this.settingValue()));
+        const firstChildren = leaves.length > 0 ? Object.keys(this.settingValue()).map(k => '/' + k) : [];
+        return Array.from(new Set([...leaves, ...firstChildren]))
+        .sort((a, b) => a.length - b.length);
+    });
 
     variableInput = signal('');
 

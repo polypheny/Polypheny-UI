@@ -64,4 +64,5 @@ interface StringSettingDef extends SettingDefModel {
     autoComplete: AutoCompleteType;
     autoCompleteInput: number;
     nonBlank: boolean;
+    containsRegex: boolean;
 }

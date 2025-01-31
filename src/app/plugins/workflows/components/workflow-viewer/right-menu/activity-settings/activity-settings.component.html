@@ -132,6 +132,12 @@
                                                                    [(value)]="editableSettings().get(setting.key).value">
                                             </app-collation-setting>
                                         }
+                                        @case (SettingType.FIELD_RENAME) {
+                                            <app-field-rename-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                      [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                      [(value)]="editableSettings().get(setting.key).value">
+                                            </app-field-rename-setting>
+                                        }
                                         @default {
                                             <p class="text-danger">unknown setting type</p>
                                         }

@@ -8,7 +8,7 @@
         </app-autocomplete>
     </div>
 } @else {
-    <input cFormControl sizing="sm" id="setting"
+    <input cFormControl sizing="sm" id="setting" [placeholder]="def().containsRegex ? 'regex' : 'value'"
            type="text" autocomplete="off" [disabled]="!isEditable()" (input)="hasChanged.emit()"
            [ngModel]="value()" (ngModelChange)="value.set($event)">
 }

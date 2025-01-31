@@ -113,6 +113,7 @@ export class ActivityComponent implements OnInit, OnChanges {
 
     showProblems() {
         if (this.data.hasInvalidSettings()) {
+            this._toast.warn(this.data.firstInvalidSetting()[1], 'Problem with Setting "' + this.data.firstInvalidSetting()[0] + '"');
             this.data.openSettings();
         }
         if (this.data.invalidReason()) {
@@ -145,6 +146,7 @@ export class ActivityNode extends ClassicPreset.Node {
     readonly isRolledBack = this.activity.isRolledBack;
     readonly invalidReason = this.activity.invalidReason;
     readonly hasInvalidSettings = this.activity.hasInvalidSettings;
+    readonly firstInvalidSetting = computed(() => this.hasInvalidSettings() ? Object.entries(this.activity.invalidSettings())[0] : undefined);
     readonly isOpened = this.activity.isOpened;
     readonly controlInput: ClassicPreset.Input<ActivityPort>;
     readonly dataInputs: { [key: string]: ClassicPreset.Input<ActivityPort> } = {};

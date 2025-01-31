@@ -102,6 +102,7 @@ import {FieldSelectSettingComponent} from './components/workflow-viewer/right-me
 import {AddVariableComponent} from './components/workflow-viewer/right-menu/activity-settings/add-variable/add-variable.component';
 import {EnumSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/enum-setting/enum-setting.component';
 import {CollationSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/collation-setting/collation-setting.component';
+import {FieldRenameSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/field-rename-setting/field-rename-setting.component';
 
 @NgModule({
     imports: [
@@ -212,6 +213,7 @@ import {CollationSettingComponent} from './components/workflow-viewer/right-menu
         AddVariableComponent,
         EnumSettingComponent,
         CollationSettingComponent,
+        FieldRenameSettingComponent,
     ],
     exports: [
         WorkflowViewerComponent,

@@ -26,7 +26,7 @@
                             </select>
                         </c-input-group>
                     </c-col>
-                    <c-col [xs]="2" class="text-end p-0">
+                    <c-col [xs]="2" class="text-end p-0" *ngIf="isEditable()">
                         <app-delete-confirm (delete)="deleteField($index)" (mousedown)="$event.stopPropagation()"></app-delete-confirm>
                     </c-col>
                 </c-row>
