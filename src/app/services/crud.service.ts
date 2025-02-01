@@ -1,38 +1,12 @@
 import {EventEmitter, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {
-    EntityMeta,
-    IndexModel,
-    ModifyPartitionRequest,
-    PartitionFunctionModel,
-    PartitioningRequest,
-    PathAccessRequest,
-    PlacementFieldsModel,
+import {EntityMeta, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PathAccessRequest, PlacementFieldsModel,
     RelationalResult
 } from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {
-    ColumnRequest,
-    ConstraintRequest,
-    DeleteRequest,
-    EditCollectionRequest,
-    EditTableRequest,
-    EntityRequest,
-    ExploreTable,
-    GraphRequest,
-    MaterializedRequest,
-    Method,
-    MonitoringRequest,
-    Namespace,
-    QueryRequest,
-    RelAlgRequest,
-    StatisticRequest
-} from '../models/ui-request.model';
-import {
-    AutoDockerResult,
-    AutoDockerStatus,
-    CreateDockerResponse,
+import {ColumnRequest, ConstraintRequest, DataModel, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, StatisticRequest} from '../models/ui-request.model';
+import {AutoDockerResult, AutoDockerStatus, CreateDockerResponse,
     DockerInstanceInfo,
     DockerSettings,
     HandshakeInfo,
@@ -43,10 +17,11 @@ import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {AdapterModel} from '../views/adapters/adapter.model';
 import {QueryInterface, QueryInterfaceTemplate} from '../views/query-interfaces/query-interfaces.model';
-import {AlgNodeModel, Node} from '../views/querying/algebra/algebra.model';
 import {WebSocket} from './webSocket';
 import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {PolyAlgRegistry} from '../components/polyalg/models/polyalg-registry';
+import {PlanNode} from '../components/polyalg/models/polyalg-plan.model';
+import {PlanType} from '../models/information-page.model';
 
 
 @Injectable({
@@ -383,7 +358,7 @@ export class CrudService {
                 code = `db.${collection}.deletePlacement( "${store}" )`;
                 break;
         }
-        const request = new QueryRequest(code, false, true, 'cypher', namespace);
+        const request = new QueryRequest(code, false, true, 'mongo', namespace);
         return this.anyQueryBlocking(request);
     }
 
@@ -469,24 +444,6 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/createForeignKey`, fk, this.httpOptions);
     }
 
-    /**
-     * Execute an algebra expression
-     */
-    executeAlg(socket: WebSocket, relAlg: Node, cache: boolean, analyzeQuery, createView?: boolean, tableType?: string, viewName?: string, store?: string, freshness?: string, interval?: string, timeUnit?: string) {
-        let request;
-        if (createView) {
-            if (tableType === 'MATERIALIZED') {
-                request = new RelAlgRequest(relAlg, cache, analyzeQuery, createView, 'materialized', viewName, store, freshness, interval, timeUnit);
-            } else {
-                request = new RelAlgRequest(relAlg, cache, analyzeQuery, createView, 'view', viewName);
-            }
-        } else {
-            request = new RelAlgRequest(relAlg, cache, analyzeQuery);
-            console.log(request)
-        }
-        return socket.sendMessage(request);
-    }
-
 
     renameTable(meta: EntityMeta) {
         return this._http.post(`${this.httpUrl}/renameTable`, meta, this.httpOptions);
@@ -542,7 +499,7 @@ export class CrudService {
     }
 
     createAdapter(adapter: AdapterModel, formdata: FormData) {
-        formdata.set("body", JSON.stringify(adapter))
+        formdata.set('body', JSON.stringify(adapter));
         return this._http.post(`${this.httpUrl}/createAdapter`, formdata);
     }
 
@@ -569,13 +526,6 @@ export class CrudService {
 
     updateQueryInterfaceSettings(request: QueryInterface) {
         return this._http.post(`${this.httpUrl}/updateQueryInterfaceSettings`, request, this.httpOptions);
-    }
-
-    getAlgebraNodes() {
-        return this._http.get(`${this.httpUrl}/getAlgebraNodes`)
-        .pipe(map(algs => new Map(Object.entries(algs)
-        .sort()
-        .map(([k, v], i) => [k, v as AlgNodeModel[]]))));
     }
 
     removeQueryInterface(queryInterfaceId: string) {
@@ -689,6 +639,25 @@ export class CrudService {
         return this._http.patch<DockerSettings>(`${this.httpUrl}/docker/settings`, settings, this.httpOptions);
     }
 
+    getPolyAlgRegistry() {
+        return this._http.get<PolyAlgRegistry>(`${this.httpUrl}/getPolyAlgRegistry`);
+    }
+
+    executePolyAlg(socket: WebSocket, polyAlg: string, model: DataModel, planType: PlanType) {
+        const request = new PolyAlgRequest(polyAlg, model, planType);
+        return socket.sendMessage(request);
+    }
+
+    executePhysicalPolyAlg(socket: WebSocket, polyAlg: string, model: DataModel, dynamicValues: string[], dynamicTypes: string[]) {
+        const request = new PolyAlgRequest(polyAlg, model, 'PHYSICAL', dynamicValues, dynamicTypes);
+        return socket.sendMessage(request);
+    }
+
+    buildTreeFromPolyAlg(polyAlg: string, planType: PlanType) {
+        const request = new PolyAlgRequest(polyAlg, DataModel.RELATIONAL, planType); // datamodel doesn't matter when building the plan
+        return this._http.post<PlanNode>(`${this.httpUrl}/buildPolyPlan`, request, this.httpOptions);
+    }
+
     getNameValidator(required: boolean = false) {
         if (required) {
             return [Validators.pattern('^[a-zA-Z_][a-zA-Z0-9_]*$'), Validators.required, Validators.max(100)];
@@ -741,6 +710,5 @@ export class CrudService {
 
         return this._http.post(`${this.httpUrl}/loadPlugins`, formData);
     }
-
 
 }

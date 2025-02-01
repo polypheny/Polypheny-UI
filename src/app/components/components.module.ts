@@ -4,23 +4,31 @@ import {GraphComponent} from './graph/graph.component';
 import {NgChartsModule} from 'ng2-charts';
 
 import {
+    AccordionButtonDirective,
+    AccordionComponent,
+    AccordionItemComponent,
+    BadgeComponent,
     BgColorDirective,
     BreadcrumbComponent as BreadCrumb,
     ButtonCloseDirective,
     ButtonDirective,
     ButtonGroupComponent,
+    ButtonToolbarComponent,
     CardBodyComponent,
     CardComponent,
     CardFooterComponent,
     CardHeaderComponent,
     ColComponent,
     ColDirective,
+    CollapseDirective,
     ContainerComponent,
     DropdownComponent,
     DropdownDividerDirective,
     DropdownItemDirective,
     DropdownMenuDirective,
-    DropdownToggleDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective,
+    DropdownToggleDirective,
+    FormCheckInputDirective,
+    FormCheckLabelDirective,
     FormControlDirective,
     FormDirective,
     FormFeedbackComponent,
@@ -42,6 +50,7 @@ import {
     PageItemDirective,
     PageLinkDirective,
     PaginationComponent,
+    PopoverDirective,
     ProgressBarComponent,
     ProgressComponent,
     RowComponent,
@@ -51,6 +60,7 @@ import {
     TabContentRefDirective,
     TableDirective,
     TabPaneComponent,
+    TemplateIdDirective,
     TextColorDirective,
     ToastBodyComponent,
     ToastCloseDirective,
@@ -71,7 +81,6 @@ import {RenderItemComponent} from './information-manager/render-item/render-item
 import {InformationManagerComponent} from './information-manager/information-manager.component';
 import {InputComponent} from './data-view/input/input.component';
 import {EditorComponent} from './editor/editor.component';
-import {ExplainVisualizerModule} from '../explain-visualizer/explain-visualizer.module';
 import {CollapseModule} from 'ngx-bootstrap/collapse';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
@@ -99,6 +108,29 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
 import {ReloadButtonComponent} from '../views/util/reload-button/reload-button.component';
 import {ViewComponent} from './data-view/view/view.component';
 import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.component';
+import {AlgViewerComponent} from './polyalg/polyalg-viewer/alg-viewer.component';
+import {AlgNodeComponent} from './polyalg/algnode/alg-node.component';
+import {ReteModule} from 'rete-angular-plugin/17';
+import {EntityArgComponent} from './polyalg/controls/entity-arg/entity-arg.component';
+import {AutocompleteLibModule} from 'angular-ng-autocomplete';
+import {ListArgComponent} from './polyalg/controls/list-arg/list-arg.component';
+import {RexArgComponent} from './polyalg/controls/rex-arg/rex-arg.component';
+import {StringArgComponent} from './polyalg/controls/string-arg/string-arg.component';
+import {BooleanArgComponent} from './polyalg/controls/boolean-arg/boolean-arg.component';
+import {CustomSocketComponent} from './polyalg/custom-socket/custom-socket.component';
+import {CustomConnectionComponent} from './polyalg/custom-connection/custom-connection.component';
+import {EnumArgComponent} from './polyalg/controls/enum-arg/enum-arg.component';
+import {IntArgComponent} from './polyalg/controls/int-arg/int-arg.component';
+import {FieldArgComponent} from './polyalg/controls/field-arg/field-arg.component';
+import {CorrelationArgComponent} from './polyalg/controls/correlation-arg/correlation-arg.component';
+import {CollationArgComponent} from './polyalg/controls/collation-arg/collation-arg.component';
+import {AggArgComponent} from './polyalg/controls/agg-arg/agg-arg.component';
+import {LaxAggArgComponent} from './polyalg/controls/lax-agg/lax-agg-arg.component';
+import {MagneticConnectionComponent} from './polyalg/polyalg-viewer/magnetic-connection/magnetic-connection.component';
+import {PopoverModule} from 'ngx-bootstrap/popover';
+import {AlgMetadataComponent} from './polyalg/algnode/alg-metadata/alg-metadata.component';
+import {DoubleArgComponent} from './polyalg/controls/double-arg/double-arg.component';
+import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.component';
 
 //import 'hammerjs';
 
@@ -119,7 +151,6 @@ import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.co
         CollapseModule,
         TooltipModule,
         ProgressbarModule.forRoot(),
-        ExplainVisualizerModule,
         ModalModule.forRoot(),
         CarouselModule,
         NgxJsonViewerModule,
@@ -168,7 +199,26 @@ import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.co
         DropdownMenuDirective,
         DropdownItemDirective,
         DropdownDividerDirective,
-        DropdownToggleDirective, ModalTitleDirective, FormDirective, RowDirective, DropdownComponent, FormSelectDirective, TooltipDirective, ContainerComponent, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective
+        DropdownToggleDirective,
+        ModalTitleDirective,
+        FormDirective,
+        RowDirective,
+        DropdownComponent,
+        FormSelectDirective,
+        TooltipDirective,
+        ContainerComponent,
+        ReteModule,
+        AutocompleteLibModule,
+        FormCheckLabelDirective,
+        AccordionComponent,
+        AccordionItemComponent,
+        AccordionButtonDirective,
+        TemplateIdDirective,
+        CollapseDirective,
+        PopoverDirective,
+        PopoverModule,
+        ButtonToolbarComponent,
+        BadgeComponent
     ],
     declarations: [
         BreadcrumbComponent,
@@ -198,6 +248,26 @@ import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.co
         ReloadButtonComponent,
         ViewComponent,
         DockerInstanceComponent,
+        AlgNodeComponent,
+        EntityArgComponent,
+        ListArgComponent,
+        RexArgComponent,
+        StringArgComponent,
+        BooleanArgComponent,
+        CustomSocketComponent,
+        CustomConnectionComponent,
+        EnumArgComponent,
+        AlgViewerComponent,
+        IntArgComponent,
+        FieldArgComponent,
+        CorrelationArgComponent,
+        CollationArgComponent,
+        AggArgComponent,
+        LaxAggArgComponent,
+        MagneticConnectionComponent,
+        AlgMetadataComponent,
+        DoubleArgComponent,
+        WindowArgComponent
     ],
     exports: [
         BreadcrumbComponent,
@@ -221,6 +291,7 @@ import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.co
         Toast,
         ReloadButtonComponent,
         DockerInstanceComponent,
+        AlgViewerComponent
     ]
 })
 export class ComponentsModule {

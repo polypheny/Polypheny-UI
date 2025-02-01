@@ -1,0 +1,10 @@
+<div class="param-wrapper">
+    <label for="selectEnum" *ngIf="data.name"><strong>{{data.name}}</strong></label>
+
+    <c-input-group sizing="sm">
+        <select cSelect id="selectEnum" [(ngModel)]="data.value.arg" (pointerdown)="$event.stopPropagation()"
+                [disabled]="data.isReadOnly">
+            <option *ngFor="let choice of choices" [value]="choice">{{ choice }}</option>
+        </select>
+    </c-input-group>
+</div>

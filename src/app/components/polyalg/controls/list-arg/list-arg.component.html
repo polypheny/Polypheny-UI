@@ -1,0 +1,83 @@
+<label for="argList" *ngIf="data.name"><strong>{{data.name}}</strong></label>
+
+<c-form-check *ngIf="data.canHideTrivial" [switch]="true" class="align-self-center">
+    <input type="checkbox" role="switch" id="collapseTrivial" name="collapseTrivial" (pointerdown)="$event.stopPropagation()"
+           [checked]="data.hideTrivial()" (change)="data.toggleHideTrivial()"
+           class="form-check-input">
+    <label cFormCheckLabel><i>Hide trivial {{data.name}}</i></label>
+</c-form-check>
+<ul cListGroup [flush]="data.depth===0" [ngSwitch]="data.value.innerType" id="argList">
+    <ng-container *ngFor="let child of data.children()">
+        <li cListGroupItem class="p-2 list-element-container d-flex flex-row" [color]="data.depth > 0 && 'dark'" *ngIf="!(data.hideTrivial() && child.isTrivial())">
+            <div class="list-element flex-grow-1">
+                <app-enum-arg [data]="child" *ngIf="data.param.isEnum"></app-enum-arg>
+                <ng-container *ngSwitchCase="ParamType.REX">
+                    <app-rex-arg [data]="child"></app-rex-arg>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="ParamType.STRING">
+                    <app-string-arg [data]="child"></app-string-arg>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="ParamType.INTEGER">
+                    <app-int-arg [data]="child"></app-int-arg>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="ParamType.DOUBLE">
+                    <app-double-arg [data]="child"></app-double-arg>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="ParamType.FIELD">
+                    <app-field-arg [data]="child"></app-field-arg>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="ParamType.CORR_ID">
+                    <app-correlation-arg [data]="child"></app-correlation-arg>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="ParamType.COLLATION">
+                    <app-collation-arg [data]="child"></app-collation-arg>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="ParamType.AGGREGATE">
+                    <app-agg-arg [data]="child"></app-agg-arg>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="ParamType.LAX_AGGREGATE">
+                    <app-lax-agg-arg [data]="child"></app-lax-agg-arg>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="ParamType.WINDOW_GROUP">
+                    <app-window-arg [data]="child"></app-window-arg>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="ParamType.LIST">
+                    <app-list-arg [data]="child"></app-list-arg>
+                </ng-container>
+
+                <ng-container *ngSwitchDefault>
+                    <ng-container *ngIf="!data.param.isEnum">
+                        <p>{{data.value.innerType}}</p>
+                        <p>{{child}}</p>
+                    </ng-container>
+                </ng-container>
+            </div>
+
+            <div *ngIf="!data.isReadOnly" class="text-end remove-element align-self-center ms-1" (click)="data.removeElement(child)" (pointerdown)="$event.stopPropagation()">
+                <i class="fa fa-close"></i>
+            </div>
+        </li>
+    </ng-container>
+    <li *ngIf="!data.isReadOnly" cListGroupItem [class.mt-1]="data.children().length > 0 && data.depth === 0" [color]="data.depth > 0 && 'dark'" class="py-0 px-2">
+        <div class="d-grid">
+            <button *ngIf="data.depth === 0" cButton color="success" variant="outline" class="my-0 p-1"
+                    (click)="data.addElement()" (pointerdown)="$event.stopPropagation()">
+                Add entry
+            </button>
+            <button *ngIf="data.depth > 0" cButton color="success" variant="outline" class="my-1 p-1"
+                    (click)="data.addElement()" (pointerdown)="$event.stopPropagation()">
+                Add inner entry
+            </button>
+        </div>
+    </li>
+</ul>

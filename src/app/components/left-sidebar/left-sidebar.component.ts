@@ -16,12 +16,6 @@ import {CatalogState} from '../../models/catalog.model';
 //docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
-    private readonly _router = inject(Router);
-    public readonly _sidebar = inject(LeftSidebarService);
-    public readonly _catalog = inject(CatalogService);
-
-    public readonly sidebarAvailable: Signal<boolean>;
-
     constructor() {
         this.router = this._router;
         //this.nodes = nodes;
@@ -65,13 +59,18 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
         );
 
         this.sidebarAvailable = computed(() => {
-            return this.buttons.length > 0 || this.error || this.nodes.length > 0
-        })
+            return this.buttons.length > 0 || this.error || this.nodes.length > 0;
+        });
     }
 
     static readonly EXPAND_SHOWN_ROUTES: String[] = [
-        '/views/monitoring', '/views/config', '/views/uml', '/views/querying/console',
-        '/views/querying/algebra', '/views/notebooks'];
+        '/views/monitoring', '/views/config', '/views/uml', '/views/querying/console', '/views/notebooks'];
+
+    private readonly _router = inject(Router);
+    public readonly _sidebar = inject(LeftSidebarService);
+    public readonly _catalog = inject(CatalogService);
+
+    public readonly sidebarAvailable: Signal<boolean>;
 
     @ViewChild('tree', {static: false}) treeComponent: TreeComponent;
     nodes = [];

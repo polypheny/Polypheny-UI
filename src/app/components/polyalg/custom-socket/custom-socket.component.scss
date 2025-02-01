@@ -1,0 +1,36 @@
+@import "scss/style.scss";
+
+$socket-size: 24px;
+$socket-margin: 6px;
+
+:host {
+  display: inline-block;
+  cursor: pointer;
+  border: 4px solid $dark;
+  border-radius: calc($socket-size / 2);
+  width: $socket-size;
+  height: $socket-size;
+  margin: $socket-margin;
+  vertical-align: middle;
+  background: white;
+  z-index: 2;
+  box-sizing: border-box;
+
+  &:hover {
+    border-width: 4px;
+    border-color: $primary;
+    background: $primary;
+  }
+
+  &.multi {
+    width: 2*$socket-size;
+  }
+
+  &.output {
+    margin-right: calc(-1 * $socket-size / 2);
+  }
+
+  &.input {
+    margin-left: calc(-1 * $socket-size / 2);
+  }
+}

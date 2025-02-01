@@ -1,0 +1,17 @@
+@import "scss/style.scss";
+
+svg {
+  overflow: visible !important;
+  position: absolute;
+  pointer-events: none;
+  width: 9999px;
+  height: 9999px;
+
+  path {
+    fill: none;
+    stroke-width: 5px;
+    stroke: rgba($primary, 0.5);
+    stroke-dasharray: 10 10;
+    pointer-events: auto;
+  }
+}
