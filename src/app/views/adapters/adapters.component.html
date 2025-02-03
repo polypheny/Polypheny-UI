@@ -25,11 +25,11 @@
                 <tbody>
                 <tr *ngFor="let adapter of availableAdapters()">
                     <td class="center">
-                        <ng-container *ngIf="getLogo(adapter.adapterName).startsWith('assets/')">
-                            <img [src]="getLogo(adapter.adapterName)" alt="">
+                        <ng-container *ngIf="adapter.adapterLogo.startsWith('assets/')">
+                            <img [src]="getLogo(adapter.adapterLogo)" alt="">
                         </ng-container>
-                        <ng-container *ngIf="!getLogo(adapter.adapterName).startsWith('assets/')">
-                            <i [class]="getLogo(adapter.adapterName)"></i>
+                        <ng-container *ngIf="!adapter.adapterLogo.startsWith('assets/')">
+                            <i [class]="adapter.adapterLogo"></i>
                         </ng-container>
                     </td>
                     <td><strong>{{ adapter.adapterName }}</strong></td>
@@ -54,10 +54,10 @@
                     <c-badge *ngIf="adapter.mode === DeployMode.EMBEDDED" color="info">Embedded</c-badge>
                 </c-card-header>
                 <c-card-body>
-                    <img *ngIf="getLogo(adapter.adapterName).startsWith('assets/')" [src]="getLogo(adapter.adapterName)"
+                    <img *ngIf="adapter.adapterLogo.startsWith('assets/')" [src]="getLogo(adapter.adapterLogo)"
                          alt="" class="logo">
-                    <i *ngIf="!getLogo(adapter.adapterName).startsWith('assets/')"
-                       [class]="'logo ' + getLogo(adapter.adapterName)"></i>
+                    <i *ngIf="!adapter.adapterLogo.startsWith('assets/')"
+                       [class]="'logo ' + adapter.adapterLogo"></i>
                     <span class="mb-2">Adapter: {{ adapter.adapterName }}</span>
 
                     <span *ngIf="adapter.dataReadOnly"><span class="fa fa-eye"></span> read-only</span>
