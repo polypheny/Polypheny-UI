@@ -15,19 +15,30 @@
                 }
             </ul>
 
-            <div class="ms-auto" [ngClass]="{'ms-auto': activity().def.nonEmptyGroupCount > 1}">
-                @if (hasSettingsChanged()) {
-                    <span class="text-muted">Discard</span>
-                    <app-delete-confirm (delete)="resetSettings()"></app-delete-confirm>
-                }
-            </div>
+            @if (isEditable()) {
 
-            <div class="ms-3" [ngClass]="{'ms-auto': activity().def.nonEmptyGroupCount <= 1}">
-                <button cButton type="submit" color="primary" *ngIf="isEditable()" class=""
-                        [disabled]="!hasSettingsChanged()" (click)="saveSettings()">
-                    Save
-                </button>
-            </div>
+                <div class="ms-auto" [ngClass]="{'ms-auto': activity().def.nonEmptyGroupCount > 1}">
+                    @if (hasSettingsChanged()) {
+                        <span class="text-muted">Discard</span>
+                        <app-delete-confirm (delete)="resetSettings()"></app-delete-confirm>
+                    }
+                </div>
+
+                <div class="ms-3" [ngClass]="{'ms-auto': activity().def.nonEmptyGroupCount <= 1}">
+                    <c-form-check [switch]="false" [inline]="true">
+                        <input cFormCheckInput id="settings-description" type="checkbox" [(ngModel)]="showDescription"
+                               name="settings-description">
+                        <label cFormCheckLabel for="settings-description">Description</label>
+                    </c-form-check>
+                </div>
+
+                <div class="ms-3">
+                    <button cButton type="submit" color="primary" [disabled]="!hasSettingsChanged()" (click)="saveSettings()">
+                        Save
+                    </button>
+                </div>
+
+            }
 
         </div>
 
@@ -37,7 +48,7 @@
                     <strong>Execution Error: </strong> <span class="text-danger text-break">{{ activity().error().message }}</span>
                 </c-callout>
             }
-            <p>{{ activity().def.shortDescription }}</p>
+            <p *ngIf="showDescription && activity().def.shortDescription">{{ activity().def.shortDescription }}</p>
             @for (subgroup of activeSettingGroup().subgroups; track activity().id + subgroup.key) {
                 <ng-container *ngIf="!subgroup.isEmpty">
                     <h5 *ngIf="!subgroup.isDefault() || true">{{ subgroup.displayName }}</h5>
@@ -59,7 +70,7 @@
                                     <p class="text-danger mb-2" *ngIf="activity().invalidSettings()[setting.key]">
                                         {{ activity().invalidSettings()[setting.key] }}
                                     </p>
-                                    <p *ngIf="setting.shortDescription">{{ setting.shortDescription }}</p>
+                                    <p *ngIf="showDescription && setting.shortDescription">{{ setting.shortDescription }}</p>
 
                                     <!--Variables-->
                                     <div [visible]="variablesVisibilityMap.get(setting.key)?.()" cCollapse>

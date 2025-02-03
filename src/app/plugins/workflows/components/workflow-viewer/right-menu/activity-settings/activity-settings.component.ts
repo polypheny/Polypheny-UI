@@ -34,6 +34,7 @@ export class ActivitySettingsComponent implements OnInit {
     hasSettingsChanged: Signal<boolean>;
     readonly visibilityMap = new Map<string, boolean>();
     readonly variablesVisibilityMap = new Map<string, WritableSignal<boolean>>();
+    showDescription = true;
 
     constructor(private readonly _websocket: WorkflowsWebSocketService, private readonly _toast: ToasterService) {
         effect(() => this.activeSettingGroup.set(this.activity().def.getFirstGroup()), {allowSignalWrites: true});

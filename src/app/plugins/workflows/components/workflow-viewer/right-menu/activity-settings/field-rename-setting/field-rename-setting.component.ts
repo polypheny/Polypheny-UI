@@ -24,28 +24,23 @@ export class FieldRenameSettingComponent {
             return this.targetPreview().columns?.map(c => c.name) || [];
         } else if (this.targetPreview().portType === 'DOC') {
             return this.targetPreview().fields || [];
+        } else if (this.targetPreview().portType === 'LPG') {
+            return [...(this.targetPreview().nodeLabels || []), ...(this.targetPreview().edgeLabels || [])];
         }
         return [];
     });
-    lastMode = null;
-
-    readonly modes: [RenameMode, String][] = [
-        ['CONSTANT', 'Constant'],
-        ['REGEX', 'Regex'],
-        ['INDEX', 'Index']
-    ];
+    modes = computed(() => {
+        const modes: [RenameMode, String][] = [['CONSTANT', 'Constant']];
+        if (this.def().allowRegex) {
+            modes.push(['REGEX', 'Regex']);
+        }
+        if (this.def().allowIndex) {
+            modes.push(['INDEX', 'Index']);
+        }
+        return modes;
+    });
 
     valueChanged() {
-        // TODO: fix changing mode to index
-        /*const mode = this.value().mode;
-        if (this.lastMode !== null && this.lastMode !== mode && mode === 'INDEX') {
-            let i = 0; // switching to index, reset source
-            for (const rule of this.rules()) {
-                rule.source = i.toString(10);
-                i++;
-            }
-        }
-        this.lastMode = mode;*/
         setTimeout(() => this.hasChanged.emit(), 1);
     }
 
@@ -53,7 +48,7 @@ export class FieldRenameSettingComponent {
         switch (this.value().mode) {
             case 'CONSTANT':
             case 'REGEX':
-                this.rules().push({source: '', replacement: '', caseInsensitive: false});
+                this.rules().push({source: '', replacement: ''});
                 break;
             case 'INDEX':
                 let highestIndex = -1;
@@ -63,7 +58,7 @@ export class FieldRenameSettingComponent {
                         highestIndex = i;
                     }
                 });
-                this.rules().push({source: '' + (highestIndex + 1), replacement: '', caseInsensitive: false});
+                this.rules().push({source: '' + (highestIndex + 1), replacement: ''});
                 break;
         }
         this.valueChanged();
@@ -87,6 +82,5 @@ interface FieldRenameSettingDef extends SettingDefModel {
 interface RenameRule {
     source: string;
     replacement: string;
-    caseInsensitive: boolean; // not relevant for index
 
 }

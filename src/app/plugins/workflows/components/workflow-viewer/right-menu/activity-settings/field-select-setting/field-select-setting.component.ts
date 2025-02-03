@@ -30,12 +30,13 @@ export class FieldSelectSettingComponent {
     addInclude = '';
 
     fields = computed(() => {
-        if (this.targetPreview().portType === 'REL') {
-            return this.targetPreview().columns?.map(c => c.name) || [];
-        } else if (this.targetPreview().portType === 'DOC') {
-            return this.targetPreview().fields || [];
-        } else if (this.targetPreview().portType === 'LPG') {
-            return [...this.targetPreview().nodeLabels, ...this.targetPreview().edgeLabels];
+        const tp = this.targetPreview();
+        if (tp.portType === 'REL') {
+            return tp.columns?.map(c => c.name) || [];
+        } else if (tp.portType === 'DOC') {
+            return tp.fields || [];
+        } else if (tp.portType === 'LPG') {
+            return [...(tp.nodeLabels || []), ...(tp.edgeLabels || [])];
         }
         return [];
     });

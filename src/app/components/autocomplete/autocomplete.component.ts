@@ -21,7 +21,7 @@ export class AutocompleteComponent {
     @Input() notFoundText = 'Not Found';
     @Input() disabled = false;
 
-    @Output() changed = new EventEmitter<any>(); // new output, combines selected and inputChanged
+    @Output() changed = new EventEmitter<void>(); // new output, combines selected, inputChanged and inputCleared
     @Output() selected = new EventEmitter<any>();
     @Output() inputChanged = new EventEmitter<any>();
     @Output() inputFocused = new EventEmitter<void>();
@@ -32,12 +32,12 @@ export class AutocompleteComponent {
 
     onItemSelected(event: any): void {
         this.selected.emit(event);
-        this.changed.emit(event);
+        this.changed.emit();
     }
 
     onInputChanged(event: any): void {
         this.inputChanged.emit(event);
-        this.changed.emit(event);
+        this.changed.emit();
     }
 
     onInputFocused(): void {
@@ -46,6 +46,7 @@ export class AutocompleteComponent {
 
     onInputCleared(): void {
         this.inputCleared.emit();
+        this.changed.emit();
     }
 
     onOpened(): void {

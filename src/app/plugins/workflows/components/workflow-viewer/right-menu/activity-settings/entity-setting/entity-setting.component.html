@@ -1,5 +1,4 @@
 <div class="mb-1">
-    {{ value().namespace }}
     <app-autocomplete (changed)="valueChanged()"
                       [data]="namespaces()"
                       [(value)]="value().namespace"

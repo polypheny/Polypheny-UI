@@ -2,8 +2,15 @@
     <label cInputGroupText for="selectMode">Mode</label>
     <select cSelect id="selectMode" [(ngModel)]="this.value().mode" (change)="valueChanged()"
             [disabled]="!isEditable()">
-        <option *ngFor="let mode of modes" [value]="mode[0]">{{ mode[1] }}</option>
+        <option *ngFor="let mode of modes()" [value]="mode[0]">{{ mode[1] }}</option>
     </select>
+</c-input-group>
+<c-input-group class="mb-3" *ngIf="this.value().mode !== 'INDEX'">
+    <c-form-check [switch]="true">
+        <input cFormCheckInput type="checkbox" [disabled]="!isEditable()" (change)="valueChanged()"
+               [(ngModel)]="this.value().ignoreCase"/>
+        <label cFormCheckLabel>Ignore case</label>
+    </c-form-check>
 </c-input-group>
 
 <c-card class="list-container border bg-light mb-3" *ngIf="rules()?.length > 0">
@@ -12,29 +19,24 @@
             <li cListGroupItem class="bg-white list-entry" [class.draggable]="isEditable()">
                 <c-row gutter=false>
                     <c-col [xs]="11">
-                        <div class="d-flex mb-2 align-items-center justify-content-between">
+                        <div class="d-flex mb-1 align-items-center justify-content-between">
                             @if (this.value().mode === 'CONSTANT') {
                                 <div class="flex-grow-1">
                                     <app-autocomplete (changed)="valueChanged()"
                                                       [data]="suggestions()"
                                                       [(value)]="rule.source"
-                                                      [placeholder]="fieldType()"
+                                                      [placeholder]="fieldType() | titlecase"
                                                       [disabled]="!isEditable()">
                                     </app-autocomplete>
                                 </div>
                             } @else {
-                                <input cFormControl sizing="sm" [placeholder]="this.value().mode === 'REGEX' ? 'input regex' : fieldType() + ' index'"
+                                <input cFormControl sizing="sm" [placeholder]="this.value().mode === 'REGEX' ? 'Search regex' : (fieldType() | titlecase) + ' index'"
                                        type="text" autocomplete="off" [disabled]="!isEditable()" (input)="hasChanged.emit()"
                                        [(ngModel)]="rule.source" (change)="valueChanged()">
                             }
-                            <c-form-check [switch]="true" *ngIf="this.value().mode !== 'INDEX'" class="ms-2 case-check">
-                                <input cFormCheckInput type="checkbox" [disabled]="!isEditable()" (change)="valueChanged()"
-                                       [(ngModel)]="rule.caseInsensitive"/>
-                                <label cFormCheckLabel>Ignore case</label>
-                            </c-form-check>
                         </div>
                         <div>
-                            <input cFormControl sizing="sm" id="replacement" [placeholder]="'replacement'"
+                            <input cFormControl sizing="sm" id="replacement" [placeholder]="'Replace'"
                                    type="text" autocomplete="off" [disabled]="!isEditable()" (input)="hasChanged.emit()"
                                    [(ngModel)]="rule.replacement" (change)="valueChanged()">
                         </div>

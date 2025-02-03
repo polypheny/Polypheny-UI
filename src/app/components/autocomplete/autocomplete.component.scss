@@ -16,6 +16,7 @@
 
   .input-container {
     height: initial;
+    max-height: 31px !important; // based on small coreUI input
     line-height: 2;
     background-color: white !important;
     border-radius: 0.25rem;
@@ -33,7 +34,7 @@
   }
 
   .input-container input::placeholder {
-    font-size: 1rem;
+    font-size: 0.875rem; // based on small coreUI input
   }
 
   /* bootstrap styles */

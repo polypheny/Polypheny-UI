@@ -6,7 +6,7 @@ import {ActivityUpdateResponse, ErrorResponse, ProgressUpdateResponse, Rendering
 import {filter, Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Activity, Workflow} from './workflow';
-import {WorkflowState} from '../../models/workflows.model';
+import {ActivityState, WorkflowState} from '../../models/workflows.model';
 import {RightMenuComponent} from './right-menu/right-menu.component';
 import {switchMap, tap} from 'rxjs/operators';
 import {WorkflowConfigEditorComponent} from './workflow-config-editor/workflow-config-editor.component';
@@ -104,11 +104,17 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     }
 
     execute() {
-        this._websocket.execute();
+        if (!this.openedActivity() || [ActivityState.FINISHED, ActivityState.SAVED].includes(this.openedActivity().state())
+            || this.rightMenu.canSafelyNavigate()) {
+            this._websocket.execute();
+        }
     }
 
     reset() {
-        this._websocket.reset();
+        if (!this.openedActivity() || this.openedActivity().state() === ActivityState.IDLE
+            || this.rightMenu.canSafelyNavigate()) {
+            this._websocket.reset();
+        }
     }
 
     interrupt() {
@@ -145,7 +151,11 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             activityId => this._websocket.execute(activityId)
         ));
         this.subscriptions.add(this.editor.onActivityReset().subscribe(
-            activityId => this._websocket.reset(activityId)
+            activityId => {
+                if (!this.openedActivity() || (activityId !== this.openedActivity().id || this.rightMenu.canSafelyNavigate())) {
+                    this._websocket.reset(activityId);
+                }
+            }
         ));
         this.subscriptions.add(this.editor.onOpenActivitySettings().subscribe(
             activityId => this.openActivitySettings(activityId)
