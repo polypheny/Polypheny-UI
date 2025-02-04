@@ -11,7 +11,7 @@ import {TypePreviewModel} from '../../../../../models/workflows.model';
 export class FieldRenameSettingComponent {
     isEditable = input.required<boolean>();
     settingDef = input.required<SettingDefModel>();
-    inTypePreview = input.required<TypePreviewModel[]>(); // not required for int
+    inTypePreview = input.required<TypePreviewModel[]>();
     value = model.required<any>();
     @Output() hasChanged = new EventEmitter<void>();
 

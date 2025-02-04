@@ -163,6 +163,14 @@ export class SettingDef {
             return false;
         }
     }
+
+    getGroup() {
+        return this.model.group;
+    }
+
+    getSubgroup() {
+        return this.model.subgroup;
+    }
 }
 
 export interface ActivityDefModel {
@@ -247,6 +255,7 @@ export enum SettingType {
     ENUM = 'ENUM',
     COLLATION = 'COLLATION',
     FIELD_RENAME = 'FIELD_RENAME',
+    CAST = 'CAST',
     // TODO: update when a new settingType is added
 }
 

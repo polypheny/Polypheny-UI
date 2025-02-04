@@ -45,7 +45,7 @@ export class AddVariableComponent {
         }
         const leaves = Object.keys(JsonPointer.dict(this.settingValue()));
         const firstChildren = leaves.length > 0 ? Object.keys(this.settingValue()).map(k => '/' + k) : [];
-        return Array.from(new Set([...leaves, ...firstChildren]))
+        return Array.from(new Set([...leaves, ...firstChildren])).slice(0, 20) // limit number of suggestions
         .sort((a, b) => a.length - b.length);
     });
 

@@ -1,0 +1,116 @@
+<c-card class="list-container border bg-light mb-3" *ngIf="casts()?.length > 0">
+    <ul cListGroup flush="true">
+        @for (cast of casts(); track $index) {
+            <li cListGroupItem class="bg-white list-entry" [class.draggable]="isEditable()">
+                <c-row gutter=false>
+                    <c-col [xs]="11" class="pe-0">
+
+                        <div class="d-flex align-items-center">
+                            <app-autocomplete (changed)="valueChanged()"
+                                              [data]="suggestions()"
+                                              [(value)]="cast.source"
+                                              [placeholder]="'Source ' + fieldType() | titlecase"
+                                              [disabled]="!isEditable()"
+                                              class="source-input">
+                            </app-autocomplete>
+
+                            <input cFormControl sizing="sm" id="cast-target" placeholder="Change Name" *ngIf="def().allowTarget"
+                                   type="text" autocomplete="off" class="ms-1 target-input"
+                                   [(ngModel)]="cast.target" [disabled]="!isEditable()" (input)="valueChanged()">
+                        </div>
+
+                        @if (!cast.asJson) {
+                            <div class="d-flex mt-3 mb-1 align-items-center">
+                                <select cSelect sizing="sm" [(ngModel)]="cast.type" [disabled]="!isEditable()" (change)="valueChanged()">
+                                    <option *ngFor="let t of types" [ngValue]="t.name">{{ t.name }}</option>
+                                </select>
+                                <c-form-check [switch]="false" class="ms-2">
+                                    <input cFormCheckInput id="nullable-cast" type="checkbox" [(ngModel)]="cast.nullable"
+                                           name="nullable-cast" (change)="valueChanged()" [disabled]="!isEditable()">
+                                    <label cFormCheckLabel for="nullable-cast">Nullable</label>
+                                </c-form-check>
+                            </div>
+                            @if (supportsPrecision()[$index] || supportsScale()[$index]) {
+
+                                <div class="d-flex mb-1 align-items-center">
+                                    <!-- precision -->
+                                    <c-input-group sizing="sm" *ngIf="supportsPrecision()[$index]" class="me-1">
+                                        <span cInputGroupText>{{ precisionPlaceholder()[$index] }}</span>
+                                        <input cFormControl [id]="'precision'+$index" type="number" [placeholder]="precisionPlaceholder()[$index]" [disabled]="!isEditable()"
+                                               [(ngModel)]="cast.precision" (change)="valueChanged()">
+                                    </c-input-group>
+                                    <!-- scale -->
+                                    <c-input-group sizing="sm" *ngIf="supportsScale()[$index]">
+                                        <span cInputGroupText>scale</span>
+                                        <input [id]="'scale'+$index" type="number" placeholder="scale" [disabled]="!isEditable()"
+                                               cFormControl [(ngModel)]="cast.scale" (change)="valueChanged()">
+                                    </c-input-group>
+
+                                </div>
+                            }
+
+                            <div class="d-flex mb-1 align-items-center">
+                                <select cSelect sizing="sm" name="collection_type" [disabled]="!isEditable()" (change)="valueChanged()" class="collection-type"
+                                        [(ngModel)]="cast.collectionsType">
+                                    <option value="">No Collection</option>
+                                    <option value="ARRAY">ARRAY</option>
+                                </select>
+
+                                @if (cast.collectionsType === 'ARRAY') {
+                                    <!-- dimension -->
+                                    <c-input-group sizing="sm" class="ms-1">
+                                        <span cInputGroupText>dim</span>
+                                        <input cFormControl [id]="'dim'+$index" type="number" placeholder="dimension" [disabled]="!isEditable()"
+                                               [(ngModel)]="cast.dimension" (change)="valueChanged()">
+                                    </c-input-group>
+                                    <!-- cardinality -->
+                                    <c-input-group sizing="sm" class="ms-1">
+                                        <span cInputGroupText>card</span>
+                                        <input [id]="'card'+$index" type="number" placeholder="cardinality" [disabled]="!isEditable()"
+                                               cFormControl [(ngModel)]="cast.cardinality" (change)="valueChanged()">
+                                    </c-input-group>
+                                }
+                            </div>
+                        } @else {
+                            <span class="badge bg-secondary mt-2" *ngIf="cast.asJson">
+                                JSON
+                            </span>
+                        }
+
+
+                    </c-col>
+                    <c-col [xs]="1" class="text-end p-0" *ngIf="isEditable()">
+                        <app-delete-confirm (delete)="deleteCast($index)"></app-delete-confirm>
+                    </c-col>
+                </c-row>
+            </li>
+        }
+    </ul>
+
+</c-card>
+
+<div class="d-flex" [class.justify-content-between]="def().allowJson">
+
+    <div class="d-flex align-items-center">
+        <app-autocomplete (changed)="valueChanged()"
+                          [data]="suggestions()"
+                          [(value)]="addName"
+                          [placeholder]="'Source ' + fieldType() | titlecase"
+                          [disabled]="!isEditable()">
+        </app-autocomplete>
+
+        @if (def().allowJson) {
+            <c-form-check [switch]="true" class="ms-2">
+                <input cFormCheckInput type="checkbox" [(ngModel)]="addAsJson"
+                       name="allow-json-cast" (change)="valueChanged()" [disabled]="!isEditable()">
+                <label cFormCheckLabel for="nullable-cast">As JSON</label>
+            </c-form-check>
+        }
+    </div>
+
+    <button cButton color="light" *ngIf="isEditable()" (click)="addCast()" size="sm" class="ms-2"
+            [disabled]="addName.length < 1">
+        Add {{ fieldType() | titlecase }}
+    </button>
+
+</div>

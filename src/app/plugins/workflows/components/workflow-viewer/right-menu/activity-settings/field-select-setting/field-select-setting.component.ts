@@ -61,7 +61,7 @@ export class FieldSelectSettingComponent {
     // https://www.npmjs.com/package/angular2-multiselect-dropdown
     readonly dropdownSettings = {
         singleSelection: false,
-        text: 'Fields to include',
+        text: 'Select...',
         noDataLabel: 'No fields found',
         searchPlaceholderText: 'Search or add new',
         enableSearchFilter: true,

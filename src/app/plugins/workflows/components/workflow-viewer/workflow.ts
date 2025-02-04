@@ -326,6 +326,7 @@ export class Activity {
     readonly commonType: Signal<CommonType>;
     readonly rendering: WritableSignal<RenderModel>;
     readonly inTypePreview: WritableSignal<TypePreviewModel[]>;
+    readonly inSuggestions: Signal<string[][]>; // for each inTypePreview, contains a list of suggestions (col / field / label names)
     readonly outTypePreview: WritableSignal<TypePreviewModel[]>;
     readonly invalidReason: WritableSignal<string>;
     readonly invalidSettings: WritableSignal<Record<string, string>>;
@@ -348,6 +349,17 @@ export class Activity {
         this.commonType = computed(() => this.config().commonType);
         this.rendering = signal(activityModel.rendering, {equal: _.isEqual});
         this.inTypePreview = signal(activityModel.inTypePreview, {equal: _.isEqual});
+        this.inSuggestions = computed(() => this.inTypePreview().map(preview => {
+                if (preview.portType === 'REL') {
+                    return preview.columns?.map(c => c.name) || [];
+                } else if (preview.portType === 'DOC') {
+                    return preview.fields || [];
+                } else if (preview.portType === 'LPG') {
+                    return [...(preview.nodeLabels || []), ...(preview.edgeLabels || [])];
+                }
+                return [];
+            })
+        );
         this.outTypePreview = signal(activityModel.outTypePreview, {equal: _.isEqual});
         this.invalidReason = signal(activityModel.invalidReason);
         this.invalidSettings = signal(activityModel.invalidSettings);
@@ -363,6 +375,7 @@ export class Activity {
             .filter(m => m.activityId === this.id) || []
         );
         this.error = computed(() => this.state() === ActivityState.FAILED && this.variables()[errorKey]);
+
     }
 
     update(activityModel: ActivityModel) {

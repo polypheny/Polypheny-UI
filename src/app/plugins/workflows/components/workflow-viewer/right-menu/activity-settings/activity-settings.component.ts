@@ -32,7 +32,8 @@ export class ActivitySettingsComponent implements OnInit {
     });
     readonly serializedEditedSettings = signal<string>(null);
     hasSettingsChanged: Signal<boolean>;
-    readonly visibilityMap = new Map<string, boolean>();
+    readonly visibleSettings = new Set<string>();
+    readonly visibleSubgroups = new Set<string>();
     readonly variablesVisibilityMap = new Map<string, WritableSignal<boolean>>();
     showDescription = true;
 
@@ -66,11 +67,16 @@ export class ActivitySettingsComponent implements OnInit {
     }
 
     private updateVisibility() {
-        this.visibilityMap.clear();
+        this.visibleSettings.clear();
+        this.visibleSubgroups.clear();
         const def = this.activity().def;
         const settingsModel = this.editableSettings().toModel(false);
         this.activity().settings().keys().forEach(key => {
-            this.visibilityMap.set(key, def.getSettingDef(key).isVisible(settingsModel));
+            const settingDef = def.getSettingDef(key);
+            if (settingDef.isVisible(settingsModel)) {
+                this.visibleSettings.add(key);
+                this.visibleSubgroups.add(settingDef.getGroup() + '/' + settingDef.getSubgroup());
+            }
         });
 
     }

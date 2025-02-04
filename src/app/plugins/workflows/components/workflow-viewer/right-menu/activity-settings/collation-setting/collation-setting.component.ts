@@ -13,7 +13,7 @@ type Directions = 'ASCENDING' | 'STRICTLY_ASCENDING' | 'DESCENDING' | 'STRICTLY_
 export class CollationSettingComponent {
     isEditable = input.required<boolean>();
     settingDef = input.required<SettingDefModel>();
-    inTypePreview = input.required<TypePreviewModel[]>(); // not required for int
+    inTypePreview = input.required<TypePreviewModel[]>();
     value = model.required<any>();
     @Output() hasChanged = new EventEmitter<void>();
 
