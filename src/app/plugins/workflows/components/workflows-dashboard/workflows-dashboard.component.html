@@ -3,7 +3,7 @@
         <h1>Workflow Dashboard</h1>
 
         <c-row class="mb-5">
-            <c-col md="6" class="fixed-width">
+            <c-col [md]="6" class="fixed-width">
                 <c-card>
                     <c-card-header>
                         <span class="mb-0">Create Workflow</span>
@@ -22,6 +22,35 @@
                         <c-input-group class="mb-0 justify-content-end">
                             <button cButton color="primary" (click)="createAndOpenWorkflow()"
                                     [disabled]="!newWorkflowName">Create
+                            </button>
+                        </c-input-group>
+                    </c-card-body>
+                </c-card>
+            </c-col>
+            <c-col [md]="6" class="fixed-width">
+                <c-card>
+                    <c-card-header>
+                        <span class="mb-0">Upload Workflow</span>
+                    </c-card-header>
+                    <c-card-body>
+                        <c-input-group class="mb-3" cCol>
+                            <span cInputGroupText>Name</span>
+                            <input cFormControl placeholder="Workflow Name" [(ngModel)]="uploadWorkflowName"
+                                   autocomplete="off"/>
+                        </c-input-group>
+                        <c-input-group class="mb-3">
+                            <span cInputGroupText>Folder</span>
+                            <input cFormControl placeholder="Default Folder" [(ngModel)]="uploadWorkflowGroup"
+                                   autocomplete="off"/>
+                        </c-input-group>
+                        <c-input-group class="mb-3">
+                            <input cFormControl id="uploadWorkflow" type="file" accept=".json,.txt"
+                                   (change)="onFileChange($event.target['files'])"/>
+                        </c-input-group>
+
+                        <c-input-group class="mb-0 justify-content-end">
+                            <button cButton color="primary" (click)="importWorkflow()"
+                                    [disabled]="!uploadWorkflowName || !uploadedWorkflow">Upload
                             </button>
                         </c-input-group>
                     </c-card-body>
@@ -50,8 +79,8 @@
                             <ng-template cTemplateId="accordionHeaderTemplate">
                                 <button (click)="item.toggleItem()" [collapsed]="!item.visible" cAccordionButton>
                                     <div class="d-flex justify-content-between flex-grow-1">
-                                        <div class="flex-grow-1">
-                                            <h5>{{ def.def.name }}</h5>
+                                        <div class="flex-grow-1 limit-name-width">
+                                            <h5 class="workflow-name">{{ def.def.name }}</h5>
                                             <span class="text-muted">{{ def.def.versions[selectedVersion[def.id]].description }}</span>
                                         </div>
 
@@ -76,7 +105,7 @@
                             <ng-template cTemplateId="accordionBodyTemplate">
                                 <div class="accordion-body">
                                     <c-row class="mb-3">
-                                        <c-col md="4">
+                                        <c-col [md]="4">
                                             <c-input-group>
                                                 <input cFormControl type="text" #nameInput placeholder="Enter new name">
                                                 <button cButton color="light"
@@ -87,7 +116,7 @@
                                             </c-input-group>
 
                                         </c-col>
-                                        <c-col md="4">
+                                        <c-col [md]="4">
                                             <c-input-group>
                                                 <input cFormControl type="text" #groupInput
                                                        placeholder="Enter new group">
@@ -98,7 +127,7 @@
                                                 </button>
                                             </c-input-group>
                                         </c-col>
-                                        <c-col md="auto" class="ms-auto">
+                                        <c-col [md]="'auto'" class="ms-auto">
                                             <button cButton color="danger" type="button"
                                                     (click)="confirmDelete(def.id)">
                                                 Delete Workflow
@@ -113,7 +142,7 @@
                                             <th scope="col">Version</th>
                                             <th scope="col">Creation Time</th>
                                             <th scope="col">Comment</th>
-                                            <th scope="col">Delete Version</th>
+                                            <th scope="col">Actions</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -123,8 +152,16 @@
                                                     <td>{{ version.value.creationTime | date:'short' }}</td>
                                                     <td>{{ version.value.description }}</td>
                                                     <td>
-                                                        <app-delete-confirm
-                                                                (delete)="deleteVersion(def.id, version.key)"></app-delete-confirm>
+                                                        <button cButton (click)="exportVersion(def.id, version.key)"
+                                                                size="sm" color="dark" variant="ghost" cTooltip="Download">
+                                                            <span class="fa fa-download"></span>
+                                                        </button>
+                                                        <button cButton (click)="openCopyModal(def.id, version.key)"
+                                                                size="sm" color="dark" variant="ghost" cTooltip="Create Copy">
+                                                            <span class="fa fa-copy"></span>
+                                                        </button>
+                                                        <app-delete-confirm cTooltip="Delete"
+                                                                            (delete)="deleteVersion(def.id, version.key)"></app-delete-confirm>
                                                     </td>
                                                 </tr>
                                             }
@@ -145,9 +182,9 @@
             <ng-container *ngFor="let session of sessions">
                 <li cListGroupItem>
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="flex-grow-1">
+                        <div class="flex-grow-1 limit-name-width">
                             @if (session.type === 'USER_SESSION') {
-                                <h4>
+                                <h4 class="session-name">
                                     {{ workflowDefs[session.workflowId].name }}
                                     v{{ session.version }}
                                 </h4>
@@ -213,6 +250,36 @@
         <button (click)="toggleDeleteModal()" cButton color="secondary">Close</button>
         <div>
             <button cButton color="danger" (click)="deleteWorkflow(workflowToDelete.id)">Delete</button>
+        </div>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showCopyModal()" (visibleChange)="showCopyModal.set($event)" *ngIf="workflowToCopy">
+    <c-modal-header>
+        <h5 cModalTitle>Copy Workflow</h5>
+        <button (click)="toggleCopyModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        Create a new Workflow from the specified version.
+        {{ workflowToCopy | json }}
+        <c-input-group class="mb-3" cCol>
+            <span cInputGroupText>Name</span>
+            <input cFormControl placeholder="Workflow Name" [(ngModel)]="copyWorkflowName"
+                   autocomplete="off"/>
+        </c-input-group>
+        <c-input-group class="mb-3">
+            <span cInputGroupText>Folder</span>
+            <input cFormControl placeholder="Default Folder" [(ngModel)]="copyWorkflowGroup"
+                   autocomplete="off"/>
+        </c-input-group>
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleCopyModal()" cButton color="secondary">Close</button>
+        <div>
+            <button cButton color="primary" (click)="copyWorkflow()"
+                    [disabled]="!copyWorkflowName">
+                Copy
+            </button>
         </div>
     </c-modal-footer>
 </c-modal>

@@ -63,6 +63,10 @@ export class WorkflowsService {
         return this._http.get<Record<string, WorkflowDefModel>>(`${this.httpUrl}/workflows`, this.httpOptions);
     }
 
+    getWorkflow(workflowId: string, version: number) {
+        return this._http.get<WorkflowModel>(`${this.httpUrl}/workflows/${workflowId}/${version}`, this.httpOptions);
+    }
+
     createSession(workflowName: string, group: string) {
         const json = {
             name: workflowName,
@@ -71,8 +75,25 @@ export class WorkflowsService {
         return this._http.post<string>(`${this.httpUrl}/sessions`, json, this.httpOptions);
     }
 
+    importWorkflow(name: string, group: string = null, workflow: WorkflowModel) {
+        const json = {
+            name,
+            group,
+            workflow
+        };
+        return this._http.post<string>(`${this.httpUrl}/workflows`, json, this.httpOptions);
+    }
+
     openWorkflow(workflowId: string, version: number) {
         return this._http.post<string>(`${this.httpUrl}/workflows/${workflowId}/${version}`, {}, this.httpOptions);
+    }
+
+    copyWorkflow(workflowId: string, version: number, newName: string, newGroup: string = null) {
+        const json = {
+            name: newName,
+            group: newGroup
+        };
+        return this._http.post<string>(`${this.httpUrl}/workflows/${workflowId}/${version}/copy`, json, this.httpOptions);
     }
 
     renameWorkflow(workflowId: string, newName: string = null, newGroup: string = null) {

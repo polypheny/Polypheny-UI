@@ -48,122 +48,123 @@
                     <strong>Execution Error: </strong> <span class="text-danger text-break">{{ activity().error().message }}</span>
                 </c-callout>
             }
-            <p *ngIf="showDescription && activity().def.shortDescription">{{ activity().def.shortDescription }}</p>
+            <p *ngIf="showDescription && activity().def.shortDescription" class="mb-4">{{ activity().def.shortDescription }}</p>
             @for (subgroup of activeSettingGroup().subgroups; track activity().id + subgroup.key) {
                 <ng-container *ngIf="!subgroup.isEmpty && visibleSubgroups.has(activeSettingGroup().key + '/' + subgroup.key)">
-                    <h5 *ngIf="!subgroup.isDefault() || true">{{ subgroup.displayName }}</h5>
-                    <c-card class="mb-3">
-                        <ul cListGroup flush="true">
-                            @for (setting of subgroup.settings; track setting.key) {
-                                <li cListGroupItem *ngIf="visibleSettings.has( setting.key ) && editableSettings().get(setting.key)">
-                                    <div class="d-flex flex-row justify-content-between align-items-center mb-2">
-                                        <h6 class="">{{ setting.displayName }}</h6>
+                    <h4 *ngIf="!subgroup.isDefault() || true">{{ subgroup.displayName }}</h4>
+                    <div class="mb-3">
+                        @for (setting of subgroup.settings; track setting.key) {
+                            <div *ngIf="visibleSettings.has( setting.key ) && editableSettings().get(setting.key)" class="mb-5">
+                                <div class="d-flex flex-row justify-content-between align-items-center mb-1">
+                                    <h5>
+                                        <span class="badge text-body bg-light">{{ setting.displayName }}</span>
+                                    </h5>
 
-                                        <button cButton color="light" class="px-1 d-inline-flex align-items-center" tabindex="-1" size="sm"
-                                                (click)="toggleVariablesVisibility(setting.key)">
-                                            <span class="cil-bolt me-1"></span>
-                                            <span class="badge" [ngClass]="editableReferences().get(setting.key)?.length === 0 ? 'bg-secondary' : 'bg-primary'">
+                                    <button cButton color="light" class="px-1 d-inline-flex align-items-center" tabindex="-1" size="sm"
+                                            (click)="toggleVariablesVisibility(setting.key)">
+                                        <span class="cil-bolt me-1"></span>
+                                        <span class="badge" [ngClass]="editableReferences().get(setting.key)?.length === 0 ? 'bg-secondary' : 'bg-primary'">
                                             {{ editableReferences().get( setting.key )?.length }}
                                         </span>
-                                        </button>
-                                    </div>
-                                    <c-alert color="danger" class="mb-2 py-1" *ngIf="activity().invalidSettings()[setting.key]">
-                                        {{ activity().invalidSettings()[setting.key] }}
-                                    </c-alert>
-                                    <p *ngIf="showDescription && setting.shortDescription">{{ setting.shortDescription }}</p>
+                                    </button>
+                                </div>
+                                <c-alert color="danger" class="mb-2 py-1" *ngIf="activity().invalidSettings()[setting.key]">
+                                    {{ activity().invalidSettings()[setting.key] }}
+                                </c-alert>
+                                <p *ngIf="showDescription && setting.shortDescription">{{ setting.shortDescription }}</p>
 
-                                    <!--Variables-->
-                                    <div [visible]="variablesVisibilityMap.get(setting.key)?.()" cCollapse>
-                                        <app-add-variable [references]="editableReferences().get( setting.key )"
-                                                          [workflowVars]="workflowVars()"
-                                                          [activityVars]="activity().variables()"
-                                                          [settingValue]="editableSettings().get(setting.key).value"
-                                                          [isEditable]="isEditable()"
-                                                          (add)="addVariableRef(setting.key, $event)"
-                                                          (delete)="deleteReference(setting.key, $event)"></app-add-variable>
-                                    </div>
+                                <!--Variables-->
+                                <div [visible]="variablesVisibilityMap.get(setting.key)?.()" cCollapse>
+                                    <app-add-variable [references]="editableReferences().get( setting.key )"
+                                                      [workflowVars]="workflowVars()"
+                                                      [activityVars]="activity().variables()"
+                                                      [settingValue]="editableSettings().get(setting.key).value"
+                                                      [isEditable]="isEditable()"
+                                                      (add)="addVariableRef(setting.key, $event)"
+                                                      (delete)="deleteReference(setting.key, $event)"></app-add-variable>
+                                </div>
 
-                                    <c-alert *ngIf="editableReferences().get( setting.key )?.length > 0" color="warning" class="py-2">
-                                        <h6>Note</h6>
-                                        The static setting values are only used as a fallback when variables are present.
-                                    </c-alert>
+                                <c-alert *ngIf="editableReferences().get( setting.key )?.length > 0" color="warning" class="py-2">
+                                    <h6>Note</h6>
+                                    The static setting values are only used as a fallback when variables are present.
+                                </c-alert>
 
-                                    @switch (setting.type) {
-                                        @case (SettingType.INT) {
-                                            <app-int-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                @switch (setting.type) {
+                                    @case (SettingType.INT) {
+                                        <app-int-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                         [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                         [(value)]="editableSettings().get(setting.key).value">
+                                        </app-int-setting>
+                                    }
+                                    @case (SettingType.STRING) {
+                                        <app-string-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                            [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                            [(value)]="editableSettings().get(setting.key).value">
+                                        </app-string-setting>
+                                    }
+                                    @case (SettingType.BOOLEAN) {
+                                        <app-boolean-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
                                                              [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
                                                              [(value)]="editableSettings().get(setting.key).value">
-                                            </app-int-setting>
-                                        }
-                                        @case (SettingType.STRING) {
-                                            <app-string-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                                [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                                [(value)]="editableSettings().get(setting.key).value">
-                                            </app-string-setting>
-                                        }
-                                        @case (SettingType.BOOLEAN) {
-                                            <app-boolean-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                                 [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                                 [(value)]="editableSettings().get(setting.key).value">
-                                            </app-boolean-setting>
-                                        }
-                                        @case (SettingType.DOUBLE) {
-                                            <app-double-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                                [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                                [(value)]="editableSettings().get(setting.key).value">
-                                            </app-double-setting>
-                                        }
-                                        @case (SettingType.ENTITY) {
-                                            <app-entity-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                                [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                                [(value)]="editableSettings().get(setting.key).value">
-                                            </app-entity-setting>
-                                        }
-                                        @case (SettingType.QUERY) {
-                                            <app-query-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                        </app-boolean-setting>
+                                    }
+                                    @case (SettingType.DOUBLE) {
+                                        <app-double-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                            [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                            [(value)]="editableSettings().get(setting.key).value">
+                                        </app-double-setting>
+                                    }
+                                    @case (SettingType.ENTITY) {
+                                        <app-entity-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                            [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                            [(value)]="editableSettings().get(setting.key).value">
+                                        </app-entity-setting>
+                                    }
+                                    @case (SettingType.QUERY) {
+                                        <app-query-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                           [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                           [(value)]="editableSettings().get(setting.key).value">
+                                        </app-query-setting>
+                                    }
+                                    @case (SettingType.FIELD_SELECT) {
+                                        <app-field-select-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                  [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                  [(value)]="editableSettings().get(setting.key).value">
+                                        </app-field-select-setting>
+                                    }
+                                    @case (SettingType.ENUM) {
+                                        <app-enum-setting [settingDef]="setting.model"
+                                                          [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                          [(value)]="editableSettings().get(setting.key).value">
+                                        </app-enum-setting>
+                                    }
+                                    @case (SettingType.COLLATION) {
+                                        <app-collation-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
                                                                [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
                                                                [(value)]="editableSettings().get(setting.key).value">
-                                            </app-query-setting>
-                                        }
-                                        @case (SettingType.FIELD_SELECT) {
-                                            <app-field-select-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                                      [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                                      [(value)]="editableSettings().get(setting.key).value">
-                                            </app-field-select-setting>
-                                        }
-                                        @case (SettingType.ENUM) {
-                                            <app-enum-setting [settingDef]="setting.model"
-                                                              [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                              [(value)]="editableSettings().get(setting.key).value">
-                                            </app-enum-setting>
-                                        }
-                                        @case (SettingType.COLLATION) {
-                                            <app-collation-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                                   [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                                   [(value)]="editableSettings().get(setting.key).value">
-                                            </app-collation-setting>
-                                        }
-                                        @case (SettingType.FIELD_RENAME) {
-                                            <app-field-rename-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                                      [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                                      [(value)]="editableSettings().get(setting.key).value">
-                                            </app-field-rename-setting>
-                                        }
-                                        @case (SettingType.CAST) {
-                                            <app-cast-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                              [inSuggestions]="activity().inSuggestions()"
-                                                              [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                              [(value)]="editableSettings().get(setting.key).value">
-                                            </app-cast-setting>
-                                        }
-                                        @default {
-                                            <p class="text-danger">unknown setting type</p>
-                                        }
+                                        </app-collation-setting>
                                     }
-                                </li>
-                            }
-                        </ul>
-                    </c-card>
+                                    @case (SettingType.FIELD_RENAME) {
+                                        <app-field-rename-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                  [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                  [(value)]="editableSettings().get(setting.key).value">
+                                        </app-field-rename-setting>
+                                    }
+                                    @case (SettingType.CAST) {
+                                        <app-cast-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                          [inSuggestions]="activity().inSuggestions()"
+                                                          [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                          [(value)]="editableSettings().get(setting.key).value">
+                                        </app-cast-setting>
+                                    }
+                                    @default {
+                                        <p class="text-danger">unknown setting type</p>
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+
                 </ng-container>
             }
         </div>

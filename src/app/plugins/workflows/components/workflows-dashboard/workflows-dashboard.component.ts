@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../../../components/left-sidebar/left-sidebar.service';
 import {WorkflowsService} from '../../services/workflows.service';
-import {SessionModel, WorkflowDefModel} from '../../models/workflows.model';
+import {SessionModel, WorkflowDefModel, WorkflowModel} from '../../models/workflows.model';
 import {SidebarNode} from '../../../../models/sidebar-node.model';
 import {retry} from 'rxjs';
 
@@ -29,8 +29,17 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     selectedVersion: Record<string, number> = {};
     newWorkflowName = '';
     newWorkflowGroup = '';
+    uploadWorkflowName = '';
+    uploadWorkflowGroup = '';
+    uploadedWorkflow: WorkflowModel = null;
+
     showDeleteModal = signal(false);
     workflowToDelete: { id: string, def: WorkflowDefModel } = null;
+
+    showCopyModal = signal(false);
+    workflowToCopy: { id: string, version: string } = null;
+    copyWorkflowName = '';
+    copyWorkflowGroup = '';
 
     constructor() {
         effect(() => {
@@ -179,6 +188,32 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
         });
     }
 
+    toggleCopyModal() {
+        this.showCopyModal.update(b => !b);
+    }
+
+    copyWorkflow() {
+        this.showCopyModal.set(false);
+        this._workflows.copyWorkflow(this.workflowToCopy.id, parseInt(this.workflowToCopy.version, 10),
+            this.copyWorkflowName, this.copyWorkflowGroup).subscribe({
+            next: () => {
+                this._toast.success('Successfully copied workflow', 'Copy Workflow');
+                this.getWorkflowDefs();
+            },
+            error: e => this._toast.error(e.error, 'Unable to copy workflow')
+        });
+    }
+
+    openCopyModal(id: string, version: string) {
+        if (this.showCopyModal()) {
+            return;
+        }
+        this.workflowToCopy = {id, version};
+        this.copyWorkflowName = this.workflowDefs[id].name + '_copy';
+        this.copyWorkflowGroup = this.workflowDefs[id].group;
+        this.showCopyModal.set(true);
+    }
+
     changeName(workflowId: string, name: string) {
         this._workflows.renameWorkflow(workflowId, name).subscribe({
             next: () => {
@@ -196,6 +231,54 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
                 this.getWorkflowDefs();
             },
             error: e => this._toast.error(e.error, 'Unable to change workflow group')
+        });
+    }
+
+    onFileChange(files: any[]) {
+        if (!files || files.length === 0) {
+            this.uploadedWorkflow = null;
+            return;
+        }
+        const file = files[0];
+        if (!(this.uploadWorkflowName?.length > 0)) {
+            this.uploadWorkflowName = file.name.endsWith('.json') ? file.name.slice(0, -5) : file.name;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                this.uploadedWorkflow = JSON.parse(reader.result as string) as WorkflowModel;
+            } catch (error) {
+                this._toast.error('Invalid JSON file: ' + error);
+            }
+        };
+        reader.onerror = () => this._toast.error('Error reading file');
+        reader.readAsText(file);
+    }
+
+    importWorkflow() {
+        this._workflows.importWorkflow(this.uploadWorkflowName, this.uploadWorkflowGroup, this.uploadedWorkflow).subscribe({
+            next: () => {
+                this.uploadWorkflowName = '';
+                this.uploadWorkflowGroup = '';
+                this._toast.success('Successfully uploaded workflow "' + this.uploadWorkflowName + '"', 'Upload Successful');
+                this.getWorkflowDefs();
+            },
+            error: err => this._toast.error(err.error)
+        });
+    }
+
+    exportVersion(workflowId: string, version: string) {
+        this._workflows.getWorkflow(workflowId, parseInt(version, 10)).subscribe({
+            next: workflow => {
+                const blob = new Blob([JSON.stringify(workflow, null, 2)], {type: 'application/json'});
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = this.workflowDefs[workflowId].name + '_v' + version;
+                a.click();
+                URL.revokeObjectURL(a.href);
+            },
+            error: err => this._toast.error(err.error)
         });
     }
 }

@@ -31,7 +31,7 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
             if (this.sessionId) {
                 this._workflows.getSession(this.sessionId).subscribe({
                     next: res => this.session = res,
-                    error: e => this.backToDashboard()
+                    error: () => this.backToDashboard()
                 });
             }
         });
@@ -56,6 +56,10 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
                 if (this.session.version !== undefined) {
                     this.session.version = version;
                 }
+                this._toast.success('Successfully saved workflow version ' + version, 'Saved Workflow');
+            },
+            error: e => {
+                this._toast.error(e.error, 'Unable to Save Workflow');
             }
         });
     }
@@ -63,7 +67,7 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
     terminateSession() {
         this._workflows.terminateSession(this.sessionId).subscribe({
             next: () => this.backToDashboard(),
-            error: e => this._toast.error(e.error, 'Unable to terminate session'),
+            error: e => this._toast.error(e.error, 'Unable to Terminate Session'),
         });
     }
 
