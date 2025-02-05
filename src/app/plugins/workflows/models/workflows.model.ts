@@ -95,10 +95,10 @@ export interface RenderModel {
 
 export interface TypePreviewModel {
     portType: PortType; // this can be more specific than the port type of the def
-    columns: FieldDefinition[] | null;
-    fields: string[] | null; // for documents
-    nodeLabels: string[] | null; // for graphs
-    edgeLabels: string[] | null; // for graphs
+    columns?: FieldDefinition[] | null;
+    fields?: string[] | null; // for documents
+    nodeLabels?: string[] | null; // for graphs
+    edgeLabels?: string[] | null; // for graphs
     notConnected: boolean; // only relevant for input previews
 }
 

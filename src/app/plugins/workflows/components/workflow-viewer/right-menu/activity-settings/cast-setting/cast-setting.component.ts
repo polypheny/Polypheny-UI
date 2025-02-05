@@ -22,8 +22,8 @@ export class CastSettingComponent implements OnInit {
     casts = computed(() => this.value().casts as SingleCast[]);
     def = computed(() => this.settingDef() as CastSettingDef);
     targetPreview = computed(() => this.inTypePreview()[this.def().targetInput]);
-    fieldType = computed(() => this.targetPreview().portType === 'REL' ? 'column' : 'field');
-    suggestions = computed(() => this.inSuggestions()[this.def().targetInput].filter(v => v !== PK_COL) || []);
+    fieldType = computed(() => this.targetPreview()?.portType === 'REL' ? 'column' : 'field');
+    suggestions = computed(() => this.inSuggestions()[this.def().targetInput]?.filter(v => v !== PK_COL) || []);
 
     private changed = signal(false); // dummy signal to trigger recomputation
     supportsPrecision = computed(() => {
@@ -53,8 +53,6 @@ export class CastSettingComponent implements OnInit {
         );
     }
 
-    // TODO: move fields around with drag and drop?
-
     valueChanged() {
         this.changed.update(v => !v);
         setTimeout(() => {
@@ -69,30 +67,40 @@ export class CastSettingComponent implements OnInit {
             return;
         }
 
-        console.log('detected init', this.addName);
-        const sourceCol = this.targetPreview().columns?.find(col => col.name === this.addName);
+        const sourceCol = this.targetPreview()?.columns?.find(col => col.name === this.addName);
         let type = this.def().defaultType;
         let nullable = true;
+        let collectionsType = '';
+        let dimension = -1;
+        let cardinality = -1;
+        let precision = null;
+        let scale = null;
         if (sourceCol) {
-            console.log('setting default to ', sourceCol);
-            const typeStr = sourceCol.dataType.split(' ')[0].split('(')[0].trim();
-            if (this.types.some(t => t.name === typeStr)) {
-                type = typeStr;
+            nullable = !sourceCol.dataType.includes('NOT NULL');
+
+            // matches the first word (e.g. VARCHAR) and optionally precision and scale in parentheses
+            const match = sourceCol.dataType.match(/^(\w+)(?:\((\d+)(?:,\s*(\d+))?\))?/);
+            if (match) {
+                type = match[1];
+                if (match[2]) {
+                    precision = parseInt(match[2], 10);
+                }
+                if (match[3]) {
+                    scale = parseInt(match[3], 10);
+                }
             }
-            nullable = sourceCol.nullable;
+
+            const collMatch = sourceCol.dataType.match(/ARRAY\((\d+),\s*(\d+)\)/);
+            if (collMatch) {
+                collectionsType = 'ARRAY';
+                cardinality = parseInt(collMatch[1], 10);
+                dimension = parseInt(collMatch[2], 10);
+            }
         }
 
         const cast = {
-            source: this.addName,
-            target: null,
-            type: type,
-            nullable: nullable,
-            collectionsType: '',
-            precision: null,
-            scale: null,
-            defaultValue: null,
-            dimension: -1,
-            cardinality: -1
+            source: this.addName, target: null,
+            type, nullable, collectionsType, precision, scale, dimension, cardinality
         };
         if (this.addAsJson) {
             cast['asJson'] = true;

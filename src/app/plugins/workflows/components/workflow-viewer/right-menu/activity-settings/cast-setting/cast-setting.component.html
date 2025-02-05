@@ -6,13 +6,19 @@
                     <c-col [xs]="11" class="pe-0">
 
                         <div class="d-flex align-items-center">
-                            <app-autocomplete (changed)="valueChanged()"
-                                              [data]="suggestions()"
-                                              [(value)]="cast.source"
-                                              [placeholder]="'Source ' + fieldType() | titlecase"
-                                              [disabled]="!isEditable()"
-                                              class="source-input">
-                            </app-autocomplete>
+                            @if (suggestions().length > 0) {
+                                <app-autocomplete (changed)="valueChanged()"
+                                                  [data]="suggestions()"
+                                                  [(value)]="cast.source"
+                                                  [placeholder]="'Source ' + fieldType() | titlecase"
+                                                  [disabled]="!isEditable()"
+                                                  class="source-input">
+                                </app-autocomplete>
+                            } @else {
+                                <input cFormControl sizing="sm" [placeholder]="fieldType() | titlecase"
+                                       type="text" autocomplete="off" class="source-input"
+                                       [(ngModel)]="cast.source" [disabled]="!isEditable()" (input)="valueChanged()">
+                            }
 
                             <input cFormControl sizing="sm" id="cast-target" placeholder="Change Name" *ngIf="def().allowTarget"
                                    type="text" autocomplete="off" class="ms-1 target-input"
@@ -92,12 +98,19 @@
 <div class="d-flex" [class.justify-content-between]="def().allowJson">
 
     <div class="d-flex align-items-center">
-        <app-autocomplete (changed)="valueChanged()"
-                          [data]="suggestions()"
-                          [(value)]="addName"
-                          [placeholder]="'Source ' + fieldType() | titlecase"
-                          [disabled]="!isEditable()">
-        </app-autocomplete>
+        @if (suggestions().length > 0) {
+            <app-autocomplete (changed)="valueChanged()"
+                              [data]="suggestions()"
+                              [(value)]="addName"
+                              [placeholder]="'Source ' + fieldType() | titlecase"
+                              [disabled]="!isEditable()">
+            </app-autocomplete>
+
+        } @else {
+            <input cFormControl sizing="sm" [placeholder]="fieldType() | titlecase"
+                   type="text" autocomplete="off"
+                   [(ngModel)]="addName" [disabled]="!isEditable()" (input)="valueChanged()">
+        }
 
         @if (def().allowJson) {
             <c-form-check [switch]="true" class="ms-2">
