@@ -245,6 +245,7 @@ export interface SubgroupDefModel {
 }
 
 export enum SettingType {
+    // TODO: update when a new settingType is added
     STRING = 'STRING',
     INT = 'INT',
     ENTITY = 'ENTITY',
@@ -256,7 +257,7 @@ export enum SettingType {
     COLLATION = 'COLLATION',
     FIELD_RENAME = 'FIELD_RENAME',
     CAST = 'CAST',
-    // TODO: update when a new settingType is added
+    FILTER = 'FILTER',
 }
 
 export interface SettingDefModel {

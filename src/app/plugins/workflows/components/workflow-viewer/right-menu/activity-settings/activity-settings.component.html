@@ -71,7 +71,7 @@
                                 <c-alert color="danger" class="mb-2 py-1" *ngIf="activity().invalidSettings()[setting.key]">
                                     {{ activity().invalidSettings()[setting.key] }}
                                 </c-alert>
-                                <p *ngIf="showDescription && setting.shortDescription">{{ setting.shortDescription }}</p>
+                                <p *ngIf="showDescription && setting.shortDescription" class="text-muted">{{ setting.shortDescription }}</p>
 
                                 <!--Variables-->
                                 <div [visible]="variablesVisibilityMap.get(setting.key)?.()" cCollapse>
@@ -89,78 +89,87 @@
                                     The static setting values are only used as a fallback when variables are present.
                                 </c-alert>
 
-                                @switch (setting.type) {
-                                    @case (SettingType.INT) {
-                                        <app-int-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                         [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                         [(value)]="editableSettings().get(setting.key).value">
-                                        </app-int-setting>
-                                    }
-                                    @case (SettingType.STRING) {
-                                        <app-string-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                            [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                            [(value)]="editableSettings().get(setting.key).value">
-                                        </app-string-setting>
-                                    }
-                                    @case (SettingType.BOOLEAN) {
-                                        <app-boolean-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                <div class="px-1">
+                                    @switch (setting.type) {
+                                        @case (SettingType.INT) {
+                                            <app-int-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
                                                              [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
                                                              [(value)]="editableSettings().get(setting.key).value">
-                                        </app-boolean-setting>
-                                    }
-                                    @case (SettingType.DOUBLE) {
-                                        <app-double-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                            [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                            [(value)]="editableSettings().get(setting.key).value">
-                                        </app-double-setting>
-                                    }
-                                    @case (SettingType.ENTITY) {
-                                        <app-entity-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                            [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                            [(value)]="editableSettings().get(setting.key).value">
-                                        </app-entity-setting>
-                                    }
-                                    @case (SettingType.QUERY) {
-                                        <app-query-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                           [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                           [(value)]="editableSettings().get(setting.key).value">
-                                        </app-query-setting>
-                                    }
-                                    @case (SettingType.FIELD_SELECT) {
-                                        <app-field-select-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                                  [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                                  [(value)]="editableSettings().get(setting.key).value">
-                                        </app-field-select-setting>
-                                    }
-                                    @case (SettingType.ENUM) {
-                                        <app-enum-setting [settingDef]="setting.model"
-                                                          [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                          [(value)]="editableSettings().get(setting.key).value">
-                                        </app-enum-setting>
-                                    }
-                                    @case (SettingType.COLLATION) {
-                                        <app-collation-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                            </app-int-setting>
+                                        }
+                                        @case (SettingType.STRING) {
+                                            <app-string-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                [(value)]="editableSettings().get(setting.key).value">
+                                            </app-string-setting>
+                                        }
+                                        @case (SettingType.BOOLEAN) {
+                                            <app-boolean-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                 [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                 [(value)]="editableSettings().get(setting.key).value">
+                                            </app-boolean-setting>
+                                        }
+                                        @case (SettingType.DOUBLE) {
+                                            <app-double-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                [(value)]="editableSettings().get(setting.key).value">
+                                            </app-double-setting>
+                                        }
+                                        @case (SettingType.ENTITY) {
+                                            <app-entity-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                [(value)]="editableSettings().get(setting.key).value">
+                                            </app-entity-setting>
+                                        }
+                                        @case (SettingType.QUERY) {
+                                            <app-query-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
                                                                [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
                                                                [(value)]="editableSettings().get(setting.key).value">
-                                        </app-collation-setting>
+                                            </app-query-setting>
+                                        }
+                                        @case (SettingType.FIELD_SELECT) {
+                                            <app-field-select-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                      [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                      [(value)]="editableSettings().get(setting.key).value">
+                                            </app-field-select-setting>
+                                        }
+                                        @case (SettingType.ENUM) {
+                                            <app-enum-setting [settingDef]="setting.model"
+                                                              [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                              [(value)]="editableSettings().get(setting.key).value">
+                                            </app-enum-setting>
+                                        }
+                                        @case (SettingType.COLLATION) {
+                                            <app-collation-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                   [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                   [(value)]="editableSettings().get(setting.key).value">
+                                            </app-collation-setting>
+                                        }
+                                        @case (SettingType.FIELD_RENAME) {
+                                            <app-field-rename-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                      [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                      [(value)]="editableSettings().get(setting.key).value">
+                                            </app-field-rename-setting>
+                                        }
+                                        @case (SettingType.CAST) {
+                                            <app-cast-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                              [inSuggestions]="activity().inSuggestions()"
+                                                              [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                              [(value)]="editableSettings().get(setting.key).value">
+                                            </app-cast-setting>
+                                        }
+                                        @case (SettingType.FILTER) {
+                                            <app-filter-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                [inSuggestions]="activity().inSuggestions()"
+                                                                [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                [(value)]="editableSettings().get(setting.key).value">
+                                            </app-filter-setting>
+                                        }
+                                        @default {
+                                            <p class="text-danger">unknown setting type</p>
+                                        }
                                     }
-                                    @case (SettingType.FIELD_RENAME) {
-                                        <app-field-rename-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                                  [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                                  [(value)]="editableSettings().get(setting.key).value">
-                                        </app-field-rename-setting>
-                                    }
-                                    @case (SettingType.CAST) {
-                                        <app-cast-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
-                                                          [inSuggestions]="activity().inSuggestions()"
-                                                          [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
-                                                          [(value)]="editableSettings().get(setting.key).value">
-                                        </app-cast-setting>
-                                    }
-                                    @default {
-                                        <p class="text-danger">unknown setting type</p>
-                                    }
-                                }
+                                </div>
                             </div>
                         }
                     </div>

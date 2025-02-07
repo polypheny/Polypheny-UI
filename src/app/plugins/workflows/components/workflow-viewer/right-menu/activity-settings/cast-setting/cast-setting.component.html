@@ -1,4 +1,4 @@
-<c-card class="list-container border bg-light mb-3" *ngIf="casts()?.length > 0">
+<c-card class="list-container border bg-light mb-2" *ngIf="casts()?.length > 0">
     <ul cListGroup flush="true">
         @for (cast of casts(); track $index) {
             <li cListGroupItem class="bg-white list-entry" [class.draggable]="isEditable()">
@@ -85,17 +85,16 @@
 
 
                     </c-col>
-                    <c-col [xs]="1" class="text-end p-0" *ngIf="isEditable()">
+                    <c-col [xs]="1" class="text-end p-0" *ngIf="isEditable() && !def().singleCast">
                         <app-delete-confirm (delete)="deleteCast($index)"></app-delete-confirm>
                     </c-col>
                 </c-row>
             </li>
         }
     </ul>
-
 </c-card>
 
-<div class="d-flex" [class.justify-content-between]="def().allowJson">
+<div class="d-flex" [class.justify-content-between]="def().allowJson" *ngIf="!def().singleCast">
 
     <div class="d-flex align-items-center">
         @if (suggestions().length > 0) {
@@ -116,7 +115,7 @@
             <c-form-check [switch]="true" class="ms-2">
                 <input cFormCheckInput type="checkbox" [(ngModel)]="addAsJson"
                        name="allow-json-cast" (change)="valueChanged()" [disabled]="!isEditable()">
-                <label cFormCheckLabel for="nullable-cast">As JSON</label>
+                <label cFormCheckLabel for="nullable-cast">JSON</label>
             </c-form-check>
         }
     </div>

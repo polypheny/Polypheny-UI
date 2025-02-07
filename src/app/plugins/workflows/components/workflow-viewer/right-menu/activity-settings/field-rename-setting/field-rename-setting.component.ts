@@ -18,19 +18,19 @@ export class FieldRenameSettingComponent {
     rules = computed(() => this.value().rules as RenameRule[]); // like value, but with correct type
     def = computed(() => this.settingDef() as FieldRenameSettingDef);
     targetPreview = computed(() => this.inTypePreview()[this.def().targetInput]);
-    fieldType = computed(() => this.targetPreview().portType === 'REL' ? 'column' : 'field');
+    fieldType = computed(() => this.targetPreview()?.portType === 'REL' ? 'column' : 'field');
     suggestions = computed(() => {
-        if (this.targetPreview().portType === 'REL') {
+        if (this.targetPreview()?.portType === 'REL') {
             return this.targetPreview().columns?.map(c => c.name) || [];
-        } else if (this.targetPreview().portType === 'DOC') {
+        } else if (this.targetPreview()?.portType === 'DOC') {
             return this.targetPreview().fields || [];
-        } else if (this.targetPreview().portType === 'LPG') {
+        } else if (this.targetPreview()?.portType === 'LPG') {
             return [...(this.targetPreview().nodeLabels || []), ...(this.targetPreview().edgeLabels || [])];
         }
         return [];
     });
     modes = computed(() => {
-        const modes: [RenameMode, String][] = [['CONSTANT', 'Constant']];
+        const modes: [RenameMode, String][] = [['EXACT', 'Exact']];
         if (this.def().allowRegex) {
             modes.push(['REGEX', 'Regex']);
         }
@@ -46,7 +46,7 @@ export class FieldRenameSettingComponent {
 
     addRule() {
         switch (this.value().mode) {
-            case 'CONSTANT':
+            case 'EXACT':
             case 'REGEX':
                 this.rules().push({source: '', replacement: ''});
                 break;
@@ -70,7 +70,7 @@ export class FieldRenameSettingComponent {
     }
 }
 
-type RenameMode = 'CONSTANT' | 'REGEX' | 'INDEX';
+type RenameMode = 'EXACT' | 'REGEX' | 'INDEX';
 
 interface FieldRenameSettingDef extends SettingDefModel {
     defaultMode: RenameMode;

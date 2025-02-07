@@ -17,10 +17,18 @@ export class EnumSettingComponent {
         const displayOpts = this.def().displayOptions;
         return this.def().options.map((value, index) => [value, displayOpts[index]]);
     });
+    description = computed(() => {
+        if (!this.def().displayDescriptions) {
+            return null;
+        }
+        const i = this.def().options.indexOf(this.value());
+        return this.def().displayDescriptions[i];
+    });
 }
 
 interface EnumSettingDef extends SettingDefModel {
     options: string[];
     displayOptions: string[];
+    displayDescriptions: string[] | null;
     label: string;
 }

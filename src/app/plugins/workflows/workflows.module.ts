@@ -104,6 +104,7 @@ import {EnumSettingComponent} from './components/workflow-viewer/right-menu/acti
 import {CollationSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/collation-setting/collation-setting.component';
 import {FieldRenameSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/field-rename-setting/field-rename-setting.component';
 import {CastSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/cast-setting/cast-setting.component';
+import {FilterSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/filter-setting/filter-setting.component';
 
 @NgModule({
     imports: [
@@ -215,7 +216,8 @@ import {CastSettingComponent} from './components/workflow-viewer/right-menu/acti
         EnumSettingComponent,
         CollationSettingComponent,
         FieldRenameSettingComponent,
-        CastSettingComponent
+        CastSettingComponent,
+        FilterSettingComponent
     ],
     exports: [
         WorkflowViewerComponent,

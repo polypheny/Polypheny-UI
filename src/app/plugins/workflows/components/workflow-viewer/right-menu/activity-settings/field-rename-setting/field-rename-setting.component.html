@@ -13,14 +13,14 @@
     </c-form-check>
 </c-input-group>
 
-<c-card class="list-container border bg-light mb-3" *ngIf="rules()?.length > 0">
+<c-card class="list-container border bg-light mb-2" *ngIf="rules()?.length > 0">
     <ul cListGroup flush="true">
         @for (rule of rules(); track $index) {
             <li cListGroupItem class="bg-white list-entry" [class.draggable]="isEditable()">
                 <c-row gutter=false>
                     <c-col [xs]="11">
                         <div class="d-flex mb-1 align-items-center justify-content-between">
-                            @if (this.value().mode === 'CONSTANT') {
+                            @if (this.value().mode === 'EXACT') {
                                 <div class="flex-grow-1">
                                     <app-autocomplete (changed)="valueChanged()"
                                                       [data]="suggestions()"

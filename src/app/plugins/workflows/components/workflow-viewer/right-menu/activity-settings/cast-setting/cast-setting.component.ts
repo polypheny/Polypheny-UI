@@ -124,6 +124,7 @@ interface CastSettingDef extends SettingDefModel {
     allowDuplicateSource: boolean;
     allowTarget: boolean;
     allowJson: boolean;
+    singleCast: boolean;
 }
 
 interface SingleCast {
