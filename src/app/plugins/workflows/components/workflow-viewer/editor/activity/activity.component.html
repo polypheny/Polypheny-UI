@@ -62,7 +62,7 @@
             <div class="activity-content flex-grow-1 h-100 px-1 d-flex flex-column justify-content-between">
                 <h3 class="">{{ data.displayName() }}</h3>
                 <textarea cFormControl id="activity-notes" class="mb-2" placeholder="Notes"
-                          [(ngModel)]="data.rendering().notes"
+                          [(ngModel)]="data.rendering().notes" spellcheck="false"
                           (pointerdown)="$event.stopPropagation()" (change)="saveNotes()">
                     </textarea>
             </div>
