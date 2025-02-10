@@ -61,7 +61,7 @@ export type Variables = Record<string, any>;
 export const errorKey = '$errorMsg';
 export const wfVarsKey = '$workflow';
 export const envVarsKey = '$env';
-export const PK_COL = 'key'; // primary key column of relational checkpoints
+export const PK_COL = '_key'; // primary key column of relational checkpoints
 
 export interface ErrorVariable {
     message: string;

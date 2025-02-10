@@ -1,4 +1,13 @@
-@if (usesAutocomplete()) {
+@if (def().textEditor) {
+    <div class="editor-container border">
+        <app-editor #editor id="text-editor"
+                    [language]="def().textEditorLanguage"
+                    [autocomplete]="false"
+                    [initOptions]="editorOptions"
+                    [useParentHeight]="true"
+        />
+    </div>
+} @else if (usesAutocomplete()) {
     <div>
         <app-autocomplete (changed)="valueChanged()"
                           [data]="suggestions()"

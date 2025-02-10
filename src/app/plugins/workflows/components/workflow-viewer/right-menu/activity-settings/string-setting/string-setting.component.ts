@@ -1,9 +1,10 @@
-import {Component, computed, EventEmitter, input, model, Output, Signal} from '@angular/core';
+import {Component, computed, effect, EventEmitter, input, model, Output, Signal, ViewChild} from '@angular/core';
 import {SettingDefModel} from '../../../../../models/activity-registry.model';
 import {TypePreviewModel} from '../../../../../models/workflows.model';
 import {DataModel} from '../../../../../../../models/ui-request.model';
 import {AdapterModel} from '../../../../../../../views/adapters/adapter.model';
 import {CatalogService} from '../../../../../../../services/catalog.service';
+import {EditorComponent} from '../../../../../../../components/editor/editor.component';
 
 @Component({
     selector: 'app-string-setting',
@@ -39,6 +40,17 @@ export class StringSettingComponent {
     adapters: Signal<AdapterModel[]>;
     protected readonly DataModel = DataModel;
 
+    readonly editorOptions = {
+        minLines: 4,
+        maxLines: 20,
+        showLineNumbers: false,
+        highlightGutterLine: false,
+        highlightActiveLine: false,
+        fontSize: '0.875rem'
+    };
+    listenForChanges = true;
+    @ViewChild('editor') editor: EditorComponent;
+
     constructor(private _catalog: CatalogService) {
         this.adapters = computed(() => {
             this._catalog.listener();
@@ -47,12 +59,37 @@ export class StringSettingComponent {
                 store.adapterName !== 'HSQLDB' || store.settings['trxControlMode'] !== 'mvcc'
             )];
         });
+
+
+        effect(() => {
+            if (this.def().textEditor) {
+                if (this.editor.getCode() !== this.value()) { // triggered if value is changed externally
+                    this.listenForChanges = false;
+                    this.editor?.setCode(this.value());
+                    this.listenForChanges = true;
+                }
+            }
+        });
+    }
+
+    ngAfterViewInit(): void {
+        if (this.def().textEditor) {
+            this.editor.onChange(value => {
+                if (this.listenForChanges) {
+                    const oldVal = this.value();
+                    const newVal = this.editor.getCode();
+                    if (oldVal !== newVal) {
+                        this.value.set(newVal);
+                        this.valueChanged();
+                    }
+                }
+            });
+        }
     }
 
     valueChanged() {
-        setTimeout(() => {
-            this.hasChanged.emit();
-        }, 10); // short delay to ensure this.value() has updated when selecting an autocomplete entry
+        // short delay to ensure this.value() has updated when selecting an autocomplete entry
+        setTimeout(() => this.hasChanged.emit(), 1);
     }
 }
 
@@ -65,4 +102,6 @@ interface StringSettingDef extends SettingDefModel {
     autoCompleteInput: number;
     nonBlank: boolean;
     containsRegex: boolean;
+    textEditor: boolean;
+    textEditorLanguage: string;
 }
