@@ -1,4 +1,4 @@
-import {Component, computed, Input, OnInit, signal, Signal} from '@angular/core';
+import {Component, Input, OnInit, signal, Signal} from '@angular/core';
 import {ClassicPreset} from 'rete';
 import {ActivityNode, FAIL_CONTROL_KEY, IN_CONTROL_KEY, SUCCESS_CONTROL_KEY} from '../activity/activity.component';
 import {EdgeModel, EdgeState} from '../../../../models/workflows.model';
@@ -15,6 +15,7 @@ export class EdgeComponent implements OnInit {
     @Input() path: string;
 
     isControl = false;
+    isFailControl = false;
     center: Signal<{ x: number, y: number, angle: number }>;
 
     ngOnInit(): void {
@@ -24,19 +25,13 @@ export class EdgeComponent implements OnInit {
         } else {
             this.isControl = this.data.isControl;
         }
+        this.isFailControl = this.data.sourceOutput === FAIL_CONTROL_KEY;
         this.center = this.data.center;
     }
 }
 
-export const EDGE_COLOR_MAP = {
-    [EdgeState.IDLE]: 'black',
-    [EdgeState.ACTIVE]: 'green',
-    [EdgeState.INACTIVE]: 'red'
-};
-
 export class Edge<N extends ActivityNode> extends ClassicPreset.Connection<N, N> {
     isMagnetic = false;
-    readonly edgeColor = computed(() => EDGE_COLOR_MAP[this.state()]);
     readonly sourceActivityId: string; // activityId
     readonly targetActivityId: string; // activityId
     readonly center = signal({x: 0, y: 0, angle: 0});

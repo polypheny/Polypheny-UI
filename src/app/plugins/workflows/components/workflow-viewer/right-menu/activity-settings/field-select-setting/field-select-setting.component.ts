@@ -32,7 +32,7 @@ export class FieldSelectSettingComponent {
     fields = computed(() => {
         const tp = this.targetPreview();
         if (tp.portType === 'REL') {
-            return tp.columns?.map(c => c.name) || [];
+            return tp.columns?.map(c => c.name).filter(name => name !== PK_COL) || [];
         } else if (tp.portType === 'DOC') {
             return tp.fields || [];
         } else if (tp.portType === 'LPG') {

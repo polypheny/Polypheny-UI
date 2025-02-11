@@ -24,6 +24,10 @@ svg {
     &.is-control {
       stroke-dasharray: 16, 8;
       stroke-width: 3px;
+
+      &.is-fail-control {
+        stroke-dasharray: 16, 4, 3, 4;
+      }
     }
 
     &.is-magnetic {

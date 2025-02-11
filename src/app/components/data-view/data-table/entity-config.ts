@@ -6,4 +6,5 @@ export interface EntityConfig {
     search: boolean;
     exploring: boolean;
     hideCreateView?: boolean;
+    cardRelWidth?: boolean;
 }

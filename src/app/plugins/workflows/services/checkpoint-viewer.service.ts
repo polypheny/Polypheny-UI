@@ -7,6 +7,7 @@ import {ActivityState} from '../models/workflows.model';
 import {DataModel} from '../../../models/ui-request.model';
 import {PortType} from '../models/activity-registry.model';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
+import {EntityConfig} from '../../../components/data-view/data-table/entity-config';
 
 @Injectable()
 export class CheckpointViewerService {
@@ -31,14 +32,16 @@ export class CheckpointViewerService {
     readonly limit = signal(0);
     readonly totalCount = signal(0);
     readonly isLimited = computed(() => this.totalCount() > this.limit());
-    readonly config = {create: false, update: false, delete: false, sort: false, search: false, exploring: true, hideCreateView: true};
+    readonly config: EntityConfig = {
+        create: false, update: false, delete: false, sort: false, search: false,
+        exploring: true, hideCreateView: true, cardRelWidth: true
+    };
 
     constructor(private _websocket: WorkflowsWebSocketService, private _toast: ToasterService) {
         this._websocket.onMessage().subscribe(msg => this.handleWsMsg(msg));
 
         effect(() => {
             if (this.showModal() && this.isWaitingForExecution() && this.selectedActivity().state() === ActivityState.SAVED) {
-                console.log('activity finished execution!');
                 this.isWaitingForExecution.set(false);
                 this._websocket.getCheckpoint(this.selectedActivity().id, this.selectedOutput());
             }

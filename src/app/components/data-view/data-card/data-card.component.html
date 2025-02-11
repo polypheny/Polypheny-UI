@@ -2,7 +2,7 @@
     <span class="text-danger">(no data to show)</span>
 </div>
 
-<div class="card-wrapper" *ngIf="$result()">
+<div class="card-wrapper" [class.rel-width]="entityConfig().cardRelWidth" *ngIf="$result()">
     <c-card *ngFor="let d1 of $result().data; let i = index" (dblclick)="triggerEditing(i)"
             [ngClass]="{'editing': i===editing, 'json-card': $result().dataModel === DataModel.DOCUMENT}">
         <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig().update && i !== editing"

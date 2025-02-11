@@ -170,7 +170,7 @@
 </c-modal>
 
 <c-modal *ngIf="_checkpoint.selectedActivity()" [visible]="_checkpoint.showModal()"
-         (visibleChange)="_checkpoint.setModal($event)" scrollable="true">
+         (visibleChange)="_checkpoint.setModal($event)" scrollable="true" size="lg">
     <c-modal-header>
         <h5 cModalTitle>{{ _checkpoint.selectedActivity().displayName() }}:
             Output {{ _checkpoint.selectedOutput() }}</h5>
@@ -183,12 +183,16 @@
                 <c-spinner *ngIf="_checkpoint.isLoading()"></c-spinner>
             </div>
             <div class="data-view-wrapper w-100" *ngIf="_checkpoint.result() && _checkpoint.result().data">
-                <c-card *ngIf="_checkpoint.isLimited()" color="light" class="mb-3">
-                    <c-card-body>
-                        <p>Only the first {{ _checkpoint.limit() }} of {{ _checkpoint.totalCount() }} elements are
-                            shown.</p>
-                    </c-card-body>
-                </c-card>
+                @if (_checkpoint.isLimited()) {
+                    <c-card *ngIf="_checkpoint.isLimited()" color="light" class="mb-3">
+                        <c-card-body>
+                            <p>Only the first {{ _checkpoint.limit() }} of {{ _checkpoint.totalCount() }} elements are
+                                shown.</p>
+                        </c-card-body>
+                    </c-card>
+                } @else {
+                    <p>The output contains {{ _checkpoint.totalCount() }} elements:</p>
+                }
                 <app-data-view [result]="_checkpoint.result()"
                                [config]="_checkpoint.config"
                                [loading]="_checkpoint.isLoading()"></app-data-view>

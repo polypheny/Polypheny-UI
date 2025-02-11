@@ -1,6 +1,6 @@
 <svg data-testid="connection">
     <path [attr.d]="path" [ngClass]="'state-' + data.state?.()"
-          [class.is-control]="isControl" [class.is-magnetic]="data.isMagnetic"/>
+          [class.is-control]="isControl" [class.is-magnetic]="data.isMagnetic" [class.is-fail-control]="isFailControl"/>
 </svg>
 <div *ngIf="center && start && end" id="path-label" [style.left.px]="center().x"
      [style.top.px]="center().y" [style.transform]="'translate(-50%, -50%) rotate(' + center().angle + 'deg)'">

@@ -54,6 +54,7 @@ export enum Operator {
     GREATER_THAN_EQUALS = '≥',
     LESS_THAN_EQUALS = '≤',
     REGEX = 'Matches Regex',
+    REGEX_NOT = 'Does Not Match Regex',
     NULL = 'Is Null',
     NON_NULL = 'Is Not Null',
     INCLUDED = 'In',

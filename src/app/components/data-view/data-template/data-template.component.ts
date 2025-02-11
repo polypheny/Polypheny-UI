@@ -52,7 +52,9 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         sort: true,
         update: true,
         delete: true,
-        exploring: false
+        exploring: false,
+        hideCreateView: false,
+        cardRelWidth: false
     });
     protected readonly currentRoute: WritableSignal<string> = signal(this._route.snapshot.paramMap.get('id'));
     protected readonly routeParams = toSignal(this._route.params);

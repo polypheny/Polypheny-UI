@@ -106,6 +106,14 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     execute() {
         if (!this.openedActivity() || [ActivityState.FINISHED, ActivityState.SAVED].includes(this.openedActivity().state())
             || this.rightMenu.canSafelyNavigate()) {
+            const count = this.workflow.getActivities().filter(a =>
+                a.state() !== ActivityState.FINISHED && a.state() !== ActivityState.SAVED)
+                .length;
+            if (count > 12) {
+                // TODO: remove arbitrary restriction as soon as bug does no longer occur.
+                this._toast.warn('Currently, only a limited number of activities can be executed at once. Until this issue is fixed, please instead execute specific target activities.');
+                return;
+            }
             this._websocket.execute();
         }
     }

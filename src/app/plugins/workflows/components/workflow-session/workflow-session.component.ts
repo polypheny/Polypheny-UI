@@ -80,6 +80,9 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
                     </div>`;
         };
 
+        renderer.codespan = (code) => {
+            return `<kbd>${code}</kbd>`;
+        };
 
         const defaultHeadingRenderer = renderer.heading.bind(renderer);
         renderer.heading = (text: string, level: number, raw: string) => {
