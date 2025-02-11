@@ -178,7 +178,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
         });
         leafletMap.on('exitFullscreen', () => {
             this.layerSettings.setIsMapFullscreen(true);
-            if (shouldSidebarBeVisible){
+            if (shouldSidebarBeVisible) {
                 this._sidebar.open();
             }
             this.isFullscreen = false;
@@ -306,6 +306,12 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             },
         ).addTo(this.map);
+
+        setTimeout(() => {
+            // Fixes issue where map container and tile map are not synchronized, which is visible as a light
+            // grey background.
+            this.map.invalidateSize();
+        }, 400);
     }
 
     showLoadingSpinner(message: string) {
@@ -431,6 +437,10 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                 this.isInitialRender = false;
                 const endTime = performance.now();
                 console.log(`renderLayersWithD3 took ${endTime - startTime} milliseconds`);
+
+                // For some reason, the map is not completely synchronized with the tiles, which causes
+                // a small grey border to be visible, and leads to the "zoom" function to be slightly off.
+                this.map.invalidateSize();
             }
         }, 0);
     }
