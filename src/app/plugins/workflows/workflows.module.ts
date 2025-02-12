@@ -105,6 +105,8 @@ import {CollationSettingComponent} from './components/workflow-viewer/right-menu
 import {FieldRenameSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/field-rename-setting/field-rename-setting.component';
 import {CastSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/cast-setting/cast-setting.component';
 import {FilterSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/filter-setting/filter-setting.component';
+import {WorkflowHelpComponent} from './components/workflow-viewer/workflow-help/workflow-help.component';
+import {CheckpointViewerComponent} from './components/checkpoint-viewer/checkpoint-viewer.component';
 
 @NgModule({
     imports: [
@@ -217,7 +219,9 @@ import {FilterSettingComponent} from './components/workflow-viewer/right-menu/ac
         CollationSettingComponent,
         FieldRenameSettingComponent,
         CastSettingComponent,
-        FilterSettingComponent
+        FilterSettingComponent,
+        WorkflowHelpComponent,
+        CheckpointViewerComponent
     ],
     exports: [
         WorkflowViewerComponent,

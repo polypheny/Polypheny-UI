@@ -1,0 +1,60 @@
+<c-modal *ngIf="_checkpoint.selectedActivity()" [visible]="_checkpoint.showModal()"
+         (visibleChange)="_checkpoint.setModal($event)" scrollable="true" size="lg">
+    <c-modal-header>
+        <h5 cModalTitle>{{ _checkpoint.selectedActivity().displayName() }}:
+            Output {{ _checkpoint.selectedOutput() }}</h5>
+        <button (click)="_checkpoint.toggleModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        @if (_checkpoint.result() || _checkpoint.isLoading()) {
+            <p *ngIf="_checkpoint.isWaitingForExecution()">Waiting for execution to finish.</p>
+            <div class="d-flex justify-content-center">
+                <c-spinner *ngIf="_checkpoint.isLoading()"></c-spinner>
+            </div>
+            <div class="data-view-wrapper w-100" *ngIf="_checkpoint.result() && _checkpoint.result().data">
+                @if (_checkpoint.isLimited()) {
+                    <c-card *ngIf="_checkpoint.isLimited()" color="light" class="mb-3">
+                        <c-card-body>
+                            <p>Only the first {{ _checkpoint.limit() }} of {{ _checkpoint.totalCount() }} elements are
+                                shown.</p>
+                        </c-card-body>
+                    </c-card>
+                } @else {
+                    <p>The output contains {{ _checkpoint.totalCount() }} elements:</p>
+                }
+                <app-data-view [result]="_checkpoint.result()"
+                               [config]="_checkpoint.config"
+                               [loading]="_checkpoint.isLoading()"></app-data-view>
+            </div>
+        } @else {
+            <h5>Output Preview</h5>
+            <p><strong>Data Model:</strong> {{ _checkpoint.outPreview().portType }}</p>
+            @switch (_checkpoint.outPreview().portType) {
+                @case (PortType.REL) {
+                    <app-data-table [result]="_checkpoint.outPreviewAsResult()" [inputConfig]="_checkpoint.config"></app-data-table>
+                }
+                @case (PortType.DOC) {
+                    <p class="mb-1"><strong>Fields (estimated):</strong> {{ _checkpoint.outPreview().fields | json }}</p>
+                }
+                @case (PortType.LPG) {
+                    <p class="mb-1"><strong>Node Labels (estimated):</strong> {{ _checkpoint.outPreview().nodeLabels | json }}</p>
+                    <p class="mb-1"><strong>Edge Labels (estimated):</strong> {{ _checkpoint.outPreview().edgeLabels | json }}</p>
+                }
+            }
+
+            <c-callout color="primary">
+                <p>The requested checkpoint is currently not materialized.
+                    Do you want to execute the activity to materialize its checkpoints?</p>
+                <p class="text-danger">This will also reset all its successor activities!</p>
+            </c-callout>
+        }
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="_checkpoint.toggleModal()" cButton color="secondary">Close</button>
+        @if (!_checkpoint.result() && !_checkpoint.isLoading()) {
+            <button cButton (click)="_checkpoint.materialize()"
+                    [disabled]="_checkpoint.selectedActivity().state() !== 'FINISHED'">Execute Activity
+            </button>
+        }
+    </c-modal-footer>
+</c-modal>

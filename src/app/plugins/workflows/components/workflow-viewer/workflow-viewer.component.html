@@ -14,11 +14,11 @@
             <div class="d-inline-flex align-items-center">
                 <c-button-toolbar role="group">
                     <c-button-group role="group" class="me-2">
-                        <button cButton color="light" class=""
+                        <button cButton color="light" class="px-2"
                                 (click)="close.emit()">
                             Back
                         </button>
-                        <button cButton color="danger" variant="outline" (mouseleave)="terminateConfirm.set(false)"
+                        <button cButton color="danger" variant="outline" (mouseleave)="terminateConfirm.set(false)" class="px-2"
                                 (click)="onTerminateClick()">
                             @if (terminateConfirm()) {
                                 <span>Stop Session </span>
@@ -30,28 +30,32 @@
                         </button>
                     </c-button-group>
                     <c-button-group role="group" class="me-2 d-none d-xl-flex">
-                        <button cButton color="light" (click)="toggleSaveModal()"
+                        <button cButton color="light" (click)="toggleSaveModal()" class="px-2"
                                 [disabled]="showSaveModal()" *ngIf="isEditable">
                             <i class="fa fa-save"></i>
                         </button>
-                        <button cButton color="light" (click)="arrangeNodes()"
+                        <button cButton color="light" (click)="arrangeNodes()" class="px-2"
                                 [disabled]="isExecuting?.()" *ngIf="isEditable">
                             Arrange
                         </button>
-                        <button cButton color="light" (click)="showConfigModal()">
+                        <button cButton color="light" (click)="showConfigModal()" class="px-2">
                             Configuration
                         </button>
-                        <button cButton color="light" class="d-flex align-items-center" (click)="openVariableModal()">
+                        <button cButton color="light" class="d-flex align-items-center px-2" (click)="openVariableModal()">
                             Variables
                             <span class="cil-bolt ms-1"></span>
                         </button>
-                        <button cButton color="light" class="d-flex align-items-center" (click)="showMonitorModal()">
+                        <button cButton color="light" class="d-flex align-items-center px-2" (click)="showMonitorModal()">
                             Statistics
+                        </button>
+                        <button cButton color="light" class="d-flex align-items-center px-2"
+                                (click)="showHelpModal()">
+                            <span class="fa fa-question-circle-o"></span>
                         </button>
                     </c-button-group>
 
                     <c-dropdown class="d-flex d-xl-none me-2">
-                        <button cButton cDropdownToggle color="light">
+                        <button cButton cDropdownToggle color="light" class="px-2">
                             Workflow
                         </button>
                         <ul cDropdownMenu>
@@ -69,6 +73,7 @@
                                 <span class="cil-bolt ms-1"></span>
                             </a></li>
                             <li><a cDropdownItem (click)="showMonitorModal()">Statistics</a></li>
+                            <li><a cDropdownItem (click)="showHelpModal()">Help</a></li>
                         </ul>
                     </c-dropdown>
 
@@ -169,63 +174,6 @@
     </c-modal-footer>
 </c-modal>
 
-<c-modal *ngIf="_checkpoint.selectedActivity()" [visible]="_checkpoint.showModal()"
-         (visibleChange)="_checkpoint.setModal($event)" scrollable="true" size="lg">
-    <c-modal-header>
-        <h5 cModalTitle>{{ _checkpoint.selectedActivity().displayName() }}:
-            Output {{ _checkpoint.selectedOutput() }}</h5>
-        <button (click)="_checkpoint.toggleModal()" cButtonClose></button>
-    </c-modal-header>
-    <c-modal-body>
-        @if (_checkpoint.result() || _checkpoint.isLoading()) {
-            <p *ngIf="_checkpoint.isWaitingForExecution()">Waiting for execution to finish.</p>
-            <div class="d-flex justify-content-center">
-                <c-spinner *ngIf="_checkpoint.isLoading()"></c-spinner>
-            </div>
-            <div class="data-view-wrapper w-100" *ngIf="_checkpoint.result() && _checkpoint.result().data">
-                @if (_checkpoint.isLimited()) {
-                    <c-card *ngIf="_checkpoint.isLimited()" color="light" class="mb-3">
-                        <c-card-body>
-                            <p>Only the first {{ _checkpoint.limit() }} of {{ _checkpoint.totalCount() }} elements are
-                                shown.</p>
-                        </c-card-body>
-                    </c-card>
-                } @else {
-                    <p>The output contains {{ _checkpoint.totalCount() }} elements:</p>
-                }
-                <app-data-view [result]="_checkpoint.result()"
-                               [config]="_checkpoint.config"
-                               [loading]="_checkpoint.isLoading()"></app-data-view>
-            </div>
-        } @else {
-            <h5>Output Preview</h5>
-            <p><strong>Data Model:</strong> {{ _checkpoint.outPreview().portType }}</p>
-            @switch (_checkpoint.outPreview().portType) {
-                @case (PortType.REL) {
-                    <app-data-table [result]="_checkpoint.outPreviewAsResult()" [inputConfig]="_checkpoint.config"></app-data-table>
-                }
-                @case (PortType.DOC) {
-                    <p class="mb-1"><strong>Fields (estimated):</strong> {{ _checkpoint.outPreview().fields | json }}</p>
-                }
-                @case (PortType.LPG) {
-                    <p class="mb-1"><strong>Node Labels (estimated):</strong> {{ _checkpoint.outPreview().nodeLabels | json }}</p>
-                    <p class="mb-1"><strong>Edge Labels (estimated):</strong> {{ _checkpoint.outPreview().edgeLabels | json }}</p>
-                }
-            }
+<app-checkpoint-viewer></app-checkpoint-viewer>
 
-            <c-callout color="primary">
-                <p>The requested checkpoint is currently not materialized.
-                    Do you want to execute the activity to materialize its checkpoints?</p>
-                <p class="text-danger">This will also reset all its successor activities!</p>
-            </c-callout>
-        }
-    </c-modal-body>
-    <c-modal-footer>
-        <button (click)="_checkpoint.toggleModal()" cButton color="secondary">Close</button>
-        @if (!_checkpoint.result() && !_checkpoint.isLoading()) {
-            <button cButton (click)="_checkpoint.materialize()"
-                    [disabled]="_checkpoint.selectedActivity().state() !== 'FINISHED'">Execute Activity
-            </button>
-        }
-    </c-modal-footer>
-</c-modal>
+<app-workflow-help #workflowHelp></app-workflow-help>

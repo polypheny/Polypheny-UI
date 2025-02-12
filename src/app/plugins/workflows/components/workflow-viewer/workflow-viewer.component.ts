@@ -16,6 +16,7 @@ import {CheckpointViewerService} from '../../services/checkpoint-viewer.service'
 import {Router} from '@angular/router';
 import {ExecutionMonitorComponent} from './execution-monitor/execution-monitor.component';
 import {PortType} from '../../models/activity-registry.model';
+import {WorkflowHelpComponent} from './workflow-help/workflow-help.component';
 
 @Component({
     selector: 'app-workflow-viewer',
@@ -39,6 +40,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @ViewChild('workflowConfigEditor') workflowConfigEditor: WorkflowConfigEditorComponent;
     @ViewChild('executionMonitor') executionMonitor: ExecutionMonitorComponent;
     @ViewChild('variableEditor') variableEditor: JsonEditorComponent;
+    @ViewChild('workflowHelp') workflowHelp: WorkflowHelpComponent;
 
     private readonly registry = this._workflows.getRegistry();
     private readonly subscriptions = new Subscription();
@@ -303,6 +305,10 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
 
     showMonitorModal() {
         this.executionMonitor.show();
+    }
+
+    showHelpModal() {
+        this.workflowHelp.toggleHelpModal();
     }
 
     openVariableModal() {
