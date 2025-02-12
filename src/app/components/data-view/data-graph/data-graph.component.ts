@@ -338,13 +338,13 @@ export class DataGraphComponent extends DataTemplateComponent {
             t = newOverlay.append('path').attr('fill', 'transparent')
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'transparent')
-                .attr('d', arc({startAngle: -(Math.PI / 3), endAngle: (Math.PI / 3)}));
+                .attr('d', arc({startAngle: -(Math.PI / 3), endAngle: (Math.PI / 3), innerRadius: 0, outerRadius: 50}));
 
             right = newOverlay.append('path').attr('fill', 'grey')
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
                 .style('cursor', 'pointer')
-                .attr('d', arc({startAngle: 0, endAngle: Math.PI}))
+                .attr('d', arc({startAngle: 0, endAngle: Math.PI, innerRadius: 0, outerRadius: 50}))
                 .on('mouseover', function (d) {
                     d3.select(this).attr('fill', 'darkgray');
                 })
@@ -371,7 +371,7 @@ export class DataGraphComponent extends DataTemplateComponent {
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
                 .style('cursor', 'pointer')
-                .attr('d', arc({startAngle: -Math.PI, endAngle: 0}))
+                .attr('d', arc({startAngle: -Math.PI, endAngle: 0, innerRadius: 0, outerRadius: 50}))
                 .on('mouseover', function (d) {
                     d3.select(this).attr('fill', 'darkgray');
                 })
@@ -515,17 +515,15 @@ export class DataGraphComponent extends DataTemplateComponent {
 
         };
 
-
+        // TODO RB: This function does not currently work.
         function activate() {
             // Attach nodes to the simulation, add listener on the "tick" event
             simulation
-                .nodes(graph.nodes)
+                .nodes(graph.nodes as d3.SimulationNodeDatum[])
                 .on('tick', onTick);
 
             // Associate the lines with the "link" force
-            simulation
-                .force('link')
-                .links(graph.edges);
+            (simulation.force('link') as d3.ForceLink<d3.SimulationNodeDatum, Edge>).links(graph.edges);
 
             simulation.alpha(1).alphaTarget(0).restart();
         }
