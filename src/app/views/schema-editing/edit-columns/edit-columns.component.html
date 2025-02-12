@@ -30,9 +30,8 @@
                                [attr.data-before]="col.name" id="colName" #editColName
                                [ngClass]="columnValidation(editColName.value, col.name)">
                     </td>
-
                     <td>
-                        <input cFormControl sizing="sm" type="checkbox" formControlName="nullable" id="nullable"
+                        <input cFormCheckInput *ngIf="!col.primary" sizing="sm" type="checkbox" formControlName="nullable" id="nullable"
                                [attr.data-before]="col.nullable" (change)="changeNullable()">
                     </td>
                     <td>
@@ -44,8 +43,8 @@
                     <td>
                         <select cSelect sizing="sm" id="collectionsType"
                                 [attr.data-before]="col.collectionsType" formControlName="collectionsType">
-                            <option value="">none</option>
-                            <option value="ARRAY">ARRAY</option>
+                            <option value="" [selected]="col.collectionsType === null">none</option>
+                            <option value="ARRAY" [selected]="col.collectionsType === 'ARRAY'">ARRAY</option>
                         </select>
                     </td>
                     <td class="data-type-parameters">

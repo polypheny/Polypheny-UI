@@ -1,10 +1,18 @@
 import {EventEmitter, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {EntityMeta, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PathAccessRequest, PlacementFieldsModel} from '../components/data-view/models/result-set.model';
+import {EntityMeta, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PathAccessRequest, PlacementFieldsModel,
+    RelationalResult
+} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {ColumnRequest, ConstraintRequest, DataModel, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, StatisticRequest} from '../models/ui-request.model';
-import {AutoDockerResult, AutoDockerStatus, CreateDockerResponse, DockerInstanceInfo, DockerSettings, HandshakeInfo, InstancesAndAutoDocker, UpdateDockerResponse} from '../models/docker.model';
+import {AutoDockerResult, AutoDockerStatus, CreateDockerResponse,
+    DockerInstanceInfo,
+    DockerSettings,
+    HandshakeInfo,
+    InstancesAndAutoDocker,
+    UpdateDockerResponse
+} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {AdapterModel} from '../views/adapters/adapter.model';
@@ -474,8 +482,8 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/getAvailableStoresForIndexes`, request, this.httpOptions);
     }
 
-    updateAdapterSettings(adapter: AdapterModel) {
-        return this._http.post(`${this.httpUrl}/updateAdapterSettings`, adapter);
+    updateAdapterSettings(adapter: AdapterModel): Observable<RelationalResult> {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/updateAdapterSettings`, adapter);
     }
 
     getSources() {

@@ -3,7 +3,7 @@ import {GraphResult} from '../models/result-set.model';
 import {DataModel, GraphRequest} from '../../../models/ui-request.model';
 import {DataTemplateComponent} from '../data-template/data-template.component';
 
-import * as d3 from "d3";
+import * as d3 from 'd3';
 
 @Component({
     selector: 'app-data-graph',
@@ -137,16 +137,15 @@ export class DataGraphComponent extends DataTemplateComponent {
             .force('center', d3.forceCenter(width / 2, height / 2))
             .force('charge', d3.forceManyBody().strength(-this.initialNodeIds.size))
             .force('collide', d3.forceCollide(100).strength(0.9).radius(40))
-            // TODO TS2339: Property id does not exist on type SimulationNodeDatum
-            // .force('link', d3.forceLink().id(d => d.id).distance(160));
+            .force('link', d3.forceLink().id(d => d.index).distance(160));
 
 
         // disable charge after initial setup
         setInterval(() => simulation.force('charge', null), 1500);
 
         const action = (d) => {
-            if (!(d.hasOwnProperty("properties") || d.hasOwnProperty("id"))) {
-                return
+            if (!(d.hasOwnProperty('properties') || d.hasOwnProperty('id'))) {
+                return;
             }
             this.detail = new Detail(d);
             this.showProperties.set(true);
@@ -339,15 +338,13 @@ export class DataGraphComponent extends DataTemplateComponent {
             t = newOverlay.append('path').attr('fill', 'transparent')
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'transparent')
-                // TODO TS2769: No overload matches this call.
-                // .attr('d', arc({startAngle: -(Math.PI / 3), endAngle: (Math.PI / 3)}));
+                .attr('d', arc({startAngle: -(Math.PI / 3), endAngle: (Math.PI / 3)}));
 
             right = newOverlay.append('path').attr('fill', 'grey')
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
                 .style('cursor', 'pointer')
-                // TODO TS2769: No overload matches this call.
-                // .attr('d', arc({startAngle: 0, endAngle: Math.PI}))
+                .attr('d', arc({startAngle: 0, endAngle: Math.PI}))
                 .on('mouseover', function (d) {
                     d3.select(this).attr('fill', 'darkgray');
                 })
@@ -374,8 +371,7 @@ export class DataGraphComponent extends DataTemplateComponent {
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
                 .style('cursor', 'pointer')
-                // TODO TS2769: No overload matches this call.
-                // .attr('d', arc({startAngle: -Math.PI, endAngle: 0}))
+                .attr('d', arc({startAngle: -Math.PI, endAngle: 0}))
                 .on('mouseover', function (d) {
                     d3.select(this).attr('fill', 'darkgray');
                 })
@@ -523,16 +519,13 @@ export class DataGraphComponent extends DataTemplateComponent {
         function activate() {
             // Attach nodes to the simulation, add listener on the "tick" event
             simulation
-                // TODO TS2345: Argument of type Node[] is not assignable to parameter of type SimulationNodeDatum[]
-                //        Type Node has no properties in common with type SimulationNodeDatum
-                // .nodes(graph.nodes)
+                .nodes(graph.nodes)
                 .on('tick', onTick);
 
             // Associate the lines with the "link" force
             simulation
                 .force('link')
-                // TODO TS2339: Property links does not exist on type Force<SimulationNodeDatum, undefined>
-                // .links(graph.edges);
+                .links(graph.edges);
 
             simulation.alpha(1).alphaTarget(0).restart();
         }
@@ -584,7 +577,7 @@ export class DataGraphComponent extends DataTemplateComponent {
                     const id = node['id'];
                     if (!nodeIds.has(id)) {
                         nodeIds.add(id);
-                        this.initialNodes.add(node)
+                        this.initialNodes.add(node);
                     }
                 });
             }
