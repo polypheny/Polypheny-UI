@@ -28,7 +28,7 @@ export class ActivityPortComponent implements OnChanges {
         if (this.data.isMulti) {
             title += 'Multiple Connections: ';
         }
-        title += this.data.dataModel();
+        title += this.data.dataModel() || '?';
         if (this.data.portDef['isOptional']) {
             title += ' (optional)';
         }
@@ -49,7 +49,7 @@ export class ActivityPortComponent implements OnChanges {
 export class ActivityPort extends ClassicPreset.Socket {
     public readonly isControl: boolean;
     public readonly isMulti: boolean;
-    public readonly dataModel = signal<DataModel>(null); // TODO: track data model state in workflow itself
+    public readonly dataModel = signal<DataModel>(null);
 
     constructor(public readonly portDef: InPortDef | OutPortDef, public readonly isInput: boolean,
                 public readonly controlType: 'success' | 'fail' | 'in' | null,

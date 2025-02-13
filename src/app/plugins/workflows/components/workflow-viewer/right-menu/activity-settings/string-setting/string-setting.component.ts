@@ -1,6 +1,6 @@
 import {Component, computed, effect, EventEmitter, input, model, Output, Signal, ViewChild} from '@angular/core';
 import {SettingDefModel} from '../../../../../models/activity-registry.model';
-import {TypePreviewModel} from '../../../../../models/workflows.model';
+import {envVarsKey, TypePreviewModel, Variables, wfVarsKey} from '../../../../../models/workflows.model';
 import {DataModel} from '../../../../../../../models/ui-request.model';
 import {AdapterModel} from '../../../../../../../views/adapters/adapter.model';
 import {CatalogService} from '../../../../../../../services/catalog.service';
@@ -15,6 +15,7 @@ export class StringSettingComponent {
     isEditable = input.required<boolean>();
     settingDef = input.required<SettingDefModel>();
     inTypePreview = input.required<TypePreviewModel[]>();
+    activityVars = input.required<Variables>();
     value = model.required<any>();
     @Output() hasChanged = new EventEmitter<void>();
 
@@ -33,6 +34,8 @@ export class StringSettingComponent {
                     return [];
                 case 'ADAPTERS':
                     return this.adapters().map(a => a.name);
+                case 'VARIABLES':
+                    return Object.keys(this.activityVars()).filter(key => key !== wfVarsKey && key !== envVarsKey);
             }
         }
         return [];
@@ -93,7 +96,7 @@ export class StringSettingComponent {
     }
 }
 
-type AutoCompleteType = 'NONE' | 'FIELD_NAMES' | 'VALUES' | 'ADAPTERS';
+type AutoCompleteType = 'NONE' | 'FIELD_NAMES' | 'VALUES' | 'ADAPTERS' | 'VARIABLES';
 
 interface StringSettingDef extends SettingDefModel {
     minLength: number;

@@ -99,6 +99,7 @@
                                         }
                                         @case (SettingType.STRING) {
                                             <app-string-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                [activityVars]="activity().variables()"
                                                                 [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
                                                                 [(value)]="editableSettings().get(setting.key).value">
                                             </app-string-setting>

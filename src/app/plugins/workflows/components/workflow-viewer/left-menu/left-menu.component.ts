@@ -20,6 +20,7 @@ export class LeftMenuComponent {
     readonly isRelational: Record<string, boolean> = {};
     readonly isDocument: Record<string, boolean> = {};
     readonly isGraph: Record<string, boolean> = {};
+    readonly isVariables: Record<string, boolean> = {};
     readonly dropdownCats: { id: number; itemName: string; }[] = [];
     // https://www.npmjs.com/package/angular2-multiselect-dropdown
     readonly dropdownSettings = {
@@ -52,6 +53,7 @@ export class LeftMenuComponent {
             this.isRelational[type] = cats.includes(ActivityCategory.RELATIONAL);
             this.isDocument[type] = cats.includes(ActivityCategory.DOCUMENT);
             this.isGraph[type] = cats.includes(ActivityCategory.GRAPH);
+            this.isVariables[type] = cats.includes(ActivityCategory.VARIABLES);
         }
 
         this.filterList();

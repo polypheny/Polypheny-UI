@@ -47,7 +47,8 @@
                                         <small class="text-muted">
                                             <span *ngIf="isRelational[activity.type]" class="me-1 fa fa-table"></span>
                                             <span *ngIf="isDocument[activity.type]" class="me-1 fa fa-file-text-o"></span>
-                                            <span *ngIf="isGraph[activity.type]" class="cil-graph"></span>
+                                            <span *ngIf="isGraph[activity.type]" class="cil-graph me-1"></span>
+                                            <span *ngIf="isVariables[activity.type]" class="cil-bolt"></span>
                                         </small>
                                     </div>
 
