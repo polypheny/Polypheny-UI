@@ -1,0 +1,27 @@
+<div>
+    <c-input-group>
+        <span cInputGroupText>Outline Thickness</span>
+        <input aria-label="Outline Thickness"
+               cFormControl
+               placeholder="2"
+               [(ngModel)]="config.outlineThickness"
+               (ngModelChange)="configChanged()"
+        />
+    </c-input-group>
+
+    <c-input-group>
+        <label cInputGroupText for="layerVisualizationSelect">
+            Mode
+        </label>
+        <select [(ngModel)]="config.selectedMode"
+                (ngModelChange)="configChanged()"
+                cSelect
+                id="layerVisualizationSelect">
+            <option
+                *ngFor="let mode of config.modes"
+                [ngValue]="mode">{{ mode }}
+            </option>
+        </select>
+    </c-input-group>
+
+</div>

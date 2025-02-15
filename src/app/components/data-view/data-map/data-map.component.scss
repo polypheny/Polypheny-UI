@@ -1,0 +1,62 @@
+.map-container {
+  position: relative;
+  height: 100%;
+  border: 1px solid lightgray;
+}
+
+// Only for query mode, the results view already has a margin
+.map-margin {
+  margin: 1rem 0;
+  height: calc(100% - 2rem);
+}
+
+.inside-results {
+  min-height: 600px;
+  padding: 0;
+}
+
+#map {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.map-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  display: grid;
+  background: rgba(0, 0, 0, 0.1);
+  place-items: center;
+}
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 2rem;
+}
+
+.map-overlay-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  position: absolute;
+  z-index: 3;
+  bottom: 2rem;
+  right: 2rem;
+}
+
+.spinner-container > span {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: white;
+}
+
+
+.leaflet-overlay-pane > svg {
+  transition: opacity 50ms ease-in-out;
+}

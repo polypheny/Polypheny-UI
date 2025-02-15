@@ -40,29 +40,46 @@
                             <li>
                                 <a cDropdownItem class="mb-1" [routerLink]="['/views/querying/console']"
                                    routerLinkActive="active">
-                                    <i class="fa fa-keyboard-o"></i>
+                                    <div class='icon-fixed-width'>
+                                        <i class="fa fa-keyboard-o"></i>
+                                    </div>
                                     <span class="ms-1">Console</span>
                                 </a>
                             </li>
                             <li>
                                 <a cDropdownItem class="mb-1" [routerLink]="['/views/querying/graphical-querying']"
                                    routerLinkActive="active">
-                                    <i class="icon-pencil"></i>
+                                    <div class='icon-fixed-width'>
+                                        <i class="icon-pencil"></i>
+                                    </div>
                                     <span class="ms-1">Graphical Querying</span>
                                 </a>
                             </li>
                             <li>
                                 <a cDropdownItem class="mb-1" [routerLink]="['/views/querying/polyalg']"
                                    routerLinkActive="active">
-                                    <i class="fa fa-cubes"></i>
+                                    <div class='icon-fixed-width'>
+                                        <i class="fa fa-cubes"></i>
+                                    </div>
                                     <span class="ms-1">Plan Builder</span>
                                 </a>
                             </li>
                             <li>
                                 <a cDropdownItem class="mb-1" *ngIf="exploreByExampleEnabled()"
                                    [routerLink]="['/views/querying/explore-by-example']" routerLinkActive="active">
-                                    <i class="fa fa-magic"></i>
+                                    <div class='icon-fixed-width'>
+                                        <i class="fa fa-magic"></i>
+                                    </div>
                                     <span class="ms-1">Explore by Example</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a cDropdownItem class="mb-1"
+                                   [routerLink]="['/views/querying/gis']" routerLinkActive="active">
+                                    <div class='icon-fixed-width'>
+                                        <i class="fa fa-map-pin"></i>
+                                    </div>
+                                    <span class="ms-1">Map-Based Query</span>
                                 </a>
                             </li>
                         </ul>

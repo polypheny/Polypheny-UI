@@ -27,8 +27,9 @@ import {
     DropdownItemDirective,
     DropdownMenuDirective,
     DropdownToggleDirective,
-    FormCheckInputDirective,
+    FormCheckComponent,
     FormCheckLabelDirective,
+    FormCheckInputDirective,
     FormControlDirective,
     FormDirective,
     FormFeedbackComponent,
@@ -108,6 +109,7 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
 import {ReloadButtonComponent} from '../views/util/reload-button/reload-button.component';
 import {ViewComponent} from './data-view/view/view.component';
 import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.component';
+import {DataMapComponent} from "./data-view/data-map/data-map.component";
 import {AlgViewerComponent} from './polyalg/polyalg-viewer/alg-viewer.component';
 import {AlgNodeComponent} from './polyalg/algnode/alg-node.component';
 import {ReteModule} from 'rete-angular-plugin/17';
@@ -235,6 +237,7 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         DataCardComponent,
         DataTableComponent,
         DataGraphComponent,
+        DataMapComponent,
         MediaComponent,
         DeleteConfirmComponent,
         ExpandableTextComponent,
@@ -291,6 +294,7 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         Toast,
         ReloadButtonComponent,
         DockerInstanceComponent,
+        DataMapComponent,
         AlgViewerComponent
     ]
 })

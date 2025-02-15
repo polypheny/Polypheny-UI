@@ -411,5 +411,6 @@ export class ModifyPartitionRequest {
 export enum DataPresentationType {
     TABLE = 'TABLE',
     CARD = 'CARD',
-    GRAPH = 'GRAPH'
+    GRAPH = 'GRAPH',
+    MAP = 'MAP'
 }
