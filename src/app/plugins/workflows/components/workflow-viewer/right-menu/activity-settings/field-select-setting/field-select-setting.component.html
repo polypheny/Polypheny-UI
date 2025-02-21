@@ -1,12 +1,19 @@
 @if (def().simplified) {
-    <angular2-multiselect id="category-multi-selector" [data]="dropdownData()" [ngModel]="includeData" (ngModelChange)="includeDataChange($event)"
-                          [settings]="dropdownSettings" (onAddFilterNewItem)="add('include', $event)">
-        <c-item>
-            <ng-template let-item="item">
-                <span>{{ item.itemName }}</span>
-            </ng-template>
-        </c-item>
-    </angular2-multiselect>
+    @if (isEditable()) {
+        <angular2-multiselect id="category-multi-selector" [data]="dropdownData()" [ngModel]="includeData" (ngModelChange)="includeDataChange($event)"
+                              [settings]="dropdownSettings" (onAddFilterNewItem)="add('include', $event)">
+            <c-item>
+                <ng-template let-item="item">
+                    <span>{{ item.itemName }}</span>
+                </ng-template>
+            </c-item>
+        </angular2-multiselect>
+
+    } @else {
+        <!--[disabled] does not work on angular2-multiselect-->
+        <input cFormControl sizing="sm" type="text" autocomplete="off" [disabled]="true"
+               [ngModel]="this.val().include.join(', ')">
+    }
 
 } @else {
     <c-row>

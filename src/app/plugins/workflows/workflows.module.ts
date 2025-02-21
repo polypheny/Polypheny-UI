@@ -107,6 +107,7 @@ import {CastSettingComponent} from './components/workflow-viewer/right-menu/acti
 import {FilterSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/filter-setting/filter-setting.component';
 import {WorkflowHelpComponent} from './components/workflow-viewer/workflow-help/workflow-help.component';
 import {CheckpointViewerComponent} from './components/checkpoint-viewer/checkpoint-viewer.component';
+import {GraphMapSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/graph-map-setting/graph-map-setting.component';
 
 @NgModule({
     imports: [
@@ -221,7 +222,8 @@ import {CheckpointViewerComponent} from './components/checkpoint-viewer/checkpoi
         CastSettingComponent,
         FilterSettingComponent,
         WorkflowHelpComponent,
-        CheckpointViewerComponent
+        CheckpointViewerComponent,
+        GraphMapSettingComponent
     ],
     exports: [
         WorkflowViewerComponent,

@@ -94,33 +94,32 @@
     </ul>
 </c-card>
 
-<div class="d-flex" [class.justify-content-between]="def().allowJson" *ngIf="!def().singleCast">
+<div class="d-flex" [class.justify-content-between]="def().allowJson" *ngIf="!def().singleCast && isEditable()">
 
     <div class="d-flex align-items-center">
         @if (suggestions().length > 0) {
             <app-autocomplete (changed)="valueChanged()"
                               [data]="suggestions()"
                               [(value)]="addName"
-                              [placeholder]="'Source ' + fieldType() | titlecase"
-                              [disabled]="!isEditable()">
+                              [placeholder]="'Source ' + fieldType() | titlecase">
             </app-autocomplete>
 
         } @else {
             <input cFormControl sizing="sm" [placeholder]="fieldType() | titlecase"
                    type="text" autocomplete="off"
-                   [(ngModel)]="addName" [disabled]="!isEditable()" (input)="valueChanged()">
+                   [(ngModel)]="addName" (input)="valueChanged()">
         }
 
         @if (def().allowJson) {
             <c-form-check [switch]="true" class="ms-2">
                 <input cFormCheckInput type="checkbox" [(ngModel)]="addAsJson"
-                       name="allow-json-cast" (change)="valueChanged()" [disabled]="!isEditable()">
-                <label cFormCheckLabel for="nullable-cast">JSON</label>
+                       id="allow-json-cast" (change)="valueChanged()">
+                <label cFormCheckLabel for="allow-json-cast">JSON</label>
             </c-form-check>
         }
     </div>
 
-    <button cButton color="light" *ngIf="isEditable()" (click)="addCast()" size="sm" class="ms-2"
+    <button cButton color="light" (click)="addCast()" size="sm" class="ms-2"
             [disabled]="addName.length < 1">
         Add {{ fieldType() | titlecase }}
     </button>

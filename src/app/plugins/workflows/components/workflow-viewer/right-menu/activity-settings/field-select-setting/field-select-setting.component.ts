@@ -67,7 +67,8 @@ export class FieldSelectSettingComponent {
         enableSearchFilter: true,
         enableCheckAll: true,
         enableFilterSelectAll: false,
-        addNewItemOnFilter: true
+        addNewItemOnFilter: true,
+        tagToBody: false
     };
 
     constructor(private _toast: ToasterService) {

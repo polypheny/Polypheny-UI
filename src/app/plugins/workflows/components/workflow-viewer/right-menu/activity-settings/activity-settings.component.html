@@ -166,6 +166,13 @@
                                                                 [(value)]="editableSettings().get(setting.key).value">
                                             </app-filter-setting>
                                         }
+                                        @case (SettingType.GRAPH_MAP) {
+                                            <app-graph-map-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                   [inSuggestions]="activity().inSuggestions()"
+                                                                   [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                   [(value)]="editableSettings().get(setting.key).value">
+                                            </app-graph-map-setting>
+                                        }
                                         @default {
                                             <p class="text-danger">unknown setting type</p>
                                         }

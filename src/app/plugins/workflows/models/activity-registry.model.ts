@@ -258,6 +258,7 @@ export enum SettingType {
     FIELD_RENAME = 'FIELD_RENAME',
     CAST = 'CAST',
     FILTER = 'FILTER',
+    GRAPH_MAP = 'GRAPH_MAP',
 }
 
 export interface SettingDefModel {

@@ -10,7 +10,7 @@
 <c-card class="list-container border bg-light mb-2" *ngIf="conditions()?.length > 0">
     <ul cListGroup flush="true">
         @for (condition of conditions(); track $index) {
-            <li cListGroupItem class="bg-white list-entry" [class.draggable]="isEditable()">
+            <li cListGroupItem class="bg-white list-entry">
                 <c-row gutter=false>
                     <c-col [xs]="11">
                         <div class="d-flex mb-1 align-items-center justify-content-between">

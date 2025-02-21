@@ -90,7 +90,12 @@ export class ActivityComponent implements OnInit, OnChanges {
         });
         Object.keys(this.data.dataInputs).forEach(key => {
             const idx = ActivityNode.getDataPortIndexFromKey(key);
-            this.inIcons[key] = computed(() => portTypeIcons[this.data.inPortTypes()[idx]]);
+            const inPort = this.data.def.inPorts[idx];
+            if (inPort.isMulti && inPort.type === PortType.ANY) {
+                this.inIcons[key] = computed(() => portTypeIcons[PortType.ANY]);
+            } else {
+                this.inIcons[key] = computed(() => portTypeIcons[this.data.inPortTypes()[idx]]);
+            }
         });
         Object.keys(this.data.dataOutputs).forEach(key => {
             const idx = ActivityNode.getDataPortIndexFromKey(key);
