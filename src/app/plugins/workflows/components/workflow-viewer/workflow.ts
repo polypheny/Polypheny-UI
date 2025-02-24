@@ -152,13 +152,15 @@ export class Workflow {
                          invalidReasons: Record<string, string>,
                          invalidSettings: Record<string, Record<string, string>>,
                          inTypePreviews: Record<string, TypePreviewModel[]>,
-                         outTypePreviews: Record<string, TypePreviewModel[]>): boolean {
+                         outTypePreviews: Record<string, TypePreviewModel[]>,
+                         dynamicNames: Record<string, string>): boolean {
         const missing = new Set<string>();
         const remaining = new Set<string>(this.activities.keys());
 
         for (const [id, state] of Object.entries(activityStates)) {
             const oldState = this.activities.get(id)?.state();
-            if (this.updateActivityState(id, state, rolledBack.includes(id), invalidReasons[id], invalidSettings[id], inTypePreviews[id], outTypePreviews[id])) {
+            if (this.updateActivityState(id, state, rolledBack.includes(id), invalidReasons[id], invalidSettings[id],
+                inTypePreviews[id], outTypePreviews[id], dynamicNames[id])) {
                 this.activityChangeSubject.next(id);
                 if (state !== oldState) {
                     this.activityDirtySubject.next(id);
@@ -275,7 +277,8 @@ export class Workflow {
 
     private updateActivityState(activityId: string, state: ActivityState, isRolledBack: boolean, invalidReason: string,
                                 invalidSettings: Record<string, string> | undefined,
-                                inTypePreview: TypePreviewModel[], outTypePreview: TypePreviewModel[]): boolean {
+                                inTypePreview: TypePreviewModel[], outTypePreview: TypePreviewModel[],
+                                dynamicName: string | undefined): boolean {
         if (state === 'IDLE') {
             this.updateActivityProgress(activityId, 0); // reset progress
         }
@@ -286,6 +289,7 @@ export class Workflow {
             a.invalidSettings.set(invalidSettings || {});
             a.inTypePreview.set(inTypePreview);
             a.outTypePreview.set(outTypePreview);
+            a.dynamicName.set(dynamicName);
         });
     }
 
@@ -333,7 +337,9 @@ export class Activity {
     readonly hasInvalidSettings: Signal<boolean>;
     readonly variables: WritableSignal<Variables>;
     readonly hasVariables: Signal<boolean>;
+    readonly dynamicName: WritableSignal<string>;
     readonly displayName: Signal<string>;
+    readonly staticDisplayName: Signal<string>;
     readonly executionInfo: WritableSignal<ExecutionInfoModel>;
     readonly logMessages: Signal<LogMessage[]>;
     readonly error: Signal<ErrorVariable>;
@@ -366,8 +372,12 @@ export class Activity {
         this.hasInvalidSettings = computed(() => Object.keys(this.invalidSettings()).length > 0);
         this.variables = signal(activityModel.variables, {equal: _.isEqual});
         this.hasVariables = computed(() => Object.keys(this.variables()).length > 0);
+        this.dynamicName = signal<string>(activityModel.dynamicName);
         this.displayName = computed(() => {
-            return this.rendering().name || this.def.displayName;
+            return this.rendering().name || this.dynamicName() || this.def.displayName;
+        });
+        this.staticDisplayName = computed(() => {
+            return this.rendering().name || this.def.displayName; // does never show the dynamic name
         });
         this.executionInfo = signal(activityModel.executionInfo);
         this.logMessages = computed(() =>
@@ -389,6 +399,7 @@ export class Activity {
         this.invalidReason.set(activityModel.invalidReason);
         this.invalidSettings.set(activityModel.invalidSettings);
         this.variables.set(activityModel.variables);
+        this.dynamicName.set(activityModel.dynamicName);
         this.executionInfo.set(activityModel.executionInfo);
     }
 

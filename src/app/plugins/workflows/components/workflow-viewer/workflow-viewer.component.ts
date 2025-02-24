@@ -207,7 +207,8 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                         stateResponse.activityInvalidReasons,
                         stateResponse.activityInvalidSettings,
                         stateResponse.inTypePreviews,
-                        stateResponse.outTypePreviews)
+                        stateResponse.outTypePreviews,
+                        stateResponse.dynamicActivityNames)
                     && this.workflow.updateEdgeStates(stateResponse.edgeStates))) {
                     this.synchronizeWorkflow();
                 }

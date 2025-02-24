@@ -51,6 +51,7 @@ export interface StateUpdateResponse extends WsResponse {
     outTypePreviews: Record<string, TypePreviewModel[]>;
     activityInvalidReasons: Record<string, string>;
     activityInvalidSettings: Record<string, Record<string, string>>;
+    dynamicActivityNames: Record<string, string>;
     edgeStates: EdgeModel[];
 }
 

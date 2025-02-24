@@ -116,6 +116,7 @@ export interface ActivityModel {
     invalidReason?: string;
     invalidSettings?: Record<string, string>;
     variables?: Variables;
+    dynamicName?: string;
     executionInfo?: ExecutionInfoModel;
 }
 

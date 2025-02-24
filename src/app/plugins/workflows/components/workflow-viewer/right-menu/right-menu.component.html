@@ -3,7 +3,7 @@
         <div class="d-flex flex-column flex-grow-1">
             <div class="d-flex flex-row align-items-center justify-content-between">
                 @if (!isEditingName()) {
-                    <h3 class="mb-0">
+                    <h3 class="mb-0" [class.fst-italic]="activity().rendering().name != null">
                         {{ activity().displayName() }}
                         <small>
                             <i class="fa fa-pencil ms-2 fa-xs text-secondary edit-name-button" *ngIf="isEditable()" (click)="editDisplayName()"></i>
@@ -11,7 +11,7 @@
                     </h3>
                 } @else {
                     <div class="d-flex align-items-center w-100">
-                        <input cFormControl class="editable-name px-1 py-0 me-3"
+                        <input cFormControl class="editable-name px-1 py-0 me-3" [class.fst-italic]="editableDisplayName !== activity().def.displayName"
                                type="text" cBgColor="transparent"
                                autocomplete="false"
                                #editableName

@@ -26,7 +26,7 @@ export class FilterSettingComponent {
         return this.def().operators.includes(key as Operator);
     }));
 
-    readonly showIgnoreCase = new Set(['EQUALS', 'NOT_EQUALS', 'REGEX', 'INCLUDED', 'NOT_INCLUDED', 'HAS_KEY']);
+    readonly showIgnoreCase = new Set(['EQUALS', 'NOT_EQUALS', 'REGEX', 'INCLUDED', 'NOT_INCLUDED', 'CONTAINS', 'NOT_CONTAINS', 'HAS_KEY']);
     readonly hideValue = new Set(['NULL', 'NON_NULL', 'IS_ARRAY', 'IS_OBJECT']);
 
     valueChanged() {
@@ -59,6 +59,8 @@ export enum Operator {
     NON_NULL = 'Is Not Null',
     INCLUDED = 'In',
     NOT_INCLUDED = 'Not In',
+    CONTAINS = 'Contains',
+    NOT_CONTAINS = 'Does Not Contain',
     HAS_KEY = 'Has Key',
     IS_ARRAY = 'Is Array',
     IS_OBJECT = 'Is Document'

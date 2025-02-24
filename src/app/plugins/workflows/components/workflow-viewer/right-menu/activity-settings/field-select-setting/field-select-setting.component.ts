@@ -22,7 +22,7 @@ export class FieldSelectSettingComponent {
     val = computed(() => this.value() as FieldSelectValue); // like value, but with correct type
     def = computed<FieldSelectSettingDef>(() => this.settingDef() as FieldSelectSettingDef);
     targetPreview = computed(() => this.inTypePreview()[this.def().targetInput]);
-    isRel = computed(() => this.targetPreview().portType === 'REL');
+    isRel = computed(() => this.targetPreview()?.portType === 'REL');
     firstIsFixed = signal(false);
     isInitialized = false;
 
@@ -31,11 +31,11 @@ export class FieldSelectSettingComponent {
 
     fields = computed(() => {
         const tp = this.targetPreview();
-        if (tp.portType === 'REL') {
+        if (tp?.portType === 'REL') {
             return tp.columns?.map(c => c.name).filter(name => name !== PK_COL) || [];
-        } else if (tp.portType === 'DOC') {
+        } else if (tp?.portType === 'DOC') {
             return tp.fields || [];
-        } else if (tp.portType === 'LPG') {
+        } else if (tp?.portType === 'LPG') {
             return [...(tp.nodeLabels || []), ...(tp.edgeLabels || [])];
         }
         return [];
@@ -68,7 +68,9 @@ export class FieldSelectSettingComponent {
         enableCheckAll: true,
         enableFilterSelectAll: false,
         addNewItemOnFilter: true,
-        tagToBody: false
+        tagToBody: false,
+        position: 'bottom', // Top currently has bug: https://github.com/CuppaLabs/angular2-multiselect-dropdown/issues/584, https://github.com/CuppaLabs/angular2-multiselect-dropdown/issues/605
+        autoPosition: false
     };
 
     constructor(private _toast: ToasterService) {

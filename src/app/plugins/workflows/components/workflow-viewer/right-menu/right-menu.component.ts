@@ -83,7 +83,7 @@ export class RightMenuComponent {
     }
 
     editDisplayName() {
-        this.editableDisplayName = this.activity().displayName();
+        this.editableDisplayName = this.activity().staticDisplayName();
         this.isEditingName.set(true);
         setTimeout(() => {
             this.editableName.nativeElement.focus();
@@ -92,7 +92,9 @@ export class RightMenuComponent {
 
     saveDisplayName() {
         this.isEditingName.set(false);
-        this.activity().rendering.update(r => ({...r, name: this.editableDisplayName}));
+        const isDefault = this.editableDisplayName === this.activity().def.displayName;
+        const name = isDefault ? undefined : this.editableDisplayName;
+        this.activity().rendering.update(r => ({...r, name}));
         this._websocket.updateActivity(this.activity().id, null, null, this.activity().rendering());
     }
 
