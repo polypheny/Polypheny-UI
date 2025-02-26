@@ -208,7 +208,9 @@ export enum ActivityCategory {
     RELATIONAL = 'RELATIONAL',
     DOCUMENT = 'DOCUMENT',
     GRAPH = 'GRAPH',
-    VARIABLES = 'VARIABLES'
+    VARIABLES = 'VARIABLES',
+    CLEANING = 'CLEANING',
+    CROSS_MODEL = 'CROSS_MODEL'
 }
 
 export enum PortType {

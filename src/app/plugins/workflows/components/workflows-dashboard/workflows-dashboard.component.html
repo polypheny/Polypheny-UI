@@ -179,63 +179,132 @@
 
         <h2>Active Sessions</h2>
         <ul cListGroup *ngIf="workflowDefs" class="mb-5">
-            <ng-container *ngFor="let session of sessions">
-                <li cListGroupItem>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="flex-grow-1 limit-name-width">
-                            @if (session.type === 'USER_SESSION') {
-                                <h4 class="session-name">
-                                    {{ workflowDefs[session.workflowId].name }}
-                                    v{{ session.version }}
-                                </h4>
-
-                            } @else {
-                                <h4>
-                                    {{ session.type }}
-                                </h4>
-                            }
-                            <c-row>
-                                <c-col [xs]="4"><small><strong>Session ID:</strong></small></c-col>
-                                <c-col [xs]="8"><small>{{ session.sessionId }}</small></c-col>
-                            </c-row>
-                            <c-row>
-                                <c-col [xs]="4"><small><strong>State:</strong></small></c-col>
-                                <c-col [xs]="8"><small>{{ session.state }}</small></c-col>
-                            </c-row>
-                            <c-row>
-                                <c-col [xs]="4"><small><strong>Last Interaction:</strong></small></c-col>
-                                <c-col [xs]="8">
-                                    <small>{{ session.lastInteraction | date: 'yyyy-MM-dd HH:mm:ss' }}</small>
-                                </c-col>
-                            </c-row>
-                            <c-row>
-                                <c-col [xs]="4"><small><strong>Connected Users:</strong></small></c-col>
-                                <c-col [xs]="8"><small>{{ session.connectionCount }}</small></c-col>
-                            </c-row>
-                            <c-row>
-                                <c-col [xs]="4"><small><strong>Activities:</strong></small></c-col>
-                                <c-col [xs]="8"><small>{{ session.activityCount }}</small></c-col>
-                            </c-row>
-                            <button cButton color="danger" variant="outline" size="sm" class="mt-1"
-                                    (click)="terminateSession(session.sessionId)">
-                                Terminate
-                            </button>
-                        </div>
-                        <button cButton (click)="openSession(session.sessionId)">
-                            Open
-                        </button>
-                    </div>
-                </li>
-            </ng-container>
+            @for (session of userSessions; track session.sessionId) {
+                <ng-container *ngTemplateOutlet="sessionTemplate; context: { $implicit: session }"></ng-container>
+            }
         </ul>
     }
     @case ('jobs') {
         <p>Jobs coming soon...</p>
     }
     @case ('api') {
-        <p>API coming soon...</p>
+        <h1>Workflow API</h1>
+        <p><kbd>{{ _settings.getConnection( 'workflows.rest' ) }}/api</kbd></p>
+        <c-accordion class="mb-5">
+            <c-accordion-item #item0="cAccordionItem" [visible]="true">
+                <ng-template cTemplateId="accordionHeaderTemplate">
+                    <button (click)="item0.toggleItem()" [collapsed]="!item0.visible" cAccordionButton>
+                        <h5 class="mb-0">Basic Endpoints</h5>
+                    </button>
+                </ng-template>
+
+                <ng-template cTemplateId="accordionBodyTemplate">
+                    <div class="mx-3 my-3">
+                        <c-alert color="success" class="mb-2">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="me-3 d-flex align-items-center">
+                                    <h4 class="me-3 mb-0">
+                                        <span class="badge bg-success">POST</span>
+                                    </h4>
+                                    <strong>/sessions</strong>
+                                </div>
+                                <span>Submit a <code>workflow.json</code> to create a new session</span>
+                            </div>
+                        </c-alert>
+                        <c-alert color="success" class="mb-2">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="me-3 d-flex align-items-center">
+                                    <h4 class="me-3 mb-0">
+                                        <span class="badge bg-success">POST</span>
+                                    </h4>
+                                    <strong>/sessions/&#123;sessionId&#125;/execute</strong>
+                                </div>
+                                <span>Execute the workflow</span>
+                            </div>
+                        </c-alert>
+                        <c-alert color="primary" class="mb-2">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="me-3 d-flex align-items-center">
+                                    <h4 class="me-3 mb-0">
+                                        <span class="badge bg-primary">GET</span>
+                                    </h4>
+                                    <strong>/sessions/&#123;sessionId&#125;/workflow/&#123;activityId&#125;/statistics</strong>
+                                </div>
+                                <span>Get execution statistics for the specified activity</span>
+                            </div>
+                        </c-alert>
+                        <c-alert color="danger">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="me-3 d-flex align-items-center">
+                                    <h4 class="me-3 mb-0">
+                                        <span class="badge bg-danger">DELETE</span>
+                                    </h4>
+                                    <strong>/sessions/&#123;sessionId&#125;</strong>
+                                </div>
+                                <span>Terminate the session</span>
+                            </div>
+                        </c-alert>
+                    </div>
+                </ng-template>
+            </c-accordion-item>
+        </c-accordion>
+
+        <h2>API Sessions</h2>
+        <ul cListGroup class="mb-5">
+            @for (session of apiSessions; track session.sessionId) {
+                <ng-container *ngTemplateOutlet="sessionTemplate; context: { $implicit: session }"></ng-container>
+            }
+        </ul>
     }
 }
+
+<ng-template #sessionTemplate let-session>
+    <li cListGroupItem>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="flex-grow-1 limit-name-width">
+                @if (session.type === 'USER_SESSION') {
+                    <h4 class="session-name">
+                        {{ workflowDefs[session.workflowId].name }}
+                        v{{ session.version }}
+                    </h4>
+                    <c-row>
+                        <c-col [xs]="4"><small><strong>Session ID:</strong></small></c-col>
+                        <c-col [xs]="8"><small>{{ session.sessionId }}</small></c-col>
+                    </c-row>
+                } @else {
+                    <h4>
+                        {{ session.sessionId }}
+                    </h4>
+                }
+                <c-row>
+                    <c-col [xs]="4"><small><strong>State:</strong></small></c-col>
+                    <c-col [xs]="8"><small>{{ session.state }}</small></c-col>
+                </c-row>
+                <c-row>
+                    <c-col [xs]="4"><small><strong>Last Interaction:</strong></small></c-col>
+                    <c-col [xs]="8">
+                        <small>{{ session.lastInteraction | date: 'yyyy-MM-dd HH:mm:ss' }}</small>
+                    </c-col>
+                </c-row>
+                <c-row>
+                    <c-col [xs]="4"><small><strong>Connected Users:</strong></small></c-col>
+                    <c-col [xs]="8"><small>{{ session.connectionCount }}</small></c-col>
+                </c-row>
+                <c-row>
+                    <c-col [xs]="4"><small><strong>Activities:</strong></small></c-col>
+                    <c-col [xs]="8"><small>{{ session.activityCount }}</small></c-col>
+                </c-row>
+                <button cButton color="danger" variant="outline" size="sm" class="mt-1"
+                        (click)="terminateSession(session.sessionId)">
+                    Terminate
+                </button>
+            </div>
+            <button cButton (click)="openSession(session.sessionId)">
+                Open
+            </button>
+        </div>
+    </li>
+</ng-template>
 
 <c-modal [visible]="showDeleteModal()" (visibleChange)="showDeleteModal.set($event)" *ngIf="workflowToDelete">
     <c-modal-header>

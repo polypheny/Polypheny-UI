@@ -21,6 +21,11 @@ export class WorkflowHelpComponent {
     readonly helpTab = signal<HelpTabs>('intro');
     readonly showHelpModal = signal(false);
 
+    readonly stripedColor = `repeating-linear-gradient(                    135deg,
+                    ${stateColors[ActivityState.SAVED]}, ${stateColors[ActivityState.SAVED]} 10px,
+                    ${stateColors[ActivityState.FINISHED]} 10px, ${stateColors[ActivityState.FINISHED]} 20px
+                )`;
+
 
     toggleHelpModal() {
         this.showHelpModal.update(b => !b);

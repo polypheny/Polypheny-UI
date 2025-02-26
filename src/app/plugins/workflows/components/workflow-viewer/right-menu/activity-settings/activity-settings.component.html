@@ -25,11 +25,10 @@
                 </div>
 
                 <div class="ms-3" [ngClass]="{'ms-auto': activity().def.nonEmptyGroupCount <= 1}">
-                    <c-form-check [switch]="false" [inline]="true">
-                        <input cFormCheckInput id="settings-description" type="checkbox" [(ngModel)]="showDescription"
-                               name="settings-description">
-                        <label cFormCheckLabel for="settings-description">Description</label>
-                    </c-form-check>
+                    <span class="fa fa-lg text-secondary show-description-button" title="Toggle Setting Descriptions"
+                          [ngClass]="showDescription ? 'fa-question-circle' : 'fa-question-circle-o'"
+                          (click)="showDescription = !showDescription"
+                    ></span>
                 </div>
 
                 <div class="ms-3">

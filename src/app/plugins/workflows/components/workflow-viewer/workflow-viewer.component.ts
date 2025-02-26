@@ -317,7 +317,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             this.workflow.variables.set(variables);
             this.editedVariables.set(JSON.stringify(variables));
             setTimeout(() => { // wait for input of editor to change
-                this.variableEditor.addInitialValues();
+                this.variableEditor?.addInitialValues(); // if not editable, nothing has to be added
                 this.showVariableModal.set(true);
             }, 50);
         });

@@ -6,6 +6,7 @@ import {WorkflowsService} from '../../services/workflows.service';
 import {SessionModel, WorkflowDefModel, WorkflowModel} from '../../models/workflows.model';
 import {SidebarNode} from '../../../../models/sidebar-node.model';
 import {retry} from 'rxjs';
+import {WebuiSettingsService} from '../../../../services/webui-settings.service';
 
 @Component({
     selector: 'app-workflows-dashboard',
@@ -18,6 +19,7 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     private readonly _toast = inject(ToasterService);
     private readonly _sidebar = inject(LeftSidebarService);
     private readonly _workflows = inject(WorkflowsService);
+    readonly _settings = inject(WebuiSettingsService);
 
     public route = signal(null);
 
@@ -26,6 +28,8 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     sortedGroups: { groupName: string, defs: { id: string, def: WorkflowDefModel }[] }[];
     visibleGroups: Record<string, WritableSignal<boolean>> = {};
     sessions: SessionModel[] = [];
+    userSessions: SessionModel[] = [];
+    apiSessions: SessionModel[] = [];
     selectedVersion: Record<string, number> = {};
     newWorkflowName = '';
     newWorkflowGroup = '';
@@ -108,9 +112,13 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
 
     private getSessions() {
         this._workflows.getSessions().subscribe({
-            next: res => this.sessions = Object.values(res).sort((a, b) =>
-                new Date(b.lastInteraction).getTime() - new Date(a.lastInteraction).getTime()
-            )
+            next: res => {
+                this.sessions = Object.values(res).sort((a, b) =>
+                    new Date(b.lastInteraction).getTime() - new Date(a.lastInteraction).getTime()
+                );
+                this.userSessions = this.sessions.filter(s => s.type === 'USER_SESSION');
+                this.apiSessions = this.sessions.filter(s => s.type === 'API_SESSION');
+            }
         });
     }
 
@@ -118,8 +126,8 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
         const sidebarNodes: SidebarNode[] = [
             new SidebarNode(0, 'Dashboard', null, '/views/workflows/dashboard'),
             new SidebarNode(1, 'Sessions', null, '/views/workflows/sessions'),
-            //new SidebarNode(2, 'Jobs', null, '/views/workflows/jobs'),
-            //new SidebarNode(3, 'API', null, '/views/workflows/api')
+            new SidebarNode(2, 'API', null, '/views/workflows/api')
+            //new SidebarNode(3, 'Jobs', null, '/views/workflows/jobs'),
         ];
         this._sidebar.setNodes(sidebarNodes);
         this._sidebar.open();

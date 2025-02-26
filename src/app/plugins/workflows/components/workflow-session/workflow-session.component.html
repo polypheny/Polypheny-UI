@@ -1,7 +1,17 @@
 <div *ngIf="isRegistryLoaded()" class="h-100">
-    <ng-container *ngIf="session?.type === 'USER_SESSION'">
-        <app-workflow-viewer [sessionId]="sessionId" [isEditable]="true" [name]="session.workflowDef.name + ' v' + session.version"
-                             (saveWorkflowEvent)="saveSession($event)" (close)="backToDashboard()" (terminate)="terminateSession()">
-        </app-workflow-viewer>
-    </ng-container>
+    @switch (session?.type) {
+        @case ('USER_SESSION') {
+            <app-workflow-viewer [sessionId]="sessionId" [isEditable]="true" [name]="session.workflowDef.name + ' v' + session.version"
+                                 (saveWorkflowEvent)="saveSession($event)" (close)="backToDashboard()" (terminate)="terminateSession()">
+            </app-workflow-viewer>
+        }
+        @case ('API_SESSION') {
+            <app-workflow-viewer [sessionId]="sessionId" [isEditable]="false" [name]="sessionId"
+                                 (close)="backToDashboard()" (terminate)="terminateSession()">
+            </app-workflow-viewer>
+        }
+        @default {
+            Unsupported Session Type
+        }
+    }
 </div>

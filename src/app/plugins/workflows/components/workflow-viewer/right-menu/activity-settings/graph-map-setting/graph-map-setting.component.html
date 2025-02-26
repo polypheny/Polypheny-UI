@@ -3,8 +3,10 @@
         <c-accordion-item #item="cAccordionItem" [visible]="false" class="overflow-visible">
             <ng-template cTemplateId="accordionHeaderTemplate">
                 <button (click)="item.toggleItem()" [collapsed]="!item.visible" cAccordionButton class="p-2">
-                    <app-delete-confirm (delete)="deleteMapping($index)" (click)="$event.stopPropagation()"
-                                        *ngIf="isEditable()"></app-delete-confirm>
+                    <div class="me-3">
+                        <app-delete-confirm (delete)="deleteMapping($index)" (click)="$event.stopPropagation()"
+                                            *ngIf="isEditable()"></app-delete-confirm>
+                    </div>
                     Input {{ mapping.inputIdx }} <span class="mx-2 fa fa-long-arrow-right"></span>
                     @if (mapping.edgeOnly) {
                         Edge ({{ mapping.edge.edgeLabels }})

@@ -31,4 +31,5 @@ interface EnumSettingDef extends SettingDefModel {
     displayOptions: string[];
     displayDescriptions: string[] | null;
     label: string;
+    style: 'DROPDOWN' | 'RADIO_BUTTON';
 }
