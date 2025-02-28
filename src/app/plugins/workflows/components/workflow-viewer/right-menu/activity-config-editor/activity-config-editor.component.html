@@ -30,6 +30,18 @@
                    (change)="checkForChanges()" [disabled]="!isEditable()" min="0">
         </div>
 
+        <!-- Expected Outcome -->
+        <div class="mb-3">
+            <label cLabel for="expectedOutcome">Expected Outcome:</label>
+            <select cSelect id="expectedOutcome" [(ngModel)]="editableConfig().expectedOutcome" name="expectedOutcome"
+                    (change)="checkForChanges()" [disabled]="!isEditable()">
+                <option *ngFor="let type of expectedOutcomes" [value]="type">{{ type }}</option>
+            </select>
+            <div cFormText>
+                Used to determine the overall success of a workflow execution.
+            </div>
+        </div>
+
         <!-- Preferred Stores -->
         <div class="mb-3" *ngIf="editableConfig().preferredStores?.length > 0">
             <label cLabel>Preferred Stores:</label>
@@ -50,7 +62,7 @@
         <div class="mb-3">
             <label cLabel for="commonType">Common Transaction:</label>
             <select cSelect id="commonType" [(ngModel)]="editableConfig().commonType" name="commonType"
-                    (change)="checkForChanges()" [disabled]="!isEditable()">
+                    (change)="checkForChanges()" [disabled]="!isEditable() || lockCommonTransaction()">
                 <option *ngFor="let type of commonTypes" [value]="type">{{ type }}</option>
             </select>
             <div cFormText>

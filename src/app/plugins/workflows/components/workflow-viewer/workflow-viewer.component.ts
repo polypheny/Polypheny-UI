@@ -6,7 +6,7 @@ import {ActivityUpdateResponse, ErrorResponse, ProgressUpdateResponse, Rendering
 import {filter, Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Activity, Workflow} from './workflow';
-import {ActivityState, WorkflowState} from '../../models/workflows.model';
+import {ActivityState, SessionModel, WorkflowState} from '../../models/workflows.model';
 import {RightMenuComponent} from './right-menu/right-menu.component';
 import {switchMap, tap} from 'rxjs/operators';
 import {WorkflowConfigEditorComponent} from './workflow-config-editor/workflow-config-editor.component';
@@ -29,10 +29,12 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @Input() sessionId: string;
     @Input() isEditable: boolean;
     @Input() name: string;
+    @Input() canTerminate = true;
 
     @Output() saveWorkflowEvent = new EventEmitter<string>();
     @Output() close = new EventEmitter<void>();
     @Output() terminate = new EventEmitter<void>();
+    @Output() openNested = new EventEmitter<SessionModel>();
 
     @ViewChild('rete') container!: ElementRef;
     @ViewChild('leftMenu') leftMenu: RightMenuComponent;
@@ -174,6 +176,16 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         this.subscriptions.add(this.editor.onOpenActivitySettings().subscribe(
             activityId => this.openActivitySettings(activityId)
         ));
+        this.subscriptions.add(this.editor.onOpenNestedActivity().pipe(
+            switchMap(activityId => this._workflows.getNestedSession(this.sessionId, activityId)),
+            tap(sessionModel => {
+                if (sessionModel) {
+                    this.openNested.emit(sessionModel);
+                } else {
+                    this._toast.warn('Execute the activity to be able to access the nested workflow.');
+                }
+            })
+        ).subscribe());
         this.subscriptions.add(this.editor.onOpenCheckpoint().subscribe(
             ([activityId, isInput, idx]) => {
                 if (isInput) {

@@ -18,7 +18,8 @@
                                 (click)="close.emit()">
                             Back
                         </button>
-                        <button cButton color="danger" variant="outline" (mouseleave)="terminateConfirm.set(false)" class="px-2"
+                        <button cButton color="danger" variant="outline" *ngIf="canTerminate"
+                                (mouseleave)="terminateConfirm.set(false)" class="px-2"
                                 (click)="onTerminateClick()">
                             @if (terminateConfirm()) {
                                 <span>Stop Session </span>
@@ -26,7 +27,6 @@
                             } @else {
                                 <span>Stop Session</span>
                             }
-
                         </button>
                     </c-button-group>
                     <c-button-group role="group" class="me-2 d-none d-xl-flex">

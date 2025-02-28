@@ -12,15 +12,34 @@
 
         <div class="control-bar d-flex flex-row py-1 px-3 align-items-center border-bottom">
             <button cButton size=sm color="warning" *ngIf="data.hasInvalidSettings() || data.invalidReason()"
-                    (click)="showProblems()" (pointerdown)="$event.stopPropagation()" title="Show Problems">
+                    (click)="showProblems()" (pointerdown)="$event.stopPropagation()" title="Show Problems"
+                    class="me-2">
                 <span class="fa fa-exclamation-triangle text-light"></span>
             </button>
+
             <div class="flex-grow-1"></div>
             <h6 class="ms-2 mb-0" *ngIf="data.commonType() !== 'NONE'" [class.text-danger]="data.isRolledBack()"
                 [title]="data.isRolledBack() ? 'While the activity might have executed successfully on its own, the common activity was aborted' : 'Common Transaction'">
                 {{ data.commonType() }}
                 <span *ngIf="data.isRolledBack()"> (aborted)</span>
             </h6>
+
+            @switch (data.expectedOutcome()) {
+                @case ('MUST_SUCCEED') {
+                    <div class="ms-2">
+                        <i [ngClass]="data.isExpectedOutcome() ? 'text-secondary' : 'text-danger'"
+                           [title]="data.isExpectedOutcome() ? 'Activity is expected to succeed (see config)': 'Activity was expected to succeed, but failed (see config)'"
+                           class="fa fa-check-circle-o"></i>
+                    </div>
+                }
+                @case ('MUST_FAIL') {
+                    <div class="ms-2">
+                        <i [ngClass]="data.isExpectedOutcome() ? 'text-secondary' : 'text-danger'"
+                           [title]="data.isExpectedOutcome() ? 'Activity is expected to fail (see config)': 'Activity was expected to fail, but succeeded (see config)'"
+                           class="fa fa-times-circle-o"></i>
+                    </div>
+                }
+            }
             <c-button-group role="group" class="ms-2" size="sm">
                 <button cButton color="primary" class="" (click)="data.execute()" *ngIf="data.canExecute()"
                         [disabled]="data.invalidReason() || data.hasInvalidSettings()"
@@ -35,6 +54,10 @@
                         (pointerdown)="$event.stopPropagation()">
                 </button>
             </c-button-group>
+            <button cButton color="secondary" size="sm" (click)="data.openNested()" *ngIf="data.hasNested"
+                    class="ms-1" (pointerdown)="$event.stopPropagation()" title="Open nested workflow">
+                <i class="fa fa-sign-in me-1"></i>
+            </button>
         </div>
 
         <div class="d-flex flex-row pt-3 h-100">
@@ -60,7 +83,7 @@
             </div>
 
             <div class="activity-content flex-grow-1 h-100 px-1 d-flex flex-column justify-content-between">
-                <h3 [class.fst-italic]="data.rendering().name != null">{{ data.displayName() }}</h3>
+                <h3 [class.fst-italic]="data.rendering().name != null" class="text-break">{{ data.displayName() }}</h3>
                 <textarea cFormControl id="activity-notes" class="mb-2" placeholder="Notes"
                           [(ngModel)]="data.rendering().notes" spellcheck="false"
                           (pointerdown)="$event.stopPropagation()" (change)="saveNotes()">

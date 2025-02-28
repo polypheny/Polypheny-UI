@@ -1,17 +1,25 @@
 <div *ngIf="isRegistryLoaded()" class="h-100">
-    @switch (session?.type) {
-        @case ('USER_SESSION') {
-            <app-workflow-viewer [sessionId]="sessionId" [isEditable]="true" [name]="session.workflowDef.name + ' v' + session.version"
-                                 (saveWorkflowEvent)="saveSession($event)" (close)="backToDashboard()" (terminate)="terminateSession()">
-            </app-workflow-viewer>
+    @if (nestedSessionStack().length === 0) {
+        @switch (session?.type) {
+            @case ('USER_SESSION') {
+                <app-workflow-viewer [sessionId]="sessionId" [isEditable]="true" [name]="session.workflowDef.name + ' v' + session.version"
+                                     (saveWorkflowEvent)="saveSession($event)" (close)="backToDashboard()" (terminate)="terminateSession()"
+                                     (openNested)="openNestedSession($event)">
+                </app-workflow-viewer>
+            }
+            @case ('API_SESSION') {
+                <app-workflow-viewer [sessionId]="sessionId" [isEditable]="false" [name]="sessionId"
+                                     (close)="backToDashboard()" (terminate)="terminateSession()" (openNested)="openNestedSession($event)">
+                </app-workflow-viewer>
+            }
+            @default {
+                Unsupported Session Type
+            }
         }
-        @case ('API_SESSION') {
-            <app-workflow-viewer [sessionId]="sessionId" [isEditable]="false" [name]="sessionId"
-                                 (close)="backToDashboard()" (terminate)="terminateSession()">
-            </app-workflow-viewer>
-        }
-        @default {
-            Unsupported Session Type
-        }
+    } @else if (!hideNested) {
+        <app-workflow-viewer [sessionId]="nestedSession().sessionId" [isEditable]="false" [canTerminate]="false"
+                             [name]="'[nested] ' + nestedSession().workflowDef.name"
+                             (close)="closeNestedSession()" (openNested)="openNestedSession($event)">
+        </app-workflow-viewer>
     }
 </div>

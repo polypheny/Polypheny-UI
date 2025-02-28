@@ -1,4 +1,4 @@
-import {ActivityConfigModel, ActivityModel, ActivityState, CommonType, EdgeModel, EdgeState, errorKey, ErrorVariable, ExecutionInfoModel, RenderModel, SettingsModel, TypePreviewModel, Variables, WorkflowConfigModel, WorkflowModel, WorkflowState} from '../../models/workflows.model';
+import {ActivityConfigModel, ActivityModel, ActivityState, CommonType, EdgeModel, EdgeState, errorKey, ErrorVariable, ExecutionInfoModel, ExpectedOutcome, RenderModel, SettingsModel, TypePreviewModel, Variables, WorkflowConfigModel, WorkflowModel, WorkflowState} from '../../models/workflows.model';
 import {computed, Injector, Signal, signal, WritableSignal} from '@angular/core';
 import * as _ from 'lodash';
 import {Subject} from 'rxjs';
@@ -317,10 +317,14 @@ export class Workflow {
     }
 }
 
+
+export const NESTED_WF_ACTIVITY_TYPE = 'nestedWorkflow';
+
 export class Activity {
     readonly type: string;
     readonly id: string;
     readonly def: ActivityDef;
+    readonly hasNested: boolean;
 
     readonly state: WritableSignal<ActivityState>;
     readonly isRolledBack: WritableSignal<boolean>;
@@ -328,6 +332,7 @@ export class Activity {
     readonly settings: WritableSignal<Settings>;
     readonly config: WritableSignal<ActivityConfigModel>;
     readonly commonType: Signal<CommonType>;
+    readonly expectedOutcome: Signal<ExpectedOutcome>;
     readonly rendering: WritableSignal<RenderModel>;
     readonly inTypePreview: WritableSignal<TypePreviewModel[]>;
     readonly inSuggestions: Signal<string[][]>; // for each inTypePreview, contains a list of suggestions (col / field / label names)
@@ -348,11 +353,13 @@ export class Activity {
         this.type = activityModel.type;
         this.id = activityModel.id;
         this.def = def;
+        this.hasNested = def.type === NESTED_WF_ACTIVITY_TYPE;
         this.state = signal(activityModel.state);
         this.isRolledBack = signal(activityModel.rolledBack);
         this.settings = signal(new Settings(activityModel.settings)); // deep equivalence check
         this.config = signal(this.prepareConfig(activityModel.config), {equal: _.isEqual});
         this.commonType = computed(() => this.config().commonType);
+        this.expectedOutcome = computed(() => this.config().expectedOutcome);
         this.rendering = signal(activityModel.rendering, {equal: _.isEqual});
         this.inTypePreview = signal(activityModel.inTypePreview, {equal: _.isEqual});
         this.inSuggestions = computed(() => this.inTypePreview().map(preview => {

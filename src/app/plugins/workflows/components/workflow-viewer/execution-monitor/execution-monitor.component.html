@@ -14,6 +14,15 @@
         } @else if (monitor()) {
             <c-row>
                 <c-col xs="6">
+                    <strong>Success:</strong>
+                </c-col>
+                <c-col xs="auto">
+                    <span>{{ monitor().isSuccess }}</span>
+                    <span *ngIf="!monitor().isSuccess">(see Activity Config)</span>
+                </c-col>
+            </c-row>
+            <c-row>
+                <c-col xs="6">
                     <strong>Start Time:</strong>
                 </c-col>
                 <c-col xs="auto">

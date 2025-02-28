@@ -1,5 +1,5 @@
 import {Component, computed, effect, EventEmitter, input, OnInit, Output, Signal, signal} from '@angular/core';
-import {ActivityConfigModel, CommonType, ControlStateMerger} from '../../../../models/workflows.model';
+import {ActivityConfigModel, CommonType, ControlStateMerger, ExpectedOutcome} from '../../../../models/workflows.model';
 import {NgForOf, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivityDef} from '../../../../models/activity-registry.model';
@@ -7,6 +7,7 @@ import {ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormCheckL
 import {AdapterModel} from '../../../../../../views/adapters/adapter.model';
 import {CatalogService} from '../../../../../../services/catalog.service';
 import {ComponentsModule} from '../../../../../../components/components.module';
+import {NESTED_WF_ACTIVITY_TYPE} from '../../workflow';
 
 @Component({
     selector: 'app-activity-config-editor',
@@ -39,6 +40,7 @@ export class ActivityConfigEditorComponent implements OnInit {
     isEditable = input.required<boolean>();
     @Output() save = new EventEmitter<ActivityConfigModel>();
 
+    readonly expectedOutcomes = Object.values(ExpectedOutcome);
     readonly commonTypes = Object.values(CommonType);
     readonly controlStateMergers = Object.values(ControlStateMerger);
     readonly adapters: Signal<AdapterModel[]>;
@@ -50,6 +52,9 @@ export class ActivityConfigEditorComponent implements OnInit {
     editableConfig = computed<ActivityConfigModel>(() => JSON.parse(this.serializedConfig())); // we edit a copy of the actual config
     serializedEditedConfig = signal<string>(null);
     hasConfigChanged: Signal<boolean>;
+    lockCommonTransaction = computed<boolean>(() =>
+        this.def().type === NESTED_WF_ACTIVITY_TYPE && this.config().commonType === CommonType.NONE
+    );
 
     constructor(private _catalog: CatalogService) {
         this.adapters = computed(() => {

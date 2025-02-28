@@ -44,6 +44,7 @@ export class WorkflowEditor {
     private readonly executeActivitySubject = new Subject<string>(); // activityId
     private readonly resetActivitySubject = new Subject<string>(); // activityId
     private readonly openSettingsSubject = new Subject<string>(); // activityId
+    private readonly openNestedSubject = new Subject<string>(); // activityId
     private readonly openCheckpointSubject = new Subject<[string, boolean, number]>(); // activityId, isInput, portIdx
     private readonly subscriptions = new Subscription();
 
@@ -217,6 +218,10 @@ export class WorkflowEditor {
         return this.openSettingsSubject.asObservable();
     }
 
+    onOpenNestedActivity() {
+        return this.openNestedSubject.asObservable();
+    }
+
     onOpenCheckpoint() {
         return this.openCheckpointSubject.asObservable();
     }
@@ -264,7 +269,8 @@ export class WorkflowEditor {
 
     private async addNode(activity: Activity) {
         const node = new ActivityNode(activity, this.workflow.state,
-            this.executeActivitySubject, this.resetActivitySubject, this.openSettingsSubject, this.openCheckpointSubject);
+            this.executeActivitySubject, this.resetActivitySubject,
+            this.openSettingsSubject, this.openNestedSubject, this.openCheckpointSubject);
         this.nodeMap.set(activity.id, node);
         this.nodeIdToActivityId.set(node.id, activity.id);
         const translateSubject = new Subject<Position>();

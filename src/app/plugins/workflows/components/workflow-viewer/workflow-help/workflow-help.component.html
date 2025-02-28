@@ -123,6 +123,16 @@
                     The <i>Control State Merger</i> in the activity <span class="badge bg-light text-dark">Configuration</span> menu can be used to change it to the logical OR of all fail edges.
                 </p>
 
+                <h5>Overall Execution Success</h5>
+                <p>
+                    Control edges allow us to properly handle activity failures. A failed activity does not necessarily mean that the entire workflow execution was unsuccessful.
+                    By default, the workflow execution is thus always considered a success.
+                </p>
+                <p>
+                    More granular control over whether workflow execution has been successful is important for nested workflows (using the 'Execute Workflow' activity).
+                    The expected outcome can be customized in the activity <span class="badge bg-light text-dark">Configuration</span>.
+                    For instance, <span class="badge bg-light text-dark">MUST_SUCCEED</span> results in the workflow only being considered a success if that specific activity succeeded.
+                </p>
             }
             @case ("variables") {
                 <p>

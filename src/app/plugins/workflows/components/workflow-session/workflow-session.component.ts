@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../../../components/left-sidebar/left-sidebar.service';
@@ -21,6 +21,10 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
 
     sessionId: string;
     session: SessionModel;
+
+    nestedSessionStack = signal<SessionModel[]>([]); // nested sessions are stored in a stack to allow navigating back
+    nestedSession = computed(() => this.nestedSessionStack()[this.nestedSessionStack().length - 1]);
+    hideNested = false;
 
     ngOnInit(): void {
         this._sidebar.hide();
@@ -71,10 +75,33 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
         });
     }
 
+    openNestedSession(session: SessionModel) {
+        if (session.type !== 'NESTED_SESSION') {
+            return;
+        }
+        this.nestedSessionStack.update(stack => {
+            return [...stack, session];
+        });
+        if (this.nestedSessionStack().length > 1) {
+            this.hideNested = true;
+            setTimeout(() => this.hideNested = false, 10); // destroy and instantiate editor again
+        }
+    }
+
+    closeNestedSession() {
+        this.nestedSessionStack.update(stack => {
+            stack.pop();
+            return [...stack];
+        });
+        if (this.nestedSessionStack().length > 0) {
+            this.hideNested = true;
+            setTimeout(() => this.hideNested = false, 10); // destroy and instantiate editor again
+        }
+    }
+
     private initMarkdown() {
         const renderer = new MarkedRenderer();
         renderer.blockquote = (text: string) => {
-            console.warn('blockquote txt:', text);
             return `<div class="callout callout-warning">
                         ${text}
                     </div>`;

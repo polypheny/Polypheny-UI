@@ -1,10 +1,11 @@
-import {Component, computed, effect, EventEmitter, input, model, Output, Signal, ViewChild} from '@angular/core';
+import {Component, computed, effect, EventEmitter, input, model, Output, signal, Signal, ViewChild} from '@angular/core';
 import {SettingDefModel} from '../../../../../models/activity-registry.model';
 import {envVarsKey, TypePreviewModel, Variables, wfVarsKey} from '../../../../../models/workflows.model';
 import {DataModel} from '../../../../../../../models/ui-request.model';
 import {AdapterModel} from '../../../../../../../views/adapters/adapter.model';
 import {CatalogService} from '../../../../../../../services/catalog.service';
 import {EditorComponent} from '../../../../../../../components/editor/editor.component';
+import {WorkflowsService} from '../../../../../services/workflows.service';
 
 @Component({
     selector: 'app-string-setting',
@@ -36,11 +37,15 @@ export class StringSettingComponent {
                     return this.adapters().map(a => a.name);
                 case 'VARIABLES':
                     return Object.keys(this.activityVars()).filter(key => key !== wfVarsKey && key !== envVarsKey);
+                case 'WORKFLOW_NAMES':
+                    return this.workflowNames();
             }
         }
         return [];
     });
     adapters: Signal<AdapterModel[]>;
+    workflowNames = signal<string[]>([]);
+    workflowNamesToId = new Map<string, string>();
     protected readonly DataModel = DataModel;
 
     readonly editorOptions = {
@@ -54,7 +59,7 @@ export class StringSettingComponent {
     listenForChanges = true;
     @ViewChild('editor') editor: EditorComponent;
 
-    constructor(private _catalog: CatalogService) {
+    constructor(private _catalog: CatalogService, private _workflows: WorkflowsService) {
         this.adapters = computed(() => {
             this._catalog.listener();
             return [...this._catalog.getStores().filter(store =>
@@ -88,6 +93,15 @@ export class StringSettingComponent {
                 }
             });
         }
+        if (this.def().autoComplete === 'WORKFLOW_NAMES') {
+            this._workflows.getWorkflowDefs().subscribe(defs => {
+                const names = Object.values(defs).map(def => def.name);
+                names.sort((a, b) => a.localeCompare(b));
+                this.workflowNames.set(names);
+                this.workflowNamesToId.clear();
+                Object.entries(defs).forEach(([key, def]) => this.workflowNamesToId.set(def.name, key));
+            });
+        }
     }
 
     valueChanged() {
@@ -96,7 +110,7 @@ export class StringSettingComponent {
     }
 }
 
-type AutoCompleteType = 'NONE' | 'FIELD_NAMES' | 'VALUES' | 'ADAPTERS' | 'VARIABLES';
+type AutoCompleteType = 'NONE' | 'FIELD_NAMES' | 'VALUES' | 'ADAPTERS' | 'VARIABLES' | 'WORKFLOW_NAMES';
 
 interface StringSettingDef extends SettingDefModel {
     minLength: number;

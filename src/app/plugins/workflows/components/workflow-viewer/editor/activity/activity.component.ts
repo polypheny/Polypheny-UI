@@ -143,11 +143,13 @@ export class ActivityNode extends ClassicPreset.Node {
 
     readonly activityId = this.activity.id;
     readonly def = this.activity.def;
+    readonly hasNested = this.activity.hasNested;
     readonly displayName = this.activity.displayName;
     readonly rendering = this.activity.rendering;
     readonly state = this.activity.state.asReadonly();
     readonly progress = this.activity.progress.asReadonly();
     readonly commonType = this.activity.commonType;
+    readonly expectedOutcome = this.activity.expectedOutcome;
     readonly isRolledBack = this.activity.isRolledBack;
     readonly invalidReason = this.activity.invalidReason;
     readonly hasInvalidSettings = this.activity.hasInvalidSettings;
@@ -160,9 +162,18 @@ export class ActivityNode extends ClassicPreset.Node {
 
     canExecute = computed(() => this.state() === 'IDLE' && this.workflowState() === 'IDLE');
     canReset = computed(() => this.state() !== 'IDLE' && this.workflowState() === 'IDLE');
-    canOpenCheckpoint = computed(() => this.state() === 'FINISHED' || this.state() === 'SAVED'); // TODO: find solution for when to show inputs
+    canOpenCheckpoint = computed(() => this.state() === 'FINISHED' || this.state() === 'SAVED');
     inPortTypes = computed(() => this.activity.inTypePreview().map(p => p.portType));
     outPortTypes = computed(() => this.activity.outTypePreview().map(p => p.portType));
+    isExpectedOutcome = computed(() => {
+        if (this.expectedOutcome() === 'MUST_SUCCEED' && (this.state() === 'FAILED' || this.state() === 'SKIPPED')) {
+            return false;
+        } else if (this.expectedOutcome() === 'MUST_FAIL' && (this.state() === 'SAVED' || this.state() === 'FINISHED')) {
+            return false;
+        }
+        return true;
+    });
+
 
     constructor(
         private readonly activity: Activity,
@@ -170,6 +181,7 @@ export class ActivityNode extends ClassicPreset.Node {
         public readonly executeActivitySubject: Subject<string>,
         public readonly resetActivitySubject: Subject<string>,
         public readonly openSettingsSubject: Subject<string>,
+        public readonly openNestedSubject: Subject<string>,
         public readonly openCheckpointSubject: Subject<[string, boolean, number]>
     ) {
         super(activity.displayName());
@@ -235,6 +247,10 @@ export class ActivityNode extends ClassicPreset.Node {
 
     openSettings() {
         this.openSettingsSubject.next(this.activityId);
+    }
+
+    openNested() {
+        this.openNestedSubject.next(this.activityId);
     }
 
     openCheckpoint(isInput: boolean, key: string) {

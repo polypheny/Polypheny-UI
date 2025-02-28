@@ -14,6 +14,12 @@ export enum CommonType {
     LOAD = 'LOAD'
 }
 
+export enum ExpectedOutcome {
+    MUST_SUCCEED = 'MUST_SUCCEED',
+    MUST_FAIL = 'MUST_FAIL',
+    ANY = 'ANY'
+}
+
 export enum ControlStateMerger {
     AND_OR = 'AND_OR',
     AND_AND = 'AND_AND'
@@ -38,6 +44,7 @@ export enum WorkflowState {
 export enum SessionModelType {
     USER_SESSION = 'USER_SESSION',
     API_SESSION = 'API_SESSION',
+    NESTED_SESSION = 'NESTED_SESSION',
     JOB_SESSION = 'JOB_SESSION'
 }
 
@@ -84,6 +91,7 @@ export interface ActivityConfigModel {
     preferredStores: string[];
     commonType: CommonType;
     controlStateMerger: ControlStateMerger;
+    expectedOutcome: ExpectedOutcome;
 }
 
 export interface RenderModel {
@@ -143,6 +151,7 @@ export interface ExecutionMonitorModel {
     failCount: number;
     skipCount: number;
     countByExecutorType: Record<ExecutorType, number>;
+    isSuccess?: boolean; // overall success of workflow execution
 }
 
 export interface SessionModel {

@@ -55,6 +55,10 @@ export class WorkflowsService {
         return this._http.get<ActivityModel>(`${this.httpUrl}/sessions/${sessionId}/workflow/${activityId}`, this.httpOptions);
     }
 
+    getNestedSession(sessionId: string, activityId: string) {
+        return this._http.get<SessionModel>(`${this.httpUrl}/sessions/${sessionId}/workflow/${activityId}/nested`, this.httpOptions);
+    }
+
     getIntermediaryResult(sessionId: string, activityId: string, outIndex: number) {
         return this._http.get<JsonNode>(`${this.httpUrl}/sessions/${sessionId}/workflow/${activityId}/${outIndex}`, this.httpOptions);
     }
