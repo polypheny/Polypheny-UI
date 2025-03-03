@@ -40,7 +40,7 @@ export class AddVariableComponent {
         return [];
     });
     targets = computed(() => {
-        if (typeof this.settingValue() === 'string') {
+        if (typeof this.settingValue() === 'string' || this.settingValue() === null || this.settingValue() === undefined) {
             return [];
         }
         const leaves = Object.keys(JsonPointer.dict(this.settingValue()));

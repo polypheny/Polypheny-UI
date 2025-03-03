@@ -54,7 +54,7 @@
                         (pointerdown)="$event.stopPropagation()">
                 </button>
             </c-button-group>
-            <button cButton color="secondary" size="sm" (click)="data.openNested()" *ngIf="data.hasNested"
+            <button cButton color="secondary" size="sm" (click)="data.openNested()" *ngIf="data.hasNested && !data.hasInvalidSettings() && !data.invalidReason()"
                     class="ms-1" (pointerdown)="$event.stopPropagation()" title="Open nested workflow">
                 <i class="fa fa-sign-in me-1"></i>
             </button>
@@ -93,7 +93,7 @@
             <div class="activity-outputs d-flex flex-column justify-content-between">
                 <div>
                     <div class="mb-5 output-spacer"></div>
-                    <div class="output mb-2 d-flex align-items-center"
+                    <div class="output mb-2 d-flex align-items-center justify-content-end"
                          *ngFor="let output of data.dataOutputs | keyvalue: sortByIndex">
                         <button cButton color="light" class="px-1 py-0" (click)="data.openCheckpoint(false, output.key)"
                                 (pointerdown)="$event.stopPropagation()" [disabled]="!data.canOpenCheckpoint()">

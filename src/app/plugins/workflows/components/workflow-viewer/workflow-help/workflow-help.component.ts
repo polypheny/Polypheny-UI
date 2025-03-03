@@ -3,7 +3,7 @@ import {portTypeIcons, stateColors} from '../editor/activity/activity.component'
 import {ActivityState} from '../../../models/workflows.model';
 import {PortType} from '../../../models/activity-registry.model';
 
-type HelpTabs = 'intro' | 'control' | 'variables' | 'optimization';
+type HelpTabs = 'intro' | 'control' | 'variables' | 'optimization' | 'nested';
 
 @Component({
     selector: 'app-workflow-help',

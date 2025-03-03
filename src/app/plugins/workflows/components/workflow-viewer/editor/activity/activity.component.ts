@@ -139,7 +139,7 @@ export class ActivityComponent implements OnInit, OnChanges {
 
 export class ActivityNode extends ClassicPreset.Node {
     width = 400;
-    height = 270;
+    height = 275;
 
     readonly activityId = this.activity.id;
     readonly def = this.activity.def;

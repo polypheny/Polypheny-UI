@@ -488,7 +488,7 @@ export class Setting {
             if (VARIABLE_REF_FIELD in obj) {
                 const ref = new VariableReference(JsonPointer.compile(tokens), obj);
                 references.push(ref);
-                return [references, ref.defaultValue || undefined];
+                return [references, ref.defaultValue];
             } else {
                 Object.entries(obj).forEach(([key, value]) => {
                     const [r, o] = Setting.splitRecursive([...tokens, key], value);
@@ -575,7 +575,7 @@ export class VariableReference {
     constructor(target: string, ref: { [VARIABLE_REF_FIELD]: string, [VARIABLE_DEFAULT_FIELD]?: any }) {
         this.target = target.startsWith('/') ? target : '/' + target;
         this.varRef = ref[VARIABLE_REF_FIELD];
-        this.defaultValue = ref[VARIABLE_DEFAULT_FIELD] || null;
+        this.defaultValue = ref[VARIABLE_DEFAULT_FIELD] === undefined ? null : ref[VARIABLE_DEFAULT_FIELD];
     }
 
     static of(target: string, varRef: string): VariableReference {

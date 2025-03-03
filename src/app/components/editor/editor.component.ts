@@ -7,6 +7,7 @@ import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/mode-markdown';
 import 'ace-builds/src-noconflict/mode-pig';
 import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/mode-plain_text';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import {SidebarNode} from '../../models/sidebar-node.model';
@@ -35,7 +36,7 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
     @Input() code ?;
 
     suggestions: string[] = [];
-    private readonly supportedLanguages = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig', 'json'];
+    private readonly supportedLanguages = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig', 'json', 'plain_text'];
 
     constructor() {
         effect(() => {

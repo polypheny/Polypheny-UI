@@ -3,7 +3,7 @@
         <h5 cModalTitle>Help</h5>
         <button (click)="toggleHelpModal()" cButtonClose></button>
     </c-modal-header>
-    <c-modal-body>
+    <c-modal-body *ngIf="showHelpModal()">
         <ul class="nav nav-underline mb-3 help-nav no-select" role="tablist">
             <li class="nav-item" role="presentation">
                 <a class="nav-link" (click)="helpTab.set('intro')"
@@ -27,6 +27,11 @@
                 <a class="nav-link" (click)="helpTab.set('optimization')"
                    [ngClass]="{'active': helpTab() === 'optimization'}"
                    role="tab">Optimization</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" (click)="helpTab.set('nested')"
+                   [ngClass]="{'active': helpTab() === 'nested'}"
+                   role="tab">Nested Workflows</a>
             </li>
         </ul>
 
@@ -129,14 +134,14 @@
                     By default, the workflow execution is thus always considered a success.
                 </p>
                 <p>
-                    More granular control over whether workflow execution has been successful is important for nested workflows (using the 'Execute Workflow' activity).
+                    More granular control over whether workflow execution has been successful is important for <a class="link" (click)="helpTab.set('nested')" [style.cursor]="'pointer'">nested workflows</a>.
                     The expected outcome can be customized in the activity <span class="badge bg-light text-dark">Configuration</span>.
                     For instance, <span class="badge bg-light text-dark">MUST_SUCCEED</span> results in the workflow only being considered a success if that specific activity succeeded.
                 </p>
             }
             @case ("variables") {
                 <p>
-                    The workflow engine comes with a powerful variable system. It allows any activity setting value to be set dynamically.
+                    The workflow engine comes with a powerful variable system. It allows any Activity-Setting value to be set dynamically.
                     There are three types of variables:
                 </p>
                 <ul>
@@ -146,7 +151,6 @@
                         The actual variable values are only accessible by activities, not by the workflow editor.
                     </li>
                 </ul>
-
             }
             @case ("optimization") {
                 <p>
@@ -179,6 +183,43 @@
                 </p>
 
             }
+            @case ("nested") {
+                <p>
+                    If certain combinations of activities are frequently used across multiple workflows, duplicating them can become inefficient.
+                    Nested workflows solves this challenge by dividing complex workflows into smaller, logical sub-workflows.
+                </p>
+                <p>
+                    Any stored workflow version can be executed from a different workflow by using the 'Execute Workflow' activity.
+                    As long as there is no recursive call, workflows can be nested arbitrarily deeply.
+                    <a class="link" (click)="helpTab.set('optimization')" [style.cursor]="'pointer'">Optimization techniques</a>
+                    do not extend across workflow boundaries. Apart from this, the performance impact of using nested workflows is minimal.
+                </p>
+
+                <c-alert color="danger">
+                    Always ensure that a sufficient number of global workers is configured. Each level of nesting requires one
+                    additional worker. An insufficient number of workers might result in a deadlock.
+                </c-alert>
+
+                <h5>Data Inputs & Outputs</h5>
+                <p>
+                    A nested workflow can have an arbitrary number of inputs and up to to outputs.
+                    Use one 'Nested Workflow Input' activity per input and configure its index.
+                    All outputs are configured with a single 'Nested Workflow Outputs' activity. If this activity fails or cannot be executed,
+                    the entire nested workflow is considered to have failed (see <a class="link" (click)="helpTab.set('control')" [style.cursor]="'pointer'">Overall Execution Success</a>).
+                </p>
+
+                <h5>Variables</h5>
+                <p>
+                    By default, <a class="link" (click)="helpTab.set('variables')" [style.cursor]="'pointer'">variables</a>
+                    remain separated between parent and nested workflow. The 'Execute Workflow' activity can
+                    selectively enable the transfer of variables to the nested workflow. While transferred workflow variables become
+                    available at all activities in the nested workflow, dynamic and environment variables are only injected into the input activities.
+                </p>
+                <p>
+                    The nested output activity can enable the export of dynamic variables from the nested to the parent workflow.
+                </p>
+            }
+
         }
 
 
