@@ -172,6 +172,12 @@
                                                                    [(value)]="editableSettings().get(setting.key).value">
                                             </app-graph-map-setting>
                                         }
+                                        @case (SettingType.FILE) {
+                                            <app-file-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                              [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                              [(value)]="editableSettings().get(setting.key).value">
+                                            </app-file-setting>
+                                        }
                                         @default {
                                             <p class="text-danger">unknown setting type</p>
                                         }

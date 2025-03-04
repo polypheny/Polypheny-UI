@@ -1,9 +1,5 @@
 .field-list {
   min-height: 230px; // 5 * 46
-
-  &.skipped-first {
-    min-height: 183px; // 4 * 46 - 1
-  }
 }
 
 li {

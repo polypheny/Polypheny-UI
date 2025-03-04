@@ -23,8 +23,10 @@ export class FieldSelectSettingComponent {
     def = computed<FieldSelectSettingDef>(() => this.settingDef() as FieldSelectSettingDef);
     targetPreview = computed(() => this.inTypePreview()[this.def().targetInput]);
     isRel = computed(() => this.targetPreview()?.portType === 'REL');
-    firstIsFixed = signal(false);
-    isInitialized = false;
+    canInitialize = computed(() => {
+        this.changed();
+        return this.val().include.length === 0 && this.val().exclude.length === 0 && this.fields().length > 0;
+    });
 
     addExclude = '';
     addInclude = '';
@@ -81,17 +83,8 @@ export class FieldSelectSettingComponent {
                 this.includeData = this.val().include.map(fieldName => {
                     return {id: fieldName, itemName: fieldName};
                 });
-            } else if (!this.isInitialized && this.val().exclude.length === 0 && this.val().include.length <= 1 && this.isRel()) {
-                if (this.fields()?.length > 0) {
-                    this.val().include = this.fields();
-                    this.isInitialized = true;
-                    this.valueChanged();
-                } else if (this.val().include.length === 0) {
-                    this.val().include.push(PK_COL);
-                }
             }
-            this.firstIsFixed.set(this.isRel() && this.val().include?.[0] === PK_COL);
-        }, {allowSignalWrites: true});
+        });
     }
 
 
@@ -100,10 +93,12 @@ export class FieldSelectSettingComponent {
         this.changed.update(v => !v);
     }
 
+    initialize() {
+        this.val().include = [...this.fields()];
+        this.valueChanged();
+    }
+
     drop(event: CdkDragDrop<string[], any>) {
-        if (this.firstIsFixed() && event.currentIndex === 0 && event.container.id === 'list-include') {
-            return;
-        }
         if (event.previousContainer === event.container) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         } else {
@@ -127,6 +122,10 @@ export class FieldSelectSettingComponent {
     }
 
     add(target: 'exclude' | 'include', fieldName: string) {
+        if (this.isRel() && fieldName === PK_COL) {
+            this._toast.warn(`Cannot add primary key column ${PK_COL}`);
+            return;
+        }
         if (fieldName.length === 0) {
             this._toast.warn('Field names must not be empty');
             return;
@@ -139,6 +138,17 @@ export class FieldSelectSettingComponent {
             this.val().exclude.push(fieldName);
         } else {
             this.val().include.push(fieldName);
+        }
+        this.valueChanged();
+    }
+
+    moveAllTo(target: 'exclude' | 'include') {
+        const [sourceArr, targetArr] = target === 'exclude' ?
+            [this.val().include, this.val().exclude] :
+            [this.val().exclude, this.val().include];
+        if (sourceArr.length > 0) {
+            targetArr.push(...sourceArr);
+            sourceArr.splice(0, sourceArr.length);
         }
         this.valueChanged();
     }

@@ -261,6 +261,7 @@ export enum SettingType {
     CAST = 'CAST',
     FILTER = 'FILTER',
     GRAPH_MAP = 'GRAPH_MAP',
+    FILE = 'FILE',
 }
 
 export interface SettingDefModel {

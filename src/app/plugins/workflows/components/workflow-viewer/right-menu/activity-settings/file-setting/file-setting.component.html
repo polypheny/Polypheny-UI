@@ -1,0 +1,26 @@
+<div class="mb-3">
+    <p class="mb-1">
+        <strong>Location</strong>
+    </p>
+    <c-button-group size="sm" id="enum-radios">
+        @for (option of allowedModes(); track option.type) {
+            <button cButton color="dark" [variant]="val().type === option.type ? null : 'outline'"
+                    (click)="selectType(option)" [disabled]="!isEditable()">
+                {{ option.name }}
+            </button>
+        }
+    </c-button-group>
+</div>
+
+<div class="mb-3">
+    <strong>Path</strong>
+    <input cFormControl sizing="sm" id="file-path" [placeholder]="'path'"
+           type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
+           [(ngModel)]="val().path">
+</div>
+
+<c-form-check *ngIf="showMulti()" [switch]="true">
+    <input cFormCheckInput id="file-multi" type="checkbox" [disabled]="!isEditable()" (change)="valueChanged()"
+           [(ngModel)]="val().multi"/>
+    <label cFormCheckLabel for="file-multi">All Files in Folder</label>
+</c-form-check>

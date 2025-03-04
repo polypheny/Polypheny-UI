@@ -19,6 +19,10 @@
     <c-row>
         <c-col [xs]="6">
             <h5>Exclude</h5>
+            <button cButton color="secondary" type="button" variant="outline" size="sm" class="mb-1" *ngIf="isEditable()"
+                    (click)="moveAllTo('include')" [disabled]="val().exclude.length < 1">
+                {{ 'Move All >>' }}
+            </button>
             <c-card class="list-container border bg-light mb-1">
                 <ul cListGroup cdkDropList id="list-exclude" flush="true" class="field-list"
                     [cdkDropListConnectedTo]="['list-include']" [cdkDropListData]="val().exclude"
@@ -47,19 +51,27 @@
             </div>
         </c-col>
         <c-col [xs]="6">
-            <h5>Include <span *ngIf="!def().reorder && val().unspecifiedIndex >= 0">(ignored)</span></h5>
+            <h5>
+                Include
+                <span *ngIf="!def().reorder && val().unspecifiedIndex >= 0">(ignored)</span>
+            </h5>
+            <div class="d-flex justify-content-between">
+                <button cButton color="secondary" type="button" variant="outline" size="sm" class="mb-1" *ngIf="isEditable()"
+                        (click)="moveAllTo('exclude')" [disabled]="val().include.length < 1">
+                    {{ '<< Move All' }}
+                </button>
+                <button cButton color="primary" type="button" size="sm" class="mb-1" *ngIf="isEditable() && canInitialize()"
+                        (click)="initialize()">
+                    Populate
+                </button>
+            </div>
             <c-card class="list-container border bg-light mb-1">
-                <ul cListGroup *ngIf="firstIsFixed()" flush="true">
-                    <li cListGroupItem color="dark">
-                        {{ val().include[0] }}
-                    </li>
-                </ul>
-                <ul cListGroup cdkDropList id="list-include" flush="true" class="field-list" [class.skipped-first]="firstIsFixed()"
+                <ul cListGroup cdkDropList id="list-include" flush="true" class="field-list"
                     [cdkDropListConnectedTo]="['list-exclude']" [cdkDropListData]="val().include"
                     [cdkDropListSortingDisabled]="!def().reorder" (cdkDropListDropped)="drop($event)">
                     @for (field of val().include; track field) {
-                        <li cListGroupItem cdkDrag [class.border-bottom]="$last" [hidden]="firstIsFixed() && $first" class="field-entry"
-                            [cdkDragDisabled]="$first && firstIsFixed() || !isEditable()" [class.draggable]="isEditable()">
+                        <li cListGroupItem cdkDrag [class.border-bottom]="$last" class="field-entry"
+                            [cdkDragDisabled]="!isEditable()" [class.draggable]="isEditable()">
                             <div class="d-flex justify-content-between">
                                 {{ field }}
                                 <app-delete-confirm (delete)="delete('include', $index)" *ngIf="isEditable()"></app-delete-confirm>
@@ -96,7 +108,7 @@
             <span cInputGroupText id="basic-addon1">Insertion Index</span>
             <input cFormControl sizing="sm" id="setting"
                    type="number" autocomplete="off" [disabled]="!isEditable()" (change)="valueChanged()"
-                   [min]="firstIsFixed() ? 1 : 0" [(ngModel)]="val().unspecifiedIndex">
+                   [min]="0" [(ngModel)]="val().unspecifiedIndex">
 
         </c-input-group>
     }
