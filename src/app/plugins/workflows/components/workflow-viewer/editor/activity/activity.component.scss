@@ -27,6 +27,11 @@
       box-shadow: 0 0 20px 2px var(--cui-primary);
 
     }
+
+    &.meta-activity .control-bar {
+      background: var(--cui-dark);
+      color: var(--cui-light);
+    }
   }
 
   .status-bar {

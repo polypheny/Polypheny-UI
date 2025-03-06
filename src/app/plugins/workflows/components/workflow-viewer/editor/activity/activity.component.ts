@@ -144,6 +144,7 @@ export class ActivityNode extends ClassicPreset.Node {
     readonly activityId = this.activity.id;
     readonly def = this.activity.def;
     readonly hasNested = this.activity.hasNested;
+    readonly isMetaActivity = this.activity.isMetaActivity;
     readonly displayName = this.activity.displayName;
     readonly rendering = this.activity.rendering;
     readonly state = this.activity.state.asReadonly();

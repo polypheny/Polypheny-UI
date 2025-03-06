@@ -210,7 +210,11 @@ export enum ActivityCategory {
     GRAPH = 'GRAPH',
     VARIABLES = 'VARIABLES',
     CLEANING = 'CLEANING',
-    CROSS_MODEL = 'CROSS_MODEL'
+    CROSS_MODEL = 'CROSS_MODEL',
+    ESSENTIALS = 'ESSENTIALS',
+    NESTED = 'NESTED',
+    DEVELOPMENT = 'DEVELOPMENT',
+    EXTERNAL = 'EXTERNAL',
 }
 
 export enum PortType {

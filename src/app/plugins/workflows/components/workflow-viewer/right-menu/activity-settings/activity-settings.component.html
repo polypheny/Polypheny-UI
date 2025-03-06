@@ -67,7 +67,7 @@
                                         </span>
                                     </button>
                                 </div>
-                                <c-alert color="danger" class="mb-2 py-1" *ngIf="activity().invalidSettings()[setting.key]">
+                                <c-alert color="danger" class="mb-2 py-1 text-break" *ngIf="activity().invalidSettings()[setting.key]">
                                     {{ activity().invalidSettings()[setting.key] }}
                                 </c-alert>
                                 <p *ngIf="showDescription && setting.shortDescription" class="text-muted">{{ setting.shortDescription }}</p>

@@ -319,12 +319,14 @@ export class Workflow {
 
 
 export const NESTED_WF_ACTIVITY_TYPE = 'nestedWorkflow';
+export const META_ACTIVITY_TYPES = ['nestedInput', 'nestedOutput'];
 
 export class Activity {
     readonly type: string;
     readonly id: string;
     readonly def: ActivityDef;
     readonly hasNested: boolean;
+    readonly isMetaActivity: boolean;
 
     readonly state: WritableSignal<ActivityState>;
     readonly isRolledBack: WritableSignal<boolean>;
@@ -354,6 +356,7 @@ export class Activity {
         this.id = activityModel.id;
         this.def = def;
         this.hasNested = def.type === NESTED_WF_ACTIVITY_TYPE;
+        this.isMetaActivity = META_ACTIVITY_TYPES.includes(def.type);
         this.state = signal(activityModel.state);
         this.isRolledBack = signal(activityModel.rolledBack);
         this.settings = signal(new Settings(activityModel.settings)); // deep equivalence check
@@ -392,7 +395,6 @@ export class Activity {
             .filter(m => m.activityId === this.id) || []
         );
         this.error = computed(() => this.state() === ActivityState.FAILED && this.variables()[errorKey]);
-
     }
 
     update(activityModel: ActivityModel) {

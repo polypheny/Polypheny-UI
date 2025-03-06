@@ -15,52 +15,58 @@
     </div>
 
     <div class="config-inputs mt-2 flex-grow-1">
-        <!-- Enforce Checkpoint -->
-        <c-form-check [switch]="true" class="ms-1 mb-3">
-            <label cFormCheckLabel for="form-check-input">Always create checkpoint</label>
-            <input cFormCheckInput id="form-check-input" type="checkbox" [(ngModel)]="editableConfig().enforceCheckpoint"
-                   name="form-check-input" (change)="checkForChanges()" [disabled]="!isEditable()">
-        </c-form-check>
+
+        @if (!isMetaActivity()) {
+            <!-- Enforce Checkpoint -->
+            <h5><span class="badge text-body bg-light">Disable Optimization</span></h5>
+            <c-form-check [switch]="true" class="ms-1 mb-5" *ngIf="def().outPorts.length > 0">
+                <label cFormCheckLabel for="form-check-input">Always create checkpoint</label>
+                <input cFormCheckInput id="form-check-input" type="checkbox" [(ngModel)]="editableConfig().enforceCheckpoint"
+                       name="form-check-input" (change)="checkForChanges()" [disabled]="!isEditable()">
+            </c-form-check>
 
 
-        <!-- Timeout-->
-        <div class="mb-3">
-            <label cLabel for="timeout">Execution timeout in seconds, or 0 to use workflow default</label>
-            <input cFormControl type="number" id="timeout" [(ngModel)]="editableConfig().timeoutSeconds" name="timeout"
-                   (change)="checkForChanges()" [disabled]="!isEditable()" min="0">
-        </div>
-
-        <!-- Expected Outcome -->
-        <div class="mb-3">
-            <label cLabel for="expectedOutcome">Expected Outcome:</label>
-            <select cSelect id="expectedOutcome" [(ngModel)]="editableConfig().expectedOutcome" name="expectedOutcome"
-                    (change)="checkForChanges()" [disabled]="!isEditable()">
-                <option *ngFor="let type of expectedOutcomes" [value]="type">{{ type }}</option>
-            </select>
-            <div cFormText>
-                Used to determine the overall success of a workflow execution.
+            <!-- Timeout-->
+            <h5><span class="badge text-body bg-light">Timeout</span></h5>
+            <div class="mb-5">
+                <input cFormControl type="number" id="timeout" [(ngModel)]="editableConfig().timeoutSeconds" name="timeout"
+                       (change)="checkForChanges()" [disabled]="!isEditable()" min="0">
+                <div cFormText>
+                    Execution timeout in seconds, or 0 to use workflow default.
+                </div>
             </div>
-        </div>
 
-        <!-- Preferred Stores -->
-        <div class="mb-3" *ngIf="editableConfig().preferredStores?.length > 0">
-            <label cLabel>Preferred Stores:</label>
+            <!-- Expected Outcome -->
+            <h5><span class="badge text-body bg-light">Expected Outcome</span></h5>
+            <div class="mb-5">
+                <select cSelect id="expectedOutcome" [(ngModel)]="editableConfig().expectedOutcome" name="expectedOutcome"
+                        (change)="checkForChanges()" [disabled]="!isEditable()">
+                    <option *ngFor="let type of expectedOutcomes" [value]="type">{{ type }}</option>
+                </select>
+                <div cFormText>
+                    Used to determine the overall success of a workflow execution.
+                </div>
+            </div>
 
-            @for (outputStore of editableConfig().preferredStores; track i; let i = $index) {
-                <c-input-group class="mb-3">
-                    <label cInputGroupText for="preferred-{{i}}">{{ $first ? 'Output' : 'Output ' + i }}</label>
-                    <select cSelect id="preferred-{{i}}" [(ngModel)]="editableConfig().preferredStores[i]" name="preferred-{{i}}"
-                            (change)="checkForChanges()" [disabled]="!isEditable()">
-                        <option [value]="''">Use workflow default</option>
-                        <option *ngFor="let adapter of adapters()" [value]="adapter.name">{{ adapter.name + ' (' + adapter.adapterName + ')' }}</option>
-                    </select>
-                </c-input-group>
-            }
-        </div>
+            <!-- Preferred Stores -->
+            <h5><span class="badge text-body bg-light">Preferred Stores</span></h5>
+            <div class="mb-5" *ngIf="editableConfig().preferredStores?.length > 0">
+                @for (outputStore of editableConfig().preferredStores; track i; let i = $index) {
+                    <c-input-group class="mb-3">
+                        <label cInputGroupText for="preferred-{{i}}">{{ $first ? 'Output' : 'Output ' + i }}</label>
+                        <select cSelect id="preferred-{{i}}" [(ngModel)]="editableConfig().preferredStores[i]" name="preferred-{{i}}"
+                                (change)="checkForChanges()" [disabled]="!isEditable()">
+                            <option [value]="''">Use workflow default</option>
+                            <option *ngFor="let adapter of adapters()" [value]="adapter.name">{{ adapter.name + ' (' + adapter.adapterName + ')' }}</option>
+                        </select>
+                    </c-input-group>
+                }
+            </div>
+        }
 
         <!-- Common Type -->
-        <div class="mb-3">
-            <label cLabel for="commonType">Common Transaction:</label>
+        <h5><span class="badge text-body bg-light">Common Transaction</span></h5>
+        <div class="mb-5">
             <select cSelect id="commonType" [(ngModel)]="editableConfig().commonType" name="commonType"
                     (change)="checkForChanges()" [disabled]="!isEditable() || lockCommonTransaction()">
                 <option *ngFor="let type of commonTypes" [value]="type">{{ type }}</option>
@@ -72,8 +78,8 @@
         </div>
 
         <!-- Control State Merger -->
-        <div class="mb-3">
-            <label cLabel for="controlStateMerger">Control State Merger:</label>
+        <h5><span class="badge text-body bg-light">Control State Merger</span></h5>
+        <div class="mb-5">
             <select cSelect id="controlStateMerger" [(ngModel)]="editableConfig().controlStateMerger"
                     name="controlStateMerger" (change)="checkForChanges()" [disabled]="!isEditable()">
                 <option *ngFor="let merger of controlStateMergers" [value]="merger">{{ merger }}</option>

@@ -1,4 +1,4 @@
-import {Component, computed, effect, EventEmitter, input, model, Output, signal, Signal, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, computed, effect, EventEmitter, input, model, OnInit, Output, signal, Signal, ViewChild} from '@angular/core';
 import {SettingDefModel} from '../../../../../models/activity-registry.model';
 import {envVarsKey, TypePreviewModel, Variables, wfVarsKey} from '../../../../../models/workflows.model';
 import {DataModel} from '../../../../../../../models/ui-request.model';
@@ -12,7 +12,7 @@ import {WorkflowsService} from '../../../../../services/workflows.service';
     templateUrl: './string-setting.component.html',
     styleUrl: './string-setting.component.scss'
 })
-export class StringSettingComponent {
+export class StringSettingComponent implements OnInit, AfterViewInit {
     isEditable = input.required<boolean>();
     settingDef = input.required<SettingDefModel>();
     inTypePreview = input.required<TypePreviewModel[]>();
@@ -80,6 +80,10 @@ export class StringSettingComponent {
         });
     }
 
+    ngOnInit(): void {
+        this.editorOptions.showLineNumbers = this.def().textEditorLineNumbers;
+    }
+
     ngAfterViewInit(): void {
         if (this.def().textEditor) {
             this.editor.onChange(value => {
@@ -121,4 +125,5 @@ interface StringSettingDef extends SettingDefModel {
     containsRegex: boolean;
     textEditor: boolean;
     textEditorLanguage: string;
+    textEditorLineNumbers: boolean;
 }

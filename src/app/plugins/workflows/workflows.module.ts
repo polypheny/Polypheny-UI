@@ -109,6 +109,7 @@ import {WorkflowHelpComponent} from './components/workflow-viewer/workflow-help/
 import {CheckpointViewerComponent} from './components/checkpoint-viewer/checkpoint-viewer.component';
 import {GraphMapSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/graph-map-setting/graph-map-setting.component';
 import {FileSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/file-setting/file-setting.component';
+import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 
 @NgModule({
     imports: [
@@ -195,6 +196,9 @@ import {FileSettingComponent} from './components/workflow-viewer/right-menu/acti
         DropdownMenuDirective,
         DropdownItemDirective,
         AlertComponent,
+        CdkVirtualScrollViewport,
+        CdkVirtualForOf,
+        CdkFixedSizeVirtualScroll,
     ],
     declarations: [
         WorkflowViewerComponent,

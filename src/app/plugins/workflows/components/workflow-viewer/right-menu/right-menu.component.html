@@ -77,7 +77,9 @@
                     <div class="mb-4">
                         <h5>Dynamic Variables</h5>
                         @for (entry of basicVars() | keyvalue; track activity().id + entry.key) {
-                            <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
+                            <h5 [ngClass]="{'mt-3': !$first, 'mb-0': true}">
+                                <span class="badge text-body bg-light">{{ entry.key }}</span>
+                            </h5>
                             <app-json-text [text]="entry.value | json"></app-json-text>
                         } @empty {
                             <p>None available</p>
@@ -86,7 +88,9 @@
                     <div *ngIf="wfVars()" class="mb-4">
                         <h5>Workflow Variables</h5>
                         @for (entry of wfVars() | keyvalue; track activity().id + entry.key) {
-                            <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">{{ entry.key }}</h6>
+                            <h5 [ngClass]="{'mt-3': !$first, 'mb-0': true}">
+                                <span class="badge text-body bg-light">{{ entry.key }}</span>
+                            </h5>
                             <app-json-text [text]="entry.value | json"></app-json-text>
                         } @empty {
                             <p>None available</p>
@@ -99,10 +103,13 @@
                                 The (possibly sensitive) values of environment variables are never sent to the UI.
                                 Only the keys and types of variables are shown.
                             </c-callout>
-                            <h6 [ngClass]="{'mt-3': !$first, 'mb-0': true}">
-                                {{ entry.key }}:
+                            <h5 [ngClass]="{'mt-3': !$first, 'mb-0': true}">
+                                <span class="badge text-body bg-light">{{ entry.key }}</span>
+                            </h5>
+                            <h6 class="ms-3">
                                 <span class="text-muted">{{ entry.value }}</span>
                             </h6>
+
                         } @empty {
                             <p>None available</p>
                         }

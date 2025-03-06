@@ -340,7 +340,7 @@ export class WorkflowEditor {
         effect(() => {
             if (this.isEditable) {
                 const state = this.workflow.state();
-                if (state === WorkflowState.EXECUTING) {
+                if (state !== WorkflowState.IDLE) {
                     this.readonlyPlugin.enable();
                 } else {
                     this.readonlyPlugin.disable();

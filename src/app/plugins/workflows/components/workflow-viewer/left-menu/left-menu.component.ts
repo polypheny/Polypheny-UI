@@ -33,7 +33,7 @@ export class LeftMenuComponent {
         classes: 'categories-multiselect'
     };
     filterText: string;
-    selectedCategories = [];
+    selectedCategories = []; // TODO: set ESSENTIALS as default category
     filteredList: ActivityDef[];
     showDescription = false;
 
@@ -87,6 +87,7 @@ export class LeftMenuComponent {
             return this.selectedCategories.length === 0 ||
                 !this.selectedCategories.some(item => !def.categories.includes(item.itemName));
 
-        }).map(type => this.registry.getDef(type));
+        }).map(type => this.registry.getDef(type))
+        .sort((a, b) => a.displayName.localeCompare(b.displayName));
     }
 }

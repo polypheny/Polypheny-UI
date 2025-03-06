@@ -1,4 +1,4 @@
-<div class="activity d-flex flex-column h-100" [class.is-opened]="data.isOpened()">
+<div class="activity d-flex flex-column h-100" [class.is-opened]="data.isOpened()" [class.meta-activity]="data.isMetaActivity">
 
     <div class="status-bar" [ngClass]="'state-' + data.state().toLowerCase()"
          [style.background]="statusBackground?.()" [title]="statusText?.()">

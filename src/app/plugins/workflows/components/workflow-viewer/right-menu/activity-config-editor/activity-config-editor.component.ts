@@ -3,11 +3,11 @@ import {ActivityConfigModel, CommonType, ControlStateMerger, ExpectedOutcome} fr
 import {NgForOf, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivityDef} from '../../../../models/activity-registry.model';
-import {ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormLabelDirective, FormSelectDirective, FormTextDirective, InputGroupComponent, InputGroupTextDirective} from '@coreui/angular';
+import {ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormSelectDirective, FormTextDirective, InputGroupComponent, InputGroupTextDirective} from '@coreui/angular';
 import {AdapterModel} from '../../../../../../views/adapters/adapter.model';
 import {CatalogService} from '../../../../../../services/catalog.service';
 import {ComponentsModule} from '../../../../../../components/components.module';
-import {NESTED_WF_ACTIVITY_TYPE} from '../../workflow';
+import {META_ACTIVITY_TYPES, NESTED_WF_ACTIVITY_TYPE} from '../../workflow';
 
 @Component({
     selector: 'app-activity-config-editor',
@@ -16,7 +16,6 @@ import {NESTED_WF_ACTIVITY_TYPE} from '../../workflow';
         FormsModule,
         NgForOf,
         FormDirective,
-        FormLabelDirective,
         FormCheckComponent,
         FormCheckInputDirective,
         FormCheckLabelDirective,
@@ -55,6 +54,7 @@ export class ActivityConfigEditorComponent implements OnInit {
     lockCommonTransaction = computed<boolean>(() =>
         this.def().type === NESTED_WF_ACTIVITY_TYPE && this.config().commonType === CommonType.NONE
     );
+    isMetaActivity = computed<boolean>(() => META_ACTIVITY_TYPES.includes(this.def().type));
 
     constructor(private _catalog: CatalogService) {
         this.adapters = computed(() => {
