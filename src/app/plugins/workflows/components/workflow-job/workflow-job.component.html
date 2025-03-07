@@ -1,0 +1,125 @@
+<app-job-creator></app-job-creator>
+@if (job()) {
+    <div class="d-flex justify-content-between mb-5">
+        <h1 class="job-name">
+            {{ job().name }}
+        </h1>
+        <div>
+            <button cButton color="secondary" (click)="backToDashboard()">Back</button>
+        </div>
+
+    </div>
+    <c-row class="mb-5">
+        <c-col [md]="6" class="fixed-width">
+            <c-card>
+                <c-card-header>
+                    <h5>Job Information</h5>
+                </c-card-header>
+                <c-card-body>
+                    <c-row>
+                        <c-col [xs]="6"><small><strong>Type:</strong></small></c-col>
+                        <c-col [xs]="6">
+                            <small>{{ job().type }}</small>
+                        </c-col>
+                    </c-row>
+                    <c-row>
+                        <c-col [xs]="6"><small><strong>Workflow:</strong></small></c-col>
+                        <c-col [xs]="6"><small>
+                            {{ _creator.workflowDefs()[job().workflowId]?.name }}
+                            v{{ job().version }}
+                        </small></c-col>
+                    </c-row>
+                    <c-row>
+                        <c-col [xs]="6"><small><strong>Enabled on Startup:</strong></small></c-col>
+                        <c-col [xs]="6"><small> {{ job().enableOnStartup }} </small></c-col>
+                    </c-row>
+                    @if (job().type === 'SCHEDULED') {
+                        <c-row>
+                            <c-col [xs]="6"><small><strong>Schedule:</strong></small></c-col>
+                            <c-col [xs]="6"><small>{{ job().schedule }}</small></c-col>
+                        </c-row>
+                    }
+                    <button cButton color="secondary" (click)="editJob()" [disabled]="isEnabled()">
+                        Modify
+                    </button>
+                    <button cButton color="danger" (click)="deleteJob()" [disabled]="isEnabled()" class="ms-3">Delete Job</button>
+                </c-card-body>
+            </c-card>
+        </c-col>
+
+        <c-col [md]="6" class="fixed-width">
+            <c-card>
+                <c-card-header>
+                    <div class="d-flex justify-content-between">
+                        <h5>Session</h5>
+                        <div>
+                            <button cButton color="primary" size="sm">
+                                <i class="icon-reload" (click)="updateSession()"></i>
+                            </button>
+
+                        </div>
+                    </div>
+                </c-card-header>
+                <c-card-body>
+                    @if (session()) {
+                        <c-row>
+                            <c-col [xs]="6"><small><strong>State:</strong></small></c-col>
+                            <c-col [xs]="6"><small>{{ session().state }}</small></c-col>
+                        </c-row>
+                        <c-row>
+                            <c-col [xs]="6"><small><strong>Last Interaction:</strong></small></c-col>
+                            <c-col [xs]="6">
+                                <small>{{ session().lastInteraction | date: 'yyyy-MM-dd HH:mm:ss' }}</small>
+                            </c-col>
+                        </c-row>
+                        <c-row>
+                            <c-col [xs]="6"><small><strong>Connected Users:</strong></small></c-col>
+                            <c-col [xs]="6"><small>{{ session().connectionCount }}</small></c-col>
+                        </c-row>
+                        <button cButton color="primary" class="mt-2" (click)="openSession()" class="">Open</button>
+                    } @else {
+                        Enable the job to start the corresponding session.
+                    }
+                </c-card-body>
+            </c-card>
+        </c-col>
+    </c-row>
+
+    <div class="mb-5 d-flex">
+        @if (isEnabled()) {
+            <button cButton color="danger" (click)="disableJob()">Disable</button>
+            <button cButton color="primary" (click)="executeJob()" class="ms-3">
+                Manually Trigger Execution
+            </button>
+        } @else {
+            <button cButton color="success" (click)="enableJob()">Enable</button>
+        }
+
+    </div>
+
+    @if (session()) {
+        <h2>Execution History</h2>
+        <ul cListGroup *ngIf="session().executionHistory" class="mb-5">
+            @for (exec of session().executionHistory; track $index) {
+                <li cListGroupItem>
+                    <h5>
+                        {{ exec.startTime | date: 'yyyy-MM-dd HH:mm:ss' }}:
+                        @if (exec.success) {
+                            <span class="badge bg-success">Success</span>
+                        } @else {
+                            <span class="badge bg-danger">Failed</span>
+                        }
+                    </h5>
+                    <p>{{ exec.message }}</p>
+                    <p><strong>Duration: </strong> {{ exec.statistics.totalDuration }} ms</p>
+
+                    <p>TODO: Show Statistics</p>
+                </li>
+            } @empty {
+                <li cListGroupItem>
+                    Workflow was not yet executed.
+                </li>
+            }
+        </ul>
+    }
+}

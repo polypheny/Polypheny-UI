@@ -63,6 +63,10 @@ export enum ExecutorType {
     VARIABLE_WRITER = 'VARIABLE_WRITER'
 }
 
+export enum TriggerType {
+    SCHEDULED = 'SCHEDULED'
+}
+
 export type SettingsModel = Record<string, any>;
 export type Variables = Record<string, any>;
 export const errorKey = '$errorMsg';
@@ -161,11 +165,15 @@ export interface SessionModel {
     lastInteraction: string; // ISO-8601
     activityCount: number;
 
-    // Only for USER_SESSION
+    // Only for USER_SESSION & JOB_SESSION
     workflowId?: string;
     version?: number;
     workflowDef?: WorkflowDefModel;
     state?: WorkflowState;
+
+    // JOB_SESSION
+    executionHistory?: JobExecutionModel[];
+    jobId?: string;
 }
 
 export interface WorkflowDefModel {
@@ -197,4 +205,25 @@ export interface WorkflowConfigModel {
     maxWorkers: number;
     pipelineQueueCapacity: number;
     logCapacity: number;
+}
+
+export interface JobModel {
+    jobId: string;
+    type: TriggerType;
+    workflowId: string;
+    version: number;
+    enableOnStartup: boolean;
+    name: string;
+    sessionId?: string; // if present: job is active
+
+    //SCHEDULED
+    schedule?: string;
+}
+
+export interface JobExecutionModel {
+    message: string;
+    variables: Record<string, any>;
+    success: boolean;
+    startTime: string; // ISO 8601 format
+    statistics: ExecutionMonitorModel;
 }

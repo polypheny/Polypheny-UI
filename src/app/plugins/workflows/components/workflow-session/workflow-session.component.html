@@ -12,6 +12,11 @@
                                      (close)="backToDashboard()" (terminate)="terminateSession()" (openNested)="openNestedSession($event)">
                 </app-workflow-viewer>
             }
+            @case ('JOB_SESSION') {
+                <app-workflow-viewer [sessionId]="sessionId" [isEditable]="false" [name]="sessionId" [canTerminate]="false"
+                                     (close)="backToJob()" (terminate)="terminateSession()" (openNested)="openNestedSession($event)">
+                </app-workflow-viewer>
+            }
             @default {
                 Unsupported Session Type
             }

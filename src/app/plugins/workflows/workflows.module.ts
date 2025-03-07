@@ -110,6 +110,9 @@ import {CheckpointViewerComponent} from './components/checkpoint-viewer/checkpoi
 import {GraphMapSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/graph-map-setting/graph-map-setting.component';
 import {FileSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/file-setting/file-setting.component';
 import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
+import {WorkflowJobComponent} from './components/workflow-job/workflow-job.component';
+import {JobListComponent} from './components/workflow-job/job-list/job-list.component';
+import {JobCreatorComponent} from './components/workflow-job/job-creator/job-creator.component';
 
 @NgModule({
     imports: [
@@ -229,7 +232,10 @@ import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} fr
         WorkflowHelpComponent,
         CheckpointViewerComponent,
         GraphMapSettingComponent,
-        FileSettingComponent
+        FileSettingComponent,
+        WorkflowJobComponent,
+        JobListComponent,
+        JobCreatorComponent
     ],
     exports: [
         WorkflowViewerComponent,

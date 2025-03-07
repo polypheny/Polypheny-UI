@@ -1,0 +1,66 @@
+<app-job-creator></app-job-creator>
+
+<h1>Jobs</h1>
+<c-row class="mb-5">
+    <c-col [md]="6" class="fixed-width">
+        <c-card>
+            <c-card-header>
+                <span class="mb-0">Create Job</span>
+            </c-card-header>
+            <c-card-body>
+                <c-input-group class="mb-3">
+                    <label cInputGroupText for="job-types">Job Type</label>
+                    <select cSelect id="job-types" [(ngModel)]="triggerType">
+                        <option [value]="'SCHEDULED'">Scheduled Execution</option>
+                    </select>
+                </c-input-group>
+                <c-input-group class="mb-0 justify-content-end">
+                    <button cButton color="primary" (click)="_creator.openCreate(triggerType)">Create Job</button>
+                </c-input-group>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>
+<ul cListGroup class="mb-5">
+    @for (job of jobs(); track job.jobId) {
+        <li cListGroupItem>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1 limit-name-width">
+                    <h4 class="job-name">
+                        {{ job.name }}
+                    </h4>
+                    <c-row>
+                        <c-col [xs]="3"><small><strong>State:</strong></small></c-col>
+                        <c-col [xs]="9">
+                            @if (job.sessionId) {
+                                <span class="badge bg-success">Enabled</span>
+                            } @else {
+                                <span class="badge bg-danger">Disabled</span>
+                            }
+                        </c-col>
+                    </c-row>
+                    <c-row>
+                        <c-col [xs]="3"><small><strong>Type:</strong></small></c-col>
+                        <c-col [xs]="9">
+                            <small>{{ job.type }}</small>
+                        </c-col>
+                    </c-row>
+                    <c-row>
+                        <c-col [xs]="3"><small><strong>Workflow:</strong></small></c-col>
+                        <c-col [xs]="9"><small>
+                            {{ _creator.workflowDefs()[job.workflowId].name }}
+                            v{{ job.version }}
+                        </small></c-col>
+                    </c-row>
+                    <c-row>
+                        <c-col [xs]="3"><small><strong>Enabled on Startup:</strong></small></c-col>
+                        <c-col [xs]="9"><small> {{ job.enableOnStartup }} </small></c-col>
+                    </c-row>
+                </div>
+                <button cButton (click)="openJob(job.jobId)">
+                    Open
+                </button>
+            </div>
+        </li>
+    }
+</ul>

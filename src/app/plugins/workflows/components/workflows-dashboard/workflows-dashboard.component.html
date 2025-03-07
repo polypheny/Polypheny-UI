@@ -176,8 +176,7 @@
         }
     }
     @case ('sessions') {
-
-        <h2>Active Sessions</h2>
+        <h1>Active Sessions</h1>
         <ul cListGroup *ngIf="workflowDefs" class="mb-5">
             @for (session of userSessions; track session.sessionId) {
                 <ng-container *ngTemplateOutlet="sessionTemplate; context: { $implicit: session }"></ng-container>
@@ -185,7 +184,7 @@
         </ul>
     }
     @case ('jobs') {
-        <p>Jobs coming soon...</p>
+        <app-job-list></app-job-list>
     }
     @case ('api') {
         <h1>Workflow API</h1>

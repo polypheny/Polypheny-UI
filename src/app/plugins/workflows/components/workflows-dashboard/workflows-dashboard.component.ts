@@ -126,8 +126,8 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
         const sidebarNodes: SidebarNode[] = [
             new SidebarNode(0, 'Dashboard', null, '/views/workflows/dashboard'),
             new SidebarNode(1, 'Sessions', null, '/views/workflows/sessions'),
-            new SidebarNode(2, 'API', null, '/views/workflows/api')
-            //new SidebarNode(3, 'Jobs', null, '/views/workflows/jobs'),
+            new SidebarNode(2, 'API', null, '/views/workflows/api'),
+            new SidebarNode(3, 'Jobs', null, '/views/workflows/jobs')
         ];
         this._sidebar.setNodes(sidebarNodes);
         this._sidebar.open();

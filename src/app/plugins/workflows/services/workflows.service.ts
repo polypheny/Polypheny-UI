@@ -1,7 +1,7 @@
 import {Injectable, signal} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {ActivityModel, ExecutionMonitorModel, SessionModel, Variables, WorkflowConfigModel, WorkflowDefModel, WorkflowModel} from '../models/workflows.model';
+import {ActivityModel, ExecutionMonitorModel, JobModel, SessionModel, Variables, WorkflowConfigModel, WorkflowDefModel, WorkflowModel} from '../models/workflows.model';
 import {ActivityDefModel, ActivityRegistry} from '../models/activity-registry.model';
 
 class JsonNode {
@@ -71,6 +71,10 @@ export class WorkflowsService {
         return this._http.get<WorkflowModel>(`${this.httpUrl}/workflows/${workflowId}/${version}`, this.httpOptions);
     }
 
+    getJobs() {
+        return this._http.get<Record<string, JobModel>>(`${this.httpUrl}/jobs/`, this.httpOptions);
+    }
+
     createSession(workflowName: string, group: string) {
         const json = {
             name: workflowName,
@@ -100,6 +104,22 @@ export class WorkflowsService {
         return this._http.post<string>(`${this.httpUrl}/workflows/${workflowId}/${version}/copy`, json, this.httpOptions);
     }
 
+    setJob(job: JobModel) {
+        return this._http.post<string>(`${this.httpUrl}/jobs`, job, this.httpOptions); // returns jobId
+    }
+
+    enableJob(jobId: string) {
+        return this._http.post<string>(`${this.httpUrl}/jobs/${jobId}/enable`, {}, this.httpOptions); // returns sessionId
+    }
+
+    disableJob(jobId: string) {
+        return this._http.post<void>(`${this.httpUrl}/jobs/${jobId}/disable`, {}, this.httpOptions);
+    }
+
+    triggerJob(jobId: string) {
+        return this._http.post<void>(`${this.httpUrl}/jobs/${jobId}/trigger`, {}, this.httpOptions);
+    }
+
     renameWorkflow(workflowId: string, newName: string = null, newGroup: string = null) {
         const json = {
             name: newName,
@@ -114,6 +134,10 @@ export class WorkflowsService {
 
     deleteVersion(workflowId: string, version: number) {
         return this._http.delete<void>(`${this.httpUrl}/workflows/${workflowId}/${version}`, this.httpOptions);
+    }
+
+    deleteJob(jobId: string) {
+        return this._http.delete<void>(`${this.httpUrl}/jobs/${jobId}`, this.httpOptions);
     }
 
     saveSession(sessionId: string, saveMessage: string) {
