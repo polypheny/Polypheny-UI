@@ -11,6 +11,7 @@ import {Workflow} from '../workflow';
 export class ExecutionMonitorComponent {
     @Input() sessionId: string; // does not change
     @Input() workflow: Workflow;
+    @Input() canOpen = true; // does not change
     @Output() openActivity = new EventEmitter<string>();
 
     readonly monitor = signal<ExecutionMonitorModel>(null);
@@ -33,12 +34,16 @@ export class ExecutionMonitorComponent {
         this.showModal.update(b => !b);
     }
 
-    show() {
-        this.isLoading.set(true);
-        this._workflows.getExecutionMonitor(this.sessionId).subscribe(m => {
-            this.monitor.set(m);
-            this.isLoading.set(false);
-        });
+    show(execMonitor?: ExecutionMonitorModel) {
+        if (execMonitor) {
+            this.monitor.set(execMonitor);
+        } else {
+            this.isLoading.set(true);
+            this._workflows.getExecutionMonitor(this.sessionId).subscribe(m => {
+                this.monitor.set(m);
+                this.isLoading.set(false);
+            });
+        }
         this.showModal.set(true);
     }
 

@@ -44,14 +44,15 @@
 
             <c-callout color="primary">
                 <p>The requested checkpoint is currently not materialized.
-                    Do you want to execute the activity to materialize its checkpoints?</p>
-                <p class="text-danger">This will also reset all its successor activities!</p>
+                    <span *ngIf="_checkpoint.canExecute()">Do you want to execute the activity to materialize its checkpoints?</span>
+                </p>
+                <p class="text-danger" *ngIf="_checkpoint.canExecute()">This will also reset all its successor activities!</p>
             </c-callout>
         }
     </c-modal-body>
     <c-modal-footer>
         <button (click)="_checkpoint.toggleModal()" cButton color="secondary">Close</button>
-        @if (!_checkpoint.result() && !_checkpoint.isLoading()) {
+        @if (!_checkpoint.result() && !_checkpoint.isLoading() && _checkpoint.canExecute()) {
             <button cButton (click)="_checkpoint.materialize()"
                     [disabled]="_checkpoint.selectedActivity().state() !== 'FINISHED'">Execute Activity
             </button>

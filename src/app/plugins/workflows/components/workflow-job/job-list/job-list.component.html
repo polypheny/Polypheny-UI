@@ -48,7 +48,7 @@
                     <c-row>
                         <c-col [xs]="3"><small><strong>Workflow:</strong></small></c-col>
                         <c-col [xs]="9"><small>
-                            {{ _creator.workflowDefs()[job.workflowId].name }}
+                            {{ _creator.workflowDefs()[job.workflowId]?.name }}
                             v{{ job.version }}
                         </small></c-col>
                     </c-row>

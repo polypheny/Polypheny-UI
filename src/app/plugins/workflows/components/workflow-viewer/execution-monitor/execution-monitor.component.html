@@ -1,6 +1,3 @@
-<p>execution-monitor works!</p>
-
-
 <c-modal [visible]="showModal()" (visibleChange)="showModal.set($event)" scrollable="true" size="lg">
     <c-modal-header>
         <h5 cModalTitle>Execution Statistics</h5>
@@ -18,7 +15,6 @@
                 </c-col>
                 <c-col xs="auto">
                     <span>{{ monitor().isSuccess }}</span>
-                    <span *ngIf="!monitor().isSuccess">(see Activity Config)</span>
                 </c-col>
             </c-row>
             <c-row>
@@ -144,7 +140,10 @@
                                         </span>
 
                                         <!--<span class="text-muted">{{ activity }}</span>-->
-                                        <button cButton color="primary" size="sm" (click)="toggleModal(); openActivity.emit(activity)">Open</button>
+                                        <button cButton color="primary" size="sm" *ngIf="canOpen"
+                                                (click)="toggleModal(); openActivity.emit(activity)">
+                                            Open
+                                        </button>
                                     </li>
                                 </ul>
                             </div>

@@ -67,6 +67,12 @@ export enum TriggerType {
     SCHEDULED = 'SCHEDULED'
 }
 
+export enum JobResult {
+    SUCCESS = 'SUCCESS',
+    FAILED = 'FAILED',
+    SKIPPED = 'SKIPPED',
+}
+
 export type SettingsModel = Record<string, any>;
 export type Variables = Record<string, any>;
 export const errorKey = '$errorMsg';
@@ -214,6 +220,9 @@ export interface JobModel {
     version: number;
     enableOnStartup: boolean;
     name: string;
+    maxRetries: number; // 0 for no retries
+    performance: boolean;
+    variables: Variables;
     sessionId?: string; // if present: job is active
 
     //SCHEDULED
@@ -223,7 +232,7 @@ export interface JobModel {
 export interface JobExecutionModel {
     message: string;
     variables: Record<string, any>;
-    success: boolean;
+    result: JobResult;
     startTime: string; // ISO 8601 format
     statistics: ExecutionMonitorModel;
 }

@@ -36,6 +36,7 @@ export class CheckpointViewerService {
         create: false, update: false, delete: false, sort: false, search: false,
         exploring: true, hideCreateView: true, cardRelWidth: true
     };
+    readonly canExecute = signal(false);
 
     constructor(private _websocket: WorkflowsWebSocketService, private _toast: ToasterService) {
         this._websocket.onMessage().subscribe(msg => this.handleWsMsg(msg));
@@ -70,7 +71,8 @@ export class CheckpointViewerService {
         this._websocket.getCheckpoint(activity.id, outputIndex);
     }
 
-    openCheckpoint(activity: Activity, outputIndex: number) {
+    openCheckpoint(activity: Activity, outputIndex: number, canExecute: boolean) {
+        this.canExecute.set(canExecute);
         if (activity.state() === ActivityState.FINISHED) {
             this.selectedActivity.set(activity);
             this.selectedOutput.set(outputIndex);

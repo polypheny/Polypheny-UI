@@ -13,21 +13,15 @@
 
             <c-input-group class="mb-3">
                 <label cInputGroupText for="job-wf">Workflow</label>
-                <select cSelect id="job-wf" [(ngModel)]="_creator.workflowName">
+                <select cSelect id="job-wf" [(ngModel)]="_creator.workflowName" class="w-50">
                     @for (wfName of _creator.workflowNames(); track wfName) {
                         <option [value]="wfName">{{ wfName }}</option>
                     }
                 </select>
-            </c-input-group>
-            <c-input-group class="mb-3" cCol>
-                <span cInputGroupText>Version</span>
+                <span cInputGroupText>v</span>
                 <input cFormControl sizing="sm" id="job-wf-version"
                        type="number" autocomplete="off" [min]="0" [(ngModel)]="_creator.version">
             </c-input-group>
-            <c-form-check [switch]="true" class="mb-3">
-                <input cFormCheckInput id="on-startup" type="checkbox" [(ngModel)]="_creator.enableOnStartup" name="on-startup">
-                <label cFormCheckLabel for="on-startup">Enable on Startup</label>
-            </c-form-check>
 
             @switch (_creator.type) {
                 @case ('SCHEDULED') {
@@ -38,6 +32,44 @@
                     </c-input-group>
                 }
             }
+
+            <div class="d-flex align-items-center mb-1" (click)="isExpanded = !isExpanded" style="cursor: pointer; user-select: none;">
+                <strong>
+                    <span [class]="isExpanded ? 'fa fa-angle-down' : 'fa fa-angle-right'" class="me-2"></span>
+                    Advanced
+                </strong>
+            </div>
+            <div [visible]="isExpanded" cCollapse>
+                <div class="card card-body">
+                    <c-form-check [switch]="true" class="mb-3">
+                        <input cFormCheckInput id="on-startup" type="checkbox" [(ngModel)]="_creator.enableOnStartup" name="on-startup">
+                        <label cFormCheckLabel for="on-startup">Enable on startup</label>
+                    </c-form-check>
+                    <c-input-group class="mb-3" cCol>
+                        <span cInputGroupText>Maximum Retries</span>
+                        <input cFormControl sizing="sm" id="job-retries"
+                               type="number" autocomplete="off" [min]="0" [max]="10" [(ngModel)]="_creator.maxRetries">
+                        <div cFormText>
+                            The maximum number of times execution is restarted on a failure. 0 to disable.
+                        </div>
+                    </c-input-group>
+                    <c-form-check [switch]="true" class="mb-3">
+                        <input cFormCheckInput id="job-performance" type="checkbox" [(ngModel)]="_creator.performance" name="job-performance">
+                        <label cFormCheckLabel for="job-performance">Enforce optimizations for best performance</label>
+                    </c-form-check>
+
+                    <p>Overwrite Workflow Variables</p>
+                    <app-json-editor [json]="(_creator.variables || {}) | json" #variableEditor
+                                     (valueChange)="changedVariables = $event"></app-json-editor>
+                    <div class="mt-1">
+                        <button cButton color="danger" variant="outline"
+                                (click)="resetVariables()">Reset Variables
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
         </c-modal-body>
         <c-modal-footer>
             <button (click)="_creator.close()" cButton color="secondary">Close</button>

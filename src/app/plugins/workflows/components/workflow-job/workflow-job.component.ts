@@ -1,18 +1,19 @@
-import {Component, computed, effect, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, effect, inject, Injector, OnDestroy, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../../../components/left-sidebar/left-sidebar.service';
 import {WorkflowsService} from '../../services/workflows.service';
-import {JobModel, SessionModel} from '../../models/workflows.model';
+import {JobModel, JobResult, SessionModel, Variables} from '../../models/workflows.model';
 import {JobCreatorService} from '../../services/job-creator.service';
 import {Subscription} from 'rxjs';
+import {Workflow} from '../workflow-viewer/workflow';
 
 @Component({
     selector: 'app-workflow-job',
     templateUrl: './workflow-job.component.html',
     styleUrl: './workflow-job.component.scss'
 })
-export class WorkflowJobComponent implements OnInit {
+export class WorkflowJobComponent implements OnInit, OnDestroy {
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
     private readonly _toast = inject(ToasterService);
@@ -21,14 +22,32 @@ export class WorkflowJobComponent implements OnInit {
     readonly _creator = inject(JobCreatorService);
     private readonly subscriptions = new Subscription();
 
+    protected readonly JobResult = JobResult;
+    protected readonly Object = Object;
+
     jobId = signal<string>(null);
     job = signal<JobModel>(null);
     sessionId = computed<string>(() => this.job()?.sessionId);
     session = signal<SessionModel>(null);
     isEnabled = computed(() => this.job().sessionId != null);
+    workflow = signal<Workflow>(null);
+    deleteConfirm = signal(false);
+    showVariablesModal = signal(false);
+    selectedVariablesStr: string;
+    private interval: number;
 
-    constructor() {
-        effect(() => this.updateSession(), {allowSignalWrites: true});
+    constructor(private injector: Injector) {
+        effect(() => {
+            if (this.sessionId?.()) {
+                this.updateSession();
+                this._workflows.getWorkflow(this.job().workflowId, this.job().version).subscribe({
+                    next: res => this.workflow.set(new Workflow(res, this._workflows.getRegistry(), this.injector))
+                });
+            } else {
+                this.session.set(null);
+                this.workflow.set(null);
+            }
+        }, {allowSignalWrites: true});
     }
 
     ngOnInit(): void {
@@ -49,6 +68,8 @@ export class WorkflowJobComponent implements OnInit {
             }
         });
         this.jobId.set(this._route.snapshot.paramMap.get('jobId'));
+
+        this.interval = setInterval(() => this.updateSession(), 10000);
     }
 
     backToDashboard() {
@@ -56,6 +77,9 @@ export class WorkflowJobComponent implements OnInit {
     }
 
     enableJob() {
+        if (this.isEnabled()) {
+            return;
+        }
         this._workflows.enableJob(this.jobId()).subscribe({
             next: sessionId => this.job.update(job => ({...job, sessionId})),
             error: err => this._toast.error(err.error)
@@ -63,6 +87,9 @@ export class WorkflowJobComponent implements OnInit {
     }
 
     disableJob() {
+        if (!this.isEnabled()) {
+            return;
+        }
         this._workflows.disableJob(this.jobId()).subscribe({
             next: () => this.job.update(job => ({...job, sessionId: null})),
             error: err => this._toast.error(err.error)
@@ -78,15 +105,11 @@ export class WorkflowJobComponent implements OnInit {
     }
 
     updateSession() {
-        // TODO: periodically check for changes
-        if (this.sessionId?.()) {
+        if (this.sessionId()) {
             this._workflows.getSession(this.sessionId()).subscribe({
                 next: res => this.session.set(res)
             });
-        } else {
-            this.session.set(null);
         }
-
     }
 
     openSession() {
@@ -95,6 +118,19 @@ export class WorkflowJobComponent implements OnInit {
 
     editJob() {
         this._creator.openModify(this.job());
+    }
+
+    openVariables(variables: Variables) {
+        this.selectedVariablesStr = JSON.stringify(variables);
+        this.showVariablesModal.set(true);
+    }
+
+    onDeleteClick() {
+        if (!this.deleteConfirm()) {
+            this.deleteConfirm.set(true);
+        } else {
+            this.deleteJob();
+        }
     }
 
     deleteJob() {
@@ -120,5 +156,6 @@ export class WorkflowJobComponent implements OnInit {
 
     ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
+        clearInterval(this.interval);
     }
 }
