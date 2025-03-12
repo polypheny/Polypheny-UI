@@ -25,6 +25,10 @@ export class ExecutionMonitorComponent {
         }
         return null;
     });
+    readonly tuplesPerSecond = computed(() => {
+        const tps = this.monitor().tuplesWritten * 1000 / this.monitor().totalDuration;
+        return Math.round(tps);
+    });
 
 
     constructor(private _workflows: WorkflowsService) {

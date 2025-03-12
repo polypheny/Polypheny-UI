@@ -2,8 +2,9 @@ import {Component, computed, EventEmitter, inject, input, model, OnInit, Output,
 import {SettingDefModel} from '../../../../../models/activity-registry.model';
 import {PolyType} from '../../../../../../../components/data-view/models/result-set.model';
 import {DbmsTypesService} from '../../../../../../../services/dbms-types.service';
-import {PK_COL, TypePreviewModel} from '../../../../../models/workflows.model';
+import {TypePreviewModel} from '../../../../../models/workflows.model';
 import {ToasterService} from '../../../../../../../components/toast-exposer/toaster.service';
+import {getSuggestions} from '../../../workflow';
 
 
 @Component({
@@ -15,7 +16,6 @@ export class CastSettingComponent implements OnInit {
     isEditable = input.required<boolean>();
     settingDef = input.required<SettingDefModel>();
     inTypePreview = input.required<TypePreviewModel[]>();
-    inSuggestions = input.required<string[][]>();
     value = model.required<any>();
     @Output() hasChanged = new EventEmitter<void>();
 
@@ -23,7 +23,7 @@ export class CastSettingComponent implements OnInit {
     def = computed(() => this.settingDef() as CastSettingDef);
     targetPreview = computed(() => this.inTypePreview()[this.def().targetInput]);
     fieldType = computed(() => this.targetPreview()?.portType === 'REL' ? 'column' : 'field');
-    suggestions = computed(() => this.inSuggestions()[this.def().targetInput]?.filter(v => v !== PK_COL) || []);
+    suggestions = computed(() => getSuggestions(this.targetPreview(), 'props'));
 
     private changed = signal(false); // dummy signal to trigger recomputation
     supportsPrecision = computed(() => {

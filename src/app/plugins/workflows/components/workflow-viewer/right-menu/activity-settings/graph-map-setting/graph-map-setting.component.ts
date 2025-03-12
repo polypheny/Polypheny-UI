@@ -1,7 +1,8 @@
 import {Component, computed, effect, EventEmitter, input, model, Output, signal} from '@angular/core';
 import {SettingDefModel} from '../../../../../models/activity-registry.model';
-import {PK_COL, TypePreviewModel} from '../../../../../models/workflows.model';
+import {TypePreviewModel} from '../../../../../models/workflows.model';
 import {ToasterService} from '../../../../../../../components/toast-exposer/toaster.service';
+import {getSuggestions} from '../../../workflow';
 
 
 @Component({
@@ -13,7 +14,6 @@ export class GraphMapSettingComponent {
     isEditable = input.required<boolean>();
     settingDef = input.required<SettingDefModel>();
     inTypePreview = input.required<TypePreviewModel[]>();
-    inSuggestions = input.required<string[][]>();
     value = model.required<any>();
     @Output() hasChanged = new EventEmitter<void>();
 
@@ -23,13 +23,20 @@ export class GraphMapSettingComponent {
     mappings = computed(() => this.value().mappings as InputMapping[]); // like value, but with correct type
     def = computed(() => this.settingDef() as GraphMapSettingDef);
     targetPreviews = computed(() => this.inTypePreview().slice(this.def().targetInput));
-    suggestions = computed(() => this.inSuggestions().slice(this.def().targetInput).map(s => s.filter(v => v !== PK_COL) || []));
-    graphNodeLabels = computed(() => {
+    suggestions = computed(() => this.targetPreviews().map(p => getSuggestions(p, 'props'))); // never a graph, so labelsOrProps doesn't matter
+    graphLabels = computed(() => {
         if (!this.def().canExtendGraph || this.def().graphInput < 0) {
             return [];
         }
-        return this.inTypePreview()[this.def().graphInput]?.nodeLabels || [];
+        return this.inTypePreview()[this.def().graphInput]?.labels || [];
     });
+    graphProps = computed(() => {
+        if (!this.def().canExtendGraph || this.def().graphInput < 0) {
+            return [];
+        }
+        return this.inTypePreview()[this.def().graphInput]?.properties || [];
+    });
+
     nInputs = computed(() => this.suggestions().length);
     remainingInputs = computed<number[]>(() => {
         this.changed();

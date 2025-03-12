@@ -6,6 +6,7 @@ import {AdapterModel} from '../../../../../../../views/adapters/adapter.model';
 import {CatalogService} from '../../../../../../../services/catalog.service';
 import {EditorComponent} from '../../../../../../../components/editor/editor.component';
 import {WorkflowsService} from '../../../../../services/workflows.service';
+import {getSuggestions} from '../../../workflow';
 
 @Component({
     selector: 'app-string-setting',
@@ -27,12 +28,7 @@ export class StringSettingComponent implements OnInit, AfterViewInit {
         if (this.usesAutocomplete()) {
             switch (this.def().autoComplete) {
                 case 'FIELD_NAMES':
-                    if (this.targetPreview().portType === 'REL') {
-                        return this.targetPreview().columns?.map(c => c.name) || [];
-                    } else if (this.targetPreview().portType === 'DOC') {
-                        return this.targetPreview().fields || [];
-                    }
-                    return [];
+                    return getSuggestions(this.targetPreview(), 'props');
                 case 'ADAPTERS':
                     return this.adapters().map(a => a.name);
                 case 'VARIABLES':

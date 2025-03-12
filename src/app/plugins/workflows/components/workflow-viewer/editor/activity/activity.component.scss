@@ -92,5 +92,9 @@
   #activity-notes {
     resize: none;
     background: var(--cui-light);
+
+    &::placeholder {
+      color: var(--cui-secondary);
+    }
   }
 }

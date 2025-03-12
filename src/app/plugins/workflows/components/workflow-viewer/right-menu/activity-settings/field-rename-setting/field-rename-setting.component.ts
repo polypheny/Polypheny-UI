@@ -1,6 +1,7 @@
 import {Component, computed, EventEmitter, input, model, Output} from '@angular/core';
 import {SettingDefModel} from '../../../../../models/activity-registry.model';
 import {TypePreviewModel} from '../../../../../models/workflows.model';
+import {getSuggestions} from '../../../workflow';
 
 
 @Component({
@@ -19,16 +20,7 @@ export class FieldRenameSettingComponent {
     def = computed(() => this.settingDef() as FieldRenameSettingDef);
     targetPreview = computed(() => this.inTypePreview()[this.def().targetInput]);
     fieldType = computed(() => this.targetPreview()?.portType === 'REL' ? 'column' : 'field');
-    suggestions = computed(() => {
-        if (this.targetPreview()?.portType === 'REL') {
-            return this.targetPreview().columns?.map(c => c.name) || [];
-        } else if (this.targetPreview()?.portType === 'DOC') {
-            return this.targetPreview().fields || [];
-        } else if (this.targetPreview()?.portType === 'LPG') {
-            return [...(this.targetPreview().nodeLabels || []), ...(this.targetPreview().edgeLabels || [])];
-        }
-        return [];
-    });
+    suggestions = computed(() => getSuggestions(this.targetPreview(), this.def().forLabels ? 'labels' : 'props'));
     modes = computed(() => {
         const modes: [RenameMode, String][] = [['EXACT', 'Exact']];
         if (this.def().allowRegex) {
@@ -77,6 +69,7 @@ interface FieldRenameSettingDef extends SettingDefModel {
     allowRegex: boolean;
     allowIndex: boolean;
     targetInput: number;
+    forLabels: boolean;
 }
 
 interface RenameRule {

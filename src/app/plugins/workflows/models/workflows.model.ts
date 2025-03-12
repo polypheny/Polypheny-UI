@@ -115,8 +115,8 @@ export interface TypePreviewModel {
     portType: PortType; // this can be more specific than the port type of the def
     columns?: FieldDefinition[] | null;
     fields?: string[] | null; // for documents
-    nodeLabels?: string[] | null; // for graphs
-    edgeLabels?: string[] | null; // for graphs
+    labels?: string[] | null; // for graphs
+    properties?: string[] | null; // for graphs
     notConnected: boolean; // only relevant for input previews
 }
 
@@ -161,6 +161,7 @@ export interface ExecutionMonitorModel {
     failCount: number;
     skipCount: number;
     countByExecutorType: Record<ExecutorType, number>;
+    tuplesWritten: number;
     isSuccess?: boolean; // overall success of workflow execution
 }
 

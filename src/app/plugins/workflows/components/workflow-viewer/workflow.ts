@@ -1,4 +1,4 @@
-import {ActivityConfigModel, ActivityModel, ActivityState, CommonType, EdgeModel, EdgeState, errorKey, ErrorVariable, ExecutionInfoModel, ExpectedOutcome, RenderModel, SettingsModel, TypePreviewModel, Variables, WorkflowConfigModel, WorkflowModel, WorkflowState} from '../../models/workflows.model';
+import {ActivityConfigModel, ActivityModel, ActivityState, CommonType, EdgeModel, EdgeState, errorKey, ErrorVariable, ExecutionInfoModel, ExpectedOutcome, PK_COL, RenderModel, SettingsModel, TypePreviewModel, Variables, WorkflowConfigModel, WorkflowModel, WorkflowState} from '../../models/workflows.model';
 import {computed, Injector, Signal, signal, WritableSignal} from '@angular/core';
 import * as _ from 'lodash';
 import {Subject} from 'rxjs';
@@ -20,6 +20,17 @@ export function stringToEdge(edgeString: string, state?: EdgeState) {
     const edge: EdgeModel = JSON.parse(edgeString);
     edge.state = state;
     return edge;
+}
+
+export function getSuggestions(preview: TypePreviewModel, labelsOrProps: 'labels' | 'props') {
+    if (preview?.portType === 'REL') {
+        return preview.columns?.map(c => c.name).filter(n => n !== PK_COL) || [];
+    } else if (preview?.portType === 'DOC') {
+        return preview.fields || [];
+    } else if (preview?.portType === 'LPG') {
+        return (labelsOrProps === 'labels' ? preview.labels : preview.properties) || [];
+    }
+    return [];
 }
 
 export class Workflow {
@@ -337,7 +348,6 @@ export class Activity {
     readonly expectedOutcome: Signal<ExpectedOutcome>;
     readonly rendering: WritableSignal<RenderModel>;
     readonly inTypePreview: WritableSignal<TypePreviewModel[]>;
-    readonly inSuggestions: Signal<string[][]>; // for each inTypePreview, contains a list of suggestions (col / field / label names)
     readonly outTypePreview: WritableSignal<TypePreviewModel[]>;
     readonly invalidReason: WritableSignal<string>;
     readonly invalidSettings: WritableSignal<Record<string, string>>;
@@ -365,17 +375,6 @@ export class Activity {
         this.expectedOutcome = computed(() => this.config().expectedOutcome);
         this.rendering = signal(activityModel.rendering, {equal: _.isEqual});
         this.inTypePreview = signal(activityModel.inTypePreview, {equal: _.isEqual});
-        this.inSuggestions = computed(() => this.inTypePreview().map(preview => {
-                if (preview.portType === 'REL') {
-                    return preview.columns?.map(c => c.name) || [];
-                } else if (preview.portType === 'DOC') {
-                    return preview.fields || [];
-                } else if (preview.portType === 'LPG') {
-                    return [...(preview.nodeLabels || []), ...(preview.edgeLabels || [])];
-                }
-                return [];
-            })
-        );
         this.outTypePreview = signal(activityModel.outTypePreview, {equal: _.isEqual});
         this.invalidReason = signal(activityModel.invalidReason);
         this.invalidSettings = signal(activityModel.invalidSettings);

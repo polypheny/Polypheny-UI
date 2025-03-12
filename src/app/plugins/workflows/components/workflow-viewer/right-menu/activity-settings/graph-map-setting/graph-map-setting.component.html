@@ -68,22 +68,32 @@
                             <select cSelect id="source-index" [disabled]="!isEditable()" (change)="valueChanged()"
                                     [ngModel]="mapping.edge.leftTargetIdx" (ngModelChange)="mapping.edge.leftTargetIdx = parseInt($event, 10)">
                                 <option [value]="-1" *ngIf="def().canExtendGraph">Existing Graph</option>
-                                <option *ngFor="let s of suggestions(); let targetIdx = index" [value]="targetIdx">{{ targetIdx }}</option>
+                                @for (s of suggestions(); track targetIdx; let targetIdx = $index) {
+                                    <option [value]="targetIdx">{{ targetIdx }}</option>
+                                }
                             </select>
                         </c-input-group>
 
                         @if (mapping.edge.leftTargetIdx === -1) {
-                            <div class="d-flex justify-content-between align-items-center">
-                                <app-autocomplete (changed)="valueChanged()"
-                                                  [data]="graphNodeLabels()"
-                                                  [value]="getLabel(mapping.edge.leftTargetField)"
-                                                  (valueChange)="mapping.edge.leftTargetField = replaceLabel(mapping.edge.leftTargetField, $event)"
-                                                  placeholder="label"
-                                                  [disabled]="!isEditable()">
-                                </app-autocomplete>
-                                <input cFormControl sizing="sm" placeholder="property" class="ms-2"
-                                       type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
-                                       [ngModel]="getProperty(mapping.edge.leftTargetField)" (ngModelChange)="mapping.edge.leftTargetField = replaceProperty(mapping.edge.leftTargetField, $event)">
+                            <div class="d-flex align-items-center">
+                                <div class="me-1 flex-grow-1">
+                                    <app-autocomplete (changed)="valueChanged()"
+                                                      [data]="graphLabels()"
+                                                      [value]="getLabel(mapping.edge.leftTargetField)"
+                                                      (valueChange)="mapping.edge.leftTargetField = replaceLabel(mapping.edge.leftTargetField, $event)"
+                                                      placeholder="label"
+                                                      [disabled]="!isEditable()">
+                                    </app-autocomplete>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <app-autocomplete (changed)="valueChanged()"
+                                                      [data]="graphProps()"
+                                                      [value]="getProperty(mapping.edge.leftTargetField)"
+                                                      (valueChange)="mapping.edge.leftTargetField = replaceProperty(mapping.edge.leftTargetField, $event)"
+                                                      placeholder="property"
+                                                      [disabled]="!isEditable()">
+                                    </app-autocomplete>
+                                </div>
                             </div>
                         } @else {
                             <app-autocomplete (changed)="valueChanged()"
@@ -110,22 +120,32 @@
                             <select cSelect id="target-index" [disabled]="!isEditable()" (change)="valueChanged()"
                                     [ngModel]="mapping.edge.rightTargetIdx" (ngModelChange)="mapping.edge.rightTargetIdx = parseInt($event, 10)">
                                 <option [value]="-1" *ngIf="def().canExtendGraph">Existing Graph</option>
-                                <option *ngFor="let s of suggestions(); let targetIdx = index" [value]="targetIdx">{{ targetIdx }}</option>
+                                @for (s of suggestions(); track targetIdx; let targetIdx = $index) {
+                                    <option [value]="targetIdx">{{ targetIdx }}</option>
+                                }
                             </select>
                         </c-input-group>
 
                         @if (mapping.edge.rightTargetIdx === -1) {
                             <div class="d-flex justify-content-between align-items-center">
-                                <app-autocomplete (changed)="valueChanged()"
-                                                  [data]="graphNodeLabels()"
-                                                  [value]="getLabel(mapping.edge.rightTargetField)"
-                                                  (valueChange)="mapping.edge.rightTargetField = replaceLabel(mapping.edge.rightTargetField, $event)"
-                                                  placeholder="label"
-                                                  [disabled]="!isEditable()">
-                                </app-autocomplete>
-                                <input cFormControl sizing="sm" placeholder="property" class="ms-2"
-                                       type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
-                                       [ngModel]="getProperty(mapping.edge.rightTargetField)" (ngModelChange)="mapping.edge.rightTargetField = replaceProperty(mapping.edge.rightTargetField, $event)">
+                                <div class="flex-grow-1 me-1">
+                                    <app-autocomplete (changed)="valueChanged()"
+                                                      [data]="graphLabels()"
+                                                      [value]="getLabel(mapping.edge.rightTargetField)"
+                                                      (valueChange)="mapping.edge.rightTargetField = replaceLabel(mapping.edge.rightTargetField, $event)"
+                                                      placeholder="label"
+                                                      [disabled]="!isEditable()">
+                                    </app-autocomplete>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <app-autocomplete (changed)="valueChanged()"
+                                                      [data]="graphProps()"
+                                                      [value]="getProperty(mapping.edge.rightTargetField)"
+                                                      (valueChange)="mapping.edge.rightTargetField = replaceProperty(mapping.edge.rightTargetField, $event)"
+                                                      placeholder="property"
+                                                      [disabled]="!isEditable()">
+                                    </app-autocomplete>
+                                </div>
                             </div>
                         } @else {
                             <app-autocomplete (changed)="valueChanged()"
@@ -229,22 +249,33 @@
                                                     <select cSelect id="target-index-{{idx}}" [disabled]="!isEditable()" (change)="valueChanged()"
                                                             [ngModel]="edge.rightTargetIdx" (ngModelChange)="edge.rightTargetIdx = parseInt($event, 10)">
                                                         <option [value]="-1" *ngIf="def().canExtendGraph">Existing Graph</option>
-                                                        <option *ngFor="let s of suggestions(); let targetIdx = index" [value]="targetIdx">{{ targetIdx }}</option>
+                                                        @for (s of suggestions(); track targetIdx; let targetIdx = $index) {
+                                                            <option [value]="targetIdx">{{ targetIdx }}</option>
+                                                        }
                                                     </select>
                                                 </c-input-group>
 
                                                 @if (edge.rightTargetIdx === -1) {
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <app-autocomplete (changed)="valueChanged()"
-                                                                          [data]="graphNodeLabels()"
-                                                                          [value]="getLabel(edge.rightTargetField)"
-                                                                          (valueChange)="edge.rightTargetField = replaceLabel(edge.rightTargetField, $event)"
-                                                                          placeholder="label"
-                                                                          [disabled]="!isEditable()">
-                                                        </app-autocomplete>
-                                                        <input cFormControl sizing="sm" placeholder="property" class="ms-2"
-                                                               type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
-                                                               [ngModel]="getProperty(edge.rightTargetField)" (ngModelChange)="edge.rightTargetField = replaceProperty(edge.rightTargetField, $event)">
+                                                    <div class="d-flex align-items-center mb-2">
+
+                                                        <div class="flex-grow-1 me-1">
+                                                            <app-autocomplete (changed)="valueChanged()"
+                                                                              [data]="graphLabels()"
+                                                                              [value]="getLabel(edge.rightTargetField)"
+                                                                              (valueChange)="edge.rightTargetField = replaceLabel(edge.rightTargetField, $event)"
+                                                                              placeholder="label"
+                                                                              [disabled]="!isEditable()">
+                                                            </app-autocomplete>
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <app-autocomplete (changed)="valueChanged()"
+                                                                              [data]="graphProps()"
+                                                                              [value]="getProperty(edge.rightTargetField)"
+                                                                              (valueChange)="edge.rightTargetField = replaceProperty(edge.rightTargetField, $event)"
+                                                                              placeholder="property"
+                                                                              [disabled]="!isEditable()">
+                                                            </app-autocomplete>
+                                                        </div>
                                                     </div>
                                                 } @else {
                                                     <app-autocomplete (changed)="valueChanged()"

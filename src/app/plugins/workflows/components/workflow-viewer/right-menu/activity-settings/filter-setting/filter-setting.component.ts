@@ -1,6 +1,7 @@
 import {Component, computed, EventEmitter, input, model, Output} from '@angular/core';
 import {SettingDefModel} from '../../../../../models/activity-registry.model';
-import {PK_COL, TypePreviewModel} from '../../../../../models/workflows.model';
+import {TypePreviewModel} from '../../../../../models/workflows.model';
+import {getSuggestions} from '../../../workflow';
 
 
 @Component({
@@ -12,7 +13,6 @@ export class FilterSettingComponent {
     isEditable = input.required<boolean>();
     settingDef = input.required<SettingDefModel>();
     inTypePreview = input.required<TypePreviewModel[]>();
-    inSuggestions = input.required<string[][]>();
     value = model.required<any>();
     @Output() hasChanged = new EventEmitter<void>();
 
@@ -20,7 +20,7 @@ export class FilterSettingComponent {
     def = computed(() => this.settingDef() as FilterSettingDef);
     targetPreview = computed(() => this.inTypePreview()[this.def().targetInput]);
     fieldType = computed(() => this.targetPreview()?.portType === 'REL' ? 'column' : 'field');
-    suggestions = computed(() => this.inSuggestions()[this.def().targetInput]?.filter(v => v !== PK_COL) || []);
+    suggestions = computed(() => getSuggestions(this.targetPreview(), 'props'));
     modes = computed(() => this.def().modes.map(m => [m, m.toLowerCase()]));
     opChoices = computed(() => Object.entries(Operator).filter(([key]) => {
         return this.def().operators.includes(key as Operator);

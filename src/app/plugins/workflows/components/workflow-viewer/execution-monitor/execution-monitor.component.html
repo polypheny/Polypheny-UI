@@ -33,6 +33,14 @@
                     <span>{{ monitor().totalDuration }} ms</span>
                 </c-col>
             </c-row>
+            <c-row>
+                <c-col xs="6">
+                    <strong>Tuples Written:</strong>
+                </c-col>
+                <c-col xs="auto">
+                    <span>{{ monitor().tuplesWritten }} ({{ tuplesPerSecond() }} t/s)</span>
+                </c-col>
+            </c-row>
             <c-row *ngIf="monitor().targetActivity">
                 <c-col xs="6">
                     <strong>Target Activity:</strong>

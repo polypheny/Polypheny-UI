@@ -53,6 +53,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     openedActivity: Signal<Activity>;
 
     readonly terminateConfirm = signal(false);
+    private isTerminating = false;
     readonly showSaveModal = signal(false);
     saveMessage = '';
     readonly showVariableModal = signal(false);
@@ -296,9 +297,16 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     }
 
     onTerminateClick() {
+        if (!this.canTerminate) {
+            return;
+        }
         if (!this.terminateConfirm()) {
+            if (this.isTerminating) {
+                this._toast.warn('Termination is already in progress. Repeat the request regardless?');
+            }
             this.terminateConfirm.set(true);
         } else {
+            this.isTerminating = true;
             this.terminate.emit();
         }
     }

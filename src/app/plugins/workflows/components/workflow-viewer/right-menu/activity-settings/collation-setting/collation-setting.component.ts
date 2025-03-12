@@ -2,6 +2,7 @@ import {Component, computed, EventEmitter, input, model, Output} from '@angular/
 import {SettingDefModel} from '../../../../../models/activity-registry.model';
 import {TypePreviewModel} from '../../../../../models/workflows.model';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {getSuggestions} from '../../../workflow';
 
 type Directions = 'ASCENDING' | 'STRICTLY_ASCENDING' | 'DESCENDING' | 'STRICTLY_DESCENDING' | 'CLUSTERED';
 
@@ -21,14 +22,7 @@ export class CollationSettingComponent {
     def = computed(() => this.settingDef() as CollationSettingDef);
     targetPreview = computed(() => this.inTypePreview()[this.def().targetInput]);
     fieldType = computed(() => this.targetPreview().portType === 'REL' ? 'column' : 'field');
-    suggestions = computed(() => {
-        if (this.targetPreview().portType === 'REL') {
-            return this.targetPreview().columns?.map(c => c.name) || [];
-        } else if (this.targetPreview().portType === 'DOC') {
-            return this.targetPreview().fields || [];
-        }
-        return [];
-    });
+    suggestions = computed(() => getSuggestions(this.targetPreview(), 'props'));
 
     readonly dirChoices: Directions[] = ['ASCENDING', 'STRICTLY_ASCENDING', 'DESCENDING', 'STRICTLY_DESCENDING', 'CLUSTERED'];
 

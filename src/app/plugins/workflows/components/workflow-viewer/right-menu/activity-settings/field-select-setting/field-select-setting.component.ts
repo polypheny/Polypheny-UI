@@ -4,6 +4,7 @@ import {PK_COL, TypePreviewModel} from '../../../../../models/workflows.model';
 import {EditorComponent} from '../../../../../../../components/editor/editor.component';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import {ToasterService} from '../../../../../../../components/toast-exposer/toaster.service';
+import {getSuggestions} from '../../../workflow';
 
 @Component({
     selector: 'app-field-select-setting',
@@ -31,17 +32,7 @@ export class FieldSelectSettingComponent {
     addExclude = '';
     addInclude = '';
 
-    fields = computed(() => {
-        const tp = this.targetPreview();
-        if (tp?.portType === 'REL') {
-            return tp.columns?.map(c => c.name).filter(name => name !== PK_COL) || [];
-        } else if (tp?.portType === 'DOC') {
-            return tp.fields || [];
-        } else if (tp?.portType === 'LPG') {
-            return [...(tp.nodeLabels || []), ...(tp.edgeLabels || [])];
-        }
-        return [];
-    });
+    fields = computed(() => getSuggestions(this.targetPreview(), this.def().forLabels ? 'labels' : 'props'));
     notExcludedFields = computed(() => {
         this.changed();
         return this.fields().filter(f => !this.val().exclude.includes(f));
@@ -175,6 +166,7 @@ interface FieldSelectSettingDef extends SettingDefModel {
     reorder: boolean;
     defaultAll: boolean;
     targetInput: number;
+    forLabels: boolean;
 }
 
 interface FieldSelectValue {

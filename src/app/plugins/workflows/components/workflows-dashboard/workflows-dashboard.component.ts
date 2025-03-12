@@ -249,7 +249,7 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
         }
         const file = files[0];
         if (!(this.uploadWorkflowName?.length > 0)) {
-            this.uploadWorkflowName = file.name.endsWith('.json') ? file.name.slice(0, -5) : file.name;
+            this.uploadWorkflowName = file.name.replace(/(_v\d+)?(\.json)?$/, '');
         }
 
         const reader = new FileReader();

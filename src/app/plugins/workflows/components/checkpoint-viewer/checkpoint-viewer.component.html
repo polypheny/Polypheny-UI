@@ -37,8 +37,8 @@
                     <p class="mb-1"><strong>Fields (estimated):</strong> {{ _checkpoint.outPreview().fields | json }}</p>
                 }
                 @case (PortType.LPG) {
-                    <p class="mb-1"><strong>Node Labels (estimated):</strong> {{ _checkpoint.outPreview().nodeLabels | json }}</p>
-                    <p class="mb-1"><strong>Edge Labels (estimated):</strong> {{ _checkpoint.outPreview().edgeLabels | json }}</p>
+                    <p class="mb-1"><strong>Labels (estimated):</strong> {{ _checkpoint.outPreview().labels | json }}</p>
+                    <p class="mb-1"><strong>Properties (estimated):</strong> {{ _checkpoint.outPreview().properties | json }}</p>
                 }
             }
 
