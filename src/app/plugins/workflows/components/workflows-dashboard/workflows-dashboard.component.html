@@ -128,7 +128,8 @@
                                             </c-input-group>
                                         </c-col>
                                         <c-col [md]="'auto'" class="ms-auto">
-                                            <button cButton color="danger" type="button"
+                                            <!--TODO: Remove *ngIf after Evaluation is finished-->
+                                            <button cButton color="danger" type="button" *ngIf="def.def.group !== 'Evaluation'"
                                                     (click)="confirmDelete(def.id)">
                                                 Delete Workflow
                                             </button>
@@ -160,7 +161,7 @@
                                                                 size="sm" color="dark" variant="ghost" cTooltip="Create Copy">
                                                             <span class="fa fa-copy"></span>
                                                         </button>
-                                                        <app-delete-confirm cTooltip="Delete"
+                                                        <app-delete-confirm cTooltip="Delete" *ngIf="version.key !== '0' || def.def.group !== 'Evaluation'"
                                                                             (delete)="deleteVersion(def.id, version.key)"></app-delete-confirm>
                                                     </td>
                                                 </tr>

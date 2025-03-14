@@ -51,7 +51,7 @@ export class JobCreatorService {
         this.jobId = uuid.v4();
         this.type = type;
         this.workflowName = '';
-        this.version = 1;
+        this.version = 0;
         this.enableOnStartup = false;
         this.name = 'New Job';
         this.maxRetries = 0;
@@ -85,6 +85,16 @@ export class JobCreatorService {
 
     close() {
         this.showModal.set(false);
+    }
+
+    changeWorkflowName(name: string) {
+        this.workflowName = name;
+        const def = this.workflowDefs()[this.workflowNamesToId().get(this.workflowName)];
+        if (def) {
+            this.version = Math.max(...Object.keys(def.versions).map(versionId => parseInt(versionId, 10)));
+        } else {
+            this.version = 0;
+        }
     }
 
     isValid(): boolean {
@@ -131,5 +141,4 @@ export class JobCreatorService {
     private updateDefs() {
         this._workflows.getWorkflowDefs().subscribe(defs => this.workflowDefs.set(defs));
     }
-
 }

@@ -13,7 +13,7 @@
 
             <c-input-group class="mb-3">
                 <label cInputGroupText for="job-wf">Workflow</label>
-                <select cSelect id="job-wf" [(ngModel)]="_creator.workflowName" class="w-50">
+                <select cSelect id="job-wf" [ngModel]="_creator.workflowName" (ngModelChange)="_creator.changeWorkflowName($event)" class="w-50">
                     @for (wfName of _creator.workflowNames(); track wfName) {
                         <option [value]="wfName">{{ wfName }}</option>
                     }

@@ -103,7 +103,11 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
 
                 const selectedVersion = {};
                 Object.entries(res).forEach(([key, value]) => {
-                    selectedVersion[key] = Math.max(...Object.keys(value.versions).map(versionId => parseInt(versionId, 10))); // TODO: order by creation date
+                    if (value.group === 'Evaluation') {
+                        selectedVersion[key] = 0; // TODO: remove after evaluation is finished
+                    } else {
+                        selectedVersion[key] = Math.max(...Object.keys(value.versions).map(versionId => parseInt(versionId, 10)));
+                    }
                 });
                 this.selectedVersion = selectedVersion;
             }

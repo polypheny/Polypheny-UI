@@ -33,7 +33,7 @@ export class LeftMenuComponent {
         classes: 'categories-multiselect'
     };
     filterText: string;
-    selectedCategories = []; // TODO: set ESSENTIALS as default category
+    selectedCategories = [];
     filteredList: ActivityDef[];
     showDescription = false;
 
@@ -46,6 +46,10 @@ export class LeftMenuComponent {
                 'id': i,
                 'itemName': category
             });
+        }
+        const defaultCat = this.dropdownCats.find(item => item.itemName === 'ESSENTIALS');
+        if (defaultCat) {
+            this.selectedCategories.push(defaultCat);
         }
 
         for (const type of this.activityTypes) {

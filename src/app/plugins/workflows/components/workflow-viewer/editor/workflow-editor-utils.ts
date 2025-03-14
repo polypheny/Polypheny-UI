@@ -2,7 +2,7 @@ import {NodeEditor} from 'rete';
 import {SocketData} from 'rete-connection-plugin';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Schemes} from './workflow-editor';
-import {EdgeModel} from '../../../models/workflows.model';
+import {EdgeModel, WorkflowState} from '../../../models/workflows.model';
 import {ActivityNode, IN_CONTROL_KEY, SUCCESS_CONTROL_KEY} from './activity/activity.component';
 import {Subject} from 'rxjs';
 import {Item, Items} from 'rete-context-menu-plugin/_types/types';
@@ -10,6 +10,7 @@ import {ContextMenuPlugin} from 'rete-context-menu-plugin';
 import {BaseAreaPlugin} from 'rete-area-plugin';
 import {ActivityPort} from './activity-port/activity-port.component';
 import {Edge} from './edge/edge.component';
+import {Workflow} from '../workflow';
 
 
 export function getMagneticConnectionProps(editor: NodeEditor<Schemes>, createEdgeSubject: Subject<EdgeModel>) {
@@ -69,7 +70,8 @@ export function socketsToEdgeModel(source: SocketData, target: SocketData, edito
     };
 }
 
-export function getContextMenuItems(removeEdgeSubject: Subject<EdgeModel>, removeActivitySubject: Subject<string>, cloneActivitySubject: Subject<string>): Items<Schemes> {
+export function getContextMenuItems(removeEdgeSubject: Subject<EdgeModel>, moveMultiEdgeSubject: Subject<[EdgeModel, number]>,
+                                    removeActivitySubject: Subject<string>, cloneActivitySubject: Subject<string>, workflow: Workflow): Items<Schemes> {
     const items: Item[] = [
         //{label: 'Print Something', key: '0', handler: () => console.log('something was printed')},
     ];
@@ -77,19 +79,20 @@ export function getContextMenuItems(removeEdgeSubject: Subject<EdgeModel>, remov
         const area = plugin.parentScope(BaseAreaPlugin);
         const editor = area.parentScope(NodeEditor);
 
-        if (context === 'root') {
+        if (context === 'root' || workflow.state() !== WorkflowState.IDLE) {
             return {
                 searchBar: false,
                 list: items
             };
         }
 
+        const isEdge = 'source' in context && 'target' in context;
         // TODO: change items depending on workflow state (possibly hide context menu? while executing?)
         const deleteItem: Item = {
             label: 'Delete',
             key: 'delete',
             handler: async () => {
-                if ('source' in context && 'target' in context) {
+                if (isEdge) {
                     // connection
                     removeEdgeSubject.next(context.toModel());
                 } else {
@@ -108,6 +111,28 @@ export function getContextMenuItems(removeEdgeSubject: Subject<EdgeModel>, remov
                 }
             }
         };
+
+        if (isEdge && context.isMulti) {
+            const items = [deleteItem];
+            if (context.multiIdx > 0) {
+                items.push({
+                    label: 'Set as First Edge',
+                    key: 'first',
+                    handler: () => moveMultiEdgeSubject.next([context.toModel(), 0])
+                });
+            }
+            const multiCount = editor.getConnections().filter(
+                c => c.target === context.target && (c as Edge<ActivityNode>).isMulti)
+                .length;
+            if (context.multiIdx + 1 < multiCount) {
+                items.push({
+                    label: 'Set as Last Edge',
+                    key: 'last',
+                    handler: () => moveMultiEdgeSubject.next([context.toModel(), -1])
+                });
+            }
+            return {searchBar: false, list: items};
+        }
 
         return {
             searchBar: false,

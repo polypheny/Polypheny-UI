@@ -157,6 +157,9 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
         this.subscriptions.add(this.editor.onEdgeRemove().subscribe(
             edge => this._websocket.deleteEdge(edge)
         ));
+        this.subscriptions.add(this.editor.onMoveMulti().subscribe(
+            ([edge, targetIndex]) => this._websocket.moveMultiEdge(edge, targetIndex)
+        ));
         this.subscriptions.add(this.editor.onEdgeCreate().subscribe(
             edge => this._websocket.createEdge(edge)
         ));

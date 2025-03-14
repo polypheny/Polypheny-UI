@@ -17,6 +17,7 @@ export enum RequestType { // no specific interfaces for requests are required, s
     CLONE_ACTIVITY = 'CLONE_ACTIVITY',
     CREATE_EDGE = 'CREATE_EDGE',
     DELETE_EDGE = 'DELETE_EDGE',
+    MOVE_MULTI_EDGE = 'MOVE_MULTI_EDGE',
     EXECUTE = 'EXECUTE',
     INTERRUPT = 'INTERRUPT',
     RESET = 'RESET',

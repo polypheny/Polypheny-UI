@@ -75,9 +75,11 @@ export class QueryRequest extends UIRequest {
 
 export class GraphRequest extends QueryRequest {
     type = 'GraphRequest';
+    nodeIds: string[];
 
     constructor(namespace: string, nodeIds: Set<string>, edgeIds: Set<string>) {
         super('MATCH * RETURN *', false, false, 'CYPHER', namespace);
+        this.nodeIds = Array.from(nodeIds);
     }
 }
 

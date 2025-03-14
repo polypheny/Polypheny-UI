@@ -40,6 +40,7 @@ export class WorkflowEditor {
     private readonly removeActivitySubject = new Subject<string>(); // activityId
     private readonly cloneActivitySubject = new Subject<string>(); // activityId
     private readonly removeEdgeSubject = new Subject<EdgeModel>();
+    private readonly moveMultiEdgeSubject = new Subject<[EdgeModel, number]>(); // edge, targetIndex
     private readonly createEdgeSubject = new Subject<EdgeModel>();
     private readonly executeActivitySubject = new Subject<string>(); // activityId
     private readonly resetActivitySubject = new Subject<string>(); // activityId
@@ -173,7 +174,8 @@ export class WorkflowEditor {
             this.area.use(this.connection);  // make connections editable
 
             const contextMenu: ContextMenuPlugin<Schemes> = new ContextMenuPlugin<Schemes>({
-                items: getContextMenuItems(this.removeEdgeSubject, this.removeActivitySubject, this.cloneActivitySubject)
+                items: getContextMenuItems(this.removeEdgeSubject, this.moveMultiEdgeSubject,
+                    this.removeActivitySubject, this.cloneActivitySubject, this.workflow)
             });
 
             this.area.use(contextMenu); // add context menu
@@ -228,6 +230,10 @@ export class WorkflowEditor {
 
     onEdgeRemove() {
         return this.removeEdgeSubject.asObservable();
+    }
+
+    onMoveMulti() {
+        return this.moveMultiEdgeSubject.asObservable();
     }
 
     onEdgeCreate() {
@@ -341,9 +347,9 @@ export class WorkflowEditor {
             if (this.isEditable) {
                 const state = this.workflow.state();
                 if (state !== WorkflowState.IDLE) {
-                    this.readonlyPlugin.enable();
+                    setTimeout(() => this.readonlyPlugin.enable(), 20); // time for multi-edges to appear
                 } else {
-                    this.readonlyPlugin.disable();
+                    setTimeout(() => this.readonlyPlugin.disable(), 20);
                 }
             }
         }, {injector: this.injector});

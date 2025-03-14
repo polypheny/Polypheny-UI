@@ -29,6 +29,11 @@
                 </c-form-check>
             </div>
 
+            @if (filteredList.length === 0 && selectedCategories.length > 0) {
+                <c-alert class="mx-2 mt-2">
+                    Remove filter {{ selectedCategories.length == 1 ? 'category' : 'categories' }} to show more results.
+                </c-alert>
+            }
             <div class="activity-list flex-grow-1" cdkDropList cdkDropListSortingDisabled="true">
                 @if (showDescription) {
                     @for (activity of filteredList; track activity.type) {

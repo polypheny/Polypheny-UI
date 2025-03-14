@@ -50,9 +50,6 @@ export class WorkflowsWebSocketService {
             error: err => {
                 console.log(err);
                 this.connected.set(false);
-                /*setTimeout(() => {
-                    this.initWebSocket();
-                }, +this._settings.getSetting('reconnection.timeout'));*/
             },
             complete: () => {
                 this.connected.set(false);
@@ -143,6 +140,18 @@ export class WorkflowsWebSocketService {
             type: RequestType.DELETE_EDGE,
             msgId: id,
             edge,
+        };
+        this.sendMessage(msg);
+        return id;
+    }
+
+    moveMultiEdge(edge: EdgeModel, targetIndex: number): string {
+        const id = uuid.v4();
+        const msg = {
+            type: RequestType.MOVE_MULTI_EDGE,
+            msgId: id,
+            edge,
+            targetIndex
         };
         this.sendMessage(msg);
         return id;
