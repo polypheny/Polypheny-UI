@@ -104,13 +104,14 @@
                             </ng-template>
                             <ng-template cTemplateId="accordionBodyTemplate">
                                 <div class="accordion-body">
-                                    <c-row class="mb-3">
+                                    <!--TODO: Remove *ngIf after Evaluation is finished-->
+                                    <c-row class="mb-3" *ngIf="def.def.group !== 'Evaluation'">
                                         <c-col [md]="4">
                                             <c-input-group>
                                                 <input cFormControl type="text" #nameInput placeholder="Enter new name">
                                                 <button cButton color="light"
-                                                        (click)="changeName(def.id, nameInput.value)"
-                                                        [disabled]="!nameInput.value">
+                                                        (click)="changeName(def.id, nameInput.value); nameInput.value = ''"
+                                                        [disabled]="!nameInput.value || nameInput.value === def.def.name">
                                                     Change Name
                                                 </button>
                                             </c-input-group>
@@ -121,15 +122,14 @@
                                                 <input cFormControl type="text" #groupInput
                                                        placeholder="Enter new group">
                                                 <button cButton color="light"
-                                                        (click)="changeGroup(def.id, groupInput.value)"
-                                                        [disabled]="!groupInput.value">
+                                                        (click)="changeGroup(def.id, groupInput.value); groupInput.value = ''"
+                                                        [disabled]="groupInput.value === def.def.group">
                                                     Change Group
                                                 </button>
                                             </c-input-group>
                                         </c-col>
                                         <c-col [md]="'auto'" class="ms-auto">
-                                            <!--TODO: Remove *ngIf after Evaluation is finished-->
-                                            <button cButton color="danger" type="button" *ngIf="def.def.group !== 'Evaluation'"
+                                            <button cButton color="danger" type="button"
                                                     (click)="confirmDelete(def.id)">
                                                 Delete Workflow
                                             </button>
@@ -351,8 +351,7 @@
         <button (click)="toggleCopyModal()" cButtonClose></button>
     </c-modal-header>
     <c-modal-body>
-        Create a new Workflow from the specified version.
-        {{ workflowToCopy | json }}
+        Create a new Workflow from the selected version.
         <c-input-group class="mb-3" cCol>
             <span cInputGroupText>Name</span>
             <input cFormControl placeholder="Workflow Name" [(ngModel)]="copyWorkflowName"
