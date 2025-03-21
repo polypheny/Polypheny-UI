@@ -104,7 +104,7 @@ export class GraphMapSettingComponent {
             this.mappings().push({
                 edgeOnly: true, inputIdx,
                 edge: {
-                    dynamicEdgeLabels: false, edgeLabels: ['EDGE'],
+                    dynamicEdgeLabels: false, edgeLabels: [''],
                     leftField: '', leftTargetIdx: 0, leftTargetField: '',
                     rightField: '', rightTargetIdx: 0, rightTargetField: '',
                     invertDirection: false,
@@ -113,7 +113,7 @@ export class GraphMapSettingComponent {
         } else {
             this.mappings().push({
                 edgeOnly: false, inputIdx,
-                dynamicNodeLabels: false, nodeLabels: ['Node'], edges: []
+                dynamicNodeLabels: false, nodeLabels: [''], edges: []
             });
         }
         if (this.remainingInputs().length > 1) {
@@ -134,7 +134,7 @@ export class GraphMapSettingComponent {
 
     addEdge(mapping: InputMapping) {
         mapping.edges.push({
-            dynamicEdgeLabels: false, edgeLabels: ['EDGE'],
+            dynamicEdgeLabels: false, edgeLabels: [''],
             rightField: '', rightTargetIdx: 0, rightTargetField: '',
             invertDirection: false, propertyFields: []
         });

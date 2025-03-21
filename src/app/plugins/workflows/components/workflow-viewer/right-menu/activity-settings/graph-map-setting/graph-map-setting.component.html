@@ -9,9 +9,11 @@
                     </div>
                     Input {{ mapping.inputIdx }} <span class="mx-2 fa fa-long-arrow-right"></span>
                     @if (mapping.edgeOnly) {
-                        Edge ({{ mapping.edge.edgeLabels }})
+                        Edge
+                        <ng-container *ngIf="mapping.edge.edgeLabels[0]?.length > 0">({{ mapping.edge.edgeLabels }})</ng-container>
                     } @else {
-                        Node ({{ mapping.nodeLabels }})
+                        Node
+                        <ng-container *ngIf="mapping.nodeLabels[0]?.length > 0">({{ mapping.nodeLabels }})</ng-container>
                         @if (mapping.edges.length > 0) {
                             with {{ mapping.edges.length }} Edge{{ mapping.edges.length === 1 ? '' : 's' }}
                         }
@@ -33,7 +35,7 @@
                                                   [disabled]="!isEditable()">
                                 </app-autocomplete>
                             } @else {
-                                <input cFormControl sizing="sm" id="edge-labels" placeholder="label1,label2,..."
+                                <input cFormControl sizing="sm" id="edge-labels" placeholder="LABEL1,LABEL2,..."
                                        type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
                                        [ngModel]="mapping.edge.edgeLabels.join(',')" (ngModelChange)="mapping.edge.edgeLabels = $event.split(',')">
                             }
@@ -196,7 +198,7 @@
                                                                           [disabled]="!isEditable()">
                                                         </app-autocomplete>
                                                     } @else {
-                                                        <input cFormControl sizing="sm" id="edge-labels-{{idx}}" placeholder="label1,label2,..."
+                                                        <input cFormControl sizing="sm" id="edge-labels-{{idx}}" placeholder="LABEL1,LABEL2,..."
                                                                type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
                                                                [ngModel]="edge.edgeLabels.join(',')" (ngModelChange)="edge.edgeLabels = $event.split(',')">
                                                     }
