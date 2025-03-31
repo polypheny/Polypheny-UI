@@ -25,6 +25,7 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
     nestedSessionStack = signal<SessionModel[]>([]); // nested sessions are stored in a stack to allow navigating back
     nestedSession = computed(() => this.nestedSessionStack()[this.nestedSessionStack().length - 1]);
     hideNested = false;
+    showEditor = true;
 
     ngOnInit(): void {
         this._sidebar.hide();
@@ -101,6 +102,14 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
             this.hideNested = true;
             setTimeout(() => this.hideNested = false, 10); // destroy and instantiate editor again
         }
+    }
+
+    reloadViewer() {
+        this.showEditor = false;
+        setTimeout(() => {
+            this.showEditor = true;
+            this._toast.info('Completed workflow synchronization');
+        }, 100);
     }
 
     private initMarkdown() {

@@ -1,10 +1,10 @@
-<div *ngIf="isRegistryLoaded()" class="h-100">
+<div *ngIf="isRegistryLoaded() && showEditor" class="h-100">
     @if (nestedSessionStack().length === 0) {
         @switch (session?.type) {
             @case ('USER_SESSION') {
                 <app-workflow-viewer [sessionId]="sessionId" [isEditable]="true" [name]="session.workflowDef.name + ' v' + session.version"
                                      (saveWorkflowEvent)="saveSession($event)" (close)="backToDashboard()" (terminate)="terminateSession()"
-                                     (openNested)="openNestedSession($event)">
+                                     (openNested)="openNestedSession($event)" (reloadViewer)="reloadViewer()">
                 </app-workflow-viewer>
             }
             @case ('API_SESSION') {

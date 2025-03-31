@@ -35,6 +35,7 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @Output() close = new EventEmitter<void>();
     @Output() terminate = new EventEmitter<void>();
     @Output() openNested = new EventEmitter<SessionModel>();
+    @Output() reloadViewer = new EventEmitter<void>();
 
     @ViewChild('rete') container!: ElementRef;
     @ViewChild('leftMenu') leftMenu: RightMenuComponent;
@@ -111,14 +112,6 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     execute() {
         if (!this.openedActivity() || [ActivityState.FINISHED, ActivityState.SAVED].includes(this.openedActivity().state())
             || this.rightMenu.canSafelyNavigate()) {
-            const count = this.workflow.getActivities().filter(a =>
-                a.state() !== ActivityState.FINISHED && a.state() !== ActivityState.SAVED)
-                .length;
-            if (count > 120) {
-                // TODO: remove arbitrary restriction as soon as bug does no longer occur.
-                this._toast.warn('Currently, only a limited number of activities can be executed at once. Until this issue is fixed, please instead execute specific target activities.');
-                return;
-            }
             this._websocket.execute();
         }
     }
@@ -204,6 +197,9 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
                 const activity = this.workflow.getActivity(activityId);
                 this._checkpoint.openCheckpoint(activity, idx, this.isEditable);
             }
+        ));
+        this.subscriptions.add(this.editor.onReloadEditor().subscribe(
+            () => this.reloadViewer.emit()
         ));
         this.subscriptions.add(this.workflow.onActivityDirty().pipe(
             filter(activityId => this.openedActivity()?.id === activityId),

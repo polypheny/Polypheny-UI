@@ -47,7 +47,9 @@ export class WorkflowEditor {
     private readonly openSettingsSubject = new Subject<string>(); // activityId
     private readonly openNestedSubject = new Subject<string>(); // activityId
     private readonly openCheckpointSubject = new Subject<[string, boolean, number]>(); // activityId, isInput, portIdx
+    private readonly reloadEditorSubject = new Subject<void>(); // activityId
     private readonly subscriptions = new Subscription();
+    private checkConnectionsInterval: number;
 
     constructor(private injector: Injector, container: HTMLElement, private readonly isEditable: boolean) {
         this.area = new AreaPlugin<Schemes, AreaExtra>(container);
@@ -240,6 +242,10 @@ export class WorkflowEditor {
         return this.createEdgeSubject.asObservable();
     }
 
+    onReloadEditor() {
+        return this.reloadEditorSubject.asObservable();
+    }
+
     async arrangeNodes() {
         await this.arrange.layout({
             applier: undefined, options: {'elk.layered.spacing.nodeNodeBetweenLayers': '150'}
@@ -271,6 +277,7 @@ export class WorkflowEditor {
         Object.values(this.translateSubjects).forEach((subject) => subject.complete());
         this.area.destroy();
         this.panningBoundary?.destroy();
+        clearInterval(this.checkConnectionsInterval);
     }
 
     private async addNode(activity: Activity) {
@@ -375,5 +382,19 @@ export class WorkflowEditor {
         this.subscriptions.add(this.workflow.onEdgeAdd().subscribe(([edgeModel, state]) => {
             this.addConnection(edgeModel, state);
         }));
+
+        if (this.isEditable) {
+            this.checkConnectionsInterval = setInterval(() => {
+                // Issue: sometimes the connection corresponding to a removed edge cannot be removed from the editor.
+                // Current Solution (not ideal): reload entire editor
+                if (this.editor.getConnections().length > this.workflow.getEdges().length) {
+                    setTimeout(() => { // wait if problem resolves itself
+                        if (this.editor.getConnections().length > this.workflow.getEdges().length) {
+                            this.reloadEditorSubject.next();
+                        }
+                    }, 10);
+                }
+            }, 1000);
+        }
     }
 }
