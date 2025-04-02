@@ -4,6 +4,7 @@ import {DefaultLayoutComponent} from './containers/default-layout';
 import {P404Component} from './views/error/404.component';
 import {P500Component} from './views/error/500.component';
 import {LoginComponent} from './views/login/login.component';
+import {TableSelectionDialogComponent} from './components/table-selection-dialog/table-selection-dialog.component';
 
 
 export const routes: Routes = [
@@ -27,6 +28,13 @@ export const routes: Routes = [
         data: {
             title: 'Login Page'
         }
+    },
+    {
+      path: 'table-selection',
+      component: TableSelectionDialogComponent,
+      data: {
+          title: 'Table Selection'
+      }
     },
     {
         path: '',

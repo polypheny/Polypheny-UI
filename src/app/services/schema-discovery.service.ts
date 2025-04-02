@@ -49,10 +49,10 @@ export class SchemaDiscoveryService {
         this.http.post<DatabaseInfo[]>('http://127.0.0.1:7659/confirm', {})
             .subscribe({
                 next: (data) => {
-                    this.dialog.open(TableSelectionDialogComponent, {
-                        width: '700px',
-                        data: data
-                    });
+                    alert('Nachricht angekommen.');
+                    console.log('Dateien: ', data);
+                    localStorage.setItem('databaseInfo', JSON.stringify(data));
+                    window.open('/#/table-selection', 'popup', 'width=1000, height=700');
                 },
                 error: (err) => {
                     console.error('Fehler beim Abrufen der Datenbankstruktur:', err);
