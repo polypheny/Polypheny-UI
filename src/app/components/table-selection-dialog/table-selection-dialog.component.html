@@ -1,0 +1,38 @@
+<h2 mat-dialog-title>Tabellen auswählen</h2>
+
+<mat-dialog-content>
+  <div *ngFor="let db of data">
+    <h3>📦 {{ db.name }}</h3>
+    <div *ngFor="let schema of db.schemas">
+      <h4>📁 {{ schema.name }}</h4>
+
+      <ul>
+        <li *ngFor="let table of schema.tables">
+          <label>
+            <!-- <input type="checkbox" [(ngModel)]="table.selected" /> -->
+            📄 {{ table.name }}
+          </label>
+
+          <ul>
+            <li *ngFor="let attr of table.attributes">
+                <label>
+                <input type="checkbox"  [(ngModel)]="table.selected"/>
+              🔹 {{ attr.name }} : {{ attr.type }}
+                </label>
+            </li>
+          </ul>
+        </li>i
+      </ul>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<h3>✅ Ausgewählte Tabellen:</h3>
+<ul>
+  <li *ngFor="let table of getSelectedTables()">{{ table }}</li>
+</ul>
+
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Schließen</button>
+</mat-dialog-actions>

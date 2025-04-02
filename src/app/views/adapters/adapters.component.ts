@@ -32,6 +32,7 @@ import {
     DeployMode
 } from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
+import {SchemaDiscoveryService} from '../../services/schema-discovery.service';
 
 @Component({
     selector: 'app-adapters',
@@ -48,7 +49,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     private readonly _catalog = inject(CatalogService);
     private readonly _left = inject(LeftSidebarService);
 
-    constructor(private injector: Injector) {
+    constructor(private injector: Injector,
+                private schemaDiscoveryService: SchemaDiscoveryService) {
         this.availableAdapters = computed(() => {
             return this._catalog.getAdapterTemplates().filter(a => a.adapterType === this.getMatchingAdapterType());
         });
@@ -512,6 +514,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             default:
                 return 'fa fa-database';
         }
+    }
+
+    openTableDialog(): void {
+        this.schemaDiscoveryService.openTableDialog();
     }
 
     private validateControl(form: UntypedFormControl, key: string) {
