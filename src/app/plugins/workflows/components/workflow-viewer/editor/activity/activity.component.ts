@@ -161,8 +161,8 @@ export class ActivityNode extends ClassicPreset.Node {
     readonly controlOutputs: { [key: string]: ClassicPreset.Output<ActivityPort> };
     readonly dataOutputs: { [key: string]: ClassicPreset.Output<ActivityPort> } = {};
 
-    canExecute = computed(() => this.state() === 'IDLE' && this.workflowState() === 'IDLE');
-    canReset = computed(() => this.state() !== 'IDLE' && this.workflowState() === 'IDLE');
+    canExecute = computed(() => this.isEditable && this.state() === 'IDLE' && this.workflowState() === 'IDLE');
+    canReset = computed(() => this.isEditable && this.state() !== 'IDLE' && this.workflowState() === 'IDLE');
     canOpenCheckpoint = computed(() => this.state() === 'FINISHED' || this.state() === 'SAVED');
     inPortTypes = computed(() => this.activity.inTypePreview().map(p => p.portType));
     outPortTypes = computed(() => this.activity.outTypePreview().map(p => p.portType));
@@ -183,7 +183,8 @@ export class ActivityNode extends ClassicPreset.Node {
         public readonly resetActivitySubject: Subject<string>,
         public readonly openSettingsSubject: Subject<string>,
         public readonly openNestedSubject: Subject<string>,
-        public readonly openCheckpointSubject: Subject<[string, boolean, number]>
+        public readonly openCheckpointSubject: Subject<[string, boolean, number]>,
+        public readonly isEditable: boolean, // whether workflow is editable
     ) {
         super(activity.displayName());
         // control ports

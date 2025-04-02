@@ -283,7 +283,7 @@ export class WorkflowEditor {
     private async addNode(activity: Activity) {
         const node = new ActivityNode(activity, this.workflow.state,
             this.executeActivitySubject, this.resetActivitySubject,
-            this.openSettingsSubject, this.openNestedSubject, this.openCheckpointSubject);
+            this.openSettingsSubject, this.openNestedSubject, this.openCheckpointSubject, this.isEditable);
         this.nodeMap.set(activity.id, node);
         this.nodeIdToActivityId.set(node.id, activity.id);
         const translateSubject = new Subject<Position>();
