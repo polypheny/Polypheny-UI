@@ -35,8 +35,8 @@
                     <td><strong>{{ adapter.adapterName }}</strong></td>
                     <td>{{ adapter.description }}</td>
                     <td class="center">
-                        <button cButton size="sm" color="primary" (click)="openTableDialog()">Deploy</button>
-                        <!--  initDeployModal(adapter) -->
+                        <button cButton size="sm" color="primary" (click)="openTableDialog() ">Deploy</button>
+                        <!--  initDeployModal(adapter) openTableDialog() -->
                     </td>
                 </tr>
                 </tbody>
@@ -274,6 +274,7 @@
                     [disabled]="!editingAdapterForm?.valid">
                 Save
             </button>
+            <!-- TODO: Changing code here to insert table-selection window.  openTableDialog()-->
             <button cButton color="primary" *ngIf="activeMode() && !handshaking && adapter().task != Task.CHANGE"
                     type="submit" (click)="deploy()"
                     [disabled]="!editingAvailableAdapterForm?.valid || deploying || handshaking">

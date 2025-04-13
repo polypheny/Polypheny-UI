@@ -6,7 +6,6 @@ export interface DatabaseInfo {
 export interface TableInfo {
     name: string;
     attributes: AttributeInfo[];
-    selected?: boolean;
 }
 
 export interface SchemaInfo {
@@ -17,4 +16,6 @@ export interface SchemaInfo {
 export interface AttributeInfo {
     name: String;
     type: String;
+    sampleValues?: string[];
+    selected?: boolean;
 }

@@ -1,34 +1,41 @@
 <h2>Tabellen auswählen</h2>
 
 
-  <div *ngFor="let db of data">
+<div *ngFor="let db of data">
     <h3>📦 {{ db.name }}</h3>
     <div *ngFor="let schema of db.schemas">
-      <h4>📁 {{ schema.name }}</h4>
+        <h4>📁 {{ schema.name }}</h4>
 
-      <ul>
-        <li *ngFor="let table of schema.tables">
-          <label>
-            <input type="checkbox" [(ngModel)]="table.selected" />
-            📄 {{ table.name }}
-          </label>
+        <ul>
+            <li *ngFor="let table of schema.tables">
+                <label>
+                    📄 {{ table.name }}
+                </label>
 
-          <ul>
-            <li *ngFor="let attr of table.attributes">
-              🔹 {{ attr.name }} : {{ attr.type }}
-            </li>
-          </ul>
-        </li>
-      </ul>
+                <ul>
+                    <li *ngFor="let attr of table.attributes">
+                        <label>
+                            <input type="checkbox" [(ngModel)]="attr.selected" />
+                            <span>🔹 {{ attr.name }} : {{ attr.type }}</span>
+                        </label>
+                        <ul *ngIf="attr.sampleValues && attr.sampleValues.length > 0">
+                            <li *ngFor="let val of attr.sampleValues">
+                                <span style="font-size: smaller; color: gray">→ {{ val }}</span>
+                            </li>
+                        </ul>
+
+                    </li>
+                </ul>
+        </ul>
     </div>
-  </div>
+</div>
 
 <h3>✅ Ausgewählte Tabellen:</h3>
 <ul>
-  <li *ngFor="let table of getSelectedTables()">{{ table }}</li>
+    <li *ngFor="let attr of getSelectedAttributes()">{{ attr }}</li>
 </ul>
 
 
 <div style="text-align: right; margin-top: 1rem">
-  <button (click)="close()">Schließen</button>
+    <button (click)="close()">Schließen</button>
 </div>
