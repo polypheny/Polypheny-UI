@@ -5,7 +5,25 @@ import {EntityMeta, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, 
     RelationalResult
 } from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DataModel, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, StatisticRequest} from '../models/ui-request.model';
+import {
+    ColumnRequest,
+    ConstraintRequest,
+    DataModel,
+    DeleteRequest,
+    EditCollectionRequest,
+    EditTableRequest,
+    EntityRequest,
+    ExploreTable,
+    GraphRequest,
+    MaterializedRequest,
+    Method,
+    MonitoringRequest,
+    Namespace,
+    PolyAlgRequest,
+    PreviewRequest,
+    QueryRequest,
+    StatisticRequest
+} from '../models/ui-request.model';
 import {AutoDockerResult, AutoDockerStatus, CreateDockerResponse,
     DockerInstanceInfo,
     DockerSettings,
@@ -255,6 +273,14 @@ export class CrudService {
      */
     dropConstraint(request: ConstraintRequest) {
         return this._http.post(`${this.httpUrl}/dropConstraint`, request, this.httpOptions);
+    }
+
+    /**
+     * Get the preview for an adapter.
+     */
+    previewTable(request: PreviewRequest) {
+        return this._http.post(`${this.httpUrl}/previewTable`, request, this.httpOptions);
+        alert('Methode wird aufgerufen');
     }
 
     /**

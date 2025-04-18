@@ -7,6 +7,8 @@ import {DatabaseInfo, TableInfo} from '../models/databaseInfo.model';
 import {FormsModule} from '@angular/forms';
 import {TableSelectionDialogComponent} from '../components/table-selection-dialog/table-selection-dialog.component';
 import {MatDialog} from '@angular/material/dialog';
+import {PreviewRequest} from '../models/ui-request.model';
+import {WebSocket} from './webSocket';
 
 @Injectable({
     providedIn: 'root'
@@ -23,29 +25,7 @@ export class SchemaDiscoveryService {
         this.message = 'Button geklickt !!!';
     }
 
-
-    sendRequest(): void {
-        this.http.post<DatabaseInfo[]>('http://127.0.0.1:7659/confirm', {})
-            .subscribe({
-                next: (response) => {
-                    this.databaseList = response;
-                    console.log('Halter Datei: ', this.databaseList);
-                    for (const db of response) {
-                        this.message += `Datenbank: ${db.name}\n`;
-                        for (const schema of db.schemas) {
-                            this.message += `Schema: ${schema}\n`;
-                        }
-                    }
-                    alert('Nachricht angekommen.');
-                },
-                error: (err) => {
-                    console.log('Fehler beim Aufrufen der Daten:', err);
-                    alert('Nachricht nicht angekommen !!!');
-                }
-            });
-    }
-
-    openTableDialog(): void {
+    openTableDialogs(): void {
         this.http.post<DatabaseInfo[]>('http://127.0.0.1:7659/confirm', {})
             .subscribe({
                 next: (data) => {
@@ -59,5 +39,9 @@ export class SchemaDiscoveryService {
                     alert('Nachricht nicht angekommen !!!');
                 }
             });
+    }
+
+    openTableDialog(): void {
+
     }
 }

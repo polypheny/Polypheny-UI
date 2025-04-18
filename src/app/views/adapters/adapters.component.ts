@@ -24,6 +24,7 @@ import {
     Validators
 } from '@angular/forms';
 import {PathAccessRequest, RelationalResult} from '../../components/data-view/models/result-set.model';
+import {PreviewRequest} from '../../models/ui-request.model';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
 import {
@@ -517,7 +518,20 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
 
     openTableDialog(): void {
-        this.schemaDiscoveryService.openTableDialog();
+        // this.schemaDiscoveryService.openTableDialog();
+        // this._crud.previewTable(new PreviewRequest());
+        this._crud.previewTable(new PreviewRequest()).subscribe( {
+            next: (result: RelationalResult) => {
+                if (!result.error) {
+                    this._toast.success('Previewed "' + result.query + '"', result.query);
+                } else {
+                    this._toast.exception(result);
+                }
+            }, error: err => {
+                this._toast.error('Could not preview table', 'server error');
+                console.log(err);
+            }
+        });
     }
 
     private validateControl(form: UntypedFormControl, key: string) {

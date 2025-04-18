@@ -1,7 +1,9 @@
-import {Component, Inject} from '@angular/core';
+import {Component, inject, Inject} from '@angular/core';
 import {DatabaseInfo, TableInfo} from '../../models/databaseInfo.model';
 import {FormsModule} from '@angular/forms';
 import {NgForOf, NgIf} from '@angular/common';
+import {CrudService} from '../../services/crud.service';
+import {PreviewRequest} from '../../models/ui-request.model';
 
 @Component({
     selector: 'app-table-selection-dialog',
@@ -15,6 +17,7 @@ import {NgForOf, NgIf} from '@angular/common';
     styleUrl: './table-selection-dialog.component.scss'
 })
 export class TableSelectionDialogComponent {
+    public readonly _crud = inject(CrudService);
     constructor() {
     }
 
@@ -26,7 +29,7 @@ export class TableSelectionDialogComponent {
     }
 
     ngOnInit(): void {
-        const raw: string = localStorage.getItem('databaseInfo');
+        /*const raw: string = localStorage.getItem('databaseInfo');
         if (raw) {
             this.data = JSON.parse(raw);
 
@@ -42,11 +45,11 @@ export class TableSelectionDialogComponent {
                     }
                 }
             }
-        }
+        }*/
     }
 
 
-    getSelectedAttributes(): string[] {
+    /*getSelectedAttributes(): string[] {
         const selected: string[] = [];
 
         for (const db of this.data) {
@@ -62,6 +65,6 @@ export class TableSelectionDialogComponent {
         }
 
         return selected;
-    }
+    }*/
 
 }

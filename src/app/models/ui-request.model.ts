@@ -211,6 +211,21 @@ export class EditCollectionRequest {
 }
 
 /**
+ * Request for dealing with the data preview while deploying an adapter.
+ */
+export class PreviewRequest extends RequestModel{
+    type = 'PreviewRequest';
+    source: string;
+    payload: string;
+
+    constructor(source: string = '', payload: string = '') {
+        super();
+        this.source = source;
+        this.payload = payload;
+    }
+}
+
+/**
  * Request to drop or create a constraint of a table
  */
 export class ConstraintRequest {
