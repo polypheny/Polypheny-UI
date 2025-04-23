@@ -23,7 +23,7 @@ import {
     ValidatorFn,
     Validators
 } from '@angular/forms';
-import {PathAccessRequest, RelationalResult} from '../../components/data-view/models/result-set.model';
+import {PathAccessRequest, PreviewResult, RelationalResult} from '../../components/data-view/models/result-set.model';
 import {PreviewRequest} from '../../models/ui-request.model';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
@@ -518,15 +518,28 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
 
     openTableDialog(): void {
+        alert('Open table dialog');
         // this.schemaDiscoveryService.openTableDialog();
         // this._crud.previewTable(new PreviewRequest());
-        this._crud.previewTable(new PreviewRequest()).subscribe( {
-            next: (result: RelationalResult) => {
-                if (!result.error) {
-                    this._toast.success('Previewed "' + result.query + '"', result.query);
-                } else {
-                    this._toast.exception(result);
-                }
+        this._crud.previewTable(new PreviewRequest(
+            'PostgreSQL',
+            'SOURCE',
+            {
+                host: 'localhost',
+                port: '5432',
+                database: 'postgres',
+                username: 'postgres',
+                password: 'password',
+                tables: 'public.testtable',
+                maxConnections: '1',
+                transactionIsolation: 'SERIALIZABLE'
+            },
+            10
+        )).subscribe( {
+            next: (result: PreviewResult) => {
+                console.log('Metadata', result.metadata);
+                console.log('Preview Rows', result.preview);
+                this._toast.success('Preview erfolgreich geladen');
             }, error: err => {
                 this._toast.error('Could not preview table', 'server error');
                 console.log(err);

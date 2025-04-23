@@ -81,6 +81,15 @@ export class DashboardSet {
 }
 
 /**
+ * model for handling preview data
+ */
+export class PreviewResult {
+    metadata: any;
+    preview: any[];
+}
+
+
+/**
  * model for statistics coming from the server
  */
 export class StatisticSet {

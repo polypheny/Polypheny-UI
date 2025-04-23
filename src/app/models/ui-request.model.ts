@@ -211,17 +211,19 @@ export class EditCollectionRequest {
 }
 
 /**
- * Request for dealing with the data preview while deploying an adapter.
+ * Request for dealing with the data preview before deploying an adapter.
  */
-export class PreviewRequest extends RequestModel{
-    type = 'PreviewRequest';
-    source: string;
-    payload: string;
+export class PreviewRequest {
+    adapterName: string;
+    adapterType: string;
+    settings: { [key: string]: string };
+    limit: number;
 
-    constructor(source: string = '', payload: string = '') {
-        super();
-        this.source = source;
-        this.payload = payload;
+    constructor(adapterName: string, adapterType: string, settings: { [key: string]: string }, limit: number) {
+        this.adapterName = adapterName;
+        this.adapterType = adapterType;
+        this.settings = settings;
+        this.limit = limit;
     }
 }
 
