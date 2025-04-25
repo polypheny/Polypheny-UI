@@ -23,7 +23,12 @@ import {
     ValidatorFn,
     Validators
 } from '@angular/forms';
-import {PathAccessRequest, PreviewResult, RelationalResult} from '../../components/data-view/models/result-set.model';
+import {
+    PathAccessRequest,
+    PreviewResult,
+    RelationalResult,
+    Node
+} from '../../components/data-view/models/result-set.model';
 import {PreviewRequest} from '../../models/ui-request.model';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
@@ -288,7 +293,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         for (let file of files) {
             fileNames.push(file.name);
             this.files.set(file.name, file);
-            setting.template.fileNames.push(file.name)
+            setting.template.fileNames.push(file.name);
         }
 
     }
@@ -353,7 +358,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 setting.current = null;
             }
 
-            if (setting.template.type.toLowerCase() === "directory") {
+            if (setting.template.type.toLowerCase() === 'directory') {
                 const fileNames = [];
 
                 for (let fileName of setting.template.fileNames) {
@@ -410,7 +415,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
 
     private startDeploying(deploy: AdapterModel, formdata: FormData) {
-        console.log(deploy)
+        console.log(deploy);
         this.deploying = true;
         this._crud.createAdapter(deploy, formdata).subscribe({
             next: (result: RelationalResult) => {
@@ -535,11 +540,20 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 transactionIsolation: 'SERIALIZABLE'
             },
             10
-        )).subscribe( {
+        )).subscribe({
             next: (result: PreviewResult) => {
-                console.log('Metadata', result.metadata);
-                console.log('Preview Rows', result.preview);
-                this._toast.success('Preview erfolgreich geladen');
+                try {
+                    localStorage.setItem('metaRoot', result.metadata);
+                    localStorage.setItem('preview', JSON.stringify(result.preview));
+
+                    window.open('/#/table-selection',
+                        'popup',
+                        'width=1000,height=700');
+
+                    this._toast.success('Preview erfolgreich geladen');
+                } catch (e) {
+                    console.error('Fail to parse data: ', e);
+                }
             }, error: err => {
                 this._toast.error('Could not preview table', 'server error');
                 console.log(err);

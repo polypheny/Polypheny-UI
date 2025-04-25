@@ -23,7 +23,9 @@
                                 <span style="font-size: smaller; color: gray">→ {{ val }}</span>
                             </li>
                         </ul>
-
+                        <ul>
+                            <li *ngFor="let meta of selectedMetadata">{{ meta }}</li>
+                        </ul>
                     </li>
                 </ul>
         </ul>
@@ -32,4 +34,5 @@
 
 <div style="text-align: right; margin-top: 1rem">
     <button (click)="close()">Schließen</button>
+    <button (click)="showSelectedMetadata()">Ausgewählte anzeigen</button>
 </div>

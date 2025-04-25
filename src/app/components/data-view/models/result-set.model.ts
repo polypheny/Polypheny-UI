@@ -84,7 +84,7 @@ export class DashboardSet {
  * model for handling preview data
  */
 export class PreviewResult {
-    metadata: any;
+    metadata: string;
     preview: any[];
 }
 
@@ -391,6 +391,13 @@ export class PartitionFunctionColumn {
     modifiable: boolean;
     value: string;
     options: string[];
+}
+
+export interface Node {
+    type: string;
+    name: string;
+    children: Node[];
+    properties: { [key: string]: any };
 }
 
 /**
