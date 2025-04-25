@@ -76,7 +76,8 @@
                     </div>
                     <button cButton color="light" class="px-1 py-0" (click)="data.openCheckpoint(true, input.key)"
                             (pointerdown)="$event.stopPropagation()" [disabled]="true">
-                        <!--TODO: enable only if predecessor is finished or saved-->
+                        <!--The button is currently always disabled, since it might give the wrong impression that the checkpoint belongs to this activity.
+                            To enable it correctly, the state of the predecessor activity would have to be saved or finished.-->
                         <span class="text-dark" [ngClass]="inIcons[input.key]?.()"></span>
                     </button>
                 </div>

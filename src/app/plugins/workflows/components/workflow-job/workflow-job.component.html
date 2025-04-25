@@ -183,3 +183,19 @@
         <button (click)="showVariablesModal.set(false)" cButton color="secondary">Close</button>
     </c-modal-footer>
 </c-modal>
+
+<c-modal [visible]="showDisableModal()" (visibleChange)="showDisableModal.set($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Disable Job</h5>
+        <button (click)="showDisableModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        Do you really want to disable this Job? The action will reset the execution history.
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="showDisableModal.set(false)" cButton color="secondary">Close</button>
+        <div>
+            <button cButton color="danger" (click)="disableJob()">Disable Job</button>
+        </div>
+    </c-modal-footer>
+</c-modal>

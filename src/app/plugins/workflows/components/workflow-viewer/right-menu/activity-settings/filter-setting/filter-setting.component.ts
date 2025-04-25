@@ -59,10 +59,10 @@ export enum Operator {
     NON_NULL = 'Is Not Null',
     INCLUDED = 'In',
     NOT_INCLUDED = 'Not In',
+    IS_ARRAY = 'Is Array',
     CONTAINS = 'Contains',
     NOT_CONTAINS = 'Does Not Contain',
     HAS_KEY = 'Has Key',
-    IS_ARRAY = 'Is Array',
     IS_OBJECT = 'Is Document'
 }
 

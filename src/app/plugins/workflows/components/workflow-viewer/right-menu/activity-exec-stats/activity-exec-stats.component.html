@@ -60,7 +60,7 @@
                     @for (duration of orderedDurations(); track duration[0]) {
                         <tr>
                             <th scope="row">{{ duration[0] }}</th>
-                            <td>{{ duration[1] }}</td>
+                            <td>{{ duration[1] | number:'1.2-2' }}</td>
                         </tr>
                     }
                 </tbody>

@@ -35,9 +35,11 @@ export class ActivitySettingsComponent implements OnInit {
     readonly visibleSettings = new Set<string>();
     readonly visibleSubgroups = new Set<string>();
     readonly variablesVisibilityMap = new Map<string, WritableSignal<boolean>>();
-    showDescription = false;
+    showDescription: boolean;
 
     constructor(private readonly _websocket: WorkflowsWebSocketService, private readonly _toast: ToasterService) {
+        const showDescStr = localStorage.getItem('workflows.showSettingsDescription');
+        this.setShowDescription(showDescStr === null ? true : showDescStr === 'true');
         effect(() => this.activeSettingGroup.set(this.activity().def.getFirstGroup()), {allowSignalWrites: true});
 
         // if activity or settings (externally) changes, also update serialized edited settings.
@@ -109,6 +111,11 @@ export class ActivitySettingsComponent implements OnInit {
     resetSettings() {
         this.resetSettingsSignal.set(false);
         this.resetSettingsSignal.set(true);
+    }
+
+    setShowDescription(value: boolean) {
+        this.showDescription = value;
+        localStorage.setItem('workflows.showSettingsDescription', value.toString());
     }
 
     private prefixWithSlash(str: string): string {

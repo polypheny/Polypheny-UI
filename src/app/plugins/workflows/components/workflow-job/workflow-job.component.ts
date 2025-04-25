@@ -21,6 +21,7 @@ export class WorkflowJobComponent implements OnInit, OnDestroy {
     private readonly _workflows = inject(WorkflowsService);
     readonly _creator = inject(JobCreatorService);
     private readonly subscriptions = new Subscription();
+    private readonly REFRESH_INTERVAL_MS = 5000;
 
     protected readonly JobResult = JobResult;
     protected readonly Object = Object;
@@ -33,6 +34,7 @@ export class WorkflowJobComponent implements OnInit, OnDestroy {
     workflow = signal<Workflow>(null);
     deleteConfirm = signal(false);
     showVariablesModal = signal(false);
+    showDisableModal = signal(false);
     selectedVariablesStr: string;
     private interval: number;
 
@@ -69,11 +71,11 @@ export class WorkflowJobComponent implements OnInit, OnDestroy {
         });
         this.jobId.set(this._route.snapshot.paramMap.get('jobId'));
 
-        this.interval = setInterval(() => this.updateSession(), 10000);
+        this.interval = setInterval(() => this.updateSession(), this.REFRESH_INTERVAL_MS);
     }
 
     backToDashboard() {
-        this._router.navigate(['/views/workflows/jobs']); // TODO: job page
+        this._router.navigate(['/views/workflows/jobs']);
     }
 
     enableJob() {
@@ -90,11 +92,16 @@ export class WorkflowJobComponent implements OnInit, OnDestroy {
         if (!this.isEnabled()) {
             return;
         }
+        if (!this.showDisableModal() && this.session().executionHistory.length > 0) {
+            this.showDisableModal.set(true);
+            return;
+        }
+
+        this.showDisableModal.set(false);
         this._workflows.disableJob(this.jobId()).subscribe({
             next: () => this.job.update(job => ({...job, sessionId: null})),
             error: err => this._toast.error(err.error)
         });
-
     }
 
     executeJob() {

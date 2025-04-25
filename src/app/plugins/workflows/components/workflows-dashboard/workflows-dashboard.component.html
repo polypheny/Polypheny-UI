@@ -104,8 +104,7 @@
                             </ng-template>
                             <ng-template cTemplateId="accordionBodyTemplate">
                                 <div class="accordion-body">
-                                    <!--TODO: Remove *ngIf after Evaluation is finished-->
-                                    <c-row class="mb-3" *ngIf="def.def.group !== 'Evaluation'">
+                                    <c-row class="mb-3">
                                         <c-col [md]="4">
                                             <c-input-group>
                                                 <input cFormControl type="text" #nameInput placeholder="Enter new name">
@@ -161,7 +160,7 @@
                                                                 size="sm" color="dark" variant="ghost" cTooltip="Create Copy">
                                                             <span class="fa fa-copy"></span>
                                                         </button>
-                                                        <app-delete-confirm cTooltip="Delete" *ngIf="version.key !== '0' || def.def.group !== 'Evaluation'"
+                                                        <app-delete-confirm cTooltip="Delete" *ngIf="Object.keys(def.def.versions).length > 1"
                                                                             (delete)="deleteVersion(def.id, version.key)"></app-delete-confirm>
                                                     </td>
                                                 </tr>
@@ -199,8 +198,8 @@
                 </ng-template>
 
                 <ng-template cTemplateId="accordionBodyTemplate">
-                    <div class="mx-3 my-3">
-                        <c-alert color="success" class="mb-2">
+                    <div class="mx-2 my-2">
+                        <c-alert color="success" class="mb-2 p-2">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="me-3 d-flex align-items-center">
                                     <h4 class="me-3 mb-0">
@@ -211,7 +210,7 @@
                                 <span>Submit a <code>workflow.json</code> to create a new session</span>
                             </div>
                         </c-alert>
-                        <c-alert color="success" class="mb-2">
+                        <c-alert color="success" class="mb-2 p-2">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="me-3 d-flex align-items-center">
                                     <h4 class="me-3 mb-0">
@@ -222,7 +221,18 @@
                                 <span>Execute the workflow</span>
                             </div>
                         </c-alert>
-                        <c-alert color="primary" class="mb-2">
+                        <c-alert color="success" class="mb-2 p-2">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="me-3 d-flex align-items-center">
+                                    <h4 class="me-3 mb-0">
+                                        <span class="badge bg-success">POST</span>
+                                    </h4>
+                                    <strong>/sessions/&#123;sessionId&#125;/reset</strong>
+                                </div>
+                                <span>Reset workflow execution</span>
+                            </div>
+                        </c-alert>
+                        <c-alert color="primary" class="mb-2 p-2">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="me-3 d-flex align-items-center">
                                     <h4 class="me-3 mb-0">
@@ -233,7 +243,7 @@
                                 <span>Get the execution state</span>
                             </div>
                         </c-alert>
-                        <c-alert color="primary" class="mb-2">
+                        <c-alert color="primary" class="mb-2 p-2">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="me-3 d-flex align-items-center">
                                     <h4 class="me-3 mb-0">
@@ -244,7 +254,7 @@
                                 <span>Get workflow execution statistics</span>
                             </div>
                         </c-alert>
-                        <c-alert color="primary" class="mb-2">
+                        <c-alert color="primary" class="mb-2 p-2">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="me-3 d-flex align-items-center">
                                     <h4 class="me-3 mb-0">
@@ -255,7 +265,18 @@
                                 <span>Get execution statistics for the specified activity</span>
                             </div>
                         </c-alert>
-                        <c-alert color="danger">
+                        <c-alert color="primary" class="mb-2 p-2">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="me-3 d-flex align-items-center">
+                                    <h4 class="me-3 mb-0">
+                                        <span class="badge bg-primary">GET</span>
+                                    </h4>
+                                    <strong>/sessions/&#123;sessionId&#125;/workflow/&#123;activityId&#125;/&#123;outIdx&#125;</strong>
+                                </div>
+                                <span>Get a result preview for the specified output and activity</span>
+                            </div>
+                        </c-alert>
+                        <c-alert color="danger" class="mb-0 p-2">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="me-3 d-flex align-items-center">
                                     <h4 class="me-3 mb-0">

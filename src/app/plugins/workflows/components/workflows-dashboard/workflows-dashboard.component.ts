@@ -45,6 +45,8 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     copyWorkflowName = '';
     copyWorkflowGroup = '';
 
+    protected readonly Object = Object;
+
     constructor() {
         effect(() => {
             if (this.route()) {
@@ -103,11 +105,7 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
 
                 const selectedVersion = {};
                 Object.entries(res).forEach(([key, value]) => {
-                    if (value.group === 'Evaluation') {
-                        selectedVersion[key] = 0; // TODO: remove after evaluation is finished
-                    } else {
-                        selectedVersion[key] = Math.max(...Object.keys(value.versions).map(versionId => parseInt(versionId, 10)));
-                    }
+                    selectedVersion[key] = Math.max(...Object.keys(value.versions).map(versionId => parseInt(versionId, 10)));
                 });
                 this.selectedVersion = selectedVersion;
             }

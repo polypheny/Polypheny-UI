@@ -248,7 +248,7 @@ export class WorkflowEditor {
 
     async arrangeNodes() {
         await this.arrange.layout({
-            applier: undefined, options: {'elk.layered.spacing.nodeNodeBetweenLayers': '150'}
+            applier: undefined, options: {'elk.layered.spacing.nodeNodeBetweenLayers': '100'}
         });
     }
 

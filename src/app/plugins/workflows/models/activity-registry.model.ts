@@ -251,7 +251,7 @@ export interface SubgroupDefModel {
 }
 
 export enum SettingType {
-    // TODO: update when a new settingType is added
+    // update when a new settingType is added
     STRING = 'STRING',
     INT = 'INT',
     ENTITY = 'ENTITY',

@@ -441,7 +441,6 @@ export class Settings {
     }
 
     get(key: string): Setting | undefined {
-        //console.log('getting Setting', key, this.settings); // TODO: reduce calls
         return this.settings.get(key);
     }
 
@@ -519,7 +518,7 @@ export class Setting {
             if (ref.target.length <= 1) {
                 copy = refObject; // setting the root
             } else {
-                JsonPointer.set(copy, ref.target, refObject); // TODO: try catch?
+                JsonPointer.set(copy, ref.target, refObject);
             }
         }
         return copy;
@@ -557,7 +556,6 @@ export class Setting {
 
         const slashCount = (target.match(/\//g) || []).length;
 
-        // TODO: test if this works
         return JsonPointer.has(this.value, target) || (
             slashCount > 1 &&
             JsonPointer.has(this.value, target.substring(0, target.lastIndexOf('/')))

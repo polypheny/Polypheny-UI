@@ -27,7 +27,7 @@
                 <div class="ms-3" [ngClass]="{'ms-auto': activity().def.nonEmptyGroupCount <= 1}">
                     <span class="fa fa-lg text-secondary show-description-button" title="Toggle Setting Descriptions"
                           [ngClass]="showDescription ? 'fa-question-circle' : 'fa-question-circle-o'"
-                          (click)="showDescription = !showDescription"
+                          (click)="setShowDescription(!showDescription)"
                     ></span>
                 </div>
 

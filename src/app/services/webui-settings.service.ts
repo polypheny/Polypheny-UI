@@ -15,7 +15,7 @@ export class WebuiSettingsService {
 
 
         // tslint:disable:no-unused-expression
-        new Setting(this.settings, 'host', '10.34.64.125'); // TODO: set back to localhost after evaluation (currently ip of blue01.maas.dmi.unibas.ch)
+        new Setting(this.settings, 'host', 'localhost');
         new Setting(this.settings, 'webUI.port', '7659');
         new Setting(this.settings, 'config.prefix', 'config');
         new Setting(this.settings, 'information.prefix', 'info');

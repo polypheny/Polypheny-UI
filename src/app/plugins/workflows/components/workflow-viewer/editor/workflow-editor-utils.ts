@@ -87,7 +87,6 @@ export function getContextMenuItems(removeEdgeSubject: Subject<EdgeModel>, moveM
         }
 
         const isEdge = 'source' in context && 'target' in context;
-        // TODO: change items depending on workflow state (possibly hide context menu? while executing?)
         const deleteItem: Item = {
             label: 'Delete',
             key: 'delete',

@@ -53,7 +53,7 @@
             <div class="mb-5" *ngIf="editableConfig().preferredStores?.length > 0">
                 @for (outputStore of editableConfig().preferredStores; track i; let i = $index) {
                     <c-input-group class="mb-3">
-                        <label cInputGroupText for="preferred-{{i}}">{{ $first ? 'Output' : 'Output ' + i }}</label>
+                        <label cInputGroupText for="preferred-{{i}}">{{ editableConfig().preferredStores.length === 1 ? 'Output' : 'Output ' + i }}</label>
                         <select cSelect id="preferred-{{i}}" [(ngModel)]="editableConfig().preferredStores[i]" name="preferred-{{i}}"
                                 (change)="checkForChanges()" [disabled]="!isEditable()">
                             <option [value]="''">Use workflow default</option>

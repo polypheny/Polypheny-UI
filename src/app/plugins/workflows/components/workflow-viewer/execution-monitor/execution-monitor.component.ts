@@ -1,5 +1,5 @@
 import {Component, computed, EventEmitter, Input, Output, signal} from '@angular/core';
-import {ExecutionMonitorModel} from '../../../models/workflows.model';
+import {ExecutionMonitorModel, ExecutionState} from '../../../models/workflows.model';
 import {WorkflowsService} from '../../../services/workflows.service';
 import {Workflow} from '../workflow';
 
@@ -9,6 +9,11 @@ import {Workflow} from '../workflow';
     styleUrl: './execution-monitor.component.scss'
 })
 export class ExecutionMonitorComponent {
+
+
+    constructor(private _workflows: WorkflowsService) {
+    }
+
     @Input() sessionId: string; // does not change
     @Input() workflow: Workflow;
     @Input() canOpen = true; // does not change
@@ -29,10 +34,10 @@ export class ExecutionMonitorComponent {
         const tps = this.monitor().tuplesWritten * 1000 / this.monitor().totalDuration;
         return Math.round(tps);
     });
+    readonly orderedExecutionStates = [ExecutionState.SUBMITTED, ExecutionState.EXECUTING, ExecutionState.AWAIT_PROCESSING, ExecutionState.PROCESSING_RESULT];
 
 
-    constructor(private _workflows: WorkflowsService) {
-    }
+    protected readonly ExecutionState = ExecutionState;
 
     toggleModal() {
         this.showModal.update(b => !b);
@@ -50,6 +55,4 @@ export class ExecutionMonitorComponent {
         }
         this.showModal.set(true);
     }
-
-
 }

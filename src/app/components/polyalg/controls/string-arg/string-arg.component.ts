@@ -24,7 +24,7 @@ export class StringControl extends ArgControl {
     alias = signal(this.value.alias === this.value.arg ? '' : this.value.alias);
     isTrivial = computed(() => {
         const hasTrivialAlias = !this.showAlias || !this.alias() || this.alias() === this.arg();
-        const hasTrivialArg = !this.arg() || /^[a-zA-Z0-9_$]+$/.test(this.arg()); // TODO: use better way to determine whether arg is trivial
+        const hasTrivialArg = !this.arg() || /^[a-zA-Z0-9_$]+$/.test(this.arg()); // use better way to determine whether arg is trivial?
         return hasTrivialAlias && hasTrivialArg;
     });
 

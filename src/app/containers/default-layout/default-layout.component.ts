@@ -124,7 +124,7 @@ export class DefaultLayoutComponent implements OnInit, OnDestroy, AfterContentCh
     }
 
     changedVisible(isVisible: boolean) {
-        // TODO: find a better solution to keep the sidebar component hidden after rescaling the window
+        // find a better solution to keep the sidebar component hidden after rescaling the window?
         if (isVisible && !this._left.isVisible()) {
             this._left.isVisible.set(isVisible);
             setTimeout(() => this._left.isVisible.set(!isVisible), 10);

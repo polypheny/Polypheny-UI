@@ -129,10 +129,10 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                        @for (duration of info.durations |keyvalue; track duration.key) {
+                                        @for (execState of orderedExecutionStates; track execState) {
                                             <tr>
-                                                <th scope="row">{{ duration.key }}</th>
-                                                <td>{{ duration.value }}</td>
+                                                <th scope="row">{{ execState }}</th>
+                                                <td>{{ info.durations[execState] | number:'1.2-2' }}</td>
                                             </tr>
                                         }
                                     </tbody>
