@@ -27,7 +27,7 @@ import {
     DropdownItemDirective,
     DropdownMenuDirective,
     DropdownToggleDirective,
-    FormCheckInputDirective,
+    FormCheckComponent,
     FormCheckLabelDirective,
     FormControlDirective,
     FormDirective,
@@ -219,7 +219,8 @@ import {AutocompleteComponent} from './autocomplete/autocomplete.component';
         PopoverDirective,
         PopoverModule,
         ButtonToolbarComponent,
-        BadgeComponent
+        BadgeComponent,
+        FormCheckComponent
     ],
     declarations: [
         BreadcrumbComponent,

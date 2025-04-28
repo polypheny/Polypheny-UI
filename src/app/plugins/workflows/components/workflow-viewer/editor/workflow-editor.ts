@@ -13,10 +13,18 @@ import {setupPanningBoundary} from '../../../../../components/polyalg/polyalg-vi
 import {AutoArrangePlugin} from 'rete-auto-arrange-plugin';
 import {debounceTime, Subject, Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
-import {canCreateConnection, computeCenter, getContextMenuItems, getMagneticConnectionProps, socketsToEdgeModel} from './workflow-editor-utils';
+import {
+    canCreateConnection,
+    computeCenter,
+    getContextMenuItems,
+    getMagneticConnectionProps,
+    socketsToEdgeModel
+} from './workflow-editor-utils';
 import {Activity, edgeToString, Workflow} from '../workflow';
 import {ContextMenuExtra, ContextMenuPlugin} from 'rete-context-menu-plugin';
 import {useMagneticConnection} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection';
+import {CustomZoom} from '../../../../../components/polyalg/polyalg-viewer/custom-zoom';
+import {CustomDrag} from '../../../../../components/polyalg/polyalg-viewer/custom-drag';
 
 export type Schemes = GetSchemes<ActivityNode, Edge<ActivityNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
@@ -106,6 +114,8 @@ export class WorkflowEditor {
                 }
             };
         });
+        this.area.area.setZoomHandler(new CustomZoom(0.1, 0.3, false));
+        this.area.area.setDragHandler(new CustomDrag(container)); // horizontal scrolling
 
         // Attach plugins
         this.editor.use(this.readonlyPlugin.root);
