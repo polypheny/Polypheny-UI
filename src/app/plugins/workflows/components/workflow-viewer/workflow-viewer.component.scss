@@ -12,6 +12,12 @@
   text-overflow: ellipsis;
 }
 
+.workflow-name-btn:hover {
+  background-color: var(--cui-light);
+  border-radius: var(--cui-border-radius);
+  cursor: pointer;
+}
+
 [rete-context-menu] {
   // Also see global style.scss
   .block {
@@ -31,4 +37,9 @@
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+}
+
+.description-textarea {
+  height: 12em !important;
+  resize: none;
 }

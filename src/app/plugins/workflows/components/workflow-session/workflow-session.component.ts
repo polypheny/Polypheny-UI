@@ -112,6 +112,17 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
         }, 100);
     }
 
+    renameWorkflow(data: { name: string; description: string }) {
+        this._workflows.renameWorkflow(this.session.workflowId, data.name, null, data.description).subscribe({
+            next: () => {
+                this.session.workflowDef.name = data.name;
+                this.session.workflowDef.description = data.description;
+                this._toast.success('Successfully modified workflow', 'Modify Workflow');
+            },
+            error: e => this._toast.error(e.error, 'Unable to modify workflow name / description')
+        });
+    }
+
     private initMarkdown() {
         const renderer = new MarkedRenderer();
         renderer.blockquote = (text: string) => {

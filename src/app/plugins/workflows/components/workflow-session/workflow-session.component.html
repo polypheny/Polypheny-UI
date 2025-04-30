@@ -1,10 +1,12 @@
-<div *ngIf="isRegistryLoaded() && showEditor" class="h-100">
+<div *ngIf="isRegistryLoaded() && showEditor && session" class="h-100">
     @if (nestedSessionStack().length === 0) {
         @switch (session?.type) {
             @case ('USER_SESSION') {
                 <app-workflow-viewer [sessionId]="sessionId" [isEditable]="true" [name]="session.workflowDef.name + ' v' + session.version"
+                                     [workflowDef]="session.workflowDef"
                                      (saveWorkflowEvent)="saveSession($event)" (close)="backToDashboard()" (terminate)="terminateSession()"
-                                     (openNested)="openNestedSession($event)" (reloadViewer)="reloadViewer()">
+                                     (openNested)="openNestedSession($event)" (reloadViewer)="reloadViewer()"
+                                     (rename)="renameWorkflow($event)">
                 </app-workflow-viewer>
             }
             @case ('API_SESSION') {
@@ -18,7 +20,9 @@
                 </app-workflow-viewer>
             }
             @default {
-                Unsupported Session Type
+                <c-callout color="danger">
+                    Unsupported Session Type
+                </c-callout>
             }
         }
     } @else if (!hideNested) {

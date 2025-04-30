@@ -78,27 +78,42 @@
                         <c-accordion-item #item="cAccordionItem" [visible]="false">
                             <ng-template cTemplateId="accordionHeaderTemplate">
                                 <button (click)="item.toggleItem()" [collapsed]="!item.visible" cAccordionButton>
-                                    <div class="d-flex justify-content-between flex-grow-1">
-                                        <div class="flex-grow-1 limit-name-width">
-                                            <h5 class="workflow-name">{{ def.def.name }}</h5>
-                                            <span class="text-muted">{{ def.def.versions[selectedVersion[def.id]].description }}</span>
+                                    <div class="d-flex flex-column w-100">
+                                        <div class="d-flex justify-content-between flex-grow-1">
+                                            <div class="flex-grow-1 limit-name-width">
+                                                <h5 class="workflow-name">{{ def.def.name }}</h5>
+                                                <span class="text-muted">{{ def.def.versions[selectedVersion[def.id]].description }}</span>
+                                            </div>
+
+                                            <div>
+                                                <c-input-group class="me-5 w-auto">
+                                                    <select id="versionSelect-{{def.id}}" class="form-control px-4"
+                                                            [(ngModel)]="selectedVersion[def.id]"
+                                                            (click)="$event.stopPropagation()">
+                                                        @for (version of def.def.versions | keyvalue; track version.key) {
+                                                            <option [value]="version.key">v{{ version.key }}</option>
+                                                        }
+                                                    </select>
+                                                    <button cButton color="primary" type="button"
+                                                            (click)="$event.stopPropagation(); openVersion(def.id);">
+                                                        Open
+                                                    </button>
+                                                </c-input-group>
+                                            </div>
                                         </div>
 
-                                        <div>
-                                            <c-input-group class="me-5 w-auto">
-                                                <select id="versionSelect-{{def.id}}" class="form-control px-4"
-                                                        [(ngModel)]="selectedVersion[def.id]"
-                                                        (click)="$event.stopPropagation()">
-                                                    @for (version of def.def.versions | keyvalue; track version.key) {
-                                                        <option [value]="version.key">v{{ version.key }}</option>
-                                                    }
-                                                </select>
-                                                <button cButton color="primary" type="button"
-                                                        (click)="$event.stopPropagation(); openVersion(def.id);">
-                                                    Open
-                                                </button>
-                                            </c-input-group>
+                                        <div *ngIf="def.def.description" class="mt-2 me-5">
+                                            <div class="d-flex align-items-center" (click)="toggleExpandDescription(def.id); $event.stopPropagation()" style="cursor: pointer; user-select: none;">
+                                                <strong>
+                                                    <span [class]="expandedDescriptions.has(def.id) ? 'fa fa-angle-down me-1' : 'fa fa-angle-right me-2'" class=""></span>
+                                                    {{ expandedDescriptions.has( def.id ) ? 'Hide Description' : 'Show Description' }}
+                                                </strong>
+                                            </div>
+                                            <div [visible]="expandedDescriptions.has(def.id)" cCollapse>
+                                                <div class="ms-0 text-muted expanded-description">{{ def.def.description }}</div>
+                                            </div>
                                         </div>
+
                                     </div>
                                 </button>
                             </ng-template>
@@ -126,6 +141,11 @@
                                                     Change Group
                                                 </button>
                                             </c-input-group>
+                                        </c-col>
+                                        <c-col [md]="2">
+                                            <button cButton color="light" (click)="openDescriptionModal(def.id)">
+                                                Set Description
+                                            </button>
                                         </c-col>
                                         <c-col [md]="'auto'" class="ms-auto">
                                             <button cButton color="danger" type="button"
@@ -390,6 +410,30 @@
             <button cButton color="primary" (click)="copyWorkflow()"
                     [disabled]="!copyWorkflowName">
                 Copy
+            </button>
+        </div>
+    </c-modal-footer>
+</c-modal>
+
+
+<c-modal [visible]="showDescriptionModal()" (visibleChange)="showDescriptionModal.set($event)" *ngIf="workflowToModify">
+    <c-modal-header>
+        <h5 cModalTitle>Set Workflow Description</h5>
+        <button (click)="showDescriptionModal.set(false)" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        Give a brief description of the workflow (maximal {{ MAX_DESCRIPTION_LENGTH }} characters).
+        <div cFormFloating class="mt-3">
+            <textarea class="description-textarea" cFormControl id="floatingTextarea" [(ngModel)]="updatedWorkflowDescription"
+                      placeholder="Workflow Description" autocomplete="off"></textarea>
+            <label cLabel for="floatingTextarea">Description</label>
+        </div>
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="showDescriptionModal.set(false)" cButton color="secondary">Close</button>
+        <div>
+            <button cButton color="primary" (click)="changeDescription()" [disabled]="updatedWorkflowDescription?.length > MAX_DESCRIPTION_LENGTH">
+                Save
             </button>
         </div>
     </c-modal-footer>

@@ -120,10 +120,11 @@ export class WorkflowsService {
         return this._http.post<void>(`${this.httpUrl}/jobs/${jobId}/trigger`, {}, this.httpOptions);
     }
 
-    renameWorkflow(workflowId: string, newName: string = null, newGroup: string = null) {
+    renameWorkflow(workflowId: string, newName: string = null, newGroup: string = null, newDescription: string = null) {
         const json = {
             name: newName,
-            group: newGroup
+            group: newGroup,
+            description: newDescription
         };
         return this._http.patch<string>(`${this.httpUrl}/workflows/${workflowId}`, json, this.httpOptions);
     }

@@ -17,3 +17,14 @@
 h4 .badge {
   width: 90px;
 }
+
+.expanded-description {
+  white-space: pre-line;
+  max-height: 12em;
+  overflow-y: auto;
+}
+
+.description-textarea {
+  height: 12em;
+  resize: none;
+}

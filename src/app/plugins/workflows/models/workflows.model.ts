@@ -102,6 +102,7 @@ export interface ActivityConfigModel {
     commonType: CommonType;
     controlStateMerger: ControlStateMerger;
     expectedOutcome: ExpectedOutcome;
+    logErrors: boolean;
 }
 
 export interface RenderModel {
@@ -187,6 +188,7 @@ export interface WorkflowDefModel {
     name: string;
     versions: Record<number, VersionInfo>;
     group: string;
+    description: string;
 }
 
 export interface VersionInfo {

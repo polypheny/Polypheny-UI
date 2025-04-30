@@ -6,7 +6,7 @@ import {ActivityUpdateResponse, ErrorResponse, ProgressUpdateResponse, Rendering
 import {filter, Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Activity, Workflow} from './workflow';
-import {ActivityState, SessionModel, WorkflowState} from '../../models/workflows.model';
+import {ActivityState, SessionModel, WorkflowDefModel, WorkflowState} from '../../models/workflows.model';
 import {RightMenuComponent} from './right-menu/right-menu.component';
 import {switchMap, tap} from 'rxjs/operators';
 import {WorkflowConfigEditorComponent} from './workflow-config-editor/workflow-config-editor.component';
@@ -15,8 +15,8 @@ import {JsonEditorComponent} from '../../../../components/json/json-editor.compo
 import {CheckpointViewerService} from '../../services/checkpoint-viewer.service';
 import {Router} from '@angular/router';
 import {ExecutionMonitorComponent} from './execution-monitor/execution-monitor.component';
-import {PortType} from '../../models/activity-registry.model';
 import {WorkflowHelpComponent} from './workflow-help/workflow-help.component';
+import {WORKFLOW_DESCRIPTION_LENGTH} from '../workflows-dashboard/workflows-dashboard.component';
 
 @Component({
     selector: 'app-workflow-viewer',
@@ -30,12 +30,14 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @Input() isEditable: boolean;
     @Input() name: string;
     @Input() canTerminate = true;
+    @Input() workflowDef?: WorkflowDefModel;
 
     @Output() saveWorkflowEvent = new EventEmitter<string>();
     @Output() close = new EventEmitter<void>();
     @Output() terminate = new EventEmitter<void>();
     @Output() openNested = new EventEmitter<SessionModel>();
     @Output() reloadViewer = new EventEmitter<void>();
+    @Output() rename = new EventEmitter<{ name: string, description: string }>();
 
     @ViewChild('rete') container!: ElementRef;
     @ViewChild('leftMenu') leftMenu: RightMenuComponent;
@@ -62,7 +64,10 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
     readonly editedVariables = signal<string>(null);
     readonly hasVariablesChanged = computed(() => this.serializedVariables?.() !== this.editedVariables());
 
-    protected readonly PortType = PortType;
+
+    readonly showRenameModal = signal(false);
+    readonly renameData = {name: '', description: ''};
+    protected readonly WORKFLOW_DESCRIPTION_LENGTH = WORKFLOW_DESCRIPTION_LENGTH;
 
 
     constructor(
@@ -381,5 +386,18 @@ export class WorkflowViewerComponent implements OnInit, OnDestroy {
             name: null,
             notes: null
         });
+    }
+
+    openRenameModal() {
+        if (this.workflowDef) {
+            this.renameData.name = this.workflowDef.name;
+            this.renameData.description = this.workflowDef.description;
+        }
+        this.showRenameModal.set(true);
+    }
+
+    renameWorkflow() {
+        this.rename.emit({...this.renameData});
+        this.showRenameModal.set(false);
     }
 }

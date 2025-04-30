@@ -8,7 +8,14 @@
             </c-button-group>
         </c-col>
         <c-col xs="6" md="3" xl="2" xxl="3">
-            <h3 *ngIf="name" class="workflow-name mb-0" [title]="name">{{ name }}</h3>
+            @if (workflowDef) {
+                <div class="workflow-name-btn px-1 pb-1 me-2">
+                    <h3 *ngIf="name" class="workflow-name mb-0" [title]="'Inspect \'' + workflowDef.name + '\''" (click)="openRenameModal()">{{ name }}</h3>
+                </div>
+
+            } @else {
+                <h3 *ngIf="name" class="workflow-name mb-0" [title]="name">{{ name }}</h3>
+            }
         </c-col>
         <c-col xs="12" md="7" xl="8" xxl="7">
             <div class="d-inline-flex align-items-center">
@@ -169,6 +176,38 @@
         <div *ngIf="isEditable">
             <button cButton color="primary" (click)="saveVariables()"
                     [disabled]="isExecuting?.() || !hasVariablesChanged()">Save Variables
+            </button>
+        </div>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showRenameModal()" (visibleChange)="showRenameModal.set($event)" *ngIf="workflowDef">
+    <c-modal-header>
+        <h5 cModalTitle>Inspect Workflow Information</h5>
+        <button (click)="showRenameModal.set(false)" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        Inspect and modify the full workflow name and description (changes apply to all versions).
+
+        <div>
+            <c-input-group class="mt-3" cCol>
+                <span cInputGroupText>Name</span>
+                <input cFormControl placeholder="Workflow Name" [(ngModel)]="renameData.name"
+                       autocomplete="off" [disabled]="!isEditable"/>
+            </c-input-group>
+        </div>
+        <div cFormFloating class="mt-3">
+            <textarea class="description-textarea" cFormControl id="floatingTextarea" [(ngModel)]="renameData.description"
+                      placeholder="Workflow Description" autocomplete="off" [disabled]="!isEditable"></textarea>
+            <label cLabel for="floatingTextarea">Description</label>
+        </div>
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="showRenameModal.set(false)" cButton color="secondary">Close</button>
+        <div>
+            <button cButton color="primary" (click)="renameWorkflow()"
+                    [disabled]="(renameData.name === workflowDef.name && renameData.description === workflowDef.description) || renameData.description?.length > WORKFLOW_DESCRIPTION_LENGTH || !isEditable">
+                Save
             </button>
         </div>
     </c-modal-footer>

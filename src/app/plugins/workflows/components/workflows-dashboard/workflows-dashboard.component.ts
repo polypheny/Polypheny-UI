@@ -8,6 +8,9 @@ import {SidebarNode} from '../../../../models/sidebar-node.model';
 import {retry} from 'rxjs';
 import {WebuiSettingsService} from '../../../../services/webui-settings.service';
 
+
+export const WORKFLOW_DESCRIPTION_LENGTH = 1024;
+
 @Component({
     selector: 'app-workflows-dashboard',
     templateUrl: './workflows-dashboard.component.html',
@@ -44,6 +47,12 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     workflowToCopy: { id: string, version: string } = null;
     copyWorkflowName = '';
     copyWorkflowGroup = '';
+
+    showDescriptionModal = signal(false);
+    workflowToModify: { id: string, def: WorkflowDefModel } = null;
+    updatedWorkflowDescription = '';
+    expandedDescriptions = new Set<string>();
+    readonly MAX_DESCRIPTION_LENGTH = WORKFLOW_DESCRIPTION_LENGTH;
 
     protected readonly Object = Object;
 
@@ -224,6 +233,15 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
         this.showCopyModal.set(true);
     }
 
+    openDescriptionModal(id: string) {
+        if (this.showDescriptionModal()) {
+            return;
+        }
+        this.workflowToModify = {id, def: this.workflowDefs[id]};
+        this.updatedWorkflowDescription = this.workflowDefs[id].description;
+        this.showDescriptionModal.set(true);
+    }
+
     changeName(workflowId: string, name: string) {
         this._workflows.renameWorkflow(workflowId, name).subscribe({
             next: () => {
@@ -241,6 +259,17 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
                 this.getWorkflowDefs();
             },
             error: e => this._toast.error(e.error, 'Unable to change workflow group')
+        });
+    }
+
+    changeDescription() {
+        this.showDescriptionModal.set(false);
+        this._workflows.renameWorkflow(this.workflowToModify.id, null, null, this.updatedWorkflowDescription).subscribe({
+            next: () => {
+                this._toast.success('Successfully changed workflow description', 'Change Workflow Description');
+                this.getWorkflowDefs();
+            },
+            error: e => this._toast.error(e.error, 'Unable to change workflow description')
         });
     }
 
@@ -290,5 +319,13 @@ export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
             },
             error: err => this._toast.error(err.error)
         });
+    }
+
+    toggleExpandDescription(id: string) {
+        if (this.expandedDescriptions.has(id)) {
+            this.expandedDescriptions.delete(id);
+        } else {
+            this.expandedDescriptions.add(id);
+        }
     }
 }

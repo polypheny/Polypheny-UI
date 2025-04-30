@@ -89,6 +89,14 @@
                 AND_OR means all success control edges must be active and at least one fail control edge.
             </div>
         </div>
+
+        <!-- Log Errors -->
+        <h5><span class="badge text-body bg-light">Log Exception Stacktrace</span></h5>
+        <c-form-check [switch]="true" class="ms-1 mb-5" *ngIf="def().outPorts.length > 0">
+            <label cFormCheckLabel for="form-check-stacktrace">Log Exception if Activity Fails</label>
+            <input cFormCheckInput id="form-check-stacktrace" type="checkbox" [(ngModel)]="editableConfig().logErrors"
+                   name="form-check-stacktrace" (change)="checkForChanges()" [disabled]="!isEditable()">
+        </c-form-check>
     </div>
 </form>
 
