@@ -18,6 +18,8 @@ import {PreviewRequest} from '../../models/ui-request.model';
 })
 export class TableSelectionDialogComponent {
 
+    private readonly _crud = inject(CrudService);
+
     data: DatabaseInfo[] = [];
     selectedMetadata: string[] = [];
 
@@ -95,6 +97,16 @@ export class TableSelectionDialogComponent {
 
     showSelectedMetadata(): void {
         this.selectedMetadata = this.getSelectedAttributeMetadata();
+    }
+
+    sendMetadataInfos(): void {
+        this._crud.sendSelectedMetadata(this.selectedMetadata).subscribe({
+            next: res => console.log('Ergoflreich gesendet', res),
+            error: err => {
+                console.log(err);
+            }
+        });
+        alert(' Daten erfolgreich gesendet.');
     }
 
 }

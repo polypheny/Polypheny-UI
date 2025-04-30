@@ -535,7 +535,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 database: 'postgres',
                 username: 'postgres',
                 password: 'password',
-                tables: 'public.testtable',
+                tables: 'abcde.testing',
                 maxConnections: '1',
                 transactionIsolation: 'SERIALIZABLE'
             },

@@ -529,6 +529,11 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/createAdapter`, formdata);
     }
 
+    sendSelectedMetadata(request: string[]) {
+        console.log(request);
+        return this._http.post(`${this.httpUrl}/sendSelectedMetadata`, request, this.httpOptions);
+    }
+
 
     pathAccess(req: PathAccessRequest) {
         return this._http.post(`${this.httpUrl}/pathAccess`, req);
