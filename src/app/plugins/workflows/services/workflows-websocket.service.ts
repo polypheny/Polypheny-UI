@@ -48,7 +48,7 @@ export class WorkflowsWebSocketService {
                 this.msgSubject.next({response: msg, isDirect});
             },
             error: err => {
-                console.log(err);
+                console.warn(err);
                 this.connected.set(false);
             },
             complete: () => {

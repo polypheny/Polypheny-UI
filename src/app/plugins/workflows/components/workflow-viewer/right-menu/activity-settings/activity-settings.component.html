@@ -44,7 +44,11 @@
         <div class="setting-group mt-2 flex-grow-1">
             @if (activity().error()) {
                 <c-callout color="danger">
-                    <strong>Execution Error: </strong> <span class="text-danger text-break">{{ activity().error().message }}</span>
+                    <strong>Execution Error: </strong>
+                    <div class="text-danger text-break"
+                         style="white-space: pre-line; max-height: 15em; overflow-y: auto;">
+                        {{ activity().error().message }}
+                    </div>
                 </c-callout>
             }
             <p *ngIf="showDescription && activity().def.shortDescription" class="mb-4">{{ activity().def.shortDescription }}</p>
@@ -174,6 +178,12 @@
                                                               [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
                                                               [(value)]="editableSettings().get(setting.key).value">
                                             </app-file-setting>
+                                        }
+                                        @case (SettingType.AGGREGATE) {
+                                            <app-aggregate-setting [settingDef]="setting.model" [inTypePreview]="activity().inTypePreview()"
+                                                                   [isEditable]="isEditable()" (hasChanged)="checkForChanges()"
+                                                                   [(value)]="editableSettings().get(setting.key).value">
+                                            </app-aggregate-setting>
                                         }
                                         @default {
                                             <p class="text-danger">unknown setting type</p>

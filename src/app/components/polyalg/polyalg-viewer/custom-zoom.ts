@@ -31,7 +31,7 @@ export class CustomZoom extends Zoom {
                 // Only consider the event if Ctrl key is not pressed
                 filter((event) => !event.ctrlKey),
                 tap(() => this.overlay.style.display = 'flex'),
-                debounceTime(1500),
+                debounceTime(1000),
                 tap(() => this.overlay.style.display = 'none')
             ).subscribe();
         }
@@ -76,16 +76,18 @@ export class CustomZoom extends Zoom {
         overlay.style.left = '0';
         overlay.style.width = '100%';
         overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
         overlay.style.color = 'white';
         overlay.style.fontSize = '24px';
         overlay.style.display = 'none'; // Hide by default
         overlay.style.justifyContent = 'center';
         overlay.style.alignItems = 'center';
+        overlay.style.pointerEvents = 'none'; // Allow interaction with editor
 
         // Add the message text
         const message = document.createElement('div');
         message.innerText = 'Use ctrl / ⌘ + scroll to zoom';
+        message.style.pointerEvents = 'none';
         overlay.appendChild(message);
 
         // Append the overlay to the container

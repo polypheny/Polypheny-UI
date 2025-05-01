@@ -113,6 +113,7 @@ import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} fr
 import {WorkflowJobComponent} from './components/workflow-job/workflow-job.component';
 import {JobListComponent} from './components/workflow-job/job-list/job-list.component';
 import {JobCreatorComponent} from './components/workflow-job/job-creator/job-creator.component';
+import {AggregateSettingComponent} from './components/workflow-viewer/right-menu/activity-settings/aggregate-setting/aggregate-setting.component';
 
 @NgModule({
     imports: [
@@ -229,6 +230,7 @@ import {JobCreatorComponent} from './components/workflow-job/job-creator/job-cre
         FieldRenameSettingComponent,
         CastSettingComponent,
         FilterSettingComponent,
+        AggregateSettingComponent,
         WorkflowHelpComponent,
         CheckpointViewerComponent,
         GraphMapSettingComponent,

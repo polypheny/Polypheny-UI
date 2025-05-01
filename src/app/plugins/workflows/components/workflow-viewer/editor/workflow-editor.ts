@@ -13,13 +13,7 @@ import {setupPanningBoundary} from '../../../../../components/polyalg/polyalg-vi
 import {AutoArrangePlugin} from 'rete-auto-arrange-plugin';
 import {debounceTime, Subject, Subscription} from 'rxjs';
 import {Position} from 'rete-angular-plugin/17/types';
-import {
-    canCreateConnection,
-    computeCenter,
-    getContextMenuItems,
-    getMagneticConnectionProps,
-    socketsToEdgeModel
-} from './workflow-editor-utils';
+import {canCreateConnection, computeCenter, getContextMenuItems, getMagneticConnectionProps, socketsToEdgeModel} from './workflow-editor-utils';
 import {Activity, edgeToString, Workflow} from '../workflow';
 import {ContextMenuExtra, ContextMenuPlugin} from 'rete-context-menu-plugin';
 import {useMagneticConnection} from '../../../../../components/polyalg/polyalg-viewer/magnetic-connection';
@@ -143,9 +137,9 @@ export class WorkflowEditor {
                 return; // https://github.com/retejs/rete/issues/204
             } else if (context.type === 'nodetranslated') {
                 this.translateSubjects[this.nodeIdToActivityId.get(context.data.id)].next(context.data.position);
-            } else if (!['pointermove', 'render', 'rendered', 'rendered', 'zoom', 'zoomed', 'translate', 'translated', 'nodetranslate', 'unmount'].includes(context.type)) {
-                //console.log(context);
-            }
+            }/* else if (!['pointermove', 'render', 'rendered', 'rendered', 'zoom', 'zoomed', 'translate', 'translated', 'nodetranslate', 'unmount'].includes(context.type)) {
+                console.log(context);
+            }*/
             return context;
         });
 

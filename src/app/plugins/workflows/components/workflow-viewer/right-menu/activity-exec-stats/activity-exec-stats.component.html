@@ -45,7 +45,11 @@
             }
 
             @if (activity().error()) {
-                <p class="mb-1"><strong>Error: </strong> <span class="text-danger">{{ activity().error().message }}</span></p>
+                <p class="mb-1"><strong>Execution Error: </strong></p>
+                <div class="text-danger text-break"
+                     style="white-space: pre-line; max-height: 15em; overflow-y: auto;">
+                    {{ activity().error().message }}
+                </div>
             }
 
             <h5 class="mt-3">Duration</h5>

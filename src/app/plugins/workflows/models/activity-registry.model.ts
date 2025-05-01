@@ -266,6 +266,7 @@ export enum SettingType {
     FILTER = 'FILTER',
     GRAPH_MAP = 'GRAPH_MAP',
     FILE = 'FILE',
+    AGGREGATE = 'AGGREGATE',
 }
 
 export interface SettingDefModel {

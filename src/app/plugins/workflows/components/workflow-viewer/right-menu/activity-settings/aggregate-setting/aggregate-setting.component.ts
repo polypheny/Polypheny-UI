@@ -4,34 +4,42 @@ import {TypePreviewModel} from '../../../../../models/workflows.model';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {getSuggestions} from '../../../workflow';
 
-type Directions = 'ASCENDING' | 'STRICTLY_ASCENDING' | 'DESCENDING' | 'STRICTLY_DESCENDING' | 'CLUSTERED';
 
 @Component({
-    selector: 'app-collation-setting',
-    templateUrl: './collation-setting.component.html',
-    styleUrl: './collation-setting.component.scss'
+    selector: 'app-aggregate-setting',
+    templateUrl: './aggregate-setting.component.html',
+    styleUrl: './aggregate-setting.component.scss'
 })
-export class CollationSettingComponent {
+export class AggregateSettingComponent {
     isEditable = input.required<boolean>();
     settingDef = input.required<SettingDefModel>();
     inTypePreview = input.required<TypePreviewModel[]>();
     value = model.required<any>();
     @Output() hasChanged = new EventEmitter<void>();
 
-    val = computed(() => this.value() as FieldCollation[]); // like value, but with correct type
-    def = computed(() => this.settingDef() as CollationSettingDef);
+    val = computed(() => this.value() as AggregateEntry[]); // like value, but with correct type
+    def = computed(() => this.settingDef() as AggregateSettingDef);
     targetPreview = computed(() => this.inTypePreview()[this.def().targetInput]);
     fieldType = computed(() => this.targetPreview().portType === 'REL' ? 'column' : 'field');
     suggestions = computed(() => getSuggestions(this.targetPreview(), 'props'));
 
-    readonly dirChoices: Directions[] = ['ASCENDING', 'STRICTLY_ASCENDING', 'DESCENDING', 'STRICTLY_DESCENDING', 'CLUSTERED'];
+    readonly displayFunctions = {
+        'MAX': 'Max',
+        'MIN': 'Min',
+        'AVG': 'Average',
+        'SUM': 'Sum',
+        'SUM0': 'Sum (0 if empty)',
+        'COUNT': 'Count',
+        'STDDEV': 'Standard Deviation',
+        'VARIANCE': 'Variance'
+    };
 
     valueChanged() {
         setTimeout(() => this.hasChanged.emit(), 1);
     }
 
     addField() {
-        this.val().push({name: '', direction: 'ASCENDING', regex: false});
+        this.val().push({target: '', function: this.def().allowedFunctions[0], alias: ''});
         this.valueChanged();
     }
 
@@ -48,13 +56,13 @@ export class CollationSettingComponent {
     }
 }
 
-interface CollationSettingDef extends SettingDefModel {
+interface AggregateSettingDef extends SettingDefModel {
     targetInput: number;
-    allowRegex: boolean;
+    allowedFunctions: string[];
 }
 
-interface FieldCollation {
-    name: string;
-    direction: Directions;
-    regex: boolean;
+interface AggregateEntry {
+    target: string;
+    function: string;
+    alias: string;
 }

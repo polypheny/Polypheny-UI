@@ -95,8 +95,6 @@ export class GraphMapSettingComponent {
     addMapping() {
         const inputIdx = parseInt(String(this.addIdx), 10);
         if (!this.remainingInputs().includes(inputIdx)) {
-            console.log(inputIdx, typeof (inputIdx));
-            console.log(this.remainingInputs(), typeof (this.remainingInputs()));
             this._toast.warn('A mapping for this input already exists: ' + inputIdx + ', ' + this.remainingInputs());
             return;
         }
