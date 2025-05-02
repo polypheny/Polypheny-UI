@@ -79,7 +79,7 @@ export class WorkflowEditor {
                 const [source, target] = getSourceTarget(from, to) || [null, null];
                 return canCreateConnection(source, target, this.editor);
             },
-            makeConnection: (from, to, context) => {
+            makeConnection: (from, to) => {
                 const [source, target] = getSourceTarget(from, to) || [null, null];
                 if (source && target) {
                     this.createEdgeSubject.next(socketsToEdgeModel(source, target, this.editor));

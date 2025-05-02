@@ -10,58 +10,58 @@
             </div>
         } @else if (monitor()) {
             <c-row>
-                <c-col xs="6">
+                <c-col [xs]="6">
                     <strong>Success:</strong>
                 </c-col>
-                <c-col xs="auto">
+                <c-col [xs]="'auto'">
                     <span>{{ monitor().isSuccess }}</span>
                 </c-col>
             </c-row>
             <c-row>
-                <c-col xs="6">
+                <c-col [xs]="6">
                     <strong>Start Time:</strong>
                 </c-col>
-                <c-col xs="auto">
+                <c-col [xs]="'auto'">
                     <span>{{ monitor().startTime | date:'medium' }}</span>
                 </c-col>
             </c-row>
             <c-row>
-                <c-col xs="6">
+                <c-col [xs]="6">
                     <strong>Total Duration:</strong>
                 </c-col>
-                <c-col xs="auto">
+                <c-col [xs]="'auto'">
                     <span>{{ monitor().totalDuration }} ms</span>
                 </c-col>
             </c-row>
             <c-row>
-                <c-col xs="6">
+                <c-col [xs]="6">
                     <strong>Tuples Written:</strong>
                 </c-col>
-                <c-col xs="auto">
+                <c-col [xs]="'auto'">
                     <span>{{ monitor().tuplesWritten }} ({{ tuplesPerSecond() }} t/s)</span>
                 </c-col>
             </c-row>
             <c-row *ngIf="monitor().targetActivity">
-                <c-col xs="6">
+                <c-col [xs]="6">
                     <strong>Target Activity:</strong>
                 </c-col>
-                <c-col xs="auto">
+                <c-col [xs]="'auto'">
                     <span>{{ workflow.getActivity( monitor().targetActivity )?.displayName() }}</span>
                 </c-col>
             </c-row>
             <c-row>
-                <c-col xs="6">
+                <c-col [xs]="6">
                     <strong>Total Activities:</strong>
                 </c-col>
-                <c-col xs="auto">
+                <c-col [xs]="'auto'">
                     <span>{{ monitor().totalCount }}</span>
                 </c-col>
             </c-row>
             <c-row>
-                <c-col xs="6">
+                <c-col [xs]="6">
                     <strong>Success / cancel / fail: </strong>
                 </c-col>
-                <c-col xs="auto">
+                <c-col [xs]="'auto'">
                     <span class="text-success">{{ monitor().successCount }}</span> /
                     <span class="text-warning">{{ monitor().skipCount }}</span> /
                     <span class="text-danger">{{ monitor().failCount }}</span>
@@ -93,17 +93,17 @@
                         <ng-template cTemplateId="accordionHeaderTemplate">
                             <button (click)="item.toggleItem()" [collapsed]="!item.visible" class="py-2" cAccordionButton>
                                 <c-row class="flex-grow-1">
-                                    <c-col sm="2" class="remove-padding">
+                                    <c-col [sm]="2" class="remove-padding">
                                         <span>{{ info.submissionTime | date:'mediumTime' }}</span>
                                     </c-col>
-                                    <c-col xs="3" md="2" class="text-end">
+                                    <c-col [xs]="3" [md]="2" class="text-end">
                                         <span>{{ infoDurationsSeconds()[$index] }} s</span>
                                     </c-col>
-                                    <c-col sm="5" [offset]="{xs: 0, sm: 1}">
+                                    <c-col [sm]="5" [offset]="{xs: 0, sm: 1}">
                                         <strong>{{ info.executorType }}</strong>
                                         <span> ({{ info.activities.length > 1 ? info.activities.length : workflow.getActivity( info.root )?.displayName() }})</span>
                                     </c-col>
-                                    <c-col sm="2" class="remove-padding">
+                                    <c-col [sm]="2" class="remove-padding">
                                         <span [ngClass]="{'text-success': info.state === 'DONE' && info.isSuccess, 'text-danger': info.state === 'DONE' && !info.isSuccess}">
                                             {{ info.state }}
                                         </span>

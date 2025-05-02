@@ -86,7 +86,7 @@ export class CheckpointViewerService {
     }
 
     private handleWsMsg(msg: { response: WsResponse; isDirect: boolean }) {
-        const {response, isDirect} = msg;
+        const {response} = msg;
         if (response.type === ResponseType.CHECKPOINT_DATA) {
             const r = (response as CheckpointDataResponse);
             this.result.set(r.result);

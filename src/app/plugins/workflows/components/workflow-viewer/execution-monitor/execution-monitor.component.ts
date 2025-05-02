@@ -36,9 +36,6 @@ export class ExecutionMonitorComponent {
     });
     readonly orderedExecutionStates = [ExecutionState.SUBMITTED, ExecutionState.EXECUTING, ExecutionState.AWAIT_PROCESSING, ExecutionState.PROCESSING_RESULT];
 
-
-    protected readonly ExecutionState = ExecutionState;
-
     toggleModal() {
         this.showModal.update(b => !b);
     }

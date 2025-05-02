@@ -1,6 +1,6 @@
 @switch (route()) {
     @case ('dashboard') {
-        <h1>Workflow Dashboard</h1>
+        <h1 class="mb-4">Workflow Dashboard</h1>
 
         <c-row class="mb-5">
             <c-col [md]="6" class="fixed-width">
@@ -196,7 +196,7 @@
         }
     }
     @case ('sessions') {
-        <h1>Active Sessions</h1>
+        <h1 class="mb-4">Active Sessions</h1>
         <ul cListGroup *ngIf="workflowDefs" class="mb-5">
             @for (session of userSessions; track session.sessionId) {
                 <ng-container *ngTemplateOutlet="sessionTemplate; context: { $implicit: session }"></ng-container>

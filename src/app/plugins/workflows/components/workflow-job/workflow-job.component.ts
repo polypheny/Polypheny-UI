@@ -152,7 +152,7 @@ export class WorkflowJobComponent implements OnInit, OnDestroy {
 
     private updateModifiedJob(job: JobModel) {
         this._workflows.setJob(job).subscribe({
-            next: jobId => {
+            next: () => {
                 this._creator.close();
                 this.job.set(job);
             },

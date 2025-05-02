@@ -37,7 +37,7 @@ export class WorkflowsWebSocketService {
         this.socket = webSocket<WsResponse>({
             url: this._settings.getConnection('workflows.socket') + `/${this.sessionId}`,
             openObserver: {
-                next: (n) => {
+                next: () => {
                     this.connected.set(true);
                 }
             }

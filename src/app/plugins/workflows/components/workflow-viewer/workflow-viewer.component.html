@@ -1,13 +1,13 @@
 <div class="d-flex flex-column h-100 flex-fill w-100">
     <c-row [gutter]="0" class="align-items-center mb-1 no-select">
-        <c-col xs="auto" class="ps-1 me-5">
+        <c-col [xs]="'auto'" class="ps-1 me-5">
             <c-button-group role="group" class="m-1" *ngIf="leftMenu">
                 <button cButton color="light" type="button" (click)="leftMenu.toggleMenu()"
                         [ngClass]="leftMenu.visible() ? 'cil-arrow-thick-to-left' : 'cil-arrow-thick-from-left'">
                 </button>
             </c-button-group>
         </c-col>
-        <c-col xs="6" md="3" xl="2" xxl="3">
+        <c-col [xs]="6" [md]="3" [xl]="2" [xxl]="3">
             @if (workflowDef) {
                 <div class="workflow-name-btn px-1 pb-1 me-2">
                     <h3 *ngIf="name" class="workflow-name mb-0" [title]="'Inspect \'' + workflowDef.name + '\''" (click)="openRenameModal()">{{ name }}</h3>
@@ -17,7 +17,7 @@
                 <h3 *ngIf="name" class="workflow-name mb-0" [title]="name">{{ name }}</h3>
             }
         </c-col>
-        <c-col xs="12" md="7" xl="8" xxl="7">
+        <c-col [xs]="12" [md]="7" [xl]="8" [xxl]="7">
             <div class="d-inline-flex align-items-center">
                 <c-button-toolbar role="group">
                     <c-button-group role="group" class="me-2">
@@ -111,7 +111,7 @@
 
             </div>
         </c-col>
-        <c-col xs="auto" class="ms-auto pe-1">
+        <c-col [xs]="'auto'" class="ms-auto pe-1">
             <c-button-group role="group" class="m-1">
                 <button cButton color="light" type="button" (click)="rightMenu.toggleMenu()" *ngIf="openedActivity?.()"
                         [ngClass]="rightMenu.visible() ? 'cil-arrow-thick-to-right' : 'cil-arrow-thick-from-right'">

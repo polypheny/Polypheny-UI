@@ -40,7 +40,7 @@ export class QuerySettingComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        this.editor.onChange(value => {
+        this.editor.onChange(() => {
             if (this.listenForChanges) {
                 const oldQuery = this.val().query;
                 const newQuery = this.editor.getCode();

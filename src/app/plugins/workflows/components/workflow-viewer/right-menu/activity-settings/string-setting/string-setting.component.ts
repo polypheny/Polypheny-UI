@@ -58,10 +58,7 @@ export class StringSettingComponent implements OnInit, AfterViewInit {
     constructor(private _catalog: CatalogService, private _workflows: WorkflowsService) {
         this.adapters = computed(() => {
             this._catalog.listener();
-            return [...this._catalog.getStores().filter(store =>
-                // mvcc currently results in deadlocks with concurrent schema changes
-                store.adapterName !== 'HSQLDB' || store.settings['trxControlMode'] !== 'mvcc'
-            )];
+            return [...this._catalog.getStores()]; // warning, HSQLDB mvcc might result in deadlocks with concurrent schema changes
         });
 
 
@@ -82,7 +79,7 @@ export class StringSettingComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit(): void {
         if (this.def().textEditor) {
-            this.editor.onChange(value => {
+            this.editor.onChange(() => {
                 if (this.listenForChanges) {
                     const oldVal = this.value();
                     const newVal = this.editor.getCode();
