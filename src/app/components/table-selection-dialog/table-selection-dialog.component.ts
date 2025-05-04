@@ -1,9 +1,10 @@
-import {Component, inject, Inject} from '@angular/core';
-import {DatabaseInfo, TableInfo, SchemaInfo} from '../../models/databaseInfo.model';
+import {Component, inject} from '@angular/core';
+import {DatabaseInfo, SchemaInfo, TableInfo} from '../../models/databaseInfo.model';
 import {FormsModule} from '@angular/forms';
 import {NgForOf, NgIf} from '@angular/common';
 import {CrudService} from '../../services/crud.service';
-import {PreviewRequest} from '../../models/ui-request.model';
+import {AdapterModel, AdapterType, PolyMap} from '../../views/adapters/adapter.model';
+import {DeployMode} from '../../models/catalog.model';
 
 @Component({
     selector: 'app-table-selection-dialog',
@@ -22,26 +23,60 @@ export class TableSelectionDialogComponent {
 
     data: DatabaseInfo[] = [];
     selectedMetadata: string[] = [];
+    adapter: AdapterModel;
 
     close(): void {
         window.close();
     }
 
     ngOnInit(): void {
+        const rawSettings = localStorage.getItem('adapterSettings');
         const metaRaw = localStorage.getItem('metaRoot');
         const previewRaw = localStorage.getItem('preview');
         console.log(metaRaw);
         console.log(previewRaw);
+
+        const settingsObj = rawSettings ? JSON.parse(rawSettings) as Record<string, string> : {};
+        const adapterSettings = new PolyMap<string, string>();
+        for (const [k, v] of Object.entries(settingsObj)) {
+            adapterSettings.set(k, v as string);
+        }
 
         if (!metaRaw || !previewRaw) {
             console.error('No meta or preview data found');
             return;
         }
 
-        const rootNode = JSON.parse(metaRaw);
-        const preview = previewRaw ? JSON.parse(previewRaw) : {};
+        let rootNode: any = JSON.parse(metaRaw);
+        if (typeof rootNode === 'string') {
+            rootNode = JSON.parse(rootNode);
+        }
+
+        let preview: any = JSON.parse(previewRaw);
+        if (typeof preview === 'string') {
+            preview = JSON.parse(preview);
+        }
+
 
         this.data = this.buildDatabaseInfo(rootNode, preview);
+
+        const infoRaw = localStorage.getItem('adapterInfo');
+        const info = infoRaw ? JSON.parse(infoRaw) as Partial<{
+            uniqueName: string;
+            adapterName: string;
+            type: AdapterType;
+            mode: DeployMode;
+            persistent: boolean;
+        }> : {};
+
+        this.adapter = new AdapterModel(
+            info.uniqueName ?? adapterSettings.get('uniqueName') ?? 'adapter_' + Date.now(),
+            info.adapterName ?? 'UNKNOWN',
+            adapterSettings,
+            info.persistent ?? true,
+            info.type ?? AdapterType.SOURCE,
+            info.mode ?? DeployMode.REMOTE
+        );
     }
 
     private buildDatabaseInfo(root: any, preview: any): DatabaseInfo[] {
@@ -100,14 +135,29 @@ export class TableSelectionDialogComponent {
     }
 
     sendMetadataInfos(): void {
-        this._crud.sendSelectedMetadata(this.selectedMetadata).subscribe({
-            next: res => console.log('Ergoflreich gesendet', res),
-            error: err => {
-                console.log(err);
+
+
+        (this.adapter as any).metadata = this.selectedMetadata;
+
+        const formdata = new FormData();
+        formdata.set('body', JSON.stringify(this.adapter));
+
+        formdata.forEach((value, key) => {
+            console.log(`${key}: ${value}`);
+        });
+
+        this._crud.createAdapter(this.adapter, formdata).subscribe({
+            next: (res) => {
+                console.log('Adapter + Metadaten erfolgreich gesendet', res);
+                alert('Daten erfolgreich gesendet.');
+            },
+            error: (err) => {
+                console.error(err);
+                alert('Fehler beim Senden!');
             }
         });
-        alert(' Daten erfolgreich gesendet.');
     }
+
 
 }
 

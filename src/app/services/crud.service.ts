@@ -526,6 +526,9 @@ export class CrudService {
 
     createAdapter(adapter: AdapterModel, formdata: FormData) {
         formdata.set('body', JSON.stringify(adapter));
+        formdata.forEach((value, key) => {
+            console.log(`${key}: ${value}`);
+        });
         return this._http.post(`${this.httpUrl}/createAdapter`, formdata);
     }
 

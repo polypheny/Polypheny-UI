@@ -112,12 +112,16 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     private readonly files = new Map<string, File>();
 
+    private pendingDeploy!: AdapterModel;
+    private pendingFormData!: FormData;
+    metadataSelection = false;
+
 
     readonly positionOrder = () => {
         return (a, b) => {
             return a.position - b.position;
         };
-    };
+    }
 
 
     ngOnInit() {
@@ -212,6 +216,82 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.modalActive = true;
     }
 
+    previewAndDeploy(): void {
+
+        const deploy = new AdapterModel(
+            this.editingAvailableAdapterForm.controls['uniqueName'].value,
+            this.adapter().adapterName,
+            new PolyMap<string, string>(),
+            this.adapter().persistent,
+            this.adapter().type,
+            this.activeMode()
+        );
+        const fd = new FormData();
+
+        for (const [k, v] of Object.entries(this.editingAvailableAdapterForm.controls)) {
+            if (!this.getAdapterSetting(k)) { continue; }
+            deploy.settings.set(k, (v as AbstractControl).value);
+        }
+        fd.set('body', JSON.stringify(deploy));
+
+        const previewReq = new PreviewRequest(
+            deploy.adapterName,
+            deploy.type,
+            Object.fromEntries(deploy.settings),
+            10
+        );
+
+        this._crud.previewTable(previewReq).subscribe({
+            next: (preview: PreviewResult) => {
+                console.log('Preview geladen', preview);
+
+                const settingsObj = Object.fromEntries(
+                    Object.entries(this.editingAvailableAdapterForm.controls)
+                        .map(([key, ctrl]) => [key, (ctrl as AbstractControl).value])
+                );
+
+
+                localStorage.setItem('adapterSettings', JSON.stringify(settingsObj));
+                localStorage.setItem('adapterInfo', JSON.stringify({
+                    uniqueName : deploy.name,
+                    adapterName: deploy.adapterName,
+                    type       : deploy.type,
+                    mode       : deploy.mode,
+                    persistent : deploy.persistent
+                }));
+
+
+                localStorage.setItem(
+                    'metaRoot',
+                    typeof preview.metadata === 'string'
+                        ? preview.metadata
+                        : JSON.stringify(preview.metadata)
+                );
+
+                localStorage.setItem('preview',  JSON.stringify(preview.preview));
+                console.log(JSON.stringify(preview.metadata));
+                console.log(JSON.stringify(preview.preview));
+
+
+                this.pendingDeploy    = deploy;
+                this.pendingFormData  = fd;
+                this.metadataSelection = true;
+
+                this.modalActive = false;
+                window.open('/#/table-selection',
+                    'popup',
+                    'width=1000,height=700');
+
+                this._toast.success('Preview erfolgreich geladen');
+            },
+            error: (err) => {
+                console.error('Preview fehlgeschlagen', err);
+                this._toast.error('Preview fehlgeschlagen');
+            }
+        });
+    }
+
+
     saveAdapterSettings() {
         const adapter = <any>this.adapter;
         adapter.settings = {};
@@ -290,7 +370,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         const fileNames = [];
         const setting = this.getAdapterSetting(key);
         setting.template.fileNames = [];
-        for (let file of files) {
+        for (const file of files) {
             fileNames.push(file.name);
             this.files.set(file.name, file);
             setting.template.fileNames.push(file.name);
@@ -361,7 +441,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             if (setting.template.type.toLowerCase() === 'directory') {
                 const fileNames = [];
 
-                for (let fileName of setting.template.fileNames) {
+                for (const fileName of setting.template.fileNames) {
                     fd.append(fileName, this.files.get(fileName));
                 }
                 setting.current = JSON.stringify(setting.template.fileNames);
@@ -413,7 +493,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             window.URL.revokeObjectURL(url);
         }, 0);
     }
-
     private startDeploying(deploy: AdapterModel, formdata: FormData) {
         console.log(deploy);
         this.deploying = true;
@@ -535,8 +614,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 database: 'postgres',
                 username: 'postgres',
                 password: 'password',
-                tables: 'abcde.testing',
-                maxConnections: '1',
+                tables: 'public.testtable',
+                maxConnections: '25',
                 transactionIsolation: 'SERIALIZABLE'
             },
             10
