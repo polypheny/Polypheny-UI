@@ -25,6 +25,11 @@ export class TableSelectionDialogComponent {
     selectedMetadata: string[] = [];
     adapter: AdapterModel;
 
+    tablePreviewName = '';
+    tablePreview: any[] = [];
+    previewKeys: string[] = [];
+
+
     close(): void {
         window.close();
     }
@@ -56,6 +61,15 @@ export class TableSelectionDialogComponent {
         if (typeof preview === 'string') {
             preview = JSON.parse(preview);
         }
+
+        const [name, rawRows] = Object.entries(preview)[0];
+        const rows = rawRows as any[];
+
+        this.tablePreviewName = name;
+        this.tablePreview = rows;
+        this.previewKeys = rows.length > 0 ? Object.keys(rows[0]) : [];
+
+
 
 
         this.data = this.buildDatabaseInfo(rootNode, preview);

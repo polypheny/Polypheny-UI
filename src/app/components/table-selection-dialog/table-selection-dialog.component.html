@@ -1,39 +1,51 @@
-<h2>Tabellen auswählen</h2>
+<div style="display: flex; height: 80vh">
+    <!-- Linker Bereich: Auswahl -->
+    <div style="flex: 1; overflow-y: auto; padding: 1rem; border-right: 1px solid #ccc">
+        <h2>Tabellen auswählen</h2>
 
-
-<div *ngFor="let db of data">
-    <h3>📦 {{ db.name }}</h3>
-    <div *ngFor="let schema of db.schemas">
-        <h4>📁 {{ schema.name }}</h4>
-
-        <ul>
-            <li *ngFor="let table of schema.tables">
-                <label>
-                    📄 {{ table.name }}
-                </label>
-
+        <div *ngFor="let db of data">
+            <h3>📦 {{ db.name }}</h3>
+            <div *ngFor="let schema of db.schemas">
+                <h4>📁 {{ schema.name }}</h4>
                 <ul>
-                    <li *ngFor="let attr of table.attributes">
+                    <li *ngFor="let table of schema.tables">
                         <label>
-                            <input type="checkbox" [(ngModel)]="attr.selected" />
-                            <span>🔹 {{ attr.name }} : {{ attr.type }}</span>
+                            📄 {{ db.name }}.{{ schema.name }}.{{ table.name }}
                         </label>
-                        <ul *ngIf="attr.sampleValues && attr.sampleValues.length > 0">
-                            <li *ngFor="let val of attr.sampleValues">
-                                <span style="font-size: smaller; color: gray">→ {{ val }}</span>
-                            </li>
-                        </ul>
                         <ul>
-                            <li *ngFor="let meta of selectedMetadata">{{ meta }}</li>
+                            <li *ngFor="let attr of table.attributes">
+                                <label>
+                                    <input type="checkbox" [(ngModel)]="attr.selected"/>
+                                    🔹 {{ attr.name }} : {{ attr.type }}
+                                </label>
+                            </li>
                         </ul>
                     </li>
                 </ul>
-        </ul>
-    </div>
-</div>
+            </div>
+        </div>
 
-<div style="text-align: right; margin-top: 1rem">
-    <button (click)="close()">Schließen</button>
-    <button (click)="showSelectedMetadata()">Ausgewählte anzeigen</button>
-    <button (click)="sendMetadataInfos()">Sende Metadaten</button>
+        <div style="margin-top: 1rem">
+            <button (click)="close()">Schließen</button>
+            <button (click)="showSelectedMetadata()">Ausgewählte anzeigen</button>
+            <button (click)="sendMetadataInfos()">Sende Metadaten</button>
+        </div>
+    </div>
+
+    <div *ngIf="tablePreview.length > 0">
+        <h3>{{ tablePreviewName }}</h3>
+
+        <table border="1" cellpadding="5" cellspacing="0">
+            <thead>
+            <tr>
+                <th *ngFor="let key of previewKeys">{{ key }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let row of tablePreview">
+                <td *ngFor="let key of previewKeys">{{ row[key] }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
