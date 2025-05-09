@@ -32,20 +32,29 @@
         </div>
     </div>
 
-    <div *ngIf="tablePreview.length > 0">
-        <h3>{{ tablePreviewName }}</h3>
+    <div style="flex: 2.5; padding: 1rem; overflow-x: auto; display: flex; gap: 2rem; border-left: 1px solid #ccc">
 
-        <table border="1" cellpadding="5" cellspacing="0">
-            <thead>
-            <tr>
-                <th *ngFor="let key of previewKeys">{{ key }}</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let row of tablePreview">
-                <td *ngFor="let key of previewKeys">{{ row[key] }}</td>
-            </tr>
-            </tbody>
-        </table>
+        <div *ngFor="let name of getTableNames()">
+            <div *ngIf="tablePreviewAll[name]?.length">
+                <h3>{{ name }}</h3>
+
+                <table border="1" cellpadding="5" cellspacing="0">
+                    <thead>
+                    <tr>
+                        <th *ngFor="let key of getKeys(tablePreviewAll[name])">{{ key }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let row of tablePreviewAll[name]">
+                        <td *ngFor="let key of getKeys(tablePreviewAll[name])">
+                            {{ row[key] }}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
+
 </div>

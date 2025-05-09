@@ -29,6 +29,8 @@ export class TableSelectionDialogComponent {
     tablePreview: any[] = [];
     previewKeys: string[] = [];
 
+    tablePreviewAll: { [tableName: string]: any[] } = {};
+
 
     close(): void {
         window.close();
@@ -62,14 +64,13 @@ export class TableSelectionDialogComponent {
             preview = JSON.parse(preview);
         }
 
+        this.tablePreviewAll = preview;
         const [name, rawRows] = Object.entries(preview)[0];
         const rows = rawRows as any[];
 
         this.tablePreviewName = name;
         this.tablePreview = rows;
         this.previewKeys = rows.length > 0 ? Object.keys(rows[0]) : [];
-
-
 
 
         this.data = this.buildDatabaseInfo(rootNode, preview);
@@ -147,6 +148,15 @@ export class TableSelectionDialogComponent {
     showSelectedMetadata(): void {
         this.selectedMetadata = this.getSelectedAttributeMetadata();
     }
+
+    getKeys(rows: any[]): string[] {
+        return rows.length > 0 ? Object.keys(rows[0]) : [];
+    }
+
+    getTableNames(): string[] {
+        return Object.keys(this.tablePreviewAll);
+    }
+
 
     sendMetadataInfos(): void {
 
