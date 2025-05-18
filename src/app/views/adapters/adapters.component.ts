@@ -229,8 +229,22 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         const fd = new FormData();
 
         for (const [k, v] of Object.entries(this.editingAvailableAdapterForm.controls)) {
-            if (!this.getAdapterSetting(k)) { continue; }
-            deploy.settings.set(k, (v as AbstractControl).value);
+            const setting = this.getAdapterSetting(k);
+            if (!setting) {
+                continue;
+            }
+
+            let value = (v as AbstractControl).value;
+
+            if (setting.template.type.toLowerCase() === 'directory') {
+                const first = setting.template.fileNames?.[0];
+                if (first) {
+                    value = JSON.stringify(first);
+                    fd.append(first, this.files.get(first));
+                }
+            }
+
+            deploy.settings.set(k, value);
         }
         fd.set('body', JSON.stringify(deploy));
 
@@ -241,8 +255,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             10
         );
 
-        this._crud.previewTable(previewReq).subscribe({
+        this._crud.previewTableForm(previewReq, fd).subscribe({
             next: (preview: PreviewResult) => {
+
                 console.log('Preview geladen', preview);
 
                 const settingsObj = Object.fromEntries(

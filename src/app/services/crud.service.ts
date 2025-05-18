@@ -284,6 +284,15 @@ export class CrudService {
     }
 
     /**
+     * Get the preview for an adapter with forms
+     */
+    previewTableForm(request: PreviewRequest, formdata: FormData) {
+        formdata.set('body', JSON.stringify(request));
+        return this._http.post(`${this.httpUrl}/previewTable`, formdata);
+        alert('Methode wird aufgerufen');
+    }
+
+    /**
      * Add a primary key to a table
      */
     createPrimaryKey(request: ConstraintRequest) {
