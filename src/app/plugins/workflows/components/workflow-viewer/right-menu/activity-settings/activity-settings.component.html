@@ -16,7 +16,6 @@
             </ul>
 
             @if (isEditable()) {
-
                 <div class="ms-auto" [ngClass]="{'ms-auto': activity().def.nonEmptyGroupCount > 1}">
                     @if (hasSettingsChanged()) {
                         <span class="text-muted">Discard</span>
@@ -37,6 +36,13 @@
                     </button>
                 </div>
 
+            } @else {
+                <div class="ms-auto me-3">
+                    <span class="fa fa-lg text-secondary show-description-button" title="Toggle Setting Descriptions"
+                          [ngClass]="showDescription ? 'fa-question-circle' : 'fa-question-circle-o'"
+                          (click)="setShowDescription(!showDescription)"
+                    ></span>
+                </div>
             }
 
         </div>
