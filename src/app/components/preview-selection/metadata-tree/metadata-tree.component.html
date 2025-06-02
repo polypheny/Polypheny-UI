@@ -1,0 +1,20 @@
+<ul class="tree">
+    <li>
+        <span *ngIf="node.type !== 'column'">{{ node.name }}</span>
+
+        <span *ngIf="node.type === 'column'">
+      <input #cb type="checkbox"
+             (change)="toggleColumn(path + '.' + node.name, cb.checked)">
+            {{ node.name }}
+    </span>
+
+        <ng-container *ngIf="node.children?.length">
+            <app-metadata-tree
+                    *ngFor="let child of node.children"
+                    [node]="child"
+                    [path]="node.type === 'column' ? path : (path ? path + '.' + node.name : node.name)"
+                    (columnToggle)="columnToggle.emit($event)">
+            </app-metadata-tree>
+        </ng-container>
+    </li>
+</ul>

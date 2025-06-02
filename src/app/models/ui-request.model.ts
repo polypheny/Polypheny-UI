@@ -218,12 +218,14 @@ export class PreviewRequest {
     adapterType: string;
     settings: { [key: string]: string };
     limit: number;
+    uniqueName?: string;
 
-    constructor(adapterName: string, adapterType: string, settings: { [key: string]: string }, limit: number) {
+    constructor(adapterName: string, adapterType: string, settings: { [key: string]: string }, limit: number, uniqueName: string) {
         this.adapterName = adapterName;
         this.adapterType = adapterType;
         this.settings = settings;
         this.limit = limit;
+        this.uniqueName = uniqueName;
     }
 }
 

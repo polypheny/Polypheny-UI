@@ -147,6 +147,7 @@ export class TableSelectionDialogComponent {
 
     showSelectedMetadata(): void {
         this.selectedMetadata = this.getSelectedAttributeMetadata();
+        console.log(this.selectedMetadata);
     }
 
     getKeys(rows: any[]): string[] {

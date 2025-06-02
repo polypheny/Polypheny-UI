@@ -393,11 +393,11 @@ export class PartitionFunctionColumn {
     options: string[];
 }
 
-export interface Node {
+export interface AbstractNode {
     type: string;
     name: string;
-    children: Node[];
-    properties: { [key: string]: any };
+    children?: AbstractNode[];
+    properties?: { [key: string]: any };
 }
 
 /**

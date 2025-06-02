@@ -1,0 +1,56 @@
+<div class="preview-wrapper">
+    <button cButton color="primary" class="btn-circle topRight" (click)="close()">
+        <i class="fa fa-close"></i>
+    </button>
+
+    <c-row>
+        <c-col>
+            <h2 class="page-title">Preview Selection</h2>
+            <br>
+        </c-col>
+    </c-row>
+</div>
+
+
+<ng-container *ngIf="ready">
+    <div class="wrapper">
+        <div class="dataPreview" *ngFor="let tableName of getPreviewKeys()">
+            <h4>{{ tableName }}</h4>
+
+            <table>
+                <thead>
+                <tr>
+                    <th *ngFor="let col of getPreviewColumns(tableName)">
+                        {{ col }}
+                    </th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr *ngFor="let row of preview[tableName]">
+                    <td *ngFor="let col of getPreviewColumns(tableName)" style="opacity: .3;">
+                        {{ row[col] }}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <br/>
+        </div>
+
+        <div class="dataMeta">
+            <h2>Metadata</h2>
+
+            <app-metadata-tree
+                    *ngIf="metadata"
+                    [node]="metadata"
+                    (columnToggle)="onColumnToggle($event)">
+            </app-metadata-tree>
+        </div>
+    </div>
+
+    <div>
+        <button (click)="sendMetadata()"> Send Metadata! </button>
+    </div>
+</ng-container>
+

@@ -46,7 +46,7 @@ import {PlanType} from '../models/information-page.model';
     providedIn: 'root'
 })
 export class CrudService {
-    private readonly _http = inject(HttpClient);
+    readonly _http = inject(HttpClient);
     private readonly _settings = inject(WebuiSettingsService);
 
     private enabledPlugins: [string] = null;
@@ -61,7 +61,7 @@ export class CrudService {
 
     public connected = false;
     private reconnected = new EventEmitter<boolean>();
-    private httpUrl = this._settings.getConnection('crud.rest');
+    httpUrl = this._settings.getConnection('crud.rest');
     private httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
     private httpOptionsPart = {headers: new HttpHeaders({'Content-Type': 'multipart/form-data'})};
     private socket;
@@ -288,6 +288,10 @@ export class CrudService {
      */
     previewTableForm(request: PreviewRequest, formdata: FormData) {
         formdata.set('body', JSON.stringify(request));
+        console.log('Daten, die als Preview geschickt werden');
+        formdata.forEach((value, key) => {
+            console.log(`${key}: ${value}`);
+        });
         return this._http.post(`${this.httpUrl}/previewTable`, formdata);
         alert('Methode wird aufgerufen');
     }
@@ -535,8 +539,10 @@ export class CrudService {
 
     createAdapter(adapter: AdapterModel, formdata: FormData) {
         formdata.set('body', JSON.stringify(adapter));
+        console.log('Adaptersettings vor der Creation');
         formdata.forEach((value, key) => {
             console.log(`${key}: ${value}`);
+
         });
         return this._http.post(`${this.httpUrl}/createAdapter`, formdata);
     }

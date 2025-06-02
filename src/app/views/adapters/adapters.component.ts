@@ -27,7 +27,7 @@ import {
     PathAccessRequest,
     PreviewResult,
     RelationalResult,
-    Node
+    AbstractNode
 } from '../../components/data-view/models/result-set.model';
 import {PreviewRequest} from '../../models/ui-request.model';
 import {Subscription} from 'rxjs';
@@ -112,8 +112,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     private readonly files = new Map<string, File>();
 
-    private pendingDeploy!: AdapterModel;
-    private pendingFormData!: FormData;
+    pendingDeploy!: AdapterModel;
+    pendingFormData!: FormData;
     metadataSelection = false;
 
 
@@ -121,7 +121,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         return (a, b) => {
             return a.position - b.position;
         };
-    }
+    };
 
 
     ngOnInit() {
@@ -252,7 +252,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             deploy.adapterName,
             deploy.type,
             Object.fromEntries(deploy.settings),
-            10
+            10,
+            deploy.name
         );
 
         this._crud.previewTableForm(previewReq, fd).subscribe({
@@ -268,11 +269,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
                 localStorage.setItem('adapterSettings', JSON.stringify(settingsObj));
                 localStorage.setItem('adapterInfo', JSON.stringify({
-                    uniqueName : deploy.name,
+                    uniqueName: deploy.name,
                     adapterName: deploy.adapterName,
-                    type       : deploy.type,
-                    mode       : deploy.mode,
-                    persistent : deploy.persistent
+                    type: deploy.type,
+                    mode: deploy.mode,
+                    persistent: deploy.persistent
                 }));
 
 
@@ -283,17 +284,18 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                         : JSON.stringify(preview.metadata)
                 );
 
-                localStorage.setItem('preview',  JSON.stringify(preview.preview));
+                localStorage.setItem('preview', JSON.stringify(preview.preview));
                 console.log(JSON.stringify(preview.metadata));
                 console.log(JSON.stringify(preview.preview));
 
 
-                this.pendingDeploy    = deploy;
-                this.pendingFormData  = fd;
+                (window as any).pendingDeploy = deploy;
+                (window as any).pendingFormData = fd;
+                (window as any).pendingFiles = this.files;
                 this.metadataSelection = true;
 
                 this.modalActive = false;
-                window.open('/#/table-selection',
+                const win = window.open('/#/preview-selection',
                     'popup',
                     'width=1000,height=700');
 
@@ -508,6 +510,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             window.URL.revokeObjectURL(url);
         }, 0);
     }
+
     private startDeploying(deploy: AdapterModel, formdata: FormData) {
         console.log(deploy);
         this.deploying = true;
@@ -614,45 +617,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             default:
                 return 'fa fa-database';
         }
-    }
-
-    openTableDialog(): void {
-        alert('Open table dialog');
-        // this.schemaDiscoveryService.openTableDialog();
-        // this._crud.previewTable(new PreviewRequest());
-        this._crud.previewTable(new PreviewRequest(
-            'PostgreSQL',
-            'SOURCE',
-            {
-                host: 'localhost',
-                port: '5432',
-                database: 'postgres',
-                username: 'postgres',
-                password: 'password',
-                tables: 'public.testtable',
-                maxConnections: '25',
-                transactionIsolation: 'SERIALIZABLE'
-            },
-            10
-        )).subscribe({
-            next: (result: PreviewResult) => {
-                try {
-                    localStorage.setItem('metaRoot', result.metadata);
-                    localStorage.setItem('preview', JSON.stringify(result.preview));
-
-                    window.open('/#/table-selection',
-                        'popup',
-                        'width=1000,height=700');
-
-                    this._toast.success('Preview erfolgreich geladen');
-                } catch (e) {
-                    console.error('Fail to parse data: ', e);
-                }
-            }, error: err => {
-                this._toast.error('Could not preview table', 'server error');
-                console.log(err);
-            }
-        });
     }
 
     private validateControl(form: UntypedFormControl, key: string) {

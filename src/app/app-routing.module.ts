@@ -37,6 +37,13 @@ export const routes: Routes = [
       }
     },
     {
+        path: 'preview-selection',
+        loadComponent: () => import('./components/preview-selection/preview-selection.component').then(m => m.PreviewSelectionComponent),
+        data: {
+            title: 'Preview Selection'
+        }
+    },
+    {
         path: '',
         pathMatch: 'full',
         redirectTo: 'views/monitoring'
