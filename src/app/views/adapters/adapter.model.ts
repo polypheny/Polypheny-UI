@@ -9,8 +9,9 @@ export class AdapterModel extends IdEntity {
     readonly mode: DeployMode;
     indexMethods: IndexMethodModel[];
     readonly metadata?: string[];
+    metadataChanged?: boolean;
 
-    constructor(uniqueName: string, adapterName: string, settings: Map<string, string>, persistent: boolean, type: AdapterType, deployMode: DeployMode, metadata?: string[]) {
+    constructor(uniqueName: string, adapterName: string, settings: Map<string, string>, persistent: boolean, type: AdapterType, deployMode: DeployMode, metadata?: string[], metadataChanged?: boolean) {
         super(-1, uniqueName);
         this.adapterName = adapterName;
         this.settings = settings;
@@ -18,6 +19,7 @@ export class AdapterModel extends IdEntity {
         this.type = type;
         this.mode = deployMode;
         this.metadata = metadata;
+        this.metadataChanged = metadataChanged;
     }
 }
 

@@ -26,6 +26,7 @@ import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {ModalModule} from 'ngx-bootstrap/modal';
+import {PreviewSelectionComponent} from './preview-selection/preview-selection.component';
 import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
@@ -158,7 +159,8 @@ import {PolyalgComponent, ScrollToDirective} from './querying/polyalg/polyalg.co
         ProgressComponent,
         ProgressBarComponent,
         CollapseDirective,
-        ButtonToolbarComponent
+        ButtonToolbarComponent,
+        PreviewSelectionComponent
     ],
     declarations: [
         EditColumnsComponent,
@@ -187,7 +189,7 @@ import {PolyalgComponent, ScrollToDirective} from './querying/polyalg/polyalg.co
         DockerconfigComponent,
         EditEntityComponent,
         PolyalgComponent,
-        ScrollToDirective
+        ScrollToDirective,
     ],
     exports: []
 })

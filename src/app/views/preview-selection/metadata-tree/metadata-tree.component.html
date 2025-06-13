@@ -6,6 +6,16 @@
       <input #cb type="checkbox"
              (change)="toggleColumn(path + '.' + node.name, cb.checked)">
             {{ node.name }}
+
+            <input class="aliases"
+                    type="text"
+                    #alias
+                    placeholder="Alias"
+                    [value]="getAlias(node)"
+                    (blur)="setAlias(node, alias.value)">
+
+
+
     </span>
 
         <ng-container *ngIf="node.children?.length">
@@ -14,6 +24,7 @@
                     [node]="child"
                     [path]="node.type === 'column' ? path : (path ? path + '.' + node.name : node.name)"
                     (columnToggle)="columnToggle.emit($event)">
+
             </app-metadata-tree>
         </ng-container>
     </li>

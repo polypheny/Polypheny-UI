@@ -220,7 +220,9 @@ export class PreviewRequest {
     limit: number;
     uniqueName?: string;
 
-    constructor(adapterName: string, adapterType: string, settings: { [key: string]: string }, limit: number, uniqueName: string) {
+    constructor(adapterName: string, adapterType: string, settings: {
+        [key: string]: string
+    }, limit: number, uniqueName: string) {
         this.adapterName = adapterName;
         this.adapterType = adapterType;
         this.settings = settings;
@@ -228,6 +230,20 @@ export class PreviewRequest {
         this.uniqueName = uniqueName;
     }
 }
+
+/**
+ * Request used for checking for available metadata changes.
+ */
+export class MetadataChangeRequest {
+    adapterName: string;
+    uniqueName: string;
+
+    constructor(adapterName: string, uniqueName: string) {
+        this.adapterName = adapterName;
+        this.uniqueName = uniqueName;
+    }
+}
+
 
 /**
  * Request to drop or create a constraint of a table

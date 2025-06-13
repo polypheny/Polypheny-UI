@@ -398,6 +398,10 @@ export interface AbstractNode {
     name: string;
     children?: AbstractNode[];
     properties?: { [key: string]: any };
+
+    addChild(node: AbstractNode): void;
+    addProperty(key: string, value: any): void;
+    getProperty(key: string): string | null;
 }
 
 /**

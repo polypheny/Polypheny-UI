@@ -1,12 +1,13 @@
 import {Component, inject} from '@angular/core';
 import {ButtonCloseDirective, ButtonDirective, ColComponent, RowComponent} from '@coreui/angular';
-import {RouterLink} from '@angular/router';
-import {AbstractNode} from '../data-view/models/result-set.model';
+import {Router, RouterLink} from '@angular/router';
+import {AbstractNode} from '../../components/data-view/models/result-set.model';
 import {CommonModule} from '@angular/common';
 import {MetadataTreeComponent} from './metadata-tree/metadata-tree.component';
-import {AdapterModel, AdapterType, PolyMap} from '../../views/adapters/adapter.model';
+import {AdapterModel, AdapterType, PolyMap} from '../adapters/adapter.model';
 import {DeployMode} from '../../models/catalog.model';
 import {CrudService} from '../../services/crud.service';
+import {PreviewNavigationService} from '../../services/preview-navigation.service';
 
 @Component({
     selector: 'app-preview-selection',
@@ -23,7 +24,11 @@ import {CrudService} from '../../services/crud.service';
 })
 export class PreviewSelectionComponent {
 
+    private readonly _nav = inject(PreviewNavigationService);
     private readonly _crud = inject(CrudService);
+    private readonly _router = inject(Router);
+
+    private ctx = null;
 
     formData: FormData = new FormData();
     pendingFiles!: Map<string, File>;
@@ -31,16 +36,31 @@ export class PreviewSelectionComponent {
 
 
     metadata: AbstractNode = null;
-    preview: Record<string, any[]> = {};
+    preview: Record<string, any[]> | any[] = {};
 
 
     selected: Set<string> = new Set();
     ready = false;
 
-
     ngOnInit() {
 
-        const opener = (window.opener as any);
+         this.ctx = this._nav.context;
+
+
+        if (!this.ctx) {
+            console.error('Preview-context not found !');
+            return;
+        }
+
+
+        this.formData = this.ctx.formData;
+        this.pendingFiles = this.ctx.files;
+        this.metadata = this.ctx.metadata;
+        this.preview = this.ctx.preview;
+        this.adapter = this.ctx.adapter;
+
+
+        /*const opener = (window.opener as any);
         this.formData = opener?.pendingFormData;
         this.pendingFiles = opener.pendingFiles as Map<string, File>;
 
@@ -79,7 +99,7 @@ export class PreviewSelectionComponent {
             info.persistent ?? true,
             info.type ?? AdapterType.SOURCE,
             info.mode ?? DeployMode.REMOTE
-        );
+        );*/
 
 
         this.ready = true;
@@ -87,7 +107,7 @@ export class PreviewSelectionComponent {
     }
 
     close(): void {
-        window.close();
+        this._router.navigate(['/views/adapters/addSource']);
     }
 
     deserializeNode(obj: any): Node {
@@ -104,6 +124,7 @@ export class PreviewSelectionComponent {
                 node.addChild(this.deserializeNode(child));
             }
         }
+
 
         return node;
     }
@@ -140,7 +161,7 @@ export class PreviewSelectionComponent {
     sendMetadata(): void {
 
         const newFormData = new FormData();
-        const files: Map<string,File> = (window.opener as any).pendingFiles;
+        const files: Map<string,File> = this.ctx.files;
 
 
         for (const [field, file] of this.pendingFiles) {
@@ -166,12 +187,12 @@ export class PreviewSelectionComponent {
 
         this._crud.createAdapter(this.adapter, newFormData).subscribe({
             next: res => {
-                alert('Adapter + Metadaten erfolgreich gesendet');
-                window.close();
+                alert('Adapter + Metadata sent successfully.');
+                this.close();
             },
             error: err => {
                 console.error(err);
-                alert('Fehler beim Senden!');
+                alert('Fail to send metadata!');
             }
         });
 
@@ -196,5 +217,9 @@ export class Node implements AbstractNode {
 
     addProperty(key: string, value: any): void {
         this.properties[key] = value;
+    }
+
+    getProperty(key: string): string {
+        return this.properties[key];
     }
 }

@@ -14,6 +14,7 @@ import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AdapterModel, AdapterType, PolyMap} from './adapter.model';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
+import {MetadataPollingService} from '../../services/metadata-polling.service';
 import {
     AbstractControl,
     FormGroup,
@@ -39,6 +40,7 @@ import {
 } from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {SchemaDiscoveryService} from '../../services/schema-discovery.service';
+import {PreviewNavigationService} from '../../services/preview-navigation.service';
 
 @Component({
     selector: 'app-adapters',
@@ -54,6 +56,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     private readonly _fb = inject(UntypedFormBuilder);
     private readonly _catalog = inject(CatalogService);
     private readonly _left = inject(LeftSidebarService);
+    private readonly _metaPolling = inject(MetadataPollingService);
 
     constructor(private injector: Injector,
                 private schemaDiscoveryService: SchemaDiscoveryService) {
@@ -77,6 +80,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     readonly availableAdapters: Signal<AdapterTemplateModel[]>;
     readonly currentRoute: WritableSignal<String> = signal(null);
     private subscriptions = new Subscription();
+    private nav: PreviewNavigationService = inject(PreviewNavigationService);
 
     readonly adapter: WritableSignal<Adapter> = signal(null);
     editingAdapterForm: FormGroup;
@@ -135,10 +139,12 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             this.currentRoute.set(params['action']);
         });
         this.subscriptions.add(sub);
+        this._metaPolling.start();
     }
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
+        this._metaPolling.stop();
     }
 
     subscribeActiveChange() {
@@ -211,9 +217,36 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         const current = Adapter.from(allSettings, adapter, Task.CHANGE);
         this.adapter.set(current);
         this.activeMode.set(current.modes[0]);
-
         this.handshaking = false;
         this.modalActive = true;
+    }
+
+    private openPreview(
+        adapter: AdapterModel,
+        preview: Record<string, any[]> | any[],
+        metaRoot: AbstractNode,
+        fd: FormData,
+        files: Map<string, File>,
+        adapterSettings: PolyMap<string, string>,
+        adapterInfo: Partial<{
+            uniqueName: string;
+            adapterName: string;
+            type: AdapterType;
+            mode: DeployMode;
+            persistent: boolean;
+        }>) {
+        this.nav.setContext({
+            mode: 'deploy',
+            adapter,
+            metadata: metaRoot,
+            preview,
+            formData: fd,
+            files,
+            adapterSettings,
+            adapterInfo
+        });
+
+        this._router.navigate(['/views/preview-selection']);
     }
 
     previewAndDeploy(): void {
@@ -267,7 +300,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 );
 
 
-                localStorage.setItem('adapterSettings', JSON.stringify(settingsObj));
+                /* localStorage.setItem('adapterSettings', JSON.stringify(settingsObj));
                 localStorage.setItem('adapterInfo', JSON.stringify({
                     uniqueName: deploy.name,
                     adapterName: deploy.adapterName,
@@ -297,13 +330,47 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 this.modalActive = false;
                 const win = window.open('/#/preview-selection',
                     'popup',
-                    'width=1000,height=700');
+                    'width=1000,height=700');*/
+                this.openPreview(
+                    deploy,
+                    preview.preview,
+                    typeof preview.metadata === 'string'
+                        ? JSON.parse(preview.metadata)
+                        : preview.metadata,
+                    fd,
+                    this.files,
+                    new PolyMap<string, string>(Object.entries(settingsObj)),
+                    {
+                        uniqueName: deploy.name,
+                        adapterName: deploy.adapterName,
+                        type: deploy.type,
+                        mode: deploy.mode,
+                        persistent: deploy.persistent
+                    }
+                );
 
                 this._toast.success('Preview erfolgreich geladen');
             },
             error: (err) => {
                 console.error('Preview fehlgeschlagen', err);
                 this._toast.error('Preview fehlgeschlagen');
+            }
+        });
+    }
+
+    previewAndChange(uniqueName: string): void {
+        this._crud.metadataChanges(uniqueName).subscribe({
+            next: (preview: PreviewResult) => {
+                const node = typeof preview.metadata === 'string' ? JSON.parse(preview.metadata) : preview.metadata;
+
+
+                /*this.nav.setContext({
+                    mode: 'change',
+                    metadata: node,
+                    adapterInfo: {
+                        uniqueName,
+                    }
+                });*/
             }
         });
     }
@@ -699,6 +766,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         return true;
     }
 
+    protected readonly alert = alert;
 }
 
 // see https://angular.io/guide/form-validation#custom-validators

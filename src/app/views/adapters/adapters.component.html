@@ -75,6 +75,13 @@
                         <c-spinner *ngIf="isDeleting(adapter)" size="sm" cBorder color="light"
                                    role="status"></c-spinner>
                     </button>
+                    <c-badge
+                        *ngIf="adapter.metadataChanged"
+                        color="warning"
+                        class="mx-2 pulse clickable"
+                        cTooltip="Metadata changed - click to review"
+                        (click)="alert('Data is now manipulated !')">❗
+                    </c-badge>
                     <button cButton color="primary" class="pull-right"
                             (click)="initAdapterSettingsConfigureModal(adapter)">
                         Configure

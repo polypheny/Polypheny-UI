@@ -154,7 +154,7 @@ export class CatalogService {
         for (let idEntity of idEntities) {
             const id = extract(idEntity);
             if (!map.has(id)) {
-                map.set(id, [])
+                map.set(id, []);
             }
             map.set(id, [idEntity, ...map.get(id)]);
         }
@@ -289,7 +289,7 @@ export class CatalogService {
     private getNamespaceIcon(dataModel: DataModel): string {
         if (!this.assets) {
             this.updateIfNecessary();
-            return "";
+            return '';
         }
         switch (dataModel) {
             case DataModel.DOCUMENT:
@@ -367,6 +367,21 @@ export class CatalogService {
     getSources() {
         return Array.from(this.adapters().values()).filter(a => {
             return a.type === AdapterType.SOURCE;
+        });
+    }
+
+    updateAdapterFlag(uniqueName: string, delta: Partial<AdapterModel>): void {
+        this.adapters.update(oldMap => {
+            const newMap = new Map(oldMap);
+
+            for (const [id, adapter] of oldMap.entries()) {
+                if (adapter.name === uniqueName) {
+                    newMap.set(id, { ...adapter, ...delta });
+                    break;
+                }
+            }
+
+            return newMap;
         });
     }
 

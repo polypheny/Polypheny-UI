@@ -13,6 +13,7 @@ import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.comp
 import {NotebooksComponent} from '../plugins/notebooks/components/notebooks.component';
 import {UnsavedChangesGuard} from '../plugins/notebooks/services/unsaved-changes.guard';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
+import {PreviewSelectionComponent} from './preview-selection/preview-selection.component';
 
 const routes: Routes = [
     {
@@ -166,6 +167,14 @@ const routes: Routes = [
         component: QueryInterfacesComponent,
         data: {
             title: 'QueryInterfaces'
+        }
+    },
+    {
+        path: 'preview-selection',
+        component: PreviewSelectionComponent,
+        data : {
+            title: 'Preview Selection',
+            breadcrumb: 'Preview'
         }
     },
     {

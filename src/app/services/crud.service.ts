@@ -40,6 +40,7 @@ import {Observable} from 'rxjs';
 import {PolyAlgRegistry} from '../components/polyalg/models/polyalg-registry';
 import {PlanNode} from '../components/polyalg/models/polyalg-plan.model';
 import {PlanType} from '../models/information-page.model';
+import {MetadataStatusResponse} from './metadata-polling.service';
 
 
 @Injectable({
@@ -294,6 +295,18 @@ export class CrudService {
         });
         return this._http.post(`${this.httpUrl}/previewTable`, formdata);
         alert('Methode wird aufgerufen');
+    }
+
+    metadataStatus(request: string) {
+        return this._http.get(`${this.httpUrl}/metadataStatus/${request}`, this.httpOptions);
+    }
+
+    metadataChanges(request: string) {
+        return this._http.get(`${this.httpUrl}/metadataChange/${request}`, this.httpOptions);
+    }
+
+    metadataAck(request: string) {
+        return this._http.post(`${this.httpUrl}/metadataAck/${request}`, this.httpOptions);
     }
 
     /**
