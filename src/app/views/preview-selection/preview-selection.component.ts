@@ -29,6 +29,7 @@ export class PreviewSelectionComponent {
     private readonly _router = inject(Router);
 
     private ctx = null;
+    mode!: null;
 
     formData: FormData = new FormData();
     pendingFiles!: Map<string, File>;
@@ -37,6 +38,7 @@ export class PreviewSelectionComponent {
 
     metadata: AbstractNode = null;
     preview: Record<string, any[]> | any[] = {};
+    adapterInfo?: null;
 
 
     selected: Set<string> = new Set();
@@ -52,12 +54,23 @@ export class PreviewSelectionComponent {
             return;
         }
 
+        this.mode = this.ctx.mode;
+        console.log(this.mode);
 
-        this.formData = this.ctx.formData;
-        this.pendingFiles = this.ctx.files;
-        this.metadata = this.ctx.metadata;
-        this.preview = this.ctx.preview;
-        this.adapter = this.ctx.adapter;
+        if (this.mode === 'deploy') {
+            this.formData = this.ctx.formData;
+            this.pendingFiles = this.ctx.files;
+            this.metadata = this.ctx.metadata;
+            this.preview = this.ctx.preview;
+            this.adapter = this.ctx.adapter;
+        } else {
+            this.metadata = this.ctx.metadata;
+            this.preview = this.ctx.preview;
+            this.adapterInfo = this.ctx.adapterInfo;
+        }
+
+
+
 
 
         /*const opener = (window.opener as any);
@@ -158,6 +171,11 @@ export class PreviewSelectionComponent {
             }
         });
     }*/
+
+    sendAck(): void {
+
+    }
+
     sendMetadata(): void {
 
         const newFormData = new FormData();

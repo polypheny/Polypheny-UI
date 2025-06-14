@@ -47,6 +47,14 @@ export class MetadataTreeComponent {
         node.properties['alias'] = trimmed;
     }
 
+    getNodeClass(node: AbstractNode): string {
+        switch (node.properties?.['diff']) {
+            case 'ADDED': return 'node-added';
+            case 'REMOVED': return 'node-removed';
+            default: return '';
+        }
+    }
+
 
 
 }

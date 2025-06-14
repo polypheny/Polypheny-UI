@@ -50,7 +50,8 @@
     </div>
 
     <div>
-        <button cButton size="sm" color="primary" (click)="sendMetadata()"> Send Metadata! </button>
+        <button *ngIf="this.mode === 'deploy'" cButton size="sm" color="primary" (click)="sendMetadata()"> Send Metadata! </button>
+        <button *ngIf="this.mode === 'change'" cButton size="sm" color="primary" (click)="sendAck()"> Send changes ! </button>
     </div>
 </ng-container>
 

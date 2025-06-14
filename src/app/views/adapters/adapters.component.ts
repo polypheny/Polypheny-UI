@@ -40,7 +40,7 @@ import {
 } from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {SchemaDiscoveryService} from '../../services/schema-discovery.service';
-import {PreviewNavigationService} from '../../services/preview-navigation.service';
+import {PreviewMode, PreviewNavigationService} from '../../services/preview-navigation.service';
 
 @Component({
     selector: 'app-adapters',
@@ -222,6 +222,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
 
     private openPreview(
+        mode: PreviewMode,
         adapter: AdapterModel,
         preview: Record<string, any[]> | any[],
         metaRoot: AbstractNode,
@@ -236,7 +237,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             persistent: boolean;
         }>) {
         this.nav.setContext({
-            mode: 'deploy',
+            mode: mode,
             adapter,
             metadata: metaRoot,
             preview,
@@ -332,6 +333,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                     'popup',
                     'width=1000,height=700');*/
                 this.openPreview(
+                    'deploy',
                     deploy,
                     preview.preview,
                     typeof preview.metadata === 'string'
@@ -363,14 +365,20 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             next: (preview: PreviewResult) => {
                 const node = typeof preview.metadata === 'string' ? JSON.parse(preview.metadata) : preview.metadata;
 
-
-                /*this.nav.setContext({
-                    mode: 'change',
-                    metadata: node,
-                    adapterInfo: {
-                        uniqueName,
+                this.openPreview(
+                    'change',
+                    null,
+                    preview.preview,
+                    typeof preview.metadata === 'string'
+                        ? JSON.parse(preview.metadata)
+                        : preview.metadata,
+                    null,
+                    null,
+                    null,
+                    {
+                        uniqueName: uniqueName
                     }
-                });*/
+                );
             }
         });
     }

@@ -80,7 +80,7 @@
                         color="warning"
                         class="mx-2 pulse clickable"
                         cTooltip="Metadata changed - click to review"
-                        (click)="alert('Data is now manipulated !')">❗
+                        (click)="previewAndChange(adapter.name)">❗
                     </c-badge>
                     <button cButton color="primary" class="pull-right"
                             (click)="initAdapterSettingsConfigureModal(adapter)">

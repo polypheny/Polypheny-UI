@@ -1,5 +1,5 @@
 <ul class="tree">
-    <li>
+    <li [ngClass]="getNodeClass(node)">
         <span *ngIf="node.type !== 'column'">{{ node.name }}</span>
 
         <span *ngIf="node.type === 'column'">
