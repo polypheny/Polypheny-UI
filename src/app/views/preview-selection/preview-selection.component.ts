@@ -38,7 +38,7 @@ export class PreviewSelectionComponent {
 
     metadata: AbstractNode = null;
     preview: Record<string, any[]> | any[] = {};
-    adapterInfo?: null;
+    adapterInfo: string = null;
 
 
     selected: Set<string> = new Set();
@@ -46,7 +46,7 @@ export class PreviewSelectionComponent {
 
     ngOnInit() {
 
-         this.ctx = this._nav.context;
+        this.ctx = this._nav.context;
 
 
         if (!this.ctx) {
@@ -66,11 +66,8 @@ export class PreviewSelectionComponent {
         } else {
             this.metadata = this.ctx.metadata;
             this.preview = this.ctx.preview;
-            this.adapterInfo = this.ctx.adapterInfo;
+            this.adapterInfo = this.ctx.adapterInfo.uniqueName;
         }
-
-
-
 
 
         /*const opener = (window.opener as any);
@@ -173,13 +170,32 @@ export class PreviewSelectionComponent {
     }*/
 
     sendAck(): void {
+        const selected: string[] = Array.from(this.selected);
+
+        const payload = {
+            uniqueName: this.adapterInfo,
+            selectedPaths: selected
+        };
+
+        this._crud.metadataAck(payload).subscribe(
+            {
+                next: () => {
+                    alert('ACK was send.');
+                    this.close();
+                },
+                error: err => {
+                    alert('ACK was not send successfully!');
+                }
+            }
+        );
+
 
     }
 
     sendMetadata(): void {
 
         const newFormData = new FormData();
-        const files: Map<string,File> = this.ctx.files;
+        const files: Map<string, File> = this.ctx.files;
 
 
         for (const [field, file] of this.pendingFiles) {

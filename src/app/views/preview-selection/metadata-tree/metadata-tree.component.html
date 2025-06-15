@@ -24,7 +24,6 @@
                     [node]="child"
                     [path]="node.type === 'column' ? path : (path ? path + '.' + node.name : node.name)"
                     (columnToggle)="columnToggle.emit($event)">
-
             </app-metadata-tree>
         </ng-container>
     </li>

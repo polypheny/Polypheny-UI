@@ -305,8 +305,8 @@ export class CrudService {
         return this._http.get(`${this.httpUrl}/metadataChange/${request}`, this.httpOptions);
     }
 
-    metadataAck(request: string) {
-        return this._http.post(`${this.httpUrl}/metadataAck/${request}`, this.httpOptions);
+    metadataAck(body: { uniqueName: string, selectedPaths: string[] }) {
+        return this._http.post(`${this.httpUrl}/metadataAck/${body.uniqueName}`, body, this.httpOptions);
     }
 
     /**
