@@ -196,6 +196,7 @@ export class PreviewSelectionComponent {
 
     sendMetadata(): void {
 
+        const aliases: Map<string, string> = new Map();
         const newFormData = new FormData();
         const files: Map<string, File> = this.ctx.files;
 
@@ -208,6 +209,9 @@ export class PreviewSelectionComponent {
 
 
         (this.adapter as any).metadata = Array.from(this.selected);
+
+        this.collectAliases(this.metadata, aliases);
+        (this.adapter as any).columnAliases = aliases;
 
         const firstFileName = files.keys().next().value as string;
 
@@ -232,6 +236,18 @@ export class PreviewSelectionComponent {
             }
         });
 
+    }
+
+    private collectAliases(node: AbstractNode, out: Map<string, string>, path: string='') {
+        const currentPath = path ? `${path}.${node.name}` : node.name;
+
+        if (node.type === 'column') {
+            const alias = node.properties?.['alias'];
+            if (alias) {
+                out[currentPath] = alias;
+            }
+        }
+        node.children?.forEach(c => this.collectAliases(c, out, currentPath));
     }
 
 }

@@ -10,8 +10,9 @@ export class AdapterModel extends IdEntity {
     indexMethods: IndexMethodModel[];
     readonly metadata?: string[];
     metadataChanged?: boolean;
+    columnAliases?: Map<string, string>;
 
-    constructor(uniqueName: string, adapterName: string, settings: Map<string, string>, persistent: boolean, type: AdapterType, deployMode: DeployMode, metadata?: string[], metadataChanged?: boolean) {
+    constructor(uniqueName: string, adapterName: string, settings: Map<string, string>, persistent: boolean, type: AdapterType, deployMode: DeployMode, metadata?: string[], metadataChanged?: boolean, aliase?: Map<string, string>) {
         super(-1, uniqueName);
         this.adapterName = adapterName;
         this.settings = settings;
@@ -20,6 +21,7 @@ export class AdapterModel extends IdEntity {
         this.mode = deployMode;
         this.metadata = metadata;
         this.metadataChanged = metadataChanged;
+        this.columnAliases = aliase;
     }
 }
 
