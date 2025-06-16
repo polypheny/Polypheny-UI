@@ -4,7 +4,7 @@ import {AdapterModel, AdapterType, PolyMap} from '../views/adapters/adapter.mode
 import {DeployMode} from '../models/catalog.model';
 
 
-export type PreviewMode = 'deploy' | 'change';
+export type PreviewMode = 'deploy' | 'change' | 'config';
 
 export interface PreviewContext {
     mode: PreviewMode;

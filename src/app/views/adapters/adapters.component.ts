@@ -25,19 +25,15 @@ import {
     Validators
 } from '@angular/forms';
 import {
+    AbstractNode,
     PathAccessRequest,
     PreviewResult,
-    RelationalResult,
-    AbstractNode
+    RelationalResult
 } from '../../components/data-view/models/result-set.model';
 import {PreviewRequest} from '../../models/ui-request.model';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
-import {
-    AdapterSettingModel,
-    AdapterTemplateModel,
-    DeployMode
-} from '../../models/catalog.model';
+import {AdapterSettingModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {SchemaDiscoveryService} from '../../services/schema-discovery.service';
 import {PreviewMode, PreviewNavigationService} from '../../services/preview-navigation.service';
@@ -212,14 +208,41 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
 
     initAdapterSettingsConfigureModal(adapter: AdapterModel) {
-        const allSettings = this._catalog.getAdapterTemplate(adapter.adapterName, adapter.type);
-
-        const current = Adapter.from(allSettings, adapter, Task.CHANGE);
-        this.adapter.set(current);
-        this.activeMode.set(current.modes[0]);
-        this.handshaking = false;
-        this.modalActive = true;
+        if (adapter.type === AdapterType.SOURCE) {
+            const uniqueName = adapter.name.toLowerCase();
+            this.getMetaConfiguration(uniqueName);
+        } else {
+            const allSettings = this._catalog.getAdapterTemplate(adapter.adapterName, adapter.type);
+            const current = Adapter.from(allSettings, adapter, Task.CHANGE);
+            this.adapter.set(current);
+            this.activeMode.set(current.modes[0]);
+            this.handshaking = false;
+            this.modalActive = true;
+        }
     }
+
+    private getMetaConfiguration(uniqueName: string) {
+        this._crud.metadataConfiguration(uniqueName).subscribe({
+                next: (preview: PreviewResult) => {
+                    this.openPreview(
+                        'config',
+                        null,
+                        preview.preview,
+                        typeof preview.metadata === 'string'
+                            ? JSON.parse(preview.metadata)
+                            : preview.metadata,
+                        null,
+                        null,
+                        null,
+                        {
+                            uniqueName: uniqueName
+                        }
+                    );
+                }
+            }
+        );
+    }
+
 
     private openPreview(
         mode: PreviewMode,

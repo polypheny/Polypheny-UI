@@ -306,7 +306,12 @@ export class CrudService {
     }
 
     metadataAck(body: { uniqueName: string, selectedPaths: string[] }) {
+        console.log(body);
         return this._http.post(`${this.httpUrl}/metadataAck/${body.uniqueName}`, body, this.httpOptions);
+    }
+
+    metadataConfiguration(request: string) {
+        return this._http.get(`${this.httpUrl}/metadataConfiguration/${request}`, this.httpOptions);
     }
 
     /**

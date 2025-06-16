@@ -188,7 +188,9 @@ export class PreviewSelectionComponent {
                 }
             }
         );
+    }
 
+    sendConfigChange(): void {
 
     }
 
