@@ -1,0 +1,60 @@
+svg {
+  overflow: visible;
+  position: absolute;
+  pointer-events: none;
+
+  path {
+    fill: none;
+    stroke-width: 4px;
+    pointer-events: auto;
+    stroke: var(--cui-dark);
+
+    &.state-IDLE {
+      stroke: var(--cui-dark);
+    }
+
+    &.state-ACTIVE {
+      stroke: var(--cui-success);
+    }
+
+    &.state-INACTIVE {
+      stroke: var(--cui-danger);
+    }
+
+    &.is-control {
+      stroke-dasharray: 16, 8;
+      stroke-width: 3px;
+
+      &.is-fail-control {
+        stroke-dasharray: 16, 4, 3, 4;
+      }
+    }
+
+    &.is-magnetic {
+      stroke: rgba(79, 93, 115, 0.3);
+    }
+  }
+}
+
+#path-label {
+  position: absolute;
+
+  i {
+    color: var(--cui-dark);
+  }
+
+  i.state-ACTIVE {
+    color: var(--cui-success);
+  }
+
+  i.state-INACTIVE {
+    color: var(--cui-danger);
+  }
+}
+
+.multi-index {
+  position: absolute;
+  transform: translate(-50%, -150%);
+  z-index: 1;
+  user-select: none;
+}

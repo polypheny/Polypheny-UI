@@ -27,7 +27,7 @@ import {
     DropdownItemDirective,
     DropdownMenuDirective,
     DropdownToggleDirective,
-    FormCheckInputDirective,
+    FormCheckComponent,
     FormCheckLabelDirective,
     FormControlDirective,
     FormDirective,
@@ -131,6 +131,7 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {AlgMetadataComponent} from './polyalg/algnode/alg-metadata/alg-metadata.component';
 import {DoubleArgComponent} from './polyalg/controls/double-arg/double-arg.component';
 import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.component';
+import {AutocompleteComponent} from './autocomplete/autocomplete.component';
 
 //import 'hammerjs';
 
@@ -218,7 +219,8 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         PopoverDirective,
         PopoverModule,
         ButtonToolbarComponent,
-        BadgeComponent
+        BadgeComponent,
+        FormCheckComponent
     ],
     declarations: [
         BreadcrumbComponent,
@@ -267,7 +269,8 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         MagneticConnectionComponent,
         AlgMetadataComponent,
         DoubleArgComponent,
-        WindowArgComponent
+        WindowArgComponent,
+        AutocompleteComponent
     ],
     exports: [
         BreadcrumbComponent,
@@ -291,7 +294,9 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         Toast,
         ReloadButtonComponent,
         DockerInstanceComponent,
-        AlgViewerComponent
+        AlgViewerComponent,
+        JsonTextComponent,
+        AutocompleteComponent
     ]
 })
 export class ComponentsModule {

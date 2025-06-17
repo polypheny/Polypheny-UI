@@ -168,8 +168,8 @@
     </c-row>
 </c-container>
 
-<div class="nb-scroll px-3" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
-    <h1 class="nb-title">{{ name }}</h1>
+<div class="nb-scroll" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
+    <h1 class="nb-title">{{name}}</h1>
     <div class="nb-background mt-4 pt-4">
         <ng-container *ngIf="nb">
             <div cdkDropList class="drop-list" (cdkDropListDropped)="drop($event)">

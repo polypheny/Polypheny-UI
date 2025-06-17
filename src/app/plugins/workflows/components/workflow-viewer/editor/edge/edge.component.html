@@ -1,0 +1,13 @@
+<svg data-testid="connection">
+    <path [attr.d]="path" [ngClass]="'state-' + data.state?.()"
+          [class.is-control]="isControl" [class.is-magnetic]="data.isMagnetic" [class.is-fail-control]="isFailControl"/>
+</svg>
+<div *ngIf="center && start && end" id="path-label" [style.left.px]="center().x"
+     [style.top.px]="center().y" [style.transform]="'translate(-50%, -50%) rotate(' + center().angle + 'deg)'">
+    <i class="fa fa-play" [class.fa-lg]="!isControl" [class.fa-md]="isControl" [ngClass]="'state-' + data.state?.()"></i>
+</div>
+
+<div *ngIf="data.isMulti && center && start && end" class="multi-index" [style.left.px]="center().x"
+     [style.top.px]="center().y">
+    <span *ngIf="data.isMulti" class="multi-index badge bg-dark p-1">{{ data.multiIdx }}</span>
+</div>

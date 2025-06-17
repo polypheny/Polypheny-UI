@@ -6,15 +6,10 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {Subscription} from 'rxjs';
-import {
-    AllocationEntityModel,
-    AllocationPartitionModel,
-    AllocationPlacementModel,
-    NamespaceModel,
-    TableModel
-} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {Method} from '../../../models/ui-request.model';
 import {AdapterModel} from '../../adapters/adapter.model';
+import {CatalogService} from '../../../services/catalog.service';
 
 @Component({
     selector: 'app-graph-edit',
@@ -27,6 +22,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     public readonly _crud = inject(CrudService);
     public readonly _types = inject(DbmsTypesService);
     private readonly _toast = inject(ToasterService);
+    private readonly _catalog = inject(CatalogService);
 
     constructor() {
 

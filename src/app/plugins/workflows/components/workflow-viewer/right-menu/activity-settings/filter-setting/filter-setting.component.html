@@ -1,0 +1,77 @@
+<c-input-group sizing="sm" class="mb-3">
+    <label cInputGroupText for="selectMode">{{ fieldType() | titlecase }} Selection</label>
+    <select cSelect id="selectMode" [(ngModel)]="value().targetMode" (change)="valueChanged()"
+            [disabled]="!isEditable()">
+        @for (mode of modes(); track mode[0]) {
+            <option [value]="mode[0]">{{ mode[1] | titlecase }}</option>
+        }
+    </select>
+</c-input-group>
+
+
+<c-card class="list-container border bg-light mb-2" *ngIf="conditions()?.length > 0">
+    <ul cListGroup flush="true">
+        @for (condition of conditions(); track $index) {
+            <li cListGroupItem class="bg-white list-entry">
+                <c-row gutter=false>
+                    <c-col [xs]="11">
+                        <div class="d-flex mb-1 align-items-center justify-content-between">
+                            @if (value().targetMode === 'EXACT') {
+                                <div class="half-width">
+                                    <app-autocomplete (changed)="valueChanged()"
+                                                      [data]="suggestions()"
+                                                      [(value)]="condition.field"
+                                                      [placeholder]="fieldType() | titlecase"
+                                                      [disabled]="!isEditable()">
+                                    </app-autocomplete>
+                                </div>
+                            } @else {
+                                <input cFormControl sizing="sm" [placeholder]="value().targetMode === 'REGEX' ? 'Regex' : (fieldType() | titlecase) + ' index'"
+                                       type="text" autocomplete="off" [disabled]="!isEditable()" (input)="hasChanged.emit()" class="half-width"
+                                       [(ngModel)]="condition.field" (change)="valueChanged()">
+                            }
+
+                            <c-input-group sizing="sm" class="ms-2 half-width">
+                                <select cSelect id="conditionOp" [(ngModel)]="condition.operator" (change)="valueChanged()"
+                                        [disabled]="!isEditable()">
+                                    <option *ngFor="let op of opChoices()" [value]="op[0]">{{ op[1] }}</option>
+                                </select>
+                            </c-input-group>
+                        </div>
+
+
+                        <div class="d-flex mb-1 align-items-center justify-content-between" *ngIf="!hideValue.has(condition.operator)">
+                            <input cFormControl sizing="sm" id="conditionValue" class="half-width"
+                                   [placeholder]="condition.operator == 'INCLUDED' || condition.operator === 'NOT_INCLUDED' ? 'Value1, Value2, ...' : 'Value'"
+                                   type="text" autocomplete="off" [disabled]="!isEditable()" (input)="hasChanged.emit()"
+                                   [(ngModel)]="condition.value" (change)="valueChanged()">
+
+                            <c-input-group class="ms-2 half-width" *ngIf="showIgnoreCase.has(condition.operator)">
+                                <c-form-check [switch]="true">
+                                    <input cFormCheckInput type="checkbox" [disabled]="!isEditable()" (change)="valueChanged()"
+                                           [(ngModel)]="condition.ignoreCase"/>
+                                    <label cFormCheckLabel>Ignore case</label>
+                                </c-form-check>
+                            </c-input-group>
+                        </div>
+                    </c-col>
+                    <c-col [xs]="1" class="text-end p-0" *ngIf="isEditable()">
+                        <app-delete-confirm (delete)="deleteCondition($index)"></app-delete-confirm>
+                    </c-col>
+                </c-row>
+            </li>
+        }
+    </ul>
+</c-card>
+
+<button cButton color="light" *ngIf="isEditable()" (click)="addCondition()" size="sm" class="mb-2">
+    Add Condition
+</button>
+
+<c-input-group>
+    <c-form-check [switch]="true">
+        <input cFormCheckInput type="checkbox" [disabled]="!isEditable()" (change)="valueChanged()"
+               [(ngModel)]="value().combineWithOr"/>
+        <label cFormCheckLabel>Any match is sufficient (logical OR of conditions)</label>
+    </c-form-check>
+</c-input-group>

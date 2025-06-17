@@ -6,6 +6,9 @@ import 'ace-builds/src-noconflict/mode-java';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/mode-markdown';
 import 'ace-builds/src-noconflict/mode-pig';
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/mode-plain_text';
+import 'ace-builds/src-noconflict/mode-sh';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import {SidebarNode} from '../../models/sidebar-node.model';
@@ -34,7 +37,7 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
     @Input() code ?;
 
     suggestions: string[] = [];
-    private readonly supportedLanguages = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig'];
+    private readonly supportedLanguages = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig', 'json', 'plain_text', 'sh'];
 
     constructor() {
         effect(() => {
@@ -53,7 +56,7 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.lang && !changes.lang.firstChange) {
+        if (changes.language && !changes.language.firstChange) {
             this.updateLanguage();
         }
         if (changes.autocomplete && !changes.autocomplete.firstChange) {
@@ -123,6 +126,10 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
         }
     }
 
+    insertAtCursor(code: string) {
+        this.codeEditor.session.insert(this.codeEditor.getCursorPosition(), code);
+    }
+
     // from: https://stackoverflow.com/questions/30041816/ace-editor-autocomplete-custom-strings
     setAutocomplete() {
         this.codeEditor.setOptions({enableLiveAutocompletion: true});
@@ -175,7 +182,6 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
             this.codeEditor.getSession().setMode('ace/mode/' + this.language);
         } else {
             this.codeEditor.getSession().setMode('ace/mode/sql');
-
         }
     }
 

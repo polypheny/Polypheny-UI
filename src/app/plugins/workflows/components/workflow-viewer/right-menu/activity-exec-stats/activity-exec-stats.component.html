@@ -1,0 +1,115 @@
+<p class="text-muted mb-1"><strong>Activity ID:</strong> {{ activity().id }}</p>
+<p class="text-muted"><strong>Activity Type:</strong> {{ activity().def.type }}</p>
+
+
+@if (activity().executionInfo()) {
+    <h5>{{ activity().executionInfo().executorType }} Executor</h5>
+    <c-card class="mb-3">
+        <c-card-body>
+            <c-row class="mb-1" gutter="false">
+                <c-col [xs]="6">
+                    <strong>Submission Time:</strong>
+                </c-col>
+                <c-col [xs]="'auto'">
+                    {{ activity().executionInfo().submissionTime | date:'medium' }}
+                </c-col>
+            </c-row>
+            <c-row class="mb-1">
+                <c-col [xs]="6">
+                    <strong>Execution State:</strong>
+                </c-col>
+                <c-col [xs]="'auto'">
+                    {{ activity().executionInfo().state }}
+                </c-col>
+            </c-row>
+            <c-row class="mb-1">
+                <c-col [xs]="6">
+                    @if (activity().executionInfo().activities.length > 1) {
+                        <strong>Tuples written (by root of Execution Tree):</strong>
+                    } @else {
+                        <strong>Tuples written:</strong>
+                    }
+                </c-col>
+                <c-col [xs]="'auto'">
+                    {{ activity().executionInfo().tuplesWritten }}
+                </c-col>
+            </c-row>
+
+            @if (activity().executionInfo().activities.length > 1) {
+                <p class="mb-1"><strong>Activities in Execution Tree:</strong></p>
+                <ul cListGroup flush="true">
+                    <li cListGroupItem *ngFor="let activity of activity().executionInfo().activities">
+                        {{ activity }}
+                    </li>
+                </ul>
+            }
+
+            @if (activity().error()) {
+                <p class="mb-1"><strong>Execution Error: </strong></p>
+                <div class="text-danger text-break"
+                     style="white-space: pre-line; max-height: 15em; overflow-y: auto;">
+                    {{ activity().error().message }}
+                </div>
+            }
+
+            <h5 class="mt-3">Duration</h5>
+            <table cTable small="true">
+                <thead cTableColor="light">
+                <tr>
+                    <th scope="col">Phase</th>
+                    <th scope="col">Time (ms)</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @for (duration of orderedDurations(); track duration[0]) {
+                        <tr>
+                            <th scope="row">{{ duration[0] }}</th>
+                            <td>{{ duration[1] | number:'1.2-2' }}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <p class="mb-1"><strong>Total Duration:</strong> {{ activity().executionInfo().totalDuration }} ms</p>
+        </c-card-body>
+    </c-card>
+
+
+
+
+    @if (activity().logMessages().length > 0) {
+        <h5>Log</h5>
+        <div class="overflow-x-auto mb-2">
+            <table cTable small="true">
+                <thead cTableColor="light">
+                <tr>
+                    <th scope="col">Level</th>
+                    <th scope="col">Time (ms)</th>
+                    <th scope="col">Message</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @for (logMsg of activity().logMessages(); track activity().id + $index) {
+                        <tr>
+                            <th scope="row" [ngClass]="{'text-warning': logMsg.level === 'WARN', 'text-danger': logMsg.level === 'ERROR'}">{{ logMsg.level }}</th>
+                            <td>{{ logMsg.timeMs }}</td>
+
+                            @if ($first && settingSplit()) {
+                                <td>
+                                    {{ settingSplit()[0] }}
+                                    <app-json-text [text]="settingSplit()[1]" [expanded]="true"></app-json-text>
+                                </td>
+
+                            } @else {
+                                <td>{{ logMsg.msg }}</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+} @else {
+    <c-callout color="primary">
+        Execute the activity to show execution stats.
+    </c-callout>
+}

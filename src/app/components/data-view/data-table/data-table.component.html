@@ -64,7 +64,7 @@
                                    (enter)="updateTuple()" [attr.data-before]="d2"
                                    [attr.data-col]="$result().header[j].name"></app-input>
                     </td>
-                    <td *ngIf="entityConfig.update || entityConfig().delete">
+                    <td *ngIf="entityConfig().update || entityConfig().delete">
                         <button cButton color="primary" *ngIf="uploadProgress === -1" id="editColSave"
                                 (click)="updateTuple()"><i class="fa fa-save"></i></button>
                     </td>
@@ -123,7 +123,7 @@
                                (valueChange)="inputChange(h.name, $event)"
                                (enter)="insertTuple()"></app-input>
                 </td>
-                <td *ngIf="entityConfig.update || entityConfig().delete">
+                <td *ngIf="entityConfig().update || entityConfig().delete">
                     <button cButton color="primary" id="addColumnBtn" (click)="insertTuple()"
                             *ngIf="uploadProgress === -1 || editing !== -1">+
                     </button>

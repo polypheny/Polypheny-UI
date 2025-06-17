@@ -1,18 +1,4 @@
-import {
-    Component,
-    EventEmitter,
-    HostListener,
-    inject,
-    Input,
-    OnChanges,
-    OnDestroy,
-    OnInit,
-    Output,
-    QueryList,
-    SimpleChanges,
-    ViewChild,
-    ViewChildren
-} from '@angular/core';
+import {Component, EventEmitter, HostListener, inject, Input, OnChanges, OnDestroy, OnInit, Output, QueryList, SimpleChanges, ViewChild, ViewChildren} from '@angular/core';
 import {KernelSpec, NotebookContent, SessionResponse} from '../../models/notebooks-response.model';
 import {NotebooksService} from '../../services/notebooks.service';
 import {NotebooksSidebarService} from '../../services/notebooks-sidebar.service';
@@ -30,6 +16,7 @@ import {LoadingScreenService} from '../../../../components/loading-screen/loadin
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {WebuiSettingsService} from '../../../../services/webui-settings.service';
+import {MarkdownService, MarkedRenderer} from 'ngx-markdown';
 
 @Component({
     selector: 'app-edit-notebook',
@@ -47,6 +34,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     private readonly _loading = inject(LoadingScreenService);
 
     private readonly _settings = inject(WebuiSettingsService);
+    private readonly _markdown = inject(MarkdownService);
 
     @Input() sessionId: string;
     @Output() openChangeSessionModal = new EventEmitter<{ name: string, path: string }>();
@@ -87,9 +75,13 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this._content.onSessionsChange().subscribe(sessions => this.updateSession(sessions))
         );
         this.subscriptions.add(
-            this._content.onNamespaceChange().subscribe(namespaces => this.namespaces = namespaces)
+            this._content.onNamespaceChange().subscribe(namespaces => {
+                console.log('namespaces:', namespaces);
+                this.namespaces = namespaces;
+            })
         );
         this.initForms();
+        this.initMarkdown();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -755,6 +747,33 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         return this.cellComponents.find(c => {
             return c.id === this.selectedCell.id;
         });
+    }
+
+    private initMarkdown() {
+        const renderer = new MarkedRenderer();
+
+        // enforce usage of default renderer, since heading is changed in workflow
+        renderer.heading = renderer.heading.bind(renderer);
+
+        renderer.blockquote = (text: string) => {
+            return '<blockquote class="blockquote"><p>' + text + '</p></blockquote>';
+        };
+
+        const defaultLinkRenderer = renderer.link.bind(renderer);
+        renderer.link = (href, title, text) => {
+            const link = defaultLinkRenderer(href, title, text);
+            return link.startsWith('<a') ? '<a target="_blank"' + link.slice(2) : link;
+        };
+
+        // https://github.com/jfcere/ngx-markdown/issues/149#issuecomment-1008360616
+        const baseUrl = this._settings.getConnection('notebooks.file') + '/notebooks';
+        const defaultImageRenderer = renderer.image.bind(renderer);
+        renderer.image = (href: string | null, title: string | null, text) => {
+            href = `${baseUrl}/${href}`;
+            return defaultImageRenderer(href, title, text);
+        };
+
+        this._markdown.renderer = renderer;
     }
 }
 

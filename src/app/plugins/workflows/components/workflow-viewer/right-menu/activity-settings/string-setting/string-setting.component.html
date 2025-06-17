@@ -1,0 +1,28 @@
+@if (def().textEditor) {
+    <div class="editor-container border">
+        <app-editor #editor id="text-editor"
+                    [language]="def().textEditorLanguage"
+                    [autocomplete]="false"
+                    [initOptions]="editorOptions"
+                    [useParentHeight]="true"
+        />
+    </div>
+} @else if (usesAutocomplete()) {
+    <div>
+        <app-autocomplete (changed)="valueChanged()"
+                          [data]="suggestions()"
+                          [value]="value()" (valueChange)="value.set($event)"
+                          [placeholder]="def().autoComplete === 'FIELD_NAMES' ? 'field' : 'value'"
+                          [disabled]="!isEditable()">
+        </app-autocomplete>
+    </div>
+    @if (def().autoComplete === 'WORKFLOW_NAMES') {
+        <div cFormText *ngIf="workflowNamesToId.get(value())">
+            ID: <span class="user-select-all">{{ workflowNamesToId.get( value() ) }}</span>
+        </div>
+    }
+} @else {
+    <input cFormControl sizing="sm" id="setting" [placeholder]="def().containsRegex ? 'regex' : 'value'"
+           type="text" autocomplete="off" [disabled]="!isEditable()" (input)="hasChanged.emit()"
+           [ngModel]="value()" (ngModelChange)="value.set($event)">
+}

@@ -51,7 +51,8 @@
               "node_modules/plyr/dist/plyr.css",
               "node_modules/@ali-hm/angular-tree-component/css/angular-tree-component.css",
               "node_modules/katex/dist/katex.min.css",
-              "node_modules/prismjs/themes/prism-okaidia.css"
+              "node_modules/prismjs/themes/prism-okaidia.css",
+              "src/scss/angular2-multiselect-dropdown.scss"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
@@ -61,6 +62,7 @@
             "scripts": [
               "node_modules/chart.js/dist/chart.min.js",
                 "node_modules/katex/dist/katex.min.js",
+              "node_modules/katex/dist/contrib/auto-render.min.js",
                 "node_modules/prismjs/prism.js",
                 "node_modules/prismjs/components/prism-css.min.js",
                 "node_modules/prismjs/components/prism-cypher.min.js",

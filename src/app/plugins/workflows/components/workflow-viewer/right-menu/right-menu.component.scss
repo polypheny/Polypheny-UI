@@ -1,0 +1,32 @@
+
+[hidden] {
+  display: none !important;
+}
+
+.menu {
+  width: 500px;
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.menu-body {
+  overflow-x: hidden;
+  overflow-y: auto;
+  flex-basis: 0;
+}
+
+.edit-name-button:hover {
+  color: var(--cui-heading-color) !important;
+}
+
+.editable-name {
+  font-weight: 500;
+  line-height: 1;
+  color: var(--cui-heading-color) !important;
+  font-size: 1.75rem;
+}

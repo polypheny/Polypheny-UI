@@ -1,11 +1,10 @@
-import {NodeEditor} from 'rete';
+import {GetSchemes, NodeEditor} from 'rete';
 import {AreaExtensions, AreaPlugin} from 'rete-area-plugin';
 import {getFrameWeight} from './frame';
 import {animate, watchPointerMove} from './utils';
-import {Schemes} from '../alg-editor';
 
 interface Props {
-    area: AreaPlugin<Schemes, any>;
+    area: AreaPlugin<GetSchemes<any, any>, any>;
     selector: AreaExtensions.Selector<any>;
     intensity?: number;
     padding?: number;

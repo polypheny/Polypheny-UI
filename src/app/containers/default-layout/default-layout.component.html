@@ -76,6 +76,13 @@
                     </c-nav-item>
 
                     <c-nav-item>
+                        <a cNavLink [routerLink]="['/views/workflows']" routerLinkActive="active">
+                            <i class="fa fa-code-fork fa-rotate-270"></i>
+                            <span class="ms-2">Workflows</span>
+                        </a>
+                    </c-nav-item>
+
+                    <c-nav-item>
                         <a cNavLink [routerLink]="['/views/adapters']" routerLinkActive="active">
                             <i class="fa fa-database"></i>
                             <span class="ms-1">Adapters</span>
@@ -115,7 +122,7 @@
 
 
     <div class="wrapper position-relative h-100 d-flex flex-grow-1 overflow-y-auto">
-        <c-sidebar id="left" [visible]="this._left.isVisible()" size="lg" class="position-relative p-3">
+        <c-sidebar #leftSidebar id="left" [visible]="this._left.isVisible()" size="lg" class="position-relative p-3" (visibleChange)="changedVisible($event)">
             <app-left-sidebar class="flex-grow-1 h-100"></app-left-sidebar>
         </c-sidebar>
 
@@ -126,8 +133,8 @@
 
             <!-- Main content -->
             <div class="overflow-y-auto flex-grow-1 d-flex flex-column bg-body">
-                <c-container class="flex-grow-1 gy-2">
-                    <c-row class="h-100 align-content-start" [gutter]="2">
+                <c-container fluid="{{isFluid()}}" [ngClass]="{'gx-0': isFluid()}" class="flex-grow-1 gy-2">
+                    <c-row class="h-100 align-content-start" [gutter]="isFluid() ? 0: 2">
                         <c-col class="h-100">
                             <router-outlet></router-outlet>
                         </c-col>

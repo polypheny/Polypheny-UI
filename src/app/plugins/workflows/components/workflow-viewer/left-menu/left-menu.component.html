@@ -1,0 +1,105 @@
+<div [hidden]="!visible()" class="no-select d-flex flex-row border-end h-100"
+     [ngClass]="{'info-visible': openedActivityDef,'info-hidden': !openedActivityDef}">
+    @if (visible()) {
+        <div class="add-activity-col flex-grow-1 d-flex flex-column h-100">
+            <div class="px-3 py-2 bg-light border-bottom menu-header">
+                <h3 class="mb-0">Add Activity</h3>
+            </div>
+            <div class="px-3 py-2 border-bottom">
+                <c-input-group class="mb-1">
+                    <span cInputGroupText class="cil-search bg-transparent"></span>
+                    <input class="activity-search" cFormControl type="search" value="search" [(ngModel)]="filterText"
+                           (input)="filterList()"
+                           placeholder="Search by name">
+                </c-input-group>
+                <angular2-multiselect id="category-multi-selector" [data]="dropdownCats" [(ngModel)]="selectedCategories"
+                                      [settings]="dropdownSettings"
+                                      (onSelect)="onItemSelect()"
+                                      (onDeSelect)="OnItemDeSelect()">
+                    <c-item>
+                        <ng-template let-item="item">
+                            <span>{{ item.itemName }}</span>
+                        </ng-template>
+                    </c-item>
+                </angular2-multiselect>
+                <c-form-check [switch]="true" class="mt-1">
+                    <input cFormCheckInput id="show-description" type="checkbox" [(ngModel)]="showDescription"
+                           name="show-description">
+                    <label cFormCheckLabel for="show-description">Show Description</label>
+                </c-form-check>
+            </div>
+
+            @if (filteredList.length === 0 && selectedCategories.length > 0) {
+                <c-alert class="mx-2 mt-2">
+                    Remove filter {{ selectedCategories.length == 1 ? 'category' : 'categories' }} to show more results.
+                </c-alert>
+            }
+            <div class="activity-list flex-grow-1" cdkDropList cdkDropListSortingDisabled="true">
+                @if (showDescription) {
+                    @for (activity of filteredList; track activity.type) {
+                        <div class="px-2 mt-1">
+                            <c-card cdkDrag [cdkDragData]="activity.type" [class.draggable]="isEditable()" color="light"
+                                    [cBorder]="activity === openedActivityDef && 'primary'"
+                                    [cdkDragDisabled]="!isEditable()" (cdkDragDropped)="onDragDropped($event)">
+                                <ng-container *ngTemplateOutlet="activityBody; context: { $implicit: activity }"></ng-container>
+                            </c-card>
+                        </div>
+                    }
+                } @else {
+                    <!--Almost all entries have the same height -> use virtual scroll for better performance! -->
+                    <cdk-virtual-scroll-viewport itemSize="45.2" class="example-viewport h-100">
+                        <div class="px-2 mt-1" *cdkVirtualFor="let activity of filteredList">
+                            <c-card cdkDrag [cdkDragData]="activity.type" [class.draggable]="isEditable()" color="light"
+                                    [cBorder]="activity === openedActivityDef && 'primary'"
+                                    [cdkDragDisabled]="!isEditable()" (cdkDragDropped)="onDragDropped($event)">
+                                <ng-container *ngTemplateOutlet="activityBody; context: { $implicit: activity }"></ng-container>
+                            </c-card>
+                        </div>
+                    </cdk-virtual-scroll-viewport>
+                }
+            </div>
+
+        </div>
+        <div *ngIf="openedActivityDef" class="border-start flex-grow-1 info-col d-flex flex-column">
+            <div class="px-3 py-2 border-bottom menu-header d-flex">
+                <h4 class="mb-0">{{ openedActivityDef.displayName }}</h4>
+                <button cButtonClose class="text-reset ms-auto" (click)="openedActivityDef=null"></button>
+            </div>
+            <div class="pt-3 px-3 activity-info flex-grow-1">
+                <app-activity-help [def]="openedActivityDef"></app-activity-help>
+            </div>
+        </div>
+    }
+
+</div>
+
+<ng-template #activityBody let-activity>
+    <c-card-body class="p-2 activity-card">
+        <c-row gutter="false" class="mx-0">
+            <c-col [xs]="9" class="ps-0 pe-2">
+                <div (click)="isEditable() && create.emit(activity.type)">
+                    <h6 class="flex-grow-1">{{ activity.displayName }}</h6>
+                </div>
+
+            </c-col>
+            <c-col [xs]="2" class="px-0">
+                <div>
+                    <small class="text-muted">
+                        <span *ngIf="isRelational[activity.type]" class="me-1 fa fa-table"></span>
+                        <span *ngIf="isDocument[activity.type]" class="me-1 fa fa-file-text-o"></span>
+                        <span *ngIf="isGraph[activity.type]" class="cil-graph me-1"></span>
+                        <span *ngIf="isVariables[activity.type]" class="cil-bolt"></span>
+                    </small>
+                </div>
+
+            </c-col>
+            <c-col [xs]="1" class="ps-0 pe-2 text-end">
+                                    <span class="fa fa-question-circle px-2 info-button"
+                                          [ngClass]="activity === openedActivityDef ? 'text-primary' : 'text-dark'"
+                                          style="cursor: pointer;" (click)="openedActivityDef = activity">
+                                    </span>
+            </c-col>
+        </c-row>
+        <small *ngIf="showDescription">{{ activity.shortDescription }}</small>
+    </c-card-body>
+</ng-template>

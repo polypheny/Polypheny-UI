@@ -77,6 +77,8 @@ import {ModalModule} from 'ngx-bootstrap/modal';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {NotebooksModule} from './plugins/notebooks/notebooks.module';
 import {IconDirective} from '@coreui/icons-angular';
+import {WorkflowsModule} from './plugins/workflows/workflows.module';
+import {MarkdownModule} from 'ngx-markdown';
 
 
 @NgModule({
@@ -90,6 +92,7 @@ import {IconDirective} from '@coreui/icons-angular';
         NgChartsModule,
         // plugins
         NotebooksModule,
+        WorkflowsModule,
         ToastComponent,
         NgChartsModule,
         ToasterComponent,
@@ -151,7 +154,8 @@ import {IconDirective} from '@coreui/icons-angular';
         NavbarComponent,
         CollapseDirective,
         NavbarBrandDirective,
-        NavbarNavComponent
+        NavbarNavComponent,
+        MarkdownModule.forRoot()
     ],
     declarations: [
         AppComponent,

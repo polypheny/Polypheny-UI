@@ -1,17 +1,4 @@
-import {
-    Component,
-    computed,
-    effect,
-    EventEmitter,
-    inject,
-    Input,
-    OnDestroy,
-    OnInit,
-    Signal,
-    signal,
-    untracked,
-    WritableSignal
-} from '@angular/core';
+import {Component, computed, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Signal, signal, untracked, WritableSignal} from '@angular/core';
 import {RelationalResult, Result, UiColumnDefinition} from '../models/result-set.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {CatalogService} from '../../../services/catalog.service';
@@ -65,7 +52,9 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         sort: true,
         update: true,
         delete: true,
-        exploring: false
+        exploring: false,
+        hideCreateView: false,
+        cardRelWidth: false
     });
     protected readonly currentRoute: WritableSignal<string> = signal(this._route.snapshot.paramMap.get('id'));
     protected readonly routeParams = toSignal(this._route.params);
@@ -132,7 +121,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this._sidebar.open();
+        //this._sidebar.open();
         //listen to results
         this.initWebsocket();
 
@@ -371,7 +360,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
             //when double-clicking the delete btn
             return;
         }
-        if (this.entityConfig.update) {
+        if (this.entityConfig().update) {
             this.updateValues.clear();
             this.$result().data[i].forEach((v, k) => {
                 if (this.$result().header[k].dataType === 'bool') {

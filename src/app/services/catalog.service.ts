@@ -1,24 +1,7 @@
 import {effect, inject, Injectable, signal, untracked, WritableSignal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {
-    AdapterTemplateModel,
-    AllocationColumnModel,
-    AllocationEntityModel,
-    AllocationPartitionModel,
-    AllocationPlacementModel,
-    AssetsModel,
-    CatalogState,
-    ColumnModel,
-    ConstraintModel,
-    EntityModel,
-    EntityType,
-    FieldModel,
-    IdEntity,
-    KeyModel,
-    LogicalSnapshotModel,
-    NamespaceModel
-} from '../models/catalog.model';
+import {AdapterTemplateModel, AllocationColumnModel, AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, AssetsModel, CatalogState, ColumnModel, ConstraintModel, EntityModel, EntityType, FieldModel, IdEntity, KeyModel, LogicalSnapshotModel, NamespaceModel} from '../models/catalog.model';
 import {DataModel} from '../models/ui-request.model';
 import {SidebarNode} from '../models/sidebar-node.model';
 import {combineLatestWith, Observable, Subject} from 'rxjs';
@@ -179,6 +162,9 @@ export class CatalogService {
     }
 
     getEntityFromName(namespace: string, name: string): EntityModel {
+        if (name === undefined) {
+            name = namespace;
+        }
         const namespaces = Array.from(this.namespaces().values()).filter(n => (n.caseSensitive ? n.name === namespace : n.name.toLowerCase() === namespace.toLowerCase())
             || n.dataModel === DataModel.GRAPH && name.toLowerCase() === n.name.toLowerCase() || namespace.toLowerCase() === n.name.toLowerCase());
         if (namespaces.length === 0) {

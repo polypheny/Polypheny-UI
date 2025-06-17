@@ -1,0 +1,4 @@
+<c-form-check [switch]="true">
+    <input cFormCheckInput type="checkbox" [disabled]="!isEditable()" (change)="hasChanged.emit()"
+           [ngModel]="value()" (ngModelChange)="value.set($event)"/>
+</c-form-check>

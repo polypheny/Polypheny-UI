@@ -1,0 +1,11 @@
+.setting-group {
+  overflow-y: auto;
+  flex-basis: 0;
+
+  margin-right: -16px;
+  padding-right: 16px;
+}
+
+.show-description-button:hover {
+  color: var(--cui-dark) !important;
+}

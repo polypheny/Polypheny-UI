@@ -1,0 +1,115 @@
+@if (def().simplified) {
+    @if (isEditable()) {
+        <angular2-multiselect id="category-multi-selector" [data]="dropdownData()" [ngModel]="includeData" (ngModelChange)="includeDataChange($event)"
+                              [settings]="dropdownSettings" (onAddFilterNewItem)="add('include', $event)">
+            <c-item>
+                <ng-template let-item="item">
+                    <span>{{ item.itemName }}</span>
+                </ng-template>
+            </c-item>
+        </angular2-multiselect>
+
+    } @else {
+        <!--[disabled] does not work on angular2-multiselect-->
+        <input cFormControl sizing="sm" type="text" autocomplete="off" [disabled]="true"
+               [ngModel]="this.val().include.join(', ')">
+    }
+
+} @else {
+    <c-row>
+        <c-col [xs]="6">
+            <h5>Exclude</h5>
+            <button cButton color="secondary" type="button" variant="outline" size="sm" class="mb-1" *ngIf="isEditable()"
+                    (click)="moveAllTo('include')" [disabled]="val().exclude.length < 1">
+                {{ 'Move All >>' }}
+            </button>
+            <c-card class="list-container border bg-light mb-1">
+                <ul cListGroup cdkDropList id="list-exclude" flush="true" class="field-list"
+                    [cdkDropListConnectedTo]="['list-include']" [cdkDropListData]="val().exclude"
+                    cdkDropListSortingDisabled="true" (cdkDropListDropped)="drop($event)">
+                    @for (field of val().exclude; track field) {
+                        <li cListGroupItem cdkDrag [class.border-bottom]="$last"
+                            [cdkDragDisabled]="!isEditable()" class="field-entry" [class.draggable]="isEditable()">
+                            <div class="d-flex justify-content-between">
+                                {{ field }}
+                                <app-delete-confirm (delete)="delete('exclude', $index)" *ngIf="isEditable()"></app-delete-confirm>
+                            </div>
+                            <div class="custom-placeholder" *cdkDragPlaceholder></div>
+                        </li>
+                    }
+                </ul>
+            </c-card>
+            <div class="d-flex align-items-center mb-3" *ngIf="isEditable()">
+                <app-autocomplete [data]="notExcludedFields()"
+                                  [(value)]="addExclude"
+                                  placeholder="name to exclude">
+                </app-autocomplete>
+                <button cButton color="secondary" type="button" variant="outline" size="sm" class="ms-1"
+                        (click)="add('exclude', addExclude); addExclude = ''" [disabled]="addExclude.length == 0">
+                    Add
+                </button>
+            </div>
+        </c-col>
+        <c-col [xs]="6">
+            <h5>
+                Include
+                <span *ngIf="!def().reorder && val().unspecifiedIndex >= 0">(ignored)</span>
+            </h5>
+            <div class="d-flex justify-content-between">
+                <button cButton color="secondary" type="button" variant="outline" size="sm" class="mb-1" *ngIf="isEditable()"
+                        (click)="moveAllTo('exclude')" [disabled]="val().include.length < 1">
+                    {{ '<< Move All' }}
+                </button>
+                <button cButton color="primary" type="button" size="sm" class="mb-1" *ngIf="isEditable() && canInitialize()"
+                        (click)="initialize()">
+                    Populate
+                </button>
+            </div>
+            <c-card class="list-container border bg-light mb-1">
+                <ul cListGroup cdkDropList id="list-include" flush="true" class="field-list"
+                    [cdkDropListConnectedTo]="['list-exclude']" [cdkDropListData]="val().include"
+                    [cdkDropListSortingDisabled]="!def().reorder" (cdkDropListDropped)="drop($event)">
+                    @for (field of val().include; track field) {
+                        <li cListGroupItem cdkDrag [class.border-bottom]="$last" class="field-entry"
+                            [cdkDragDisabled]="!isEditable()" [class.draggable]="isEditable()">
+                            <div class="d-flex justify-content-between">
+                                {{ field }}
+                                <app-delete-confirm (delete)="delete('include', $index)" *ngIf="isEditable()"></app-delete-confirm>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </c-card>
+            <div class="d-flex align-items-center mb-3" *ngIf="isEditable()">
+                <app-autocomplete [data]="notIncludedFields()"
+                                  [(value)]="addInclude"
+                                  placeholder="name to include">
+                </app-autocomplete>
+                <button cButton color="secondary" type="button" variant="outline" size="sm" class="ms-1"
+                        (click)="add('include', addInclude); addInclude = ''" [disabled]="addInclude.length == 0">
+                    Add
+                </button>
+            </div>
+        </c-col>
+    </c-row>
+    <p class="text-muted" *ngIf="isEditable()">
+        <em>Drag and drop the fields to modify the lists</em>
+        <em *ngIf="!def().reorder"> (the field order is ignored)</em>.
+    </p>
+
+
+    <c-form-check [switch]="true" class="mb-3">
+        <input cFormCheckInput id="check" type="checkbox" [checked]="val().unspecifiedIndex >= 0"
+               name="fusion-check" (change)="unknownChanged($event)" [disabled]="!isEditable()">
+        <label cFormCheckLabel for="check">Include unknown fields</label>
+    </c-form-check>
+    @if (val().unspecifiedIndex >= 0 && def().reorder) {
+        <c-input-group>
+            <span cInputGroupText id="basic-addon1">Insertion Index</span>
+            <input cFormControl sizing="sm" id="setting"
+                   type="number" autocomplete="off" [disabled]="!isEditable()" (change)="valueChanged()"
+                   [min]="0" [(ngModel)]="val().unspecifiedIndex">
+
+        </c-input-group>
+    }
+}

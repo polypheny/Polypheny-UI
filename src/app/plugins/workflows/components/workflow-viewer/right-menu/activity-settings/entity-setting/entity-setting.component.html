@@ -1,0 +1,19 @@
+<div class="mb-1">
+    <app-autocomplete (changed)="valueChanged()"
+                      [data]="namespaces()"
+                      [(value)]="value().namespace"
+                      placeholder="namespace"
+                      [disabled]="!isEditable()">
+    </app-autocomplete>
+</div>
+
+@if (def().dataModel !== DataModel.GRAPH) {
+    <div class="mb-1">
+        <app-autocomplete (changed)="valueChanged()"
+                          [data]="names()"
+                          [(value)]="value().name"
+                          placeholder="name"
+                          [disabled]="!isEditable()">
+        </app-autocomplete>
+    </div>
+}
