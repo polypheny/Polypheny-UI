@@ -44,7 +44,8 @@
             <app-metadata-tree
                     *ngIf="metadata"
                     [node]="metadata"
-                    (columnToggle)="onColumnToggle($event)">
+                    (columnToggle)="onColumnToggle($event)"
+                    (autoSelectRemoved)="onAutoSelect($event)">
             </app-metadata-tree>
         </div>
     </div>

@@ -153,6 +153,10 @@ export class PreviewSelectionComponent {
         console.log(this.selected);
     }
 
+    onAutoSelect(paths: string[]): void {
+        paths.forEach(p => this.selected.add(p));
+    }
+
     /*sendMetadata() {
         (this.adapter as any).metadata = Array.from(this.selected);
 
@@ -171,11 +175,14 @@ export class PreviewSelectionComponent {
 
     sendAck(): void {
         const selected: string[] = Array.from(this.selected);
+        console.log(selected);
 
         const payload = {
             uniqueName: this.adapterInfo,
-            selectedPaths: selected
+            selectedPaths: Array.from(selected)
         };
+        console.log(payload.selectedPaths);
+
 
         this._crud.metadataAck(payload).subscribe(
             {

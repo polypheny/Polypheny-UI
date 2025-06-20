@@ -19,6 +19,33 @@ export class MetadataTreeComponent {
     @Input() node!: Node;
     @Input() path = '';
     @Output() columnToggle = new EventEmitter<{ fullKey: string, checked: boolean }>();
+    @Output() autoSelectRemoved = new EventEmitter<Set<string>>();
+
+    ngOnInit() {
+        const removed = new Set<string>();
+        this.collectRemoved(this.node, [], removed);
+        console.log('removed →', removed);
+        if (removed.size) {
+            this.autoSelectRemoved.emit(removed);
+        }
+    }
+
+    private collectRemoved(node: AbstractNode,
+                           pathAcc: string[],
+                           bucket: Set<string>): void {
+
+        const nextPath = [...pathAcc, node.name];
+        const isLeaf   = !node.children || node.children.length === 0;
+
+        if (isLeaf && node.properties?.['diff'] === 'REMOVED') {
+            bucket.add(nextPath.join('.'));
+        }
+
+        node.children?.forEach(child =>
+            this.collectRemoved(child, nextPath, bucket));
+    }
+
+
 
     toggleColumn(fullKey: string, checked: boolean) {
         this.columnToggle.emit({fullKey, checked});
