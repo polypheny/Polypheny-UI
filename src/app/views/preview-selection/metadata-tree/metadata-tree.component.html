@@ -4,7 +4,7 @@
 
         <span *ngIf="node.type === 'column'">
       <input #cb type="checkbox"
-             (change)="toggleColumn(path + '.' + node.name, cb.checked)">
+             (change)="toggleColumn(path + '.' + node.name, cb.checked, node.properties?.diff, node.type)">
             {{ node.name }}
 
             <input class="aliases"
@@ -23,8 +23,7 @@
                     *ngFor="let child of node.children"
                     [node]="child"
                     [path]="node.type === 'column' ? path : (path ? path + '.' + node.name : node.name)"
-                    (columnToggle)="columnToggle.emit($event)"
-                    (autoSelectRemoved)="autoSelectRemoved.emit($event)">
+                    (columnToggle)="columnToggle.emit($event)">
             </app-metadata-tree>
         </ng-container>
     </li>

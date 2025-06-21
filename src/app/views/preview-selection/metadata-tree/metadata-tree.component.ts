@@ -18,37 +18,39 @@ import { AbstractNode } from '../../../components/data-view/models/result-set.mo
 export class MetadataTreeComponent {
     @Input() node!: Node;
     @Input() path = '';
-    @Output() columnToggle = new EventEmitter<{ fullKey: string, checked: boolean }>();
-    @Output() autoSelectRemoved = new EventEmitter<Set<string>>();
+    @Output() columnToggle = new EventEmitter<{ fullKey: string, checked: boolean, diff?, type? }>();
+    @Output() autoSelectRemoved = new EventEmitter<string[]>();
 
-    ngOnInit() {
+    ngOnInit(): void {
         const removed = new Set<string>();
         this.collectRemoved(this.node, [], removed);
-        console.log('removed →', removed);
         if (removed.size) {
-            this.autoSelectRemoved.emit(removed);
+            this.autoSelectRemoved.emit([...removed]);
         }
     }
 
-    private collectRemoved(node: AbstractNode,
-                           pathAcc: string[],
-                           bucket: Set<string>): void {
+    private collectRemoved(n: AbstractNode,
+                           path: string[],
+                           out: Set<string>): void {
 
-        const nextPath = [...pathAcc, node.name];
-        const isLeaf   = !node.children || node.children.length === 0;
+        const next  = [...path, n.name];
+        const isLeaf = !n.children || n.children.length === 0;
+        const isGhost = n.type === 'ghost';
 
-        if (isLeaf && node.properties?.['diff'] === 'REMOVED') {
-            bucket.add(nextPath.join('.'));
+        if (isGhost) {
+            out.add(next.join('.'));
         }
 
-        node.children?.forEach(child =>
-            this.collectRemoved(child, nextPath, bucket));
+        n.children?.forEach(c => this.collectRemoved(c, next, out));
     }
 
 
 
-    toggleColumn(fullKey: string, checked: boolean) {
-        this.columnToggle.emit({fullKey, checked});
+
+
+
+    toggleColumn(fullKey: string, checked: boolean, diff, type) {
+        this.columnToggle.emit({fullKey, checked, diff, type});
     }
 
     getAlias(node: AbstractNode): string {
@@ -75,11 +77,14 @@ export class MetadataTreeComponent {
     }
 
     getNodeClass(node: AbstractNode): string {
-        switch (node.properties?.['diff']) {
-            case 'ADDED': return 'node-added';
-            case 'REMOVED': return 'node-removed';
-            default: return '';
+        if (node.properties?.['diff'] === 'ADDED') {
+            return 'node-added';
+        } else if (node.properties?.['diff'] === 'REMOVED' || node.type === 'ghost') {
+            return 'node-removed';
+        } else {
+            return '';
         }
+
     }
 
 

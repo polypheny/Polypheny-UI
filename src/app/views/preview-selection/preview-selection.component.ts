@@ -42,6 +42,12 @@ export class PreviewSelectionComponent {
 
 
     selected: Set<string> = new Set();
+
+    added: Set<string> = new Set();
+    removed: Set<string> = new Set();
+
+
+
     ready = false;
 
     ngOnInit() {
@@ -148,13 +154,20 @@ export class PreviewSelectionComponent {
         return rows && rows.length ? Object.keys(rows[0]) : [];
     }
 
-    onColumnToggle(e: { fullKey: string; checked: boolean }) {
-        e.checked ? this.selected.add(e.fullKey) : this.selected.delete(e.fullKey);
-        console.log(this.selected);
+    onColumnToggle(e: ColumnToggleEvent) {
+        console.log(e.diff);
+        if (e.diff === 'ADDED') {
+            e.checked ? this.added.add(e.fullKey) : this.added.delete(e.fullKey);
+            console.log(this.added);
+        } else {
+            e.checked ? this.selected.add(e.fullKey) : this.selected.delete(e.fullKey);
+            console.log(this.selected);
+        }
     }
 
     onAutoSelect(paths: string[]): void {
-        paths.forEach(p => this.selected.add(p));
+        paths.forEach(p => this.removed.add(p));
+        console.log(this.removed);
     }
 
     /*sendMetadata() {
@@ -177,11 +190,17 @@ export class PreviewSelectionComponent {
         const selected: string[] = Array.from(this.selected);
         console.log(selected);
 
+        const addedPaths: string[] = Array.from(this.added);
+        const removedPaths: string[] = Array.from(this.removed);
+
+
         const payload = {
             uniqueName: this.adapterInfo,
-            selectedPaths: Array.from(selected)
+            addedPaths: Array.from(addedPaths),
+            removedPaths: Array.from(removedPaths)
         };
-        console.log(payload.selectedPaths);
+        console.log(payload.addedPaths);
+        console.log(payload.removedPaths);
 
 
         this._crud.metadataAck(payload).subscribe(
@@ -192,6 +211,7 @@ export class PreviewSelectionComponent {
                 },
                 error: err => {
                     alert('ACK was not send successfully!');
+                    this.close();
                 }
             }
         );
@@ -281,4 +301,11 @@ export class Node implements AbstractNode {
     getProperty(key: string): string {
         return this.properties[key];
     }
+}
+
+interface ColumnToggleEvent {
+    fullKey: string;
+    checked: boolean;
+    diff?: 'ADDED' | 'REMOVED';
+    type?: 'ghost' | 'table' | 'column';
 }
