@@ -314,6 +314,10 @@ export class CrudService {
         return this._http.get(`${this.httpUrl}/metadataConfiguration/${request}`, this.httpOptions);
     }
 
+    setMetaConfiguration(body: {uniqueName: string, selected: string[]}) {
+        return this._http.post(`${this.httpUrl}/setMetaConfig`, body, this.httpOptions);
+    }
+
     /**
      * Add a primary key to a table
      */

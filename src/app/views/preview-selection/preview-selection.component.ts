@@ -73,7 +73,10 @@ export class PreviewSelectionComponent {
             this.metadata = this.ctx.metadata;
             this.preview = this.ctx.preview;
             this.adapterInfo = this.ctx.adapterInfo.uniqueName;
+            console.log(this.metadata);
         }
+
+        this.collectSelected(this.metadata);
 
 
         /*const opener = (window.opener as any);
@@ -145,6 +148,14 @@ export class PreviewSelectionComponent {
         return node;
     }
 
+    collectSelected(node: AbstractNode, path: string[] = []) {
+        const fullPath = [...path, node.name];
+        if (node.isSelected) {
+            this.selected.add(fullPath.join('.'));
+        }
+        node.children?.forEach(c => this.collectSelected(c, fullPath));
+    }
+
     getPreviewKeys(): string[] {
         return Object.keys(this.preview);
     }
@@ -187,9 +198,6 @@ export class PreviewSelectionComponent {
     }*/
 
     sendAck(): void {
-        const selected: string[] = Array.from(this.selected);
-        console.log(selected);
-
         const addedPaths: string[] = Array.from(this.added);
         const removedPaths: string[] = Array.from(this.removed);
 
@@ -218,7 +226,25 @@ export class PreviewSelectionComponent {
     }
 
     sendConfigChange(): void {
+        const selected: string[] = Array.from(this.selected);
 
+        const payload = {
+            uniqueName: this.adapterInfo,
+            selected: selected
+        };
+
+
+        console.log(selected);
+        this._crud.setMetaConfiguration(payload).subscribe({
+           next: () => {
+               alert('Config changed successfully!');
+               this.close();
+           },
+           error: err => {
+               alert('Config changed failed!');
+               this.close();
+           }
+        });
     }
 
     sendMetadata(): void {
@@ -284,6 +310,7 @@ export class Node implements AbstractNode {
     name: string;
     children: AbstractNode[] = [];
     properties: { [key: string]: any } = {};
+    isSelected: boolean;
 
     constructor(type: string, name: string) {
         this.type = type;

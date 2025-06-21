@@ -3,7 +3,8 @@
         <span *ngIf="node.type !== 'column'">{{ node.name }}</span>
 
         <span *ngIf="node.type === 'column'">
-      <input #cb type="checkbox"
+        <input #cb type="checkbox"
+              [(ngModel)]="node.isSelected"
              (change)="toggleColumn(path + '.' + node.name, cb.checked, node.properties?.diff, node.type)">
             {{ node.name }}
 

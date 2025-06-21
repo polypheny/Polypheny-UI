@@ -31,6 +31,7 @@ import {
     RelationalResult
 } from '../../components/data-view/models/result-set.model';
 import {PreviewRequest} from '../../models/ui-request.model';
+import {Node} from '../preview-selection/preview-selection.component';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
 import {AdapterSettingModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';

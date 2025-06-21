@@ -398,6 +398,7 @@ export interface AbstractNode {
     name: string;
     children?: AbstractNode[];
     properties?: { [key: string]: any };
+    isSelected?: boolean;
 
     addChild(node: AbstractNode): void;
     addProperty(key: string, value: any): void;
