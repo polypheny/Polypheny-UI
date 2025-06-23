@@ -7,7 +7,7 @@ import { CatalogService } from './catalog.service';
 import { AdapterModel } from '../views/adapters/adapter.model';
 
 export interface MetadataStatusResponse {
-    changed: boolean;
+    changed: 'OK' | 'WARNING' | 'CRITICAL' | null;
 }
 
 @Injectable({providedIn: 'root'})
@@ -42,9 +42,9 @@ export class MetadataPollingService {
         this._crud.metadataStatus(adapter.name).subscribe({
             next: (res: Object) => {
                 const casted = res as MetadataStatusResponse;
-
+                console.log('casted', casted);
                 this._catalog.updateAdapterFlag(adapter.name, {
-                    metadataChanged: casted.changed
+                    metadataStatus: casted.changed
                 });
             },
             error: err => console.error('[metadata-poll]', err)

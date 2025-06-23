@@ -76,8 +76,8 @@
                                    role="status"></c-spinner>
                     </button>
                     <c-badge
-                        *ngIf="adapter.metadataChanged"
-                        color="warning"
+                        *ngIf="adapter.metadataStatus"
+                        [color]="adapter.metadataStatus === 'CRITICAL' ? 'danger' : 'warning'"
                         class="mx-2 pulse clickable"
                         cTooltip="Metadata changed - click to review"
                         (click)="previewAndChange(adapter.name)">❗
