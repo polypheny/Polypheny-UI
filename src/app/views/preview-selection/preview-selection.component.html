@@ -37,32 +37,6 @@
                     </tbody>
                 </table>
                 <br/>
-
-                <table class="changelog" *ngIf="changeLog.length">
-                    <thead>
-                    <tr>
-                        <th>Zeitpunkt</th>
-                        <th>Schwere</th>
-                        <th>Details</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    <tr *ngFor="let entry of changeLog"
-                        [ngClass]="{
-                    critical: entry.severity === ChangeStatus.CRITICAL,
-                    warning : entry.severity === ChangeStatus.WARNING
-        }">
-                        <td>{{ entry.timestamp | date:'short' }}</td>
-                        <td>{{ entry.severity }}</td>
-                        <td>
-                            {{ entry.messages | json }}
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-
-                <p *ngIf="!changeLog.length">Keine Änderungen protokolliert …</p>
             </div>
 
             <div class="dataMeta">
@@ -76,6 +50,31 @@
                 </app-metadata-tree>
             </div>
         </div>
+        <table class="changelog" *ngIf="changeLog.length">
+            <thead>
+            <tr>
+                <th>Zeitpunkt</th>
+                <th>Schwere</th>
+                <th>Details</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr *ngFor="let entry of changeLog"
+                [ngClass]="{
+                    critical: entry.severity === ChangeStatus.CRITICAL,
+                    warning : entry.severity === ChangeStatus.WARNING
+        }">
+                <td>{{ entry.timestamp | date:'short' }}</td>
+                <td>{{ entry.severity }}</td>
+                <td>
+                    {{ entry.messages | json }}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p *ngIf="!changeLog.length">Keine Änderungen protokolliert …</p>
     </ng-container>
     <ng-container>
         <ng-template #docPreview>
