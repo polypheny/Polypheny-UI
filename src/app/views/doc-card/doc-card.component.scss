@@ -1,0 +1,31 @@
+.kvRow {
+  line-height: 1.4rem;
+}
+
+.kvRow b {
+  font-weight: 500;
+  margin-right: .25rem;
+}
+
+mat-card {
+  width: 260px;
+  min-height: 180px;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 260px);
+  gap: 1rem 1.25rem;
+}
+
+/* doc-card.component.scss */
+.nestedCard {
+  margin-left: .75rem;
+  margin-top: .25rem;
+  box-shadow: none;
+  border-left: 2px solid #e0e0e0;
+}
+
+.kvRow {
+  margin-bottom: .125rem;
+}

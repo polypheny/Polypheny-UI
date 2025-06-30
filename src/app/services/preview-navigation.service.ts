@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {AbstractNode} from '../components/data-view/models/result-set.model';
+import {AbstractNode, ChangeLogEntry} from '../components/data-view/models/result-set.model';
 import {AdapterModel, AdapterType, PolyMap} from '../views/adapters/adapter.model';
 import {DeployMode} from '../models/catalog.model';
 
@@ -21,6 +21,7 @@ export interface PreviewContext {
         mode: DeployMode;
         persistent: boolean;
     }>;
+    changeLog?: ChangeLogEntry[];
 }
 
 @Injectable({providedIn: 'root'})

@@ -11,49 +11,97 @@
     </c-row>
 </div>
 
-
 <ng-container *ngIf="ready">
-    <div class="wrapper">
-        <div class="dataPreview" *ngFor="let tableName of getPreviewKeys()">
-            <h4>{{ tableName }}</h4>
 
-            <table>
-                <thead>
-                <tr>
-                    <th *ngFor="let col of getPreviewColumns(tableName)">
-                        {{ col }}
-                    </th>
-                </tr>
-                </thead>
+    <ng-container *ngIf="!isDocumentAdapter; else docPreview">
 
-                <tbody>
-                <tr *ngFor="let row of preview[tableName]">
-                    <td *ngFor="let col of getPreviewColumns(tableName)" style="opacity: .3;">
-                        {{ row[col] }}
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="wrapper">
+            <div class="dataPreview" *ngFor="let tableName of getPreviewKeys()">
+                <h4>{{ tableName }}</h4>
 
-            <br/>
+                <table>
+                    <thead>
+                    <tr>
+                        <th *ngFor="let col of getPreviewColumns(tableName)">
+                            {{ col }}
+                        </th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr *ngFor="let row of preview[tableName]">
+                        <td *ngFor="let col of getPreviewColumns(tableName)" style="opacity: .3;">
+                            {{ row[col] }}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <br/>
+
+                <table class="changelog" *ngIf="changeLog.length">
+                    <thead>
+                    <tr>
+                        <th>Zeitpunkt</th>
+                        <th>Schwere</th>
+                        <th>Details</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr *ngFor="let entry of changeLog"
+                        [ngClass]="{
+                    critical: entry.severity === ChangeStatus.CRITICAL,
+                    warning : entry.severity === ChangeStatus.WARNING
+        }">
+                        <td>{{ entry.timestamp | date:'short' }}</td>
+                        <td>{{ entry.severity }}</td>
+                        <td>
+                            {{ entry.messages | json }}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <p *ngIf="!changeLog.length">Keine Änderungen protokolliert …</p>
+            </div>
+
+            <div class="dataMeta">
+                <h2>Metadata</h2>
+
+                <app-metadata-tree
+                        *ngIf="metadata"
+                        [node]="metadata"
+                        (columnToggle)="onColumnToggle($event)"
+                        (autoSelectRemoved)="onAutoSelect($event)">
+                </app-metadata-tree>
+            </div>
         </div>
+    </ng-container>
+    <ng-container>
+        <ng-template #docPreview>
+            <div class="cardGrid">
+                <app-doc-card
+                        *ngFor="let c of cards"
+                        [node]="c"
+                        (toggle)="onCardToggle($event)">
+                </app-doc-card>
+            </div>
 
-        <div class="dataMeta">
             <h2>Metadata</h2>
-
-            <app-metadata-tree
-                    *ngIf="metadata"
-                    [node]="metadata"
-                    (columnToggle)="onColumnToggle($event)"
-                    (autoSelectRemoved)="onAutoSelect($event)">
+            <app-metadata-tree [node]="metadata"
+                               (autoSelectRemoved)="onAutoSelect($event)">
             </app-metadata-tree>
-        </div>
-    </div>
-
-    <div>
-        <button *ngIf="this.mode === 'deploy'" cButton size="sm" color="primary" (click)="sendMetadata()"> Send Metadata! </button>
-        <button *ngIf="this.mode === 'change'" cButton size="sm" color="primary" (click)="sendAck()"> Send changes ! </button>
-        <button *ngIf="this.mode === 'config'" cButton size="sm" color="primary" (click)="sendConfigChange()"> Send config ! </button>
-    </div>
+        </ng-template>
+    </ng-container>
 </ng-container>
+
+<div>
+    <button *ngIf="this.mode === 'deploy'" cButton size="sm" color="primary" (click)="sendMetadata()"> Send Metadata!
+    </button>
+    <button *ngIf="this.mode === 'change'" cButton size="sm" color="primary" (click)="sendAck()"> Send changes !
+    </button>
+    <button *ngIf="this.mode === 'config'" cButton size="sm" color="primary" (click)="sendConfigChange()"> Send config
+        !
+    </button>
+</div>
 

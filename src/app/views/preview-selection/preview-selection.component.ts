@@ -1,13 +1,14 @@
 import {Component, inject} from '@angular/core';
 import {ButtonCloseDirective, ButtonDirective, ColComponent, RowComponent} from '@coreui/angular';
 import {Router, RouterLink} from '@angular/router';
-import {AbstractNode} from '../../components/data-view/models/result-set.model';
+import {AbstractNode, ChangeLogEntry, ChangeStatus} from '../../components/data-view/models/result-set.model';
 import {CommonModule} from '@angular/common';
 import {MetadataTreeComponent} from './metadata-tree/metadata-tree.component';
 import {AdapterModel, AdapterType, PolyMap} from '../adapters/adapter.model';
 import {DeployMode} from '../../models/catalog.model';
 import {CrudService} from '../../services/crud.service';
 import {PreviewNavigationService} from '../../services/preview-navigation.service';
+import {DocCardComponent} from '../doc-card/doc-card.component';
 
 @Component({
     selector: 'app-preview-selection',
@@ -17,7 +18,8 @@ import {PreviewNavigationService} from '../../services/preview-navigation.servic
         RowComponent,
         ColComponent,
         CommonModule,
-        MetadataTreeComponent
+        MetadataTreeComponent,
+        DocCardComponent
     ],
     templateUrl: './preview-selection.component.html',
     styleUrl: './preview-selection.component.scss'
@@ -39,13 +41,14 @@ export class PreviewSelectionComponent {
     metadata: AbstractNode = null;
     preview: Record<string, any[]> | any[] = {};
     adapterInfo: string = null;
+    cards: AbstractNode[] = [];
 
 
     selected: Set<string> = new Set();
 
     added: Set<string> = new Set();
     removed: Set<string> = new Set();
-
+    changeLog: ChangeLogEntry[] = [];
 
 
     ready = false;
@@ -60,6 +63,7 @@ export class PreviewSelectionComponent {
             return;
         }
 
+        this.changeLog = this.ctx.changeLog ?? [];
         this.mode = this.ctx.mode;
         console.log(this.mode);
 
@@ -78,6 +82,11 @@ export class PreviewSelectionComponent {
 
         this.collectSelected(this.metadata);
 
+
+        if (this.isDocumentAdapter) {
+            this.cards = [];
+            this.cards = this.findCards(this.metadata);
+        }
 
         /*const opener = (window.opener as any);
         this.formData = opener?.pendingFormData;
@@ -181,6 +190,15 @@ export class PreviewSelectionComponent {
         console.log(this.removed);
     }
 
+    private collectCards(n: AbstractNode) {
+        console.log(n);
+        if (n.cardCandidate === true) {
+            this.cards.push(n);
+        }
+        n.children?.forEach(c => this.collectCards(c));
+    }
+
+
     /*sendMetadata() {
         (this.adapter as any).metadata = Array.from(this.selected);
 
@@ -236,16 +254,47 @@ export class PreviewSelectionComponent {
 
         console.log(selected);
         this._crud.setMetaConfiguration(payload).subscribe({
-           next: () => {
-               alert('Config changed successfully!');
-               this.close();
-           },
-           error: err => {
-               alert('Config changed failed!');
-               this.close();
-           }
+            next: () => {
+                alert('Config changed successfully!');
+                this.close();
+            },
+            error: err => {
+                alert('Config changed failed!');
+                this.close();
+            }
         });
     }
+
+    get isDocumentAdapter(): boolean {
+        return this.adapter?.adapterName.toLowerCase() === 'json';
+    }
+
+    onCardToggle(node: Node) {
+        (node as any).isSelected = !(node as any).isSelected;
+        console.log('Card toggled:', node.name, 'selected?', (node as any).isSelected);
+        if ((node as any).isSelected) {
+            this.selected.add(node.name);
+        } else {
+            this.selected.delete(node.name);
+        }
+        console.log(this.selected);
+    }
+
+    private findCards(root: AbstractNode): AbstractNode[] {
+        const out: AbstractNode[] = [];
+
+        function walk(n: AbstractNode) {
+            if ((n as any).cardCandidate) {               // Ebene-0-Objekt
+                out.push(n as AbstractNode);
+                return;                                     // nicht tiefer bohren
+            }
+            n.children?.forEach(walk);
+        }
+
+        walk(root);
+        return out;
+    }
+
 
     sendMetadata(): void {
 
@@ -291,7 +340,7 @@ export class PreviewSelectionComponent {
 
     }
 
-    private collectAliases(node: AbstractNode, out: Map<string, string>, path: string='') {
+    private collectAliases(node: AbstractNode, out: Map<string, string>, path: string = '') {
         const currentPath = path ? `${path}.${node.name}` : node.name;
 
         if (node.type === 'column') {
@@ -303,6 +352,7 @@ export class PreviewSelectionComponent {
         node.children?.forEach(c => this.collectAliases(c, out, currentPath));
     }
 
+    protected readonly ChangeStatus = ChangeStatus;
 }
 
 export class Node implements AbstractNode {
@@ -310,7 +360,12 @@ export class Node implements AbstractNode {
     name: string;
     children: AbstractNode[] = [];
     properties: { [key: string]: any } = {};
-    isSelected: boolean;
+    isSelected?: boolean;
+
+    jsonPath?: string;
+    cardCandidate?: boolean;
+    valueType?: string;
+
 
     constructor(type: string, name: string) {
         this.type = type;
@@ -328,6 +383,41 @@ export class Node implements AbstractNode {
     getProperty(key: string): string {
         return this.properties[key];
     }
+}
+
+/*export class DocumentObjectNode extends Node implements AbstractNode {
+    readonly jsonPath!: string;
+    readonly cardCandidate!: boolean;
+}
+
+export class DocumentArrayNode extends Node implements AbstractNode {
+    readonly jsonPath!: string;
+}
+
+export class DocumentValueNode extends Node implements AbstractNode {
+    readonly jsonPath!: string;
+    readonly valueType!: string;
+    readonly sample!: any;
+}
+
+export function nodeFactory(raw: any): Node {
+    switch (raw.type) {
+        case 'object':
+            return Object.assign(new DocumentObjectNode(raw.type, raw.name), raw);
+        case 'array':
+            return Object.assign(new DocumentArrayNode(raw.type, raw.name), raw);
+        case 'value':
+            return Object.assign(new DocumentValueNode(raw.type, raw.name), raw);
+        default:
+            return Object.assign(new Node(raw.type, raw.name), raw);
+    }
+}*/
+
+export function reviveTree(raw: any): AbstractNode {
+    if (raw.children) {
+        raw.children = raw.children.map(reviveTree);
+    }
+    return raw as AbstractNode;
 }
 
 interface ColumnToggleEvent {

@@ -86,6 +86,26 @@ export class DashboardSet {
 export class PreviewResult {
     metadata: string;
     preview: any[];
+    history?: ChangeLogEntry[];
+}
+
+export interface ChangeLogEntry {
+    adapterName: string;
+    timestamp: string;
+    severity: ChangeStatus;
+    messages: string[];
+}
+
+export enum ChangeStatus {
+    CRITICAL = 'CRITICAL',
+    WARNING = 'WARNING',
+    OK = 'OK'
+}
+
+export interface DiffResult {
+    added: string[];
+    removed: string[];
+    changed: string[];
 }
 
 
@@ -399,9 +419,14 @@ export interface AbstractNode {
     children?: AbstractNode[];
     properties?: { [key: string]: any };
     isSelected?: boolean;
+    jsonPath?: string;
+    cardCandidate?: boolean;
+    valueType?: string;
 
     addChild(node: AbstractNode): void;
+
     addProperty(key: string, value: any): void;
+
     getProperty(key: string): string | null;
 }
 

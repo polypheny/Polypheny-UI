@@ -1,0 +1,36 @@
+<mat-card (click)="toggle.emit(node)">
+    <!-- Titelzeile -->
+    <mat-card-title>
+        {{ prettifyKey(node.name) }}
+
+        <!--  ▸ Checkbox NUR für root-Ebene  -->
+        <mat-checkbox *ngIf="!nested"
+                      [(ngModel)]="node.isSelected"></mat-checkbox>
+    </mat-card-title>
+
+    <mat-card-content>
+        <!--  Key-Value-Rows dieser Ebene  -->
+        <div *ngFor="let row of kvRows" class="kvRow">
+            <b>{{ prettifyKey(row.k) }}</b> :
+            <span>
+        <ng-container *ngIf="row.v !== undefined; else noSample">
+          {{ row.v }}
+        </ng-container>
+
+        <ng-template #noSample>
+          <span *ngIf="row.type === 'array'">[ … ]</span>
+          <span *ngIf="row.type === 'object'">&#123; … &#125;</span>
+        </ng-template>
+      </span>
+        </div>
+
+        <!--  Rekursion für verschachtelte Objekte  -->
+        <ng-container *ngFor="let child of subNodes">
+            <app-doc-card class="nestedCard"
+                          [node]="child"
+                          [nested]="true"
+                          (toggle)="toggle.emit($event)">
+            </app-doc-card>
+        </ng-container>
+    </mat-card-content>
+</mat-card>

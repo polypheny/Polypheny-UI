@@ -25,13 +25,13 @@ import {
     Validators
 } from '@angular/forms';
 import {
-    AbstractNode,
+    AbstractNode, ChangeLogEntry,
     PathAccessRequest,
     PreviewResult,
     RelationalResult
 } from '../../components/data-view/models/result-set.model';
 import {PreviewRequest} from '../../models/ui-request.model';
-import {Node} from '../preview-selection/preview-selection.component';
+import {Node, reviveTree} from '../preview-selection/preview-selection.component';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
 import {AdapterSettingModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
@@ -225,6 +225,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     private getMetaConfiguration(uniqueName: string) {
         this._crud.metadataConfiguration(uniqueName).subscribe({
                 next: (preview: PreviewResult) => {
+                    console.log(preview);
                     this.openPreview(
                         'config',
                         null,
@@ -237,7 +238,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                         null,
                         {
                             uniqueName: uniqueName
-                        }
+                        },
+                        preview.history
                     );
                 }
             }
@@ -259,7 +261,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             type: AdapterType;
             mode: DeployMode;
             persistent: boolean;
-        }>) {
+        }>,
+        changeLog?: ChangeLogEntry[]
+        ) {
         this.nav.setContext({
             mode: mode,
             adapter,
@@ -268,7 +272,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             formData: fd,
             files,
             adapterSettings,
-            adapterInfo
+            adapterInfo,
+            changeLog
         });
 
         this._router.navigate(['/views/preview-selection']);
@@ -356,13 +361,17 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 const win = window.open('/#/preview-selection',
                     'popup',
                     'width=1000,height=700');*/
+                const metaRoot = reviveTree(
+                    typeof preview.metadata === 'string'
+                        ? JSON.parse(preview.metadata)
+                        : preview.metadata
+                );
+
                 this.openPreview(
                     'deploy',
                     deploy,
                     preview.preview,
-                    typeof preview.metadata === 'string'
-                        ? JSON.parse(preview.metadata)
-                        : preview.metadata,
+                    metaRoot,
                     fd,
                     this.files,
                     new PolyMap<string, string>(Object.entries(settingsObj)),

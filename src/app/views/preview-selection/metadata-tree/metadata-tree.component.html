@@ -1,19 +1,22 @@
 <ul class="tree">
     <li [ngClass]="getNodeClass(node)">
-        <span *ngIf="node.type !== 'column'">{{ node.name }}</span>
+        <span *ngIf="node.type !== 'column'">{{ node.name }}
+            <ng-container *ngIf="!node.children?.length && node.properties?.sample !== undefined">
+            : {{ node.properties.sample }}
+        </ng-container></span>
 
         <span *ngIf="node.type === 'column'">
         <input #cb type="checkbox"
-              [(ngModel)]="node.isSelected"
-             (change)="toggleColumn(path + '.' + node.name, cb.checked, node.properties?.diff, node.type)">
+               [(ngModel)]="node.isSelected"
+               (change)="toggleColumn(path + '.' + node.name, cb.checked, node.properties?.diff, node.type)">
             {{ node.name }}
 
-            <input class="aliases"
-                    type="text"
-                    #alias
-                    placeholder="Alias"
-                    [value]="getAlias(node)"
-                    (blur)="setAlias(node, alias.value)">
+            <!--<input class="aliases"
+                   type="text"
+                   #alias
+                   placeholder="Alias"
+                   [value]="getAlias(node)"
+                   (blur)="setAlias(node, alias.value)">-->
 
 
 

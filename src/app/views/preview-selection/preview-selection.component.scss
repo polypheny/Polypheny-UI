@@ -70,3 +70,23 @@
   overflow: hidden;
 }
 
+.cardGrid {
+  display: grid;
+  grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+mat-card {
+  cursor: pointer;
+}
+
+table.changelog {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td { padding: .4rem .6rem; }
+
+  tr.critical { background: #ffebee; border-left: 4px solid #d32f2f; }
+  tr.warning  { background: #fffde7; border-left: 4px solid #fbc02d; }
+}
+
