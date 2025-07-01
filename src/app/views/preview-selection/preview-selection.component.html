@@ -53,8 +53,8 @@
         <table class="changelog" *ngIf="changeLog.length">
             <thead>
             <tr>
-                <th>Zeitpunkt</th>
-                <th>Schwere</th>
+                <th>Time</th>
+                <th>Status</th>
                 <th>Details</th>
             </tr>
             </thead>
@@ -73,8 +73,6 @@
             </tr>
             </tbody>
         </table>
-
-        <p *ngIf="!changeLog.length">Keine Änderungen protokolliert …</p>
     </ng-container>
     <ng-container>
         <ng-template #docPreview>

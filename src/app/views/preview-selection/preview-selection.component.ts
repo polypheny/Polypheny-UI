@@ -135,7 +135,7 @@ export class PreviewSelectionComponent {
     }
 
     close(): void {
-        this._router.navigate(['/views/adapters/addSource']);
+        this._router.navigate(['/views/adapters']);
     }
 
     deserializeNode(obj: any): Node {
