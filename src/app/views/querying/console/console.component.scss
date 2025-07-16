@@ -119,7 +119,7 @@ select {
 #results .card-header:hover span {
   overflow: auto;
   max-height: 6em;
-  transition: max-height 0.5s;
+  transition: max-height 0.2s;
   transition-delay: 0.5s;
 }
 
@@ -137,7 +137,7 @@ select {
 
 .del-hist-item {
   position: absolute;
-  right: 1em;
+  left: 1em;
   top: 50%;
   margin-top: -1em;
   display: none;
@@ -170,10 +170,6 @@ select {
   margin-right: 0.5em;
 }
 
-.document-db-info {
-  text-align: right;
-}
-
 .advanced-console-db-info {
   display: inline-block;
 
@@ -194,7 +190,7 @@ select {
 }
 
 .advanced-console {
-  height: 185.617px;
+  height: calc(240px - 66px);
   margin: 1px;
 }
 

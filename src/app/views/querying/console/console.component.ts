@@ -1,14 +1,4 @@
-import {
-    Component,
-    effect,
-    inject,
-    OnDestroy,
-    OnInit,
-    signal,
-    untracked,
-    ViewChild,
-    WritableSignal
-} from '@angular/core';
+import {Component, computed, inject, OnDestroy, OnInit, Signal, signal, ViewChild, WritableSignal} from '@angular/core';
 import {EntityConfig} from '../../../components/data-view/data-table/entity-config';
 import {CrudService} from '../../../services/crud.service';
 import {RelationalResult, Result} from '../../../components/data-view/models/result-set.model';
@@ -54,7 +44,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
 
     results: WritableSignal<Result<any, any>[]> = signal([]);
-    collapsed: boolean[];
+    collapsed: WritableSignal<boolean[]> = signal([]);
     queryAnalysis: InformationPage;
     analyzeQuery = true;
     useCache = true;
@@ -69,8 +59,11 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     historySearchQuery = '';
     confirmDeletingHistory;
     readonly activeNamespace: WritableSignal<string> = signal(null);
-    readonly namespaces: WritableSignal<NamespaceModel[]> = signal([]);
-    delayedNamespace: string = null
+    readonly namespaces: Signal<NamespaceModel[]> = computed(() => Array.from(this._catalog.namespaces().values()));
+    readonly usesAdvancedConsole: Signal<boolean> = computed(() => this.language() === 'mql' || this.language() === 'cypher');
+    readonly someExpanded: Signal<boolean> = computed(() => this.collapsed().some(v => v));
+    readonly someCollapsed: Signal<boolean> = computed(() => this.collapsed().some(v => !v));
+    delayedNamespace: string = null;
 
     entityConfig: EntityConfig = {
         create: false,
@@ -80,7 +73,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         search: false,
         exploring: false
     };
-    showNamespaceConfig: boolean;
 
     constructor() {
         this.websocket = new WebSocket();
@@ -94,22 +86,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         }
 
         this.initWebsocket();
-
-        effect(() => {
-            const namespace = this._catalog.namespaces();
-            untracked(() => {
-                this.namespaces.set(Array.from(namespace.values()));
-            });
-        });
-
-        effect(() => {
-            const res = this.results();
-
-            untracked(() => {
-                this.collapsed = new Array(res.length);
-                this.collapsed.fill(false);
-            })
-        });
     }
 
 
@@ -123,12 +99,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private loadAndSetNamespaceDB() {
         let namespaceName = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
 
-        if (namespaceName === null || (this.namespaces && this.namespaces.length > 0 && (this.namespaces().filter(n => n.name === namespaceName).length === 0))) {
-            if (this.namespaces() && this.namespaces().length > 0) {
-                namespaceName = this.namespaces()[0].name;
-            } else {
-                namespaceName = 'public';
-            }
+        const hasNamespaces = this.namespaces() && this.namespaces().length > 0;
+        if (namespaceName === null || (hasNamespaces && !this.namespaces().some(n => n.name === namespaceName))) {
+            namespaceName = hasNamespaces ? this.namespaces()[0].name : 'public';
         }
         if (!namespaceName) {
             return;
@@ -156,18 +129,18 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             return;
         }
         if (this.saveInHistory) {
-            this.addToHistory(code, this.language());
+            this.addToHistory(code, this.language(), this.activeNamespace());
         }
-        if (this.usesAdvancedConsole(this.language())) {
-            code.split(";").forEach((query: string) => {
+        if (this.usesAdvancedConsole()) {
+            code.split(';').forEach((query: string) => {
                 // maybe adjust
-                const graphUse = /use *graph *([a-zA-Z][a-zA-Z0-9-_]*)/gmi
+                const graphUse = /use *graph *([a-zA-Z][a-zA-Z0-9-_]*)/gmi;
                 const matchGraph = graphUse.exec(query.trim());
                 if (matchGraph !== null && matchGraph.length > 1) {
                     this.delayedNamespace = matchGraph[1];
                 }
 
-                const useRegex = /use ([a-zA-Z][a-zA-Z0-9-_]*)/gmi
+                const useRegex = /use ([a-zA-Z][a-zA-Z0-9-_]*)/gmi;
                 const match = useRegex.exec(query.trim());
                 if (match !== null && match.length > 1) {
                     const namespace = match[1];
@@ -175,7 +148,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                         this.delayedNamespace = namespace;
                     }
                 }
-            })
+            });
 
 
             if (code.match('show db')) {
@@ -199,14 +172,15 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.language(), this.activeNamespace()))) {
             this.loading.set(false);
             this.results.set([new RelationalResult('Could not establish a connection with the server.')]);
+            this.resetCollapsed();
         }
     }
 
     collapseAll(collapse: boolean) {
-        this.collapsed.fill(collapse);
+        this.collapsed.update(v => v.map(() => collapse));
     }
 
-    addToHistory(query: string, lang: string): void {
+    addToHistory(query: string, lang: string, namespace: string): void {
         if (this.history.size >= this.MAX_HISTORY) {
             let h: QueryHistory = new QueryHistory('');
             this.history.forEach((val, key) => {
@@ -216,21 +190,24 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             });
             this.history.delete(h.query);
         }
-        const newHistory = new QueryHistory(query, null, lang);
+        const newHistory = new QueryHistory(query, null, lang, namespace);
         this.history.set(newHistory.query, newHistory);
 
         localStorage.setItem(this.LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(Array.from(this.history.values())));
     }
 
-    applyHistory(query: string, lang: string, run: boolean) {
+    applyHistory(query: string, lang: string, namespace: string, run: boolean) {
         this.language.set(lang);
         this.codeEditor.setCode(query);
+        if (namespace) {
+            this.activeNamespace.set(namespace);
+        }
         if (run) {
             this.submitQuery();
         }
     }
 
-    deleteHistoryItem(key, e) {
+    deleteHistoryItem(key: string, e: MouseEvent) {
         if (this.confirmDeletingHistory === key) {
             this.history.delete(key);
             localStorage.setItem(this.LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(Array.from(this.history.values())));
@@ -323,12 +300,13 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 } else if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSets
                     if (this.delayedNamespace && !msg[0].hasOwnProperty('error')) {
                         this.activeNamespace.set(this.delayedNamespace);
-                        this.storeNamespace(this.delayedNamespace)
+                        this.storeNamespace(this.delayedNamespace);
                     }
                     this.delayedNamespace = null;
 
                     this.loading.set(false);
                     this.results.set(<Result<any, any>[]>msg);
+                    this.resetCollapsed();
 
                 } else if (msg.hasOwnProperty('type')) { //if msg contains a notification of a changed information object
                     const iObj = <InformationObject>msg;
@@ -359,60 +337,24 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.submitQuery();
     }
 
-    formatQuery() {
-        let code = this.codeEditor.getCode();
-        if (!code) {
-            return;
-        }
-        let before = '';
-        const after = ')';
-
-        // here we replace the Json incompatible types with placeholders
-        const temp = code.match(/NumberDecimal\([^)]*\)/g);
-
-        if (temp !== null) {
-            for (let i = 0; i < temp.length; i++) {
-                code = code.replace(temp[i], '"___' + i + '"');
-            }
-        }
-
-
-        const splits = code.split('(');
-        before = splits.shift() + '(';
-
-        try {
-            let json = this.parse(splits.join('(').slice(0, -1));
-            // we have to translate them back
-            if (temp !== null) {
-                for (let i = 0; i < temp.length; i++) {
-                    json = json.replace('"___' + i + '"', temp[i]);
-                }
-            }
-
-            this.codeEditor.setCode(before + json + after);
-        } catch (e) {
-            this._toast.warn(e);
-        }
-    }
-
-    parse(code: string) {
-        const formatted = JSON.stringify(JSON.parse('[' + code + ']'), null, 4);
-        return formatted.substring(1, formatted.length - 1);
-    }
-
     private storeNamespace(name: string) {
         localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
     }
 
-    toggleCollapsed(i: number) {
-        console.log(i)
-        if (this.collapsed !== undefined && this.collapsed[i] !== undefined) {
-            this.collapsed[i] = !this.collapsed[i];
-        }
+    private resetCollapsed() {
+        const collapsed = new Array(this.results().length);
+        collapsed.fill(false);
+        this.collapsed.set(collapsed);
     }
 
-    clearConsole() {
-        this.codeEditor.setCode('');
+    toggleCollapsed(i: number) {
+        this.collapsed.update(v => {
+            const collapsed = [...v];
+            if (collapsed[i] !== undefined) {
+                collapsed[i] = !collapsed[i];
+            }
+            return collapsed;
+        });
     }
 
     toggleCache(b: boolean) {
@@ -428,19 +370,16 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.originalCache = null;
     }
 
-    usesAdvancedConsole(lang: string) {
-        return lang === 'mql' || lang === 'cypher';
-    }
-
-    toggleNamespaceField() {
-        this.showNamespaceConfig = !this.showNamespaceConfig;
-    }
-
     changedDefaultDB(n) {
         this.activeNamespace.set(n);
     }
 
     setLanguage(language) {
         this.language.set(language);
+    }
+
+    clearHistory() {
+        this.history.clear();
+        localStorage.setItem(this.LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(Array.from(this.history.values())));
     }
 }
