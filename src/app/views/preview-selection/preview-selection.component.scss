@@ -80,13 +80,50 @@ mat-card {
   cursor: pointer;
 }
 
-table.changelog {
-  width: 100%;
-  border-collapse: collapse;
 
-  th, td { padding: .4rem .6rem; }
-
-  tr.critical { background: #ffebee; border-left: 4px solid #d32f2f; }
-  tr.warning  { background: #fffde7; border-left: 4px solid #fbc02d; }
+.wrapper {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+  padding: 1rem;
 }
 
+.changelog {
+  margin-top: 2rem;
+  width: 100%;
+}
+
+:host ::ng-deep .log-critical {
+  background: #ffebee !important;
+  border-left: 4px solid #d32f2f !important;
+  font-size: 20px;
+}
+
+:host ::ng-deep .log-warning {
+  background: #fffde7 !important;
+  border-left: 4px solid #fbc02d !important;
+  font-size: 20px;
+}
+
+:host ::ng-deep .log-ok {
+  background: #e8f5e9 !important;
+  border-left: 4px solid #43a047 !important;
+  font-size: 20px;
+}
+
+.msg-preview,
+.log-accordion {
+  display: inline-block;
+  max-width: 100%;
+}
+
+
+.log-details {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.action-buttons {
+  justify-content: right;
+}

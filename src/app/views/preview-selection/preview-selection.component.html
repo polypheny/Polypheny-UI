@@ -2,103 +2,118 @@
     <button cButton color="primary" class="btn-circle topRight" (click)="close()">
         <i class="fa fa-close"></i>
     </button>
-
-    <c-row>
-        <c-col>
-            <h2 class="page-title">Preview Selection</h2>
-            <br>
-        </c-col>
-    </c-row>
+    <h2 class="page-title">Preview Selection</h2>
 </div>
 
+
 <ng-container *ngIf="ready">
-
-    <ng-container *ngIf="!isDocumentAdapter; else docPreview">
-
-        <div class="wrapper">
-            <div class="dataPreview" *ngFor="let tableName of getPreviewKeys()">
-                <h4>{{ tableName }}</h4>
-
-                <table>
-                    <thead>
-                    <tr>
-                        <th *ngFor="let col of getPreviewColumns(tableName)">
-                            {{ col }}
-                        </th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    <tr *ngFor="let row of preview[tableName]">
-                        <td *ngFor="let col of getPreviewColumns(tableName)" style="opacity: .3;">
-                            {{ row[col] }}
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <br/>
-            </div>
-
-            <div class="dataMeta">
-                <h2>Metadata</h2>
-
+    <!-- Grid-Layout für Metadata & Preview -->
+    <div class="wrapper">
+        <!-- Metadata Card -->
+        <mat-card class="meta-card">
+            <mat-card-header>
+                <mat-card-title>Metadata</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
                 <app-metadata-tree
-                        *ngIf="metadata"
                         [node]="metadata"
                         (columnToggle)="onColumnToggle($event)"
                         (autoSelectRemoved)="onAutoSelect($event)">
                 </app-metadata-tree>
-            </div>
-        </div>
-        <table class="changelog" *ngIf="changeLog.length">
-            <thead>
-            <tr>
-                <th>Time</th>
-                <th>Status</th>
-                <th>Details</th>
-            </tr>
-            </thead>
+            </mat-card-content>
+        </mat-card>
 
-            <tbody>
-            <tr *ngFor="let entry of changeLog"
-                [ngClass]="{
-                    critical: entry.severity === ChangeStatus.CRITICAL,
-                    warning : entry.severity === ChangeStatus.WARNING
-        }">
-                <td>{{ entry.timestamp | date:'short' }}</td>
-                <td>{{ entry.severity }}</td>
-                <td>
-                    {{ entry.messages | json }}
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </ng-container>
-    <ng-container>
-        <ng-template #docPreview>
-            <div class="cardGrid">
-                <app-doc-card
-                        *ngFor="let c of cards"
-                        [node]="c"
-                        (toggle)="onCardToggle($event)">
-                </app-doc-card>
-            </div>
+        <!-- Data Preview Card -->
+        <mat-card class="preview-card">
+            <mat-card-header>
+                <mat-card-title>Preview</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <ng-container *ngIf="!isDocumentAdapter; else docPreview">
+                    <div class="preview-container">
+                        <div class="table-wrapper" *ngFor="let tableName of getPreviewKeys()">
+                            <h4>{{ tableName }}</h4>
+                            <div class="table-scroll">
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th *ngFor="let col of getPreviewColumns(tableName)">{{ col }}</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr *ngFor="let row of preview[tableName]">
+                                        <td *ngFor="let col of getPreviewColumns(tableName)">{{ row[col] }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
 
-            <h2>Metadata</h2>
-            <app-metadata-tree [node]="metadata"
-                               (autoSelectRemoved)="onAutoSelect($event)">
-            </app-metadata-tree>
-        </ng-template>
-    </ng-container>
+                <!-- Document-Preview (falls Dokumentadapter) -->
+                <ng-template #docPreview>
+                    <div class="doc-wrapper">
+                        <!-- Document Cards -->
+                        <mat-card class="doc-card-group">
+                            <mat-card-header>
+                                <mat-card-title>Documents</mat-card-title>
+                            </mat-card-header>
+                            <mat-card-content>
+                                <div class="cardGrid">
+                                    <app-doc-card
+                                            *ngFor="let c of cards"
+                                            [node]="c"
+                                            (toggle)="onCardToggle($event)">
+                                    </app-doc-card>
+                                </div>
+                            </mat-card-content>
+                        </mat-card>
+
+                        <!-- Metadata unter Dokumenten -->
+                        <mat-card class="meta-card">
+                            <mat-card-header>
+                                <mat-card-title>Metadata</mat-card-title>
+                            </mat-card-header>
+                            <mat-card-content>
+                                <app-metadata-tree
+                                        [node]="metadata"
+                                        (autoSelectRemoved)="onAutoSelect($event)">
+                                </app-metadata-tree>
+                            </mat-card-content>
+                        </mat-card>
+                    </div>
+                </ng-template>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <!-- Logs als Accordion -->
+    <mat-accordion multi class="log-accordion">
+        <mat-expansion-panel *ngFor="let entry of changeLog">
+            <mat-expansion-panel-header [ngClass]="getSeverityClass(entry.severity)">
+                <mat-panel-title>
+                    {{ entry.timestamp | date:'short' }} — <strong> {{ entry.severity + ':' }} </strong>
+                </mat-panel-title>
+                <mat-panel-description class="msg-preview">
+                    {{ entry.messages[0] || '' }}
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <!-- Body -->
+            <pre class="log-details">{{ entry.messages | json }}</pre>
+        </mat-expansion-panel>
+    </mat-accordion>
 </ng-container>
 
-<div>
-    <button *ngIf="this.mode === 'deploy'" cButton size="sm" color="primary" (click)="sendMetadata()"> Send Metadata!
+<!-- Action-Buttons am Seitenende -->
+<div class="action-buttons">
+    <button *ngIf="mode === 'deploy'" cButton color="primary" (click)="sendMetadata()">
+        Send Metadata!
     </button>
-    <button *ngIf="this.mode === 'change'" cButton size="sm" color="primary" (click)="sendAck()"> Send changes !
+    <button *ngIf="mode === 'change'" cButton color="primary" (click)="sendAck()">
+        Send Changes!
     </button>
-    <button *ngIf="this.mode === 'config'" cButton size="sm" color="primary" (click)="sendConfigChange()"> Send config
-        !
+    <button *ngIf="mode === 'config'" cButton color="primary" (click)="sendConfigChange()">
+        Send Config!
     </button>
 </div>
-

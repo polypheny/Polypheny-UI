@@ -9,6 +9,15 @@ import {DeployMode} from '../../models/catalog.model';
 import {CrudService} from '../../services/crud.service';
 import {PreviewNavigationService} from '../../services/preview-navigation.service';
 import {DocCardComponent} from '../doc-card/doc-card.component';
+import {MatCard, MatCardContent, MatCardHeader} from '@angular/material/card';
+import {MatTab, MatTabGroup} from '@angular/material/tabs';
+import {MatIcon} from '@angular/material/icon';
+import {
+    MatAccordion,
+    MatExpansionPanel,
+    MatExpansionPanelDescription,
+    MatExpansionPanelTitle
+} from '@angular/material/expansion';
 
 @Component({
     selector: 'app-preview-selection',
@@ -19,7 +28,17 @@ import {DocCardComponent} from '../doc-card/doc-card.component';
         ColComponent,
         CommonModule,
         MetadataTreeComponent,
-        DocCardComponent
+        DocCardComponent,
+        MatCard,
+        MatCardHeader,
+        MatCardContent,
+        MatTabGroup,
+        MatIcon,
+        MatTab,
+        MatAccordion,
+        MatExpansionPanel,
+        MatExpansionPanelTitle,
+        MatExpansionPanelDescription
     ],
     templateUrl: './preview-selection.component.html',
     styleUrl: './preview-selection.component.scss'
@@ -49,12 +68,13 @@ export class PreviewSelectionComponent {
     added: Set<string> = new Set();
     removed: Set<string> = new Set();
     changeLog: ChangeLogEntry[] = [];
+    readonly ChangeStatus = ChangeStatus;
+
 
 
     ready = false;
 
     ngOnInit() {
-
         this.ctx = this._nav.context;
 
 
@@ -64,6 +84,7 @@ export class PreviewSelectionComponent {
         }
 
         this.changeLog = this.ctx.changeLog ?? [];
+        console.log(this.changeLog);
         this.mode = this.ctx.mode;
         console.log(this.mode);
 
@@ -232,11 +253,11 @@ export class PreviewSelectionComponent {
         this._crud.metadataAck(payload).subscribe(
             {
                 next: () => {
-                    alert('ACK was send.');
+                    alert('Acknowledgement was sent.');
                     this.close();
                 },
                 error: err => {
-                    alert('ACK was not send successfully!');
+                    alert('Acknowledgement was sent.');
                     this.close();
                 }
             }
@@ -352,7 +373,14 @@ export class PreviewSelectionComponent {
         node.children?.forEach(c => this.collectAliases(c, out, currentPath));
     }
 
-    protected readonly ChangeStatus = ChangeStatus;
+    getSeverityClass(sev: ChangeStatus): string {
+        switch (sev) {
+            case ChangeStatus.CRITICAL: return 'log-critical';
+            case ChangeStatus.WARNING:  return 'log-warning';
+            default:                    return 'log-ok';
+        }
+    }
+
 }
 
 export class Node implements AbstractNode {
@@ -426,3 +454,5 @@ interface ColumnToggleEvent {
     diff?: 'ADDED' | 'REMOVED';
     type?: 'ghost' | 'table' | 'column';
 }
+
+
